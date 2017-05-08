@@ -1,5 +1,5 @@
 import numpy as np
-from crylearn.descriptors import Descriptor
+from describe.descriptors import Descriptor
 
 
 class CoulombMatrix(Descriptor):

@@ -7,11 +7,11 @@ import math
 import numpy as np
 import unittest
 import time
-from crylearn.descriptors import MBTR
-from crylearn.descriptors import CoulombMatrix
-from crylearn.descriptors import SineMatrix
-from crylearn.core import System
-from crylearn.data.element_data import numbers_to_symbols
+from describe.descriptors import MBTR
+from describe.descriptors import CoulombMatrix
+from describe.descriptors import SineMatrix
+from describe.core import System
+from describe.data.element_data import numbers_to_symbols
 import matplotlib.pyplot as mpl
 
 H2O = System(

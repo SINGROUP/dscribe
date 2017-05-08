@@ -1,6 +1,6 @@
 import numpy as np
-from crylearn.data.element_data import numbers_to_symbols, symbols_to_numbers
-from crylearn.core.lattice import Lattice
+from describe.data.element_data import numbers_to_symbols, symbols_to_numbers
+from describe.core.lattice import Lattice
 
 
 class System(object):

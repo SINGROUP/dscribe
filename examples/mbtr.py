@@ -1,6 +1,6 @@
-from crylearn.descriptors import MBTR
-from crylearn.core import System
-from crylearn.data.element_data import numbers_to_symbols
+from describe.descriptors import MBTR
+from describe.core import System
+from describe.data.element_data import numbers_to_symbols
 import numpy as np
 import matplotlib.pyplot as mpl
 

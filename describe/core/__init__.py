@@ -1,2 +1,2 @@
-from crylearn.core.system import System
-from crylearn.core.lattice import Lattice
+from describe.core.system import System
+from describe.core.lattice import Lattice

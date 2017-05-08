@@ -5,8 +5,8 @@ import itertools
 from scipy.spatial.distance import squareform, pdist, cdist
 from scipy.sparse import lil_matrix
 
-from crylearn.core import System
-from crylearn.descriptors import Descriptor
+from describe.core import System
+from describe.descriptors import Descriptor
 
 import matplotlib.pyplot as mpl
 

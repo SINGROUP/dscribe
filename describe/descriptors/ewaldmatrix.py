@@ -2,7 +2,7 @@ import math
 import numpy as np
 from scipy.special import erfc
 import scipy.constants as constants
-from crylearn.descriptors import Descriptor
+from describe.descriptors import Descriptor
 
 
 class EwaldMatrix(Descriptor):
