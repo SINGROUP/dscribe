@@ -53,7 +53,6 @@ mbtr = MBTR(
 desc = mbtr.create(NaCl_conv)
 
 # Plot the results for the angle distribution
-# x = mbtr._axis_k3/np.pi*180
 x1 = mbtr._axis_k1
 x2 = mbtr._axis_k2
 x3 = mbtr._axis_k3

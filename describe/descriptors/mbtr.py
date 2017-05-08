@@ -188,6 +188,15 @@ class MBTR(Descriptor):
             if self.periodic:
                 system_k2 = self.create_extended_system(system, 2)
 
+                # import json
+                # with open("test2.json", "w") as fout:
+                    # json.dump({
+                        # "positions": system_k2.relative_pos.tolist(),
+                        # "labels": system_k2.numbers.tolist(),
+                        # "normalizedCell": (np.array(system.lattice._matrix)*1e-10).tolist(),
+                    # }, fout)
+                # print(len(system_k2))
+
             k2 = self.K2(system_k2, min_k2, max_k2, dx_k2, sigma_k2)
 
             # Free memory
@@ -284,7 +293,6 @@ class MBTR(Descriptor):
         # original cell
         num_extended = []
         pos_extended = []
-        n_copy = 1
         num_extended.append(numbers)
         pos_extended.append(cartesian_pos)
         a = np.array([1, 0, 0])
@@ -301,7 +309,7 @@ class MBTR(Descriptor):
                     # out the atoms that are farther away than the given
                     # cutoff.
                     pos_copy = np.array(relative_pos)-i*a-j*b-k*c
-                    pos_copy_cartesian = pos_copy.dot(cell.T)
+                    pos_copy_cartesian = np.dot(pos_copy, cell)
                     distances = cdist(pos_copy_cartesian, cartesian_pos)
 
                     # For terms above k==2 we double the distances to take into
@@ -321,8 +329,6 @@ class MBTR(Descriptor):
 
                     pos_extended.append(valid_pos)
                     num_extended.append(valid_num)
-
-                    n_copy += 1
 
         pos_extended = np.concatenate(pos_extended)
         num_extended = np.concatenate(num_extended)
@@ -381,7 +387,6 @@ class MBTR(Descriptor):
             {i: { j: [list of angles] }}. The dictionaries are filled
             so that the entry for pair i and j is in the entry where j>=i.
         """
-        # dist_matrix = system.distance_matrix
         inverse_dist = system.inverse_distance_matrix
 
         numbers = system.numbers
@@ -407,7 +412,8 @@ class MBTR(Descriptor):
                         old_list = old_dict.get(j_index)
                         if old_list is None:
                             old_list = []
-                        old_list.append(inverse_dist[i_atom, j_atom])
+                        inv_dist = inverse_dist[i_atom, j_atom]
+                        old_list.append(inv_dist)
                         old_dict[j_index] = old_list
                         inv_dist_dict[i_index] = old_dict
 
