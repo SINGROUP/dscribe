@@ -52,7 +52,7 @@ class MBTR(Descriptor):
                 will be used. Example:
                     grid = {
                         "k1": [0, 10, 0.1, 0.1]      # min, max, dx, sigma
-                        "k2": [0, 0.70, 0.01, 0.01]  # min, max, dx, sigma
+                        "k2": [0, 1/0.70, 0.01, 0.01]  # min, max, dx, sigma
                         ...
                     }
             weighting (dictionary): A dictionary of weighting functions and an
