@@ -3,7 +3,7 @@ import numpy as np
 import itertools
 
 from scipy.spatial.distance import squareform, pdist, cdist
-from scipy.sparse import lil_matrix
+from scipy.sparse import lil_matrix, coo_matrix
 
 from describe.core import System
 from describe.descriptors import Descriptor
@@ -179,37 +179,31 @@ class MBTR(Descriptor):
 
         mbtr = []
         if self.k >= 1:
+
+            grid_k1 = self.get_k1_axis()
             if self.grid is not None and self.grid.get("k1") is not None:
-                min_k1, max_k1, dx_k1, sigma_k1 = self.grid["k1"]
+                sigma_k1 = self.grid["k1"][3]
             else:
-                # Rupp's Mathematica implementation suggests the
-                # value 1e-10 for sigma_k1,
                 sigma_k1 = 1e-6
-                dx_k1 = 0.1
-                min_k1 = 1.0
-                max_k1 = self.max_atomic_number
 
             # We will use the original system to calculate the counts, unlike
             # with the other terms that use the extended system
-            k1 = self.K1(system, min_k1, max_k1, dx_k1, sigma_k1)
+            k1 = self.K1(system, grid_k1, sigma_k1)
             mbtr.append(k1)
 
         if self.k >= 2:
+            grid_k2 = self.get_k2_axis()
             if self.grid is not None and self.grid.get("k2") is not None:
-                min_k2, max_k2, dx_k2, sigma_k2 = self.grid["k2"]
+                sigma_k2 = self.grid["k2"][3]
             else:
-                # sigma_k2 from Rupp's Mathematica implementation
-                min_k2 = 0.0
-                max_k2 = 1/0.7
                 sigma_k2 = 2**(-7)
-                dx_k2 = 0.2*sigma_k2
 
             # If needed, create the extended system
             system_k2 = system
             if self.periodic:
                 system_k2 = self.create_extended_system(system, 2)
 
-            k2 = self.K2(system_k2, min_k2, max_k2, dx_k2, sigma_k2)
+            k2 = self.K2(system_k2, grid_k2, sigma_k2)
 
             # Free memory
             system_k2 = None
@@ -217,21 +211,19 @@ class MBTR(Descriptor):
             mbtr.append(k2)
 
         if self.k >= 3:
+
+            grid_k3 = self.get_k3_axis()
             if self.grid is not None and self.grid.get("k3") is not None:
-                min_k3, max_k3, dx_k3, sigma_k3 = self.grid["k3"]
+                sigma_k3 = self.grid["k3"][3]
             else:
-                # sigma_k3 = 2**(-2.5)  # From Rupp's Mathematica implementation.
-                min_k3 = -1.0
-                max_k3 = 1.0
                 sigma_k3 = 2**(-3.5)
-                dx_k3 = 0.2*sigma_k3
 
             # If needed, create the extended system
             system_k3 = system
             if self.periodic:
                 system_k3 = self.create_extended_system(system, 3)
 
-            k3 = self.K3(system_k3, min_k3, max_k3, dx_k3, sigma_k3)
+            k3 = self.K3(system_k3, grid_k3, sigma_k3)
 
             # Free memory
             system_k3 = None
@@ -240,20 +232,81 @@ class MBTR(Descriptor):
 
         if self.flatten:
             length = 0
-            for tensor in mbtr:
-                size = tensor.shape[1]
-                length += size
-            final_vector = lil_matrix((1, length), dtype=np.float32)
 
-            length = 0
+            datas = []
+            rows = []
+            cols = []
             for tensor in mbtr:
                 size = tensor.shape[1]
-                final_vector[0, length:length+size] = tensor
                 length += size
+                coo = tensor.tocoo()
+                datas.append(coo.data)
+                rows.append(coo.row)
+                cols.append(coo.col)
+
+            datas = np.concatenate(datas)
+            rows = np.concatenate(rows)
+            cols = np.concatenate(cols)
+            final_vector = coo_matrix((datas, (rows, cols)), shape=[1, length], dtype=np.float32)
 
             return final_vector
         else:
             return mbtr
+
+    def get_k1_axis(self):
+        if self.grid is not None and self.grid.get("k1") is not None:
+            min_k1, max_k1, dx_k1, _ = self.grid["k1"]
+        else:
+            dx_k1 = 0.1
+            min_k1 = 1.0
+            max_k1 = self.max_atomic_number
+        grid = np.arange(min_k1, max_k1, dx_k1)
+        return grid
+
+    def get_k2_axis(self):
+        if self.grid is not None and self.grid.get("k2") is not None:
+            min_k2, max_k2, dx_k2, _ = self.grid["k2"]
+        else:
+            min_k2 = 0.0
+            max_k2 = 1/0.7
+            dx_k2 = 1e-2
+        grid = np.arange(min_k2, max_k2, dx_k2)
+        return grid
+
+    def get_k3_axis(self):
+        if self.grid is not None and self.grid.get("k3") is not None:
+            min_k3, max_k3, dx_k3, _ = self.grid["k3"]
+        else:
+            min_k3 = -1.0
+            max_k3 = 1.0
+            dx_k3 = 0.25*2**(-3.5)
+        grid = np.arange(min_k3, max_k3, dx_k3)
+        return grid
+
+    def get_number_of_features(self):
+        """Used to inquire the final number of features that this descriptor
+        will have.
+
+        Returns:
+            int: Number of features for this descriptor.
+        """
+        n_features = 0
+        n_elem = self.n_elements
+
+        if self.k >= 1:
+            n_k1_grid = self.get_k1_axis().size
+            n_k1 = n_elem*n_k1_grid
+            n_features += n_k1
+        if self.k >= 2:
+            n_k2_grid = self.get_k2_axis().size
+            n_k2 = (n_elem*(n_elem+1)/2)*n_k2_grid
+            n_features += n_k2
+        if self.k >= 3:
+            n_k3_grid = self.get_k3_axis().size
+            n_k3 = (n_elem*n_elem*(n_elem+1)/2)*n_k3_grid
+            n_features += n_k3
+
+        return n_features
 
     def create_extended_system(self, primitive_system, term_number):
         """Used to create a periodically extended system, that is as small as
@@ -350,24 +403,6 @@ class MBTR(Descriptor):
 
         return extended_system
 
-    # def gaussian(self, sigma, width, dx):
-        # """Return the value of an origin centered gaussian on the given axis.
-
-        # Args
-            # sigma (float): Standard deviation.
-            # width (float): How far on each side should the gaussian be
-                # evaluated before cutting of.
-            # dx (float): Size of the evaluation grid.
-
-        # Returns:
-            # 1D ndarray: The values of the specified gaussian on a discretized
-            # grid.
-        # """
-        # space = np.arange(-width, width, dx)
-        # gaussian = 1/math.sqrt(2*sigma**2*math.pi) * \
-            # np.exp(-(space**2)/(2*sigma**2))
-        # return gaussian
-
     def gaussian_sum(self, centers, weights, sigma, grid):
         """Creates function that represents a sum of normalized gaussians with
         an equal standard deviation.
@@ -386,10 +421,7 @@ class MBTR(Descriptor):
         f = np.sum(weights[:, np.newaxis]*np.exp(-dist2/(2*sigma**2)), axis=0)
         f *= 1/math.sqrt(2*sigma**2*math.pi)
 
-        # print(f)
-
         return f
-        # return None
 
     def elements(self, system):
         """Calculate the atom count for each element.
@@ -566,7 +598,7 @@ class MBTR(Descriptor):
         self._angle_weights = weight_dict
         return cos_dict, weight_dict
 
-    def K1(self, system, start, stop, dx, sigma):
+    def K1(self, system, space, sigma):
         """Calculates the first order terms where the scalar mapping is the
         number of atoms of a certain type.
 
@@ -580,7 +612,6 @@ class MBTR(Descriptor):
         Returns:
             1D ndarray: flattened K1 values.
         """
-        space = np.arange(start, stop, dx)
         self._axis_k1 = space
         n_elem = self.n_elements
 
@@ -612,7 +643,7 @@ class MBTR(Descriptor):
 
         return k1
 
-    def K2(self, system, start, stop, dx, sigma):
+    def K2(self, system, space, sigma):
         """Calculates the second order terms where the scalar mapping is the
         inverse distance between atoms.
 
@@ -626,7 +657,6 @@ class MBTR(Descriptor):
         Returns:
             1D ndarray: flattened K2 values.
         """
-        space = np.arange(start, stop, dx)
         self._axis_k2 = space
         inv_dist_dict = self.inverse_distances(system)
         # gaussian = self.gaussian(sigma, 4*sigma, dx)
@@ -679,7 +709,7 @@ class MBTR(Descriptor):
 
         return k2
 
-    def K3(self, system, start, stop, dx, sigma):
+    def K3(self, system, space, sigma):
         """Calculates the third order terms where the scalar mapping is the
         angle between 3 atoms.
 
@@ -693,7 +723,6 @@ class MBTR(Descriptor):
         Returns:
             1D ndarray: flattened K3 values.
         """
-        space = np.arange(start, stop, dx)
         self._axis_k3 = space
         cos_dict, cos_weight_dict = self.cosines_and_weights(system)
         n_elem = self.n_elements

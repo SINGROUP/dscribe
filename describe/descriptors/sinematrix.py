@@ -77,3 +77,12 @@ class SineMatrix(Descriptor):
         smat = zeros
 
         return smat
+
+    def get_number_of_features(self):
+        """Used to inquire the final number of features that this descriptor
+        will have.
+
+        Returns:
+            int: Number of features for this descriptor.
+        """
+        return self.n_atoms_max**2
