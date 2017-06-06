@@ -1,4 +1,6 @@
 from abc import ABCMeta, abstractmethod
+from ase import Atoms
+from describe import System
 
 
 class Descriptor(metaclass=ABCMeta):
@@ -13,11 +15,27 @@ class Descriptor(metaclass=ABCMeta):
         """
         self.flatten = flatten
 
-    @abstractmethod
-    def create(system):
+    def create(self, system):
         """Creates the descriptor for the given systems.
 
         Args:
             system (System): The system for which to create the
             descriptor.
+        """
+        # Ensure that we get a System
+        if isinstance(system, Atoms):
+            system = System.fromatoms(system)
+
+        return self.describe(system)
+
+    @abstractmethod
+    def describe(self, system):
+        """Creates the descriptor for the given systems.
+
+        Args:
+            system (System): The system for which to create the
+            descriptor.
+
+        Returns:
+            A descriptor for the system in some numerical form.
         """

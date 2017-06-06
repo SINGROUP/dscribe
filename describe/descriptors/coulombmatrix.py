@@ -26,7 +26,7 @@ class CoulombMatrix(Descriptor):
         super().__init__(flatten)
         self.n_atoms_max = n_atoms_max
 
-    def create(self, system):
+    def describe(self, system):
         """
         Args:
             system (System): Input system.

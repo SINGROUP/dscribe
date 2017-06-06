@@ -7,12 +7,17 @@ import math
 import numpy as np
 import unittest
 import time
+
 from describe.descriptors import MBTR
 from describe.descriptors import CoulombMatrix
 from describe.descriptors import SineMatrix
 from describe.core import System
 from describe.data.element_data import numbers_to_symbols
+
 import matplotlib.pyplot as mpl
+
+from ase import Atoms
+from ase.lattice.cubic import SimpleCubicFactory
 
 H2O = System(
     lattice=[[5.0, 0.0, 0.0], [0.0, 5.0, 0.0], [0.0, 0.0, 5.0]],
@@ -116,6 +121,31 @@ NaCl_conv = System(
 )
 
 
+class ASETests(unittest.TestCase):
+
+    def test_atoms_to_system(self):
+        """Tests that an ASE Atoms is succesfully converted to a System object.
+        """
+        class NaClFactory(SimpleCubicFactory):
+            "A factory for creating NaCl (B1, Rocksalt) lattices."
+
+            bravais_basis = [[0, 0, 0], [0, 0, 0.5], [0, 0.5, 0], [0, 0.5, 0.5],
+                            [0.5, 0, 0], [0.5, 0, 0.5], [0.5, 0.5, 0],
+                            [0.5, 0.5, 0.5]]
+            element_basis = (0, 1, 1, 0, 1, 0, 0, 1)
+
+        nacl = NaClFactory()(symbol=["Na", "Cl"], latticeconstant=5.6402)
+        system = System.fromatoms(nacl)
+
+        self.assertTrue(np.array_equal(nacl.get_positions(), system.cartesian_pos))
+        self.assertTrue(np.array_equal(nacl.get_initial_charges(), system.charges))
+        self.assertTrue(np.array_equal(nacl.get_atomic_numbers(), system.numbers))
+        self.assertTrue(np.array_equal(nacl.get_chemical_symbols(), system.symbols))
+        self.assertTrue(np.array_equal(nacl.get_cell(), system.lattice._matrix))
+        self.assertTrue(np.array_equal(nacl.get_pbc(), system.periodicity))
+        self.assertTrue(np.array_equal(nacl.get_scaled_positions(), system.relative_pos))
+
+
 class CoulombMatrixTests(unittest.TestCase):
 
     def test_matrix(self):
@@ -209,7 +239,7 @@ class SineMatrixTests(unittest.TestCase):
 class MBTRTests(unittest.TestCase):
 
     def test_counts(self):
-        mbtr = MBTR([1, 8], n_atoms_max=2, k=1, periodic=False)
+        mbtr = MBTR([1, 8], k=1, periodic=False)
         mbtr.create(H2O)
         counts = mbtr._counts
 
@@ -217,12 +247,13 @@ class MBTRTests(unittest.TestCase):
         self.assertTrue(np.array_equal(counts, np.array([2, 1])))
 
         # Test against system with different indexing
-        mbtr = MBTR([1, 8], n_atoms_max=2, k=1, periodic=False)
-        counts2 = mbtr.counts(H2O_2)
+        mbtr = MBTR([1, 8], k=1, periodic=False)
+        mbtr.create(H2O_2)
+        counts2 = mbtr._counts
         self.assertTrue(np.array_equal(counts, counts2))
 
     def test_inverse_distances(self):
-        mbtr = MBTR([1, 8], n_atoms_max=2, k=2, periodic=False)
+        mbtr = MBTR([1, 8], k=2, periodic=False)
         mbtr.create(H2O)
         inv_dist = mbtr._inverse_distances
 
@@ -237,13 +268,13 @@ class MBTRTests(unittest.TestCase):
         self.assertEqual(assumed, inv_dist)
 
         # Test against system with different indexing
-        mbtr = MBTR([1, 8], n_atoms_max=2, k=2, periodic=False)
+        mbtr = MBTR([1, 8], k=2, periodic=False)
         mbtr.create(H2O_2)
         inv_dist_2 = mbtr._inverse_distances
         self.assertEqual(inv_dist, inv_dist_2)
 
     def test_cosines(self):
-        mbtr = MBTR([1, 8], n_atoms_max=2, k=3, periodic=False)
+        mbtr = MBTR([1, 8], k=3, periodic=False)
         mbtr.create(H2O)
         angles = mbtr._angles
 
@@ -279,51 +310,77 @@ class MBTRTests(unittest.TestCase):
                             self.assertAlmostEqual(val_assumed, val_true, places=6)
 
         # Test against system with different indexing
-        mbtr = MBTR([1, 8], n_atoms_max=2, k=3, periodic=False)
+        mbtr = MBTR([1, 8], k=3, periodic=False)
         mbtr.create(H2O_2)
         angles2 = mbtr._angles
-        print(angles)
-        print(angles2)
+        # print(angles)
+        # print(angles2)
         self.assertEqual(angles, angles2)
 
-    # def test_k1(self):
-        # mbtr = MBTR([1, 8], n_atoms_max=2, k=1, periodic=False)
-        # desc = mbtr.create(H2O)
-        # y = desc.todense().T
+    def test_gaussian_distribution(self):
+        """Check that the broadening follows gaussian distribution.
+        """
+        std = 1
+        mbtr = MBTR(
+            [1, 8],
+            k=1,
+            grid={
+                "k1": [0, 9, 0.05, std]
+            },
+            periodic=False,
+            flatten=False)
+        y = mbtr.create(H2O)
+        k1_axis = mbtr._axis_k1
 
-        # # Visually check the contents
-        # # mpl.plot(y)
-        # # mpl.show()
+        # Find the location of the peaks
+        peak1_x = np.where(k1_axis == 1)
+        peak1_y = y[0][0, peak1_x]
+        peak2_x = np.where(k1_axis == 8)
+        peak2_y = y[0][1, peak2_x]
 
-    # def test_k2(self):
-        # mbtr = MBTR([1, 8], n_atoms_max=2, k=2, periodic=False)
-        # desc = mbtr.create(H2O)
-        # y = desc.todense().T
+        # Check against the analytical value
+        gaussian = lambda x, mean, sigma: 1/math.sqrt(2*math.pi*sigma**2)*np.exp(-(x-mean)**2/(2*sigma**2))
+        self.assertEqual(peak1_y, 2*gaussian(1, 1, std))
+        self.assertEqual(peak2_y, gaussian(8, 8, std))
 
-        # # # Visually check the contents
-        # # mpl.plot(y)
-        # # mpl.show()
+    def test_k1(self):
+        mbtr = MBTR([1, 8], k=1, periodic=False)
+        desc = mbtr.create(H2O)
+        y = desc.todense().T
 
-    # def test_k3(self):
-        # mbtr = MBTR([1, 8], n_atoms_max=2, k=3, periodic=False)
-        # desc = mbtr.create(H2O)
-        # y = desc.todense().T
+        # Visually check the contents
+        # mpl.plot(y)
+        # mpl.show()
 
-        # # Visually check the contents
+    def test_k2(self):
+        mbtr = MBTR([1, 8], k=2, periodic=False)
+        desc = mbtr.create(H2O)
+        y = desc.todense().T
+
+        # Visually check the contents
+        # mpl.plot(y)
+        # mpl.show()
+
+    def test_k3(self):
+        mbtr = MBTR([1, 8], k=3, periodic=False)
+        desc = mbtr.create(H2O)
+        y = desc.todense().T
+
+        # Visually check the contents
         # mpl.plot(y)
         # mpl.show()
 
     # def test_counts_duplicate(self):
-        # mbtr = MBTR([1, 8], n_atoms_max=2, k=1, periodic=False)
+        # mbtr = MBTR([1, 8], k=1, periodic=False)
         # mbtr.create(H2O)
 
-        # # Check that there are correct number of counts. The counts are
-        # # calculated only from the original cell that is assumed to be
-        # # primitive
+        # Check that there are correct number of counts. The counts are
+        # calculated only from the original cell that is assumed to be
+        # primitive
         # self.assertTrue(np.array_equal(mbtr._counts, [2, 1]))
 
     # def test_distances_duplicate(self):
-        # mbtr = MBTR([1, 8], n_atoms_max=2, k=2, periodic=False)
+        # mbtr = MBTR([1, 8], k=2, periodic=False)
         # mbtr.create(H2O)
 
         # # Check that there are correct number of inverse distances
@@ -428,9 +485,10 @@ class MBTRTests(unittest.TestCase):
 
 if __name__ == '__main__':
     suites = []
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(ASETests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(MBTRTests))
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(CoulombMatrixTests))
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SineMatrixTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(CoulombMatrixTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(SineMatrixTests))
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)
 

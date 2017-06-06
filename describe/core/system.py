@@ -36,7 +36,7 @@ class System(object):
         self._symbols = None
         self._cartesian_pos = None
         self._relative_pos = None
-        self._periodicity = periodicity
+        self.periodicity = periodicity
         positions = np.array(positions)
         if coords_are_cartesian:
             self._cartesian_pos = positions
@@ -67,6 +67,35 @@ class System(object):
         self._displacement_tensor = None
         self._distance_matrix = None
         self._inverse_distance_matrix = None
+
+    @classmethod
+    def fromatoms(cls, atoms):
+        """Create a System object from an ASE Atoms object. This allows users
+        to use a familiar library with support for loading configurations from
+        all sorts of different files (ase.io), but still enables some
+        performance tweaks that are present in the System object, like caching.
+
+        Args:
+            atoms (ase.Atoms): The Atoms object from which to create the system.
+
+        Returns:
+            System: The new System object identical to the given Atoms.
+        """
+        cell = atoms.get_cell()
+        positions = atoms.get_positions()
+        atomic_numbers = atoms.get_atomic_numbers()
+        pbc = atoms.get_pbc()
+
+        system = System(
+            lattice=cell,
+            positions=positions,
+            species=atomic_numbers,
+            charges=atoms.get_initial_charges(),
+            coords_are_cartesian=True,
+            periodicity=pbc,
+        )
+
+        return system
 
     @property
     def relative_pos(self):

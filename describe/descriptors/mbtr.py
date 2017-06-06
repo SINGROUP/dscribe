@@ -21,7 +21,6 @@ class MBTR(Descriptor):
     def __init__(
             self,
             atomic_numbers,
-            n_atoms_max,
             k,
             periodic=True,
             grid=None,
@@ -37,8 +36,6 @@ class MBTR(Descriptor):
                 to be encountered when creating the descriptors for a set of
                 systems.  Keeping the number of handled elements as low as
                 possible is preferable.
-            n_atoms_max (int): The maximum number of atoms of a certain species
-                that a unit cell can contain.
             k (int): The highest interaction term to consider. The size of the
                 final output and the time taken in creating this descriptor is
                 exponentially dependent on this value.
@@ -55,24 +52,26 @@ class MBTR(Descriptor):
                         "k2": [0, 1/0.70, 0.01, 0.01]  # min, max, dx, sigma
                         ...
                     }
-            weighting (dictionary): A dictionary of weighting functions and an
+            weighting (dictionary or string): A dictionary of weighting functions and an
                 optional threshold for each term. If None, weighting is not
                 used. Weighting functions should be monotonically decreasing.
                 The threshold is used to determine the minimum mount of
                 periodic images to consider. If no explicit threshold is given,
                 a reasonable default will be used.  The K1 term is
-                0-dimensional, so weighting is not used.
+                0-dimensional, so weighting is not used. You can also use a
+                string to indicate a certain preset. The available presets are:
 
-                Example:
-                    weighting = {
-                        "k2": {
-                            "function": lambda x: np.exp(-0.5*x),
-                            "threshold": 1e-4
-                        "k3": {
-                            "function": lambda x: np.exp(-0.5*x),
-                            "threshold": 1e-3
+                    'exponential':
+                        weighting = {
+                            "k2": {
+                                "function": lambda x: np.exp(-0.5*x),
+                                "threshold": 1e-3
+                            },
+                            "k3": {
+                                "function": lambda x: np.exp(-0.5*x),
+                                "threshold": 1e-3
+                            }
                         }
-                    }
 
                 The meaning of x changes for different terms as follows:
                     K=1: x = 0
@@ -86,23 +85,37 @@ class MBTR(Descriptor):
             ValueError if the given k value is not supported.
         """
         super().__init__(flatten)
-        self.k = k
-        self.n_elements = None
-        self.present_elements = None
-        self.n_atoms_max = n_atoms_max
-        self.atomic_number_to_index = {}
-        self.index_to_atomic_number = {}
-        self.n_atoms_in_cell = None
-        self.periodic = periodic
-        self.n_copies_per_axis = None
 
+        # Check K value
+        if k < 1 or k > 3:
+            raise ValueError(
+                "The given value of k={} is not supported.".format(k)
+            )
+
+        # Check the weighting information
         if weighting is not None:
-            for i in range(k):
-                info = weighting.get("k{}".format(i+1))
-                if info is not None:
-                    assert "function" in info, \
-                        ("The weighting dictionary is missing 'function'.")
-        self.weighting = weighting
+            if weighting == "exponential":
+                weighting = {
+                    "k2": {
+                        "function": lambda x: np.exp(-0.5*x),
+                        "threshold": 1e-3
+                    },
+                    "k3": {
+                        "function": lambda x: np.exp(-0.5*x),
+                        "threshold": 1e-3
+                    }
+                }
+            else:
+                for i in range(k):
+                    info = weighting.get("k{}".format(i+1))
+                    if info is not None:
+                        assert "function" in info, \
+                            ("The weighting dictionary is missing 'function'.")
+        elif periodic:
+            raise ValueError(
+                "Periodic systems will need to have a weighting function "
+                "defined in the 'weighting' dictionary of the MBTR cconstructor."
+            )
 
         # Check the given grid
         if grid is not None:
@@ -116,6 +129,17 @@ class MBTR(Descriptor):
                         "The min value should be smaller than the max values"
         self.grid = grid
 
+        self.k = k
+        self.n_elements = None
+        self.present_elements = None
+        self.atomic_number_to_index = {}
+        self.index_to_atomic_number = {}
+        self.n_atoms_in_cell = None
+        self.periodic = periodic
+        self.n_copies_per_axis = None
+
+        self.weighting = weighting
+
         # Sort the atomic numbers. This is not needed but makes things maybe a
         # bit easier to debug.
         atomic_numbers.sort()
@@ -125,10 +149,7 @@ class MBTR(Descriptor):
             self.index_to_atomic_number[i_atom] = atomic_number
         self.n_elements = len(atomic_numbers)
 
-        if k < 1 or k > 3:
-            raise ValueError(
-                "The given value of k={} is not supported.".format(k)
-            )
+        self.max_atomic_number = max(atomic_numbers)
 
         self._counts = None
         self._inverse_distances = None
@@ -138,7 +159,7 @@ class MBTR(Descriptor):
         self._axis_k2 = None
         self._axis_k3 = None
 
-    def create(self, system):
+    def describe(self, system):
         """Return the many-body tensor representation as a 1D array for the
         given system.
 
@@ -165,8 +186,8 @@ class MBTR(Descriptor):
                 # value 1e-10 for sigma_k1,
                 sigma_k1 = 1e-6
                 dx_k1 = 0.1
-                min_k1 = 0.0
-                max_k1 = self.n_atoms_max+dx_k1
+                min_k1 = 1.0
+                max_k1 = self.max_atomic_number
 
             # We will use the original system to calculate the counts, unlike
             # with the other terms that use the extended system
@@ -187,15 +208,6 @@ class MBTR(Descriptor):
             system_k2 = system
             if self.periodic:
                 system_k2 = self.create_extended_system(system, 2)
-
-                # import json
-                # with open("test2.json", "w") as fout:
-                    # json.dump({
-                        # "positions": system_k2.relative_pos.tolist(),
-                        # "labels": system_k2.numbers.tolist(),
-                        # "normalizedCell": (np.array(system.lattice._matrix)*1e-10).tolist(),
-                    # }, fout)
-                # print(len(system_k2))
 
             k2 = self.K2(system_k2, min_k2, max_k2, dx_k2, sigma_k2)
 
@@ -338,25 +350,48 @@ class MBTR(Descriptor):
 
         return extended_system
 
-    def gaussian(self, sigma, width, dx):
-        """Return the value of an origin centered gaussian on the given axis.
+    # def gaussian(self, sigma, width, dx):
+        # """Return the value of an origin centered gaussian on the given axis.
 
-        Args
-            sigma (float): Standard deviation.
-            width (float): How far on each side should the gaussian be
-                evaluated before cutting of.
-            dx (float): Size of the evaluation grid.
+        # Args
+            # sigma (float): Standard deviation.
+            # width (float): How far on each side should the gaussian be
+                # evaluated before cutting of.
+            # dx (float): Size of the evaluation grid.
+
+        # Returns:
+            # 1D ndarray: The values of the specified gaussian on a discretized
+            # grid.
+        # """
+        # space = np.arange(-width, width, dx)
+        # gaussian = 1/math.sqrt(2*sigma**2*math.pi) * \
+            # np.exp(-(space**2)/(2*sigma**2))
+        # return gaussian
+
+    def gaussian_sum(self, centers, weights, sigma, grid):
+        """Creates function that represents a sum of normalized gaussians with
+        an equal standard deviation.
+
+        Args:
+            centers (1D np.ndarray): The means of the gaussians.
+            weights (1D np.ndarray): The weights for the gaussians.
+            sigma (float): The standard deviation of all the gaussians.
+            grid (1D np.ndarray): The grid on which to evaluate the gaussians.
 
         Returns:
-            1D ndarray: The values of the specified gaussian on a discretized
-            grid.
+            Value of the gaussian sums on the given grid.
         """
-        space = np.arange(-width, width, dx)
-        gaussian = 1/math.sqrt(2*sigma**2*math.pi) * \
-            np.exp(-(space**2)/(2*sigma**2))
-        return gaussian
+        dist2 = grid[np.newaxis, :] - centers[:, np.newaxis]
+        dist2 *= dist2
+        f = np.sum(weights[:, np.newaxis]*np.exp(-dist2/(2*sigma**2)), axis=0)
+        f *= 1/math.sqrt(2*sigma**2*math.pi)
 
-    def counts(self, system):
+        # print(f)
+
+        return f
+        # return None
+
+    def elements(self, system):
         """Calculate the atom count for each element.
 
         Args:
@@ -555,24 +590,19 @@ class MBTR(Descriptor):
         else:
             k1 = np.zeros((n_elem, space.size), dtype=np.float32)
 
-        counts = self.counts(system)
-        gaussian = self.gaussian(sigma, 4*sigma, dx)
+        counts = self.elements(system)
 
-        # for i in self.present_indices:
         for i in range(n_elem):
-            count = counts[i]
-            values = np.zeros(space.size)
-            index = np.searchsorted(space, count)
-            values[index] += 1
-
-            convolution = np.convolve(values, gaussian, mode="same")
+            atomic_number = np.array([self.index_to_atomic_number[i]])
+            count = np.array([counts[i]])
+            gaussian_sum = self.gaussian_sum(atomic_number, count, sigma, space)
 
             if self.flatten:
                 start = i*space.size
                 end = (i+1)*space.size
-                k1[0, start:end] = convolution
+                k1[0, start:end] = gaussian_sum
             else:
-                k1[i, :] = convolution
+                k1[i, :] = gaussian_sum
 
             # For debugging
             # elem_i = self.index_to_atomic_number[i]
@@ -599,12 +629,11 @@ class MBTR(Descriptor):
         space = np.arange(start, stop, dx)
         self._axis_k2 = space
         inv_dist_dict = self.inverse_distances(system)
-        gaussian = self.gaussian(sigma, 4*sigma, dx)
+        # gaussian = self.gaussian(sigma, 4*sigma, dx)
         n_elem = self.n_elements
 
         if self.flatten:
             k2 = lil_matrix(
-                # (1, n_elem*(n_elem+1)*len(space)), dtype=np.float32)
                 (1, n_elem*(n_elem+1)/2*len(space)), dtype=np.float32)
         else:
             k2 = np.zeros((self.n_elements, self.n_elements, len(space)))
@@ -617,18 +646,11 @@ class MBTR(Descriptor):
         m = -1
         for i in range(n_elem):
             for j in range(n_elem):
-        # for i in self.present_indices:
-            # for j in self.present_indices:
                 if j >= i:
-                    # m = i*n_elem + j
                     m += 1
                     try:
-                        inv_dist = inv_dist_dict[i][j]
+                        inv_dist = np.array(inv_dist_dict[i][j])
                     except KeyError:
-                        # If values not found, add an empty array at this
-                        # position.
-                        # if self.flatten:
-                            # k2.append(values)
                         continue
 
                     # Calculate weights
@@ -637,32 +659,22 @@ class MBTR(Descriptor):
                     else:
                         weights = np.ones(len(inv_dist))
 
-                    # Calculate positions
-                    indices = np.searchsorted(space, inv_dist)
-
-                    # Add the weighted position on the axis in a loop. The
-                    # syntax: values[indices] += weights does not properly
-                    # handle multiple occurences of the same index
-                    values = np.zeros(space.size)
-                    for i_index, index in enumerate(indices):
-                        values[index] += weights[i_index]
-
                     # Broaden with a gaussian
-                    convolution = np.convolve(values, gaussian, mode="same")
+                    gaussian_sum = self.gaussian_sum(inv_dist, weights, sigma, space)
 
                     if self.flatten:
                         start = m*space.size
                         end = (m + 1)*space.size
-                        k2[0, start:end] = convolution
+                        k2[0, start:end] = gaussian_sum
                     else:
-                        k2[i, j, :] = convolution
+                        k2[i, j, :] = gaussian_sum
 
                     # For debugging
                     # elem_i = self.index_to_atomic_number[i]
                     # elem_j = self.index_to_atomic_number[j]
                     # print("Inverse distances {} for: {} {}"
-                       # .format(inv_dist, elem_i, elem_j))
-                    # mpl.plot(space, convolution)
+                    #     .format(inv_dist, elem_i, elem_j))
+                    # mpl.plot(space, gaussian_sum)
                     # mpl.show()
 
         return k2
@@ -684,12 +696,10 @@ class MBTR(Descriptor):
         space = np.arange(start, stop, dx)
         self._axis_k3 = space
         cos_dict, cos_weight_dict = self.cosines_and_weights(system)
-        gaussian = self.gaussian(sigma, 4*sigma, dx)
         n_elem = self.n_elements
 
         if self.flatten:
             k3 = lil_matrix(
-                # (1, n_elem*n_elem*(n_elem+1)*len(space)), dtype=np.float32)
                 (1, n_elem*n_elem*(n_elem+1)/2*len(space)), dtype=np.float32)
         else:
             k3 = np.zeros((n_elem, n_elem, n_elem, len(space)))
@@ -701,60 +711,30 @@ class MBTR(Descriptor):
         for i in range(n_elem):
             for j in range(n_elem):
                 for k in range(n_elem):
-        # for i in self.present_indices:
-            # for j in self.present_indices:
-                # for k in self.present_indices:
                     if k >= i:
-                        # m = i*n_elem**2 + j*n_elem + k
                         m += 1
                         try:
-                            cosines = cos_dict[i][j][k]
+                            cos_values = np.array(cos_dict[i][j][k])
+                            cos_weights = np.array(cos_weight_dict[i][j][k])
                         except KeyError:
-                            # Skip if values not found.
                             continue
 
-                        values = np.zeros(space.size)
-
-                        # Calculate positions and insert into place
-                        indices = np.searchsorted(space, cosines)
-
-                        # Add the weighted position on the axis in a loop. The
-                        # syntax: values[indices] += weights does not properlly
-                        # handle multiple occurences of the same index
-                        for i_index, index in enumerate(indices):
-
-                            cosine = cosines[i_index]
-
-                            # If the angle is pi, then place at the last
-                            # position on the axis
-                            if index == len(values):
-                                if cosine <= 1:
-                                    index -= 1
-                                else:
-                                    raise ValueError(
-                                        "Invalid angle encountered with value "
-                                        "{}".format(cosine)
-                                    )
-
-                            weight = cos_weight_dict[i][j][k][i_index]
-                            values[index] += weight
-
                         # Broaden with a gaussian
-                        convolution = np.convolve(values, gaussian, mode="same")
+                        gaussian_sum = self.gaussian_sum(cos_values, cos_weights, sigma, space)
 
                         if self.flatten:
                             start = m*space.size
                             end = (m+1)*space.size
-                            k3[0, start:end] = convolution
+                            k3[0, start:end] = gaussian_sum
                         else:
-                            k3[i, j, k, :] = convolution
+                            k3[i, j, k, :] = gaussian_sum
 
                         # For debugging
                         # elem_i = self.index_to_atomic_number[i]
                         # elem_j = self.index_to_atomic_number[j]
                         # elem_k = self.index_to_atomic_number[k]
-                        # print("Cosines {} for: {}{}{}".format(cosines, elem_i, elem_j, elem_k))
-                        # mpl.plot(space, convolution)
+                        # print("Cosines {} for: {}{}{}".format(cos_values, elem_i, elem_j, elem_k))
+                        # mpl.plot(space, gaussian_sum)
                         # mpl.show()
 
         return k3
