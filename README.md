@@ -9,7 +9,7 @@
 
 describe is a python package for creating machine learning descriptors for atomistic systems.
 
-#Example
+# Example
 ```python
 from describe.core import System
 from describe.descriptors import MBTR
