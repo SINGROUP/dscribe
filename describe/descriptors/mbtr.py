@@ -345,8 +345,8 @@ class MBTR(Descriptor):
         pos_extended = np.concatenate(pos_extended)
         num_extended = np.concatenate(num_extended)
 
-        extended_system = System(cell, pos_extended, num_extended,
-                                 coords_are_cartesian=True)
+        extended_system = System(pos_extended, num_extended, cell,
+            coords_are_cartesian=True)
 
         return extended_system
 

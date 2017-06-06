@@ -22,9 +22,9 @@ class System(object):
     """
     def __init__(
             self,
-            lattice,
             positions,
             species,
+            lattice=None,
             charges=None,
             coords_are_cartesian=False,
             wyckoff_letters=None,
@@ -53,6 +53,8 @@ class System(object):
 
         if isinstance(lattice, Lattice):
             self.lattice = Lattice(lattice.matrix)
+        if lattice is None:
+            self.lattice = None
         else:
             self.lattice = Lattice(lattice)
 
@@ -87,9 +89,9 @@ class System(object):
         pbc = atoms.get_pbc()
 
         system = System(
-            lattice=cell,
             positions=positions,
             species=atomic_numbers,
+            lattice=cell,
             charges=atoms.get_initial_charges(),
             coords_are_cartesian=True,
             periodicity=pbc,
