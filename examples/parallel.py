@@ -9,6 +9,7 @@ import numpy as np
 import ase.io
 
 from describe.descriptors import CoulombMatrix
+import describe.utils
 
 
 def create(data):
@@ -42,13 +43,9 @@ if __name__ == '__main__':
     k, m = divmod(len(atoms_list), n_proc)
     atoms_split = (atoms_list[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_proc))
 
-    # Find out the maximum number of atoms in the data
-    elements = set()
-    n_atoms_max = 0
-    for atoms in atoms_list:
-        n_atoms = len(atoms)
-        if n_atoms > n_atoms_max:
-            n_atoms_max = n_atoms
+    # Find out the maximum number of atoms in the data. This variable is shared
+    # to all the processes in the create function
+    n_atoms_max = describe.utils.atoms_stats(atoms_list)["n_atoms_max"]
 
     # Initialize a pool of processes, and tell each process in the pool to
     # handle a different part of the data
