@@ -8,7 +8,7 @@ from describe.descriptors import MBTR
 from describe.descriptors import CoulombMatrix
 from describe.descriptors import SineMatrix
 
-from describe.utils import atoms_stats
+from describe.utils import system_stats
 
 # Load configuration from an XYZ file with ASE. See
 # "https://wiki.fysik.dtu.dk/ase/ase/io/io.html" for a list of supported file
@@ -20,11 +20,11 @@ atoms.set_initial_charges(atoms.get_atomic_numbers())
 # There are utilities for automatically detecting statistics for ASE Atoms
 # objects. Typically some statistics are needed for the descriptors in order to
 # e.g. define a proper zero-padding
-stats = atoms_stats([atoms])
-max_n_atoms = stats["max_n_atoms"]
+stats = system_stats([atoms])
+n_atoms_max = stats["n_atoms_max"]
 atomic_numbers = stats["atomic_numbers"]
 
 # Create descriptors for this system directly from the ASE atoms
-cm = CoulombMatrix(max_n_atoms).create(atoms)
-sm = SineMatrix(max_n_atoms).create(atoms)
+cm = CoulombMatrix(n_atoms_max).create(atoms)
+sm = SineMatrix(n_atoms_max).create(atoms)
 mbtr = MBTR(atomic_numbers, k=3, periodic=True, weighting="exponential").create(atoms)

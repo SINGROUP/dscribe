@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
     # Find out the maximum number of atoms in the data. This variable is shared
     # to all the processes in the create function
-    n_atoms_max = describe.utils.atoms_stats(atoms_list)["n_atoms_max"]
+    n_atoms_max = describe.utils.system_stats(atoms_list)["n_atoms_max"]
 
     # Initialize a pool of processes, and tell each process in the pool to
     # handle a different part of the data

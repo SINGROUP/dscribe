@@ -28,7 +28,7 @@ system = System(
 #===============================================================================
 # Getting some basic statistics from the processed systems. This information is
 # used by the different descriptors for e.g. zero padding.
-stats = describe.utils.atoms_stats([atoms])
+stats = describe.utils.system_stats([atoms])
 n_atoms_max = stats["n_atoms_max"]
 atomic_numbers = stats["atomic_numbers"]
 

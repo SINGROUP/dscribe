@@ -1,1 +1,1 @@
-from describe.utils.stats import atoms_stats
+from describe.utils.stats import system_stats
