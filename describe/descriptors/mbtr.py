@@ -306,7 +306,7 @@ class MBTR(Descriptor):
             n_k3 = (n_elem*n_elem*(n_elem+1)/2)*n_k3_grid
             n_features += n_k3
 
-        return n_features
+        return int(n_features)
 
     def create_extended_system(self, primitive_system, term_number):
         """Used to create a periodically extended system, that is as small as

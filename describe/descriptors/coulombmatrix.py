@@ -66,4 +66,4 @@ class CoulombMatrix(Descriptor):
         Returns:
             int: Number of features for this descriptor.
         """
-        return self.n_atoms_max**2
+        return int(self.n_atoms_max**2)
