@@ -1,209 +1,209 @@
+from ase import Atoms
 import numpy as np
-from describe.data.element_data import numbers_to_symbols, symbols_to_numbers
-from describe.core.lattice import Lattice
 
 
-class System(object):
-    """Represents an atomic system.
+class System(Atoms):
 
-    Args:
-        lattice (3x3 ndarray): The lattice for this system.
-        positions (ndarray): The relative or cartesian positions of the atoms.
-            The type is controlled by 'coords_are_cartesian'.
-        species (ndarray): The atomic numbers or symbols of the atoms.
-        charges (ndarray): The charges of the atoms.
-        coords_are_cartesian (bool): Whether the given coordinates are
-            cartesian. If false, the coordinates are taken to be relative to the
-            cell vectors.
-        wyckoff_letters (ndarray): The Wyckoff letters for the atoms.
-        equivalent atoms (ndarray): A list that contains as integer for each
-            atom in the system. Same integer for different atoms means that they
-            are symmetrically equivalent.
-    """
     def __init__(
             self,
-            positions,
-            species,
-            lattice=None,
+            symbols=None,
+            positions=None,
+            numbers=None,
+            tags=None,
+            momenta=None,
+            masses=None,
+            magmoms=None,
             charges=None,
-            coords_are_cartesian=False,
-            wyckoff_letters=None,
-            equivalent_atoms=None,
-            periodicity=None
-            ):
+            scaled_positions=None,
+            cell=None,
+            pbc=None,
+            celldisp=None,
+            constraint=None,
+            calculator=None,
+            info=None,
+            wyckoff_positions=None,
+            equivalent_atoms=None):
 
-        self._numbers = None
-        self._symbols = None
-        self._cartesian_pos = None
-        self._relative_pos = None
-        self.periodicity = periodicity
-        positions = np.array(positions)
-        if coords_are_cartesian:
-            self._cartesian_pos = positions
-        else:
-            self._relative_pos = positions
+        super().__init__(
+            symbols,
+            positions,
+            numbers,
+            tags,
+            momenta,
+            masses,
+            magmoms,
+            charges,
+            scaled_positions,
+            cell,
+            pbc,
+            celldisp,
+            constraint,
+            calculator,
+            info)
 
-        species = np.array(species)
-        if isinstance(species[0], np.str):
-            self._symbols = species
-        elif isinstance(species.item(0), (int, float)):
-            self._numbers = species
-        else:
-            raise ValueError("The type is {}".format(type(species[0])))
-
-        if isinstance(lattice, Lattice):
-            self.lattice = Lattice(lattice.matrix)
-        if lattice is None:
-            self.lattice = None
-        else:
-            self.lattice = Lattice(lattice)
-
-        if charges is not None:
-            charges = np.array(charges)
-
-        self.system_info = None
-        self.charges = charges
-        self.wyckoff_letters = wyckoff_letters
+        self.wyckoff_positions = wyckoff_positions
         self.equivalent_atoms = equivalent_atoms
-
+        self._cell_inverse = None
         self._displacement_tensor = None
         self._distance_matrix = None
         self._inverse_distance_matrix = None
 
-    @classmethod
-    def fromatoms(cls, atoms):
-        """Create a System object from an ASE Atoms object. This allows users
-        to use a familiar library with support for loading configurations from
-        all sorts of different files (ase.io), but still enables some
-        performance tweaks that are present in the System object, like caching.
-
-        Args:
-            atoms (ase.Atoms): The Atoms object from which to create the system.
-
-        Returns:
-            System: The new System object identical to the given Atoms.
+    @staticmethod
+    def from_atoms(atoms):
+        """Creates a System object from ASE.Atoms object.
         """
-        cell = atoms.get_cell()
-        positions = atoms.get_positions()
-        atomic_numbers = atoms.get_atomic_numbers()
-        pbc = atoms.get_pbc()
-
         system = System(
-            positions=positions,
-            species=atomic_numbers,
-            lattice=cell,
+            symbols=atoms.get_chemical_symbols(),
+            positions=atoms.get_positions(),
+            tags=atoms.get_tags(),
+            momenta=atoms.get_momenta(),
+            masses=atoms.get_masses(),
+            magmoms=atoms.get_initial_magnetic_moments(),
             charges=atoms.get_initial_charges(),
-            coords_are_cartesian=True,
-            periodicity=pbc,
-        )
+            cell=atoms.get_cell(),
+            pbc=atoms.get_pbc(),
+            celldisp=atoms.get_celldisp(),
+            constraint=atoms._get_constraints(),
+            calculator=atoms.get_calculator(),
+            info=atoms.info)
 
         return system
 
-    @property
-    def relative_pos(self):
-        if self._relative_pos is None:
-            self._relative_pos = np.linalg.solve(self.lattice._matrix.T, self._cartesian_pos.T).T
-        return self._relative_pos
+    def get_cell_inverse(self):
+        """Get the matrix inverse of the lattice matrix.
+        """
+        if self._cell_inverse is None:
+            self._cell_inverse = np.linalg.inv(self.get_cell())
+        return self._cell_inverse
 
-    @property
-    def cartesian_pos(self):
-        if self._cartesian_pos is None:
-            self._cartesian_pos = self._relative_pos.dot(self.lattice._matrix.T)
-        return self._cartesian_pos
+    def to_scaled(self, positions, wrap=False):
+        """Used to transform a set of positions to the basis defined by the
+        cell of this system.
 
-    @property
-    def symbols(self):
-        if self._symbols is None:
-            self._symbols = numbers_to_symbols(self._numbers)
-        return self._symbols
+        Args:
+            positions (numpy.ndarray): The positions to scale
+            wrap (numpy.ndarray): Whether the positions should be wrapped
+                inside the cell.
 
-    @property
-    def charge(self):
-        return np.sum(self.charges)
+        Returns:
+            numpy.ndarray: The scaled positions
+        """
+        fractional = np.linalg.solve(
+            self.get_cell(complete=True).T,
+            positions.T).T
 
-    @property
-    def numbers(self):
-        if self._numbers is None:
-            self._numbers = symbols_to_numbers(self._symbols)
-        return self._numbers
+        if wrap:
+            for i, periodic in enumerate(self.pbc):
+                if periodic:
+                    # Yes, we need to do it twice.
+                    # See the scaled_positions.py test.
+                    fractional[:, i] %= 1.0
+                    fractional[:, i] %= 1.0
 
-    @property
-    def displacement_tensor(self):
+        return fractional
+
+    def to_cartesian(self, scaled_positions, wrap=False):
+        """Used to transofrm a set of relative positions to the cartesian basis
+        defined by the cell of this system.
+
+        Args:
+            positions (numpy.ndarray): The positions to scale
+            wrap (numpy.ndarray): Whether the positions should be wrapped
+                inside the cell.
+
+        Returns:
+            numpy.ndarray: The cartesian positions
+        """
+        if wrap:
+            for i, periodic in enumerate(self.pbc):
+                if periodic:
+                    # Yes, we need to do it twice.
+                    # See the scaled_positions.py test.
+                    scaled_positions[:, i] %= 1.0
+                    scaled_positions[:, i] %= 1.0
+
+        cartesian_positions = scaled_positions.dot(self.get_cell().T)
+        return cartesian_positions
+
+    def get_displacement_tensor(self):
         """A matrix where the entry A[i, j, :] is the vector
         self.cartesian_pos[i] - self.cartesian_pos[j]
+
+        Returns:
+            np.array: 3D matrix containing the pairwise distance vectors.
         """
         if self._displacement_tensor is None:
-            pos = self.cartesian_pos
 
-            # Add new axes so that broadcasting works nicely
-            disp_tensor = pos[:, None, :] - pos[None, :, :]
+            if np.any(self.get_pbc()):
+                pos = self.get_scaled_positions()
+                disp_tensor = pos[:, None, :] - pos[None, :, :]
+
+                # Take periodicity into account by wrapping coordinate elements
+                # that are bigger than 0.5 or smaller than -0.5
+                indices = np.where(disp_tensor > 0.5)
+                disp_tensor[indices] = 1 - disp_tensor[indices]
+                indices = np.where(disp_tensor < -0.5)
+                disp_tensor[indices] = disp_tensor[indices] + 1
+            else:
+                pos = self.get_positions()
+                disp_tensor = pos[:, None, :] - pos[None, :, :]
 
             self._displacement_tensor = disp_tensor
+
         return self._displacement_tensor
 
-    @property
-    def distance_matrix(self):
+    def get_distance_matrix(self):
+        """Calculates the distance matrix A defined as:
+
+            A_ij = |r_i - r_j|
+
+        Returns:
+            np.array: Symmetric 2D matrix containing the pairwise distances.
+        """
         if self._distance_matrix is None:
-            displacement_tensor = self.displacement_tensor
+            displacement_tensor = self.get_displacement_tensor()
             distance_matrix = np.linalg.norm(displacement_tensor, axis=2)
             self._distance_matrix = distance_matrix
         return self._distance_matrix
 
-    @property
-    def inverse_distance_matrix(self):
+    def get_inverse_distance_matrix(self):
+        """Calculates the inverse distance matrix A defined as:
+
+            A_ij = 1/|r_i - r_j|
+
+        Returns:
+            np.array: Symmetric 2D matrix containing the pairwise inverse
+            distances.
+        """
         if self._inverse_distance_matrix is None:
-            distance_matrix = self.distance_matrix
+            distance_matrix = self.get_distance_matrix()
             with np.errstate(divide='ignore'):
                 inv_distance_matrix = np.reciprocal(distance_matrix)
             self._inverse_distance_matrix = inv_distance_matrix
         return self._inverse_distance_matrix
 
-    def wrap_positions(self, precision=1E-5):
-        """Wrap the relative positions so that each element in the array is within the
-        half-closed interval [0, 1)
+    def set_positions(self, newpositions, apply_constraint=True):
+        self._reset_structure()
+        super().set_positions(newpositions, apply_constraint)
 
-        By wrapping values near 1 to 0 we will have a consistent way of
-        presenting systems.
+    def set_scaled_positions(self, scaled):
+        self._reset_structure()
+        super().set_scaled_positions(scaled)
+
+    def set_pbc(self, pbc):
+        self._reset_structure()
+        super().set_pbc(pbc)
+
+    def set_cell(self, cell, scale_atoms=False):
+        self._reset_structure()
+        super().set_cell(cell, scale_atoms)
+
+    def _reset_structure(self):
+        """Resets the common structural information that is cached by this
+        object. The caching is done in order to share common structural
+        quantities that are needed by multiple descriptors.
         """
-        self._relative_pos %= 1
-
-        abs_zero = np.absolute(self._relative_pos)
-        abs_unity = np.absolute(abs_zero-1)
-
-        near_zero = np.where(abs_zero < precision)
-        near_unity = np.where(abs_unity < precision)
-
-        self._relative_pos[near_unity] = 0
-        self._relative_pos[near_zero] = 0
-
-        self._reset_cartesian_pos
-
-    def translate(self, translation, relative=True):
-        """Translates the relative positions by the given translation.
-
-        Args:
-            translation (1x3 numpy.array): The translation to apply.
-            relative (bool): True if given translation is relative to cell
-                vectors.
-        """
-        if relative:
-            self._relative_pos += translation
-            self._reset_cartesian_pos()
-        else:
-            self._cartesian_pos += translation
-            self._reset_relative_pos()
-
-    def _reset_relative_pos(self):
-        self._relative_pos = None
-        self._distance_matrix = None
+        self._cell_inverse = None
         self._displacement_tensor = None
-        self._inverse_distance_matrix = None
-
-    def _reset_cartesian_pos(self):
-        self._cartesian_pos = None
         self._distance_matrix = None
-        self._displacement_tensor = None
         self._inverse_distance_matrix = None
-
-    def __len__(self):
-        return len(self.numbers)

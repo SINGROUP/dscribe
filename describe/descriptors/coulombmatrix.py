@@ -36,6 +36,7 @@ class CoulombMatrix(Descriptor):
                 a 1D array depending on the setting self.flatten.
         """
         cmat = self.coulomb_matrix(system)
+        cmat = self.zero_pad(cmat)
         if self.flatten:
             cmat = cmat.flatten()
         return cmat
@@ -44,14 +45,18 @@ class CoulombMatrix(Descriptor):
         """Creates the Coulomb matrix for the given system.
         """
         # Calculate offdiagonals
-        q = system.charges
+        q = system.get_initial_charges()
         qiqj = q[None, :]*q[:, None]
-        idmat = system.inverse_distance_matrix
+        idmat = system.get_inverse_distance_matrix()
+        np.fill_diagonal(idmat, 0)
         cmat = qiqj*idmat
 
         # Set diagonal
         np.fill_diagonal(cmat, 0.5 * q ** 2.4)
 
+        return cmat
+
+    def zero_pad(self, cmat):
         # Pad with zeros
         zeros = np.zeros((self.n_atoms_max, self.n_atoms_max))
         zeros[:cmat.shape[0], :cmat.shape[1]] = cmat

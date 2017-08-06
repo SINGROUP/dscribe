@@ -24,7 +24,7 @@ class Descriptor(metaclass=ABCMeta):
         """
         # Ensure that we get a System
         if isinstance(system, Atoms):
-            system = System.fromatoms(system)
+            system = System.from_atoms(system)
 
         return self.describe(system)
 

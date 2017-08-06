@@ -181,10 +181,7 @@ class MBTR(Descriptor):
         if self.k >= 1:
 
             grid_k1 = self.get_k1_axis()
-            if self.grid is not None and self.grid.get("k1") is not None:
-                sigma_k1 = self.grid["k1"][3]
-            else:
-                sigma_k1 = 1e-6
+            sigma_k1 = self.get_k1_settings()["sigma"]
 
             # We will use the original system to calculate the counts, unlike
             # with the other terms that use the extended system
@@ -193,10 +190,7 @@ class MBTR(Descriptor):
 
         if self.k >= 2:
             grid_k2 = self.get_k2_axis()
-            if self.grid is not None and self.grid.get("k2") is not None:
-                sigma_k2 = self.grid["k2"][3]
-            else:
-                sigma_k2 = 2**(-7)
+            sigma_k2 = self.get_k2_settings()["sigma"]
 
             # If needed, create the extended system
             system_k2 = system
@@ -213,10 +207,7 @@ class MBTR(Descriptor):
         if self.k >= 3:
 
             grid_k3 = self.get_k3_axis()
-            if self.grid is not None and self.grid.get("k3") is not None:
-                sigma_k3 = self.grid["k3"][3]
-            else:
-                sigma_k3 = 2**(-3.5)
+            sigma_k3 = self.get_k3_settings()["sigma"]
 
             # If needed, create the extended system
             system_k3 = system
@@ -238,11 +229,11 @@ class MBTR(Descriptor):
             cols = []
             for tensor in mbtr:
                 size = tensor.shape[1]
-                length += size
                 coo = tensor.tocoo()
                 datas.append(coo.data)
                 rows.append(coo.row)
-                cols.append(coo.col)
+                cols.append(coo.col + length)
+                length += size
 
             datas = np.concatenate(datas)
             rows = np.concatenate(rows)
@@ -253,34 +244,70 @@ class MBTR(Descriptor):
         else:
             return mbtr
 
-    def get_k1_axis(self):
+    def get_k1_settings(self):
+        """Returns the min, max, dx and sigma for K1.
+        """
         if self.grid is not None and self.grid.get("k1") is not None:
-            min_k1, max_k1, dx_k1, _ = self.grid["k1"]
+            min_k, max_k, dx_k, sigma_k = self.grid["k1"]
         else:
-            dx_k1 = 0.1
-            min_k1 = 1.0
-            max_k1 = self.max_atomic_number
-        grid = np.arange(min_k1, max_k1, dx_k1)
+            min_k = 1.0
+            max_k = self.max_atomic_number
+            sigma_k = 1e-1
+            dx_k = sigma_k/5
+        return {
+            "min": min_k,
+            "max": max_k,
+            "delta": dx_k,
+            "sigma": sigma_k,
+        }
+
+    def get_k2_settings(self):
+        """Returns the min, max, dx and sigma for K2.
+        """
+        if self.grid is not None and self.grid.get("k2") is not None:
+            min_k, max_k, dx_k, sigma_k = self.grid["k2"]
+        else:
+            min_k = 0.0
+            max_k = 1/0.7
+            sigma_k = 2**(-7)
+            dx_k = sigma_k/5
+        return {
+            "min": min_k,
+            "max": max_k,
+            "delta": dx_k,
+            "sigma": sigma_k,
+        }
+
+    def get_k3_settings(self):
+        """Returns the min, max, dx and sigma for K3.
+        """
+        if self.grid is not None and self.grid.get("k3") is not None:
+            min_k, max_k, dx_k, sigma_k = self.grid["k3"]
+        else:
+            min_k = -1.0
+            max_k = 1.0
+            sigma_k = 2**(-3.5)
+            dx_k = sigma_k/5
+        return {
+            "min": min_k,
+            "max": max_k,
+            "delta": dx_k,
+            "sigma": sigma_k,
+        }
+
+    def get_k1_axis(self):
+        param = self.get_k1_settings()
+        grid = np.arange(param["min"], param["max"], param["delta"])
         return grid
 
     def get_k2_axis(self):
-        if self.grid is not None and self.grid.get("k2") is not None:
-            min_k2, max_k2, dx_k2, _ = self.grid["k2"]
-        else:
-            min_k2 = 0.0
-            max_k2 = 1/0.7
-            dx_k2 = 1e-2
-        grid = np.arange(min_k2, max_k2, dx_k2)
+        param = self.get_k2_settings()
+        grid = np.arange(param["min"], param["max"], param["delta"])
         return grid
 
     def get_k3_axis(self):
-        if self.grid is not None and self.grid.get("k3") is not None:
-            min_k3, max_k3, dx_k3, _ = self.grid["k3"]
-        else:
-            min_k3 = -1.0
-            max_k3 = 1.0
-            dx_k3 = 0.25*2**(-3.5)
-        grid = np.arange(min_k3, max_k3, dx_k3)
+        param = self.get_k3_settings()
+        grid = np.arange(param["min"], param["max"], param["delta"])
         return grid
 
     def get_number_of_features(self):
@@ -454,7 +481,7 @@ class MBTR(Descriptor):
             {i: { j: [list of angles] }}. The dictionaries are filled
             so that the entry for pair i and j is in the entry where j>=i.
         """
-        inverse_dist = system.inverse_distance_matrix
+        inverse_dist = system.get_inverse_distance_matrix()
 
         numbers = system.numbers
         inv_dist_dict = {}
@@ -504,8 +531,8 @@ class MBTR(Descriptor):
             be the same as for HHO. These duplicate values are left out by only
             filling values where k>=i.
         """
-        disp_tensor = system.displacement_tensor.astype(np.float32)
-        distance_matrix = system.distance_matrix.astype(np.float32)
+        disp_tensor = system.get_displacement_tensor().astype(np.float32)
+        distance_matrix = system.get_distance_matrix().astype(np.float32)
         numbers = system.numbers
 
         # Cosines between atoms i-j-k can be found in the tensor:

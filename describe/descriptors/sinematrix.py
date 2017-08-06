@@ -40,6 +40,7 @@ class SineMatrix(Descriptor):
                 a 1D array depending on the setting self.flatten.
         """
         smat = self.sine_matrix(system)
+        smat = self.zero_pad(smat)
         if self.flatten:
             smat = smat.flatten()
         return smat
@@ -48,11 +49,11 @@ class SineMatrix(Descriptor):
         """Creates the Sine matrix for the given system.
         """
         # Cell and inverse cell
-        B = system.lattice._matrix
-        B_inv = system.lattice.inv_matrix
+        B = system.get_cell()
+        B_inv = system.get_cell_inverse()
 
         # Difference vectors in tensor 3D-tensor-form
-        diff_tensor = system.displacement_tensor
+        diff_tensor = system.get_displacement_tensor()
 
         # Calculate phi
         arg_to_sin = np.pi * np.dot(diff_tensor, B_inv)
@@ -62,8 +63,9 @@ class SineMatrix(Descriptor):
             phi = np.reciprocal(phi)
 
         # Calculate Z_i*Z_j
-        q = system.charges
+        q = system.get_initial_charges()
         qiqj = q[None, :]*q[:, None]
+        np.fill_diagonal(phi, 0)
 
         # Multiply by charges
         smat = qiqj*phi
@@ -71,12 +73,15 @@ class SineMatrix(Descriptor):
         # Set diagonal
         np.fill_diagonal(smat, 0.5 * q ** 2.4)
 
+        return smat
+
+    def zero_pad(self, cmat):
         # Pad with zeros
         zeros = np.zeros((self.n_atoms_max, self.n_atoms_max))
-        zeros[:smat.shape[0], :smat.shape[1]] = smat
-        smat = zeros
+        zeros[:cmat.shape[0], :cmat.shape[1]] = cmat
+        cmat = zeros
 
-        return smat
+        return cmat
 
     def get_number_of_features(self):
         """Used to inquire the final number of features that this descriptor

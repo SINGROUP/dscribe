@@ -10,7 +10,9 @@ import time
 
 from describe.descriptors import MBTR
 from describe.descriptors import CoulombMatrix
+from describe.descriptors import SortedCoulombMatrix
 from describe.descriptors import SineMatrix
+from describe.descriptors import SortedSineMatrix
 from describe.core import System
 from describe.data.element_data import numbers_to_symbols
 
@@ -20,22 +22,20 @@ from ase import Atoms
 from ase.lattice.cubic import SimpleCubicFactory
 
 H2O = System(
-    lattice=[[5.0, 0.0, 0.0], [0.0, 5.0, 0.0], [0.0, 0.0, 5.0]],
+    cell=[[5.0, 0.0, 0.0], [0.0, 5.0, 0.0], [0.0, 0.0, 5.0]],
     positions=[[0, 0, 0], [0.95, 0, 0], [0.95*(1+math.cos(76/180*math.pi)), 0.95*math.sin(76/180*math.pi), 0.0]],
-    species=["H", "O", "H"],
-    coords_are_cartesian=True
+    symbols=["H", "O", "H"],
 )
-H2O.charges = H2O.numbers
+H2O.set_initial_charges(H2O.numbers)
 
 H2O_2 = System(
-    lattice=[[5.0, 0.0, 0], [0, 5, 0], [0, 0, 5.0]],
+    cell=[[5.0, 0.0, 0], [0, 5, 0], [0, 0, 5.0]],
     positions=[[0.95, 0, 0], [0, 0, 0], [0.95*(1+math.cos(76/180*math.pi)), 0.95*math.sin(76/180*math.pi), 0.0]],
-    species=["O", "H", "H"],
-    coords_are_cartesian=True
+    symbols=["O", "H", "H"],
 )
 
 NaCl_prim = System(
-    lattice=[
+    cell=[
         [
             0.0,
             2.8201,
@@ -52,13 +52,12 @@ NaCl_prim = System(
             0.0
         ]
     ],
-    positions=[[0.5, 0.5, 0.5], [0, 0, 0]],
-    species=["Na", "Cl"],
-    coords_are_cartesian=False
+    scaled_positions=[[0.5, 0.5, 0.5], [0, 0, 0]],
+    symbols=["Na", "Cl"],
 )
 
 NaCl_conv = System(
-    lattice=[
+    cell=[
         [
             5.6402,
             0.0,
@@ -75,7 +74,7 @@ NaCl_conv = System(
             5.6402
         ]
     ],
-    positions=[
+    scaled_positions=[
         [
             0.0,
             0.5,
@@ -116,9 +115,37 @@ NaCl_conv = System(
             0.0,
             0.5
         ]],
-    species=["Na", "Cl", "Na", "Cl", "Na", "Cl", "Na", "Cl"],
-    coords_are_cartesian=False
+    symbols=["Na", "Cl", "Na", "Cl", "Na", "Cl", "Na", "Cl"],
 )
+
+
+class GeometryTests(unittest.TestCase):
+    def test_mic(self):
+        """Tests that the periodicity is taken into account when calculating
+        distances.
+        """
+        system = System(
+            scaled_positions=[[0.0, 0.0, 0.0], [1.0, 1.0, 1.0]],
+            symbols=["H", "H"],
+            cell=[[5, 0, 0], [0, 5, 0], [0, 0, 5]],
+        )
+        disp = system.get_displacement_tensor()
+
+        # For a non-periodic system, periodicity is not taken into account even
+        # if cell is defined.
+        assumed = np.array([
+            [[0.0, 0.0, 0.0], [-5.0, -5.0, -5.0]],
+            [[5.0, 5.0, 5.0], [0.0, 0.0, 0.0]]])
+        self.assertTrue(np.allclose(assumed, disp))
+
+        # For a periodic system, the nearest copy should be considered when
+        # comparing distances to neighbors
+        system.set_pbc([True, True, True])
+        disp = system.get_displacement_tensor()
+        assumed = np.array([
+            [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
+            [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]])
+        self.assertTrue(np.allclose(assumed, disp))
 
 
 class ASETests(unittest.TestCase):
@@ -135,15 +162,15 @@ class ASETests(unittest.TestCase):
             element_basis = (0, 1, 1, 0, 1, 0, 0, 1)
 
         nacl = NaClFactory()(symbol=["Na", "Cl"], latticeconstant=5.6402)
-        system = System.fromatoms(nacl)
+        system = System.from_atoms(nacl)
 
-        self.assertTrue(np.array_equal(nacl.get_positions(), system.cartesian_pos))
-        self.assertTrue(np.array_equal(nacl.get_initial_charges(), system.charges))
-        self.assertTrue(np.array_equal(nacl.get_atomic_numbers(), system.numbers))
-        self.assertTrue(np.array_equal(nacl.get_chemical_symbols(), system.symbols))
-        self.assertTrue(np.array_equal(nacl.get_cell(), system.lattice._matrix))
-        self.assertTrue(np.array_equal(nacl.get_pbc(), system.periodicity))
-        self.assertTrue(np.array_equal(nacl.get_scaled_positions(), system.relative_pos))
+        self.assertTrue(np.array_equal(nacl.get_positions(), system.get_positions()))
+        self.assertTrue(np.array_equal(nacl.get_initial_charges(), system.get_initial_charges()))
+        self.assertTrue(np.array_equal(nacl.get_atomic_numbers(), system.get_atomic_numbers()))
+        self.assertTrue(np.array_equal(nacl.get_chemical_symbols(), system.get_chemical_symbols()))
+        self.assertTrue(np.array_equal(nacl.get_cell(), system.get_cell()))
+        self.assertTrue(np.array_equal(nacl.get_pbc(), system.get_pbc()))
+        self.assertTrue(np.array_equal(nacl.get_scaled_positions(), system.get_scaled_positions()))
 
 
 class CoulombMatrixTests(unittest.TestCase):
@@ -153,8 +180,8 @@ class CoulombMatrixTests(unittest.TestCase):
         cm = desc.create(H2O)
 
         # Test against assumed values
-        q = H2O.charges
-        p = H2O.cartesian_pos
+        q = H2O.get_initial_charges()
+        p = H2O.get_positions()
         norm = np.linalg.norm
         assumed = np.array(
             [
@@ -170,15 +197,27 @@ class CoulombMatrixTests(unittest.TestCase):
         self.assertTrue(np.array_equal(cm, assumed))
 
 
+class SortedCoulombMatrixTests(unittest.TestCase):
+
+    def test_matrix(self):
+        desc = SortedCoulombMatrix(n_atoms_max=5, flatten=False)
+        cm = desc.create(H2O)
+
+        lens = np.linalg.norm(cm, axis=0)
+        old_len = lens[0]
+        for length in lens[1:]:
+            self.assertTrue(length <= old_len)
+            old_len = length
+
+
 class SineMatrixTests(unittest.TestCase):
 
     def test_matrix(self):
         # Create simple toy system
         test_sys = System(
-            lattice=[[1, 0.0, 0.0], [1, 1, 0.0], [0.0, 0.0, 1.0]],
+            cell=[[1, 0.0, 0.0], [1, 1, 0.0], [0.0, 0.0, 1.0]],
             positions=[[0, 0, 0], [2, 1, 1]],
-            species=["H", "H"],
-            coords_are_cartesian=True
+            symbols=["H", "H"],
         )
         test_sys.charges = np.array([1, 1])
 
@@ -212,10 +251,10 @@ class SineMatrixTests(unittest.TestCase):
         # mpl.show()
 
         # Test against assumed values
-        q = test_sys.charges
-        p = test_sys.cartesian_pos
-        cell = test_sys.lattice._matrix
-        cell_inv = test_sys.lattice.inv_matrix
+        q = test_sys.get_initial_charges()
+        p = test_sys.get_positions()
+        cell = test_sys.get_cell()
+        cell_inv = test_sys.get_reciprocal_cell()
         sin = np.sin
         pi = np.pi
         dot = np.dot
@@ -234,6 +273,18 @@ class SineMatrixTests(unittest.TestCase):
         sm = desc.create(test_sys)
 
         self.assertTrue(np.array_equal(sm, assumed))
+
+class SortedSineMatrixTests(unittest.TestCase):
+
+    def test_matrix(self):
+        desc = SortedSineMatrix(n_atoms_max=5, flatten=False)
+        cm = desc.create(H2O)
+
+        lens = np.linalg.norm(cm, axis=0)
+        old_len = lens[0]
+        for length in lens[1:]:
+            self.assertTrue(length <= old_len)
+            old_len = length
 
 
 class MBTRTests(unittest.TestCase):
@@ -258,7 +309,7 @@ class MBTRTests(unittest.TestCase):
         inv_dist = mbtr._inverse_distances
 
         # Test against the assumed values
-        pos = H2O.cartesian_pos
+        pos = H2O.get_positions()
         assumed = {
             0: {
                 0: [1/np.linalg.norm(pos[0] - pos[2])],
@@ -344,29 +395,59 @@ class MBTRTests(unittest.TestCase):
         self.assertEqual(peak2_y, gaussian(8, 8, std))
 
     def test_k1(self):
-        mbtr = MBTR([1, 8], k=1, periodic=False)
+        mbtr = MBTR([1, 8], k=1, periodic=False, flatten=False)
         desc = mbtr.create(H2O)
-        y = desc.todense().T
+        x1 = mbtr._axis_k1
+
+        imap = mbtr.index_to_atomic_number
+        smap = {}
+        for index, number in imap.items():
+            smap[index] = numbers_to_symbols(number)
 
         # Visually check the contents
         # mpl.plot(y)
+        # mpl.ylim(0, y.max())
+        # mpl.show()
+
+        # mpl.plot(x1, desc[0][0, :], label="{}".format(smap[0]))
+        # mpl.plot(x1, desc[0][1, :], linestyle=":", linewidth=3, label="{}".format(smap[1]))
+        # mpl.ylabel("$\phi$ (arbitrary units)", size=20)
+        # mpl.xlabel("Inverse distance (1/angstrom)", size=20)
+        # mpl.legend()
         # mpl.show()
 
     def test_k2(self):
-        mbtr = MBTR([1, 8], k=2, periodic=False)
+        mbtr = MBTR([1, 8], k=2, periodic=False, flatten=False)
         desc = mbtr.create(H2O)
-        y = desc.todense().T
+
+        x2 = mbtr._axis_k2
+        imap = mbtr.index_to_atomic_number
+        smap = {}
+        for index, number in imap.items():
+            smap[index] = numbers_to_symbols(number)
 
         # Visually check the contents
-        # mpl.plot(y)
-        # mpl.show()
+        mpl.plot(x2, desc[1][0, 1, :], label="{}-{}".format(smap[0], smap[1]))
+        mpl.plot(x2, desc[1][1, 0, :], linestyle=":", linewidth=3, label="{}-{}".format(smap[1], smap[0]))
+        mpl.plot(x2, desc[1][1, 1, :], label="{}-{}".format(smap[1], smap[1]))
+        mpl.plot(x2, desc[1][0, 0, :], label="{}-{}".format(smap[0], smap[0]))
+        mpl.ylabel("$\phi$ (arbitrary units)", size=20)
+        mpl.xlabel("Inverse distance (1/angstrom)", size=20)
+        mpl.legend()
+        mpl.show()
 
-    def test_k3(self):
-        mbtr = MBTR([1, 8], k=3, periodic=False)
+        mbtr = MBTR([1, 8], k=2, periodic=False, flatten=True)
         desc = mbtr.create(H2O)
         y = desc.todense().T
+        mpl.plot(y)
+        mpl.show()
 
-        # Visually check the contents
+    # def test_k3(self):
+        # mbtr = MBTR([1, 8], k=3, periodic=False)
+        # desc = mbtr.create(H2O)
+        # y = desc.todense().T
+
+        # # Visually check the contents
         # mpl.plot(y)
         # mpl.show()
 
@@ -473,22 +554,16 @@ class MBTRTests(unittest.TestCase):
         # mpl.legend()
         # mpl.show()
 
-    # def test_sparse(self):
-        # """Test the sparse matrix format.
-        # """
-        # cutoff_x = 12
-        # cutoff_y = 0.01
-        # mbtr = MBTR([11, 17], n_atoms_max=8, k=3, cutoff=(cutoff_x, cutoff_y), n_copies=1, flatten=True)
-        # desc = mbtr.create(NaCl_prim)
-        # print(desc.shape)
-
 
 if __name__ == '__main__':
     suites = []
     suites.append(unittest.TestLoader().loadTestsFromTestCase(ASETests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(GeometryTests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(MBTRTests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(CoulombMatrixTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(SortedCoulombMatrixTests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(SineMatrixTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(SortedSineMatrixTests))
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)
 
