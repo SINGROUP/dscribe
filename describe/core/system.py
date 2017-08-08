@@ -89,14 +89,13 @@ class System(Atoms):
             numpy.ndarray: The scaled positions
         """
         fractional = np.linalg.solve(
-            self.get_cell(complete=True).T,
+            self.get_cell().T,
             positions.T).T
 
         if wrap:
             for i, periodic in enumerate(self.pbc):
                 if periodic:
                     # Yes, we need to do it twice.
-                    # See the scaled_positions.py test.
                     fractional[:, i] %= 1.0
                     fractional[:, i] %= 1.0
 
@@ -118,23 +117,27 @@ class System(Atoms):
             for i, periodic in enumerate(self.pbc):
                 if periodic:
                     # Yes, we need to do it twice.
-                    # See the scaled_positions.py test.
                     scaled_positions[:, i] %= 1.0
                     scaled_positions[:, i] %= 1.0
 
-        cartesian_positions = scaled_positions.dot(self.get_cell().T)
+        cartesian_positions = np.dot(scaled_positions, self.get_cell())
         return cartesian_positions
 
     def get_displacement_tensor(self):
         """A matrix where the entry A[i, j, :] is the vector
-        self.cartesian_pos[i] - self.cartesian_pos[j]
+        self.cartesian_pos[i] - self.cartesian_pos[j].
+
+        For periodic systems the distance of an atom from itself is the
+        smallest displacement of an atom from one of it's periodic copies, and
+        the distance of two different atoms is the distance of two closest
+        copies.
 
         Returns:
             np.array: 3D matrix containing the pairwise distance vectors.
         """
         if self._displacement_tensor is None:
 
-            if np.any(self.get_pbc()):
+            if self.pbc.any():
                 pos = self.get_scaled_positions()
                 disp_tensor = pos[:, None, :] - pos[None, :, :]
 
@@ -144,6 +147,19 @@ class System(Atoms):
                 disp_tensor[indices] = 1 - disp_tensor[indices]
                 indices = np.where(disp_tensor < -0.5)
                 disp_tensor[indices] = disp_tensor[indices] + 1
+
+                # Transform to cartesian
+                disp_tensor = self.to_cartesian(disp_tensor)
+
+                # Figure out the smallest basis vector and set it as
+                # displacement for diagonal
+                cell = self.get_cell()
+                basis_lengths = np.linalg.norm(cell, axis=1)
+                min_index = np.argmin(basis_lengths)
+                min_basis = cell[min_index]
+                diag_indices = np.diag_indices(len(disp_tensor))
+                disp_tensor[diag_indices] = min_basis
+
             else:
                 pos = self.get_positions()
                 disp_tensor = pos[:, None, :] - pos[None, :, :]
@@ -156,6 +172,11 @@ class System(Atoms):
         """Calculates the distance matrix A defined as:
 
             A_ij = |r_i - r_j|
+
+        For periodic systems the distance of an atom from itself is the
+        smallest displacement of an atom from one of it's periodic copies, and
+        the distance of two different atoms is the distance of two closest
+        copies.
 
         Returns:
             np.array: Symmetric 2D matrix containing the pairwise distances.
@@ -170,6 +191,11 @@ class System(Atoms):
         """Calculates the inverse distance matrix A defined as:
 
             A_ij = 1/|r_i - r_j|
+
+        For periodic systems the distance of an atom from itself is the
+        smallest displacement of an atom from one of it's periodic copies, and
+        the distance of two different atoms is the distance of two closest
+        copies.
 
         Returns:
             np.array: Symmetric 2D matrix containing the pairwise inverse

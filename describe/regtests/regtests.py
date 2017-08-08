@@ -120,32 +120,115 @@ NaCl_conv = System(
 
 
 class GeometryTests(unittest.TestCase):
-    def test_mic(self):
+
+    def test_distances(self):
         """Tests that the periodicity is taken into account when calculating
         distances.
         """
         system = System(
-            scaled_positions=[[0.0, 0.0, 0.0], [1.0, 1.0, 1.0]],
+            scaled_positions=[[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]],
             symbols=["H", "H"],
-            cell=[[5, 0, 0], [0, 5, 0], [0, 0, 5]],
+            cell=[
+                [5, 5, 0],
+                [0, -5, -5],
+                [5, 0, 5]
+            ],
         )
         disp = system.get_displacement_tensor()
 
         # For a non-periodic system, periodicity is not taken into account even
         # if cell is defined.
         assumed = np.array([
-            [[0.0, 0.0, 0.0], [-5.0, -5.0, -5.0]],
-            [[5.0, 5.0, 5.0], [0.0, 0.0, 0.0]]])
+            [[0.0, 0.0, 0.0], [-5, 0, 0]],
+            [[5, 0, 0], [0.0, 0.0, 0.0]]])
         self.assertTrue(np.allclose(assumed, disp))
 
         # For a periodic system, the nearest copy should be considered when
-        # comparing distances to neighbors
+        # comparing distances to neighbors or to self
         system.set_pbc([True, True, True])
         disp = system.get_displacement_tensor()
         assumed = np.array([
-            [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
-            [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]])
+            [[5.0, 5.0, 0.0], [-5, 0, 0]],
+            [[5, 0, 0], [5.0, 5.0, 0.0]]])
         self.assertTrue(np.allclose(assumed, disp))
+
+    def test_transformations(self):
+        """Test that coordinates are correctly transformed from scaled to
+        cartesian and back again.
+        """
+        system = System(
+            scaled_positions=[[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]],
+            symbols=["H", "H"],
+            cell=[
+                [5, 5, 0],
+                [0, -5, -5],
+                [5, 0, 5]
+            ],
+        )
+
+        orig = np.array([[2, 1.45, -4.8]])
+        scal = system.to_scaled(orig)
+        cart = system.to_cartesian(scal)
+        self.assertTrue(np.allclose(orig, cart))
+
+
+class GaussianTests(unittest.TestCase):
+
+    def test_cdf(self):
+        """Test that the implementation of the gaussian value through the
+        cumulative distribution function works as expected.
+        """
+        from scipy.stats import norm
+        from scipy.special import erf
+
+        start = -5
+        stop = 5
+        n_points = 9
+        centers = np.array([0])
+        sigma = 1
+
+        area_cum = []
+        area_pdf = []
+
+        # Calculate errors for dfferent number of points
+        for n_points in range(2, 10):
+
+            axis = np.linspace(start, stop, n_points)
+
+            # Calculate with cumulative function
+            dx = (stop - start)/(n_points-1)
+            x = np.linspace(start-dx/2, stop+dx/2, n_points+1)
+            pos = x[np.newaxis, :] - centers[:, np.newaxis]
+            y = 1/2*(1 + erf(pos/(sigma*np.sqrt(2))))
+            f = np.sum(y, axis=0)
+            f_rolled = np.roll(f, -1)
+            pdf_cum = (f_rolled - f)[0:-1]/dx
+
+            # Calculate with probability function
+            dist2 = axis[np.newaxis, :] - centers[:, np.newaxis]
+            dist2 *= dist2
+            f = np.sum(np.exp(-dist2/(2*sigma**2)), axis=0)
+            f *= 1/math.sqrt(2*sigma**2*math.pi)
+            pdf_pdf = f
+
+            true_axis = np.linspace(start, stop, 200)
+            pdf_true = norm.pdf(true_axis, centers[0], sigma) # + norm.pdf(true_axis, centers[1], sigma)
+
+            # Calculate differences
+            sum_cum = np.sum(0.5*dx*(pdf_cum[:-1]+pdf_cum[1:]))
+            sum_pdf = np.sum(0.5*dx*(pdf_pdf[:-1]+pdf_pdf[1:]))
+            area_cum.append(sum_cum)
+            area_pdf.append(sum_pdf)
+
+            # mpl.plot(axis, pdf_pdf, linestyle=":", linewidth=3, color="r")
+            # mpl.plot(axis, pdf_cum, linewidth=1, color="g")
+            # mpl.plot(true_axis, pdf_true, linestyle="--", color="b")
+            # mpl.show()
+
+        mpl.plot(area_cum, linestyle=":", linewidth=3, color="r")
+        mpl.plot(area_pdf, linewidth=1, color="g")
+        # mpl.plot(true_axis, pdf_true, linestyle="--", color="b")
+        mpl.show()
 
 
 class ASETests(unittest.TestCase):
@@ -274,6 +357,7 @@ class SineMatrixTests(unittest.TestCase):
 
         self.assertTrue(np.array_equal(sm, assumed))
 
+
 class SortedSineMatrixTests(unittest.TestCase):
 
     def test_matrix(self):
@@ -302,6 +386,15 @@ class MBTRTests(unittest.TestCase):
         mbtr.create(H2O_2)
         counts2 = mbtr._counts
         self.assertTrue(np.array_equal(counts, counts2))
+
+    def test_periodic(self):
+        test_sys = System(
+            cell=[[5.0, 0.0, 0.0], [0, 5.0, 0.0], [0.0, 0.0, 5.0]],
+            positions=[[0, 0, 0]],
+            symbols=["H"],
+        )
+        mbtr = MBTR([1], k=2, weighting="exponential", periodic=True)
+        desc = mbtr.create(test_sys)
 
     def test_inverse_distances(self):
         mbtr = MBTR([1, 8], k=2, periodic=False)
@@ -372,11 +465,19 @@ class MBTRTests(unittest.TestCase):
         """Check that the broadening follows gaussian distribution.
         """
         std = 1
+        start = -3
+        stop = 11
+        n = 500
         mbtr = MBTR(
             [1, 8],
             k=1,
             grid={
-                "k1": [0, 9, 0.05, std]
+                "k1": {
+                    "min": start,
+                    "max": stop,
+                    "sigma": std,
+                    "n": n
+                }
             },
             periodic=False,
             flatten=False)
@@ -384,15 +485,24 @@ class MBTRTests(unittest.TestCase):
         k1_axis = mbtr._axis_k1
 
         # Find the location of the peaks
-        peak1_x = np.where(k1_axis == 1)
+        peak1_x = np.searchsorted(k1_axis, 1)
         peak1_y = y[0][0, peak1_x]
-        peak2_x = np.where(k1_axis == 8)
+        peak2_x = np.searchsorted(k1_axis, 8)
         peak2_y = y[0][1, peak2_x]
 
         # Check against the analytical value
-        gaussian = lambda x, mean, sigma: 1/math.sqrt(2*math.pi*sigma**2)*np.exp(-(x-mean)**2/(2*sigma**2))
-        self.assertEqual(peak1_y, 2*gaussian(1, 1, std))
-        self.assertEqual(peak2_y, gaussian(8, 8, std))
+        gaussian = lambda x, mean, sigma: np.exp(-(x-mean)**2/(2*sigma**2))
+        self.assertTrue(np.allclose(peak1_y, 2*gaussian(1, 1, std), rtol=0, atol=0.001))
+        self.assertTrue(np.allclose(peak2_y, gaussian(8, 8, std), rtol=0, atol=0.001))
+
+        # Check the integral
+        pdf = y[0][0, :]
+        # mpl.plot(pdf)
+        # mpl.show()
+        dx = (stop-start)/(n-1)
+        sum_cum = np.sum(0.5*dx*(pdf[:-1]+pdf[1:]))
+        exp = 2/(1/math.sqrt(2*math.pi*std**2))
+        self.assertTrue(np.allclose(sum_cum, exp, rtol=0, atol=0.001))
 
     def test_k1(self):
         mbtr = MBTR([1, 8], k=1, periodic=False, flatten=False)
@@ -427,20 +537,20 @@ class MBTRTests(unittest.TestCase):
             smap[index] = numbers_to_symbols(number)
 
         # Visually check the contents
-        mpl.plot(x2, desc[1][0, 1, :], label="{}-{}".format(smap[0], smap[1]))
-        mpl.plot(x2, desc[1][1, 0, :], linestyle=":", linewidth=3, label="{}-{}".format(smap[1], smap[0]))
-        mpl.plot(x2, desc[1][1, 1, :], label="{}-{}".format(smap[1], smap[1]))
-        mpl.plot(x2, desc[1][0, 0, :], label="{}-{}".format(smap[0], smap[0]))
-        mpl.ylabel("$\phi$ (arbitrary units)", size=20)
-        mpl.xlabel("Inverse distance (1/angstrom)", size=20)
-        mpl.legend()
-        mpl.show()
+        # mpl.plot(x2, desc[1][0, 1, :], label="{}-{}".format(smap[0], smap[1]))
+        # mpl.plot(x2, desc[1][1, 0, :], linestyle=":", linewidth=3, label="{}-{}".format(smap[1], smap[0]))
+        # mpl.plot(x2, desc[1][1, 1, :], label="{}-{}".format(smap[1], smap[1]))
+        # mpl.plot(x2, desc[1][0, 0, :], label="{}-{}".format(smap[0], smap[0]))
+        # mpl.ylabel("$\phi$ (arbitrary units)", size=20)
+        # mpl.xlabel("Inverse distance (1/angstrom)", size=20)
+        # mpl.legend()
+        # mpl.show()
 
-        mbtr = MBTR([1, 8], k=2, periodic=False, flatten=True)
-        desc = mbtr.create(H2O)
-        y = desc.todense().T
-        mpl.plot(y)
-        mpl.show()
+        # mbtr = MBTR([1, 8], k=2, periodic=False, flatten=True)
+        # desc = mbtr.create(H2O)
+        # y = desc.todense().T
+        # mpl.plot(y)
+        # mpl.show()
 
     # def test_k3(self):
         # mbtr = MBTR([1, 8], k=3, periodic=False)
@@ -559,6 +669,7 @@ if __name__ == '__main__':
     suites = []
     suites.append(unittest.TestLoader().loadTestsFromTestCase(ASETests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(GeometryTests))
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(GaussianTests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(MBTRTests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(CoulombMatrixTests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(SortedCoulombMatrixTests))
