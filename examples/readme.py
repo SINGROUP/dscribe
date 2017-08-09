@@ -1,4 +1,3 @@
-from describe.core import System
 from describe.descriptors import MBTR
 from describe.descriptors import CoulombMatrix
 from describe.descriptors import SineMatrix
@@ -13,15 +12,6 @@ import ase.io
 atoms = ase.io.read("nacl.xyz")
 atoms.set_cell([5.640200, 5.640200, 5.640200])
 atoms.set_initial_charges(atoms.get_atomic_numbers())
-
-# If you dont want to use ASE, you can instead use a System object that is
-# internal to this package.
-system = System(
-    positions=[[0, 0, 0], [0.95, 0, 0], [1.18, 0.92, 0]],
-    species=["H", "H", "O"],
-    charges=[1, 1, 8],
-    coords_are_cartesian=True
-)
 
 #===============================================================================
 # 2. CREATING DESCRIPTORS FOR THE SYSTEM
@@ -46,23 +36,16 @@ cm = cm_desc.create(atoms)
 sm = sm_desc.create(atoms)
 mbtr = mbtr_desc.create(atoms)
 
-# Create descriptor from System object
-cm = CoulombMatrix(n_atoms_max=3).create(system)
-
 # When dealing with multiple systems, create the descriptors in a loop. This
 # allows you to control the final output format and also allows you to create
-# multiple descriptors from the same system. Please consider using the
-# System-object if creating multiple descriptors, as the System object has an
-# internal caching mechanism that can reuse calculation results between
-# different descriptors that use similar features.
+# multiple descriptors from the same system, while using cached intermediate
+# results to speed up calculation.
 ase_atoms = ase.io.iread("multiple.extxyz", format="extxyz")
 for atoms in ase_atoms:
-    system = System.fromatoms(atoms)
-    system.charges = system.numbers
-
-    cm = cm_desc.create(system)
-    sm = sm_desc.create(system)
-    mbtr = mbtr_desc.create(system)
+    atoms.set_initial_charges(atoms.get_atomic_numbers())
+    cm = cm_desc.create(atoms)
+    sm = sm_desc.create(atoms)
+    mbtr = mbtr_desc.create(atoms)
 
 #===============================================================================
 # 3. USING DESCRIPTORS IN MACHINE LEARNING
