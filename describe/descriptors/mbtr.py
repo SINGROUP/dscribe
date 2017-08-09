@@ -323,15 +323,15 @@ class MBTR(Descriptor):
         n_elem = self.n_elements
 
         if self.k >= 1:
-            n_k1_grid = self.get_k1_axis().size
+            n_k1_grid = self.get_k1_settings()["n"]
             n_k1 = n_elem*n_k1_grid
             n_features += n_k1
         if self.k >= 2:
-            n_k2_grid = self.get_k2_axis().size
+            n_k2_grid = self.get_k2_settings()["n"]
             n_k2 = (n_elem*(n_elem+1)/2)*n_k2_grid
             n_features += n_k2
         if self.k >= 3:
-            n_k3_grid = self.get_k3_axis().size
+            n_k3_grid = self.get_k3_settings()["n"]
             n_k3 = (n_elem*n_elem*(n_elem+1)/2)*n_k3_grid
             n_features += n_k3
 
