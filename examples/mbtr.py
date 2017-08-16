@@ -28,7 +28,7 @@ NaCl_conv = System(
 decay_factor = 0.5
 mbtr = MBTR(
     atomic_numbers=[11, 17],
-    k=3,
+    k=7,
     periodic=True,
     grid={
         "k1": {

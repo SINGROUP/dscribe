@@ -39,9 +39,17 @@ class MBTR(Descriptor):
                 to be encountered when creating the descriptors for a set of
                 systems.  Keeping the number of handled elements as low as
                 possible is preferable.
-            k (int): The highest interaction term to consider. The size of the
-                final output and the time taken in creating this descriptor is
-                exponentially dependent on this value.
+            k (int): The interaction terms to consider. It uses octal notation,
+                like chmod. It is the sum of its component bits in the binary 
+                numeral system. As a result, specific bits add to the sum as it 
+                is represented by a numeral:
+                    The k1 bit adds 4 to its total (in binary 100),
+                    The k2 bit adds 2 to its total (in binary 010), and
+                    The k3 bit adds 1 to its total (in binary 001).
+                These values never produce ambiguous combinations; each sum, 1-7, 
+                represents a specific set of k terms.
+                The size of the final output and the time taken in creating this 
+                descriptor is exponentially dependent on this value.
             periodic (bool): Boolean for if the system is periodic or none. If
                 this is set to true, you should provide the primitive system as
                 input and then the number of periodic copies is determined from the
@@ -106,10 +114,20 @@ class MBTR(Descriptor):
         super().__init__(flatten)
 
         # Check K value
-        if k < 1 or k > 3:
+        if k < 1 or k > 7:
             raise ValueError(
                 "The given value of k={} is not supported.".format(k)
             )
+
+        #Building list of k's to be calculated
+        #If a k value is in this list, it will be considered
+        self.k = [] 
+        Max_k = 3 #for k1 k2 k3
+        for i in reversed(range(Max_k)):
+            if k >= 2**i:
+                self.k.append(i+1)
+                k -= 2**i
+        self.k.sort()
 
         # Check the weighting information
         if weighting is not None:
@@ -125,8 +143,8 @@ class MBTR(Descriptor):
                     }
                 }
             else:
-                for i in range(k):
-                    info = weighting.get("k{}".format(i+1))
+                for i in self.k:
+                    info = weighting.get("k{}".format(i))
                     if info is not None:
                         assert "function" in info, \
                             ("The weighting dictionary is missing 'function'.")
@@ -138,8 +156,8 @@ class MBTR(Descriptor):
 
         # Check the given grid
         if grid is not None:
-            for i in range(k):
-                info = grid.get("k{}".format(i+1))
+            for i in self.k:
+                info = grid.get("k{}".format(i))
                 if info is not None:
                     msg = "The grid information is missing the value for {}"
                     val_names = ["min", "max", "sigma", "n"]
@@ -152,7 +170,7 @@ class MBTR(Descriptor):
                         "The min value should be smaller than the max values"
         self.grid = grid
 
-        self.k = k
+        #self.k = k
         self.n_elements = None
         self.present_elements = None
         self.atomic_number_to_index = {}
@@ -202,7 +220,7 @@ class MBTR(Descriptor):
             self.present_indices.add(index)
 
         mbtr = []
-        if self.k >= 1:
+        if 1 in self.k:
 
             # We will use the original system to calculate the counts, unlike
             # with the other terms that use the extended system
@@ -210,7 +228,7 @@ class MBTR(Descriptor):
             k1 = self.K1(system, settings_k1)
             mbtr.append(k1)
 
-        if self.k >= 2:
+        if 2 in self.k:
             settings_k2 = self.get_k2_settings()
 
             # If needed, create the extended system
@@ -225,7 +243,7 @@ class MBTR(Descriptor):
 
             mbtr.append(k2)
 
-        if self.k >= 3:
+        if 3 in self.k:
 
             settings_k3 = self.get_k3_settings()
 
@@ -322,15 +340,15 @@ class MBTR(Descriptor):
         n_features = 0
         n_elem = self.n_elements
 
-        if self.k >= 1:
+        if 1 in self.k:
             n_k1_grid = self.get_k1_settings()["n"]
             n_k1 = n_elem*n_k1_grid
             n_features += n_k1
-        if self.k >= 2:
+        if 2 in self.k:
             n_k2_grid = self.get_k2_settings()["n"]
             n_k2 = (n_elem*(n_elem+1)/2)*n_k2_grid
             n_features += n_k2
-        if self.k >= 3:
+        if 3 in self.k:
             n_k3_grid = self.get_k3_settings()["n"]
             n_k3 = (n_elem*n_elem*(n_elem+1)/2)*n_k3_grid
             n_features += n_k3
