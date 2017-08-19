@@ -373,6 +373,34 @@ class SortedSineMatrixTests(unittest.TestCase):
 
 class MBTRTests(unittest.TestCase):
 
+    def test_invalid_parameters(self):
+        """Test that invalid parameters raise the correct exception.
+        """
+        with self.assertRaises(ValueError):
+            MBTR(
+                atomic_numbers=[1],
+                k=0,
+                periodic=False,
+            )
+
+        with self.assertRaises(ValueError):
+            MBTR(
+                atomic_numbers=[1],
+                k=4,
+                periodic=False,
+            )
+
+        with self.assertRaises(ValueError):
+            MBTR(
+                atomic_numbers=[1],
+                k={0, 1},
+                periodic=False,
+            )
+
+    def test_flattening(self):
+        """Test that the flattened version equals the unflattened one.
+        """
+
     def test_number_of_features(self):
         # K = 1
         n = 100
@@ -399,32 +427,7 @@ class MBTRTests(unittest.TestCase):
         # K = 2
         mbtr = MBTR(
             atomic_numbers=atomic_numbers,
-            k=2,
-            grid={
-                "k1": {
-                    "min": 1,
-                    "max": 8,
-                    "sigma": 0.1,
-                    "n": 100,
-                },
-                "k2": {
-                    "min": 0,
-                    "max": 1/0.7,
-                    "sigma": 0.1,
-                    "n": n,
-                }
-            },
-            periodic=False,
-            flatten=True
-        )
-        n_features = mbtr.get_number_of_features()
-        expected = n_elem*n + 1/2*(n_elem)*(n_elem+1)*n
-        self.assertEqual(n_features, expected)
-
-        # K = 2
-        mbtr = MBTR(
-            atomic_numbers=atomic_numbers,
-            k=2,
+            k={1, 2},
             grid={
                 "k1": {
                     "min": 1,
@@ -449,7 +452,7 @@ class MBTRTests(unittest.TestCase):
         # K = 3
         mbtr = MBTR(
             atomic_numbers=atomic_numbers,
-            k=3,
+            k={1, 2, 3},
             grid={
                 "k1": {
                     "min": 1,
@@ -771,14 +774,14 @@ class MBTRTests(unittest.TestCase):
 
 if __name__ == '__main__':
     suites = []
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(ASETests))
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(GeometryTests))
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(GaussianTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(ASETests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(GeometryTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(GaussianTests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(MBTRTests))
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(CoulombMatrixTests))
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SortedCoulombMatrixTests))
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SineMatrixTests))
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SortedSineMatrixTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(CoulombMatrixTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(SortedCoulombMatrixTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(SineMatrixTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(SortedSineMatrixTests))
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)
 

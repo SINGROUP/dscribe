@@ -39,17 +39,11 @@ class MBTR(Descriptor):
                 to be encountered when creating the descriptors for a set of
                 systems.  Keeping the number of handled elements as low as
                 possible is preferable.
-            k (int): The interaction terms to consider. It uses octal notation,
-                like chmod. It is the sum of its component bits in the binary 
-                numeral system. As a result, specific bits add to the sum as it 
-                is represented by a numeral:
-                    The k1 bit adds 4 to its total (in binary 100),
-                    The k2 bit adds 2 to its total (in binary 010), and
-                    The k3 bit adds 1 to its total (in binary 001).
-                These values never produce ambiguous combinations; each sum, 1-7, 
-                represents a specific set of k terms.
-                The size of the final output and the time taken in creating this 
-                descriptor is exponentially dependent on this value.
+            k (int or set or list): The interaction terms to consider. Providing a
+                single integer means that only that term is generated. You can also
+                provide a set/list of term numbers to consider. The size of the
+                final output and the time taken in creating this descriptor is
+                exponentially dependent on this value.
             periodic (bool): Boolean for if the system is periodic or none. If
                 this is set to true, you should provide the primitive system as
                 input and then the number of periodic copies is determined from the
@@ -114,20 +108,25 @@ class MBTR(Descriptor):
         super().__init__(flatten)
 
         # Check K value
-        if k < 1 or k > 7:
-            raise ValueError(
-                "The given value of k={} is not supported.".format(k)
-            )
-
-        #Building list of k's to be calculated
-        #If a k value is in this list, it will be considered
-        self.k = [] 
-        Max_k = 3 #for k1 k2 k3
-        for i in reversed(range(Max_k)):
-            if k >= 2**i:
-                self.k.append(i+1)
-                k -= 2**i
-        self.k.sort()
+        supported_k = set(range(1, 4))
+        if isinstance(k, int):
+            if k not in supported_k:
+                raise ValueError(
+                    "The given value of k={} is not supported.".format(k)
+                )
+            self.k = {k}
+        else:
+            try:
+                k = set(k)
+            except Exception:
+                raise ValueError(
+                    "Could not make the given value of k into a set or integer."
+                )
+            if not k.issubset(supported_k):
+                raise ValueError(
+                    "The given k parameter '{}' has at least one invalid k value".format(k)
+                )
+            self.k = set(k)
 
         # Check the weighting information
         if weighting is not None:
@@ -170,7 +169,6 @@ class MBTR(Descriptor):
                         "The min value should be smaller than the max values"
         self.grid = grid
 
-        #self.k = k
         self.n_elements = None
         self.present_elements = None
         self.atomic_number_to_index = {}
