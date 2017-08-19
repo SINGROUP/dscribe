@@ -40,7 +40,7 @@ cm_desc = CoulombMatrix(n_atoms_max=n_atoms_max)
 sm_desc = SineMatrix(n_atoms_max=n_atoms_max)
 mbtr_desc = MBTR(
     atomic_numbers=atomic_numbers,
-    k=2,
+    k=3,
     periodic=True,
     weighting="exponential")
 
