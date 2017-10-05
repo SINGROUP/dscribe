@@ -307,31 +307,30 @@ class SineMatrixTests(unittest.TestCase):
         desc = SineMatrix(n_atoms_max=5, flatten=False)
 
         # Create a graph of the interaction in a 2D slice
-        # size = 100
-        # x_min = 0.0
-        # x_max = 3
-        # y_min = 0.0
-        # y_max = 3
-        # x_axis = np.linspace(x_min, x_max, size)
-        # y_axis = np.linspace(y_min, y_max, size)
-        # interaction = np.empty((size, size))
-        # for i, x in enumerate(x_axis):
-            # for j, y in enumerate(y_axis):
-                # temp_sys = System(
-                    # lattice=[[1, 0.0, 0.0], [1, 1, 0.0], [0.0, 0.0, 1.0]],
-                    # positions=[[0, 0, 0], [x, y, 0]],
-                    # species=["H", "H"],
-                    # coords_are_cartesian=True
-                # )
-                # temp_sys.charges = np.array([1, 1])
-                # value = desc.create(temp_sys)
-                # interaction[i, j] = value[0, 1]
+        size = 100
+        x_min = 0.0
+        x_max = 3
+        y_min = 0.0
+        y_max = 3
+        x_axis = np.linspace(x_min, x_max, size)
+        y_axis = np.linspace(y_min, y_max, size)
+        interaction = np.empty((size, size))
+        for i, x in enumerate(x_axis):
+            for j, y in enumerate(y_axis):
+                temp_sys = System(
+                    cell=[[1, 0.0, 0.0], [1, 1, 0.0], [0.0, 0.0, 1.0]],
+                    positions=[[0, 0, 0], [x, y, 0]],
+                    symbols=["H", "H"],
+                )
+                temp_sys.set_initial_charges(np.array([1, 1]))
+                value = desc.create(temp_sys)
+                interaction[i, j] = value[0, 1]
 
-        # mpl.imshow(interaction, cmap='RdBu', vmin=0, vmax=5,
-                # extent=[x_min, x_max, y_min, y_max],
-                # interpolation='nearest', origin='lower')
-        # mpl.colorbar()
-        # mpl.show()
+        mpl.imshow(interaction, cmap='RdBu', vmin=0, vmax=5,
+                extent=[x_min, x_max, y_min, y_max],
+                interpolation='nearest', origin='lower')
+        mpl.colorbar()
+        mpl.show()
 
         # Test against assumed values
         q = test_sys.get_initial_charges()
@@ -386,14 +385,21 @@ class MBTRTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             MBTR(
                 atomic_numbers=[1],
-                k=4,
+                k=[-1, 2],
                 periodic=False,
             )
 
         with self.assertRaises(ValueError):
             MBTR(
                 atomic_numbers=[1],
-                k={0, 1},
+                k=1,
+                periodic=False,
+            )
+
+        with self.assertRaises(ValueError):
+            MBTR(
+                atomic_numbers=[1],
+                k={1, 4},
                 periodic=False,
             )
 
@@ -408,7 +414,7 @@ class MBTRTests(unittest.TestCase):
         n_elem = len(atomic_numbers)
         mbtr = MBTR(
             atomic_numbers=atomic_numbers,
-            k=1,
+            k=[1],
             grid={
                 "k1": {
                     "min": 1,
@@ -481,7 +487,7 @@ class MBTRTests(unittest.TestCase):
         self.assertEqual(n_features, expected)
 
     def test_counts(self):
-        mbtr = MBTR([1, 8], k=1, periodic=False)
+        mbtr = MBTR([1, 8], k=[1], periodic=False)
         mbtr.create(H2O)
         counts = mbtr._counts
 
@@ -489,7 +495,7 @@ class MBTRTests(unittest.TestCase):
         self.assertTrue(np.array_equal(counts, np.array([2, 1])))
 
         # Test against system with different indexing
-        mbtr = MBTR([1, 8], k=1, periodic=False)
+        mbtr = MBTR([1, 8], k=[1], periodic=False)
         mbtr.create(H2O_2)
         counts2 = mbtr._counts
         self.assertTrue(np.array_equal(counts, counts2))
@@ -500,11 +506,11 @@ class MBTRTests(unittest.TestCase):
             positions=[[0, 0, 0]],
             symbols=["H"],
         )
-        mbtr = MBTR([1], k=2, weighting="exponential", periodic=True)
+        mbtr = MBTR([1], k=[2], weighting="exponential", periodic=True)
         desc = mbtr.create(test_sys)
 
     def test_inverse_distances(self):
-        mbtr = MBTR([1, 8], k=2, periodic=False)
+        mbtr = MBTR([1, 8], k=[2], periodic=False)
         mbtr.create(H2O)
         inv_dist = mbtr._inverse_distances
 
@@ -519,13 +525,13 @@ class MBTRTests(unittest.TestCase):
         self.assertEqual(assumed, inv_dist)
 
         # Test against system with different indexing
-        mbtr = MBTR([1, 8], k=2, periodic=False)
+        mbtr = MBTR([1, 8], k=[2], periodic=False)
         mbtr.create(H2O_2)
         inv_dist_2 = mbtr._inverse_distances
         self.assertEqual(inv_dist, inv_dist_2)
 
     def test_cosines(self):
-        mbtr = MBTR([1, 8], k=3, periodic=False)
+        mbtr = MBTR([1, 8], k=[3], periodic=False)
         mbtr.create(H2O)
         angles = mbtr._angles
 
@@ -561,7 +567,7 @@ class MBTRTests(unittest.TestCase):
                             self.assertAlmostEqual(val_assumed, val_true, places=6)
 
         # Test against system with different indexing
-        mbtr = MBTR([1, 8], k=3, periodic=False)
+        mbtr = MBTR([1, 8], k=[3], periodic=False)
         mbtr.create(H2O_2)
         angles2 = mbtr._angles
         # print(angles)
@@ -577,7 +583,7 @@ class MBTRTests(unittest.TestCase):
         n = 500
         mbtr = MBTR(
             [1, 8],
-            k=1,
+            k=[1],
             grid={
                 "k1": {
                     "min": start,
@@ -612,7 +618,7 @@ class MBTRTests(unittest.TestCase):
         self.assertTrue(np.allclose(sum_cum, exp, rtol=0, atol=0.001))
 
     def test_k1(self):
-        mbtr = MBTR([1, 8], k=1, periodic=False, flatten=False)
+        mbtr = MBTR([1, 8], k=[1], periodic=False, flatten=False)
         desc = mbtr.create(H2O)
         x1 = mbtr._axis_k1
 
@@ -634,7 +640,7 @@ class MBTRTests(unittest.TestCase):
         # mpl.show()
 
     def test_k2(self):
-        mbtr = MBTR([1, 8], k=2, periodic=False, flatten=False)
+        mbtr = MBTR([1, 8], k=[2], periodic=False, flatten=False)
         desc = mbtr.create(H2O)
 
         x2 = mbtr._axis_k2

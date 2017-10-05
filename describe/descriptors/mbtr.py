@@ -39,11 +39,9 @@ class MBTR(Descriptor):
                 to be encountered when creating the descriptors for a set of
                 systems.  Keeping the number of handled elements as low as
                 possible is preferable.
-            k (int or set or list): The interaction terms to consider. Providing a
-                single integer means that only that term is generated. You can also
-                provide a set/list of term numbers to consider. The size of the
-                final output and the time taken in creating this descriptor is
-                exponentially dependent on this value.
+            k (set or list): The interaction terms to consider from 1 to 3. The
+                size of the final output and the time taken in creating this
+                descriptor is exponentially dependent on this value.
             periodic (bool): Boolean for if the system is periodic or none. If
                 this is set to true, you should provide the primitive system as
                 input and then the number of periodic copies is determined from the
@@ -110,17 +108,17 @@ class MBTR(Descriptor):
         # Check K value
         supported_k = set(range(1, 4))
         if isinstance(k, int):
-            if k not in supported_k:
-                raise ValueError(
-                    "The given value of k={} is not supported.".format(k)
-                )
-            self.k = {k}
+            raise ValueError(
+                "Please provide the k values that you wish to be generated as a"
+                " list or set."
+            )
         else:
             try:
                 k = set(k)
             except Exception:
                 raise ValueError(
-                    "Could not make the given value of k into a set or integer."
+                    "Could not make the given value of k into a set. Please "
+                    "provide the k values as a list or a set."
                 )
             if not k.issubset(supported_k):
                 raise ValueError(

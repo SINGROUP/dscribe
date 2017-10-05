@@ -27,4 +27,4 @@ atomic_numbers = stats["atomic_numbers"]
 # Create descriptors for this system directly from the ASE atoms
 cm = CoulombMatrix(n_atoms_max).create(atoms)
 sm = SineMatrix(n_atoms_max).create(atoms)
-mbtr = MBTR(atomic_numbers, k=7, periodic=True, weighting="exponential").create(atoms)
+mbtr = MBTR(atomic_numbers, k=[1, 2, 3], periodic=True, weighting="exponential").create(atoms)
