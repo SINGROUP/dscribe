@@ -3,6 +3,7 @@ from describe.core import System
 from describe.data.element_data import numbers_to_symbols
 import numpy as np
 import matplotlib.pyplot as mpl
+from ase.visualize import view
 
 # Define the system under study: NaCl in a conventional cell.
 NaCl_conv = System(
@@ -23,11 +24,13 @@ NaCl_conv = System(
     ],
     symbols=["Na", "Cl", "Na", "Cl", "Na", "Cl", "Na", "Cl"],
 )
+view(NaCl_conv)
 
-# Create the MBTR desciptor for the system
+# Create a local MBTR desciptor around the atomic index 6 corresponding to a Na
+# atom
 decay_factor = 0.5
-mbtr = LMBTR( 
-    atom_index = 6,
+mbtr = LMBTR(
+    atom_index=6,
     atomic_numbers=[11, 17],
     k=[1, 2, 3],
     periodic=True,
