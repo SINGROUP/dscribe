@@ -27,7 +27,7 @@ NaCl_conv = System(
 # Create the MBTR desciptor for the system
 decay_factor = 0.5
 mbtr = LMBTR( 
-    atom_index = 1,
+    atom_index = 6,
     atomic_numbers=[11, 17],
     k=[1, 2, 3],
     periodic=True,

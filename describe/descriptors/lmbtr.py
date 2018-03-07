@@ -7,12 +7,12 @@ from scipy.sparse import lil_matrix, coo_matrix
 from scipy.special import erf
 
 from describe.core import System
-from describe.descriptors import Descriptor
+from describe.descriptors import MBTR
 
 import matplotlib.pyplot as mpl
 
 
-class LMBTR(Descriptor):
+class LMBTR(MBTR):
     """Implementation of local -- per chosen atom -- kind of the Many-body tensor representation up to K=3.
 
     You can use this descriptor for finite and periodic systems. When dealing
@@ -105,100 +105,16 @@ class LMBTR(Descriptor):
             ValueError if the given k value is not supported, or the weighting
             is not specified for periodic systems.
         """
-        super().__init__(flatten)
-
-        # Check K value
-        supported_k = set(range(1, 4))
-        if isinstance(k, int):
-            raise ValueError(
-                "Please provide the k values that you wish to be generated as a"
-                " list or set."
-            )
-        else:
-            try:
-                k = set(k)
-            except Exception:
-                raise ValueError(
-                    "Could not make the given value of k into a set. Please "
-                    "provide the k values as a list or a set."
-                )
-            if not k.issubset(supported_k):
-                raise ValueError(
-                    "The given k parameter '{}' has at least one invalid k value".format(k)
-                )
-            self.k = set(k)
-
-        # Check the weighting information
-        if weighting is not None:
-            if weighting == "exponential":
-                weighting = {
-                    "k2": {
-                        "function": lambda x: np.exp(-0.5*x),
-                        "threshold": 1e-3
-                    },
-                    "k3": {
-                        "function": lambda x: np.exp(-0.5*x),
-                        "threshold": 1e-3
-                    }
-                }
-            else:
-                for i in self.k:
-                    info = weighting.get("k{}".format(i))
-                    if info is not None:
-                        assert "function" in info, \
-                            ("The weighting dictionary is missing 'function'.")
-        elif periodic:
-            raise ValueError(
-                "Periodic systems will need to have a weighting function "
-                "defined in the 'weighting' dictionary of the MBTR constructor."
-            )
-
-        # Check the given grid
-        if grid is not None:
-            for i in self.k:
-                info = grid.get("k{}".format(i))
-                if info is not None:
-                    msg = "The grid information is missing the value for {}"
-                    val_names = ["min", "max", "sigma", "n"]
-                    for val_name in val_names:
-                        try:
-                            info[val_name]
-                        except Exception:
-                            raise KeyError(msg.format(val_name))
-                    assert info["min"] < info["max"], \
-                        "The min value should be smaller than the max values"
-        self.grid = grid
+        super().__init__(
+                    atomic_numbers,
+                    k,
+                    periodic,
+                    grid,
+                    weighting,
+                    flatten,
+                    )
 
         self.atom_index = atom_index
-        self.n_elements = None
-        self.present_elements = None
-        self.atomic_number_to_index = {}
-        self.index_to_atomic_number = {}
-        self.n_atoms_in_cell = None
-        self.periodic = periodic
-        self.n_copies_per_axis = None
-
-        self.weighting = weighting
-
-        # Sort the atomic numbers. This is not needed but makes things maybe a
-        # bit easier to debug.
-        atomic_numbers.sort()
-
-        for i_atom, atomic_number in enumerate(atomic_numbers):
-            self.atomic_number_to_index[atomic_number] = i_atom
-            self.index_to_atomic_number[i_atom] = atomic_number
-        self.n_elements = len(atomic_numbers)
-
-        self.max_atomic_number = max(atomic_numbers)
-        self.min_atomic_number = min(atomic_numbers)
-
-        self._counts = None
-        self._inverse_distances = None
-        self._angles = None
-        self._angle_weights = None
-        self._axis_k1 = None
-        self._axis_k2 = None
-        self._axis_k3 = None
 
     def describe(self, system):
         """Return the many-body tensor representation as a 1D array for the
@@ -211,124 +127,9 @@ class LMBTR(Descriptor):
             1D ndarray: The many-body tensor representation up to the k:th term
             as a flattened array.
         """
-        self.n_atoms_in_cell = len(system)
-        present_element_numbers = set(system.numbers)
-        self.present_indices = set()
-        for number in present_element_numbers:
-            index = self.atomic_number_to_index[number]
-            self.present_indices.add(index)
-        assert self.atom_index < self.n_atoms_in_cell, "Atom index: {}, larger than total number of atoms ".format(self.atom_index)
-
-        mbtr = []
-        if 1 in self.k:
-
-            # We will use the original system to calculate the counts, unlike
-            # with the other terms that use the extended system
-            settings_k1 = self.get_k1_settings()
-            k1 = self.K1(system, settings_k1)
-            mbtr.append(k1)
-
-        if 2 in self.k:
-            settings_k2 = self.get_k2_settings()
-
-            # If needed, create the extended system
-            system_k2 = system
-            if self.periodic:
-                system_k2 = self.create_extended_system(system, 2)
-
-            k2 = self.K2(system_k2, settings_k2)
-
-            # Free memory
-            system_k2 = None
-
-            mbtr.append(k2)
-
-        if 3 in self.k:
-
-            settings_k3 = self.get_k3_settings()
-
-            # If needed, create the extended system
-            system_k3 = system
-            if self.periodic:
-                system_k3 = self.create_extended_system(system, 3)
-
-            k3 = self.K3(system_k3, settings_k3)
-
-            # Free memory
-            system_k3 = None
-
-            mbtr.append(k3)
-
-        if self.flatten:
-            length = 0
-
-            datas = []
-            rows = []
-            cols = []
-            for tensor in mbtr:
-                size = tensor.shape[1]
-                coo = tensor.tocoo()
-                datas.append(coo.data)
-                rows.append(coo.row)
-                cols.append(coo.col + length)
-                length += size
-
-            datas = np.concatenate(datas)
-            rows = np.concatenate(rows)
-            cols = np.concatenate(cols)
-            final_vector = coo_matrix((datas, (rows, cols)), shape=[1, length], dtype=np.float32)
-
-            return final_vector
-        else:
-            return mbtr
-
-    def get_k1_settings(self):
-        """Returns the min, max, dx and sigma for K1.
-        """
-        if self.grid is not None and self.grid.get("k1") is not None:
-            return self.grid["k1"]
-        else:
-            sigma = 1e-1
-            min_k = self.min_atomic_number-MBTR.decay_factor*sigma
-            max_k = self.max_atomic_number+MBTR.decay_factor*sigma
-            return {
-                "min": min_k,
-                "max": max_k,
-                "sigma": sigma,
-                "n": math.ceil((max_k-min_k)/sigma/4) + 1,
-            }
-
-    def get_k2_settings(self):
-        """Returns the min, max, dx and sigma for K2.
-        """
-        if self.grid is not None and self.grid.get("k2") is not None:
-            return self.grid["k2"]
-        else:
-            sigma = 2**(-7)
-            min_k = 0-MBTR.decay_factor*sigma
-            max_k = 1/0.7+MBTR.decay_factor*sigma
-            return {
-                "min": min_k,
-                "max": max_k,
-                "sigma": sigma,
-                "n": math.ceil((max_k-min_k)/sigma/4) + 1,
-            }
-
-    def get_k3_settings(self):
-        """Returns the min, max, dx and sigma for K3.
-        """
-        if self.grid is not None and self.grid.get("k3") is not None:
-            return self.grid["k3"]
-        else:
-            sigma = 2**(-3.5)
-            min_k = -1.0-MBTR.decay_factor*sigma
-            max_k = 1.0+MBTR.decay_factor*sigma
-            return {
-                "min": min_k,
-                "max": max_k,
-                "sigma": sigma,
-                "n": math.ceil((max_k-min_k)/sigma/4) + 1,
-            }
+        if self.atom_index > len(system):
+            raise ValueError("Atom index: {}, larger than total number of atoms ".format(self.atom_index))
+        return super().describe(system)
 
     def get_number_of_features(self):
         """Used to inquire the final number of features that this descriptor
@@ -354,180 +155,6 @@ class LMBTR(Descriptor):
             n_features += n_k3
 
         return int(n_features)
-
-    def create_extended_system(self, primitive_system, term_number):
-        """Used to create a periodically extended system, that is as small as
-        possible by rejecting atoms for which the given weighting will be below
-        the given threshold.
-
-        Args:
-            primitive_system (System): The original primitive system to
-                duplicate.
-            term_number (int): The term number of the tensor. For k=2, the max
-                distance is x, for k>2, the distance is given by 2*x.
-
-        Returns:
-            System: The new system that is extended so that each atom can at
-            most have a weight that is larger or equivalent to the given
-            threshold.
-        """
-        numbers = primitive_system.numbers
-        relative_pos = primitive_system.get_scaled_positions()
-        cartesian_pos = np.array(primitive_system.get_positions())
-        cell = primitive_system.get_cell()
-
-        # Determine the upper limit of how many copies we need in each cell
-        # vector direction. We take as many copies as needed for the
-        # exponential weight to come down to the given threshold.
-        cell_vector_lengths = np.linalg.norm(cell, axis=1)
-        n_copies_axis = np.zeros(3, dtype=int)
-        weighting_function = self.weighting["k{}".format(term_number)]["function"]
-        threshold = self.weighting["k{}".format(term_number)].get("threshold", 1e-3)
-
-        for i_axis, axis_length in enumerate(cell_vector_lengths):
-            limit_found = False
-            n_copies = -1
-            while (not limit_found):
-                n_copies += 1
-                distance = n_copies*cell_vector_lengths[0]
-
-                # For terms above k==2 we double the distances to take into
-                # account the "loop" that is required.
-                if term_number > 2:
-                    distance = 2*distance
-
-                weight = weighting_function(distance)
-                if weight < threshold:
-                    n_copies_axis[i_axis] = n_copies
-                    limit_found = True
-
-        # Create copies of the cell but keep track of the atoms in the
-        # original cell
-        num_extended = []
-        pos_extended = []
-        num_extended.append(numbers)
-        pos_extended.append(cartesian_pos)
-        a = np.array([1, 0, 0])
-        b = np.array([0, 1, 0])
-        c = np.array([0, 0, 1])
-        for i in range(-n_copies_axis[0], n_copies_axis[0]+1):
-            for j in range(-n_copies_axis[1], n_copies_axis[1]+1):
-                for k in range(-n_copies_axis[2], n_copies_axis[2]+1):
-                    if i == 0 and j == 0 and k == 0:
-                        continue
-                    num_copy = np.array(numbers)
-
-                    # Calculate the positions of the copied atoms and filter
-                    # out the atoms that are farther away than the given
-                    # cutoff.
-                    pos_copy = np.array(relative_pos)-i*a-j*b-k*c
-                    pos_copy_cartesian = np.dot(pos_copy, cell)
-                    distances = cdist(pos_copy_cartesian, cartesian_pos)
-
-                    # For terms above k==2 we double the distances to take into
-                    # account the "loop" that is required.
-                    if term_number > 2:
-                        distances *= 2
-
-                    weights = weighting_function(distances)
-                    weight_mask = weights >= threshold
-
-                    # Create a boolean mask that says if the atom is within the
-                    # range from at least one atom in the original cell
-                    valids_mask = np.any(weight_mask, axis=1)
-
-                    valid_pos = pos_copy_cartesian[valids_mask]
-                    valid_num = num_copy[valids_mask]
-
-                    pos_extended.append(valid_pos)
-                    num_extended.append(valid_num)
-
-        pos_extended = np.concatenate(pos_extended)
-        num_extended = np.concatenate(num_extended)
-
-        extended_system = System(
-            positions=pos_extended,
-            numbers=num_extended,
-            cell=cell,
-        )
-
-        return extended_system
-
-    # def gaussian_sum(self, centers, weights, sigma, grid):
-        # """Creates function that represents a sum of normalized gaussians with
-        # an equal standard deviation.
-
-        # Args:
-            # centers (1D np.ndarray): The means of the gaussians.
-            # weights (1D np.ndarray): The weights for the gaussians.
-            # sigma (float): The standard deviation of all the gaussians.
-            # grid (1D np.ndarray): The grid on which to evaluate the gaussians.
-
-        # Returns:
-            # Value of the gaussian sums on the given grid.
-        # """
-        # dist2 = grid[np.newaxis, :] - centers[:, np.newaxis]
-        # dist2 *= dist2
-        # f = np.sum(weights[:, np.newaxis]*np.exp(-dist2/(2*sigma**2)), axis=0)
-        # f *= 1/math.sqrt(2*sigma**2*math.pi)
-
-        # return f
-
-    def gaussian_sum(self, centers, weights, settings):
-        """Calculates a discrete version of a sum of Gaussian distributions.
-
-        The calculation is done through the cumulative distribution function
-        that is better at keeping the integral of the probability function
-        constant with coarser grids.
-
-        The values are normalized by dividing with the maximum value of a
-        gaussian with the given standard deviation.
-
-        Args:
-            centers (1D np.ndarray): The means of the gaussians.
-            weights (1D np.ndarray): The weights for the gaussians.
-            settings (dict): The grid settings
-
-        Returns:
-            Value of the gaussian sums on the given grid.
-        """
-        start = settings["min"]
-        stop = settings["max"]
-        sigma = settings["sigma"]
-        n = settings["n"]
-
-        max_val = 1/(sigma*math.sqrt(2*math.pi))
-
-        dx = (stop - start)/(n-1)
-        x = np.linspace(start-dx/2, stop+dx/2, n+1)
-        pos = x[np.newaxis, :] - centers[:, np.newaxis]
-        y = weights[:, np.newaxis]*1/2*(1 + erf(pos/(sigma*np.sqrt(2))))
-        f = np.sum(y, axis=0)
-        f /= max_val
-        f_rolled = np.roll(f, -1)
-        pdf = (f_rolled - f)[0:-1]/dx  # PDF is the derivative of CDF
-
-        return pdf
-
-    def elements(self, system):
-        """Calculate the atom count for each element.
-
-        Args:
-            system (System): The atomic system.
-
-        Returns:
-            1D ndarray: The counts for each element in a list where the index
-            of atomic number x is self.atomic_number_to_index[x]
-        """
-        numbers = system.numbers
-        unique, counts = np.unique(numbers, return_counts=True)
-        counts_reindexed = np.zeros(self.n_elements)
-        for atomic_number, count in zip(unique, counts):
-            index = self.atomic_number_to_index[atomic_number]
-            counts_reindexed[index] = count
-
-        self._counts = counts_reindexed
-        return counts_reindexed
 
     def inverse_distances(self, system):
         """Calculates the inverse distances for the given atomic positions.
@@ -656,7 +283,7 @@ class LMBTR(Descriptor):
         else:
             k1 = np.zeros(n, dtype=np.float32)
 
-        atomic_number = np.array([self.index_to_atomic_number[self.atom_index]])
+        atomic_number = np.array([system.numbers[self.atom_index]])
         count = np.array([1.0])
         gaussian_sum = self.gaussian_sum(atomic_number, count, settings)
 
