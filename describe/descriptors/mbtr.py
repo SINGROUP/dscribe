@@ -26,6 +26,7 @@ class MBTR(Descriptor):
             atomic_numbers,
             k,
             periodic,
+            elem_desc=None,
             grid=None,
             weighting=None,
             flatten=True
@@ -106,7 +107,11 @@ class MBTR(Descriptor):
         super().__init__(flatten)
 
         # Check K value
-        supported_k = set(range(1, 4))
+        if elem_desc is None:
+            supported_k = set(range(1, 4))
+        else:
+            supported_k = set(range(0, 4))
+        
         if isinstance(k, int):
             raise ValueError(
                 "Please provide the k values that you wish to be generated as a"
@@ -152,8 +157,9 @@ class MBTR(Descriptor):
             )
 
         # Check the given grid
+        k_for_check = range(1, 4)
         if grid is not None:
-            for i in self.k:
+            for i in k_for_check:
                 info = grid.get("k{}".format(i))
                 if info is not None:
                     msg = "The grid information is missing the value for {}"
@@ -174,7 +180,7 @@ class MBTR(Descriptor):
         self.n_atoms_in_cell = None
         self.periodic = periodic
         self.n_copies_per_axis = None
-
+        self.elem_desc = elem_desc
         self.weighting = weighting
 
         # Sort the atomic numbers. This is not needed but makes things maybe a
@@ -193,9 +199,11 @@ class MBTR(Descriptor):
         self._inverse_distances = None
         self._angles = None
         self._angle_weights = None
+        self.axis_k0 = None
         self._axis_k1 = None
         self._axis_k2 = None
         self._axis_k3 = None
+
 
     def describe(self, system):
         """Return the many-body tensor representation as a 1D array for the
@@ -216,6 +224,15 @@ class MBTR(Descriptor):
             self.present_indices.add(index)
 
         mbtr = []
+
+        if 0 in self.k:
+
+            settings_k0 = self.get_k0_settings ()
+            k0 = self.K0(system, settings_k0)
+            mbtr.extend (k0)
+            #mbtr.append(k0)
+
+
         if 1 in self.k:
 
             # We will use the original system to calculate the counts, unlike
@@ -277,6 +294,12 @@ class MBTR(Descriptor):
             return final_vector
         else:
             return mbtr
+
+    def get_k0_settings(self):
+        if self.grid is not None and self.grid.get("k0") is not None:
+               return self.grid ["k0"]
+        else:
+               raise ValueError ('Please provide the grid for k0 term with subgrids for each descriptor')
 
     def get_k1_settings(self):
         """Returns the min, max, dx and sigma for K1.
@@ -675,6 +698,42 @@ class MBTR(Descriptor):
         self._angle_weights = weight_dict
         return cos_dict, weight_dict
 
+    def K0 (self, system, settings):
+        """Calculates zero order terms where the scalar mapping is input elemental descriptors
+
+        Args:
+            system (System): The atomic system.
+            settings (dict): The grid settings
+
+        Returns:
+            1D ndarray: flattened K0 values.
+        """
+        
+        keys = list (settings.keys ())
+        sorted (keys)
+        empty_matr = lil_matrix ((0, 0), dtype=np.float32)
+        debug_list = []
+        n_elem = self.n_elements
+        self._axis_k0 = []
+        for key in keys:
+            start = settings[key]["min"]
+            stop = settings[key]["max"]
+            n = settings[key]["n"]
+            self._axis_k0.append (np.linspace (start, stop, n))
+            counts = self.elements(system)
+            size = n
+            k0 = lil_matrix ((1, n), dtype=np.float32)
+            for i in range (n_elem):
+                value = np.array([self.elem_desc[key][i]])
+                count = np.array ([counts [i]])
+                gaussian_sum = self.gaussian_sum (value, count, settings [key])
+                start = i*n
+                end = (i+1)*n
+                k0[0, :] += gaussian_sum
+            debug_list.append (k0)
+            #k0 = hstack ([empty_matr, k0])
+        return debug_list
+
     def K1(self, system, settings):
         """Calculates the first order terms where the scalar mapping is the
         number of atoms of a certain type.
@@ -846,3 +905,5 @@ class MBTR(Descriptor):
                         # mpl.show()
 
         return k3
+
+
