@@ -176,11 +176,13 @@ class MBTR(Descriptor):
         self.n_elements = None
         self.present_elements = None
         self.atomic_number_to_index = {}
+        self.atomic_number_to_d1 = {}
+        self.atomic_number_to_d2 = {}
         self.index_to_atomic_number = {}
         self.n_atoms_in_cell = None
         self.periodic = periodic
         self.n_copies_per_axis = None
-        self.elem_desc = elem_desc
+        #self.elem_desc = elem_desc
         self.weighting = weighting
 
         # Sort the atomic numbers. This is not needed but makes things maybe a
@@ -189,6 +191,8 @@ class MBTR(Descriptor):
 
         for i_atom, atomic_number in enumerate(atomic_numbers):
             self.atomic_number_to_index[atomic_number] = i_atom
+            self.atomic_number_to_d1[atomic_number] = elem_desc ['d1'] [str (atomic_number)]
+            self.atomic_number_to_d2[atomic_number] = elem_desc ['d2'] [str (atomic_number)]
             self.index_to_atomic_number[i_atom] = atomic_number
         self.n_elements = len(atomic_numbers)
 
@@ -359,6 +363,10 @@ class MBTR(Descriptor):
         n_features = 0
         n_elem = self.n_elements
 
+        if 0 in self.k:
+            n_k0_grid = self.get_k0_settings()["d1"]["n"]
+            n_k0 = 2*n_k0_grid
+            n_features += n_k0
         if 1 in self.k:
             n_k1_grid = self.get_k1_settings()["n"]
             n_k1 = n_elem*n_k1_grid
@@ -711,20 +719,30 @@ class MBTR(Descriptor):
         
         keys = list (settings.keys ())
         sorted (keys)
-        empty_matr = lil_matrix ((0, 0), dtype=np.float32)
+        elems = system.numbers
+        n_elem = len (elems)
+        desc = {}
+        d1, d2 = [], []
+        counts = []
+        for el in elems:
+            d1.append (self.atomic_number_to_d1 [el])
+            d2.append (self.atomic_number_to_d2 [el])
+        desc ['d1'] = d1
+        desc ['d2'] = d2
+        for d in d1:
+            counts.append (d1.count (d))
+        #empty_matr = lil_matrix ((0, 0), dtype=np.float32)
         debug_list = []
-        n_elem = self.n_elements
         self._axis_k0 = []
         for key in keys:
             start = settings[key]["min"]
             stop = settings[key]["max"]
             n = settings[key]["n"]
             self._axis_k0.append (np.linspace (start, stop, n))
-            counts = self.elements(system)
             size = n
             k0 = lil_matrix ((1, n), dtype=np.float32)
             for i in range (n_elem):
-                value = np.array([self.elem_desc[key][i]])
+                value = np.array([desc[key][i]])
                 count = np.array ([counts [i]])
                 gaussian_sum = self.gaussian_sum (value, count, settings [key])
                 start = i*n
