@@ -2,18 +2,17 @@ import math
 import numpy as np
 import itertools
 
-from scipy.spatial.distance import squareform, pdist, cdist
-from scipy.sparse import lil_matrix, coo_matrix
-from scipy.special import erf
+from scipy.spatial.distance import squareform, pdist
+from scipy.sparse import lil_matrix
 
-from describe.core import System
 from describe.descriptors import MBTR
 
-import matplotlib.pyplot as mpl
+# import matplotlib.pyplot as mpl
 
 
 class LMBTR(MBTR):
-    """Implementation of local -- per chosen atom -- kind of the Many-body tensor representation up to K=3.
+    """Implementation of local -- per chosen atom -- kind of the Many-body
+    tensor representation up to K=3.
 
     You can use this descriptor for finite and periodic systems. When dealing
     with periodic systems, please always use a primitive cell. It does not
@@ -164,7 +163,7 @@ class LMBTR(MBTR):
 
         Returns:
             dict: Inverse distances in the form:
-            {i: [list of angles] }. 
+            {i: [list of angles] }.
         """
         inverse_dist = system.get_inverse_distance_matrix()
 
@@ -383,7 +382,7 @@ class LMBTR(MBTR):
         self._axis_k3 = np.linspace(start, stop, n)
 
         cos_dict, cos_weight_dict = self.cosines_and_weights(system)
-        
+
         n_elem = self.n_elements
 
         if self.flatten:
