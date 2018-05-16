@@ -1,9 +1,10 @@
 from abc import ABCMeta, abstractmethod
 from ase import Atoms
 from describe import System
+from future.utils import with_metaclass
 
 
-class Descriptor(metaclass=ABCMeta):
+class Descriptor(with_metaclass(ABCMeta)):
     """An abstract base class for all descriptors.
     """
 

@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+from builtins import super
 import math
 import numpy as np
 import itertools
@@ -8,8 +10,6 @@ from scipy.special import erf
 
 from describe.core import System
 from describe.descriptors import Descriptor
-
-import matplotlib.pyplot as mpl
 
 
 class MBTR(Descriptor):
@@ -163,6 +163,10 @@ class MBTR(Descriptor):
                             info[val_name]
                         except Exception:
                             raise KeyError(msg.format(val_name))
+
+                    # Make the n into integer
+                    n = grid.get("k{}".format(i))["n"]
+                    grid.get("k{}".format(i))["n"] = int(n)
                     assert info["min"] < info["max"], \
                         "The min value should be smaller than the max values"
         self.grid = grid
@@ -291,7 +295,7 @@ class MBTR(Descriptor):
                 "min": min_k,
                 "max": max_k,
                 "sigma": sigma,
-                "n": math.ceil((max_k-min_k)/sigma/4) + 1,
+                "n": int(math.ceil((max_k-min_k)/sigma/4) + 1),
             }
 
     def get_k2_settings(self):
@@ -307,7 +311,7 @@ class MBTR(Descriptor):
                 "min": min_k,
                 "max": max_k,
                 "sigma": sigma,
-                "n": math.ceil((max_k-min_k)/sigma/4) + 1,
+                "n": int(math.ceil((max_k-min_k)/sigma/4) + 1),
             }
 
     def get_k3_settings(self):
@@ -323,7 +327,7 @@ class MBTR(Descriptor):
                 "min": min_k,
                 "max": max_k,
                 "sigma": sigma,
-                "n": math.ceil((max_k-min_k)/sigma/4) + 1,
+                "n": int(math.ceil((max_k-min_k)/sigma/4) + 1),
             }
 
     def get_number_of_features(self):
@@ -713,12 +717,6 @@ class MBTR(Descriptor):
             else:
                 k1[i, :] = gaussian_sum
 
-            # For debugging
-            # elem_i = self.index_to_atomic_number[i]
-            # print("Count {} for: {}".format(count, elem_i))
-            # mpl.plot(space, convolution)
-            # mpl.show()
-
         return k1
 
     def K2(self, system, settings):
@@ -742,7 +740,7 @@ class MBTR(Descriptor):
 
         if self.flatten:
             k2 = lil_matrix(
-                (1, n_elem*(n_elem+1)/2*n), dtype=np.float32)
+                (1, int(n_elem*(n_elem+1)/2*n)), dtype=np.float32)
         else:
             k2 = np.zeros((self.n_elements, self.n_elements, n))
 
@@ -777,14 +775,6 @@ class MBTR(Descriptor):
                     else:
                         k2[i, j, :] = gaussian_sum
 
-                    # For debugging
-                    # elem_i = self.index_to_atomic_number[i]
-                    # elem_j = self.index_to_atomic_number[j]
-                    # print("Inverse distances {} for: {} {}"
-                    #     .format(inv_dist, elem_i, elem_j))
-                    # mpl.plot(space, gaussian_sum)
-                    # mpl.show()
-
         return k2
 
     def K3(self, system, settings):
@@ -808,7 +798,7 @@ class MBTR(Descriptor):
 
         if self.flatten:
             k3 = lil_matrix(
-                (1, n_elem*n_elem*(n_elem+1)/2*n), dtype=np.float32)
+                (1, int(n_elem*n_elem*(n_elem+1)/2*n)), dtype=np.float32)
         else:
             k3 = np.zeros((n_elem, n_elem, n_elem, n))
 
@@ -836,13 +826,5 @@ class MBTR(Descriptor):
                             k3[0, start:end] = gaussian_sum
                         else:
                             k3[i, j, k, :] = gaussian_sum
-
-                        # For debugging
-                        # elem_i = self.index_to_atomic_number[i]
-                        # elem_j = self.index_to_atomic_number[j]
-                        # elem_k = self.index_to_atomic_number[k]
-                        # print("Cosines {} for: {}{}{}".format(cos_values, elem_i, elem_j, elem_k))
-                        # mpl.plot(space, gaussian_sum)
-                        # mpl.show()
 
         return k3

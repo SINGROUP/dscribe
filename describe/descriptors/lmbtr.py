@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+from builtins import super
 import math
 import numpy as np
 import itertools
@@ -6,8 +8,6 @@ from scipy.spatial.distance import squareform, pdist
 from scipy.sparse import lil_matrix
 
 from describe.descriptors import MBTR
-
-# import matplotlib.pyplot as mpl
 
 
 class LMBTR(MBTR):
@@ -293,12 +293,6 @@ class LMBTR(MBTR):
         else:
             k1[:] = gaussian_sum
 
-            # For debugging
-            # elem_i = self.index_to_atomic_number[i]
-            # print("Count {} for: {}".format(count, elem_i))
-            # mpl.plot(space, convolution)
-            # mpl.show()
-
         return k1
 
     def K2(self, system, settings):
@@ -355,14 +349,6 @@ class LMBTR(MBTR):
                 else:
                     k2[i, :] = gaussian_sum
 
-                # For debugging
-                # elem_i = self.index_to_atomic_number[i]
-                # elem_j = self.index_to_atomic_number[j]
-                # print("Inverse distances {} for: {} {}"
-                #     .format(inv_dist, elem_i, elem_j))
-                # mpl.plot(space, gaussian_sum)
-                # mpl.show()
-
         return k2
 
     def K3(self, system, settings):
@@ -417,13 +403,5 @@ class LMBTR(MBTR):
                 else:
                     k3[i, j, :] = gaussian_sum
                     k3[j, i, :] = gaussian_sum
-
-                # For debugging
-                # elem_i = self.index_to_atomic_number[i]
-                # elem_j = self.index_to_atomic_number[j]
-                # elem_k = self.index_to_atomic_number[k]
-                # print("Cosines {} for: {}{}{}".format(cos_values, elem_i, elem_j, elem_k))
-                # mpl.plot(space, gaussian_sum)
-                # mpl.show()
 
         return k3
