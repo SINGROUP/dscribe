@@ -13,6 +13,7 @@ from describe.descriptors import CoulombMatrix
 from describe.descriptors import SortedCoulombMatrix
 from describe.descriptors import SineMatrix
 from describe.descriptors import SortedSineMatrix
+from describe.descriptors import ElementalDistribution
 from describe.core import System
 from describe.data.element_data import numbers_to_symbols
 
@@ -20,6 +21,7 @@ import matplotlib.pyplot as mpl
 
 from ase import Atoms
 from ase.lattice.cubic import SimpleCubicFactory
+import ase.build
 
 H2O = System(
     cell=[[5.0, 0.0, 0.0], [0.0, 5.0, 0.0], [0.0, 0.0, 5.0]],
@@ -778,16 +780,89 @@ class MBTRTests(unittest.TestCase):
         # mpl.show()
 
 
+class ElementalDistributionTests(unittest.TestCase):
+    """Tests for the ElementalDistribution-descriptor.
+    """
+    def test_single_property(self):
+        # Tested on a water molecule
+        system = ase.build.molecule("H2O")
+
+        # Descriptor setup
+        elemdist = ElementalDistribution(
+            properties={
+                "first_property": {
+                    "min": 0,
+                    "max": 2.5,
+                    "std": 0.1,
+                    "n": 50,
+                    "values": {
+                        "H": 0.3,
+                        "O": 2.0,
+                    }
+                }
+            }
+        )
+
+        # Features
+        x = elemdist.describe(system)
+        x_dense = x.todense().A1
+        axis = np.arange(len(x_dense))
+        # print(axis.shape)
+        # print(x_dense.shape)
+        mpl.plot(axis, x_dense)
+        mpl.show()
+
+    def test_multiple_properties(self):
+        # Tested on a water molecule
+        system = ase.build.molecule("H2O")
+
+        # Descriptor setup
+        elemdist = ElementalDistribution(
+            properties={
+                "first_property": {
+                    "min": 0,
+                    "max": 2.5,
+                    "std": 0.1,
+                    "n": 50,
+                    "values": {
+                        "H": 0.3,
+                        "O": 2.0,
+                    }
+                },
+                "second_property": {
+                    "min": -5,
+                    "max": 5,
+                    "std": 0.5,
+                    "n": 32,
+                    "values": {
+                        "H": 1.5,
+                        "O": -2.1,
+                    }
+                }
+            }
+        )
+
+        # Features
+        x = elemdist.describe(system)
+        x_dense = x.todense().A1
+        axis = np.arange(len(x_dense))
+        # print(axis.shape)
+        # print(x_dense.shape)
+        mpl.plot(axis, x_dense)
+        mpl.show()
+
+
 if __name__ == '__main__':
     suites = []
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(ASETests))
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(GeometryTests))
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(GaussianTests))
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(MBTRTests))
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(CoulombMatrixTests))
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(SortedCoulombMatrixTests))
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(SineMatrixTests))
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(SortedSineMatrixTests))
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(ASETests))
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(GeometryTests))
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(GaussianTests))
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(MBTRTests))
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(CoulombMatrixTests))
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SortedCoulombMatrixTests))
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SineMatrixTests))
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SortedSineMatrixTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(ElementalDistributionTests))
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)
 
