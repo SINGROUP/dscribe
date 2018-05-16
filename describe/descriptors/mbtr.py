@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+from builtins import super
 import math
 import numpy as np
 import itertools
@@ -8,8 +10,6 @@ from scipy.special import erf
 
 from describe.core import System
 from describe.descriptors import Descriptor
-
-import matplotlib.pyplot as mpl
 
 
 class MBTR(Descriptor):
@@ -26,7 +26,6 @@ class MBTR(Descriptor):
             atomic_numbers,
             k,
             periodic,
-            elem_desc=None,
             grid=None,
             weighting=None,
             flatten=True
@@ -107,11 +106,7 @@ class MBTR(Descriptor):
         super().__init__(flatten)
 
         # Check K value
-        if elem_desc is None:
-            supported_k = set(range(1, 4))
-        else:
-            supported_k = set(range(0, 4))
-        
+        supported_k = set(range(1, 4))
         if isinstance(k, int):
             raise ValueError(
                 "Please provide the k values that you wish to be generated as a"
@@ -157,9 +152,8 @@ class MBTR(Descriptor):
             )
 
         # Check the given grid
-        k_for_check = range(1, 4)
         if grid is not None:
-            for i in k_for_check:
+            for i in self.k:
                 info = grid.get("k{}".format(i))
                 if info is not None:
                     msg = "The grid information is missing the value for {}"
@@ -169,6 +163,10 @@ class MBTR(Descriptor):
                             info[val_name]
                         except Exception:
                             raise KeyError(msg.format(val_name))
+
+                    # Make the n into integer
+                    n = grid.get("k{}".format(i))["n"]
+                    grid.get("k{}".format(i))["n"] = int(n)
                     assert info["min"] < info["max"], \
                         "The min value should be smaller than the max values"
         self.grid = grid
@@ -182,17 +180,13 @@ class MBTR(Descriptor):
         self.n_atoms_in_cell = None
         self.periodic = periodic
         self.n_copies_per_axis = None
-        #self.elem_desc = elem_desc
         self.weighting = weighting
 
         # Sort the atomic numbers. This is not needed but makes things maybe a
         # bit easier to debug.
         atomic_numbers.sort()
-
         for i_atom, atomic_number in enumerate(atomic_numbers):
             self.atomic_number_to_index[atomic_number] = i_atom
-            self.atomic_number_to_d1[atomic_number] = elem_desc ['d1'] [str (atomic_number)]
-            self.atomic_number_to_d2[atomic_number] = elem_desc ['d2'] [str (atomic_number)]
             self.index_to_atomic_number[i_atom] = atomic_number
         self.n_elements = len(atomic_numbers)
 
@@ -203,11 +197,9 @@ class MBTR(Descriptor):
         self._inverse_distances = None
         self._angles = None
         self._angle_weights = None
-        self.axis_k0 = None
         self._axis_k1 = None
         self._axis_k2 = None
         self._axis_k3 = None
-
 
     def describe(self, system):
         """Return the many-body tensor representation as a 1D array for the
@@ -228,15 +220,6 @@ class MBTR(Descriptor):
             self.present_indices.add(index)
 
         mbtr = []
-
-        if 0 in self.k:
-
-            settings_k0 = self.get_k0_settings ()
-            k0 = self.K0(system, settings_k0)
-            mbtr.extend (k0)
-            #mbtr.append(k0)
-
-
         if 1 in self.k:
 
             # We will use the original system to calculate the counts, unlike
@@ -299,12 +282,6 @@ class MBTR(Descriptor):
         else:
             return mbtr
 
-    def get_k0_settings(self):
-        if self.grid is not None and self.grid.get("k0") is not None:
-               return self.grid ["k0"]
-        else:
-               raise ValueError ('Please provide the grid for k0 term with subgrids for each descriptor')
-
     def get_k1_settings(self):
         """Returns the min, max, dx and sigma for K1.
         """
@@ -318,7 +295,7 @@ class MBTR(Descriptor):
                 "min": min_k,
                 "max": max_k,
                 "sigma": sigma,
-                "n": math.ceil((max_k-min_k)/sigma/4) + 1,
+                "n": int(math.ceil((max_k-min_k)/sigma/4) + 1),
             }
 
     def get_k2_settings(self):
@@ -334,7 +311,7 @@ class MBTR(Descriptor):
                 "min": min_k,
                 "max": max_k,
                 "sigma": sigma,
-                "n": math.ceil((max_k-min_k)/sigma/4) + 1,
+                "n": int(math.ceil((max_k-min_k)/sigma/4) + 1),
             }
 
     def get_k3_settings(self):
@@ -350,7 +327,7 @@ class MBTR(Descriptor):
                 "min": min_k,
                 "max": max_k,
                 "sigma": sigma,
-                "n": math.ceil((max_k-min_k)/sigma/4) + 1,
+                "n": int(math.ceil((max_k-min_k)/sigma/4) + 1),
             }
 
     def get_number_of_features(self):
@@ -706,52 +683,6 @@ class MBTR(Descriptor):
         self._angle_weights = weight_dict
         return cos_dict, weight_dict
 
-    def K0 (self, system, settings):
-        """Calculates zero order terms where the scalar mapping is input elemental descriptors
-
-        Args:
-            system (System): The atomic system.
-            settings (dict): The grid settings
-
-        Returns:
-            1D ndarray: flattened K0 values.
-        """
-        
-        keys = list (settings.keys ())
-        sorted (keys)
-        elems = system.numbers
-        n_elem = len (elems)
-        desc = {}
-        d1, d2 = [], []
-        counts = []
-        for el in elems:
-            d1.append (self.atomic_number_to_d1 [el])
-            d2.append (self.atomic_number_to_d2 [el])
-        desc ['d1'] = d1
-        desc ['d2'] = d2
-        for d in d1:
-            counts.append (d1.count (d))
-        #empty_matr = lil_matrix ((0, 0), dtype=np.float32)
-        debug_list = []
-        self._axis_k0 = []
-        for key in keys:
-            start = settings[key]["min"]
-            stop = settings[key]["max"]
-            n = settings[key]["n"]
-            self._axis_k0.append (np.linspace (start, stop, n))
-            size = n
-            k0 = lil_matrix ((1, n), dtype=np.float32)
-            for i in range (n_elem):
-                value = np.array([desc[key][i]])
-                count = np.array ([counts [i]])
-                gaussian_sum = self.gaussian_sum (value, count, settings [key])
-                start = i*n
-                end = (i+1)*n
-                k0[0, :] += gaussian_sum
-            debug_list.append (k0)
-            #k0 = hstack ([empty_matr, k0])
-        return debug_list
-
     def K1(self, system, settings):
         """Calculates the first order terms where the scalar mapping is the
         number of atoms of a certain type.
@@ -790,12 +721,6 @@ class MBTR(Descriptor):
             else:
                 k1[i, :] = gaussian_sum
 
-            # For debugging
-            # elem_i = self.index_to_atomic_number[i]
-            # print("Count {} for: {}".format(count, elem_i))
-            # mpl.plot(space, convolution)
-            # mpl.show()
-
         return k1
 
     def K2(self, system, settings):
@@ -819,7 +744,7 @@ class MBTR(Descriptor):
 
         if self.flatten:
             k2 = lil_matrix(
-                (1, n_elem*(n_elem+1)/2*n), dtype=np.float32)
+                (1, int(n_elem*(n_elem+1)/2*n)), dtype=np.float32)
         else:
             k2 = np.zeros((self.n_elements, self.n_elements, n))
 
@@ -854,14 +779,6 @@ class MBTR(Descriptor):
                     else:
                         k2[i, j, :] = gaussian_sum
 
-                    # For debugging
-                    # elem_i = self.index_to_atomic_number[i]
-                    # elem_j = self.index_to_atomic_number[j]
-                    # print("Inverse distances {} for: {} {}"
-                    #     .format(inv_dist, elem_i, elem_j))
-                    # mpl.plot(space, gaussian_sum)
-                    # mpl.show()
-
         return k2
 
     def K3(self, system, settings):
@@ -885,7 +802,7 @@ class MBTR(Descriptor):
 
         if self.flatten:
             k3 = lil_matrix(
-                (1, n_elem*n_elem*(n_elem+1)/2*n), dtype=np.float32)
+                (1, int(n_elem*n_elem*(n_elem+1)/2*n)), dtype=np.float32)
         else:
             k3 = np.zeros((n_elem, n_elem, n_elem, n))
 
@@ -914,14 +831,4 @@ class MBTR(Descriptor):
                         else:
                             k3[i, j, k, :] = gaussian_sum
 
-                        # For debugging
-                        # elem_i = self.index_to_atomic_number[i]
-                        # elem_j = self.index_to_atomic_number[j]
-                        # elem_k = self.index_to_atomic_number[k]
-                        # print("Cosines {} for: {}{}{}".format(cos_values, elem_i, elem_j, elem_k))
-                        # mpl.plot(space, gaussian_sum)
-                        # mpl.show()
-
         return k3
-
-

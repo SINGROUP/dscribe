@@ -66,3 +66,12 @@ for atoms in ase_atoms:
 # The result of the .create() function is a (possibly sparse) 1D vector that
 # can now be directly used in various machine-learning libraries.
 ```
+
+# Installation
+To install the package, clone the repository and install with pip, e.g.
+
+```sh
+git clone https://github.com/SINGROUP/describe.git
+cd describe
+pip install .
+```
