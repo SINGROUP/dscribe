@@ -783,34 +783,83 @@ class MBTRTests(unittest.TestCase):
 class ElementalDistributionTests(unittest.TestCase):
     """Tests for the ElementalDistribution-descriptor.
     """
-    def test_single_property(self):
+    def test_single_continuous_property(self):
         # Tested on a water molecule
         system = ase.build.molecule("H2O")
 
         # Descriptor setup
+        std = 0.1
+        elements = ["H", "O"]
+        peaks = [0.3, 2.0]
+        values = dict(zip(elements, peaks))
         elemdist = ElementalDistribution(
             properties={
                 "first_property": {
+                    "type": "continuous",
                     "min": 0,
                     "max": 2.5,
-                    "std": 0.1,
+                    "std": std,
                     "n": 50,
-                    "values": {
-                        "H": 0.3,
-                        "O": 2.0,
-                    }
+                    "values": values
                 }
             }
         )
 
         # Features
-        x = elemdist.describe(system)
-        x_dense = x.todense().A1
-        axis = np.arange(len(x_dense))
-        # print(axis.shape)
-        # print(x_dense.shape)
-        mpl.plot(axis, x_dense)
-        mpl.show()
+        y = elemdist.describe(system)
+        y = y.todense().A1
+        x = elemdist.get_axis("first_property")
+
+        # Test that the peak positions match
+        from scipy.signal import find_peaks_cwt
+        peak_indices = find_peaks_cwt(y, [std])
+        peak_loc = x[peak_indices]
+
+        # Test that the peak locations match within some tolerance
+        self.assertTrue(np.allclose(peaks, peak_loc, rtol=0, atol=0.05))
+
+        # Plot for visual inspection
+        # mpl.plot(x, y)
+        # mpl.show()
+
+    def test_single_discrete_property(self):
+        # Tested on a water molecule
+        system = ase.build.molecule("H2O")
+
+        # Descriptor setup
+        elements = ["H", "O", "C"]
+        peaks = [0, 4, 18]
+        values = dict(zip(elements, peaks))
+        elemdist = ElementalDistribution(
+            properties={
+                "first_property": {
+                    "type": "discrete",
+                    "values": values
+                }
+            }
+        )
+
+        # Features
+        n_features = elemdist.get_number_of_features()
+        self.assertEqual(n_features, 19)
+
+        # Check that the axis is correct
+        x = elemdist.get_axis("first_property")
+        self.assertTrue(np.array_equal(x, np.arange(0, 18+1)))
+
+        y = elemdist.describe(system)
+        y = y.todense().A1
+
+        # Test that the peak positions match
+        assumed = np.zeros((19))
+        assumed[0] = 1
+        assumed[4] = 1
+        assumed[18] = 1
+        self.assertTrue(np.array_equal(y, assumed))
+
+        # # Plot for visual inspection
+        # mpl.plot(x, y)
+        # mpl.show()
 
     def test_multiple_properties(self):
         # Tested on a water molecule
@@ -820,6 +869,7 @@ class ElementalDistributionTests(unittest.TestCase):
         elemdist = ElementalDistribution(
             properties={
                 "first_property": {
+                    "type": "continuous",
                     "min": 0,
                     "max": 2.5,
                     "std": 0.1,
@@ -830,13 +880,10 @@ class ElementalDistributionTests(unittest.TestCase):
                     }
                 },
                 "second_property": {
-                    "min": -5,
-                    "max": 5,
-                    "std": 0.5,
-                    "n": 32,
+                    "type": "discrete",
                     "values": {
-                        "H": 1.5,
-                        "O": -2.1,
+                        "H": 4,
+                        "O": 10,
                     }
                 }
             }
@@ -846,6 +893,7 @@ class ElementalDistributionTests(unittest.TestCase):
         x = elemdist.describe(system)
         x_dense = x.todense().A1
         axis = np.arange(len(x_dense))
+
         # print(axis.shape)
         # print(x_dense.shape)
         mpl.plot(axis, x_dense)

@@ -7,8 +7,20 @@ from describe.descriptors import Descriptor
 
 
 class ElementalDistribution(Descriptor):
-    """Represents a generic N-dimensional smooth distribution on any given grid
-    for any given elemental properties.
+    """Represents a generic N-dimensional distribution on any given grid for
+    any given elemental properties. Can create both continuos and discrete
+    distributions.
+
+    Continuous distributions require a standard deviation and the number of
+    sampling points. You can also specify the minimum and maximum values for
+    the axis. If these are not specified, a limit is selected based
+    automatically on the values with:
+
+        min = values.min() - 3*std
+        max = values.max() + 3*std
+
+    Discrete distributions are assumed to be integer values, and you only need
+    to specify the values.
     """
     def __init__(
             self,
@@ -23,6 +35,7 @@ class ElementalDistribution(Descriptor):
 
                 properties={
                     "property_name": {
+                        "type": "continuous"
                         "min": <Distribution minimum value>
                         "max": <Distribution maximum value>
                         "std": <Distribution standard deviation>
@@ -31,6 +44,13 @@ class ElementalDistribution(Descriptor):
                             "H": <Value for hydrogen>
                             ...
                         }
+                    "property_name2": {
+                        "type": "discrete"
+                        "values": {
+                            "H": <Value for hydrogen>
+                            ...
+                        }
+                    }
                     }
                 }
             flatten(bool): Whether to flatten out the result.
@@ -38,25 +58,60 @@ class ElementalDistribution(Descriptor):
 
         # Check that the given properties are valid
         for prop_name, prop_grid in properties.items():
-            i_min = prop_grid["min"]
-            i_max = prop_grid["max"]
-            std = prop_grid["std"]
-            n = prop_grid["n"]
-            prop_grid["values"]
-            if i_min >= i_max:
+            dist_type = prop_grid.get("type")
+            valid_dist_types = set(["continuous", "discrete"])
+            if dist_type not in valid_dist_types:
                 raise ValueError(
-                    "Minimum value for '{}' cannot be larger than maximum "
-                    "value.".format(prop_name)
+                    "Please specify the distribution type. Valid options are: {}"
+                    .format(valid_dist_types)
                 )
-            if std <= 0:
+            i_min = prop_grid.get("min")
+            i_max = prop_grid.get("max")
+            std = prop_grid.get("std")
+            n = prop_grid.get("n")
+            values = prop_grid.get("values")
+
+            if values is None:
                 raise ValueError(
-                    "The standard deviation must be a larger than zero."
+                    "Please provide the property values, i.e. a dictionary that"
+                    " maps an atomic element symbol to a property value."
                 )
-            if n <= 0:
-                raise ValueError(
-                    "The number of grid points must be a non-negative "
-                    "integer."
-                )
+
+            if dist_type == "continuous":
+                if i_min is None:
+                    i_min = np.array(values.values()).min() - 3*std
+                    prop_grid["min"] = i_min
+                if i_max is None:
+                    i_max = np.array(values.values()).max() + 3*std
+                    prop_grid["max"] = i_max
+                if i_min >= i_max:
+                    raise ValueError(
+                        "Minimum value for '{}' cannot be larger or equal to maximum "
+                        "value.".format(prop_name)
+                    )
+                if std <= 0:
+                    raise ValueError(
+                        "The standard deviation must be a larger than zero."
+                    )
+                if n <= 0:
+                    raise ValueError(
+                        "The number of grid points must be a non-negative "
+                        "integer."
+                    )
+            elif dist_type == "discrete":
+                values = list(values.values())
+                if not all(isinstance(item, int) for item in values):
+                    raise ValueError(
+                        "Not all the values given for property '{}' are integer "
+                        "numbers.".format(prop_name)
+                    )
+                values = np.array(values)
+                i_min = values.min()
+                i_max = values.max()
+                prop_grid["min"] = i_min
+                prop_grid["max"] = i_max
+                prop_grid["n"] = i_max - i_min + 1
+
         self.properties = properties
 
     def get_number_of_features(self):
@@ -71,6 +126,27 @@ class ElementalDistribution(Descriptor):
             n_features += prop["n"]
 
         return n_features
+
+    def get_axis(self, property_name):
+        """Used to return the used x-axis for the given property.
+
+        Args:
+            property_name(str): The property name that was used in the
+            constructor.
+
+        Returns:
+            np.ndarray: An array of x-axis values.
+        """
+        prop = self.properties[property_name]
+        minimum = prop["min"]
+        maximum = prop["max"]
+        dist_type = prop["type"]
+        if dist_type == "continuous":
+            n = prop["n"]
+            x = np.linspace(minimum, maximum, n)
+        elif dist_type == "discrete":
+            x = np.arange(minimum, maximum+1)
+        return x
 
     def describe(self, system):
         """
@@ -89,15 +165,27 @@ class ElementalDistribution(Descriptor):
 
         index = 0
         for prop in self.properties.values():
-            n = prop["n"]
-            minimum = prop["min"]
-            maximum = prop["max"]
-            std = prop["std"]
-            values = prop["values"]
-            centers = np.array([values[x] for x in occurrence.keys()])
-            pdf = self.gaussian_sum(centers, weights, minimum, maximum, std, n)
-            distribution[0, index:index+n] += pdf
-            index += n
+            dist_type = prop["type"]
+            if dist_type == "continuous":
+                n = prop["n"]
+                minimum = prop["min"]
+                maximum = prop["max"]
+                std = prop["std"]
+                values = prop["values"]
+                centers = np.array([values[x] for x in occurrence.keys()])
+                pdf = self.gaussian_sum(centers, weights, minimum, maximum, std, n)
+                distribution[0, index:index+n] += pdf
+                index += n
+            elif dist_type == "discrete":
+                n = prop["n"]
+                values = list(prop["values"].values())
+                uniq, counts = np.unique(values, return_counts=True)
+                minimum = prop["min"]
+                indices = uniq - minimum
+                hist = np.zeros((n))
+                hist[indices] = counts
+                distribution[0, index:index+n] += hist
+                index += n
 
         return distribution
 
