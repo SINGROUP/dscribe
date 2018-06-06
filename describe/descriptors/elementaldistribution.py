@@ -7,9 +7,8 @@ from describe.descriptors import Descriptor
 
 
 class ElementalDistribution(Descriptor):
-    """Represents a generic N-dimensional distribution on any given grid for
-    any given elemental properties. Can create both continuos and discrete
-    distributions.
+    """Represents a generic distribution on any given grid for any given
+    elemental properties. Can create both continuos and discrete distributions.
 
     Continuous distributions require a standard deviation and the number of
     sampling points. You can also specify the minimum and maximum values for
