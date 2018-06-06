@@ -76,12 +76,16 @@ class ElementalDistribution(Descriptor):
                     " maps an atomic element symbol to a property value."
                 )
 
+            values = np.array(list(values.values()))
+
             if dist_type == "continuous":
+                true_min = values.min()
+                true_max = values.max()
                 if i_min is None:
-                    i_min = np.array(values.values()).min() - 3*std
+                    i_min = true_min - 3*std
                     prop_grid["min"] = i_min
                 if i_max is None:
-                    i_max = np.array(values.values()).max() + 3*std
+                    i_max = true_max + 3*std
                     prop_grid["max"] = i_max
                 if i_min >= i_max:
                     raise ValueError(
@@ -97,14 +101,22 @@ class ElementalDistribution(Descriptor):
                         "The number of grid points must be a non-negative "
                         "integer."
                     )
+                if true_min < prop_grid["min"]:
+                    raise ValueError(
+                        "Property value is outside the specified minimum value."
+                    )
+                if true_max > prop_grid["max"]:
+                    raise ValueError(
+                        "Property value is outside the specified maximum value."
+                    )
             elif dist_type == "discrete":
-                values = list(values.values())
-                if not all(isinstance(item, int) for item in values):
+
+                # Check that all values are integer
+                if not all(np.issubdtype(item, np.dtype(int).type) for item in values):
                     raise ValueError(
                         "Not all the values given for property '{}' are integer "
                         "numbers.".format(prop_name)
                     )
-                values = np.array(values)
                 i_min = values.min()
                 i_max = values.max()
                 prop_grid["min"] = i_min
@@ -177,12 +189,13 @@ class ElementalDistribution(Descriptor):
                 index += n
             elif dist_type == "discrete":
                 n = prop["n"]
-                values = list(prop["values"].values())
-                uniq, counts = np.unique(values, return_counts=True)
-                minimum = prop["min"]
-                indices = uniq - minimum
+                values = prop["values"]
                 hist = np.zeros((n))
-                hist[indices] = counts
+                minimum = prop["min"]
+                for element, occ in occurrence.items():
+                    value = values[element]
+                    hist_index = value - minimum
+                    hist[hist_index] = occ
                 distribution[0, index:index+n] += hist
                 index += n
 
