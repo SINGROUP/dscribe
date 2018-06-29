@@ -3,20 +3,20 @@ from builtins import super
 
 import numpy as np
 
-from describe.descriptors import Descriptor
+from describe.descriptors import CoulombMatrix
 
 
-class CoulombMatrix(Descriptor):
-    """Calculates the zero padded Coulomb matrix.
+class CoulombMatrixEigenSpectrum(CoulombMatrix):
+    """Calculates the zero-padded Eigenspectrum of a Coulomb matrix.
 
     The Coulomb matrix is defined as:
 
         C_ij = 0.5 Zi**exponent      | i = j
              = (Zi*Zj)/(Ri-Rj)	     | i != j
 
-    The matrix is padded with invisible atoms, which means that the matrix is
-    padded with zeros until the maximum allowed size defined by n_max_atoms is
-    reached.
+    The eigenspectrum is calculated as the list of eigenvalues of this matrix
+    sorted in descending order by their absolute value and zero-padded at the
+    end.
 
     For reference, see:
         "Fast and Accurate Modeling of Molecular Atomization Energies with
@@ -24,16 +24,14 @@ class CoulombMatrix(Descriptor):
         Müller, and O.  Anatole von Lilienfeld, Phys. Rev. Lett, (2012),
         https://doi.org/10.1103/PhysRevLett.108.058301
     """
-    def __init__(self, n_atoms_max, flatten=True):
+    def __init__(self, n_atoms_max):
         """
         Args:
             n_atoms_max (int): The maximum nuber of atoms that any of the
                 samples can have. This controls how much zeros need to be
                 padded to the final result.
-            flatten (bool): Whether the output of create() should be flattened
-                to a 1D array.
         """
-        super().__init__(flatten)
+        super().__init__(False)
         self.n_atoms_max = n_atoms_max
 
     def describe(self, system):
@@ -46,33 +44,22 @@ class CoulombMatrix(Descriptor):
                 a 1D array depending on the setting self.flatten.
         """
         cmat = self.coulomb_matrix(system)
-        cmat = self.zero_pad(cmat)
-        if self.flatten:
-            cmat = cmat.flatten()
-        return cmat
 
-    def coulomb_matrix(self, system):
-        """Creates the Coulomb matrix for the given system.
-        """
-        # Calculate offdiagonals
-        q = system.get_atomic_numbers()
-        qiqj = q[None, :]*q[:, None]
-        idmat = system.get_inverse_distance_matrix()
-        np.fill_diagonal(idmat, 0)
-        cmat = qiqj*idmat
+        # Calculate eigenvalues
+        eigenvalues, _ = np.linalg.eig(cmat)
 
-        # Set diagonal
-        np.fill_diagonal(cmat, 0.5 * q ** 2.4)
+        # Remove sign
+        abs_values = np.absolute(eigenvalues)
 
-        return cmat
+        # Get ordering that sorts the values by absolute value
+        sorted_indices = np.argsort(abs_values)[::-1]  # This sorts the list in descending order in place
+        eigenvalues = eigenvalues[sorted_indices]
 
-    def zero_pad(self, cmat):
-        # Pad with zeros
-        zeros = np.zeros((self.n_atoms_max, self.n_atoms_max))
-        zeros[:cmat.shape[0], :cmat.shape[1]] = cmat
-        cmat = zeros
+        # Add zero-pading
+        n_atoms = len(system)
+        eigenvalues = np.pad(eigenvalues, (0, self.n_atoms_max-n_atoms), 'constant')
 
-        return cmat
+        return eigenvalues
 
     def get_number_of_features(self):
         """Used to inquire the final number of features that this descriptor
@@ -81,4 +68,4 @@ class CoulombMatrix(Descriptor):
         Returns:
             int: Number of features for this descriptor.
         """
-        return int(self.n_atoms_max**2)
+        return int(self.n_atoms_max)
