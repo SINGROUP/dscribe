@@ -3,7 +3,7 @@ python:
   - "2.7"
   - "3.6"
 
-# Command to install dependencies.
+# Command to install dependencies
 install:
   - ./.travis-install-dependencies.sh
 

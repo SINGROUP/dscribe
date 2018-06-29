@@ -7,6 +7,9 @@
  \__,_|\___||___/\___|_|  |_|_.__/ \___|
 ```
 
+[![Build Status](https://travis-ci.org/SINGROUP/describe.svg?branch=master)](https://travis-ci.org/SINGROUP/describe)
+[![Coverage Status](https://coveralls.io/repos/github/SINGROUP/describe/badge.svg?branch=master)](https://coveralls.io/github/SINGROUP/describe?branch=master)
+
 describe is a python package for creating machine learning descriptors for atomistic systems.
 
 # Example
