@@ -7,8 +7,6 @@ import numpy as np
 import unittest
 
 from describe.descriptors import CoulombMatrix
-from describe.descriptors import SortedCoulombMatrix
-from describe.descriptors import CoulombMatrixEigenSpectrum
 
 from ase import Atoms
 
@@ -33,11 +31,15 @@ class CoulombMatrixTests(unittest.TestCase):
     def test_constructor(self):
         """Tests different valid and invalid constructor values.
         """
+        with self.assertRaises(ValueError):
+            CoulombMatrix(n_atoms_max=5, permutation="unknown")
+        with self.assertRaises(ValueError):
+            CoulombMatrix(n_atoms_max=-1)
 
     def test_number_of_features(self):
         """Tests that the reported number of features is correct.
         """
-        desc = CoulombMatrix(n_atoms_max=5, flatten=False)
+        desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=False)
         n_features = desc.get_number_of_features()
         self.assertEqual(n_features, 25)
 
@@ -45,19 +47,19 @@ class CoulombMatrixTests(unittest.TestCase):
         """Tests the flattening.
         """
         # Unflattened
-        desc = CoulombMatrix(n_atoms_max=5, flatten=False)
+        desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=False)
         cm = desc.create(H2O)
         self.assertEqual(cm.shape, (5, 5))
 
         # Flattened
-        desc = CoulombMatrix(n_atoms_max=5, flatten=True)
+        desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=True)
         cm = desc.create(H2O)
         self.assertEqual(cm.shape, (25,))
 
     def test_features(self):
         """Tests that the correct features are present in the desciptor.
         """
-        desc = CoulombMatrix(n_atoms_max=5, flatten=False)
+        desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=False)
         cm = desc.create(H2O)
 
         # Test against assumed values
@@ -87,7 +89,7 @@ class SortedCoulombMatrixTests(unittest.TestCase):
     def test_number_of_features(self):
         """Tests that the reported number of features is correct.
         """
-        desc = SortedCoulombMatrix(n_atoms_max=5, flatten=False)
+        desc = CoulombMatrix(n_atoms_max=5, permutation="sorted_l2", flatten=False)
         n_features = desc.get_number_of_features()
         self.assertEqual(n_features, 25)
 
@@ -95,19 +97,19 @@ class SortedCoulombMatrixTests(unittest.TestCase):
         """Tests the flattening.
         """
         # Unflattened
-        desc = SortedCoulombMatrix(n_atoms_max=5, flatten=False)
+        desc = CoulombMatrix(n_atoms_max=5, permutation="sorted_l2", flatten=False)
         cm = desc.create(H2O)
         self.assertEqual(cm.shape, (5, 5))
 
         # Flattened
-        desc = SortedCoulombMatrix(n_atoms_max=5, flatten=True)
+        desc = CoulombMatrix(n_atoms_max=5, permutation="sorted_l2", flatten=True)
         cm = desc.create(H2O)
         self.assertEqual(cm.shape, (25,))
 
     def test_features(self):
         """Tests that the correct features are present in the desciptor.
         """
-        desc = SortedCoulombMatrix(n_atoms_max=5, flatten=False)
+        desc = CoulombMatrix(n_atoms_max=5, permutation="sorted_l2", flatten=False)
         cm = desc.create(H2O)
 
         lens = np.linalg.norm(cm, axis=0)
@@ -126,15 +128,17 @@ class CoulombMatrixEigenSpectrumTests(unittest.TestCase):
     def test_number_of_features(self):
         """Tests that the reported number of features is correct.
         """
-        desc = CoulombMatrixEigenSpectrum(n_atoms_max=5)
+        desc = CoulombMatrix(n_atoms_max=5, permutation="eigenspectrum")
         n_features = desc.get_number_of_features()
         self.assertEqual(n_features, 5)
 
     def test_features(self):
         """Tests that the correct features are present in the desciptor.
         """
-        desc = CoulombMatrixEigenSpectrum(n_atoms_max=5)
+        desc = CoulombMatrix(n_atoms_max=5, permutation="eigenspectrum")
         cm = desc.create(H2O)
+
+        self.assertEqual(len(cm), 5)
 
         # Test that eigenvalues are in decreasing order when looking at absolute value
         prev_eig = float("Inf")

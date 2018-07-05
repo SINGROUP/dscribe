@@ -5,7 +5,11 @@ import numpy as np
 
 
 class System(Atoms):
-
+    """Represents atomic systems that are used internally by the package.
+    Inherits from the ase.Atoms class, but adds the possibility to cache
+    various time-consuming quantities that can be shared when creating multiple
+    descriptors.
+    """
     def __init__(
             self,
             symbols=None,
