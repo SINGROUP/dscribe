@@ -14,3 +14,8 @@ script:
 # Run the coverage analysis after tests
 after_success:
     coveralls
+
+# safelist
+branches:
+  only:
+  - master

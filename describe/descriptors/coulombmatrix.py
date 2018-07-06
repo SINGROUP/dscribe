@@ -49,37 +49,7 @@ class CoulombMatrix(MatrixDescriptor):
         """
         super().__init__(n_atoms_max, permutation, flatten)
 
-    def describe(self, system):
-        """
-        Args:
-            system (System): Input system.
-
-        Returns:
-            ndarray: The zero padded Coulomb matrix either as a 2D array or as
-                a 1D array depending on the setting self.flatten.
-        """
-        cmat = self.coulomb_matrix(system)
-
-        # Handle the permutation option
-        if self.permutation == "none":
-            pass
-        elif self.permutation == "sorted_l2":
-            cmat = self.sort(cmat)
-        elif self.permutation == "eigenspectrum":
-            cmat = self.get_eigenspectrum(cmat)
-        else:
-            raise ValueError("Invalid permutation method: {}".format(self.permutation))
-
-        # Add zero padding
-        cmat = self.zero_pad(cmat)
-
-        # Flatten the matrix if requested
-        if self.flatten:
-            cmat = cmat.flatten()
-
-        return cmat
-
-    def coulomb_matrix(self, system):
+    def get_matrix(self, system):
         """Creates the Coulomb matrix for the given system.
         """
         # Calculate offdiagonals

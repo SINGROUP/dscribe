@@ -38,6 +38,36 @@ class MatrixDescriptor(Descriptor):
         self.n_atoms_max = n_atoms_max
         self.permutation = permutation
 
+    def describe(self, system):
+        """
+        Args:
+            system (System): Input system.
+
+        Returns:
+            ndarray: The zero padded Coulomb matrix either as a 2D array or as
+                a 1D array depending on the setting self.flatten.
+        """
+        matrix = self.get_matrix(system)
+
+        # Handle the permutation option
+        if self.permutation == "none":
+            pass
+        elif self.permutation == "sorted_l2":
+            matrix = self.sort(matrix)
+        elif self.permutation == "eigenspectrum":
+            matrix = self.get_eigenspectrum(matrix)
+        else:
+            raise ValueError("Invalid permutation method: {}".format(self.permutation))
+
+        # Add zero padding
+        matrix = self.zero_pad(matrix)
+
+        # Flatten the matrix if requested
+        if self.flatten:
+            matrix = matrix.flatten()
+
+        return matrix
+
     def sort(self, matrix):
         """Sorts the given matrix by using the L2 norm.
 

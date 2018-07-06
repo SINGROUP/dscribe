@@ -3,11 +3,14 @@ from builtins import super
 import math
 import numpy as np
 from scipy.special import erfc
-import scipy.constants as constants
-from describe.descriptors import Descriptor
+import scipy.constants
+from describe.descriptors.matrixdescriptor import MatrixDescriptor
+from describe.core.lattice import Lattice
+from describe import System
+from ase import Atoms
 
 
-class EwaldMatrix(Descriptor):
+class EwaldMatrix(MatrixDescriptor):
     """
     Calculates an 'Ewald matrix' for the a given system.
 
@@ -25,67 +28,76 @@ class EwaldMatrix(Descriptor):
     parameter a that is used. This dependency is countered with the scalar
     self-terms and the possible charge term, which make the sum a constant, but
     not the .
+
+    For reference, see:
+        "Crystal Structure Representations for Machine Learning Models of
+        Formation Energies", Felix Faber, Alexander Lindmaa, Anatole von
+        Lilienfeld, and Rickard Armiento, International Journal of Quantum
+        Chemistry, (2015),
+        https://doi.org/10.1002/qua.24917
     """
     # Converts unit of q*q/r into eV
-    CONV_FACT = 1e10 * constants.e / (4 * math.pi * constants.epsilon_0)
+    CONV_FACT = 1e10 * scipy.constants.e / (4 * math.pi * scipy.constants.epsilon_0)
 
-    def __init__(self, n_atoms_max, flatten=True):
+    def __init__(self, n_atoms_max, permutation="sorted_l2", flatten=True):
         """
         Args:
-            n_max_atoms (int): The maximum nuber of atoms that any of the
+            n_atoms_max (int): The maximum nuber of atoms that any of the
                 samples can have. This controls how much zeros need to be
                 padded to the final result.
+            permutation (string): Defines the method for handling permutational
+                invariance. Can be one of the following:
+                    - none: The matrix is returned in the order defined by the Atoms.
+                    - sorted_l2: The rows and columns are sorted by the L2 norm.
+                    - eigenspectrum: Only the eigenvalues are returned sorted
+                      by their absolute value in descending order.
+                    - random: ?
             flatten (bool): Whether the output of create() should be flattened
                 to a 1D array.
         """
-        super().__init__(flatten)
-        self.n_atoms_max = n_atoms_max
+        super().__init__(n_atoms_max, permutation, flatten)
 
-    def create(self, system, real_space_cut, recip_space_cut, a):
+    def create(self, system, real_space_cut, recip_space_cut, a=None):
         """
-        Initializes and calculates the Ewald sum. Default convergence
-        parameters have been specified, but you can override them if you wish.
-
         Args:
             system (System): Input system.
             real_space_cut (float): Real space cutoff radius dictating how
                 many terms are used in the real space sum.
             recip_space_cut (float): Reciprocal space cutoff radius.
             a (float): The screening parameter that controls the width of the
-                Gaussians.
+                Gaussians. If not specified the default value of
         """
-        self.system = system
-        self.q = system.charges
+        # Ensure that we get a System
+        if isinstance(system, Atoms):
+            system = System.from_atoms(system)
+
+        self.q = system.get_atomic_numbers()
         self.q_squared = self.q**2
         self.n_atoms = len(system)
-        self.volume = system.lattice.volume
+        self.volume = system.get_volume()
         self.sqrt_pi = math.sqrt(np.pi)
+
+        # If a is not specified, we provide a default. Notice that in
+        # https://doi.org/10.1002/qua.24917 there is a mistake as the volume
+        # should be squared.
+        if a is None:
+            a = self.sqrt_pi*np.power(0.01*self.n_atoms/self.volume**2, 1/6)
+
         self.a = a
         self.a_squared = self.a**2
         self.gmax = recip_space_cut
         self.rmax = real_space_cut
 
-        # Calculate the matrix
-        emat = self.total_energy_matrix
+        return super().describe(system)
 
-        # Pad with zeros
-        zeros = np.zeros((self.n_atoms_max, self.n_atoms_max))
-        zeros[:emat.shape[0], :emat.shape[1]] = emat
-        emat = zeros
-
-        if self.flatten:
-            emat = emat.flatten()
-        return emat
-
-    @property
-    def total_energy_matrix(self):
+    def get_matrix(self, system):
         """
         The total energy matrix. Each matrix element (i, j) corresponds to the
-        total interaction energy between site i and site j.
+        total interaction energy in a system with atoms i and j.
         """
         # Calculate the regular real and reciprocal space sums of the Ewald sum.
-        ereal = self._calc_real_matrix()
-        erecip = self._calc_recip()
+        ereal = self._calc_real(system)
+        erecip = self._calc_recip(system)
         total = erecip + ereal
 
         # Calculate the modification that makes each entry of the matrix to be
@@ -118,14 +130,16 @@ class EwaldMatrix(Descriptor):
         return charge_correction
 
     def _calc_subsystem_energies(self, ewald_matrix):
-        """Modify the give matrix that consists of the eral and reciprocal sums
+        """Modify the give matrix that consists of the real and reciprocal sums
         so that each entry x_ij is the full Ewald sum energy of a system
         consisting of atoms i and j.
         """
         q = self.q
 
         # Create the self-term array where q1[i,j] is qi**2 + qj**2, except for
-        # the diagonal, where it is qi**2
+        # the diagonal, where it is qi**2. The self term corresponds to the
+        # interaction of the point charge with cocentric Gaussian cloud
+        # introduced in the Ewald method.
         q1 = q[None, :]**2 + q[:, None]**2
         diag = np.diag(q1)/2
         np.fill_diagonal(q1, diag)
@@ -158,7 +172,7 @@ class EwaldMatrix(Descriptor):
 
         return final_matrix
 
-    def _calc_recip(self):
+    def _calc_recip(self, system):
         """
         Perform the reciprocal space summation. Uses the fastest non mesh-based
         method described in "Ewald summation techniques in perspective: a
@@ -171,11 +185,13 @@ class EwaldMatrix(Descriptor):
         n_atoms = self.n_atoms
         prefactor = 2 * math.pi / self.volume
         erecip = np.zeros((n_atoms, n_atoms), dtype=np.float)
-        coords = self.system.cartesian_pos
-        rcp_latt = self.system.lattice.reciprocal_lattice
+        coords = system.get_positions()
+        rcp_latt = 2*np.pi*system.get_reciprocal_cell()
+        rcp_latt = Lattice(rcp_latt)
         recip_nn = rcp_latt.get_points_in_sphere([[0, 0, 0]], [0, 0, 0],
                                                  self.gmax)
 
+        # Ignore the terms with G=0.
         frac_coords = [fcoords for (fcoords, dist, i) in recip_nn if dist != 0]
 
         gs = rcp_latt.get_cartesian_coords(frac_coords)
@@ -199,20 +215,21 @@ class EwaldMatrix(Descriptor):
         erecip *= prefactor * qiqj * 2 ** 0.5
         return erecip
 
-    def _calc_real_matrix(self):
+    def _calc_real(self, system):
         """
         Determines the Ewald real-space sum.
         """
-        fcoords = self.system.relative_pos
-        coords = self.system.cartesian_pos
-        n_atoms = len(self.system)
+        fcoords = system.get_scaled_positions()
+        coords = system.get_positions()
+        n_atoms = len(system)
         prefactor = 0.5
         ereal = np.zeros((n_atoms, n_atoms), dtype=np.float)
+        lattice = Lattice(system.get_cell())
 
         for i in range(n_atoms):
 
             # Get points that are within the real space cutoff
-            nfcoords, rij, js = self.system.lattice.get_points_in_sphere(
+            nfcoords, rij, js = lattice.get_points_in_sphere(
                 fcoords,
                 coords[i],
                 self.rmax,

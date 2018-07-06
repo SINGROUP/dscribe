@@ -2,7 +2,7 @@ import math
 import numpy as np
 import unittest
 
-from describe.descriptors import CoulombMatrix
+from describe.descriptors import SineMatrix
 
 from ase import Atoms
 
@@ -22,7 +22,7 @@ H2O = Atoms(
 )
 
 
-class CoulombMatrixTests(unittest.TestCase):
+class SineMatrixTests(unittest.TestCase):
 
     def test_constructor(self):
         """Tests different valid and invalid constructor values.
