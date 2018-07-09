@@ -6,6 +6,7 @@ import sys
 # Import the test modules
 import coulombmatrix
 import ewaldmatrix
+import soap
 
 # Initialize the test suite
 loader = unittest.TestLoader()
@@ -14,6 +15,7 @@ suite = unittest.TestSuite()
 # Add tests to the test suite
 suite.addTests(loader.loadTestsFromModule(coulombmatrix))
 suite.addTests(loader.loadTestsFromModule(ewaldmatrix))
+suite.addTests(loader.loadTestsFromModule(soap))
 
 # Initialize a runner, pass it the suite and run it
 runner = unittest.TextTestRunner(verbosity=3)
