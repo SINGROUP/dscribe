@@ -1,7 +1,11 @@
 language: python
+
 python:
   - "2.7"
   - "3.6"
+os:
+  - linux
+  #- osx
 
 # Command to install dependencies
 install:
@@ -12,10 +16,17 @@ script:
   - regtests/runtests.sh
 
 # Run the coverage analysis after tests
-after_success:
-    coveralls;
+#after_success:
+    #coveralls;
 
 # safelist
 branches:
   only:
   - master
+
+jobs:
+  include:
+    - stage: coverage
+      python: 3.6
+      os: linux
+      script: coveralls
