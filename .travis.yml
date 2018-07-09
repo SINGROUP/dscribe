@@ -5,7 +5,7 @@ python:
   - "3.6"
 os:
   - linux
-  #- osx
+  - osx
 
 # Command to install dependencies
 install:
@@ -15,17 +15,15 @@ install:
 script:
   - regtests/runtests.sh
 
-# Run the coverage analysis after tests
-#after_success:
-    #coveralls;
-
-# safelist
+# Defines the branches on which the tests are run on
 branches:
   only:
   - master
 
+# Defines build stages.
 jobs:
   include:
+      # Sends the coverage report to coveralls.io. Only sent from python 3.
     - stage: coverage
       python: 3.6
       os: linux
