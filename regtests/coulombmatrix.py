@@ -88,6 +88,27 @@ class CoulombMatrixTests(unittest.TestCase):
 
         self.assertTrue(np.array_equal(cm, assumed))
 
+    def test_symmetries(self):
+        """Tests translational and rotational symmetries
+        """
+        desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=False)
+        #Rotational Check
+        molecule = H2O.copy()
+        features = desc.create(molecule)
+
+        for rotation in ['x', 'y', 'z']:
+            molecule.rotate(45, rotation)
+            rot_features =  desc.create(molecule)
+            deviation = np.max(np.abs(features- rot_features))
+            self.assertTrue(deviation < 10e-9)
+
+
+        #Translation check
+        for translation in [[1.0, 1.0, 1.0], [-5.0, 5.0, -5.0], [1.0, 1.0, -10.0],]:
+            molecule.translate(translation)
+            trans_features =   desc.create(molecule)
+            deviation = np.max(np.abs(features- trans_features))
+            self.assertTrue(deviation < 10e-9)
 
 class SortedCoulombMatrixTests(unittest.TestCase):
 
