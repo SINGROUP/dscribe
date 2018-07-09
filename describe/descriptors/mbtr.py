@@ -110,7 +110,6 @@ class MBTR(Descriptor):
         self.weighting = weighting
         self.periodic = periodic
         self.update()
-
         # initializing .create() level variables
         self.n_atoms_in_cell = None
         self._counts = None
