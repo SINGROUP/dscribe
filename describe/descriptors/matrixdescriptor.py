@@ -8,7 +8,7 @@ from describe.descriptors import Descriptor
 class MatrixDescriptor(Descriptor):
     """A common base class for two-body matrix-like descriptors.
     """
-    def __init__(self, n_atoms_max, permutation="sorted_l2", sigma = None, flatten=True):
+    def __init__(self, n_atoms_max, permutation="sorted_l2", sigma=None, flatten=True):
         """
         Args:
             n_atoms_max (int): The maximum nuber of atoms that any of the
@@ -70,7 +70,9 @@ class MatrixDescriptor(Descriptor):
         elif self.permutation == "random":
             matrix = self.sort_randomly(matrix)
         else:
-            raise ValueError("Invalid permutation method: {}".format(self.permutation))
+            raise ValueError(
+                "Invalid permutation method: {}".format(self.permutation)
+            )
 
         # Add zero padding
         matrix = self.zero_pad(matrix)
@@ -166,15 +168,15 @@ class MatrixDescriptor(Descriptor):
 
         """
         try:
-            len(self.norm_vector) 
+            len(self.norm_vector)
         except:
             self._get_norm_vector(matrix)
 
         noise_norm_vector = np.random.normal(self.norm_vector, sigma)
         indexlist = np.argsort(noise_norm_vector)
-        indexlist = indexlist[::-1] # order highest to lowest
+        indexlist = indexlist[::-1]  # order highest to lowest
 
-        matrix = matrix[indexlist][:,indexlist]
+        matrix = matrix[indexlist][:, indexlist]
 
         return matrix
 

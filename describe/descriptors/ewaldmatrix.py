@@ -35,28 +35,7 @@ class EwaldMatrix(MatrixDescriptor):
         Lilienfeld, and Rickard Armiento, International Journal of Quantum
         Chemistry, (2015),
         https://doi.org/10.1002/qua.24917
-
-    and
-
     """
-    def __init__(self, n_atoms_max, permutation="sorted_l2", flatten=True):
-        """
-        Args:
-            n_atoms_max (int): The maximum nuber of atoms that any of the
-                samples can have. This controls how much zeros need to be
-                padded to the final result.
-            permutation (string): Defines the method for handling permutational
-                invariance. Can be one of the following:
-                    - none: The matrix is returned in the order defined by the Atoms.
-                    - sorted_l2: The rows and columns are sorted by the L2 norm.
-                    - eigenspectrum: Only the eigenvalues are returned sorted
-                      by their absolute value in descending order.
-                    - random: ?
-            flatten (bool): Whether the output of create() should be flattened
-                to a 1D array.
-        """
-        super().__init__(n_atoms_max, permutation, flatten)
-
     def create(self, system, rcut, gcut, a=None):
         """
         Args:
