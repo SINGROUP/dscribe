@@ -8,7 +8,7 @@ import coulombmatrix
 import ewaldmatrix
 import sinematrix
 import acsf
-
+import mbtr
 
 # Initialize the test suite
 loader = unittest.TestLoader()
@@ -19,7 +19,7 @@ suite.addTests(loader.loadTestsFromModule(coulombmatrix))
 suite.addTests(loader.loadTestsFromModule(ewaldmatrix))
 suite.addTests(loader.loadTestsFromModule(sinematrix))
 suite.addTests(loader.loadTestsFromModule(acsf))
-
+suite.addTests(loader.loadTestsFromModule(mbtr))
 
 # Initialize a runner, pass it the suite and run it
 runner = unittest.TextTestRunner(verbosity=3)
