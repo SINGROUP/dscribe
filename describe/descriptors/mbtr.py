@@ -120,7 +120,6 @@ class MBTR(Descriptor):
         self._axis_k2 = None
         self._axis_k3 = None
 
-
     def update(self):
         '''
         Checks and updates variables in mbtr class
@@ -142,7 +141,7 @@ class MBTR(Descriptor):
                 )
             if not self.k.issubset(supported_k):
                 raise ValueError(
-                    "The given k parameter '{}' has at least one invalid k value".format(k)
+                    "The given k parameter '{}' has at least one invalid k value".format(self.k)
                 )
 
         # Check the weighting information
