@@ -151,5 +151,6 @@ if __name__ == '__main__':
     suites.append(unittest.TestLoader().loadTestsFromTestCase(CoulombMatrixTests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(SortedCoulombMatrixTests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(CoulombMatrixEigenSpectrumTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(CoulombMatrixEigenSpectrumTests))
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)

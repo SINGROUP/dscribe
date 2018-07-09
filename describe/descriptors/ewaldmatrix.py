@@ -4,7 +4,6 @@ from builtins import (bytes, str, open, super, range,
 import math
 import numpy as np
 from scipy.special import erfc
-import scipy.constants
 from describe.descriptors.matrixdescriptor import MatrixDescriptor
 from describe.core.lattice import Lattice
 from describe import System
@@ -36,10 +35,10 @@ class EwaldMatrix(MatrixDescriptor):
         Lilienfeld, and Rickard Armiento, International Journal of Quantum
         Chemistry, (2015),
         https://doi.org/10.1002/qua.24917
-    """
-    # Converts unit of q*q/r into eV
-    CONV_FACT = 1e10 * scipy.constants.e / (4 * math.pi * scipy.constants.epsilon_0)
 
+    and
+
+    """
     def __init__(self, n_atoms_max, permutation="sorted_l2", flatten=True):
         """
         Args:
@@ -58,13 +57,13 @@ class EwaldMatrix(MatrixDescriptor):
         """
         super().__init__(n_atoms_max, permutation, flatten)
 
-    def create(self, system, real_space_cut, recip_space_cut, a=None):
+    def create(self, system, rcut, gcut, a=None):
         """
         Args:
             system (System): Input system.
-            real_space_cut (float): Real space cutoff radius dictating how
+            rcut (float): Real space cutoff radius dictating how
                 many terms are used in the real space sum.
-            recip_space_cut (float): Reciprocal space cutoff radius.
+            gcut (float): Reciprocal space cutoff radius.
             a (float): The screening parameter that controls the width of the
                 Gaussians. If not specified the default value of
         """
@@ -86,8 +85,8 @@ class EwaldMatrix(MatrixDescriptor):
 
         self.a = a
         self.a_squared = self.a**2
-        self.gmax = recip_space_cut
-        self.rmax = real_space_cut
+        self.gcut = gcut
+        self.rcut = rcut
 
         return super().describe(system)
 
@@ -104,7 +103,6 @@ class EwaldMatrix(MatrixDescriptor):
         # Calculate the modification that makes each entry of the matrix to be
         # the full Ewald sum of the ij subsystem.
         total = self._calc_subsystem_energies(total)
-        total *= EwaldMatrix.CONV_FACT
 
         return total
 
@@ -129,6 +127,94 @@ class EwaldMatrix(MatrixDescriptor):
         """
         charge_correction = -np.pi/(2*self.volume*self.a_squared)*np.sum(self.q)**2
         return charge_correction
+
+    def _calc_real(self, system):
+        """Used to calculate the Ewald real-space sum.
+
+        Corresponds to equation (5) in
+        https://doi.org/10.1016/0010-4655(96)00016-1
+        """
+        fcoords = system.get_scaled_positions()
+        coords = system.get_positions()
+        n_atoms = len(system)
+        ereal = np.zeros((n_atoms, n_atoms), dtype=np.float)
+        lattice = Lattice(system.get_cell())
+
+        # For each atom in the original cell, get the neighbours in the
+        # infinite system within the real space cutoff and calculate the real
+        # space portion of the Ewald sum.
+        for i in range(n_atoms):
+
+            # Get points that are within the real space cutoff
+            nfcoords, rij, js = lattice.get_points_in_sphere(
+                fcoords,
+                coords[i],
+                self.rcut,
+                zip_results=False
+            )
+            # Remove the rii term, because a charge does not interact with
+            # itself (but does interact with copies of itself).
+            mask = rij > 1e-8
+            js = js[mask]
+            rij = rij[mask]
+            nfcoords = nfcoords[mask]
+
+            qi = self.q[i]
+            qj = self.q[js]
+
+            erfcval = erfc(self.a * rij)
+            new_ereals = erfcval * qi * qj / rij
+
+            # Insert new_ereals
+            for k in range(n_atoms):
+                ereal[k, i] = np.sum(new_ereals[js == k])
+
+        ereal *= 1/2
+        return ereal
+
+    def _calc_recip(self, system):
+        """
+        Perform the reciprocal space summation. Uses the fastest non mesh-based
+        method described as given by equation (16) in
+        https://doi.org/10.1016/0010-4655(96)00016-1
+
+        The term G=0 is neglected, even if the system has nonzero charge.
+        Physically this would mean that we are adding a constant background
+        charge to make the cell charge neutral.
+        """
+        n_atoms = self.n_atoms
+        erecip = np.zeros((n_atoms, n_atoms), dtype=np.float)
+        coords = system.get_positions()
+
+        # Get the reciprocal lattice points within the reciprocal space cutoff
+        rcp_latt = 2*np.pi*system.get_reciprocal_cell()
+        rcp_latt = Lattice(rcp_latt)
+        recip_nn = rcp_latt.get_points_in_sphere([[0, 0, 0]], [0, 0, 0],
+                                                 self.gcut)
+
+        # Ignore the terms with G=0.
+        frac_coords = [fcoords for (fcoords, dist, i) in recip_nn if dist != 0]
+
+        gs = rcp_latt.get_cartesian_coords(frac_coords)
+        g2s = np.sum(gs ** 2, 1)
+        expvals = np.exp(-g2s / (4 * self.a_squared))
+        grs = np.sum(gs[:, None] * coords[None, :], 2)
+        factors = np.divide(expvals, g2s)
+        charges = self.q
+
+        # Create array where q_2[i,j] is qi * qj
+        qiqj = charges[None, :] * charges[:, None]
+
+        for gr, factor in zip(grs, factors):
+
+            # Uses the identity sin(x)+cos(x) = 2**0.5 sin(x + pi/4)
+            m = (gr[None, :] + math.pi / 4) - gr[:, None]
+            np.sin(m, m)
+            m *= factor
+            erecip += m
+
+        erecip *= 2 * math.pi / self.volume * qiqj * 2 ** 0.5
+        return erecip
 
     def _calc_subsystem_energies(self, ewald_matrix):
         """Modify the give matrix that consists of the real and reciprocal sums
@@ -172,86 +258,3 @@ class EwaldMatrix(MatrixDescriptor):
         final_matrix += correction_matrix
 
         return final_matrix
-
-    def _calc_recip(self, system):
-        """
-        Perform the reciprocal space summation. Uses the fastest non mesh-based
-        method described in "Ewald summation techniques in perspective: a
-        survey"
-
-        The term G=0 is neglected, even if the system has nonzero charge.
-        Physically this would mean that we are adding a constant background
-        charge to make the cell charge neutral.
-        """
-        n_atoms = self.n_atoms
-        prefactor = 2 * math.pi / self.volume
-        erecip = np.zeros((n_atoms, n_atoms), dtype=np.float)
-        coords = system.get_positions()
-        rcp_latt = 2*np.pi*system.get_reciprocal_cell()
-        rcp_latt = Lattice(rcp_latt)
-        recip_nn = rcp_latt.get_points_in_sphere([[0, 0, 0]], [0, 0, 0],
-                                                 self.gmax)
-
-        # Ignore the terms with G=0.
-        frac_coords = [fcoords for (fcoords, dist, i) in recip_nn if dist != 0]
-
-        gs = rcp_latt.get_cartesian_coords(frac_coords)
-        g2s = np.sum(gs ** 2, 1)
-        expvals = np.exp(-g2s / (4 * self.a_squared))
-        grs = np.sum(gs[:, None] * coords[None, :], 2)
-        factors = np.divide(expvals, g2s)
-        charges = self.q
-
-        # Create array where q_2[i,j] is qi * qj
-        qiqj = charges[None, :] * charges[:, None]
-
-        for gr, factor in zip(grs, factors):
-
-            # Uses the identity sin(x)+cos(x) = 2**0.5 sin(x + pi/4)
-            m = (gr[None, :] + math.pi / 4) - gr[:, None]
-            np.sin(m, m)
-            m *= factor
-            erecip += m
-
-        erecip *= prefactor * qiqj * 2 ** 0.5
-        return erecip
-
-    def _calc_real(self, system):
-        """
-        Determines the Ewald real-space sum.
-        """
-        fcoords = system.get_scaled_positions()
-        coords = system.get_positions()
-        n_atoms = len(system)
-        prefactor = 0.5
-        ereal = np.zeros((n_atoms, n_atoms), dtype=np.float)
-        lattice = Lattice(system.get_cell())
-
-        for i in range(n_atoms):
-
-            # Get points that are within the real space cutoff
-            nfcoords, rij, js = lattice.get_points_in_sphere(
-                fcoords,
-                coords[i],
-                self.rmax,
-                zip_results=False
-            )
-            # Remove the rii term, because a charge does not interact with
-            # itself (but does interact with copies of itself).
-            mask = rij > 1e-8
-            js = js[mask]
-            rij = rij[mask]
-            nfcoords = nfcoords[mask]
-
-            qi = self.q[i]
-            qj = self.q[js]
-
-            erfcval = erfc(self.a * rij)
-            new_ereals = erfcval * qi * qj / rij
-
-            # Insert new_ereals
-            for k in range(n_atoms):
-                ereal[k, i] = np.sum(new_ereals[js == k])
-
-        ereal *= prefactor
-        return ereal
