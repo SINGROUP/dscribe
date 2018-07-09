@@ -104,32 +104,52 @@ class MBTR(Descriptor):
             is not specified for periodic systems.
         """
         super().__init__(flatten)
+        self.k = k
+        self.atomic_numbers = atomic_numbers
+        self.grid = grid
+        self.weighting = weighting
+        self.periodic = periodic
+        self.update()
 
+        # initializing .create() level variables
+        self.n_atoms_in_cell = None
+        self._counts = None
+        self._inverse_distances = None
+        self._angles = None
+        self._angle_weights = None
+        self._axis_k1 = None
+        self._axis_k2 = None
+        self._axis_k3 = None
+
+
+    def update(self):
+        '''
+        Checks and updates variables in mbtr class
+        '''
         # Check K value
         supported_k = set(range(1, 4))
-        if isinstance(k, int):
+        if isinstance(self.k, int):
             raise ValueError(
                 "Please provide the k values that you wish to be generated as a"
                 " list or set."
             )
         else:
             try:
-                k = set(k)
+                self.k = set(self.k)
             except Exception:
                 raise ValueError(
                     "Could not make the given value of k into a set. Please "
                     "provide the k values as a list or a set."
                 )
-            if not k.issubset(supported_k):
+            if not self.k.issubset(supported_k):
                 raise ValueError(
                     "The given k parameter '{}' has at least one invalid k value".format(k)
                 )
-            self.k = set(k)
 
         # Check the weighting information
-        if weighting is not None:
-            if weighting == "exponential":
-                weighting = {
+        if self.weighting is not None:
+            if self.weighting == "exponential":
+                self.weighting = {
                     "k2": {
                         "function": lambda x: np.exp(-0.5*x),
                         "threshold": 1e-3
@@ -141,20 +161,20 @@ class MBTR(Descriptor):
                 }
             else:
                 for i in self.k:
-                    info = weighting.get("k{}".format(i))
+                    info = self.weighting.get("k{}".format(i))
                     if info is not None:
                         assert "function" in info, \
                             ("The weighting dictionary is missing 'function'.")
-        elif periodic:
+        elif self.periodic:
             raise ValueError(
                 "Periodic systems will need to have a weighting function "
                 "defined in the 'weighting' dictionary of the MBTR constructor."
             )
 
         # Check the given grid
-        if grid is not None:
+        if self.grid is not None:
             for i in self.k:
-                info = grid.get("k{}".format(i))
+                info = self.grid.get("k{}".format(i))
                 if info is not None:
                     msg = "The grid information is missing the value for {}"
                     val_names = ["min", "max", "sigma", "n"]
@@ -165,41 +185,28 @@ class MBTR(Descriptor):
                             raise KeyError(msg.format(val_name))
 
                     # Make the n into integer
-                    n = grid.get("k{}".format(i))["n"]
-                    grid.get("k{}".format(i))["n"] = int(n)
+                    n = self.grid.get("k{}".format(i))["n"]
+                    self.grid.get("k{}".format(i))["n"] = int(n)
                     assert info["min"] < info["max"], \
                         "The min value should be smaller than the max values"
-        self.grid = grid
 
-        self.n_elements = None
-        self.present_elements = None
-        self.atomic_number_to_index = {}
+        self.n_elements = None #number of elements for MBTR
+        self.atomic_number_to_index = {} #a
         self.atomic_number_to_d1 = {}
         self.atomic_number_to_d2 = {}
         self.index_to_atomic_number = {}
-        self.n_atoms_in_cell = None
-        self.periodic = periodic
         self.n_copies_per_axis = None
-        self.weighting = weighting
 
         # Sort the atomic numbers. This is not needed but makes things maybe a
         # bit easier to debug.
-        atomic_numbers.sort()
-        for i_atom, atomic_number in enumerate(atomic_numbers):
+        self.atomic_numbers.sort()
+        for i_atom, atomic_number in enumerate(self.atomic_numbers):
             self.atomic_number_to_index[atomic_number] = i_atom
             self.index_to_atomic_number[i_atom] = atomic_number
-        self.n_elements = len(atomic_numbers)
+        self.n_elements = len(self.atomic_numbers)
 
-        self.max_atomic_number = max(atomic_numbers)
-        self.min_atomic_number = min(atomic_numbers)
-
-        self._counts = None
-        self._inverse_distances = None
-        self._angles = None
-        self._angle_weights = None
-        self._axis_k1 = None
-        self._axis_k2 = None
-        self._axis_k3 = None
+        self.max_atomic_number = max(self.atomic_numbers)
+        self.min_atomic_number = min(self.atomic_numbers)
 
     def describe(self, system):
         """Return the many-body tensor representation as a 1D array for the
@@ -212,6 +219,16 @@ class MBTR(Descriptor):
             1D ndarray: The many-body tensor representation up to the k:th term
             as a flattened array.
         """
+        # ensuring variables are re-initialized
+        self.n_atoms_in_cell = None
+        self._counts = None
+        self._inverse_distances = None
+        self._angles = None
+        self._angle_weights = None
+        self._axis_k1 = None
+        self._axis_k2 = None
+        self._axis_k3 = None
+
         self.n_atoms_in_cell = len(system)
         present_element_numbers = set(system.numbers)
         self.present_indices = set()
