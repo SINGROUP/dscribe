@@ -216,7 +216,7 @@ class RandomCoulombMatrixTests(unittest.TestCase):
         cm = desc.create(HHe)
 
         count = 0
-        rand_instances = 1000
+        rand_instances = 2000
         expectation = rand_instances * 0.24
         for i in range(0, rand_instances):
             cm = desc.create(HHe)
