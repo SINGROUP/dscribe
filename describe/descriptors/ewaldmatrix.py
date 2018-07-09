@@ -35,28 +35,11 @@ class EwaldMatrix(MatrixDescriptor):
         Lilienfeld, and Rickard Armiento, International Journal of Quantum
         Chemistry, (2015),
         https://doi.org/10.1002/qua.24917
-
     and
-
+        "Ewald summation techniques in perspective: a survey", Abdulnour Y.
+        Toukmaji, John A. Board Jr., Computer Physics Communications, (1996)
+        https://doi.org/10.1016/0010-4655(96)00016-1
     """
-    def __init__(self, n_atoms_max, permutation="sorted_l2", flatten=True):
-        """
-        Args:
-            n_atoms_max (int): The maximum nuber of atoms that any of the
-                samples can have. This controls how much zeros need to be
-                padded to the final result.
-            permutation (string): Defines the method for handling permutational
-                invariance. Can be one of the following:
-                    - none: The matrix is returned in the order defined by the Atoms.
-                    - sorted_l2: The rows and columns are sorted by the L2 norm.
-                    - eigenspectrum: Only the eigenvalues are returned sorted
-                      by their absolute value in descending order.
-                    - random: ?
-            flatten (bool): Whether the output of create() should be flattened
-                to a 1D array.
-        """
-        super().__init__(n_atoms_max, permutation, flatten)
-
     def create(self, system, rcut, gcut, a=None):
         """
         Args:
@@ -77,9 +60,9 @@ class EwaldMatrix(MatrixDescriptor):
         self.volume = system.get_volume()
         self.sqrt_pi = math.sqrt(np.pi)
 
-        # If a is not specified, we provide a default. Notice that in
-        # https://doi.org/10.1002/qua.24917 there is a mistake as the volume
-        # should be squared.
+        # If a is not specified, we provide the default that is mentioned in
+        # https://doi.org/10.1002/qua.24917. Notice that in that article there
+        # is a mistake as the volume should be squared.
         if a is None:
             a = self.sqrt_pi*np.power(0.01*self.n_atoms/self.volume**2, 1/6)
 
@@ -94,6 +77,13 @@ class EwaldMatrix(MatrixDescriptor):
         """
         The total energy matrix. Each matrix element (i, j) corresponds to the
         total interaction energy in a system with atoms i and j.
+
+        Args:
+            system(:class:`.System`): The system for which the Ewald matrix is
+                calculated.
+
+        Returns:
+            np.ndarray: A 2D matrix containing the Ewald energies.
         """
         # Calculate the regular real and reciprocal space sums of the Ewald sum.
         ereal = self._calc_real(system)
