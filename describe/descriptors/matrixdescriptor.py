@@ -21,6 +21,8 @@ class MatrixDescriptor(Descriptor):
                     - eigenspectrum: Only the eigenvalues are returned sorted
                       by their absolute value in descending order.
                     - random: ?
+            sigma (float): Width of gaussian distributed noise determining how much the
+                rows and columns of the randomly sorted coulomb matrix are scrambled.
             flatten (bool): Whether the output of create() should be flattened
                 to a 1D array.
         """
@@ -151,11 +153,21 @@ class MatrixDescriptor(Descriptor):
         """
         Given a coulomb matrix, it adds random noise to the sorting defined by sigma.
         For sorting, L2-norm is used
+
+        Args:
+            matrix(np.ndarray): The matrix to randomly sort.
+
+        sigma:
+            float: Width of gaussian distributed noise determining how much the
+                rows and columns of the randomly sorted coulomb matrix are scrambled.
+
+        Returns:
+            np.ndarray: The randomly sorted matrix.
+
         """
         try:
             len(self.norm_vector) 
         except:
-            #self.norm_vector = np.linalg.norm(matrix, axis=1)
             self._get_norm_vector(matrix)
 
         noise_norm_vector = np.random.normal(self.norm_vector, sigma)
@@ -168,8 +180,14 @@ class MatrixDescriptor(Descriptor):
 
     def _get_norm_vector(self, matrix):
         """
-        Takes a coulomb matrix as input. Returns L2 norm of each row / column in a vector
-        """
+        Takes a coulomb matrix as input. Returns L2 norm of each row / column in a 1D-array.
+        Args:
+            matrix(np.ndarray): The matrix to sort.
+
+        Returns:
+            np.ndarray: L2 norm of each row / column.
+
+        """       
         self.norm_vector = np.linalg.norm(matrix, axis=1)
 
         return self.norm_vector

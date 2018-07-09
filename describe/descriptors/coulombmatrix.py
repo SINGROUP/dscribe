@@ -45,6 +45,8 @@ class CoulombMatrix(MatrixDescriptor):
                     - eigenspectrum: Only the eigenvalues are returned sorted
                       by their absolute value in descending order.
                     - random: ?
+            sigma (float): Width of gaussian distributed noise determining how much the
+                rows and columns of the randomly sorted coulomb matrix are scrambled.
             flatten (bool): Whether the output of create() should be flattened
                 to a 1D array.
         """
