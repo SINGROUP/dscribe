@@ -21,6 +21,19 @@ H2O = Atoms(
     symbols=["H", "O", "H"],
 )
 
+HHe = Atoms(
+    cell=[
+        [5.0, 0.0, 0.0],
+        [0.0, 5.0, 0.0],
+        [0.0, 0.0, 5.0]
+    ],
+    positions=[
+        [0, 0, 0],
+        [0.71, 0, 0],
+    ],
+    symbols=["H", "He"],
+)
+
 
 class CoulombMatrixTests(unittest.TestCase):
 
@@ -146,11 +159,74 @@ class CoulombMatrixEigenSpectrumTests(unittest.TestCase):
         self.assertTrue(np.array_equal(cm[len(H2O):], [0, 0]))
 
 
+class RandomCoulombMatrixTests(unittest.TestCase):
+
+    def test_constructor(self):
+        """Tests different valid and invalid constructor values.
+        """
+        with self.assertRaises(ValueError):
+            CoulombMatrix(n_atoms_max=5, permutation="random", sigma=None)
+
+    def test_number_of_features(self):
+        """Tests that the reported number of features is correct.
+        """
+        desc = CoulombMatrix(n_atoms_max=5, permutation="random", sigma=100)
+        n_features = desc.get_number_of_features()
+        self.assertEqual(n_features, 25)
+
+    def test_norm_vector(self):
+        """Tests if the attribute norm_vector is written and used correctly
+        """
+        desc = CoulombMatrix(n_atoms_max=5, permutation="random", sigma=100, flatten=False)
+        cm = desc.create(H2O)
+        self.assertEqual(len(cm), 5)
+
+        # The norm_vector is not zero padded in this implementation. All zero-padding
+        # is done at the end after randomly sorting
+        self.assertEqual(len(desc.norm_vector), 3)
+        cm = desc.create(H2O)
+        self.assertEqual(len(cm), 5)
+
+    def test_distribution(self):
+        """ Tests if the random sorting obeys a gaussian distribution. Can
+        rarely fail when everything is OK.
+        """
+        desc = CoulombMatrix(n_atoms_max=5, permutation="random", sigma=100, flatten=False)
+        cm = desc.create(HHe)
+
+        count = 0
+        rand_instances = 1000
+        expectation = rand_instances * 0.24
+        for i in range(0, rand_instances):
+            cm = desc.create(HHe)
+            if np.linalg.norm(cm[0]) < np.linalg.norm(cm[1]):
+                count += 1
+            else:
+                pass
+
+        self.assertTrue(expectation * 0.90 <= count <= expectation * 1.1)
+
+    def test_match_with_sorted(self):
+        """Tests if sorting the random coulomb matrix results in the same as
+        the sorted coulomb matrix
+        """
+        desc = CoulombMatrix(n_atoms_max=5, permutation="random", sigma=100, flatten=False)
+        rcm = desc.create(H2O)
+
+        srcm = desc.sort(rcm)
+
+        desc = CoulombMatrix(n_atoms_max=5, permutation="sorted_l2", sigma=100, flatten=False)
+
+        scm = desc.create(H2O)
+
+        self.assertTrue(np.array_equal(scm, srcm))
+
+
 if __name__ == '__main__':
     suites = []
     suites.append(unittest.TestLoader().loadTestsFromTestCase(CoulombMatrixTests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(SortedCoulombMatrixTests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(CoulombMatrixEigenSpectrumTests))
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(CoulombMatrixEigenSpectrumTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(RandomCoulombMatrixTests))
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)
