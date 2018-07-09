@@ -30,10 +30,22 @@ class SineMatrix(MatrixDescriptor):
     """
     def get_matrix(self, system):
         """Creates the Sine matrix for the given system.
+
+        Args:
+            system(:class:`.System`): The system for which the Sine matrix is
+                calculated.
+
+        Returns:
+            np.ndarray: Sine matrix as 2D array.
         """
         # Cell and inverse cell
         B = system.get_cell()
-        B_inv = system.get_cell_inverse()
+        try:
+            B_inv = system.get_cell_inverse()
+        except:
+            raise ValueError(
+                "The given system has a non-invertible cell matrix: {}.".format(B)
+            )
 
         # Difference vectors in tensor 3D-tensor-form
         diff_tensor = system.get_displacement_tensor()
@@ -46,7 +58,7 @@ class SineMatrix(MatrixDescriptor):
             phi = np.reciprocal(phi)
 
         # Calculate Z_i*Z_j
-        q = system.get_initial_charges()
+        q = system.get_atomic_numbers()
         qiqj = q[None, :]*q[:, None]
         np.fill_diagonal(phi, 0)
 

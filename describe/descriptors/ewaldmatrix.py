@@ -83,7 +83,7 @@ class EwaldMatrix(MatrixDescriptor):
                 calculated.
 
         Returns:
-            np.ndarray: A 2D matrix containing the Ewald energies.
+            np.ndarray: Ewald matrix as 2D array.
         """
         # Calculate the regular real and reciprocal space sums of the Ewald sum.
         ereal = self._calc_real(system)
