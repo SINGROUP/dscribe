@@ -78,6 +78,12 @@ class SoapTests(unittest.TestCase):
         self.assertEqual(desc4.get_number_of_features(), np.shape(desc4.create(H2O).flatten())[0])
         self.assertEqual(desc5.get_number_of_features(), np.shape(desc5.create(H2O).flatten())[0])
         self.assertEqual(desc6.get_number_of_features(), np.shape(desc6.create(H2O).flatten())[0])
+        self.assertEqual(desc7.get_number_of_features(), np.shape(desc7.create(H2O).flatten())[0])
+        self.assertEqual(desc8.get_number_of_features(), np.shape(desc8.create(H2O).flatten())[0])
+        self.assertEqual(desc9.get_number_of_features(), np.shape(desc9.create(H2O).flatten())[0])
+        self.assertEqual(desc10.get_number_of_features(), np.shape(desc10.create(H2O).flatten())[0])
+        self.assertEqual(desc11.get_number_of_features(), np.shape(desc11.create(H2O).flatten())[0])
+        self.assertEqual(desc12.get_number_of_features(), np.shape(desc12.create(H2O).flatten())[0])
 
 #        print(desc.create(H2O))
 #        print(desc2.create(H2O))
