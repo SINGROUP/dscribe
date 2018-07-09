@@ -25,11 +25,11 @@ class CoulombMatrix(MatrixDescriptor):
     For reference, see:
         "Fast and Accurate Modeling of Molecular Atomization Energies with
         Machine Learning", Matthias Rupp, Alexandre Tkatchenko, Klaus-Robert
-        Müller, and O.  Anatole von Lilienfeld, Phys. Rev. Lett, (2012),
+        Mueller, and O.  Anatole von Lilienfeld, Phys. Rev. Lett, (2012),
         https://doi.org/10.1103/PhysRevLett.108.058301
     and
         "Learning Invariant Representations of Molecules for Atomization Energy
-        Prediction", Grégoire Montavon et. al, Advances in Neural Information
+        Prediction", Gregoire Montavon et. al, Advances in Neural Information
         Processing Systems 25 (NIPS 2012)
     """
     def __init__(self, n_atoms_max, permutation="sorted_l2", flatten=True):
