@@ -32,7 +32,7 @@ class CoulombMatrix(MatrixDescriptor):
         Prediction", Grégoire Montavon et. al, Advances in Neural Information
         Processing Systems 25 (NIPS 2012)
     """
-    def __init__(self, n_atoms_max, permutation="sorted_l2", flatten=True):
+    def __init__(self, n_atoms_max, permutation="sorted_l2", sigma=None, flatten=True):
         """
         Args:
             n_atoms_max (int): The maximum nuber of atoms that any of the
@@ -48,7 +48,7 @@ class CoulombMatrix(MatrixDescriptor):
             flatten (bool): Whether the output of create() should be flattened
                 to a 1D array.
         """
-        super().__init__(n_atoms_max, permutation, flatten)
+        super().__init__(n_atoms_max, permutation, sigma, flatten)
 
     def get_matrix(self, system):
         """Creates the Coulomb matrix for the given system.

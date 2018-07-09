@@ -8,7 +8,7 @@ from describe.descriptors import Descriptor
 class MatrixDescriptor(Descriptor):
     """A common base class for two-body matrix-like descriptors.
     """
-    def __init__(self, n_atoms_max, permutation="sorted_l2", flatten=True):
+    def __init__(self, n_atoms_max, permutation="sorted_l2", sigma = None, flatten=True):
         """
         Args:
             n_atoms_max (int): The maximum nuber of atoms that any of the
@@ -36,6 +36,11 @@ class MatrixDescriptor(Descriptor):
             raise ValueError(
                 "Unknown permutation option given. Please use one of the following: {}."
                 .format(", ".join(perm_options))
+            )
+
+        if not sigma and permutation == 'random':
+            raise ValueError(
+                "Please specify sigma as a degree of random noise."
             )
 
         self.n_atoms_max = n_atoms_max
@@ -147,17 +152,15 @@ class MatrixDescriptor(Descriptor):
         Given a coulomb matrix, it adds random noise to the sorting defined by sigma.
         For sorting, L2-norm is used
         """
-        if self.norm_vector:
-            pass
-        else:
+        try:
+            len(self.norm_vector) 
+        except:
             #self.norm_vector = np.linalg.norm(matrix, axis=1)
             self._get_norm_vector(matrix)
-            print(self.norm_vector)
 
         noise_norm_vector = np.random.normal(self.norm_vector, sigma)
         indexlist = np.argsort(noise_norm_vector)
         indexlist = indexlist[::-1] # order highest to lowest
-        print('noise ids',indexlist)
 
         matrix = matrix[indexlist][:,indexlist]
 
