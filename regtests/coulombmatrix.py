@@ -194,7 +194,7 @@ class RandomCoulombMatrixTests(unittest.TestCase):
         cm = desc.create(HHe)
 
         count = 0
-        rand_instances = 10000
+        rand_instances = 1000
         expectation = rand_instances * 0.24
         for i in range(0,rand_instances):
             cm = desc.create(HHe)
@@ -203,8 +203,23 @@ class RandomCoulombMatrixTests(unittest.TestCase):
             else: 
                 pass
 
-        self.assertTrue(expectation * 0.95 <= count <= expectation * 1.05)
-        print(count)
+        self.assertTrue(expectation * 0.90 <= count <= expectation * 1.1)
+
+
+    def test_match_with_sorted(self):
+        """Tests if sorting the random coulomb matrix results in the same as the sorted coulomb matrix
+        """
+        desc = CoulombMatrix(n_atoms_max=5, permutation="random", sigma = 100, flatten = False)
+        rcm = desc.create(H2O)
+
+        srcm = desc.sort(rcm)
+
+        desc = CoulombMatrix(n_atoms_max=5, permutation="sorted_l2", sigma = 100, flatten = False)
+
+        scm = desc.create(H2O)
+
+        self.assertTrue(np.array_equal(scm, srcm))
+
 
 
 
