@@ -1,14 +1,15 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
-import os
-
+import os, glob, pathlib
 import numpy as np
 from ctypes import cdll, Structure, c_int, c_double, POINTER, byref
 
 from describe.descriptors.descriptor import Descriptor
 
 
-libacsf = cdll.LoadLibrary(os.path.join(os.path.dirname(__file__), "../libacsf/libacsf.so"))
+_PATH_TO_ACSF_SO = os.path.dirname(os.path.abspath(__file__))
+_ACSF_SOFILES = glob.glob( "".join([ _PATH_TO_ACSF_SO, "/../libacsf/libacsf.*so*"]) )
+_LIBACSF = cdll.LoadLibrary(_ACSF_SOFILES[0])
 
 
 class ACSFObject(Structure):
@@ -46,7 +47,7 @@ class ACSFObject(Structure):
 
 # libacsf.acsf_init.argtypes = [POINTER(ACSFObject)]
 # libacsf.acsf_reset.argtypes = [POINTER(ACSFObject)]
-libacsf.acsf_compute_acsfs.argtypes = [POINTER(ACSFObject)]
+_LIBACSF.acsf_compute_acsfs.argtypes = [POINTER(ACSFObject)]
 
 
 class ACSF(Descriptor):
@@ -331,7 +332,7 @@ class ACSF(Descriptor):
         self._acsfBuffer = np.zeros((self._n_atoms_max, self._obj.nG2 * self._obj.nTypes + self._obj.nG3 * self._obj.nSymTypes))
         self._obj.acsfs = self._acsfBuffer.ctypes.data_as(POINTER(c_double))
 
-        libacsf.acsf_compute_acsfs(byref(self._obj))
+        _LIBACSF.acsf_compute_acsfs(byref(self._obj))
 
         if self.flatten is True:
             return self._acsfBuffer.flatten()
