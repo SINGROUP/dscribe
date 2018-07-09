@@ -16,7 +16,7 @@ class Descriptor(with_metaclass(ABCMeta)):
         """
         self.flatten = flatten
 
-    def create(self, system):
+    def create(self, system, **kwargs):
         """Creates the descriptor for the given systems.
 
         Args:
@@ -27,7 +27,7 @@ class Descriptor(with_metaclass(ABCMeta)):
         if isinstance(system, Atoms):
             system = System.from_atoms(system)
 
-        return self.describe(system)
+        return self.describe(system, **kwargs)
 
     @abstractmethod
     def describe(self, system):

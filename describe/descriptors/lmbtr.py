@@ -3,6 +3,7 @@ from builtins import super
 import math
 import numpy as np
 import itertools
+from describe.core import System
 
 from scipy.spatial.distance import squareform, pdist
 from scipy.sparse import lil_matrix
@@ -22,7 +23,6 @@ class LMBTR(MBTR):
 
     def __init__(
             self,
-            atom_index,
             atomic_numbers,
             k,
             periodic,
@@ -104,6 +104,7 @@ class LMBTR(MBTR):
             ValueError if the given k value is not supported, or the weighting
             is not specified for periodic systems.
         """
+        atomic_numbers.append(0) #Ghost
         super().__init__(
                     atomic_numbers,
                     k,
@@ -113,22 +114,68 @@ class LMBTR(MBTR):
                     flatten,
                     )
 
-        self.atom_index = atom_index
+    def update(self):
+        self.atomic_numbers = np.unique(self.atomic_numbers + [0]).tolist()
+        super().update()
+        if 1 in self.k:
+            print("Warning: K = 1 is deprecated for LMBTR")
 
-    def describe(self, system):
+    def describe(self,
+                 system, 
+                 list_atom_indices=None,
+                 list_positions=None,
+                 scaled_positions=False
+                 ):
         """Return the many-body tensor representation as a 1D array for the
         given system.
 
         Args:
             system (System): The system for which the descriptor is created.
+            list_atom_indices (iterable): indices of atoms, from which 
+                                          local_mbtr is needed
+            list_positions (iterable): positions of points, from which 
+                                       local_mbtr is needed 
+            scaled_positions (boolean): if list of positions are scaled
+                                        use only if system allows it
 
         Returns:
             1D ndarray: The many-body tensor representation up to the k:th term
             as a flattened array.
         """
-        if self.atom_index > len(system):
-            raise ValueError("Atom index: {}, larger than total number of atoms ".format(self.atom_index))
-        return super().describe(system)
+        system_new = system.copy()
+        list_atoms = []
+
+        if list_atom_indices is not None:
+            list_atom_indices.sort()
+            for atom_index in list_atom_indices:
+                if atom_index > len(system):
+                    raise ValueError("Atom index: {}, larger than total number of atoms ".format(self.atom_index))
+            list_atoms += list_atom_indices
+        elif list_positions is not None:
+            if scaled_positions: #convert positions to cartesian
+                if np.linalg.norm(system.get_cell()) == 0:
+                    raise RuntimeError("System doesn't have cell, to justify scaled positions")
+                list_positions = np.dot(system.get_cell(), np.array(list_positions).T).T.tolist()
+            
+            # Checking if given position exists
+            for i, pos in enumerate(list_positions):
+                if np.sum( np.linalg.norm(system.get_positions() - pos, axis=1) == 0):
+                    raise RuntimeError(("position {}: {} exists in system,"
+                                        + " give its index in list_atom_indices").format(i, pos))
+            old_len = len(system_new)
+            system_new += System('X{}'.format(len(list_positions)), 
+                                  positions=list_positions
+                                 )
+            list_atoms += list(range(old_len, len(system_new)))
+        else:
+            raise RuntimeError("create method requires list_atom_indices and/or list_positions")
+              
+        desc = np.empty(len(list_atoms), dtype='object')
+
+        for i, self.atom_index in enumerate(list_atoms):
+            desc[i] = super().describe(system_new)
+
+        return desc
 
     def get_number_of_features(self):
         """Used to inquire the final number of features that this descriptor
@@ -138,7 +185,7 @@ class LMBTR(MBTR):
             int: Number of features for this descriptor.
         """
         n_features = 0
-        n_elem = self.n_elements
+        n_elem = self.n_elements - 1 #Removing ghost
 
         if 1 in self.k:
             n_k1_grid = self.get_k1_settings()["n"]
@@ -165,20 +212,21 @@ class LMBTR(MBTR):
             dict: Inverse distances in the form:
             {i: [list of angles] }.
         """
-        inverse_dist = system.get_inverse_distance_matrix()
+        if self._inverse_distances is None:
+            inverse_dist = system.get_inverse_distance_matrix()
 
-        numbers = system.numbers
-        inv_dist_dict = {}
-        for i_atom, i_element in enumerate(numbers):
-            i_index = self.atomic_number_to_index[i_element]
+            numbers = system.numbers
+            inv_dist_dict = {}
+            for i_atom, i_element in enumerate(numbers):
+                i_index = self.atomic_number_to_index[i_element]
 
-            old_list = inv_dist_dict.get(i_index, [])
-            inv_dist = inverse_dist[i_atom, self.atom_index]
-            old_list.append(inv_dist)
-            inv_dist_dict[i_index] = old_list
+                old_list = inv_dist_dict.get(i_index, [])
+                inv_dist = inverse_dist[i_atom, self.atom_index]
+                old_list.append(inv_dist)
+                inv_dist_dict[i_index] = old_list
 
-        self._inverse_distances = inv_dist_dict
-        return inv_dist_dict
+            self._inverse_distances = inv_dist_dict
+        return self._inverse_distances
 
     def cosines_and_weights(self, system):
         """Calculates the cosine of the angles and their weights between unique
@@ -197,68 +245,69 @@ class LMBTR(MBTR):
             be the same as for HHO. These duplicate values are left out by only
             filling values where k>=i.
         """
-        disp_tensor = system.get_displacement_tensor().astype(np.float32)
-        distance_matrix = system.get_distance_matrix().astype(np.float32)
-        numbers = system.numbers
+        if self._angles is None or self._angle_weights is None:
+            disp_tensor = system.get_displacement_tensor().astype(np.float32)
+            distance_matrix = system.get_distance_matrix().astype(np.float32)
+            numbers = system.numbers
 
-        # Cosines between atoms i-self.atom_index-j can be found in the tensor:
-        # cos_matrix[i, j] or equivalently cos_matrix[j, i] (symmetric)
-        n_atoms = len(numbers)
-        cos_matrix = np.empty(( n_atoms, n_atoms), dtype=np.float32)
-        cos_matrix[:, :] = 1 - squareform(pdist(disp_tensor[self.atom_index, :, :], 'cosine'))
+            # Cosines between atoms i-self.atom_index-j can be found in the tensor:
+            # cos_matrix[i, j] or equivalently cos_matrix[j, i] (symmetric)
+            n_atoms = len(numbers)
+            cos_matrix = np.empty(( n_atoms, n_atoms), dtype=np.float32)
+            cos_matrix[:, :] = 1 - squareform(pdist(disp_tensor[self.atom_index, :, :], 'cosine'))
 
-        # Remove the numerical noise from cosine values.
-        np.clip(cos_matrix, -1, 1, cos_matrix)
+            # Remove the numerical noise from cosine values.
+            np.clip(cos_matrix, -1, 1, cos_matrix)
 
-        cos_dict = {}
-        weight_dict = {}
-        indices = range(len(numbers))
+            cos_dict = {}
+            weight_dict = {}
+            indices = range(len(numbers))
 
-        # Determine the weighting function
-        weighting_function = None
-        if self.weighting is not None and self.weighting.get("k3") is not None:
-            weighting_function = self.weighting["k3"]["function"]
+            # Determine the weighting function
+            weighting_function = None
+            if self.weighting is not None and self.weighting.get("k3") is not None:
+                weighting_function = self.weighting["k3"]["function"]
 
-        # Here we go through all the 3-permutations of the atoms in the system
-        permutations = itertools.permutations(indices, 2)
-        for i_atom, j_atom in permutations:
+            # Here we go through all the 3-permutations of the atoms in the system
+            permutations = itertools.permutations(indices, 2)
+            for i_atom, j_atom in permutations:
 
-            i_element = numbers[i_atom]
-            j_element = numbers[j_atom]
+                i_element = numbers[i_atom]
+                j_element = numbers[j_atom]
 
-            i_index = self.atomic_number_to_index[i_element]
-            j_index = self.atomic_number_to_index[j_element]
+                i_index = self.atomic_number_to_index[i_element]
+                j_index = self.atomic_number_to_index[j_element]
 
-            # Save information in the part where j_index >= i_index
-            if j_index < i_index or i_atom == self.atom_index or j_atom == self.atom_index:
-                continue
+                # Save information in the part where j_index >= i_index
+                if j_index < i_index or i_atom == self.atom_index or j_atom == self.atom_index:
+                    continue
 
-            # Save weights
-            if weighting_function is not None:
-                dist1 = distance_matrix[i_atom, j_atom]
-                dist2 = distance_matrix[j_atom, self.atom_index]
-                dist3 = distance_matrix[self.atom_index, i_atom]
-                weight = weighting_function(dist1 + dist2 + dist3)
-            else:
-                weight = 1
+                # Save weights
+                if weighting_function is not None:
+                    dist1 = distance_matrix[i_atom, j_atom]
+                    dist2 = distance_matrix[j_atom, self.atom_index]
+                    dist3 = distance_matrix[self.atom_index, i_atom]
+                    weight = weighting_function(dist1 + dist2 + dist3)
+                else:
+                    weight = 1
 
-            old_dict_1 = weight_dict.get(i_index, {})
-            old_list_2 = old_dict_1.get(j_index, [])
+                old_dict_1 = weight_dict.get(i_index, {})
+                old_list_2 = old_dict_1.get(j_index, [])
 
-            old_list_2.append(weight)
-            old_dict_1[j_index] = old_list_2
-            weight_dict[i_index] = old_dict_1
+                old_list_2.append(weight)
+                old_dict_1[j_index] = old_list_2
+                weight_dict[i_index] = old_dict_1
 
-            # Save cosines
-            old_dict_1 = cos_dict.get(i_index, {})
-            old_list_2 = old_dict_1.get(j_index, [])
-            old_list_2.append(cos_matrix[i_atom, j_atom])
-            old_dict_1[j_index] = old_list_2
-            cos_dict[i_index] = old_dict_1
+                # Save cosines
+                old_dict_1 = cos_dict.get(i_index, {})
+                old_list_2 = old_dict_1.get(j_index, [])
+                old_list_2.append(cos_matrix[i_atom, j_atom])
+                old_dict_1[j_index] = old_list_2
+                cos_dict[i_index] = old_dict_1
 
-        self._angles = cos_dict
-        self._angle_weights = weight_dict
-        return cos_dict, weight_dict
+            self._angles = cos_dict
+            self._angle_weights = weight_dict
+        return self._angles, self._angle_weights
 
     def K1(self, system, settings):
         """Calculates the first order terms where the scalar mapping is the
@@ -312,13 +361,13 @@ class LMBTR(MBTR):
         self._axis_k2 = np.linspace(start, stop, n)
 
         inv_dist_dict = self.inverse_distances(system)
-        n_elem = self.n_elements
+        n_elem = self.n_elements - 1 #removing ghost
 
         if self.flatten:
             k2 = lil_matrix(
                 (1, n_elem*n), dtype=np.float32)
         else:
-            k2 = np.zeros((self.n_elements, n))
+            k2 = np.zeros((n_elem, n))
 
         # Determine the weighting function
         weighting_function = None
@@ -326,7 +375,7 @@ class LMBTR(MBTR):
             weighting_function = self.weighting["k2"]["function"]
 
         m = -1
-        for i in range(n_elem):
+        for i in range(1, n_elem+1): #ignoring Ghost
                 m += 1
                 try:
                     inv_dist = np.array(inv_dist_dict[i])
@@ -347,7 +396,7 @@ class LMBTR(MBTR):
                     end = (m + 1)*n
                     k2[0, start:end] = gaussian_sum
                 else:
-                    k2[i, :] = gaussian_sum
+                    k2[i-1, :] = gaussian_sum
 
         return k2
 
@@ -369,11 +418,11 @@ class LMBTR(MBTR):
 
         cos_dict, cos_weight_dict = self.cosines_and_weights(system)
 
-        n_elem = self.n_elements
+        n_elem = self.n_elements - 1 #removing ghost
 
         if self.flatten:
             k3 = lil_matrix(
-                (1, n_elem*(n_elem+1)/2*n), dtype=np.float32)
+                (1, int(n_elem*(n_elem+1)/2*n)), dtype=np.float32)
         else:
             k3 = np.zeros(( n_elem, n_elem, n))
 
@@ -381,8 +430,8 @@ class LMBTR(MBTR):
         # k >= i. E.g. angles OHH are the same as HHO. This will half the size
         # of the K3 input.
         m = -1
-        for i in range(n_elem):
-            for j in range(n_elem):
+        for i in range(1, n_elem+1): #ignoring ghost
+            for j in range(1, n_elem+1): #ignoring ghost
                 try:
                     cos_values = np.array(cos_dict[i][j])
                 except KeyError:
@@ -401,7 +450,7 @@ class LMBTR(MBTR):
                     end = (m+1)*n
                     k3[0, start:end] = gaussian_sum
                 else:
-                    k3[i, j, :] = gaussian_sum
-                    k3[j, i, :] = gaussian_sum
+                    k3[i-1, j-1, :] = gaussian_sum
+                    k3[j-1, i-1, :] = gaussian_sum
 
         return k3

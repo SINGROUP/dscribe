@@ -4,7 +4,7 @@ utilities related to the data.
 import numpy as np
 
 SYMBOL_TO_NUMBER_MAP = {
-    'H': 1,  'He': 2, 'Li': 3, 'Be': 4,
+    'X':0, 'H': 1,  'He': 2, 'Li': 3, 'Be': 4,
     'B': 5,  'C': 6,  'N': 7,  'O': 8,  'F': 9,
     'Ne': 10, 'Na': 11, 'Mg': 12, 'Al': 13, 'Si': 14,
     'P': 15,  'S': 16,  'Cl': 17, 'Ar': 18, 'K': 19,
@@ -27,7 +27,7 @@ SYMBOL_TO_NUMBER_MAP = {
     'Fm': 100, 'Md': 101, 'No': 102, 'Lr': 103,
 }
 NUMBER_TO_SYMBOL_MAP = [
-    None, 'H',  'He', 'Li', 'Be',
+    'X', 'H',  'He', 'Li', 'Be',
     'B',  'C',  'N',  'O',  'F',
     'Ne', 'Na', 'Mg', 'Al', 'Si',
     'P',  'S',  'Cl', 'Ar', 'K',
@@ -52,7 +52,7 @@ NUMBER_TO_SYMBOL_MAP = [
 
 """List of atomic names in order."""
 NUMBER_TO_NAME_MAP = [
-    None,   'Hydrogen',  'Helium', 'Lithium', 'Beryllium',
+    'Ghost',   'Hydrogen',  'Helium', 'Lithium', 'Beryllium',
     'Boron',  'Carbon',  'Nitrogen',  'Oxygen',  'Fluorine',
     'Neon', 'Sodium', 'Magnesium', 'Aluminum', 'Silicon',
     'Phosphorus',  'Sulfur',  'Chlorine', 'Argon', 'Potassium',
