@@ -11,5 +11,6 @@ if __name__ == "__main__":
             'ase',
             'future',
             'matplotlib',
+            'soaplite',
         ],
     )

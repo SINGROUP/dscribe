@@ -4,24 +4,28 @@ import unittest
 import sys
 
 # Import the test modules
+import generaltests
 import coulombmatrix
 import ewaldmatrix
 import sinematrix
 import acsf
 import mbtr
 import soap
+import elementaldistribution
 
 # Initialize the test suite
 loader = unittest.TestLoader()
 suite = unittest.TestSuite()
 
 # Add tests to the test suite
+suite.addTests(loader.loadTestsFromModule(generaltests))
 suite.addTests(loader.loadTestsFromModule(coulombmatrix))
 suite.addTests(loader.loadTestsFromModule(ewaldmatrix))
 suite.addTests(loader.loadTestsFromModule(sinematrix))
 suite.addTests(loader.loadTestsFromModule(acsf))
 suite.addTests(loader.loadTestsFromModule(mbtr))
 suite.addTests(loader.loadTestsFromModule(soap))
+suite.addTests(loader.loadTestsFromModule(elementaldistribution))
 
 # Initialize a runner, pass it the suite and run it
 runner = unittest.TextTestRunner(verbosity=3)
