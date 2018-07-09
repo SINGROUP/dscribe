@@ -1,6 +1,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
-import os, glob, pathlib
+import os, glob
 import numpy as np
 from ctypes import cdll, Structure, c_int, c_double, POINTER, byref
 
@@ -8,7 +8,7 @@ from describe.descriptors.descriptor import Descriptor
 
 
 _PATH_TO_ACSF_SO = os.path.dirname(os.path.abspath(__file__))
-_ACSF_SOFILES = glob.glob( "".join([ _PATH_TO_ACSF_SO, "/../libacsf/libacsf.*so*"]) )
+_ACSF_SOFILES = glob.glob( "".join([ _PATH_TO_ACSF_SO, "/../libacsf/libacsf.*so*"]))
 _LIBACSF = cdll.LoadLibrary(_ACSF_SOFILES[0])
 
 
