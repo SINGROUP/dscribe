@@ -1,4 +1,5 @@
 from describe.descriptors.descriptor import Descriptor
+from describe.descriptors.acsf import ACSF
 from describe.descriptors.mbtr import MBTR
 from describe.descriptors.lmbtr import LMBTR
 from describe.descriptors.ewaldmatrix import EwaldMatrix
