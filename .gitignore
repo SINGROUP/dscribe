@@ -87,3 +87,6 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# Include the ACSF so file for now
+!describe/libacsf/libacsf.so
