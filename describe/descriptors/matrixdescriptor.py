@@ -8,7 +8,7 @@ from describe.descriptors import Descriptor
 class MatrixDescriptor(Descriptor):
     """A common base class for two-body matrix-like descriptors.
     """
-    def __init__(self, n_atoms_max, permutation="sorted_l2", flatten=True):
+    def __init__(self, n_atoms_max, permutation="sorted_l2", sigma = None, flatten=True):
         """
         Args:
             n_atoms_max (int): The maximum nuber of atoms that any of the
@@ -38,8 +38,14 @@ class MatrixDescriptor(Descriptor):
                 .format(", ".join(perm_options))
             )
 
+        if not sigma and permutation == 'random':
+            raise ValueError(
+                "Please specify sigma as a degree of random noise."
+            )
+
         self.n_atoms_max = n_atoms_max
         self.permutation = permutation
+        self.norm_vector = None
 
     def describe(self, system):
         """
@@ -59,6 +65,8 @@ class MatrixDescriptor(Descriptor):
             matrix = self.sort(matrix)
         elif self.permutation == "eigenspectrum":
             matrix = self.get_eigenspectrum(matrix)
+        elif self.permutation == "random":
+            matrix = self.sort_randomly(matrix)
         else:
             raise ValueError("Invalid permutation method: {}".format(self.permutation))
 
@@ -138,3 +146,30 @@ class MatrixDescriptor(Descriptor):
             return int(self.n_atoms_max)
         else:
             return int(self.n_atoms_max**2)
+
+    def sort_randomly(self, matrix, sigma=1):
+        """
+        Given a coulomb matrix, it adds random noise to the sorting defined by sigma.
+        For sorting, L2-norm is used
+        """
+        try:
+            len(self.norm_vector) 
+        except:
+            #self.norm_vector = np.linalg.norm(matrix, axis=1)
+            self._get_norm_vector(matrix)
+
+        noise_norm_vector = np.random.normal(self.norm_vector, sigma)
+        indexlist = np.argsort(noise_norm_vector)
+        indexlist = indexlist[::-1] # order highest to lowest
+
+        matrix = matrix[indexlist][:,indexlist]
+
+        return matrix
+
+    def _get_norm_vector(self, matrix):
+        """
+        Takes a coulomb matrix as input. Returns L2 norm of each row / column in a vector
+        """
+        self.norm_vector = np.linalg.norm(matrix, axis=1)
+
+        return self.norm_vector

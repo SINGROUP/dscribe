@@ -4,6 +4,5 @@ from describe.descriptors.lmbtr import LMBTR
 from describe.descriptors.ewaldmatrix import EwaldMatrix
 from describe.descriptors.coulombmatrix import CoulombMatrix
 from describe.descriptors.sinematrix import SineMatrix
-from describe.descriptors.sortedsinematrix import SortedSineMatrix
 from describe.descriptors.elementaldistribution import ElementalDistribution
 from describe.descriptors.matrixdescriptor import MatrixDescriptor
