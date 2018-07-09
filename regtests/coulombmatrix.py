@@ -208,7 +208,7 @@ class RandomCoulombMatrixTests(unittest.TestCase):
 
     def test_match_with_sorted(self):
         """Tests if sorting the random coulomb matrix results in the same as
-        t<F2>he sorted coulomb matrix
+        the sorted coulomb matrix
         """
         desc = CoulombMatrix(n_atoms_max=5, permutation="random", sigma=100, flatten=False)
         rcm = desc.create(H2O)

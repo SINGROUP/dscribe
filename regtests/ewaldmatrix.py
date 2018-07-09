@@ -57,6 +57,7 @@ class EwaldMatrixTests(unittest.TestCase):
         # Flattened
         desc = EwaldMatrix(n_atoms_max=5, permutation="none", flatten=True)
         matrix = desc.create(H2O, rcut=rcut, gcut=gcut)
+        print(matrix.shape)
         self.assertEqual(matrix.shape, (25,))
 
     def test_a_independence(self):
@@ -87,6 +88,8 @@ class EwaldMatrixTests(unittest.TestCase):
         a = 0.5
         desc = EwaldMatrix(n_atoms_max=3, permutation="none", flatten=False)
         matrix = desc.create(system, a=a, rcut=rcut, gcut=gcut)
+        print(type(matrix))
+        print(matrix.shape)
 
         # Converts unit of q*q/r into eV
         conversion = 1e10 * scipy.constants.e / (4 * math.pi * scipy.constants.epsilon_0)
