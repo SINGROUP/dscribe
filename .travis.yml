@@ -22,8 +22,9 @@ branches:
 # Defines build stages.
 jobs:
   include:
-      # Sends the coverage report to coveralls.io. Only sent from python 3.
-    - stage: coverage
+    - stage: test
+      python: 2.7
+    - stage: test
       python: 3.6
-      os: linux
-      script: coveralls
+      after_success:
+       - coveralls
