@@ -1,3 +1,6 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
+
 import math
 import numpy as np
 import unittest
@@ -67,7 +70,7 @@ class SoapTests(unittest.TestCase):
         desc7 = SOAP(H2O, 10.0, 2, 0, periodic=True, envPos=[[0,0,0]],crossover=False, all_atomtypes=[1,6,8])
         desc8 = SOAP(H2O, 10.0, 2, 0, periodic=True, envPos=0, crossover=False, all_atomtypes=[1,6,8])
         desc9 = SOAP(H2O, 10.0, 2, 0, periodic=True, envPos=None, crossover=False, all_atomtypes=[1,6,8])
-        
+
         desc10 = SOAP(H2O, 10.0, 2, 0, periodic=False, envPos=[[0,0,0]],crossover=False, all_atomtypes=[1,6,8])
         desc11 = SOAP(H2O, 10.0, 2, 0, periodic=False, envPos=0, crossover=False, all_atomtypes=[1,6,8])
         desc12 = SOAP(H2O, 10.0, 2, 0, periodic=False, envPos=None, crossover=False, all_atomtypes=[1,6,8])
