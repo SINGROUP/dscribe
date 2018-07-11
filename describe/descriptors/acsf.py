@@ -104,8 +104,8 @@ class ACSF(Descriptor):
         self.ang5_params = ang5_params
         
         if not (self._ang5_params is None):
-        	msg += "G5[{0}] ".format(self._ang5_params.shape[0])
-                msg += "per symmetric type pair ({0})".format(self._obj.nSymTypes)
+            msg += "G5[{0}] ".format(self._ang5_params.shape[0])
+            msg += "per symmetric type pair ({0})".format(self._obj.nSymTypes)
                 
         if ((self._ang4_params is None) and (self._ang5_params is None)):
             msg += "no ACSFs"
@@ -343,7 +343,7 @@ class ACSF(Descriptor):
         self._obj.n_ang5_params = c_int(pmatrix.shape[0])
 
         # assign it
-        self._obj.ang5_params = self._ang4_params.ctypes.data_as(POINTER(c_double))
+        self._obj.ang5_params = self._ang5_params.ctypes.data_as(POINTER(c_double))
     # --- ---------- ---
 
 
