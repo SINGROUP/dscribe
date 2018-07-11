@@ -71,7 +71,7 @@ class ACSF(Descriptor):
         self._Zs = None
 
         self._bond_params = None
-        self.bond_params = bond_params  # np.array([[5.0, 0.0],[1.0, 0.0],[0.5, 0.0],[0.1, 0.0]])
+        self.bond_params = bond_params
 
         self._bond_cos_params = None
         self.bond_cos_params = bond_cos_params
@@ -86,7 +86,7 @@ class ACSF(Descriptor):
         
 
         self._ang_params = None
-        self.ang_params = ang_params  # np.array([[0.1, 1, 1],[0.1, 1, -1],[0.1, 2, 1],[0.1, 2, -1]])
+        self.ang_params = ang_params
         
         msg = "ACSF: 3-body contains "
         if not (self._ang_params is None):
@@ -134,7 +134,7 @@ class ACSF(Descriptor):
         pmatrix = np.unique(pmatrix)
         pmatrix = np.sort(pmatrix)
 
-        print("Setting types to: "+str(pmatrix))
+        print("ACSF: setting types to: "+str(pmatrix))
 
         self._types = pmatrix
         self._obj.types = pmatrix.ctypes.data_as(POINTER(c_int))
@@ -142,7 +142,7 @@ class ACSF(Descriptor):
         # set the internal indexer
         self._obj.nTypes = c_int(pmatrix.shape[0])
         self._obj.nSymTypes = c_int(int((pmatrix.shape[0]*(pmatrix.shape[0]+1))/2))
-        # print("nSymTypes ",self._obj.nSymTypes)
+        
 
         for i in range(pmatrix.shape[0]):
                 self._obj.typeID[ self._types[i]] = i
