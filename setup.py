@@ -6,7 +6,7 @@ extensions = [
         [
             "describe/libacsf/acsf-utils.c",
             "describe/libacsf/acsf-compute.c",
-            "describe/libacsf/acsf.c"
+            #"describe/libacsf/acsf.c"
         ],
         include_dirs=["describe/libacsf"],
         libraries=["m"],
