@@ -126,10 +126,11 @@ void acsf_compute_Gangle(ACSF *qm, int i, int j, int k) {
 
 	Ga += i * qm->nTypes 		* qm->nG2; // skip other atoms - G2
 	Ga += i * qm->nSymTypes 	* qm->nG3; // skip other atoms - G3
-	Ga += qm->nTypes 			* qm->nG2; // skip this atoms G2
-	Ga += its					* qm->nG3; // skip nG3 types that are not the ones of atom bi
+	Ga += qm->nTypes 		* qm->nG2; // skip this atoms G2
+	Ga += its			* qm->nG3; // skip nG3 types that are not the ones of atom bi
 
 	double fc = acsf_cutoff(qm, Rij)*acsf_cutoff(qm, Rik)*acsf_cutoff(qm, Rjk);
+	double fc5= acsf_cutoff(qm, Rij)*acsf_cutoff(qm, Rik);
 	
 	double costheta = 0.5/(Rij*Rik);
 	Rij *= Rij; //square all distances!
@@ -141,13 +142,13 @@ void acsf_compute_Gangle(ACSF *qm, int i, int j, int k) {
 	double eta, gauss, zeta, lambda;
 	//double twominusZ, onepluslcosth, oplc0;
 	
-	double *params = qm->ang_params;
+	double *params = qm->ang4_params;
 
 	// cos( theta_ijk ) = ( r_ij^2 + r_ik^2 - r_jk^2 ) / ( 2*r_ij*r_ik ),
 	
 	// computes G4 at the moment
 	// TODO!!!!
-	for (int i = 0; i < qm->n_ang_params; ++i)
+	for (int i = 0; i < qm->n_ang4_params; ++i)
 	{
 		eta = params[0];
 		gauss  = exp(-eta*(Rij+Rik+Rjk)) * fc;
@@ -161,6 +162,25 @@ void acsf_compute_Gangle(ACSF *qm, int i, int j, int k) {
 		g++;
 		params += 3;
 	}
+
+	params = qm->ang5_params;
+
+	// computes G5 at the moment
+	for (int i = 0; i < qm->n_ang5_params; ++i)
+	{
+		eta = params[0];
+		gauss  = exp(-eta*(Rij+Rik)) * fc5;
+
+		zeta = params[1];
+		lambda = params[2];
+
+		Ga[g] += 2*pow(0.5*(1 + lambda*costheta), zeta) * gauss;
+
+
+		g++;
+		params += 3;
+	}
+	
 	
 }
 

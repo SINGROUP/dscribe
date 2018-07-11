@@ -17,59 +17,63 @@
 typedef struct ACSF ACSF;
 struct ACSF {
 	
-	int natm;
-	int *Z;
-
-
-	double *positions;
+  int natm;
+  int *Z;
+  
+  
+  double *positions;
+  
 	
-	
-	///\brief Number of unique types found in the system.
-	int nTypes;
-	///\brief Array of Z of each unique atom type.
-	int *types;
-	///\brief Array of indexes of the atom types.
-	/// Example: typeID[Z=2] is the type index of He atom.
-	int typeID[NELEMENTS];
+  ///\brief Number of unique types found in the system.
+  int nTypes;
+  ///\brief Array of Z of each unique atom type.
+  int *types;
+  ///\brief Array of indexes of the atom types.
+  /// Example: typeID[Z=2] is the type index of He atom.
+  int typeID[NELEMENTS];
 
-	///\brief Number of symmetric type pairs.
-	int nSymTypes;
-
-	
-	double cutoff;
-	
-	int n_bond_params;
-	double *bond_params;
-
-	int n_bond_cos_params;
-	double *bond_cos_params;
-
-	int n_ang_params;
-	double *ang_params;
+  ///\brief Number of symmetric type pairs.
+  int nSymTypes;
 
 	
-	///\brief Symmetric matrix with interatomic distances.
-	double *distances;
+  double cutoff;
+	
+  int n_bond_params;
+  double *bond_params;
 
-	int nG2;
-	int nG3;
+  int n_bond_cos_params;
+  double *bond_cos_params;
+
+  int n_ang4_params;
+  double *ang4_params;
+
+  int n_ang5_params;
+  double *ang5_params;
+
+
+	
+  ///\brief Symmetric matrix with interatomic distances.
+  double *distances;
+
+  int nG2;
+  int nG3;
 
   /*
-	///\brief Two-body ACSFs container.
-	/// Structure: for each atom, one G set wrt each other atom type.
-  double *G2;
+ ///\brief Two-body ACSFs container.
+ /// Structure: for each atom, one G set wrt each other atom type.
+ double *G2;
 
-	///\brief Three-body ACSFs container.
-	/// Structure: for each atom, foreach typeJ foreach typeK, one G3 set.
-	double *G3;
+ ///\brief Three-body ACSFs container.
+ /// Structure: for each atom, foreach typeJ foreach typeK, one G3 set.
+ double *G3;
   */	
-	///\brief Complete ACSFs container.
-	/// Structure: for each atom 2-body functions are first (one G set wrt each other atom type), then 3-body for each atom (foreach typeJ foreach typeK, one G3 set).
-	double *acsfs;
+  ///\brief Complete ACSFs container.
+  /// Structure: for each atom 2-body functions are first (one G set wrt each other atom type), then 3-body for each atom (foreach typeJ foreach typeK, one G3 set).
+  double *acsfs;
 
   /*
-	int alloc_atoms;
-	int alloc_work;
+    int alloc_atoms;
+    int alloc_work;
   */
 };
 
@@ -93,28 +97,28 @@ double acsf_cutoff(ACSF *qm, double Rij);
 int symm_index(int i, int j);
 
 /*
-void qmnet_clean(QMNet *qm);
-void qmnet_free(QMNet *qm);
+  void qmnet_clean(QMNet *qm);
+  void qmnet_free(QMNet *qm);
 
-void qmnet_init(QMNet *qm);
-void qmnet_init_distances(QMNet *qm);
+  void qmnet_init(QMNet *qm);
+  void qmnet_init_distances(QMNet *qm);
 
-void qmnet_deinit(QMNet *qm);
-void qmnet_reset(QMNet *qm);
-void qmnet_presetstates(QMNet* qm);
+  void qmnet_deinit(QMNet *qm);
+  void qmnet_reset(QMNet *qm);
+  void qmnet_presetstates(QMNet* qm);
 
-//void qmnet_project_state(double *state, double *rotated, Vector3 *zmol, double *workspace);
+  //void qmnet_project_state(double *state, double *rotated, Vector3 *zmol, double *workspace);
 
-void qmnet_readmolecule_pbc_bin(QMNet *qm, FILE *bin);
-
-
-int symm_index(int i, int j, int n);
+  void qmnet_readmolecule_pbc_bin(QMNet *qm, FILE *bin);
 
 
-double qmnet_compute_energy(QMNet *qm);
-void qmnet_compute_forces(QMNet *qm);
-void qmnet_compute_forces3(QMNet *qm);
-void qmnet_compute_forces3_ang(QMNet *qm);
+  int symm_index(int i, int j, int n);
+
+
+  double qmnet_compute_energy(QMNet *qm);
+  void qmnet_compute_forces(QMNet *qm);
+  void qmnet_compute_forces3(QMNet *qm);
+  void qmnet_compute_forces3_ang(QMNet *qm);
 */
 
 // *** ACSF FUNCTIONS *** ******************************************* //
