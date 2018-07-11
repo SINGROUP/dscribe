@@ -58,45 +58,74 @@ class ACSFTests(unittest.TestCase):
         self.assertEqual(n_features, 5 * 2)
 
 
-    '''
+        desc = ACSF(n_atoms_max=5, types=[1,8], bond_params=[[1,2,], [4,5,]], flatten=True)
+        n_features = desc.get_number_of_features()
+        self.assertEqual(n_features, 5 * 2 * (2+1))
+
+        desc = ACSF(n_atoms_max=5, types=[1,8], bond_cos_params=[1,2,3,4], flatten=True)
+        n_features = desc.get_number_of_features()
+        self.assertEqual(n_features, 5 * 2 * (4+1))
+
+        desc = ACSF(n_atoms_max=5, types=[1,8], ang_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], flatten=True)
+        n_features = desc.get_number_of_features()
+        self.assertEqual(n_features, 5 * (2 + 4 * 3))
+
+        desc = ACSF(n_atoms_max=5, types=[1,8],bond_params=[[1,2,], [4,5,]], bond_cos_params=[1,2,3,4], 
+            ang_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], flatten=True)
+        n_features = desc.get_number_of_features()
+        self.assertEqual(n_features, 5 * ((2 * (1 + 2 + 4)) + 4 * 3))
 
     def test_flatten(self):
         """Tests the flattening.
         """
+        """print("Testing flattening now")
         # Unflattened
-        desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=False)
-        cm = desc.create(H2O)
-        self.assertEqual(cm.shape, (5, 5))
-
+        #desc = ACSF(n_atoms_max=5, types=[1,8],bond_params=[[1,2,], [4,5,]], bond_cos_params=[1,2,3,4], 
+        #    ang_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], flatten=False)
+        #cm = desc.create(H2O)
+        #self.assertEqual(cm.shape, (5, 5))
         # Flattened
-        desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=True)
+        desc = ACSF(n_atoms_max=5, types=[1,8],bond_params=[[1,2,], [4,5,]], bond_cos_params=[1,2,3,4], 
+            ang_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], flatten=True)
         cm = desc.create(H2O)
         self.assertEqual(cm.shape, (25,))
+        """
 
     def test_features(self):
         """Tests that the correct features are present in the desciptor.
         """
-        desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=False)
-        cm = desc.create(H2O)
+        desc = ACSF(n_atoms_max=5, types=[1,8], flatten=True)
+        acsf = desc.create(H2O)
+        print(acsf.shape)
+        print(acsf)
+
+        desc = ACSF(n_atoms_max=5, types=[1,8], bond_params=[[1,2,], [4,5,]], flatten=True)
+        acsf = desc.create(H2O)
+        print(acsf.shape)
+
+        desc = ACSF(n_atoms_max=5, types=[1,8], bond_cos_params=[1,2,3,4], flatten=True)
+        acsf = desc.create(H2O)
+        print(acsf.shape)
+
+        #desc = ACSF(n_atoms_max=5, types=[1,8], ang_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], flatten=True)
+        #desc = ACSF(n_atoms_max=5, types=[1,8], ang_params=[[1.0, 1.0, 1.0],], flatten=True)
+        #acsf = desc.create(H2O)
+        #print(acsf.shape)
+        
+        
 
         # Test against assumed values
-        q = H2O.get_atomic_numbers()
-        p = H2O.get_positions()
-        norm = np.linalg.norm
-        assumed = np.array(
-            [
-                [0.5*q[0]**2.4,              q[0]*q[1]/(norm(p[0]-p[1])),  q[0]*q[2]/(norm(p[0]-p[2]))],
-                [q[1]*q[0]/(norm(p[1]-p[0])), 0.5*q[1]**2.4,               q[1]*q[2]/(norm(p[1]-p[2]))],
-                [q[2]*q[0]/(norm(p[2]-p[0])), q[2]*q[1]/(norm(p[2]-p[1])), 0.5*q[2]**2.4],
-            ]
-        )
-        zeros = np.zeros((5, 5))
-        zeros[:3, :3] = assumed
-        assumed = zeros
+        #G1  (Rij<qm->cutoff)? 0.5*(cos(Rij*PI/qm->cutoff)+1) : 0;
+        #G2        Ga[g] += exp(-eta * (Rij - Rs)*(Rij - Rs)) * fc;
+        #G3        val = cos(Rij*val)*fc;
+        #G4                       Ga[g] += 2*pow(0.5*(1 + lambda*costheta), zeta) * gauss;
+        #   with                gauss  = exp(-eta*(Rij+Rik+Rjk)) * fc;
+        #   and                 cos( theta_ijk ) = ( r_ij^2 + r_ik^2 - r_jk^2 ) / ( 2*r_ij*r_ik ),
+        
+        #G5
 
-        self.assertTrue(np.array_equal(cm, assumed))
+        #self.assertTrue(np.array_equal(cm, assumed))
 
-    '''
 
 if __name__ == '__main__':
     suites = []
