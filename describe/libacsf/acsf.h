@@ -53,22 +53,24 @@ struct ACSF {
 
 	int nG2;
 	int nG3;
-	
+
+  /*
 	///\brief Two-body ACSFs container.
 	/// Structure: for each atom, one G set wrt each other atom type.
-	double *G2;
+  double *G2;
 
 	///\brief Three-body ACSFs container.
 	/// Structure: for each atom, foreach typeJ foreach typeK, one G3 set.
 	double *G3;
-	
+  */	
 	///\brief Complete ACSFs container.
 	/// Structure: for each atom 2-body functions are first (one G set wrt each other atom type), then 3-body for each atom (foreach typeJ foreach typeK, one G3 set).
 	double *acsfs;
 
-
+  /*
 	int alloc_atoms;
 	int alloc_work;
+  */
 };
 
 

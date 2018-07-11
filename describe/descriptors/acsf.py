@@ -31,18 +31,12 @@ class ACSFObject(Structure):
 
         ('n_ang_params', c_int),
         ('ang_params', POINTER(c_double)),
-
-
+        
         ('distances', POINTER(c_double)),
         ('nG2', c_int),
         ('nG3', c_int),
-        ('G2', POINTER(c_double)),
-        ('G3', POINTER(c_double)),
 
-        ('acsfs', POINTER(c_double)),
-
-        ('alloc_atoms', c_int),
-        ('alloc_work', c_int)
+        ('acsfs', POINTER(c_double))
     ]
 
 # libacsf.acsf_init.argtypes = [POINTER(ACSFObject)]
@@ -52,11 +46,11 @@ _LIBACSF.acsf_compute_acsfs.argtypes = [POINTER(ACSFObject)]
 
 class ACSF(Descriptor):
 
-    def __init__(self, n_atoms_max, types, bond_params=None, bond_cos_params=None, ang_params=None, flatten=True):
+    def __init__(self, n_atoms_max, types, bond_params=None, bond_cos_params=None, ang_params=None, rcut=5.0, flatten=True):
         """
         Args:
-        flatten (bool): Whether the output of create() should be flattened
-        to a 1D array.
+        flatten (bool): Whether the output of create() should be flattened to a 1D array.
+
         """
         super().__init__(flatten)
         self._inited = False
@@ -65,13 +59,7 @@ class ACSF(Descriptor):
         self._obj.alloc_atoms = 0
         self._obj.alloc_work = 0
 
-        #print(self._obj.alloc_work)
-
-        '''// number of 2- and 3-body ACSFs per atom!
-        //qm->nG2 = 1 + NBONDETA*NBONDRS + NBONDCOS;
-        //qm->nG3 = 2*NBONDETA*NANGZETA;
-        //qm->nG3 = 4*NBONDETA*NANGZETA; // for the Gang45 version
-        '''
+        
         if n_atoms_max <= 0:
                 raise ValueError("Maximum number of atoms n_atoms_max should be positive.")
 
@@ -88,29 +76,31 @@ class ACSF(Descriptor):
         self._bond_cos_params = None
         self.bond_cos_params = bond_cos_params
 
-        '''
-        msg = "ACSF: 2-body contains G1"
-        if self._bond_params != None:
+        
+        msg = "ACSF: 2-body for each atom contains G1"
+        if not (self._bond_params is None):
         	msg += ", G2[{0}]".format(self._bond_params.shape[0])
-        if self._bond_cos_params != None:
+        if not (self._bond_cos_params is None):
         	msg += ", G3[{0}]".format(self._bond_cos_params.shape[0])
-
-        print(msg)
-        '''
+        print(msg+" per type({0})".format(self._obj.nTypes))
+        
 
         self._ang_params = None
         self.ang_params = ang_params  # np.array([[0.1, 1, 1],[0.1, 1, -1],[0.1, 2, 1],[0.1, 2, -1]])
-        '''
+        
         msg = "ACSF: 3-body contains "
-        if self._ang_params != None:
+        if not (self._ang_params is None):
         	msg += "G4[{0}]".format(self._ang_params.shape[0])
+                msg += " per symmetric type pair ({0})".format(self._obj.nSymTypes)
         else:
-        	msg += "nothing!"
+        	msg += "no ACSFs"
         print(msg)
-        '''
+
+        msg = "ACSF: total number of ACSF per atom: 2-body {0}, 3-body {1}"
+        print(msg.format((1 + self._obj.n_bond_params + self._obj.n_bond_cos_params) * self._obj.nTypes, (self._obj.n_ang_params * self._obj.nSymTypes)))
 
         self._rcut = None
-        self.rcut = 5.0
+        self.rcut = rcut
 
         self.positions = None
         self.distances = None
@@ -165,8 +155,9 @@ class ACSF(Descriptor):
 
     @rcut.setter
     def rcut(self, value):
-
+        
         self._rcut = c_double(value)
+        print("ACSF: cutoff radius set to {0}".format(self._rcut.value))
         self._obj.cutoff = c_double(value)
     # --- ------------- ---
 
@@ -191,7 +182,7 @@ class ACSF(Descriptor):
             return
 
         pmatrix = np.array(value, dtype=np.double)  # convert to array just to be safe!
-        print("Setting 2-body ACSFs...")
+        # print("Setting 2-body ACSFs...")
 
         if pmatrix.ndim != 2:
             raise ValueError("arghhh! bond_params should be a matrix with two columns (eta, Rs).")
@@ -199,6 +190,10 @@ class ACSF(Descriptor):
         if pmatrix.shape[1] != 2:
             raise ValueError("arghhh! bond_params should be a matrix with two columns (eta, Rs).")
 
+        # check that etas are positive
+        if np.any(pmatrix[:,0]<=0) == True:
+            print("WARNING: 2-body eta parameters should be positive numbers.")
+        
         # store what the user gave in the private variable
         self._bond_params = pmatrix
 
@@ -227,13 +222,13 @@ class ACSF(Descriptor):
 
         # handle the disable case
         if value is None:
-            print("Disabling 2-body COS-type ACSFs...")
+            # print("Disabling 2-body COS-type ACSFs...")
             self._obj.n_bond_cos_params = 0
             self._bond_cos_params = None
             return
 
         pmatrix = np.array(value, dtype=np.double)  # convert to array just to be safe!
-        print("Setting 2-body COS-type ACSFs...")
+        # print("Setting 2-body COS-type ACSFs...")
 
         if pmatrix.ndim != 1:
                 raise ValueError("arghhh! bond_cos_params should be a vector.")
@@ -263,26 +258,31 @@ class ACSF(Descriptor):
 
         # handle the disable case
         if value is None:
-            print("Disabling 3-body ACSFs...")
+            # print("Disabling 3-body ACSFs...")
             self._obj.n_ang_params = 0
             self._ang_params = None
             return
 
         pmatrix = np.array(value, dtype=np.double)  # convert to array just to be safe!
-        print("Setting 3-body ACSFs...")
+        # print("Setting 3-body ACSFs...")
 
         if pmatrix.ndim != 2:
             raise ValueError("arghhh! ang_params should be a matrix with three columns (eta, zeta, lambda).")
         if pmatrix.shape[1] != 3:
             raise ValueError("arghhh! ang_params should be a matrix with three columns (eta, zeta, lambda).")
 
+        # check that etas are positive
+        if np.any(pmatrix[:,2]<=0) == True:
+            print("WARNING: 3-body eta parameters should be positive numbers.")
+            
+        
         # store what the user gave in the private variable
         self._ang_params = pmatrix
 
         # get the number of parameter pairs
         self._obj.n_ang_params = c_int(pmatrix.shape[0])
 
-        #assign it
+        # assign it
         self._obj.ang_params = self._ang_params.ctypes.data_as(POINTER(c_double))
     # --- ---------- ---
 
