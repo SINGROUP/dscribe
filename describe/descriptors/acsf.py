@@ -49,7 +49,8 @@ class ACSF(Descriptor):
     def __init__(self, n_atoms_max, types, bond_params=None, bond_cos_params=None, ang_params=None, rcut=5.0, flatten=True):
         """
         Args:
-        flatten (bool): Whether the output of create() should be flattened to a 1D array.
+         n_atoms_max (int): maximum number of atoms
+         flatten (bool): Whether the output of create() should be flattened to a 1D array.
 
         """
         super().__init__(flatten)
@@ -155,6 +156,9 @@ class ACSF(Descriptor):
 
     @rcut.setter
     def rcut(self, value):
+
+        if value <= 0:
+            raise ValueError("cutoff radius should be positive.")
         
         self._rcut = c_double(value)
         print("ACSF: cutoff radius set to {0}".format(self._rcut.value))
