@@ -87,7 +87,7 @@ void acsf_compute_Gbond(ACSF *qm, int ai, int bi) {
 	// compute G3 - cosine type
 	for(int i=0; i<qm->n_bond_cos_params; i++) {
 		
-		val = 0.5 * qm->bond_cos_params[i]; // the oscillation k
+		val = qm->bond_cos_params[i]; // the oscillation k
 		val = cos(Rij*val)*fc;
 		Ga[g] += val;
 		
