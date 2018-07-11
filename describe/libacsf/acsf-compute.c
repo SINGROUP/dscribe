@@ -11,10 +11,6 @@ void acsf_compute_acsfs(ACSF *qm) {
 	
 	int natm = qm->natm;
 	
-	// reset - done in python
-	// memset(qm->G2, 0, natm*qm->nTypes*qm->nG2*sizeof(double));
-	// memset(qm->G3, 0, natm*qm->nSymTypes*qm->nG3*sizeof(double));
-	
 	for(int i=0; i<natm; i++) {
 		
 		for(int j=0; j<natm; j++) {
@@ -46,7 +42,7 @@ void acsf_compute_Gbond(ACSF *qm, int ai, int bi) {
 	
 	// fetch distance from the matrix
 	double Rij = qm->distances[ai*natm + bi]; //vectors_norm(&r);
-	printf("computing 2body... %lf\n", Rij);
+	//printf("computing 2body... %lf\n", Rij);
 	if(Rij >= qm->cutoff) return; // not tested!
 
 	// pointers to the G storage
@@ -109,7 +105,7 @@ void acsf_compute_Gangle(ACSF *qm, int i, int j, int k) {
 	// index of type of B
 	int typj = qm->typeID[qm->Z[j]];
 	int typk = qm->typeID[qm->Z[k]];
-	
+
 	// fetch distance from matrix
 	double Rij = qm->distances[i*qm->natm + j]; //vectors_norm(&r);
 	if(Rij >= qm->cutoff) return;
@@ -120,11 +116,12 @@ void acsf_compute_Gangle(ACSF *qm, int i, int j, int k) {
 	double Rjk = qm->distances[k*qm->natm + j]; //vectors_norm(&r);
 	if(Rjk >= qm->cutoff) return;
 	
+
 	
 	// size of the total Gang allocation for one atom
 	int its = symm_index(typj,typk);
 	
-	double *Ga = qm->G3; // pointers to the G storage
+	double *Ga = qm->acsfs; // pointers to the G storage
 	// Ga = qm->G3 + (i*qm->nSymTypes + its)*qm->nG3;
 
 	Ga += i * qm->nTypes 		* qm->nG2; // skip other atoms - G2
@@ -164,103 +161,9 @@ void acsf_compute_Gangle(ACSF *qm, int i, int j, int k) {
 		g++;
 		params += 3;
 	}
-	/*
-	for(int e=0; e<qm->neta; e++) {
-		
-		eta = qm->bond_eta[e];
-		gauss  = exp(-eta*(Rij+Rik+Rjk)) * fc;
-		
-		// loop over lambda = -1,1
-		for(int lambda=-1; lambda<=1; lambda+=2) {
-			
-			twominusZ = 1.0;
-			oplc0 = 1 + lambda*costheta;
-			onepluslcosth = oplc0;
-			
-			for(int zi=0; zi<qm->nzeta; zi++) {
-				
-				Ga[g] += onepluslcosth * gauss * twominusZ;
-				
-				twominusZ *= 0.5;
-				onepluslcosth *= oplc0;
-				g++;
-			}
-		}
-	}
-	*/
 	
 }
 
-/*
-// atom i is the center of the 3-body term (type G4 only for now)
-//
-void acsf_compute_Gangle45(ACSF *qm, int i, int j, int k) {
-	
-	// index of type of B
-	int typj = qm->typeID[qm->atoms[j].Z];
-	int typk = qm->typeID[qm->atoms[k].Z];
-	
-	// compute distance
-	double Rij = qm->distances[symm_index(i,j,qm->nAtoms)]; //vectors_norm(&r);
-	if(Rij >= RCUT) return;
-	
-	double Rik = qm->distances[symm_index(i,k,qm->nAtoms)]; //vectors_norm(&r);
-	if(Rik >= RCUT) return;
-	
-	double Rjk = qm->distances[symm_index(j,k,qm->nAtoms)]; //vectors_norm(&r);
-	
-	
-	// size of the total Gang allocation for one atom
-	int its = symm_index(typj,typk, qm->nTypes);
-	
-	double *Ga; // pointers to the G storage
-	Ga = qm->G3 + (i*qm->nSymTypes + its)*qm->nG3;
-	
-	double fc5 = acsf_cutoff(Rij) * acsf_cutoff(Rik);
-	double fc4 = acsf_cutoff(Rjk);
-	
-	double costheta = 0.5/(Rij*Rik);
-	Rij *= Rij; //square all distances!
-	Rik *= Rik;
-	Rjk *= Rjk;
-	costheta = costheta * (Rij+Rik-Rjk);
-	
-	int g = 0; double eta, gauss4, gauss5;
-	double twominusZ, onepluslcosth, oplc0;
-	
-	// cos( theta_ijk ) = ( r_ij^2 + r_ik^2 - r_jk^2 ) / ( 2*r_ij*r_ik ),
-	
-	// computes G4 at the moment
-	for(int e=0; e<NBONDETA; e++) {
-		
-		eta = qm->bond_eta[e];
-		gauss5  = exp(-eta*(Rij+Rik)) * fc5;
-		gauss4  = gauss5 * exp(-eta*(Rjk)) * fc4;
-		
-		// loop over lambda = -1,1
-		for(int lambda=-1; lambda<=1; lambda+=2) {
-			
-			twominusZ = 1.0;
-			oplc0 = 1 + lambda*costheta;
-			onepluslcosth = oplc0;
-			
-			for(int zi=0; zi<NANGZETA; zi++) {
-				
-				Ga[g] += onepluslcosth * gauss4 * twominusZ;
-				g++;
-				Ga[g] += onepluslcosth * gauss5 * twominusZ;
-				g++;
-				
-				twominusZ *= 0.5;
-				onepluslcosth *= oplc0;
-			}
-		}
-	}
-	
-	
-	
-}
-*/
 
 
 inline double acsf_cutoff(ACSF *qm, double Rij) {

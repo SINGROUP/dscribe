@@ -88,8 +88,26 @@ class ACSF(Descriptor):
         self._bond_cos_params = None
         self.bond_cos_params = bond_cos_params
 
+        '''
+        msg = "ACSF: 2-body contains G1"
+        if self._bond_params != None:
+        	msg += ", G2[{0}]".format(self._bond_params.shape[0])
+        if self._bond_cos_params != None:
+        	msg += ", G3[{0}]".format(self._bond_cos_params.shape[0])
+
+        print(msg)
+        '''
+
         self._ang_params = None
         self.ang_params = ang_params  # np.array([[0.1, 1, 1],[0.1, 1, -1],[0.1, 2, 1],[0.1, 2, -1]])
+        '''
+        msg = "ACSF: 3-body contains "
+        if self._ang_params != None:
+        	msg += "G4[{0}]".format(self._ang_params.shape[0])
+        else:
+        	msg += "nothing!"
+        print(msg)
+        '''
 
         self._rcut = None
         self.rcut = 5.0
@@ -134,6 +152,7 @@ class ACSF(Descriptor):
         # set the internal indexer
         self._obj.nTypes = c_int(pmatrix.shape[0])
         self._obj.nSymTypes = c_int(int((pmatrix.shape[0]*(pmatrix.shape[0]+1))/2))
+        # print("nSymTypes ",self._obj.nSymTypes)
 
         for i in range(pmatrix.shape[0]):
                 self._obj.typeID[ self._types[i]] = i
@@ -267,21 +286,7 @@ class ACSF(Descriptor):
         self._obj.ang_params = self._ang_params.ctypes.data_as(POINTER(c_double))
     # --- ---------- ---
 
-    def Compute(self):
 
-        lib.acsf_reset(byref(self._obj))
-
-        self._obj.nG2 = c_int(1 + self._obj.neta * self._obj.nrs + self._obj.ncos)
-        self._obj.nG3 = c_int(2 * self._obj.neta * self._obj.nzeta)
-
-        lib.acsf_init(byref(self.obj))
-        lib.acsf_compute_acsfs(byref(self.obj))
-
-        self.acsf_bond = np.ctypeslib.as_array(self.obj.G2,
-        shape=(self.obj.natm, self.obj.nTypes, self.obj.nG2))
-
-        self.acsf_ang = np.ctypeslib.as_array(self.obj.G3,
-        shape=(self.obj.natm, self.obj.nSymTypes, self.obj.nG3))
 
     def describe(self, system):
         """Creates the descriptor for the given systems.
@@ -329,6 +334,14 @@ class ACSF(Descriptor):
         self._obj.nG2 = c_int(1 + self._obj.n_bond_params + self._obj.n_bond_cos_params)
         self._obj.nG3 = c_int(self._obj.n_ang_params)
 
+        ''' 
+        print("ng2: ",self._obj.nG2)
+        print("ng2tot: ",self._obj.nG2 * self._obj.nTypes)
+        print("ng3: ",self._obj.nG3)
+        print("ng3tot: ",self._obj.nG3 * self._obj.nSymTypes)
+        print("buffer row len: ",self._obj.nG2 * self._obj.nTypes + self._obj.nG3 * self._obj.nSymTypes)
+        print("self._obj.n_ang_params: ",self._obj.n_ang_params)
+        '''
         self._acsfBuffer = np.zeros((self._n_atoms_max, self._obj.nG2 * self._obj.nTypes + self._obj.nG3 * self._obj.nSymTypes))
         self._obj.acsfs = self._acsfBuffer.ctypes.data_as(POINTER(c_double))
 
