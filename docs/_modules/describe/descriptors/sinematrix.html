@@ -1,0 +1,282 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>describe.descriptors.sinematrix &mdash; describe 0.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/style.css" type="text/css" />
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> describe
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../doc/modules.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about.html">About</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">describe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>describe.descriptors.sinematrix</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for describe.descriptors.sinematrix</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
+<span class="kn">from</span> <span class="nn">builtins</span> <span class="k">import</span> <span class="p">(</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">open</span><span class="p">,</span> <span class="nb">super</span><span class="p">,</span> <span class="nb">range</span><span class="p">,</span>
+                      <span class="nb">zip</span><span class="p">,</span> <span class="nb">round</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">pow</span><span class="p">,</span> <span class="nb">object</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">describe.descriptors.matrixdescriptor</span> <span class="k">import</span> <span class="n">MatrixDescriptor</span>
+
+
+<div class="viewcode-block" id="SineMatrix"><a class="viewcode-back" href="../../../doc/describe.descriptors.html#describe.descriptors.sinematrix.SineMatrix">[docs]</a><span class="k">class</span> <span class="nc">SineMatrix</span><span class="p">(</span><span class="n">MatrixDescriptor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculates the zero padded Sine matrix for different systems.</span>
+
+<span class="sd">    The Sine matrix is defined as:</span>
+
+<span class="sd">        Cij = 0.5 Zi**exponent      | i = j</span>
+<span class="sd">            = (Zi*Zj)/phi(Ri, Rj)   | i != j</span>
+
+<span class="sd">        where phi(r1, r2) = | B * sum(k = x,y,z)[ek * sin^2(pi * ek * B^-1</span>
+<span class="sd">        (r2-r1))] | (B is the matrix of basis cell vectors, ek are the unit</span>
+<span class="sd">        vectors)</span>
+
+<span class="sd">    The matrix is padded with invisible atoms, which means that the matrix is</span>
+<span class="sd">    padded with zeros until the maximum allowed size defined by n_max_atoms is</span>
+<span class="sd">    reached.</span>
+
+<span class="sd">    For reference, see:</span>
+<span class="sd">        &quot;Crystal Structure Representations for Machine Learning Models of</span>
+<span class="sd">        Formation Energies&quot;, Felix Faber, Alexander Lindmaa, Anatole von</span>
+<span class="sd">        Lilienfeld, and Rickard Armiento, International Journal of Quantum</span>
+<span class="sd">        Chemistry, (2015),</span>
+<span class="sd">        https://doi.org/10.1002/qua.24917</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SineMatrix.get_matrix"><a class="viewcode-back" href="../../../doc/describe.descriptors.html#describe.descriptors.sinematrix.SineMatrix.get_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">get_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates the Sine matrix for the given system.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            system(:class:`.System`): The system for which the Sine matrix is</span>
+<span class="sd">                calculated.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: Sine matrix as 2D array.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Cell and inverse cell</span>
+        <span class="n">B</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_cell</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">B_inv</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_cell_inverse</span><span class="p">()</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;The given system has a non-invertible cell matrix: </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Difference vectors in tensor 3D-tensor-form</span>
+        <span class="n">diff_tensor</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_displacement_tensor</span><span class="p">()</span>
+
+        <span class="c1"># Calculate phi</span>
+        <span class="n">arg_to_sin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">diff_tensor</span><span class="p">,</span> <span class="n">B_inv</span><span class="p">)</span>
+        <span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">arg_to_sin</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">B</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">):</span>
+            <span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reciprocal</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
+
+        <span class="c1"># Calculate Z_i*Z_j</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">()</span>
+        <span class="n">qiqj</span> <span class="o">=</span> <span class="n">q</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span><span class="o">*</span><span class="n">q</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Multiply by charges</span>
+        <span class="n">smat</span> <span class="o">=</span> <span class="n">qiqj</span><span class="o">*</span><span class="n">phi</span>
+
+        <span class="c1"># Set diagonal</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">smat</span><span class="p">,</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">q</span> <span class="o">**</span> <span class="mf">2.4</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">smat</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright .
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.1.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,621 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>describe.core package &mdash; describe 0.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="describe.data package" href="describe.data.html" />
+    <link rel="prev" title="describe package" href="describe.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> describe
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/tutorials.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="describe.html">describe package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="describe.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">describe.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="describe.data.html">describe.data package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="describe.descriptors.html">describe.descriptors package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="describe.utils.html">describe.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="describe.html#module-describe">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">describe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">describe</a> &raquo;</li>
+        
+          <li><a href="describe.html">describe package</a> &raquo;</li>
+        
+      <li>describe.core package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/doc/describe.core.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="describe-core-package">
+<h1>describe.core package<a class="headerlink" href="#describe-core-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-describe.core.lattice">
+<span id="describe-core-lattice-module"></span><h2>describe.core.lattice module<a class="headerlink" href="#module-describe.core.lattice" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="describe.core.lattice.Lattice">
+<em class="property">class </em><code class="descclassname">describe.core.lattice.</code><code class="descname">Lattice</code><span class="sig-paren">(</span><em>matrix</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/describe/core/lattice.html#Lattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#describe.core.lattice.Lattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>A lattice object.  Essentially a matrix with conversion matrices. In
+general, it is assumed that length units are in Angstroms and angles are in
+degrees unless otherwise stated.</p>
+<dl class="attribute">
+<dt id="describe.core.lattice.Lattice.abc">
+<code class="descname">abc</code><a class="headerlink" href="#describe.core.lattice.Lattice.abc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lengths of the lattice vectors, i.e. (a, b, c)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="describe.core.lattice.Lattice.alpha">
+<code class="descname">alpha</code><a class="headerlink" href="#describe.core.lattice.Lattice.alpha" title="Permalink to this definition">¶</a></dt>
+<dd><p>Angle alpha of lattice in degrees.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="describe.core.lattice.Lattice.angles">
+<code class="descname">angles</code><a class="headerlink" href="#describe.core.lattice.Lattice.angles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the angles (alpha, beta, gamma) of the lattice.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="describe.core.lattice.Lattice.beta">
+<code class="descname">beta</code><a class="headerlink" href="#describe.core.lattice.Lattice.beta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Angle beta of lattice in degrees.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="describe.core.lattice.Lattice.gamma">
+<code class="descname">gamma</code><a class="headerlink" href="#describe.core.lattice.Lattice.gamma" title="Permalink to this definition">¶</a></dt>
+<dd><p>Angle gamma of lattice in degrees.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="describe.core.lattice.Lattice.get_cartesian_coords">
+<code class="descname">get_cartesian_coords</code><span class="sig-paren">(</span><em>fractional_coords</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/describe/core/lattice.html#Lattice.get_cartesian_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#describe.core.lattice.Lattice.get_cartesian_coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the cartesian coordinates given fractional coordinates.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fractional_coords</strong> (<em>3x1 array</em>) – Fractional coords.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Cartesian coordinates</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="describe.core.lattice.Lattice.get_fractional_coords">
+<code class="descname">get_fractional_coords</code><span class="sig-paren">(</span><em>cart_coords</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/describe/core/lattice.html#Lattice.get_fractional_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#describe.core.lattice.Lattice.get_fractional_coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the fractional coordinates given cartesian coordinates.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cart_coords</strong> (<em>3x1 array</em>) – Cartesian coords.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Fractional coordinates.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="describe.core.lattice.Lattice.get_points_in_sphere">
+<code class="descname">get_points_in_sphere</code><span class="sig-paren">(</span><em>frac_points</em>, <em>center</em>, <em>r</em>, <em>zip_results=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/describe/core/lattice.html#Lattice.get_points_in_sphere"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#describe.core.lattice.Lattice.get_points_in_sphere" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find all points within a sphere from the point taking into account
+periodic boundary conditions. This includes sites in other periodic
+images.</p>
+<p>Algorithm:</p>
+<ol class="arabic">
+<li><p class="first">place sphere of radius r in crystal and determine minimum supercell
+(parallelpiped) which would contain a sphere of radius r. for this
+we need the projection of a_1 on a unit vector perpendicular
+to a_2 &amp; a_3 (i.e. the unit vector in the direction b_1) to
+determine how many a_1”s it will take to contain the sphere.</p>
+<p>Nxmax = r * length_of_b_1 / (2 Pi)</p>
+</li>
+<li><p class="first">keep points falling within r.</p>
+</li>
+</ol>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>frac_points</strong> – All points in the lattice in fractional coordinates.</li>
+<li><strong>center</strong> – Cartesian coordinates of center of sphere.</li>
+<li><strong>r</strong> – radius of sphere.</li>
+<li><strong>zip_results</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Whether to zip the results together to group by
+point, or return the raw fcoord, dist, index arrays</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>[(fcoord, dist, index) …] since most of the time, subsequent</dt>
+<dd><p class="first last">processing requires the distance.</p>
+</dd>
+<dt>else:</dt>
+<dd><p class="first last">fcoords, dists, inds</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">if zip_results</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="describe.core.lattice.Lattice.inv_matrix">
+<code class="descname">inv_matrix</code><a class="headerlink" href="#describe.core.lattice.Lattice.inv_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inverse of lattice matrix.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="describe.core.lattice.Lattice.lengths">
+<code class="descname">lengths</code><a class="headerlink" href="#describe.core.lattice.Lattice.lengths" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="describe.core.lattice.Lattice.lengths_and_angles">
+<code class="descname">lengths_and_angles</code><a class="headerlink" href="#describe.core.lattice.Lattice.lengths_and_angles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns (lattice lengths, lattice angles).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="describe.core.lattice.Lattice.matrix">
+<code class="descname">matrix</code><a class="headerlink" href="#describe.core.lattice.Lattice.matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy of matrix representing the Lattice</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="describe.core.lattice.Lattice.reciprocal_lattice">
+<code class="descname">reciprocal_lattice</code><a class="headerlink" href="#describe.core.lattice.Lattice.reciprocal_lattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the reciprocal lattice. Note that this is the standard
+reciprocal lattice used for solid state physics with a factor of 2 *
+pi. If you are looking for the crystallographic reciprocal lattice,
+use the reciprocal_lattice_crystallographic property.
+The property is lazily generated for efficiency.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="describe.core.lattice.Lattice.reciprocal_lattice_crystallographic">
+<code class="descname">reciprocal_lattice_crystallographic</code><a class="headerlink" href="#describe.core.lattice.Lattice.reciprocal_lattice_crystallographic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the <em>crystallographic</em> reciprocal lattice, i.e., no factor of
+2 * pi.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="describe.core.lattice.Lattice.volume">
+<code class="descname">volume</code><a class="headerlink" href="#describe.core.lattice.Lattice.volume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Volume of the unit cell.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-describe.core.system">
+<span id="describe-core-system-module"></span><h2>describe.core.system module<a class="headerlink" href="#module-describe.core.system" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="describe.core.system.System">
+<em class="property">class </em><code class="descclassname">describe.core.system.</code><code class="descname">System</code><span class="sig-paren">(</span><em>symbols=None</em>, <em>positions=None</em>, <em>numbers=None</em>, <em>tags=None</em>, <em>momenta=None</em>, <em>masses=None</em>, <em>magmoms=None</em>, <em>charges=None</em>, <em>scaled_positions=None</em>, <em>cell=None</em>, <em>pbc=None</em>, <em>celldisp=None</em>, <em>constraint=None</em>, <em>calculator=None</em>, <em>info=None</em>, <em>wyckoff_positions=None</em>, <em>equivalent_atoms=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/describe/core/system.html#System"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#describe.core.system.System" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ase.atoms.Atoms</span></code></p>
+<p>Represents atomic systems that are used internally by the package.
+Inherits from the ase.Atoms class, but adds the possibility to cache
+various time-consuming quantities that can be shared when creating multiple
+descriptors.</p>
+<dl class="staticmethod">
+<dt id="describe.core.system.System.from_atoms">
+<em class="property">static </em><code class="descname">from_atoms</code><span class="sig-paren">(</span><em>atoms</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/describe/core/system.html#System.from_atoms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#describe.core.system.System.from_atoms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a System object from ASE.Atoms object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="describe.core.system.System.get_cell_inverse">
+<code class="descname">get_cell_inverse</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/describe/core/system.html#System.get_cell_inverse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#describe.core.system.System.get_cell_inverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the matrix inverse of the lattice matrix.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="describe.core.system.System.get_displacement_tensor">
+<code class="descname">get_displacement_tensor</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/describe/core/system.html#System.get_displacement_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#describe.core.system.System.get_displacement_tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>A matrix where the entry A[i, j, :] is the vector
+self.cartesian_pos[i] - self.cartesian_pos[j].</p>
+<p>For periodic systems the distance of an atom from itself is the
+smallest displacement of an atom from one of it’s periodic copies, and
+the distance of two different atoms is the distance of two closest
+copies.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">3D matrix containing the pairwise distance vectors.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">np.array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="describe.core.system.System.get_distance_matrix">
+<code class="descname">get_distance_matrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/describe/core/system.html#System.get_distance_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#describe.core.system.System.get_distance_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the distance matrix A defined as:</p>
+<blockquote>
+<div>A_ij = <a href="#id1"><span class="problematic" id="id2">|r_i - r_j|</span></a></div></blockquote>
+<p>For periodic systems the distance of an atom from itself is the
+smallest displacement of an atom from one of it’s periodic copies, and
+the distance of two different atoms is the distance of two closest
+copies.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Symmetric 2D matrix containing the pairwise distances.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">np.array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="describe.core.system.System.get_inverse_distance_matrix">
+<code class="descname">get_inverse_distance_matrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/describe/core/system.html#System.get_inverse_distance_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#describe.core.system.System.get_inverse_distance_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the inverse distance matrix A defined as:</p>
+<blockquote>
+<div>A_ij = 1/<a href="#id3"><span class="problematic" id="id4">|r_i - r_j|</span></a></div></blockquote>
+<p>For periodic systems the distance of an atom from itself is the
+smallest displacement of an atom from one of it’s periodic copies, and
+the distance of two different atoms is the distance of two closest
+copies.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Symmetric 2D matrix containing the pairwise inverse
+distances.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">np.array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="describe.core.system.System.set_cell">
+<code class="descname">set_cell</code><span class="sig-paren">(</span><em>cell</em>, <em>scale_atoms=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/describe/core/system.html#System.set_cell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#describe.core.system.System.set_cell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set unit cell vectors.</p>
+<p>Parameters:</p>
+<dl class="docutils">
+<dt>cell: 3x3 matrix or length 3 or 6 vector</dt>
+<dd>Unit cell.  A 3x3 matrix (the three unit cell vectors) or
+just three numbers for an orthorhombic cell. Another option is
+6 numbers, which describes unit cell with lengths of unit cell
+vectors and with angles between them (in degrees), in following
+order: [len(a), len(b), len(c), angle(b,c), angle(a,c),
+angle(a,b)].  First vector will lie in x-direction, second in
+xy-plane, and the third one in z-positive subspace.</dd>
+<dt>scale_atoms: bool</dt>
+<dd>Fix atomic positions or move atoms with the unit cell?
+Default behavior is to <em>not</em> move the atoms (scale_atoms=False).</dd>
+</dl>
+<p>Examples:</p>
+<p>Two equivalent ways to define an orthorhombic cell:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">atoms</span> <span class="o">=</span> <span class="n">Atoms</span><span class="p">(</span><span class="s1">&#39;He&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="mi">7</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mi">8</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">atoms</span><span class="o">.</span><span class="n">set_cell</span><span class="p">([</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">atoms</span><span class="o">.</span><span class="n">set_cell</span><span class="p">([(</span><span class="n">a</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">c</span><span class="p">)])</span>
+</pre></div>
+</div>
+<p>FCC unit cell:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">atoms</span><span class="o">.</span><span class="n">set_cell</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span> <span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span> <span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="mi">0</span><span class="p">)])</span>
+</pre></div>
+</div>
+<p>Hexagonal unit cell:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">atoms</span><span class="o">.</span><span class="n">set_cell</span><span class="p">([</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">120</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Rhombohedral unit cell:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">alpha</span> <span class="o">=</span> <span class="mi">77</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">atoms</span><span class="o">.</span><span class="n">set_cell</span><span class="p">([</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">alpha</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="describe.core.system.System.set_pbc">
+<code class="descname">set_pbc</code><span class="sig-paren">(</span><em>pbc</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/describe/core/system.html#System.set_pbc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#describe.core.system.System.set_pbc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set periodic boundary condition flags.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="describe.core.system.System.set_positions">
+<code class="descname">set_positions</code><span class="sig-paren">(</span><em>newpositions</em>, <em>apply_constraint=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/describe/core/system.html#System.set_positions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#describe.core.system.System.set_positions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set positions, honoring any constraints. To ignore constraints,
+use <em>apply_constraint=False</em>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="describe.core.system.System.set_scaled_positions">
+<code class="descname">set_scaled_positions</code><span class="sig-paren">(</span><em>scaled</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/describe/core/system.html#System.set_scaled_positions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#describe.core.system.System.set_scaled_positions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set positions relative to unit cell.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="describe.core.system.System.to_cartesian">
+<code class="descname">to_cartesian</code><span class="sig-paren">(</span><em>scaled_positions</em>, <em>wrap=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/describe/core/system.html#System.to_cartesian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#describe.core.system.System.to_cartesian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to transofrm a set of relative positions to the cartesian basis
+defined by the cell of this system.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>positions</strong> (<em>numpy.ndarray</em>) – The positions to scale</li>
+<li><strong>wrap</strong> (<em>numpy.ndarray</em>) – Whether the positions should be wrapped
+inside the cell.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The cartesian positions</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy.ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="describe.core.system.System.to_scaled">
+<code class="descname">to_scaled</code><span class="sig-paren">(</span><em>positions</em>, <em>wrap=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/describe/core/system.html#System.to_scaled"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#describe.core.system.System.to_scaled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to transform a set of positions to the basis defined by the
+cell of this system.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>positions</strong> (<em>numpy.ndarray</em>) – The positions to scale</li>
+<li><strong>wrap</strong> (<em>numpy.ndarray</em>) – Whether the positions should be wrapped
+inside the cell.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The scaled positions</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy.ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-describe.core">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-describe.core" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="describe.data.html" class="btn btn-neutral float-right" title="describe.data package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="describe.html" class="btn btn-neutral" title="describe package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright .
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.1.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

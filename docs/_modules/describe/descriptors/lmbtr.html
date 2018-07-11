@@ -1,0 +1,667 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>describe.descriptors.lmbtr &mdash; describe 0.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/style.css" type="text/css" />
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> describe
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../doc/modules.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about.html">About</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">describe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>describe.descriptors.lmbtr</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for describe.descriptors.lmbtr</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">builtins</span> <span class="k">import</span> <span class="nb">super</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">from</span> <span class="nn">describe.core</span> <span class="k">import</span> <span class="n">System</span>
+
+<span class="kn">from</span> <span class="nn">scipy.spatial.distance</span> <span class="k">import</span> <span class="n">squareform</span><span class="p">,</span> <span class="n">pdist</span>
+<span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="k">import</span> <span class="n">lil_matrix</span>
+
+<span class="kn">from</span> <span class="nn">describe.descriptors</span> <span class="k">import</span> <span class="n">MBTR</span>
+
+
+<div class="viewcode-block" id="LMBTR"><a class="viewcode-back" href="../../../doc/describe.descriptors.html#describe.descriptors.lmbtr.LMBTR">[docs]</a><span class="k">class</span> <span class="nc">LMBTR</span><span class="p">(</span><span class="n">MBTR</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Implementation of local -- per chosen atom -- kind of the Many-body</span>
+<span class="sd">    tensor representation up to K=3.</span>
+
+<span class="sd">    You can use this descriptor for finite and periodic systems. When dealing</span>
+<span class="sd">    with periodic systems, please always use a primitive cell. It does not</span>
+<span class="sd">    matter which of the available primitive cell is used.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">decay_factor</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="mi">3</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">atomic_numbers</span><span class="p">,</span>
+            <span class="n">k</span><span class="p">,</span>
+            <span class="n">periodic</span><span class="p">,</span>
+            <span class="n">grid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">weighting</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            atom_index = index of atom, from which local_mbtr is to needed</span>
+<span class="sd">            atomic_numbers (iterable): A list of the atomic numbers that should</span>
+<span class="sd">                be taken into account in the descriptor. Notice that this is</span>
+<span class="sd">                not the atomic numbers that are present for an individual</span>
+<span class="sd">                system, but should contain all the elements that are ever going</span>
+<span class="sd">                to be encountered when creating the descriptors for a set of</span>
+<span class="sd">                systems.  Keeping the number of handled elements as low as</span>
+<span class="sd">                possible is preferable.</span>
+<span class="sd">            k (set or list): The interaction terms to consider from 1 to 3. The</span>
+<span class="sd">                size of the final output and the time taken in creating this</span>
+<span class="sd">                descriptor is exponentially dependent on this value.</span>
+<span class="sd">            periodic (bool): Boolean for if the system is periodic or none. If</span>
+<span class="sd">                this is set to true, you should provide the primitive system as</span>
+<span class="sd">                input and then the number of periodic copies is determined from the</span>
+<span class="sd">                &#39;cutoff&#39;-values specified in the weighting argument.</span>
+<span class="sd">            grid (dictionary): This dictionary can be used to precisely control</span>
+<span class="sd">                the broadening width, grid spacing and grid length for all the</span>
+<span class="sd">                different terms. If not provided, a set of sensible defaults</span>
+<span class="sd">                will be used. Example:</span>
+<span class="sd">                    grid = {</span>
+<span class="sd">                        &quot;k1&quot;: {</span>
+<span class="sd">                            &quot;min&quot;: 1,</span>
+<span class="sd">                            &quot;max&quot;: 10</span>
+<span class="sd">                            &quot;sigma&quot;: 0.1</span>
+<span class="sd">                            &quot;n&quot;: 100</span>
+<span class="sd">                        },</span>
+<span class="sd">                        &quot;k2&quot;: {</span>
+<span class="sd">                            &quot;min&quot;: 0,</span>
+<span class="sd">                            &quot;max&quot;: 1/0.70,</span>
+<span class="sd">                            &quot;sigma&quot;: 0.01,</span>
+<span class="sd">                            &quot;n&quot;: 100</span>
+<span class="sd">                        },</span>
+<span class="sd">                        ...</span>
+<span class="sd">                    }</span>
+
+<span class="sd">                Here &#39;min&#39; is the minimum value of the axis, &#39;max&#39; is the</span>
+<span class="sd">                maximum value of the axis, &#39;sigma&#39; is the standard devation of</span>
+<span class="sd">                the gaussian broadening and &#39;n&#39; is the number of points sampled</span>
+<span class="sd">                on the grid.</span>
+<span class="sd">            weighting (dictionary or string): A dictionary of weighting functions and an</span>
+<span class="sd">                optional threshold for each term. If None, weighting is not</span>
+<span class="sd">                used. Weighting functions should be monotonically decreasing.</span>
+<span class="sd">                The threshold is used to determine the minimum mount of</span>
+<span class="sd">                periodic images to consider. If no explicit threshold is given,</span>
+<span class="sd">                a reasonable default will be used.  The K1 term is</span>
+<span class="sd">                0-dimensional, so weighting is not used. You can also use a</span>
+<span class="sd">                string to indicate a certain preset. The available presets are:</span>
+
+<span class="sd">                    &#39;exponential&#39;:</span>
+<span class="sd">                        weighting = {</span>
+<span class="sd">                            &quot;k2&quot;: {</span>
+<span class="sd">                                &quot;function&quot;: lambda x: np.exp(-0.5*x),</span>
+<span class="sd">                                &quot;threshold&quot;: 1e-3</span>
+<span class="sd">                            },</span>
+<span class="sd">                            &quot;k3&quot;: {</span>
+<span class="sd">                                &quot;function&quot;: lambda x: np.exp(-0.5*x),</span>
+<span class="sd">                                &quot;threshold&quot;: 1e-3</span>
+<span class="sd">                            }</span>
+<span class="sd">                        }</span>
+
+<span class="sd">                The meaning of x changes for different terms as follows:</span>
+<span class="sd">                    K=1: x = 0</span>
+<span class="sd">                    K=2: x = Distance between A-&gt;B</span>
+<span class="sd">                    K=3: x = Distance from A-&gt;B-&gt;C-&gt;A.</span>
+<span class="sd">            flatten (bool): Whether the output of create() should be flattened</span>
+<span class="sd">                to a 1D array. If False, a list of the different tensors is</span>
+<span class="sd">                provided.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError if the given k value is not supported, or the weighting</span>
+<span class="sd">            is not specified for periodic systems.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">atomic_numbers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="c1">#Ghost</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+                    <span class="n">atomic_numbers</span><span class="p">,</span>
+                    <span class="n">k</span><span class="p">,</span>
+                    <span class="n">periodic</span><span class="p">,</span>
+                    <span class="n">grid</span><span class="p">,</span>
+                    <span class="n">weighting</span><span class="p">,</span>
+                    <span class="n">flatten</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+<div class="viewcode-block" id="LMBTR.update"><a class="viewcode-back" href="../../../doc/describe.descriptors.html#describe.descriptors.lmbtr.LMBTR.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atomic_numbers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atomic_numbers</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="k">if</span> <span class="mi">1</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: K = 1 is deprecated for LMBTR&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LMBTR.describe"><a class="viewcode-back" href="../../../doc/describe.descriptors.html#describe.descriptors.lmbtr.LMBTR.describe">[docs]</a>    <span class="k">def</span> <span class="nf">describe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">system</span><span class="p">,</span> 
+                 <span class="n">list_atom_indices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">list_positions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">scaled_positions</span><span class="o">=</span><span class="kc">False</span>
+                 <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the many-body tensor representation as a 1D array for the</span>
+<span class="sd">        given system.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            system (System): The system for which the descriptor is created.</span>
+<span class="sd">            list_atom_indices (iterable): indices of atoms, from which </span>
+<span class="sd">                                          local_mbtr is needed</span>
+<span class="sd">            list_positions (iterable): positions of points, from which </span>
+<span class="sd">                                       local_mbtr is needed </span>
+<span class="sd">            scaled_positions (boolean): if list of positions are scaled</span>
+<span class="sd">                                        use only if system allows it</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            1D ndarray: The many-body tensor representation up to the k:th term</span>
+<span class="sd">            as a flattened array.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">system_new</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">list_atoms</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="n">list_atom_indices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">list_atom_indices</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">atom_index</span> <span class="ow">in</span> <span class="n">list_atom_indices</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">atom_index</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Atom index: </span><span class="si">{}</span><span class="s2">, larger than total number of atoms &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atom_index</span><span class="p">))</span>
+            <span class="n">list_atoms</span> <span class="o">+=</span> <span class="n">list_atom_indices</span>
+        <span class="k">elif</span> <span class="n">list_positions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">scaled_positions</span><span class="p">:</span> <span class="c1">#convert positions to cartesian</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_cell</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;System doesn&#39;t have cell, to justify scaled positions&quot;</span><span class="p">)</span>
+                <span class="n">list_positions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_cell</span><span class="p">(),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">list_positions</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            
+            <span class="c1"># Checking if given position exists</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">pos</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">list_positions</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span> <span class="o">-</span> <span class="n">pos</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">((</span><span class="s2">&quot;position </span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2"> exists in system,&quot;</span>
+                                        <span class="o">+</span> <span class="s2">&quot; give its index in list_atom_indices&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">pos</span><span class="p">))</span>
+            <span class="n">old_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">system_new</span><span class="p">)</span>
+            <span class="n">system_new</span> <span class="o">+=</span> <span class="n">System</span><span class="p">(</span><span class="s1">&#39;X</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">list_positions</span><span class="p">)),</span> 
+                                  <span class="n">positions</span><span class="o">=</span><span class="n">list_positions</span>
+                                 <span class="p">)</span>
+            <span class="n">list_atoms</span> <span class="o">+=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">old_len</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">system_new</span><span class="p">)))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;create method requires list_atom_indices and/or list_positions&quot;</span><span class="p">)</span>
+              
+        <span class="n">desc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">list_atoms</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;object&#39;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">atom_index</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">list_atoms</span><span class="p">):</span>
+            <span class="n">desc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">describe</span><span class="p">(</span><span class="n">system_new</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">desc</span></div>
+
+<div class="viewcode-block" id="LMBTR.get_number_of_features"><a class="viewcode-back" href="../../../doc/describe.descriptors.html#describe.descriptors.lmbtr.LMBTR.get_number_of_features">[docs]</a>    <span class="k">def</span> <span class="nf">get_number_of_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Used to inquire the final number of features that this descriptor</span>
+<span class="sd">        will have.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: Number of features for this descriptor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">n_features</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">n_elem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_elements</span> <span class="o">-</span> <span class="mi">1</span> <span class="c1">#Removing ghost</span>
+
+        <span class="k">if</span> <span class="mi">1</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">:</span>
+            <span class="n">n_k1_grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_k1_settings</span><span class="p">()[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span>
+            <span class="n">n_k1</span> <span class="o">=</span> <span class="n">n_k1_grid</span>
+            <span class="n">n_features</span> <span class="o">+=</span> <span class="n">n_k1</span>
+        <span class="k">if</span> <span class="mi">2</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">:</span>
+            <span class="n">n_k2_grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_k2_settings</span><span class="p">()[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span>
+            <span class="n">n_k2</span> <span class="o">=</span> <span class="n">n_elem</span><span class="o">*</span><span class="n">n_k2_grid</span>
+            <span class="n">n_features</span> <span class="o">+=</span> <span class="n">n_k2</span>
+        <span class="k">if</span> <span class="mi">3</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">:</span>
+            <span class="n">n_k3_grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_k3_settings</span><span class="p">()[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span>
+            <span class="n">n_k3</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_elem</span><span class="o">*</span><span class="p">(</span><span class="n">n_elem</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">n_k3_grid</span>
+            <span class="n">n_features</span> <span class="o">+=</span> <span class="n">n_k3</span>
+
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_features</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LMBTR.inverse_distances"><a class="viewcode-back" href="../../../doc/describe.descriptors.html#describe.descriptors.lmbtr.LMBTR.inverse_distances">[docs]</a>    <span class="k">def</span> <span class="nf">inverse_distances</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculates the inverse distances for the given atomic positions.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            system (System): The atomic system.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: Inverse distances in the form:</span>
+<span class="sd">            {i: [list of angles] }.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inverse_distances</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">inverse_dist</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_inverse_distance_matrix</span><span class="p">()</span>
+
+            <span class="n">numbers</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">numbers</span>
+            <span class="n">inv_dist_dict</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">i_atom</span><span class="p">,</span> <span class="n">i_element</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">numbers</span><span class="p">):</span>
+                <span class="n">i_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_to_index</span><span class="p">[</span><span class="n">i_element</span><span class="p">]</span>
+
+                <span class="n">old_list</span> <span class="o">=</span> <span class="n">inv_dist_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">i_index</span><span class="p">,</span> <span class="p">[])</span>
+                <span class="n">inv_dist</span> <span class="o">=</span> <span class="n">inverse_dist</span><span class="p">[</span><span class="n">i_atom</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">atom_index</span><span class="p">]</span>
+                <span class="n">old_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inv_dist</span><span class="p">)</span>
+                <span class="n">inv_dist_dict</span><span class="p">[</span><span class="n">i_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">old_list</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_inverse_distances</span> <span class="o">=</span> <span class="n">inv_dist_dict</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inverse_distances</span></div>
+
+<div class="viewcode-block" id="LMBTR.cosines_and_weights"><a class="viewcode-back" href="../../../doc/describe.descriptors.html#describe.descriptors.lmbtr.LMBTR.cosines_and_weights">[docs]</a>    <span class="k">def</span> <span class="nf">cosines_and_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculates the cosine of the angles and their weights between unique</span>
+<span class="sd">        three-body combinations.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            system (System): The atomic system.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple: (cosine, weights) Cosines of the angles (values between -1</span>
+<span class="sd">            and 1) in the form {i: { j: [list of angles] }}. The weights</span>
+<span class="sd">            corresponding to the angles are stored in a similar dictionary.</span>
+
+<span class="sd">            #TODO:</span>
+<span class="sd">            Some cosines are encountered twice, e.g. the angles for OHH would</span>
+<span class="sd">            be the same as for HHO. These duplicate values are left out by only</span>
+<span class="sd">            filling values where k&gt;=i.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_angles</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_angle_weights</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">disp_tensor</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_displacement_tensor</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="n">distance_matrix</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_distance_matrix</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="n">numbers</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">numbers</span>
+
+            <span class="c1"># Cosines between atoms i-self.atom_index-j can be found in the tensor:</span>
+            <span class="c1"># cos_matrix[i, j] or equivalently cos_matrix[j, i] (symmetric)</span>
+            <span class="n">n_atoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">numbers</span><span class="p">)</span>
+            <span class="n">cos_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span> <span class="n">n_atoms</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="n">cos_matrix</span><span class="p">[:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">squareform</span><span class="p">(</span><span class="n">pdist</span><span class="p">(</span><span class="n">disp_tensor</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">atom_index</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="s1">&#39;cosine&#39;</span><span class="p">))</span>
+
+            <span class="c1"># Remove the numerical noise from cosine values.</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">cos_matrix</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">cos_matrix</span><span class="p">)</span>
+
+            <span class="n">cos_dict</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">weight_dict</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">numbers</span><span class="p">))</span>
+
+            <span class="c1"># Determine the weighting function</span>
+            <span class="n">weighting_function</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">weighting</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">weighting</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;k3&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">weighting_function</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weighting</span><span class="p">[</span><span class="s2">&quot;k3&quot;</span><span class="p">][</span><span class="s2">&quot;function&quot;</span><span class="p">]</span>
+
+            <span class="c1"># Here we go through all the 3-permutations of the atoms in the system</span>
+            <span class="n">permutations</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">permutations</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i_atom</span><span class="p">,</span> <span class="n">j_atom</span> <span class="ow">in</span> <span class="n">permutations</span><span class="p">:</span>
+
+                <span class="n">i_element</span> <span class="o">=</span> <span class="n">numbers</span><span class="p">[</span><span class="n">i_atom</span><span class="p">]</span>
+                <span class="n">j_element</span> <span class="o">=</span> <span class="n">numbers</span><span class="p">[</span><span class="n">j_atom</span><span class="p">]</span>
+
+                <span class="n">i_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_to_index</span><span class="p">[</span><span class="n">i_element</span><span class="p">]</span>
+                <span class="n">j_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_to_index</span><span class="p">[</span><span class="n">j_element</span><span class="p">]</span>
+
+                <span class="c1"># Save information in the part where j_index &gt;= i_index</span>
+                <span class="k">if</span> <span class="n">j_index</span> <span class="o">&lt;</span> <span class="n">i_index</span> <span class="ow">or</span> <span class="n">i_atom</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">atom_index</span> <span class="ow">or</span> <span class="n">j_atom</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">atom_index</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="c1"># Save weights</span>
+                <span class="k">if</span> <span class="n">weighting_function</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">dist1</span> <span class="o">=</span> <span class="n">distance_matrix</span><span class="p">[</span><span class="n">i_atom</span><span class="p">,</span> <span class="n">j_atom</span><span class="p">]</span>
+                    <span class="n">dist2</span> <span class="o">=</span> <span class="n">distance_matrix</span><span class="p">[</span><span class="n">j_atom</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">atom_index</span><span class="p">]</span>
+                    <span class="n">dist3</span> <span class="o">=</span> <span class="n">distance_matrix</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">atom_index</span><span class="p">,</span> <span class="n">i_atom</span><span class="p">]</span>
+                    <span class="n">weight</span> <span class="o">=</span> <span class="n">weighting_function</span><span class="p">(</span><span class="n">dist1</span> <span class="o">+</span> <span class="n">dist2</span> <span class="o">+</span> <span class="n">dist3</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">weight</span> <span class="o">=</span> <span class="mi">1</span>
+
+                <span class="n">old_dict_1</span> <span class="o">=</span> <span class="n">weight_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">i_index</span><span class="p">,</span> <span class="p">{})</span>
+                <span class="n">old_list_2</span> <span class="o">=</span> <span class="n">old_dict_1</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">j_index</span><span class="p">,</span> <span class="p">[])</span>
+
+                <span class="n">old_list_2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">weight</span><span class="p">)</span>
+                <span class="n">old_dict_1</span><span class="p">[</span><span class="n">j_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">old_list_2</span>
+                <span class="n">weight_dict</span><span class="p">[</span><span class="n">i_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">old_dict_1</span>
+
+                <span class="c1"># Save cosines</span>
+                <span class="n">old_dict_1</span> <span class="o">=</span> <span class="n">cos_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">i_index</span><span class="p">,</span> <span class="p">{})</span>
+                <span class="n">old_list_2</span> <span class="o">=</span> <span class="n">old_dict_1</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">j_index</span><span class="p">,</span> <span class="p">[])</span>
+                <span class="n">old_list_2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cos_matrix</span><span class="p">[</span><span class="n">i_atom</span><span class="p">,</span> <span class="n">j_atom</span><span class="p">])</span>
+                <span class="n">old_dict_1</span><span class="p">[</span><span class="n">j_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">old_list_2</span>
+                <span class="n">cos_dict</span><span class="p">[</span><span class="n">i_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">old_dict_1</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_angles</span> <span class="o">=</span> <span class="n">cos_dict</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_angle_weights</span> <span class="o">=</span> <span class="n">weight_dict</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_angles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_angle_weights</span></div>
+
+<div class="viewcode-block" id="LMBTR.K1"><a class="viewcode-back" href="../../../doc/describe.descriptors.html#describe.descriptors.lmbtr.LMBTR.K1">[docs]</a>    <span class="k">def</span> <span class="nf">K1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">settings</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculates the first order terms where the scalar mapping is the</span>
+<span class="sd">        number of atoms of a certain type.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            system (System): The atomic system.</span>
+<span class="sd">            settings (dict): The grid settings</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            1D ndarray: flattened K1 values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s2">&quot;min&quot;</span><span class="p">]</span>
+        <span class="n">stop</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s2">&quot;max&quot;</span><span class="p">]</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_axis_k1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+
+        <span class="c1"># Use sparse matrices for storing the result</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">:</span>
+            <span class="n">k1</span> <span class="o">=</span> <span class="n">lil_matrix</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">k1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+        <span class="n">atomic_number</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">system</span><span class="o">.</span><span class="n">numbers</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">atom_index</span><span class="p">]])</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">])</span>
+        <span class="n">gaussian_sum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gaussian_sum</span><span class="p">(</span><span class="n">atomic_number</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">settings</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">:</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">n</span>
+            <span class="n">k1</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span> <span class="o">=</span> <span class="n">gaussian_sum</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">k1</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">gaussian_sum</span>
+
+        <span class="k">return</span> <span class="n">k1</span></div>
+
+<div class="viewcode-block" id="LMBTR.K2"><a class="viewcode-back" href="../../../doc/describe.descriptors.html#describe.descriptors.lmbtr.LMBTR.K2">[docs]</a>    <span class="k">def</span> <span class="nf">K2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">settings</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculates the second order terms where the scalar mapping is the</span>
+<span class="sd">        inverse distance between atoms.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            system (System): The atomic system.</span>
+<span class="sd">            settings (dict): The grid settings</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            1D ndarray: flattened K2 values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s2">&quot;min&quot;</span><span class="p">]</span>
+        <span class="n">stop</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s2">&quot;max&quot;</span><span class="p">]</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_axis_k2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+
+        <span class="n">inv_dist_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inverse_distances</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+        <span class="n">n_elem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_elements</span> <span class="o">-</span> <span class="mi">1</span> <span class="c1">#removing ghost</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">:</span>
+            <span class="n">k2</span> <span class="o">=</span> <span class="n">lil_matrix</span><span class="p">(</span>
+                <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_elem</span><span class="o">*</span><span class="n">n</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">k2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_elem</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+
+        <span class="c1"># Determine the weighting function</span>
+        <span class="n">weighting_function</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">weighting</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">weighting</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;k2&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">weighting_function</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weighting</span><span class="p">[</span><span class="s2">&quot;k2&quot;</span><span class="p">][</span><span class="s2">&quot;function&quot;</span><span class="p">]</span>
+
+        <span class="n">m</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_elem</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span> <span class="c1">#ignoring Ghost</span>
+                <span class="n">m</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">inv_dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">inv_dist_dict</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="c1"># Calculate weights</span>
+                <span class="k">if</span> <span class="n">weighting_function</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">weights</span> <span class="o">=</span> <span class="n">weighting_function</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">inv_dist</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">inv_dist</span><span class="p">))</span>
+
+                <span class="c1"># Broaden with a gaussian</span>
+                <span class="n">gaussian_sum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gaussian_sum</span><span class="p">(</span><span class="n">inv_dist</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">settings</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">:</span>
+                    <span class="n">start</span> <span class="o">=</span> <span class="n">m</span><span class="o">*</span><span class="n">n</span>
+                    <span class="n">end</span> <span class="o">=</span> <span class="p">(</span><span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n</span>
+                    <span class="n">k2</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span> <span class="o">=</span> <span class="n">gaussian_sum</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">k2</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">gaussian_sum</span>
+
+        <span class="k">return</span> <span class="n">k2</span></div>
+
+<div class="viewcode-block" id="LMBTR.K3"><a class="viewcode-back" href="../../../doc/describe.descriptors.html#describe.descriptors.lmbtr.LMBTR.K3">[docs]</a>    <span class="k">def</span> <span class="nf">K3</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">settings</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculates the third order terms where the scalar mapping is the</span>
+<span class="sd">        angle between 3 atoms.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            system (System): The atomic system.</span>
+<span class="sd">            settings (dict): The grid settings</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            1D ndarray: flattened K3 values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s2">&quot;min&quot;</span><span class="p">]</span>
+        <span class="n">stop</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s2">&quot;max&quot;</span><span class="p">]</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_axis_k3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+
+        <span class="n">cos_dict</span><span class="p">,</span> <span class="n">cos_weight_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cosines_and_weights</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+
+        <span class="n">n_elem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_elements</span> <span class="o">-</span> <span class="mi">1</span> <span class="c1">#removing ghost</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">:</span>
+            <span class="n">k3</span> <span class="o">=</span> <span class="n">lil_matrix</span><span class="p">(</span>
+                <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_elem</span><span class="o">*</span><span class="p">(</span><span class="n">n_elem</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="o">*</span><span class="n">n</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">k3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span> <span class="n">n_elem</span><span class="p">,</span> <span class="n">n_elem</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+
+        <span class="c1"># Go through the angles, but leave out the duplicate cases by enforcing</span>
+        <span class="c1"># k &gt;= i. E.g. angles OHH are the same as HHO. This will half the size</span>
+        <span class="c1"># of the K3 input.</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_elem</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span> <span class="c1">#ignoring ghost</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_elem</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span> <span class="c1">#ignoring ghost</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">cos_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">cos_dict</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">cos_weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">cos_weight_dict</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">m</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                <span class="c1"># Broaden with a gaussian</span>
+                <span class="n">gaussian_sum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gaussian_sum</span><span class="p">(</span><span class="n">cos_values</span><span class="p">,</span> <span class="n">cos_weights</span><span class="p">,</span> <span class="n">settings</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">:</span>
+                    <span class="n">start</span> <span class="o">=</span> <span class="n">m</span><span class="o">*</span><span class="n">n</span>
+                    <span class="n">end</span> <span class="o">=</span> <span class="p">(</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n</span>
+                    <span class="n">k3</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span> <span class="o">=</span> <span class="n">gaussian_sum</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">k3</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">gaussian_sum</span>
+                    <span class="n">k3</span><span class="p">[</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">gaussian_sum</span>
+
+        <span class="k">return</span> <span class="n">k3</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright .
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.1.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
