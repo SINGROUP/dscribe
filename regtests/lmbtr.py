@@ -2,7 +2,7 @@ import math
 import numpy as np
 import unittest
 
-from describe.descriptors import MBTR
+from describe.descriptors import LMBTR
 from describe.data.element_data import numbers_to_symbols
 
 from ase import Atoms
@@ -42,38 +42,98 @@ HHe = Atoms(
 )
 
 
-class MBTRTests(unittest.TestCase):
+class LMBTRTests(unittest.TestCase):
 
     def test_constructor(self):
         """Tests different valid and invalid constructor values.
         """
         with self.assertRaises(ValueError):
-            MBTR(
+            LMBTR(
                 atomic_numbers=[1],
                 k=0,
                 periodic=False,
             )
 
         with self.assertRaises(ValueError):
-            MBTR(
+            LMBTR(
                 atomic_numbers=[1],
                 k=[-1, 2],
                 periodic=False,
             )
 
         with self.assertRaises(ValueError):
-            MBTR(
+            LMBTR(
                 atomic_numbers=[1],
                 k=1,
                 periodic=False,
             )
 
         with self.assertRaises(ValueError):
-            MBTR(
+            LMBTR(
                 atomic_numbers=[1],
                 k={1, 4},
                 periodic=False,
             )
+    
+    def test_create(self):
+        decay_factor = 0.5
+        mbtr = LMBTR(
+        atomic_numbers=[1, 8],
+        k=[1, 2],
+        periodic=True,
+        grid={
+            "k1": {
+                "min": 10,
+                "max": 18,
+                "sigma": 0.1,
+                "n": 200,
+            },
+            "k2": {
+                "min": 0,
+                "max": 0.7,
+                "sigma": 0.01,
+                "n": 200,
+            },
+            "k3": {
+                "min": -1.0,
+                "max": 1.0,
+                "sigma": 0.05,
+                "n": 200,
+            }
+        },
+        weighting={
+            "k2": {
+                "function": lambda x: np.exp(-decay_factor*x),
+                "threshold": 1e-3
+            },
+            "k3": {
+                "function": lambda x: np.exp(-decay_factor*x),
+                "threshold": 1e-3
+            },
+        },
+        flatten=False)
+        
+        with self.assertRaises(ValueError):
+            desc = lmbtr.create(H2O, list_atom_indices=[3])
+
+        with self.assertRaises(RuntimeError):
+            desc = lmbtr.create(H2O)
+
+        with self.assertRaises(RuntimeError):
+            desc = lmbtr.create(H2O, list_positions=[[0,0,0]])
+
+        with self.assertRaises(RuntimeError):
+            H = Atoms(
+                positions=[[0, 0, 0]],
+                symbols=["H"],
+            )
+
+            desc = lmbtr.create(
+                H,
+                list_positions=[[0,0,1]],
+                scaled_positions=True
+            )
+
 
     def test_number_of_features(self):
         """Tests that the reported number of features is correct.
@@ -82,7 +142,7 @@ class MBTRTests(unittest.TestCase):
         n = 100
         atomic_numbers = [1, 8]
         n_elem = len(atomic_numbers)
-        mbtr = MBTR(
+        lmbtr = LMBTR(
             atomic_numbers=atomic_numbers,
             k=[1],
             grid={
@@ -96,12 +156,12 @@ class MBTRTests(unittest.TestCase):
             periodic=False,
             flatten=True
         )
-        n_features = mbtr.get_number_of_features()
-        expected = n_elem*n
+        n_features = lmbtr.get_number_of_features()
+        expected = n
         self.assertEqual(n_features, expected)
 
         # K = 2
-        mbtr = MBTR(
+        lmbtr = LMBTR(
             atomic_numbers=atomic_numbers,
             k={1, 2},
             grid={
@@ -121,14 +181,14 @@ class MBTRTests(unittest.TestCase):
             periodic=False,
             flatten=True
         )
-        n_features = mbtr.get_number_of_features()
-        expected = n_elem*n + 1/2*(n_elem)*(n_elem+1)*n
+        n_features = lmbtr.get_number_of_features()
+        expected = n + n_elem*n
         self.assertEqual(n_features, expected)
 
         # K = 3
-        mbtr = MBTR(
+        lmbtr = LMBTR(
             atomic_numbers=atomic_numbers,
-            k={1, 2, 3},
+            k={3},
             grid={
                 "k1": {
                     "min": 1,
@@ -152,36 +212,22 @@ class MBTRTests(unittest.TestCase):
             periodic=False,
             flatten=True
         )
-        n_features = mbtr.get_number_of_features()
-        expected = n_elem*n + 1/2*(n_elem)*(n_elem+1)*n + n_elem*1/2*(n_elem)*(n_elem+1)*n
+        n_features = lmbtr.get_number_of_features()
+        expected = 1/2*(n_elem)*(n_elem+1)*n
         self.assertEqual(n_features, expected)
 
     # def test_flatten(self):
         # """Tests the flattening.
         # """
         # # Unflattened
-        # desc = MBTR(n_atoms_max=5, permutation="none", flatten=False)
+        # desc = LMBTR(n_atoms_max=5, permutation="none", flatten=False)
         # cm = desc.create(H2O)
         # self.assertEqual(cm.shape, (5, 5))
 
         # # Flattened
-        # desc = MBTR(n_atoms_max=5, permutation="none", flatten=True)
+        # desc = LMBTR(n_atoms_max=5, permutation="none", flatten=True)
         # cm = desc.create(H2O)
         # self.assertEqual(cm.shape, (25,))
-
-    def test_counts(self):
-        mbtr = MBTR([1, 8], k=[1], periodic=False)
-        mbtr.create(H2O)
-        counts = mbtr._counts
-
-        # Test against the assumed values
-        self.assertTrue(np.array_equal(counts, np.array([2, 1])))
-
-        # Test against system with different indexing
-        mbtr = MBTR([1, 8], k=[1], periodic=False)
-        mbtr.create(H2O_2)
-        counts2 = mbtr._counts
-        self.assertTrue(np.array_equal(counts, counts2))
 
     def test_periodic(self):
         test_sys = Atoms(
@@ -189,121 +235,96 @@ class MBTRTests(unittest.TestCase):
             positions=[[0, 0, 0]],
             symbols=["H"],
         )
-        mbtr = MBTR([1], k=[2], weighting="exponential", periodic=True)
-        desc = mbtr.create(test_sys)
+        lmbtr = LMBTR([1], k=[1, 2, 3], weighting="exponential", periodic=True)
+        desc = lmbtr.create(test_sys, list_atom_indices=[0])
 
     def test_inverse_distances(self):
-        mbtr = MBTR([1, 8], k=[2], periodic=False)
-        mbtr.create(H2O)
-        inv_dist = mbtr._inverse_distances
+        lmbtr = LMBTR([1, 8], k=[2], periodic=False)
+        lmbtr.create(H2O, list_atom_indices=[1])
+        inv_dist = lmbtr._inverse_distances
 
         # Test against the assumed values
         pos = H2O.get_positions()
         assumed = {
-            0: {
-                0: [1/np.linalg.norm(pos[0] - pos[2])],
-                1: 2*[1/np.linalg.norm(pos[0] - pos[1])]
-            }
+            2: [np.inf],
+            1: 2*[1/np.linalg.norm(pos[0] - pos[1])]
         }
         self.assertEqual(assumed, inv_dist)
 
         # Test against system with different indexing
-        mbtr = MBTR([1, 8], k=[2], periodic=False)
-        mbtr.create(H2O_2)
-        inv_dist_2 = mbtr._inverse_distances
+        lmbtr = LMBTR([1, 8], k=[2], periodic=False)
+        lmbtr.create(H2O_2, list_atom_indices=[0])
+        inv_dist_2 = lmbtr._inverse_distances
         self.assertEqual(inv_dist, inv_dist_2)
 
     def test_cosines(self):
-        mbtr = MBTR([1, 8], k=[3], periodic=False)
-        mbtr.create(H2O)
-        angles = mbtr._angles
+        lmbtr = LMBTR([1, 8], k=[3], periodic=False)
+        lmbtr.create(H2O)
+        angles = lmbtr._angles
 
         # Test against the assumed values.
         assumed = {
-            0: {
-                1: {
-                    0: 2*[math.cos(104/180*math.pi)]
-                },
-                0: {
-                    1: 2*[math.cos(38/180*math.pi)]
-                },
+            1: {
+                1: 2*[math.cos(104/180*math.pi)]
             }
         }
-
-        for i in range(2):
-            for j in range(2):
-                for k in range(2):
-                    try:
-                        assumed_elem = assumed[i][j][k]
-                    except KeyError:
-                        assumed_elem = None
-                    try:
-                        true_elem = angles[i][j][k]
-                    except KeyError:
-                        true_elem = None
-                    if assumed_elem is None:
-                        self.assertIsNone(true_elem)
-                    else:
-                        self.assertEqual(len(assumed_elem), len(true_elem))
-                        for i_elem, val_assumed in enumerate(assumed_elem):
-                            val_true = true_elem[i_elem]
-                            self.assertAlmostEqual(val_assumed, val_true, places=6)
+        self.assertEqual(angles, assumed)
 
         # Test against system with different indexing
-        mbtr = MBTR([1, 8], k=[3], periodic=False)
-        mbtr.create(H2O_2)
-        angles2 = mbtr._angles
+        lmbtr = LMBTR([1, 8], k=[3], periodic=False)
+        lmbtr.create(H2O_2, list_atom_indices=[0])
+        angles2 = lmbtr._angles
         self.assertEqual(angles, angles2)
 
-    def test_gaussian_distribution(self):
-        """Check that the broadening follows gaussian distribution.
-        """
-        std = 1
-        start = -3
-        stop = 11
-        n = 500
-        mbtr = MBTR(
-            [1, 8],
-            k=[1],
-            grid={
-                "k1": {
-                    "min": start,
-                    "max": stop,
-                    "sigma": std,
-                    "n": n
-                }
-            },
-            periodic=False,
-            flatten=False)
-        y = mbtr.create(H2O)
-        k1_axis = mbtr._axis_k1
-
-        # Find the location of the peaks
-        peak1_x = np.searchsorted(k1_axis, 1)
-        peak1_y = y[0][0, peak1_x]
-        peak2_x = np.searchsorted(k1_axis, 8)
-        peak2_y = y[0][1, peak2_x]
-
-        # Check against the analytical value
-        gaussian = lambda x, mean, sigma: np.exp(-(x-mean)**2/(2*sigma**2))
-        self.assertTrue(np.allclose(peak1_y, 2*gaussian(1, 1, std), rtol=0, atol=0.001))
-        self.assertTrue(np.allclose(peak2_y, gaussian(8, 8, std), rtol=0, atol=0.001))
-
-        # Check the integral
-        pdf = y[0][0, :]
-        # mpl.plot(pdf)
-        # mpl.show()
-        dx = (stop-start)/(n-1)
-        sum_cum = np.sum(0.5*dx*(pdf[:-1]+pdf[1:]))
-        exp = 2/(1/math.sqrt(2*math.pi*std**2))
-        self.assertTrue(np.allclose(sum_cum, exp, rtol=0, atol=0.001))
+#    def test_gaussian_distribution(self):
+#        """Check that the broadening follows gaussian distribution.
+#        """
+#        std = 1
+#        start = -3
+#        stop = 11
+#        n = 500
+#        lmbtr = LMBTR(
+#            [1, 8],
+#            k=[1],
+#            grid={
+#                "k1": {
+#                    "min": start,
+#                    "max": stop,
+#                    "sigma": std,
+#                    "n": n
+#                }
+#            },
+#            periodic=False,
+#            flatten=False)
+#        y = lmbtr.create(H2O)
+#        k1_axis = lmbtr._axis_k1
+#
+#        # Find the location of the peaks
+#        peak1_x = np.searchsorted(k1_axis, 1)
+#        peak1_y = y[0][0, peak1_x]
+#        peak2_x = np.searchsorted(k1_axis, 8)
+#        peak2_y = y[0][1, peak2_x]
+#
+#        # Check against the analytical value
+#        gaussian = lambda x, mean, sigma: np.exp(-(x-mean)**2/(2*sigma**2))
+#        self.assertTrue(np.allclose(peak1_y, 2*gaussian(1, 1, std), rtol=0, atol=0.001))
+#        self.assertTrue(np.allclose(peak2_y, gaussian(8, 8, std), rtol=0, atol=0.001))
+#
+#        # Check the integral
+#        pdf = y[0][0, :]
+#        # mpl.plot(pdf)
+#        # mpl.show()
+#        dx = (stop-start)/(n-1)
+#        sum_cum = np.sum(0.5*dx*(pdf[:-1]+pdf[1:]))
+#        exp = 2/(1/math.sqrt(2*math.pi*std**2))
+#        self.assertTrue(np.allclose(sum_cum, exp, rtol=0, atol=0.001))
 
     # def test_k1(self):
-        # mbtr = MBTR([1, 8], k=[1], periodic=False, flatten=False)
-        # desc = mbtr.create(H2O)
-        # x1 = mbtr._axis_k1
+        # lmbtr = LMBTR([1, 8], k=[1], periodic=False, flatten=False)
+        # desc = lmbtr.create(H2O)
+        # x1 = lmbtr._axis_k1
 
-        # imap = mbtr.index_to_atomic_number
+        # imap = lmbtr.index_to_atomic_number
         # smap = {}
         # for index, number in imap.items():
             # smap[index] = numbers_to_symbols(number)
@@ -321,11 +342,11 @@ class MBTRTests(unittest.TestCase):
         # mpl.show()
 
     # def test_k2(self):
-        # mbtr = MBTR([1, 8], k=[2], periodic=False, flatten=False)
-        # desc = mbtr.create(H2O)
+        # lmbtr = LMBTR([1, 8], k=[2], periodic=False, flatten=False)
+        # desc = lmbtr.create(H2O)
 
-        # x2 = mbtr._axis_k2
-        # imap = mbtr.index_to_atomic_number
+        # x2 = lmbtr._axis_k2
+        # imap = lmbtr.index_to_atomic_number
         # smap = {}
         # for index, number in imap.items():
             # smap[index] = numbers_to_symbols(number)
@@ -340,39 +361,30 @@ class MBTRTests(unittest.TestCase):
         # mpl.legend()
         # mpl.show()
 
-        # mbtr = MBTR([1, 8], k=2, periodic=False, flatten=True)
-        # desc = mbtr.create(H2O)
+        # lmbtr = LMBTR([1, 8], k=2, periodic=False, flatten=True)
+        # desc = lmbtr.create(H2O)
         # y = desc.todense().T
         # mpl.plot(y)
         # mpl.show()
 
     # def test_k3(self):
-        # mbtr = MBTR([1, 8], k=3, periodic=False)
-        # desc = mbtr.create(H2O)
+        # lmbtr = LMBTR([1, 8], k=3, periodic=False)
+        # desc = lmbtr.create(H2O)
         # y = desc.todense().T
 
         # # Visually check the contents
         # mpl.plot(y)
         # mpl.show()
 
-    def test_counts_duplicate(self):
-        mbtr = MBTR([1, 8], k=[1], periodic=False)
-        mbtr.create(H2O)
-
-        # Check that there are correct number of counts. The counts are
-        # calculated only from the original cell that is assumed to be
-        # primitive
-        self.assertTrue(np.array_equal(mbtr._counts, [2, 1]))
-
     # def test_distances_duplicate(self):
-        # mbtr = MBTR([1, 8], k=[2], periodic=False)
-        # mbtr.create(H2O)
+        # lmbtr = LMBTR([1, 8], k=[2], periodic=False)
+        # lmbtr.create(H2O)
 
         # # Check that there are correct number of inverse distances
         # n_atoms = len(H2O)
         # n_ext_atoms = (1+2*1)**3*n_atoms
         # n_inv_dist_analytic = sum([n_ext_atoms-i for i in range(1, n_atoms+1)])
-        # inv_dist = mbtr._inverse_distances
+        # inv_dist = lmbtr._inverse_distances
 
         # n_inv_dist = 0
         # for dict1 in inv_dist.values():
@@ -382,14 +394,14 @@ class MBTRTests(unittest.TestCase):
         # self.assertEqual(n_inv_dist_analytic, n_inv_dist)
 
     # def test_angles_duplicate(self):
-        # mbtr = MBTR([1, 8], n_atoms_max=2, k=3, periodic=False)
-        # mbtr.create(H2O)
+        # lmbtr = LMBTR([1, 8], n_atoms_max=2, k=3, periodic=False)
+        # lmbtr.create(H2O)
 
         # Check that there are correct number of angles
         # n_atoms = len(H2O)
         # n_ext_atoms = (1+2*n_copies)**3*n_atoms
         # n_angles_analytic = ?  # Did not have the energy to figure out the correct analytic formula... :)
-        # angles = mbtr._angles
+        # angles = lmbtr._angles
 
         # n_angles = 0
         # for dict1 in angles.values():
@@ -402,7 +414,7 @@ class MBTRTests(unittest.TestCase):
     def test_symmetries(self):
         """Tests translational and rotational symmetries for a finite system.
         """
-        desc = MBTR(
+        desc = LMBTR(
             atomic_numbers=[1, 8],
             k=[1, 2, 3],
             periodic=False,
@@ -441,24 +453,24 @@ class MBTRTests(unittest.TestCase):
 
         # Rotational check
         molecule = H2O.copy()
-        features = desc.create(molecule)
+        features = desc.create(molecule, list_atom_indices=[0])
 
         for rotation in ['x', 'y', 'z']:
             molecule.rotate(45, rotation)
-            rot_features = desc.create(molecule)
+            rot_features = desc.create(molecule, list_atom_indices=[0])
             deviation = np.max(np.abs(features - rot_features))
             self.assertTrue(deviation < 1e-6)
 
         # Translation check
         for translation in [[1.0, 1.0, 1.0], [-5.0, 5.0, -5.0], [1.0, 1.0, -10.0]]:
             molecule.translate(translation)
-            trans_features = desc.create(molecule)
+            trans_features = desc.create(molecule, list_atom_indices=[0])
             deviation = np.max(np.abs(features - trans_features))
             self.assertTrue(deviation < 1e-6)
 
 
 if __name__ == '__main__':
     suites = []
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(MBTRTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(LMBTRTests))
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)
