@@ -87,42 +87,30 @@ class EwaldMatrix(MatrixDescriptor):
         # Calculate the regular real and reciprocal space sums of the Ewald sum.
         ereal = self._calc_real(system)
         erecip = self._calc_recip(system)
-        # ezero = self._calc_zero()
-        # total = erecip + ereal + ezero
-        total = erecip + ereal
-
-        # The diagonal terms are divided by two
-        # diag = np.diag(total)/2
-        # np.fill_diagonal(total, diag)
-
-        # Calculate the modification that makes each entry of the matrix to be
-        # the full Ewald sum of the ij subsystem.
-        total = self._calc_subsystem_energies(total)
+        ezero = self._calc_zero()
+        total = erecip + ereal + ezero
 
         return total
 
     def _calc_zero(self):
         """Calculates the constant part of the Ewald matrix.
         """
-        # Create the self-term array where q1[i,j] is qi**2 + qj**2, except for
-        # the diagonal, where it is qi**2. The self term corresponds to the
-        # interaction of the point charge with cocentric Gaussian cloud
-        # introduced in the Ewald method.
-
-        # Calculate the self-interaction correction. It only applies for the
-        # diagonal terms.
+        # Calculate the self-interaction correction. The self term corresponds
+        # to the interaction of the point charge with cocentric Gaussian cloud
+        # introduced in the Ewald method.It only applies for the diagonal
+        # terms.
         q = self.q
         matself = np.zeros((self.n_atoms, self.n_atoms))
         diag = q**2
         np.fill_diagonal(matself, diag)
         matself *= -self.a/self.sqrt_pi
 
-        # # Calculate the interaction energy between constant neutralizing
-        # # background charge.
+        # Calculate the interaction energy between constant neutralizing
+        # background charge.
         matbg = 2*q[None, :]*q[:, None].astype(float)
         matbg *= -np.pi/(2*self.volume*self.a_squared)
 
-        # # The diagonal terms are divided by two
+        # The diagonal terms are divided by two
         diag = np.diag(matbg)/2
         np.fill_diagonal(matbg, diag)
 
@@ -172,8 +160,8 @@ class EwaldMatrix(MatrixDescriptor):
                 ereal[k, i] = np.sum(new_ereals[js == k])
 
         # The diagonal terms are divided by two
-        # diag = np.diag(ereal)/2
-        # np.fill_diagonal(ereal, diag)
+        diag = np.diag(ereal)/2
+        np.fill_diagonal(ereal, diag)
 
         return ereal
 
@@ -221,31 +209,7 @@ class EwaldMatrix(MatrixDescriptor):
         erecip *= 4 * math.pi / self.volume * qiqj * 2 ** 0.5
 
         # The diagonal terms are divided by two
-        # diag = np.diag(erecip)/2
-        # np.fill_diagonal(erecip, diag)
+        diag = np.diag(erecip)/2
+        np.fill_diagonal(erecip, diag)
 
         return erecip
-
-    def _calc_subsystem_energies(self, ewald_matrix):
-        """Modify the give matrix that consists of the real and reciprocal sums
-        so that each entry x_ij is the full Ewald sum energy of a system
-        consisting of atoms i and j.
-        """
-        correction_matrix = self._calc_zero()
-
-        # Add the terms coming from x_ii and x_jj to the off-diagonal along
-        # with the corrections
-        n_atoms = self.n_atoms
-        final_matrix = np.zeros((n_atoms, n_atoms))
-        for i in range(n_atoms):
-            for j in range(n_atoms):
-                if i == j:
-                    final_matrix[i, j] = 1/2*ewald_matrix[i, j]
-                else:
-                    pair_term = ewald_matrix[i, j]
-                    energy_total = pair_term
-                    final_matrix[i, j] = energy_total
-
-        final_matrix += correction_matrix
-
-        return final_matrix
