@@ -17,7 +17,7 @@ class EwaldMatrix(MatrixDescriptor):
     Each entry x_ij of the Ewald matrix will contain the full Coulomb energy
     for a subsystem consisting of the atoms i and j in the unit cell (or just i
     on the diagonal) after a constant background charge has been added to
-    counteract any possible net charge in that particular subsystem.
+    counteract the positive net charge in that particular subsystem.
 
     The final matrix elements will not be dependent on the value of the
     screening parameter a that is used.
