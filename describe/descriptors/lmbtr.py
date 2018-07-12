@@ -152,8 +152,8 @@ class LMBTR(MBTR):
         if list_atom_indices is not None:
             list_atom_indices.sort()
             for atom_index in list_atom_indices:
-                if atom_index > len(system):
-                    raise ValueError("Atom index: {}, larger than total number of atoms ".format(self.atom_index))
+                if atom_index >= len(system):
+                    raise ValueError("Atom index: {}, larger than total number of atoms ".format(atom_index))
             list_atoms += list_atom_indices
         elif list_positions is not None:
             if scaled_positions: #convert positions to cartesian
