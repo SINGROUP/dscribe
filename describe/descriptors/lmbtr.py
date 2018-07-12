@@ -32,7 +32,6 @@ class LMBTR(MBTR):
             ):
         """
         Args:
-            atom_index = index of atom, from which local_mbtr is to needed
             atomic_numbers (iterable): A list of the atomic numbers that should
                 be taken into account in the descriptor. Notice that this is
                 not the atomic numbers that are present for an individual
@@ -115,6 +114,10 @@ class LMBTR(MBTR):
                     )
 
     def update(self):
+        '''
+        Updates relevant objects attached to LMBTR class, after changing
+        one/many values
+        '''
         self.atomic_numbers = np.unique(self.atomic_numbers + [0]).tolist()
         super().update()
         if 1 in self.k:
@@ -126,7 +129,7 @@ class LMBTR(MBTR):
                  list_positions=None,
                  scaled_positions=False
                  ):
-        """Return the many-body tensor representation as a 1D array for the
+        """Return the local many-body tensor representation as a 1D array for the
         given system.
 
         Args:
@@ -139,8 +142,9 @@ class LMBTR(MBTR):
                                         use only if system allows it
 
         Returns:
-            1D ndarray: The many-body tensor representation up to the k:th term
-            as a flattened array.
+            1D ndarray: The local many-body tensor representations of given postions,
+                        for k terms, as an array. These are ordered as given in 
+                        list_atom_indices, followed by list_positions
         """
         system_new = system.copy()
         list_atoms = []
@@ -210,7 +214,7 @@ class LMBTR(MBTR):
 
         Returns:
             dict: Inverse distances in the form:
-            {i: [list of angles] }.
+            {i: [list of distances] }.
         """
         if self._inverse_distances is None:
             inverse_dist = system.get_inverse_distance_matrix()
@@ -240,10 +244,6 @@ class LMBTR(MBTR):
             and 1) in the form {i: { j: [list of angles] }}. The weights
             corresponding to the angles are stored in a similar dictionary.
 
-            #TODO:
-            Some cosines are encountered twice, e.g. the angles for OHH would
-            be the same as for HHO. These duplicate values are left out by only
-            filling values where k>=i.
         """
         if self._angles is None or self._angle_weights is None:
             disp_tensor = system.get_displacement_tensor().astype(np.float32)
@@ -318,7 +318,7 @@ class LMBTR(MBTR):
             settings (dict): The grid settings
 
         Returns:
-            1D ndarray: flattened K1 values.
+            1D ndarray: (flattened) K1 values.
         """
         start = settings["min"]
         stop = settings["max"]
@@ -353,7 +353,7 @@ class LMBTR(MBTR):
             settings (dict): The grid settings
 
         Returns:
-            1D ndarray: flattened K2 values.
+            1D ndarray: (flattened) K2 values.
         """
         start = settings["min"]
         stop = settings["max"]
@@ -409,7 +409,7 @@ class LMBTR(MBTR):
             settings (dict): The grid settings
 
         Returns:
-            1D ndarray: flattened K3 values.
+            1D ndarray: (flattened) K3 values.
         """
         start = settings["min"]
         stop = settings["max"]
