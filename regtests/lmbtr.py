@@ -36,7 +36,7 @@ HHe = Atoms(
         [5.0, 0.0, 0.0],
         [0.0, 5.0, 0.0],
         [0.0, 0.0, 5.0]
-    ],
+        ],
     positions=[
         [0, 0, 0],
         [0.71, 0, 0],
@@ -48,7 +48,7 @@ HHe = Atoms(
 class LMBTRTests(unittest.TestCase):
 
     def test_constructor(self):
-        """Tests different valid and invalid constructor values.
+        """LMBTR: Tests different valid and invalid constructor values.
         """
         with self.assertRaises(ValueError):
             LMBTR(
@@ -79,8 +79,11 @@ class LMBTRTests(unittest.TestCase):
             )
     
     def test_create(self):
+        '''
+        LMBTR: Test all fail-safe in create method
+        '''
         decay_factor = 0.5
-        mbtr = LMBTR(
+        lmbtr = LMBTR(
         atomic_numbers=[1, 8],
         k=[1, 2],
         periodic=True,
@@ -139,7 +142,7 @@ class LMBTRTests(unittest.TestCase):
 
 
     def test_number_of_features(self):
-        """Tests that the reported number of features is correct.
+        """LMBTR: Tests that the reported number of features is correct.
         """
         # K = 1
         n = 100
@@ -220,7 +223,7 @@ class LMBTRTests(unittest.TestCase):
         self.assertEqual(n_features, expected)
 
     # def test_flatten(self):
-        # """Tests the flattening.
+        # """LMBTR: Tests the flattening.
         # """
         # # Unflattened
         # desc = LMBTR(n_atoms_max=5, permutation="none", flatten=False)
@@ -233,15 +236,22 @@ class LMBTRTests(unittest.TestCase):
         # self.assertEqual(cm.shape, (25,))
 
     def test_periodic(self):
+        '''
+        LMBTR: Test periodic flag
+        '''
         test_sys = Atoms(
             cell=[[5.0, 0.0, 0.0], [0, 5.0, 0.0], [0.0, 0.0, 5.0]],
             positions=[[0, 0, 0]],
             symbols=["H"],
         )
-        lmbtr = LMBTR([1], k=[1, 2, 3], weighting="exponential", periodic=True)
-        desc = lmbtr.create(test_sys, list_atom_indices=[0])
+        lmbtr = LMBTR([1], k=[1, 2, 3], weighting="exponential", periodic=True, flatten=False)
+            
+        desc = lmbtr.create(test_sys, list_positions=[[0.5, 0.5, 0.5]], scaled_positions=True)
 
     def test_inverse_distances(self):
+        '''
+        LMBTR: Test inverse distances
+        '''
         lmbtr = LMBTR([1, 8], k=[2], periodic=False)
         lmbtr.create(H2O, list_atom_indices=[1])
         inv_dist = lmbtr._inverse_distances
@@ -261,17 +271,24 @@ class LMBTRTests(unittest.TestCase):
         self.assertEqual(inv_dist, inv_dist_2)
 
     def test_cosines(self):
+        '''
+        LMBTR: Test cosines
+        '''
         lmbtr = LMBTR([1, 8], k=[3], periodic=False)
-        lmbtr.create(H2O)
+        lmbtr.create(H2O, list_atom_indices=[1])
         angles = lmbtr._angles
 
         # Test against the assumed values.
         assumed = {
             1: {
-                1: 2*[math.cos(104/180*math.pi)]
+                1: 2*[np.cos(104/180*np.pi)]
             }
         }
-        self.assertEqual(angles, assumed)
+        self.assertTrue(
+            np.abs(angles[1][1][0]
+            - np.cos(104/180*np.pi))
+            < 1e-6
+        )
 
         # Test against system with different indexing
         lmbtr = LMBTR([1, 8], k=[3], periodic=False)
@@ -280,7 +297,7 @@ class LMBTRTests(unittest.TestCase):
         self.assertEqual(angles, angles2)
 
 #    def test_gaussian_distribution(self):
-#        """Check that the broadening follows gaussian distribution.
+#        """LMBTR: Check that the broadening follows gaussian distribution.
 #        """
 #        std = 1
 #        start = -3
@@ -415,7 +432,7 @@ class LMBTRTests(unittest.TestCase):
         # self.assertEqual(n_angles_analytic, n_angles)
 
     def test_symmetries(self):
-        """Tests translational and rotational symmetries for a finite system.
+        """LMBTR: Tests translational and rotational symmetries for a finite system.
         """
         desc = LMBTR(
             atomic_numbers=[1, 8],
@@ -456,18 +473,18 @@ class LMBTRTests(unittest.TestCase):
 
         # Rotational check
         molecule = H2O.copy()
-        features = desc.create(molecule, list_atom_indices=[0])
+        features = desc.create(molecule, list_atom_indices=[0])[0].toarray()
 
         for rotation in ['x', 'y', 'z']:
             molecule.rotate(45, rotation)
-            rot_features = desc.create(molecule, list_atom_indices=[0])
+            rot_features = desc.create(molecule, list_atom_indices=[0])[0].toarray()
             deviation = np.max(np.abs(features - rot_features))
             self.assertTrue(deviation < 1e-6)
 
         # Translation check
         for translation in [[1.0, 1.0, 1.0], [-5.0, 5.0, -5.0], [1.0, 1.0, -10.0]]:
             molecule.translate(translation)
-            trans_features = desc.create(molecule, list_atom_indices=[0])
+            trans_features = desc.create(molecule, list_atom_indices=[0])[0].toarray()
             deviation = np.max(np.abs(features - trans_features))
             self.assertTrue(deviation < 1e-6)
 
