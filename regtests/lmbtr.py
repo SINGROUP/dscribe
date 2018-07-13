@@ -241,12 +241,41 @@ class LMBTRTests(unittest.TestCase):
         '''
         test_sys = Atoms(
             cell=[[5.0, 0.0, 0.0], [0, 5.0, 0.0], [0.0, 0.0, 5.0]],
-            positions=[[0, 0, 0]],
-            symbols=["H"],
+            positions=[[0, 0, 1], [0, 0, 3]],
+            symbols=["H", "H"],
         )
-        lmbtr = LMBTR([1], k=[1, 2, 3], weighting="exponential", periodic=True, flatten=False)
+        test_sys_ = Atoms(
+            cell=[[5.0, 0.0, 0.0], [0, 5.0, 0.0], [0.0, 0.0, 5.0]],
+            positions=[[0, 0, 1], [0, 0, 4]],
+            symbols=["H", "H"],
+        )
+
+        decay_factor = 0.5
+        lmbtr = LMBTR(
+            atomic_numbers=[1],
+            k=[2],
+            periodic=True,
+            grid={
+                "k2": {
+                    "min": 1/5,
+                    "max": 1,
+                    "sigma": 0.001,
+                    "n": 200,
+                },
+            },
+            weighting={
+                "k2": {
+                    "function": lambda x: np.exp(-decay_factor*x),
+                    "threshold": 1e-3
+                },
+            },
+            flatten=False
+        )
             
-        desc = lmbtr.create(test_sys, list_positions=[[0.5, 0.5, 0.5]], scaled_positions=True)
+        desc = lmbtr.create(test_sys, list_atom_indices=[0])
+        desc_ = lmbtr.create(test_sys_, list_atom_indices=[0])
+
+        self.assertTrue(np.linalg.norm(desc_[0][0] - desc[0][0]) < 1e-6)
 
     def test_inverse_distances(self):
         '''
