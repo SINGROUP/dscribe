@@ -94,11 +94,22 @@ class EwaldMatrix(MatrixDescriptor):
 
     def _calc_zero(self):
         """Calculates the constant part of the Ewald matrix.
+
+        The constant part contains the correction for the self-interaction
+        between the point charges and the Gaussian charge distribution added on
+        top of them and the intearction between the point charges and a uniform
+        neutralizing background charge.
+
+        Returns:
+            np.ndarray(): A 2D matrix containing the constant terms for each
+            i,j pair.
         """
         # Calculate the self-interaction correction. The self term corresponds
         # to the interaction of the point charge with cocentric Gaussian cloud
-        # introduced in the Ewald method.It only applies for the diagonal
-        # terms.
+        # introduced in the Ewald method. The correction is only applied to the
+        # diagonal terms so that the correction is not counted multiple times
+        # when calculating the total Ewald energy as the sum of diagonal
+        # element + upper diagonal part.
         q = self.q
         matself = np.zeros((self.n_atoms, self.n_atoms))
         diag = q**2
@@ -106,7 +117,7 @@ class EwaldMatrix(MatrixDescriptor):
         matself *= -self.a/self.sqrt_pi
 
         # Calculate the interaction energy between constant neutralizing
-        # background charge.
+        # background charge. On the diagonal this is defined by
         matbg = 2*q[None, :]*q[:, None].astype(float)
         matbg *= -np.pi/(2*self.volume*self.a_squared)
 

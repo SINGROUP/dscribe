@@ -190,6 +190,12 @@ class RandomCoulombMatrixTests(unittest.TestCase):
         """
         with self.assertRaises(ValueError):
             CoulombMatrix(n_atoms_max=5, permutation="random", sigma=None)
+        with self.assertRaises(ValueError):
+            CoulombMatrix(n_atoms_max=5, permutation="sorted_l2", sigma=3)
+        with self.assertRaises(ValueError):
+            CoulombMatrix(n_atoms_max=5, permutation="none", sigma=3)
+        with self.assertRaises(ValueError):
+            CoulombMatrix(n_atoms_max=5, permutation="eigenspectrum", sigma=3)
 
     def test_number_of_features(self):
         """Tests that the reported number of features is correct.
@@ -212,7 +218,7 @@ class RandomCoulombMatrixTests(unittest.TestCase):
         self.assertEqual(len(cm), 5)
 
     def test_distribution(self):
-        """ Tests if the random sorting obeys a gaussian distribution. Can
+        """Tests if the random sorting obeys a gaussian distribution. Can
         rarely fail when everything is OK.
         """
         desc = CoulombMatrix(n_atoms_max=5, permutation="random", sigma=100, flatten=False)
@@ -239,7 +245,7 @@ class RandomCoulombMatrixTests(unittest.TestCase):
 
         srcm = desc.sort(rcm)
 
-        desc = CoulombMatrix(n_atoms_max=5, permutation="sorted_l2", sigma=100, flatten=False)
+        desc = CoulombMatrix(n_atoms_max=5, permutation="sorted_l2", flatten=False)
 
         scm = desc.create(H2O)
 
@@ -248,9 +254,9 @@ class RandomCoulombMatrixTests(unittest.TestCase):
 
 if __name__ == '__main__':
     suites = []
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(CoulombMatrixTests))
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(SortedCoulombMatrixTests))
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(CoulombMatrixEigenSpectrumTests))
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(CoulombMatrixTests))
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SortedCoulombMatrixTests))
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(CoulombMatrixEigenSpectrumTests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(RandomCoulombMatrixTests))
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)

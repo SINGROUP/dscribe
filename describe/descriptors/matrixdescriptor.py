@@ -45,6 +45,13 @@ class MatrixDescriptor(Descriptor):
                 "Please specify sigma as a degree of random noise."
             )
 
+        # Raise a value error if sigma specified, but random sorting not used
+        if permutation != "random" and sigma is not None:
+            raise ValueError(
+                "Sigma value specified but the parameter 'permutation' not set "
+                "as 'random'."
+            )
+
         self.n_atoms_max = n_atoms_max
         self.permutation = permutation
         self.norm_vector = None
@@ -189,7 +196,7 @@ class MatrixDescriptor(Descriptor):
         Returns:
             np.ndarray: L2 norm of each row / column.
 
-        """       
+        """
         self.norm_vector = np.linalg.norm(matrix, axis=1)
 
         return self.norm_vector
