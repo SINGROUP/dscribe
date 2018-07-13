@@ -114,6 +114,9 @@ class CoulombMatrixTests(unittest.TestCase):
             deviation = np.max(np.abs(features- trans_features))
             self.assertTrue(deviation < 10e-9)
 
+
+
+
 class SortedCoulombMatrixTests(unittest.TestCase):
 
     def test_constructor(self):

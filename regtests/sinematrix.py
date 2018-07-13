@@ -93,6 +93,50 @@ class SineMatrixTests(unittest.TestCase):
         for i, i_diag in enumerate(np.diag(matrix)):
             self.assertEqual(i_diag, 0.5*atomic_numbers[i]**2.4)
 
+    def test_unit_cells(self):
+        """Tests if arbitrary unit cells are accepted"""
+        desc = SineMatrix(n_atoms_max=3, permutation="none", flatten=False)
+
+        molecule = H2O.copy()
+
+        molecule.set_cell([
+        [0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0]
+            ],
+            )
+        with self.assertRaises(ValueError):
+            nocell = desc.create(molecule)
+
+        molecule.set_pbc(True)
+        molecule.set_cell([
+        [20.0, 0.0, 0.0],
+        [0.0, 30.0, 0.0],
+        [0.0, 0.0, 40.0]
+            ],
+            )
+
+        largecell = desc.create(molecule)
+
+        molecule.set_cell([
+        [2.0, 0.0, 0.0],
+        [0.0, 2.0, 0.0],
+        [0.0, 0.0, 2.0]
+            ],
+            )
+
+        cubic_cell = desc.create(molecule)
+
+        molecule.set_cell([
+        [0.0, 2.0, 2.0],
+        [2.0, 0.0, 2.0],
+        [2.0, 2.0, 0.0]
+            ],
+            )
+
+        triclinic_smallcell = desc.create(molecule)
+
+
     # def test_visual(self):
         # import matplotlib.pyplot as mpl
         # """Plot the

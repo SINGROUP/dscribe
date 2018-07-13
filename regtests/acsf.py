@@ -24,6 +24,18 @@ H2O = Atoms(
     symbols=["H", "O", "H"],
 )
 
+H = Atoms(
+    cell=[
+        [15.0, 0.0, 0.0],
+        [0.0, 15.0, 0.0],
+        [0.0, 0.0, 15.0]
+    ],
+    positions=[
+        [0, 0, 0],
+
+    ],
+    symbols=["H"],
+)
 
 class ACSFTests(unittest.TestCase):
 
@@ -213,6 +225,136 @@ class ACSFTests(unittest.TestCase):
             trans_features =   desc.create(molecule)
             deviation = np.max(np.abs(features- trans_features))
             self.assertTrue(deviation < 10e-9)
+
+
+    def test_unit_cells(self):
+        """Tests if arbitrary unit cells are accepted"""
+        desc = ACSF(n_atoms_max=6, types=[1,8],bond_params=[[1,2,], [4,5,]], bond_cos_params=[1,2,3,4], 
+            ang4_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], ang5_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], flatten=False)
+
+        molecule = H2O.copy()
+
+        molecule.set_cell([
+        [0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0]
+            ],
+            )
+
+        nocell = desc.create(molecule)
+
+        molecule.set_pbc(True)
+        molecule.set_cell([
+        [20.0, 0.0, 0.0],
+        [0.0, 30.0, 0.0],
+        [0.0, 0.0, 40.0]
+            ],
+            )
+
+        largecell = desc.create(molecule)
+
+        molecule.set_cell([
+        [2.0, 0.0, 0.0],
+        [0.0, 2.0, 0.0],
+        [0.0, 0.0, 2.0]
+            ],
+            )
+
+        cubic_cell = desc.create(molecule)
+
+        molecule.set_cell([
+        [0.0, 2.0, 2.0],
+        [2.0, 0.0, 2.0],
+        [2.0, 2.0, 0.0]
+            ],
+            )
+
+        triclinic_smallcell = desc.create(molecule)
+
+
+    def test_is_periodic(self):
+        """Tests whether periodic images are seen by the descriptor""" 
+        desc = ACSF(n_atoms_max=1, types=[1],bond_params=[[1,2,], [4,5,]], bond_cos_params=[1,2,3,4], 
+            ang4_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], ang5_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], flatten=False)
+
+
+        H.set_pbc(False)
+        nocell = desc.create(H)
+
+        H.set_pbc(True)
+        H.set_cell([
+        [2.0, 0.0, 0.0],
+        [0.0, 2.0, 0.0],
+        [0.0, 0.0, 2.0]
+            ],
+            )
+
+        cubic_cell = desc.create(H)
+
+        self.assertTrue(np.sum(cubic_cell) > 0)
+
+
+
+
+
+    def test_periodic_images(self):
+        """Tests the periodic images seen by the descriptor
+        """
+        desc = ACSF(n_atoms_max=6, types=[1,8],bond_params=[[1,2,], [4,5,]], bond_cos_params=[1,2,3,4], 
+            ang4_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], ang5_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], flatten=False)
+
+        molecule = H2O.copy()
+
+        # non-periodic for comparison
+        molecule.set_cell([
+        [0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0]
+            ],
+            )
+        nocell = desc.create(molecule)
+
+        # make periodic
+        molecule.set_pbc(True)
+
+        # cubic
+        molecule.set_cell([
+        [3.0, 0.0, 0.0],
+        [0.0, 3.0, 0.0],
+        [0.0, 0.0, 3.0]
+            ],
+            )
+
+        cubic_cell = desc.create(molecule)
+        suce = molecule * (2,1,1)
+        cubic_suce = desc.create(suce)
+        
+        molecule.set_cell([
+        [20.0, 0.0, 0.0],
+        [0.0, 30.0, 0.0],
+        [0.0, 0.0, 40.0]
+            ],
+            )
+
+        largecell = desc.create(molecule)
+
+
+        # triclinic
+        molecule.set_cell([
+        [0.0, 2.0, 2.0],
+        [2.0, 0.0, 2.0],
+        [2.0, 2.0, 0.0]
+            ],
+            )
+
+        triclinic_cell = desc.create(molecule)
+        suce = molecule * (2,1,1)
+        triclinic_suce = desc.create(suce)
+
+        self.assertTrue(np.sum(np.abs((nocell[:3] - cubic_suce[:3]))) > 0.1)
+        self.assertAlmostEqual(np.sum(cubic_cell[:3] -cubic_suce[:3]), 0)
+        self.assertAlmostEqual(np.sum(triclinic_cell[:3] - triclinic_suce[:3]), 0)
+        
 
 
 if __name__ == '__main__':
