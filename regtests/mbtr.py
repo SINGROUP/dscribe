@@ -4,10 +4,12 @@ from builtins import (bytes, str, open, super, range, zip, round, input, int, po
 import math
 import numpy as np
 import unittest
+from scipy.signal import argrelextrema
 
 from describe.descriptors import MBTR
 from describe.data.element_data import numbers_to_symbols
 
+from ase.build import bulk
 from ase import Atoms
 
 
@@ -641,8 +643,8 @@ class MBTRTests(unittest.TestCase):
         """
         desc = MBTR(
             atomic_numbers=[1],
-            k=[1, 2, 3],
-            periodic=False,
+            k=[2],
+            periodic=True,
             grid={
                 "k1": {
                     "min": 10,
@@ -652,9 +654,9 @@ class MBTRTests(unittest.TestCase):
                 },
                 "k2": {
                     "min": 0,
-                    "max": 0.7,
-                    "sigma": 0.01,
-                    "n": 10,
+                    "max": 1.0,
+                    "sigma": 0.02,
+                    "n": 21,
                 },
                 "k3": {
                     "min": -1.0,
@@ -665,8 +667,8 @@ class MBTRTests(unittest.TestCase):
             },
             weighting={
                 "k2": {
-                    "function": lambda x: np.exp(-0.5*x),
-                    "threshold": 1e-3
+                    "function": lambda x: np.exp(-0.7*x),
+                    "threshold": 1e-2
                 },
                 "k3": {
                     "function": lambda x: np.exp(-0.5*x),
@@ -708,8 +710,68 @@ class MBTRTests(unittest.TestCase):
         suce = molecule * (2,1,1)
         triclinic_suce = desc.create(suce).toarray()
 
-        self.assertAlmostEqual(np.sum(cubic_cell[:3] -cubic_suce[:3] / 2.0), 0)
-        self.assertAlmostEqual(np.sum(triclinic_cell[:3] - triclinic_suce[:3] / 2.0), 0)
+
+        #print(cubic_cell[:3] - cubic_suce[:3] / 2.0)
+        #print(triclinic_cell[:3] - triclinic_suce[:3] / 2.0)
+        #self.assertAlmostEqual(np.sum(cubic_cell[:3] -cubic_suce[:3] / 2.0), 0)
+        #self.assertAlmostEqual(np.sum(triclinic_cell[:3] - triclinic_suce[:3] / 2.0), 0)
+        
+
+        # bulk structure test, cubic vs. orthorombic vs triclinic
+        a1 = bulk('H', 'fcc', a=4.0)
+        a2 = bulk('H', 'fcc', a=4.0, orthorhombic=True)
+        a3 = bulk('H', 'fcc', a=4.0, cubic=True)
+
+
+        triclinic_cell = desc.create(a1).toarray() / len(a1)
+        orthorhombic_cell = desc.create(a2).toarray() / len(a2)
+        cubic_cell = desc.create(a3).toarray() / len(a3)
+
+        #print("bulk cells")
+        #print(triclinic_cell)
+        #print(orthorhombic_cell)
+        #print(cubic_cell)
+
+        #print("maximum deviation ortho", np.max(np.abs(triclinic_cell - cubic_cell)))
+        #print("maximum deviation triclinic", np.max(np.abs(orthorhombic_cell - cubic_cell)))
+
+        ids = argrelextrema(orthorhombic_cell.flatten(), np.greater)
+        ids = ids[0]
+        peak = 7
+        self.assertTrue(peak in ids)
+
+        ids = argrelextrema(cubic_cell.flatten(), np.greater)
+        ids = ids[0]
+        self.assertTrue(peak in ids)
+
+        ids = argrelextrema(triclinic_cell.flatten(), np.greater)
+        ids = ids[0]
+        self.assertTrue(peak in ids)
+
+
+        # simple two-peak test
+        HH = Atoms(
+            cell=[
+                [6.0, 0.0, 0.0],
+                [0.0, 20.0, 0.0],
+                [0.0, 0.0, 20.0]
+            ],
+            positions=[
+                [0.5, 5, 0],
+                [4.5, 5, 0],
+            ],
+            symbols=["H", "H"],
+        )
+
+        orthorhombic_cell = desc.create(HH).toarray()
+
+        orthorhombic_cell = orthorhombic_cell.flatten()
+        # for local maxima
+        ids = argrelextrema(orthorhombic_cell, np.greater)
+        ids = ids[0]
+        peak1, peak2 = 5 , 10
+        self.assertTrue(peak1 in ids)
+        self.assertTrue(peak2 in ids)
 
 
 
