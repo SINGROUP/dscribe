@@ -55,6 +55,7 @@ class MatrixDescriptor(Descriptor):
         self.n_atoms_max = n_atoms_max
         self.permutation = permutation
         self.norm_vector = None
+        self.sigma = sigma
 
     def describe(self, system):
         """
@@ -75,7 +76,7 @@ class MatrixDescriptor(Descriptor):
         elif self.permutation == "eigenspectrum":
             matrix = self.get_eigenspectrum(matrix)
         elif self.permutation == "random":
-            matrix = self.sort_randomly(matrix)
+            matrix = self.sort_randomly(matrix, self.sigma)
         else:
             raise ValueError(
                 "Invalid permutation method: {}".format(self.permutation)
@@ -158,7 +159,7 @@ class MatrixDescriptor(Descriptor):
         else:
             return int(self.n_atoms_max**2)
 
-    def sort_randomly(self, matrix, sigma=1):
+    def sort_randomly(self, matrix, sigma):
         """
         Given a coulomb matrix, it adds random noise to the sorting defined by sigma.
         For sorting, L2-norm is used
