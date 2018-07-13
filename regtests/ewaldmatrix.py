@@ -140,6 +140,46 @@ class EwaldMatrixTests(unittest.TestCase):
                 # the same as given by the descriptor
                 self.assertTrue(np.allclose(energy_matrix[i, j], energy, atol=0.00001, rtol=0))
 
+    def test_unit_cells(self):
+        """Tests if arbitrary unit cells are accepted"""
+        desc = EwaldMatrix(n_atoms_max=3, permutation="none", flatten=False)
+        molecule = H2O.copy()
+
+        molecule.set_cell([
+        [0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0]
+            ],
+            )
+        with self.assertRaises(ValueError):
+            nocell = desc.create(molecule,  a=0.5, rcut=rcut, gcut=gcut)
+
+        molecule.set_pbc(True)
+        molecule.set_cell([
+        [20.0, 0.0, 0.0],
+        [0.0, 30.0, 0.0],
+        [0.0, 0.0, 40.0]
+            ],
+            )
+        largecell = desc.create(molecule,  a=0.5, rcut=rcut, gcut=gcut)
+
+        molecule.set_cell([
+        [2.0, 0.0, 0.0],
+        [0.0, 2.0, 0.0],
+        [0.0, 0.0, 2.0]
+            ],
+            )
+        cubic_cell =  desc.create(molecule,  a=0.5, rcut=rcut, gcut=gcut)
+
+        molecule.set_cell([
+        [0.0, 2.0, 2.0],
+        [2.0, 0.0, 2.0],
+        [2.0, 2.0, 0.0]
+            ],    
+            )
+        triclinic_smallcell = desc.create(molecule,  a=0.5, rcut=rcut, gcut=gcut)
+
+
     # def test_elements(self):
         # desc = EwaldMatrix(n_atoms_max=3, permutation="none", flatten=False)
 
