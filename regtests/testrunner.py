@@ -11,6 +11,7 @@ import ewaldmatrix
 import sinematrix
 import acsf
 import mbtr
+import lmbtr
 import soap
 import elementaldistribution
 
@@ -25,6 +26,7 @@ suite.addTests(loader.loadTestsFromModule(ewaldmatrix))
 suite.addTests(loader.loadTestsFromModule(sinematrix))
 suite.addTests(loader.loadTestsFromModule(acsf))
 suite.addTests(loader.loadTestsFromModule(mbtr))
+suite.addTests(loader.loadTestsFromModule(lmbtr))
 suite.addTests(loader.loadTestsFromModule(soap))
 suite.addTests(loader.loadTestsFromModule(elementaldistribution))
 
