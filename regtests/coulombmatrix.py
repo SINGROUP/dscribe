@@ -4,6 +4,7 @@ from builtins import (bytes, str, open, super, range, zip, round, input, int, po
 import math
 import numpy as np
 import unittest
+import scipy.stats
 
 from describe.descriptors import CoulombMatrix
 
@@ -221,20 +222,35 @@ class RandomCoulombMatrixTests(unittest.TestCase):
         """Tests if the random sorting obeys a gaussian distribution. Can
         rarely fail when everything is OK.
         """
-        desc = CoulombMatrix(n_atoms_max=5, permutation="random", sigma=100, flatten=False)
+        # Get the mean value to compare to
+        sigma = 5
+        desc = CoulombMatrix(n_atoms_max=5, permutation="sorted_l2", flatten=False)
         cm = desc.create(HHe)
+        means = sorted(np.linalg.norm(cm, axis=1))
+        means = np.linalg.norm(cm, axis=1)
+        mu2 = means[0]
+        mu1 = means[1]
 
+        # Measures how many times the two rows with biggest norm exchange place
+        # when random noise is added. This should correspond to the probability
+        # P(X > Y), where X = N(\mu_1, \sigma^2), Y = N(\mu_2, \sigma^2). This
+        # probability can be reduced to P(X > Y) = P(X-Y > 0) = P(N(\mu_1 -
+        # \mu_2, \sigma^2 + sigma^2) > 0). See e.g.
+        # https://en.wikipedia.org/wiki/Sum_of_normally_distributed_random_variables
+        desc = CoulombMatrix(n_atoms_max=5, permutation="random", sigma=sigma, flatten=False)
         count = 0
-        rand_instances = 2000
-        expectation = rand_instances * 0.24
+        rand_instances = 10000
         for i in range(0, rand_instances):
             cm = desc.create(HHe)
             if np.linalg.norm(cm[0]) < np.linalg.norm(cm[1]):
                 count += 1
-            else:
-                pass
 
-        self.assertTrue(expectation * 0.90 <= count <= expectation * 1.1)
+        # The expected probability is calculated from the cumulative
+        # distribution function.
+        expected = 1 - scipy.stats.norm.cdf(0, mu1 - mu2, np.sqrt(sigma**2 + sigma**2))
+        observed = count/rand_instances
+
+        self.assertTrue(abs(expected - observed) <= 1e-2)
 
     def test_match_with_sorted(self):
         """Tests if sorting the random coulomb matrix results in the same as
@@ -254,9 +270,9 @@ class RandomCoulombMatrixTests(unittest.TestCase):
 
 if __name__ == '__main__':
     suites = []
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(CoulombMatrixTests))
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SortedCoulombMatrixTests))
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(CoulombMatrixEigenSpectrumTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(CoulombMatrixTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(SortedCoulombMatrixTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(CoulombMatrixEigenSpectrumTests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(RandomCoulombMatrixTests))
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)

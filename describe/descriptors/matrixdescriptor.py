@@ -161,19 +161,19 @@ class MatrixDescriptor(Descriptor):
 
     def sort_randomly(self, matrix, sigma):
         """
-        Given a coulomb matrix, it adds random noise to the sorting defined by sigma.
-        For sorting, L2-norm is used
+        Given a coulomb matrix, it adds random noise to the sorting defined by
+        sigma. For sorting, L2-norm is used
 
         Args:
             matrix(np.ndarray): The matrix to randomly sort.
 
         sigma:
             float: Width of gaussian distributed noise determining how much the
-                rows and columns of the randomly sorted coulomb matrix are scrambled.
+                rows and columns of the randomly sorted coulomb matrix are
+                scrambled.
 
         Returns:
             np.ndarray: The randomly sorted matrix.
-
         """
         try:
             len(self.norm_vector)
