@@ -28,6 +28,7 @@ class MBTR(Descriptor):
             periodic,
             grid=None,
             weighting=None,
+            normalize=False,
             flatten=True
             ):
         """
@@ -95,6 +96,8 @@ class MBTR(Descriptor):
                     K=1: x = 0
                     K=2: x = Distance between A->B
                     K=3: x = Distance from A->B->C->A.
+            normalize (bool): Determines whether the output vectors are
+                normalized by the cell volume.
             flatten (bool): Whether the output of create() should be flattened
                 to a 1D array. If False, a list of the different tensors is
                 provided.
@@ -109,6 +112,7 @@ class MBTR(Descriptor):
         self.grid = grid
         self.weighting = weighting
         self.periodic = periodic
+        self.normalize = normalize
         self.update()
         # initializing .create() level variables
         self.n_atoms_in_cell = None
@@ -188,8 +192,8 @@ class MBTR(Descriptor):
                     assert info["min"] < info["max"], \
                         "The min value should be smaller than the max values"
 
-        self.n_elements = None #number of elements for MBTR
-        self.atomic_number_to_index = {} #a
+        self.n_elements = None  # Number of elements for MBTR
+        self.atomic_number_to_index = {}  # a
         self.atomic_number_to_d1 = {}
         self.atomic_number_to_d2 = {}
         self.index_to_atomic_number = {}
@@ -293,8 +297,17 @@ class MBTR(Descriptor):
             cols = np.concatenate(cols)
             final_vector = coo_matrix((datas, (rows, cols)), shape=[1, length], dtype=np.float32)
 
+            if self.normalize:
+                volume = system.get_volume()
+                final_vector /= volume
             return final_vector
+
+        # Normalize with respect to cell volume if requested
         else:
+            if self.normalize:
+                volume = system.get_volume()
+                for part in mbtr:
+                    part /= volume
             return mbtr
 
     def get_k1_settings(self):

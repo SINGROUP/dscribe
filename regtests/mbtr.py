@@ -5,12 +5,15 @@ import math
 import numpy as np
 import unittest
 from scipy.signal import argrelextrema
+from scipy.signal import find_peaks_cwt
 
 from describe.descriptors import MBTR
 from describe.data.element_data import numbers_to_symbols
 
 from ase.build import bulk
 from ase import Atoms
+from ase.visualize import view
+import ase.geometry
 
 
 H2O = Atoms(
@@ -199,15 +202,6 @@ class MBTRTests(unittest.TestCase):
         mbtr.create(H2O_2)
         counts2 = mbtr._counts
         self.assertTrue(np.array_equal(counts, counts2))
-
-    def test_periodic(self):
-        test_sys = Atoms(
-            cell=[[5.0, 0.0, 0.0], [0, 5.0, 0.0], [0.0, 0.0, 5.0]],
-            positions=[[0, 0, 0]],
-            symbols=["H"],
-        )
-        mbtr = MBTR([1], k=[2], weighting="exponential", periodic=True)
-        desc = mbtr.create(test_sys)
 
     def test_inverse_distances(self):
         mbtr = MBTR([1, 8], k=[2], periodic=False)
@@ -473,10 +467,9 @@ class MBTRTests(unittest.TestCase):
             deviation = np.max(np.abs(features - trans_features))
             self.assertTrue(deviation < 1e-6)
 
-
-
     def test_unit_cells(self):
-        """Tests if arbitrary unit cells are accepted"""
+        """Tests that arbitrary unit cells are accepted.
+        """
         desc = MBTR(
             atomic_numbers=[1, 8],
             k=[1, 2, 3],
@@ -517,35 +510,30 @@ class MBTRTests(unittest.TestCase):
         molecule = H2O.copy()
 
         molecule.set_cell([
-        [0.0, 0.0, 0.0],
-        [0.0, 0.0, 0.0],
-        [0.0, 0.0, 0.0]
-            ],
-            )
-
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0]
+        ])
         nocell = desc.create(molecule)
 
         molecule.set_pbc(True)
         molecule.set_cell([
-        [2.0, 0.0, 0.0],
-        [0.0, 2.0, 0.0],
-        [0.0, 0.0, 2.0]
-            ],
-            )
-
+            [2.0, 0.0, 0.0],
+            [0.0, 2.0, 0.0],
+            [0.0, 0.0, 2.0]
+        ])
         cubic_cell = desc.create(molecule)
 
         molecule.set_cell([
-        [0.0, 2.0, 2.0],
-        [2.0, 0.0, 2.0],
-        [2.0, 2.0, 0.0]
-            ],
-            )
-
+            [0.0, 2.0, 2.0],
+            [2.0, 0.0, 2.0],
+            [2.0, 2.0, 0.0]
+        ])
         triclinic_smallcell = desc.create(molecule)
 
     def test_is_periodic(self):
-        """Tests whether periodic images are seen by the descriptor""" 
+        """Tests whether periodic images are seen by the descriptor.
+        """
         desc = MBTR(
             atomic_numbers=[1],
             k=[1, 2, 3],
@@ -588,11 +576,10 @@ class MBTRTests(unittest.TestCase):
 
         H.set_pbc(True)
         H.set_cell([
-        [2.0, 0.0, 0.0],
-        [0.0, 2.0, 0.0],
-        [0.0, 0.0, 2.0]
-            ],
-            )
+            [2.0, 0.0, 0.0],
+            [0.0, 2.0, 0.0],
+            [0.0, 0.0, 2.0]
+        ])
 
         desc = MBTR(
             atomic_numbers=[1],
@@ -635,22 +622,20 @@ class MBTRTests(unittest.TestCase):
 
         self.assertTrue(np.sum(np.abs(cubic_cell - nocell)) > 0.1)
 
-
-
-
     def test_periodic_images(self):
-        """Tests the periodic images seen by the descriptor
+        """Tests that periodic images are handled correctly.
         """
+        decay = 1
         desc = MBTR(
             atomic_numbers=[1],
-            k=[2],
+            k=[1, 2, 3],
             periodic=True,
             grid={
                 "k1": {
-                    "min": 10,
-                    "max": 18,
+                    "min": 0,
+                    "max": 2,
                     "sigma": 0.1,
-                    "n": 10,
+                    "n": 21,
                 },
                 "k2": {
                     "min": 0,
@@ -661,118 +646,172 @@ class MBTRTests(unittest.TestCase):
                 "k3": {
                     "min": -1.0,
                     "max": 1.0,
-                    "sigma": 0.05,
-                    "n": 10,
-                }
+                    "sigma": 0.02,
+                    "n": 21,
+                },
             },
             weighting={
                 "k2": {
-                    "function": lambda x: np.exp(-0.7*x),
-                    "threshold": 1e-2
+                    "function": lambda x: np.exp(-decay*x),
+                    "threshold": 1e-4
                 },
                 "k3": {
-                    "function": lambda x: np.exp(-0.5*x),
-                    "threshold": 1e-3
+                    "function": lambda x: np.exp(-decay*x),
+                    "threshold": 1e-4
                 },
             },
+            normalize=True,  # This normalizes the spectrum with the system volume
             flatten=True
         )
 
-
-        #molecule = H2O.copy()
+        # Tests that a system that roughly the same spectrum as the supercell
+        # of the same system. There will be small differences because in the
+        # supercell the internal distances (distances between atoms within the
+        # cell) are not counted twice. If the internal distances are
+        # double-counted, the spectrums become identical.
         molecule = H.copy()
-
-        # make periodic
-        molecule.set_pbc(True)
-        desc.periodic = True
-
-        # cubic
+        a = 1.5
         molecule.set_cell([
-        [2.0, 0.0, 0.0],
-        [0.0, 2.0, 0.0],
-        [0.0, 0.0, 2.0]
-            ],
-            )
-
+            [a, 0.0, 0.0],
+            [0.0, a, 0.0],
+            [0.0, 0.0, a]
+        ])
         cubic_cell = desc.create(molecule).toarray()
-        suce = molecule * (2,1,1)
+        suce = molecule * (2, 1, 1)
         cubic_suce = desc.create(suce).toarray()
 
-        # triclinic
+        diff = abs(np.sum(cubic_cell[0, :] - cubic_suce[0, :]))
+        cubic_sum = abs(np.sum(cubic_cell[0, :]))
+        self.assertTrue(diff/cubic_sum < 0.05)  # A 5% error is tolerated
+
+        # Same test but for triclinic cell
         molecule.set_cell([
-        [0.0, 2.0, 1.0],
-        [1.0, 0.0, 1.0],
-        [1.0, 2.0, 0.0]
-            ],
-            )
+            [0.0, 2.0, 1.0],
+            [1.0, 0.0, 1.0],
+            [1.0, 2.0, 0.0]
+        ])
 
         triclinic_cell = desc.create(molecule).toarray()
-        suce = molecule * (2,1,1)
+        suce = molecule * (2, 1, 1)
         triclinic_suce = desc.create(suce).toarray()
 
+        diff = abs(np.sum(triclinic_cell[0, :] - triclinic_suce[0, :]))
+        tricl_sum = abs(np.sum(triclinic_cell[0, :]))
+        self.assertTrue(diff/tricl_sum < 0.05)  # A 5% error is tolerated
 
-        #print(cubic_cell[:3] - cubic_suce[:3] / 2.0)
-        #print(triclinic_cell[:3] - triclinic_suce[:3] / 2.0)
-        #self.assertAlmostEqual(np.sum(cubic_cell[:3] -cubic_suce[:3] / 2.0), 0)
-        #self.assertAlmostEqual(np.sum(triclinic_cell[:3] - triclinic_suce[:3] / 2.0), 0)
-        
+        # Testing that the same crystal, but different unit cells will have a
+        # similar spectrum when they are normalized. There will be small
+        # differences in the shape (due to not double counting distances)
+        a1 = bulk('H', 'fcc', a=2.0)
+        a2 = bulk('H', 'fcc', a=2.0, orthorhombic=True)
+        a3 = bulk('H', 'fcc', a=2.0, cubic=True)
 
-        # bulk structure test, cubic vs. orthorombic vs triclinic
-        a1 = bulk('H', 'fcc', a=4.0)
-        a2 = bulk('H', 'fcc', a=4.0, orthorhombic=True)
-        a3 = bulk('H', 'fcc', a=4.0, cubic=True)
+        triclinic_cell = desc.create(a1).toarray()
+        orthorhombic_cell = desc.create(a2).toarray()
+        cubic_cell = desc.create(a3).toarray()
 
+        diff1 = abs(np.sum(triclinic_cell[0, :] - orthorhombic_cell[0, :]))
+        diff2 = abs(np.sum(triclinic_cell[0, :] - cubic_cell[0, :]))
+        tricl_sum = abs(np.sum(triclinic_cell[0, :]))
+        self.assertTrue(diff1/tricl_sum < 0.08)
+        self.assertTrue(diff2/tricl_sum < 0.08)
 
-        triclinic_cell = desc.create(a1).toarray() / len(a1)
-        orthorhombic_cell = desc.create(a2).toarray() / len(a2)
-        cubic_cell = desc.create(a3).toarray() / len(a3)
-
-        #print("bulk cells")
-        #print(triclinic_cell)
-        #print(orthorhombic_cell)
-        #print(cubic_cell)
-
-        #print("maximum deviation ortho", np.max(np.abs(triclinic_cell - cubic_cell)))
-        #print("maximum deviation triclinic", np.max(np.abs(orthorhombic_cell - cubic_cell)))
-
-        ids = argrelextrema(orthorhombic_cell.flatten(), np.greater)
-        ids = ids[0]
-        peak = 7
-        self.assertTrue(peak in ids)
-
-        ids = argrelextrema(cubic_cell.flatten(), np.greater)
-        ids = ids[0]
-        self.assertTrue(peak in ids)
-
-        ids = argrelextrema(triclinic_cell.flatten(), np.greater)
-        ids = ids[0]
-        self.assertTrue(peak in ids)
-
-
-        # simple two-peak test
-        HH = Atoms(
+        # Tests that the correct peak locations are present in a cubic periodic
+        # system.
+        desc = MBTR(
+            atomic_numbers=[1],
+            k=[3],
+            periodic=True,
+            grid={
+                "k3": {
+                    "min": -1.0,
+                    "max": 1.0,
+                    "sigma": 0.035,
+                    "n": 200,
+                },
+            },
+            weighting={
+                "k3": {
+                    "function": lambda x: np.exp(-decay*x),
+                    "threshold": 1e-4
+                },
+            },
+            normalize=True,  # This normalizes the spectrum with the system volume
+            flatten=True
+        )
+        a = 3
+        system = Atoms(
             cell=[
-                [6.0, 0.0, 0.0],
-                [0.0, 20.0, 0.0],
-                [0.0, 0.0, 20.0]
+                [a, 0.0, 0.0],
+                [0.0, a, 0.0],
+                [0.0, 0.0, a]
             ],
             positions=[
-                [0.5, 5, 0],
-                [4.5, 5, 0],
+                [0, 0, 0],
             ],
-            symbols=["H", "H"],
+            symbols=["H"],
         )
+        cubic_spectrum = desc.create(system).toarray()
+        x3 = desc._axis_k3
 
-        orthorhombic_cell = desc.create(HH).toarray()
+        peak_ids = find_peaks_cwt(cubic_spectrum[0, :], [3])
+        peak_locs = x3[peak_ids]
 
-        orthorhombic_cell = orthorhombic_cell.flatten()
-        # for local maxima
-        ids = argrelextrema(orthorhombic_cell, np.greater)
-        ids = ids[0]
-        peak1, peak2 = 5 , 10
-        self.assertTrue(peak1 in ids)
-        self.assertTrue(peak2 in ids)
+        assumed_peaks = np.cos(np.array([180, 135, 120, 90, 60, 45, 0])*np.pi/180)
+        self.assertTrue(np.allclose(peak_locs, assumed_peaks, rtol=0, atol=5*np.pi/180))
 
+        # Tests that the correct peak locations are present in a system with a
+        # non-cubic basis
+        desc = MBTR(
+            atomic_numbers=[1],
+            k=[3],
+            periodic=True,
+            grid={
+                "k3": {
+                    "min": -1.0,
+                    "max": 1.0,
+                    "sigma": 0.035,
+                    "n": 200,
+                },
+            },
+            weighting={
+                "k3": {
+                    "function": lambda x: np.exp(-1.5*x),
+                    "threshold": 1e-4
+                },
+            },
+            normalize=True,  # This normalizes the spectrum with the system volume
+            flatten=True
+        )
+        a = 3
+        system = Atoms(
+            cell=[
+                [a, 0.0, 0.0],
+                [0.0, a, 0.0],
+                [0.0, 0.0, a]
+            ],
+            positions=[
+                [0, 0, 0],
+            ],
+            symbols=["H"],
+        )
+        a = 3
+        angle = 30
+        system = Atoms(
+            cell=ase.geometry.cellpar_to_cell([3*a, a, a, angle, 90, 90]),
+            positions=[
+                [0, 0, 0],
+            ],
+            symbols=["H"],
+        )
+        tricl_spectrum = desc.create(system).toarray()
+
+        peak_ids = find_peaks_cwt(tricl_spectrum[0, :], [3])
+        peak_locs = x3[peak_ids]
+
+        angle = (6)/(np.sqrt(5)*np.sqrt(8))
+        assumed_peaks = np.cos(np.array([180, 105, 75, 51.2, 30, 0])*np.pi/180)
+        self.assertTrue(np.allclose(peak_locs, assumed_peaks, rtol=0, atol=5*np.pi/180))
 
 
 if __name__ == '__main__':
