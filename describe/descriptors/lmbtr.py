@@ -103,14 +103,15 @@ class LMBTR(MBTR):
             ValueError if the given k value is not supported, or the weighting
             is not specified for periodic systems.
         """
-        atomic_numbers.append(0) #Ghost
+        atomic_numbers.append(0)  # Ghost
         super().__init__(
                     atomic_numbers,
                     k,
                     periodic,
                     grid,
                     weighting,
-                    flatten,
+                    normalize=False,
+                    flatten=flatten,
                     )
 
     def update(self):
@@ -124,7 +125,7 @@ class LMBTR(MBTR):
             print("Warning: K = 1 is deprecated for LMBTR")
 
     def describe(self,
-                 system, 
+                 system,
                  list_atom_indices=None,
                  list_positions=None,
                  scaled_positions=False
@@ -134,16 +135,16 @@ class LMBTR(MBTR):
 
         Args:
             system (System): The system for which the descriptor is created.
-            list_atom_indices (iterable): indices of atoms, from which 
+            list_atom_indices (iterable): indices of atoms, from which
                                           local_mbtr is needed
-            list_positions (iterable): positions of points, from which 
-                                       local_mbtr is needed 
+            list_positions (iterable): positions of points, from which
+                                       local_mbtr is needed
             scaled_positions (boolean): if list of positions are scaled
                                         use only if system allows it
 
         Returns:
             1D ndarray: The local many-body tensor representations of given postions,
-                        for k terms, as an array. These are ordered as given in 
+                        for k terms, as an array. These are ordered as given in
                         list_atom_indices, followed by list_positions
         """
         system_new = system.copy()
@@ -153,27 +154,30 @@ class LMBTR(MBTR):
             list_atom_indices.sort()
             for atom_index in list_atom_indices:
                 if atom_index >= len(system):
-                    raise ValueError("Atom index: {}, larger than total number of atoms ".format(atom_index))
+                    raise ValueError("Atom index: {}, larger than total number of atoms.".format(atom_index))
             list_atoms += list_atom_indices
         elif list_positions is not None:
-            if scaled_positions: #convert positions to cartesian
+            if scaled_positions:  # convert positions to cartesian
                 if np.linalg.norm(system.get_cell()) == 0:
-                    raise RuntimeError("System doesn't have cell, to justify scaled positions")
+                    raise ValueError("System doesn't have cell to justify scaled positions.")
                 list_positions = np.dot(system.get_cell(), np.array(list_positions).T).T.tolist()
-            
+
             # Checking if given position exists
             for i, pos in enumerate(list_positions):
                 if np.sum( np.linalg.norm(system.get_positions() - pos, axis=1) == 0):
-                    raise RuntimeError(("position {}: {} exists in system,"
-                                        + " give its index in list_atom_indices").format(i, pos))
+                    raise ValueError(
+                        "Position {}: {} exists in system, give its index in "
+                        "list_atom_indices."
+                        .format(i, pos)
+                    )
             old_len = len(system_new)
-            system_new += System('X{}'.format(len(list_positions)), 
-                                  positions=list_positions
-                                 )
+            system_new += System('X{}'.format(len(list_positions)),
+                                positions=list_positions
+                                )
             list_atoms += list(range(old_len, len(system_new)))
         else:
-            raise RuntimeError("create method requires list_atom_indices and/or list_positions")
-              
+            raise ValueError("create method requires list_atom_indices and/or list_positions")
+
         desc = np.empty(len(list_atoms), dtype='object')
 
         for i, self.atom_index in enumerate(list_atoms):
@@ -189,7 +193,7 @@ class LMBTR(MBTR):
             int: Number of features for this descriptor.
         """
         n_features = 0
-        n_elem = self.n_elements - 1 #Removing ghost
+        n_elem = self.n_elements - 1  # Removing ghost
 
         if 1 in self.k:
             n_k1_grid = self.get_k1_settings()["n"]
@@ -361,7 +365,7 @@ class LMBTR(MBTR):
         self._axis_k2 = np.linspace(start, stop, n)
 
         inv_dist_dict = self.inverse_distances(system)
-        n_elem = self.n_elements - 1 #removing ghost
+        n_elem = self.n_elements - 1  # removing ghost
 
         if self.flatten:
             k2 = lil_matrix(
@@ -375,7 +379,7 @@ class LMBTR(MBTR):
             weighting_function = self.weighting["k2"]["function"]
 
         m = -1
-        for i in range(1, n_elem+1): #ignoring Ghost
+        for i in range(1, n_elem+1):  # ignoring Ghost
                 m += 1
                 try:
                     inv_dist = np.array(inv_dist_dict[i])
@@ -418,7 +422,7 @@ class LMBTR(MBTR):
 
         cos_dict, cos_weight_dict = self.cosines_and_weights(system)
 
-        n_elem = self.n_elements - 1 #removing ghost
+        n_elem = self.n_elements - 1  # removing ghost
 
         if self.flatten:
             k3 = lil_matrix(
@@ -430,8 +434,8 @@ class LMBTR(MBTR):
         # k >= i. E.g. angles OHH are the same as HHO. This will half the size
         # of the K3 input.
         m = -1
-        for i in range(1, n_elem+1): #ignoring ghost
-            for j in range(1, n_elem+1): #ignoring ghost
+        for i in range(1, n_elem+1):  # ignoring ghost
+            for j in range(1, n_elem+1):  # ignoring ghost
                 try:
                     cos_values = np.array(cos_dict[i][j])
                 except KeyError:
