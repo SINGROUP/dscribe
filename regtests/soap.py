@@ -72,21 +72,21 @@ class SoapTests(unittest.TestCase):
         """Tests that the correct features are present in the descriptor.
         """
 
-        desc = SOAP(H2O, 10.0, 2, 0, periodic=False, envPos=[[0,0,0]],crossover=True,all_atomtypes=[1,6,8])
-        desc2 = SOAP(H2O, 10.0, 2, 0, periodic=False, envPos=0, crossover=True, all_atomtypes=[1,6,8])
-        desc3 = SOAP(H2O, 10.0, 2, 0, periodic=False, envPos=None,crossover=True,all_atomtypes=[1,6,8])
+        desc = SOAP([1,6,8], 10.0, 2, 0, periodic=False, envPos=[[0,0,0]],crossover=True,)
+        desc2 = SOAP([1,6,8], 10.0, 2, 0, periodic=False, envPos=0, crossover=True, )
+        desc3 = SOAP([1,6,8], 10.0, 2, 0, periodic=False, envPos=None,crossover=True,)
 
-        desc4 = SOAP(H2O, 10.0, 2, 0, periodic=True, envPos=[[0,0,0]],crossover=True, all_atomtypes=[1,6,8])
-        desc5 = SOAP(H2O, 10.0, 2, 0, periodic=True, envPos=0, crossover=True, all_atomtypes=[1,6,8])
-        desc6 = SOAP(H2O, 10.0, 2, 0, periodic=True, envPos=None, crossover=True, all_atomtypes=[1,6,8])
+        desc4 = SOAP([1,6,8], 10.0, 2, 0, periodic=True, envPos=[[0,0,0]],crossover=True, )
+        desc5 = SOAP([1,6,8], 10.0, 2, 0, periodic=True, envPos=0, crossover=True, )
+        desc6 = SOAP([1,6,8], 10.0, 2, 0, periodic=True, envPos=None, crossover=True, )
 
-        desc7 = SOAP(H2O, 10.0, 2, 0, periodic=True, envPos=[[0,0,0]],crossover=False, all_atomtypes=[1,6,8])
-        desc8 = SOAP(H2O, 10.0, 2, 0, periodic=True, envPos=0, crossover=False, all_atomtypes=[1,6,8])
-        desc9 = SOAP(H2O, 10.0, 2, 0, periodic=True, envPos=None, crossover=False, all_atomtypes=[1,6,8])
+        desc7 = SOAP([1,6,8], 10.0, 2, 0, periodic=True, envPos=[[0,0,0]],crossover=False, )
+        desc8 = SOAP([1,6,8], 10.0, 2, 0, periodic=True, envPos=0, crossover=False, )
+        desc9 = SOAP([1,6,8], 10.0, 2, 0, periodic=True, envPos=None, crossover=False, )
 
-        desc10 = SOAP(H2O, 10.0, 2, 0, periodic=False, envPos=[[0,0,0]],crossover=False, all_atomtypes=[1,6,8])
-        desc11 = SOAP(H2O, 10.0, 2, 0, periodic=False, envPos=0, crossover=False, all_atomtypes=[1,6,8])
-        desc12 = SOAP(H2O, 10.0, 2, 0, periodic=False, envPos=None, crossover=False, all_atomtypes=[1,6,8])
+        desc10 = SOAP([1,6,8], 10.0, 2, 0, periodic=False, envPos=[[0,0,0]],crossover=False, )
+        desc11 = SOAP([1,6,8], 10.0, 2, 0, periodic=False, envPos=0, crossover=False, )
+        desc12 = SOAP([1,6,8], 10.0, 2, 0, periodic=False, envPos=None, crossover=False, )
 
         self.assertEqual(desc.get_number_of_features(), np.shape(desc.create(H2O).flatten())[0])
         self.assertEqual(desc2.get_number_of_features(), np.shape(desc2.create(H2O).flatten())[0])
@@ -101,23 +101,10 @@ class SoapTests(unittest.TestCase):
         self.assertEqual(desc11.get_number_of_features(), np.shape(desc11.create(H2O).flatten())[0])
         self.assertEqual(desc12.get_number_of_features(), np.shape(desc12.create(H2O).flatten())[0])
 
-#        print(desc.create(H2O))
-#        print(desc2.create(H2O))
-#        print(desc3.create(H2O))
-#        print(desc4.create(H2O))
-#        print(desc5.create(H2O))
-#        print(desc6.create(H2O))
-#        print(desc7.create(H2O))
-#        print(desc8.create(H2O))
-#        print(desc9.create(H2O))
-#        print(desc10.create(H2O))
-#        print(desc11.create(H2O))
-#        print(desc12.create(H2O))
-
 
     def test_unit_cells(self):
         """Tests if arbitrary unit cells are accepted"""
-        desc = SOAP(H2O, 10.0, 2, 0, periodic=False, envPos=[[0,0,0]],crossover=True,all_atomtypes=[1,6,8])
+        desc = SOAP([1,6,8], 10.0, 2, 0, periodic=False, envPos=[[0,0,0]],crossover=True,)
 
         molecule = H2O.copy()
 
@@ -130,7 +117,7 @@ class SoapTests(unittest.TestCase):
 
         nocell = desc.create(molecule)
 
-        desc = SOAP(molecule, 10.0, 2, 0, periodic=True, envPos=[[0,0,0]],crossover=True,all_atomtypes=[1,6,8])
+        desc = SOAP([1,6,8], 10.0, 2, 0, periodic=True, envPos=[[0,0,0]],crossover=True,)
         molecule.set_cell([
         [0.0, 0.0, 0.0],
         [0.0, 0.0, 0.0],
@@ -171,7 +158,7 @@ class SoapTests(unittest.TestCase):
 
     def test_is_periodic(self):
         """Tests whether periodic images are seen by the descriptor""" 
-        desc = SOAP(H2O, 10.0, 2, 0, periodic=False, envPos=[[0,0,0]],crossover=True,all_atomtypes=[1,6,8])
+        desc = SOAP([1,6,8], 10.0, 2, 0, periodic=False, envPos=[[0,0,0]],crossover=True,)
 
 
         H2O.set_pbc(False)
@@ -184,7 +171,7 @@ class SoapTests(unittest.TestCase):
         [0.0, 0.0, 2.0]
             ],
             )
-        desc = SOAP(H2O, 10.0, 2, 0, periodic=True, envPos=[[0,0,0]],crossover=True,all_atomtypes=[1,6,8])
+        desc = SOAP([1,6,8], 10.0, 2, 0, periodic=True, envPos=[[0,0,0]],crossover=True,)
 
         cubic_cell = desc.create(H2O)
 
@@ -194,7 +181,7 @@ class SoapTests(unittest.TestCase):
     def test_periodic_images(self):
         """Tests the periodic images seen by the descriptor
         """
-        desc = SOAP(H2O, 10.0, 2, 0, periodic=False, envPos=[[0,0,0]],crossover=True,all_atomtypes=[1,6,8])
+        desc = SOAP([1,6,8], 10.0, 2, 0, periodic=False, envPos=[[0,0,0]],crossover=True,)
 
         molecule = H2O.copy()
 
@@ -208,7 +195,7 @@ class SoapTests(unittest.TestCase):
         nocell = desc.create(molecule)
 
         # make periodic
-        desc = SOAP(H2O, 10.0, 2, 0, periodic=True, envPos=[[0,0,0]],crossover=True,all_atomtypes=[1,6,8])
+        desc = SOAP([1,6,8], 10.0, 2, 0, periodic=True, envPos=[[0,0,0]],crossover=True,)
         molecule.set_pbc(True)
 
         # cubic

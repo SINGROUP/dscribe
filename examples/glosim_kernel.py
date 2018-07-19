@@ -14,9 +14,8 @@ descriptor = "SOAP"
 # Compute local descriptors
 all_atomtypes = [1,6,7,8]
 if descriptor == "SOAP":
-    desc = SOAP("unnecessary input argument", 
-        10.0, 2, 0, periodic=False,crossover=True, 
-        all_atomtypes=all_atomtypes)
+    desc = SOAP(all_atomtypes, 
+        10.0, 2, 0, periodic=False,crossover=True)
 elif descriptor == "ACSF":
     desc = ACSF(n_atoms_max=15, types=[1,6,7,8],bond_params=[[1,2,], [4,5,]], 
         bond_cos_params=[1,2,3,4], 

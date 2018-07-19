@@ -18,7 +18,6 @@ class SOAP(Descriptor):
             periodic,
             envPos=None,
             crossover=True,
-            all_atomtypes=[]
             ):
         """
         """
@@ -31,7 +30,6 @@ class SOAP(Descriptor):
         self.envPos = envPos
         self.crossover = crossover
         self.myAlphas, self.myBetas = soaplite.genBasis.getBasisFunc(rcut, nmax)
-        self.all_atomtypes = all_atomtypes
 
     def describe(self, system):
         """Return the SOAP spectrum for the given system.
@@ -49,22 +47,22 @@ class SOAP(Descriptor):
         envPos = self.envPos
         crossover = self.crossover
         myAlphas, myBetas = self.myAlphas, self.myBetas
-        all_atomtypes = self.all_atomtypes
+        atomic_numbers = self.atomic_numbers
         if envPos is None:
             if periodic is False:
-                soap_mat = soaplite.get_soap_structure(system, myAlphas, myBetas, rCut=rcut, NradBas=nmax, Lmax=lmax, crossOver=crossover, all_atomtypes=all_atomtypes)  # OKAY
+                soap_mat = soaplite.get_soap_structure(system, myAlphas, myBetas, rCut=rcut, NradBas=nmax, Lmax=lmax, crossOver=crossover, all_atomtypes=atomic_numbers)  # OKAY
             else:
-                soap_mat = soaplite.get_periodic_soap_structure(system, myAlphas, myBetas, rCut=rcut, NradBas=nmax, Lmax=lmax, crossOver=crossover, all_atomtypes=all_atomtypes)  # OKAY
+                soap_mat = soaplite.get_periodic_soap_structure(system, myAlphas, myBetas, rCut=rcut, NradBas=nmax, Lmax=lmax, crossOver=crossover, all_atomtypes=atomic_numbers)  # OKAY
         elif isinstance(envPos, int):  # gives index of atom (from zero)
             if periodic is False:
-                soap_mat = soaplite.get_soap_locals(system, [system.get_positions()[envPos]], myAlphas, myBetas, rCut=rcut, NradBas=nmax, Lmax=lmax, crossOver=crossover, all_atomtypes=all_atomtypes)
+                soap_mat = soaplite.get_soap_locals(system, [system.get_positions()[envPos]], myAlphas, myBetas, rCut=rcut, NradBas=nmax, Lmax=lmax, crossOver=crossover, all_atomtypes=atomic_numbers)
             else:
-                soap_mat = soaplite.get_periodic_soap_locals(system, [system.get_positions()[envPos]], myAlphas, myBetas, rCut=rcut, NradBas=nmax, Lmax=lmax, crossOver=crossover, all_atomtypes=all_atomtypes)
+                soap_mat = soaplite.get_periodic_soap_locals(system, [system.get_positions()[envPos]], myAlphas, myBetas, rCut=rcut, NradBas=nmax, Lmax=lmax, crossOver=crossover, all_atomtypes=atomic_numbers)
         else:
             if periodic is False:
-                soap_mat = soaplite.get_soap_locals(system, envPos, myAlphas, myBetas, rCut=rcut, NradBas=nmax, Lmax=lmax, crossOver=crossover, all_atomtypes=all_atomtypes)  # OKAY
+                soap_mat = soaplite.get_soap_locals(system, envPos, myAlphas, myBetas, rCut=rcut, NradBas=nmax, Lmax=lmax, crossOver=crossover, all_atomtypes=atomic_numbers)  # OKAY
             else:
-                soap_mat = soaplite.get_periodic_soap_locals(system, envPos, myAlphas, myBetas, rCut=rcut, NradBas=nmax, Lmax=lmax, crossOver=crossover, all_atomtypes=all_atomtypes)  # OKAY
+                soap_mat = soaplite.get_periodic_soap_locals(system, envPos, myAlphas, myBetas, rCut=rcut, NradBas=nmax, Lmax=lmax, crossOver=crossover, all_atomtypes=atomic_numbers)  # OKAY
 
         return soap_mat
 
@@ -84,6 +82,8 @@ class SOAP(Descriptor):
         Returns:
             int: Number of features for this descriptor.
         """
+        if len(self.atomic_numbers) == 0:
+            return None
         if self.envPos is None:
             if self.crossover is False:
                 return np.array([(self.lmax+1)*(self.nmax*(self.nmax+1))/2*len(self.atomic_numbers), len(self.atomic_numbers)])
