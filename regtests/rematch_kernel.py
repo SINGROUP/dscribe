@@ -14,7 +14,7 @@ class RematchKernelTests(unittest.TestCase):
         once different, once identical. 
         Also tests the global similarity computed from the unity 
         environment kernel"""
-        desc = SOAP("unnecessary input argument", 10.0, 2, 0, periodic=False,crossover=True)
+        desc = SOAP([1,8], 10.0, 2, 0, periodic=False,crossover=True)
         re = RematchKernel()
         A = molecule('H2O')
         B = molecule('H2O2')
@@ -36,7 +36,7 @@ class RematchKernelTests(unittest.TestCase):
     def test_glosim_molecules(self):
         is_pass = True
         # check if the same molecules give global similarity of around 1
-        desc = SOAP("unnecessary input argument", 10.0, 2, 0, periodic=False,crossover=True)
+        desc = SOAP([], 10.0, 2, 0, periodic=False,crossover=True)
         for molname in g2.names:
             atoms = molecule(molname)
             local_a = desc.create(atoms)
@@ -50,7 +50,7 @@ class RematchKernelTests(unittest.TestCase):
                 is_pass = False
 
         all_atomtypes = [1,6,7,8]
-        desc = SOAP("unnecessary input argument", 10.0, 2, 0, periodic=False,crossover=True, all_atomtypes=all_atomtypes)
+        desc = SOAP([1,6,7,8], 10.0, 2, 0, periodic=False,crossover=True)
         # check randomly a few combinations of molecules, just for no errors
         for molname1 in g2.names:
             for molname2 in g2.names:
@@ -72,7 +72,7 @@ class RematchKernelTests(unittest.TestCase):
     def test_global_kernel(self):
         """Tests the global rematch kernel"""
         print("Start testing global kernel")
-        desc = SOAP("unnecessary input argument", 10.0, 2, 0, periodic=False,crossover=True)
+        desc = SOAP([1,6,7,8], 10.0, 2, 0, periodic=False,crossover=True)
         re = RematchKernel()
         A = molecule('CH3CHO')
         B = molecule('HCOOH')
