@@ -67,6 +67,7 @@ class MBTRTests(unittest.TestCase):
     def test_constructor(self):
         """Tests different valid and invalid constructor values.
         """
+        # Invalid k value not in an iterable
         with self.assertRaises(ValueError):
             MBTR(
                 atomic_numbers=[1],
@@ -74,6 +75,7 @@ class MBTRTests(unittest.TestCase):
                 periodic=False,
             )
 
+        # Invalid k value
         with self.assertRaises(ValueError):
             MBTR(
                 atomic_numbers=[1],
@@ -81,6 +83,7 @@ class MBTRTests(unittest.TestCase):
                 periodic=False,
             )
 
+        # k not an iterable
         with self.assertRaises(ValueError):
             MBTR(
                 atomic_numbers=[1],
@@ -88,6 +91,7 @@ class MBTRTests(unittest.TestCase):
                 periodic=False,
             )
 
+        # Unsupported k=4
         with self.assertRaises(ValueError):
             MBTR(
                 atomic_numbers=[1],

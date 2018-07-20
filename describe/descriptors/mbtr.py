@@ -13,11 +13,27 @@ from describe.descriptors import Descriptor
 
 
 class MBTR(Descriptor):
-    """Implementation of the Many-body tensor representation up to K=3.
+    """Implementation of the Many-body tensor representation up to k=3.
 
     You can use this descriptor for finite and periodic systems. When dealing
-    with periodic systems, please always use a primitive cell. It does not
-    matter which of the available primitive cell is used.
+    with periodic systems, it is advisable to use a primitive cell, or if
+    supercells are included to use normalization e.g. by volume provided by the
+    "normalize" flag.
+
+    If flatten=False, a list of dense np.ndarrays for each k in ascending order
+    is returned. These arrays are of dimension (n_elements x n_elements x
+    n_grid_points), where the elements are sorted in ascending order by their
+    atomic number.
+
+    If flatten=True, a scipy.sparse.coo_matrix is returned. This sparse matrix
+    is of size (1, n_features), where n_features is given by
+    get_number_of_features(). This vector is ordered so that the different
+    k-terms are ordered in ascending order, and within each k-term the
+    distributions at each entry (i, j, h) of the tensor are ordered in an
+    ascending order by (i * n_elements) + (j * n_elements) + (h * n_elements).
+
+    This implementation does not support the use of a non-identity correlation
+    matrix.
     """
     decay_factor = math.sqrt(2)*3
 
@@ -125,9 +141,9 @@ class MBTR(Descriptor):
         self._axis_k3 = None
 
     def update(self):
-        '''
-        Checks and updates variables in mbtr class
-        '''
+        """Checks and updates variables in mbtr class.
+        """
+
         # Check K value
         supported_k = set(range(1, 4))
         if isinstance(self.k, int):
@@ -718,11 +734,11 @@ class MBTR(Descriptor):
         number of atoms of a certain type.
 
         Args:
-            system (System): The atomic system.
-            settings (dict): The grid settings
+            system (System): Atomic system.
+            settings (dict): Grid settings.
 
         Returns:
-            1D ndarray: flattened K1 values.
+            ndarray | scipy.sparse.lil_matrix: K1 values.
         """
         start = settings["min"]
         stop = settings["max"]
@@ -731,7 +747,7 @@ class MBTR(Descriptor):
 
         n_elem = self.n_elements
 
-        # Use sparse matrices for storing the result
+        # Depending of flattening, use either a sparse matrix or a dense one.
         if self.flatten:
             k1 = lil_matrix((1, n_elem*n), dtype=np.float32)
         else:
