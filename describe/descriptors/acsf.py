@@ -49,7 +49,7 @@ _LIBACSF.acsf_compute_acsfs.argtypes = [POINTER(ACSFObject)]
 
 class ACSF(Descriptor):
 
-    def __init__(self, n_atoms_max, types, bond_params=None, bond_cos_params=None, ang4_params=None, ang5_params=None, rcut=5.0, flatten=True):
+    def __init__(self, n_atoms_max, atomic_numbers, bond_params=None, bond_cos_params=None, ang4_params=None, ang5_params=None, rcut=5.0, flatten=True):
         """
         Args:
          n_atoms_max (int): maximum number of atoms
@@ -70,7 +70,7 @@ class ACSF(Descriptor):
         self._n_atoms_max = n_atoms_max
 
         self._types = None
-        self.types = types
+        self.types = atomic_numbers
 
         self._Zs = None
 

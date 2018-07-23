@@ -43,51 +43,51 @@ class ACSFTests(unittest.TestCase):
         """Tests different valid and invalid constructor values.
         """
         with self.assertRaises(ValueError):
-            ACSF(n_atoms_max=-1, types=[1,8,6])
+            ACSF(n_atoms_max=-1, atomic_numbers=[1,8,6])
         with self.assertRaises(ValueError):
-            ACSF(n_atoms_max=10, types=None)
+            ACSF(n_atoms_max=10, atomic_numbers=None)
 
         with self.assertRaises(ValueError):
-            ACSF(n_atoms_max=10, types=[1,6,8], bond_params=[1,2,3])
+            ACSF(n_atoms_max=10, atomic_numbers=[1,6,8], bond_params=[1,2,3])
 
         with self.assertRaises(ValueError):
-            ACSF(n_atoms_max=10, types=[1,6,8], bond_params=[1,2,3])
+            ACSF(n_atoms_max=10, atomic_numbers=[1,6,8], bond_params=[1,2,3])
 
         with self.assertRaises(ValueError):
-            ACSF(n_atoms_max=10, types=[1,6,8], bond_cos_params=[[1,2],[3,1]])
+            ACSF(n_atoms_max=10, atomic_numbers=[1,6,8], bond_cos_params=[[1,2],[3,1]])
 
         with self.assertRaises(ValueError):
-            ACSF(n_atoms_max=10, types=[1,6,8], bond_cos_params=[[1,2,4],[3,1]])
+            ACSF(n_atoms_max=10, atomic_numbers=[1,6,8], bond_cos_params=[[1,2,4],[3,1]])
 
         with self.assertRaises(ValueError):
-            ACSF(n_atoms_max=10, types=[1,6,8], ang4_params=[[1,2],[3,1]])
+            ACSF(n_atoms_max=10, atomic_numbers=[1,6,8], ang4_params=[[1,2],[3,1]])
 
         with self.assertRaises(ValueError):
-            ACSF(n_atoms_max=10, types=[1,6,8], ang5_params=[[1,2],[3,1]])
+            ACSF(n_atoms_max=10, atomic_numbers=[1,6,8], ang5_params=[[1,2],[3,1]])
 
 
     
     def test_number_of_features(self):
         """Tests that the reported number of features is correct.
         """
-        desc = ACSF(n_atoms_max=5, types=[1,8], flatten=True)
+        desc = ACSF(n_atoms_max=5, atomic_numbers=[1,8], flatten=True)
         n_features = desc.get_number_of_features()
         self.assertEqual(n_features, 5 * 2)
 
 
-        desc = ACSF(n_atoms_max=5, types=[1,8], bond_params=[[1,2,], [4,5,]], flatten=True)
+        desc = ACSF(n_atoms_max=5, atomic_numbers=[1,8], bond_params=[[1,2,], [4,5,]], flatten=True)
         n_features = desc.get_number_of_features()
         self.assertEqual(n_features, 5 * 2 * (2+1))
 
-        desc = ACSF(n_atoms_max=5, types=[1,8], bond_cos_params=[1,2,3,4], flatten=True)
+        desc = ACSF(n_atoms_max=5, atomic_numbers=[1,8], bond_cos_params=[1,2,3,4], flatten=True)
         n_features = desc.get_number_of_features()
         self.assertEqual(n_features, 5 * 2 * (4+1))
 
-        desc = ACSF(n_atoms_max=5, types=[1,8], ang4_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], flatten=True)
+        desc = ACSF(n_atoms_max=5, atomic_numbers=[1,8], ang4_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], flatten=True)
         n_features = desc.get_number_of_features()
         self.assertEqual(n_features, 5 * (2 + 4 * 3))
 
-        desc = ACSF(n_atoms_max=5, types=[1,8],bond_params=[[1,2,], [4,5,]], bond_cos_params=[1,2,3,4], 
+        desc = ACSF(n_atoms_max=5, atomic_numbers=[1,8],bond_params=[[1,2,], [4,5,]], bond_cos_params=[1,2,3,4], 
             ang4_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], flatten=True)
         n_features = desc.get_number_of_features()
         self.assertEqual(n_features, 5 * ((2 * (1 + 2 + 4)) + 4 * 3))
@@ -97,14 +97,14 @@ class ACSFTests(unittest.TestCase):
         """
         print("Testing flattening now")
         # Unflattened
-        desc = ACSF(n_atoms_max=5, types=[1,8],bond_params=[[1,2,], [4,5,]], bond_cos_params=[1,2,3,4], 
+        desc = ACSF(n_atoms_max=5, atomic_numbers=[1,8],bond_params=[[1,2,], [4,5,]], bond_cos_params=[1,2,3,4], 
             ang4_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], ang5_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], flatten=False)
         cm = desc.create(H2O)
         n_features = desc.get_number_of_features()
 
         self.assertEqual(cm.shape, (5, n_features / 5))
         # Flattened
-        desc = ACSF(n_atoms_max=5, types=[1,8],bond_params=[[1,2,], [4,5,]], bond_cos_params=[1,2,3,4], 
+        desc = ACSF(n_atoms_max=5, atomic_numbers=[1,8],bond_params=[[1,2,], [4,5,]], bond_cos_params=[1,2,3,4], 
             ang4_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], ang5_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], flatten=True)
         cm = desc.create(H2O)
         self.assertEqual(cm.shape, (n_features,))
@@ -112,27 +112,27 @@ class ACSFTests(unittest.TestCase):
     def test_features(self):
         """Tests that the correct features are present in the descriptor.
         """
-        desc = ACSF(n_atoms_max=5, types=[1,8], flatten=True)
+        desc = ACSF(n_atoms_max=5, atomic_numbers=[1,8], flatten=True)
         acsfg1 = desc.create(H2O)
         #print(acsfg1.shape)
         #print(acsfg1)
 
-        desc = ACSF(n_atoms_max=3, types=[1,8], bond_params=[[1,0.5,]], flatten=False)
+        desc = ACSF(n_atoms_max=3, atomic_numbers=[1,8], bond_params=[[1,0.5,]], flatten=False)
         acsfg2 = desc.create(H2O)
         #print(acsfg2.shape)
         #print(acsfg2)
 
-        desc = ACSF(n_atoms_max=3, types=[1,8], bond_cos_params=[1,], flatten=False)
+        desc = ACSF(n_atoms_max=3, atomic_numbers=[1,8], bond_cos_params=[1,], flatten=False)
         acsfg3 = desc.create(H2O)
         #print(acsfg3.shape)
         #print(acsfg3)
         
-        desc = ACSF(n_atoms_max=3, types=[1,8], ang4_params=[[1.0, 1.0, 1.0],], flatten=False)
+        desc = ACSF(n_atoms_max=3, atomic_numbers=[1,8], ang4_params=[[1.0, 1.0, 1.0],], flatten=False)
         acsfg4 = desc.create(H2O)
         #print(acsfg4.shape)
         #print(acsfg4)
         
-        desc = ACSF(n_atoms_max=3, types=[1,8], ang5_params=[[1.0, 1.0, 1.0],], flatten=False)
+        desc = ACSF(n_atoms_max=3, atomic_numbers=[1,8], ang5_params=[[1.0, 1.0, 1.0],], flatten=False)
         acsfg5 = desc.create(H2O)
         #print(acsfg5.shape)
         #print(acsfg5)
@@ -207,7 +207,7 @@ class ACSFTests(unittest.TestCase):
     def test_symmetries(self):
         """Tests translational and rotational symmetries
         """
-        desc = ACSF(n_atoms_max=5, types=[1,8],bond_params=[[1,2,], [4,5,]], bond_cos_params=[1,2,3,4], 
+        desc = ACSF(n_atoms_max=5, atomic_numbers=[1,8],bond_params=[[1,2,], [4,5,]], bond_cos_params=[1,2,3,4], 
             ang4_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], ang5_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], flatten=True)
         #Rotational Check
         molecule = H2O.copy()
@@ -229,7 +229,7 @@ class ACSFTests(unittest.TestCase):
 
     def test_unit_cells(self):
         """Tests if arbitrary unit cells are accepted"""
-        desc = ACSF(n_atoms_max=6, types=[1,8],bond_params=[[1,2,], [4,5,]], bond_cos_params=[1,2,3,4], 
+        desc = ACSF(n_atoms_max=6, atomic_numbers=[1,8],bond_params=[[1,2,], [4,5,]], bond_cos_params=[1,2,3,4], 
             ang4_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], ang5_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], flatten=False)
 
         molecule = H2O.copy()
@@ -276,7 +276,7 @@ class ACSFTests(unittest.TestCase):
         """Tests whether periodic images are seen by the descriptor"""
         if True:
             return 
-        desc = ACSF(n_atoms_max=1, types=[1],bond_params=[[1,2,], [4,5,]], bond_cos_params=[1,2,3,4], 
+        desc = ACSF(n_atoms_max=1, atomic_numbers=[1],bond_params=[[1,2,], [4,5,]], bond_cos_params=[1,2,3,4], 
             ang4_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], ang5_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], flatten=False)
 
 
@@ -304,7 +304,7 @@ class ACSFTests(unittest.TestCase):
         """
         if True:
             return 
-        desc = ACSF(n_atoms_max=6, types=[1,8],bond_params=[[1,2,], [4,5,]], bond_cos_params=[1,2,3,4], 
+        desc = ACSF(n_atoms_max=6, atomic_numbers=[1,8],bond_params=[[1,2,], [4,5,]], bond_cos_params=[1,2,3,4], 
             ang4_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], ang5_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], flatten=False)
 
         molecule = H2O.copy()
