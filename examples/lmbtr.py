@@ -65,7 +65,9 @@ mbtr = LMBTR(
     },
     flatten=False)
 
-desc = mbtr.create(NaCl_conv, list_atom_indices=[6])
+# Two equivalent ways
+desc = mbtr.create(NaCl_conv, positions=[3]) # 1
+# desc = mbtr.create(NaCl_conv, positions=[[0, 0, 0]]) # 2
     
 
 # Plot the results for the angle distribution
