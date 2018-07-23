@@ -55,6 +55,9 @@ class CoulombMatrix(MatrixDescriptor):
     def get_matrix(self, system):
         """Creates the Coulomb matrix for the given system.
         """
+        # Make sure that the system is non-periodic
+        system.set_pbc(False)
+
         # Calculate offdiagonals
         q = system.get_atomic_numbers()
         qiqj = q[None, :]*q[:, None]

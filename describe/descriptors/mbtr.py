@@ -497,6 +497,7 @@ class MBTR(Descriptor):
             positions=pos_extended,
             numbers=num_extended,
             cell=cell,
+            pbc=False
         )
 
         return extended_system
@@ -640,6 +641,7 @@ class MBTR(Descriptor):
             filling values where k>=i.
         """
         if self._angles is None or self._angle_weights is None:
+
             disp_tensor = system.get_displacement_tensor().astype(np.float32)
             distance_matrix = system.get_distance_matrix().astype(np.float32)
             numbers = system.numbers

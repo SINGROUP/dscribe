@@ -56,6 +56,26 @@ class CoulombMatrixTests(unittest.TestCase):
         n_features = desc.get_number_of_features()
         self.assertEqual(n_features, 25)
 
+    def test_periodicity(self):
+        """Tests that periodicity is not taken into account in Coulomb matrix
+        even if the system is set as periodic.
+        """
+        system = Atoms(
+            cell=[5, 5, 5],
+            scaled_positions=[
+                [0.1, 0, 0],
+                [0.9, 0, 0],
+            ],
+            symbols=["H", "H"],
+            pbc=True
+        )
+        desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=False)
+        cm = desc.create(system)
+
+        pos = system.get_positions()
+        assumed = 1*1/np.linalg.norm((pos[0] - pos[1]))
+        self.assertEqual(cm[0, 1], assumed)
+
     def test_flatten(self):
         """Tests the flattening.
         """
@@ -96,25 +116,22 @@ class CoulombMatrixTests(unittest.TestCase):
         """Tests translational and rotational symmetries
         """
         desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=False)
-        #Rotational Check
         molecule = H2O.copy()
         features = desc.create(molecule)
 
+        #Rotational Check
         for rotation in ['x', 'y', 'z']:
             molecule.rotate(45, rotation)
-            rot_features =  desc.create(molecule)
-            deviation = np.max(np.abs(features- rot_features))
+            rot_features = desc.create(molecule)
+            deviation = np.max(np.abs(features - rot_features))
             self.assertTrue(deviation < 10e-9)
 
-
-        #Translation check
-        for translation in [[1.0, 1.0, 1.0], [-5.0, 5.0, -5.0], [1.0, 1.0, -10.0],]:
+        # Translation check
+        for translation in [[1.0, 1.0, 1.0], [-5.0, 5.0, -5.0], [1.0, 1.0, -10.0]]:
             molecule.translate(translation)
-            trans_features =   desc.create(molecule)
-            deviation = np.max(np.abs(features- trans_features))
+            trans_features = desc.create(molecule)
+            deviation = np.max(np.abs(features - trans_features))
             self.assertTrue(deviation < 10e-9)
-
-
 
 
 class SortedCoulombMatrixTests(unittest.TestCase):

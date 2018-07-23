@@ -8,8 +8,8 @@ import unittest
 
 from describe.core import System
 
-
 from ase.lattice.cubic import SimpleCubicFactory
+from ase.visualize import view
 
 
 class GeometryTests(unittest.TestCase):
@@ -18,8 +18,9 @@ class GeometryTests(unittest.TestCase):
         """Tests that the periodicity is taken into account when calculating
         distances.
         """
+        scaled_positions = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
         system = System(
-            scaled_positions=[[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]],
+            scaled_positions=scaled_positions,
             symbols=["H", "H"],
             cell=[
                 [5, 5, 0],
@@ -29,40 +30,70 @@ class GeometryTests(unittest.TestCase):
         )
         disp = system.get_displacement_tensor()
 
-        # For a non-periodic system, periodicity is not taken into account even
-        # if cell is defined.
+        # For a non-periodic system, periodicity should not be taken into
+        # account even if cell is defined.
+        pos = system.get_positions()
         assumed = np.array([
-            [[0.0, 0.0, 0.0], [-5, 0, 0]],
-            [[5, 0, 0], [0.0, 0.0, 0.0]]])
+            [pos[0] - pos[0], pos[1] - pos[0]],
+            [pos[0] - pos[1], pos[1] - pos[1]],
+        ])
+        # print(disp)
         self.assertTrue(np.allclose(assumed, disp))
 
         # For a periodic system, the nearest copy should be considered when
         # comparing distances to neighbors or to self
         system.set_pbc([True, True, True])
         disp = system.get_displacement_tensor()
+        # print(disp)
         assumed = np.array([
             [[5.0, 5.0, 0.0], [-5, 0, 0]],
             [[5, 0, 0], [5.0, 5.0, 0.0]]])
         self.assertTrue(np.allclose(assumed, disp))
 
-    def test_transformations(self):
-        """Test that coordinates are correctly transformed from scaled to
-        cartesian and back again.
-        """
+        # Tests that the displacement tensor is found correctly even for highly
+        # non-orthorhombic systems.
+        positions = np.array([
+            [1.56909, 2.71871, 6.45326],
+            [3.9248, 4.07536, 6.45326]
+        ])
+        cell = np.array([
+            [4.7077, -2.718, 0.],
+            [0., 8.15225, 0.],
+            [0., 0., 50.]
+        ])
         system = System(
-            scaled_positions=[[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]],
+            positions=positions,
             symbols=["H", "H"],
-            cell=[
-                [5, 5, 0],
-                [0, -5, -5],
-                [5, 0, 5]
-            ],
+            cell=cell,
+            pbc=True,
         )
 
-        orig = np.array([[2, 1.45, -4.8]])
-        scal = system.to_scaled(orig)
-        cart = system.to_cartesian(scal)
-        self.assertTrue(np.allclose(orig, cart))
+        # Fully periodic with minimum image convention
+        dist_mat = system.get_distance_matrix()
+        distance = dist_mat[0, 1]
+
+        # The minimum image should be within the same cell
+        expected = np.linalg.norm(positions[0, :] - positions[1, :])
+        self.assertTrue(np.allclose(distance, expected))
+
+    # def test_transformations(self):
+        # """Test that coordinates are correctly transformed from scaled to
+        # cartesian and back again.
+        # """
+        # system = System(
+            # scaled_positions=[[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]],
+            # symbols=["H", "H"],
+            # cell=[
+                # [5, 5, 0],
+                # [0, -5, -5],
+                # [5, 0, 5]
+            # ],
+        # )
+
+        # orig = np.array([[2, 1.45, -4.8]])
+        # scal = system.to_scaled(orig)
+        # cart = system.to_cartesian(scal)
+        # self.assertTrue(np.allclose(orig, cart))
 
 
 class GaussianTests(unittest.TestCase):

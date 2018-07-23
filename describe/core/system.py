@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function
 from builtins import super
 from ase import Atoms
+import ase.geometry
 import numpy as np
 
 
@@ -143,34 +144,33 @@ class System(Atoms):
         """
         if self._displacement_tensor is None:
 
-            if self.pbc.any():
-                pos = self.get_scaled_positions()
-                disp_tensor = pos[:, None, :] - pos[None, :, :]
+            D, D_len = ase.geometry.geometry.get_distances(
+                self.get_positions(),
+                cell=self.get_cell(),
+                pbc=self.get_pbc()
+            )
 
-                # Take periodicity into account by wrapping coordinate elements
-                # that are bigger than 0.5 or smaller than -0.5
-                indices = np.where(disp_tensor > 0.5)
-                disp_tensor[indices] = 1 - disp_tensor[indices]
-                indices = np.where(disp_tensor < -0.5)
-                disp_tensor[indices] = disp_tensor[indices] + 1
+            # Make sure that the lower triangular part is just the upper
+            # triangular part but negated. The find_mic function in ASE seems
+            # to not return this directly.
+            n_atoms = len(self)
+            i_down = np.tril_indices(n_atoms, -1)
+            D[i_down] = -np.transpose(D, axes=(1, 0, 2))[i_down]
 
-                # Transform to cartesian
-                disp_tensor = self.to_cartesian(disp_tensor)
-
-                # Figure out the smallest basis vector and set it as
-                # displacement for diagonal
+            # Figure out the smallest basis vector and set it as
+            # displacement for diagonal
+            if self.get_pbc().any():
                 cell = self.get_cell()
                 basis_lengths = np.linalg.norm(cell, axis=1)
                 min_index = np.argmin(basis_lengths)
                 min_basis = cell[min_index]
-                diag_indices = np.diag_indices(len(disp_tensor))
-                disp_tensor[diag_indices] = min_basis
+                diag_indices = np.diag_indices(len(D))
+                D[diag_indices] = min_basis
+                diag_indices = np.diag_indices(len(D_len))
+                D_len[diag_indices] = basis_lengths[min_index]
 
-            else:
-                pos = self.get_positions()
-                disp_tensor = pos[:, None, :] - pos[None, :, :]
-
-            self._displacement_tensor = disp_tensor
+            self._displacement_tensor = D
+            self._distance_matrix = D_len
 
         return self._displacement_tensor
 
@@ -188,9 +188,7 @@ class System(Atoms):
             np.array: Symmetric 2D matrix containing the pairwise distances.
         """
         if self._distance_matrix is None:
-            displacement_tensor = self.get_displacement_tensor()
-            distance_matrix = np.linalg.norm(displacement_tensor, axis=2)
-            self._distance_matrix = distance_matrix
+            self.get_displacement_tensor()
         return self._distance_matrix
 
     def get_inverse_distance_matrix(self):

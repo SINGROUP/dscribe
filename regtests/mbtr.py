@@ -4,11 +4,9 @@ from builtins import (bytes, str, open, super, range, zip, round, input, int, po
 import math
 import numpy as np
 import unittest
-from scipy.signal import argrelextrema
 from scipy.signal import find_peaks_cwt
 
 from describe.descriptors import MBTR
-from describe.data.element_data import numbers_to_symbols
 
 from ase.build import bulk
 from ase import Atoms
