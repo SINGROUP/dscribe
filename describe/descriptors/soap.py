@@ -19,6 +19,21 @@ class SOAP(Descriptor):
             crossover=True,
             ):
         """
+        Args
+            atomic_numbers (iterable): A list of the atomic numbers that should
+                be taken into account in the descriptor. Notice that this is
+                not the atomic numbers that are present for an individual
+                system, but should contain all the elements that are ever going
+                to be encountered when creating the descriptors for a set of
+                systems.  Keeping the number of handled elements as low as
+                possible is preferable.
+            periodic (bool): Boolean for if the system is periodic or none. If
+                this is set to true, you should provide the primitive system as
+                input.
+            rcut (float):  A cutoff for local region.
+            nmax (int): The number of basis to be used for each l.
+            lmax (int): The number of l's to be used
+            crossover (bool): Default True, if crossover of atoms should be included.
         """
         super().__init__(flatten=False)
         self.atomic_numbers = atomic_numbers
@@ -27,7 +42,13 @@ class SOAP(Descriptor):
         self.lmax = lmax
         self.periodic = periodic
         self.crossover = crossover
-        self.alphas, self.betas = soaplite.genBasis.getBasisFunc(rcut, nmax)
+        self.update()
+        
+    def update(self):
+        '''
+        Updates alphas and betas corresponding to change in rcut or nmax
+        '''
+        self.alphas, self.betas = soaplite.genBasis.getBasisFunc(self.rcut, self.nmax)
 
     def describe(self, system, positions=[]):
         """Return the SOAP spectrum for the given system.
@@ -35,12 +56,18 @@ class SOAP(Descriptor):
         Args:
             system (System): The system for which the descriptor is
                              created.
-            positions (iterable): positions or atom index of points, from
+            positions (list): positions or atom index of points, from
                                   which soap is created
 
         Returns:
             np.ndarray: The SOAP spectrum for the given positions.
         """
+        # Check if periodic is valid
+        if self.periodic:
+            cell = system.get_cell()
+            if np.cross(cell[0], cell[1]).dot(cell[2]) == 0:
+                raise ValueError("System doesn't have cell to justify periodicity.")
+        
         # Change function if periodic
         if len(positions):
             if self.periodic:
