@@ -15,8 +15,7 @@ class SOAP(Descriptor):
             rcut,
             nmax,
             lmax,
-            periodic,
-            envPos=None,
+            periodic=False,
             crossover=True,
             ):
         """
@@ -27,42 +26,68 @@ class SOAP(Descriptor):
         self.nmax = nmax
         self.lmax = lmax
         self.periodic = periodic
-        self.envPos = envPos
         self.crossover = crossover
-        self.myAlphas, self.myBetas = soaplite.genBasis.getBasisFunc(rcut, nmax)
+        self.alphas, self.betas = soaplite.genBasis.getBasisFunc(rcut, nmax)
 
-    def describe(self, system):
+    def describe(self, system, positions=[]):
         """Return the SOAP spectrum for the given system.
 
         Args:
-            system (System): The system for which the descriptor is created.
+            system (System): The system for which the descriptor is
+                             created.
+            positions (iterable): positions or atom index of points, from
+                                  which soap is created
 
         Returns:
-            np.ndarray: The SOAP spectrum for the given system.
+            np.ndarray: The SOAP spectrum for the given positions.
         """
-        rcut = self.rcut
-        nmax = self.nmax
-        lmax = self.lmax
-        periodic = self.periodic
-        envPos = self.envPos
-        crossover = self.crossover
-        myAlphas, myBetas = self.myAlphas, self.myBetas
-        atomic_numbers = self.atomic_numbers
-        if envPos is None:
-            if periodic is False:
-                soap_mat = soaplite.get_soap_structure(system, myAlphas, myBetas, rCut=rcut, NradBas=nmax, Lmax=lmax, crossOver=crossover, all_atomtypes=atomic_numbers)  # OKAY
+        # Change function if periodic
+        if len(positions):
+            if self.periodic:
+                soap_func = soaplite.get_periodic_soap_locals
             else:
-                soap_mat = soaplite.get_periodic_soap_structure(system, myAlphas, myBetas, rCut=rcut, NradBas=nmax, Lmax=lmax, crossOver=crossover, all_atomtypes=atomic_numbers)  # OKAY
-        elif isinstance(envPos, int):  # gives index of atom (from zero)
-            if periodic is False:
-                soap_mat = soaplite.get_soap_locals(system, [system.get_positions()[envPos]], myAlphas, myBetas, rCut=rcut, NradBas=nmax, Lmax=lmax, crossOver=crossover, all_atomtypes=atomic_numbers)
-            else:
-                soap_mat = soaplite.get_periodic_soap_locals(system, [system.get_positions()[envPos]], myAlphas, myBetas, rCut=rcut, NradBas=nmax, Lmax=lmax, crossOver=crossover, all_atomtypes=atomic_numbers)
+                soap_func = soaplite.get_soap_locals
         else:
-            if periodic is False:
-                soap_mat = soaplite.get_soap_locals(system, envPos, myAlphas, myBetas, rCut=rcut, NradBas=nmax, Lmax=lmax, crossOver=crossover, all_atomtypes=atomic_numbers)  # OKAY
+            # No positions given
+            if self.periodic:
+                soap_func = soaplite.get_periodic_soap_structure
             else:
-                soap_mat = soaplite.get_periodic_soap_locals(system, envPos, myAlphas, myBetas, rCut=rcut, NradBas=nmax, Lmax=lmax, crossOver=crossover, all_atomtypes=atomic_numbers)  # OKAY
+                soap_func = soaplite.get_soap_structure
+            
+            soap_mat = soap_func(
+                system,
+                self.alphas,
+                self.betas,
+                rCut=self.rcut,
+                NradBas=self.nmax,
+                Lmax=self.lmax,
+                crossOver=self.crossover,
+                all_atomtypes=self.atomic_numbers
+                )  # OKAY
+            return soap_mat
+        
+        list_positions = []
+        
+        for i in positions:
+            if isinstance(i, int):  # gives index of atom (from zero)
+                list_positions.append(system.get_positions()[i])
+            elif isinstance(i, list) or isinstance(i, tuple):
+                list_positions.append(i)
+            else:
+                raise ValueError("create method requires the argument positions,"
+                                 " a list of atom indices and/or positions")
+        
+        soap_mat = soap_func(
+            system,
+            list_positions,
+            self.alphas,
+            self.betas,
+            rCut=self.rcut,
+            NradBas=self.nmax,
+            Lmax=self.lmax,
+            crossOver=self.crossover,
+            all_atomtypes=self.atomic_numbers
+            )  # OKAY
 
         return soap_mat
 
