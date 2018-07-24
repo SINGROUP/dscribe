@@ -118,15 +118,15 @@ class LMBTRTests(unittest.TestCase):
             },
             flatten=False
         )
+        
+        desc = lmbtr.create(H2O, positions=[[0, 0, 0]])
+        desc = lmbtr.create(H2O, positions=[[0, 0, 0.5]], scaled_positions=True)
+        
+        with self.assertRaises(ValueError):
+            desc = lmbtr.create(H2O, positions=[3])
 
         with self.assertRaises(ValueError):
-            desc = lmbtr.create(H2O, list_atom_indices=[3])
-
-        with self.assertRaises(ValueError):
-            desc = lmbtr.create(H2O)
-
-        with self.assertRaises(ValueError):
-            desc = lmbtr.create(H2O, list_positions=[[0, 0, 0]])
+            desc = lmbtr.create(H2O, positions=['a'])
 
         with self.assertRaises(ValueError):
             H = Atoms(
@@ -136,7 +136,7 @@ class LMBTRTests(unittest.TestCase):
 
             desc = lmbtr.create(
                 H,
-                list_positions=[[0, 0, 1]],
+                positions=[[0, 0, 1]],
                 scaled_positions=True
             )
 
@@ -271,8 +271,8 @@ class LMBTRTests(unittest.TestCase):
             flatten=False
         )
 
-        desc = lmbtr.create(test_sys, list_atom_indices=[0])
-        desc_ = lmbtr.create(test_sys_, list_atom_indices=[0])
+        desc = lmbtr.create(test_sys, positions=[0])
+        desc_ = lmbtr.create(test_sys_, positions=[0])
 
         self.assertTrue(np.linalg.norm(desc_[0][0] - desc[0][0]) < 1e-6)
 
@@ -281,7 +281,7 @@ class LMBTRTests(unittest.TestCase):
         LMBTR: Test inverse distances
         """
         lmbtr = LMBTR([1, 8], k=[2], periodic=False)
-        lmbtr.create(H2O, list_atom_indices=[1])
+        lmbtr.create(H2O, positions=[1])
         inv_dist = lmbtr._inverse_distances
 
         # Test against the assumed values
@@ -294,7 +294,7 @@ class LMBTRTests(unittest.TestCase):
 
         # Test against system with different indexing
         lmbtr = LMBTR([1, 8], k=[2], periodic=False)
-        lmbtr.create(H2O_2, list_atom_indices=[0])
+        lmbtr.create(H2O_2, positions=[0])
         inv_dist_2 = lmbtr._inverse_distances
         self.assertEqual(inv_dist, inv_dist_2)
 
@@ -303,7 +303,7 @@ class LMBTRTests(unittest.TestCase):
         LMBTR: Test cosines
         """
         lmbtr = LMBTR([1, 8], k=[3], periodic=False)
-        lmbtr.create(H2O, list_atom_indices=[1])
+        lmbtr.create(H2O, positions=[1])
         angles = lmbtr._angles
 
         # Test against the assumed values.
@@ -320,7 +320,7 @@ class LMBTRTests(unittest.TestCase):
 
         # Test against system with different indexing
         lmbtr = LMBTR([1, 8], k=[3], periodic=False)
-        lmbtr.create(H2O_2, list_atom_indices=[0])
+        lmbtr.create(H2O_2, positions=[0])
         angles2 = lmbtr._angles
         self.assertEqual(angles, angles2)
 
@@ -366,18 +366,18 @@ class LMBTRTests(unittest.TestCase):
 
         # Rotational check
         molecule = H2O.copy()
-        features = desc.create(molecule, list_atom_indices=[0])[0].toarray()
+        features = desc.create(molecule, positions=[0])[0].toarray()
 
         for rotation in ['x', 'y', 'z']:
             molecule.rotate(45, rotation)
-            rot_features = desc.create(molecule, list_atom_indices=[0])[0].toarray()
+            rot_features = desc.create(molecule, positions=[0])[0].toarray()
             deviation = np.max(np.abs(features - rot_features))
             self.assertTrue(deviation < 1e-6)
 
         # Translation check
         for translation in [[1.0, 1.0, 1.0], [-5.0, 5.0, -5.0], [1.0, 1.0, -10.0]]:
             molecule.translate(translation)
-            trans_features = desc.create(molecule, list_atom_indices=[0])[0].toarray()
+            trans_features = desc.create(molecule, positions=[0])[0].toarray()
             deviation = np.max(np.abs(features - trans_features))
             self.assertTrue(deviation < 1e-6)
 

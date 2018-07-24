@@ -72,39 +72,32 @@ class SoapTests(unittest.TestCase):
         """Tests that the correct features are present in the descriptor.
         """
 
-        desc = SOAP([1,6,8], 10.0, 2, 0, periodic=False, envPos=[[0,0,0]],crossover=True,)
-        desc2 = SOAP([1,6,8], 10.0, 2, 0, periodic=False, envPos=0, crossover=True, )
-        desc3 = SOAP([1,6,8], 10.0, 2, 0, periodic=False, envPos=None,crossover=True,)
+        desc = SOAP([1,6,8], 10.0, 2, 0, periodic=False, crossover=True,)
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[]).shape[1])
 
-        desc4 = SOAP([1,6,8], 10.0, 2, 0, periodic=True, envPos=[[0,0,0]],crossover=True, )
-        desc5 = SOAP([1,6,8], 10.0, 2, 0, periodic=True, envPos=0, crossover=True, )
-        desc6 = SOAP([1,6,8], 10.0, 2, 0, periodic=True, envPos=None, crossover=True, )
+        desc = SOAP([1,6,8], 10.0, 2, 0, periodic=True, crossover=True,)
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[]).shape[1])
+        
+        desc = SOAP([1,6,8], 10.0, 2, 0, periodic=True, crossover=False,)
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[]).shape[1])
 
-        desc7 = SOAP([1,6,8], 10.0, 2, 0, periodic=True, envPos=[[0,0,0]],crossover=False, )
-        desc8 = SOAP([1,6,8], 10.0, 2, 0, periodic=True, envPos=0, crossover=False, )
-        desc9 = SOAP([1,6,8], 10.0, 2, 0, periodic=True, envPos=None, crossover=False, )
-
-        desc10 = SOAP([1,6,8], 10.0, 2, 0, periodic=False, envPos=[[0,0,0]],crossover=False, )
-        desc11 = SOAP([1,6,8], 10.0, 2, 0, periodic=False, envPos=0, crossover=False, )
-        desc12 = SOAP([1,6,8], 10.0, 2, 0, periodic=False, envPos=None, crossover=False, )
-
-        self.assertEqual(desc.get_number_of_features(), np.shape(desc.create(H2O).flatten())[0])
-        self.assertEqual(desc2.get_number_of_features(), np.shape(desc2.create(H2O).flatten())[0])
-        self.assertEqual(desc3.get_number_of_features(), np.shape(desc3.create(H2O).flatten())[0])
-        self.assertEqual(desc4.get_number_of_features(), np.shape(desc4.create(H2O).flatten())[0])
-        self.assertEqual(desc5.get_number_of_features(), np.shape(desc5.create(H2O).flatten())[0])
-        self.assertEqual(desc6.get_number_of_features(), np.shape(desc6.create(H2O).flatten())[0])
-        self.assertEqual(desc7.get_number_of_features(), np.shape(desc7.create(H2O).flatten())[0])
-        self.assertEqual(desc8.get_number_of_features(), np.shape(desc8.create(H2O).flatten())[0])
-        self.assertEqual(desc9.get_number_of_features(), np.shape(desc9.create(H2O).flatten())[0])
-        self.assertEqual(desc10.get_number_of_features(), np.shape(desc10.create(H2O).flatten())[0])
-        self.assertEqual(desc11.get_number_of_features(), np.shape(desc11.create(H2O).flatten())[0])
-        self.assertEqual(desc12.get_number_of_features(), np.shape(desc12.create(H2O).flatten())[0])
-
+        desc = SOAP([1,6,8], 10.0, 2, 0, periodic=False, crossover=False,)
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[]).shape[1])
+        
+        with self.assertRaises(ValueError):
+            nocell = desc.create(H2O, positions=['a'])
 
     def test_unit_cells(self):
         """Tests if arbitrary unit cells are accepted"""
-        desc = SOAP([1,6,8], 10.0, 2, 0, periodic=False, envPos=[[0,0,0]],crossover=True,)
+        desc = SOAP([1,6,8], 10.0, 2, 0, periodic=False, crossover=True,)
 
         molecule = H2O.copy()
 
@@ -115,9 +108,9 @@ class SoapTests(unittest.TestCase):
             ],
             )
 
-        nocell = desc.create(molecule)
+        nocell = desc.create(molecule, positions=[[0, 0, 0]])
 
-        desc = SOAP([1,6,8], 10.0, 2, 0, periodic=True, envPos=[[0,0,0]],crossover=True,)
+        desc = SOAP([1,6,8], 10.0, 2, 0, periodic=True, crossover=True,)
         molecule.set_cell([
         [0.0, 0.0, 0.0],
         [0.0, 0.0, 0.0],
@@ -125,7 +118,7 @@ class SoapTests(unittest.TestCase):
             ],
             )
         with self.assertRaises(ValueError):
-            nocell = desc.create(molecule)
+            nocell = desc.create(molecule, positions=[[0, 0, 0]])
 
         molecule.set_pbc(True)
         molecule.set_cell([
@@ -135,7 +128,7 @@ class SoapTests(unittest.TestCase):
             ],
             )
 
-        largecell = desc.create(molecule)
+        largecell = desc.create(molecule, positions=[[0, 0, 0]])
 
         molecule.set_cell([
         [2.0, 0.0, 0.0],
@@ -144,7 +137,7 @@ class SoapTests(unittest.TestCase):
             ],
             )
 
-        cubic_cell = desc.create(molecule)
+        cubic_cell = desc.create(molecule, positions=[[0, 0, 0]])
 
         molecule.set_cell([
         [0.0, 2.0, 2.0],
@@ -153,16 +146,16 @@ class SoapTests(unittest.TestCase):
             ],
             )
 
-        triclinic_smallcell = desc.create(molecule)
+        triclinic_smallcell = desc.create(molecule, positions=[[0, 0, 0]])
 
 
     def test_is_periodic(self):
         """Tests whether periodic images are seen by the descriptor""" 
-        desc = SOAP([1,6,8], 10.0, 2, 0, periodic=False, envPos=[[0,0,0]],crossover=True,)
+        desc = SOAP([1,6,8], 10.0, 2, 0, periodic=False, crossover=True,)
 
 
         H2O.set_pbc(False)
-        nocell = desc.create(H2O)
+        nocell = desc.create(H2O, positions=[[0, 0, 0]])
 
         H2O.set_pbc(True)
         H2O.set_cell([
@@ -171,9 +164,9 @@ class SoapTests(unittest.TestCase):
         [0.0, 0.0, 2.0]
             ],
             )
-        desc = SOAP([1,6,8], 10.0, 2, 0, periodic=True, envPos=[[0,0,0]],crossover=True,)
+        desc = SOAP([1,6,8], 10.0, 2, 0, periodic=True, crossover=True,)
 
-        cubic_cell = desc.create(H2O)
+        cubic_cell = desc.create(H2O, positions=[[0, 0, 0]])
 
         self.assertTrue(np.sum(cubic_cell) > 0)
 
@@ -181,7 +174,7 @@ class SoapTests(unittest.TestCase):
     def test_periodic_images(self):
         """Tests the periodic images seen by the descriptor
         """
-        desc = SOAP([1,6,8], 10.0, 2, 0, periodic=False, envPos=[[0,0,0]],crossover=True,)
+        desc = SOAP([1,6,8], 10.0, 2, 0, periodic=False, crossover=True,)
 
         molecule = H2O.copy()
 
@@ -192,10 +185,10 @@ class SoapTests(unittest.TestCase):
         [0.0, 0.0, 0.0]
             ],
             )
-        nocell = desc.create(molecule)
+        nocell = desc.create(molecule, positions=[[0, 0, 0]])
 
         # make periodic
-        desc = SOAP([1,6,8], 10.0, 2, 0, periodic=True, envPos=[[0,0,0]],crossover=True,)
+        desc = SOAP([1,6,8], 10.0, 2, 0, periodic=True, crossover=True,)
         molecule.set_pbc(True)
 
         # cubic
@@ -205,9 +198,9 @@ class SoapTests(unittest.TestCase):
         [0.0, 0.0, 3.0]
             ],
             )
-        cubic_cell = desc.create(molecule)
+        cubic_cell = desc.create(molecule, positions=[[0, 0, 0]])
         suce = molecule * (2,1,1)
-        cubic_suce = desc.create(suce)
+        cubic_suce = desc.create(suce, positions=[[0, 0, 0]])
         
         # triclinic
         molecule.set_cell([
@@ -216,9 +209,9 @@ class SoapTests(unittest.TestCase):
         [2.0, 2.0, 0.0]
             ],
             )
-        triclinic_cell = desc.create(molecule)
+        triclinic_cell = desc.create(molecule, positions=[[0, 0, 0]])
         suce = molecule * (2,1,1)
-        triclinic_suce = desc.create(suce)
+        triclinic_suce = desc.create(suce, positions=[[0, 0, 0]])
 
         self.assertTrue(np.sum(np.abs((nocell[:3] - cubic_suce[:3]))) > 0.1)
         self.assertAlmostEqual(np.sum(cubic_cell[:3] -cubic_suce[:3]), 0)

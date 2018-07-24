@@ -126,19 +126,17 @@ class LMBTR(MBTR):
 
     def describe(self,
                  system,
-                 list_atom_indices=None,
-                 list_positions=None,
+                 positions=[],
                  scaled_positions=False
                  ):
         """Return the local many-body tensor representation as a 1D array for the
         given system.
 
         Args:
-            system (System): The system for which the descriptor is created.
-            list_atom_indices (iterable): indices of atoms, from which
-                                          local_mbtr is needed
-            list_positions (iterable): positions of points, from which
-                                       local_mbtr is needed
+            system (System): The system for which the descriptor is
+                             created.
+            positions (iterable): positions or atom index of points, from
+                                  which local_mbtr is needed
             scaled_positions (boolean): if list of positions are scaled
                                         use only if system allows it
 
@@ -147,36 +145,45 @@ class LMBTR(MBTR):
                         for k terms, as an array. These are ordered as given in
                         list_atom_indices, followed by list_positions
         """
+        # ensuring self is updated
+        self.update()
+        
         system_new = system.copy()
         list_atoms = []
+        list_positions = []
+        len_sys = len(system)
+        
+        # Checking scaled position
+        if scaled_positions:
+            if np.linalg.norm(system.get_cell()) == 0:
+                raise ValueError("System doesn't have cell to justify scaled positions.")
+        
+        for i in positions:
+            if type(i) is list or type(i) is tuple:
+                if scaled_positions:
+                    pos = np.dot(i, system.get_cell())
+                else:
+                    pos = np.array(i)
+                dist = np.linalg.norm(system.get_positions() - pos, axis=1)
+                if np.sum( dist == 0):
+                    list_atoms.append(np.where(dist == 0)[0][0])
+                else:
+                    list_positions.append(i)
+                    list_atoms.append(len_sys)
+                    len_sys += 1
+            elif type(i) is int:
+                if i >= len(system):
+                    raise ValueError("Atom index: {}, larger than total number of atoms.".format(i))
+                list_atoms.append(i)
+            else:
+                raise ValueError("create method requires the argument positions,"
+                                 " a list of atom indices and/or positions")
 
-        if list_atom_indices is not None:
-            list_atom_indices.sort()
-            for atom_index in list_atom_indices:
-                if atom_index >= len(system):
-                    raise ValueError("Atom index: {}, larger than total number of atoms.".format(atom_index))
-            list_atoms += list_atom_indices
-        elif list_positions is not None:
-            if scaled_positions:  # convert positions to cartesian
-                if np.linalg.norm(system.get_cell()) == 0:
-                    raise ValueError("System doesn't have cell to justify scaled positions.")
-                list_positions = np.dot(system.get_cell(), np.array(list_positions).T).T.tolist()
-
-            # Checking if given position exists
-            for i, pos in enumerate(list_positions):
-                if np.sum( np.linalg.norm(system.get_positions() - pos, axis=1) == 0):
-                    raise ValueError(
-                        "Position {}: {} exists in system, give its index in "
-                        "list_atom_indices."
-                        .format(i, pos)
-                    )
-            old_len = len(system_new)
-            system_new += System('X{}'.format(len(list_positions)),
+        if len(list_positions):
+            system_new += System(
+                                'X{}'.format(len(list_positions)),
                                 positions=list_positions
-                                )
-            list_atoms += list(range(old_len, len(system_new)))
-        else:
-            raise ValueError("create method requires list_atom_indices and/or list_positions")
+                          )
 
         desc = np.empty(len(list_atoms), dtype='object')
 
