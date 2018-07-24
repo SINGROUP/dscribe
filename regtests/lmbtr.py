@@ -118,7 +118,10 @@ class LMBTRTests(unittest.TestCase):
             },
             flatten=False
         )
-
+        
+        desc = lmbtr.create(H2O, positions=[[0, 0, 0]])
+        desc = lmbtr.create(H2O, positions=[[0, 0, 0.5]], scaled_positions=True)
+        
         with self.assertRaises(ValueError):
             desc = lmbtr.create(H2O, positions=[3])
 
