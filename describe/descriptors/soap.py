@@ -74,7 +74,7 @@ class SOAP(Descriptor):
             elif isinstance(i, list) or isinstance(i, tuple):
                 list_positions.append(i)
             else:
-                raise ValueError("create method requires the argument positions,"
+                raise ValueError("create method requires the argument 'positions',"
                                  " a list of atom indices and/or positions")
         
         soap_mat = soap_func(
@@ -98,29 +98,11 @@ class SOAP(Descriptor):
         Returns:
             int: Number of features for this descriptor.
         """
-        return np.prod(self.get_shape())
-
-    def get_shape(self):
-        """Used to inquire the final number of features that this descriptor
-        will have.
-
-        Returns:
-            int: Number of features for this descriptor.
-        """
-        if len(self.atomic_numbers) == 0:
-            return None
-        if self.envPos is None:
-            if self.crossover is False:
-                return np.array([(self.lmax+1)*(self.nmax*(self.nmax+1))/2*len(self.atomic_numbers), len(self.atomic_numbers)])
-            elif self.crossover is True:
-                return np.array([(self.lmax+1)*(self.nmax*(self.nmax+1))/2*(len(self.atomic_numbers)*(len(self.atomic_numbers) + 1))/2, len(self.atomic_numbers)])
-        elif isinstance(self.envPos, int):  # gives index of atom (from zero)
-            if self.crossover is False:
-                return np.array([(self.lmax+1)*(self.nmax*(self.nmax+1))/2*len(self.atomic_numbers), 1])
-            elif self.crossover is True:
-                return np.array([(self.lmax+1)*(self.nmax*(self.nmax+1))/2*(len(self.atomic_numbers)*(len(self.atomic_numbers) + 1))/2, 1])
+        if self.crossover:
+            n_blocks = len(self.atomic_numbers) * (len(self.atomic_numbers) + 1) \
+                / 2
         else:
-            if self.crossover is False:
-                return np.array([(self.lmax+1)*(self.nmax*(self.nmax+1))/2*len(self.atomic_numbers), len(self.envPos)])
-            elif self.crossover is True:
-                return np.array([(self.lmax+1)*(self.nmax*(self.nmax+1))/2*(len(self.atomic_numbers)*(len(self.atomic_numbers) + 1))/2, len(self.envPos)])
+            n_blocks = len(self.atomic_numbers)
+        
+        return (self.lmax + 1) * self.nmax * (self.nmax + 1) / 2 * n_blocks
+
