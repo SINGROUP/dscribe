@@ -62,6 +62,9 @@ class SOAP(Descriptor):
         Returns:
             np.ndarray: The SOAP spectrum for the given positions.
         """
+        # ensuring self is updated
+        self.update()
+        
         # Check if periodic is valid
         if self.periodic:
             cell = system.get_cell()

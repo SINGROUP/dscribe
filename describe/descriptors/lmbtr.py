@@ -133,9 +133,10 @@ class LMBTR(MBTR):
         given system.
 
         Args:
-            system (System): The system for which the descriptor is created.
-            positions (iterable): positions or atom index of points, from which
-                                  local_mbtr is needed
+            system (System): The system for which the descriptor is
+                             created.
+            positions (iterable): positions or atom index of points, from
+                                  which local_mbtr is needed
             scaled_positions (boolean): if list of positions are scaled
                                         use only if system allows it
 
@@ -144,6 +145,9 @@ class LMBTR(MBTR):
                         for k terms, as an array. These are ordered as given in
                         list_atom_indices, followed by list_positions
         """
+        # ensuring self is updated
+        self.update()
+        
         system_new = system.copy()
         list_atoms = []
         list_positions = []

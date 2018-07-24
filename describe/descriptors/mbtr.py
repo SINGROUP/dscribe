@@ -246,6 +246,9 @@ class MBTR(Descriptor):
         self._axis_k1 = None
         self._axis_k2 = None
         self._axis_k3 = None
+        
+        # ensuring self is updated
+        self.update()
 
         self.n_atoms_in_cell = len(system)
         present_element_numbers = set(system.numbers)
