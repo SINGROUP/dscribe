@@ -13,6 +13,8 @@ from ase import Atoms
 from ase.visualize import view
 import ase.geometry
 
+import matplotlib.pyplot as mpl
+
 
 H2O = Atoms(
     cell=[
@@ -814,6 +816,72 @@ class MBTRTests(unittest.TestCase):
         angle = (6)/(np.sqrt(5)*np.sqrt(8))
         assumed_peaks = np.cos(np.array([180, 105, 75, 51.2, 30, 0])*np.pi/180)
         self.assertTrue(np.allclose(peak_locs, assumed_peaks, rtol=0, atol=5*np.pi/180))
+
+    def test_grid_change(self):
+        """Tests that te calculation of MBTR with new grid settings works.
+        """
+        grid = {
+            "k1": {
+                "min": 1,
+                "max": 8,
+                "sigma": 0.1,
+                "n": 50,
+            },
+            "k2": {
+                "min": 0,
+                "max": 1/0.7,
+                "sigma": 0.1,
+                "n": 50,
+            },
+            "k3": {
+                "min": -1,
+                "max": 1,
+                "sigma": 0.1,
+                "n": 50,
+            }
+        }
+
+        desc = MBTR(
+            atomic_numbers=[1, 8],
+            k=[1, 2, 3],
+            periodic=True,
+            grid=grid,
+            weighting={
+                "k2": {
+                    "function": lambda x: np.exp(-1*x),
+                    "threshold": 1e-4
+                },
+                "k3": {
+                    "function": lambda x: np.exp(-1*x),
+                    "threshold": 1e-4
+                },
+            },
+            normalize=False,  # This normalizes the spectrum with the system volume
+            flatten=True
+        )
+
+        # Initialize scalars with a given system
+        desc.initialize_scalars(H2O)
+
+        # Request spectrum with different grid settings
+        spectrum1 = desc.create_with_grid().toarray()[0]
+        grid["k1"]["sigma"] = 0.09
+        grid["k2"]["sigma"] = 0.09
+        grid["k3"]["sigma"] = 0.09
+        spectrum2 = desc.create_with_grid(grid).toarray()[0]
+
+        # Check that contents are not equal, but have same peaks
+        self.assertFalse(np.allclose(spectrum1, spectrum2))
+        peak_ids1 = find_peaks_cwt(spectrum1, [5])
+        peak_ids2 = find_peaks_cwt(spectrum2, [5])
+        self.assertTrue(np.array_equal(peak_ids1, peak_ids2))
+
+        # Visually check the contents
+        # x = np.arange(len(spectrum1))
+        # mpl.plot(x, spectrum1)
+        # mpl.plot(x, spectrum2)
+        # mpl.legend()
+        # mpl.show()
 
 
 if __name__ == '__main__':
