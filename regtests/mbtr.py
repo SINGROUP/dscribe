@@ -180,19 +180,6 @@ class MBTRTests(unittest.TestCase):
         expected = n_elem*n + 1/2*(n_elem)*(n_elem+1)*n + n_elem*1/2*(n_elem)*(n_elem+1)*n
         self.assertEqual(n_features, expected)
 
-    # def test_flatten(self):
-        # """Tests the flattening.
-        # """
-        # # Unflattened
-        # desc = MBTR(n_atoms_max=5, permutation="none", flatten=False)
-        # cm = desc.create(H2O)
-        # self.assertEqual(cm.shape, (5, 5))
-
-        # # Flattened
-        # desc = MBTR(n_atoms_max=5, permutation="none", flatten=True)
-        # cm = desc.create(H2O)
-        # self.assertEqual(cm.shape, (25,))
-
     def test_counts(self):
         mbtr = MBTR([1, 8], k=[1], periodic=False)
         mbtr.create(H2O)

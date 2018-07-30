@@ -786,7 +786,6 @@ class MBTR(Descriptor):
         inverse distance between atoms.
 
         Args:
-            system (System): The atomic system.
             settings (dict): The grid settings
 
         Returns:
@@ -844,7 +843,6 @@ class MBTR(Descriptor):
         angle between 3 atoms.
 
         Args:
-            system (System): The atomic system.
             settings (dict): The grid settings
 
         Returns:

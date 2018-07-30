@@ -115,49 +115,47 @@ class LMBTR(MBTR):
                     )
 
     def update(self):
-        '''
-        Updates relevant objects attached to LMBTR class, after changing
-        one/many values
-        '''
+        """Updates relevant objects attached to LMBTR class, after changing
+        one/many values.
+        """
         self.atomic_numbers = np.unique(self.atomic_numbers + [0]).tolist()
         super().update()
-        if 1 in self.k:
-            print("Warning: K = 1 is deprecated for LMBTR")
 
     def describe(self,
                  system,
-                 positions=[],
+                 positions,
                  scaled_positions=False
                  ):
         """Return the local many-body tensor representation as a 1D array for the
         given system.
 
         Args:
-            system (System): The system for which the descriptor is
-                             created.
-            positions (iterable): positions or atom index of points, from
-                                  which local_mbtr is needed
-            scaled_positions (boolean): if list of positions are scaled
-                                        use only if system allows it
+            system (System): The system for which the descriptor is created.
+            positions (iterable): Positions or atom index of points, from
+                which local_mbtr is created. Can be a list of integer numbers
+                or a list of xyz-coordinates.
+            scaled_positions (boolean): Controls whether the given positions
+                are given as scaled to the unit cell basis or not. Scaled
+                positions require that a cell is available for the system.
 
         Returns:
-            1D ndarray: The local many-body tensor representations of given postions,
-                        for k terms, as an array. These are ordered as given in
-                        list_atom_indices, followed by list_positions
+            1D ndarray: The local many-body tensor representations of given
+                positions, for k terms, as an array. These are ordered as given
+                in list_atom_indices, followed by list_positions
         """
         # ensuring self is updated
         self.update()
-        
+
         system_new = system.copy()
         list_atoms = []
         list_positions = []
         len_sys = len(system)
-        
+
         # Checking scaled position
         if scaled_positions:
             if np.linalg.norm(system.get_cell()) == 0:
                 raise ValueError("System doesn't have cell to justify scaled positions.")
-        
+
         for i in positions:
             if type(i) is list or type(i) is tuple:
                 if scaled_positions:
@@ -176,8 +174,8 @@ class LMBTR(MBTR):
                     raise ValueError("Atom index: {}, larger than total number of atoms.".format(i))
                 list_atoms.append(i)
             else:
-                raise ValueError("create method requires the argument positions,"
-                                 " a list of atom indices and/or positions")
+                raise ValueError("Create method requires the argument positions,"
+                                 " a list of atom indices and/or positions.")
 
         if len(list_positions):
             system_new += System(
@@ -320,12 +318,11 @@ class LMBTR(MBTR):
             self._angle_weights = weight_dict
         return self._angles, self._angle_weights
 
-    def K1(self, system, settings):
+    def K1(self, settings):
         """Calculates the first order terms where the scalar mapping is the
         number of atoms of a certain type.
 
         Args:
-            system (System): The atomic system.
             settings (dict): The grid settings
 
         Returns:
@@ -342,7 +339,7 @@ class LMBTR(MBTR):
         else:
             k1 = np.zeros(n, dtype=np.float32)
 
-        atomic_number = np.array([system.numbers[self.atom_index]])
+        atomic_number = np.array([self.system.numbers[self.atom_index]])
         count = np.array([1.0])
         gaussian_sum = self.gaussian_sum(atomic_number, count, settings)
 
@@ -355,12 +352,11 @@ class LMBTR(MBTR):
 
         return k1
 
-    def K2(self, system, settings):
+    def K2(self, settings):
         """Calculates the second order terms where the scalar mapping is the
         inverse distance between atoms.
 
         Args:
-            system (System): The atomic system.
             settings (dict): The grid settings
 
         Returns:
@@ -371,7 +367,7 @@ class LMBTR(MBTR):
         n = settings["n"]
         self._axis_k2 = np.linspace(start, stop, n)
 
-        inv_dist_dict = self.inverse_distances(system)
+        inv_dist_dict = self._inverse_distances
         n_elem = self.n_elements - 1  # removing ghost
 
         if self.flatten:
@@ -387,36 +383,35 @@ class LMBTR(MBTR):
 
         m = -1
         for i in range(1, n_elem+1):  # ignoring Ghost
-                m += 1
-                try:
-                    inv_dist = np.array(inv_dist_dict[i])
-                except KeyError:
-                    continue
+            m += 1
+            try:
+                inv_dist = np.array(inv_dist_dict[i])
+            except KeyError:
+                continue
 
-                # Calculate weights
-                if weighting_function is not None:
-                    weights = weighting_function(1/np.array(inv_dist))
-                else:
-                    weights = np.ones(len(inv_dist))
+            # Calculate weights
+            if weighting_function is not None:
+                weights = weighting_function(1/np.array(inv_dist))
+            else:
+                weights = np.ones(len(inv_dist))
 
-                # Broaden with a gaussian
-                gaussian_sum = self.gaussian_sum(inv_dist, weights, settings)
+            # Broaden with a gaussian
+            gaussian_sum = self.gaussian_sum(inv_dist, weights, settings)
 
-                if self.flatten:
-                    start = m*n
-                    end = (m + 1)*n
-                    k2[0, start:end] = gaussian_sum
-                else:
-                    k2[i-1, :] = gaussian_sum
+            if self.flatten:
+                start = m*n
+                end = (m + 1)*n
+                k2[0, start:end] = gaussian_sum
+            else:
+                k2[i-1, :] = gaussian_sum
 
         return k2
 
-    def K3(self, system, settings):
+    def K3(self, settings):
         """Calculates the third order terms where the scalar mapping is the
         angle between 3 atoms.
 
         Args:
-            system (System): The atomic system.
             settings (dict): The grid settings
 
         Returns:
@@ -427,7 +422,7 @@ class LMBTR(MBTR):
         n = settings["n"]
         self._axis_k3 = np.linspace(start, stop, n)
 
-        cos_dict, cos_weight_dict = self.cosines_and_weights(system)
+        cos_dict, cos_weight_dict = self._angles, self._angle_weights
 
         n_elem = self.n_elements - 1  # removing ghost
 

@@ -16,18 +16,19 @@ class Descriptor(with_metaclass(ABCMeta)):
         """
         self.flatten = flatten
 
-    def create(self, system, **kwargs):
+    def create(self, system, *args, **kwargs):
         """Creates the descriptor for the given systems.
 
         Args:
-            system (System): The system for which to create the
-            descriptor.
+            system (System): The system for which to create the descriptor.
+            args: Descriptor specific positional arguments.
+            kwargs: Descriptor specific keyword arguments.
         """
         # Ensure that we get a System
         if isinstance(system, Atoms):
             system = System.from_atoms(system)
 
-        return self.describe(system, **kwargs)
+        return self.describe(system, *args, **kwargs)
 
     @abstractmethod
     def describe(self, system):

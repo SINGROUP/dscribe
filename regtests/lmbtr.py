@@ -9,6 +9,8 @@ from describe.descriptors import LMBTR
 
 from ase import Atoms
 
+import matplotlib.pyplot as mpl
+
 
 H2O = Atoms(
     cell=[
@@ -118,15 +120,15 @@ class LMBTRTests(unittest.TestCase):
             },
             flatten=False
         )
-        
-        desc = lmbtr.create(H2O, positions=[[0, 0, 0]])
-        desc = lmbtr.create(H2O, positions=[[0, 0, 0.5]], scaled_positions=True)
-        
-        with self.assertRaises(ValueError):
-            desc = lmbtr.create(H2O, positions=[3])
+
+        lmbtr.create(H2O, positions=[[0, 0, 0]])
+        lmbtr.create(H2O, positions=[[0, 0, 0.5]], scaled_positions=True)
 
         with self.assertRaises(ValueError):
-            desc = lmbtr.create(H2O, positions=['a'])
+            lmbtr.create(H2O, positions=[3])
+
+        with self.assertRaises(ValueError):
+            lmbtr.create(H2O, positions=['a'])
 
         with self.assertRaises(ValueError):
             H = Atoms(
@@ -134,7 +136,7 @@ class LMBTRTests(unittest.TestCase):
                 symbols=["H"],
             )
 
-            desc = lmbtr.create(
+            lmbtr.create(
                 H,
                 positions=[[0, 0, 1]],
                 scaled_positions=True
@@ -221,22 +223,8 @@ class LMBTRTests(unittest.TestCase):
         expected = 1/2*(n_elem)*(n_elem+1)*n
         self.assertEqual(n_features, expected)
 
-    # def test_flatten(self):
-        # """LMBTR: Tests the flattening.
-        # """
-        # # Unflattened
-        # desc = LMBTR(n_atoms_max=5, permutation="none", flatten=False)
-        # cm = desc.create(H2O)
-        # self.assertEqual(cm.shape, (5, 5))
-
-        # # Flattened
-        # desc = LMBTR(n_atoms_max=5, permutation="none", flatten=True)
-        # cm = desc.create(H2O)
-        # self.assertEqual(cm.shape, (25,))
-
     def test_periodic(self):
-        """
-        LMBTR: Test periodic flag
+        """LMBTR: Test periodic flag
         """
         test_sys = Atoms(
             cell=[[5.0, 0.0, 0.0], [0, 5.0, 0.0], [0.0, 0.0, 5.0]],
@@ -277,8 +265,7 @@ class LMBTRTests(unittest.TestCase):
         self.assertTrue(np.linalg.norm(desc_[0][0] - desc[0][0]) < 1e-6)
 
     def test_inverse_distances(self):
-        """
-        LMBTR: Test inverse distances
+        """LMBTR: Test inverse distances
         """
         lmbtr = LMBTR([1, 8], k=[2], periodic=False)
         lmbtr.create(H2O, positions=[1])
@@ -299,23 +286,16 @@ class LMBTRTests(unittest.TestCase):
         self.assertEqual(inv_dist, inv_dist_2)
 
     def test_cosines(self):
-        """
-        LMBTR: Test cosines
+        """LMBTR: Test cosines
         """
         lmbtr = LMBTR([1, 8], k=[3], periodic=False)
         lmbtr.create(H2O, positions=[1])
         angles = lmbtr._angles
 
         # Test against the assumed values.
-        assumed = {
-            1: {
-                1: 2*[np.cos(104/180*np.pi)]
-            }
-        }
+        assumed = np.cos(104/180*np.pi)
         self.assertTrue(
-            np.abs(angles[1][1][0]
-            - np.cos(104/180*np.pi))
-            < 1e-6
+            np.abs(angles[1][1][0] - assumed) < 1e-6
         )
 
         # Test against system with different indexing
@@ -323,6 +303,20 @@ class LMBTRTests(unittest.TestCase):
         lmbtr.create(H2O_2, positions=[0])
         angles2 = lmbtr._angles
         self.assertEqual(angles, angles2)
+
+    def test_positions(self):
+        """Tests that the position argument is handled correctly. The position
+        can be a list of integers or a list of 3D positions.
+        """
+        lmbtr = LMBTR([1, 8], k=[3], periodic=False, flatten=True)
+
+        # Positions as a list of integers pointing to atom indices
+        positions = [0, 1, 2]
+        desc = lmbtr.create(H2O, positions)
+
+        # Positions as lists of vectors
+        positions = [[0, 1, 2], [0, 0, 0]]
+        desc = lmbtr.create(H2O, positions)
 
     def test_symmetries(self):
         """LMBTR: Tests translational and rotational symmetries for a finite system.
@@ -380,7 +374,6 @@ class LMBTRTests(unittest.TestCase):
             trans_features = desc.create(molecule, positions=[0])[0].toarray()
             deviation = np.max(np.abs(features - trans_features))
             self.assertTrue(deviation < 1e-6)
-
 
 if __name__ == "__main__":
     suites = []
