@@ -1,5 +1,6 @@
 # distutils: language = c++
 
+import numpy as np
 from libcpp.vector cimport vector
 from cmbtrdef cimport CMBTR
 
@@ -10,4 +11,4 @@ cdef class PyCMBTR:
     def __dealloc__(self):
         del self.thisptr
     def get_displacement_tensor(self):
-        return self.thisptr.getDisplacementTensor()
+        return np.array(self.thisptr.getDisplacementTensor(), dtype=np.float32)

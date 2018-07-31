@@ -15,7 +15,7 @@ import chronic
 def test_bulk_k2():
     system = bulk("NaCl", "rocksalt", 5.64, cubic=True)
     system.wrap()
-    system *= (3, 3, 3)
+    # system *= (3, 3, 3)
     # view(system)
 
     mbtr = MBTR(
@@ -23,7 +23,7 @@ def test_bulk_k2():
         atomic_numbers=system.get_atomic_numbers(),
         periodic=True,
         grid={"k2": {"min": 0, "max": 3, "n": 20, "sigma": 0.1}},
-        weighting={"k2": {"function": lambda x: np.exp(-0.3*x), "threshold": 1e-3}},
+        weighting={"k2": {"function": lambda x: np.exp(-0.5*x), "threshold": 1e-3}},
         flatten=True
     )
     feat = mbtr.create(system)

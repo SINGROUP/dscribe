@@ -12,6 +12,8 @@ from scipy.special import erf
 from describe.core import System
 from describe.descriptors import Descriptor
 
+from describe.wrapmbtr.cmbtr import PyCMBTR
+
 
 class MBTR(Descriptor):
     """Implementation of the Many-body tensor representation up to k=3.
@@ -608,6 +610,16 @@ class MBTR(Descriptor):
             so that the entry for pair i and j is in the entry where j>=i.
         """
         if self._inverse_distances is None:
+
+            pycmbtr = PyCMBTR(
+                system.get_positions(),
+                system.get_atomic_numbers(),
+                self.n_atoms_in_cell
+            )
+            disp_tensor = pycmbtr.get_displacement_tensor()
+            print(type(disp_tensor))
+            print(disp_tensor.shape)
+
             with chronic.Timer('inverse_distance_calculation'):
                 inverse_dist = system.get_inverse_distance_matrix()
 

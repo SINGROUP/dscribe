@@ -1,9 +1,9 @@
 from libcpp.vector cimport vector
 
-cdef extern from "cmbtr.cpp":
+cdef extern from "../libmbtr/cmbtr.cpp":
     pass
 
-cdef extern from "cmbtr.h":
+cdef extern from "../libmbtr/cmbtr.h":
   cdef cppclass CMBTR:
         CMBTR(vector[vector[float]], vector[int], int) except +
-        vector[vector[vector[double]]] getDisplacementTensor()
+        vector[vector[vector[float]]] getDisplacementTensor()

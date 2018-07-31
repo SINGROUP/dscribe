@@ -32,7 +32,7 @@ if __name__ == "__main__":
         ],
         package_data={'describe': ['describe/libacsf/acsf.h']},
         # ext_modules=extensions,
-        ext_modules=cythonize("./describe/libmbtr/cmbtr.pyx"),
+        ext_modules=cythonize("./describe/wrapmbtr/cmbtr.pyx"),
         license="Apache 2.0",
         classifiers=[
             'Development Status :: 4 - Beta',
