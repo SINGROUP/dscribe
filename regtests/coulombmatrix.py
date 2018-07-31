@@ -41,7 +41,7 @@ HHe = Atoms(
 )
 
 
-class CoulombMatrixTests(TestBaseClass):
+class CoulombMatrixTests(TestBaseClass, unittest.TestCase):
 
     def test_constructor(self):
         """Tests different valid and invalid constructor values.
@@ -129,7 +129,7 @@ class CoulombMatrixTests(TestBaseClass):
         self.assertFalse(self.is_permutation_symmetric(desc))
 
 
-class SortedCoulombMatrixTests(TestBaseClass):
+class SortedCoulombMatrixTests(TestBaseClass, unittest.TestCase):
 
     def test_constructor(self):
         """Tests different valid and invalid constructor values.
@@ -182,7 +182,7 @@ class SortedCoulombMatrixTests(TestBaseClass):
         self.assertTrue(self.is_permutation_symmetric(desc))
 
 
-class CoulombMatrixEigenSpectrumTests(TestBaseClass):
+class CoulombMatrixEigenSpectrumTests(TestBaseClass, unittest.TestCase):
 
     def test_constructor(self):
         """Tests different valid and invalid constructor values.
@@ -240,7 +240,7 @@ class CoulombMatrixEigenSpectrumTests(TestBaseClass):
         self.assertTrue(self.is_permutation_symmetric(desc))
 
 
-class RandomCoulombMatrixTests(TestBaseClass):
+class RandomCoulombMatrixTests(TestBaseClass, unittest.TestCase):
 
     def test_constructor(self):
         """Tests different valid and invalid constructor values.

@@ -26,7 +26,7 @@ H2O = Atoms(
 )
 
 
-class SineMatrixTests(TestBaseClass):
+class SineMatrixTests(TestBaseClass, unittest.TestCase):
 
     def test_constructor(self):
         """Tests different valid and invalid constructor values.

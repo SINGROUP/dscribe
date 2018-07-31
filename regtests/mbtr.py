@@ -64,7 +64,7 @@ H = Atoms(
 )
 
 
-class MBTRTests(TestBaseClass):
+class MBTRTests(TestBaseClass, unittest.TestCase):
 
     def test_constructor(self):
         """Tests different valid and invalid constructor values.

@@ -1,7 +1,6 @@
 import math
 import abc
 import numpy as np
-import unittest
 from ase import Atoms
 
 ABC = abc.ABCMeta('ABC', (object,), {})
@@ -22,7 +21,7 @@ finite_system = Atoms(
 )
 
 
-class TestBaseClass(unittest.TestCase, ABC):
+class TestBaseClass():
     """This is a base class that contains common tests and utilities shared by
     different descriptors. It also defines a set of common basic tests that
     should be implemented for every descriptor.

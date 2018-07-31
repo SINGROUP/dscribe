@@ -34,7 +34,7 @@ rcut = 30
 gcut = 20
 
 
-class EwaldMatrixTests(TestBaseClass):
+class EwaldMatrixTests(TestBaseClass, unittest.TestCase):
 
     def test_constructor(self):
         """Tests different valid and invalid constructor values.
