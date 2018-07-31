@@ -1,4 +1,5 @@
 from setuptools import setup, find_packages, Extension
+from Cython.Build import cythonize
 
 extensions = [
     Extension(
@@ -11,7 +12,7 @@ extensions = [
         include_dirs=["describe/libacsf"],
         libraries=["m"],
         extra_compile_args=["-O3", "-std=c99"]
-    )
+    ),
 ]
 
 if __name__ == "__main__":
@@ -30,7 +31,8 @@ if __name__ == "__main__":
             'soaplite',
         ],
         package_data={'describe': ['describe/libacsf/acsf.h']},
-        ext_modules=extensions,
+        # ext_modules=extensions,
+        ext_modules=cythonize("./describe/libmbtr/cmbtr.pyx"),
         license="Apache 2.0",
         classifiers=[
             'Development Status :: 4 - Beta',
