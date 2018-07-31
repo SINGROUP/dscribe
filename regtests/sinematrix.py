@@ -136,16 +136,18 @@ class SineMatrixTests(TestBaseClass, unittest.TestCase):
     def test_symmetries(self):
         """Tests the symmetries of the descriptor.
         """
-        desc = SineMatrix(n_atoms_max=3, permutation="sorted_l2", flatten=True)
+        def create(system):
+            desc = SineMatrix(n_atoms_max=3, permutation="sorted_l2", flatten=True)
+            return desc.create(system)
 
         # Rotational
-        self.assertTrue(self.is_rotationally_symmetric(desc))
+        self.assertTrue(self.is_rotationally_symmetric(create))
 
         # Translational
-        self.assertTrue(self.is_translationally_symmetric(desc))
+        self.assertTrue(self.is_translationally_symmetric(create))
 
         # Permutational
-        self.assertTrue(self.is_permutation_symmetric(desc))
+        self.assertTrue(self.is_permutation_symmetric(create))
 
     # def test_visual(self):
         # import matplotlib.pyplot as mpl

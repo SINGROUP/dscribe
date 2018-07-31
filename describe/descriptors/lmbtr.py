@@ -141,7 +141,7 @@ class LMBTR(MBTR):
         Returns:
             1D ndarray: The local many-body tensor representations of given
                 positions, for k terms, as an array. These are ordered as given
-                in list_atom_indices, followed by list_positions
+                in positions.
         """
         # ensuring self is updated
         self.update()

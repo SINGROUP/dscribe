@@ -319,51 +319,54 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         self.assertTrue(np.allclose(sum_cum, exp, rtol=0, atol=0.001))
 
     def test_symmetries(self):
-        desc = MBTR(
-            atomic_numbers=[1, 8],
-            k=[1, 2, 3],
-            periodic=False,
-            grid={
-                "k1": {
-                    "min": 10,
-                    "max": 18,
-                    "sigma": 0.1,
-                    "n": 100,
+
+        def create(system):
+            desc = MBTR(
+                atomic_numbers=[1, 8],
+                k=[1, 2, 3],
+                periodic=False,
+                grid={
+                    "k1": {
+                        "min": 10,
+                        "max": 18,
+                        "sigma": 0.1,
+                        "n": 100,
+                    },
+                    "k2": {
+                        "min": 0,
+                        "max": 0.7,
+                        "sigma": 0.01,
+                        "n": 100,
+                    },
+                    "k3": {
+                        "min": -1.0,
+                        "max": 1.0,
+                        "sigma": 0.05,
+                        "n": 100,
+                    }
                 },
-                "k2": {
-                    "min": 0,
-                    "max": 0.7,
-                    "sigma": 0.01,
-                    "n": 100,
+                weighting={
+                    "k2": {
+                        "function": lambda x: np.exp(-0.5*x),
+                        "threshold": 1e-3
+                    },
+                    "k3": {
+                        "function": lambda x: np.exp(-0.5*x),
+                        "threshold": 1e-3
+                    },
                 },
-                "k3": {
-                    "min": -1.0,
-                    "max": 1.0,
-                    "sigma": 0.05,
-                    "n": 100,
-                }
-            },
-            weighting={
-                "k2": {
-                    "function": lambda x: np.exp(-0.5*x),
-                    "threshold": 1e-3
-                },
-                "k3": {
-                    "function": lambda x: np.exp(-0.5*x),
-                    "threshold": 1e-3
-                },
-            },
-            flatten=True
-        )
+                flatten=True
+            )
+            return desc.create(system)
 
         # Rotational check
-        self.assertTrue(self.is_rotationally_symmetric(desc))
+        self.assertTrue(self.is_rotationally_symmetric(create))
 
         # Translational
-        self.assertTrue(self.is_translationally_symmetric(desc))
+        self.assertTrue(self.is_translationally_symmetric(create))
 
         # Permutational
-        self.assertTrue(self.is_permutation_symmetric(desc))
+        self.assertTrue(self.is_permutation_symmetric(create))
 
     def test_unit_cells(self):
         """Tests that arbitrary unit cells are accepted.

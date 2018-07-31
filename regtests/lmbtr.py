@@ -11,6 +11,8 @@ from ase import Atoms
 
 import matplotlib.pyplot as mpl
 
+from testbaseclass import TestBaseClass
+
 
 H2O = Atoms(
     cell=[
@@ -46,7 +48,7 @@ HHe = Atoms(
 )
 
 
-class LMBTRTests(unittest.TestCase):
+class LMBTRTests(TestBaseClass, unittest.TestCase):
 
     def test_constructor(self):
         """LMBTR: Tests different valid and invalid constructor values.
@@ -223,6 +225,22 @@ class LMBTRTests(unittest.TestCase):
         expected = 1/2*(n_elem)*(n_elem+1)*n
         self.assertEqual(n_features, expected)
 
+    def test_flatten(self):
+        system = H2O
+        n = 10
+        n_species = len(set(system.get_atomic_numbers()))
+
+        # K2 unflattened
+        desc = LMBTR([1, 8], k=[2], grid={"k2": {"n": n, "min": 0, "max": 2, "sigma": 0.1}}, periodic=False, flatten=False)
+        feat = desc.create(system, positions=[0])[0][0]
+        self.assertEqual(feat.shape, (n_species, n))
+
+        # K2 flattened. The sparse matrix only supports 2D matrices, so the first
+        # dimension is always present, even if it is of length 1.
+        desc = LMBTR([1, 8], k=[2], grid={"k2": {"n": n, "min": 0, "max": 2, "sigma": 0.1}}, periodic=False, flatten=True)
+        feat = desc.create(system, positions=[0])[0]
+        self.assertEqual(feat.shape, (1, n_species*n))
+
     def test_periodic(self):
         """LMBTR: Test periodic flag
         """
@@ -358,22 +376,26 @@ class LMBTRTests(unittest.TestCase):
             flatten=True
         )
 
+        def create_1(system):
+            """This function uses scaled positions so atom permutation should
+            not affect it.
+            """
+            return desc.create(system, positions=[[0, 0, 0]], scaled_positions=True)[0]
+
+        def create_2(system):
+            """This function uses atom indices so rotation and translation
+            should not affect it.
+            """
+            return desc.create(system, positions=[0])[0]
+
         # Rotational check
-        molecule = H2O.copy()
-        features = desc.create(molecule, positions=[0])[0].toarray()
+        self.assertTrue(self.is_rotationally_symmetric(create_2))
 
-        for rotation in ['x', 'y', 'z']:
-            molecule.rotate(45, rotation)
-            rot_features = desc.create(molecule, positions=[0])[0].toarray()
-            deviation = np.max(np.abs(features - rot_features))
-            self.assertTrue(deviation < 1e-6)
+        # Translational
+        self.assertTrue(self.is_translationally_symmetric(create_2))
 
-        # Translation check
-        for translation in [[1.0, 1.0, 1.0], [-5.0, 5.0, -5.0], [1.0, 1.0, -10.0]]:
-            molecule.translate(translation)
-            trans_features = desc.create(molecule, positions=[0])[0].toarray()
-            deviation = np.max(np.abs(features - trans_features))
-            self.assertTrue(deviation < 1e-6)
+        # Permutational
+        self.assertTrue(self.is_permutation_symmetric(create_1))
 
 if __name__ == "__main__":
     suites = []

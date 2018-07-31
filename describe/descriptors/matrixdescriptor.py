@@ -91,10 +91,6 @@ class MatrixDescriptor(Descriptor):
             matrix = self.get_eigenspectrum(matrix)
         elif self.permutation == "random":
             matrix = self.sort_randomly(matrix, self.sigma)
-        else:
-            raise ValueError(
-                "Invalid permutation method: {}".format(self.permutation)
-            )
 
         # Add zero padding
         matrix = self.zero_pad(matrix)

@@ -185,16 +185,18 @@ class EwaldMatrixTests(TestBaseClass, unittest.TestCase):
     def test_symmetries(self):
         """Tests the symmetries of the descriptor.
         """
-        desc = EwaldMatrix(n_atoms_max=3, permutation="sorted_l2", flatten=True)
+        def create(system):
+            desc = EwaldMatrix(n_atoms_max=3, permutation="sorted_l2", flatten=True)
+            return desc.create(system, rcut=30, gcut=30)
 
         # Rotational
-        self.assertTrue(self.is_rotationally_symmetric(desc, rcut=30, gcut=30))
+        self.assertTrue(self.is_rotationally_symmetric(create))
 
         # # Translational
-        self.assertTrue(self.is_translationally_symmetric(desc, rcut=30, gcut=30))
+        self.assertTrue(self.is_translationally_symmetric(create))
 
         # # Permutational
-        self.assertTrue(self.is_permutation_symmetric(desc, rcut=30, gcut=30))
+        self.assertTrue(self.is_permutation_symmetric(create))
 
 
 if __name__ == '__main__':

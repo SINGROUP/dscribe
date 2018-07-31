@@ -117,16 +117,18 @@ class CoulombMatrixTests(TestBaseClass, unittest.TestCase):
     def test_symmetries(self):
         """Tests the symmetries of the descriptor.
         """
-        desc = CoulombMatrix(n_atoms_max=3, permutation="none", flatten=True)
+        def create(system):
+            desc = CoulombMatrix(n_atoms_max=3, permutation="none", flatten=True)
+            return desc.create(system)
 
         # Rotational
-        self.assertTrue(self.is_rotationally_symmetric(desc))
+        self.assertTrue(self.is_rotationally_symmetric(create))
 
         # Translational
-        self.assertTrue(self.is_translationally_symmetric(desc))
+        self.assertTrue(self.is_translationally_symmetric(create))
 
         # Permutational
-        self.assertFalse(self.is_permutation_symmetric(desc))
+        self.assertFalse(self.is_permutation_symmetric(create))
 
 
 class SortedCoulombMatrixTests(TestBaseClass, unittest.TestCase):
@@ -170,16 +172,18 @@ class SortedCoulombMatrixTests(TestBaseClass, unittest.TestCase):
     def test_symmetries(self):
         """Tests the symmetries of the descriptor.
         """
-        desc = CoulombMatrix(n_atoms_max=3, permutation="sorted_l2", flatten=True)
+        def create(system):
+            desc = CoulombMatrix(n_atoms_max=3, permutation="sorted_l2", flatten=True)
+            return desc.create(system)
 
         # Rotational
-        self.assertTrue(self.is_rotationally_symmetric(desc))
+        self.assertTrue(self.is_rotationally_symmetric(create))
 
         # Translational
-        self.assertTrue(self.is_translationally_symmetric(desc))
+        self.assertTrue(self.is_translationally_symmetric(create))
 
         # Permutational
-        self.assertTrue(self.is_permutation_symmetric(desc))
+        self.assertTrue(self.is_permutation_symmetric(create))
 
 
 class CoulombMatrixEigenSpectrumTests(TestBaseClass, unittest.TestCase):
@@ -228,16 +232,18 @@ class CoulombMatrixEigenSpectrumTests(TestBaseClass, unittest.TestCase):
     def test_symmetries(self):
         """Tests the symmetries of the descriptor.
         """
-        desc = CoulombMatrix(n_atoms_max=3, permutation="eigenspectrum", flatten=True)
+        def create(system):
+            desc = CoulombMatrix(n_atoms_max=3, permutation="eigenspectrum", flatten=True)
+            return desc.create(system)
 
         # Rotational
-        self.assertTrue(self.is_rotationally_symmetric(desc))
+        self.assertTrue(self.is_rotationally_symmetric(create))
 
         # Translational
-        self.assertTrue(self.is_translationally_symmetric(desc))
+        self.assertTrue(self.is_translationally_symmetric(create))
 
         # Permutational
-        self.assertTrue(self.is_permutation_symmetric(desc))
+        self.assertTrue(self.is_permutation_symmetric(create))
 
 
 class RandomCoulombMatrixTests(TestBaseClass, unittest.TestCase):
@@ -339,19 +345,22 @@ class RandomCoulombMatrixTests(TestBaseClass, unittest.TestCase):
     def test_symmetries(self):
         """Tests the symmetries of the descriptor.
         """
+
         # The symmetries should be present when sigma is set to very low
         # values. With higer sigma values this descriptor is no longer
         # symmetric.
-        desc = CoulombMatrix(n_atoms_max=3, permutation="random", sigma=0.000001, flatten=True)
+        def create(system):
+            desc = CoulombMatrix(n_atoms_max=3, permutation="random", sigma=0.000001, flatten=True)
+            return desc.create(system)
 
         # Rotational
-        self.assertTrue(self.is_rotationally_symmetric(desc))
+        self.assertTrue(self.is_rotationally_symmetric(create))
 
         # Translational
-        self.assertTrue(self.is_translationally_symmetric(desc))
+        self.assertTrue(self.is_translationally_symmetric(create))
 
         # Permutational
-        self.assertTrue(self.is_permutation_symmetric(desc))
+        self.assertTrue(self.is_permutation_symmetric(create))
 
 
 if __name__ == '__main__':
