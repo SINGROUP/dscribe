@@ -10,10 +10,12 @@ from describe.descriptors import MBTR
 
 from ase.build import bulk
 from ase import Atoms
-from ase.visualize import view
+# from ase.visualize import view
 import ase.geometry
 
-import matplotlib.pyplot as mpl
+# import matplotlib.pyplot as mpl
+
+from testbaseclass import TestBaseClass
 
 
 H2O = Atoms(
@@ -62,7 +64,7 @@ H = Atoms(
 )
 
 
-class MBTRTests(unittest.TestCase):
+class MBTRTests(TestBaseClass):
 
     def test_constructor(self):
         """Tests different valid and invalid constructor values.
@@ -179,6 +181,22 @@ class MBTRTests(unittest.TestCase):
         n_features = mbtr.get_number_of_features()
         expected = n_elem*n + 1/2*(n_elem)*(n_elem+1)*n + n_elem*1/2*(n_elem)*(n_elem+1)*n
         self.assertEqual(n_features, expected)
+
+    def test_flatten(self):
+        system = H2O
+        n = 10
+        n_species = len(set(system.get_atomic_numbers()))
+
+        # K1 unflattened
+        desc = MBTR([1, 8], k=[1], grid={"k1": {"n": n, "min": 1, "max": 8, "sigma": 0.1}}, periodic=False, flatten=False)
+        feat = desc.create(system)[0]
+        self.assertEqual(feat.shape, (n_species, n))
+
+        # K1 flattened. The sparse matrix only supports 2D matrices, so the first
+        # dimension is always present, even if it is of length 1.
+        desc = MBTR([1, 8], k=[1], grid={"k1": {"n": n, "min": 1, "max": 8, "sigma": 0.1}}, periodic=False)
+        feat = desc.create(system)
+        self.assertEqual(feat.shape, (1, n_species*n))
 
     def test_counts(self):
         mbtr = MBTR([1, 8], k=[1], periodic=False)
@@ -300,110 +318,7 @@ class MBTRTests(unittest.TestCase):
         exp = 2/(1/math.sqrt(2*math.pi*std**2))
         self.assertTrue(np.allclose(sum_cum, exp, rtol=0, atol=0.001))
 
-    # def test_k1(self):
-        # mbtr = MBTR([1, 8], k=[1], periodic=False, flatten=False)
-        # desc = mbtr.create(H2O)
-        # x1 = mbtr._axis_k1
-
-        # imap = mbtr.index_to_atomic_number
-        # smap = {}
-        # for index, number in imap.items():
-            # smap[index] = numbers_to_symbols(number)
-
-        # Visually check the contents
-        # mpl.plot(y)
-        # mpl.ylim(0, y.max())
-        # mpl.show()
-
-        # mpl.plot(x1, desc[0][0, :], label="{}".format(smap[0]))
-        # mpl.plot(x1, desc[0][1, :], linestyle=":", linewidth=3, label="{}".format(smap[1]))
-        # mpl.ylabel("$\phi$ (arbitrary units)", size=20)
-        # mpl.xlabel("Inverse distance (1/angstrom)", size=20)
-        # mpl.legend()
-        # mpl.show()
-
-    # def test_k2(self):
-        # mbtr = MBTR([1, 8], k=[2], periodic=False, flatten=False)
-        # desc = mbtr.create(H2O)
-
-        # x2 = mbtr._axis_k2
-        # imap = mbtr.index_to_atomic_number
-        # smap = {}
-        # for index, number in imap.items():
-            # smap[index] = numbers_to_symbols(number)
-
-        # Visually check the contents
-        # mpl.plot(x2, desc[1][0, 1, :], label="{}-{}".format(smap[0], smap[1]))
-        # mpl.plot(x2, desc[1][1, 0, :], linestyle=":", linewidth=3, label="{}-{}".format(smap[1], smap[0]))
-        # mpl.plot(x2, desc[1][1, 1, :], label="{}-{}".format(smap[1], smap[1]))
-        # mpl.plot(x2, desc[1][0, 0, :], label="{}-{}".format(smap[0], smap[0]))
-        # mpl.ylabel("$\phi$ (arbitrary units)", size=20)
-        # mpl.xlabel("Inverse distance (1/angstrom)", size=20)
-        # mpl.legend()
-        # mpl.show()
-
-        # mbtr = MBTR([1, 8], k=2, periodic=False, flatten=True)
-        # desc = mbtr.create(H2O)
-        # y = desc.todense().T
-        # mpl.plot(y)
-        # mpl.show()
-
-    # def test_k3(self):
-        # mbtr = MBTR([1, 8], k=3, periodic=False)
-        # desc = mbtr.create(H2O)
-        # y = desc.todense().T
-
-        # # Visually check the contents
-        # mpl.plot(y)
-        # mpl.show()
-
-    def test_counts_duplicate(self):
-        mbtr = MBTR([1, 8], k=[1], periodic=False)
-        mbtr.create(H2O)
-
-        # Check that there are correct number of counts. The counts are
-        # calculated only from the original cell that is assumed to be
-        # primitive
-        self.assertTrue(np.array_equal(mbtr._counts, [2, 1]))
-
-    # def test_distances_duplicate(self):
-        # mbtr = MBTR([1, 8], k=[2], periodic=False)
-        # mbtr.create(H2O)
-
-        # # Check that there are correct number of inverse distances
-        # n_atoms = len(H2O)
-        # n_ext_atoms = (1+2*1)**3*n_atoms
-        # n_inv_dist_analytic = sum([n_ext_atoms-i for i in range(1, n_atoms+1)])
-        # inv_dist = mbtr._inverse_distances
-
-        # n_inv_dist = 0
-        # for dict1 in inv_dist.values():
-            # for val in dict1.values():
-                # n_inv_dist += len(val)
-
-        # self.assertEqual(n_inv_dist_analytic, n_inv_dist)
-
-    # def test_angles_duplicate(self):
-        # mbtr = MBTR([1, 8], n_atoms_max=2, k=3, periodic=False)
-        # mbtr.create(H2O)
-
-        # Check that there are correct number of angles
-        # n_atoms = len(H2O)
-        # n_ext_atoms = (1+2*n_copies)**3*n_atoms
-        # n_angles_analytic = ?  # Did not have the energy to figure out the correct analytic formula... :)
-        # angles = mbtr._angles
-
-        # n_angles = 0
-        # for dict1 in angles.values():
-            # for dict2 in dict1.values():
-                # for val in dict2.values():
-                    # n_angles += len(val)
-
-        # self.assertEqual(n_angles_analytic, n_angles)
-
     def test_symmetries(self):
-        """Tests translational and rotational symmetries for a finite system.
-        """
         desc = MBTR(
             atomic_numbers=[1, 8],
             k=[1, 2, 3],
@@ -442,21 +357,13 @@ class MBTRTests(unittest.TestCase):
         )
 
         # Rotational check
-        molecule = H2O.copy()
-        features = desc.create(molecule)
+        self.assertTrue(self.is_rotationally_symmetric(desc))
 
-        for rotation in ['x', 'y', 'z']:
-            molecule.rotate(45, rotation)
-            rot_features = desc.create(molecule)
-            deviation = np.max(np.abs(features - rot_features))
-            self.assertTrue(deviation < 1e-6)
+        # Translational
+        self.assertTrue(self.is_translationally_symmetric(desc))
 
-        # Translation check
-        for translation in [[1.0, 1.0, 1.0], [-5.0, 5.0, -5.0], [1.0, 1.0, -10.0]]:
-            molecule.translate(translation)
-            trans_features = desc.create(molecule)
-            deviation = np.max(np.abs(features - trans_features))
-            self.assertTrue(deviation < 1e-6)
+        # Permutational
+        self.assertTrue(self.is_permutation_symmetric(desc))
 
     def test_unit_cells(self):
         """Tests that arbitrary unit cells are accepted.
@@ -521,97 +428,6 @@ class MBTRTests(unittest.TestCase):
             [2.0, 2.0, 0.0]
         ])
         triclinic_smallcell = desc.create(molecule)
-
-    def test_is_periodic(self):
-        """Tests whether periodic images are seen by the descriptor.
-        """
-        desc = MBTR(
-            atomic_numbers=[1],
-            k=[1, 2, 3],
-            periodic=False,
-            grid={
-                "k1": {
-                    "min": 10,
-                    "max": 18,
-                    "sigma": 0.1,
-                    "n": 10,
-                },
-                "k2": {
-                    "min": 0,
-                    "max": 0.7,
-                    "sigma": 0.01,
-                    "n": 10,
-                },
-                "k3": {
-                    "min": -1.0,
-                    "max": 1.0,
-                    "sigma": 0.05,
-                    "n": 10,
-                }
-            },
-            weighting={
-                "k2": {
-                    "function": lambda x: np.exp(-0.5*x),
-                    "threshold": 1e-3
-                },
-                "k3": {
-                    "function": lambda x: np.exp(-0.5*x),
-                    "threshold": 1e-3
-                },
-            },
-            flatten=True
-        )
-
-        H.set_pbc(False)
-        nocell = desc.create(H).toarray()
-
-        H.set_pbc(True)
-        H.set_cell([
-            [2.0, 0.0, 0.0],
-            [0.0, 2.0, 0.0],
-            [0.0, 0.0, 2.0]
-        ])
-
-        desc = MBTR(
-            atomic_numbers=[1],
-            k=[1, 2, 3],
-            periodic=True,
-            grid={
-                "k1": {
-                    "min": 10,
-                    "max": 18,
-                    "sigma": 0.1,
-                    "n": 10,
-                },
-                "k2": {
-                    "min": 0,
-                    "max": 0.7,
-                    "sigma": 0.01,
-                    "n": 10,
-                },
-                "k3": {
-                    "min": -1.0,
-                    "max": 1.0,
-                    "sigma": 0.05,
-                    "n": 10,
-                }
-            },
-            weighting={
-                "k2": {
-                    "function": lambda x: np.exp(-0.5*x),
-                    "threshold": 1e-3
-                },
-                "k3": {
-                    "function": lambda x: np.exp(-0.5*x),
-                    "threshold": 1e-3
-                },
-            },
-            flatten=True
-        )
-
-        cubic_cell = desc.create(H).toarray()
-
-        self.assertTrue(np.sum(np.abs(cubic_cell - nocell)) > 0.1)
 
     def test_periodic_images(self):
         """Tests that periodic images are handled correctly.
@@ -805,7 +621,7 @@ class MBTRTests(unittest.TestCase):
         self.assertTrue(np.allclose(peak_locs, assumed_peaks, rtol=0, atol=5*np.pi/180))
 
     def test_grid_change(self):
-        """Tests that te calculation of MBTR with new grid settings works.
+        """Tests that the calculation of MBTR with new grid settings works.
         """
         grid = {
             "k1": {
@@ -868,6 +684,63 @@ class MBTRTests(unittest.TestCase):
         # mpl.plot(x, spectrum1)
         # mpl.plot(x, spectrum2)
         # mpl.legend()
+        # mpl.show()
+
+    # def test_k1(self):
+        # mbtr = MBTR([1, 8], k=[1], periodic=False, flatten=False)
+        # desc = mbtr.create(H2O)
+        # x1 = mbtr._axis_k1
+
+        # imap = mbtr.index_to_atomic_number
+        # smap = {}
+        # for index, number in imap.items():
+            # smap[index] = numbers_to_symbols(number)
+
+        # Visually check the contents
+        # mpl.plot(y)
+        # mpl.ylim(0, y.max())
+        # mpl.show()
+
+        # mpl.plot(x1, desc[0][0, :], label="{}".format(smap[0]))
+        # mpl.plot(x1, desc[0][1, :], linestyle=":", linewidth=3, label="{}".format(smap[1]))
+        # mpl.ylabel("$\phi$ (arbitrary units)", size=20)
+        # mpl.xlabel("Inverse distance (1/angstrom)", size=20)
+        # mpl.legend()
+        # mpl.show()
+
+    # def test_k2(self):
+        # mbtr = MBTR([1, 8], k=[2], periodic=False, flatten=False)
+        # desc = mbtr.create(H2O)
+
+        # x2 = mbtr._axis_k2
+        # imap = mbtr.index_to_atomic_number
+        # smap = {}
+        # for index, number in imap.items():
+            # smap[index] = numbers_to_symbols(number)
+
+        # Visually check the contents
+        # mpl.plot(x2, desc[1][0, 1, :], label="{}-{}".format(smap[0], smap[1]))
+        # mpl.plot(x2, desc[1][1, 0, :], linestyle=":", linewidth=3, label="{}-{}".format(smap[1], smap[0]))
+        # mpl.plot(x2, desc[1][1, 1, :], label="{}-{}".format(smap[1], smap[1]))
+        # mpl.plot(x2, desc[1][0, 0, :], label="{}-{}".format(smap[0], smap[0]))
+        # mpl.ylabel("$\phi$ (arbitrary units)", size=20)
+        # mpl.xlabel("Inverse distance (1/angstrom)", size=20)
+        # mpl.legend()
+        # mpl.show()
+
+        # mbtr = MBTR([1, 8], k=2, periodic=False, flatten=True)
+        # desc = mbtr.create(H2O)
+        # y = desc.todense().T
+        # mpl.plot(y)
+        # mpl.show()
+
+    # def test_k3(self):
+        # mbtr = MBTR([1, 8], k=3, periodic=False)
+        # desc = mbtr.create(H2O)
+        # y = desc.todense().T
+
+        # # Visually check the contents
+        # mpl.plot(y)
         # mpl.show()
 
 

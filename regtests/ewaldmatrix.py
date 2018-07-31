@@ -14,6 +14,8 @@ import scipy.constants
 from pymatgen.analysis.ewald import EwaldSummation
 from pymatgen.core.structure import Structure
 
+from testbaseclass import TestBaseClass
+
 
 H2O = Atoms(
     cell=[
@@ -28,45 +30,45 @@ H2O = Atoms(
     ],
     symbols=["H", "O", "H"],
 )
-rcut = 40
+rcut = 30
 gcut = 20
 
 
-class EwaldMatrixTests(unittest.TestCase):
+class EwaldMatrixTests(TestBaseClass):
 
-    # def test_constructor(self):
-        # """Tests different valid and invalid constructor values.
-        # """
-        # with self.assertRaises(ValueError):
-            # EwaldMatrix(n_atoms_max=5, permutation="unknown")
-        # with self.assertRaises(ValueError):
-            # EwaldMatrix(n_atoms_max=-1)
+    def test_constructor(self):
+        """Tests different valid and invalid constructor values.
+        """
+        with self.assertRaises(ValueError):
+            EwaldMatrix(n_atoms_max=5, permutation="unknown")
+        with self.assertRaises(ValueError):
+            EwaldMatrix(n_atoms_max=-1)
 
-    # def test_number_of_features(self):
-        # """Tests that the reported number of features is correct.
-        # """
-        # desc = EwaldMatrix(n_atoms_max=5, permutation="none", flatten=False)
-        # n_features = desc.get_number_of_features()
-        # self.assertEqual(n_features, 25)
+    def test_number_of_features(self):
+        """Tests that the reported number of features is correct.
+        """
+        desc = EwaldMatrix(n_atoms_max=5, permutation="none", flatten=False)
+        n_features = desc.get_number_of_features()
+        self.assertEqual(n_features, 25)
 
-    # def test_flatten(self):
-        # """Tests the flattening.
-        # """
-        # # Unflattened
-        # desc = EwaldMatrix(n_atoms_max=5, permutation="none", flatten=False)
-        # matrix = desc.create(H2O, rcut=rcut, gcut=gcut)
-        # self.assertEqual(matrix.shape, (5, 5))
+    def test_flatten(self):
+        """Tests the flattening.
+        """
+        # Unflattened
+        desc = EwaldMatrix(n_atoms_max=5, permutation="none", flatten=False)
+        matrix = desc.create(H2O, rcut=rcut, gcut=gcut)
+        self.assertEqual(matrix.shape, (5, 5))
 
-        # # Flattened
-        # desc = EwaldMatrix(n_atoms_max=5, permutation="none", flatten=True)
-        # matrix = desc.create(H2O, rcut=rcut, gcut=gcut)
-        # self.assertEqual(matrix.shape, (25,))
+        # Flattened
+        desc = EwaldMatrix(n_atoms_max=5, permutation="none", flatten=True)
+        matrix = desc.create(H2O, rcut=rcut, gcut=gcut)
+        self.assertEqual(matrix.shape, (25,))
 
     def test_a_independence(self):
         """Tests that the matrix elements are independent of the screening
-        parameter a used in the Ewald summation. Notice that the real space
+        parameter 'a' used in the Ewald summation. Notice that the real space
         cutoff and reciprocal space cutoff have to be sufficiently large for
-        this to be true, as a controls the width of the Gaussian charge
+        this to be true, as 'a' controls the width of the Gaussian charge
         distribution.
         """
         rcut = 40
@@ -141,57 +143,62 @@ class EwaldMatrixTests(unittest.TestCase):
                 self.assertTrue(np.allclose(energy_matrix[i, j], energy, atol=0.00001, rtol=0))
 
     def test_unit_cells(self):
-        """Tests if arbitrary unit cells are accepted"""
+        """Tests if arbitrary unit cells are accepted
+        """
         desc = EwaldMatrix(n_atoms_max=3, permutation="none", flatten=False)
         molecule = H2O.copy()
 
+        # A system without cell should produce an error
         molecule.set_cell([
-        [0.0, 0.0, 0.0],
-        [0.0, 0.0, 0.0],
-        [0.0, 0.0, 0.0]
-            ],
-            )
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0]
+        ])
         with self.assertRaises(ValueError):
             nocell = desc.create(molecule,  a=0.5, rcut=rcut, gcut=gcut)
 
+        # Large cell
         molecule.set_pbc(True)
         molecule.set_cell([
-        [20.0, 0.0, 0.0],
-        [0.0, 30.0, 0.0],
-        [0.0, 0.0, 40.0]
-            ],
-            )
+            [20.0, 0.0, 0.0],
+            [0.0, 30.0, 0.0],
+            [0.0, 0.0, 40.0]
+        ])
         largecell = desc.create(molecule,  a=0.5, rcut=rcut, gcut=gcut)
 
+        # Cubic cell
         molecule.set_cell([
-        [2.0, 0.0, 0.0],
-        [0.0, 2.0, 0.0],
-        [0.0, 0.0, 2.0]
-            ],
-            )
-        cubic_cell =  desc.create(molecule,  a=0.5, rcut=rcut, gcut=gcut)
+            [2.0, 0.0, 0.0],
+            [0.0, 2.0, 0.0],
+            [0.0, 0.0, 2.0]
+        ])
+        cubic_cell = desc.create(molecule,  a=0.5, rcut=rcut, gcut=gcut)
 
+        # Triclinic cell
         molecule.set_cell([
-        [0.0, 2.0, 2.0],
-        [2.0, 0.0, 2.0],
-        [2.0, 2.0, 0.0]
-            ],    
-            )
+            [0.0, 2.0, 2.0],
+            [2.0, 0.0, 2.0],
+            [2.0, 2.0, 0.0]
+        ])
         triclinic_smallcell = desc.create(molecule,  a=0.5, rcut=rcut, gcut=gcut)
 
+    def test_symmetries(self):
+        """Tests the symmetries of the descriptor.
+        """
+        desc = EwaldMatrix(n_atoms_max=3, permutation="sorted_l2", flatten=True)
 
-    # def test_elements(self):
-        # desc = EwaldMatrix(n_atoms_max=3, permutation="none", flatten=False)
+        # Rotational
+        self.assertTrue(self.is_rotationally_symmetric(desc, rcut=30, gcut=30))
 
-        # a = 2
-        # matrix = desc.create(H2O, a=a, rcut=rcut, gcut=gcut)
+        # # Translational
+        self.assertTrue(self.is_translationally_symmetric(desc, rcut=30, gcut=30))
 
-        # print(matrix)
+        # # Permutational
+        self.assertTrue(self.is_permutation_symmetric(desc, rcut=30, gcut=30))
+
 
 if __name__ == '__main__':
     suites = []
     suites.append(unittest.TestLoader().loadTestsFromTestCase(EwaldMatrixTests))
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SortedCoulombMatrixTests))
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(CoulombMatrixEigenSpectrumTests))
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)

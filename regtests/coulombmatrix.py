@@ -10,6 +10,8 @@ from describe.descriptors import CoulombMatrix
 
 from ase import Atoms
 
+from testbaseclass import TestBaseClass
+
 
 H2O = Atoms(
     cell=[
@@ -39,7 +41,7 @@ HHe = Atoms(
 )
 
 
-class CoulombMatrixTests(unittest.TestCase):
+class CoulombMatrixTests(TestBaseClass):
 
     def test_constructor(self):
         """Tests different valid and invalid constructor values.
@@ -113,28 +115,21 @@ class CoulombMatrixTests(unittest.TestCase):
         self.assertTrue(np.array_equal(cm, assumed))
 
     def test_symmetries(self):
-        """Tests translational and rotational symmetries
+        """Tests the symmetries of the descriptor.
         """
-        desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=False)
-        molecule = H2O.copy()
-        features = desc.create(molecule)
+        desc = CoulombMatrix(n_atoms_max=3, permutation="none", flatten=True)
 
-        #Rotational Check
-        for rotation in ['x', 'y', 'z']:
-            molecule.rotate(45, rotation)
-            rot_features = desc.create(molecule)
-            deviation = np.max(np.abs(features - rot_features))
-            self.assertTrue(deviation < 10e-9)
+        # Rotational
+        self.assertTrue(self.is_rotationally_symmetric(desc))
 
-        # Translation check
-        for translation in [[1.0, 1.0, 1.0], [-5.0, 5.0, -5.0], [1.0, 1.0, -10.0]]:
-            molecule.translate(translation)
-            trans_features = desc.create(molecule)
-            deviation = np.max(np.abs(features - trans_features))
-            self.assertTrue(deviation < 10e-9)
+        # Translational
+        self.assertTrue(self.is_translationally_symmetric(desc))
+
+        # Permutational
+        self.assertFalse(self.is_permutation_symmetric(desc))
 
 
-class SortedCoulombMatrixTests(unittest.TestCase):
+class SortedCoulombMatrixTests(TestBaseClass):
 
     def test_constructor(self):
         """Tests different valid and invalid constructor values.
@@ -172,8 +167,22 @@ class SortedCoulombMatrixTests(unittest.TestCase):
             self.assertTrue(length <= old_len)
             old_len = length
 
+    def test_symmetries(self):
+        """Tests the symmetries of the descriptor.
+        """
+        desc = CoulombMatrix(n_atoms_max=3, permutation="sorted_l2", flatten=True)
 
-class CoulombMatrixEigenSpectrumTests(unittest.TestCase):
+        # Rotational
+        self.assertTrue(self.is_rotationally_symmetric(desc))
+
+        # Translational
+        self.assertTrue(self.is_translationally_symmetric(desc))
+
+        # Permutational
+        self.assertTrue(self.is_permutation_symmetric(desc))
+
+
+class CoulombMatrixEigenSpectrumTests(TestBaseClass):
 
     def test_constructor(self):
         """Tests different valid and invalid constructor values.
@@ -203,8 +212,35 @@ class CoulombMatrixEigenSpectrumTests(unittest.TestCase):
         # Test that array is zero-padded
         self.assertTrue(np.array_equal(cm[len(H2O):], [0, 0]))
 
+    def test_flatten(self):
+        """Tests the flattening.
+        """
+        # Unflattened
+        desc = CoulombMatrix(n_atoms_max=5, permutation="eigenspectrum", flatten=False)
+        cm = desc.create(H2O)
+        self.assertEqual(cm.shape, (5,))
 
-class RandomCoulombMatrixTests(unittest.TestCase):
+        # Flattened
+        desc = CoulombMatrix(n_atoms_max=5, permutation="eigenspectrum", flatten=True)
+        cm = desc.create(H2O)
+        self.assertEqual(cm.shape, (5,))
+
+    def test_symmetries(self):
+        """Tests the symmetries of the descriptor.
+        """
+        desc = CoulombMatrix(n_atoms_max=3, permutation="eigenspectrum", flatten=True)
+
+        # Rotational
+        self.assertTrue(self.is_rotationally_symmetric(desc))
+
+        # Translational
+        self.assertTrue(self.is_translationally_symmetric(desc))
+
+        # Permutational
+        self.assertTrue(self.is_permutation_symmetric(desc))
+
+
+class RandomCoulombMatrixTests(TestBaseClass):
 
     def test_constructor(self):
         """Tests different valid and invalid constructor values.
@@ -225,8 +261,21 @@ class RandomCoulombMatrixTests(unittest.TestCase):
         n_features = desc.get_number_of_features()
         self.assertEqual(n_features, 25)
 
+    def test_flatten(self):
+        """Tests the flattening.
+        """
+        # Unflattened
+        desc = CoulombMatrix(n_atoms_max=5, permutation="random", sigma=100, flatten=False)
+        cm = desc.create(H2O)
+        self.assertEqual(cm.shape, (5, 5))
+
+        # Flattened
+        desc = CoulombMatrix(n_atoms_max=5, permutation="random", sigma=100, flatten=True)
+        cm = desc.create(H2O)
+        self.assertEqual(cm.shape, (25,))
+
     def test_norm_vector(self):
-        """Tests if the attribute norm_vector is written and used correctly
+        """Tests if the attribute _norm_vector is written and used correctly
         """
         desc = CoulombMatrix(n_atoms_max=5, permutation="random", sigma=100, flatten=False)
         cm = desc.create(H2O)
@@ -234,7 +283,7 @@ class RandomCoulombMatrixTests(unittest.TestCase):
 
         # The norm_vector is not zero padded in this implementation. All zero-padding
         # is done at the end after randomly sorting
-        self.assertEqual(len(desc.norm_vector), 3)
+        self.assertEqual(len(desc._norm_vector), 3)
         cm = desc.create(H2O)
         self.assertEqual(len(cm), 5)
 
@@ -286,6 +335,23 @@ class RandomCoulombMatrixTests(unittest.TestCase):
         scm = desc.create(H2O)
 
         self.assertTrue(np.array_equal(scm, srcm))
+
+    def test_symmetries(self):
+        """Tests the symmetries of the descriptor.
+        """
+        # The symmetries should be present when sigma is set to very low
+        # values. With higer sigma values this descriptor is no longer
+        # symmetric.
+        desc = CoulombMatrix(n_atoms_max=3, permutation="random", sigma=0.000001, flatten=True)
+
+        # Rotational
+        self.assertTrue(self.is_rotationally_symmetric(desc))
+
+        # Translational
+        self.assertTrue(self.is_translationally_symmetric(desc))
+
+        # Permutational
+        self.assertTrue(self.is_permutation_symmetric(desc))
 
 
 if __name__ == '__main__':

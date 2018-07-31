@@ -84,6 +84,9 @@ class EwaldMatrix(MatrixDescriptor):
         Returns:
             np.ndarray: Ewald matrix as 2D array.
         """
+        # Force the use of periodic boundary conditions
+        system.set_pbc(True)
+
         # Calculate the regular real and reciprocal space sums of the Ewald sum.
         ereal = self._calc_real(system)
         erecip = self._calc_recip(system)

@@ -5,9 +5,10 @@ import math
 import numpy as np
 import unittest
 
-from describe.descriptors import SineMatrix
-
 from ase import Atoms
+
+from describe.descriptors import SineMatrix
+from testbaseclass import TestBaseClass
 
 
 H2O = Atoms(
@@ -25,7 +26,7 @@ H2O = Atoms(
 )
 
 
-class SineMatrixTests(unittest.TestCase):
+class SineMatrixTests(TestBaseClass):
 
     def test_constructor(self):
         """Tests different valid and invalid constructor values.
@@ -100,42 +101,51 @@ class SineMatrixTests(unittest.TestCase):
         molecule = H2O.copy()
 
         molecule.set_cell([
-        [0.0, 0.0, 0.0],
-        [0.0, 0.0, 0.0],
-        [0.0, 0.0, 0.0]
-            ],
-            )
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0]
+        ])
         with self.assertRaises(ValueError):
             nocell = desc.create(molecule)
 
         molecule.set_pbc(True)
         molecule.set_cell([
-        [20.0, 0.0, 0.0],
-        [0.0, 30.0, 0.0],
-        [0.0, 0.0, 40.0]
-            ],
-            )
+            [20.0, 0.0, 0.0],
+            [0.0, 30.0, 0.0],
+            [0.0, 0.0, 40.0]
+        ])
 
         largecell = desc.create(molecule)
 
         molecule.set_cell([
-        [2.0, 0.0, 0.0],
-        [0.0, 2.0, 0.0],
-        [0.0, 0.0, 2.0]
-            ],
-            )
+            [2.0, 0.0, 0.0],
+            [0.0, 2.0, 0.0],
+            [0.0, 0.0, 2.0]
+        ])
 
         cubic_cell = desc.create(molecule)
 
         molecule.set_cell([
-        [0.0, 2.0, 2.0],
-        [2.0, 0.0, 2.0],
-        [2.0, 2.0, 0.0]
-            ],
-            )
+            [0.0, 2.0, 2.0],
+            [2.0, 0.0, 2.0],
+            [2.0, 2.0, 0.0]
+        ])
 
         triclinic_smallcell = desc.create(molecule)
 
+    def test_symmetries(self):
+        """Tests the symmetries of the descriptor.
+        """
+        desc = SineMatrix(n_atoms_max=3, permutation="sorted_l2", flatten=True)
+
+        # Rotational
+        self.assertTrue(self.is_rotationally_symmetric(desc))
+
+        # Translational
+        self.assertTrue(self.is_translationally_symmetric(desc))
+
+        # Permutational
+        self.assertTrue(self.is_permutation_symmetric(desc))
 
     # def test_visual(self):
         # import matplotlib.pyplot as mpl

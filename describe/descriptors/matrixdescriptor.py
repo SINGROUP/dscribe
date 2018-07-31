@@ -1,14 +1,16 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
-from builtins import (bytes, str, open, super, range,
-                      zip, round, input, int, pow, object)
+from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
+
 import numpy as np
+from numpy.random import RandomState
+
 from describe.descriptors import Descriptor
 
 
 class MatrixDescriptor(Descriptor):
     """A common base class for two-body matrix-like descriptors.
     """
-    def __init__(self, n_atoms_max, permutation="sorted_l2", sigma=None, flatten=True):
+    def __init__(self, n_atoms_max, permutation="sorted_l2", sigma=None, seed=None, flatten=True):
         """
         Args:
             n_atoms_max (int): The maximum nuber of atoms that any of the
@@ -16,13 +18,20 @@ class MatrixDescriptor(Descriptor):
                 padded to the final result.
             permutation (string): Defines the method for handling permutational
                 invariance. Can be one of the following:
-                    - none: The matrix is returned in the order defined by the Atoms.
+                    - none: The matrix is returned in the order defined by the
+                      Atoms.
                     - sorted_l2: The rows and columns are sorted by the L2 norm.
                     - eigenspectrum: Only the eigenvalues are returned sorted
                       by their absolute value in descending order.
-                    - random: ?
-            sigma (float): Width of gaussian distributed noise determining how much the
-                rows and columns of the randomly sorted coulomb matrix are scrambled.
+                    - random: The rows and columns are sorted by their L2 norm
+                      after applying Gaussian noise to the norms. The standard
+                      deviation of the noise is determined by the
+                      sigma-parameter.
+            sigma (float): Standard deviation of the gaussian distributed noise
+                determining how much the rows and columns of the randomly
+                sorted matrix are scrambled.
+            seed (int): A seed to use for drawing samples from a normal
+                distribution when the permutation method is set to random.
             flatten (bool): Whether the output of create() should be flattened
                 to a 1D array.
         """
@@ -36,8 +45,8 @@ class MatrixDescriptor(Descriptor):
         perm_options = set(("sorted_l2", "none", "eigenspectrum", "eigenspectrum", "random"))
         if permutation not in perm_options:
             raise ValueError(
-                "Unknown permutation option given. Please use one of the following: {}."
-                .format(", ".join(perm_options))
+                "Unknown permutation option given. Please use one of the "
+                "following: {}.".format(", ".join(perm_options))
             )
 
         if not sigma and permutation == 'random':
@@ -52,9 +61,10 @@ class MatrixDescriptor(Descriptor):
                 "as 'random'."
             )
 
+        self.random_state = RandomState(seed)
         self.n_atoms_max = n_atoms_max
         self.permutation = permutation
-        self.norm_vector = None
+        self._norm_vector = None
         self.sigma = sigma
 
     def describe(self, system):
@@ -66,6 +76,10 @@ class MatrixDescriptor(Descriptor):
             ndarray: The zero padded Coulomb matrix either as a 2D array or as
                 a 1D array depending on the setting self.flatten.
         """
+
+        # Remove the old norm vector for the new system
+        self._norm_vector = None
+
         matrix = self.get_matrix(system)
 
         # Handle the permutation option
@@ -162,7 +176,7 @@ class MatrixDescriptor(Descriptor):
     def sort_randomly(self, matrix, sigma):
         """
         Given a coulomb matrix, it adds random noise to the sorting defined by
-        sigma. For sorting, L2-norm is used
+        sigma. For sorting, L2-norm is used.
 
         Args:
             matrix(np.ndarray): The matrix to randomly sort.
@@ -175,14 +189,10 @@ class MatrixDescriptor(Descriptor):
         Returns:
             np.ndarray: The randomly sorted matrix.
         """
-        try:
-            len(self.norm_vector)
-        except:
-            self._get_norm_vector(matrix)
-
-        noise_norm_vector = np.random.normal(self.norm_vector, sigma)
+        norm_vector = self._get_norm_vector(matrix)
+        noise_norm_vector = self.random_state.normal(norm_vector, sigma)
         indexlist = np.argsort(noise_norm_vector)
-        indexlist = indexlist[::-1]  # order highest to lowest
+        indexlist = indexlist[::-1]  # Order highest to lowest
 
         matrix = matrix[indexlist][:, indexlist]
 
@@ -198,6 +208,6 @@ class MatrixDescriptor(Descriptor):
             np.ndarray: L2 norm of each row / column.
 
         """
-        self.norm_vector = np.linalg.norm(matrix, axis=1)
-
-        return self.norm_vector
+        if self._norm_vector is None:
+            self._norm_vector = np.linalg.norm(matrix, axis=1)
+        return self._norm_vector

@@ -38,6 +38,9 @@ class SineMatrix(MatrixDescriptor):
         Returns:
             np.ndarray: Sine matrix as 2D array.
         """
+        # Force the use of periodic boundary conditions
+        system.set_pbc(True)
+
         # Cell and inverse cell
         B = system.get_cell()
         try:
@@ -47,7 +50,7 @@ class SineMatrix(MatrixDescriptor):
                 "The given system has a non-invertible cell matrix: {}.".format(B)
             )
 
-        # Difference vectors in tensor 3D-tensor-form
+        # Difference vectors as a 3D tensor
         diff_tensor = system.get_displacement_tensor()
 
         # Calculate phi
