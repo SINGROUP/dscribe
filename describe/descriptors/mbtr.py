@@ -12,7 +12,7 @@ from scipy.special import erf
 from describe.core import System
 from describe.descriptors import Descriptor
 
-from describe.wrapmbtr.cmbtr import PyCMBTR
+from describe.wrapmbtr.cmbtr import CMBTRWrapper
 
 
 class MBTR(Descriptor):
@@ -606,53 +606,18 @@ class MBTR(Descriptor):
 
         Returns:
             dict: Inverse distances in the form:
-            {i: { j: [list of angles] }}. The dictionaries are filled
+            {(i, j): [list of angles] }. The dictionaries are filled
             so that the entry for pair i and j is in the entry where j>=i.
         """
         if self._inverse_distances is None:
 
-            pycmbtr = PyCMBTR(
+            cmbtr = CMBTRWrapper(
                 system.get_positions(),
                 system.get_atomic_numbers(),
+                self.atomic_number_to_index,
                 self.n_atoms_in_cell
             )
-            disp_tensor = pycmbtr.get_displacement_tensor()
-            print(type(disp_tensor))
-            print(disp_tensor.shape)
-
-            with chronic.Timer('inverse_distance_calculation'):
-                inverse_dist = system.get_inverse_distance_matrix()
-
-            with chronic.Timer('inverse_distance_saving'):
-                numbers = system.numbers
-                inv_dist_dict = {}
-                for i_atom, i_element in enumerate(numbers):
-                    for j_atom, j_element in enumerate(numbers):
-                        if j_atom > i_atom:
-                            # Only consider pairs that have one atom in the original
-                            # cell
-                            if i_atom < self.n_atoms_in_cell or \
-                               j_atom < self.n_atoms_in_cell:
-
-                                i_index = self.atomic_number_to_index[i_element]
-                                j_index = self.atomic_number_to_index[j_element]
-
-                                # Make sure that j_index >= i_index so that we fill only
-                                # the upper triangular part
-                                i_index, j_index = sorted([i_index, j_index])
-
-                                old_dict = inv_dist_dict.get(i_index)
-                                if old_dict is None:
-                                    old_dict = {}
-                                old_list = old_dict.get(j_index)
-                                if old_list is None:
-                                    old_list = []
-                                inv_dist = inverse_dist[i_atom, j_atom]
-                                old_list.append(inv_dist)
-                                old_dict[j_index] = old_list
-                                inv_dist_dict[i_index] = old_dict
-
-                self._inverse_distances = inv_dist_dict
+            self._inverse_distances = cmbtr.get_inverse_distance_map()
         return self._inverse_distances
 
     @chronic.time
@@ -839,7 +804,7 @@ class MBTR(Descriptor):
                 if j >= i:
                     m += 1
                     try:
-                        inv_dist = np.array(inv_dist_dict[i][j])
+                        inv_dist = np.array(inv_dist_dict[(i, j)])
                     except KeyError:
                         continue
 
