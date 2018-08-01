@@ -14,6 +14,8 @@ extensions = [
         extra_compile_args=["-O3", "-std=c99"]
     ),
 ]
+# Adds the extensions automatically generated with Cython
+extensions.extend(cythonize("./describe/libmbtr/cmbtrwrapper.pyx"))
 
 if __name__ == "__main__":
     setup(name='describe',
@@ -32,8 +34,7 @@ if __name__ == "__main__":
             'soaplite',
         ],
         package_data={'describe': ['describe/libacsf/acsf.h']},
-        # ext_modules=extensions,
-        ext_modules=cythonize("./describe/libmbtr/cmbtrwrapper.pyx"),
+        ext_modules=extensions,
         license="Apache 2.0",
         classifiers=[
             'Development Status :: 4 - Beta',
@@ -50,6 +51,6 @@ if __name__ == "__main__":
             'Programming Language :: Python :: 3.5',
             'Programming Language :: Python :: 3.6',
         ],
-        keywords='atoms structure materials science crystal symmetry',
+        keywords='descriptor machine learning atomistic structure materials science',
         python_requires='>=2.6, <4',
     )
