@@ -59,7 +59,7 @@ class TestBaseClass(ABC):
             i_system.rotate(45, rotation, rotate_cell=True)
             i_features = create(i_system)
             deviation = np.max(np.abs(features - i_features))
-            if deviation > 10e-6:
+            if deviation > 1e-5:
                 is_rot_sym = False
         return is_rot_sym
 
@@ -80,7 +80,7 @@ class TestBaseClass(ABC):
             i_system.translate(translation)
             i_features = create(i_system)
             deviation = np.max(np.abs(features - i_features))
-            if deviation > 10e-9:
+            if deviation > 1e-5:
                 is_trans_sym = False
 
         return is_trans_sym
@@ -96,7 +96,7 @@ class TestBaseClass(ABC):
             i_system = finite_system[permutation]
             i_features = create(i_system)
             deviation = np.max(np.abs(features - i_features))
-            if deviation > 10e-9:
+            if deviation > 1e-8:
                 is_perm_sym = False
 
         return is_perm_sym

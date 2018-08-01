@@ -23,6 +23,7 @@ if __name__ == "__main__":
         long_description='A Python package for creating feature transformations in applications of machine learning to materials science.',
         packages=find_packages(),
         install_requires=[
+            'cython',
             'numpy',
             'scipy',
             'ase',
@@ -32,7 +33,7 @@ if __name__ == "__main__":
         ],
         package_data={'describe': ['describe/libacsf/acsf.h']},
         # ext_modules=extensions,
-        ext_modules=cythonize("./describe/wrapmbtr/cmbtr.pyx"),
+        ext_modules=cythonize("./describe/libmbtr/cmbtrwrapper.pyx"),
         license="Apache 2.0",
         classifiers=[
             'Development Status :: 4 - Beta',

@@ -12,7 +12,7 @@ from scipy.special import erf
 from describe.core import System
 from describe.descriptors import Descriptor
 
-from describe.wrapmbtr.cmbtr import CMBTRWrapper
+from describe.libmbtr.cmbtrwrapper import CMBTRWrapper
 
 
 class MBTR(Descriptor):

@@ -64,622 +64,626 @@ H = Atoms(
 )
 
 
-# class MBTRTests(TestBaseClass, unittest.TestCase):
-class MBTRTests(unittest.TestCase):
+class MBTRTests(TestBaseClass, unittest.TestCase):
 
-    # def test_constructor(self):
-        # """Tests different valid and invalid constructor values.
-        # """
-        # # Invalid k value not in an iterable
-        # with self.assertRaises(ValueError):
-            # MBTR(
-                # atomic_numbers=[1],
-                # k=0,
-                # periodic=False,
-            # )
+    def test_constructor(self):
+        """Tests different valid and invalid constructor values.
+        """
+        # Invalid k value not in an iterable
+        with self.assertRaises(ValueError):
+            MBTR(
+                atomic_numbers=[1],
+                k=0,
+                periodic=False,
+            )
 
-        # # Invalid k value
-        # with self.assertRaises(ValueError):
-            # MBTR(
-                # atomic_numbers=[1],
-                # k=[-1, 2],
-                # periodic=False,
-            # )
+        # Invalid k value
+        with self.assertRaises(ValueError):
+            MBTR(
+                atomic_numbers=[1],
+                k=[-1, 2],
+                periodic=False,
+            )
 
-        # # k not an iterable
-        # with self.assertRaises(ValueError):
-            # MBTR(
-                # atomic_numbers=[1],
-                # k=1,
-                # periodic=False,
-            # )
+        # k not an iterable
+        with self.assertRaises(ValueError):
+            MBTR(
+                atomic_numbers=[1],
+                k=1,
+                periodic=False,
+            )
 
-        # # Unsupported k=4
-        # with self.assertRaises(ValueError):
-            # MBTR(
-                # atomic_numbers=[1],
-                # k={1, 4},
-                # periodic=False,
-            # )
+        # Unsupported k=4
+        with self.assertRaises(ValueError):
+            MBTR(
+                atomic_numbers=[1],
+                k={1, 4},
+                periodic=False,
+            )
 
-    # def test_number_of_features(self):
-        # """Tests that the reported number of features is correct.
-        # """
-        # # K = 1
-        # n = 100
-        # atomic_numbers = [1, 8]
-        # n_elem = len(atomic_numbers)
-        # mbtr = MBTR(
-            # atomic_numbers=atomic_numbers,
-            # k=[1],
-            # grid={
-                # "k1": {
-                    # "min": 1,
-                    # "max": 8,
-                    # "sigma": 0.1,
-                    # "n": 100,
-                # }
-            # },
-            # periodic=False,
-            # flatten=True
-        # )
-        # n_features = mbtr.get_number_of_features()
-        # expected = n_elem*n
-        # self.assertEqual(n_features, expected)
+    def test_number_of_features(self):
+        """Tests that the reported number of features is correct.
+        """
+        # K = 1
+        n = 100
+        atomic_numbers = [1, 8]
+        n_elem = len(atomic_numbers)
+        mbtr = MBTR(
+            atomic_numbers=atomic_numbers,
+            k=[1],
+            grid={
+                "k1": {
+                    "min": 1,
+                    "max": 8,
+                    "sigma": 0.1,
+                    "n": 100,
+                }
+            },
+            periodic=False,
+            flatten=True
+        )
+        n_features = mbtr.get_number_of_features()
+        expected = n_elem*n
+        self.assertEqual(n_features, expected)
 
-        # # K = 2
-        # mbtr = MBTR(
-            # atomic_numbers=atomic_numbers,
-            # k={1, 2},
-            # grid={
-                # "k1": {
-                    # "min": 1,
-                    # "max": 8,
-                    # "sigma": 0.1,
-                    # "n": 100,
-                # },
-                # "k2": {
-                    # "min": 0,
-                    # "max": 1/0.7,
-                    # "sigma": 0.1,
-                    # "n": n,
-                # }
-            # },
-            # periodic=False,
-            # flatten=True
-        # )
-        # n_features = mbtr.get_number_of_features()
-        # expected = n_elem*n + 1/2*(n_elem)*(n_elem+1)*n
-        # self.assertEqual(n_features, expected)
+        # K = 2
+        mbtr = MBTR(
+            atomic_numbers=atomic_numbers,
+            k={1, 2},
+            grid={
+                "k1": {
+                    "min": 1,
+                    "max": 8,
+                    "sigma": 0.1,
+                    "n": 100,
+                },
+                "k2": {
+                    "min": 0,
+                    "max": 1/0.7,
+                    "sigma": 0.1,
+                    "n": n,
+                }
+            },
+            periodic=False,
+            flatten=True
+        )
+        n_features = mbtr.get_number_of_features()
+        expected = n_elem*n + 1/2*(n_elem)*(n_elem+1)*n
+        self.assertEqual(n_features, expected)
 
-        # # K = 3
-        # mbtr = MBTR(
-            # atomic_numbers=atomic_numbers,
-            # k={1, 2, 3},
-            # grid={
-                # "k1": {
-                    # "min": 1,
-                    # "max": 8,
-                    # "sigma": 0.1,
-                    # "n": 100,
-                # },
-                # "k2": {
-                    # "min": 0,
-                    # "max": 1/0.7,
-                    # "sigma": 0.1,
-                    # "n": n,
-                # },
-                # "k3": {
-                    # "min": -1,
-                    # "max": 1,
-                    # "sigma": 0.1,
-                    # "n": n,
-                # }
-            # },
-            # periodic=False,
-            # flatten=True
-        # )
-        # n_features = mbtr.get_number_of_features()
-        # expected = n_elem*n + 1/2*(n_elem)*(n_elem+1)*n + n_elem*1/2*(n_elem)*(n_elem+1)*n
-        # self.assertEqual(n_features, expected)
+        # K = 3
+        mbtr = MBTR(
+            atomic_numbers=atomic_numbers,
+            k={1, 2, 3},
+            grid={
+                "k1": {
+                    "min": 1,
+                    "max": 8,
+                    "sigma": 0.1,
+                    "n": 100,
+                },
+                "k2": {
+                    "min": 0,
+                    "max": 1/0.7,
+                    "sigma": 0.1,
+                    "n": n,
+                },
+                "k3": {
+                    "min": -1,
+                    "max": 1,
+                    "sigma": 0.1,
+                    "n": n,
+                }
+            },
+            periodic=False,
+            flatten=True
+        )
+        n_features = mbtr.get_number_of_features()
+        expected = n_elem*n + 1/2*(n_elem)*(n_elem+1)*n + n_elem*1/2*(n_elem)*(n_elem+1)*n
+        self.assertEqual(n_features, expected)
 
-    # def test_flatten(self):
-        # system = H2O
-        # n = 10
-        # n_species = len(set(system.get_atomic_numbers()))
+    def test_flatten(self):
+        system = H2O
+        n = 10
+        n_species = len(set(system.get_atomic_numbers()))
 
-        # # K1 unflattened
-        # desc = MBTR([1, 8], k=[1], grid={"k1": {"n": n, "min": 1, "max": 8, "sigma": 0.1}}, periodic=False, flatten=False)
-        # feat = desc.create(system)[0]
-        # self.assertEqual(feat.shape, (n_species, n))
+        # K1 unflattened
+        desc = MBTR([1, 8], k=[1], grid={"k1": {"n": n, "min": 1, "max": 8, "sigma": 0.1}}, periodic=False, flatten=False)
+        feat = desc.create(system)[0]
+        self.assertEqual(feat.shape, (n_species, n))
 
-        # # K1 flattened. The sparse matrix only supports 2D matrices, so the first
-        # # dimension is always present, even if it is of length 1.
-        # desc = MBTR([1, 8], k=[1], grid={"k1": {"n": n, "min": 1, "max": 8, "sigma": 0.1}}, periodic=False)
-        # feat = desc.create(system)
-        # self.assertEqual(feat.shape, (1, n_species*n))
+        # K1 flattened. The sparse matrix only supports 2D matrices, so the first
+        # dimension is always present, even if it is of length 1.
+        desc = MBTR([1, 8], k=[1], grid={"k1": {"n": n, "min": 1, "max": 8, "sigma": 0.1}}, periodic=False)
+        feat = desc.create(system)
+        self.assertEqual(feat.shape, (1, n_species*n))
 
-    # def test_counts(self):
-        # mbtr = MBTR([1, 8], k=[1], periodic=False)
-        # mbtr.create(H2O)
-        # counts = mbtr._counts
+    def test_counts(self):
+        mbtr = MBTR([1, 8], k=[1], periodic=False)
+        mbtr.create(H2O)
+        counts = mbtr._counts
 
-        # # Test against the assumed values
-        # self.assertTrue(np.array_equal(counts, np.array([2, 1])))
+        # Test against the assumed values
+        self.assertTrue(np.array_equal(counts, np.array([2, 1])))
 
-        # # Test against system with different indexing
-        # mbtr = MBTR([1, 8], k=[1], periodic=False)
-        # mbtr.create(H2O_2)
-        # counts2 = mbtr._counts
-        # self.assertTrue(np.array_equal(counts, counts2))
+        # Test against system with different indexing
+        mbtr = MBTR([1, 8], k=[1], periodic=False)
+        mbtr.create(H2O_2)
+        counts2 = mbtr._counts
+        self.assertTrue(np.array_equal(counts, counts2))
 
-    # def test_inverse_distances(self):
-        # mbtr = MBTR([1, 8], k=[2], periodic=False)
-        # mbtr.create(H2O)
-        # inv_dist = mbtr._inverse_distances
+    def test_inverse_distances(self):
+        mbtr = MBTR([1, 8], k=[2], periodic=False)
+        mbtr.create(H2O)
+        inv_dist = mbtr._inverse_distances
 
-        # # Test against the assumed values
-        # pos = H2O.get_positions()
-        # assumed = {
-            # (0, 0): [1/np.linalg.norm(pos[0] - pos[2])],
-            # (0, 1): 2*[1/np.linalg.norm(pos[0] - pos[1])]
-        # }
-        # self.assertEqual(assumed, inv_dist)
+        # Test against the assumed values
+        pos = H2O.get_positions()
+        assumed = {
+            (0, 0): [1/np.linalg.norm(pos[0] - pos[2])],
+            (0, 1): 2*[1/np.linalg.norm(pos[0] - pos[1])]
+        }
+        for key, item in inv_dist.items():
+            for i, j in zip(item, assumed[key]):
+                self.assertTrue(abs(i - j) < 1e-7)
 
-        # # Test against system with different indexing
-        # mbtr = MBTR([1, 8], k=[2], periodic=False)
-        # mbtr.create(H2O_2)
-        # inv_dist_2 = mbtr._inverse_distances
-        # self.assertEqual(inv_dist, inv_dist_2)
+        # Test against system with different indexing
+        mbtr = MBTR([1, 8], k=[2], periodic=False)
+        mbtr.create(H2O_2)
+        inv_dist_2 = mbtr._inverse_distances
 
-    # def test_cosines(self):
-        # mbtr = MBTR([1, 8], k=[3], periodic=False)
-        # mbtr.create(H2O)
-        # angles = mbtr._angles
+        for key, item in inv_dist_2.items():
+            for i, j in zip(item, assumed[key]):
+                self.assertTrue(abs(i - j) < 1e-7)
 
-        # # Test against the assumed values.
-        # assumed = {
-            # 0: {
-                # 1: {
-                    # 0: 2*[math.cos(104/180*math.pi)]
-                # },
-                # 0: {
-                    # 1: 2*[math.cos(38/180*math.pi)]
-                # },
-            # }
-        # }
+    def test_cosines(self):
+        mbtr = MBTR([1, 8], k=[3], periodic=False)
+        mbtr.create(H2O)
+        angles = mbtr._angles
 
-        # for i in range(2):
-            # for j in range(2):
-                # for k in range(2):
-                    # try:
-                        # assumed_elem = assumed[i][j][k]
-                    # except KeyError:
-                        # assumed_elem = None
-                    # try:
-                        # true_elem = angles[i][j][k]
-                    # except KeyError:
-                        # true_elem = None
-                    # if assumed_elem is None:
-                        # self.assertIsNone(true_elem)
-                    # else:
-                        # self.assertEqual(len(assumed_elem), len(true_elem))
-                        # for i_elem, val_assumed in enumerate(assumed_elem):
-                            # val_true = true_elem[i_elem]
-                            # self.assertAlmostEqual(val_assumed, val_true, places=6)
+        # Test against the assumed values.
+        assumed = {
+            0: {
+                1: {
+                    0: 2*[math.cos(104/180*math.pi)]
+                },
+                0: {
+                    1: 2*[math.cos(38/180*math.pi)]
+                },
+            }
+        }
 
-        # # Test against system with different indexing
-        # mbtr = MBTR([1, 8], k=[3], periodic=False)
-        # mbtr.create(H2O_2)
-        # angles2 = mbtr._angles
-        # self.assertEqual(angles, angles2)
+        for i in range(2):
+            for j in range(2):
+                for k in range(2):
+                    try:
+                        assumed_elem = assumed[i][j][k]
+                    except KeyError:
+                        assumed_elem = None
+                    try:
+                        true_elem = angles[i][j][k]
+                    except KeyError:
+                        true_elem = None
+                    if assumed_elem is None:
+                        self.assertIsNone(true_elem)
+                    else:
+                        self.assertEqual(len(assumed_elem), len(true_elem))
+                        for i_elem, val_assumed in enumerate(assumed_elem):
+                            val_true = true_elem[i_elem]
+                            self.assertAlmostEqual(val_assumed, val_true, places=6)
 
-    # def test_gaussian_distribution(self):
-        # """Check that the broadening follows gaussian distribution.
-        # """
-        # std = 1
-        # start = -3
-        # stop = 11
-        # n = 500
-        # mbtr = MBTR(
-            # [1, 8],
-            # k=[1],
-            # grid={
-                # "k1": {
-                    # "min": start,
-                    # "max": stop,
-                    # "sigma": std,
-                    # "n": n
-                # }
-            # },
-            # periodic=False,
-            # flatten=False)
-        # y = mbtr.create(H2O)
-        # k1_axis = mbtr._axis_k1
+        # Test against system with different indexing
+        mbtr = MBTR([1, 8], k=[3], periodic=False)
+        mbtr.create(H2O_2)
+        angles2 = mbtr._angles
+        self.assertEqual(angles, angles2)
 
-        # # Find the location of the peaks
-        # peak1_x = np.searchsorted(k1_axis, 1)
-        # peak1_y = y[0][0, peak1_x]
-        # peak2_x = np.searchsorted(k1_axis, 8)
-        # peak2_y = y[0][1, peak2_x]
+    def test_gaussian_distribution(self):
+        """Check that the broadening follows gaussian distribution.
+        """
+        std = 1
+        start = -3
+        stop = 11
+        n = 500
+        mbtr = MBTR(
+            [1, 8],
+            k=[1],
+            grid={
+                "k1": {
+                    "min": start,
+                    "max": stop,
+                    "sigma": std,
+                    "n": n
+                }
+            },
+            periodic=False,
+            flatten=False)
+        y = mbtr.create(H2O)
+        k1_axis = mbtr._axis_k1
 
-        # # Check against the analytical value
-        # gaussian = lambda x, mean, sigma: np.exp(-(x-mean)**2/(2*sigma**2))
-        # self.assertTrue(np.allclose(peak1_y, 2*gaussian(1, 1, std), rtol=0, atol=0.001))
-        # self.assertTrue(np.allclose(peak2_y, gaussian(8, 8, std), rtol=0, atol=0.001))
+        # Find the location of the peaks
+        peak1_x = np.searchsorted(k1_axis, 1)
+        peak1_y = y[0][0, peak1_x]
+        peak2_x = np.searchsorted(k1_axis, 8)
+        peak2_y = y[0][1, peak2_x]
 
-        # # Check the integral
-        # pdf = y[0][0, :]
-        # # mpl.plot(pdf)
-        # # mpl.show()
-        # dx = (stop-start)/(n-1)
-        # sum_cum = np.sum(0.5*dx*(pdf[:-1]+pdf[1:]))
-        # exp = 2/(1/math.sqrt(2*math.pi*std**2))
-        # self.assertTrue(np.allclose(sum_cum, exp, rtol=0, atol=0.001))
+        # Check against the analytical value
+        gaussian = lambda x, mean, sigma: np.exp(-(x-mean)**2/(2*sigma**2))
+        self.assertTrue(np.allclose(peak1_y, 2*gaussian(1, 1, std), rtol=0, atol=0.001))
+        self.assertTrue(np.allclose(peak2_y, gaussian(8, 8, std), rtol=0, atol=0.001))
 
-    # def test_symmetries(self):
+        # Check the integral
+        pdf = y[0][0, :]
+        # mpl.plot(pdf)
+        # mpl.show()
+        dx = (stop-start)/(n-1)
+        sum_cum = np.sum(0.5*dx*(pdf[:-1]+pdf[1:]))
+        exp = 2/(1/math.sqrt(2*math.pi*std**2))
+        self.assertTrue(np.allclose(sum_cum, exp, rtol=0, atol=0.001))
 
-        # def create(system):
-            # desc = MBTR(
-                # atomic_numbers=[1, 8],
-                # k=[1, 2, 3],
-                # periodic=False,
-                # grid={
-                    # "k1": {
-                        # "min": 10,
-                        # "max": 18,
-                        # "sigma": 0.1,
-                        # "n": 100,
-                    # },
-                    # "k2": {
-                        # "min": 0,
-                        # "max": 0.7,
-                        # "sigma": 0.01,
-                        # "n": 100,
-                    # },
-                    # "k3": {
-                        # "min": -1.0,
-                        # "max": 1.0,
-                        # "sigma": 0.05,
-                        # "n": 100,
-                    # }
-                # },
-                # weighting={
-                    # "k2": {
-                        # "function": lambda x: np.exp(-0.5*x),
-                        # "threshold": 1e-3
-                    # },
-                    # "k3": {
-                        # "function": lambda x: np.exp(-0.5*x),
-                        # "threshold": 1e-3
-                    # },
-                # },
-                # flatten=True
-            # )
-            # return desc.create(system)
+    def test_symmetries(self):
 
-        # # Rotational check
-        # self.assertTrue(self.is_rotationally_symmetric(create))
+        def create(system):
+            desc = MBTR(
+                atomic_numbers=[1, 8],
+                k=[1, 2, 3],
+                periodic=False,
+                grid={
+                    "k1": {
+                        "min": 10,
+                        "max": 18,
+                        "sigma": 0.1,
+                        "n": 100,
+                    },
+                    "k2": {
+                        "min": 0,
+                        "max": 0.7,
+                        "sigma": 0.01,
+                        "n": 100,
+                    },
+                    "k3": {
+                        "min": -1.0,
+                        "max": 1.0,
+                        "sigma": 0.05,
+                        "n": 100,
+                    }
+                },
+                weighting={
+                    "k2": {
+                        "function": lambda x: np.exp(-0.5*x),
+                        "threshold": 1e-3
+                    },
+                    "k3": {
+                        "function": lambda x: np.exp(-0.5*x),
+                        "threshold": 1e-3
+                    },
+                },
+                flatten=True
+            )
+            return desc.create(system)
 
-        # # Translational
-        # self.assertTrue(self.is_translationally_symmetric(create))
+        # Rotational check
+        self.assertTrue(self.is_rotationally_symmetric(create))
 
-        # # Permutational
-        # self.assertTrue(self.is_permutation_symmetric(create))
+        # Translational
+        self.assertTrue(self.is_translationally_symmetric(create))
 
-    # def test_unit_cells(self):
-        # """Tests that arbitrary unit cells are accepted.
-        # """
-        # desc = MBTR(
-            # atomic_numbers=[1, 8],
-            # k=[1, 2, 3],
-            # periodic=False,
-            # grid={
-                # "k1": {
-                    # "min": 10,
-                    # "max": 18,
-                    # "sigma": 0.1,
-                    # "n": 100,
-                # },
-                # "k2": {
-                    # "min": 0,
-                    # "max": 0.7,
-                    # "sigma": 0.01,
-                    # "n": 100,
-                # },
-                # "k3": {
-                    # "min": -1.0,
-                    # "max": 1.0,
-                    # "sigma": 0.05,
-                    # "n": 100,
-                # }
-            # },
-            # weighting={
-                # "k2": {
-                    # "function": lambda x: np.exp(-0.5*x),
-                    # "threshold": 1e-3
-                # },
-                # "k3": {
-                    # "function": lambda x: np.exp(-0.5*x),
-                    # "threshold": 1e-3
-                # },
-            # },
-            # flatten=True
-        # )
+        # Permutational
+        self.assertTrue(self.is_permutation_symmetric(create))
 
-        # molecule = H2O.copy()
+    def test_unit_cells(self):
+        """Tests that arbitrary unit cells are accepted.
+        """
+        desc = MBTR(
+            atomic_numbers=[1, 8],
+            k=[1, 2, 3],
+            periodic=False,
+            grid={
+                "k1": {
+                    "min": 10,
+                    "max": 18,
+                    "sigma": 0.1,
+                    "n": 100,
+                },
+                "k2": {
+                    "min": 0,
+                    "max": 0.7,
+                    "sigma": 0.01,
+                    "n": 100,
+                },
+                "k3": {
+                    "min": -1.0,
+                    "max": 1.0,
+                    "sigma": 0.05,
+                    "n": 100,
+                }
+            },
+            weighting={
+                "k2": {
+                    "function": lambda x: np.exp(-0.5*x),
+                    "threshold": 1e-3
+                },
+                "k3": {
+                    "function": lambda x: np.exp(-0.5*x),
+                    "threshold": 1e-3
+                },
+            },
+            flatten=True
+        )
 
-        # molecule.set_cell([
-            # [0.0, 0.0, 0.0],
-            # [0.0, 0.0, 0.0],
-            # [0.0, 0.0, 0.0]
-        # ])
-        # nocell = desc.create(molecule)
+        molecule = H2O.copy()
 
-        # molecule.set_pbc(True)
-        # molecule.set_cell([
-            # [2.0, 0.0, 0.0],
-            # [0.0, 2.0, 0.0],
-            # [0.0, 0.0, 2.0]
-        # ])
-        # cubic_cell = desc.create(molecule)
+        molecule.set_cell([
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0]
+        ])
+        nocell = desc.create(molecule)
 
-        # molecule.set_cell([
-            # [0.0, 2.0, 2.0],
-            # [2.0, 0.0, 2.0],
-            # [2.0, 2.0, 0.0]
-        # ])
-        # triclinic_smallcell = desc.create(molecule)
+        molecule.set_pbc(True)
+        molecule.set_cell([
+            [2.0, 0.0, 0.0],
+            [0.0, 2.0, 0.0],
+            [0.0, 0.0, 2.0]
+        ])
+        cubic_cell = desc.create(molecule)
 
-    # def test_periodic_images(self):
-        # """Tests that periodic images are handled correctly.
-        # """
-        # decay = 1
-        # desc = MBTR(
-            # atomic_numbers=[1],
-            # k=[1, 2, 3],
-            # periodic=True,
-            # grid={
-                # "k1": {
-                    # "min": 0,
-                    # "max": 2,
-                    # "sigma": 0.1,
-                    # "n": 21,
-                # },
-                # "k2": {
-                    # "min": 0,
-                    # "max": 1.0,
-                    # "sigma": 0.02,
-                    # "n": 21,
-                # },
-                # "k3": {
-                    # "min": -1.0,
-                    # "max": 1.0,
-                    # "sigma": 0.02,
-                    # "n": 21,
-                # },
-            # },
-            # weighting={
-                # "k2": {
-                    # "function": lambda x: np.exp(-decay*x),
-                    # "threshold": 1e-4
-                # },
-                # "k3": {
-                    # "function": lambda x: np.exp(-decay*x),
-                    # "threshold": 1e-4
-                # },
-            # },
-            # normalize=True,  # This normalizes the spectrum with the system volume
-            # flatten=True
-        # )
+        molecule.set_cell([
+            [0.0, 2.0, 2.0],
+            [2.0, 0.0, 2.0],
+            [2.0, 2.0, 0.0]
+        ])
+        triclinic_smallcell = desc.create(molecule)
 
-        # # Tests that a system that roughly the same spectrum as the supercell
-        # # of the same system. There will be small differences because in the
-        # # supercell the internal distances (distances between atoms within the
-        # # cell) are not counted twice. If the internal distances are
-        # # double-counted, the spectrums become identical.
-        # molecule = H.copy()
-        # a = 1.5
-        # molecule.set_cell([
-            # [a, 0.0, 0.0],
-            # [0.0, a, 0.0],
-            # [0.0, 0.0, a]
-        # ])
-        # cubic_cell = desc.create(molecule).toarray()
-        # suce = molecule * (2, 1, 1)
-        # cubic_suce = desc.create(suce).toarray()
+    def test_periodic_images(self):
+        """Tests that periodic images are handled correctly.
+        """
+        decay = 1
+        desc = MBTR(
+            atomic_numbers=[1],
+            k=[1, 2, 3],
+            periodic=True,
+            grid={
+                "k1": {
+                    "min": 0,
+                    "max": 2,
+                    "sigma": 0.1,
+                    "n": 21,
+                },
+                "k2": {
+                    "min": 0,
+                    "max": 1.0,
+                    "sigma": 0.02,
+                    "n": 21,
+                },
+                "k3": {
+                    "min": -1.0,
+                    "max": 1.0,
+                    "sigma": 0.02,
+                    "n": 21,
+                },
+            },
+            weighting={
+                "k2": {
+                    "function": lambda x: np.exp(-decay*x),
+                    "threshold": 1e-4
+                },
+                "k3": {
+                    "function": lambda x: np.exp(-decay*x),
+                    "threshold": 1e-4
+                },
+            },
+            normalize=True,  # This normalizes the spectrum with the system volume
+            flatten=True
+        )
 
-        # diff = abs(np.sum(cubic_cell[0, :] - cubic_suce[0, :]))
-        # cubic_sum = abs(np.sum(cubic_cell[0, :]))
-        # self.assertTrue(diff/cubic_sum < 0.05)  # A 5% error is tolerated
+        # Tests that a system that roughly the same spectrum as the supercell
+        # of the same system. There will be small differences because in the
+        # supercell the internal distances (distances between atoms within the
+        # cell) are not counted twice. If the internal distances are
+        # double-counted, the spectrums become identical.
+        molecule = H.copy()
+        a = 1.5
+        molecule.set_cell([
+            [a, 0.0, 0.0],
+            [0.0, a, 0.0],
+            [0.0, 0.0, a]
+        ])
+        cubic_cell = desc.create(molecule).toarray()
+        suce = molecule * (2, 1, 1)
+        cubic_suce = desc.create(suce).toarray()
 
-        # # Same test but for triclinic cell
-        # molecule.set_cell([
-            # [0.0, 2.0, 1.0],
-            # [1.0, 0.0, 1.0],
-            # [1.0, 2.0, 0.0]
-        # ])
+        diff = abs(np.sum(cubic_cell[0, :] - cubic_suce[0, :]))
+        cubic_sum = abs(np.sum(cubic_cell[0, :]))
+        self.assertTrue(diff/cubic_sum < 0.05)  # A 5% error is tolerated
 
-        # triclinic_cell = desc.create(molecule).toarray()
-        # suce = molecule * (2, 1, 1)
-        # triclinic_suce = desc.create(suce).toarray()
+        # Same test but for triclinic cell
+        molecule.set_cell([
+            [0.0, 2.0, 1.0],
+            [1.0, 0.0, 1.0],
+            [1.0, 2.0, 0.0]
+        ])
 
-        # diff = abs(np.sum(triclinic_cell[0, :] - triclinic_suce[0, :]))
-        # tricl_sum = abs(np.sum(triclinic_cell[0, :]))
-        # self.assertTrue(diff/tricl_sum < 0.05)  # A 5% error is tolerated
+        triclinic_cell = desc.create(molecule).toarray()
+        suce = molecule * (2, 1, 1)
+        triclinic_suce = desc.create(suce).toarray()
 
-        # # Testing that the same crystal, but different unit cells will have a
-        # # similar spectrum when they are normalized. There will be small
-        # # differences in the shape (due to not double counting distances)
-        # a1 = bulk('H', 'fcc', a=2.0)
-        # a2 = bulk('H', 'fcc', a=2.0, orthorhombic=True)
-        # a3 = bulk('H', 'fcc', a=2.0, cubic=True)
+        diff = abs(np.sum(triclinic_cell[0, :] - triclinic_suce[0, :]))
+        tricl_sum = abs(np.sum(triclinic_cell[0, :]))
+        self.assertTrue(diff/tricl_sum < 0.05)  # A 5% error is tolerated
 
-        # triclinic_cell = desc.create(a1).toarray()
-        # orthorhombic_cell = desc.create(a2).toarray()
-        # cubic_cell = desc.create(a3).toarray()
+        # Testing that the same crystal, but different unit cells will have a
+        # similar spectrum when they are normalized. There will be small
+        # differences in the shape (due to not double counting distances)
+        a1 = bulk('H', 'fcc', a=2.0)
+        a2 = bulk('H', 'fcc', a=2.0, orthorhombic=True)
+        a3 = bulk('H', 'fcc', a=2.0, cubic=True)
 
-        # diff1 = abs(np.sum(triclinic_cell[0, :] - orthorhombic_cell[0, :]))
-        # diff2 = abs(np.sum(triclinic_cell[0, :] - cubic_cell[0, :]))
-        # tricl_sum = abs(np.sum(triclinic_cell[0, :]))
-        # self.assertTrue(diff1/tricl_sum < 0.08)
-        # self.assertTrue(diff2/tricl_sum < 0.08)
+        triclinic_cell = desc.create(a1).toarray()
+        orthorhombic_cell = desc.create(a2).toarray()
+        cubic_cell = desc.create(a3).toarray()
 
-        # # Tests that the correct peak locations are present in a cubic periodic
-        # # system.
-        # desc = MBTR(
-            # atomic_numbers=[1],
-            # k=[3],
-            # periodic=True,
-            # grid={
-                # "k3": {
-                    # "min": -1.0,
-                    # "max": 1.0,
-                    # "sigma": 0.035,
-                    # "n": 200,
-                # },
-            # },
-            # weighting={
-                # "k3": {
-                    # "function": lambda x: np.exp(-decay*x),
-                    # "threshold": 1e-4
-                # },
-            # },
-            # normalize=True,  # This normalizes the spectrum with the system volume
-            # flatten=True
-        # )
-        # a = 3
-        # system = Atoms(
-            # cell=[
-                # [a, 0.0, 0.0],
-                # [0.0, a, 0.0],
-                # [0.0, 0.0, a]
-            # ],
-            # positions=[
-                # [0, 0, 0],
-            # ],
-            # symbols=["H"],
-        # )
-        # cubic_spectrum = desc.create(system).toarray()
-        # x3 = desc._axis_k3
+        diff1 = abs(np.sum(triclinic_cell[0, :] - orthorhombic_cell[0, :]))
+        diff2 = abs(np.sum(triclinic_cell[0, :] - cubic_cell[0, :]))
+        tricl_sum = abs(np.sum(triclinic_cell[0, :]))
+        self.assertTrue(diff1/tricl_sum < 0.08)
+        self.assertTrue(diff2/tricl_sum < 0.08)
 
-        # peak_ids = find_peaks_cwt(cubic_spectrum[0, :], [3])
-        # peak_locs = x3[peak_ids]
+        # Tests that the correct peak locations are present in a cubic periodic
+        # system.
+        desc = MBTR(
+            atomic_numbers=[1],
+            k=[3],
+            periodic=True,
+            grid={
+                "k3": {
+                    "min": -1.0,
+                    "max": 1.0,
+                    "sigma": 0.035,
+                    "n": 200,
+                },
+            },
+            weighting={
+                "k3": {
+                    "function": lambda x: np.exp(-decay*x),
+                    "threshold": 1e-4
+                },
+            },
+            normalize=True,  # This normalizes the spectrum with the system volume
+            flatten=True
+        )
+        a = 3
+        system = Atoms(
+            cell=[
+                [a, 0.0, 0.0],
+                [0.0, a, 0.0],
+                [0.0, 0.0, a]
+            ],
+            positions=[
+                [0, 0, 0],
+            ],
+            symbols=["H"],
+        )
+        cubic_spectrum = desc.create(system).toarray()
+        x3 = desc._axis_k3
 
-        # assumed_peaks = np.cos(np.array([180, 135, 120, 90, 60, 45, 0])*np.pi/180)
-        # self.assertTrue(np.allclose(peak_locs, assumed_peaks, rtol=0, atol=5*np.pi/180))
+        peak_ids = find_peaks_cwt(cubic_spectrum[0, :], [3])
+        peak_locs = x3[peak_ids]
 
-        # # Tests that the correct peak locations are present in a system with a
-        # # non-cubic basis
-        # desc = MBTR(
-            # atomic_numbers=[1],
-            # k=[3],
-            # periodic=True,
-            # grid={
-                # "k3": {
-                    # "min": -1.0,
-                    # "max": 1.0,
-                    # "sigma": 0.035,
-                    # "n": 200,
-                # },
-            # },
-            # weighting={
-                # "k3": {
-                    # "function": lambda x: np.exp(-1.5*x),
-                    # "threshold": 1e-4
-                # },
-            # },
-            # normalize=True,  # This normalizes the spectrum with the system volume
-            # flatten=True
-        # )
-        # a = 3
-        # system = Atoms(
-            # cell=[
-                # [a, 0.0, 0.0],
-                # [0.0, a, 0.0],
-                # [0.0, 0.0, a]
-            # ],
-            # positions=[
-                # [0, 0, 0],
-            # ],
-            # symbols=["H"],
-        # )
-        # a = 3
-        # angle = 30
-        # system = Atoms(
-            # cell=ase.geometry.cellpar_to_cell([3*a, a, a, angle, 90, 90]),
-            # positions=[
-                # [0, 0, 0],
-            # ],
-            # symbols=["H"],
-        # )
-        # tricl_spectrum = desc.create(system).toarray()
+        assumed_peaks = np.cos(np.array([180, 135, 120, 90, 60, 45, 0])*np.pi/180)
+        self.assertTrue(np.allclose(peak_locs, assumed_peaks, rtol=0, atol=5*np.pi/180))
 
-        # peak_ids = find_peaks_cwt(tricl_spectrum[0, :], [3])
-        # peak_locs = x3[peak_ids]
+        # Tests that the correct peak locations are present in a system with a
+        # non-cubic basis
+        desc = MBTR(
+            atomic_numbers=[1],
+            k=[3],
+            periodic=True,
+            grid={
+                "k3": {
+                    "min": -1.0,
+                    "max": 1.0,
+                    "sigma": 0.035,
+                    "n": 200,
+                },
+            },
+            weighting={
+                "k3": {
+                    "function": lambda x: np.exp(-1.5*x),
+                    "threshold": 1e-4
+                },
+            },
+            normalize=True,  # This normalizes the spectrum with the system volume
+            flatten=True
+        )
+        a = 3
+        system = Atoms(
+            cell=[
+                [a, 0.0, 0.0],
+                [0.0, a, 0.0],
+                [0.0, 0.0, a]
+            ],
+            positions=[
+                [0, 0, 0],
+            ],
+            symbols=["H"],
+        )
+        a = 3
+        angle = 30
+        system = Atoms(
+            cell=ase.geometry.cellpar_to_cell([3*a, a, a, angle, 90, 90]),
+            positions=[
+                [0, 0, 0],
+            ],
+            symbols=["H"],
+        )
+        tricl_spectrum = desc.create(system).toarray()
 
-        # angle = (6)/(np.sqrt(5)*np.sqrt(8))
-        # assumed_peaks = np.cos(np.array([180, 105, 75, 51.2, 30, 0])*np.pi/180)
-        # self.assertTrue(np.allclose(peak_locs, assumed_peaks, rtol=0, atol=5*np.pi/180))
+        peak_ids = find_peaks_cwt(tricl_spectrum[0, :], [3])
+        peak_locs = x3[peak_ids]
 
-    # def test_grid_change(self):
-        # """Tests that the calculation of MBTR with new grid settings works.
-        # """
-        # grid = {
-            # "k1": {
-                # "min": 1,
-                # "max": 8,
-                # "sigma": 0.1,
-                # "n": 50,
-            # },
-            # "k2": {
-                # "min": 0,
-                # "max": 1/0.7,
-                # "sigma": 0.1,
-                # "n": 50,
-            # },
-            # "k3": {
-                # "min": -1,
-                # "max": 1,
-                # "sigma": 0.1,
-                # "n": 50,
-            # }
-        # }
+        angle = (6)/(np.sqrt(5)*np.sqrt(8))
+        assumed_peaks = np.cos(np.array([180, 105, 75, 51.2, 30, 0])*np.pi/180)
+        self.assertTrue(np.allclose(peak_locs, assumed_peaks, rtol=0, atol=5*np.pi/180))
 
-        # desc = MBTR(
-            # atomic_numbers=[1, 8],
-            # k=[1, 2, 3],
-            # periodic=True,
-            # grid=grid,
-            # weighting={
-                # "k2": {
-                    # "function": lambda x: np.exp(-1*x),
-                    # "threshold": 1e-4
-                # },
-                # "k3": {
-                    # "function": lambda x: np.exp(-1*x),
-                    # "threshold": 1e-4
-                # },
-            # },
-            # normalize=False,  # This normalizes the spectrum with the system volume
-            # flatten=True
-        # )
+    def test_grid_change(self):
+        """Tests that the calculation of MBTR with new grid settings works.
+        """
+        grid = {
+            "k1": {
+                "min": 1,
+                "max": 8,
+                "sigma": 0.1,
+                "n": 50,
+            },
+            "k2": {
+                "min": 0,
+                "max": 1/0.7,
+                "sigma": 0.1,
+                "n": 50,
+            },
+            "k3": {
+                "min": -1,
+                "max": 1,
+                "sigma": 0.1,
+                "n": 50,
+            }
+        }
 
-        # # Initialize scalars with a given system
-        # desc.initialize_scalars(H2O)
+        desc = MBTR(
+            atomic_numbers=[1, 8],
+            k=[1, 2, 3],
+            periodic=True,
+            grid=grid,
+            weighting={
+                "k2": {
+                    "function": lambda x: np.exp(-1*x),
+                    "threshold": 1e-4
+                },
+                "k3": {
+                    "function": lambda x: np.exp(-1*x),
+                    "threshold": 1e-4
+                },
+            },
+            normalize=False,  # This normalizes the spectrum with the system volume
+            flatten=True
+        )
 
-        # # Request spectrum with different grid settings
-        # spectrum1 = desc.create_with_grid().toarray()[0]
-        # grid["k1"]["sigma"] = 0.09
-        # grid["k2"]["sigma"] = 0.09
-        # grid["k3"]["sigma"] = 0.09
-        # spectrum2 = desc.create_with_grid(grid).toarray()[0]
+        # Initialize scalars with a given system
+        desc.initialize_scalars(H2O)
 
-        # # Check that contents are not equal, but have same peaks
-        # self.assertFalse(np.allclose(spectrum1, spectrum2))
-        # peak_ids1 = find_peaks_cwt(spectrum1, [5])
-        # peak_ids2 = find_peaks_cwt(spectrum2, [5])
-        # self.assertTrue(np.array_equal(peak_ids1, peak_ids2))
+        # Request spectrum with different grid settings
+        spectrum1 = desc.create_with_grid().toarray()[0]
+        grid["k1"]["sigma"] = 0.09
+        grid["k2"]["sigma"] = 0.09
+        grid["k3"]["sigma"] = 0.09
+        spectrum2 = desc.create_with_grid(grid).toarray()[0]
+
+        # Check that contents are not equal, but have same peaks
+        self.assertFalse(np.allclose(spectrum1, spectrum2))
+        peak_ids1 = find_peaks_cwt(spectrum1, [5])
+        peak_ids2 = find_peaks_cwt(spectrum2, [5])
+        self.assertTrue(np.array_equal(peak_ids1, peak_ids2))
 
         # Visually check the contents
         # x = np.arange(len(spectrum1))
@@ -710,30 +714,24 @@ class MBTRTests(unittest.TestCase):
         # mpl.legend()
         # mpl.show()
 
-    def test_k2(self):
-        mbtr = MBTR([1, 8], k=[2], grid={"k2": {"n": 100, "min": 0, "max": 2, "sigma": 0.1}}, periodic=False, flatten=False)
-        desc = mbtr.create(H2O)
-
-        x2 = mbtr._axis_k2
-        imap = mbtr.index_to_atomic_number
-        smap = {}
-        for index, number in imap.items():
-            smap[index] = ase.data.chemical_symbols[number]
-
-        # Visually check the contents
-        mpl.plot(x2, desc[0][0, 1, :], label="{}-{}".format(smap[0], smap[1]))
-        mpl.plot(x2, desc[0][1, 0, :], linestyle=":", linewidth=3, label="{}-{}".format(smap[1], smap[0]))
-        mpl.plot(x2, desc[0][1, 1, :], label="{}-{}".format(smap[1], smap[1]))
-        mpl.plot(x2, desc[0][0, 0, :], label="{}-{}".format(smap[0], smap[0]))
-        mpl.ylabel("$\phi$ (arbitrary units)", size=20)
-        mpl.xlabel("Inverse distance (1/angstrom)", size=20)
-        mpl.legend()
-        mpl.show()
-
-        # mbtr = MBTR([1, 8], k=2, periodic=False, flatten=True)
+    # def test_k2(self):
+        # mbtr = MBTR([1, 8], k=[2], grid={"k2": {"n": 100, "min": 0, "max": 2, "sigma": 0.1}}, periodic=False, flatten=False)
         # desc = mbtr.create(H2O)
-        # y = desc.todense().T
-        # mpl.plot(y)
+
+        # x2 = mbtr._axis_k2
+        # imap = mbtr.index_to_atomic_number
+        # smap = {}
+        # for index, number in imap.items():
+            # smap[index] = ase.data.chemical_symbols[number]
+
+        # # Visually check the contents
+        # mpl.plot(x2, desc[0][0, 1, :], label="{}-{}".format(smap[0], smap[1]))
+        # mpl.plot(x2, desc[0][1, 0, :], linestyle=":", linewidth=3, label="{}-{}".format(smap[1], smap[0]))
+        # mpl.plot(x2, desc[0][1, 1, :], label="{}-{}".format(smap[1], smap[1]))
+        # mpl.plot(x2, desc[0][0, 0, :], label="{}-{}".format(smap[0], smap[0]))
+        # mpl.ylabel("$\phi$ (arbitrary units)", size=20)
+        # mpl.xlabel("Inverse distance (1/angstrom)", size=20)
+        # mpl.legend()
         # mpl.show()
 
     # def test_k3(self):
