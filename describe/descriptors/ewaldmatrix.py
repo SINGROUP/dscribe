@@ -1,6 +1,5 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
-from builtins import (bytes, str, open, super, range,
-                      zip, round, input, int, pow, object)
+from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
 import math
 import numpy as np
 from scipy.special import erfc
@@ -28,6 +27,8 @@ class EwaldMatrix(MatrixDescriptor):
     independent of the value of the screening parameter a that is used, as long
     as sufficient cutoff values are used.
 
+    This implementation provides default values for
+
     For reference, see:
         "Crystal Structure Representations for Machine Learning Models of
         Formation Energies", Felix Faber, Alexander Lindmaa, Anatole von
@@ -38,32 +39,50 @@ class EwaldMatrix(MatrixDescriptor):
         "Ewald summation techniques in perspective: a survey", Abdulnour Y.
         Toukmaji, John A. Board Jr., Computer Physics Communications, (1996)
         https://doi.org/10.1016/0010-4655(96)00016-1
+    and
+        "R.A. Jackson and C.R.A. Catlow. Computer simulation studies of zeolite
+        structure. Mol. Simul., 1:207-224, 1988,
+        https://doi.org/10.1080/08927022.2013.840898
+        "
     """
-    def create(self, system, rcut, gcut, a=None):
+    def describe(self, system, accuracy=1e-5, w=1, rcut=None, gcut=None, a=None):
         """
         Args:
             system (System): Input system.
+            accuracy (float): The accuracy to which the sum is converged to.
+                Corresponds to the variable :math`A` in
+                https://doi.org/10.1080/08927022.2013.840898. Used only if gcut,
+                rcut and a have not been specified.
+            w (float): Weight parameter that represents the relative
+                computational expense of calculating a term in real and
+                reciprocal space. This has little effect on the total energy,
+                but may influence speed of computation in large systems. Note
+                that this parameter is used only when the cutoffs and a are set
+                to None.
             rcut (float): Real space cutoff radius dictating how
                 many terms are used in the real space sum.
             gcut (float): Reciprocal space cutoff radius.
             a (float): The screening parameter that controls the width of the
-                Gaussians. If not specified the default value of
+                Gaussians. Corresponds to the standard deviation of the Gaussians
         """
-        # Ensure that we get a System
-        if isinstance(system, Atoms):
-            system = System.from_atoms(system)
-
         self.q = system.get_atomic_numbers()
         self.q_squared = self.q**2
         self.n_atoms = len(system)
         self.volume = system.get_volume()
         self.sqrt_pi = math.sqrt(np.pi)
 
-        # If a is not specified, we provide the default that is mentioned in
-        # https://doi.org/10.1002/qua.24917. Notice that in that article there
-        # is a mistake as the volume should be squared.
-        if a is None:
-            a = self.sqrt_pi*np.power(0.01*self.n_atoms/self.volume**2, 1/6)
+        # If the real space cutoff, reciprocal space cutoff and a have not been
+        # specified, use the accuracy and the weighting w to determine default
+        # similarly as in https://doi.org/10.1080/08927022.2013.840898
+        if rcut is None and gcut is None and a is None:
+            a = (self.n_atoms * w / (self.volume ** 2)) ** (1 / 6) * self.sqrt_pi
+            f = np.sqrt(-np.log(accuracy))
+            rcut = f / a
+            gcut = 2 * a * f
+        elif a is None or rcut is None or gcut is None:
+            raise ValueError(
+                ""
+            )
 
         self.a = a
         self.a_squared = self.a**2
