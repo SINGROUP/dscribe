@@ -44,6 +44,24 @@ class EwaldMatrixTests(TestBaseClass, unittest.TestCase):
         with self.assertRaises(ValueError):
             EwaldMatrix(n_atoms_max=-1)
 
+    def test_create(self):
+        """Tests different valid and invalid create values.
+        """
+        with self.assertRaises(ValueError):
+            desc = EwaldMatrix(n_atoms_max=5)
+            desc.create(H2O, rcut=10)
+        with self.assertRaises(ValueError):
+            desc = EwaldMatrix(n_atoms_max=5)
+            desc.create(H2O, gcut=10)
+
+        # Providing a only is valid
+        desc = EwaldMatrix(n_atoms_max=5)
+        desc.create(H2O, a=0.5)
+
+        # Providing no parameters is valid
+        desc = EwaldMatrix(n_atoms_max=5)
+        desc.create(H2O)
+
     def test_number_of_features(self):
         """Tests that the reported number of features is correct.
         """
@@ -56,12 +74,12 @@ class EwaldMatrixTests(TestBaseClass, unittest.TestCase):
         """
         # Unflattened
         desc = EwaldMatrix(n_atoms_max=5, permutation="none", flatten=False)
-        matrix = desc.create(H2O, rcut=rcut, gcut=gcut)
+        matrix = desc.create(H2O)
         self.assertEqual(matrix.shape, (5, 5))
 
         # Flattened
         desc = EwaldMatrix(n_atoms_max=5, permutation="none", flatten=True)
-        matrix = desc.create(H2O, rcut=rcut, gcut=gcut)
+        matrix = desc.create(H2O)
         self.assertEqual(matrix.shape, (25,))
 
     def test_a_independence(self):
@@ -142,6 +160,70 @@ class EwaldMatrixTests(TestBaseClass, unittest.TestCase):
                 # the same as given by the descriptor
                 self.assertTrue(np.allclose(energy_matrix[i, j], energy, atol=0.00001, rtol=0))
 
+    def test_electrostatics_automatic(self):
+        """Tests that the results are consistent with the electrostatic
+        interpretation when using automatically determined parameters. Each
+        matrix [i, j] element should correspond to the Coulomb energy of a
+        system consisting of the pair of atoms i, j.
+        """
+        system = H2O
+        n_atoms = len(system)
+        desc = EwaldMatrix(n_atoms_max=3, permutation="none", flatten=False)
+
+        # The Ewald matrix contains the electrostatic interaction between atoms i
+        # and j. Here we construct the total electrostatic energy from this matrix.
+        accuracy = 1e-6
+        matrix = desc.create(system, accuracy=accuracy)
+        energy_matrix = np.zeros(matrix.shape)
+        for i in range(n_atoms):
+            for j in range(n_atoms):
+                if i == j:
+                    energy_matrix[i, j] = matrix[i, j]
+                else:
+                    energy_matrix[i, j] = matrix[i, j] + matrix[i, i] + matrix[j, j]
+
+        # Converts unit of q*q/r into eV
+        conversion = 1e10 * scipy.constants.e / (4 * math.pi * scipy.constants.epsilon_0)
+        energy_matrix *= conversion
+
+        # The value in each matrix element should correspond to the Coulomb
+        # energy of a system with with only those atoms. Here the energies from
+        # the Ewald matrix are compared against the Ewald energy calculated
+        # with pymatgen.
+        positions = system.get_positions()
+        atomic_num = system.get_atomic_numbers()
+        for i in range(n_atoms):
+            for j in range(n_atoms):
+                if i == j:
+                    pos = [positions[i]]
+                    sym = [atomic_num[i]]
+                else:
+                    pos = [positions[i], positions[j]]
+                    sym = [atomic_num[i], atomic_num[j]]
+
+                i_sys = Atoms(
+                    cell=system.get_cell(),
+                    positions=pos,
+                    symbols=sym,
+                    pbc=True,
+                )
+
+                structure = Structure(
+                    lattice=i_sys.get_cell(),
+                    species=i_sys.get_atomic_numbers(),
+                    coords=i_sys.get_scaled_positions(),
+                )
+                structure.add_oxidation_state_by_site(i_sys.get_atomic_numbers())
+
+                # Pymatgen uses a different definition for the accuracy: there
+                # accuracy is determined as the number of significant digits.
+                ewald = EwaldSummation(structure, acc_factor=-np.log(accuracy))
+                energy = ewald.total_energy
+
+                # Check that the energy given by the pymatgen implementation is
+                # the same as given by the descriptor
+                self.assertTrue(np.allclose(energy_matrix[i, j], energy, atol=0.00001, rtol=0))
+
     def test_unit_cells(self):
         """Tests if arbitrary unit cells are accepted
         """
@@ -187,7 +269,7 @@ class EwaldMatrixTests(TestBaseClass, unittest.TestCase):
         """
         def create(system):
             desc = EwaldMatrix(n_atoms_max=3, permutation="sorted_l2", flatten=True)
-            return desc.create(system, rcut=30, gcut=30)
+            return desc.create(system)
 
         # Rotational
         self.assertTrue(self.is_rotationally_symmetric(create))
