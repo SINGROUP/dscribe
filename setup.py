@@ -24,8 +24,12 @@ if __name__ == "__main__":
         description='A Python package for creating feature transformations in applications of machine learning to materials science.',
         long_description='A Python package for creating feature transformations in applications of machine learning to materials science.',
         packages=find_packages(),
+        setup_requires=[
+            'cython',
+        ],
         install_requires=[
             'cython',
+            'chronic',
             'numpy',
             'scipy',
             'ase',
