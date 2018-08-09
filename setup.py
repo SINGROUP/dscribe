@@ -1,4 +1,5 @@
 from setuptools import setup, find_packages, Extension
+from Cython.Build import cythonize
 
 extensions = [
     Extension(
@@ -11,8 +12,10 @@ extensions = [
         include_dirs=["describe/libacsf"],
         libraries=["m"],
         extra_compile_args=["-O3", "-std=c99"]
-    )
+    ),
 ]
+# Adds the extensions automatically generated with Cython
+extensions.extend(cythonize("./describe/libmbtr/cmbtrwrapper.pyx"))
 
 if __name__ == "__main__":
     setup(name='describe',
@@ -22,6 +25,7 @@ if __name__ == "__main__":
         long_description='A Python package for creating feature transformations in applications of machine learning to materials science.',
         packages=find_packages(),
         install_requires=[
+            'cython',
             'numpy',
             'scipy',
             'ase',
@@ -47,6 +51,6 @@ if __name__ == "__main__":
             'Programming Language :: Python :: 3.5',
             'Programming Language :: Python :: 3.6',
         ],
-        keywords='atoms structure materials science crystal symmetry',
+        keywords='descriptor machine learning atomistic structure materials science',
         python_requires='>=2.6, <4',
     )

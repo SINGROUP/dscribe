@@ -3,6 +3,7 @@ from builtins import super
 import math
 import numpy as np
 import itertools
+import chronic
 
 from scipy.spatial.distance import squareform, pdist, cdist
 from scipy.sparse import lil_matrix, coo_matrix
@@ -10,6 +11,8 @@ from scipy.special import erf
 
 from describe.core import System
 from describe.descriptors import Descriptor
+
+from describe.libmbtr.cmbtrwrapper import CMBTRWrapper
 
 
 class MBTR(Descriptor):
@@ -183,10 +186,12 @@ class MBTR(Descriptor):
                         assert "function" in info, \
                             ("The weighting dictionary is missing 'function'.")
         elif self.periodic:
-            raise ValueError(
-                "Periodic systems will need to have a weighting function "
-                "defined in the 'weighting' dictionary of the MBTR constructor."
-            )
+            if max(self.k) > 1:
+                raise ValueError(
+                    "Periodic systems will need to have a weighting function "
+                    "defined in the 'weighting' dictionary of the MBTR "
+                    "constructor when requesting K > 1"
+                )
 
         # Check the given grid
         if self.grid is not None:
@@ -231,6 +236,7 @@ class MBTR(Descriptor):
                     assert info["min"] < info["max"], \
                         "The min value should be smaller than the max values"
 
+    @chronic.time
     def describe(self, system):
         """Return the many-body tensor representation as a 1D array for the
         given system.
@@ -247,6 +253,7 @@ class MBTR(Descriptor):
 
         return self.create_with_grid()
 
+    @chronic.time
     def create_with_grid(self, grid=None):
         """Used to recalculate MBTR for an already seen system but with
         different grid setttings. This function can be used after
@@ -334,6 +341,7 @@ class MBTR(Descriptor):
             self.present_indices.add(index)
 
         if 1 in self.k:
+
             self.elements(system)
         if 2 in self.k:
             # If needed, create the extended system
@@ -567,6 +575,7 @@ class MBTR(Descriptor):
 
         return pdf
 
+    @chronic.time
     def elements(self, system):
         """Calculate the atom count for each element.
 
@@ -588,6 +597,7 @@ class MBTR(Descriptor):
             self._counts = counts_reindexed
         return self._counts
 
+    @chronic.time
     def inverse_distances(self, system):
         """Calculates the inverse distances for the given atomic positions.
 
@@ -596,43 +606,21 @@ class MBTR(Descriptor):
 
         Returns:
             dict: Inverse distances in the form:
-            {i: { j: [list of angles] }}. The dictionaries are filled
+            {(i, j): [list of angles] }. The dictionaries are filled
             so that the entry for pair i and j is in the entry where j>=i.
         """
         if self._inverse_distances is None:
-            inverse_dist = system.get_inverse_distance_matrix()
 
-            numbers = system.numbers
-            inv_dist_dict = {}
-            for i_atom, i_element in enumerate(numbers):
-                for j_atom, j_element in enumerate(numbers):
-                    if j_atom > i_atom:
-                        # Only consider pairs that have one atom in the original
-                        # cell
-                        if i_atom < self.n_atoms_in_cell or \
-                           j_atom < self.n_atoms_in_cell:
-
-                            i_index = self.atomic_number_to_index[i_element]
-                            j_index = self.atomic_number_to_index[j_element]
-
-                            # Make sure that j_index >= i_index so that we fill only
-                            # the upper triangular part
-                            i_index, j_index = sorted([i_index, j_index])
-
-                            old_dict = inv_dist_dict.get(i_index)
-                            if old_dict is None:
-                                old_dict = {}
-                            old_list = old_dict.get(j_index)
-                            if old_list is None:
-                                old_list = []
-                            inv_dist = inverse_dist[i_atom, j_atom]
-                            old_list.append(inv_dist)
-                            old_dict[j_index] = old_list
-                            inv_dist_dict[i_index] = old_dict
-
-            self._inverse_distances = inv_dist_dict
+            cmbtr = CMBTRWrapper(
+                system.get_positions(),
+                system.get_atomic_numbers(),
+                self.atomic_number_to_index,
+                self.n_atoms_in_cell
+            )
+            self._inverse_distances = cmbtr.get_inverse_distance_map()
         return self._inverse_distances
 
+    @chronic.time
     def cosines_and_weights(self, system):
         """Calculates the cosine of the angles and their weights between unique
         three-body combinations.
@@ -816,7 +804,7 @@ class MBTR(Descriptor):
                 if j >= i:
                     m += 1
                     try:
-                        inv_dist = np.array(inv_dist_dict[i][j])
+                        inv_dist = np.array(inv_dist_dict[(i, j)])
                     except KeyError:
                         continue
 

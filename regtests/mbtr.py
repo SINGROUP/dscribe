@@ -13,7 +13,7 @@ from ase import Atoms
 # from ase.visualize import view
 import ase.geometry
 
-# import matplotlib.pyplot as mpl
+import matplotlib.pyplot as mpl
 
 from testbaseclass import TestBaseClass
 
@@ -220,18 +220,21 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         # Test against the assumed values
         pos = H2O.get_positions()
         assumed = {
-            0: {
-                0: [1/np.linalg.norm(pos[0] - pos[2])],
-                1: 2*[1/np.linalg.norm(pos[0] - pos[1])]
-            }
+            (0, 0): [1/np.linalg.norm(pos[0] - pos[2])],
+            (0, 1): 2*[1/np.linalg.norm(pos[0] - pos[1])]
         }
-        self.assertEqual(assumed, inv_dist)
+        for key, item in inv_dist.items():
+            for i, j in zip(item, assumed[key]):
+                self.assertTrue(abs(i - j) < 1e-7)
 
         # Test against system with different indexing
         mbtr = MBTR([1, 8], k=[2], periodic=False)
         mbtr.create(H2O_2)
         inv_dist_2 = mbtr._inverse_distances
-        self.assertEqual(inv_dist, inv_dist_2)
+
+        for key, item in inv_dist_2.items():
+            for i, j in zip(item, assumed[key]):
+                self.assertTrue(abs(i - j) < 1e-7)
 
     def test_cosines(self):
         mbtr = MBTR([1, 8], k=[3], periodic=False)
@@ -712,29 +715,23 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         # mpl.show()
 
     # def test_k2(self):
-        # mbtr = MBTR([1, 8], k=[2], periodic=False, flatten=False)
+        # mbtr = MBTR([1, 8], k=[2], grid={"k2": {"n": 100, "min": 0, "max": 2, "sigma": 0.1}}, periodic=False, flatten=False)
         # desc = mbtr.create(H2O)
 
         # x2 = mbtr._axis_k2
         # imap = mbtr.index_to_atomic_number
         # smap = {}
         # for index, number in imap.items():
-            # smap[index] = numbers_to_symbols(number)
+            # smap[index] = ase.data.chemical_symbols[number]
 
-        # Visually check the contents
-        # mpl.plot(x2, desc[1][0, 1, :], label="{}-{}".format(smap[0], smap[1]))
-        # mpl.plot(x2, desc[1][1, 0, :], linestyle=":", linewidth=3, label="{}-{}".format(smap[1], smap[0]))
-        # mpl.plot(x2, desc[1][1, 1, :], label="{}-{}".format(smap[1], smap[1]))
-        # mpl.plot(x2, desc[1][0, 0, :], label="{}-{}".format(smap[0], smap[0]))
+        # # Visually check the contents
+        # mpl.plot(x2, desc[0][0, 1, :], label="{}-{}".format(smap[0], smap[1]))
+        # mpl.plot(x2, desc[0][1, 0, :], linestyle=":", linewidth=3, label="{}-{}".format(smap[1], smap[0]))
+        # mpl.plot(x2, desc[0][1, 1, :], label="{}-{}".format(smap[1], smap[1]))
+        # mpl.plot(x2, desc[0][0, 0, :], label="{}-{}".format(smap[0], smap[0]))
         # mpl.ylabel("$\phi$ (arbitrary units)", size=20)
         # mpl.xlabel("Inverse distance (1/angstrom)", size=20)
         # mpl.legend()
-        # mpl.show()
-
-        # mbtr = MBTR([1, 8], k=2, periodic=False, flatten=True)
-        # desc = mbtr.create(H2O)
-        # y = desc.todense().T
-        # mpl.plot(y)
         # mpl.show()
 
     # def test_k3(self):

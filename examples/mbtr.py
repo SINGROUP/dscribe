@@ -1,8 +1,8 @@
 from describe.descriptors import MBTR
 from describe.core import System
-from describe.data.element_data import numbers_to_symbols
 import numpy as np
 import matplotlib.pyplot as mpl
+import ase.data
 
 # Define the system under study: NaCl in a conventional cell.
 NaCl_conv = System(
@@ -71,7 +71,7 @@ x3 = mbtr._axis_k3
 imap = mbtr.index_to_atomic_number
 smap = {}
 for index, number in imap.items():
-    smap[index] = numbers_to_symbols(number)
+    smap[index] = ase.data.chemical_symbols[number]
 
 # Plot K1
 mpl.plot(x1, desc[0][0, :], label="Na", color="blue")

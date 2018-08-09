@@ -82,8 +82,8 @@ class EwaldMatrix(MatrixDescriptor):
             gcut = 2 * a * f
         elif rcut is None or gcut is None:
             raise ValueError(
-                "If you do not want to provide custom cutoffs or screening "
-                "parameter, please provide them both: rcut and gcut."
+                "If you do not want to use the default cutoffs, please provide "
+                "both cutoffs rcut and gcut."
             )
 
         self.a = a
