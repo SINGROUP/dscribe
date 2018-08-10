@@ -4,16 +4,16 @@
 {
     "distutils": {
         "depends": [
-            "/home/lauri/Dropbox/PhD Studies/describe/describe/libmbtr/cmbtr.cpp",
-            "/home/lauri/Dropbox/PhD Studies/describe/describe/libmbtr/cmbtr.h"
+            "describe/libmbtr/cmbtr.cpp",
+            "describe/libmbtr/cmbtr.h"
         ],
         "include_dirs": [
-            "/home/lauri/Dropbox/PhD Studies/describe/describe/libmbtr"
+            "./describe/libmbtr"
         ],
         "language": "c++",
         "name": "describe.libmbtr.cmbtrwrapper",
         "sources": [
-            "/home/lauri/Dropbox/PhD Studies/describe/describe/libmbtr/cmbtrwrapper.pyx"
+            "./describe/libmbtr/cmbtrwrapper.pyx"
         ]
     },
     "module_name": "describe.libmbtr.cmbtrwrapper"
@@ -809,7 +809,7 @@ static const char *__pyx_filename;
 
 static const char *__pyx_f[] = {
   "stringsource",
-  "cmbtrwrapper.pyx",
+  "describe/libmbtr/cmbtrwrapper.pyx",
 };
 
 /*--- Type declarations ---*/

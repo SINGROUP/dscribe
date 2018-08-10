@@ -1,5 +1,4 @@
 from setuptools import setup, find_packages, Extension
-from Cython.Build import cythonize
 
 extensions = [
     Extension(
@@ -7,15 +6,19 @@ extensions = [
         [
             "describe/libacsf/acsf-utils.c",
             "describe/libacsf/acsf-compute.c",
-            #"describe/libacsf/acsf.c"
         ],
         include_dirs=["describe/libacsf"],
         libraries=["m"],
         extra_compile_args=["-O3", "-std=c99"]
     ),
+    Extension(
+        "describe.libmbtr.cmbtrwrapper",
+        [
+            "describe/libmbtr/cmbtrwrapper.cpp",
+        ],
+        include_dirs=["describe/libmbtr"],
+    ),
 ]
-# Adds the extensions automatically generated with Cython
-extensions.extend(cythonize("./describe/libmbtr/cmbtrwrapper.pyx"))
 
 if __name__ == "__main__":
     setup(name='describe',
@@ -24,11 +27,7 @@ if __name__ == "__main__":
         description='A Python package for creating feature transformations in applications of machine learning to materials science.',
         long_description='A Python package for creating feature transformations in applications of machine learning to materials science.',
         packages=find_packages(),
-        setup_requires=[
-            'cython',
-        ],
         install_requires=[
-            'cython',
             'chronic',
             'numpy',
             'scipy',

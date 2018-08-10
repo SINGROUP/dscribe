@@ -47,7 +47,8 @@ class MBTR(Descriptor):
             periodic,
             grid=None,
             weighting=None,
-            normalize=False,
+            normalize_by_volume=False,
+            normalize_gaussians=True,
             flatten=True
             ):
         """
@@ -114,8 +115,12 @@ class MBTR(Descriptor):
                     K=1: x = 0
                     K=2: x = Distance between A->B
                     K=3: x = Distance from A->B->C->A.
-            normalize (bool): Determines whether the output vectors are
+            normalize_by_volume (bool): Determines whether the output vectors are
                 normalized by the cell volume.
+            normalize_gaussians (bool): Determines whether the gaussians are
+                normalized to an area of 1. If false, the normalization factor
+                is dropped and the gaussians have the form.
+                :math:`e^-(x-\mu)^2/2\sigma^2`
             flatten (bool): Whether the output of create() should be flattened
                 to a 1D array. If False, a list of the different tensors is
                 provided.
@@ -131,7 +136,8 @@ class MBTR(Descriptor):
         self.grid = grid
         self.weighting = weighting
         self.periodic = periodic
-        self.normalize = normalize
+        self.normalize_by_volume = normalize_by_volume
+        self.normalize_gaussians = normalize_gaussians
         self.update()
         # initializing .create() level variables
         self.n_atoms_in_cell = None
@@ -304,14 +310,14 @@ class MBTR(Descriptor):
             cols = np.concatenate(cols)
             final_vector = coo_matrix((datas, (rows, cols)), shape=[1, length], dtype=np.float32)
 
-            if self.normalize:
+            if self.normalize_by_volume:
                 volume = self.system.get_volume()
                 final_vector /= volume
             return final_vector
 
         # Normalize with respect to cell volume if requested
         else:
-            if self.normalize:
+            if self.normalize_by_volume:
                 volume = self.system.get_volume()
                 for part in mbtr:
                     part /= volume
@@ -562,14 +568,16 @@ class MBTR(Descriptor):
         sigma = settings["sigma"]
         n = settings["n"]
 
-        max_val = 1/(sigma*math.sqrt(2*math.pi))
-
         dx = (stop - start)/(n-1)
         x = np.linspace(start-dx/2, stop+dx/2, n+1)
         pos = x[np.newaxis, :] - centers[:, np.newaxis]
         y = weights[:, np.newaxis]*1/2*(1 + erf(pos/(sigma*np.sqrt(2))))
         f = np.sum(y, axis=0)
-        f /= max_val
+
+        if not self.normalize_gaussians:
+            max_val = 1/(sigma*math.sqrt(2*math.pi))
+            f /= max_val
+
         f_rolled = np.roll(f, -1)
         pdf = (f_rolled - f)[0:-1]/dx  # PDF is the derivative of CDF
 

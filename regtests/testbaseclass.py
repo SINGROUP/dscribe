@@ -59,7 +59,7 @@ class TestBaseClass(ABC):
             i_system.rotate(45, rotation, rotate_cell=True)
             i_features = create(i_system)
             deviation = np.max(np.abs(features - i_features))
-            if deviation > 1e-5:
+            if deviation > 1e-4:
                 is_rot_sym = False
         return is_rot_sym
 
@@ -80,7 +80,7 @@ class TestBaseClass(ABC):
             i_system.translate(translation)
             i_features = create(i_system)
             deviation = np.max(np.abs(features - i_features))
-            if deviation > 1e-5:
+            if deviation > 1e-4:
                 is_trans_sym = False
 
         return is_trans_sym
