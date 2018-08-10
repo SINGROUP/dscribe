@@ -28,6 +28,7 @@ class LMBTR(MBTR):
             periodic,
             grid=None,
             weighting=None,
+            normalize_gaussians=True,
             flatten=True,
             ):
         """
@@ -95,6 +96,10 @@ class LMBTR(MBTR):
                     K=1: x = 0
                     K=2: x = Distance between A->B
                     K=3: x = Distance from A->B->C->A.
+            normalize_gaussians (bool): Determines whether the gaussians are
+                normalized to an area of 1. If false, the normalization factor
+                is dropped and the gaussians have the form.
+                :math:`e^-(x-\mu)^2/2\sigma^2`
             flatten (bool): Whether the output of create() should be flattened
                 to a 1D array. If False, a list of the different tensors is
                 provided.
@@ -110,7 +115,8 @@ class LMBTR(MBTR):
                     periodic,
                     grid,
                     weighting,
-                    normalize=False,
+                    normalize_by_volume=False,
+                    normalize_gaussians=normalize_gaussians,
                     flatten=flatten,
                     )
 
