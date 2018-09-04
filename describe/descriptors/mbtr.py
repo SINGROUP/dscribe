@@ -1,6 +1,9 @@
+from __future__ import absolute_import, division, print_function
+from builtins import super
 import math
 import numpy as np
 import itertools
+import chronic
 
 from scipy.spatial.distance import squareform, pdist, cdist
 from scipy.sparse import lil_matrix, coo_matrix
@@ -9,15 +12,31 @@ from scipy.special import erf
 from describe.core import System
 from describe.descriptors import Descriptor
 
-import matplotlib.pyplot as mpl
+from describe.libmbtr.cmbtrwrapper import CMBTRWrapper
 
 
 class MBTR(Descriptor):
-    """Implementation of the Many-body tensor representation up to K=3.
+    """Implementation of the Many-body tensor representation up to k=3.
 
     You can use this descriptor for finite and periodic systems. When dealing
-    with periodic systems, please always use a primitive cell. It does not
-    matter which of the available primitive cell is used.
+    with periodic systems, it is advisable to use a primitive cell, or if
+    supercells are included to use normalization e.g. by volume provided by the
+    "normalize" flag.
+
+    If flatten=False, a list of dense np.ndarrays for each k in ascending order
+    is returned. These arrays are of dimension (n_elements x n_elements x
+    n_grid_points), where the elements are sorted in ascending order by their
+    atomic number.
+
+    If flatten=True, a scipy.sparse.coo_matrix is returned. This sparse matrix
+    is of size (1, n_features), where n_features is given by
+    get_number_of_features(). This vector is ordered so that the different
+    k-terms are ordered in ascending order, and within each k-term the
+    distributions at each entry (i, j, h) of the tensor are ordered in an
+    ascending order by (i * n_elements) + (j * n_elements) + (h * n_elements).
+
+    This implementation does not support the use of a non-identity correlation
+    matrix.
     """
     decay_factor = math.sqrt(2)*3
 
@@ -28,6 +47,8 @@ class MBTR(Descriptor):
             periodic,
             grid=None,
             weighting=None,
+            normalize_by_volume=False,
+            normalize_gaussians=True,
             flatten=True
             ):
         """
@@ -48,8 +69,7 @@ class MBTR(Descriptor):
                 'cutoff'-values specified in the weighting argument.
             grid (dictionary): This dictionary can be used to precisely control
                 the broadening width, grid spacing and grid length for all the
-                different terms. If not provided, a set of sensible defaults
-                will be used. Example:
+                different terms. Example:
                     grid = {
                         "k1": {
                             "min": 1,
@@ -95,6 +115,12 @@ class MBTR(Descriptor):
                     K=1: x = 0
                     K=2: x = Distance between A->B
                     K=3: x = Distance from A->B->C->A.
+            normalize_by_volume (bool): Determines whether the output vectors are
+                normalized by the cell volume.
+            normalize_gaussians (bool): Determines whether the gaussians are
+                normalized to an area of 1. If false, the normalization factor
+                is dropped and the gaussians have the form.
+                :math:`e^-(x-\mu)^2/2\sigma^2`
             flatten (bool): Whether the output of create() should be flattened
                 to a 1D array. If False, a list of the different tensors is
                 provided.
@@ -104,32 +130,52 @@ class MBTR(Descriptor):
             is not specified for periodic systems.
         """
         super().__init__(flatten)
+        self.system = None
+        self.k = k
+        self.atomic_numbers = atomic_numbers
+        self.grid = grid
+        self.weighting = weighting
+        self.periodic = periodic
+        self.normalize_by_volume = normalize_by_volume
+        self.normalize_gaussians = normalize_gaussians
+        self.update()
+        # initializing .create() level variables
+        self.n_atoms_in_cell = None
+        self._counts = None
+        self._inverse_distances = None
+        self._angles = None
+        self._angle_weights = None
+        self._axis_k1 = None
+        self._axis_k2 = None
+        self._axis_k3 = None
 
+    def update(self):
+        """Checks and updates variables in mbtr class.
+        """
         # Check K value
         supported_k = set(range(1, 4))
-        if isinstance(k, int):
+        if isinstance(self.k, int):
             raise ValueError(
                 "Please provide the k values that you wish to be generated as a"
                 " list or set."
             )
         else:
             try:
-                k = set(k)
+                self.k = set(self.k)
             except Exception:
                 raise ValueError(
                     "Could not make the given value of k into a set. Please "
                     "provide the k values as a list or a set."
                 )
-            if not k.issubset(supported_k):
+            if not self.k.issubset(supported_k):
                 raise ValueError(
-                    "The given k parameter '{}' has at least one invalid k value".format(k)
+                    "The given k parameter '{}' has at least one invalid k value".format(self.k)
                 )
-            self.k = set(k)
 
         # Check the weighting information
-        if weighting is not None:
-            if weighting == "exponential":
-                weighting = {
+        if self.weighting is not None:
+            if self.weighting == "exponential":
+                self.weighting = {
                     "k2": {
                         "function": lambda x: np.exp(-0.5*x),
                         "threshold": 1e-3
@@ -141,17 +187,43 @@ class MBTR(Descriptor):
                 }
             else:
                 for i in self.k:
-                    info = weighting.get("k{}".format(i))
+                    info = self.weighting.get("k{}".format(i))
                     if info is not None:
                         assert "function" in info, \
                             ("The weighting dictionary is missing 'function'.")
-        elif periodic:
-            raise ValueError(
-                "Periodic systems will need to have a weighting function "
-                "defined in the 'weighting' dictionary of the MBTR constructor."
-            )
+        elif self.periodic:
+            if max(self.k) > 1:
+                raise ValueError(
+                    "Periodic systems will need to have a weighting function "
+                    "defined in the 'weighting' dictionary of the MBTR "
+                    "constructor when requesting K > 1"
+                )
 
         # Check the given grid
+        if self.grid is not None:
+            self.check_grid(self.grid)
+
+        self.n_elements = None  # Number of elements for MBTR
+        self.atomic_number_to_index = {}  # a
+        self.atomic_number_to_d1 = {}
+        self.atomic_number_to_d2 = {}
+        self.index_to_atomic_number = {}
+        self.n_copies_per_axis = None
+
+        # Sort the atomic numbers. This is not needed but makes things maybe a
+        # bit easier to debug.
+        self.atomic_numbers.sort()
+        for i_atom, atomic_number in enumerate(self.atomic_numbers):
+            self.atomic_number_to_index[atomic_number] = i_atom
+            self.index_to_atomic_number[i_atom] = atomic_number
+        self.n_elements = len(self.atomic_numbers)
+
+        self.max_atomic_number = max(self.atomic_numbers)
+        self.min_atomic_number = min(self.atomic_numbers)
+
+    def check_grid(self, grid):
+        """Used to ensure that the given grid settings are valid.
+        """
         if grid is not None:
             for i in self.k:
                 info = grid.get("k{}".format(i))
@@ -163,40 +235,14 @@ class MBTR(Descriptor):
                             info[val_name]
                         except Exception:
                             raise KeyError(msg.format(val_name))
+
+                    # Make the n into integer
+                    n = grid.get("k{}".format(i))["n"]
+                    grid.get("k{}".format(i))["n"] = int(n)
                     assert info["min"] < info["max"], \
                         "The min value should be smaller than the max values"
-        self.grid = grid
 
-        self.n_elements = None
-        self.present_elements = None
-        self.atomic_number_to_index = {}
-        self.index_to_atomic_number = {}
-        self.n_atoms_in_cell = None
-        self.periodic = periodic
-        self.n_copies_per_axis = None
-
-        self.weighting = weighting
-
-        # Sort the atomic numbers. This is not needed but makes things maybe a
-        # bit easier to debug.
-        atomic_numbers.sort()
-
-        for i_atom, atomic_number in enumerate(atomic_numbers):
-            self.atomic_number_to_index[atomic_number] = i_atom
-            self.index_to_atomic_number[i_atom] = atomic_number
-        self.n_elements = len(atomic_numbers)
-
-        self.max_atomic_number = max(atomic_numbers)
-        self.min_atomic_number = min(atomic_numbers)
-
-        self._counts = None
-        self._inverse_distances = None
-        self._angles = None
-        self._angle_weights = None
-        self._axis_k1 = None
-        self._axis_k2 = None
-        self._axis_k3 = None
-
+    @chronic.time
     def describe(self, system):
         """Return the many-body tensor representation as a 1D array for the
         given system.
@@ -208,12 +254,21 @@ class MBTR(Descriptor):
             1D ndarray: The many-body tensor representation up to the k:th term
             as a flattened array.
         """
-        self.n_atoms_in_cell = len(system)
-        present_element_numbers = set(system.numbers)
-        self.present_indices = set()
-        for number in present_element_numbers:
-            index = self.atomic_number_to_index[number]
-            self.present_indices.add(index)
+        # Initializes the scalar numbers that depend no the system
+        self.initialize_scalars(system)
+
+        return self.create_with_grid()
+
+    @chronic.time
+    def create_with_grid(self, grid=None):
+        """Used to recalculate MBTR for an already seen system but with
+        different grid setttings. This function can be used after
+        """
+        if grid is None:
+            grid = self.grid
+        else:
+            self.check_grid(grid)
+            self.grid = grid
 
         mbtr = []
         if 1 in self.k:
@@ -221,37 +276,18 @@ class MBTR(Descriptor):
             # We will use the original system to calculate the counts, unlike
             # with the other terms that use the extended system
             settings_k1 = self.get_k1_settings()
-            k1 = self.K1(system, settings_k1)
+            k1 = self.K1(settings_k1)
             mbtr.append(k1)
 
         if 2 in self.k:
             settings_k2 = self.get_k2_settings()
-
-            # If needed, create the extended system
-            system_k2 = system
-            if self.periodic:
-                system_k2 = self.create_extended_system(system, 2)
-
-            k2 = self.K2(system_k2, settings_k2)
-
-            # Free memory
-            system_k2 = None
-
+            k2 = self.K2(settings_k2)
             mbtr.append(k2)
 
         if 3 in self.k:
 
             settings_k3 = self.get_k3_settings()
-
-            # If needed, create the extended system
-            system_k3 = system
-            if self.periodic:
-                system_k3 = self.create_extended_system(system, 3)
-
-            k3 = self.K3(system_k3, settings_k3)
-
-            # Free memory
-            system_k3 = None
+            k3 = self.K3(settings_k3)
 
             mbtr.append(k3)
 
@@ -274,9 +310,64 @@ class MBTR(Descriptor):
             cols = np.concatenate(cols)
             final_vector = coo_matrix((datas, (rows, cols)), shape=[1, length], dtype=np.float32)
 
+            if self.normalize_by_volume:
+                volume = self.system.get_volume()
+                final_vector /= volume
             return final_vector
+
+        # Normalize with respect to cell volume if requested
         else:
+            if self.normalize_by_volume:
+                volume = self.system.get_volume()
+                for part in mbtr:
+                    part /= volume
             return mbtr
+
+    def initialize_scalars(self, system):
+        """Used to initialize the scalar values for each k-term.
+        """
+        # Ensuring variables are re-initialized when a new system is introduced
+        self.n_atoms_in_cell = None
+        self.system = system
+        self._counts = None
+        self._inverse_distances = None
+        self._angles = None
+        self._angle_weights = None
+        self._axis_k1 = None
+        self._axis_k2 = None
+        self._axis_k3 = None
+
+        self.update()
+
+        self.n_atoms_in_cell = len(system)
+        present_element_numbers = set(system.numbers)
+        self.present_indices = set()
+        for number in present_element_numbers:
+            index = self.atomic_number_to_index[number]
+            self.present_indices.add(index)
+
+        if 1 in self.k:
+
+            self.elements(system)
+        if 2 in self.k:
+            # If needed, create the extended system
+            system_k2 = system
+            if self.periodic:
+                system_k2 = self.create_extended_system(system, 2)
+            self.inverse_distances(system_k2)
+
+            # Free memory
+            system_k2 = None
+
+        if 3 in self.k:
+            # If needed, create the extended system
+            system_k3 = system
+            if self.periodic:
+                system_k3 = self.create_extended_system(system, 3)
+            self.cosines_and_weights(system_k3)
+
+            # Free memory
+            system_k3 = None
 
     def get_k1_settings(self):
         """Returns the min, max, dx and sigma for K1.
@@ -291,7 +382,7 @@ class MBTR(Descriptor):
                 "min": min_k,
                 "max": max_k,
                 "sigma": sigma,
-                "n": math.ceil((max_k-min_k)/sigma/4) + 1,
+                "n": int(math.ceil((max_k-min_k)/sigma/4) + 1),
             }
 
     def get_k2_settings(self):
@@ -307,7 +398,7 @@ class MBTR(Descriptor):
                 "min": min_k,
                 "max": max_k,
                 "sigma": sigma,
-                "n": math.ceil((max_k-min_k)/sigma/4) + 1,
+                "n": int(math.ceil((max_k-min_k)/sigma/4) + 1),
             }
 
     def get_k3_settings(self):
@@ -323,7 +414,7 @@ class MBTR(Descriptor):
                 "min": min_k,
                 "max": max_k,
                 "sigma": sigma,
-                "n": math.ceil((max_k-min_k)/sigma/4) + 1,
+                "n": int(math.ceil((max_k-min_k)/sigma/4) + 1),
             }
 
     def get_number_of_features(self):
@@ -336,6 +427,10 @@ class MBTR(Descriptor):
         n_features = 0
         n_elem = self.n_elements
 
+        if 0 in self.k:
+            n_k0_grid = self.get_k0_settings()["d1"]["n"]
+            n_k0 = 2*n_k0_grid
+            n_features += n_k0
         if 1 in self.k:
             n_k1_grid = self.get_k1_settings()["n"]
             n_k1 = n_elem*n_k1_grid
@@ -445,29 +540,10 @@ class MBTR(Descriptor):
             positions=pos_extended,
             numbers=num_extended,
             cell=cell,
+            pbc=False
         )
 
         return extended_system
-
-    # def gaussian_sum(self, centers, weights, sigma, grid):
-        # """Creates function that represents a sum of normalized gaussians with
-        # an equal standard deviation.
-
-        # Args:
-            # centers (1D np.ndarray): The means of the gaussians.
-            # weights (1D np.ndarray): The weights for the gaussians.
-            # sigma (float): The standard deviation of all the gaussians.
-            # grid (1D np.ndarray): The grid on which to evaluate the gaussians.
-
-        # Returns:
-            # Value of the gaussian sums on the given grid.
-        # """
-        # dist2 = grid[np.newaxis, :] - centers[:, np.newaxis]
-        # dist2 *= dist2
-        # f = np.sum(weights[:, np.newaxis]*np.exp(-dist2/(2*sigma**2)), axis=0)
-        # f *= 1/math.sqrt(2*sigma**2*math.pi)
-
-        # return f
 
     def gaussian_sum(self, centers, weights, settings):
         """Calculates a discrete version of a sum of Gaussian distributions.
@@ -492,19 +568,22 @@ class MBTR(Descriptor):
         sigma = settings["sigma"]
         n = settings["n"]
 
-        max_val = 1/(sigma*math.sqrt(2*math.pi))
-
         dx = (stop - start)/(n-1)
         x = np.linspace(start-dx/2, stop+dx/2, n+1)
         pos = x[np.newaxis, :] - centers[:, np.newaxis]
         y = weights[:, np.newaxis]*1/2*(1 + erf(pos/(sigma*np.sqrt(2))))
         f = np.sum(y, axis=0)
-        f /= max_val
+
+        if not self.normalize_gaussians:
+            max_val = 1/(sigma*math.sqrt(2*math.pi))
+            f /= max_val
+
         f_rolled = np.roll(f, -1)
         pdf = (f_rolled - f)[0:-1]/dx  # PDF is the derivative of CDF
 
         return pdf
 
+    @chronic.time
     def elements(self, system):
         """Calculate the atom count for each element.
 
@@ -515,16 +594,18 @@ class MBTR(Descriptor):
             1D ndarray: The counts for each element in a list where the index
             of atomic number x is self.atomic_number_to_index[x]
         """
-        numbers = system.numbers
-        unique, counts = np.unique(numbers, return_counts=True)
-        counts_reindexed = np.zeros(self.n_elements)
-        for atomic_number, count in zip(unique, counts):
-            index = self.atomic_number_to_index[atomic_number]
-            counts_reindexed[index] = count
+        if self._counts is None:
+            numbers = system.numbers
+            unique, counts = np.unique(numbers, return_counts=True)
+            counts_reindexed = np.zeros(self.n_elements)
+            for atomic_number, count in zip(unique, counts):
+                index = self.atomic_number_to_index[atomic_number]
+                counts_reindexed[index] = count
 
-        self._counts = counts_reindexed
-        return counts_reindexed
+            self._counts = counts_reindexed
+        return self._counts
 
+    @chronic.time
     def inverse_distances(self, system):
         """Calculates the inverse distances for the given atomic positions.
 
@@ -533,42 +614,21 @@ class MBTR(Descriptor):
 
         Returns:
             dict: Inverse distances in the form:
-            {i: { j: [list of angles] }}. The dictionaries are filled
+            {(i, j): [list of angles] }. The dictionaries are filled
             so that the entry for pair i and j is in the entry where j>=i.
         """
-        inverse_dist = system.get_inverse_distance_matrix()
+        if self._inverse_distances is None:
 
-        numbers = system.numbers
-        inv_dist_dict = {}
-        for i_atom, i_element in enumerate(numbers):
-            for j_atom, j_element in enumerate(numbers):
-                if j_atom > i_atom:
-                    # Only consider pairs that have one atom in the original
-                    # cell
-                    if i_atom < self.n_atoms_in_cell or \
-                       j_atom < self.n_atoms_in_cell:
+            cmbtr = CMBTRWrapper(
+                system.get_positions(),
+                system.get_atomic_numbers(),
+                self.atomic_number_to_index,
+                self.n_atoms_in_cell
+            )
+            self._inverse_distances = cmbtr.get_inverse_distance_map()
+        return self._inverse_distances
 
-                        i_index = self.atomic_number_to_index[i_element]
-                        j_index = self.atomic_number_to_index[j_element]
-
-                        # Make sure that j_index >= i_index so that we fill only
-                        # the upper triangular part
-                        i_index, j_index = sorted([i_index, j_index])
-
-                        old_dict = inv_dist_dict.get(i_index)
-                        if old_dict is None:
-                            old_dict = {}
-                        old_list = old_dict.get(j_index)
-                        if old_list is None:
-                            old_list = []
-                        inv_dist = inverse_dist[i_atom, j_atom]
-                        old_list.append(inv_dist)
-                        old_dict[j_index] = old_list
-                        inv_dist_dict[i_index] = old_dict
-
-        self._inverse_distances = inv_dist_dict
-        return inv_dist_dict
-
+    @chronic.time
     def cosines_and_weights(self, system):
         """Calculates the cosine of the angles and their weights between unique
         three-body combinations.
@@ -586,25 +646,6 @@ class MBTR(Descriptor):
             be the same as for HHO. These duplicate values are left out by only
             filling values where k>=i.
         """
-<<<<<<< Updated upstream
-        disp_tensor = system.get_displacement_tensor().astype(np.float32)
-        distance_matrix = system.get_distance_matrix().astype(np.float32)
-        numbers = system.numbers
-=======
-
-        # if self._angles is None or self._angle_weights is None:
-
-            # cmbtr = CMBTRWrapper(
-                # system.get_positions(),
-                # system.get_atomic_numbers(),
-                # self.atomic_number_to_index,
-                # self.n_atoms_in_cell
-            # )
-            # self._inverse_distances = cmbtr.get_inverse_distance_map()
-            # self._angles = cmbtr.get_
-            # self._angle_weights = weight_dict
-        # return self._angles, self._angle_weights
-
         if self._angles is None or self._angle_weights is None:
 
             disp_tensor = system.get_displacement_tensor().astype(np.float32)
@@ -652,103 +693,60 @@ class MBTR(Descriptor):
                     # Save information in the part where k_index >= i_index
                     if k_index < i_index:
                         continue
->>>>>>> Stashed changes
 
-        # Cosines between atoms i-j-k can be found in the tensor:
-        # cos_tensor[i, j, k] or equivalently cos_tensor[k, j, i] (symmetric)
-        n_atoms = len(numbers)
-        cos_tensor = np.empty((n_atoms, n_atoms, n_atoms), dtype=np.float32)
-        for i in range(disp_tensor.shape[0]):
-            part = 1 - squareform(pdist(disp_tensor[i, :, :], 'cosine'))
-            cos_tensor[:, i, :] = part
+                    # Save weights
+                    if weighting_function is not None:
+                        dist1 = distance_matrix[i_atom, j_atom]
+                        dist2 = distance_matrix[j_atom, k_atom]
+                        dist3 = distance_matrix[k_atom, i_atom]
+                        weight = weighting_function(dist1 + dist2 + dist3)
+                    else:
+                        weight = 1
 
-        # Remove the numerical noise from cosine values.
-        np.clip(cos_tensor, -1, 1, cos_tensor)
+                    old_dict_1 = weight_dict.get(i_index)
+                    if old_dict_1 is None:
+                        old_dict_1 = {}
+                    old_dict_2 = old_dict_1.get(j_index)
+                    if old_dict_2 is None:
+                        old_dict_2 = {}
+                    old_list_3 = old_dict_2.get(k_index)
+                    if old_list_3 is None:
+                        old_list_3 = []
 
-        cos_dict = {}
-        weight_dict = {}
-        indices = range(len(numbers))
+                    old_list_3.append(weight)
+                    old_dict_2[k_index] = old_list_3
+                    old_dict_1[j_index] = old_dict_2
+                    weight_dict[i_index] = old_dict_1
 
-        # Determine the weighting function
-        weighting_function = None
-        if self.weighting is not None and self.weighting.get("k3") is not None:
-            weighting_function = self.weighting["k3"]["function"]
+                    # Save cosines
+                    old_dict_1 = cos_dict.get(i_index)
+                    if old_dict_1 is None:
+                        old_dict_1 = {}
+                    old_dict_2 = old_dict_1.get(j_index)
+                    if old_dict_2 is None:
+                        old_dict_2 = {}
+                    old_list_3 = old_dict_2.get(k_index)
+                    if old_list_3 is None:
+                        old_list_3 = []
+                    old_list_3.append(cos_tensor[i_atom, j_atom, k_atom])
+                    old_dict_2[k_index] = old_list_3
+                    old_dict_1[j_index] = old_dict_2
+                    cos_dict[i_index] = old_dict_1
 
-        # Here we go through all the 3-permutations of the atoms in the system
-        permutations = itertools.permutations(indices, 3)
-        for i_atom, j_atom, k_atom in permutations:
+            self._angles = cos_dict
+            self._angle_weights = weight_dict
+        return self._angles, self._angle_weights
 
-            # Only consider triplets that have one atom in the original
-            # cell
-            if i_atom < self.n_atoms_in_cell or \
-               j_atom < self.n_atoms_in_cell or \
-               k_atom < self.n_atoms_in_cell:
-
-                i_element = numbers[i_atom]
-                j_element = numbers[j_atom]
-                k_element = numbers[k_atom]
-
-                i_index = self.atomic_number_to_index[i_element]
-                j_index = self.atomic_number_to_index[j_element]
-                k_index = self.atomic_number_to_index[k_element]
-
-                # Save information in the part where k_index >= i_index
-                if k_index < i_index:
-                    continue
-
-                # Save weights
-                if weighting_function is not None:
-                    dist1 = distance_matrix[i_atom, j_atom]
-                    dist2 = distance_matrix[j_atom, k_atom]
-                    dist3 = distance_matrix[k_atom, i_atom]
-                    weight = weighting_function(dist1 + dist2 + dist3)
-                else:
-                    weight = 1
-
-                old_dict_1 = weight_dict.get(i_index)
-                if old_dict_1 is None:
-                    old_dict_1 = {}
-                old_dict_2 = old_dict_1.get(j_index)
-                if old_dict_2 is None:
-                    old_dict_2 = {}
-                old_list_3 = old_dict_2.get(k_index)
-                if old_list_3 is None:
-                    old_list_3 = []
-
-                old_list_3.append(weight)
-                old_dict_2[k_index] = old_list_3
-                old_dict_1[j_index] = old_dict_2
-                weight_dict[i_index] = old_dict_1
-
-                # Save cosines
-                old_dict_1 = cos_dict.get(i_index)
-                if old_dict_1 is None:
-                    old_dict_1 = {}
-                old_dict_2 = old_dict_1.get(j_index)
-                if old_dict_2 is None:
-                    old_dict_2 = {}
-                old_list_3 = old_dict_2.get(k_index)
-                if old_list_3 is None:
-                    old_list_3 = []
-                old_list_3.append(cos_tensor[i_atom, j_atom, k_atom])
-                old_dict_2[k_index] = old_list_3
-                old_dict_1[j_index] = old_dict_2
-                cos_dict[i_index] = old_dict_1
-
-        self._angles = cos_dict
-        self._angle_weights = weight_dict
-        return cos_dict, weight_dict
-
-    def K1(self, system, settings):
+    def K1(self, settings):
         """Calculates the first order terms where the scalar mapping is the
         number of atoms of a certain type.
 
         Args:
-            system (System): The atomic system.
-            settings (dict): The grid settings
+            system (System): Atomic system.
+            settings (dict): Grid settings.
 
         Returns:
-            1D ndarray: flattened K1 values.
+            ndarray | scipy.sparse.lil_matrix: K1 values.
         """
         start = settings["min"]
         stop = settings["max"]
@@ -757,13 +755,13 @@ class MBTR(Descriptor):
 
         n_elem = self.n_elements
 
-        # Use sparse matrices for storing the result
+        # Depending of flattening, use either a sparse matrix or a dense one.
         if self.flatten:
             k1 = lil_matrix((1, n_elem*n), dtype=np.float32)
         else:
             k1 = np.zeros((n_elem, n), dtype=np.float32)
 
-        counts = self.elements(system)
+        counts = self._counts
 
         for i in range(n_elem):
             atomic_number = np.array([self.index_to_atomic_number[i]])
@@ -777,20 +775,13 @@ class MBTR(Descriptor):
             else:
                 k1[i, :] = gaussian_sum
 
-            # For debugging
-            # elem_i = self.index_to_atomic_number[i]
-            # print("Count {} for: {}".format(count, elem_i))
-            # mpl.plot(space, convolution)
-            # mpl.show()
-
         return k1
 
-    def K2(self, system, settings):
+    def K2(self, settings):
         """Calculates the second order terms where the scalar mapping is the
         inverse distance between atoms.
 
         Args:
-            system (System): The atomic system.
             settings (dict): The grid settings
 
         Returns:
@@ -801,12 +792,12 @@ class MBTR(Descriptor):
         n = settings["n"]
         self._axis_k2 = np.linspace(start, stop, n)
 
-        inv_dist_dict = self.inverse_distances(system)
+        inv_dist_dict = self._inverse_distances
         n_elem = self.n_elements
 
         if self.flatten:
             k2 = lil_matrix(
-                (1, n_elem*(n_elem+1)/2*n), dtype=np.float32)
+                (1, int(n_elem*(n_elem+1)/2*n)), dtype=np.float32)
         else:
             k2 = np.zeros((self.n_elements, self.n_elements, n))
 
@@ -821,7 +812,7 @@ class MBTR(Descriptor):
                 if j >= i:
                     m += 1
                     try:
-                        inv_dist = np.array(inv_dist_dict[i][j])
+                        inv_dist = np.array(inv_dist_dict[(i, j)])
                     except KeyError:
                         continue
 
@@ -841,22 +832,13 @@ class MBTR(Descriptor):
                     else:
                         k2[i, j, :] = gaussian_sum
 
-                    # For debugging
-                    # elem_i = self.index_to_atomic_number[i]
-                    # elem_j = self.index_to_atomic_number[j]
-                    # print("Inverse distances {} for: {} {}"
-                    #     .format(inv_dist, elem_i, elem_j))
-                    # mpl.plot(space, gaussian_sum)
-                    # mpl.show()
-
         return k2
 
-    def K3(self, system, settings):
+    def K3(self, settings):
         """Calculates the third order terms where the scalar mapping is the
         angle between 3 atoms.
 
         Args:
-            system (System): The atomic system.
             settings (dict): The grid settings
 
         Returns:
@@ -867,12 +849,12 @@ class MBTR(Descriptor):
         n = settings["n"]
         self._axis_k3 = np.linspace(start, stop, n)
 
-        cos_dict, cos_weight_dict = self.cosines_and_weights(system)
+        cos_dict, cos_weight_dict = self._angles, self._angle_weights
         n_elem = self.n_elements
 
         if self.flatten:
             k3 = lil_matrix(
-                (1, n_elem*n_elem*(n_elem+1)/2*n), dtype=np.float32)
+                (1, int(n_elem*n_elem*(n_elem+1)/2*n)), dtype=np.float32)
         else:
             k3 = np.zeros((n_elem, n_elem, n_elem, n))
 
@@ -900,13 +882,5 @@ class MBTR(Descriptor):
                             k3[0, start:end] = gaussian_sum
                         else:
                             k3[i, j, k, :] = gaussian_sum
-
-                        # For debugging
-                        # elem_i = self.index_to_atomic_number[i]
-                        # elem_j = self.index_to_atomic_number[j]
-                        # elem_k = self.index_to_atomic_number[k]
-                        # print("Cosines {} for: {}{}{}".format(cos_values, elem_i, elem_j, elem_k))
-                        # mpl.plot(space, gaussian_sum)
-                        # mpl.show()
 
         return k3

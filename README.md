@@ -7,6 +7,9 @@
  \__,_|\___||___/\___|_|  |_|_.__/ \___|
 ```
 
+[![Build Status](https://travis-ci.org/SINGROUP/describe.svg?branch=master)](https://travis-ci.org/SINGROUP/describe)
+[![Coverage Status](https://coveralls.io/repos/github/SINGROUP/describe/badge.svg?branch=master)](https://coveralls.io/github/SINGROUP/describe?branch=master)
+
 describe is a python package for creating machine learning descriptors for atomistic systems.
 
 # Example
@@ -65,4 +68,13 @@ for atoms in ase_atoms:
 #===============================================================================
 # The result of the .create() function is a (possibly sparse) 1D vector that
 # can now be directly used in various machine-learning libraries.
+```
+
+# Installation
+To install the package, clone the repository and install with pip, e.g.
+
+```sh
+git clone https://github.com/SINGROUP/describe.git
+cd describe
+pip install .
 ```

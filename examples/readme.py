@@ -23,7 +23,7 @@ n_atoms_max = stats["n_atoms_max"]
 atomic_numbers = stats["atomic_numbers"]
 
 # Defining the properties of the descriptors
-cm_desc = CoulombMatrix(n_atoms_max=n_atoms_max)
+cm_desc = CoulombMatrix(n_atoms_max=n_atoms_max, permutation="sorted_l2")
 sm_desc = SineMatrix(n_atoms_max=n_atoms_max)
 mbtr_desc = MBTR(
     atomic_numbers=atomic_numbers,

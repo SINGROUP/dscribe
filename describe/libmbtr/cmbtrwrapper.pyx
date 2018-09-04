@@ -3,7 +3,6 @@
 import numpy as np
 from libcpp.vector cimport vector
 from libcpp.map cimport map
-from libcpp.tuple cimport tuple
 from cmbtr cimport CMBTR
 
 cdef class CMBTRWrapper:

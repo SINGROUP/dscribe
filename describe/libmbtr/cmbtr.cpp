@@ -1,7 +1,6 @@
 #include "cmbtr.h"
 #include <vector>
 #include <map>
-#include <numeric>
 #include <utility>
 #include <cmath>
 #include <algorithm>
@@ -12,48 +11,43 @@ CMBTR::CMBTR(vector<vector<float> > positions, vector<int> atomicNumbers, map<in
     , atomicNumbers(atomicNumbers)
     , atomicNumberToIndexMap(atomicNumberToIndexMap)
     , cellLimit(cellLimit)
-    , displacementTensorInitialized(false)
 {
 }
 
 vector<vector<vector<float> > > CMBTR::getDisplacementTensor()
 {
-    // Use cached value if possible
-    if (!this->displacementTensorInitialized) {
-        int nAtoms = this->atomicNumbers.size();
+    int nAtoms = this->atomicNumbers.size();
 
-        // Initialize tensor
-        vector<vector<vector<float> > > tensor(nAtoms, vector<vector<float> >(nAtoms, vector<float>(3)));
+    // Initialize tensor
+    vector<vector<vector<float> > > tensor(nAtoms, vector<vector<float> >(nAtoms, vector<float>(3)));
 
-        // Calculate the distance between all pairs and store in the tensor
-        for (int i=0; i < nAtoms; ++i) {
-            for (int j=0; j < nAtoms; ++j) {
+    // Calculate the distance between all pairs and store in the tensor
+    for (int i=0; i < nAtoms; ++i) {
+        for (int j=0; j < nAtoms; ++j) {
 
-                // Due to symmetry only upper triangular part is processed.
-                if (i <= j) {
-                    continue;
-                }
-
-                // Calculate distance between the two atoms, store in tensor
-                vector<float>& iPos = this->positions[i];
-                vector<float>& jPos = this->positions[j];
-                vector<float> diff(3);
-                vector<float> negDiff(3);
-
-                for (int k=0; k < 3; ++k) {
-                    float iDiff = jPos[k] - iPos[k];
-                    diff[k] = iDiff;
-                    negDiff[k] = -iDiff;
-                }
-
-                tensor[i][j] = diff;
-                tensor[j][i] = negDiff;
+            // Due to symmetry only upper triangular part is processed.
+            if (i <= j) {
+                continue;
             }
+
+            // Calculate distance between the two atoms, store in tensor
+            vector<float>& iPos = this->positions[i];
+            vector<float>& jPos = this->positions[j];
+            vector<float> diff(3);
+            vector<float> negDiff(3);
+
+            for (int k=0; k < 3; ++k) {
+                float iDiff = jPos[k] - iPos[k];
+                diff[k] = iDiff;
+                negDiff[k] = -iDiff;
+            }
+
+            tensor[i][j] = diff;
+            tensor[j][i] = negDiff;
         }
-        this->displacementTensor = tensor;
-        this->displacementTensorInitialized = true;
     }
-    return this->displacementTensor;
+
+    return tensor;
 }
 vector<vector<float> > CMBTR::getDistanceMatrix()
 {
@@ -170,37 +164,4 @@ map<pair<int, int>, vector<float> > CMBTR::getInverseDistanceMap()
     }
 
     return inverseDistanceMap;
-}
-
-map<vector<int>, float> CMBTR::getAngleCosines()
-{
-    int nAtoms = this->atomicNumbers.size();
-
-    // Initialize the map containing the mappings
-    map<vector<int, int, int>, vector<float> > cosineMap;
-
-    // Get the displacement vectors and their lengths
-    vector<vector<vector<float> > > tensor = this->getDisplacementTensor();
-    vector<vector<float> > distanceMatrix = this->getDistanceMatrix();
-
-    // Calculate the angle between displacement vectors (j,i) and (j, k)
-    for (int i=0; i < nAtoms; ++i) {
-        for (int j=0; j < nAtoms; ++j) {
-            for (int k=0; k < nAtoms; ++k) {
-
-                // The angles are symmetric: ijk = kji. Only the entry where k
-                // >= i is stored.
-                if (k >= i) {
-                    vector<float> a = tensor[i][j];
-                    vector<float> b = tensor[k][j];
-                    float dotProd = inner_product(a.begint(), a.end(), b.begin(), 0.0);
-                    float cosAngle = dotProd / inverseDistanceMatrix[i][j]*inverseDistanceMatrix[k][j];
-
-                    vector<int> key{i, j, k};
-                    cosineMap[key] = cosAngle;
-                }
-            }
-        }
-    }
-    return cosineMap;
 }

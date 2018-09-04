@@ -1,8 +1,11 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+from builtins import (bytes, str, open, super, range,
+                      zip, round, input, int, pow, object)
 import numpy as np
-from describe.descriptors import Descriptor
+from describe.descriptors.matrixdescriptor import MatrixDescriptor
 
 
-class SineMatrix(Descriptor):
+class SineMatrix(MatrixDescriptor):
     """Calculates the zero padded Sine matrix for different systems.
 
     The Sine matrix is defined as:
@@ -17,42 +20,37 @@ class SineMatrix(Descriptor):
     The matrix is padded with invisible atoms, which means that the matrix is
     padded with zeros until the maximum allowed size defined by n_max_atoms is
     reached.
-    """
-    def __init__(self, n_atoms_max, flatten=True):
-        """
-        Args:
-            n_max_atoms (int): The maximum nuber of atoms that any of the
-                samples can have. This controls how much zeros need to be
-                padded to the final result.
-            flatten (bool): Whether the output of create() should be flattened
-                to a 1D array.
-        """
-        super().__init__(flatten)
-        self.n_atoms_max = n_atoms_max
 
-    def describe(self, system):
-        """
+    For reference, see:
+        "Crystal Structure Representations for Machine Learning Models of
+        Formation Energies", Felix Faber, Alexander Lindmaa, Anatole von
+        Lilienfeld, and Rickard Armiento, International Journal of Quantum
+        Chemistry, (2015),
+        https://doi.org/10.1002/qua.24917
+    """
+    def get_matrix(self, system):
+        """Creates the Sine matrix for the given system.
+
         Args:
-            system (System): Input system.
+            system(:class:`.System`): The system for which the Sine matrix is
+                calculated.
 
         Returns:
-            ndarray: The zero padded Sine matrix either as a 2D array or as
-                a 1D array depending on the setting self.flatten.
+            np.ndarray: Sine matrix as 2D array.
         """
-        smat = self.sine_matrix(system)
-        smat = self.zero_pad(smat)
-        if self.flatten:
-            smat = smat.flatten()
-        return smat
+        # Force the use of periodic boundary conditions
+        system.set_pbc(True)
 
-    def sine_matrix(self, system):
-        """Creates the Sine matrix for the given system.
-        """
         # Cell and inverse cell
         B = system.get_cell()
-        B_inv = system.get_cell_inverse()
+        try:
+            B_inv = system.get_cell_inverse()
+        except:
+            raise ValueError(
+                "The given system has a non-invertible cell matrix: {}.".format(B)
+            )
 
-        # Difference vectors in tensor 3D-tensor-form
+        # Difference vectors as a 3D tensor
         diff_tensor = system.get_displacement_tensor()
 
         # Calculate phi
@@ -63,7 +61,7 @@ class SineMatrix(Descriptor):
             phi = np.reciprocal(phi)
 
         # Calculate Z_i*Z_j
-        q = system.get_initial_charges()
+        q = system.get_atomic_numbers()
         qiqj = q[None, :]*q[:, None]
         np.fill_diagonal(phi, 0)
 
@@ -74,20 +72,3 @@ class SineMatrix(Descriptor):
         np.fill_diagonal(smat, 0.5 * q ** 2.4)
 
         return smat
-
-    def zero_pad(self, cmat):
-        # Pad with zeros
-        zeros = np.zeros((self.n_atoms_max, self.n_atoms_max))
-        zeros[:cmat.shape[0], :cmat.shape[1]] = cmat
-        cmat = zeros
-
-        return cmat
-
-    def get_number_of_features(self):
-        """Used to inquire the final number of features that this descriptor
-        will have.
-
-        Returns:
-            int: Number of features for this descriptor.
-        """
-        return int(self.n_atoms_max**2)

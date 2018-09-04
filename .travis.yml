@@ -1,0 +1,24 @@
+language: python
+
+# Command to install dependencies
+install:
+  - ./.travis-install-dependencies.sh
+
+# Command to run tests
+script:
+  - regtests/runtests.sh
+
+# Defines the branches on which the tests are run on
+branches:
+  only:
+  - master
+
+# Defines build stages.
+jobs:
+  include:
+    - stage: test
+      python: 2.7
+    - stage: test
+      python: 3.6
+      after_success:
+       - coveralls
