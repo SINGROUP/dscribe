@@ -58,6 +58,28 @@ class EwaldMatrix(Descriptor):
         self.n_atoms = len(system)
         self.volume = system.lattice.volume
         self.sqrt_pi = math.sqrt(np.pi)
+<<<<<<< Updated upstream
+=======
+
+        # If a is not provided, use a default value from
+        # https://doi.org/10.1080/08927022.2013.840898
+        if a is None:
+            a = (self.n_atoms * w / (self.volume ** 2)) ** (1 / 6) * self.sqrt_pi
+
+        # If the real space cutoff, reciprocal space cutoff and a have not been
+        # specified, use the accuracy and the weighting w to determine default
+        # similarly as in https://doi.org/10.1080/08927022.2013.840898
+        if rcut is None and gcut is None:
+            f = np.sqrt(-np.log(accuracy))
+            rcut = f / a
+            gcut = 2 * a * f
+        elif rcut is None or gcut is None:
+            raise ValueError(
+                "If you do not want to use the default cutoffs, please provide "
+                "both cutoffs rcut and gcut."
+            )
+
+>>>>>>> Stashed changes
         self.a = a
         self.a_squared = self.a**2
         self.gmax = recip_space_cut
@@ -169,10 +191,23 @@ class EwaldMatrix(Descriptor):
         n_atoms = self.n_atoms
         prefactor = 2 * math.pi / self.volume
         erecip = np.zeros((n_atoms, n_atoms), dtype=np.float)
+<<<<<<< Updated upstream
         coords = self.system.cartesian_pos
         rcp_latt = self.system.lattice.reciprocal_lattice
         recip_nn = rcp_latt.get_points_in_sphere([[0, 0, 0]], [0, 0, 0],
                                                  self.gmax)
+=======
+        coords = system.get_positions()
+
+        # Get the reciprocal lattice points within the reciprocal space cutoff
+        rcp_latt = 2*np.pi*system.get_reciprocal_cell()
+        rcp_latt = Lattice(rcp_latt)
+        recip_nn = rcp_latt.get_points_in_sphere(
+            [[0, 0, 0]],
+            [0, 0, 0],
+            self.gcut
+        )
+>>>>>>> Stashed changes
 
         frac_coords = [fcoords for (fcoords, dist, i) in recip_nn if dist != 0]
 

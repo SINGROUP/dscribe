@@ -586,9 +586,73 @@ class MBTR(Descriptor):
             be the same as for HHO. These duplicate values are left out by only
             filling values where k>=i.
         """
+<<<<<<< Updated upstream
         disp_tensor = system.get_displacement_tensor().astype(np.float32)
         distance_matrix = system.get_distance_matrix().astype(np.float32)
         numbers = system.numbers
+=======
+
+        # if self._angles is None or self._angle_weights is None:
+
+            # cmbtr = CMBTRWrapper(
+                # system.get_positions(),
+                # system.get_atomic_numbers(),
+                # self.atomic_number_to_index,
+                # self.n_atoms_in_cell
+            # )
+            # self._inverse_distances = cmbtr.get_inverse_distance_map()
+            # self._angles = cmbtr.get_
+            # self._angle_weights = weight_dict
+        # return self._angles, self._angle_weights
+
+        if self._angles is None or self._angle_weights is None:
+
+            disp_tensor = system.get_displacement_tensor().astype(np.float32)
+            distance_matrix = system.get_distance_matrix().astype(np.float32)
+            numbers = system.numbers
+
+            # Cosines between atoms i-j-k can be found in the tensor:
+            # cos_tensor[i, j, k] or equivalently cos_tensor[k, j, i] (symmetric)
+            n_atoms = len(numbers)
+            cos_tensor = np.empty((n_atoms, n_atoms, n_atoms), dtype=np.float32)
+            for i in range(disp_tensor.shape[0]):
+                part = 1 - squareform(pdist(disp_tensor[i, :, :], 'cosine'))
+                cos_tensor[:, i, :] = part
+
+            # Remove the numerical noise from cosine values.
+            np.clip(cos_tensor, -1, 1, cos_tensor)
+
+            cos_dict = {}
+            weight_dict = {}
+            indices = range(len(numbers))
+
+            # Determine the weighting function
+            weighting_function = None
+            if self.weighting is not None and self.weighting.get("k3") is not None:
+                weighting_function = self.weighting["k3"]["function"]
+
+            # Here we go through all the 3-permutations of the atoms in the system
+            permutations = itertools.permutations(indices, 3)
+            for i_atom, j_atom, k_atom in permutations:
+
+                # Only consider triplets that have one atom in the original
+                # cell
+                if i_atom < self.n_atoms_in_cell or \
+                   j_atom < self.n_atoms_in_cell or \
+                   k_atom < self.n_atoms_in_cell:
+
+                    i_element = numbers[i_atom]
+                    j_element = numbers[j_atom]
+                    k_element = numbers[k_atom]
+
+                    i_index = self.atomic_number_to_index[i_element]
+                    j_index = self.atomic_number_to_index[j_element]
+                    k_index = self.atomic_number_to_index[k_element]
+
+                    # Save information in the part where k_index >= i_index
+                    if k_index < i_index:
+                        continue
+>>>>>>> Stashed changes
 
         # Cosines between atoms i-j-k can be found in the tensor:
         # cos_tensor[i, j, k] or equivalently cos_tensor[k, j, i] (symmetric)
