@@ -1,10 +1,13 @@
 #include "cmbtr.h"
 #include <vector>
 #include <map>
+#include <tuple>
+#include <string>
 #include <numeric>
 #include <utility>
 #include <cmath>
 #include <algorithm>
+#include <sstream>
 using namespace std;
 
 CMBTR::CMBTR(vector<vector<float> > positions, vector<int> atomicNumbers, map<int,int> atomicNumberToIndexMap, int cellLimit)
@@ -116,12 +119,12 @@ vector<vector<float> > CMBTR::getInverseDistanceMatrix()
     return inverseDistanceMatrix;
 }
 
-map<pair<int, int>, vector<float> > CMBTR::getInverseDistanceMap()
+map<pair<int,int>, vector<float> > CMBTR::getInverseDistanceMap()
 {
     int nAtoms = this->atomicNumbers.size();
 
     // Initialize the map containing the mappings
-    map<pair<int, int>, vector<float> > inverseDistanceMap;
+    map<pair<int,int>, vector<float> > inverseDistanceMap;
 
     // Inverse distance matrix
     vector<vector<float> > inverseDistanceMatrix = this->getInverseDistanceMatrix();
@@ -172,35 +175,72 @@ map<pair<int, int>, vector<float> > CMBTR::getInverseDistanceMap()
     return inverseDistanceMap;
 }
 
-map<vector<int>, float> CMBTR::getAngleCosines()
+map<index3d, float> CMBTR::getAngleCosines()
 {
     int nAtoms = this->atomicNumbers.size();
 
     // Initialize the map containing the mappings
-    map<vector<int, int, int>, vector<float> > cosineMap;
+    map<index3d, float> cosineMap;
 
     // Get the displacement vectors and their lengths
     vector<vector<vector<float> > > tensor = this->getDisplacementTensor();
     vector<vector<float> > distanceMatrix = this->getDistanceMatrix();
 
     // Calculate the angle between displacement vectors (j,i) and (j, k)
-    for (int i=0; i < nAtoms; ++i) {
-        for (int j=0; j < nAtoms; ++j) {
-            for (int k=0; k < nAtoms; ++k) {
 
-                // The angles are symmetric: ijk = kji. Only the entry where k
-                // >= i is stored.
-                if (k >= i) {
-                    vector<float> a = tensor[i][j];
-                    vector<float> b = tensor[k][j];
-                    float dotProd = inner_product(a.begint(), a.end(), b.begin(), 0.0);
-                    float cosAngle = dotProd / inverseDistanceMatrix[i][j]*inverseDistanceMatrix[k][j];
-
-                    vector<int> key{i, j, k};
-                    cosineMap[key] = cosAngle;
-                }
-            }
-        }
+    // Loop through all permutations of thee atoms
+    vector<int> indices;
+    for (int i=0; i<=nAtoms; ++i) {
+        indices.push_back(i);
     }
+    do {
+        // The angles are symmetric: ijk = kji. Only the entry where k
+        // >= i is stored.
+        if (k >= i) && i{
+            vector<float> a = tensor[i][j];
+            vector<float> b = tensor[k][j];
+            float dotProd = inner_product(a.begin(), a.end(), b.begin(), 0.0);
+            float cosAngle = dotProd / distanceMatrix[i][j]*distanceMatrix[k][j];
+
+            index3d key = {i, j, k};
+            cosineMap[key] = cosAngle;
+        }
+    } while (next_permutation(indices.begin(), indices.end()));
+
+    //for (int i=0; i < nAtoms; ++i) {
+        //for (int j=0; j < nAtoms; ++j) {
+            //for (int k=0; k < nAtoms; ++k) {
+
+                //// The angles are symmetric: ijk = kji. Only the entry where k
+                //// >= i is stored.
+                //if (k >= i) && i{
+                    //vector<float> a = tensor[i][j];
+                    //vector<float> b = tensor[k][j];
+                    //float dotProd = inner_product(a.begin(), a.end(), b.begin(), 0.0);
+                    //float cosAngle = dotProd / distanceMatrix[i][j]*distanceMatrix[k][j];
+
+                    //index3d key = {i, j, k};
+                    //cosineMap[key] = cosAngle;
+                //}
+            //}
+        //}
+    //}
     return cosineMap;
+}
+
+map<string, float> CMBTR::getAngleCosinesCython()
+{
+    map<index3d, float> angles = this->getAngleCosines();
+    map<string, float> cythonAngles;
+    for (auto const& x : angles) {
+        stringstream ss;
+        ss << x.first.i;
+        ss << ",";
+        ss << x.first.j;
+        ss << ",";
+        ss << x.first.k;
+        string stringKey = ss.str();
+        cythonAngles[stringKey] = x.second;
+    }
+    return cythonAngles;
 }

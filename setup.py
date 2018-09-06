@@ -16,6 +16,7 @@ extensions = [
         [
             "describe/libmbtr/cmbtrwrapper.cpp",
         ],
+        extra_compile_args=['-std=c++11'],
         include_dirs=["describe/libmbtr"],
     ),
 ]

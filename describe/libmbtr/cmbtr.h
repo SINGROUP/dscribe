@@ -1,10 +1,22 @@
 #ifndef CMBTR_H
 #define CMBTR_H
 
-#include <vector>
-#include <map>
-#include <utility>
 using namespace std;
+
+struct index3d {
+    int i;
+    int j;
+    int k;
+
+    // These comparison operators are needed in order to use this struct as map
+    // key
+    bool operator==(const index3d &o) const {
+        return (i == o.i) && (j == o.j);
+    }
+    bool operator<(const index3d &o) const {
+        return (i < o.i) || (i == o.i && j < o.j) || (i == o.i && j == o.j && k < o.k);
+    }
+};
 
 /**
  * Implementation for the performance-critical parts of MBTR.
@@ -12,6 +24,11 @@ using namespace std;
 class CMBTR {
 
     public:
+        /**
+         * Default constructor
+         */
+        CMBTR() {};
+
         /**
          * Constructor
          *
@@ -59,7 +76,7 @@ class CMBTR {
          * value is a list of inverse distances corresponding to pairs of atoms
          * with the given atomic numbers.
          */
-        map<pair<int, int>, vector<float> > getInverseDistanceMap();
+        map<pair<int,int>, vector<float> > getInverseDistanceMap();
 
         /**
          * Calculates a 3D matrix of cosines of angles between triplets of
@@ -68,11 +85,22 @@ class CMBTR {
          * be needed it the angles were stored in a regular 3D array where
          * elements in ijk are identical to kji.
          *
-         * @return A 3D matrix of angles. First index is the ith
-         * atom, second index is the jth atom and third index is the kth atom.
-         * The jth atom is the central atom in forming the angle.
+         * @return A map that maps three atomic indices to angles. First index
+         * is the ith atom, second index is the jth atom and third index is the
+         * kth atom.  The jth atom is the central atom in forming the angle.
          */
-        map<vector<int>, float> getAngleCosines();
+        map<index3d, float> getAngleCosines();
+
+        /**
+         * A convenience function that provides a Cython-compatible interface
+         * to the getAngleCosines-function. Cython cannot handle custom map
+         * keys, so a string key is provided by this function.
+         *
+         * @return A map that maps three atomic indices to angles. The key is
+         * formed by concatenating the three numberinc indices, i,j and k, and
+         * using comma as a separator.
+         */
+        map<string, float> getAngleCosinesCython();
 
     private:
         vector<vector<float> > positions;

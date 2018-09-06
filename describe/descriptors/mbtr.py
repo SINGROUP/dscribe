@@ -663,6 +663,17 @@ class MBTR(Descriptor):
             # Remove the numerical noise from cosine values.
             np.clip(cos_tensor, -1, 1, cos_tensor)
 
+            # Calculate the angles with the C++ implementation
+            cmbtr = CMBTRWrapper(
+                system.get_positions(),
+                system.get_atomic_numbers(),
+                self.atomic_number_to_index,
+                self.n_atoms_in_cell
+            )
+            angles = cmbtr.get_angle_cosines()
+            for key, value in angles.items():
+                print(key, value)
+
             cos_dict = {}
             weight_dict = {}
             indices = range(len(numbers))
