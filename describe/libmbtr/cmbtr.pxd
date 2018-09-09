@@ -20,5 +20,4 @@ cdef extern from "cmbtr.h":
         vector[vector[float]] getDistanceMatrix()
         vector[vector[float]] getInverseDistanceMatrix()
         map[pair[int,int],vector[float]] getInverseDistanceMap()
-        map[string,float] getAngleCosinesCython()
-
+        pair[map[string,vector[float]], map[string,vector[float]]] getK3MapCython(string, string, float) except +

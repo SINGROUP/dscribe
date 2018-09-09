@@ -3,6 +3,9 @@
 
 using namespace std;
 
+/**
+ * Represents a combination of three integer indices: i, j and k.
+ */
 struct index3d {
     int i;
     int j;
@@ -43,6 +46,37 @@ class CMBTR {
         CMBTR(vector<vector<float> > positions, vector<int> atomicNumbers, map<int,int> atomicNumberToIndexMap, int cellLimit);
 
         /**
+         * Returns a list of 3D indices for the atom combinations that need to
+         * be calculated for the k=3 term.
+         *
+         * @return A list of 3D indices for k3.
+         */
+        vector<index3d> getk3Indices();
+
+        /**
+         * Weighting of 1 for all indices. Usually used for finite small
+         * systems.
+         *
+         * @return
+         */
+        map<index3d, float> k3WeightUnity(const vector<index3d> &indexList);
+
+        /**
+         * Weighting defined as the distance between three atoms.
+         *
+         * @return Map of distances for triplets of atomic indices.
+         */
+        map<index3d, float> k3WeightDistance(const vector<index3d> &indexList);
+
+        /**
+         * Calculates the cosine geometry function defined for k3.
+         *
+         * @return The cosine value for the angle defined between the given
+         * three atomic indices.
+         */
+        map<index3d, float> k3GeomCosine(const vector<index3d> &indexList);
+
+        /**
          * Calculates a 3D matrix of distance vectors between atomic positions.
          *
          * @return A 3D matrix of displacement vectors. First index is the
@@ -79,17 +113,12 @@ class CMBTR {
         map<pair<int,int>, vector<float> > getInverseDistanceMap();
 
         /**
-         * Calculates a 3D matrix of cosines of angles between triplets of
-         * atoms. The cosines are returned as a map that maps triplets of atomic
-         * indices to an angle. This way we save half of the space that would
-         * be needed it the angles were stored in a regular 3D array where
-         * elements in ijk are identical to kji.
+         * Calculates a list of angles that are present for each triplet of
+         * atomic elements.
          *
-         * @return A map that maps three atomic indices to angles. First index
-         * is the ith atom, second index is the jth atom and third index is the
-         * kth atom.  The jth atom is the central atom in forming the angle.
+         * @return A map that maps three atomic numbers to angles.
          */
-        map<index3d, float> getAngleCosines();
+        pair<map<index3d,vector<float> >, map<index3d,vector<float> > > getK3Map(string geomFunc="cosine", string weightFunc="distance", float scale=1);
 
         /**
          * A convenience function that provides a Cython-compatible interface
@@ -97,10 +126,10 @@ class CMBTR {
          * keys, so a string key is provided by this function.
          *
          * @return A map that maps three atomic indices to angles. The key is
-         * formed by concatenating the three numberinc indices, i,j and k, and
-         * using comma as a separator.
+         * formed by concatenating the three indices, i,j and k, and using
+         * comma as a separator.
          */
-        map<string, float> getAngleCosinesCython();
+        pair<map<string,vector<float> >, map<string,vector<float> > > getK3MapCython(string geomFunc="cosine", string weightFunc="distance", float scale=1);
 
     private:
         vector<vector<float> > positions;
@@ -109,6 +138,10 @@ class CMBTR {
         int cellLimit;
         vector<vector<vector<float> > > displacementTensor;
         bool displacementTensorInitialized;
+        vector<index3d> k3Indices;
+        bool k3IndicesInitialized;
+        pair<map<index3d, vector<float> >, map<index3d, vector<float> > > k3Map;
+        bool k3MapInitialized;
 };
 
 #endif

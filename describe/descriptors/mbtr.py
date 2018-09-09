@@ -670,8 +670,13 @@ class MBTR(Descriptor):
                 self.atomic_number_to_index,
                 self.n_atoms_in_cell
             )
-            angles = cmbtr.get_angle_cosines()
+            angles, dists = cmbtr.get_k3_map(geom_func=b"cosine", weight_func=b"distance")
+            print("Angles from C++:")
             for key, value in angles.items():
+                print(key, value)
+
+            print("Distances from C++:")
+            for key, value in dists.items():
                 print(key, value)
 
             cos_dict = {}
@@ -685,6 +690,7 @@ class MBTR(Descriptor):
 
             # Here we go through all the 3-permutations of the atoms in the system
             permutations = itertools.permutations(indices, 3)
+            print("From numpy:")
             for i_atom, j_atom, k_atom in permutations:
 
                 # Only consider triplets that have one atom in the original
@@ -724,6 +730,8 @@ class MBTR(Descriptor):
                     if old_list_3 is None:
                         old_list_3 = []
 
+                    print(cos_tensor[i_atom, j_atom, k_atom])
+                    print(dist1 + dist2 + dist3)
                     old_list_3.append(weight)
                     old_dict_2[k_index] = old_list_3
                     old_dict_1[j_index] = old_dict_2

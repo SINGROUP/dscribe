@@ -13,7 +13,7 @@ from ase import Atoms
 # from ase.visualize import view
 import ase.geometry
 
-# import matplotlib.pyplot as mpl
+import matplotlib.pyplot as mpl
 
 from testbaseclass import TestBaseClass
 
@@ -237,47 +237,106 @@ class MBTRTests(unittest.TestCase):
             # for i, j in zip(item, assumed[key]):
                 # self.assertTrue(abs(i - j) < 1e-7)
 
-    def test_cosines(self):
-        mbtr = MBTR([1, 8], k=[3], periodic=False)
-        mbtr.create(H2O)
-        angles = mbtr._angles
+    # def test_cosines(self):
+        # mbtr = MBTR([1, 8], k=[3], periodic=False)
+        # desc = mbtr.create(H2O)
+        # angles = mbtr._angles
+
+        # y = desc.todense().T
+        # mpl.plot(y)
+        # mpl.show()
+        # print(angles)
 
         # Test against the assumed values.
+        # assumed = {
+            # 0: {
+                # 1: {
+                    # 0: 2*[math.cos(104/180*math.pi)]
+                # },
+                # 0: {
+                    # 1: 2*[math.cos(38/180*math.pi)]
+                # },
+            # }
+        # }
+
+        # for i in range(2):
+            # for j in range(2):
+                # for k in range(2):
+                    # try:
+                        # assumed_elem = assumed[i][j][k]
+                    # except KeyError:
+                        # assumed_elem = None
+                    # try:
+                        # true_elem = angles[i][j][k]
+                    # except KeyError:
+                        # true_elem = None
+                    # if assumed_elem is None:
+                        # self.assertIsNone(true_elem)
+                    # else:
+                        # self.assertEqual(len(assumed_elem), len(true_elem))
+                        # for i_elem, val_assumed in enumerate(assumed_elem):
+                            # val_true = true_elem[i_elem]
+                            # self.assertAlmostEqual(val_assumed, val_true, places=6)
+
+        # Test against system with different indexing
+        # mbtr = MBTR([1, 8], k=[3], periodic=False)
+        # mbtr.create(H2O_2)
+        # angles2 = mbtr._angles
+        # self.assertEqual(angles, angles2)
+
+    def test_angles(self):
+        """Tests that all the correct angles are used.
+        """
+        # Test with water molecule
+        mbtr = MBTR([1, 8], k=[3], periodic=False)
+        desc = mbtr.create(H2O)
+        angles = mbtr._angles
+
         assumed = {
             0: {
                 1: {
-                    0: 2*[math.cos(104/180*math.pi)]
+                    0: 1*[math.cos(104/180*math.pi)]
                 },
                 0: {
                     1: 2*[math.cos(38/180*math.pi)]
                 },
             }
         }
+        self.angle_comparison(angles, assumed, len(H2O))
 
-        for i in range(2):
-            for j in range(2):
+    def angle_comparison(self, first, second, n_atoms):
+        """Used to compare two dictionaries containing angles.
+        """
+        n_first = len(first)
+        n_second = len(second)
+
+        if n_first != n_second:
+            raise ValueError(
+                "The dictionaries do not have the same number of elements."
+            )
+
+        for i in range(n_atoms):
+            for j in range(n_atoms):
                 for k in range(2):
                     try:
-                        assumed_elem = assumed[i][j][k]
+                        assumed_elem = second[i][j][k]
                     except KeyError:
                         assumed_elem = None
                     try:
-                        true_elem = angles[i][j][k]
+                        true_elem = first[i][j][k]
                     except KeyError:
                         true_elem = None
-                    if assumed_elem is None:
-                        self.assertIsNone(true_elem)
-                    else:
+
+                    if assumed_elem is None and true_elem is None:
+                        pass
+                    elif assumed_elem is not None and true_elem is not None:
                         self.assertEqual(len(assumed_elem), len(true_elem))
                         for i_elem, val_assumed in enumerate(assumed_elem):
                             val_true = true_elem[i_elem]
                             self.assertAlmostEqual(val_assumed, val_true, places=6)
-
-        # Test against system with different indexing
-        mbtr = MBTR([1, 8], k=[3], periodic=False)
-        mbtr.create(H2O_2)
-        angles2 = mbtr._angles
-        self.assertEqual(angles, angles2)
+                    else:
+                        angle = true_elem if assumed_elem is None else assumed_elem
+                        raise self.fail("The angles {} is not present".format(angle))
 
     # def test_gaussian_distribution(self):
         # """Check that the broadening follows gaussian distribution.

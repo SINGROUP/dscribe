@@ -8,6 +8,7 @@
 #include <cmath>
 #include <algorithm>
 #include <sstream>
+#include <stdexcept>
 using namespace std;
 
 CMBTR::CMBTR(vector<vector<float> > positions, vector<int> atomicNumbers, map<int,int> atomicNumberToIndexMap, int cellLimit)
@@ -16,6 +17,7 @@ CMBTR::CMBTR(vector<vector<float> > positions, vector<int> atomicNumbers, map<in
     , atomicNumberToIndexMap(atomicNumberToIndexMap)
     , cellLimit(cellLimit)
     , displacementTensorInitialized(false)
+    , k3IndicesInitialized(false)
 {
 }
 
@@ -175,64 +177,174 @@ map<pair<int,int>, vector<float> > CMBTR::getInverseDistanceMap()
     return inverseDistanceMap;
 }
 
-map<index3d, float> CMBTR::getAngleCosines()
+vector<index3d> CMBTR::getk3Indices()
 {
-    int nAtoms = this->atomicNumbers.size();
+    // Use cached value if possible
+    if (!this->k3IndicesInitialized) {
 
-    // Initialize the map containing the mappings
-    map<index3d, float> cosineMap;
+        int nAtoms = this->atomicNumbers.size();
 
-    // Get the displacement vectors and their lengths
-    vector<vector<vector<float> > > tensor = this->getDisplacementTensor();
-    vector<vector<float> > distanceMatrix = this->getDistanceMatrix();
+        // Initialize the map containing the mappings
+        vector<index3d> indexList;
 
-    // Calculate the angle between displacement vectors (j,i) and (j, k)
+        for (int i=0; i < nAtoms; ++i) {
+            for (int j=0; j < nAtoms; ++j) {
+                for (int k=0; k < nAtoms; ++k) {
 
-    // Loop through all permutations of thee atoms
-    vector<int> indices;
-    for (int i=0; i<=nAtoms; ++i) {
-        indices.push_back(i);
-    }
-    do {
-        // The angles are symmetric: ijk = kji. Only the entry where k
-        // >= i is stored.
-        if (k >= i) && i{
-            vector<float> a = tensor[i][j];
-            vector<float> b = tensor[k][j];
-            float dotProd = inner_product(a.begin(), a.end(), b.begin(), 0.0);
-            float cosAngle = dotProd / distanceMatrix[i][j]*distanceMatrix[k][j];
-
-            index3d key = {i, j, k};
-            cosineMap[key] = cosAngle;
+                    // Only consider triplets that have one atom in the original
+                    // cell
+                    if (i < this->cellLimit || j < this->cellLimit || k < this->cellLimit) {
+                        // Calculate angle for all index permutations from choosing
+                        // three out of nAtoms. The same atom cannot be present twice
+                        // in the permutation.
+                        if (j != i && k != j && k != i) {
+                            // The angles are symmetric: ijk = kji. The value is
+                            // calculated only for the triplet where k > i.
+                            if (k > i) {
+                                index3d key = {i, j, k};
+                                indexList.push_back(key);
+                            }
+                        }
+                    }
+                }
+            }
         }
-    } while (next_permutation(indices.begin(), indices.end()));
-
-    //for (int i=0; i < nAtoms; ++i) {
-        //for (int j=0; j < nAtoms; ++j) {
-            //for (int k=0; k < nAtoms; ++k) {
-
-                //// The angles are symmetric: ijk = kji. Only the entry where k
-                //// >= i is stored.
-                //if (k >= i) && i{
-                    //vector<float> a = tensor[i][j];
-                    //vector<float> b = tensor[k][j];
-                    //float dotProd = inner_product(a.begin(), a.end(), b.begin(), 0.0);
-                    //float cosAngle = dotProd / distanceMatrix[i][j]*distanceMatrix[k][j];
-
-                    //index3d key = {i, j, k};
-                    //cosineMap[key] = cosAngle;
-                //}
-            //}
-        //}
-    //}
-    return cosineMap;
+        this->k3Indices = indexList;
+        this->k3IndicesInitialized = true;
+    }
+    return this->k3Indices;
 }
 
-map<string, float> CMBTR::getAngleCosinesCython()
+map<index3d, float> CMBTR::k3GeomCosine(const vector<index3d> &indexList)
 {
-    map<index3d, float> angles = this->getAngleCosines();
-    map<string, float> cythonAngles;
-    for (auto const& x : angles) {
+    vector<vector<float> > distMatrix = this->getDistanceMatrix();
+    vector<vector<vector<float> > > dispTensor = this->getDisplacementTensor();
+
+    map<index3d,float> valueMap;
+    for (const index3d& index : indexList) {
+        int i = index.i;
+        int j = index.j;
+        int k = index.k;
+
+        vector<float> a = dispTensor[i][j];
+        vector<float> b = dispTensor[k][j];
+        float dotProd = inner_product(a.begin(), a.end(), b.begin(), 0.0);
+        float cosine = dotProd / (distMatrix[i][j]*distMatrix[k][j]);
+        valueMap[index] = cosine;
+    }
+
+    return valueMap;
+}
+
+map<index3d, float> CMBTR::k3WeightUnity(const vector<index3d> &indexList)
+{
+    map<index3d, float> valueMap;
+
+    for (const index3d& index : indexList) {
+        valueMap[index] = 1;
+    }
+
+    return valueMap;
+}
+
+map<index3d, float> CMBTR::k3WeightDistance(const vector<index3d> &indexList)
+{
+    vector<vector<float> > distMatrix = this->getDistanceMatrix();
+    map<index3d, float> valueMap;
+
+    for (const index3d& index : indexList) {
+        int i = index.i;
+        int j = index.j;
+        int k = index.k;
+
+        float dist1 = distMatrix[i][j];
+        float dist2 = distMatrix[j][k];
+        float dist3 = distMatrix[k][i];
+        float distTotal = dist1 + dist2 + dist3;
+        valueMap[index] = distTotal;
+    }
+
+    return valueMap;
+}
+
+pair<map<index3d, vector<float> >, map<index3d,vector<float> > > CMBTR::getK3Map(string geomFunc, string weightFunc, float scale)
+{
+    // Use cached value if possible
+    if (!this->k3IndicesInitialized) {
+
+        vector<index3d> indexList = this->getk3Indices();
+
+        // Initialize the maps
+        map<index3d, vector<float> > geomMap;
+        map<index3d, vector<float> > distMap;
+
+        //vector<vector<float> > distMatrix = this->getDistanceMatrix();
+        //vector<vector<vector<float> > > dispTensor = this->getDisplacementTensor();
+
+        // Calculate all geometry values
+        map<index3d, float> geomValues;
+        if (geomFunc == "cosine") {
+            geomValues = this->k3GeomCosine(indexList);
+        } else {
+            throw invalid_argument("Invalid geometry function.");
+        }
+
+        // Calculate all weighting values
+        map<index3d, float> weightValues;
+        if (weightFunc == "distance") {
+            weightValues = this->k3WeightDistance(indexList);
+        } else if (weightFunc == "unity") {
+            weightValues = this->k3WeightUnity(indexList);
+        } else {
+            throw invalid_argument("Invalid weighting function.");
+        }
+
+        // Save the geometry and distances to the maps
+        for (index3d& index : indexList) {
+            int i = index.i;
+            int j = index.j;
+            int k = index.k;
+
+            float geomValue = geomValues[index];
+            float distValue = weightValues[index];
+
+            // Get the index of the present elements in the final vector
+            int i_elem = this->atomicNumbers[i];
+            int j_elem = this->atomicNumbers[j];
+            int k_elem = this->atomicNumbers[k];
+            int i_index = this->atomicNumberToIndexMap[i_elem];
+            int j_index = this->atomicNumberToIndexMap[j_elem];
+            int k_index = this->atomicNumberToIndexMap[k_elem];
+
+            // Save information in the part where k_index >= i_index
+            index3d indexKey;
+            if (k_index < i_index) {
+                indexKey = {k_index, j_index, i_index};
+            } else {
+                indexKey = {i_index, j_index, k_index};
+            }
+
+            // Save the values
+            geomMap[indexKey].push_back(geomValue);
+            distMap[indexKey].push_back(distValue);
+        }
+
+        this->k3Map = make_pair(geomMap, distMap);
+        this->k3MapInitialized = true;
+    }
+    return this->k3Map;
+}
+
+pair<map<string,vector<float> >, map<string,vector<float> > > CMBTR::getK3MapCython(string geomFunc, string weightFunc, float scale)
+{
+    pair<map<index3d,vector<float> >, map<index3d,vector<float> > > cMap = this->getK3Map(geomFunc, weightFunc, scale);
+    map<index3d, vector<float> > geomValues = cMap.first;
+    map<index3d, vector<float> > distValues = cMap.second;
+
+    map<string, vector<float> > cythonGeom;
+    map<string, vector<float> > cythonDist;
+
+    for (auto const& x : geomValues) {
         stringstream ss;
         ss << x.first.i;
         ss << ",";
@@ -240,7 +352,8 @@ map<string, float> CMBTR::getAngleCosinesCython()
         ss << ",";
         ss << x.first.k;
         string stringKey = ss.str();
-        cythonAngles[stringKey] = x.second;
+        cythonGeom[stringKey] = x.second;
+        cythonDist[stringKey] = distValues[x.first];
     }
-    return cythonAngles;
+    return make_pair(cythonGeom, cythonDist);
 }
