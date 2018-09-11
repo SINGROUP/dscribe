@@ -4,7 +4,6 @@ import numpy as np
 from libcpp.vector cimport vector
 from libcpp.map cimport map
 from cmbtr cimport CMBTR
-from cmbtr cimport index3d
 
 cdef class CMBTRWrapper:
     cdef CMBTR *thisptr      # hold a C++ instance which we're wrapping
@@ -27,11 +26,11 @@ cdef class CMBTRWrapper:
     def get_inverse_distance_map(self):
         return self.thisptr.getInverseDistanceMap()
 
-    def get_k3_map(self, geom_func, weight_func, scale=1):
+    def get_k3_map(self, geom_func, weight_func, parameters):
         # Get the angle map and convert the keys to tuples. Cython cannot
         # directly provide the keys as tuples, so we have to do the conversion
         # here on the python side.
-        geom_map, dist_map = self.thisptr.getK3MapCython(geom_func, weight_func, scale);
+        geom_map, dist_map = self.thisptr.getK3MapCython(geom_func, weight_func, parameters);
         new_geom_map = {}
         new_dist_map = {}
 
@@ -41,6 +40,7 @@ cdef class CMBTRWrapper:
             new_dist_map[new_key] = dist_map[key]
 
         return new_geom_map, new_dist_map
+
     # def get_angle_cosine_map(self):
         # # Get the angle map and convert the keys to tuples. Cython cannot
         # # directly provide the keys as tuples, so we have to do the conversion

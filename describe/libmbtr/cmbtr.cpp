@@ -2,6 +2,7 @@
 #include <vector>
 #include <map>
 #include <tuple>
+#include <math.h>
 #include <string>
 #include <numeric>
 #include <utility>
@@ -247,7 +248,7 @@ map<index3d, float> CMBTR::k3WeightUnity(const vector<index3d> &indexList)
     return valueMap;
 }
 
-map<index3d, float> CMBTR::k3WeightDistance(const vector<index3d> &indexList)
+map<index3d, float> CMBTR::k3WeightExponential(const vector<index3d> &indexList, float scale, float cutoff)
 {
     vector<vector<float> > distMatrix = this->getDistanceMatrix();
     map<index3d, float> valueMap;
@@ -261,13 +262,14 @@ map<index3d, float> CMBTR::k3WeightDistance(const vector<index3d> &indexList)
         float dist2 = distMatrix[j][k];
         float dist3 = distMatrix[k][i];
         float distTotal = dist1 + dist2 + dist3;
-        valueMap[index] = distTotal;
+        float expValue = exp(-scale*distTotal);
+        valueMap[index] = expValue;
     }
 
     return valueMap;
 }
 
-pair<map<index3d, vector<float> >, map<index3d,vector<float> > > CMBTR::getK3Map(string geomFunc, string weightFunc, float scale)
+pair<map<index3d, vector<float> >, map<index3d,vector<float> > > CMBTR::getK3Map(string geomFunc, string weightFunc, map<string, float> parameters)
 {
     // Use cached value if possible
     if (!this->k3IndicesInitialized) {
@@ -291,8 +293,10 @@ pair<map<index3d, vector<float> >, map<index3d,vector<float> > > CMBTR::getK3Map
 
         // Calculate all weighting values
         map<index3d, float> weightValues;
-        if (weightFunc == "distance") {
-            weightValues = this->k3WeightDistance(indexList);
+        if (weightFunc == "exponential") {
+            float scale = parameters["scale"];
+            float cutoff = parameters["cutoff"];
+            weightValues = this->k3WeightExponential(indexList, scale, cutoff);
         } else if (weightFunc == "unity") {
             weightValues = this->k3WeightUnity(indexList);
         } else {
@@ -335,9 +339,9 @@ pair<map<index3d, vector<float> >, map<index3d,vector<float> > > CMBTR::getK3Map
     return this->k3Map;
 }
 
-pair<map<string,vector<float> >, map<string,vector<float> > > CMBTR::getK3MapCython(string geomFunc, string weightFunc, float scale)
+pair<map<string,vector<float> >, map<string,vector<float> > > CMBTR::getK3MapCython(string geomFunc, string weightFunc, map<string, float> parameters)
 {
-    pair<map<index3d,vector<float> >, map<index3d,vector<float> > > cMap = this->getK3Map(geomFunc, weightFunc, scale);
+    pair<map<index3d,vector<float> >, map<index3d,vector<float> > > cMap = this->getK3Map(geomFunc, weightFunc, parameters);
     map<index3d, vector<float> > geomValues = cMap.first;
     map<index3d, vector<float> > distValues = cMap.second;
 

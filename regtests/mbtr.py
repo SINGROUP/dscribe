@@ -102,6 +102,49 @@ class MBTRTests(unittest.TestCase):
                 # periodic=False,
             # )
 
+        # # Invalid weighting function
+        # with self.assertRaises(ValueError):
+            # MBTR(
+                # atomic_numbers=[1],
+                # k={2},
+                # weighting={"k2": {"function": "exp"}},
+                # periodic=True,
+            # )
+
+        # # Missing cutoff and scale
+        # with self.assertRaises(ValueError):
+            # MBTR(
+                # atomic_numbers=[1],
+                # k={2},
+                # weighting={"k2": {"function": "exponential"}},
+                # periodic=True,
+            # )
+
+        # # Missing scale
+        # with self.assertRaises(ValueError):
+            # MBTR(
+                # atomic_numbers=[1],
+                # k={2},
+                # weighting={"k2": {"function": "exponential", "cutoff": 1e-2}},
+                # periodic=True,
+            # )
+
+        # # Weighting not provided for finite system is fine
+        # MBTR(
+            # atomic_numbers=[1],
+            # k={2},
+            # periodic=False,
+        # )
+
+        # # Weighting needs to be provided for periodic system and terms k>1
+        # with self.assertRaises(ValueError):
+            # MBTR(
+                # atomic_numbers=[1],
+                # k={2},
+                # periodic=True,
+                # weighting={"k2": {"function": "unity"}},
+            # )
+
     # def test_number_of_features(self):
         # """Tests that the reported number of features is correct.
         # """
@@ -145,6 +188,7 @@ class MBTRTests(unittest.TestCase):
                     # "n": n,
                 # }
             # },
+            # weighting={"k2": {"function": "exponential", "scale": 0.5, "cutoff": 1e-2}},
             # periodic=False,
             # flatten=True
         # )
@@ -450,12 +494,14 @@ class MBTRTests(unittest.TestCase):
                 # },
                 # weighting={
                     # "k2": {
-                        # "function": lambda x: np.exp(-0.5*x),
-                        # "threshold": 1e-3
+                        # "function": "exponential",
+                        # "scale": 0.5,
+                        # "cutoff": 1e-3
                     # },
                     # "k3": {
-                        # "function": lambda x: np.exp(-0.5*x),
-                        # "threshold": 1e-3
+                        # "function": "exponential",
+                        # "scale": 0.5,
+                        # "cutoff": 1e-3
                     # },
                 # },
                 # flatten=True
@@ -500,12 +546,14 @@ class MBTRTests(unittest.TestCase):
             # },
             # weighting={
                 # "k2": {
-                    # "function": lambda x: np.exp(-0.5*x),
-                    # "threshold": 1e-3
+                    # "function": "exponential",
+                    # "scale": 0.5,
+                    # "cutoff": 1e-3
                 # },
                 # "k3": {
-                    # "function": lambda x: np.exp(-0.5*x),
-                    # "threshold": 1e-3
+                    # "function": "exponential",
+                    # "scale": 0.5,
+                    # "cutoff": 1e-3
                 # },
             # },
             # flatten=True
@@ -565,12 +613,14 @@ class MBTRTests(unittest.TestCase):
             # },
             # weighting={
                 # "k2": {
-                    # "function": lambda x: np.exp(-decay*x),
-                    # "threshold": 1e-4
+                    # "function": "exponential",
+                    # "scale": decay,
+                    # "cutoff": 1e-4
                 # },
                 # "k3": {
-                    # "function": lambda x: np.exp(-decay*x),
-                    # "threshold": 1e-4
+                    # "function": "exponential",
+                    # "scale": decay,
+                    # "cutoff": 1e-4
                 # },
             # },
             # normalize_by_volume=True,  # This normalizes the spectrum with the system volume
@@ -645,8 +695,9 @@ class MBTRTests(unittest.TestCase):
             # },
             # weighting={
                 # "k3": {
-                    # "function": lambda x: np.exp(-decay*x),
-                    # "threshold": 1e-4
+                    # "function": "exponential",
+                    # "scale": decay,
+                    # "cutoff": 1e-4
                 # },
             # },
             # normalize_by_volume=True,  # This normalizes the spectrum with the system volume
@@ -689,8 +740,9 @@ class MBTRTests(unittest.TestCase):
             # },
             # weighting={
                 # "k3": {
-                    # "function": lambda x: np.exp(-1.5*x),
-                    # "threshold": 1e-4
+                    # "function": "exponential",
+                    # "scale": 1.5,
+                    # "cutoff": 1e-4
                 # },
             # },
             # normalize_by_volume=True,  # This normalizes the spectrum with the system volume

@@ -62,11 +62,15 @@ class CMBTR {
         map<index3d, float> k3WeightUnity(const vector<index3d> &indexList);
 
         /**
-         * Weighting defined as the distance between three atoms.
+         * Weighting defined as e^(-sx), where x is the distance from
+         * A->B->C->A and s is the scaling factor.
          *
+         * @param indexList List of triplets of atomic indices.
+         * @param scale The preafactor in the exponential weighting.
+         * @param cutoff Minimum value of the weighting to consider.
          * @return Map of distances for triplets of atomic indices.
          */
-        map<index3d, float> k3WeightDistance(const vector<index3d> &indexList);
+        map<index3d, float> k3WeightExponential(const vector<index3d> &indexList, float scale, float cutoff);
 
         /**
          * Calculates the cosine geometry function defined for k3.
@@ -118,7 +122,7 @@ class CMBTR {
          *
          * @return A map that maps three atomic numbers to angles.
          */
-        pair<map<index3d,vector<float> >, map<index3d,vector<float> > > getK3Map(string geomFunc="cosine", string weightFunc="distance", float scale=1);
+        pair<map<index3d,vector<float> >, map<index3d,vector<float> > > getK3Map(string geomFunc="cosine", string weightFunc="exponential", map<string, float> parameters=map<string, float>());
 
         /**
          * A convenience function that provides a Cython-compatible interface
@@ -129,7 +133,7 @@ class CMBTR {
          * formed by concatenating the three indices, i,j and k, and using
          * comma as a separator.
          */
-        pair<map<string,vector<float> >, map<string,vector<float> > > getK3MapCython(string geomFunc="cosine", string weightFunc="distance", float scale=1);
+        pair<map<string,vector<float> >, map<string,vector<float> > > getK3MapCython(string geomFunc="cosine", string weightFunc="distance", map<string, float> parameters=map<string, float>());
 
     private:
         vector<vector<float> > positions;

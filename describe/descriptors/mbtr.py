@@ -90,36 +90,43 @@ class MBTR(Descriptor):
                 maximum value of the axis, 'sigma' is the standard devation of
                 the gaussian broadening and 'n' is the number of points sampled
                 on the grid.
-            weighting (dictionary or string): A dictionary of weighting functions and an
-                optional threshold for each term. If None, weighting is not
-                used. Weighting functions should be monotonically decreasing.
-                The threshold is used to determine the minimum mount of
-                periodic images to consider. If no explicit threshold is given,
-                a reasonable default will be used.  The K1 term is
-                0-dimensional, so weighting is not used. You can also use a
-                string to indicate a certain preset. The available presets are:
+            weighting (dictionary or string): A dictionary of weighting
+                function settings for each term. Example:
 
-                    'exponential':
-                        weighting = {
-                            "k2": {
-                                "function": lambda x: np.exp(-0.5*x),
-                                "threshold": 1e-3
-                            },
-                            "k3": {
-                                "function": lambda x: np.exp(-0.5*x),
-                                "threshold": 1e-3
-                            }
+                    weighting = {
+                        "k2": {
+                            "function": "unity",
+                        },
+                        "k3": {
+                            "function": "exponential",
+                            "scale": 0.5,
+                            "cutoff": 1e-3,
                         }
+                    }
+
+                Weighting functions should be monotonically decreasing.
+                The threshold is used to determine the minimum mount of
+                periodic images to consider. The variable 'cutoff' determines
+                the value of the weighting function after which the rest of the
+                terms will be ignored. The K1 term is 0-dimensional, so
+                weighting is not used. Here are the available functions and a
+                description for them:
+
+                    "unity": Constant weighting of 1 for all samples.
+                    "exponential": Weighting of the form :math:`e^-(sx)`. The
+                        parameter :math:`s` is given in the attribute 'scale'.
 
                 The meaning of x changes for different terms as follows:
+
                     K=1: x = 0
                     K=2: x = Distance between A->B
                     K=3: x = Distance from A->B->C->A.
+
             normalize_by_volume (bool): Determines whether the output vectors are
-                normalized by the cell volume.
+                normalized by the cell volume. Defaults to false.
             normalize_gaussians (bool): Determines whether the gaussians are
-                normalized to an area of 1. If false, the normalization factor
-                is dropped and the gaussians have the form.
+                normalized to an area of 1. Defaults to true. If false, the
+                normalization factor is dropped and the gaussians have the form.
                 :math:`e^-(x-\mu)^2/2\sigma^2`
             flatten (bool): Whether the output of create() should be flattened
                 to a 1D array. If False, a list of the different tensors is
@@ -174,30 +181,49 @@ class MBTR(Descriptor):
 
         # Check the weighting information
         if self.weighting is not None:
-            if self.weighting == "exponential":
-                self.weighting = {
-                    "k2": {
-                        "function": lambda x: np.exp(-0.5*x),
-                        "threshold": 1e-3
-                    },
-                    "k3": {
-                        "function": lambda x: np.exp(-0.5*x),
-                        "threshold": 1e-3
-                    }
-                }
-            else:
-                for i in self.k:
-                    info = self.weighting.get("k{}".format(i))
-                    if info is not None:
-                        assert "function" in info, \
-                            ("The weighting dictionary is missing 'function'.")
-        elif self.periodic:
-            if max(self.k) > 1:
-                raise ValueError(
-                    "Periodic systems will need to have a weighting function "
-                    "defined in the 'weighting' dictionary of the MBTR "
-                    "constructor when requesting K > 1"
-                )
+            for k in self.k:
+                if k > 1:
+                    weight_info = self.weighting["k{}".format(k)]
+                    function = weight_info.get("function")
+                    valid_functions = set(("exponential", "unity"))
+                    needed = ()
+                    if function not in valid_functions:
+                        raise ValueError(
+                            "Unknown weighting function specified. Please use "
+                            "one of the following: {}".format(valid_functions)
+                        )
+                    else:
+                        if function == "exponential":
+                            needed = ("cutoff", "scale")
+                    for key in needed:
+                        value = weight_info.get(key)
+                        if value is None:
+                            raise ValueError(
+                                "Value for the attribute {} is needed for specifying "
+                                "the weighting function.".format(key)
+                            )
+        # If weighting is not given, it is assumed to be constant
+        else:
+
+
+        # Check that a weighting function is specified for each term k>1
+        if self.periodic:
+            for k in self.k:
+                if k > 1:
+                    error = ValueError(
+                        "Periodic systems will need to have monotonically "
+                        "decreasing weighting function " "defined in the "
+                        "'weighting' dictionary of the MBTR " "constructor "
+                        "when requesting k > 1"
+                    )
+                    if self.weighting is None:
+                        raise error
+                    weight_info = self.weighting["k{}".format(k)]
+                    if weight_info is None:
+                        raise error
+                    function = weight_info["function"]
+                    if function is None or function == "unity":
+                        raise error
 
         # Check the given grid
         if self.grid is not None:
@@ -472,8 +498,13 @@ class MBTR(Descriptor):
         # exponential weight to come down to the given threshold.
         cell_vector_lengths = np.linalg.norm(cell, axis=1)
         n_copies_axis = np.zeros(3, dtype=int)
-        weighting_function = self.weighting["k{}".format(term_number)]["function"]
-        threshold = self.weighting["k{}".format(term_number)].get("threshold", 1e-3)
+        weight_info = self.weighting["k{}".format(term_number)]
+        weighting_function = weight_info["function"]
+        cutoff = self.weighting["k{}".format(term_number)]["cutoff"]
+
+        if weighting_function == "exponential":
+            scale = weight_info["scale"]
+            function = lambda x: np.exp(-scale*x)
 
         for i_axis, axis_length in enumerate(cell_vector_lengths):
             limit_found = False
@@ -482,13 +513,13 @@ class MBTR(Descriptor):
                 n_copies += 1
                 distance = n_copies*cell_vector_lengths[0]
 
-                # For terms above k==2 we double the distances to take into
+                # For terms k>2 we double the distances to take into
                 # account the "loop" that is required.
                 if term_number > 2:
                     distance = 2*distance
 
-                weight = weighting_function(distance)
-                if weight < threshold:
+                weight = function(distance)
+                if weight < cutoff:
                     n_copies_axis[i_axis] = n_copies
                     limit_found = True
 
@@ -520,8 +551,8 @@ class MBTR(Descriptor):
                     if term_number > 2:
                         distances *= 2
 
-                    weights = weighting_function(distances)
-                    weight_mask = weights >= threshold
+                    weights = function(distances)
+                    weight_mask = weights >= cutoff
 
                     # Create a boolean mask that says if the atom is within the
                     # range from at least one atom in the original cell
@@ -670,7 +701,18 @@ class MBTR(Descriptor):
                 self.atomic_number_to_index,
                 self.n_atoms_in_cell
             )
-            angles, dists = cmbtr.get_k3_map(geom_func=b"cosine", weight_func=b"distance")
+
+            # Determine the weighting function
+            weight_info = self.weighting["k3"]
+            weighting_function = weight_info["function"]
+            parameters = {}
+            if weighting_function == "exponential":
+                parameters = {
+                    "scale": weight_info["scale"],
+                    "cutoff": weight_info["cutoff"]
+                }
+
+            angles, dists = cmbtr.get_k3_map(geom_func=b"cosine", weight_func=weighting_function.encode(), parameters=parameters)
             print("Angles from C++:")
             for key, value in angles.items():
                 print(key, value)
@@ -687,6 +729,7 @@ class MBTR(Descriptor):
             weighting_function = None
             if self.weighting is not None and self.weighting.get("k3") is not None:
                 weighting_function = self.weighting["k3"]["function"]
+                print(weighting_function)
 
             # Here we go through all the 3-permutations of the atoms in the system
             permutations = itertools.permutations(indices, 3)
@@ -731,7 +774,7 @@ class MBTR(Descriptor):
                         old_list_3 = []
 
                     print(cos_tensor[i_atom, j_atom, k_atom])
-                    print(dist1 + dist2 + dist3)
+                    # print(dist1 + dist2 + dist3)
                     old_list_3.append(weight)
                     old_dict_2[k_index] = old_list_3
                     old_dict_1[j_index] = old_dict_2

@@ -523,8 +523,8 @@ static const char *__pyx_f[] = {
 /*--- Type declarations ---*/
 struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper;
 
-/* "describe/libmbtr/cmbtrwrapper.pyx":9
- * from cmbtr cimport index3d
+/* "describe/libmbtr/cmbtrwrapper.pyx":8
+ * from cmbtr cimport CMBTR
  * 
  * cdef class CMBTRWrapper:             # <<<<<<<<<<<<<<
  *     cdef CMBTR *thisptr      # hold a C++ instance which we're wrapping
@@ -814,6 +814,7 @@ static PyObject *__pyx_convert_vector_to_py_std_3a__3a_vector_3c_std_3a__3a_vect
 static PyObject *__pyx_convert_pair_to_py_int____int(std::pair<int,int>  const &); /*proto*/
 static PyObject *__pyx_convert_map_to_py_std_3a__3a_pair_3c_int_2c_int_3e_______std_3a__3a_vector_3c_float_3e___(std::map<std::pair<int,int> ,std::vector<float> >  const &); /*proto*/
 static std::string __pyx_convert_string_from_py_std__in_string(PyObject *); /*proto*/
+static std::map<std::string,float>  __pyx_convert_map_from_py_std_3a__3a_string__and_float(PyObject *); /*proto*/
 static CYTHON_INLINE PyObject *__pyx_convert_PyObject_string_to_py_std__in_string(std::string const &); /*proto*/
 static CYTHON_INLINE PyObject *__pyx_convert_PyUnicode_string_to_py_std__in_string(std::string const &); /*proto*/
 static CYTHON_INLINE PyObject *__pyx_convert_PyStr_string_to_py_std__in_string(std::string const &); /*proto*/
@@ -835,7 +836,6 @@ static const char __pyx_k_dtype[] = "dtype";
 static const char __pyx_k_items[] = "items";
 static const char __pyx_k_numpy[] = "numpy";
 static const char __pyx_k_range[] = "range";
-static const char __pyx_k_scale[] = "scale";
 static const char __pyx_k_split[] = "split";
 static const char __pyx_k_utf_8[] = "utf-8";
 static const char __pyx_k_decode[] = "decode";
@@ -845,6 +845,7 @@ static const char __pyx_k_geom_func[] = "geom_func";
 static const char __pyx_k_iteritems[] = "iteritems";
 static const char __pyx_k_positions[] = "positions";
 static const char __pyx_k_cell_limit[] = "cell_limit";
+static const char __pyx_k_parameters[] = "parameters";
 static const char __pyx_k_weight_func[] = "weight_func";
 static const char __pyx_k_atomic_numbers[] = "atomic_numbers";
 static const char __pyx_k_atomicNumberToIndexMap[] = "atomicNumberToIndexMap";
@@ -863,9 +864,9 @@ static PyObject *__pyx_n_s_iteritems;
 static PyObject *__pyx_n_s_main;
 static PyObject *__pyx_n_s_np;
 static PyObject *__pyx_n_s_numpy;
+static PyObject *__pyx_n_s_parameters;
 static PyObject *__pyx_n_s_positions;
 static PyObject *__pyx_n_s_range;
-static PyObject *__pyx_n_s_scale;
 static PyObject *__pyx_n_s_split;
 static PyObject *__pyx_n_s_test;
 static PyObject *__pyx_kp_s_utf_8;
@@ -876,13 +877,12 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_4get_
 static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_6get_distance_matrix(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_8get_inverse_distance_matrix(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_10get_inverse_distance_map(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get_k3_map(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *__pyx_v_self, PyObject *__pyx_v_geom_func, PyObject *__pyx_v_weight_func, PyObject *__pyx_v_scale); /* proto */
+static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get_k3_map(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *__pyx_v_self, PyObject *__pyx_v_geom_func, PyObject *__pyx_v_weight_func, PyObject *__pyx_v_parameters); /* proto */
 static PyObject *__pyx_tp_new_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_int_1;
 static PyObject *__pyx_tuple_;
 static PyObject *__pyx_tuple__3;
 
-/* "describe/libmbtr/cmbtrwrapper.pyx":12
+/* "describe/libmbtr/cmbtrwrapper.pyx":11
  *     cdef CMBTR *thisptr      # hold a C++ instance which we're wrapping
  * 
  *     def __cinit__(self, vector[vector[float]] positions, vector[int] atomic_numbers, map[int,int] atomicNumberToIndexMap, int cell_limit):             # <<<<<<<<<<<<<<
@@ -922,21 +922,21 @@ static int __pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_1__cinit__(
         case  1:
         if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_atomic_numbers)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 4, 4, 1); __PYX_ERR(0, 12, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 4, 4, 1); __PYX_ERR(0, 11, __pyx_L3_error)
         }
         case  2:
         if (likely((values[2] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_atomicNumberToIndexMap)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 4, 4, 2); __PYX_ERR(0, 12, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 4, 4, 2); __PYX_ERR(0, 11, __pyx_L3_error)
         }
         case  3:
         if (likely((values[3] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_cell_limit)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 4, 4, 3); __PYX_ERR(0, 12, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 4, 4, 3); __PYX_ERR(0, 11, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 12, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 11, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 4) {
       goto __pyx_L5_argtuple_error;
@@ -946,14 +946,14 @@ static int __pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_1__cinit__(
       values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
       values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
     }
-    __pyx_v_positions = __pyx_convert_vector_from_py_std_3a__3a_vector_3c_float_3e___(values[0]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 12, __pyx_L3_error)
-    __pyx_v_atomic_numbers = __pyx_convert_vector_from_py_int(values[1]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 12, __pyx_L3_error)
-    __pyx_v_atomicNumberToIndexMap = __pyx_convert_map_from_py_int__and_int(values[2]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 12, __pyx_L3_error)
-    __pyx_v_cell_limit = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_cell_limit == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 12, __pyx_L3_error)
+    __pyx_v_positions = __pyx_convert_vector_from_py_std_3a__3a_vector_3c_float_3e___(values[0]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 11, __pyx_L3_error)
+    __pyx_v_atomic_numbers = __pyx_convert_vector_from_py_int(values[1]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 11, __pyx_L3_error)
+    __pyx_v_atomicNumberToIndexMap = __pyx_convert_map_from_py_int__and_int(values[2]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 11, __pyx_L3_error)
+    __pyx_v_cell_limit = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_cell_limit == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 11, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 12, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 11, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("describe.libmbtr.cmbtrwrapper.CMBTRWrapper.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -972,7 +972,7 @@ static int __pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper___cinit__(s
   CMBTR *__pyx_t_1;
   __Pyx_RefNannySetupContext("__cinit__", 0);
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":13
+  /* "describe/libmbtr/cmbtrwrapper.pyx":12
  * 
  *     def __cinit__(self, vector[vector[float]] positions, vector[int] atomic_numbers, map[int,int] atomicNumberToIndexMap, int cell_limit):
  *         self.thisptr = new CMBTR(positions, atomic_numbers, atomicNumberToIndexMap, cell_limit)             # <<<<<<<<<<<<<<
@@ -983,11 +983,11 @@ static int __pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper___cinit__(s
     __pyx_t_1 = new CMBTR(__pyx_v_positions, __pyx_v_atomic_numbers, __pyx_v_atomicNumberToIndexMap, __pyx_v_cell_limit);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(0, 13, __pyx_L1_error)
+    __PYX_ERR(0, 12, __pyx_L1_error)
   }
   __pyx_v_self->thisptr = __pyx_t_1;
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":12
+  /* "describe/libmbtr/cmbtrwrapper.pyx":11
  *     cdef CMBTR *thisptr      # hold a C++ instance which we're wrapping
  * 
  *     def __cinit__(self, vector[vector[float]] positions, vector[int] atomic_numbers, map[int,int] atomicNumberToIndexMap, int cell_limit):             # <<<<<<<<<<<<<<
@@ -1006,7 +1006,7 @@ static int __pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper___cinit__(s
   return __pyx_r;
 }
 
-/* "describe/libmbtr/cmbtrwrapper.pyx":15
+/* "describe/libmbtr/cmbtrwrapper.pyx":14
  *         self.thisptr = new CMBTR(positions, atomic_numbers, atomicNumberToIndexMap, cell_limit)
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -1029,7 +1029,7 @@ static void __pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_2__dealloc
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__dealloc__", 0);
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":16
+  /* "describe/libmbtr/cmbtrwrapper.pyx":15
  * 
  *     def __dealloc__(self):
  *         del self.thisptr             # <<<<<<<<<<<<<<
@@ -1038,7 +1038,7 @@ static void __pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_2__dealloc
  */
   delete __pyx_v_self->thisptr;
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":15
+  /* "describe/libmbtr/cmbtrwrapper.pyx":14
  *         self.thisptr = new CMBTR(positions, atomic_numbers, atomicNumberToIndexMap, cell_limit)
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -1050,7 +1050,7 @@ static void __pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_2__dealloc
   __Pyx_RefNannyFinishContext();
 }
 
-/* "describe/libmbtr/cmbtrwrapper.pyx":18
+/* "describe/libmbtr/cmbtrwrapper.pyx":17
  *         del self.thisptr
  * 
  *     def get_displacement_tensor(self):             # <<<<<<<<<<<<<<
@@ -1081,7 +1081,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_4get_
   PyObject *__pyx_t_5 = NULL;
   __Pyx_RefNannySetupContext("get_displacement_tensor", 0);
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":19
+  /* "describe/libmbtr/cmbtrwrapper.pyx":18
  * 
  *     def get_displacement_tensor(self):
  *         return np.array(self.thisptr.getDisplacementTensor(), dtype=np.float32)             # <<<<<<<<<<<<<<
@@ -1089,28 +1089,28 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_4get_
  *     def get_distance_matrix(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 19, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 18, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_array); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 19, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_array); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 18, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __pyx_convert_vector_to_py_std_3a__3a_vector_3c_std_3a__3a_vector_3c_float_3e____3e___(__pyx_v_self->thisptr->getDisplacementTensor()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 19, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert_vector_to_py_std_3a__3a_vector_3c_std_3a__3a_vector_3c_float_3e____3e___(__pyx_v_self->thisptr->getDisplacementTensor()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 18, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 19, __pyx_L1_error)
+  __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 18, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_1);
   PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1);
   __pyx_t_1 = 0;
-  __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 19, __pyx_L1_error)
+  __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 18, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 19, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 18, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_float32); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 19, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_float32); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 18, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_dtype, __pyx_t_5) < 0) __PYX_ERR(0, 19, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_dtype, __pyx_t_5) < 0) __PYX_ERR(0, 18, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, __pyx_t_1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 19, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, __pyx_t_1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 18, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -1119,7 +1119,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_4get_
   __pyx_t_5 = 0;
   goto __pyx_L0;
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":18
+  /* "describe/libmbtr/cmbtrwrapper.pyx":17
  *         del self.thisptr
  * 
  *     def get_displacement_tensor(self):             # <<<<<<<<<<<<<<
@@ -1142,7 +1142,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_4get_
   return __pyx_r;
 }
 
-/* "describe/libmbtr/cmbtrwrapper.pyx":21
+/* "describe/libmbtr/cmbtrwrapper.pyx":20
  *         return np.array(self.thisptr.getDisplacementTensor(), dtype=np.float32)
  * 
  *     def get_distance_matrix(self):             # <<<<<<<<<<<<<<
@@ -1173,7 +1173,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_6get_
   PyObject *__pyx_t_5 = NULL;
   __Pyx_RefNannySetupContext("get_distance_matrix", 0);
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":22
+  /* "describe/libmbtr/cmbtrwrapper.pyx":21
  * 
  *     def get_distance_matrix(self):
  *         return np.array(self.thisptr.getDistanceMatrix(), dtype=np.float32)             # <<<<<<<<<<<<<<
@@ -1181,28 +1181,28 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_6get_
  *     def get_inverse_distance_matrix(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 22, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 21, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_array); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 22, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_array); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 21, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __pyx_convert_vector_to_py_std_3a__3a_vector_3c_float_3e___(__pyx_v_self->thisptr->getDistanceMatrix()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 22, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert_vector_to_py_std_3a__3a_vector_3c_float_3e___(__pyx_v_self->thisptr->getDistanceMatrix()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 21, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 22, __pyx_L1_error)
+  __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 21, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_1);
   PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1);
   __pyx_t_1 = 0;
-  __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 22, __pyx_L1_error)
+  __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 21, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 22, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 21, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_float32); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 22, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_float32); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 21, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_dtype, __pyx_t_5) < 0) __PYX_ERR(0, 22, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_dtype, __pyx_t_5) < 0) __PYX_ERR(0, 21, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, __pyx_t_1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 22, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, __pyx_t_1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 21, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -1211,7 +1211,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_6get_
   __pyx_t_5 = 0;
   goto __pyx_L0;
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":21
+  /* "describe/libmbtr/cmbtrwrapper.pyx":20
  *         return np.array(self.thisptr.getDisplacementTensor(), dtype=np.float32)
  * 
  *     def get_distance_matrix(self):             # <<<<<<<<<<<<<<
@@ -1234,7 +1234,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_6get_
   return __pyx_r;
 }
 
-/* "describe/libmbtr/cmbtrwrapper.pyx":24
+/* "describe/libmbtr/cmbtrwrapper.pyx":23
  *         return np.array(self.thisptr.getDistanceMatrix(), dtype=np.float32)
  * 
  *     def get_inverse_distance_matrix(self):             # <<<<<<<<<<<<<<
@@ -1265,7 +1265,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_8get_
   PyObject *__pyx_t_5 = NULL;
   __Pyx_RefNannySetupContext("get_inverse_distance_matrix", 0);
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":25
+  /* "describe/libmbtr/cmbtrwrapper.pyx":24
  * 
  *     def get_inverse_distance_matrix(self):
  *         return np.array(self.thisptr.getInverseDistanceMatrix(), dtype=np.float32)             # <<<<<<<<<<<<<<
@@ -1273,28 +1273,28 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_8get_
  *     def get_inverse_distance_map(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 25, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_array); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 25, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_array); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __pyx_convert_vector_to_py_std_3a__3a_vector_3c_float_3e___(__pyx_v_self->thisptr->getInverseDistanceMatrix()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 25, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert_vector_to_py_std_3a__3a_vector_3c_float_3e___(__pyx_v_self->thisptr->getInverseDistanceMatrix()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 25, __pyx_L1_error)
+  __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_1);
   PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1);
   __pyx_t_1 = 0;
-  __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 25, __pyx_L1_error)
+  __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 25, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_float32); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 25, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_float32); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_dtype, __pyx_t_5) < 0) __PYX_ERR(0, 25, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_dtype, __pyx_t_5) < 0) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, __pyx_t_1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 25, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, __pyx_t_1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -1303,7 +1303,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_8get_
   __pyx_t_5 = 0;
   goto __pyx_L0;
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":24
+  /* "describe/libmbtr/cmbtrwrapper.pyx":23
  *         return np.array(self.thisptr.getDistanceMatrix(), dtype=np.float32)
  * 
  *     def get_inverse_distance_matrix(self):             # <<<<<<<<<<<<<<
@@ -1326,7 +1326,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_8get_
   return __pyx_r;
 }
 
-/* "describe/libmbtr/cmbtrwrapper.pyx":27
+/* "describe/libmbtr/cmbtrwrapper.pyx":26
  *         return np.array(self.thisptr.getInverseDistanceMatrix(), dtype=np.float32)
  * 
  *     def get_inverse_distance_map(self):             # <<<<<<<<<<<<<<
@@ -1353,21 +1353,21 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_10get
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("get_inverse_distance_map", 0);
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":28
+  /* "describe/libmbtr/cmbtrwrapper.pyx":27
  * 
  *     def get_inverse_distance_map(self):
  *         return self.thisptr.getInverseDistanceMap()             # <<<<<<<<<<<<<<
  * 
- *     def get_k3_map(self, geom_func, weight_func, scale=1):
+ *     def get_k3_map(self, geom_func, weight_func, parameters):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_convert_map_to_py_std_3a__3a_pair_3c_int_2c_int_3e_______std_3a__3a_vector_3c_float_3e___(__pyx_v_self->thisptr->getInverseDistanceMap()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 28, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert_map_to_py_std_3a__3a_pair_3c_int_2c_int_3e_______std_3a__3a_vector_3c_float_3e___(__pyx_v_self->thisptr->getInverseDistanceMap()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 27, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":27
+  /* "describe/libmbtr/cmbtrwrapper.pyx":26
  *         return np.array(self.thisptr.getInverseDistanceMatrix(), dtype=np.float32)
  * 
  *     def get_inverse_distance_map(self):             # <<<<<<<<<<<<<<
@@ -1386,10 +1386,10 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_10get
   return __pyx_r;
 }
 
-/* "describe/libmbtr/cmbtrwrapper.pyx":30
+/* "describe/libmbtr/cmbtrwrapper.pyx":29
  *         return self.thisptr.getInverseDistanceMap()
  * 
- *     def get_k3_map(self, geom_func, weight_func, scale=1):             # <<<<<<<<<<<<<<
+ *     def get_k3_map(self, geom_func, weight_func, parameters):             # <<<<<<<<<<<<<<
  *         # Get the angle map and convert the keys to tuples. Cython cannot
  *         # directly provide the keys as tuples, so we have to do the conversion
  */
@@ -1399,14 +1399,13 @@ static PyObject *__pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_13get
 static PyObject *__pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_13get_k3_map(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_geom_func = 0;
   PyObject *__pyx_v_weight_func = 0;
-  PyObject *__pyx_v_scale = 0;
+  PyObject *__pyx_v_parameters = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("get_k3_map (wrapper)", 0);
   {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_geom_func,&__pyx_n_s_weight_func,&__pyx_n_s_scale,0};
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_geom_func,&__pyx_n_s_weight_func,&__pyx_n_s_parameters,0};
     PyObject* values[3] = {0,0,0};
-    values[2] = ((PyObject *)__pyx_int_1);
     if (unlikely(__pyx_kwds)) {
       Py_ssize_t kw_args;
       const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
@@ -1425,46 +1424,44 @@ static PyObject *__pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_13get
         case  1:
         if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_weight_func)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("get_k3_map", 0, 2, 3, 1); __PYX_ERR(0, 30, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("get_k3_map", 1, 3, 3, 1); __PYX_ERR(0, 29, __pyx_L3_error)
         }
         case  2:
-        if (kw_args > 0) {
-          PyObject* value = PyDict_GetItem(__pyx_kwds, __pyx_n_s_scale);
-          if (value) { values[2] = value; kw_args--; }
+        if (likely((values[2] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_parameters)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("get_k3_map", 1, 3, 3, 2); __PYX_ERR(0, 29, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "get_k3_map") < 0)) __PYX_ERR(0, 30, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "get_k3_map") < 0)) __PYX_ERR(0, 29, __pyx_L3_error)
       }
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 3) {
+      goto __pyx_L5_argtuple_error;
     } else {
-      switch (PyTuple_GET_SIZE(__pyx_args)) {
-        case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
-        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
-        values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
-        break;
-        default: goto __pyx_L5_argtuple_error;
-      }
+      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+      values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+      values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
     }
     __pyx_v_geom_func = values[0];
     __pyx_v_weight_func = values[1];
-    __pyx_v_scale = values[2];
+    __pyx_v_parameters = values[2];
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("get_k3_map", 0, 2, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 30, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("get_k3_map", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 29, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("describe.libmbtr.cmbtrwrapper.CMBTRWrapper.get_k3_map", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get_k3_map(((struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *)__pyx_v_self), __pyx_v_geom_func, __pyx_v_weight_func, __pyx_v_scale);
+  __pyx_r = __pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get_k3_map(((struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *)__pyx_v_self), __pyx_v_geom_func, __pyx_v_weight_func, __pyx_v_parameters);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get_k3_map(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *__pyx_v_self, PyObject *__pyx_v_geom_func, PyObject *__pyx_v_weight_func, PyObject *__pyx_v_scale) {
+static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get_k3_map(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *__pyx_v_self, PyObject *__pyx_v_geom_func, PyObject *__pyx_v_weight_func, PyObject *__pyx_v_parameters) {
   PyObject *__pyx_v_geom_map = NULL;
   PyObject *__pyx_v_dist_map = NULL;
   PyObject *__pyx_v_new_geom_map = NULL;
@@ -1476,7 +1473,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get
   __Pyx_RefNannyDeclarations
   std::string __pyx_t_1;
   std::string __pyx_t_2;
-  float __pyx_t_3;
+  std::map<std::string,float>  __pyx_t_3;
   std::pair<std::map<std::string,std::vector<float> > ,std::map<std::string,std::vector<float> > >  __pyx_t_4;
   PyObject *__pyx_t_5 = NULL;
   PyObject *__pyx_t_6 = NULL;
@@ -1488,23 +1485,23 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get
   PyObject *__pyx_t_12 = NULL;
   __Pyx_RefNannySetupContext("get_k3_map", 0);
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":34
+  /* "describe/libmbtr/cmbtrwrapper.pyx":33
  *         # directly provide the keys as tuples, so we have to do the conversion
  *         # here on the python side.
- *         geom_map, dist_map = self.thisptr.getK3MapCython(geom_func, weight_func, scale);             # <<<<<<<<<<<<<<
+ *         geom_map, dist_map = self.thisptr.getK3MapCython(geom_func, weight_func, parameters);             # <<<<<<<<<<<<<<
  *         new_geom_map = {}
  *         new_dist_map = {}
  */
-  __pyx_t_1 = __pyx_convert_string_from_py_std__in_string(__pyx_v_geom_func); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 34, __pyx_L1_error)
-  __pyx_t_2 = __pyx_convert_string_from_py_std__in_string(__pyx_v_weight_func); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 34, __pyx_L1_error)
-  __pyx_t_3 = __pyx_PyFloat_AsFloat(__pyx_v_scale); if (unlikely((__pyx_t_3 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 34, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert_string_from_py_std__in_string(__pyx_v_geom_func); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 33, __pyx_L1_error)
+  __pyx_t_2 = __pyx_convert_string_from_py_std__in_string(__pyx_v_weight_func); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 33, __pyx_L1_error)
+  __pyx_t_3 = __pyx_convert_map_from_py_std_3a__3a_string__and_float(__pyx_v_parameters); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 33, __pyx_L1_error)
   try {
     __pyx_t_4 = __pyx_v_self->thisptr->getK3MapCython(__pyx_t_1, __pyx_t_2, __pyx_t_3);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(0, 34, __pyx_L1_error)
+    __PYX_ERR(0, 33, __pyx_L1_error)
   }
-  __pyx_t_5 = __pyx_convert_pair_to_py_std_3a__3a_map_3c_std_3a__3a_string_2c_std_3a__3a_vector_3c_float_3e____3e_______std_3a__3a_map_3c_std_3a__3a_string_2c_std_3a__3a_vector_3c_float_3e____3e___(__pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 34, __pyx_L1_error)
+  __pyx_t_5 = __pyx_convert_pair_to_py_std_3a__3a_map_3c_std_3a__3a_string_2c_std_3a__3a_vector_3c_float_3e____3e_______std_3a__3a_map_3c_std_3a__3a_string_2c_std_3a__3a_vector_3c_float_3e____3e___(__pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 33, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   if ((likely(PyTuple_CheckExact(__pyx_t_5))) || (PyList_CheckExact(__pyx_t_5))) {
     PyObject* sequence = __pyx_t_5;
@@ -1516,7 +1513,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get
     if (unlikely(size != 2)) {
       if (size > 2) __Pyx_RaiseTooManyValuesError(2);
       else if (size >= 0) __Pyx_RaiseNeedMoreValuesError(size);
-      __PYX_ERR(0, 34, __pyx_L1_error)
+      __PYX_ERR(0, 33, __pyx_L1_error)
     }
     #if CYTHON_COMPILING_IN_CPYTHON
     if (likely(PyTuple_CheckExact(sequence))) {
@@ -1529,15 +1526,15 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get
     __Pyx_INCREF(__pyx_t_6);
     __Pyx_INCREF(__pyx_t_7);
     #else
-    __pyx_t_6 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 34, __pyx_L1_error)
+    __pyx_t_6 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 33, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_7 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 34, __pyx_L1_error)
+    __pyx_t_7 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 33, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     #endif
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   } else {
     Py_ssize_t index = -1;
-    __pyx_t_8 = PyObject_GetIter(__pyx_t_5); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 34, __pyx_L1_error)
+    __pyx_t_8 = PyObject_GetIter(__pyx_t_5); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 33, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __pyx_t_9 = Py_TYPE(__pyx_t_8)->tp_iternext;
@@ -1545,7 +1542,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get
     __Pyx_GOTREF(__pyx_t_6);
     index = 1; __pyx_t_7 = __pyx_t_9(__pyx_t_8); if (unlikely(!__pyx_t_7)) goto __pyx_L3_unpacking_failed;
     __Pyx_GOTREF(__pyx_t_7);
-    if (__Pyx_IternextUnpackEndCheck(__pyx_t_9(__pyx_t_8), 2) < 0) __PYX_ERR(0, 34, __pyx_L1_error)
+    if (__Pyx_IternextUnpackEndCheck(__pyx_t_9(__pyx_t_8), 2) < 0) __PYX_ERR(0, 33, __pyx_L1_error)
     __pyx_t_9 = NULL;
     __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
     goto __pyx_L4_unpacking_done;
@@ -1553,7 +1550,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get
     __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
     __pyx_t_9 = NULL;
     if (__Pyx_IterFinish() == 0) __Pyx_RaiseNeedMoreValuesError(index);
-    __PYX_ERR(0, 34, __pyx_L1_error)
+    __PYX_ERR(0, 33, __pyx_L1_error)
     __pyx_L4_unpacking_done:;
   }
   __pyx_v_geom_map = __pyx_t_6;
@@ -1561,38 +1558,38 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get
   __pyx_v_dist_map = __pyx_t_7;
   __pyx_t_7 = 0;
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":35
+  /* "describe/libmbtr/cmbtrwrapper.pyx":34
  *         # here on the python side.
- *         geom_map, dist_map = self.thisptr.getK3MapCython(geom_func, weight_func, scale);
+ *         geom_map, dist_map = self.thisptr.getK3MapCython(geom_func, weight_func, parameters);
  *         new_geom_map = {}             # <<<<<<<<<<<<<<
  *         new_dist_map = {}
  * 
  */
-  __pyx_t_5 = PyDict_New(); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 35, __pyx_L1_error)
+  __pyx_t_5 = PyDict_New(); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 34, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __pyx_v_new_geom_map = ((PyObject*)__pyx_t_5);
   __pyx_t_5 = 0;
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":36
- *         geom_map, dist_map = self.thisptr.getK3MapCython(geom_func, weight_func, scale);
+  /* "describe/libmbtr/cmbtrwrapper.pyx":35
+ *         geom_map, dist_map = self.thisptr.getK3MapCython(geom_func, weight_func, parameters);
  *         new_geom_map = {}
  *         new_dist_map = {}             # <<<<<<<<<<<<<<
  * 
  *         for key, value in geom_map.items():
  */
-  __pyx_t_5 = PyDict_New(); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 36, __pyx_L1_error)
+  __pyx_t_5 = PyDict_New(); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 35, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __pyx_v_new_dist_map = ((PyObject*)__pyx_t_5);
   __pyx_t_5 = 0;
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":38
+  /* "describe/libmbtr/cmbtrwrapper.pyx":37
  *         new_dist_map = {}
  * 
  *         for key, value in geom_map.items():             # <<<<<<<<<<<<<<
  *             new_key = tuple(key.decode("utf-8").split(","))
  *             new_geom_map[new_key] = value
  */
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_geom_map, __pyx_n_s_items); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 38, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_geom_map, __pyx_n_s_items); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 37, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __pyx_t_6 = NULL;
   if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_7))) {
@@ -1605,10 +1602,10 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get
     }
   }
   if (__pyx_t_6) {
-    __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_6); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 38, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_6); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 37, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   } else {
-    __pyx_t_5 = __Pyx_PyObject_CallNoArg(__pyx_t_7); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 38, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_CallNoArg(__pyx_t_7); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 37, __pyx_L1_error)
   }
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
@@ -1616,9 +1613,9 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get
     __pyx_t_7 = __pyx_t_5; __Pyx_INCREF(__pyx_t_7); __pyx_t_10 = 0;
     __pyx_t_11 = NULL;
   } else {
-    __pyx_t_10 = -1; __pyx_t_7 = PyObject_GetIter(__pyx_t_5); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 38, __pyx_L1_error)
+    __pyx_t_10 = -1; __pyx_t_7 = PyObject_GetIter(__pyx_t_5); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 37, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    __pyx_t_11 = Py_TYPE(__pyx_t_7)->tp_iternext; if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 38, __pyx_L1_error)
+    __pyx_t_11 = Py_TYPE(__pyx_t_7)->tp_iternext; if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 37, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   for (;;) {
@@ -1626,17 +1623,17 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get
       if (likely(PyList_CheckExact(__pyx_t_7))) {
         if (__pyx_t_10 >= PyList_GET_SIZE(__pyx_t_7)) break;
         #if CYTHON_COMPILING_IN_CPYTHON
-        __pyx_t_5 = PyList_GET_ITEM(__pyx_t_7, __pyx_t_10); __Pyx_INCREF(__pyx_t_5); __pyx_t_10++; if (unlikely(0 < 0)) __PYX_ERR(0, 38, __pyx_L1_error)
+        __pyx_t_5 = PyList_GET_ITEM(__pyx_t_7, __pyx_t_10); __Pyx_INCREF(__pyx_t_5); __pyx_t_10++; if (unlikely(0 < 0)) __PYX_ERR(0, 37, __pyx_L1_error)
         #else
-        __pyx_t_5 = PySequence_ITEM(__pyx_t_7, __pyx_t_10); __pyx_t_10++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 38, __pyx_L1_error)
+        __pyx_t_5 = PySequence_ITEM(__pyx_t_7, __pyx_t_10); __pyx_t_10++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 37, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         #endif
       } else {
         if (__pyx_t_10 >= PyTuple_GET_SIZE(__pyx_t_7)) break;
         #if CYTHON_COMPILING_IN_CPYTHON
-        __pyx_t_5 = PyTuple_GET_ITEM(__pyx_t_7, __pyx_t_10); __Pyx_INCREF(__pyx_t_5); __pyx_t_10++; if (unlikely(0 < 0)) __PYX_ERR(0, 38, __pyx_L1_error)
+        __pyx_t_5 = PyTuple_GET_ITEM(__pyx_t_7, __pyx_t_10); __Pyx_INCREF(__pyx_t_5); __pyx_t_10++; if (unlikely(0 < 0)) __PYX_ERR(0, 37, __pyx_L1_error)
         #else
-        __pyx_t_5 = PySequence_ITEM(__pyx_t_7, __pyx_t_10); __pyx_t_10++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 38, __pyx_L1_error)
+        __pyx_t_5 = PySequence_ITEM(__pyx_t_7, __pyx_t_10); __pyx_t_10++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 37, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         #endif
       }
@@ -1646,7 +1643,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(exc_type == PyExc_StopIteration || PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 38, __pyx_L1_error)
+          else __PYX_ERR(0, 37, __pyx_L1_error)
         }
         break;
       }
@@ -1662,7 +1659,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get
       if (unlikely(size != 2)) {
         if (size > 2) __Pyx_RaiseTooManyValuesError(2);
         else if (size >= 0) __Pyx_RaiseNeedMoreValuesError(size);
-        __PYX_ERR(0, 38, __pyx_L1_error)
+        __PYX_ERR(0, 37, __pyx_L1_error)
       }
       #if CYTHON_COMPILING_IN_CPYTHON
       if (likely(PyTuple_CheckExact(sequence))) {
@@ -1675,15 +1672,15 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get
       __Pyx_INCREF(__pyx_t_6);
       __Pyx_INCREF(__pyx_t_8);
       #else
-      __pyx_t_6 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 38, __pyx_L1_error)
+      __pyx_t_6 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 37, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
-      __pyx_t_8 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 38, __pyx_L1_error)
+      __pyx_t_8 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 37, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_8);
       #endif
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     } else {
       Py_ssize_t index = -1;
-      __pyx_t_12 = PyObject_GetIter(__pyx_t_5); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 38, __pyx_L1_error)
+      __pyx_t_12 = PyObject_GetIter(__pyx_t_5); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 37, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_12);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       __pyx_t_9 = Py_TYPE(__pyx_t_12)->tp_iternext;
@@ -1691,7 +1688,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get
       __Pyx_GOTREF(__pyx_t_6);
       index = 1; __pyx_t_8 = __pyx_t_9(__pyx_t_12); if (unlikely(!__pyx_t_8)) goto __pyx_L7_unpacking_failed;
       __Pyx_GOTREF(__pyx_t_8);
-      if (__Pyx_IternextUnpackEndCheck(__pyx_t_9(__pyx_t_12), 2) < 0) __PYX_ERR(0, 38, __pyx_L1_error)
+      if (__Pyx_IternextUnpackEndCheck(__pyx_t_9(__pyx_t_12), 2) < 0) __PYX_ERR(0, 37, __pyx_L1_error)
       __pyx_t_9 = NULL;
       __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
       goto __pyx_L8_unpacking_done;
@@ -1699,7 +1696,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get
       __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
       __pyx_t_9 = NULL;
       if (__Pyx_IterFinish() == 0) __Pyx_RaiseNeedMoreValuesError(index);
-      __PYX_ERR(0, 38, __pyx_L1_error)
+      __PYX_ERR(0, 37, __pyx_L1_error)
       __pyx_L8_unpacking_done:;
     }
     __Pyx_XDECREF_SET(__pyx_v_key, __pyx_t_6);
@@ -1707,52 +1704,52 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get
     __Pyx_XDECREF_SET(__pyx_v_value, __pyx_t_8);
     __pyx_t_8 = 0;
 
-    /* "describe/libmbtr/cmbtrwrapper.pyx":39
+    /* "describe/libmbtr/cmbtrwrapper.pyx":38
  * 
  *         for key, value in geom_map.items():
  *             new_key = tuple(key.decode("utf-8").split(","))             # <<<<<<<<<<<<<<
  *             new_geom_map[new_key] = value
  *             new_dist_map[new_key] = dist_map[key]
  */
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_key, __pyx_n_s_decode); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 39, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_key, __pyx_n_s_decode); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 38, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_8 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 39, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 38, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_split); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 39, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_split); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 38, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-    __pyx_t_8 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_tuple__3, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 39, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_tuple__3, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 38, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_5 = PySequence_Tuple(__pyx_t_8); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 39, __pyx_L1_error)
+    __pyx_t_5 = PySequence_Tuple(__pyx_t_8); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 38, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
     __Pyx_XDECREF_SET(__pyx_v_new_key, ((PyObject*)__pyx_t_5));
     __pyx_t_5 = 0;
 
-    /* "describe/libmbtr/cmbtrwrapper.pyx":40
+    /* "describe/libmbtr/cmbtrwrapper.pyx":39
  *         for key, value in geom_map.items():
  *             new_key = tuple(key.decode("utf-8").split(","))
  *             new_geom_map[new_key] = value             # <<<<<<<<<<<<<<
  *             new_dist_map[new_key] = dist_map[key]
  * 
  */
-    if (unlikely(PyDict_SetItem(__pyx_v_new_geom_map, __pyx_v_new_key, __pyx_v_value) < 0)) __PYX_ERR(0, 40, __pyx_L1_error)
+    if (unlikely(PyDict_SetItem(__pyx_v_new_geom_map, __pyx_v_new_key, __pyx_v_value) < 0)) __PYX_ERR(0, 39, __pyx_L1_error)
 
-    /* "describe/libmbtr/cmbtrwrapper.pyx":41
+    /* "describe/libmbtr/cmbtrwrapper.pyx":40
  *             new_key = tuple(key.decode("utf-8").split(","))
  *             new_geom_map[new_key] = value
  *             new_dist_map[new_key] = dist_map[key]             # <<<<<<<<<<<<<<
  * 
  *         return new_geom_map, new_dist_map
  */
-    __pyx_t_5 = PyObject_GetItem(__pyx_v_dist_map, __pyx_v_key); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 41, __pyx_L1_error)
+    __pyx_t_5 = PyObject_GetItem(__pyx_v_dist_map, __pyx_v_key); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 40, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    if (unlikely(PyDict_SetItem(__pyx_v_new_dist_map, __pyx_v_new_key, __pyx_t_5) < 0)) __PYX_ERR(0, 41, __pyx_L1_error)
+    if (unlikely(PyDict_SetItem(__pyx_v_new_dist_map, __pyx_v_new_key, __pyx_t_5) < 0)) __PYX_ERR(0, 40, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-    /* "describe/libmbtr/cmbtrwrapper.pyx":38
+    /* "describe/libmbtr/cmbtrwrapper.pyx":37
  *         new_dist_map = {}
  * 
  *         for key, value in geom_map.items():             # <<<<<<<<<<<<<<
@@ -1762,15 +1759,15 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get
   }
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":43
+  /* "describe/libmbtr/cmbtrwrapper.pyx":42
  *             new_dist_map[new_key] = dist_map[key]
  * 
  *         return new_geom_map, new_dist_map             # <<<<<<<<<<<<<<
+ * 
  *     # def get_angle_cosine_map(self):
- *         # # Get the angle map and convert the keys to tuples. Cython cannot
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_7 = PyTuple_New(2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 43, __pyx_L1_error)
+  __pyx_t_7 = PyTuple_New(2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 42, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_INCREF(__pyx_v_new_geom_map);
   __Pyx_GIVEREF(__pyx_v_new_geom_map);
@@ -1782,10 +1779,10 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get
   __pyx_t_7 = 0;
   goto __pyx_L0;
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":30
+  /* "describe/libmbtr/cmbtrwrapper.pyx":29
  *         return self.thisptr.getInverseDistanceMap()
  * 
- *     def get_k3_map(self, geom_func, weight_func, scale=1):             # <<<<<<<<<<<<<<
+ *     def get_k3_map(self, geom_func, weight_func, parameters):             # <<<<<<<<<<<<<<
  *         # Get the angle map and convert the keys to tuples. Cython cannot
  *         # directly provide the keys as tuples, so we have to do the conversion
  */
@@ -2673,6 +2670,118 @@ static std::string __pyx_convert_string_from_py_std__in_string(PyObject *__pyx_v
   return __pyx_r;
 }
 
+/* "map.from_py":197
+ * 
+ * @cname("__pyx_convert_map_from_py_std_3a__3a_string__and_float")
+ * cdef map[X,Y] __pyx_convert_map_from_py_std_3a__3a_string__and_float(object o) except *:             # <<<<<<<<<<<<<<
+ *     cdef dict d = o
+ *     cdef map[X,Y] m
+ */
+
+static std::map<std::string,float>  __pyx_convert_map_from_py_std_3a__3a_string__and_float(PyObject *__pyx_v_o) {
+  PyObject *__pyx_v_d = 0;
+  std::map<std::string,float>  __pyx_v_m;
+  PyObject *__pyx_v_key = NULL;
+  PyObject *__pyx_v_value = NULL;
+  std::map<std::string,float>  __pyx_r;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  Py_ssize_t __pyx_t_2;
+  Py_ssize_t __pyx_t_3;
+  int __pyx_t_4;
+  PyObject *__pyx_t_5 = NULL;
+  PyObject *__pyx_t_6 = NULL;
+  int __pyx_t_7;
+  std::string __pyx_t_8;
+  float __pyx_t_9;
+  __Pyx_RefNannySetupContext("__pyx_convert_map_from_py_std_3a__3a_string__and_float", 0);
+
+  /* "map.from_py":198
+ * @cname("__pyx_convert_map_from_py_std_3a__3a_string__and_float")
+ * cdef map[X,Y] __pyx_convert_map_from_py_std_3a__3a_string__and_float(object o) except *:
+ *     cdef dict d = o             # <<<<<<<<<<<<<<
+ *     cdef map[X,Y] m
+ *     for key, value in d.iteritems():
+ */
+  if (!(likely(PyDict_CheckExact(__pyx_v_o))||((__pyx_v_o) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "dict", Py_TYPE(__pyx_v_o)->tp_name), 0))) __PYX_ERR(1, 198, __pyx_L1_error)
+  __pyx_t_1 = __pyx_v_o;
+  __Pyx_INCREF(__pyx_t_1);
+  __pyx_v_d = ((PyObject*)__pyx_t_1);
+  __pyx_t_1 = 0;
+
+  /* "map.from_py":200
+ *     cdef dict d = o
+ *     cdef map[X,Y] m
+ *     for key, value in d.iteritems():             # <<<<<<<<<<<<<<
+ *         m.insert(pair[X,Y](X_from_py(key), Y_from_py(value)))
+ *     return m
+ */
+  __pyx_t_2 = 0;
+  if (unlikely(__pyx_v_d == Py_None)) {
+    PyErr_Format(PyExc_AttributeError, "'NoneType' object has no attribute '%s'", "iteritems");
+    __PYX_ERR(1, 200, __pyx_L1_error)
+  }
+  __pyx_t_5 = __Pyx_dict_iterator(__pyx_v_d, 1, __pyx_n_s_iteritems, (&__pyx_t_3), (&__pyx_t_4)); if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 200, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __Pyx_XDECREF(__pyx_t_1);
+  __pyx_t_1 = __pyx_t_5;
+  __pyx_t_5 = 0;
+  while (1) {
+    __pyx_t_7 = __Pyx_dict_iter_next(__pyx_t_1, __pyx_t_3, &__pyx_t_2, &__pyx_t_5, &__pyx_t_6, NULL, __pyx_t_4);
+    if (unlikely(__pyx_t_7 == 0)) break;
+    if (unlikely(__pyx_t_7 == -1)) __PYX_ERR(1, 200, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    __Pyx_GOTREF(__pyx_t_6);
+    __Pyx_XDECREF_SET(__pyx_v_key, __pyx_t_5);
+    __pyx_t_5 = 0;
+    __Pyx_XDECREF_SET(__pyx_v_value, __pyx_t_6);
+    __pyx_t_6 = 0;
+
+    /* "map.from_py":201
+ *     cdef map[X,Y] m
+ *     for key, value in d.iteritems():
+ *         m.insert(pair[X,Y](X_from_py(key), Y_from_py(value)))             # <<<<<<<<<<<<<<
+ *     return m
+ * 
+ */
+    __pyx_t_8 = __pyx_convert_string_from_py_std__in_string(__pyx_v_key); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 201, __pyx_L1_error)
+    __pyx_t_9 = __pyx_PyFloat_AsFloat(__pyx_v_value); if (unlikely(__pyx_t_9 == -1.0 && PyErr_Occurred())) __PYX_ERR(1, 201, __pyx_L1_error)
+    __pyx_v_m.insert(std::pair<std::string,float> (__pyx_t_8, __pyx_t_9));
+  }
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "map.from_py":202
+ *     for key, value in d.iteritems():
+ *         m.insert(pair[X,Y](X_from_py(key), Y_from_py(value)))
+ *     return m             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __pyx_r = __pyx_v_m;
+  goto __pyx_L0;
+
+  /* "map.from_py":197
+ * 
+ * @cname("__pyx_convert_map_from_py_std_3a__3a_string__and_float")
+ * cdef map[X,Y] __pyx_convert_map_from_py_std_3a__3a_string__and_float(object o) except *:             # <<<<<<<<<<<<<<
+ *     cdef dict d = o
+ *     cdef map[X,Y] m
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_5);
+  __Pyx_XDECREF(__pyx_t_6);
+  __Pyx_AddTraceback("map.from_py.__pyx_convert_map_from_py_std_3a__3a_string__and_float", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_L0:;
+  __Pyx_XDECREF(__pyx_v_d);
+  __Pyx_XDECREF(__pyx_v_key);
+  __Pyx_XDECREF(__pyx_v_value);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
 /* "string.to_py":31
  * 
  * @cname("__pyx_convert_PyObject_string_to_py_std__in_string")
@@ -3222,9 +3331,9 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_main, __pyx_k_main, sizeof(__pyx_k_main), 0, 0, 1, 1},
   {&__pyx_n_s_np, __pyx_k_np, sizeof(__pyx_k_np), 0, 0, 1, 1},
   {&__pyx_n_s_numpy, __pyx_k_numpy, sizeof(__pyx_k_numpy), 0, 0, 1, 1},
+  {&__pyx_n_s_parameters, __pyx_k_parameters, sizeof(__pyx_k_parameters), 0, 0, 1, 1},
   {&__pyx_n_s_positions, __pyx_k_positions, sizeof(__pyx_k_positions), 0, 0, 1, 1},
   {&__pyx_n_s_range, __pyx_k_range, sizeof(__pyx_k_range), 0, 0, 1, 1},
-  {&__pyx_n_s_scale, __pyx_k_scale, sizeof(__pyx_k_scale), 0, 0, 1, 1},
   {&__pyx_n_s_split, __pyx_k_split, sizeof(__pyx_k_split), 0, 0, 1, 1},
   {&__pyx_n_s_test, __pyx_k_test, sizeof(__pyx_k_test), 0, 0, 1, 1},
   {&__pyx_kp_s_utf_8, __pyx_k_utf_8, sizeof(__pyx_k_utf_8), 0, 0, 1, 0},
@@ -3242,17 +3351,17 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":39
+  /* "describe/libmbtr/cmbtrwrapper.pyx":38
  * 
  *         for key, value in geom_map.items():
  *             new_key = tuple(key.decode("utf-8").split(","))             # <<<<<<<<<<<<<<
  *             new_geom_map[new_key] = value
  *             new_dist_map[new_key] = dist_map[key]
  */
-  __pyx_tuple_ = PyTuple_Pack(1, __pyx_kp_s_utf_8); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 39, __pyx_L1_error)
+  __pyx_tuple_ = PyTuple_Pack(1, __pyx_kp_s_utf_8); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 38, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple_);
   __Pyx_GIVEREF(__pyx_tuple_);
-  __pyx_tuple__3 = PyTuple_Pack(1, __pyx_kp_s__2); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 39, __pyx_L1_error)
+  __pyx_tuple__3 = PyTuple_Pack(1, __pyx_kp_s__2); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 38, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__3);
   __Pyx_GIVEREF(__pyx_tuple__3);
   __Pyx_RefNannyFinishContext();
@@ -3264,7 +3373,6 @@ static int __Pyx_InitCachedConstants(void) {
 
 static int __Pyx_InitGlobals(void) {
   if (__Pyx_InitStrings(__pyx_string_tab) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  __pyx_int_1 = PyInt_FromLong(1); if (unlikely(!__pyx_int_1)) __PYX_ERR(0, 1, __pyx_L1_error)
   return 0;
   __pyx_L1_error:;
   return -1;
@@ -3354,9 +3462,9 @@ PyMODINIT_FUNC PyInit_cmbtrwrapper(void)
   /*--- Variable export code ---*/
   /*--- Function export code ---*/
   /*--- Type init code ---*/
-  if (PyType_Ready(&__pyx_type_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper) < 0) __PYX_ERR(0, 9, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper) < 0) __PYX_ERR(0, 8, __pyx_L1_error)
   __pyx_type_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper.tp_print = 0;
-  if (PyObject_SetAttrString(__pyx_m, "CMBTRWrapper", (PyObject *)&__pyx_type_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper) < 0) __PYX_ERR(0, 9, __pyx_L1_error)
+  if (PyObject_SetAttrString(__pyx_m, "CMBTRWrapper", (PyObject *)&__pyx_type_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper) < 0) __PYX_ERR(0, 8, __pyx_L1_error)
   __pyx_ptype_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper = &__pyx_type_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper;
   /*--- Type import code ---*/
   /*--- Variable import code ---*/
