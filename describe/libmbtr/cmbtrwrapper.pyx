@@ -35,7 +35,7 @@ cdef class CMBTRWrapper:
         new_dist_map = {}
 
         for key, value in geom_map.items():
-            new_key = tuple(key.decode("utf-8").split(","))
+            new_key = tuple(int(x) for x in key.decode("utf-8").split(","))
             new_geom_map[new_key] = value
             new_dist_map[new_key] = dist_map[key]
 

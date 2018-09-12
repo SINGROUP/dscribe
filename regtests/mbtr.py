@@ -10,7 +10,7 @@ from describe.descriptors import MBTR
 
 from ase.build import bulk
 from ase import Atoms
-# from ase.visualize import view
+from ase.visualize import view
 import ase.geometry
 
 import matplotlib.pyplot as mpl
@@ -329,7 +329,9 @@ class MBTRTests(unittest.TestCase):
         # self.assertEqual(angles, angles2)
 
     def test_angles(self):
-        """Tests that all the correct angles are used.
+        """Tests that all the correct angles are used. There should be
+        n*(n-1)*(n-2)/2 unique angles where the division by two gets rid of
+        duplicate angles.
         """
         # Test with water molecule
         mbtr = MBTR([1, 8], k=[3], periodic=False)
@@ -337,16 +339,34 @@ class MBTRTests(unittest.TestCase):
         angles = mbtr._angles
 
         assumed = {
-            0: {
-                1: {
-                    0: 1*[math.cos(104/180*math.pi)]
-                },
-                0: {
-                    1: 2*[math.cos(38/180*math.pi)]
-                },
-            }
+            (0, 1, 0): 1*[math.cos(104/180*math.pi)],
+            (0, 0, 1): 2*[math.cos(38/180*math.pi)],
         }
+        # print(angles)
         self.angle_comparison(angles, assumed, len(H2O))
+
+        # Test with four atoms in a "dart"-like arrangement.
+        atoms = Atoms(
+            positions=[
+                [0, 0, 0],
+                [np.sqrt(2), np.sqrt(2), 0],
+                [2*np.sqrt(2), 0, 0],
+                [np.sqrt(2), np.tan(np.pi/180*15)*np.sqrt(2), 0],
+            ],
+            symbols=["H", "H", "H", "He"]
+        )
+        view(atoms)
+
+        mbtr = MBTR([1, 2, 10], k=[3], periodic=False)
+        desc = mbtr.create(atoms)
+        angles = mbtr._angles
+
+        assumed = {
+            (0, 1, 0): [math.cos(105/180*math.pi), math.cos(150/180*math.pi), math.cos(105/180*math.pi)],
+            (0, 0, 0): [math.cos(90/180*math.pi), math.cos(45/180*math.pi), math.cos(45/180*math.pi)],
+            (0, 0, 1): [math.cos(45/180*math.pi), math.cos(30/180*math.pi), math.cos(45/180*math.pi), math.cos(30/180*math.pi), math.cos(15/180*math.pi), math.cos(15/180*math.pi)]
+        }
+        self.angle_comparison(angles, assumed, len(atoms))
 
     def angle_comparison(self, first, second, n_atoms):
         """Used to compare two dictionaries containing angles.
@@ -363,11 +383,11 @@ class MBTRTests(unittest.TestCase):
             for j in range(n_atoms):
                 for k in range(2):
                     try:
-                        assumed_elem = second[i][j][k]
+                        assumed_elem = second[(i, j, k)]
                     except KeyError:
                         assumed_elem = None
                     try:
-                        true_elem = first[i][j][k]
+                        true_elem = first[(i, j, k)]
                     except KeyError:
                         true_elem = None
 
@@ -375,6 +395,12 @@ class MBTRTests(unittest.TestCase):
                         pass
                     elif assumed_elem is not None and true_elem is not None:
                         self.assertEqual(len(assumed_elem), len(true_elem))
+
+                        # Sort the lists first to perform comparison
+                        assumed_elem.sort()
+                        true_elem.sort()
+                        print(assumed_elem)
+                        print(true_elem)
                         for i_elem, val_assumed in enumerate(assumed_elem):
                             val_true = true_elem[i_elem]
                             self.assertAlmostEqual(val_assumed, val_true, places=6)

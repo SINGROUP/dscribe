@@ -202,9 +202,6 @@ class MBTR(Descriptor):
                                 "Value for the attribute {} is needed for specifying "
                                 "the weighting function.".format(key)
                             )
-        # If weighting is not given, it is assumed to be constant
-        else:
-
 
         # Check that a weighting function is specified for each term k>1
         if self.periodic:
@@ -369,7 +366,14 @@ class MBTR(Descriptor):
         present_element_numbers = set(system.numbers)
         self.present_indices = set()
         for number in present_element_numbers:
-            index = self.atomic_number_to_index[number]
+            try:
+                index = self.atomic_number_to_index[number]
+            except KeyError:
+                raise KeyError(
+                    "The given systems contains atomic element {} that has not "
+                    "been declared in 'atomic_numbers' given in the class "
+                    "constructor.".format(number)
+                )
             self.present_indices.add(index)
 
         if 1 in self.k:
@@ -703,8 +707,11 @@ class MBTR(Descriptor):
             )
 
             # Determine the weighting function
-            weight_info = self.weighting["k3"]
-            weighting_function = weight_info["function"]
+            if self.weighting is not None:
+                weight_info = self.weighting["k3"]
+                weighting_function = weight_info["function"]
+            else:
+                weighting_function = "unity"
             parameters = {}
             if weighting_function == "exponential":
                 parameters = {
@@ -712,91 +719,94 @@ class MBTR(Descriptor):
                     "cutoff": weight_info["cutoff"]
                 }
 
-            angles, dists = cmbtr.get_k3_map(geom_func=b"cosine", weight_func=weighting_function.encode(), parameters=parameters)
-            print("Angles from C++:")
-            for key, value in angles.items():
-                print(key, value)
+            angles, weights = cmbtr.get_k3_map(geom_func=b"cosine", weight_func=weighting_function.encode(), parameters=parameters)
+            # print("Angles from C++:")
+            # for key, value in angles.items():
+                # print(key, value)
 
-            print("Distances from C++:")
-            for key, value in dists.items():
-                print(key, value)
+            # print("Weights from C++:")
+            # for key, value in weights.items():
+                # print(key, value)
 
-            cos_dict = {}
-            weight_dict = {}
-            indices = range(len(numbers))
+            self._angles = angles
+            self._angle_weights = weights
+
+            # cos_dict = {}
+            # weight_dict = {}
+            # indices = range(len(numbers))
 
             # Determine the weighting function
-            weighting_function = None
-            if self.weighting is not None and self.weighting.get("k3") is not None:
-                weighting_function = self.weighting["k3"]["function"]
-                print(weighting_function)
+            # weighting_function = None
+            # if self.weighting is not None and self.weighting.get("k3") is not None:
+                # weighting_function = self.weighting["k3"]["function"]
+                # print(weighting_function)
 
-            # Here we go through all the 3-permutations of the atoms in the system
-            permutations = itertools.permutations(indices, 3)
-            print("From numpy:")
-            for i_atom, j_atom, k_atom in permutations:
+            # # Here we go through all the 3-permutations of the atoms in the system
+            # permutations = itertools.permutations(indices, 3)
+            # print("From numpy:")
+            # for i_atom, j_atom, k_atom in permutations:
 
-                # Only consider triplets that have one atom in the original
-                # cell
-                if i_atom < self.n_atoms_in_cell or \
-                   j_atom < self.n_atoms_in_cell or \
-                   k_atom < self.n_atoms_in_cell:
+                # # Only consider triplets that have one atom in the original
+                # # cell
+                # if i_atom < self.n_atoms_in_cell or \
+                   # j_atom < self.n_atoms_in_cell or \
+                   # k_atom < self.n_atoms_in_cell:
 
-                    i_element = numbers[i_atom]
-                    j_element = numbers[j_atom]
-                    k_element = numbers[k_atom]
+                    # i_element = numbers[i_atom]
+                    # j_element = numbers[j_atom]
+                    # k_element = numbers[k_atom]
 
-                    i_index = self.atomic_number_to_index[i_element]
-                    j_index = self.atomic_number_to_index[j_element]
-                    k_index = self.atomic_number_to_index[k_element]
+                    # i_index = self.atomic_number_to_index[i_element]
+                    # j_index = self.atomic_number_to_index[j_element]
+                    # k_index = self.atomic_number_to_index[k_element]
 
-                    # Save information in the part where k_index >= i_index
-                    if k_index < i_index:
-                        continue
+                    # # Save information in the part where k_index >= i_index
+                    # if k_index < i_index:
+                        # continue
 
-                    # Save weights
-                    if weighting_function is not None:
-                        dist1 = distance_matrix[i_atom, j_atom]
-                        dist2 = distance_matrix[j_atom, k_atom]
-                        dist3 = distance_matrix[k_atom, i_atom]
-                        weight = weighting_function(dist1 + dist2 + dist3)
-                    else:
-                        weight = 1
+                    # # Save weights
+                    # if weighting_function is not None:
+                        # dist1 = distance_matrix[i_atom, j_atom]
+                        # dist2 = distance_matrix[j_atom, k_atom]
+                        # dist3 = distance_matrix[k_atom, i_atom]
+                        # weight = weighting_function(dist1 + dist2 + dist3)
+                    # else:
+                        # weight = 1
 
-                    old_dict_1 = weight_dict.get(i_index)
-                    if old_dict_1 is None:
-                        old_dict_1 = {}
-                    old_dict_2 = old_dict_1.get(j_index)
-                    if old_dict_2 is None:
-                        old_dict_2 = {}
-                    old_list_3 = old_dict_2.get(k_index)
-                    if old_list_3 is None:
-                        old_list_3 = []
+                    # old_dict_1 = weight_dict.get(i_index)
+                    # if old_dict_1 is None:
+                        # old_dict_1 = {}
+                    # old_dict_2 = old_dict_1.get(j_index)
+                    # if old_dict_2 is None:
+                        # old_dict_2 = {}
+                    # old_list_3 = old_dict_2.get(k_index)
+                    # if old_list_3 is None:
+                        # old_list_3 = []
 
-                    print(cos_tensor[i_atom, j_atom, k_atom])
-                    # print(dist1 + dist2 + dist3)
-                    old_list_3.append(weight)
-                    old_dict_2[k_index] = old_list_3
-                    old_dict_1[j_index] = old_dict_2
-                    weight_dict[i_index] = old_dict_1
+                    # print(cos_tensor[i_atom, j_atom, k_atom])
+                    # # print(dist1 + dist2 + dist3)
+                    # old_list_3.append(weight)
+                    # old_dict_2[k_index] = old_list_3
+                    # old_dict_1[j_index] = old_dict_2
+                    # weight_dict[i_index] = old_dict_1
 
-                    # Save cosines
-                    old_dict_1 = cos_dict.get(i_index)
-                    if old_dict_1 is None:
-                        old_dict_1 = {}
-                    old_dict_2 = old_dict_1.get(j_index)
-                    if old_dict_2 is None:
-                        old_dict_2 = {}
-                    old_list_3 = old_dict_2.get(k_index)
-                    if old_list_3 is None:
-                        old_list_3 = []
-                    old_list_3.append(cos_tensor[i_atom, j_atom, k_atom])
-                    old_dict_2[k_index] = old_list_3
-                    old_dict_1[j_index] = old_dict_2
-                    cos_dict[i_index] = old_dict_1
+                    # # Save cosines
+                    # old_dict_1 = cos_dict.get(i_index)
+                    # if old_dict_1 is None:
+                        # old_dict_1 = {}
+                    # old_dict_2 = old_dict_1.get(j_index)
+                    # if old_dict_2 is None:
+                        # old_dict_2 = {}
+                    # old_list_3 = old_dict_2.get(k_index)
+                    # if old_list_3 is None:
+                        # old_list_3 = []
+                    # old_list_3.append(cos_tensor[i_atom, j_atom, k_atom])
+                    # old_dict_2[k_index] = old_list_3
+                    # old_dict_1[j_index] = old_dict_2
+                    # cos_dict[i_index] = old_dict_1
 
-            self._angles = cos_dict
-            self._angle_weights = weight_dict
+            # self._angles = cos_dict
+            # self._angle_weights = weight_dict
         return self._angles, self._angle_weights
 
     def K1(self, settings):
