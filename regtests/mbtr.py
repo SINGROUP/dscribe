@@ -257,29 +257,29 @@ class MBTRTests(unittest.TestCase):
         # counts2 = mbtr._counts
         # self.assertTrue(np.array_equal(counts, counts2))
 
-    # def test_inverse_distances(self):
-        # mbtr = MBTR([1, 8], k=[2], periodic=False)
-        # mbtr.create(H2O)
-        # inv_dist = mbtr._inverse_distances
+    def test_inverse_distances(self):
+        mbtr = MBTR([1, 8], k=[2], periodic=False)
+        mbtr.create(H2O)
+        inv_dist = mbtr._k2_geoms
 
-        # # Test against the assumed values
-        # pos = H2O.get_positions()
-        # assumed = {
-            # (0, 0): [1/np.linalg.norm(pos[0] - pos[2])],
-            # (0, 1): 2*[1/np.linalg.norm(pos[0] - pos[1])]
-        # }
-        # for key, item in inv_dist.items():
-            # for i, j in zip(item, assumed[key]):
-                # self.assertTrue(abs(i - j) < 1e-7)
+        # Test against the assumed values
+        pos = H2O.get_positions()
+        assumed = {
+            (0, 0): [1/np.linalg.norm(pos[0] - pos[2])],
+            (0, 1): 2*[1/np.linalg.norm(pos[0] - pos[1])]
+        }
+        for key, item in inv_dist.items():
+            for i, j in zip(item, assumed[key]):
+                self.assertTrue(abs(i - j) < 1e-7)
 
-        # # Test against system with different indexing
-        # mbtr = MBTR([1, 8], k=[2], periodic=False)
-        # mbtr.create(H2O_2)
-        # inv_dist_2 = mbtr._inverse_distances
+        # Test against system with different indexing
+        mbtr = MBTR([1, 8], k=[2], periodic=False)
+        mbtr.create(H2O_2)
+        inv_dist_2 = mbtr._k2_geoms
 
-        # for key, item in inv_dist_2.items():
-            # for i, j in zip(item, assumed[key]):
-                # self.assertTrue(abs(i - j) < 1e-7)
+        for key, item in inv_dist_2.items():
+            for i, j in zip(item, assumed[key]):
+                self.assertTrue(abs(i - j) < 1e-7)
 
     # def test_cosines(self):
         # mbtr = MBTR([1, 8], k=[3], periodic=False)
@@ -291,7 +291,7 @@ class MBTRTests(unittest.TestCase):
         # mpl.show()
         # print(angles)
 
-        # Test against the assumed values.
+        # # Test against the assumed values.
         # assumed = {
             # 0: {
                 # 1: {
@@ -322,30 +322,30 @@ class MBTRTests(unittest.TestCase):
                             # val_true = true_elem[i_elem]
                             # self.assertAlmostEqual(val_assumed, val_true, places=6)
 
-        # Test against system with different indexing
+        # # Test against system with different indexing
         # mbtr = MBTR([1, 8], k=[3], periodic=False)
         # mbtr.create(H2O_2)
         # angles2 = mbtr._angles
         # self.assertEqual(angles, angles2)
 
-    def test_angles(self):
-        """Tests that all the correct angles are used. There should be
-        n*(n-1)*(n-2)/2 unique angles where the division by two gets rid of
-        duplicate angles.
+    def test_angles_finite(self):
+        """Tests that all the correct angles are present in finite systems.
+        There should be n*(n-1)*(n-2)/2 unique angles where the division by two
+        gets rid of duplicate angles.
         """
         # Test with water molecule
         mbtr = MBTR([1, 8], k=[3], periodic=False)
-        desc = mbtr.create(H2O)
-        angles = mbtr._angles
+        mbtr.create(H2O)
+        angles = mbtr._k3_geoms
 
         assumed = {
             (0, 1, 0): 1*[math.cos(104/180*math.pi)],
             (0, 0, 1): 2*[math.cos(38/180*math.pi)],
         }
-        # print(angles)
         self.angle_comparison(angles, assumed, len(H2O))
 
-        # Test with four atoms in a "dart"-like arrangement.
+        # Test with four atoms in a "dart"-like arrangement. This arrangement
+        # has both concave and convex angles.
         atoms = Atoms(
             positions=[
                 [0, 0, 0],
@@ -355,11 +355,16 @@ class MBTRTests(unittest.TestCase):
             ],
             symbols=["H", "H", "H", "He"]
         )
-        view(atoms)
+        # view(atoms)
 
         mbtr = MBTR([1, 2, 10], k=[3], periodic=False)
-        desc = mbtr.create(atoms)
-        angles = mbtr._angles
+        mbtr.create(atoms)
+        angles = mbtr._k3_geoms
+
+        # In finite systems there are n*(n-1)*(n-2)/2 unique angles.
+        n_atoms = len(atoms)
+        n_angles = sum([len(x) for x in angles.values()])
+        self.assertEqual(n_atoms*(n_atoms-1)*(n_atoms-2)/2, n_angles)
 
         assumed = {
             (0, 1, 0): [math.cos(105/180*math.pi), math.cos(150/180*math.pi), math.cos(105/180*math.pi)],
@@ -367,6 +372,16 @@ class MBTRTests(unittest.TestCase):
             (0, 0, 1): [math.cos(45/180*math.pi), math.cos(30/180*math.pi), math.cos(45/180*math.pi), math.cos(30/180*math.pi), math.cos(15/180*math.pi), math.cos(15/180*math.pi)]
         }
         self.angle_comparison(angles, assumed, len(atoms))
+
+    # def test_angles_periodic(self):
+        # """Tests that all the correct angles are present in periodic systems.
+        # """
+        # # The test system is a water molecule that is periodic in one
+        # # direction.
+        # atoms = H2O.copy()
+        # atoms.set_cell([5, 20, 20])
+        # atoms.center()
+        # view(atoms)
 
     def angle_comparison(self, first, second, n_atoms):
         """Used to compare two dictionaries containing angles.
@@ -399,8 +414,6 @@ class MBTRTests(unittest.TestCase):
                         # Sort the lists first to perform comparison
                         assumed_elem.sort()
                         true_elem.sort()
-                        print(assumed_elem)
-                        print(true_elem)
                         for i_elem, val_assumed in enumerate(assumed_elem):
                             val_true = true_elem[i_elem]
                             self.assertAlmostEqual(val_assumed, val_true, places=6)

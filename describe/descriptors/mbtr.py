@@ -2,10 +2,9 @@ from __future__ import absolute_import, division, print_function
 from builtins import super
 import math
 import numpy as np
-import itertools
 import chronic
 
-from scipy.spatial.distance import squareform, pdist, cdist
+from scipy.spatial.distance import cdist
 from scipy.sparse import lil_matrix, coo_matrix
 from scipy.special import erf
 
@@ -149,9 +148,10 @@ class MBTR(Descriptor):
         # initializing .create() level variables
         self.n_atoms_in_cell = None
         self._counts = None
-        self._inverse_distances = None
-        self._angles = None
-        self._angle_weights = None
+        self._k2_geoms = None
+        self._k2_weights = None
+        self._k3_geoms = None
+        self._k3_weights = None
         self._axis_k1 = None
         self._axis_k2 = None
         self._axis_k3 = None
@@ -353,9 +353,10 @@ class MBTR(Descriptor):
         self.n_atoms_in_cell = None
         self.system = system
         self._counts = None
-        self._inverse_distances = None
-        self._angles = None
-        self._angle_weights = None
+        self._k2_geoms = None
+        self._k2_weights = None
+        self._k3_geoms = None
+        self._k3_weights = None
         self._axis_k1 = None
         self._axis_k2 = None
         self._axis_k3 = None
@@ -384,7 +385,7 @@ class MBTR(Descriptor):
             system_k2 = system
             if self.periodic:
                 system_k2 = self.create_extended_system(system, 2)
-            self.inverse_distances(system_k2)
+            self.k2_geoms_and_weights(system_k2)
 
             # Free memory
             system_k2 = None
@@ -394,7 +395,7 @@ class MBTR(Descriptor):
             system_k3 = system
             if self.periodic:
                 system_k3 = self.create_extended_system(system, 3)
-            self.cosines_and_weights(system_k3)
+            self.k3_geoms_and_weights(system_k3)
 
             # Free memory
             system_k3 = None
@@ -641,18 +642,19 @@ class MBTR(Descriptor):
         return self._counts
 
     @chronic.time
-    def inverse_distances(self, system):
-        """Calculates the inverse distances for the given atomic positions.
+    def k2_geoms_and_weights(self, system):
+        """Calculates the value of the geometry function and corresponding
+        weights for unique two-body combinations.
 
         Args:
             system (System): The atomic system.
 
         Returns:
-            dict: Inverse distances in the form:
-            {(i, j): [list of angles] }. The dictionaries are filled
-            so that the entry for pair i and j is in the entry where j>=i.
+            dict: Inverse distances in the form: {(i, j): [list of angles] }.
+            The dictionaries are filled so that the entry for pair i and j is
+            in the entry where j>=i.
         """
-        if self._inverse_distances is None:
+        if self._k2_geoms is None or self._k2_weights is None:
 
             cmbtr = CMBTRWrapper(
                 system.get_positions(),
@@ -660,43 +662,37 @@ class MBTR(Descriptor):
                 self.atomic_number_to_index,
                 self.n_atoms_in_cell
             )
-            self._inverse_distances = cmbtr.get_inverse_distance_map()
-        return self._inverse_distances
+
+            # Determine the weighting function
+            if self.weighting is not None:
+                weight_info = self.weighting["k2"]
+                weighting_function = weight_info["function"]
+            else:
+                weighting_function = "unity"
+            parameters = {}
+            if weighting_function == "exponential":
+                parameters = {
+                    "scale": weight_info["scale"],
+                    "cutoff": weight_info["cutoff"]
+                }
+
+            self._k2_geoms, self._k2_weights = cmbtr.get_k2_map(geom_func=b"inverse_distance", weight_func=weighting_function.encode(), parameters=parameters)
+        return self._k2_geoms, self._k2_weights
 
     @chronic.time
-    def cosines_and_weights(self, system):
-        """Calculates the cosine of the angles and their weights between unique
-        three-body combinations.
+    def k3_geoms_and_weights(self, system):
+        """Calculates the value of the geometry function and corresponding
+        weights for unique three-body combinations.
 
         Args:
             system (System): The atomic system.
 
         Returns:
-            tuple: (cosine, weights) Cosines of the angles (values between -1
-            and 1) in the form {i: { j: {k: [list of angles] }}}. The weights
+            tuple: (geoms, weights) Cosines of the angles (values between -1
+            and 1) in the form {(i,j,k): [list of angles] }. The weights
             corresponding to the angles are stored in a similar dictionary.
-
-            #TODO:
-            Some cosines are encountered twice, e.g. the angles for OHH would
-            be the same as for HHO. These duplicate values are left out by only
-            filling values where k>=i.
         """
-        if self._angles is None or self._angle_weights is None:
-
-            disp_tensor = system.get_displacement_tensor().astype(np.float32)
-            distance_matrix = system.get_distance_matrix().astype(np.float32)
-            numbers = system.numbers
-
-            # Cosines between atoms i-j-k can be found in the tensor:
-            # cos_tensor[i, j, k] or equivalently cos_tensor[k, j, i] (symmetric)
-            n_atoms = len(numbers)
-            cos_tensor = np.empty((n_atoms, n_atoms, n_atoms), dtype=np.float32)
-            for i in range(disp_tensor.shape[0]):
-                part = 1 - squareform(pdist(disp_tensor[i, :, :], 'cosine'))
-                cos_tensor[:, i, :] = part
-
-            # Remove the numerical noise from cosine values.
-            np.clip(cos_tensor, -1, 1, cos_tensor)
+        if self._k3_geoms is None or self._k2_weights is None:
 
             # Calculate the angles with the C++ implementation
             cmbtr = CMBTRWrapper(
@@ -719,95 +715,8 @@ class MBTR(Descriptor):
                     "cutoff": weight_info["cutoff"]
                 }
 
-            angles, weights = cmbtr.get_k3_map(geom_func=b"cosine", weight_func=weighting_function.encode(), parameters=parameters)
-            # print("Angles from C++:")
-            # for key, value in angles.items():
-                # print(key, value)
-
-            # print("Weights from C++:")
-            # for key, value in weights.items():
-                # print(key, value)
-
-            self._angles = angles
-            self._angle_weights = weights
-
-            # cos_dict = {}
-            # weight_dict = {}
-            # indices = range(len(numbers))
-
-            # Determine the weighting function
-            # weighting_function = None
-            # if self.weighting is not None and self.weighting.get("k3") is not None:
-                # weighting_function = self.weighting["k3"]["function"]
-                # print(weighting_function)
-
-            # # Here we go through all the 3-permutations of the atoms in the system
-            # permutations = itertools.permutations(indices, 3)
-            # print("From numpy:")
-            # for i_atom, j_atom, k_atom in permutations:
-
-                # # Only consider triplets that have one atom in the original
-                # # cell
-                # if i_atom < self.n_atoms_in_cell or \
-                   # j_atom < self.n_atoms_in_cell or \
-                   # k_atom < self.n_atoms_in_cell:
-
-                    # i_element = numbers[i_atom]
-                    # j_element = numbers[j_atom]
-                    # k_element = numbers[k_atom]
-
-                    # i_index = self.atomic_number_to_index[i_element]
-                    # j_index = self.atomic_number_to_index[j_element]
-                    # k_index = self.atomic_number_to_index[k_element]
-
-                    # # Save information in the part where k_index >= i_index
-                    # if k_index < i_index:
-                        # continue
-
-                    # # Save weights
-                    # if weighting_function is not None:
-                        # dist1 = distance_matrix[i_atom, j_atom]
-                        # dist2 = distance_matrix[j_atom, k_atom]
-                        # dist3 = distance_matrix[k_atom, i_atom]
-                        # weight = weighting_function(dist1 + dist2 + dist3)
-                    # else:
-                        # weight = 1
-
-                    # old_dict_1 = weight_dict.get(i_index)
-                    # if old_dict_1 is None:
-                        # old_dict_1 = {}
-                    # old_dict_2 = old_dict_1.get(j_index)
-                    # if old_dict_2 is None:
-                        # old_dict_2 = {}
-                    # old_list_3 = old_dict_2.get(k_index)
-                    # if old_list_3 is None:
-                        # old_list_3 = []
-
-                    # print(cos_tensor[i_atom, j_atom, k_atom])
-                    # # print(dist1 + dist2 + dist3)
-                    # old_list_3.append(weight)
-                    # old_dict_2[k_index] = old_list_3
-                    # old_dict_1[j_index] = old_dict_2
-                    # weight_dict[i_index] = old_dict_1
-
-                    # # Save cosines
-                    # old_dict_1 = cos_dict.get(i_index)
-                    # if old_dict_1 is None:
-                        # old_dict_1 = {}
-                    # old_dict_2 = old_dict_1.get(j_index)
-                    # if old_dict_2 is None:
-                        # old_dict_2 = {}
-                    # old_list_3 = old_dict_2.get(k_index)
-                    # if old_list_3 is None:
-                        # old_list_3 = []
-                    # old_list_3.append(cos_tensor[i_atom, j_atom, k_atom])
-                    # old_dict_2[k_index] = old_list_3
-                    # old_dict_1[j_index] = old_dict_2
-                    # cos_dict[i_index] = old_dict_1
-
-            # self._angles = cos_dict
-            # self._angle_weights = weight_dict
-        return self._angles, self._angle_weights
+            self._k3_geoms, self._k3_weights = cmbtr.get_k3_map(geom_func=b"cosine", weight_func=weighting_function.encode(), parameters=parameters)
+        return self._k3_geoms, self._k3_weights
 
     def K1(self, settings):
         """Calculates the first order terms where the scalar mapping is the
@@ -864,45 +773,32 @@ class MBTR(Descriptor):
         n = settings["n"]
         self._axis_k2 = np.linspace(start, stop, n)
 
-        inv_dist_dict = self._inverse_distances
+        k2_geoms, k2_weights = self._k2_geoms, self._k2_weights
         n_elem = self.n_elements
 
+        # Depending of flattening, use either a sparse matrix or a dense one.
         if self.flatten:
             k2 = lil_matrix(
                 (1, int(n_elem*(n_elem+1)/2*n)), dtype=np.float32)
         else:
             k2 = np.zeros((self.n_elements, self.n_elements, n))
 
-        # Determine the weighting function
-        weighting_function = None
-        if self.weighting is not None and self.weighting.get("k2") is not None:
-            weighting_function = self.weighting["k2"]["function"]
+        for m, key in enumerate(sorted(k2_geoms.keys())):
+            i = key[0]
+            j = key[1]
 
-        m = -1
-        for i in range(n_elem):
-            for j in range(n_elem):
-                if j >= i:
-                    m += 1
-                    try:
-                        inv_dist = np.array(inv_dist_dict[(i, j)])
-                    except KeyError:
-                        continue
+            geoms = np.array(k2_geoms[key])
+            weights = np.array(k2_weights[key])
 
-                    # Calculate weights
-                    if weighting_function is not None:
-                        weights = weighting_function(1/np.array(inv_dist))
-                    else:
-                        weights = np.ones(len(inv_dist))
+            # Broaden with a gaussian
+            gaussian_sum = self.gaussian_sum(geoms, weights, settings)
 
-                    # Broaden with a gaussian
-                    gaussian_sum = self.gaussian_sum(inv_dist, weights, settings)
-
-                    if self.flatten:
-                        start = m*n
-                        end = (m + 1)*n
-                        k2[0, start:end] = gaussian_sum
-                    else:
-                        k2[i, j, :] = gaussian_sum
+            if self.flatten:
+                start = m*n
+                end = (m + 1)*n
+                k2[0, start:end] = gaussian_sum
+            else:
+                k2[i, j, :] = gaussian_sum
 
         return k2
 
@@ -921,38 +817,32 @@ class MBTR(Descriptor):
         n = settings["n"]
         self._axis_k3 = np.linspace(start, stop, n)
 
-        cos_dict, cos_weight_dict = self._angles, self._angle_weights
+        k3_geoms, k3_weights = self._k3_geoms, self._k3_weights
         n_elem = self.n_elements
 
+        # Depending of flattening, use either a sparse matrix or a dense one.
         if self.flatten:
             k3 = lil_matrix(
                 (1, int(n_elem*n_elem*(n_elem+1)/2*n)), dtype=np.float32)
         else:
             k3 = np.zeros((n_elem, n_elem, n_elem, n))
 
-        # Go through the angles, but leave out the duplicate cases by enforcing
-        # k >= i. E.g. angles OHH are the same as HHO. This will half the size
-        # of the K3 input.
-        m = -1
-        for i in range(n_elem):
-            for j in range(n_elem):
-                for k in range(n_elem):
-                    if k >= i:
-                        m += 1
-                        try:
-                            cos_values = np.array(cos_dict[i][j][k])
-                            cos_weights = np.array(cos_weight_dict[i][j][k])
-                        except KeyError:
-                            continue
+        for m, key in enumerate(sorted(k3_geoms.keys())):
+            i = key[0]
+            j = key[1]
+            k = key[1]
 
-                        # Broaden with a gaussian
-                        gaussian_sum = self.gaussian_sum(cos_values, cos_weights, settings)
+            geoms = np.array(k3_geoms[key])
+            weights = np.array(k3_weights[key])
 
-                        if self.flatten:
-                            start = m*n
-                            end = (m+1)*n
-                            k3[0, start:end] = gaussian_sum
-                        else:
-                            k3[i, j, k, :] = gaussian_sum
+            # Broaden with a gaussian
+            gaussian_sum = self.gaussian_sum(geoms, weights, settings)
+
+            if self.flatten:
+                start = m*n
+                end = (m+1)*n
+                k3[0, start:end] = gaussian_sum
+            else:
+                k3[i, j, k, :] = gaussian_sum
 
         return k3
