@@ -18,8 +18,10 @@ CMBTR::CMBTR(vector<vector<float> > positions, vector<int> atomicNumbers, map<in
     , atomicNumberToIndexMap(atomicNumberToIndexMap)
     , cellLimit(cellLimit)
     , displacementTensorInitialized(false)
+    , k1IndicesInitialized(false)
     , k2IndicesInitialized(false)
     , k3IndicesInitialized(false)
+    , k1MapInitialized(false)
     , k2MapInitialized(false)
     , k3MapInitialized(false)
 {
@@ -97,89 +99,29 @@ vector<vector<float> > CMBTR::getDistanceMatrix()
     return distanceMatrix;
 }
 
-//vector<vector<float> > CMBTR::getInverseDistanceMatrix()
-//{
-    //int nAtoms = this->atomicNumbers.size();
+vector<index1d> CMBTR::getk1Indices()
+{
+    // Use cached value if possible
+    if (!this->k1IndicesInitialized) {
 
-    //// Initialize matrix
-    //vector<vector<float> > inverseDistanceMatrix(nAtoms, vector<float>(nAtoms));
+        int nAtoms = this->atomicNumbers.size();
 
-    //// Distance matrix
-    //vector<vector<float> > distanceMatrix = this->getDistanceMatrix();
+        // Initialize the map containing the mappings
+        vector<index1d> indexList;
 
-    //// Calculate inverse distances
-    //for (int i=0; i < nAtoms; ++i) {
-        //for (int j=0; j < nAtoms; ++j) {
-
-            //// Due to symmetry only upper triangular part is processed.
-            //if (i <= j) {
-                //continue;
-            //}
-
-            //float inverse = 1.0/distanceMatrix[i][j];
-            //inverseDistanceMatrix[i][j] = inverse;
-            //inverseDistanceMatrix[j][i] = inverse;
-        //}
-    //}
-
-    //return inverseDistanceMatrix;
-//}
-
-//map<pair<int,int>, vector<float> > CMBTR::getInverseDistanceMap()
-//{
-    //int nAtoms = this->atomicNumbers.size();
-
-    //// Initialize the map containing the mappings
-    //map<pair<int,int>, vector<float> > inverseDistanceMap;
-
-    //// Inverse distance matrix
-    //vector<vector<float> > inverseDistanceMatrix = this->getInverseDistanceMatrix();
-
-    //// Calculate
-    //for (int i=0; i < nAtoms; ++i) {
-        //for (int j=0; j < nAtoms; ++j) {
-            //int i_elem = this->atomicNumbers[i];
-            //int j_elem = this->atomicNumbers[j];
-
-            //// Due to symmetry only upper triangular part is processed.
-            //if (j <= i) {
-                //continue;
-            //}
-
-            //// The value is calculated only if either atom is inside the
-            //// original cell.
-            //if (i < this->cellLimit || j < this->cellLimit) {
-                //int i_index = this->atomicNumberToIndexMap[i_elem];
-                //int j_index = this->atomicNumberToIndexMap[j_elem];
-
-                //// We fill only the upper triangular part of the map by saving
-                //// both (i, j) and (j, i) into the map location where j >= i.
-                //vector<int> sorted(2);
-                //sorted[0] = i_index;
-                //sorted[1] = j_index;
-                //sort(sorted.begin(), sorted.end());
-                //i_index = sorted[0];
-                //j_index = sorted[1];
-
-                //// Get the list of old values at this location. If does not
-                //// exist, create new list. Add new value to list.
-                //map<pair<int,int>, vector<float> >::iterator iter;
-                //pair<int,int> loc = make_pair(i_index, j_index);
-                //iter = inverseDistanceMap.find(loc);
-                //float ij_inv = inverseDistanceMatrix[i][j];
-                //if (iter == inverseDistanceMap.end() ) {
-                    //vector<float> newList;
-                    //newList.push_back(ij_inv);
-                    //inverseDistanceMap[loc] = newList;
-                //} else {
-                    //iter->second.push_back(ij_inv);
-                //}
-            //}
-        //}
-    //}
-
-    //return inverseDistanceMap;
-//}
+        for (int i=0; i < nAtoms; ++i) {
+            // Only consider triplets that have one atom in the original
+            // cell
+            if (i < this->cellLimit) {
+                index1d key = {i};
+                indexList.push_back(key);
+            }
+        }
+        this->k1Indices = indexList;
+        this->k1IndicesInitialized = true;
+    }
+    return this->k1Indices;
+}
 
 vector<index2d> CMBTR::getk2Indices()
 {
@@ -248,6 +190,18 @@ vector<index3d> CMBTR::getk3Indices()
         this->k3IndicesInitialized = true;
     }
     return this->k3Indices;
+}
+
+map<index1d, float> CMBTR::k1GeomAtomicNumber(const vector<index1d> &indexList)
+{
+    map<index1d,float> valueMap;
+    for (const index1d& index : indexList) {
+        int i = index.i;
+        int atomicNumber = this->atomicNumbers[i];
+        valueMap[index] = atomicNumber;
+    }
+
+    return valueMap;
 }
 
 map<index2d, float> CMBTR::k2GeomInverseDistance(const vector<index2d> &indexList)
@@ -351,6 +305,58 @@ map<index3d, float> CMBTR::k3WeightExponential(const vector<index3d> &indexList,
     return valueMap;
 }
 
+pair<map<index1d, vector<float> >, map<index1d,vector<float> > > CMBTR::getK1Map(string geomFunc, string weightFunc, map<string, float> parameters)
+{
+    // Use cached value if possible
+    if (!this->k1IndicesInitialized) {
+
+        vector<index1d> indexList = this->getk1Indices();
+
+        // Initialize the maps
+        map<index1d, vector<float> > geomMap;
+        map<index1d, vector<float> > weightMap;
+
+        // Calculate all geometry values
+        map<index1d, float> geomValues;
+        if (geomFunc == "atomic_number") {
+            geomValues = this->k1GeomAtomicNumber(indexList);
+        } else {
+            throw invalid_argument("Invalid geometry function.");
+        }
+
+        // Calculate all weighting values
+        map<index1d, float> weightValues;
+        if (weightFunc == "unity") {
+            weightValues = this->k1WeightUnity(indexList);
+        } else {
+            throw invalid_argument("Invalid weighting function.");
+        }
+
+        // Save the geometry and distances to the maps
+        for (index1d& index : indexList) {
+            int i = index.i;
+
+            float geomValue = geomValues[index];
+            float weightValue = weightValues[index];
+
+            // Get the index of the present elements in the final vector
+            int i_elem = this->atomicNumbers[i];
+            int i_index = this->atomicNumberToIndexMap[i_elem];
+
+            // Save information in the part where j_index >= i_index
+            index1d indexKey = {i_index};
+
+            // Save the values
+            geomMap[indexKey].push_back(geomValue);
+            weightMap[indexKey].push_back(weightValue);
+        }
+
+        this->k1Map = make_pair(geomMap, weightMap);
+        this->k1MapInitialized = true;
+    }
+    return this->k1Map;
+}
+
 pair<map<index2d, vector<float> >, map<index2d,vector<float> > > CMBTR::getK2Map(string geomFunc, string weightFunc, map<string, float> parameters)
 {
     // Use cached value if possible
@@ -360,7 +366,7 @@ pair<map<index2d, vector<float> >, map<index2d,vector<float> > > CMBTR::getK2Map
 
         // Initialize the maps
         map<index2d, vector<float> > geomMap;
-        map<index2d, vector<float> > distMap;
+        map<index2d, vector<float> > weightMap;
 
         // Calculate all geometry values
         map<index2d, float> geomValues;
@@ -388,7 +394,7 @@ pair<map<index2d, vector<float> >, map<index2d,vector<float> > > CMBTR::getK2Map
             int j = index.j;
 
             float geomValue = geomValues[index];
-            float distValue = weightValues[index];
+            float weightValue = weightValues[index];
 
             // Get the index of the present elements in the final vector
             int i_elem = this->atomicNumbers[i];
@@ -406,10 +412,10 @@ pair<map<index2d, vector<float> >, map<index2d,vector<float> > > CMBTR::getK2Map
 
             // Save the values
             geomMap[indexKey].push_back(geomValue);
-            distMap[indexKey].push_back(distValue);
+            weightMap[indexKey].push_back(weightValue);
         }
 
-        this->k2Map = make_pair(geomMap, distMap);
+        this->k2Map = make_pair(geomMap, weightMap);
         this->k2MapInitialized = true;
     }
     return this->k2Map;
@@ -424,7 +430,7 @@ pair<map<index3d, vector<float> >, map<index3d,vector<float> > > CMBTR::getK3Map
 
         // Initialize the maps
         map<index3d, vector<float> > geomMap;
-        map<index3d, vector<float> > distMap;
+        map<index3d, vector<float> > weightMap;
 
         //vector<vector<float> > distMatrix = this->getDistanceMatrix();
         //vector<vector<vector<float> > > dispTensor = this->getDisplacementTensor();
@@ -456,7 +462,7 @@ pair<map<index3d, vector<float> >, map<index3d,vector<float> > > CMBTR::getK3Map
             int k = index.k;
 
             float geomValue = geomValues[index];
-            float distValue = weightValues[index];
+            float weightValue = weightValues[index];
 
             // Get the index of the present elements in the final vector
             int i_elem = this->atomicNumbers[i];
@@ -476,13 +482,32 @@ pair<map<index3d, vector<float> >, map<index3d,vector<float> > > CMBTR::getK3Map
 
             // Save the values
             geomMap[indexKey].push_back(geomValue);
-            distMap[indexKey].push_back(distValue);
+            weightMap[indexKey].push_back(weightValue);
         }
 
-        this->k3Map = make_pair(geomMap, distMap);
+        this->k3Map = make_pair(geomMap, weightMap);
         this->k3MapInitialized = true;
     }
     return this->k3Map;
+}
+
+pair<map<string,vector<float> >, map<string,vector<float> > > CMBTR::getK1MapCython(string geomFunc, string weightFunc, map<string, float> parameters)
+{
+    pair<map<index1d,vector<float> >, map<index1d,vector<float> > > cMap = this->getK1Map(geomFunc, weightFunc, parameters);
+    map<index1d, vector<float> > geomValues = cMap.first;
+    map<index1d, vector<float> > distValues = cMap.second;
+
+    map<string, vector<float> > cythonGeom;
+    map<string, vector<float> > cythonDist;
+
+    for (auto const& x : geomValues) {
+        stringstream ss;
+        ss << x.first.i;
+        string stringKey = ss.str();
+        cythonGeom[stringKey] = x.second;
+        cythonDist[stringKey] = distValues[x.first];
+    }
+    return make_pair(cythonGeom, cythonDist);
 }
 
 pair<map<string,vector<float> >, map<string,vector<float> > > CMBTR::getK2MapCython(string geomFunc, string weightFunc, map<string, float> parameters)

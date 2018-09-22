@@ -147,7 +147,8 @@ class MBTR(Descriptor):
         self.update()
         # initializing .create() level variables
         self.n_atoms_in_cell = None
-        self._counts = None
+        self._k1_geoms = None
+        self._k1_weights = None
         self._k2_geoms = None
         self._k2_weights = None
         self._k3_geoms = None
@@ -352,7 +353,8 @@ class MBTR(Descriptor):
         # Ensuring variables are re-initialized when a new system is introduced
         self.n_atoms_in_cell = None
         self.system = system
-        self._counts = None
+        self._k1_geoms = None
+        self._k1_weights = None
         self._k2_geoms = None
         self._k2_weights = None
         self._k3_geoms = None
@@ -378,8 +380,7 @@ class MBTR(Descriptor):
             self.present_indices.add(index)
 
         if 1 in self.k:
-
-            self.elements(system)
+            self.k1_geoms_and_weights(system)
         if 2 in self.k:
             # If needed, create the extended system
             system_k2 = system
@@ -620,7 +621,7 @@ class MBTR(Descriptor):
         return pdf
 
     @chronic.time
-    def elements(self, system):
+    def k1_geoms_and_weights(self, system):
         """Calculate the atom count for each element.
 
         Args:
@@ -630,16 +631,34 @@ class MBTR(Descriptor):
             1D ndarray: The counts for each element in a list where the index
             of atomic number x is self.atomic_number_to_index[x]
         """
-        if self._counts is None:
-            numbers = system.numbers
-            unique, counts = np.unique(numbers, return_counts=True)
-            counts_reindexed = np.zeros(self.n_elements)
-            for atomic_number, count in zip(unique, counts):
-                index = self.atomic_number_to_index[atomic_number]
-                counts_reindexed[index] = count
+        if self._k1_geoms is None or self._k1_weights is None:
 
-            self._counts = counts_reindexed
-        return self._counts
+            cmbtr = CMBTRWrapper(
+                system.get_positions(),
+                system.get_atomic_numbers(),
+                self.atomic_number_to_index,
+                self.n_atoms_in_cell
+            )
+
+            # For k=1, the geometry function is given by the atomic number, and
+            # the weighting function is unity by default.
+            parameters = {}
+            self._k1_geoms, self._k1_weights = cmbtr.get_k1_map(geom_func=b"atomic_number", weight_func="unity", parameters=parameters)
+        return self._k1_geoms, self._k1_weights
+
+            # k1_geoms = {}
+            # k1_weights = {}
+
+            # numbers = system.numbers
+            # unique, counts = np.unique(numbers, return_counts=True)
+            # for atomic_number, count in zip(unique, counts):
+                # index = self.atomic_number_to_index[atomic_number]
+                # k1_geoms[index] = atomic_number
+                # k1_weights[index] = count
+
+            # self._k1_geoms = k1_geoms
+            # self._k1_weights = k1_weights
+        # return self._k1_geoms, self._k1_weights
 
     @chronic.time
     def k2_geoms_and_weights(self, system):
@@ -742,12 +761,17 @@ class MBTR(Descriptor):
         else:
             k1 = np.zeros((n_elem, n), dtype=np.float32)
 
-        counts = self._counts
+        # counts = self._counts
+        k1_geoms, k1_weights = self._k1_geoms, self._k1_weights
 
-        for i in range(n_elem):
-            atomic_number = np.array([self.index_to_atomic_number[i]])
-            count = np.array([counts[i]])
-            gaussian_sum = self.gaussian_sum(atomic_number, count, settings)
+        for m, key in enumerate(sorted(k1_geoms.keys())):
+            i = key
+
+            geoms = np.array([k1_geoms[key]])
+            weights = np.array([k1_weights[key]])
+
+            # Broaden with a gaussian
+            gaussian_sum = self.gaussian_sum(geoms, weights, settings)
 
             if self.flatten:
                 start = i*n

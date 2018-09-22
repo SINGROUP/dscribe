@@ -4,6 +4,22 @@
 using namespace std;
 
 /**
+ * Represents a single integer index: i.
+ */
+struct index1d {
+    int i;
+
+    // These comparison operators are needed in order to use this struct as map
+    // key
+    bool operator==(const index1d &o) const {
+        return (i == o.i);
+    }
+    bool operator<(const index1d &o) const {
+        return i < o.i;
+    }
+};
+
+/**
  * Represents a combination of two integer indices: i and j.
  */
 struct index2d {
@@ -63,6 +79,14 @@ class CMBTR {
         CMBTR(vector<vector<float> > positions, vector<int> atomicNumbers, map<int,int> atomicNumberToIndexMap, int cellLimit);
 
         /**
+         * Returns a list of 1D indices for the atom combinations that need to
+         * be calculated for the k=1 term.
+         *
+         * @return A list of 1D indices.
+         */
+        vector<index1d> getk1Indices();
+
+        /**
          * Returns a list of 2D indices for the atom combinations that need to
          * be calculated for the k=2 term.
          *
@@ -77,6 +101,14 @@ class CMBTR {
          * @return A list of 3D indices for k3.
          */
         vector<index3d> getk3Indices();
+
+        /**
+         * Weighting of 1 for all indices. Usually used for finite small
+         * systems.
+         *
+         * @return
+         */
+        map<index1d, float> k1WeightUnity(const vector<index1d> &indexList);
 
         /**
          * Weighting of 1 for all indices. Usually used for finite small
@@ -117,6 +149,14 @@ class CMBTR {
         map<index3d, float> k3WeightExponential(const vector<index3d> &indexList, float scale, float cutoff);
 
         /**
+         * Calculates the geometry function based on atomic numbers defined for
+         * k=1.
+         *
+         * @return A map of atomic numbers for the given indices.
+         */
+        map<index1d, float> k1GeomAtomicNumber(const vector<index1d> &indexList);
+
+        /**
          * Calculates the inverse distance geometry function defined for k=2.
          *
          * @return A map of inverse distance values for the given atomic pairs.
@@ -149,23 +189,13 @@ class CMBTR {
         vector<vector<float> > getDistanceMatrix();
 
         /**
-         * Calculates a 2D matrix of inverse distances between atomic
-         * positions.
+         * Calculates a list of values for the k=1 geometry functions and the
+         * corresponding weights for each pair of atomic numbers.
          *
-         * @return A 2D matrix of inverse distances. First index is the
-         * index of ith atom, second index is the index of jth atom.
+         * @return A pair of maps for the geometry- and weighting function
+         * values for each pair of atomic elements.
          */
-        //vector<vector<float> > getInverseDistanceMatrix();
-
-        /**
-         * Calculates a mapping of inverse distances between two different
-         * atomic elements.
-         *
-         * @return A map where the key is a pair of atomic numbers and the
-         * value is a list of inverse distances corresponding to pairs of atoms
-         * with the given atomic numbers.
-         */
-        //map<pair<int,int>, vector<float> > getInverseDistanceMap();
+        pair<map<index1d,vector<float> >, map<index1d,vector<float> > > getK1Map(string geomFunc, string weightFunc, map<string, float> parameters=map<string, float>());
 
         /**
          * Calculates a list of values for the k=2 geometry functions and the
@@ -187,15 +217,27 @@ class CMBTR {
 
         /**
          * A convenience function that provides a Cython-compatible interface
+         * to the getK1Map-function. Cython cannot handle custom map keys, so a
+         * string key is provided by this function. The key is formed by
+         * casting the atomic index to a string.
+         */
+        pair<map<string,vector<float> >, map<string,vector<float> > > getK1MapCython(string geomFunc, string weightFunc, map<string, float> parameters=map<string, float>());
+
+        /**
+         * A convenience function that provides a Cython-compatible interface
          * to the getK2Map-function. Cython cannot handle custom map keys, so a
-         * string key is provided by this function.
+         * string key is provided by this function. The key is formed by
+         * casting the atomic indices to strings and concatenating them with
+         * comma as a separator.
          */
         pair<map<string,vector<float> >, map<string,vector<float> > > getK2MapCython(string geomFunc, string weightFunc, map<string, float> parameters=map<string, float>());
 
         /**
          * A convenience function that provides a Cython-compatible interface
          * to the getK3Map-function. Cython cannot handle custom map keys, so a
-         * string key is provided by this function.
+         * string key is provided by this function. The key is formed by
+         * casting the atomic indices to strings and concatenating them with
+         * comma as a separator.
          */
         pair<map<string,vector<float> >, map<string,vector<float> > > getK3MapCython(string geomFunc, string weightFunc, map<string, float> parameters=map<string, float>());
 
@@ -206,10 +248,14 @@ class CMBTR {
         int cellLimit;
         vector<vector<vector<float> > > displacementTensor;
         bool displacementTensorInitialized;
+        vector<index1d> k1Indices;
+        bool k1IndicesInitialized;
         vector<index2d> k2Indices;
         bool k2IndicesInitialized;
         vector<index3d> k3Indices;
         bool k3IndicesInitialized;
+        pair<map<index1d, vector<float> >, map<index1d, vector<float> > > k1Map;
+        bool k1MapInitialized;
         pair<map<index2d, vector<float> >, map<index2d, vector<float> > > k2Map;
         bool k2MapInitialized;
         pair<map<index3d, vector<float> >, map<index3d, vector<float> > > k3Map;

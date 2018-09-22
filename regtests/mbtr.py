@@ -243,19 +243,20 @@ class MBTRTests(unittest.TestCase):
         # feat = desc.create(system)
         # self.assertEqual(feat.shape, (1, n_species*n))
 
-    # def test_counts(self):
-        # mbtr = MBTR([1, 8], k=[1], periodic=False)
-        # mbtr.create(H2O)
-        # counts = mbtr._counts
+    def test_counts(self):
+        mbtr = MBTR([1, 8], k=[1], periodic=False)
+        mbtr.create(H2O)
+        counts = mbtr._k1_weights
+        print(counts)
 
-        # # Test against the assumed values
-        # self.assertTrue(np.array_equal(counts, np.array([2, 1])))
+        # Test against the assumed values
+        self.assertTrue(np.array_equal(counts, np.array([2, 1])))
 
-        # # Test against system with different indexing
-        # mbtr = MBTR([1, 8], k=[1], periodic=False)
-        # mbtr.create(H2O_2)
-        # counts2 = mbtr._counts
-        # self.assertTrue(np.array_equal(counts, counts2))
+        # Test against system with different indexing
+        mbtr = MBTR([1, 8], k=[1], periodic=False)
+        mbtr.create(H2O_2)
+        counts2 = mbtr._k1_weights
+        self.assertTrue(np.array_equal(counts, counts2))
 
     def test_inverse_distances(self):
         mbtr = MBTR([1, 8], k=[2], periodic=False)
