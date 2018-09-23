@@ -241,6 +241,17 @@ map<index3d, float> CMBTR::k3GeomCosine(const vector<index3d> &indexList)
     return valueMap;
 }
 
+map<index1d, float> CMBTR::k1WeightUnity(const vector<index1d> &indexList)
+{
+    map<index1d, float> valueMap;
+
+    for (const index1d& index : indexList) {
+        valueMap[index] = 1;
+    }
+
+    return valueMap;
+}
+
 map<index2d, float> CMBTR::k2WeightUnity(const vector<index2d> &indexList)
 {
     map<index2d, float> valueMap;
@@ -432,9 +443,6 @@ pair<map<index3d, vector<float> >, map<index3d,vector<float> > > CMBTR::getK3Map
         map<index3d, vector<float> > geomMap;
         map<index3d, vector<float> > weightMap;
 
-        //vector<vector<float> > distMatrix = this->getDistanceMatrix();
-        //vector<vector<vector<float> > > dispTensor = this->getDisplacementTensor();
-
         // Calculate all geometry values
         map<index3d, float> geomValues;
         if (geomFunc == "cosine") {
@@ -495,29 +503,29 @@ pair<map<string,vector<float> >, map<string,vector<float> > > CMBTR::getK1MapCyt
 {
     pair<map<index1d,vector<float> >, map<index1d,vector<float> > > cMap = this->getK1Map(geomFunc, weightFunc, parameters);
     map<index1d, vector<float> > geomValues = cMap.first;
-    map<index1d, vector<float> > distValues = cMap.second;
+    map<index1d, vector<float> > weightValues = cMap.second;
 
     map<string, vector<float> > cythonGeom;
-    map<string, vector<float> > cythonDist;
+    map<string, vector<float> > cythonWeight;
 
     for (auto const& x : geomValues) {
         stringstream ss;
         ss << x.first.i;
         string stringKey = ss.str();
         cythonGeom[stringKey] = x.second;
-        cythonDist[stringKey] = distValues[x.first];
+        cythonWeight[stringKey] = weightValues[x.first];
     }
-    return make_pair(cythonGeom, cythonDist);
+    return make_pair(cythonGeom, cythonWeight);
 }
 
 pair<map<string,vector<float> >, map<string,vector<float> > > CMBTR::getK2MapCython(string geomFunc, string weightFunc, map<string, float> parameters)
 {
     pair<map<index2d,vector<float> >, map<index2d,vector<float> > > cMap = this->getK2Map(geomFunc, weightFunc, parameters);
     map<index2d, vector<float> > geomValues = cMap.first;
-    map<index2d, vector<float> > distValues = cMap.second;
+    map<index2d, vector<float> > weightValues = cMap.second;
 
     map<string, vector<float> > cythonGeom;
-    map<string, vector<float> > cythonDist;
+    map<string, vector<float> > cythonWeight;
 
     for (auto const& x : geomValues) {
         stringstream ss;
@@ -526,19 +534,19 @@ pair<map<string,vector<float> >, map<string,vector<float> > > CMBTR::getK2MapCyt
         ss << x.first.j;
         string stringKey = ss.str();
         cythonGeom[stringKey] = x.second;
-        cythonDist[stringKey] = distValues[x.first];
+        cythonWeight[stringKey] = weightValues[x.first];
     }
-    return make_pair(cythonGeom, cythonDist);
+    return make_pair(cythonGeom, cythonWeight);
 }
 
 pair<map<string,vector<float> >, map<string,vector<float> > > CMBTR::getK3MapCython(string geomFunc, string weightFunc, map<string, float> parameters)
 {
     pair<map<index3d,vector<float> >, map<index3d,vector<float> > > cMap = this->getK3Map(geomFunc, weightFunc, parameters);
     map<index3d, vector<float> > geomValues = cMap.first;
-    map<index3d, vector<float> > distValues = cMap.second;
+    map<index3d, vector<float> > weightValues = cMap.second;
 
     map<string, vector<float> > cythonGeom;
-    map<string, vector<float> > cythonDist;
+    map<string, vector<float> > cythonWeight;
 
     for (auto const& x : geomValues) {
         stringstream ss;
@@ -549,7 +557,7 @@ pair<map<string,vector<float> >, map<string,vector<float> > > CMBTR::getK3MapCyt
         ss << x.first.k;
         string stringKey = ss.str();
         cythonGeom[stringKey] = x.second;
-        cythonDist[stringKey] = distValues[x.first];
+        cythonWeight[stringKey] = weightValues[x.first];
     }
-    return make_pair(cythonGeom, cythonDist);
+    return make_pair(cythonGeom, cythonWeight);
 }

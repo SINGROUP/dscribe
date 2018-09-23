@@ -643,7 +643,7 @@ class MBTR(Descriptor):
             # For k=1, the geometry function is given by the atomic number, and
             # the weighting function is unity by default.
             parameters = {}
-            self._k1_geoms, self._k1_weights = cmbtr.get_k1_map(geom_func=b"atomic_number", weight_func="unity", parameters=parameters)
+            self._k1_geoms, self._k1_weights = cmbtr.get_k1_map(geom_func=b"atomic_number", weight_func=b"unity", parameters=parameters)
         return self._k1_geoms, self._k1_weights
 
             # k1_geoms = {}
@@ -754,6 +754,7 @@ class MBTR(Descriptor):
         self._axis_k1 = np.linspace(start, stop, n)
 
         n_elem = self.n_elements
+        k1_geoms, k1_weights = self._k1_geoms, self._k1_weights
 
         # Depending of flattening, use either a sparse matrix or a dense one.
         if self.flatten:
@@ -761,14 +762,11 @@ class MBTR(Descriptor):
         else:
             k1 = np.zeros((n_elem, n), dtype=np.float32)
 
-        # counts = self._counts
-        k1_geoms, k1_weights = self._k1_geoms, self._k1_weights
-
         for m, key in enumerate(sorted(k1_geoms.keys())):
-            i = key
+            i = key[0]
 
-            geoms = np.array([k1_geoms[key]])
-            weights = np.array([k1_weights[key]])
+            geoms = np.array(k1_geoms[key])
+            weights = np.array(k1_weights[key])
 
             # Broaden with a gaussian
             gaussian_sum = self.gaussian_sum(geoms, weights, settings)

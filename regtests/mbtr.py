@@ -246,17 +246,28 @@ class MBTRTests(unittest.TestCase):
     def test_counts(self):
         mbtr = MBTR([1, 8], k=[1], periodic=False)
         mbtr.create(H2O)
-        counts = mbtr._k1_weights
-        print(counts)
+        weights = mbtr._k1_weights
+        geoms = mbtr._k1_geoms
 
         # Test against the assumed values
-        self.assertTrue(np.array_equal(counts, np.array([2, 1])))
+        assumed_weights = {
+            (0,): [1, 1],
+            (1,): [1]
+        }
+        self.dict_comparison(weights, assumed_weights)
+        assumed_geoms = {
+            (0,): [1, 1],
+            (1,): [8]
+        }
+        self.dict_comparison(geoms, assumed_geoms)
 
         # Test against system with different indexing
         mbtr = MBTR([1, 8], k=[1], periodic=False)
         mbtr.create(H2O_2)
-        counts2 = mbtr._k1_weights
-        self.assertTrue(np.array_equal(counts, counts2))
+        weights2 = mbtr._k1_weights
+        geoms2 = mbtr._k1_geoms
+        self.dict_comparison(weights, weights2)
+        self.dict_comparison(geoms, geoms2)
 
     def test_inverse_distances(self):
         mbtr = MBTR([1, 8], k=[2], periodic=False)
@@ -343,7 +354,7 @@ class MBTRTests(unittest.TestCase):
             (0, 1, 0): 1*[math.cos(104/180*math.pi)],
             (0, 0, 1): 2*[math.cos(38/180*math.pi)],
         }
-        self.angle_comparison(angles, assumed, len(H2O))
+        self.dict_comparison(angles, assumed, len(H2O))
 
         # Test with four atoms in a "dart"-like arrangement. This arrangement
         # has both concave and convex angles.
@@ -372,7 +383,7 @@ class MBTRTests(unittest.TestCase):
             (0, 0, 0): [math.cos(90/180*math.pi), math.cos(45/180*math.pi), math.cos(45/180*math.pi)],
             (0, 0, 1): [math.cos(45/180*math.pi), math.cos(30/180*math.pi), math.cos(45/180*math.pi), math.cos(30/180*math.pi), math.cos(15/180*math.pi), math.cos(15/180*math.pi)]
         }
-        self.angle_comparison(angles, assumed, len(atoms))
+        self.dict_comparison(angles, assumed, len(atoms))
 
     # def test_angles_periodic(self):
         # """Tests that all the correct angles are present in periodic systems.
@@ -384,7 +395,7 @@ class MBTRTests(unittest.TestCase):
         # atoms.center()
         # view(atoms)
 
-    def angle_comparison(self, first, second, n_atoms):
+    def dict_comparison(self, first, second, n_atoms):
         """Used to compare two dictionaries containing angles.
         """
         n_first = len(first)
