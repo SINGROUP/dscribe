@@ -243,18 +243,23 @@ class MBTRTests(unittest.TestCase):
         # feat = desc.create(system)
         # self.assertEqual(feat.shape, (1, n_species*n))
 
-    def test_counts(self):
+    def test_k1_weights_and_geoms_finite(self):
+        """Tests that the values of the weight and geometry functions are
+        correct for the k=1 term.
+        """
         mbtr = MBTR([1, 8], k=[1], periodic=False)
         mbtr.create(H2O)
         weights = mbtr._k1_weights
         geoms = mbtr._k1_geoms
 
-        # Test against the assumed values
+        # Test against the assumed weights
         assumed_weights = {
             (0,): [1, 1],
             (1,): [1]
         }
         self.dict_comparison(weights, assumed_weights)
+
+        # Test against the assumed geometry values
         assumed_geoms = {
             (0,): [1, 1],
             (1,): [8]
@@ -269,34 +274,43 @@ class MBTRTests(unittest.TestCase):
         self.dict_comparison(weights, weights2)
         self.dict_comparison(geoms, geoms2)
 
-    def test_inverse_distances(self):
+    def test_k2_weights_and_geoms_finite(self):
+        """Tests that the values of the weight and geometry functions are
+        correct for the k=2 term.
+        """
         mbtr = MBTR([1, 8], k=[2], periodic=False)
         mbtr.create(H2O)
-        inv_dist = mbtr._k2_geoms
+        weights = mbtr._k2_weights
+        geoms = mbtr._k2_geoms
 
-        # Test against the assumed values
+        # Test against the assumed weights
         pos = H2O.get_positions()
-        assumed = {
+        assumed_weights = {
+            (0, 0): [1],
+            (0, 1): [1, 1]
+        }
+        self.dict_comparison(weights, assumed_weights)
+
+        # Test against the assumed geometry values
+        pos = H2O.get_positions()
+        assumed_geoms = {
             (0, 0): [1/np.linalg.norm(pos[0] - pos[2])],
             (0, 1): 2*[1/np.linalg.norm(pos[0] - pos[1])]
         }
-        for key, item in inv_dist.items():
-            for i, j in zip(item, assumed[key]):
-                self.assertTrue(abs(i - j) < 1e-7)
+        self.dict_comparison(geoms, assumed_geoms)
 
         # Test against system with different indexing
         mbtr = MBTR([1, 8], k=[2], periodic=False)
         mbtr.create(H2O_2)
-        inv_dist_2 = mbtr._k2_geoms
+        weights2 = mbtr._k2_weights
+        geoms2 = mbtr._k2_geoms
+        self.dict_comparison(geoms, geoms2)
+        self.dict_comparison(weights, weights2)
 
-        for key, item in inv_dist_2.items():
-            for i, j in zip(item, assumed[key]):
-                self.assertTrue(abs(i - j) < 1e-7)
-
-    # def test_cosines(self):
+    # def test_k3_weights_and_geoms_finite(self):
         # mbtr = MBTR([1, 8], k=[3], periodic=False)
         # desc = mbtr.create(H2O)
-        # angles = mbtr._angles
+        # geoms = mbtr._k3_geoms
 
         # y = desc.todense().T
         # mpl.plot(y)
@@ -340,7 +354,7 @@ class MBTRTests(unittest.TestCase):
         # angles2 = mbtr._angles
         # self.assertEqual(angles, angles2)
 
-    def test_angles_finite(self):
+    def test_k3_weights_and_geoms_finite(self):
         """Tests that all the correct angles are present in finite systems.
         There should be n*(n-1)*(n-2)/2 unique angles where the division by two
         gets rid of duplicate angles.
@@ -348,16 +362,33 @@ class MBTRTests(unittest.TestCase):
         # Test with water molecule
         mbtr = MBTR([1, 8], k=[3], periodic=False)
         mbtr.create(H2O)
-        angles = mbtr._k3_geoms
+        geoms = mbtr._k3_geoms
+        weights = mbtr._k3_weights
 
-        assumed = {
+        assumed_geoms = {
             (0, 1, 0): 1*[math.cos(104/180*math.pi)],
             (0, 0, 1): 2*[math.cos(38/180*math.pi)],
         }
-        self.dict_comparison(angles, assumed, len(H2O))
+        self.dict_comparison(geoms, assumed_geoms)
 
-        # Test with four atoms in a "dart"-like arrangement. This arrangement
-        # has both concave and convex angles.
+        assumed_weights = {
+            (0, 1, 0): [1],
+            (0, 0, 1): [1, 1],
+        }
+        self.dict_comparison(weights, assumed_weights)
+
+        # Test against system with different indexing
+        mbtr = MBTR([1, 8], k=[3], periodic=False)
+        mbtr.create(H2O_2)
+        weights2 = mbtr._k3_weights
+        geoms2 = mbtr._k3_geoms
+        self.assertEqual(weights, weights2)
+        self.assertEqual(geoms, geoms2)
+
+    def test_k3_geoms_concave(self):
+        """Test with four atoms in a "dart"-like arrangement. This arrangement
+        has both concave and convex angles.
+        """
         atoms = Atoms(
             positions=[
                 [0, 0, 0],
@@ -383,7 +414,7 @@ class MBTRTests(unittest.TestCase):
             (0, 0, 0): [math.cos(90/180*math.pi), math.cos(45/180*math.pi), math.cos(45/180*math.pi)],
             (0, 0, 1): [math.cos(45/180*math.pi), math.cos(30/180*math.pi), math.cos(45/180*math.pi), math.cos(30/180*math.pi), math.cos(15/180*math.pi), math.cos(15/180*math.pi)]
         }
-        self.dict_comparison(angles, assumed, len(atoms))
+        self.dict_comparison(angles, assumed)
 
     # def test_angles_periodic(self):
         # """Tests that all the correct angles are present in periodic systems.
@@ -395,8 +426,8 @@ class MBTRTests(unittest.TestCase):
         # atoms.center()
         # view(atoms)
 
-    def dict_comparison(self, first, second, n_atoms):
-        """Used to compare two dictionaries containing angles.
+    def dict_comparison(self, first, second):
+        """Used to compare values in two dictionaries.
         """
         n_first = len(first)
         n_second = len(second)
@@ -406,32 +437,23 @@ class MBTRTests(unittest.TestCase):
                 "The dictionaries do not have the same number of elements."
             )
 
-        for i in range(n_atoms):
-            for j in range(n_atoms):
-                for k in range(2):
-                    try:
-                        assumed_elem = second[(i, j, k)]
-                    except KeyError:
-                        assumed_elem = None
-                    try:
-                        true_elem = first[(i, j, k)]
-                    except KeyError:
-                        true_elem = None
+        first_keys = set(first.keys())
+        second_keys = set(second.keys())
+        if first_keys != second_keys:
+            raise ValueError(
+                "The dictionaries do not have the same keys."
+            )
 
-                    if assumed_elem is None and true_elem is None:
-                        pass
-                    elif assumed_elem is not None and true_elem is not None:
-                        self.assertEqual(len(assumed_elem), len(true_elem))
+        for key in first_keys:
+            assumed_elem = second[key]
+            true_elem = first[key]
 
-                        # Sort the lists first to perform comparison
-                        assumed_elem.sort()
-                        true_elem.sort()
-                        for i_elem, val_assumed in enumerate(assumed_elem):
-                            val_true = true_elem[i_elem]
-                            self.assertAlmostEqual(val_assumed, val_true, places=6)
-                    else:
-                        angle = true_elem if assumed_elem is None else assumed_elem
-                        raise self.fail("The angles {} is not present".format(angle))
+            # Sort the lists first to perform comparison
+            assumed_elem.sort()
+            true_elem.sort()
+            for i_elem, val_assumed in enumerate(assumed_elem):
+                val_true = true_elem[i_elem]
+                self.assertAlmostEqual(val_assumed, val_true, places=6)
 
     # def test_gaussian_distribution(self):
         # """Check that the broadening follows gaussian distribution.
