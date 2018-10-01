@@ -4,6 +4,8 @@ import math
 import numpy as np
 import chronic
 
+from ase.visualize import view
+
 from scipy.spatial.distance import cdist
 from scipy.sparse import lil_matrix, coo_matrix
 from scipy.special import erf
@@ -209,10 +211,9 @@ class MBTR(Descriptor):
             for k in self.k:
                 if k > 1:
                     error = ValueError(
-                        "Periodic systems will need to have monotonically "
-                        "decreasing weighting function " "defined in the "
-                        "'weighting' dictionary of the MBTR " "constructor "
-                        "when requesting k > 1"
+                        "Periodic systems will need to have a weighting "
+                        "function defined in the 'weighting' dictionary of "
+                        "the MBTR constructor when requesting k > 1"
                     )
                     if self.weighting is None:
                         raise error
@@ -643,22 +644,8 @@ class MBTR(Descriptor):
             # For k=1, the geometry function is given by the atomic number, and
             # the weighting function is unity by default.
             parameters = {}
-            self._k1_geoms, self._k1_weights = cmbtr.get_k1_map(geom_func=b"atomic_number", weight_func=b"unity", parameters=parameters)
+            self._k1_geoms, self._k1_weights = cmbtr.get_k1_geoms_and_weights(geom_func=b"atomic_number", weight_func=b"unity", parameters=parameters)
         return self._k1_geoms, self._k1_weights
-
-            # k1_geoms = {}
-            # k1_weights = {}
-
-            # numbers = system.numbers
-            # unique, counts = np.unique(numbers, return_counts=True)
-            # for atomic_number, count in zip(unique, counts):
-                # index = self.atomic_number_to_index[atomic_number]
-                # k1_geoms[index] = atomic_number
-                # k1_weights[index] = count
-
-            # self._k1_geoms = k1_geoms
-            # self._k1_weights = k1_weights
-        # return self._k1_geoms, self._k1_weights
 
     @chronic.time
     def k2_geoms_and_weights(self, system):
@@ -691,11 +678,15 @@ class MBTR(Descriptor):
             parameters = {}
             if weighting_function == "exponential":
                 parameters = {
-                    "scale": weight_info["scale"],
-                    "cutoff": weight_info["cutoff"]
+                    b"scale": weight_info["scale"],
+                    b"cutoff": weight_info["cutoff"]
                 }
 
-            self._k2_geoms, self._k2_weights = cmbtr.get_k2_map(geom_func=b"inverse_distance", weight_func=weighting_function.encode(), parameters=parameters)
+            self._k2_geoms, self._k2_weights = cmbtr.get_k2_geoms_and_weights(
+                geom_func=b"inverse_distance",
+                weight_func=weighting_function.encode(),
+                parameters=parameters
+            )
         return self._k2_geoms, self._k2_weights
 
     @chronic.time
@@ -730,11 +721,11 @@ class MBTR(Descriptor):
             parameters = {}
             if weighting_function == "exponential":
                 parameters = {
-                    "scale": weight_info["scale"],
-                    "cutoff": weight_info["cutoff"]
+                    b"scale": weight_info["scale"],
+                    b"cutoff": weight_info["cutoff"]
                 }
 
-            self._k3_geoms, self._k3_weights = cmbtr.get_k3_map(geom_func=b"cosine", weight_func=weighting_function.encode(), parameters=parameters)
+            self._k3_geoms, self._k3_weights = cmbtr.get_k3_geoms_and_weights(geom_func=b"cosine", weight_func=weighting_function.encode(), parameters=parameters)
         return self._k3_geoms, self._k3_weights
 
     def K1(self, settings):

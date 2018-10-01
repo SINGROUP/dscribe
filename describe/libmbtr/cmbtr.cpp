@@ -285,7 +285,7 @@ map<index2d, float> CMBTR::k2WeightExponential(const vector<index2d> &indexList,
 
         float dist = distMatrix[i][j];
         float expValue = exp(-scale*dist);
-        if (expValue <= cutoff) {
+        if (expValue >= cutoff) {
             valueMap[index] = expValue;
         }
     }
@@ -308,7 +308,7 @@ map<index3d, float> CMBTR::k3WeightExponential(const vector<index3d> &indexList,
         float dist3 = distMatrix[k][i];
         float distTotal = dist1 + dist2 + dist3;
         float expValue = exp(-scale*distTotal);
-        if (expValue <= cutoff) {
+        if (expValue >= cutoff) {
             valueMap[index] = expValue;
         }
     }
@@ -316,7 +316,7 @@ map<index3d, float> CMBTR::k3WeightExponential(const vector<index3d> &indexList,
     return valueMap;
 }
 
-pair<map<index1d, vector<float> >, map<index1d,vector<float> > > CMBTR::getK1Map(string geomFunc, string weightFunc, map<string, float> parameters)
+pair<map<index1d, vector<float> >, map<index1d,vector<float> > > CMBTR::getK1GeomsAndWeights(string geomFunc, string weightFunc, map<string, float> parameters)
 {
     // Use cached value if possible
     if (!this->k1IndicesInitialized) {
@@ -347,6 +347,13 @@ pair<map<index1d, vector<float> >, map<index1d,vector<float> > > CMBTR::getK1Map
         for (index1d& index : indexList) {
             int i = index.i;
 
+            // By default C++ map will return a default constructed float when
+            // if the key is not found with the []-operator. Instead we
+            // explicitly ask if the key is present.
+            if ( weightValues.find(index) == weightValues.end() ) {
+                continue;
+            }
+
             float geomValue = geomValues[index];
             float weightValue = weightValues[index];
 
@@ -368,7 +375,7 @@ pair<map<index1d, vector<float> >, map<index1d,vector<float> > > CMBTR::getK1Map
     return this->k1Map;
 }
 
-pair<map<index2d, vector<float> >, map<index2d,vector<float> > > CMBTR::getK2Map(string geomFunc, string weightFunc, map<string, float> parameters)
+pair<map<index2d, vector<float> >, map<index2d,vector<float> > > CMBTR::getK2GeomsAndWeights(string geomFunc, string weightFunc, map<string, float> parameters)
 {
     // Use cached value if possible
     if (!this->k2IndicesInitialized) {
@@ -404,8 +411,26 @@ pair<map<index2d, vector<float> >, map<index2d,vector<float> > > CMBTR::getK2Map
             int i = index.i;
             int j = index.j;
 
+            // By default C++ map will return a default constructed float when
+            // if the key is not found with the []-operator. Instead we
+            // explicitly ask if the key is present.
+            if ( weightValues.find(index) == weightValues.end() ) {
+                continue;
+            }
+
             float geomValue = geomValues[index];
             float weightValue = weightValues[index];
+
+            // When the pair of atoms are in different copies of the cell, the
+            // weight is halved. This is done in order to avoid double counting
+            // the same distance in the opposite direction. This correction
+            // makes periodic cells with different translations equal and also
+            // supercells equal to the primitive cell within a constant that is
+            // given by the number of repetitions of the primitive cell in the
+            // supercell.
+            if (!((i < this->cellLimit) && (j < this->cellLimit))) {
+                weightValue /= 2;
+            }
 
             // Get the index of the present elements in the final vector
             int i_elem = this->atomicNumbers[i];
@@ -432,7 +457,7 @@ pair<map<index2d, vector<float> >, map<index2d,vector<float> > > CMBTR::getK2Map
     return this->k2Map;
 }
 
-pair<map<index3d, vector<float> >, map<index3d,vector<float> > > CMBTR::getK3Map(string geomFunc, string weightFunc, map<string, float> parameters)
+pair<map<index3d, vector<float> >, map<index3d,vector<float> > > CMBTR::getK3GeomsAndWeights(string geomFunc, string weightFunc, map<string, float> parameters)
 {
     // Use cached value if possible
     if (!this->k3IndicesInitialized) {
@@ -469,8 +494,26 @@ pair<map<index3d, vector<float> >, map<index3d,vector<float> > > CMBTR::getK3Map
             int j = index.j;
             int k = index.k;
 
+            // By default C++ map will return a default constructed float when
+            // if the key is not found with the []-operator. Instead we
+            // explicitly ask if the key is present.
+            if ( weightValues.find(index) == weightValues.end() ) {
+                continue;
+            }
+
             float geomValue = geomValues[index];
             float weightValue = weightValues[index];
+
+            // When at leas one of the atoms is in a different copy of the cell, the
+            // weight is halved. This is done in order to avoid double counting
+            // the same distance in the opposite direction. This correction
+            // makes periodic cells with different translations equal and also
+            // supercells equal to the primitive cell within a constant that is
+            // given by the number of repetitions of the primitive cell in the
+            // supercell.
+            if (!((i < this->cellLimit) && (j < this->cellLimit) && (k < this->cellLimit))) {
+                weightValue /= 2;
+            }
 
             // Get the index of the present elements in the final vector
             int i_elem = this->atomicNumbers[i];
@@ -499,9 +542,9 @@ pair<map<index3d, vector<float> >, map<index3d,vector<float> > > CMBTR::getK3Map
     return this->k3Map;
 }
 
-pair<map<string,vector<float> >, map<string,vector<float> > > CMBTR::getK1MapCython(string geomFunc, string weightFunc, map<string, float> parameters)
+pair<map<string,vector<float> >, map<string,vector<float> > > CMBTR::getK1GeomsAndWeightsCython(string geomFunc, string weightFunc, map<string, float> parameters)
 {
-    pair<map<index1d,vector<float> >, map<index1d,vector<float> > > cMap = this->getK1Map(geomFunc, weightFunc, parameters);
+    pair<map<index1d,vector<float> >, map<index1d,vector<float> > > cMap = this->getK1GeomsAndWeights(geomFunc, weightFunc, parameters);
     map<index1d, vector<float> > geomValues = cMap.first;
     map<index1d, vector<float> > weightValues = cMap.second;
 
@@ -518,9 +561,9 @@ pair<map<string,vector<float> >, map<string,vector<float> > > CMBTR::getK1MapCyt
     return make_pair(cythonGeom, cythonWeight);
 }
 
-pair<map<string,vector<float> >, map<string,vector<float> > > CMBTR::getK2MapCython(string geomFunc, string weightFunc, map<string, float> parameters)
+pair<map<string,vector<float> >, map<string,vector<float> > > CMBTR::getK2GeomsAndWeightsCython(string geomFunc, string weightFunc, map<string, float> parameters)
 {
-    pair<map<index2d,vector<float> >, map<index2d,vector<float> > > cMap = this->getK2Map(geomFunc, weightFunc, parameters);
+    pair<map<index2d,vector<float> >, map<index2d,vector<float> > > cMap = this->getK2GeomsAndWeights(geomFunc, weightFunc, parameters);
     map<index2d, vector<float> > geomValues = cMap.first;
     map<index2d, vector<float> > weightValues = cMap.second;
 
@@ -539,9 +582,9 @@ pair<map<string,vector<float> >, map<string,vector<float> > > CMBTR::getK2MapCyt
     return make_pair(cythonGeom, cythonWeight);
 }
 
-pair<map<string,vector<float> >, map<string,vector<float> > > CMBTR::getK3MapCython(string geomFunc, string weightFunc, map<string, float> parameters)
+pair<map<string,vector<float> >, map<string,vector<float> > > CMBTR::getK3GeomsAndWeightsCython(string geomFunc, string weightFunc, map<string, float> parameters)
 {
-    pair<map<index3d,vector<float> >, map<index3d,vector<float> > > cMap = this->getK3Map(geomFunc, weightFunc, parameters);
+    pair<map<index3d,vector<float> >, map<index3d,vector<float> > > cMap = this->getK3GeomsAndWeights(geomFunc, weightFunc, parameters);
     map<index3d, vector<float> > geomValues = cMap.first;
     map<index3d, vector<float> > weightValues = cMap.second;
 

@@ -195,7 +195,7 @@ class CMBTR {
          * @return A pair of maps for the geometry- and weighting function
          * values for each pair of atomic elements.
          */
-        pair<map<index1d,vector<float> >, map<index1d,vector<float> > > getK1Map(string geomFunc, string weightFunc, map<string, float> parameters=map<string, float>());
+        pair<map<index1d,vector<float> >, map<index1d,vector<float> > > getK1GeomsAndWeights(string geomFunc, string weightFunc, map<string, float> parameters=map<string, float>());
 
         /**
          * Calculates a list of values for the k=2 geometry functions and the
@@ -204,7 +204,7 @@ class CMBTR {
          * @return A pair of maps for the geometry- and weighting function
          * values for each pair of atomic elements.
          */
-        pair<map<index2d,vector<float> >, map<index2d,vector<float> > > getK2Map(string geomFunc, string weightFunc, map<string, float> parameters=map<string, float>());
+        pair<map<index2d,vector<float> >, map<index2d,vector<float> > > getK2GeomsAndWeights(string geomFunc, string weightFunc, map<string, float> parameters=map<string, float>());
 
         /**
          * Calculates a list of values for the k=3 geometry functions and the
@@ -213,33 +213,33 @@ class CMBTR {
          * @return A pair of maps for the geometry- and weighting function
          * values for each triplet of atomic elements.
          */
-        pair<map<index3d,vector<float> >, map<index3d,vector<float> > > getK3Map(string geomFunc, string weightFunc, map<string, float> parameters=map<string, float>());
+        pair<map<index3d,vector<float> >, map<index3d,vector<float> > > getK3GeomsAndWeights(string geomFunc, string weightFunc, map<string, float> parameters=map<string, float>());
 
         /**
          * A convenience function that provides a Cython-compatible interface
-         * to the getK1Map-function. Cython cannot handle custom map keys, so a
-         * string key is provided by this function. The key is formed by
-         * casting the atomic index to a string.
+         * to the getK1GeomsAndWeights-function. Cython cannot handle custom
+         * map keys, so a string key is provided by this function. The key is
+         * formed by casting the atomic index to a string.
          */
-        pair<map<string,vector<float> >, map<string,vector<float> > > getK1MapCython(string geomFunc, string weightFunc, map<string, float> parameters=map<string, float>());
+        pair<map<string,vector<float> >, map<string,vector<float> > > getK1GeomsAndWeightsCython(string geomFunc, string weightFunc, map<string, float> parameters=map<string, float>());
 
         /**
          * A convenience function that provides a Cython-compatible interface
-         * to the getK2Map-function. Cython cannot handle custom map keys, so a
-         * string key is provided by this function. The key is formed by
-         * casting the atomic indices to strings and concatenating them with
-         * comma as a separator.
+         * to the getK2GeomsAndWeights-function. Cython cannot handle custom
+         * map keys, so a string key is provided by this function. The key is
+         * formed by casting the atomic indices to strings and concatenating
+         * them with comma as a separator.
          */
-        pair<map<string,vector<float> >, map<string,vector<float> > > getK2MapCython(string geomFunc, string weightFunc, map<string, float> parameters=map<string, float>());
+        pair<map<string,vector<float> >, map<string,vector<float> > > getK2GeomsAndWeightsCython(string geomFunc, string weightFunc, map<string, float> parameters=map<string, float>());
 
         /**
          * A convenience function that provides a Cython-compatible interface
-         * to the getK3Map-function. Cython cannot handle custom map keys, so a
-         * string key is provided by this function. The key is formed by
-         * casting the atomic indices to strings and concatenating them with
-         * comma as a separator.
+         * to the getK3GeomsAndWeights-function. Cython cannot handle custom
+         * map keys, so a string key is provided by this function. The key is
+         * formed by casting the atomic indices to strings and concatenating
+         * them with comma as a separator.
          */
-        pair<map<string,vector<float> >, map<string,vector<float> > > getK3MapCython(string geomFunc, string weightFunc, map<string, float> parameters=map<string, float>());
+        pair<map<string,vector<float> >, map<string,vector<float> > > getK3GeomsAndWeightsCython(string geomFunc, string weightFunc, map<string, float> parameters=map<string, float>());
 
     private:
         vector<vector<float> > positions;
