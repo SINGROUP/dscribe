@@ -202,8 +202,9 @@ class MBTR(Descriptor):
                         value = weight_info.get(key)
                         if value is None:
                             raise ValueError(
-                                "Value for the attribute {} is needed for specifying "
-                                "the weighting function.".format(key)
+                                "Missing value for '{}' in the 'weighting' "
+                                "specification given in the MBTR constructor."
+                                .format(key)
                             )
 
         # Check that a weighting function is specified for each term k>1
