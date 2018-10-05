@@ -671,6 +671,7 @@ class MBTR(Descriptor):
             weighting_function = None
             if self.weighting is not None and self.weighting.get("k3") is not None:
                 weighting_function = self.weighting["k3"]["function"]
+                cutoff = self.weighting["k3"]["threshold"]
 
             # Here we go through all the 3-permutations of the atoms in the system
             permutations = itertools.permutations(indices, 3)
@@ -700,6 +701,8 @@ class MBTR(Descriptor):
                         dist2 = distance_matrix[j_atom, k_atom]
                         dist3 = distance_matrix[k_atom, i_atom]
                         weight = weighting_function(dist1 + dist2 + dist3)
+                        if weight < cutoff:
+                            continue
                     else:
                         weight = 1
 
