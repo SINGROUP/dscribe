@@ -59,8 +59,9 @@ class MBTR(Descriptor):
                 not the atomic numbers that are present for an individual
                 system, but should contain all the elements that are ever going
                 to be encountered when creating the descriptors for a set of
-                systems.  Keeping the number of handled elements as low as
-                possible is preferable.
+                systems. Keeping the number of handled elements as low as
+                possible is preferable, especially if a dense representation
+                (e.g. numpy array) is needed as an output.
             k (set or list): The interaction terms to consider from 1 to 3. The
                 size of the final output and the time taken in creating this
                 descriptor is exponentially dependent on this value.
@@ -140,7 +141,7 @@ class MBTR(Descriptor):
         super().__init__(flatten)
         self.system = None
         self.k = k
-        self.atomic_numbers = atomic_numbers
+        self.atomic_numbers = list(set(atomic_numbers))  # The given atomic numbers are first made into a set to remove duplicates, and then made into list for enabling ordering.
         self.grid = grid
         self.weighting = weighting
         self.periodic = periodic
