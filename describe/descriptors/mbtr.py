@@ -19,10 +19,22 @@ from describe.libmbtr.cmbtrwrapper import CMBTRWrapper
 class MBTR(Descriptor):
     """Implementation of the Many-body tensor representation up to k=3.
 
+    This implementation provides the following geometry functions:
+
+        -k=1: atomic number
+        -k=2: inverse distances
+        -k=3: cosines of angles
+
+    and the following weighting functions:
+
+        -k=1: unity(=no weighting)
+        -k=2: unity(=no weighting), exponential (:math:`e^-(sx)`)
+        -k=3: unity(=no weighting), exponential (:math:`e^-(sx)`)
+
     You can use this descriptor for finite and periodic systems. When dealing
     with periodic systems, it is advisable to use a primitive cell, or if
-    supercells are included to use normalization e.g. by volume provided by the
-    "normalize" flag.
+    supercells are included to use normalization e.g. by volume or by the norm
+    of the final vector.
 
     If flatten=False, a list of dense np.ndarrays for each k in ascending order
     is returned. These arrays are of dimension (n_elements x n_elements x
@@ -120,9 +132,9 @@ class MBTR(Descriptor):
 
                 The meaning of x changes for different terms as follows:
 
-                    K=1: x = 0
-                    K=2: x = Distance between A->B
-                    K=3: x = Distance from A->B->C->A.
+                    k=1: x = 0
+                    k=2: x = Distance between A->B
+                    k=3: x = Distance from A->B->C->A.
 
             normalize_by_volume (bool): Determines whether the output vectors are
                 normalized by the cell volume. Defaults to false.
@@ -350,6 +362,12 @@ class MBTR(Descriptor):
                     part /= volume
             return mbtr
 
+    def get_original_system_limit(self, system):
+        """Used to return the limit of atoms considered to be part of the
+        original system.
+        """
+        return len(system)
+
     def initialize_scalars(self, system):
         """Used to initialize the scalar values for each k-term.
         """
@@ -368,7 +386,7 @@ class MBTR(Descriptor):
 
         self.update()
 
-        self.n_atoms_in_cell = len(system)
+        self.n_atoms_in_cell = self.get_original_system_limit(system)
         present_element_numbers = set(system.numbers)
         self.present_indices = set()
         for number in present_element_numbers:
@@ -728,6 +746,7 @@ class MBTR(Descriptor):
                 }
 
             self._k3_geoms, self._k3_weights = cmbtr.get_k3_geoms_and_weights(geom_func=b"cosine", weight_func=weighting_function.encode(), parameters=parameters)
+
         return self._k3_geoms, self._k3_weights
 
     def K1(self, settings):
