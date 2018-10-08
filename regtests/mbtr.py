@@ -1092,12 +1092,76 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         peak_ids2 = find_peaks_cwt(spectrum2, [5])
         self.assertTrue(np.array_equal(peak_ids1, peak_ids2))
 
-        # # Visually check the contents
-        # x = np.arange(len(spectrum1))
-        # mpl.plot(x, spectrum1)
-        # mpl.plot(x, spectrum2)
-        # mpl.legend()
-        # mpl.show()
+        # # # Visually check the contents
+        # # x = np.arange(len(spectrum1))
+        # # mpl.plot(x, spectrum1)
+        # # mpl.plot(x, spectrum2)
+        # # mpl.legend()
+        # # mpl.show()
+
+    def test_vectors(self):
+        """Tests that the MBTR vectors behave correctly as a basis.
+        """
+        sys1 = Atoms(symbols=["H"], positions=[[0, 0, 0]], cell=[2, 2, 2], pbc=True)
+        sys2 = Atoms(symbols=["O"], positions=[[0, 0, 0]], cell=[2, 2, 2], pbc=True)
+        sys3 = sys2*[2, 2, 2]
+
+        desc = MBTR(
+            atomic_numbers=[1, 8],
+            k=[1, 2, 3],
+            periodic=True,
+            grid={
+                "k1": {
+                    "min": 1,
+                    "max": 8,
+                    "sigma": 0.1,
+                    "n": 50,
+                },
+                "k2": {
+                    "min": 0,
+                    "max": 1/0.7,
+                    "sigma": 0.1,
+                    "n": 50,
+                },
+                "k3": {
+                    "min": -1,
+                    "max": 1,
+                    "sigma": 0.1,
+                    "n": 50,
+                }
+            },
+            weighting={
+                "k2": {
+                    "function": "exponential",
+                    "scale": 1,
+                    "cutoff": 1e-4
+                },
+                "k3": {
+                    "function": "exponential",
+                    "scale": 1,
+                    "cutoff": 1e-4
+                }
+            },
+            flatten=True
+        )
+
+        # Create normalized vectors for each system
+        vec1 = desc.create(sys1).toarray()[0, :]
+        vec1 /= np.linalg.norm(vec1)
+
+        vec2 = desc.create(sys2).toarray()[0, :]
+        vec2 /= np.linalg.norm(vec2)
+
+        vec3 = desc.create(sys3).toarray()[0, :]
+        vec3 /= np.linalg.norm(vec3)
+
+        # The dot-product should be zero when there are no overlapping elements
+        dot = np.dot(vec1, vec2)
+        self.assertEqual(dot, 0)
+
+        # The dot-product should be rougly one one for a primitive cell and a supercell
+        dot = np.dot(vec2, vec3)
+        self.assertTrue(abs(dot-1) < 1e-3)
 
     # def test_k1(self):
         # mbtr = MBTR([1, 8], k=[1], periodic=False, flatten=False)

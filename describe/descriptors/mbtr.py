@@ -778,7 +778,7 @@ class MBTR(Descriptor):
         else:
             k1 = np.zeros((n_elem, n), dtype=np.float32)
 
-        for m, key in enumerate(sorted(k1_geoms.keys())):
+        for key in k1_geoms.keys():
             i = key[0]
 
             geoms = np.array(k1_geoms[key])
@@ -821,9 +821,14 @@ class MBTR(Descriptor):
         else:
             k2 = np.zeros((self.n_elements, self.n_elements, n))
 
-        for m, key in enumerate(sorted(k2_geoms.keys())):
+        for key in k2_geoms.keys():
             i = key[0]
             j = key[1]
+
+            # This is the index of the spectrum. It is given by enumerating the
+            # elements of an upper triangular matrix from left to right and top
+            # to bottom.
+            m = int(j + i*n_elem - i*(i+1)/2)
 
             geoms = np.array(k2_geoms[key])
             weights = np.array(k2_weights[key])
@@ -865,10 +870,16 @@ class MBTR(Descriptor):
         else:
             k3 = np.zeros((n_elem, n_elem, n_elem, n))
 
-        for m, key in enumerate(sorted(k3_geoms.keys())):
+        for key in k3_geoms.keys():
             i = key[0]
             j = key[1]
             k = key[2]
+
+            # This is the index of the spectrum. It is given by enumerating the
+            # elements of a three-dimensional array where for valid elements
+            # k>=i. The enumeration begins from [0, 0, 0], and ends at [n_elem,
+            # n_elem, n_elem], looping the elements in the order j, i, k.
+            m = int(j*n_elem*(n_elem+1)/2 + k + i*n_elem - i*(i+1)/2)
 
             geoms = np.array(k3_geoms[key])
             weights = np.array(k3_weights[key])
