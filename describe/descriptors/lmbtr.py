@@ -5,9 +5,11 @@ import numpy as np
 from describe.core import System
 
 from ase import Atoms
-from ase.visualize import view
+# from ase.visualize import view
 
 from describe.descriptors import MBTR
+
+from scipy.spatial.distance import cdist
 
 
 class LMBTR(MBTR):
@@ -152,6 +154,7 @@ class LMBTR(MBTR):
             )
         atomic_numbers = list(atomic_numbers)  # Create a copy so that the original is not modified
         atomic_numbers.append(0)  # The ghost atoms will have atomic number 0
+        self.is_virtual = None
         super().__init__(
                     atomic_numbers,
                     k,
@@ -173,6 +176,7 @@ class LMBTR(MBTR):
     def describe(self,
                  system,
                  positions,
+                 is_virtual=False,
                  scaled_positions=False
                  ):
         """Return the local many-body tensor representation as a 1D array for the
@@ -183,6 +187,12 @@ class LMBTR(MBTR):
             positions (iterable): Positions or atom index of points, from
                 which local_mbtr is created. Can be a list of integer numbers
                 or a list of xyz-coordinates.
+            is_virtual (bool): Determines whether the given position is virtual
+                or not. A virtual position does not correspond to any physical
+                atom, and is thus not repeated in periodic systems. If set to
+                False, the position corresponds to a physical atom which will
+                be repeated in periodic systems and may interact with periodic
+                copies of itself.
             scaled_positions (boolean): Controls whether the given positions
                 are given as scaled to the unit cell basis or not. Scaled
                 positions require that a cell is available for the system.
@@ -192,6 +202,8 @@ class LMBTR(MBTR):
                 positions, for k terms, as an array. These are ordered as given
                 in positions.
         """
+        self.is_virtual = is_virtual
+
         # Ensure that the atomic number 0 is not present in the system
         if 0 in system.get_atomic_numbers():
             raise ValueError(
@@ -276,3 +288,128 @@ class LMBTR(MBTR):
         is considered, as it is the central ghost atom.
         """
         return 1
+
+    def create_extended_system(self, primitive_system, term_number):
+        """Used to create a periodically extended system, that is as small as
+        possible by rejecting atoms for which the given weighting will be below
+        the given threshold.
+
+        Modified for the local MBTR to only consider distances from the central
+        atom and to enable taking the
+
+        Args:
+            primitive_system (System): The original primitive system to
+                duplicate.
+            term_number (int): The term number of the tensor. For k=2, the max
+                distance is x, for k>2, the distance is given by 2*x.
+
+        Returns:
+            System: The new system that is extended so that each atom can at
+            most have a weight that is larger or equivalent to the given
+            threshold.
+        """
+        numbers = primitive_system.numbers
+        relative_pos = primitive_system.get_scaled_positions()
+        cartesian_pos = np.array(primitive_system.get_positions())
+        cell = primitive_system.get_cell()
+
+        # Determine the upper limit of how many copies we need in each cell
+        # vector direction. We take as many copies as needed for the
+        # exponential weight to come down to the given threshold.
+        cell_vector_lengths = np.linalg.norm(cell, axis=1)
+        n_copies_axis = np.zeros(3, dtype=int)
+        weight_info = self.weighting["k{}".format(term_number)]
+        weighting_function = weight_info["function"]
+        cutoff = self.weighting["k{}".format(term_number)]["cutoff"]
+
+        if weighting_function == "exponential":
+            scale = weight_info["scale"]
+            function = lambda x: np.exp(-scale*x)
+
+        for i_axis, axis_length in enumerate(cell_vector_lengths):
+            limit_found = False
+            n_copies = -1
+            while (not limit_found):
+                n_copies += 1
+                distance = n_copies*cell_vector_lengths[0]
+
+                # For terms k>2 we double the distances to take into
+                # account the "loop" that is required.
+                if term_number > 2:
+                    distance = 2*distance
+
+                weight = function(distance)
+                if weight < cutoff:
+                    n_copies_axis[i_axis] = n_copies
+                    limit_found = True
+
+        # Create copies of the cell but keep track of the atoms in the
+        # original cell
+        num_extended = []
+        pos_extended = []
+        num_extended.append(numbers)
+        pos_extended.append(cartesian_pos)
+        a = np.array([1, 0, 0])
+        b = np.array([0, 1, 0])
+        c = np.array([0, 0, 1])
+        for i in range(-n_copies_axis[0], n_copies_axis[0]+1):
+            for j in range(-n_copies_axis[1], n_copies_axis[1]+1):
+                for k in range(-n_copies_axis[2], n_copies_axis[2]+1):
+                    if i == 0 and j == 0 and k == 0:
+                        continue
+
+                    # Calculate the positions of the copied atoms and filter
+                    # out the atoms that are farther away than the given
+                    # cutoff.
+
+                    # If the given position is virtual and does not correspond
+                    # to a physical atom, the position is not repeated in the
+                    # copies.
+                    if self.is_virtual:
+                        num_copy = np.array(numbers)[1:]
+                        pos_copy = np.array(relative_pos)[1:]
+
+                    # If the given position is not virtual and corresponds to
+                    # an actual physical atom, the ghost atom is repeated in
+                    # the extended system.
+                    else:
+                        num_copy = np.array(numbers)
+                        pos_copy = np.array(relative_pos)
+
+                    pos_shifted = pos_copy-i*a-j*b-k*c
+                    pos_copy_cartesian = np.dot(pos_shifted, cell)
+
+                    # In local MBTR only distances from the central atom to
+                    # other atoms are considered.
+                    positions_to_consider = np.expand_dims(cartesian_pos[0], axis=0)
+                    distances = cdist(pos_copy_cartesian, positions_to_consider)
+
+                    # For terms above k==2 we double the distances to take into
+                    # account the "loop" that is required.
+                    if term_number > 2:
+                        distances *= 2
+
+                    weights = function(distances)
+                    weight_mask = weights >= cutoff
+
+                    # Create a boolean mask that says if the atom is within the
+                    # range from at least one atom in the original cell
+                    valids_mask = np.any(weight_mask, axis=1)
+
+                    valid_pos = pos_copy_cartesian[valids_mask]
+                    valid_num = num_copy[valids_mask]
+
+                    pos_extended.append(valid_pos)
+                    num_extended.append(valid_num)
+
+        pos_extended = np.concatenate(pos_extended)
+        num_extended = np.concatenate(num_extended)
+
+        extended_system = System(
+            positions=pos_extended,
+            numbers=num_extended,
+            cell=cell,
+            pbc=False
+        )
+
+        return extended_system

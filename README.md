@@ -39,13 +39,20 @@ n_atoms_max = stats["n_atoms_max"]
 atomic_numbers = stats["atomic_numbers"]
 
 # Defining the properties of the descriptors
-cm_desc = CoulombMatrix(n_atoms_max=n_atoms_max)
+cm_desc = CoulombMatrix(n_atoms_max=n_atoms_max, permutation="sorted_l2")
 sm_desc = SineMatrix(n_atoms_max=n_atoms_max)
 mbtr_desc = MBTR(
     atomic_numbers=atomic_numbers,
     k=[1, 2],
     periodic=True,
-    weighting="exponential")
+    weighting={
+        "k2": {
+            "function": "exponential",
+            "scale": 0.5,
+            "cutoff": 1e-3
+        }
+    }
+)
 
 # Creating the descriptors
 cm = cm_desc.create(atoms)

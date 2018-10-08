@@ -571,7 +571,11 @@ class MBTR(Descriptor):
                     # cutoff.
                     pos_copy = np.array(relative_pos)-i*a-j*b-k*c
                     pos_copy_cartesian = np.dot(pos_copy, cell)
-                    distances = cdist(pos_copy_cartesian, cartesian_pos)
+
+                    # In MBTR we consider all distances from the original cell
+                    # to atoms in periodic copies of the system.
+                    positions_to_consider = cartesian_pos
+                    distances = cdist(pos_copy_cartesian, positions_to_consider)
 
                     # For terms above k==2 we double the distances to take into
                     # account the "loop" that is required.
@@ -864,7 +868,7 @@ class MBTR(Descriptor):
         for m, key in enumerate(sorted(k3_geoms.keys())):
             i = key[0]
             j = key[1]
-            k = key[1]
+            k = key[2]
 
             geoms = np.array(k3_geoms[key])
             weights = np.array(k3_weights[key])
