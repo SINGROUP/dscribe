@@ -90,7 +90,7 @@ for index, number in imap.items():
 # Plot K1
 x1 = mbtr._axis_k1
 for i in range(n_elements):
-    mpl.plot(x1, desc[0][i, :], label="{}".format(smap[i]))
+    mpl.plot(x1, desc["k1"][i, :], label="{}".format(smap[i]))
 mpl.ylabel("$\phi$ (arbitrary units)", size=20)
 mpl.xlabel("Atomic number", size=20)
 mpl.title("The element count in NaCl crystal.", size=20)
@@ -104,7 +104,7 @@ x2 = mbtr._axis_k2
 for i in range(n_elements):
     for j in range(n_elements):
         if j >= i:
-            mpl.plot(x2, desc[1][i, j, :], label="{}-{}".format(smap[i], smap[j]))
+            mpl.plot(x2, desc["k2"][i, j, :], label="{}-{}".format(smap[i], smap[j]))
 mpl.ylabel("$\phi$ (arbitrary units)", size=20)
 mpl.xlabel("Inverse distance (1/angstrom)", size=20)
 mpl.title("The exponentially weighted inverse distance distribution in NaCl crystal.", size=20)
@@ -119,7 +119,7 @@ for i in range(n_elements):
     for j in range(n_elements):
         for k in range(n_elements):
             if k >= i:
-                mpl.plot(x3, desc[2][i, j, k, :], label="{}-{}-{}".format(smap[i], smap[j], smap[k]))
+                mpl.plot(x3, desc["k3"][i, j, k, :], label="{}-{}-{}".format(smap[i], smap[j], smap[k]))
 mpl.ylabel("$\phi$ (arbitrary units)", size=20)
 mpl.xlabel("cos(angle)", size=20)
 mpl.title("The exponentially weighted angle distribution in NaCl crystal.", size=20)

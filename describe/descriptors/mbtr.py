@@ -4,8 +4,6 @@ import math
 import numpy as np
 import chronic
 
-from ase.visualize import view
-
 from scipy.spatial.distance import cdist
 from scipy.sparse import lil_matrix, coo_matrix
 from scipy.special import erf
@@ -290,8 +288,14 @@ class MBTR(Descriptor):
             system (System): The system for which the descriptor is created.
 
         Returns:
-            1D ndarray: The many-body tensor representation up to the k:th term
-            as a flattened array.
+            if sparse == False:
+                Dictionary of np.ndarrays. For each requested k-term, the
+                dictionary contains a corresponding as a k+1 -dimensional
+                tensor. The keys are in the form "k1", "k2", "k3".
+            elif sparse == True:
+                scipy.sparse.lil_matrix: The many-body tensor representation up to the k:th term
+                as a flattened array.
+
         """
         # Initializes the scalar numbers that depend no the system
         self.initialize_scalars(system)
@@ -309,26 +313,25 @@ class MBTR(Descriptor):
             self.check_grid(grid)
             self.grid = grid
 
-        mbtr = []
+        mbtr = {}
         if 1 in self.k:
 
             # We will use the original system to calculate the counts, unlike
             # with the other terms that use the extended system
             settings_k1 = self.get_k1_settings()
             k1 = self.K1(settings_k1)
-            mbtr.append(k1)
+            mbtr["k1"] = k1
 
         if 2 in self.k:
             settings_k2 = self.get_k2_settings()
             k2 = self.K2(settings_k2)
-            mbtr.append(k2)
+            mbtr["k2"] = k2
 
         if 3 in self.k:
 
             settings_k3 = self.get_k3_settings()
             k3 = self.K3(settings_k3)
-
-            mbtr.append(k3)
+            mbtr["k3"] = k3
 
         if self.flatten:
             length = 0
@@ -336,7 +339,8 @@ class MBTR(Descriptor):
             datas = []
             rows = []
             cols = []
-            for tensor in mbtr:
+            for key in sorted(mbtr.keys()):
+                tensor = mbtr[key]
                 size = tensor.shape[1]
                 coo = tensor.tocoo()
                 datas.append(coo.data)
@@ -425,50 +429,17 @@ class MBTR(Descriptor):
     def get_k1_settings(self):
         """Returns the min, max, dx and sigma for K1.
         """
-        if self.grid is not None and self.grid.get("k1") is not None:
-            return self.grid["k1"]
-        else:
-            sigma = 1e-1
-            min_k = self.min_atomic_number-MBTR.decay_factor*sigma
-            max_k = self.max_atomic_number+MBTR.decay_factor*sigma
-            return {
-                "min": min_k,
-                "max": max_k,
-                "sigma": sigma,
-                "n": int(math.ceil((max_k-min_k)/sigma/4) + 1),
-            }
+        return self.grid["k1"]
 
     def get_k2_settings(self):
         """Returns the min, max, dx and sigma for K2.
         """
-        if self.grid is not None and self.grid.get("k2") is not None:
-            return self.grid["k2"]
-        else:
-            sigma = 2**(-7)
-            min_k = 0-MBTR.decay_factor*sigma
-            max_k = 1/0.7+MBTR.decay_factor*sigma
-            return {
-                "min": min_k,
-                "max": max_k,
-                "sigma": sigma,
-                "n": int(math.ceil((max_k-min_k)/sigma/4) + 1),
-            }
+        return self.grid["k2"]
 
     def get_k3_settings(self):
         """Returns the min, max, dx and sigma for K3.
         """
-        if self.grid is not None and self.grid.get("k3") is not None:
-            return self.grid["k3"]
-        else:
-            sigma = 2**(-3.5)
-            min_k = -1.0-MBTR.decay_factor*sigma
-            max_k = 1.0+MBTR.decay_factor*sigma
-            return {
-                "min": min_k,
-                "max": max_k,
-                "sigma": sigma,
-                "n": int(math.ceil((max_k-min_k)/sigma/4) + 1),
-            }
+        return self.grid["k3"]
 
     def get_number_of_features(self):
         """Used to inquire the final number of features that this descriptor
@@ -819,7 +790,7 @@ class MBTR(Descriptor):
             k2 = lil_matrix(
                 (1, int(n_elem*(n_elem+1)/2*n)), dtype=np.float32)
         else:
-            k2 = np.zeros((self.n_elements, self.n_elements, n))
+            k2 = np.zeros((self.n_elements, self.n_elements, n), dtype=np.float32)
 
         for key in k2_geoms.keys():
             i = key[0]
@@ -868,7 +839,7 @@ class MBTR(Descriptor):
             k3 = lil_matrix(
                 (1, int(n_elem*n_elem*(n_elem+1)/2*n)), dtype=np.float32)
         else:
-            k3 = np.zeros((n_elem, n_elem, n_elem, n))
+            k3 = np.zeros((n_elem, n_elem, n_elem, n), dtype=np.float32)
 
         for key in k3_geoms.keys():
             i = key[0]

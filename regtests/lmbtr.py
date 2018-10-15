@@ -48,6 +48,27 @@ HHe = Atoms(
     symbols=["H", "He"],
 )
 
+default_grid = {
+    "k1": {
+        "min": 1,
+        "max": 90,
+        "sigma": 0.1,
+        "n": 50,
+    },
+    "k2": {
+        "min": 0,
+        "max": 1/0.7,
+        "sigma": 0.1,
+        "n": 50,
+    },
+    "k3": {
+        "min": -1,
+        "max": 1,
+        "sigma": 0.1,
+        "n": 50,
+    }
+}
+
 
 class LMBTRTests(TestBaseClass, unittest.TestCase):
 
@@ -158,7 +179,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
                 positions=[[0, 0, 1]],
                 scaled_positions=True
             )
-        lmbtr = LMBTR([1, 8], k=[3], periodic=False, flatten=True)
+        lmbtr = LMBTR([1, 8], k=[3], grid=default_grid, periodic=False, flatten=True)
 
         # Positions as a list of integers pointing to atom indices
         positions = [0, 1, 2]
@@ -256,7 +277,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
 
         # K2 unflattened
         desc = LMBTR([1, 8], k=[2], grid={"k2": {"n": n, "min": 0, "max": 2, "sigma": 0.1}}, periodic=False, flatten=False)
-        feat = desc.create(system, positions=[0])[0][0]
+        feat = desc.create(system, positions=[0])[0]["k2"]
         self.assertEqual(feat.shape, (n_elem, n_elem, n))
 
         # K2 flattened. The sparse matrix only supports 2D matrices, so the first
@@ -305,7 +326,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         desc = lmbtr.create(test_sys, positions=[0])
         desc_ = lmbtr.create(test_sys_, positions=[0])
 
-        self.assertTrue(np.linalg.norm(desc_[0][0] - desc[0][0]) < 1e-6)
+        self.assertTrue(np.linalg.norm(desc_[0]["k2"] - desc[0]["k2"]) < 1e-6)
 
     def dict_comparison(self, first, second):
         """Used to compare values in two dictionaries.
@@ -339,7 +360,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
     def test_inverse_distances(self):
         """LMBTR: Test inverse distances
         """
-        lmbtr = LMBTR([1, 8], k=[2], periodic=False)
+        lmbtr = LMBTR([1, 8], k=[2], grid=default_grid, periodic=False)
         lmbtr.create(H2O, positions=[1])
         inv_dist = lmbtr._k2_geoms
 
@@ -351,7 +372,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         self.dict_comparison(assumed, inv_dist)
 
         # Test against system with different indexing
-        lmbtr = LMBTR([1, 8], k=[2], periodic=False)
+        lmbtr = LMBTR([1, 8], k=[2], grid=default_grid, periodic=False)
         lmbtr.create(H2O_2, positions=[0])
         inv_dist_2 = lmbtr._k2_geoms
         self.dict_comparison(inv_dist, inv_dist_2)
@@ -370,7 +391,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
             cell=[10, 10, 10],
             pbc=True,
         )
-        lmbtr = LMBTR([1, 8], k=[3], periodic=False)
+        lmbtr = LMBTR([1, 8], k=[3], grid=default_grid, periodic=False)
         lmbtr.create(system, positions=[0])
         geoms = lmbtr._k3_geoms
 

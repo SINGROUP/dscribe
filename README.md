@@ -36,6 +36,7 @@ atoms.set_initial_charges(atoms.get_atomic_numbers())
 # used by the different descriptors for e.g. zero padding.
 stats = describe.utils.system_stats([atoms])
 n_atoms_max = stats["n_atoms_max"]
+min_distance = stats["min_distance"]
 atomic_numbers = stats["atomic_numbers"]
 
 # Defining the properties of the descriptors
@@ -44,6 +45,10 @@ sm_desc = SineMatrix(n_atoms_max=n_atoms_max)
 mbtr_desc = MBTR(
     atomic_numbers=atomic_numbers,
     k=[1, 2],
+    grid={
+        "k1": {"min": 11, "max": 17, "sigma": 0.1, "n": 50},
+        "k2": {"min": 0, "max": 1/min_distance, "sigma": 0.01, "n": 50}
+    },
     periodic=True,
     weighting={
         "k2": {

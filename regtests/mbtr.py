@@ -17,6 +17,27 @@ import matplotlib.pyplot as mpl
 
 from testbaseclass import TestBaseClass
 
+default_grid = {
+    "k1": {
+        "min": 1,
+        "max": 90,
+        "sigma": 0.1,
+        "n": 50,
+    },
+    "k2": {
+        "min": 0,
+        "max": 1/0.7,
+        "sigma": 0.1,
+        "n": 50,
+    },
+    "k3": {
+        "min": -1,
+        "max": 1,
+        "sigma": 0.1,
+        "n": 50,
+    }
+}
+
 
 H2O = Atoms(
     cell=[
@@ -65,6 +86,35 @@ H = Atoms(
 
 
 class MBTRTests(TestBaseClass, unittest.TestCase):
+
+    def dict_comparison(self, first, second):
+        """Used to compare values in two dictionaries.
+        """
+        n_first = len(first)
+        n_second = len(second)
+
+        if n_first != n_second:
+            raise ValueError(
+                "The dictionaries do not have the same number of elements."
+            )
+
+        first_keys = set(first.keys())
+        second_keys = set(second.keys())
+        if first_keys != second_keys:
+            raise ValueError(
+                "The dictionaries do not have the same keys."
+            )
+
+        for key in first_keys:
+            assumed_elem = second[key]
+            true_elem = first[key]
+
+            # Sort the lists first to perform comparison
+            assumed_elem.sort()
+            true_elem.sort()
+            for i_elem, val_assumed in enumerate(assumed_elem):
+                val_true = true_elem[i_elem]
+                self.assertAlmostEqual(val_assumed, val_true, places=6)
 
     def test_constructor(self):
         """Tests different valid and invalid constructor values.
@@ -233,7 +283,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
 
         # K1 unflattened
         desc = MBTR([1, 8], k=[1], grid={"k1": {"n": n, "min": 1, "max": 8, "sigma": 0.1}}, periodic=False, flatten=False)
-        feat = desc.create(system)[0]
+        feat = desc.create(system)["k1"]
         self.assertEqual(feat.shape, (n_species, n))
 
         # K1 flattened. The sparse matrix only supports 2D matrices, so the first
@@ -246,7 +296,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         """Tests that the values of the weight and geometry functions are
         correct for the k=1 term.
         """
-        mbtr = MBTR([1, 8], k=[1], periodic=False)
+        mbtr = MBTR([1, 8], k=[1], grid=default_grid, periodic=False)
         mbtr.create(H2O)
         weights = mbtr._k1_weights
         geoms = mbtr._k1_geoms
@@ -266,7 +316,12 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         self.dict_comparison(geoms, assumed_geoms)
 
         # Test against system with different indexing
-        mbtr = MBTR([1, 8], k=[1], periodic=False)
+        mbtr = MBTR(
+            [1, 8],
+            k=[1],
+            grid={"k1": {"min": 1, "max": 8, "sigma": 0.1, "n": 10}},
+            periodic=False
+        )
         mbtr.create(H2O_2)
         weights2 = mbtr._k1_weights
         geoms2 = mbtr._k1_geoms
@@ -277,7 +332,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         """Tests that the values of the weight and geometry functions are
         correct for the k=2 term.
         """
-        mbtr = MBTR([1, 8], k=[2], periodic=False)
+        mbtr = MBTR([1, 8], k=[2], grid=default_grid, periodic=False)
         mbtr.create(H2O)
         weights = mbtr._k2_weights
         geoms = mbtr._k2_geoms
@@ -299,7 +354,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         self.dict_comparison(geoms, assumed_geoms)
 
         # Test against system with different indexing
-        mbtr = MBTR([1, 8], k=[2], periodic=False)
+        mbtr = MBTR([1, 8], k=[2], grid=default_grid, periodic=False)
         mbtr.create(H2O_2)
         weights2 = mbtr._k2_weights
         geoms2 = mbtr._k2_geoms
@@ -326,6 +381,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         mbtr = MBTR(
             [1, 6],
             k=[2],
+            grid=default_grid,
             periodic=True,
             weighting={
                 "k2": {
@@ -421,7 +477,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         gets rid of duplicate angles.
         """
         # Test with water molecule
-        mbtr = MBTR([1, 8], k=[3], periodic=False)
+        mbtr = MBTR([1, 8], k=[3], grid=default_grid, periodic=False)
         mbtr.create(H2O)
         geoms = mbtr._k3_geoms
         weights = mbtr._k3_weights
@@ -439,7 +495,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         self.dict_comparison(weights, assumed_weights)
 
         # Test against system with different indexing
-        mbtr = MBTR([1, 8], k=[3], periodic=False)
+        mbtr = MBTR([1, 8], k=[3], grid=default_grid, periodic=False)
         mbtr.create(H2O_2)
         weights2 = mbtr._k3_weights
         geoms2 = mbtr._k3_geoms
@@ -461,7 +517,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         )
         # view(atoms)
 
-        mbtr = MBTR([1, 2, 10], k=[3], periodic=False)
+        mbtr = MBTR([1, 2, 10], k=[3], grid=default_grid, periodic=False)
         mbtr.create(atoms)
         angles = mbtr._k3_geoms
 
@@ -601,35 +657,6 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         spectra2 = mbtr.create(atoms2).toarray()[0, :]
         self.assertTrue(np.allclose(spectra1, spectra2, rtol=0, atol=1e-8))
 
-    def dict_comparison(self, first, second):
-        """Used to compare values in two dictionaries.
-        """
-        n_first = len(first)
-        n_second = len(second)
-
-        if n_first != n_second:
-            raise ValueError(
-                "The dictionaries do not have the same number of elements."
-            )
-
-        first_keys = set(first.keys())
-        second_keys = set(second.keys())
-        if first_keys != second_keys:
-            raise ValueError(
-                "The dictionaries do not have the same keys."
-            )
-
-        for key in first_keys:
-            assumed_elem = second[key]
-            true_elem = first[key]
-
-            # Sort the lists first to perform comparison
-            assumed_elem.sort()
-            true_elem.sort()
-            for i_elem, val_assumed in enumerate(assumed_elem):
-                val_true = true_elem[i_elem]
-                self.assertAlmostEqual(val_assumed, val_true, places=6)
-
     def test_gaussian_distribution(self):
         """Check that the broadening follows gaussian distribution.
         """
@@ -652,14 +679,14 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             periodic=False,
             normalize_gaussians=True,
             flatten=False)
-        y = mbtr.create(H2O)
+        y = mbtr.create(H2O)["k1"]
         k1_axis = mbtr._axis_k1
 
         # Find the location of the peaks
         peak1_x = np.searchsorted(k1_axis, 1)
-        peak1_y = y[0][0, peak1_x]
+        peak1_y = y[0, peak1_x]
         peak2_x = np.searchsorted(k1_axis, 8)
-        peak2_y = y[0][1, peak2_x]
+        peak2_y = y[1, peak2_x]
 
         # Check against the analytical value
         gaussian = lambda x, mean, sigma: 1/(sigma*np.sqrt(2*np.pi))*np.exp(-(x-mean)**2/(2*sigma**2))
@@ -667,7 +694,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         self.assertTrue(np.allclose(peak2_y, gaussian(8, 8, std), rtol=0, atol=0.001))
 
         # Check the integral
-        pdf = y[0][0, :]
+        pdf = y[0, :]
         dx = (stop-start)/(n-1)
         sum_cum = np.sum(0.5*dx*(pdf[:-1]+pdf[1:]))
         exp = 2
@@ -692,14 +719,14 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             periodic=False,
             normalize_gaussians=False,
             flatten=False)
-        y = mbtr.create(H2O)
+        y = mbtr.create(H2O)["k1"]
         k1_axis = mbtr._axis_k1
 
         # Find the location of the peaks
         peak1_x = np.searchsorted(k1_axis, 1)
-        peak1_y = y[0][0, peak1_x]
+        peak1_y = y[0, peak1_x]
         peak2_x = np.searchsorted(k1_axis, 8)
-        peak2_y = y[0][1, peak2_x]
+        peak2_y = y[1, peak2_x]
 
         # Check against the analytical value
         gaussian = lambda x, mean, sigma: np.exp(-(x-mean)**2/(2*sigma**2))
@@ -707,7 +734,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         self.assertTrue(np.allclose(peak2_y, gaussian(8, 8, std), rtol=0, atol=0.001))
 
         # Check the integral
-        pdf = y[0][0, :]
+        pdf = y[0, :]
         dx = (stop-start)/(n-1)
         sum_cum = np.sum(0.5*dx*(pdf[:-1]+pdf[1:]))
         exp = 2/(1/math.sqrt(2*math.pi*std**2))
@@ -1092,12 +1119,12 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         peak_ids2 = find_peaks_cwt(spectrum2, [5])
         self.assertTrue(np.array_equal(peak_ids1, peak_ids2))
 
-        # # # Visually check the contents
-        # # x = np.arange(len(spectrum1))
-        # # mpl.plot(x, spectrum1)
-        # # mpl.plot(x, spectrum2)
-        # # mpl.legend()
-        # # mpl.show()
+        # # Visually check the contents
+        # x = np.arange(len(spectrum1))
+        # mpl.plot(x, spectrum1)
+        # mpl.plot(x, spectrum2)
+        # mpl.legend()
+        # mpl.show()
 
     def test_vectors(self):
         """Tests that the MBTR vectors behave correctly as a basis.
@@ -1162,57 +1189,6 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         # The dot-product should be rougly one one for a primitive cell and a supercell
         dot = np.dot(vec2, vec3)
         self.assertTrue(abs(dot-1) < 1e-3)
-
-    # def test_k1(self):
-        # mbtr = MBTR([1, 8], k=[1], periodic=False, flatten=False)
-        # desc = mbtr.create(H2O)
-        # x1 = mbtr._axis_k1
-
-        # imap = mbtr.index_to_atomic_number
-        # smap = {}
-        # for index, number in imap.items():
-            # smap[index] = numbers_to_symbols(number)
-
-        # Visually check the contents
-        # mpl.plot(y)
-        # mpl.ylim(0, y.max())
-        # mpl.show()
-
-        # mpl.plot(x1, desc[0][0, :], label="{}".format(smap[0]))
-        # mpl.plot(x1, desc[0][1, :], linestyle=":", linewidth=3, label="{}".format(smap[1]))
-        # mpl.ylabel("$\phi$ (arbitrary units)", size=20)
-        # mpl.xlabel("Inverse distance (1/angstrom)", size=20)
-        # mpl.legend()
-        # mpl.show()
-
-    # def test_k2(self):
-        # mbtr = MBTR([1, 8], k=[2], grid={"k2": {"n": 100, "min": 0, "max": 2, "sigma": 0.1}}, periodic=False, flatten=False)
-        # desc = mbtr.create(H2O)
-
-        # x2 = mbtr._axis_k2
-        # imap = mbtr.index_to_atomic_number
-        # smap = {}
-        # for index, number in imap.items():
-            # smap[index] = ase.data.chemical_symbols[number]
-
-        # # Visually check the contents
-        # mpl.plot(x2, desc[0][0, 1, :], label="{}-{}".format(smap[0], smap[1]))
-        # mpl.plot(x2, desc[0][1, 0, :], linestyle=":", linewidth=3, label="{}-{}".format(smap[1], smap[0]))
-        # mpl.plot(x2, desc[0][1, 1, :], label="{}-{}".format(smap[1], smap[1]))
-        # mpl.plot(x2, desc[0][0, 0, :], label="{}-{}".format(smap[0], smap[0]))
-        # mpl.ylabel("$\phi$ (arbitrary units)", size=20)
-        # mpl.xlabel("Inverse distance (1/angstrom)", size=20)
-        # mpl.legend()
-        # mpl.show()
-
-    # def test_k3(self):
-        # mbtr = MBTR([1, 8], k=3, periodic=False)
-        # desc = mbtr.create(H2O)
-        # y = desc.todense().T
-
-        # # Visually check the contents
-        # mpl.plot(y)
-        # mpl.show()
 
 
 if __name__ == '__main__':
