@@ -150,23 +150,15 @@ class MBTR(Descriptor):
         super().__init__(flatten)
         self.system = None
         self.k = k
-
-        # Check that atomic numbers are valid.  The given atomic numbers are
-        # first made into a set to remove duplicates, and then made into list
-        # for enabling ordering.
-        self.atomic_numbers = list(set(atomic_numbers))
-        if (np.array(atomic_numbers) <= 0).any():
-            raise ValueError(
-                "Non-positive atomic numbers not allowed."
-            )
-
+        self.initialize_atomic_numbers(atomic_numbers)
         self.grid = grid
         self.weighting = weighting
         self.periodic = periodic
         self.normalize_by_volume = normalize_by_volume
         self.normalize_gaussians = normalize_gaussians
         self.update()
-        # initializing .create() level variables
+
+        # Initializing .create() level variables
         self.n_atoms_in_cell = None
         self._k1_geoms = None
         self._k1_weights = None
@@ -177,6 +169,19 @@ class MBTR(Descriptor):
         self._axis_k1 = None
         self._axis_k2 = None
         self._axis_k3 = None
+
+    def initialize_atomic_numbers(self, atomic_numbers):
+        """Used to initialize the list of atomic numbers.
+        """
+        # Check that atomic numbers are valid.  The given atomic numbers are
+        # first made into a set to remove duplicates, and then made into list
+        # for enabling ordering.
+        new_atomic_numbers = list(set(atomic_numbers))
+        if (np.array(new_atomic_numbers) <= 0).any():
+            raise ValueError(
+                "Non-positive atomic numbers not allowed."
+            )
+        self.atomic_numbers = new_atomic_numbers
 
     def update(self):
         """Checks and updates variables in mbtr class.

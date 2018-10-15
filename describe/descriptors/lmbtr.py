@@ -144,27 +144,23 @@ class LMBTR(MBTR):
             ValueError if the given k value is not supported, or the weighting
             is not specified for periodic systems.
         """
-        # First make sure that there are no atoms with atomic number 0 in the
-        # original system, as it is reserved for the ghost atom.
-        if 0 in atomic_numbers:
-            raise ValueError(
-                "Please do not use the atomic number 0 in local MBTR "
-                ", as it is reserved for the ghost atom used by the "
-                "implementation."
-            )
-        atomic_numbers = list(atomic_numbers)  # Create a copy so that the original is not modified
-        atomic_numbers.append(0)  # The ghost atoms will have atomic number 0
         self.is_virtual = None
         super().__init__(
-                    atomic_numbers,
-                    k,
-                    periodic,
-                    grid,
-                    weighting,
-                    normalize_by_volume=False,
-                    normalize_gaussians=normalize_gaussians,
-                    flatten=flatten,
-                    )
+            atomic_numbers,
+            k,
+            periodic,
+            grid,
+            weighting,
+            normalize_by_volume=False,
+            normalize_gaussians=normalize_gaussians,
+            flatten=flatten,
+        )
+
+    def initialize_atomic_numbers(self, atomic_numbers):
+        """Used to initialize the list of atomic numbers.
+        """
+        super().initialize_atomic_numbers(atomic_numbers)
+        self.atomic_numbers.append(0)  # The ghost atoms will have atomic number 0
 
     def update(self):
         """Updates relevant objects attached to LMBTR class, after changing
