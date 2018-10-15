@@ -12,6 +12,8 @@ from describe.descriptors import Descriptor
 
 from describe.libmbtr.cmbtrwrapper import CMBTRWrapper
 
+from ase.visualize import view
+
 
 class MBTR(Descriptor):
     """Implementation of the Many-body tensor representation up to k=3.
@@ -290,12 +292,12 @@ class MBTR(Descriptor):
                 dictionary contains a corresponding as a k+1 -dimensional
                 tensor. The keys are in the form "k1", "k2", "k3".
             elif sparse == True:
-                scipy.sparse.lil_matrix: The many-body tensor representation
+                scipy.sparse.coo_matrix: The many-body tensor representation
                 with the specified k-terms as a flattened sparse array. The
-                lil_matrix format is used to enable efficient construction of
-                MBTR spectrums from multiple samples. You may want to consider
-                transforming the output to the scipy.sparse.csr-format before
-                usage in machine learning libraries.
+                coo-format is used to enable efficient construction of MBTR
+                spectrums. You may want to consider transforming the output to
+                the scipy.sparse.csr-format before usage in machine learning
+                libraries.
        """
         # Initializes the scalar numbers that depend no the system
         self.initialize_scalars(system)
@@ -486,9 +488,13 @@ class MBTR(Descriptor):
             threshold.
         """
         numbers = primitive_system.numbers
-        relative_pos = primitive_system.get_scaled_positions()
         cartesian_pos = np.array(primitive_system.get_positions())
         cell = primitive_system.get_cell()
+
+        # Get the scaled positions, but do not wrap them. This is critical
+        # because otherwise due to numerical precision atoms may get wrapped
+        # so that they overlap with the original system.
+        relative_pos = primitive_system.get_scaled_positions(wrap=False)
 
         # Determine the upper limit of how many copies we need in each cell
         # vector direction. We take as many copies as needed for the
@@ -833,7 +839,8 @@ class MBTR(Descriptor):
         # Depending of flattening, use either a sparse matrix or a dense one.
         if self.flatten:
             k3 = lil_matrix(
-                (1, int(n_elem*n_elem*(n_elem+1)/2*n)), dtype=np.float32)
+                (1, int(n_elem*n_elem*(n_elem+1)/2*n)), dtype=np.float32
+            )
         else:
             k3 = np.zeros((n_elem, n_elem, n_elem, n), dtype=np.float32)
 
@@ -850,6 +857,11 @@ class MBTR(Descriptor):
 
             geoms = np.array(k3_geoms[key])
             weights = np.array(k3_weights[key])
+
+            # is_geom_nan = np.isnan(geoms).any()
+            # if is_geom_nan:
+                # print(geoms)
+                # print("Here")
 
             # Broaden with a gaussian
             gaussian_sum = self.gaussian_sum(geoms, weights, settings)
