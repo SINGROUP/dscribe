@@ -6,6 +6,7 @@ import numpy as np
 import unittest
 
 from describe.descriptors import SOAP
+from testbaseclass import TestBaseClass
 
 from ase import Atoms
 
@@ -38,87 +39,97 @@ H = Atoms(
 )
 
 
-class SoapTests(unittest.TestCase):
+class SoapTests(TestBaseClass, unittest.TestCase):
 
-#    def test_constructor(self):
-#        """Tests different valid and invalid constructor values.
-#        """
-#        with self.assertRaises(ValueError):
-#            SOAP(atomic_numbers, rcut,nmax, lmax,periodic, envPos = None, crossover = True)
-#        with self.assertRaises(ValueError):
-#            SOAP(atomic_numbers, rcut,nmax, lmax,periodic, envPos = [[0,0,0]], crossover = True)
-#
-#    def test_number_of_features(self):
-#        """Tests that the reported number of features is correct.
-#        """
-#        desc = SOAP(n_atoms_max=5, permutation="none", flatten=False)
-#        n_features = desc.get_number_of_features()
-#        self.assertEqual(n_features, 25)
-#
-#    def test_flatten(self):
-#        """Tests the flattening.
-#        """
-#        # Unflattened
-#        desc = SOAP(n_atoms_max=5, permutation="none", flatten=False)
-#        cm = desc.create(H2O)
-#        self.assertEqual(cm.shape, (5, 5))
-#
-#        # Flattened
-#        desc = SOAP(n_atoms_max=5, permutation="none", flatten=True)
-#        cm = desc.create(H2O)
-#        self.assertEqual(cm.shape, (25,))
-#
-    def test_features(self):
-        """Tests that the correct features are present in the descriptor.
+    def test_constructor(self):
+        """Tests different valid and invalid constructor values.
         """
-
-        desc = SOAP([1,6,8], 10.0, 2, 0, periodic=False, crossover=True,)
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[]).shape[1])
-
-        desc = SOAP([1,6,8], 10.0, 2, 0, periodic=True, crossover=True,)
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[]).shape[1])
-        
-        desc = SOAP([1,6,8], 10.0, 2, 0, periodic=True, crossover=False,)
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[]).shape[1])
-
-        desc = SOAP([1,6,8], 10.0, 2, 0, periodic=False, crossover=False,)
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[]).shape[1])
-        
+        # Invalid atomic numbers
         with self.assertRaises(ValueError):
-            nocell = desc.create(H2O, positions=['a'])
+            SOAP(atomic_numbers=[-1, 2], rcut=5, nmax=5, lmax=5, periodic=True)
+
+    def test_number_of_features(self):
+        """Tests that the reported number of features is correct.
+        """
+        lmax = 5
+        nmax = 5
+        n_elems = 2
+        desc = SOAP(atomic_numbers=[1, 8], rcut=5, nmax=nmax, lmax=lmax, periodic=True)
+
+        # Test that the reported number of features matches the expected
+        n_features = desc.get_number_of_features()
+        n_blocks = n_elems*(n_elems+1)/2
+        expected = int((lmax + 1) * nmax * (nmax + 1) / 2 * n_blocks)
+        self.assertEqual(n_features, expected)
+
+        # Test that the outputted number of features matches the reported
+        # n_features = desc.get_number_of_features()
+        # vec = desc.create(H2O)
+        # self.assertEqual(n_features, vec.shape[1])
+
+    def test_flatten(self):
+        """Tests the flattening.
+        """
+        # Unflattened
+        # desc = SOAP(n_atoms_max=5, permutation="none", flatten=False)
+        # cm = desc.create(H2O)
+        # self.assertEqual(cm.shape, (5, 5))
+
+        # # Flattened
+        # desc = SOAP(n_atoms_max=5, permutation="none", flatten=True)
+        # cm = desc.create(H2O)
+        # self.assertEqual(cm.shape, (25,))
+
+    def test_positions(self):
+        """Tests that different positions are handled correctly.
+        """
+        desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=False, crossover=True,)
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[]).shape[1])
+
+        desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=True, crossover=True,)
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[]).shape[1])
+
+        desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=True, crossover=False,)
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[]).shape[1])
+
+        desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=False, crossover=False,)
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[]).shape[1])
+
+        with self.assertRaises(ValueError):
+            desc.create(H2O, positions=['a'])
 
     def test_unit_cells(self):
         """Tests if arbitrary unit cells are accepted"""
-        desc = SOAP([1,6,8], 10.0, 2, 0, periodic=False, crossover=True,)
+        desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=False, crossover=True,)
 
         molecule = H2O.copy()
 
         molecule.set_cell([
-        [0.0, 0.0, 0.0],
-        [0.0, 0.0, 0.0],
-        [0.0, 0.0, 0.0]
-            ],
-            )
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0]
+        ])
 
         nocell = desc.create(molecule, positions=[[0, 0, 0]])
 
-        desc = SOAP([1,6,8], 10.0, 2, 0, periodic=True, crossover=True,)
+        desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=True, crossover=True,)
+
+        # Invalid unit cell
         molecule.set_cell([
-        [0.0, 0.0, 0.0],
-        [0.0, 0.0, 0.0],
-        [0.0, 0.0, 0.0]
-            ],
-            )
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0]
+        ])
         with self.assertRaises(ValueError):
-            nocell = desc.create(molecule, positions=[[0, 0, 0]])
+            desc.create(molecule, positions=[[0, 0, 0]])
 
         molecule.set_pbc(True)
         molecule.set_cell([
@@ -131,92 +142,105 @@ class SoapTests(unittest.TestCase):
         largecell = desc.create(molecule, positions=[[0, 0, 0]])
 
         molecule.set_cell([
-        [2.0, 0.0, 0.0],
-        [0.0, 2.0, 0.0],
-        [0.0, 0.0, 2.0]
-            ],
-            )
+            [2.0, 0.0, 0.0],
+            [0.0, 2.0, 0.0],
+            [0.0, 0.0, 2.0]
+        ])
 
         cubic_cell = desc.create(molecule, positions=[[0, 0, 0]])
 
         molecule.set_cell([
-        [0.0, 2.0, 2.0],
-        [2.0, 0.0, 2.0],
-        [2.0, 2.0, 0.0]
-            ],
-            )
+            [0.0, 2.0, 2.0],
+            [2.0, 0.0, 2.0],
+            [2.0, 2.0, 0.0]
+        ])
 
         triclinic_smallcell = desc.create(molecule, positions=[[0, 0, 0]])
 
-
     def test_is_periodic(self):
-        """Tests whether periodic images are seen by the descriptor""" 
-        desc = SOAP([1,6,8], 10.0, 2, 0, periodic=False, crossover=True,)
-
+        """Tests whether periodic images are seen by the descriptor"""
+        desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=False, crossover=True,)
 
         H2O.set_pbc(False)
         nocell = desc.create(H2O, positions=[[0, 0, 0]])
 
         H2O.set_pbc(True)
         H2O.set_cell([
-        [2.0, 0.0, 0.0],
-        [0.0, 2.0, 0.0],
-        [0.0, 0.0, 2.0]
-            ],
-            )
-        desc = SOAP([1,6,8], 10.0, 2, 0, periodic=True, crossover=True,)
+            [2.0, 0.0, 0.0],
+            [0.0, 2.0, 0.0],
+            [0.0, 0.0, 2.0]
+        ])
+        desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=True, crossover=True,)
 
         cubic_cell = desc.create(H2O, positions=[[0, 0, 0]])
 
         self.assertTrue(np.sum(cubic_cell) > 0)
 
-
     def test_periodic_images(self):
         """Tests the periodic images seen by the descriptor
         """
-        desc = SOAP([1,6,8], 10.0, 2, 0, periodic=False, crossover=True,)
+        desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=False, crossover=True,)
 
         molecule = H2O.copy()
 
         # non-periodic for comparison
         molecule.set_cell([
-        [0.0, 0.0, 0.0],
-        [0.0, 0.0, 0.0],
-        [0.0, 0.0, 0.0]
-            ],
-            )
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0]
+        ])
         nocell = desc.create(molecule, positions=[[0, 0, 0]])
 
-        # make periodic
-        desc = SOAP([1,6,8], 10.0, 2, 0, periodic=True, crossover=True,)
+        # Make periodic
+        desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=True, crossover=True,)
         molecule.set_pbc(True)
 
-        # cubic
+        # Cubic
         molecule.set_cell([
-        [3.0, 0.0, 0.0],
-        [0.0, 3.0, 0.0],
-        [0.0, 0.0, 3.0]
-            ],
-            )
+            [3.0, 0.0, 0.0],
+            [0.0, 3.0, 0.0],
+            [0.0, 0.0, 3.0]
+        ])
         cubic_cell = desc.create(molecule, positions=[[0, 0, 0]])
-        suce = molecule * (2,1,1)
+        suce = molecule * (2, 1, 1)
         cubic_suce = desc.create(suce, positions=[[0, 0, 0]])
-        
+
         # triclinic
         molecule.set_cell([
-        [0.0, 2.0, 2.0],
-        [2.0, 0.0, 2.0],
-        [2.0, 2.0, 0.0]
-            ],
-            )
+            [0.0, 2.0, 2.0],
+            [2.0, 0.0, 2.0],
+            [2.0, 2.0, 0.0]
+        ])
         triclinic_cell = desc.create(molecule, positions=[[0, 0, 0]])
-        suce = molecule * (2,1,1)
+        suce = molecule * (2, 1, 1)
         triclinic_suce = desc.create(suce, positions=[[0, 0, 0]])
 
         self.assertTrue(np.sum(np.abs((nocell[:3] - cubic_suce[:3]))) > 0.1)
-        self.assertAlmostEqual(np.sum(cubic_cell[:3] -cubic_suce[:3]), 0)
+        self.assertAlmostEqual(np.sum(cubic_cell[:3] - cubic_suce[:3]), 0)
         self.assertAlmostEqual(np.sum(triclinic_cell[:3] - triclinic_suce[:3]), 0)
-        
+
+    def test_symmetries(self):
+        """Tests that the descriptor has the correct invariances.
+        """
+        def create(system):
+            desc = SOAP(
+                atomic_numbers=system.get_atomic_numbers(),
+                rcut=8.0,
+                lmax=5,
+                nmax=5,
+                periodic=False,
+                crossover=True
+            )
+            return desc.create(system)
+
+        # Rotational check
+        self.assertTrue(self.is_rotationally_symmetric(create))
+
+        # Translational
+        self.assertTrue(self.is_translationally_symmetric(create))
+
+        # Permutational
+        self.assertTrue(self.is_permutation_symmetric(create))
 
 
 if __name__ == '__main__':

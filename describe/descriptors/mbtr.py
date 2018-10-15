@@ -76,10 +76,8 @@ class MBTR(Descriptor):
             k (set or list): The interaction terms to consider from 1 to 3. The
                 size of the final output and the time taken in creating this
                 descriptor is exponentially dependent on this value.
-            periodic (bool): Boolean for if the system is periodic or none. If
-                this is set to true, you should provide the primitive system as
-                input and then the number of periodic copies is determined from the
-                'cutoff'-values specified in the weighting argument.
+            periodic (bool): Determines whether the system is considered to be
+                periodic.
             grid (dictionary): This dictionary can be used to precisely control
                 the broadening width, grid spacing and grid length for all the
                 different terms. Example:
@@ -152,7 +150,16 @@ class MBTR(Descriptor):
         super().__init__(flatten)
         self.system = None
         self.k = k
-        self.atomic_numbers = list(set(atomic_numbers))  # The given atomic numbers are first made into a set to remove duplicates, and then made into list for enabling ordering.
+
+        # Check that atomic numbers are valid.  The given atomic numbers are
+        # first made into a set to remove duplicates, and then made into list
+        # for enabling ordering.
+        self.atomic_numbers = list(set(atomic_numbers))
+        if (np.array(atomic_numbers) <= 0).any():
+            raise ValueError(
+                "Non-positive atomic numbers not allowed."
+            )
+
         self.grid = grid
         self.weighting = weighting
         self.periodic = periodic

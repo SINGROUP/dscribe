@@ -1,5 +1,5 @@
 import describe
-import numpy as np 
+import numpy as np
 import ase
 from scipy.spatial.distance import cdist
 
@@ -14,11 +14,11 @@ class RematchKernel():
 
 
     def compute_envkernel(self, local_a,local_b, gamma = 0.01):
-        """Takes two matrices and computes the similarity 
+        """Takes two matrices and computes the similarity
         based on the gaussian kernel.
         """
-        return cdist(local_a, 
-                local_b, 
+        return cdist(local_a,
+                local_b,
                 lambda u, v: np.exp(-gamma * np.sqrt(((u-v)**2).sum())),
                 )
 
@@ -52,7 +52,7 @@ class RematchKernel():
         glosim = np.zeros((N, M), dtype=np.float64)
         for i,j in envkernel_dict:
             envkernel = envkernel_dict[i,j]
-            glosim[i, j] = self.rematch(envkernel, 
+            glosim[i, j] = self.rematch(envkernel,
                 gamma=gamma, threshold=threshold)
         return glosim
 
@@ -64,7 +64,7 @@ class RematchKernel():
         It uses the Sinkhorn algorithm as reported in:
         Phys. Chem. Chem. Phys., 2016, 18, p. 13768
         Args:
-            envkernel: NxM matrix of structure A with 
+            envkernel: NxM matrix of structure A with
                 N and structure B with M atoms
             gamma: parameter to control between best match gamma = 0
                 and average kernel gamma = inf.

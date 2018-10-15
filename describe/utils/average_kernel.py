@@ -1,5 +1,5 @@
 import describe
-import numpy as np 
+import numpy as np
 import ase
 from scipy.spatial.distance import cdist
 
@@ -12,7 +12,7 @@ class AverageKernel():
         return
 
     def compute_gaussian(self, ave_a,ave_b, gamma = 0.01):
-        """Takes two matrices and computes the similarity 
+        """Takes two matrices and computes the similarity
         based on the gaussian kernel.
         """
         return np.exp(-gamma * np.sqrt(((ave_a - ave_b)**2).sum()))
@@ -62,4 +62,3 @@ class AverageKernel():
             ave_matrix[idx] = structure_matrix.mean(axis = 0)
 
         return ave_matrix
-
