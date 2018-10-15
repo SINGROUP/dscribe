@@ -2,7 +2,6 @@ from __future__ import absolute_import, division, print_function
 from builtins import super
 import math
 import numpy as np
-import chronic
 
 from scipy.spatial.distance import cdist
 from scipy.sparse import lil_matrix, coo_matrix
@@ -279,10 +278,8 @@ class MBTR(Descriptor):
                     assert info["min"] < info["max"], \
                         "The min value should be smaller than the max values"
 
-    @chronic.time
     def describe(self, system):
-        """Return the many-body tensor representation as a 1D array for the
-        given system.
+        """Return the many-body tensor representation for the given system.
 
         Args:
             system (System): The system for which the descriptor is created.
@@ -293,16 +290,18 @@ class MBTR(Descriptor):
                 dictionary contains a corresponding as a k+1 -dimensional
                 tensor. The keys are in the form "k1", "k2", "k3".
             elif sparse == True:
-                scipy.sparse.lil_matrix: The many-body tensor representation up to the k:th term
-                as a flattened array.
-
-        """
+                scipy.sparse.lil_matrix: The many-body tensor representation
+                with the specified k-terms as a flattened sparse array. The
+                lil_matrix format is used to enable efficient construction of
+                MBTR spectrums from multiple samples. You may want to consider
+                transforming the output to the scipy.sparse.csr-format before
+                usage in machine learning libraries.
+       """
         # Initializes the scalar numbers that depend no the system
         self.initialize_scalars(system)
 
         return self.create_with_grid()
 
-    @chronic.time
     def create_with_grid(self, grid=None):
         """Used to recalculate MBTR for an already seen system but with
         different grid setttings. This function can be used after
@@ -616,7 +615,6 @@ class MBTR(Descriptor):
 
         return pdf
 
-    @chronic.time
     def k1_geoms_and_weights(self, system):
         """Calculate the atom count for each element.
 
@@ -642,7 +640,6 @@ class MBTR(Descriptor):
             self._k1_geoms, self._k1_weights = cmbtr.get_k1_geoms_and_weights(geom_func=b"atomic_number", weight_func=b"unity", parameters=parameters)
         return self._k1_geoms, self._k1_weights
 
-    @chronic.time
     def k2_geoms_and_weights(self, system):
         """Calculates the value of the geometry function and corresponding
         weights for unique two-body combinations.
@@ -684,7 +681,6 @@ class MBTR(Descriptor):
             )
         return self._k2_geoms, self._k2_weights
 
-    @chronic.time
     def k3_geoms_and_weights(self, system):
         """Calculates the value of the geometry function and corresponding
         weights for unique three-body combinations.

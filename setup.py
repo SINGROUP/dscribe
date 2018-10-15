@@ -29,7 +29,6 @@ if __name__ == "__main__":
         long_description='A Python package for creating feature transformations in applications of machine learning to materials science.',
         packages=find_packages(),
         install_requires=[
-            'chronic',
             'numpy',
             'scipy',
             'ase',
