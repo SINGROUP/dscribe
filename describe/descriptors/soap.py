@@ -163,6 +163,7 @@ class SOAP(Descriptor):
         only handle a limited amount of elements, but this wrapper enables the
         usage of more elements by partitioning the output.
         """
+        # print(sub_output)
         # Get mapping between elements in the subspace and alements in the full
         # space
         space_map = self.get_sub_to_full_map(sub_elements, full_elements_sorted)
@@ -233,15 +234,7 @@ class SOAP(Descriptor):
         has been flattened by iterating over the elements from left to right
         and top to bottom.
         """
-        if i == j:
-            index = i
-        else:
-            n_temp = n - 1
-            i_temp = i
-            j_temp = j - 1
-            index_temp = int(j_temp + i_temp*n_temp - i_temp*(i_temp+1)/2)
-            index = index_temp + n
-        return index
+        return int(j + i*n - i*(i+1)/2)
 
     def get_number_of_features(self):
         """Used to inquire the final number of features that this descriptor

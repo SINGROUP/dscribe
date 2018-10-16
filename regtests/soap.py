@@ -9,7 +9,6 @@ from describe.descriptors import SOAP
 from testbaseclass import TestBaseClass
 
 from ase import Atoms
-from ase.visualize import view
 
 
 H2O = Atoms(
@@ -41,7 +40,6 @@ H = Atoms(
 
 
 class SoapTests(TestBaseClass, unittest.TestCase):
-# class SoapTests(unittest.TestCase):
 
     def test_constructor(self):
         """Tests different valid and invalid constructor values.
@@ -255,10 +253,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         sys6 = Atoms(symbols=["H", "O"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
         sys7 = Atoms(symbols=["C", "O"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
 
-        # view(sys4)
-        # view(sys5)
-
-        desc = SOAP(atomic_numbers=[1, 6, 8], rcut=5, nmax=3, lmax=5, periodic=True, crossover=True)
+        desc = SOAP(atomic_numbers=[1, 6, 8], rcut=5, nmax=3, lmax=5, periodic=False, crossover=True)
 
         # Create normalized vectors for each system
         vec1 = desc.create(sys1, positions=[[0, 0, 0]]).toarray()[0, :]
@@ -296,10 +291,10 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         self.assertNotEqual(np.sum(h_part4), 0)
 
         # Check that cross terms are in correct location
-        hc_part1 = vec1[3*n_elem_feat:4*n_elem_feat]
-        hc_part4 = vec4[3*n_elem_feat:4*n_elem_feat]
-        co_part6 = vec6[5*n_elem_feat:6*n_elem_feat]
-        co_part7 = vec7[5*n_elem_feat:6*n_elem_feat]
+        hc_part1 = vec1[1*n_elem_feat:2*n_elem_feat]
+        hc_part4 = vec4[1*n_elem_feat:2*n_elem_feat]
+        co_part6 = vec6[4*n_elem_feat:5*n_elem_feat]
+        co_part7 = vec7[4*n_elem_feat:5*n_elem_feat]
         self.assertEqual(np.sum(hc_part1), 0)
         self.assertNotEqual(np.sum(hc_part4), 0)
         self.assertEqual(np.sum(co_part6), 0)
