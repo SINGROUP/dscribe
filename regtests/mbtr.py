@@ -1126,8 +1126,8 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         # mpl.legend()
         # mpl.show()
 
-    def test_vectors(self):
-        """Tests that the MBTR vectors behave correctly as a basis.
+    def test_basis(self):
+        """Tests that the output vectors behave correctly as a basis.
         """
         sys1 = Atoms(symbols=["H"], positions=[[0, 0, 0]], cell=[2, 2, 2], pbc=True)
         sys2 = Atoms(symbols=["O"], positions=[[0, 0, 0]], cell=[2, 2, 2], pbc=True)

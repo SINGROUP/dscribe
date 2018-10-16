@@ -2,6 +2,8 @@ from __future__ import absolute_import, division, print_function
 from builtins import super
 import numpy as np
 
+from scipy.sparse import lil_matrix
+
 from describe.descriptors import Descriptor
 import soaplite
 
@@ -48,6 +50,9 @@ class SOAP(Descriptor):
                 "Non-positive atomic numbers not allowed."
             )
 
+        # Sort the elements according to atomic number
+        self.atomic_numbers = np.sort(np.array(atomic_numbers))
+
         self.rcut = rcut
         self.nmax = nmax
         self.lmax = lmax
@@ -60,19 +65,26 @@ class SOAP(Descriptor):
         """
         self.alphas, self.betas = soaplite.genBasis.getBasisFunc(self.rcut, self.nmax)
 
-    def describe(self, system, positions=[]):
+    def describe(self, system, positions=None):
         """Return the SOAP spectrum for the given system.
 
         Args:
             system (System): The system for which the descriptor is created.
-            positions (list): positions or atom index of points, from which
-                soap is created
+            positions (list): Cartesian positions or atomic indices. If
+                specified, the SOAP spectrum will be created for these points. If
+                not positions defined, the SOAP spectrum will be created for all
+                atoms in the system.
 
         Returns:
-            np.ndarray: The SOAP spectrum for the given positions.
+            scipy.sparse.coo_matrix: The SOAP spectrum for the given system and
+            positions as a 2D sparse matrix. The first dimension is given by
+            the number of positions and the second dimension is determined by
+            the get_number_of_features()-function. The output can be turned
+            into a regular numpy array with the toarray()-function.
         """
         # Ensuring self is updated
         self.update()
+        sub_elements = np.array(list(set(system.get_atomic_numbers())))
 
         # Check if periodic is valid
         if self.periodic:
@@ -82,14 +94,44 @@ class SOAP(Descriptor):
                     "System doesn't have cell to justify periodicity."
                 )
 
-        # Change function if periodic
-        if len(positions):
+        # Positions specified, use them
+        if positions is not None:
+
+            # Change function if periodic
             if self.periodic:
                 soap_func = soaplite.get_periodic_soap_locals
             else:
                 soap_func = soaplite.get_soap_locals
+
+            # Check validity of position definitions and create final cartesian
+            # position list
+            list_positions = []
+            for i in positions:
+                if isinstance(i, int):  # gives index of atom (from zero)
+                    list_positions.append(system.get_positions()[i])
+                elif isinstance(i, list) or isinstance(i, tuple):
+                    list_positions.append(i)
+                else:
+                    raise ValueError(
+                        "Create method requires the argument 'positions', a list of"
+                        "atom indices and/or positions"
+                    )
+
+            soap_mat = soap_func(
+                system,
+                list_positions,
+                self.alphas,
+                self.betas,
+                rCut=self.rcut,
+                NradBas=self.nmax,
+                Lmax=self.lmax,
+                crossOver=self.crossover,
+                all_atomtypes=sub_elements.tolist()
+            )
+        # No positions given, calculate SOAP for all atoms in the structure
         else:
-            # No positions given
+
+            # Change function if periodic
             if self.periodic:
                 soap_func = soaplite.get_periodic_soap_structure
             else:
@@ -103,36 +145,103 @@ class SOAP(Descriptor):
                 NradBas=self.nmax,
                 Lmax=self.lmax,
                 crossOver=self.crossover,
-                all_atomtypes=self.atomic_numbers
+                all_atomtypes=sub_elements.tolist()
             )
-            return soap_mat
 
-        list_positions = []
-
-        for i in positions:
-            if isinstance(i, int):  # gives index of atom (from zero)
-                list_positions.append(system.get_positions()[i])
-            elif isinstance(i, list) or isinstance(i, tuple):
-                list_positions.append(i)
-            else:
-                raise ValueError(
-                    "Create method requires the argument 'positions', a list of"
-                    "atom indices and/or positions"
-                )
-
-        soap_mat = soap_func(
-            system,
-            list_positions,
-            self.alphas,
-            self.betas,
-            rCut=self.rcut,
-            NradBas=self.nmax,
-            Lmax=self.lmax,
-            crossOver=self.crossover,
-            all_atomtypes=self.atomic_numbers
+        # Map the output from subspace of elements to the full space of
+        # elements
+        soap_mat = self.get_full_space_output(
+            soap_mat,
+            sub_elements,
+            self.atomic_numbers
         )
-
         return soap_mat
+
+    def get_full_space_output(self, sub_output, sub_elements, full_elements_sorted):
+        """Used to partition the SOAP output to different locations depending
+        on the interacting elements. The SOAPLite implementation can currently
+        only handle a limited amount of elements, but this wrapper enables the
+        usage of more elements by partitioning the output.
+        """
+        # Get mapping between elements in the subspace and alements in the full
+        # space
+        space_map = self.get_sub_to_full_map(sub_elements, full_elements_sorted)
+
+        # Reserve space for a sparse matric containing the full output space
+        n_features = self.get_number_of_features()
+        n_elem_features = self.get_number_of_element_features()
+        n_points = sub_output.shape[0]
+
+        # Define the final output space as a sparse matrix.
+        output = lil_matrix((n_points, n_features), dtype=np.float32)
+
+        n_elem_sub = len(sub_elements)
+        n_elem_full = len(full_elements_sorted)
+        for i_sub in range(n_elem_sub):
+            for j_sub in range(n_elem_sub):
+                if j_sub >= i_sub:
+
+                    # This is the index of the spectrum. It is given by enumerating the
+                    # elements of an upper triangular matrix from left to right and top
+                    # to bottom.
+                    m = self.get_flattened_index(i_sub, j_sub, n_elem_sub)
+                    start_sub = m*n_elem_features
+                    end_sub = (m+1)*n_elem_features
+                    sub_out = sub_output[:, start_sub:end_sub]
+
+                    # Figure out position in the full element space
+                    i_full = space_map[i_sub]
+                    j_full = space_map[j_sub]
+                    m_full = self.get_flattened_index(i_full, j_full, n_elem_full)
+
+                    # Place output to full output vector
+                    start_full = m_full*n_elem_features
+                    end_full = (m_full+1)*n_elem_features
+                    output[:, start_full:end_full] = sub_out
+
+        # Now that the filling of the sparse matrix is done, we can transform
+        # it to coo-format, which is more effective when creating big matrices,
+        # but does not support direct splicing.
+        return output.tocoo()
+
+    def get_sub_to_full_map(self, sub_elements, full_elements):
+        """Used to map an index in the sub-space of elements to the full
+        element-space.
+        """
+        # Sort the elements according to atomic number
+        sub_elements_sorted = np.sort(sub_elements)
+        full_elements_sorted = np.sort(full_elements)
+
+        mapping = {}
+        for i_sub, z in enumerate(sub_elements_sorted):
+            i_full = np.where(full_elements_sorted == z)[0][0]
+            mapping[i_sub] = i_full
+
+        return mapping
+
+    def get_number_of_element_features(self):
+        """Used to query the number of elements in the SOAP feature space for
+        a single element pair.
+
+        Returns:
+            int: The number of features per element pair.
+        """
+        return int((self.lmax + 1) * self.nmax * (self.nmax + 1)/2)
+
+    def get_flattened_index(self, i, j, n):
+        """Returns the 1D index of an element in an upper diagonal matrix that
+        has been flattened by iterating over the elements from left to right
+        and top to bottom.
+        """
+        if i == j:
+            index = i
+        else:
+            n_temp = n - 1
+            i_temp = i
+            j_temp = j - 1
+            index_temp = int(j_temp + i_temp*n_temp - i_temp*(i_temp+1)/2)
+            index = index_temp + n
+        return index
 
     def get_number_of_features(self):
         """Used to inquire the final number of features that this descriptor
@@ -141,10 +250,12 @@ class SOAP(Descriptor):
         Returns:
             int: Number of features for this descriptor.
         """
+        n_elems = len(self.atomic_numbers)
         if self.crossover:
-            n_blocks = len(self.atomic_numbers) * (len(self.atomic_numbers) + 1) \
-                / 2
+            n_blocks = n_elems * (n_elems + 1)/2
         else:
-            n_blocks = len(self.atomic_numbers)
+            n_blocks = n_elems
 
-        return int((self.lmax + 1) * self.nmax * (self.nmax + 1) / 2 * n_blocks)
+        n_element_features = self.get_number_of_element_features()
+
+        return int(n_element_features * n_blocks)
