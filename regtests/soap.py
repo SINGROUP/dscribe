@@ -2,8 +2,11 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
 
 import math
-import numpy as np
 import unittest
+
+import numpy as np
+
+import scipy.sparse
 
 from describe.descriptors import SOAP
 from testbaseclass import TestBaseClass
@@ -70,15 +73,19 @@ class SoapTests(TestBaseClass, unittest.TestCase):
     def test_flatten(self):
         """Tests the flattening.
         """
-        # Unflattened
-        # desc = SOAP(n_atoms_max=5, permutation="none", flatten=False)
-        # cm = desc.create(H2O)
-        # self.assertEqual(cm.shape, (5, 5))
 
-        # # Flattened
-        # desc = SOAP(n_atoms_max=5, permutation="none", flatten=True)
-        # cm = desc.create(H2O)
-        # self.assertEqual(cm.shape, (25,))
+    def test_sparse(self):
+        """Tests the sparse matrix creation.
+        """
+        # Dense
+        desc = SOAP(atomic_numbers=[1, 8], rcut=5, nmax=5, lmax=5, periodic=True, sparse=False)
+        vec = desc.create(H2O)
+        self.assertTrue(type(vec) == np.ndarray)
+
+        # Sparse
+        desc = SOAP(atomic_numbers=[1, 8], rcut=5, nmax=5, lmax=5, periodic=True, sparse=True)
+        vec = desc.create(H2O)
+        self.assertTrue(type(vec) == scipy.sparse.coo_matrix)
 
     def test_positions(self):
         """Tests that different positions are handled correctly.

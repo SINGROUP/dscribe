@@ -4,6 +4,8 @@ from builtins import (bytes, str, open, super, range, zip, round, input, int, po
 import math
 import numpy as np
 import unittest
+
+import scipy.sparse
 from scipy.signal import find_peaks_cwt
 
 from describe.descriptors import MBTR
@@ -87,43 +89,26 @@ H = Atoms(
 
 class MBTRTests(TestBaseClass, unittest.TestCase):
 
-    def dict_comparison(self, first, second):
-        """Used to compare values in two dictionaries.
-        """
-        n_first = len(first)
-        n_second = len(second)
-
-        if n_first != n_second:
-            raise ValueError(
-                "The dictionaries do not have the same number of elements."
-            )
-
-        first_keys = set(first.keys())
-        second_keys = set(second.keys())
-        if first_keys != second_keys:
-            raise ValueError(
-                "The dictionaries do not have the same keys."
-            )
-
-        for key in first_keys:
-            assumed_elem = second[key]
-            true_elem = first[key]
-
-            # Sort the lists first to perform comparison
-            assumed_elem.sort()
-            true_elem.sort()
-            for i_elem, val_assumed in enumerate(assumed_elem):
-                val_true = true_elem[i_elem]
-                self.assertAlmostEqual(val_assumed, val_true, places=6)
-
     def test_constructor(self):
         """Tests different valid and invalid constructor values.
         """
+        # Cannot create a sparse and non-flattened output.
+        with self.assertRaises(ValueError):
+            MBTR(
+                atomic_numbers=[1],
+                k=[1],
+                grid=default_grid,
+                periodic=False,
+                flatten=False,
+                sparse=True,
+            )
+
         # Invalid k value not in an iterable
         with self.assertRaises(ValueError):
             MBTR(
                 atomic_numbers=[1],
                 k=0,
+                grid=default_grid,
                 periodic=False,
             )
 
@@ -132,14 +117,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             MBTR(
                 atomic_numbers=[1],
                 k=[-1, 2],
-                periodic=False,
-            )
-
-        # k not an iterable
-        with self.assertRaises(ValueError):
-            MBTR(
-                atomic_numbers=[1],
-                k=1,
+                grid=default_grid,
                 periodic=False,
             )
 
@@ -148,6 +126,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             MBTR(
                 atomic_numbers=[1],
                 k={1, 4},
+                grid=default_grid,
                 periodic=False,
             )
 
@@ -156,6 +135,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             MBTR(
                 atomic_numbers=[1],
                 k={2},
+                grid=default_grid,
                 weighting={"k2": {"function": "exp"}},
                 periodic=True,
             )
@@ -165,6 +145,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             MBTR(
                 atomic_numbers=[1],
                 k={2},
+                grid=default_grid,
                 weighting={"k2": {"function": "exponential"}},
                 periodic=True,
             )
@@ -174,6 +155,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             MBTR(
                 atomic_numbers=[1],
                 k={2},
+                grid=default_grid,
                 weighting={"k2": {"function": "exponential", "cutoff": 1e-2}},
                 periodic=True,
             )
@@ -182,6 +164,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         MBTR(
             atomic_numbers=[1],
             k={2},
+            grid=default_grid,
             periodic=False,
         )
 
@@ -190,6 +173,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             MBTR(
                 atomic_numbers=[1],
                 k={2},
+                grid=default_grid,
                 periodic=True,
                 weighting={"k2": {"function": "unity"}},
             )
@@ -282,7 +266,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         n_species = len(set(system.get_atomic_numbers()))
 
         # K1 unflattened
-        desc = MBTR([1, 8], k=[1], grid={"k1": {"n": n, "min": 1, "max": 8, "sigma": 0.1}}, periodic=False, flatten=False)
+        desc = MBTR([1, 8], k=[1], grid={"k1": {"n": n, "min": 1, "max": 8, "sigma": 0.1}}, periodic=False, flatten=False, sparse=False)
         feat = desc.create(system)["k1"]
         self.assertEqual(feat.shape, (n_species, n))
 
@@ -291,6 +275,19 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         desc = MBTR([1, 8], k=[1], grid={"k1": {"n": n, "min": 1, "max": 8, "sigma": 0.1}}, periodic=False)
         feat = desc.create(system)
         self.assertEqual(feat.shape, (1, n_species*n))
+
+    def test_sparse(self):
+        """Tests the sparse matrix creation.
+        """
+        # Dense
+        desc = MBTR([1, 8], k=[1], grid=default_grid, periodic=False, flatten=True, sparse=False)
+        vec = desc.create(H2O)
+        self.assertTrue(type(vec) == np.ndarray)
+
+        # Sparse
+        desc = MBTR([1, 8], k=[1], grid=default_grid, periodic=False, flatten=True, sparse=True)
+        vec = desc.create(H2O)
+        self.assertTrue(type(vec) == scipy.sparse.coo_matrix)
 
     def test_k1_weights_and_geoms_finite(self):
         """Tests that the values of the weight and geometry functions are
@@ -678,7 +675,8 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             },
             periodic=False,
             normalize_gaussians=True,
-            flatten=False)
+            flatten=False,
+            sparse=False)
         y = mbtr.create(H2O)["k1"]
         k1_axis = mbtr._axis_k1
 
@@ -718,7 +716,8 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             },
             periodic=False,
             normalize_gaussians=False,
-            flatten=False)
+            flatten=False,
+            sparse=False)
         y = mbtr.create(H2O)["k1"]
         k1_axis = mbtr._axis_k1
 

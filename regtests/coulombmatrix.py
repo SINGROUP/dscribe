@@ -91,6 +91,19 @@ class CoulombMatrixTests(TestBaseClass, unittest.TestCase):
         cm = desc.create(H2O)
         self.assertEqual(cm.shape, (25,))
 
+    def test_sparse(self):
+        """Tests the sparse matrix creation.
+        """
+        # Dense
+        desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=False, sparse=False)
+        vec = desc.create(H2O)
+        self.assertTrue(type(vec) == np.ndarray)
+
+        # Sparse
+        desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=True, sparse=True)
+        vec = desc.create(H2O)
+        self.assertTrue(type(vec) == scipy.sparse.coo_matrix)
+
     def test_features(self):
         """Tests that the correct features are present in the desciptor.
         """
@@ -366,8 +379,8 @@ class RandomCoulombMatrixTests(TestBaseClass, unittest.TestCase):
 if __name__ == '__main__':
     suites = []
     suites.append(unittest.TestLoader().loadTestsFromTestCase(CoulombMatrixTests))
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(SortedCoulombMatrixTests))
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(CoulombMatrixEigenSpectrumTests))
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(RandomCoulombMatrixTests))
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SortedCoulombMatrixTests))
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(CoulombMatrixEigenSpectrumTests))
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(RandomCoulombMatrixTests))
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)

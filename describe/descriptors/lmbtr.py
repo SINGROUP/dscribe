@@ -8,6 +8,7 @@ from ase import Atoms
 # from ase.visualize import view
 
 from describe.descriptors import MBTR
+from describe.libmbtr.cmbtrwrapper import CMBTRWrapper
 
 from scipy.spatial.distance import cdist
 
@@ -55,10 +56,12 @@ class LMBTR(MBTR):
             atomic_numbers,
             k,
             periodic,
-            grid=None,
+            grid,
+            virtual_positions,
             weighting=None,
             normalize_gaussians=True,
             flatten=True,
+            sparse=True,
             ):
         """
         Args:
@@ -100,6 +103,12 @@ class LMBTR(MBTR):
                 maximum value of the axis, 'sigma' is the standard devation of
                 the gaussian broadening and 'n' is the number of points sampled
                 on the grid.
+            virtual_positions (bool): Determines whether the local positions
+                are virtual or not. A virtual position does not correspond to any
+                physical atom, and is thus not repeated in periodic systems. If set
+                to False, the position corresponds to a physical atom which will be
+                repeated in periodic systems and may interact with periodic copies
+                of itself.
             weighting (dictionary or string): A dictionary of weighting
                 function settings for each term. Example:
 
@@ -137,14 +146,15 @@ class LMBTR(MBTR):
                 is dropped and the gaussians have the form.
                 :math:`e^-(x-\mu)^2/2\sigma^2`
             flatten (bool): Whether the output of create() should be flattened
-                to a 1D array. If False, a list of the different tensors is
+                to a 1D array. If False, a dictionary of the different tensors is
                 provided.
+            sparse (bool): Whether the output should be a sparse matrix or a
+                dense numpy array.
 
         Raises:
             ValueError if the given k value is not supported, or the weighting
             is not specified for periodic systems.
         """
-        self.is_virtual = None
         super().__init__(
             atomic_numbers,
             k,
@@ -154,13 +164,11 @@ class LMBTR(MBTR):
             normalize_by_volume=False,
             normalize_gaussians=normalize_gaussians,
             flatten=flatten,
+            sparse=sparse,
         )
-
-    def initialize_atomic_numbers(self, atomic_numbers):
-        """Used to initialize the list of atomic numbers.
-        """
-        super().initialize_atomic_numbers(atomic_numbers)
-        self.atomic_numbers.append(0)  # The ghost atoms will have atomic number 0
+        self._virtual_positions = virtual_positions
+        self._is_local = True
+        self._interaction_limit = 1
 
     def update(self):
         """Updates relevant objects attached to LMBTR class, after changing
@@ -169,26 +177,20 @@ class LMBTR(MBTR):
         self.atomic_numbers = np.unique(self.atomic_numbers + [0]).tolist()
         super().update()
 
-    def describe(self,
-                 system,
-                 positions,
-                 is_virtual=False,
-                 scaled_positions=False
-                 ):
-        """Return the local many-body tensor representation as a 1D array for the
-        given system.
+    def create(
+            self,
+            system,
+            positions,
+            scaled_positions=False
+            ):
+        """Return the local many-body tensor representation for the given
+        system and positions.
 
         Args:
-            system (System): The system for which the descriptor is created.
+            system (:class:`ase.Atoms` | :class:`.System`): Input system.
             positions (iterable): Positions or atom index of points, from
                 which local_mbtr is created. Can be a list of integer numbers
                 or a list of xyz-coordinates.
-            is_virtual (bool): Determines whether the given position is virtual
-                or not. A virtual position does not correspond to any physical
-                atom, and is thus not repeated in periodic systems. If set to
-                False, the position corresponds to a physical atom which will
-                be repeated in periodic systems and may interact with periodic
-                copies of itself.
             scaled_positions (boolean): Controls whether the given positions
                 are given as scaled to the unit cell basis or not. Scaled
                 positions require that a cell is available for the system.
@@ -198,7 +200,8 @@ class LMBTR(MBTR):
                 positions, for k terms, as an array. These are ordered as given
                 in positions.
         """
-        self.is_virtual = is_virtual
+        # Transform the input system into the internal System-object
+        system = self.get_system(system)
 
         # Ensure that the atomic number 0 is not present in the system
         if 0 in system.get_atomic_numbers():
@@ -220,49 +223,40 @@ class LMBTR(MBTR):
 
         # Figure out the atom index or atom location from the given positions
         systems = []
-        for i in positions:
-            index = None
-            new_location = None
-            if isinstance(i, (list, tuple, np.ndarray)):
-                if scaled_positions:
-                    new_location = np.dot(i, system.get_cell())
-                else:
-                    new_location = np.array(i)
-            elif type(i) is int:
-                if i >= len(system):
+
+        # If virtual positions requested, create new atoms with atomic number 0
+        # at the requested position.
+        for i_pos in positions:
+            if self._virtual_positions:
+                if not isinstance(i_pos, (list, tuple, np.ndarray)):
                     raise ValueError(
-                        "Atom index: {}, larger than total number of atoms."
-                        .format(i)
+                        "The given position of type '{}' could not be "
+                        "interpreted as a valid location. If you wish to use "
+                        "existing atoms as centers, please set "
+                        "'virtual_positions' to False.".format(type(i_pos))
                     )
-                index = i
-            else:
-                raise ValueError(
-                    "Create method requires the argument positions, a list of "
-                    "atom indices and/or positions."
-                )
+                if scaled_positions:
+                    i_pos = np.dot(i_pos, system.get_cell())
+                else:
+                    i_pos = np.array(i_pos)
 
-            # If a position that does not match any existing atom is given,
-            # create a ghost atom and add the old system to it.
-            if new_location is not None:
-
-                # Adding a dimension to the center atom location as ASE.Atoms
-                # assumes a list of positions.
-                new_location = np.expand_dims(new_location, axis=0)
-
-                new_system = System(
-                    'X1',
-                    positions=new_location
-                )
+                i_pos = np.expand_dims(i_pos, axis=0)
+                new_system = System('X', positions=i_pos)
                 new_system += system
-            # If a specific atom is marked to be in the center, move it to be
-            # at index 0 in the system.
-            elif index is not None:
+            else:
+                if not isinstance(i_pos, (int)):
+                    raise ValueError(
+                        "The given position of type '{}' could not be "
+                        "interpreted as a valid index. If you wish to use "
+                        "custom locations as centers, please set "
+                        "'virtual_positions' to True.".format(type(i_pos))
+                    )
+                new_system = Atoms()
+                center_atom = system[i_pos]
+                new_system += center_atom
                 system_copy = system.copy()
-                center_atom = system[index]
-                center_atom.symbol = "X"
-                center_atom = System.from_atoms(Atoms() + center_atom)
-                del system_copy[index]
-                new_system = center_atom + system_copy
+                del system_copy[i_pos]
+                new_system += system_copy
 
             # Set the periodicity and cell to match the original system, as
             # they are lost in the system concatenation
@@ -271,141 +265,16 @@ class LMBTR(MBTR):
 
             systems.append(new_system)
 
+        # Request MBTR for each positions
         desc = np.empty(len(positions), dtype='object')
         for i, i_system in enumerate(systems):
-            i_desc = super().describe(i_system)
+            i_desc = super().create(i_system)
             desc[i] = i_desc
 
         return desc
 
-    def get_original_system_limit(self, system):
-        """Used to return the limit of atoms considered to be part of the
-        original system. In the local MBTR implementation only the first atom
-        is considered, as it is the central ghost atom.
+    def initialize_atomic_numbers(self, atomic_numbers):
+        """Used to initialize the list of atomic numbers.
         """
-        return 1
-
-    def create_extended_system(self, primitive_system, term_number):
-        """Used to create a periodically extended system, that is as small as
-        possible by rejecting atoms for which the given weighting will be below
-        the given threshold.
-
-        Modified for the local MBTR to only consider distances from the central
-        atom and to enable taking the
-
-        Args:
-            primitive_system (System): The original primitive system to
-                duplicate.
-            term_number (int): The term number of the tensor. For k=2, the max
-                distance is x, for k>2, the distance is given by 2*x.
-
-        Returns:
-            System: The new system that is extended so that each atom can at
-            most have a weight that is larger or equivalent to the given
-            threshold.
-        """
-        numbers = primitive_system.numbers
-        relative_pos = primitive_system.get_scaled_positions()
-        cartesian_pos = np.array(primitive_system.get_positions())
-        cell = primitive_system.get_cell()
-
-        # Determine the upper limit of how many copies we need in each cell
-        # vector direction. We take as many copies as needed for the
-        # exponential weight to come down to the given threshold.
-        cell_vector_lengths = np.linalg.norm(cell, axis=1)
-        n_copies_axis = np.zeros(3, dtype=int)
-        weight_info = self.weighting["k{}".format(term_number)]
-        weighting_function = weight_info["function"]
-        cutoff = self.weighting["k{}".format(term_number)]["cutoff"]
-
-        if weighting_function == "exponential":
-            scale = weight_info["scale"]
-            function = lambda x: np.exp(-scale*x)
-
-        for i_axis, axis_length in enumerate(cell_vector_lengths):
-            limit_found = False
-            n_copies = -1
-            while (not limit_found):
-                n_copies += 1
-                distance = n_copies*cell_vector_lengths[0]
-
-                # For terms k>2 we double the distances to take into
-                # account the "loop" that is required.
-                if term_number > 2:
-                    distance = 2*distance
-
-                weight = function(distance)
-                if weight < cutoff:
-                    n_copies_axis[i_axis] = n_copies
-                    limit_found = True
-
-        # Create copies of the cell but keep track of the atoms in the
-        # original cell
-        num_extended = []
-        pos_extended = []
-        num_extended.append(numbers)
-        pos_extended.append(cartesian_pos)
-        a = np.array([1, 0, 0])
-        b = np.array([0, 1, 0])
-        c = np.array([0, 0, 1])
-        for i in range(-n_copies_axis[0], n_copies_axis[0]+1):
-            for j in range(-n_copies_axis[1], n_copies_axis[1]+1):
-                for k in range(-n_copies_axis[2], n_copies_axis[2]+1):
-                    if i == 0 and j == 0 and k == 0:
-                        continue
-
-                    # Calculate the positions of the copied atoms and filter
-                    # out the atoms that are farther away than the given
-                    # cutoff.
-
-                    # If the given position is virtual and does not correspond
-                    # to a physical atom, the position is not repeated in the
-                    # copies.
-                    if self.is_virtual:
-                        num_copy = np.array(numbers)[1:]
-                        pos_copy = np.array(relative_pos)[1:]
-
-                    # If the given position is not virtual and corresponds to
-                    # an actual physical atom, the ghost atom is repeated in
-                    # the extended system.
-                    else:
-                        num_copy = np.array(numbers)
-                        pos_copy = np.array(relative_pos)
-
-                    pos_shifted = pos_copy-i*a-j*b-k*c
-                    pos_copy_cartesian = np.dot(pos_shifted, cell)
-
-                    # In local MBTR only distances from the central atom to
-                    # other atoms are considered.
-                    positions_to_consider = np.expand_dims(cartesian_pos[0], axis=0)
-                    distances = cdist(pos_copy_cartesian, positions_to_consider)
-
-                    # For terms above k==2 we double the distances to take into
-                    # account the "loop" that is required.
-                    if term_number > 2:
-                        distances *= 2
-
-                    weights = function(distances)
-                    weight_mask = weights >= cutoff
-
-                    # Create a boolean mask that says if the atom is within the
-                    # range from at least one atom in the original cell
-                    valids_mask = np.any(weight_mask, axis=1)
-
-                    valid_pos = pos_copy_cartesian[valids_mask]
-                    valid_num = num_copy[valids_mask]
-
-                    pos_extended.append(valid_pos)
-                    num_extended.append(valid_num)
-
-        pos_extended = np.concatenate(pos_extended)
-        num_extended = np.concatenate(num_extended)
-
-        extended_system = System(
-            positions=pos_extended,
-            numbers=num_extended,
-            cell=cell,
-            pbc=False
-        )
-
-        return extended_system
+        super().initialize_atomic_numbers(atomic_numbers)
+        self.atomic_numbers.append(0)  # The ghost atoms will have atomic number 0

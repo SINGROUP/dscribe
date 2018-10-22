@@ -4,6 +4,7 @@ from builtins import (bytes, str, open, super, range,
 
 import numpy as np
 
+from describe import System
 from describe.descriptors.matrixdescriptor import MatrixDescriptor
 
 
@@ -34,7 +35,16 @@ class CoulombMatrix(MatrixDescriptor):
     """
     def get_matrix(self, system):
         """Creates the Coulomb matrix for the given system.
+
+        Args:
+            system (:class:`ase.Atoms` | :class:`.System`): Input system.
+
+        Returns:
+            np.ndarray: Coulomb matrix.
         """
+        # Create a System class for internal use
+        system = self.atoms_to_system(system)
+
         # Make sure that the system is non-periodic
         system.set_pbc(False)
 

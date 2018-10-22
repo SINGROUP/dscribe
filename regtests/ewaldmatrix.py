@@ -82,6 +82,19 @@ class EwaldMatrixTests(TestBaseClass, unittest.TestCase):
         matrix = desc.create(H2O)
         self.assertEqual(matrix.shape, (25,))
 
+    def test_sparse(self):
+        """Tests the sparse matrix creation.
+        """
+        # Dense
+        desc = EwaldMatrix(n_atoms_max=5, permutation="none", flatten=True, sparse=False)
+        vec = desc.create(H2O)
+        self.assertTrue(type(vec) == np.ndarray)
+
+        # Sparse
+        desc = EwaldMatrix(n_atoms_max=5, permutation="none", flatten=True, sparse=True)
+        vec = desc.create(H2O)
+        self.assertTrue(type(vec) == scipy.sparse.coo_matrix)
+
     def test_a_independence(self):
         """Tests that the matrix elements are independent of the screening
         parameter 'a' used in the Ewald summation. Notice that the real space

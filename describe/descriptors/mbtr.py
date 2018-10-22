@@ -57,11 +57,12 @@ class MBTR(Descriptor):
             atomic_numbers,
             k,
             periodic,
-            grid=None,
+            grid,
             weighting=None,
             normalize_by_volume=False,
             normalize_gaussians=True,
-            flatten=True
+            flatten=True,
+            sparse=True
             ):
         """
         Args:
@@ -140,16 +141,29 @@ class MBTR(Descriptor):
                 normalization factor is dropped and the gaussians have the form.
                 :math:`e^-(x-\mu)^2/2\sigma^2`
             flatten (bool): Whether the output of create() should be flattened
-                to a 1D array. If False, a list of the different tensors is
-                provided.
+                to a 1D array. If False, a dictionary of the different tensors
+                is provided.
+            sparse (bool): Whether the output should be a sparse matrix or a
+                dense numpy array.
 
         Raises:
             ValueError if the given k value is not supported, or the weighting
             is not specified for periodic systems.
         """
-        super().__init__(flatten)
+
+        if sparse and not flatten:
+            raise ValueError(
+                "Cannot provide a non-flattened output in sparse output because"
+                " only 2D sparse matrices are supported. If you want a "
+                "non-flattened output, please specify sparse=False in the MBTR"
+                "constructor."
+            )
+        super().__init__(flatten, sparse)
         self.system = None
-        self.k = k
+        if isinstance(k, int):
+            self.k = [k]
+        else:
+            self.k = k
         self.initialize_atomic_numbers(atomic_numbers)
         self.grid = grid
         self.weighting = weighting
@@ -159,7 +173,9 @@ class MBTR(Descriptor):
         self.update()
 
         # Initializing .create() level variables
-        self.n_atoms_in_cell = None
+        self._interaction_limit = None
+        self._is_local = False
+        self._virtual_positions = False
         self._k1_geoms = None
         self._k1_weights = None
         self._k2_geoms = None
@@ -292,25 +308,23 @@ class MBTR(Descriptor):
                     assert info["min"] < info["max"], \
                         "The min value should be smaller than the max values"
 
-    def describe(self, system):
+    def create(self, system):
         """Return the many-body tensor representation for the given system.
 
         Args:
-            system (System): The system for which the descriptor is created.
+            system (:class:`ase.Atoms` | :class:`.System`): Input system.
 
         Returns:
-            if sparse == False:
-                Dictionary of np.ndarrays. For each requested k-term, the
-                dictionary contains a corresponding as a k+1 -dimensional
-                tensor. The keys are in the form "k1", "k2", "k3".
-            elif sparse == True:
-                scipy.sparse.coo_matrix: The many-body tensor representation
-                with the specified k-terms as a flattened sparse array. The
-                coo-format is used to enable efficient construction of MBTR
-                spectrums. You may want to consider transforming the output to
-                the scipy.sparse.csr-format before usage in machine learning
-                libraries.
+            dict | np.ndarray | scipy.sparse.coo_matrix: The return type is
+            specified by the 'flatten' and 'sparse'-parameters. If the output
+            is not flattened, a dictionary containing of MBTR outputs as numpy
+            arrays is created. Each output is under a "kX" key. If the output
+            is flattened, a single concatenated output vector is returned,
+            either as a sparse or a dense vector.
        """
+        # Transform the input system into the internal System-object
+        system = self.get_system(system)
+
         # Initializes the scalar numbers that depend no the system
         self.initialize_scalars(system)
 
@@ -328,9 +342,6 @@ class MBTR(Descriptor):
 
         mbtr = {}
         if 1 in self.k:
-
-            # We will use the original system to calculate the counts, unlike
-            # with the other terms that use the extended system
             settings_k1 = self.get_k1_settings()
             k1 = self.K1(settings_k1)
             mbtr["k1"] = k1
@@ -341,11 +352,18 @@ class MBTR(Descriptor):
             mbtr["k2"] = k2
 
         if 3 in self.k:
-
             settings_k3 = self.get_k3_settings()
             k3 = self.K3(settings_k3)
             mbtr["k3"] = k3
 
+        # Normalize with respect to cell volume if requested
+        if self.normalize_by_volume:
+            volume = self.system.get_volume()
+            for key, value in mbtr.items():
+                norm_value = value/volume
+                mbtr[key] = norm_value
+
+        # Flatten output if requested
         if self.flatten:
             length = 0
 
@@ -364,32 +382,19 @@ class MBTR(Descriptor):
             datas = np.concatenate(datas)
             rows = np.concatenate(rows)
             cols = np.concatenate(cols)
-            final_vector = coo_matrix((datas, (rows, cols)), shape=[1, length], dtype=np.float32)
+            mbtr = coo_matrix((datas, (rows, cols)), shape=[1, length], dtype=np.float32)
 
-            if self.normalize_by_volume:
-                volume = self.system.get_volume()
-                final_vector /= volume
-            return final_vector
+            # Make into a dense array if requested
+            if not self.sparse:
+                mbtr = mbtr.toarray()
 
-        # Normalize with respect to cell volume if requested
-        else:
-            if self.normalize_by_volume:
-                volume = self.system.get_volume()
-                for part in mbtr:
-                    part /= volume
-            return mbtr
-
-    def get_original_system_limit(self, system):
-        """Used to return the limit of atoms considered to be part of the
-        original system.
-        """
-        return len(system)
+        return mbtr
 
     def initialize_scalars(self, system):
         """Used to initialize the scalar values for each k-term.
         """
         # Ensuring variables are re-initialized when a new system is introduced
-        self.n_atoms_in_cell = None
+        self._interaction_limit = None
         self.system = system
         self._k1_geoms = None
         self._k1_weights = None
@@ -403,7 +408,10 @@ class MBTR(Descriptor):
 
         self.update()
 
-        self.n_atoms_in_cell = self.get_original_system_limit(system)
+        if self._is_local:
+            self._interaction_limit = 1
+        else:
+            self._interaction_limit = len(system)
         present_element_numbers = set(system.numbers)
         self.present_indices = set()
         for number in present_element_numbers:
@@ -488,6 +496,9 @@ class MBTR(Descriptor):
         possible by rejecting atoms for which the given weighting will be below
         the given threshold.
 
+        Modified for the local MBTR to only consider distances from the central
+        atom and to enable taking the virtual sites into account.
+
         Args:
             primitive_system (System): The original primitive system to
                 duplicate.
@@ -499,14 +510,10 @@ class MBTR(Descriptor):
             most have a weight that is larger or equivalent to the given
             threshold.
         """
-        numbers = primitive_system.numbers
+        numbers = np.array(primitive_system.numbers)
+        relative_pos = np.array(primitive_system.get_scaled_positions())
         cartesian_pos = np.array(primitive_system.get_positions())
-        cell = primitive_system.get_cell()
-
-        # Get the scaled positions, but do not wrap them. This is critical
-        # because otherwise due to numerical precision atoms may get wrapped
-        # so that they overlap with the original system.
-        relative_pos = primitive_system.get_scaled_positions(wrap=False)
+        cell = np.array(primitive_system.get_cell())
 
         # Determine the upper limit of how many copies we need in each cell
         # vector direction. We take as many copies as needed for the
@@ -552,17 +559,31 @@ class MBTR(Descriptor):
                 for k in range(-n_copies_axis[2], n_copies_axis[2]+1):
                     if i == 0 and j == 0 and k == 0:
                         continue
-                    num_copy = np.array(numbers)
 
                     # Calculate the positions of the copied atoms and filter
                     # out the atoms that are farther away than the given
                     # cutoff.
-                    pos_copy = np.array(relative_pos)-i*a-j*b-k*c
-                    pos_copy_cartesian = np.dot(pos_copy, cell)
 
-                    # In MBTR we consider all distances from the original cell
-                    # to atoms in periodic copies of the system.
-                    positions_to_consider = cartesian_pos
+                    # If the given position is virtual and does not correspond
+                    # to a physical atom, the position is not repeated in the
+                    # copies.
+                    if self._virtual_positions and self._interaction_limit == 1:
+                        num_copy = np.array(numbers)[1:]
+                        pos_copy = np.array(relative_pos)[1:]
+
+                    # If the given position is not virtual and corresponds to
+                    # an actual physical atom, the ghost atom is repeated in
+                    # the extended system.
+                    else:
+                        num_copy = np.array(numbers)
+                        pos_copy = np.array(relative_pos)
+
+                    pos_shifted = pos_copy-i*a-j*b-k*c
+                    pos_copy_cartesian = np.dot(pos_shifted, cell)
+
+                    # Only distances to the atoms within the interaction limit
+                    # are considered.
+                    positions_to_consider = cartesian_pos[0:self._interaction_limit]
                     distances = cdist(pos_copy_cartesian, positions_to_consider)
 
                     # For terms above k==2 we double the distances to take into
@@ -649,7 +670,8 @@ class MBTR(Descriptor):
                 system.get_positions(),
                 system.get_atomic_numbers(),
                 self.atomic_number_to_index,
-                self.n_atoms_in_cell
+                interaction_limit=self._interaction_limit,
+                is_local=self._is_local
             )
 
             # For k=1, the geometry function is given by the atomic number, and
@@ -676,7 +698,8 @@ class MBTR(Descriptor):
                 system.get_positions(),
                 system.get_atomic_numbers(),
                 self.atomic_number_to_index,
-                self.n_atoms_in_cell
+                interaction_limit=self._interaction_limit,
+                is_local=self._is_local
             )
 
             # Determine the weighting function
@@ -718,7 +741,8 @@ class MBTR(Descriptor):
                 system.get_positions(),
                 system.get_atomic_numbers(),
                 self.atomic_number_to_index,
-                self.n_atoms_in_cell
+                interaction_limit=self._interaction_limit,
+                is_local=self._is_local
             )
 
             # Determine the weighting function

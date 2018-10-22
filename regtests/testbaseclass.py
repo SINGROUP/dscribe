@@ -26,22 +26,29 @@ class TestBaseClass(ABC):
     different descriptors. It also defines a set of common basic tests that
     should be implemented for every descriptor.
     """
-    @abc.abstractmethod
+    # @abc.abstractmethod
     def test_constructor(self):
         """
         """
 
-    @abc.abstractmethod
+    # @abc.abstractmethod
     def test_number_of_features(self):
         """
         """
 
-    @abc.abstractmethod
+    # @abc.abstractmethod
     def test_flatten(self):
         """
         """
 
-    @abc.abstractmethod
+    # @abc.abstractmethod
+    def test_sparse(self):
+        """Tests that the sparse-attribute is handled correctly: if true, a
+        scipy.sparse.coo_matrix should be returned, otherwise return a numpy
+        array.
+        """
+
+    # @abc.abstractmethod
     def test_symmetries(self):
         """
         """
@@ -100,3 +107,32 @@ class TestBaseClass(ABC):
                 is_perm_sym = False
 
         return is_perm_sym
+
+    def dict_comparison(self, first, second):
+        """Used to compare values in two dictionaries.
+        """
+        n_first = len(first)
+        n_second = len(second)
+
+        if n_first != n_second:
+            raise ValueError(
+                "The dictionaries do not have the same number of elements."
+            )
+
+        first_keys = set(first.keys())
+        second_keys = set(second.keys())
+        if first_keys != second_keys:
+            raise ValueError(
+                "The dictionaries do not have the same keys."
+            )
+
+        for key in first_keys:
+            assumed_elem = second[key]
+            true_elem = first[key]
+
+            # Sort the lists first to perform comparison
+            assumed_elem.sort()
+            true_elem.sort()
+            for i_elem, val_assumed in enumerate(assumed_elem):
+                val_true = true_elem[i_elem]
+                self.assertAlmostEqual(val_assumed, val_true, places=6)

@@ -12,11 +12,12 @@
 #include <stdexcept>
 using namespace std;
 
-CMBTR::CMBTR(vector<vector<float> > positions, vector<int> atomicNumbers, map<int,int> atomicNumberToIndexMap, int cellLimit)
+CMBTR::CMBTR(vector<vector<float> > positions, vector<int> atomicNumbers, map<int,int> atomicNumberToIndexMap, int interactionLimit, bool isLocal)
     : positions(positions)
     , atomicNumbers(atomicNumbers)
     , atomicNumberToIndexMap(atomicNumberToIndexMap)
-    , cellLimit(cellLimit)
+    , interactionLimit(interactionLimit)
+    , isLocal(isLocal)
     , displacementTensorInitialized(false)
     , k1IndicesInitialized(false)
     , k2IndicesInitialized(false)
@@ -112,7 +113,7 @@ vector<index1d> CMBTR::getk1Indices()
         for (int i=0; i < nAtoms; ++i) {
             // Only consider triplets that have one atom in the original
             // cell
-            if (i < this->cellLimit) {
+            if (i < this->interactionLimit) {
                 index1d key = {i};
                 indexList.push_back(key);
             }
@@ -141,7 +142,7 @@ vector<index2d> CMBTR::getk2Indices()
 
                     // Only consider triplets that have one atom in the original
                     // cell
-                    if (i < this->cellLimit || j < this->cellLimit) {
+                    if (i < this->interactionLimit || j < this->interactionLimit) {
                         index2d key = {i, j};
                         indexList.push_back(key);
                     }
@@ -170,7 +171,7 @@ vector<index3d> CMBTR::getk3Indices()
 
                     // Only consider triplets that have one atom in the original
                     // cell
-                    if (i < this->cellLimit || j < this->cellLimit || k < this->cellLimit) {
+                    if (i < this->interactionLimit || j < this->interactionLimit || k < this->interactionLimit) {
                         // Calculate angle for all index permutations from choosing
                         // three out of nAtoms. The same atom cannot be present twice
                         // in the permutation.
@@ -428,8 +429,10 @@ pair<map<index2d, vector<float> >, map<index2d,vector<float> > > CMBTR::getK2Geo
             // supercells equal to the primitive cell within a constant that is
             // given by the number of repetitions of the primitive cell in the
             // supercell.
-            if (!((i < this->cellLimit) && (j < this->cellLimit))) {
-                weightValue /= 2;
+            if (!this->isLocal) {
+                if (!((i < this->interactionLimit) && (j < this->interactionLimit))) {
+                    weightValue /= 2;
+                }
             }
 
             // Get the index of the present elements in the final vector
@@ -504,15 +507,17 @@ pair<map<index3d, vector<float> >, map<index3d,vector<float> > > CMBTR::getK3Geo
             float geomValue = geomValues[index];
             float weightValue = weightValues[index];
 
-            // When at leas one of the atoms is in a different copy of the cell, the
+            // When at least one of the atoms is in a different copy of the cell, the
             // weight is halved. This is done in order to avoid double counting
             // the same distance in the opposite direction. This correction
             // makes periodic cells with different translations equal and also
             // supercells equal to the primitive cell within a constant that is
             // given by the number of repetitions of the primitive cell in the
             // supercell.
-            if (!((i < this->cellLimit) && (j < this->cellLimit) && (k < this->cellLimit))) {
-                weightValue /= 2;
+            if (!this->isLocal) {
+                if (!((i < this->interactionLimit) && (j < this->interactionLimit) && (k < this->interactionLimit))) {
+                    weightValue /= 2;
+                }
             }
 
             // Get the index of the present elements in the final vector

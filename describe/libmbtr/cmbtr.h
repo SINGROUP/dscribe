@@ -72,11 +72,12 @@ class CMBTR {
          * @param atomicNumbers Atomic numbers.
          * @param atomicNumberToIndexMap Mapping between atomic numbers and
          * their position in the final MBTR vector.
-         * @param cellLimit The number of atoms in the original cell. The atoms
-         * from 0-cellLimit belong to the original simulation cell, rest are
-         * periodic copies.
+         * @param interactionLimit The number of atoms that are interacting.
+         * The atoms with indices < interactionLimit are considered to be
+         * interacting with other atoms.
+         * @param local Whether a local or a global MBTR is calculated.
          */
-        CMBTR(vector<vector<float> > positions, vector<int> atomicNumbers, map<int,int> atomicNumberToIndexMap, int cellLimit);
+        CMBTR(vector<vector<float> > positions, vector<int> atomicNumbers, map<int,int> atomicNumberToIndexMap, int interactionLimit, bool local=false);
 
         /**
          * Returns a list of 1D indices for the atom combinations that need to
@@ -245,7 +246,8 @@ class CMBTR {
         vector<vector<float> > positions;
         vector<int> atomicNumbers;
         map<int,int> atomicNumberToIndexMap;
-        int cellLimit;
+        int interactionLimit;
+        bool isLocal;
         vector<vector<vector<float> > > displacementTensor;
         bool displacementTensorInitialized;
         vector<index1d> k1Indices;

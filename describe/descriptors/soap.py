@@ -24,6 +24,7 @@ class SOAP(Descriptor):
             lmax,
             periodic=False,
             crossover=True,
+            sparse=True,
             ):
         """
         Args
@@ -40,8 +41,10 @@ class SOAP(Descriptor):
             nmax (int): The number of basis to be used for each l.
             lmax (int): The number of l's to be used.
             crossover (bool): Default True, if crossover of atoms should be included.
+            sparse (bool): Whether the output should be a sparse matrix or a
+                dense numpy array.
         """
-        super().__init__(flatten=False)
+        super().__init__(flatten=False, sparse=sparse)
 
         # Check that atomic numbers are valid
         self.atomic_numbers = list(set(atomic_numbers))
@@ -65,23 +68,26 @@ class SOAP(Descriptor):
         """
         self.alphas, self.betas = soaplite.genBasis.getBasisFunc(self.rcut, self.nmax)
 
-    def describe(self, system, positions=None):
+    def create(self, system, positions=None):
         """Return the SOAP spectrum for the given system.
 
         Args:
-            system (System): The system for which the descriptor is created.
+            system (:class:`ase.Atoms` | :class:`.System`): Input system.
             positions (list): Cartesian positions or atomic indices. If
                 specified, the SOAP spectrum will be created for these points. If
                 not positions defined, the SOAP spectrum will be created for all
                 atoms in the system.
 
         Returns:
-            scipy.sparse.coo_matrix: The SOAP spectrum for the given system and
-            positions as a 2D sparse matrix. The first dimension is given by
-            the number of positions and the second dimension is determined by
-            the get_number_of_features()-function. The output can be turned
-            into a regular numpy array with the toarray()-function.
+            np.ndarray | scipy.sparse.coo_matrix: The SOAP spectrum for the
+            given system and positions. The return type depends on the
+            'sparse'-attribute. The first dimension is given by the number of
+            positions and the second dimension is determined by the
+            get_number_of_features()-function.
         """
+        # Transform the input system into the internal System-object
+        system = self.get_system(system)
+
         # Ensuring self is updated
         self.update()
         sub_elements = np.array(list(set(system.get_atomic_numbers())))
@@ -155,6 +161,11 @@ class SOAP(Descriptor):
             sub_elements,
             self.atomic_numbers
         )
+
+        # Make into a dense array if requested
+        if not self.sparse:
+            soap_mat = soap_mat.toarray()
+
         return soap_mat
 
     def get_full_space_output(self, sub_output, sub_elements, full_elements_sorted):

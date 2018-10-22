@@ -4,13 +4,16 @@ from builtins import (bytes, str, open, super, range, zip, round, input, int, po
 import numpy as np
 from numpy.random import RandomState
 
+from scipy.sparse import coo_matrix
+
 from describe.descriptors import Descriptor
+from abc import abstractmethod
 
 
 class MatrixDescriptor(Descriptor):
     """A common base class for two-body matrix-like descriptors.
     """
-    def __init__(self, n_atoms_max, permutation="sorted_l2", sigma=None, seed=None, flatten=True):
+    def __init__(self, n_atoms_max, permutation="sorted_l2", sigma=None, seed=None, flatten=True, sparse=False):
         """
         Args:
             n_atoms_max (int): The maximum nuber of atoms that any of the
@@ -34,8 +37,10 @@ class MatrixDescriptor(Descriptor):
                 distribution when the permutation method is set to random.
             flatten (bool): Whether the output of create() should be flattened
                 to a 1D array.
+            sparse (bool): Whether the output should be a sparse matrix or a
+                dense numpy array.
         """
-        super().__init__(flatten)
+        super().__init__(flatten, sparse)
 
         # Check parameter validity
         if n_atoms_max <= 0:
@@ -67,15 +72,28 @@ class MatrixDescriptor(Descriptor):
         self._norm_vector = None
         self.sigma = sigma
 
-    def describe(self, system):
+    @abstractmethod
+    def get_matrix(self, system):
+        """Used to get the final matrix for this descriptor.
+
+        Args:
+            system (:class:`ase.Atoms` | :class:`.System`): Input system.
+
+        Returns:
+            np.ndarray: The final two-dimensional matrix for this descriptor.
+        """
+
+    def create(self, system):
         """
         Args:
-            system (System): Input system.
+            system (:class:`ase.Atoms` | :class:`.System`): Input system.
 
         Returns:
             ndarray: The zero padded Coulomb matrix either as a 2D array or as
                 a 1D array depending on the setting self.flatten.
         """
+        # Transform the input system into the internal System-object
+        system = self.get_system(system)
 
         # Remove the old norm vector for the new system
         self._norm_vector = None
@@ -98,6 +116,10 @@ class MatrixDescriptor(Descriptor):
         # Flatten the matrix if requested
         if self.flatten:
             matrix = matrix.flatten()
+
+        # If a sparse matrix is requested, convert to coo_matrix
+        if self.sparse:
+            matrix = coo_matrix(matrix)
 
         return matrix
 

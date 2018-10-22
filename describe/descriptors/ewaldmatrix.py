@@ -43,10 +43,10 @@ class EwaldMatrix(MatrixDescriptor):
         https://doi.org/10.1080/08927022.2013.840898
         "
     """
-    def describe(self, system, accuracy=1e-5, w=1, rcut=None, gcut=None, a=None):
+    def create(self, system, accuracy=1e-5, w=1, rcut=None, gcut=None, a=None):
         """
         Args:
-            system (System): Input system.
+            system (:class:`ase.Atoms` | :class:`.System`): Input system.
             accuracy (float): The accuracy to which the sum is converged to.
                 Corresponds to the variable :math`A` in
                 https://doi.org/10.1080/08927022.2013.840898. Used only if gcut,
@@ -91,7 +91,7 @@ class EwaldMatrix(MatrixDescriptor):
         self.gcut = gcut
         self.rcut = rcut
 
-        return super().describe(system)
+        return super().create(system)
 
     def get_matrix(self, system):
         """
@@ -99,11 +99,10 @@ class EwaldMatrix(MatrixDescriptor):
         total interaction energy in a system with atoms i and j.
 
         Args:
-            system(:class:`.System`): The system for which the Ewald matrix is
-                calculated.
+            system (:class:`ase.Atoms` | :class:`.System`): Input system.
 
         Returns:
-            np.ndarray: Ewald matrix as 2D array.
+            np.ndarray: Ewald matrix.
         """
         # Force the use of periodic boundary conditions
         system.set_pbc(True)
@@ -158,6 +157,13 @@ class EwaldMatrix(MatrixDescriptor):
 
         Corresponds to equation (5) in
         https://doi.org/10.1016/0010-4655(96)00016-1
+
+        Args:
+            system (:class:`ase.Atoms` | :class:`.System`): Input system.
+
+        Returns:
+            np.ndarray(): A 2D matrix containing the real space terms for each
+            i,j pair.
         """
         fcoords = system.get_scaled_positions()
         coords = system.get_positions()
@@ -209,6 +215,13 @@ class EwaldMatrix(MatrixDescriptor):
         The term G=0 is neglected, even if the system has nonzero charge.
         Physically this would mean that we are adding a constant background
         charge to make the cell charge neutral.
+
+        Args:
+            system (:class:`ase.Atoms` | :class:`.System`): Input system.
+
+        Returns:
+            np.ndarray(): A 2D matrix containing the real space terms for each
+            i,j pair.
         """
         n_atoms = self.n_atoms
         erecip = np.zeros((n_atoms, n_atoms), dtype=np.float)
