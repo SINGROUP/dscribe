@@ -2,8 +2,11 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
 
 import math
-import numpy as np
 import unittest
+
+import numpy as np
+
+import scipy.sparse
 
 from ase import Atoms
 
@@ -55,6 +58,19 @@ class SineMatrixTests(TestBaseClass, unittest.TestCase):
         desc = SineMatrix(n_atoms_max=5, permutation="none", flatten=True)
         cm = desc.create(H2O)
         self.assertEqual(cm.shape, (25,))
+
+    def test_sparse(self):
+        """Tests the sparse matrix creation.
+        """
+        # Dense
+        desc = SineMatrix(n_atoms_max=5, permutation="none", flatten=True, sparse=False)
+        vec = desc.create(H2O)
+        self.assertTrue(type(vec) == np.ndarray)
+
+        # Sparse
+        desc = SineMatrix(n_atoms_max=5, permutation="none", flatten=True, sparse=True)
+        vec = desc.create(H2O)
+        self.assertTrue(type(vec) == scipy.sparse.coo_matrix)
 
     def test_features(self):
         """Tests that the correct features are present in the desciptor.

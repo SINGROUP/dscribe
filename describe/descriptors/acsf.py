@@ -2,7 +2,11 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
 import os
 import glob
+
 import numpy as np
+
+from scipy.sparse import coo_matrix
+
 from ctypes import cdll, Structure, c_int, c_double, POINTER, byref
 
 from describe.descriptors.descriptor import Descriptor
@@ -206,10 +210,16 @@ class ACSF(Descriptor):
 
         _LIBACSF.acsf_compute_acsfs(byref(self._obj))
 
-        if self.flatten is True:
-            return self._acsfBuffer.flatten()
+        final_output = self._acsfBuffer
 
-        return self._acsfBuffer
+        if self.flatten is True:
+            final_output = final_output.flatten()
+
+        # Return sparse matrix if requested
+        if self.sparse:
+            final_output = coo_matrix(final_output)
+
+        return final_output
 
     def get_number_of_features(self):
         """Used to inquire the final number of features that this descriptor
@@ -223,7 +233,7 @@ class ACSF(Descriptor):
 
         descsize *= self._n_atoms_max
 
-        return descsize
+        return int(descsize)
 
     # --- TYPES ---
     @property
@@ -247,7 +257,7 @@ class ACSF(Descriptor):
         pmatrix = np.unique(pmatrix)
         pmatrix = np.sort(pmatrix)
 
-        print("ACSF: setting types to: "+str(pmatrix))
+        # print("ACSF: setting types to: "+str(pmatrix))
 
         self._types = pmatrix
         self._obj.types = pmatrix.ctypes.data_as(POINTER(c_int))
@@ -272,7 +282,7 @@ class ACSF(Descriptor):
             raise ValueError("cutoff radius should be positive.")
 
         self._rcut = c_double(value)
-        print("ACSF: cutoff radius set to {0}".format(self._rcut.value))
+        # print("ACSF: cutoff radius set to {0}".format(self._rcut.value))
         self._obj.cutoff = c_double(value)
     # --- ------------- ---
 
@@ -318,7 +328,7 @@ class ACSF(Descriptor):
         # convert the input list to ctypes
         #self._obj.bond_params = c_double(pmatrix.shape[0] * pmatrix.shape[1])
 
-        #assign it
+        # Assign it
         self._obj.bond_params = self._bond_params.ctypes.data_as(POINTER(c_double))
     # --- --------------- ---
 
@@ -354,7 +364,7 @@ class ACSF(Descriptor):
         # get the number of parameter pairs
         self._obj.n_bond_cos_params = c_int(pmatrix.shape[0])
 
-        #assign it
+        # assign it
         self._obj.bond_cos_params = self._bond_cos_params.ctypes.data_as(POINTER(c_double))
         # --- ---------- ---
 

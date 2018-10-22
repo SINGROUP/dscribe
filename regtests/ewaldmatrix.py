@@ -10,6 +10,7 @@ from describe.descriptors import EwaldMatrix
 from ase import Atoms
 
 import scipy.constants
+import scipy.sparse
 
 from pymatgen.analysis.ewald import EwaldSummation
 from pymatgen.core.structure import Structure

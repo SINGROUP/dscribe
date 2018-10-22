@@ -2,10 +2,14 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
 
 import math
-import numpy as np
 import unittest
 
+import numpy as np
+
+import scipy.linalg
+
 from describe.descriptors import ACSF
+from testbaseclass import TestBaseClass
 
 from ase import Atoms
 
@@ -37,8 +41,18 @@ H = Atoms(
     symbols=["H"],
 )
 
+default_desc = ACSF(
+    n_atoms_max=5,
+    atomic_numbers=[1, 8],
+    bond_params=[[1, 2], [4, 5]],
+    bond_cos_params=[1, 2, 3, 4],
+    ang4_params=[[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]],
+    ang5_params=[[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]],
+    flatten=True
+)
 
-class ACSFTests(unittest.TestCase):
+
+class ACSFTests(TestBaseClass, unittest.TestCase):
 
     def test_constructor(self):
         """Tests different valid and invalid constructor values.
@@ -55,15 +69,19 @@ class ACSFTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             ACSF(n_atoms_max=10, atomic_numbers=[1, 6, 8], bond_params=[1, 2, 3])
 
+        # Invalid bond_cos_params
         with self.assertRaises(ValueError):
             ACSF(n_atoms_max=10, atomic_numbers=[1, 6, 8], bond_cos_params=[[1, 2], [3, 1]])
 
+        # Invalid bond_cos_params
         with self.assertRaises(ValueError):
             ACSF(n_atoms_max=10, atomic_numbers=[1, 6, 8], bond_cos_params=[[1, 2, 4], [3, 1]])
 
+        # Invalid ang4_params
         with self.assertRaises(ValueError):
             ACSF(n_atoms_max=10, atomic_numbers=[1, 6, 8], ang4_params=[[1, 2], [3, 1]])
 
+        # Invalid ang5_params
         with self.assertRaises(ValueError):
             ACSF(n_atoms_max=10, atomic_numbers=[1, 6, 8], ang5_params=[[1, 2], [3, 1]])
 
@@ -95,17 +113,28 @@ class ACSFTests(unittest.TestCase):
         """Tests the flattening.
         """
         # Unflattened
-        desc = ACSF(n_atoms_max=5, atomic_numbers=[1, 8], bond_params=[[1, 2, ], [4, 5, ]], bond_cos_params=[1, 2, 3, 4],
-            ang4_params=[[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]], ang5_params=[[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]], flatten=False)
-        cm = desc.create(H2O)
-        n_features = desc.get_number_of_features()
-        self.assertEqual(cm.shape, (5, n_features / 5))
+        default_desc.flatten = False
+        x = default_desc.create(H2O)
+        n_features = default_desc.get_number_of_features()
+        self.assertEqual(x.shape, (5, n_features / 5))
 
         # Flattened
-        desc = ACSF(n_atoms_max=5, atomic_numbers=[1, 8], bond_params=[[1, 2], [4, 5]], bond_cos_params=[1, 2, 3, 4],
-            ang4_params=[[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]], ang5_params=[[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]], flatten=True)
-        cm = desc.create(H2O)
-        self.assertEqual(cm.shape, (n_features,))
+        default_desc.flatten = True
+        x = default_desc.create(H2O)
+        self.assertEqual(x.shape, (n_features,))
+
+    def test_sparse(self):
+        """Tests the sparse matrix creation.
+        """
+        # Sparse
+        default_desc.sparse = True
+        vec = default_desc.create(H2O)
+        self.assertTrue(type(vec) == scipy.sparse.coo_matrix)
+
+        # Dense
+        default_desc.sparse = False
+        vec = default_desc.create(H2O)
+        self.assertTrue(type(vec) == np.ndarray)
 
     def test_features(self):
         """Tests that the correct features are present in the descriptor.
@@ -144,7 +173,7 @@ class ACSFTests(unittest.TestCase):
 
         rc = 5.0
 
-        #G1
+        # G1
         g1_ho = 0.5 * (np.cos(np.pi*dist_oh / rc) + 1)
         g1_hh = 0.5 * (np.cos(np.pi*dist_hh / rc) + 1)
         g1_oh = 2 * 0.5 * (np.cos(np.pi*dist_oh / rc) + 1)
@@ -153,7 +182,7 @@ class ACSFTests(unittest.TestCase):
         self.assertAlmostEqual(acsfg1[1], g1_ho)
         self.assertAlmostEqual(acsfg1[2], g1_oh)
 
-        #G2
+        # G2
         eta = 1
         rs = 0.5
         g2_hh = np.exp(-eta * np.power((dist_hh - rs), 2)) * g1_hh
@@ -164,7 +193,7 @@ class ACSFTests(unittest.TestCase):
         self.assertAlmostEqual(acsfg2[0, 3], g2_ho)
         self.assertAlmostEqual(acsfg2[1, 1], g2_oh)
 
-        #G3
+        # G3
         kappa = 1
         g3_hh = np.cos(dist_hh * kappa) * g1_hh
         g3_ho = np.cos(dist_oh * kappa) * g1_ho
@@ -174,7 +203,7 @@ class ACSFTests(unittest.TestCase):
         self.assertAlmostEqual(acsfg3[0, 3], g3_ho)
         self.assertAlmostEqual(acsfg3[1, 1], g3_oh)
 
-        #G4
+        # G4
         eta = 1
         lmbd = 1
         zeta = 1
@@ -188,7 +217,7 @@ class ACSFTests(unittest.TestCase):
         self.assertAlmostEqual(acsfg4[2, 3], g4_h_oh)
         self.assertAlmostEqual(acsfg4[1, 2], g4_o_hh)
 
-        #G5
+        # G5
         gauss = np.exp(-eta * (dist_oh * dist_oh + dist_hh * dist_hh)) * g1_ho * g1_hh
         g5_h_ho = np.power(2, 1 - zeta) * np.power((1 + lmbd*np.cos(ang_hho)), zeta) * gauss
         g5_h_oh = np.power(2, 1 - zeta) * np.power((1 + lmbd*np.cos(ang_ohh)), zeta) * gauss
@@ -202,146 +231,123 @@ class ACSFTests(unittest.TestCase):
     def test_symmetries(self):
         """Tests translational and rotational symmetries
         """
-        desc = ACSF(n_atoms_max=5, atomic_numbers=[1,8],bond_params=[[1,2,], [4,5,]], bond_cos_params=[1,2,3,4],
-            ang4_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], ang5_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], flatten=True)
-        #Rotational Check
-        molecule = H2O.copy()
-        features = desc.create(molecule)
+        def create(system):
+            acsf = default_desc.create(system)
+            return acsf
 
-        for rotation in ['x', 'y', 'z']:
-            molecule.rotate(45, rotation)
-            rot_features = desc.create(molecule)
-            deviation = np.max(np.abs(features - rot_features))
-            self.assertTrue(deviation < 10e-9)
+        # Rotational check
+        self.assertTrue(self.is_rotationally_symmetric(create))
 
-        #Translation check
-        for translation in [[1.0, 1.0, 1.0], [-5.0, 5.0, -5.0], [1.0, 1.0, -10.0]]:
-            molecule.translate(translation)
-            trans_features = desc.create(molecule)
-            deviation = np.max(np.abs(features - trans_features))
-            self.assertTrue(deviation < 10e-9)
+        # Translational
+        self.assertTrue(self.is_translationally_symmetric(create))
+
+        # Permutational
+        # self.assertTrue(self.is_permutation_symmetric(create))
 
     def test_unit_cells(self):
-        """Tests if arbitrary unit cells are accepted"""
-        desc = ACSF(n_atoms_max=6, atomic_numbers=[1,8],bond_params=[[1,2,], [4,5,]], bond_cos_params=[1,2,3,4],
-            ang4_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], ang5_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], flatten=False)
-
-        molecule = H2O.copy()
-
-        molecule.set_cell([
-        [0.0, 0.0, 0.0],
-        [0.0, 0.0, 0.0],
-        [0.0, 0.0, 0.0]
-            ],
-            )
-
-        nocell = desc.create(molecule)
-
-        molecule.set_pbc(True)
-        molecule.set_cell([
-        [20.0, 0.0, 0.0],
-        [0.0, 30.0, 0.0],
-        [0.0, 0.0, 40.0]
-            ],
-            )
-
-        largecell = desc.create(molecule)
-
-        molecule.set_cell([
-        [2.0, 0.0, 0.0],
-        [0.0, 2.0, 0.0],
-        [0.0, 0.0, 2.0]
-            ],
-            )
-
-        cubic_cell = desc.create(molecule)
-
-        molecule.set_cell([
-        [0.0, 2.0, 2.0],
-        [2.0, 0.0, 2.0],
-        [2.0, 2.0, 0.0]
-            ],
-            )
-
-        triclinic_smallcell = desc.create(molecule)
-
-    def test_is_periodic(self):
-        """Tests whether periodic images are seen by the descriptor"""
-        if True:
-            return
-        desc = ACSF(n_atoms_max=1, atomic_numbers=[1],bond_params=[[1,2,], [4,5,]], bond_cos_params=[1,2,3,4],
-            ang4_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], ang5_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], flatten=False)
-
-
-        H.set_pbc(False)
-        nocell = desc.create(H)
-
-        H.set_pbc(True)
-        H.set_cell([
-        [2.0, 0.0, 0.0],
-        [0.0, 2.0, 0.0],
-        [0.0, 0.0, 2.0]
-            ],
-            )
-
-        cubic_cell = desc.create(H)
-
-        self.assertTrue(np.sum(cubic_cell) > 0)
-
-    def test_periodic_images(self):
-        """Tests the periodic images seen by the descriptor
+        """Tests if arbitrary unit cells are accepted.
         """
-        if True:
-            return
-        desc = ACSF(n_atoms_max=6, atomic_numbers=[1,8],bond_params=[[1,2,], [4,5,]], bond_cos_params=[1,2,3,4],
-            ang4_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], ang5_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], flatten=False)
-
+        # No cell
         molecule = H2O.copy()
-
-        # non-periodic for comparison
         molecule.set_cell([
             [0.0, 0.0, 0.0],
             [0.0, 0.0, 0.0],
             [0.0, 0.0, 0.0]
         ])
-        nocell = desc.create(molecule)
+        nocell = default_desc.create(molecule)
 
-        # make periodic
+        # Large cell
         molecule.set_pbc(True)
-
-        # cubic
-        molecule.set_cell([
-            [3.0, 0.0, 0.0],
-            [0.0, 3.0, 0.0],
-            [0.0, 0.0, 3.0]
-        ])
-
-        cubic_cell = desc.create(molecule)
-        suce = molecule * (2, 1, 1)
-        cubic_suce = desc.create(suce)
-
         molecule.set_cell([
             [20.0, 0.0, 0.0],
             [0.0, 30.0, 0.0],
             [0.0, 0.0, 40.0]
         ])
+        largecell = default_desc.create(molecule)
 
-        largecell = desc.create(molecule)
+        # Cubic cell
+        molecule.set_cell([
+            [2.0, 0.0, 0.0],
+            [0.0, 2.0, 0.0],
+            [0.0, 0.0, 2.0]
+        ])
+        cubic_cell = default_desc.create(molecule)
 
-        # triclinic
+        # Triclinic cell
         molecule.set_cell([
             [0.0, 2.0, 2.0],
             [2.0, 0.0, 2.0],
             [2.0, 2.0, 0.0]
         ])
+        triclinic_smallcell = default_desc.create(molecule)
 
-        triclinic_cell = desc.create(molecule)
-        suce = molecule * (2, 1, 1)
-        triclinic_suce = desc.create(suce)
+    # def test_is_periodic(self):
+        # """Tests whether periodic images are seen by the descriptor.
+        # """
+        # # Test that system without periodicity and one atom has zero output
+        # H.set_pbc(False)
+        # finite = default_desc.create(H)
+        # self.assertTrue(np.sum(finite) == 0)
 
-        self.assertTrue(np.sum(np.abs((nocell[:3] - cubic_suce[:3]))) > 0.1)
-        self.assertAlmostEqual(np.sum(cubic_cell[:3] - cubic_suce[:3]), 0)
-        self.assertAlmostEqual(np.sum(triclinic_cell[:3] - triclinic_suce[:3]), 0)
+        # # Test that the same system with periodicity and small cell has
+        # # non-zero output
+        # H.set_pbc(True)
+        # H.set_cell([
+            # [2.0, 0.0, 0.0],
+            # [0.0, 2.0, 0.0],
+            # [0.0, 0.0, 2.0]
+        # ])
+        # periodic = default_desc.create(H)
+        # self.assertTrue(np.sum(periodic) > 0)
+
+    # def test_periodic_images(self):
+        # """Tests the periodic images seen by the descriptor
+        # """
+        # molecule = H2O.copy()
+
+        # # non-periodic for comparison
+        # molecule.set_cell([
+            # [0.0, 0.0, 0.0],
+            # [0.0, 0.0, 0.0],
+            # [0.0, 0.0, 0.0]
+        # ])
+        # nocell = default_desc.create(molecule)
+
+        # # make periodic
+        # molecule.set_pbc(True)
+
+        # # cubic
+        # molecule.set_cell([
+            # [3.0, 0.0, 0.0],
+            # [0.0, 3.0, 0.0],
+            # [0.0, 0.0, 3.0]
+        # ])
+
+        # cubic_cell = default_desc.create(molecule)
+        # suce = molecule * (2, 1, 1)
+        # cubic_suce = default_desc.create(suce)
+
+        # molecule.set_cell([
+            # [20.0, 0.0, 0.0],
+            # [0.0, 30.0, 0.0],
+            # [0.0, 0.0, 40.0]
+        # ])
+        # largecell = default_desc.create(molecule)
+
+        # # Triclinic
+        # molecule.set_cell([
+            # [0.0, 2.0, 2.0],
+            # [2.0, 0.0, 2.0],
+            # [2.0, 2.0, 0.0]
+        # ])
+
+        # triclinic_cell = default_desc.create(molecule)
+        # suce = molecule * (2, 1, 1)
+        # triclinic_suce = default_desc.create(suce)
+
+        # self.assertTrue(np.sum(np.abs((nocell[:3] - cubic_suce[:3]))) > 0.1)
+        # self.assertAlmostEqual(np.sum(cubic_cell[:3] - cubic_suce[:3]), 0)
+        # self.assertAlmostEqual(np.sum(triclinic_cell[:3] - triclinic_suce[:3]), 0)
 
 
 if __name__ == '__main__':

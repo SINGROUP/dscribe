@@ -1,7 +1,9 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 from builtins import (bytes, str, open, super, range,
                       zip, round, input, int, pow, object)
+
 import numpy as np
+
 from describe.descriptors.matrixdescriptor import MatrixDescriptor
 
 
@@ -32,11 +34,10 @@ class SineMatrix(MatrixDescriptor):
         """Creates the Sine matrix for the given system.
 
         Args:
-            system(:class:`.System`): The system for which the Sine matrix is
-                calculated.
+            system (:class:`ase.Atoms` | :class:`.System`): Input system.
 
         Returns:
-            np.ndarray: Sine matrix as 2D array.
+            np.ndarray: Sine matrix as a 2D array.
         """
         # Force the use of periodic boundary conditions
         system.set_pbc(True)

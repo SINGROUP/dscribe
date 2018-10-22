@@ -26,29 +26,29 @@ class TestBaseClass(ABC):
     different descriptors. It also defines a set of common basic tests that
     should be implemented for every descriptor.
     """
-    # @abc.abstractmethod
+    @abc.abstractmethod
     def test_constructor(self):
         """
         """
 
-    # @abc.abstractmethod
+    @abc.abstractmethod
     def test_number_of_features(self):
         """
         """
 
-    # @abc.abstractmethod
+    @abc.abstractmethod
     def test_flatten(self):
         """
         """
 
-    # @abc.abstractmethod
+    @abc.abstractmethod
     def test_sparse(self):
         """Tests that the sparse-attribute is handled correctly: if true, a
         scipy.sparse.coo_matrix should be returned, otherwise return a numpy
         array.
         """
 
-    # @abc.abstractmethod
+    @abc.abstractmethod
     def test_symmetries(self):
         """
         """

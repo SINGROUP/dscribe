@@ -5,12 +5,8 @@ import numpy as np
 from describe.core import System
 
 from ase import Atoms
-# from ase.visualize import view
 
 from describe.descriptors import MBTR
-from describe.libmbtr.cmbtrwrapper import CMBTRWrapper
-
-from scipy.spatial.distance import cdist
 
 
 class LMBTR(MBTR):
@@ -166,16 +162,9 @@ class LMBTR(MBTR):
             flatten=flatten,
             sparse=sparse,
         )
-        self._virtual_positions = virtual_positions
+        self.virtual_positions = virtual_positions
         self._is_local = True
         self._interaction_limit = 1
-
-    def update(self):
-        """Updates relevant objects attached to LMBTR class, after changing
-        one/many values.
-        """
-        self.atomic_numbers = np.unique(self.atomic_numbers + [0]).tolist()
-        super().update()
 
     def create(
             self,
@@ -227,7 +216,7 @@ class LMBTR(MBTR):
         # If virtual positions requested, create new atoms with atomic number 0
         # at the requested position.
         for i_pos in positions:
-            if self._virtual_positions:
+            if self.virtual_positions:
                 if not isinstance(i_pos, (list, tuple, np.ndarray)):
                     raise ValueError(
                         "The given position of type '{}' could not be "
@@ -254,6 +243,7 @@ class LMBTR(MBTR):
                 new_system = Atoms()
                 center_atom = system[i_pos]
                 new_system += center_atom
+                new_system.set_atomic_numbers([0])
                 system_copy = system.copy()
                 del system_copy[i_pos]
                 new_system += system_copy
@@ -276,5 +266,16 @@ class LMBTR(MBTR):
     def initialize_atomic_numbers(self, atomic_numbers):
         """Used to initialize the list of atomic numbers.
         """
-        super().initialize_atomic_numbers(atomic_numbers)
-        self.atomic_numbers.append(0)  # The ghost atoms will have atomic number 0
+        # Check that atomic numbers are valid.  The given atomic numbers are
+        # first made into a set to remove duplicates, and then made into list
+        # for enabling ordering.
+        new_atomic_numbers = list(set(atomic_numbers))
+        if (np.array(new_atomic_numbers) < 0).any():
+            raise ValueError(
+                "Negative atomic numbers not allowed."
+            )
+        self.atomic_numbers = new_atomic_numbers
+
+        # The ghost atoms will have atomic number 0
+        if 0 not in self.atomic_numbers:
+            self.atomic_numbers.append(0)

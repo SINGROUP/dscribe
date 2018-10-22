@@ -164,18 +164,18 @@ class MBTR(Descriptor):
             self.k = [k]
         else:
             self.k = k
-        self.initialize_atomic_numbers(atomic_numbers)
+        self.atomic_numbers = atomic_numbers
         self.grid = grid
         self.weighting = weighting
         self.periodic = periodic
         self.normalize_by_volume = normalize_by_volume
         self.normalize_gaussians = normalize_gaussians
+        self.virtual_positions = False
         self.update()
 
         # Initializing .create() level variables
         self._interaction_limit = None
         self._is_local = False
-        self._virtual_positions = False
         self._k1_geoms = None
         self._k1_weights = None
         self._k2_geoms = None
@@ -202,6 +202,7 @@ class MBTR(Descriptor):
     def update(self):
         """Checks and updates variables in mbtr class.
         """
+
         # Check K value
         supported_k = set(range(1, 4))
         if isinstance(self.k, int):
@@ -270,11 +271,9 @@ class MBTR(Descriptor):
             self.check_grid(self.grid)
 
         self.n_elements = None  # Number of elements for MBTR
+        self.initialize_atomic_numbers(self.atomic_numbers)
         self.atomic_number_to_index = {}  # a
-        self.atomic_number_to_d1 = {}
-        self.atomic_number_to_d2 = {}
         self.index_to_atomic_number = {}
-        self.n_copies_per_axis = None
 
         # Sort the atomic numbers. This is not needed but makes things maybe a
         # bit easier to debug.
@@ -567,7 +566,7 @@ class MBTR(Descriptor):
                     # If the given position is virtual and does not correspond
                     # to a physical atom, the position is not repeated in the
                     # copies.
-                    if self._virtual_positions and self._interaction_limit == 1:
+                    if self.virtual_positions and self._interaction_limit == 1:
                         num_copy = np.array(numbers)[1:]
                         pos_copy = np.array(relative_pos)[1:]
 
