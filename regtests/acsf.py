@@ -48,7 +48,6 @@ default_desc = ACSF(
     bond_cos_params=[1, 2, 3, 4],
     ang4_params=[[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]],
     ang5_params=[[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]],
-    flatten=True
 )
 
 
@@ -88,40 +87,30 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
     def test_number_of_features(self):
         """Tests that the reported number of features is correct.
         """
-        desc = ACSF(n_atoms_max=5, atomic_numbers=[1, 8], flatten=True)
+        desc = ACSF(n_atoms_max=5, atomic_numbers=[1, 8])
         n_features = desc.get_number_of_features()
         self.assertEqual(n_features, 5 * 2)
 
-        desc = ACSF(n_atoms_max=5, atomic_numbers=[1, 8], bond_params=[[1, 2], [4, 5]], flatten=True)
+        desc = ACSF(n_atoms_max=5, atomic_numbers=[1, 8], bond_params=[[1, 2], [4, 5]])
         n_features = desc.get_number_of_features()
         self.assertEqual(n_features, 5 * 2 * (2+1))
 
-        desc = ACSF(n_atoms_max=5, atomic_numbers=[1, 8], bond_cos_params=[1, 2, 3, 4], flatten=True)
+        desc = ACSF(n_atoms_max=5, atomic_numbers=[1, 8], bond_cos_params=[1, 2, 3, 4])
         n_features = desc.get_number_of_features()
         self.assertEqual(n_features, 5 * 2 * (4+1))
 
-        desc = ACSF(n_atoms_max=5, atomic_numbers=[1, 8], ang4_params=[[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]], flatten=True)
+        desc = ACSF(n_atoms_max=5, atomic_numbers=[1, 8], ang4_params=[[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]])
         n_features = desc.get_number_of_features()
         self.assertEqual(n_features, 5 * (2 + 4 * 3))
 
         desc = ACSF(n_atoms_max=5, atomic_numbers=[1, 8], bond_params=[[1, 2], [4, 5]], bond_cos_params=[1, 2, 3, 4],
-            ang4_params=[[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]], flatten=True)
+            ang4_params=[[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]])
         n_features = desc.get_number_of_features()
         self.assertEqual(n_features, 5 * ((2 * (1 + 2 + 4)) + 4 * 3))
 
     def test_flatten(self):
         """Tests the flattening.
         """
-        # Unflattened
-        default_desc.flatten = False
-        x = default_desc.create(H2O)
-        n_features = default_desc.get_number_of_features()
-        self.assertEqual(x.shape, (5, n_features / 5))
-
-        # Flattened
-        default_desc.flatten = True
-        x = default_desc.create(H2O)
-        self.assertEqual(x.shape, (n_features,))
 
     def test_sparse(self):
         """Tests the sparse matrix creation.
@@ -139,27 +128,27 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
     def test_features(self):
         """Tests that the correct features are present in the descriptor.
         """
-        desc = ACSF(n_atoms_max=5, atomic_numbers=[1, 8], flatten=True)
+        desc = ACSF(n_atoms_max=5, atomic_numbers=[1, 8])
         acsfg1 = desc.create(H2O)
         #print(acsfg1.shape)
         #print(acsfg1)
 
-        desc = ACSF(n_atoms_max=3, atomic_numbers=[1, 8], bond_params=[[1, 0.5]], flatten=False)
+        desc = ACSF(n_atoms_max=3, atomic_numbers=[1, 8], bond_params=[[1, 0.5]])
         acsfg2 = desc.create(H2O)
         #print(acsfg2.shape)
         #print(acsfg2)
 
-        desc = ACSF(n_atoms_max=3, atomic_numbers=[1, 8], bond_cos_params=[1], flatten=False)
+        desc = ACSF(n_atoms_max=3, atomic_numbers=[1, 8], bond_cos_params=[1])
         acsfg3 = desc.create(H2O)
         #print(acsfg3.shape)
         #print(acsfg3)
 
-        desc = ACSF(n_atoms_max=3, atomic_numbers=[1, 8], ang4_params=[[1.0, 1.0, 1.0]], flatten=False)
+        desc = ACSF(n_atoms_max=3, atomic_numbers=[1, 8], ang4_params=[[1.0, 1.0, 1.0]])
         acsfg4 = desc.create(H2O)
         #print(acsfg4.shape)
         #print(acsfg4)
 
-        desc = ACSF(n_atoms_max=3, atomic_numbers=[1, 8], ang5_params=[[1.0, 1.0, 1.0]], flatten=False)
+        desc = ACSF(n_atoms_max=3, atomic_numbers=[1, 8], ang5_params=[[1.0, 1.0, 1.0]])
         acsfg5 = desc.create(H2O)
         #print(acsfg5.shape)
         #print(acsfg5)
@@ -177,10 +166,9 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
         g1_ho = 0.5 * (np.cos(np.pi*dist_oh / rc) + 1)
         g1_hh = 0.5 * (np.cos(np.pi*dist_hh / rc) + 1)
         g1_oh = 2 * 0.5 * (np.cos(np.pi*dist_oh / rc) + 1)
-        #print(g1_hh, g1_ho, g1_oh)
-        self.assertAlmostEqual(acsfg1[0], g1_hh)
-        self.assertAlmostEqual(acsfg1[1], g1_ho)
-        self.assertAlmostEqual(acsfg1[2], g1_oh)
+        self.assertAlmostEqual(acsfg1[0, 0], g1_hh)
+        self.assertAlmostEqual(acsfg1[0, 1], g1_ho)
+        self.assertAlmostEqual(acsfg1[1, 0], g1_oh)
 
         # G2
         eta = 1

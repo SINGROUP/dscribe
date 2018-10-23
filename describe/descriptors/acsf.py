@@ -65,7 +65,6 @@ class ACSF(Descriptor):
         ang4_params=None,
         ang5_params=None,
         rcut=5.0,
-        flatten=True,
         sparse=False
     ):
         """
@@ -76,7 +75,7 @@ class ACSF(Descriptor):
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
         """
-        super().__init__(flatten, sparse)
+        super().__init__(flatten=False, sparse=sparse)
         self._inited = False
 
         self._obj = ACSFObject()
@@ -193,7 +192,7 @@ class ACSF(Descriptor):
         self.distances = system.get_distance_matrix()
         self._obj.distances = self.distances.ctypes.data_as(POINTER(c_double))
 
-        # amount of ACSFs for one atom for each type pair or triplet
+        # Amount of ACSFs for one atom for each type pair or triplet
         self._obj.nG2 = c_int(1 + self._obj.n_bond_params + self._obj.n_bond_cos_params)
         self._obj.nG3 = c_int(self._obj.n_ang4_params + self._obj.n_ang5_params)
 
@@ -211,9 +210,6 @@ class ACSF(Descriptor):
         _LIBACSF.acsf_compute_acsfs(byref(self._obj))
 
         final_output = self._acsfBuffer
-
-        if self.flatten is True:
-            final_output = final_output.flatten()
 
         # Return sparse matrix if requested
         if self.sparse:
