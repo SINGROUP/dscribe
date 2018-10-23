@@ -13,6 +13,10 @@ class LMBTR(MBTR):
     """Implementation of local -- per chosen atom -- kind of the Many-body
     tensor representation up to k=3.
 
+    Notice that the species of the central atom is not encoded in the output,
+    only the surrounding environment is encoded. In a typical application one
+    can train a different model for each central species.
+
     This implementation provides the following geometry functions:
 
         -k=1: atomic number

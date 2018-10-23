@@ -1185,7 +1185,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         dot = np.dot(vec1, vec2)
         self.assertEqual(dot, 0)
 
-        # The dot-product should be rougly one one for a primitive cell and a supercell
+        # The dot-product should be rougly one for a primitive cell and a supercell
         dot = np.dot(vec2, vec3)
         self.assertTrue(abs(dot-1) < 1e-3)
 
