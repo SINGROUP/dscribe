@@ -8,7 +8,7 @@ from describe.descriptors import Descriptor
 
 class ElementalDistribution(Descriptor):
     """Represents a generic distribution on any given grid for any given
-    elemental properties. Can create both continuos and discrete distributions.
+    properties. Can create both continuos and discrete distributions.
 
     Continuous distributions require a standard deviation and the number of
     sampling points. You can also specify the minimum and maximum values for
@@ -25,6 +25,7 @@ class ElementalDistribution(Descriptor):
             self,
             properties,
             flatten=True,
+            sparse=True,
             ):
         """
         Args:
@@ -53,8 +54,9 @@ class ElementalDistribution(Descriptor):
                     }
                 }
             flatten(bool): Whether to flatten out the result.
+            sparse (bool): Whether the output should be a sparse matrix or a
+                dense numpy array.
         """
-
         # Check that the given properties are valid
         for prop_name, prop_grid in properties.items():
             dist_type = prop_grid.get("type")
@@ -159,11 +161,10 @@ class ElementalDistribution(Descriptor):
             x = np.arange(minimum, maximum+1)
         return x
 
-    def describe(self, system):
+    def create(self, system):
         """
         Args:
-            system (ase.Atoms): The system for which this descriptor is
-                created.
+            system (:class:`ase.Atoms` | :class:`.System`): Input system.
 
         Returns:
             scipy.sparse.lil_matrix: The concatenated distributions of the

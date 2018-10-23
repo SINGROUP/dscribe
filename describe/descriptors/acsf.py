@@ -58,7 +58,6 @@ class ACSF(Descriptor):
 
     def __init__(
         self,
-        n_atoms_max,
         atomic_numbers,
         bond_params=None,
         bond_cos_params=None,
@@ -69,9 +68,6 @@ class ACSF(Descriptor):
     ):
         """
         Args:
-            n_atoms_max (int): maximum number of atoms
-            flatten (bool): Whether the output of create() should be flattened to
-                a 1D array.
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
         """
@@ -81,13 +77,6 @@ class ACSF(Descriptor):
         self._obj = ACSFObject()
         self._obj.alloc_atoms = 0
         self._obj.alloc_work = 0
-
-        if n_atoms_max <= 0:
-            raise ValueError(
-                "Maximum number of atoms n_atoms_max should be positive."
-            )
-
-        self._n_atoms_max = n_atoms_max
 
         self._types = None
         self.types = atomic_numbers
@@ -168,9 +157,6 @@ class ACSF(Descriptor):
         # Copy the atomic numbers
         self._Zs = np.array(system.get_atomic_numbers(), dtype=np.int32)
 
-        if self._Zs.shape[0] > self._n_atoms_max:
-            raise ValueError("The system has more atoms than n_atoms_max.")
-
         self._obj.Z = self._Zs.ctypes.data_as(POINTER(c_int))
         self._obj.natm = c_int(self._Zs.shape[0])
 
@@ -204,7 +190,8 @@ class ACSF(Descriptor):
         print("buffer row len: ",self._obj.nG2 * self._obj.nTypes + self._obj.nG3 * self._obj.nSymTypes)
         print("self._obj.n_ang_params: ",self._obj.n_ang_params)
         '''
-        self._acsfBuffer = np.zeros((self._n_atoms_max, self._obj.nG2 * self._obj.nTypes + self._obj.nG3 * self._obj.nSymTypes))
+        n_atoms = len(system)
+        self._acsfBuffer = np.zeros((n_atoms, self._obj.nG2 * self._obj.nTypes + self._obj.nG3 * self._obj.nSymTypes))
         self._obj.acsfs = self._acsfBuffer.ctypes.data_as(POINTER(c_double))
 
         _LIBACSF.acsf_compute_acsfs(byref(self._obj))
@@ -226,8 +213,6 @@ class ACSF(Descriptor):
         """
         descsize = (1 + self._obj.n_bond_params + self._obj.n_bond_cos_params) * self._obj.nTypes
         descsize += (self._obj.n_ang4_params + self._obj.n_ang5_params) * self._obj.nSymTypes
-
-        descsize *= self._n_atoms_max
 
         return int(descsize)
 

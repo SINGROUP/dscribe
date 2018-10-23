@@ -81,7 +81,7 @@ class ElementalDistributionTests(unittest.TestCase):
         )
 
         # Features
-        y = elemdist.describe(system)
+        y = elemdist.create(system)
         y = y.todense().A1
         x = elemdist.get_axis("first_property")
 
@@ -122,7 +122,7 @@ class ElementalDistributionTests(unittest.TestCase):
         x = elemdist.get_axis("first_property")
         self.assertTrue(np.array_equal(x, np.arange(0, 18+1)))
 
-        y = elemdist.describe(system)
+        y = elemdist.create(system)
         y = y.todense().A1
 
         # Test that the peak positions match
