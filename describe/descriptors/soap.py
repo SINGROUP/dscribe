@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function
 from builtins import super
 import numpy as np
 
-from scipy.sparse import lil_matrix
+from scipy.sparse import coo_matrix
 
 from describe.descriptors import Descriptor
 import soaplite
@@ -13,8 +13,13 @@ class SOAP(Descriptor):
 
     For reference, see:
         "On representing chemical environments Albert", Albert P. Bartók, Risi
-        Kondor, and Gábor Csányi, Phys. Rev. B, (2013),
+        Kondor, and Gábor Csányi, Phys. Rev. B 87, 184115, (2013),
         https://doi.org/10.1103/PhysRevB.87.184115
+
+        "Comparing molecules and solids across structural and alchemical
+        space", Sandip De, Albert P. Bartók, Gábor Csányi and Michele Ceriotti,
+        Phys.  Chem. Chem. Phys. 18, 13754 (2016),
+        https://doi.org/10.1039/c6cp00415f
     """
     def __init__(
             self,
@@ -24,7 +29,9 @@ class SOAP(Descriptor):
             lmax,
             periodic=False,
             crossover=True,
-            sparse=True,
+            average=False,
+            normalize=False,
+            sparse=True
             ):
         """
         Args
@@ -41,6 +48,10 @@ class SOAP(Descriptor):
             nmax (int): The number of basis to be used for each l.
             lmax (int): The number of l's to be used.
             crossover (bool): Default True, if crossover of atoms should be included.
+            average (bool): Whether to build an average output for all selected
+                positions. Before averaging the outputs for individual atoms are
+                normalized.
+            normalize (bool): Whether to normalize the final output.
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
         """
@@ -61,6 +72,8 @@ class SOAP(Descriptor):
         self.lmax = lmax
         self.periodic = periodic
         self.crossover = crossover
+        self.average = average
+        self.normalize = normalize
         self.update()
 
     def update(self):
@@ -162,9 +175,20 @@ class SOAP(Descriptor):
             self.atomic_numbers
         )
 
-        # Make into a dense array if requested
-        if not self.sparse:
-            soap_mat = soap_mat.toarray()
+        # Create the averaged SOAP output if requested. The individual terms are
+        # normalized first.
+        if self.average:
+            soap_mat = soap_mat / np.linalg.norm(soap_mat, axis=1)[:, None]
+            soap_mat = soap_mat.mean(axis=0)
+            soap_mat = np.expand_dims(soap_mat, 0)
+
+        # Normalize if requested
+        if self.normalize:
+            soap_mat = soap_mat / np.linalg.norm(soap_mat, axis=1)
+
+        # Make into a sparse array if requested
+        if self.sparse:
+            soap_mat = coo_matrix(soap_mat)
 
         return soap_mat
 
@@ -174,7 +198,6 @@ class SOAP(Descriptor):
         only handle a limited amount of elements, but this wrapper enables the
         usage of more elements by partitioning the output.
         """
-        # print(sub_output)
         # Get mapping between elements in the subspace and alements in the full
         # space
         space_map = self.get_sub_to_full_map(sub_elements, full_elements_sorted)
@@ -185,7 +208,7 @@ class SOAP(Descriptor):
         n_points = sub_output.shape[0]
 
         # Define the final output space as a sparse matrix.
-        output = lil_matrix((n_points, n_features), dtype=np.float32)
+        output = np.zeros((n_points, n_features), dtype=np.float32)
 
         n_elem_sub = len(sub_elements)
         n_elem_full = len(full_elements_sorted)
@@ -211,10 +234,7 @@ class SOAP(Descriptor):
                     end_full = (m_full+1)*n_elem_features
                     output[:, start_full:end_full] = sub_out
 
-        # Now that the filling of the sparse matrix is done, we can transform
-        # it to coo-format, which is more effective when creating big matrices,
-        # but does not support direct splicing.
-        return output.tocoo()
+        return output
 
     def get_sub_to_full_map(self, sub_elements, full_elements):
         """Used to map an index in the sub-space of elements to the full

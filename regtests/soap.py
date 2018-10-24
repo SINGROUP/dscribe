@@ -249,6 +249,45 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         # Permutational
         self.assertTrue(self.is_permutation_symmetric(create))
 
+    def test_average(self):
+        """Tests that the average output is created correctly.
+        """
+        sys = Atoms(symbols=["H", "C"], positions=[[-1, 0, 0], [1, 0, 0]], cell=[2, 2, 2], pbc=True)
+
+        # Create the average output
+        desc = SOAP(
+            atomic_numbers=[1, 6, 8],
+            rcut=5,
+            nmax=3,
+            lmax=5,
+            periodic=False,
+            crossover=True,
+            average=True,
+            sparse=False
+        )
+        average = desc.create(sys)[0, :]
+
+        # Create individual output for both atoms
+        desc = SOAP(
+            atomic_numbers=[1, 6, 8],
+            rcut=5,
+            nmax=3,
+            lmax=5,
+            periodic=False,
+            crossover=True,
+            average=False,
+            sparse=False
+        )
+        first = desc.create(sys, positions=[0])[0, :]
+        second = desc.create(sys, positions=[1])[0, :]
+
+        # Check that the normalization is done correctly, by first normalizing
+        # the outputs and then averaging them.
+        first_normalized = first/np.linalg.norm(first, axis=0)
+        second_normalized = second/np.linalg.norm(second, axis=0)
+        assumed_average = (first_normalized+second_normalized)/2
+        self.assertTrue(np.array_equal(average, assumed_average))
+
     def test_basis(self):
         """Tests that the output vectors behave correctly as a basis.
         """
@@ -260,23 +299,25 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         sys6 = Atoms(symbols=["H", "O"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
         sys7 = Atoms(symbols=["C", "O"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
 
-        desc = SOAP(atomic_numbers=[1, 6, 8], rcut=5, nmax=3, lmax=5, periodic=False, crossover=True)
+        desc = SOAP(
+            atomic_numbers=[1, 6, 8],
+            rcut=5,
+            nmax=3,
+            lmax=5,
+            periodic=False,
+            crossover=True,
+            normalize=True,
+            sparse=False
+        )
 
         # Create normalized vectors for each system
-        vec1 = desc.create(sys1, positions=[[0, 0, 0]]).toarray()[0, :]
-        vec1 /= np.linalg.norm(vec1)
-        vec2 = desc.create(sys2, positions=[[0, 0, 0]]).toarray()[0, :]
-        vec2 /= np.linalg.norm(vec2)
-        vec3 = desc.create(sys3, positions=[[0, 0, 0]]).toarray()[0, :]
-        vec3 /= np.linalg.norm(vec3)
-        vec4 = desc.create(sys4, positions=[[0, 0, 0]]).toarray()[0, :]
-        vec4 /= np.linalg.norm(vec4)
-        vec5 = desc.create(sys5, positions=[[0, 0, 0]]).toarray()[0, :]
-        vec5 /= np.linalg.norm(vec5)
-        vec6 = desc.create(sys6, positions=[[0, 0, 0]]).toarray()[0, :]
-        vec6 /= np.linalg.norm(vec6)
-        vec7 = desc.create(sys7, positions=[[0, 0, 0]]).toarray()[0, :]
-        vec7 /= np.linalg.norm(vec7)
+        vec1 = desc.create(sys1, positions=[[0, 0, 0]])[0, :]
+        vec2 = desc.create(sys2, positions=[[0, 0, 0]])[0, :]
+        vec3 = desc.create(sys3, positions=[[0, 0, 0]])[0, :]
+        vec4 = desc.create(sys4, positions=[[0, 0, 0]])[0, :]
+        vec5 = desc.create(sys5, positions=[[0, 0, 0]])[0, :]
+        vec6 = desc.create(sys6, positions=[[0, 0, 0]])[0, :]
+        vec7 = desc.create(sys7, positions=[[0, 0, 0]])[0, :]
 
         # The dot-product should be zero when there are no overlapping elements
         dot = np.dot(vec1, vec2)
