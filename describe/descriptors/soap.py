@@ -55,7 +55,7 @@ class SOAP(Descriptor):
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
         """
-        super().__init__(flatten=False, sparse=sparse)
+        super().__init__(flatten=True, sparse=sparse)
 
         # Check that atomic numbers are valid
         self.atomic_numbers = list(set(atomic_numbers))

@@ -28,19 +28,22 @@ def create(inp):
     else:
         results = np.empty((n_samples, n_features))
 
+    old_percent = 0
     for i_sample, sample in enumerate(samples):
         vec = descriptor.create(sample)
 
         if is_sparse:
             data.append(vec.data)
-            rows.append(vec.rows + i_sample)
-            cols.append(vec.cols)
+            rows.append(vec.row + i_sample)
+            cols.append(vec.col)
         else:
             results[i_sample, :] = vec
 
         if verbose:
-            if i_sample % int(n_samples/100) == 0:
-                print("Process {0}: {1:.1f} %".format(proc_id, (i_sample+1)/n_samples*100))
+            current_percent = (i_sample+1)/n_samples*100
+            if current_percent >= old_percent + 1:
+                old_percent = current_percent
+                print("Process {0}: {1:.1f} %".format(proc_id, current_percent))
 
     if is_sparse:
         data = np.concatenate(data)
