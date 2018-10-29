@@ -57,7 +57,7 @@ class MBTR(Descriptor):
             atomic_numbers,
             k,
             periodic,
-            grid,
+            grid=None,
             weighting=None,
             normalize_by_volume=False,
             normalize_gaussians=True,

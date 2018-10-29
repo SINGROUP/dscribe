@@ -54,7 +54,7 @@ def create(inp):
     return results
 
 
-def batch_create(descriptor, samples, n_proc, verbose=True):
+def batch_create(descriptor, samples, n_proc, create_func=None, verbose=True):
     """Used to create a descriptor output for multiple samples in parallel and
     store the result in a n_samples x n_features sparse or dense array.
 
@@ -63,7 +63,18 @@ def batch_create(descriptor, samples, n_proc, verbose=True):
 
     Args:
         samples:
-        n_proc:
+        n_proc: The number of processes. The data will be split into this many
+            parts and divided into different processes.
+        create_func (function): A custom function for creating the output from
+            each process. If none specified a default function will be used.
+            Takes in one tuple argument 'inp' with the following information:
+                inp[0]: samples
+                inp[1]: descriptor
+                inp[2]: verbose parameter
+                inp[3]: process id number
+            The function should return a 2D array. If descriptor.sparse is set
+            to true, the output should be a scipy.linalg.coo_matrix, otherwise
+            a numpy.ndarray should be returned.
         verbose (boolean): Whether to report a percentage of the samples
             covered from each process.
 
@@ -93,7 +104,9 @@ def batch_create(descriptor, samples, n_proc, verbose=True):
     # Initialize a pool of processes, and tell each process in the pool to
     # handle a different part of the data
     pool = multiprocessing.Pool(processes=n_proc)
-    vec_lists = pool.map(create, inputs)  # pool.map keeps the order
+    if create_func is None:
+        create_func = create
+    vec_lists = pool.map(create_func, inputs)  # pool.map keeps the order
 
     if is_sparse:
         # Put results into one big sparse matrix
