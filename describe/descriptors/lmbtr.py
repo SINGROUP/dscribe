@@ -237,7 +237,7 @@ class LMBTR(MBTR):
                 new_system = System('X', positions=i_pos)
                 new_system += system
             else:
-                if not isinstance(i_pos, (int)):
+                if not np.issubdtype(type(i_pos), np.integer):
                     raise ValueError(
                         "The given position of type '{}' could not be "
                         "interpreted as a valid index. If you wish to use "

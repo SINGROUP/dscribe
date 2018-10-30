@@ -13,8 +13,9 @@ def create(inp):
     """
     samples = inp[0]
     descriptor = inp[1]
-    verbose = inp[2]
-    proc_id = inp[3]
+    pos = inp[2]
+    verbose = inp[3]
+    proc_id = inp[4]
 
     # Create descriptors for the dataset
     n_samples = len(samples)
@@ -30,7 +31,11 @@ def create(inp):
 
     old_percent = 0
     for i_sample, sample in enumerate(samples):
-        vec = descriptor.create(sample)
+        if pos is None:
+            vec = descriptor.create(sample)
+        else:
+            i_pos = pos[i_sample]
+            vec = descriptor.create(sample, i_pos)
 
         if is_sparse:
             data.append(vec.data)
@@ -54,7 +59,7 @@ def create(inp):
     return results
 
 
-def batch_create(descriptor, samples, n_proc, create_func=None, verbose=True):
+def batch_create(descriptor, samples, n_proc, positions=None, create_func=None, verbose=True):
     """Used to create a descriptor output for multiple samples in parallel and
     store the result in a n_samples x n_features sparse or dense array.
 
@@ -65,6 +70,9 @@ def batch_create(descriptor, samples, n_proc, create_func=None, verbose=True):
         samples:
         n_proc: The number of processes. The data will be split into this many
             parts and divided into different processes.
+        positions (iterable): Needs to be specified if the given descriptor is
+            local and requires a 'positions'-argument in the create-function.
+            Should be a list of positions matching the given 'samples'.
         create_func (function): A custom function for creating the output from
             each process. If none specified a default function will be used.
             Takes in one tuple argument 'inp' with the following information:
@@ -99,7 +107,11 @@ def batch_create(descriptor, samples, n_proc, create_func=None, verbose=True):
     # Split the data into roughly equivalent chunks for each process
     k, m = divmod(len(samples), n_proc)
     atoms_split = (samples[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_proc))
-    inputs = [(x, descriptor, verbose, proc_id) for proc_id, x in enumerate(atoms_split)]
+    if positions is not None:
+        positions_split = (positions[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_proc))
+        inputs = [(x, descriptor, pos, verbose, proc_id) for proc_id, (x, pos) in enumerate(zip(atoms_split, positions_split))]
+    else:
+        inputs = [(x, descriptor, None, verbose, proc_id) for proc_id, x in enumerate(atoms_split)]
 
     # Initialize a pool of processes, and tell each process in the pool to
     # handle a different part of the data

@@ -126,14 +126,14 @@ class SOAP(Descriptor):
             # position list
             list_positions = []
             for i in positions:
-                if isinstance(i, int):  # gives index of atom (from zero)
+                if np.issubdtype(type(i), np.integer):
                     list_positions.append(system.get_positions()[i])
                 elif isinstance(i, list) or isinstance(i, tuple):
                     list_positions.append(i)
                 else:
                     raise ValueError(
-                        "Create method requires the argument 'positions', a list of"
-                        "atom indices and/or positions"
+                        "Create method requires the argument 'positions', a "
+                        "list of atom indices and/or positions"
                     )
 
             soap_mat = soap_func(
