@@ -509,8 +509,12 @@ class MBTR(Descriptor):
             most have a weight that is larger or equivalent to the given
             threshold.
         """
+
+        # We need to speciy that the relative positions should not be wrapped.
+        # Otherwise the repeated systems may overlap with the positions taken
+        # with get_positions()
+        relative_pos = np.array(primitive_system.get_scaled_positions(wrap=False))
         numbers = np.array(primitive_system.numbers)
-        relative_pos = np.array(primitive_system.get_scaled_positions())
         cartesian_pos = np.array(primitive_system.get_positions())
         cell = np.array(primitive_system.get_cell())
 
