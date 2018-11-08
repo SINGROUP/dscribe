@@ -1,23 +1,23 @@
 ```text
-     _                     _ _
-    | |                   (_) |
-  __| | ___  ___  ___ _ __ _| |__   ___
- / _` |/ _ \/ __|/ __| '__| | '_ \ / _ \
-| (_| |  __/\__ \ (__| |  | | |_) |  __/
- \__,_|\___||___/\___|_|  |_|_.__/ \___|
+     _                _ _
+    | |              (_) |
+  __| | ___  ___  ___ _| |__   ___
+ / _` |/ __|/ __| '__| | '_ \ / _ \
+| (_| |\__ \ (__| |  | | |_) |  __/
+ \__,_||___/\___|_|  |_|_.__/ \___|
 ```
 
-[![Build Status](https://travis-ci.org/SINGROUP/describe.svg?branch=master)](https://travis-ci.org/SINGROUP/describe)
-[![Coverage Status](https://coveralls.io/repos/github/SINGROUP/describe/badge.svg?branch=master)](https://coveralls.io/github/SINGROUP/describe?branch=master)
+[![Build Status](https://travis-ci.org/SINGROUP/dscribe.svg?branch=master)](https://travis-ci.org/SINGROUP/dscribe)
+[![Coverage Status](https://coveralls.io/repos/github/SINGROUP/dscribe/badge.svg?branch=master)](https://coveralls.io/github/SINGROUP/dscribe?branch=master)
 
-describe is a python package for creating machine learning descriptors for atomistic systems.
+dscribe is a python package for creating machine learning descriptors for atomistic systems.
 
 # Example
 ```python
-from describe.descriptors import MBTR
-from describe.descriptors import CoulombMatrix
-from describe.descriptors import SineMatrix
-import describe.utils
+from dscribe.descriptors import MBTR
+from dscribe.descriptors import CoulombMatrix
+from dscribe.descriptors import SineMatrix
+import dscribe.utils
 
 import ase.io
 
@@ -34,7 +34,7 @@ atoms.set_initial_charges(atoms.get_atomic_numbers())
 #===============================================================================
 # Getting some basic statistics from the processed systems. This information is
 # used by the different descriptors for e.g. zero padding.
-stats = describe.utils.system_stats([atoms])
+stats = dscribe.utils.system_stats([atoms])
 n_atoms_max = stats["n_atoms_max"]
 min_distance = stats["min_distance"]
 atomic_numbers = stats["atomic_numbers"]
@@ -86,7 +86,7 @@ for atoms in ase_atoms:
 To install the package, clone the repository and install with pip, e.g.
 
 ```sh
-git clone https://github.com/SINGROUP/describe.git
-cd describe
+git clone https://github.com/SINGROUP/dscribe.git
+cd dscribe
 pip install .
 ```

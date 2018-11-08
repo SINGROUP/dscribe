@@ -2,29 +2,29 @@ from setuptools import setup, find_packages, Extension
 
 extensions = [
     Extension(
-        "describe.libacsf.libacsf",
+        "dscribe.libacsf.libacsf",
         [
-            "describe/libacsf/acsf-utils.c",
-            "describe/libacsf/acsf-compute.c",
+            "dscribe/libacsf/acsf-utils.c",
+            "dscribe/libacsf/acsf-compute.c",
         ],
-        include_dirs=["describe/libacsf"],
+        include_dirs=["dscribe/libacsf"],
         libraries=["m"],
         extra_compile_args=["-O3", "-std=c99"]
     ),
     Extension(
-        "describe.libmbtr.cmbtrwrapper",
+        "dscribe.libmbtr.cmbtrwrapper",
         [
-            "describe/libmbtr/cmbtrwrapper.cpp",
+            "dscribe/libmbtr/cmbtrwrapper.cpp",
         ],
         extra_compile_args=['-std=c++11'],
-        include_dirs=["describe/libmbtr"],
+        include_dirs=["dscribe/libmbtr"],
     ),
 ]
 
 if __name__ == "__main__":
-    setup(name='describe',
+    setup(name='dscribe',
         version='0.1',
-        url="https://singroup.github.io/describe/",
+        url="https://singroup.github.io/dscribe/",
         description='A Python package for creating feature transformations in applications of machine learning to materials science.',
         long_description='A Python package for creating feature transformations in applications of machine learning to materials science.',
         packages=find_packages(),
@@ -36,7 +36,7 @@ if __name__ == "__main__":
             'matplotlib',
             'soaplite',
         ],
-        package_data={'describe': ['describe/libacsf/acsf.h']},
+        package_data={'dscribe': ['dscribe/libacsf/acsf.h']},
         ext_modules=extensions,
         license="Apache 2.0",
         classifiers=[

@@ -1,5 +1,5 @@
-from describe.descriptors import MBTR
-from describe.core import System
+from dscribe.descriptors import MBTR
+from dscribe.core import System
 import matplotlib.pyplot as mpl
 import ase.data
 

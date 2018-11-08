@@ -10,7 +10,7 @@ import scipy.sparse
 
 from ase import Atoms
 
-from describe.descriptors import SineMatrix
+from dscribe.descriptors import SineMatrix
 from testbaseclass import TestBaseClass
 
 

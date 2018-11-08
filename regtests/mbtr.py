@@ -8,7 +8,7 @@ import unittest
 import scipy.sparse
 from scipy.signal import find_peaks_cwt
 
-from describe.descriptors import MBTR
+from dscribe.descriptors import MBTR
 
 from ase.build import bulk
 from ase import Atoms

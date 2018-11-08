@@ -6,7 +6,7 @@ from numpy.random import RandomState
 
 from scipy.sparse import coo_matrix
 
-from describe.descriptors import Descriptor
+from dsribe.descriptors import Descriptor
 from abc import abstractmethod
 
 

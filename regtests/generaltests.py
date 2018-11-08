@@ -6,7 +6,7 @@ import math
 import numpy as np
 import unittest
 
-from describe.core import System
+from dscribe.core import System
 
 from ase.lattice.cubic import SimpleCubicFactory
 from ase.visualize import view

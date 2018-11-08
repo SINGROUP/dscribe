@@ -7,10 +7,10 @@ from scipy.spatial.distance import cdist
 from scipy.sparse import lil_matrix, coo_matrix
 from scipy.special import erf
 
-from describe.core import System
-from describe.descriptors import Descriptor
+from dsribe.core import System
+from dsribe.descriptors import Descriptor
 
-from describe.libmbtr.cmbtrwrapper import CMBTRWrapper
+from dsribe.libmbtr.cmbtrwrapper import CMBTRWrapper
 
 from ase.visualize import view
 

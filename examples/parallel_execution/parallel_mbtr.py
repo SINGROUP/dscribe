@@ -7,8 +7,8 @@ from collections import namedtuple
 
 import numpy as np
 
-from describe.descriptors import MBTR
-import describe.utils
+from dscribe.descriptors import MBTR
+import dscribe.utils
 
 import ase.io
 import ase.build.bulk
@@ -93,7 +93,7 @@ if __name__ == '__main__':
 
     # Find out the maximum number of atoms in the data. This variable is shared
     # to all the processes in the create function
-    stats = describe.utils.system_stats(data.values())
+    stats = dscribe.utils.system_stats(data.values())
     atomic_numbers = stats["atomic_numbers"]
     n_atoms_max = stats["n_atoms_max"]
     min_distance = stats["min_distance"]

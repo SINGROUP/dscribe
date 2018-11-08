@@ -1,14 +1,14 @@
 """
 Demonstrates the use of the ASE library to load and create atomic
-configurations that can be used in the describe package.
+configurations that can be used in the dscribe package.
 """
 import ase.io
 
-from describe.descriptors import MBTR
-from describe.descriptors import CoulombMatrix
-from describe.descriptors import SineMatrix
+from dscribe.descriptors import MBTR
+from dscribe.descriptors import CoulombMatrix
+from dscribe.descriptors import SineMatrix
 
-from describe.utils import system_stats
+from dscribe.utils import system_stats
 
 # Load configuration from an XYZ file with ASE. See
 # "https://wiki.fysik.dtu.dk/ase/ase/io/io.html" for a list of supported file

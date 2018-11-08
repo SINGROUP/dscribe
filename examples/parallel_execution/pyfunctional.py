@@ -9,9 +9,9 @@ from collections import namedtuple
 
 import ase.build.bulk
 
-from describe.descriptors import CoulombMatrix
-from describe.descriptors import SineMatrix
-from describe.descriptors import EwaldMatrix
+from dscribe.descriptors import CoulombMatrix
+from dscribe.descriptors import SineMatrix
+from dscribe.descriptors import EwaldMatrix
 
 # Setup the descriptors
 n_atoms_max = 4

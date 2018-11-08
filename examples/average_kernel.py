@@ -1,11 +1,11 @@
 """Demonstrates the use of the utility AverageKernel
-In this example global structures are compared based on 
-averaging the local descriptors of each atom within 
+In this example global structures are compared based on
+averaging the local descriptors of each atom within
 the structures"""
-from describe.descriptors import SOAP, ACSF
+from dscribe.descriptors import SOAP, ACSF
 import ase, pickle
 import numpy as np
-from describe.utils import AverageKernel
+from dscribe.utils import AverageKernel
 from ase.build import molecule
 from ase.collections import g2
 import time
@@ -17,13 +17,13 @@ descriptor = "SOAP"
 all_atomtypes = [1,6]
 #all_atomtypes = []
 if descriptor == "SOAP":
-    desc = SOAP(all_atomtypes, 
+    desc = SOAP(all_atomtypes,
         8.0, 2, 0, periodic=False,crossover=True)
     print(desc.get_number_of_features())
 elif descriptor == "ACSF":
-    desc = ACSF(n_atoms_max=15, types=[1,6,7,8],bond_params=[[1,2,], [4,5,]], 
-        bond_cos_params=[1,2,3,4], 
-        ang4_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], 
+    desc = ACSF(n_atoms_max=15, types=[1,6,7,8],bond_params=[[1,2,], [4,5,]],
+        bond_cos_params=[1,2,3,4],
+        ang4_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]],
         ang5_params=[[1,2,3],[3,1,4], [4,5,6], [7,8,9]], flatten=False)
 else:
     print("Add your local descriptor here")
@@ -54,7 +54,7 @@ for molname in g2.names:
             atomic_numbers_list.append(sorted_set_atomic_numbers)
             ase_atoms_list.append(atoms)
 
-# Compute the global distance matrix 
+# Compute the global distance matrix
 print(len(desc_list))
 print(atomic_numbers_list)
 distance_matrix = ave.get_global_distance_matrix(desc_list, metric = 'euclidean')
@@ -102,7 +102,7 @@ def _get_overlap_ids(atomic_numbers_a, atomic_numbers_b, chunksize):
         chunk_ids_ab = chunk_ids_ab[np.triu_indices(chunk_ids_ab.shape[0], k = 0)]
     chunk_ids_ba = idsm_b[np.ix_(is_overlap_b, is_overlap_b)]
     if chunk_ids_ba.shape[0] > 0:
-        chunk_ids_ba = chunk_ids_ba[np.triu_indices(chunk_ids_ba.shape[0], k = 0)] 
+        chunk_ids_ba = chunk_ids_ba[np.triu_indices(chunk_ids_ba.shape[0], k = 0)]
     chunk_ids_a  = idsm_a[np.ix_(noverlap_a, noverlap_a)]
     if chunk_ids_a.shape[0] > 0:
         chunk_ids_a = chunk_ids_a[np.triu_indices(chunk_ids_a.shape[0], k = 0)]
@@ -110,12 +110,12 @@ def _get_overlap_ids(atomic_numbers_a, atomic_numbers_b, chunksize):
     if chunk_ids_b.shape[0] > 0:
         chunk_ids_b = chunk_ids_b[np.triu_indices(chunk_ids_b.shape[0], k = 0)]
 
-    overlap_ab  = (np.multiply(chunk_ids_ab.reshape(-1,1), chunksize) + chunkcounter).flatten() 
-    overlap_ba  = (np.multiply(chunk_ids_ba.reshape(-1,1), chunksize) + chunkcounter).flatten() 
-    noverlap_a  = (np.multiply(chunk_ids_a.reshape(-1,1), chunksize) + chunkcounter).flatten() 
-    noverlap_b  = (np.multiply(chunk_ids_b.reshape(-1,1), chunksize) + chunkcounter).flatten() 
+    overlap_ab  = (np.multiply(chunk_ids_ab.reshape(-1,1), chunksize) + chunkcounter).flatten()
+    overlap_ba  = (np.multiply(chunk_ids_ba.reshape(-1,1), chunksize) + chunkcounter).flatten()
+    noverlap_a  = (np.multiply(chunk_ids_a.reshape(-1,1), chunksize) + chunkcounter).flatten()
+    noverlap_b  = (np.multiply(chunk_ids_b.reshape(-1,1), chunksize) + chunkcounter).flatten()
 
-    return overlap_ab, overlap_ba, noverlap_a, noverlap_b  
+    return overlap_ab, overlap_ba, noverlap_a, noverlap_b
 
 def get_chunksize(nmax, lmax):
     chunksize = (lmax + 1) * nmax * (nmax +1) / 2

@@ -2,11 +2,11 @@ from __future__ import absolute_import, division, print_function
 from builtins import super
 import math
 import numpy as np
-from describe.core import System
+from dsribe.core import System
 
 from ase import Atoms
 
-from describe.descriptors import MBTR
+from dsribe.descriptors import MBTR
 
 
 class LMBTR(MBTR):

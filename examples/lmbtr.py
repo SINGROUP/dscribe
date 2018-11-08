@@ -1,5 +1,5 @@
-from describe.descriptors import LMBTR
-from describe.core import System
+from dscribe.descriptors import LMBTR
+from dscribe.core import System
 
 import matplotlib.pyplot as mpl
 

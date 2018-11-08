@@ -8,9 +8,9 @@ from collections import namedtuple
 
 import ase.build.bulk
 
-from describe.descriptors import CoulombMatrix
-from describe.descriptors import EwaldMatrix
-from describe.descriptors import SineMatrix
+from dscribe.descriptors import CoulombMatrix
+from dscribe.descriptors import EwaldMatrix
+from dscribe.descriptors import SineMatrix
 
 
 def create(data):

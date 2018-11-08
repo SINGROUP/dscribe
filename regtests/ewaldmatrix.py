@@ -5,7 +5,7 @@ import math
 import numpy as np
 import unittest
 
-from describe.descriptors import EwaldMatrix
+from dscribe.descriptors import EwaldMatrix
 
 from ase import Atoms
 

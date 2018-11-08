@@ -8,7 +8,7 @@ import numpy as np
 
 import scipy.sparse
 
-from describe.descriptors import SOAP
+from dscribe.descriptors import SOAP
 from testbaseclass import TestBaseClass
 
 from ase import Atoms

@@ -2,7 +2,7 @@ from abc import ABCMeta, abstractmethod
 from future.utils import with_metaclass
 
 from ase import Atoms
-from describe.core.system import System
+from dsribe.core.system import System
 
 
 class Descriptor(with_metaclass(ABCMeta)):

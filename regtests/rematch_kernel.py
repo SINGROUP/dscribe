@@ -4,8 +4,8 @@ import unittest
 
 import numpy as np
 
-from describe.descriptors import SOAP
-from describe.utils import RematchKernel
+from dscribe.descriptors import SOAP
+from dscribe.utils import RematchKernel
 
 from ase.build import molecule
 from ase.collections import g2

@@ -8,7 +8,7 @@ import numpy as np
 
 import scipy.linalg
 
-from describe.descriptors import ACSF
+from dscribe.descriptors import ACSF
 from testbaseclass import TestBaseClass
 
 from ase import Atoms

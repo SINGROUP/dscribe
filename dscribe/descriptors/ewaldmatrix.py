@@ -6,8 +6,8 @@ import numpy as np
 
 from scipy.special import erfc
 
-from describe.descriptors.matrixdescriptor import MatrixDescriptor
-from describe.core.lattice import Lattice
+from dsribe.descriptors.matrixdescriptor import MatrixDescriptor
+from dsribe.core.lattice import Lattice
 
 
 class EwaldMatrix(MatrixDescriptor):

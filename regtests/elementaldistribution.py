@@ -6,7 +6,7 @@ import unittest
 
 import ase.build
 
-from describe.descriptors import ElementalDistribution
+from dscribe.descriptors import ElementalDistribution
 
 
 class ElementalDistributionTests(unittest.TestCase):

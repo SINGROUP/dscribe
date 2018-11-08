@@ -1,7 +1,7 @@
-from describe.descriptors import MBTR
-from describe.descriptors import CoulombMatrix
-from describe.descriptors import SineMatrix
-import describe.utils
+from dscribe.descriptors import MBTR
+from dscribe.descriptors import CoulombMatrix
+from dscribe.descriptors import SineMatrix
+import dscribe.utils
 
 import ase.io
 
@@ -18,7 +18,7 @@ atoms.set_initial_charges(atoms.get_atomic_numbers())
 #===============================================================================
 # Getting some basic statistics from the processed systems. This information is
 # used by the different descriptors for e.g. zero padding.
-stats = describe.utils.system_stats([atoms])
+stats = dscribe.utils.system_stats([atoms])
 n_atoms_max = stats["n_atoms_max"]
 min_distance = stats["min_distance"]
 atomic_numbers = stats["atomic_numbers"]

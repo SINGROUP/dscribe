@@ -1,5 +1,5 @@
 from ase import Atoms
-from describe.core import System
+from dsribe.core import System
 import numpy as np
 
 

@@ -10,7 +10,7 @@ import scipy.stats
 
 from ase import Atoms
 
-from describe.descriptors import CoulombMatrix
+from dscribe.descriptors import CoulombMatrix
 
 from testbaseclass import TestBaseClass
 

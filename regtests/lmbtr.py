@@ -8,7 +8,7 @@ import numpy as np
 
 import scipy.sparse
 
-from describe.descriptors import LMBTR
+from dscribe.descriptors import LMBTR
 
 from ase import Atoms
 from ase.visualize import view
