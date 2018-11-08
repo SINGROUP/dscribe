@@ -277,7 +277,7 @@ class RandomMatrixTests(TestBaseClass, unittest.TestCase):
         # https://en.wikipedia.org/wiki/Sum_of_normally_distributed_random_variables
         desc = CoulombMatrix(n_atoms_max=5, permutation="random", sigma=sigma, flatten=False)
         count = 0
-        rand_instances = 10000
+        rand_instances = 15000
         for i in range(0, rand_instances):
             cm = desc.create(HHe)
             if np.linalg.norm(cm[0]) < np.linalg.norm(cm[1]):
