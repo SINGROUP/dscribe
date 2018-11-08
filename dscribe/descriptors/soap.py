@@ -4,7 +4,7 @@ import numpy as np
 
 from scipy.sparse import coo_matrix
 
-from dsribe.descriptors import Descriptor
+from dscribe.descriptors import Descriptor
 import soaplite
 
 

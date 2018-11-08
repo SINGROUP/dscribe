@@ -9,7 +9,7 @@ from scipy.sparse import coo_matrix
 
 from ctypes import cdll, Structure, c_int, c_double, POINTER, byref
 
-from dsribe.descriptors.descriptor import Descriptor
+from dscribe.descriptors.descriptor import Descriptor
 
 
 _PATH_TO_ACSF_SO = os.path.dirname(os.path.abspath(__file__))

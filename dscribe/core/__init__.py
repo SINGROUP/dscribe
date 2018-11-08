@@ -1,2 +1,2 @@
-from dsribe.core.system import System
-from dsribe.core.lattice import Lattice
+from dscribe.core.system import System
+from dscribe.core.lattice import Lattice

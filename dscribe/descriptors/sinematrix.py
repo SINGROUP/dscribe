@@ -4,7 +4,7 @@ from builtins import (bytes, str, open, super, range,
 
 import numpy as np
 
-from dsribe.descriptors.matrixdescriptor import MatrixDescriptor
+from dscribe.descriptors.matrixdescriptor import MatrixDescriptor
 
 
 class SineMatrix(MatrixDescriptor):

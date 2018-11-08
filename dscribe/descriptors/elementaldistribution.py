@@ -3,7 +3,7 @@ import math
 import numpy as np
 from scipy.special import erf
 from scipy.sparse import lil_matrix
-from dsribe.descriptors import Descriptor
+from dscribe.descriptors import Descriptor
 
 
 class ElementalDistribution(Descriptor):
