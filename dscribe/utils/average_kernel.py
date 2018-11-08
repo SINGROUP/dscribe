@@ -1,4 +1,4 @@
-import describe
+import dscribe
 import numpy as np
 import ase
 from scipy.spatial.distance import cdist
