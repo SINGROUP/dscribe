@@ -1,7 +1,7 @@
-describe
-========
+dscribe
+=======
 
 .. toctree::
    :maxdepth: 4
 
-   describe
+   dscribe

@@ -1,0 +1,587 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dscribe.descriptors.acsf &mdash; dscribe 0.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/style.css" type="text/css" />
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> dscribe
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../doc/modules.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about.html">About</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">dscribe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>dscribe.descriptors.acsf</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for dscribe.descriptors.acsf</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
+<span class="kn">from</span> <span class="nn">builtins</span> <span class="k">import</span> <span class="p">(</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">open</span><span class="p">,</span> <span class="nb">super</span><span class="p">,</span> <span class="nb">range</span><span class="p">,</span> <span class="nb">zip</span><span class="p">,</span> <span class="nb">round</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">pow</span><span class="p">,</span> <span class="nb">object</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="k">import</span> <span class="n">coo_matrix</span>
+
+<span class="kn">from</span> <span class="nn">ctypes</span> <span class="k">import</span> <span class="n">cdll</span><span class="p">,</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_double</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">,</span> <span class="n">byref</span>
+
+<span class="kn">from</span> <span class="nn">dscribe.descriptors.descriptor</span> <span class="k">import</span> <span class="n">Descriptor</span>
+
+
+<span class="n">_PATH_TO_ACSF_SO</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+<span class="n">_ACSF_SOFILES</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span> <span class="n">_PATH_TO_ACSF_SO</span><span class="p">,</span> <span class="s2">&quot;/../libacsf/libacsf.*so*&quot;</span><span class="p">]))</span>
+<span class="n">_LIBACSF</span> <span class="o">=</span> <span class="n">cdll</span><span class="o">.</span><span class="n">LoadLibrary</span><span class="p">(</span><span class="n">_ACSF_SOFILES</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+
+<div class="viewcode-block" id="ACSFObject"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSFObject">[docs]</a><span class="k">class</span> <span class="nc">ACSFObject</span><span class="p">(</span><span class="n">Structure</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Wrapper class for the ACSF C library.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s1">&#39;natm&#39;</span><span class="p">,</span> <span class="n">c_int</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;Z&#39;</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s1">&#39;positions&#39;</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s1">&#39;nTypes&#39;</span><span class="p">,</span> <span class="n">c_int</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;types&#39;</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s1">&#39;typeID&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">c_int</span><span class="o">*</span><span class="mi">100</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s1">&#39;nSymTypes&#39;</span><span class="p">,</span> <span class="n">c_int</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;cutoff&#39;</span><span class="p">,</span> <span class="n">c_double</span><span class="p">),</span>
+
+        <span class="p">(</span><span class="s1">&#39;n_bond_params&#39;</span><span class="p">,</span> <span class="n">c_int</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;bond_params&#39;</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">)),</span>
+
+        <span class="p">(</span><span class="s1">&#39;n_bond_cos_params&#39;</span><span class="p">,</span> <span class="n">c_int</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;bond_cos_params&#39;</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">)),</span>
+
+        <span class="p">(</span><span class="s1">&#39;n_ang4_params&#39;</span><span class="p">,</span> <span class="n">c_int</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;ang4_params&#39;</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">)),</span>
+
+        <span class="p">(</span><span class="s1">&#39;n_ang5_params&#39;</span><span class="p">,</span> <span class="n">c_int</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;ang5_params&#39;</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">)),</span>
+
+        <span class="p">(</span><span class="s1">&#39;distances&#39;</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s1">&#39;nG2&#39;</span><span class="p">,</span> <span class="n">c_int</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;nG3&#39;</span><span class="p">,</span> <span class="n">c_int</span><span class="p">),</span>
+
+        <span class="p">(</span><span class="s1">&#39;acsfs&#39;</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">))</span>
+    <span class="p">]</span></div>
+
+<span class="n">_LIBACSF</span><span class="o">.</span><span class="n">acsf_compute_acsfs</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">POINTER</span><span class="p">(</span><span class="n">ACSFObject</span><span class="p">)]</span>
+<span class="n">_LIBACSF</span><span class="o">.</span><span class="n">acsf_compute_acsfs_some</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">POINTER</span><span class="p">(</span><span class="n">ACSFObject</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">c_int</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="ACSF"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF">[docs]</a><span class="k">class</span> <span class="nc">ACSF</span><span class="p">(</span><span class="n">Descriptor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Implementation of Atom-Centered Symmetry Functions. Currently valid for</span>
+<span class="sd">    finite systems only.</span>
+
+<span class="sd">    Notice that the species of the central atom is not encoded in the output,</span>
+<span class="sd">    only the surrounding environment is encoded. In a typical application one</span>
+<span class="sd">    can train a different model for each central species.</span>
+
+<span class="sd">    For reference, see:</span>
+<span class="sd">        &quot;Atom-centered symmetry functions for constructing high-dimensional</span>
+<span class="sd">        neural network potentials&quot;, Jörg Behler, The Journal of Chemical</span>
+<span class="sd">        Physics, 134, 074106 (2011), https://doi.org/10.1063/1.3553717</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">atomic_numbers</span><span class="p">,</span>
+        <span class="n">g2_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">g3_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">g4_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">g5_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">rcut</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+        <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            atomic_numbers (iterable): A list of the atomic numbers that should</span>
+<span class="sd">                be taken into account in the descriptor. Notice that this is</span>
+<span class="sd">                not the atomic numbers that are present for an individual</span>
+<span class="sd">                system, but should contain all the elements that are ever going</span>
+<span class="sd">                to be encountered when creating the descriptors for a set of</span>
+<span class="sd">                systems. Keeping the number of handled elements as low as</span>
+<span class="sd">                possible is preferable.</span>
+<span class="sd">            g2_params (n*2 np.ndarray): A list pairs of :math:`\eta` and</span>
+<span class="sd">                :math:`R_s` parameters for the :math:`G^2` function.</span>
+<span class="sd">            g3_params (n*1 np.ndarray): A list of :math:`\kappa` parameters for</span>
+<span class="sd">                the :math:`G^3` function.</span>
+<span class="sd">            g4_params (n*3 np.ndarray): A list of triplets of :math:`\eta`,</span>
+<span class="sd">                :math:`\zeta` and  :math:`\lambda` parameters for the :math:`G^4` function.</span>
+<span class="sd">            g5_params (n*3 np.ndarray): A list of triplets of :math:`\eta`,</span>
+<span class="sd">                :math:`\zeta` and  :math:`\lambda` parameters for the :math:`G^5` function.</span>
+<span class="sd">            rcut (float): The smooth cutoff parameters.</span>
+<span class="sd">            sparse (bool): Whether the output should be a sparse matrix or a</span>
+<span class="sd">                dense numpy array.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">flatten</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="n">sparse</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span> <span class="o">=</span> <span class="n">ACSFObject</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">alloc_atoms</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">alloc_work</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_Zs</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_types</span><span class="p">(</span><span class="n">atomic_numbers</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_g2_params</span><span class="p">(</span><span class="n">g2_params</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_g3_params</span><span class="p">(</span><span class="n">g3_params</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_g4_params</span><span class="p">(</span><span class="n">g4_params</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_g5_params</span><span class="p">(</span><span class="n">g5_params</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_rcut</span><span class="p">(</span><span class="n">rcut</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">positions</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">distances</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_acsfBuffer</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">acsf_bond</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acsf_ang</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="ACSF.create"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates the descriptor for the given systems.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            system (:class:`ase.Atoms` | :class:`.System`): Input system.</span>
+<span class="sd">            positions (iterable): Indices of the atoms around which the ACSF</span>
+<span class="sd">                will be returned. If no positions defined, ACSF will be created</span>
+<span class="sd">                for all atoms in the system.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray | scipy.sparse.coo_matrix: The ACSF output for the</span>
+<span class="sd">            given system and positions. The return type depends on the</span>
+<span class="sd">            &#39;sparse&#39;-attribute. The first dimension is given by the number of</span>
+<span class="sd">            positions and the second dimension is determined by the</span>
+<span class="sd">            get_number_of_features()-function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Transform the input system into the internal System-object</span>
+        <span class="n">system</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_system</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+
+        <span class="c1"># Make sure that periodicity is not taken into account</span>
+        <span class="n">system</span><span class="o">.</span><span class="n">set_pbc</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># Copy the atomic numbers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_Zs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">Z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Zs</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data_as</span><span class="p">(</span><span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">))</span>
+
+        <span class="c1"># Set the number of atoms</span>
+        <span class="n">n_atoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">natm</span> <span class="o">=</span> <span class="n">c_int</span><span class="p">(</span><span class="n">n_atoms</span><span class="p">)</span>
+
+        <span class="c1"># Check if there are types that have not been declared</span>
+        <span class="n">input_types</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">())</span>
+        <span class="n">defined_types</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_types</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">input_types</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">defined_types</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The system has types that were not declared.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Setup pointer to the atomic positions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">positions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">positions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">positions</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data_as</span><span class="p">(</span><span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">))</span>
+
+        <span class="c1"># Setup pointer to the distance matrix</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">distances</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_distance_matrix</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">distances</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distances</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data_as</span><span class="p">(</span><span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">))</span>
+
+        <span class="c1"># Amount of ACSFs for one atom for each type pair or triplet</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">nG2</span> <span class="o">=</span> <span class="n">c_int</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">n_bond_params</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">n_bond_cos_params</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">nG3</span> <span class="o">=</span> <span class="n">c_int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">n_ang4_params</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">n_ang5_params</span><span class="p">)</span>
+
+        <span class="c1"># We allocate memory for the ACSF of all atoms in the system, because</span>
+        <span class="c1"># the current ACSF library expects this full-size memory buffer.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_acsfBuffer</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_atoms</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">nG2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">nTypes</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">nG3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">nSymTypes</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">acsfs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_acsfBuffer</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data_as</span><span class="p">(</span><span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">))</span>
+
+        <span class="c1"># Create C-compatible list of atomic indices for which the ACSF is calculated</span>
+        <span class="k">if</span> <span class="n">positions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">positions</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="n">indices_ptr</span> <span class="o">=</span> <span class="n">indices</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data_as</span><span class="p">(</span><span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">))</span>
+
+        <span class="c1"># Calculate ACSF for the given atomic indices</span>
+        <span class="n">_LIBACSF</span><span class="o">.</span><span class="n">acsf_compute_acsfs_some</span><span class="p">(</span><span class="n">byref</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="p">),</span> <span class="n">indices_ptr</span><span class="p">,</span> <span class="n">c_int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)))</span>
+
+        <span class="c1"># Retrieve only the relevant part of the output, rest are zeros.</span>
+        <span class="n">final_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_acsfBuffer</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
+
+        <span class="c1"># Return sparse matrix if requested</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sparse</span><span class="p">:</span>
+            <span class="n">final_output</span> <span class="o">=</span> <span class="n">coo_matrix</span><span class="p">(</span><span class="n">final_output</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">final_output</span></div>
+
+<div class="viewcode-block" id="ACSF.get_number_of_features"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.get_number_of_features">[docs]</a>    <span class="k">def</span> <span class="nf">get_number_of_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Used to inquire the final number of features that this descriptor</span>
+<span class="sd">        will have.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: Number of features for this descriptor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">descsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">n_bond_params</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">n_bond_cos_params</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">nTypes</span>
+        <span class="n">descsize</span> <span class="o">+=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">n_ang4_params</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">n_ang5_params</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">nSymTypes</span>
+
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">descsize</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ACSF.set_types"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.set_types">[docs]</a>    <span class="k">def</span> <span class="nf">set_types</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Used to check the validity of given atomic numbers and to initialize</span>
+<span class="sd">        the C-memory layout for them.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value(iterable): Atomic numbers.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Atomic types cannot be None.&quot;</span><span class="p">)</span>
+
+        <span class="n">pmatrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">pmatrix</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Atomic types should be a vector of integers.&quot;</span><span class="p">)</span>
+
+        <span class="n">pmatrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">pmatrix</span><span class="p">)</span>
+        <span class="n">pmatrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">pmatrix</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_types</span> <span class="o">=</span> <span class="n">pmatrix</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">types</span> <span class="o">=</span> <span class="n">pmatrix</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data_as</span><span class="p">(</span><span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">))</span>
+
+        <span class="c1"># Set the internal indexer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">nTypes</span> <span class="o">=</span> <span class="n">c_int</span><span class="p">(</span><span class="n">pmatrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">nSymTypes</span> <span class="o">=</span> <span class="n">c_int</span><span class="p">(</span><span class="nb">int</span><span class="p">((</span><span class="n">pmatrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">pmatrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">pmatrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">typeID</span><span class="p">[</span> <span class="bp">self</span><span class="o">.</span><span class="n">_types</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">i</span></div>
+
+<div class="viewcode-block" id="ACSF.set_rcut"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.set_rcut">[docs]</a>    <span class="k">def</span> <span class="nf">set_rcut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Used to check the validity of given radial cutoff and to initialize</span>
+<span class="sd">        the C-memory layout for it.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value(float): Radial cutoff.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Vutoff radius should be positive.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">cutoff</span> <span class="o">=</span> <span class="n">c_double</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ACSF.set_g2_params"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.set_g2_params">[docs]</a>    <span class="k">def</span> <span class="nf">set_g2_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Used to check the validity of given G2 parameters and to</span>
+<span class="sd">        initialize the C-memory layout for them.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value(n*3 array): List of G2 parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Handle the disable case</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">n_bond_params</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_bond_params</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Convert to array just to be safe!</span>
+        <span class="n">pmatrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">pmatrix</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;bond_params should be a matrix with two columns (eta, Rs).&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">pmatrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;bond_params should be a matrix with two columns (eta, Rs).&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Check that etas are positive</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">pmatrix</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;2-body eta parameters should be positive numbers.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Store what the user gave in the private variable</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bond_params</span> <span class="o">=</span> <span class="n">pmatrix</span>
+
+        <span class="c1"># Get the number of parameter pairs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">n_bond_params</span> <span class="o">=</span> <span class="n">c_int</span><span class="p">(</span><span class="n">pmatrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="c1"># Assign it</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">bond_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bond_params</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data_as</span><span class="p">(</span><span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="ACSF.set_g3_params"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.set_g3_params">[docs]</a>    <span class="k">def</span> <span class="nf">set_g3_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Used to check the validity of given G3 parameters and to</span>
+<span class="sd">        initialize the C-memory layout for them.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value(array): List of G3 parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Handle the disable case</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">n_bond_cos_params</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_bond_cos_params</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Convert to array just to be safe!</span>
+        <span class="n">pmatrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">pmatrix</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;arghhh! bond_cos_params should be a vector.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Store what the user gave in the private variable</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bond_cos_params</span> <span class="o">=</span> <span class="n">pmatrix</span>
+
+        <span class="c1"># Get the number of parameter pairs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">n_bond_cos_params</span> <span class="o">=</span> <span class="n">c_int</span><span class="p">(</span><span class="n">pmatrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="c1"># Assign it</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">bond_cos_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bond_cos_params</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data_as</span><span class="p">(</span><span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="ACSF.set_g4_params"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.set_g4_params">[docs]</a>    <span class="k">def</span> <span class="nf">set_g4_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Used to check the validity of given G4 parameters and to</span>
+<span class="sd">        initialize the C-memory layout for them.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value(n*3 array): List of G4 parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Handle the disable case</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">n_ang4_params</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ang4_params</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Convert to array just to be safe!</span>
+        <span class="n">pmatrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">pmatrix</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;arghhh! ang4_params should be a matrix with three columns (eta, zeta, lambda).&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pmatrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;arghhh! ang4_params should be a matrix with three columns (eta, zeta, lambda).&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Check that etas are positive</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">pmatrix</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;3-body G4 eta parameters should be positive numbers.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Store what the user gave in the private variable</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ang4_params</span> <span class="o">=</span> <span class="n">pmatrix</span>
+
+        <span class="c1"># Get the number of parameter pairs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">n_ang4_params</span> <span class="o">=</span> <span class="n">c_int</span><span class="p">(</span><span class="n">pmatrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="c1"># Assign it</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">ang4_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ang4_params</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data_as</span><span class="p">(</span><span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="ACSF.set_g5_params"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.set_g5_params">[docs]</a>    <span class="k">def</span> <span class="nf">set_g5_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Used to check the validity of given G5 parameters and to</span>
+<span class="sd">        initialize the C-memory layout for them.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value(n*3 array): List of G5 parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># handle the disable case</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">n_ang5_params</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ang5_params</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Convert to array just to be safe!</span>
+        <span class="n">pmatrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">pmatrix</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ang4_params should be a matrix with three columns (eta, zeta, lambda).&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pmatrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ang4_params should be a matrix with three columns (eta, zeta, lambda).&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Check that etas are positive</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">pmatrix</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;3-body G5 eta parameters should be positive numbers.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Store what the user gave in the private variable</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ang5_params</span> <span class="o">=</span> <span class="n">pmatrix</span>
+
+        <span class="c1"># Get the number of parameter pairs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">n_ang5_params</span> <span class="o">=</span> <span class="n">c_int</span><span class="p">(</span><span class="n">pmatrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="c1"># Assign it</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">ang5_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ang5_params</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data_as</span><span class="p">(</span><span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">))</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright .
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.1.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

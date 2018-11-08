@@ -1,0 +1,452 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dscribe.utils package &mdash; dscribe 0.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="About" href="../about.html" />
+    <link rel="prev" title="dscribe.libmbtr package" href="dscribe.libmbtr.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> dscribe
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/tutorials.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="dscribe.html">dscribe package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="dscribe.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="dscribe.core.html">dscribe.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dscribe.descriptors.html">dscribe.descriptors package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dscribe.libmbtr.html">dscribe.libmbtr package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">dscribe.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dscribe.html#module-dscribe">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">dscribe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">dscribe</a> &raquo;</li>
+        
+          <li><a href="dscribe.html">dscribe package</a> &raquo;</li>
+        
+      <li>dscribe.utils package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/doc/dscribe.utils.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="dscribe-utils-package">
+<h1>dscribe.utils package<a class="headerlink" href="#dscribe-utils-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-dscribe.utils.average_kernel">
+<span id="dscribe-utils-average-kernel-module"></span><h2>dscribe.utils.average_kernel module<a class="headerlink" href="#module-dscribe.utils.average_kernel" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="dscribe.utils.average_kernel.AverageKernel">
+<em class="property">class </em><code class="descclassname">dscribe.utils.average_kernel.</code><code class="descname">AverageKernel</code><a class="reference internal" href="../_modules/dscribe/utils/average_kernel.html#AverageKernel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.utils.average_kernel.AverageKernel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Rematch Kernel methods to go from local descriptors
+to global similarity</p>
+<dl class="method">
+<dt id="dscribe.utils.average_kernel.AverageKernel.average_descriptor">
+<code class="descname">average_descriptor</code><span class="sig-paren">(</span><em>desc_list</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/utils/average_kernel.html#AverageKernel.average_descriptor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.utils.average_kernel.AverageKernel.average_descriptor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the average global similarity between two structures A and B,
+as reported in:
+Phys. Chem. Chem. Phys., 2016, 18, p. 13768
+Takes a list of NA x M matrices, where NA is the number of atoms
+in the system and M is the number of features of the descriptor.
+The matrices can be of different sizes.
+Returns a squared matrix with the size of the given dataset.
+:param desc_list: list of NAxM matrices of structure A with NA atoms and M features.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">NxM matrix with N datapoints and M features</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">average_descriptor matrix</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dscribe.utils.average_kernel.AverageKernel.compute_gaussian">
+<code class="descname">compute_gaussian</code><span class="sig-paren">(</span><em>ave_a</em>, <em>ave_b</em>, <em>gamma=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/utils/average_kernel.html#AverageKernel.compute_gaussian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.utils.average_kernel.AverageKernel.compute_gaussian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes two matrices and computes the similarity
+based on the gaussian kernel.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dscribe.utils.average_kernel.AverageKernel.distance_matrix_to_gaussian_kernel">
+<code class="descname">distance_matrix_to_gaussian_kernel</code><span class="sig-paren">(</span><em>dist_matrix</em>, <em>gamma=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/utils/average_kernel.html#AverageKernel.distance_matrix_to_gaussian_kernel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.utils.average_kernel.AverageKernel.distance_matrix_to_gaussian_kernel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a distance matrix and computes the similarity
+based on the gaussian kernel.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dscribe.utils.average_kernel.AverageKernel.get_global_distance_matrix">
+<code class="descname">get_global_distance_matrix</code><span class="sig-paren">(</span><em>desc_list</em>, <em>metric='euclidean'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/utils/average_kernel.html#AverageKernel.get_global_distance_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.utils.average_kernel.AverageKernel.get_global_distance_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a list of M x N matrices, where M is the number of atoms
+in the system and N is the number of features of the descriptor.
+The matrices can be of different sizes.
+Returns a squared matrix with the size of the given dataset.
+:param desc_list: list of NAxM matrices of structure A with NA atoms and M features.
+:param metric: Either string of valid cdist metric or custom function</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-dscribe.utils.batch_create">
+<span id="dscribe-utils-batch-create-module"></span><h2>dscribe.utils.batch_create module<a class="headerlink" href="#module-dscribe.utils.batch_create" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="dscribe.utils.batch_create.batch_create">
+<code class="descclassname">dscribe.utils.batch_create.</code><code class="descname">batch_create</code><span class="sig-paren">(</span><em>descriptor</em>, <em>samples</em>, <em>n_proc</em>, <em>positions=None</em>, <em>create_func=None</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/utils/batch_create.html#batch_create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.utils.batch_create.batch_create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to create a descriptor output for multiple samples in parallel and
+store the result in a n_samples x n_features sparse or dense array.</p>
+<p>Uses the python multiprocessing library and data parallellism to create the
+descriptors in parallel.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>samples</strong> – </li>
+<li><strong>n_proc</strong> – The number of processes. The data will be split into this many
+parts and divided into different processes.</li>
+<li><strong>positions</strong> (<em>iterable</em>) – Needs to be specified if the given descriptor is
+local and requires a ‘positions’-argument in the create-function.
+Should be a list of positions matching the given ‘samples’.</li>
+<li><strong>create_func</strong> (<em>function</em>) – <p>A custom function for creating the output from
+each process. If none specified a default function will be used.
+Takes in one tuple argument ‘inp’ with the following information:</p>
+<blockquote>
+<div>inp[0]: samples
+inp[1]: descriptor
+inp[2]: verbose parameter
+inp[3]: process id number</div></blockquote>
+<p>The function should return a 2D array. If descriptor.sparse is set
+to true, the output should be a scipy.linalg.coo_matrix, otherwise
+a numpy.ndarray should be returned.</p>
+</li>
+<li><strong>verbose</strong> (<em>boolean</em>) – Whether to report a percentage of the samples
+covered from each process.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The descriptor vectors for all
+samples in a single (n_samples x n_features) array.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">np.ndarray | scipy.sparse.coo_matrix</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="dscribe.utils.batch_create.create">
+<code class="descclassname">dscribe.utils.batch_create.</code><code class="descname">create</code><span class="sig-paren">(</span><em>inp</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/utils/batch_create.html#create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.utils.batch_create.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the function that is called by each process but with
+different parts of the data. This function is a module level function
+(instead of nested within batch_create), because only top level functions
+are picklable by the multiprocessing library.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-dscribe.utils.rematch_kernel">
+<span id="dscribe-utils-rematch-kernel-module"></span><h2>dscribe.utils.rematch_kernel module<a class="headerlink" href="#module-dscribe.utils.rematch_kernel" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="dscribe.utils.rematch_kernel.RematchKernel">
+<em class="property">class </em><code class="descclassname">dscribe.utils.rematch_kernel.</code><code class="descname">RematchKernel</code><a class="reference internal" href="../_modules/dscribe/utils/rematch_kernel.html#RematchKernel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.utils.rematch_kernel.RematchKernel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Rematch Kernel methods to go from local descriptors
+to global similarity</p>
+<dl class="method">
+<dt id="dscribe.utils.rematch_kernel.RematchKernel.compute_envkernel">
+<code class="descname">compute_envkernel</code><span class="sig-paren">(</span><em>local_a</em>, <em>local_b</em>, <em>gamma=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/utils/rematch_kernel.html#RematchKernel.compute_envkernel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.utils.rematch_kernel.RematchKernel.compute_envkernel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes two matrices and computes the similarity
+based on the gaussian kernel.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dscribe.utils.rematch_kernel.RematchKernel.get_all_envkernels">
+<code class="descname">get_all_envkernels</code><span class="sig-paren">(</span><em>desc_list</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/utils/rematch_kernel.html#RematchKernel.get_all_envkernels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.utils.rematch_kernel.RematchKernel.get_all_envkernels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a list of M x N matrices, where M is the number of atoms
+in the system and N is the number of features of the descriptor.
+The matrices can be of different sizes.
+Returns a dictionary of environment kernels with the keys (i,j)
+corresponding to the position in the list.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dscribe.utils.rematch_kernel.RematchKernel.get_global_kernel">
+<code class="descname">get_global_kernel</code><span class="sig-paren">(</span><em>envkernel_dict</em>, <em>gamma</em>, <em>threshold</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/utils/rematch_kernel.html#RematchKernel.get_global_kernel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.utils.rematch_kernel.RematchKernel.get_global_kernel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a dictionary of environment kernels with the keys (i,j)
+and m x n matrices as values (M: number of atoms in the system,
+N: number of features of the descriptor)
+Returns a squared matrix with the size of the given dataset.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dscribe.utils.rematch_kernel.RematchKernel.rematch">
+<code class="descname">rematch</code><span class="sig-paren">(</span><em>envkernel</em>, <em>gamma=0.1</em>, <em>threshold=1e-06</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/utils/rematch_kernel.html#RematchKernel.rematch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.utils.rematch_kernel.RematchKernel.rematch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the global similarity between two structures A and B.
+It uses the Sinkhorn algorithm as reported in:
+Phys. Chem. Chem. Phys., 2016, 18, p. 13768
+:param envkernel: NxM matrix of structure A with</p>
+<blockquote>
+<div>N and structure B with M atoms</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>gamma</strong> – parameter to control between best match gamma = 0
+and average kernel gamma = inf.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-dscribe.utils.stats">
+<span id="dscribe-utils-stats-module"></span><h2>dscribe.utils.stats module<a class="headerlink" href="#module-dscribe.utils.stats" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="dscribe.utils.stats.system_stats">
+<code class="descclassname">dscribe.utils.stats.</code><code class="descname">system_stats</code><span class="sig-paren">(</span><em>system_iterator</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/utils/stats.html#system_stats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.utils.stats.system_stats" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>system_stats</strong> (<em>iterable containing ASE.Atoms</em><em> or </em><a class="reference internal" href="dscribe.core.html#dscribe.core.system.System" title="dscribe.core.system.System"><em>System</em></a>) – The atomic
+systems for which to gather statistics.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of different statistics for the system. The
+dictionary will contain:<blockquote>
+<div>n_atoms_max: The maximum number of atoms in a system.
+max_atomic_number: The highest atomic number
+min_atomic_number: The lowest atomic number
+atomic_numbers: List of present atomic numbers
+element_symbols: List of present atomic symbols
+min_distance: Minimum distance in the system</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-dscribe.utils">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-dscribe.utils" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../about.html" class="btn btn-neutral float-right" title="About" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="dscribe.libmbtr.html" class="btn btn-neutral" title="dscribe.libmbtr package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright .
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.1.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

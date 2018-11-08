@@ -1,19 +1,19 @@
-describe
+dscribe
 ========
 
-.. image:: https://travis-ci.org/SINGROUP/describe.svg?branch=master
-    :target: https://travis-ci.org/SINGROUP/describe
+.. image:: https://travis-ci.org/SINGROUP/dscribe.svg?branch=master
+    :target: https://travis-ci.org/SINGROUP/dscribe
 
-.. image:: https://coveralls.io/repos/github/SINGROUP/describe/badge.svg?branch=master
-    :target: https://coveralls.io/github/SINGROUP/describe?branch=master
+.. image:: https://coveralls.io/repos/github/SINGROUP/dscribe/badge.svg?branch=master
+    :target: https://coveralls.io/github/SINGROUP/dscribe?branch=master
 
-describe is a Python package for creating feature transformations in applications of
+dscribe is a Python package for creating feature transformations in applications of
 machine learning to materials science.
 
 Capabilities at a Glance
 ========================
 
-describe currently includes the following descriptors:
+dscribe currently includes the following descriptors:
 
   - :doc:`Coulomb Matrix <tutorials/coulomb_matrix>`
   - :doc:`Sine Matrix <tutorials/sine_matrix>`
@@ -29,7 +29,7 @@ Go Deeper
 
 Documentation for the source code :doc:`can be found here <doc/modules>`. The
 full source code with examples and regression tests can be explored at `github
-<https://github.com/SINGROUP/describe>`_.
+<https://github.com/SINGROUP/dscribe>`_.
 
 .. toctree::
     :hidden:
