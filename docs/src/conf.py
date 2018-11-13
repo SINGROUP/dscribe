@@ -19,7 +19,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'dscribe'
+project = 'DScribe'
 author = 'Lauri Himanen, Eiaki Morooka, F. Federici Canova, Marc Jäger, Y. Ranawat'
 
 # The short X.Y version

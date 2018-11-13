@@ -1,4 +1,4 @@
-dscribe
+DScribe
 ========
 
 .. image:: https://travis-ci.org/SINGROUP/dscribe.svg?branch=master
@@ -7,7 +7,7 @@ dscribe
 .. image:: https://coveralls.io/repos/github/SINGROUP/dscribe/badge.svg?branch=master
     :target: https://coveralls.io/github/SINGROUP/dscribe?branch=master
 
-dscribe is a Python package for creating feature transformations in applications of
+DScribe is a Python package for creating feature transformations in applications of
 machine learning to materials science.
 
 Capabilities at a Glance
