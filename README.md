@@ -42,7 +42,7 @@ The latest stable release is available through pip: (use the -\-user flag if
 root access is not available)
 
 ```sh
-pip install matid
+pip install dscribe
 ```
 
 To install the latest development version, clone the source code from github
