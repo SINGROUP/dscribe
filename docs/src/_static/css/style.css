@@ -38,3 +38,15 @@
   flex-grow: 1;
   flex-basis: 0;
 }
+.wy-side-nav-search {
+  background-color: #fff;
+}
+.wy-side-nav-search>div.version {
+  color: #666;
+}
+.wy-side-nav-search>a {
+  padding: 0px;
+}
+img.logo {
+  padding: 0px;
+}
