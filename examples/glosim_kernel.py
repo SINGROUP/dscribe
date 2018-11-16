@@ -16,7 +16,7 @@ descriptor = "SOAP"
 all_atomtypes = [1,6,7,8]
 if descriptor == "SOAP":
     desc = SOAP(all_atomtypes,
-        10.0, 2, 0, periodic=False,crossover=True)
+        10.0, 2, 0, periodic=False,crossover=True, sparse = False)
 elif descriptor == "ACSF":
     desc = ACSF(n_atoms_max=15, types=[1,6,7,8],bond_params=[[1,2,], [4,5,]],
         bond_cos_params=[1,2,3,4],
@@ -36,7 +36,8 @@ for molname in g2.names:
     if len(leftover) > 0:
         continue
     local_a = desc.create(atoms)
-    if len(local_a) == 0:
+
+    if local_a.shape[0] == 0:
         continue
     else:
         desc_list.append(local_a)
