@@ -1,0 +1,9 @@
+# Include the license file
+include LICENSE.txt
+
+# Include the ACSF header file
+include dscribe/libacsf/acsf.h
+
+# Include the MBTR source files
+include dscribe/libmbtr/cmbtr.h
+include dscribe/libmbtr/cmbtr.cpp
