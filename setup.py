@@ -1,6 +1,7 @@
 from setuptools import setup, find_packages, Extension
 
 extensions = [
+    # The ACSF C extension, wrapped with ctypes
     Extension(
         "dscribe.libacsf.libacsf",
         [
@@ -11,19 +12,20 @@ extensions = [
         libraries=["m"],
         extra_compile_args=["-O3", "-std=c99"]
     ),
+    # The MBTR C++ extension, wrapped with cython
     Extension(
         "dscribe.libmbtr.cmbtrwrapper",
         [
             "dscribe/libmbtr/cmbtrwrapper.cpp",
         ],
-        extra_compile_args=['-std=c++11'],
         include_dirs=["dscribe/libmbtr"],
+        extra_compile_args=['-std=c++11'],
     ),
 ]
 
 if __name__ == "__main__":
     setup(name='dscribe',
-        version='0.1.1',
+        version='0.1.4',
         url="https://singroup.github.io/dscribe/",
         description='A Python package for creating feature transformations in applications of machine learning to materials science.',
         long_description='A Python package for creating feature transformations in applications of machine learning to materials science.',
@@ -36,9 +38,9 @@ if __name__ == "__main__":
             'matplotlib',
             'soaplite',
         ],
-        package_data={'dscribe': ['dscribe/libacsf/acsf.h']},
+        include_package_data=True,  # This ensures that files defined in MANIFEST.in are included
         ext_modules=extensions,
-        license="Apache 2.0",
+        license="Apache License 2.0",
         classifiers=[
             'Development Status :: 4 - Beta',
             'Intended Audience :: Developers',
