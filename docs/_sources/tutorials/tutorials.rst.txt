@@ -12,3 +12,4 @@ Tutorials
    acsf
    soap
    mbtr
+   kernels

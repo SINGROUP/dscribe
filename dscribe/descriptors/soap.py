@@ -12,7 +12,7 @@ class SOAP(Descriptor):
     """Class for the Smooth Overlap of Atomic Orbitals (SOAP) descriptor.
 
     For reference, see:
-        "On representing chemical environments Albert", Albert P. Bartók, Risi
+        "On representing chemical environments, Albert P. Bartók, Risi
         Kondor, and Gábor Csányi, Phys. Rev. B 87, 184115, (2013),
         https://doi.org/10.1103/PhysRevB.87.184115
 
@@ -34,7 +34,7 @@ class SOAP(Descriptor):
             sparse=True
             ):
         """
-        Args
+        Args:
             atomic_numbers (iterable): A list of the atomic numbers that should
                 be taken into account in the descriptor. Notice that this is
                 not the atomic numbers that are present for an individual
@@ -67,6 +67,9 @@ class SOAP(Descriptor):
         # Sort the elements according to atomic number
         self.atomic_numbers = np.sort(np.array(atomic_numbers))
 
+        # Define a set of atomic numbers
+        self.atomic_number_set = set(self.atomic_numbers)
+
         self.rcut = rcut
         self.nmax = nmax
         self.lmax = lmax
@@ -82,17 +85,17 @@ class SOAP(Descriptor):
         self.alphas, self.betas = soaplite.genBasis.getBasisFunc(self.rcut, self.nmax)
 
     def create(self, system, positions=None):
-        """Return the SOAP spectrum for the given system.
+        """Return the SOAP output for the given system and given positions.
 
         Args:
             system (:class:`ase.Atoms` | :class:`.System`): Input system.
             positions (list): Cartesian positions or atomic indices. If
-                specified, the SOAP spectrum will be created for these points. If
-                not positions defined, the SOAP spectrum will be created for all
-                atoms in the system.
+                specified, the SOAP spectrum will be created for these points.
+                If no positions are defined, the SOAP output will be created
+                for all atoms in the system.
 
         Returns:
-            np.ndarray | scipy.sparse.coo_matrix: The SOAP spectrum for the
+            np.ndarray | scipy.sparse.coo_matrix: The SOAP output for the
             given system and positions. The return type depends on the
             'sparse'-attribute. The first dimension is given by the number of
             positions and the second dimension is determined by the
@@ -100,6 +103,16 @@ class SOAP(Descriptor):
         """
         # Transform the input system into the internal System-object
         system = self.get_system(system)
+
+        # Check that the system does not have elements that are not in the list
+        # of atomic numbers
+        zs = set(system.get_atomic_numbers())
+        if not zs.issubset(self.atomic_number_set):
+            raise ValueError(
+                "The given system has the following atomic numbers not defined "
+                "in the SOAP constructor: {}"
+                .format(self.atomic_number_set.difference(zs))
+            )
 
         # Ensuring self is updated
         self.update()
