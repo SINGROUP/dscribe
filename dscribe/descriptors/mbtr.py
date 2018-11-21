@@ -331,7 +331,8 @@ class MBTR(Descriptor):
 
     def create_with_grid(self, grid=None):
         """Used to recalculate MBTR for an already seen system but with
-        different grid setttings. This function can be used after
+        different grid setttings. This function can be used after the scalar
+        values have been initialized with
         """
         if grid is None:
             grid = self.grid

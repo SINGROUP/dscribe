@@ -310,7 +310,8 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
             grid={"k2": {"n": n, "min": 0, "max": 2, "sigma": 0.1}},
             virtual_positions=False,
             periodic=False,
-            flatten=True
+            flatten=True,
+            sparse=False
         )
         feat = desc.create(system, positions=[0])[0]
         self.assertEqual(feat.shape, (1, (1/2*(n_elem)*(n_elem+1)*n)))

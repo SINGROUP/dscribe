@@ -2,10 +2,12 @@ from __future__ import absolute_import, division, print_function
 from builtins import super
 import math
 import numpy as np
-from dscribe.core import System
+
+from scipy.sparse import coo_matrix
 
 from ase import Atoms
 
+from dscribe.core import System
 from dscribe.descriptors import MBTR
 
 
@@ -259,11 +261,37 @@ class LMBTR(MBTR):
 
             systems.append(new_system)
 
-        # Request MBTR for each positions
-        desc = np.empty(len(positions), dtype='object')
-        for i, i_system in enumerate(systems):
-            i_desc = super().create(i_system)
-            desc[i] = i_desc
+        # Request MBTR for each position. Return type depends on flattening and
+        # whether a spares of dense result is requested.
+        n_pos = len(positions)
+        n_features = self.get_number_of_features()
+        if self.flatten and self.sparse:
+            data = []
+            cols = []
+            rows = []
+            row_offset = 0
+            for i, i_system in enumerate(systems):
+                i_res = super().create(i_system)
+                data.append(i_res.data)
+                rows.append(i_res.row + row_offset)
+                cols.append(i_res.col)
+
+                # Increase the row offset
+                row_offset += 1
+
+            # Saves the descriptors as a sparse matrix
+            data = np.concatenate(data)
+            rows = np.concatenate(rows)
+            cols = np.concatenate(cols)
+            desc = coo_matrix((data, (rows, cols)), shape=(n_pos, n_features), dtype=np.float32)
+        else:
+            if self.flatten and not self.sparse:
+                desc = np.empty(len(positions), dtype=np.float32)
+            else:
+                desc = np.empty((n_pos, n_features), dtype='object')
+            for i, i_system in enumerate(systems):
+                i_desc = super().create(i_system)
+                desc[i] = i_desc
 
         return desc
 
