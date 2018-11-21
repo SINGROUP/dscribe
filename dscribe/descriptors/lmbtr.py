@@ -286,9 +286,9 @@ class LMBTR(MBTR):
             desc = coo_matrix((data, (rows, cols)), shape=(n_pos, n_features), dtype=np.float32)
         else:
             if self.flatten and not self.sparse:
-                desc = np.empty(len(positions), dtype=np.float32)
+                desc = np.empty((n_pos, n_features), dtype=np.float32)
             else:
-                desc = np.empty((n_pos, n_features), dtype='object')
+                desc = np.empty((n_pos), dtype='object')
             for i, i_system in enumerate(systems):
                 i_desc = super().create(i_system)
                 desc[i] = i_desc

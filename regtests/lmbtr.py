@@ -72,7 +72,6 @@ default_grid = {
 
 
 class LMBTRTests(TestBaseClass, unittest.TestCase):
-
     def test_constructor(self):
         """LMBTR: Tests different valid and invalid constructor values.
         """
@@ -313,7 +312,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
             flatten=True,
             sparse=False
         )
-        feat = desc.create(system, positions=[0])[0]
+        feat = desc.create(system, positions=[0])
         self.assertEqual(feat.shape, (1, (1/2*(n_elem)*(n_elem+1)*n)))
 
     def test_sparse(self):
@@ -329,7 +328,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
             flatten=True,
             sparse=False
         )
-        vec = desc.create(H2O, positions=[0])[0]
+        vec = desc.create(H2O, positions=[0])
         self.assertTrue(type(vec) == np.ndarray)
 
         # Sparse
@@ -342,7 +341,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
             flatten=True,
             sparse=True
         )
-        vec = desc.create(H2O, positions=[0])[0]
+        vec = desc.create(H2O, positions=[0])
         self.assertTrue(type(vec) == scipy.sparse.coo_matrix)
 
     def test_periodic(self):
@@ -506,14 +505,14 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
             """This function uses atom indices so rotation and translation
             should not affect it.
             """
-            return desc.create(system, positions=[0])[0]
+            return desc.create(system, positions=[0])
 
         def create_2(system):
             """This function uses scaled positions so atom permutation should
             not affect it.
             """
             desc.virtual_positions = True
-            return desc.create(system, positions=[[0, 1, 0]], scaled_positions=True)[0]
+            return desc.create(system, positions=[[0, 1, 0]], scaled_positions=True)
 
         # Rotational check
         self.assertTrue(self.is_rotationally_symmetric(create_1))
