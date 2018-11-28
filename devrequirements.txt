@@ -2,3 +2,5 @@ cython
 coverage
 coveralls
 pymatgen
+sphinx
+sphinx_rtd_theme
