@@ -218,35 +218,33 @@ Himanen &amp; Adam S. Foster, npj Computational Materials, 4, 37, 2018</a></p>
 <dl class="method">
 <dt id="dscribe.descriptors.soap.SOAP.__init__">
 <code class="descclassname">SOAP.</code><code class="descname">__init__</code><span class="sig-paren">(</span><em>atomic_numbers</em>, <em>rcut</em>, <em>nmax</em>, <em>lmax</em>, <em>periodic=False</em>, <em>crossover=True</em>, <em>average=False</em>, <em>normalize=False</em>, <em>sparse=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>atomic_numbers</strong> (<em>iterable</em>) – A list of the atomic numbers that should
-be taken into account in the descriptor. Notice that this is
+<dd><dl class="docutils">
+<dt>Args</dt>
+<dd><dl class="first docutils">
+<dt>atomic_numbers (iterable): A list of the atomic numbers that should</dt>
+<dd>be taken into account in the descriptor. Notice that this is
 not the atomic numbers that are present for an individual
 system, but should contain all the elements that are ever going
 to be encountered when creating the descriptors for a set of
 systems. Keeping the number of handled elements as low as
-possible is preferable.</li>
-<li><strong>periodic</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Determines whether the system is considered to be
-periodic.</li>
-<li><strong>rcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – A cutoff for local region.</li>
-<li><strong>nmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The number of basis to be used for each l.</li>
-<li><strong>lmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The number of l’s to be used.</li>
-<li><strong>crossover</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Default True, if crossover of atoms should be included.</li>
-<li><strong>average</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Whether to build an average output for all selected
-positions. Before averaging the outputs for individual atoms are
-normalized.</li>
-<li><strong>normalize</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Whether to normalize the final output.</li>
-<li><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
-dense numpy array.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
+possible is preferable.</dd>
+<dt>periodic (bool): Determines whether the system is considered to be</dt>
+<dd>periodic.</dd>
+</dl>
+<p>rcut (float): A cutoff for local region.
+nmax (int): The number of basis to be used for each l.
+lmax (int): The number of l’s to be used.
+crossover (bool): Default True, if crossover of atoms should be included.
+average (bool): Whether to build an average output for all selected</p>
+<blockquote>
+<div>positions. Before averaging the outputs for individual atoms are
+normalized.</div></blockquote>
+<p>normalize (bool): Whether to normalize the final output.
+sparse (bool): Whether the output should be a sparse matrix or a</p>
+<blockquote class="last">
+<div>dense numpy array.</div></blockquote>
+</dd>
+</dl>
 </dd></dl>
 
 <p>Since a smooth cutoff-function is used, sudden changes of configurations at the
@@ -272,7 +270,7 @@ atom in the system. The call syntax for the create-function is as follows:</p>
 <dl class="method">
 <dt id="dscribe.descriptors.soap.SOAP.create">
 <code class="descclassname">SOAP.</code><code class="descname">create</code><span class="sig-paren">(</span><em>system</em>, <em>positions=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.create" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the SOAP output for the given system and given positions.</p>
+<dd><p>Return the SOAP spectrum for the given system.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -280,13 +278,13 @@ atom in the system. The call syntax for the create-function is as follows:</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> | <a class="reference internal" href="../doc/dscribe.core.html#dscribe.core.system.System" title="dscribe.core.system.System"><code class="xref py py-class docutils literal notranslate"><span class="pre">System</span></code></a>) – Input system.</li>
 <li><strong>positions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – Cartesian positions or atomic indices. If
-specified, the SOAP spectrum will be created for these points.
-If no positions are defined, the SOAP output will be created
-for all atoms in the system.</li>
+specified, the SOAP spectrum will be created for these points. If
+not positions defined, the SOAP spectrum will be created for all
+atoms in the system.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The SOAP output for the
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The SOAP spectrum for the
 given system and positions. The return type depends on the
 ‘sparse’-attribute. The first dimension is given by the number of
 positions and the second dimension is determined by the
@@ -472,7 +470,7 @@ development!</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright .
+        &copy; Copyright 
 
     </p>
   </div>
@@ -491,21 +489,24 @@ development!</p>
 
   
 
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../',
-            VERSION:'0.1.0',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../_static/jquery.js"></script>
-      <script type="text/javascript" src="../_static/underscore.js"></script>
-      <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../',
+              VERSION:'0.1.0',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
 
   
 

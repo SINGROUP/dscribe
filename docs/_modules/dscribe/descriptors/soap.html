@@ -167,7 +167,7 @@
     <span class="sd">&quot;&quot;&quot;Class for the Smooth Overlap of Atomic Orbitals (SOAP) descriptor.</span>
 
 <span class="sd">    For reference, see:</span>
-<span class="sd">        &quot;On representing chemical environments, Albert P. Bartók, Risi</span>
+<span class="sd">        &quot;On representing chemical environments Albert&quot;, Albert P. Bartók, Risi</span>
 <span class="sd">        Kondor, and Gábor Csányi, Phys. Rev. B 87, 184115, (2013),</span>
 <span class="sd">        https://doi.org/10.1103/PhysRevB.87.184115</span>
 
@@ -189,7 +189,7 @@
             <span class="n">sparse</span><span class="o">=</span><span class="kc">True</span>
             <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Args:</span>
+<span class="sd">        Args</span>
 <span class="sd">            atomic_numbers (iterable): A list of the atomic numbers that should</span>
 <span class="sd">                be taken into account in the descriptor. Notice that this is</span>
 <span class="sd">                not the atomic numbers that are present for an individual</span>
@@ -222,9 +222,6 @@
         <span class="c1"># Sort the elements according to atomic number</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">atomic_numbers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">atomic_numbers</span><span class="p">))</span>
 
-        <span class="c1"># Define a set of atomic numbers</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atomic_numbers</span><span class="p">)</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">rcut</span> <span class="o">=</span> <span class="n">rcut</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nmax</span> <span class="o">=</span> <span class="n">nmax</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lmax</span> <span class="o">=</span> <span class="n">lmax</span>
@@ -240,17 +237,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">alphas</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">betas</span> <span class="o">=</span> <span class="n">soaplite</span><span class="o">.</span><span class="n">genBasis</span><span class="o">.</span><span class="n">getBasisFunc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rcut</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nmax</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SOAP.create"><a class="viewcode-back" href="../../../tutorials/soap.html#dscribe.descriptors.soap.SOAP.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the SOAP output for the given system and given positions.</span>
+        <span class="sd">&quot;&quot;&quot;Return the SOAP spectrum for the given system.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            system (:class:`ase.Atoms` | :class:`.System`): Input system.</span>
 <span class="sd">            positions (list): Cartesian positions or atomic indices. If</span>
-<span class="sd">                specified, the SOAP spectrum will be created for these points.</span>
-<span class="sd">                If no positions are defined, the SOAP output will be created</span>
-<span class="sd">                for all atoms in the system.</span>
+<span class="sd">                specified, the SOAP spectrum will be created for these points. If</span>
+<span class="sd">                not positions defined, the SOAP spectrum will be created for all</span>
+<span class="sd">                atoms in the system.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            np.ndarray | scipy.sparse.coo_matrix: The SOAP output for the</span>
+<span class="sd">            np.ndarray | scipy.sparse.coo_matrix: The SOAP spectrum for the</span>
 <span class="sd">            given system and positions. The return type depends on the</span>
 <span class="sd">            &#39;sparse&#39;-attribute. The first dimension is given by the number of</span>
 <span class="sd">            positions and the second dimension is determined by the</span>
@@ -258,16 +255,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Transform the input system into the internal System-object</span>
         <span class="n">system</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_system</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
-
-        <span class="c1"># Check that the system does not have elements that are not in the list</span>
-        <span class="c1"># of atomic numbers</span>
-        <span class="n">zs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">())</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">zs</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_set</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;The given system has the following atomic numbers not defined &quot;</span>
-                <span class="s2">&quot;in the SOAP constructor: </span><span class="si">{}</span><span class="s2">&quot;</span>
-                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_set</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">zs</span><span class="p">))</span>
-            <span class="p">)</span>
 
         <span class="c1"># Ensuring self is updated</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
@@ -463,7 +450,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright .
+        &copy; Copyright 
 
     </p>
   </div>
@@ -482,21 +469,24 @@
 
   
 
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../../../',
-            VERSION:'0.1.0',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../../../_static/jquery.js"></script>
-      <script type="text/javascript" src="../../../_static/underscore.js"></script>
-      <script type="text/javascript" src="../../../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../../../',
+              VERSION:'0.1.0',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
 
   
 

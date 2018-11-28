@@ -172,10 +172,16 @@
         <span class="sd">&quot;&quot;&quot;Takes two matrices and computes the similarity</span>
 <span class="sd">        based on the gaussian kernel.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#print(local_a.shape, local_b.shape)</span>
+        <span class="c1">#print(local_a)</span>
+        <span class="c1">#print(local_b)</span>
+        <span class="c1">#print(type(local_b))</span>
+        <span class="c1">#print((local_a-local_b)**2)</span>
+        <span class="c1">#print(((local_a-local_b)**2).sum())</span>
         <span class="k">return</span> <span class="n">cdist</span><span class="p">(</span><span class="n">local_a</span><span class="p">,</span>
-                <span class="n">local_b</span><span class="p">,</span>
-                <span class="k">lambda</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">gamma</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(((</span><span class="n">u</span><span class="o">-</span><span class="n">v</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())),</span>
-                <span class="p">)</span></div>
+        <span class="n">local_b</span><span class="p">,</span>
+        <span class="k">lambda</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">gamma</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(((</span><span class="n">u</span><span class="o">-</span><span class="n">v</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())),</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="RematchKernel.get_all_envkernels"><a class="viewcode-back" href="../../../doc/dscribe.utils.html#dscribe.utils.rematch_kernel.RematchKernel.get_all_envkernels">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_envkernels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">desc_list</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Takes a list of M x N matrices, where M is the number of atoms</span>
@@ -271,7 +277,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright .
+        &copy; Copyright 
 
     </p>
   </div>
@@ -290,21 +296,24 @@
 
   
 
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../../../',
-            VERSION:'0.1.0',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../../../_static/jquery.js"></script>
-      <script type="text/javascript" src="../../../_static/underscore.js"></script>
-      <script type="text/javascript" src="../../../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../../../',
+              VERSION:'0.1.0',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
 
   
 
