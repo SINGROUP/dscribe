@@ -22,3 +22,4 @@ jobs:
       python: 3.6
       after_success:
        - coveralls
+       - .doc.sh
