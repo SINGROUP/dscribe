@@ -45,7 +45,7 @@ class SOAP(Descriptor):
             periodic (bool): Determines whether the system is considered to be
                 periodic.
             rcut (float): A cutoff for local region.
-            nmax (int): The number of basis to be used for each l.
+            nmax (int): The number of basis functions to be used.
             lmax (int): The number of l's to be used.
             crossover (bool): Default True, if crossover of atoms should be included.
             average (bool): Whether to build an average output for all selected
