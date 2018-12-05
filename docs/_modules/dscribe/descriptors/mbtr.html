@@ -207,7 +207,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">decay_factor</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="mi">3</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+<div class="viewcode-block" id="MBTR.__init__"><a class="viewcode-back" href="../../../tutorials/mbtr.html#dscribe.descriptors.mbtr.MBTR.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">atomic_numbers</span><span class="p">,</span>
             <span class="n">k</span><span class="p">,</span>
@@ -229,14 +229,17 @@
 <span class="sd">                systems. Keeping the number of handled elements as low as</span>
 <span class="sd">                possible is preferable, especially if a dense representation</span>
 <span class="sd">                (e.g. numpy array) is needed as an output.</span>
-<span class="sd">            k (set or list): The interaction terms to consider from 1 to 3. The</span>
-<span class="sd">                size of the final output and the time taken in creating this</span>
-<span class="sd">                descriptor is exponentially dependent on this value.</span>
+<span class="sd">            k (int or iterable): The interaction term to consider from 1 to 3.</span>
+<span class="sd">                Also multiple terms can be created at once by providing an</span>
+<span class="sd">                iterable of integers. The size of the final output and the time</span>
+<span class="sd">                taken in creating this descriptor is exponentially dependent on</span>
+<span class="sd">                this value.</span>
 <span class="sd">            periodic (bool): Determines whether the system is considered to be</span>
 <span class="sd">                periodic.</span>
-<span class="sd">            grid (dictionary): This dictionary can be used to precisely control</span>
+<span class="sd">            grid (dict): This dictionary can be used to precisely control</span>
 <span class="sd">                the broadening width, grid spacing and grid length for all the</span>
-<span class="sd">                different terms. Example:</span>
+<span class="sd">                different terms. Example::</span>
+
 <span class="sd">                    grid = {</span>
 <span class="sd">                        &quot;k1&quot;: {</span>
 <span class="sd">                            &quot;min&quot;: 1,</span>
@@ -253,12 +256,12 @@
 <span class="sd">                        ...</span>
 <span class="sd">                    }</span>
 
-<span class="sd">                Here &#39;min&#39; is the minimum value of the axis, &#39;max&#39; is the</span>
-<span class="sd">                maximum value of the axis, &#39;sigma&#39; is the standard devation of</span>
-<span class="sd">                the gaussian broadening and &#39;n&#39; is the number of points sampled</span>
+<span class="sd">                Here *min* is the minimum value of the axis, *max* is the</span>
+<span class="sd">                maximum value of the axis, *sigma* is the standard devation of</span>
+<span class="sd">                the gaussian broadening and *n* is the number of points sampled</span>
 <span class="sd">                on the grid.</span>
 <span class="sd">            weighting (dictionary or string): A dictionary of weighting</span>
-<span class="sd">                function settings for each term. Example:</span>
+<span class="sd">                function settings for each term. Example::</span>
 
 <span class="sd">                    weighting = {</span>
 <span class="sd">                        &quot;k2&quot;: {</span>
@@ -271,28 +274,27 @@
 <span class="sd">                        }</span>
 <span class="sd">                    }</span>
 
-<span class="sd">                Weighting functions should be monotonically decreasing.</span>
-<span class="sd">                The threshold is used to determine the minimum mount of</span>
-<span class="sd">                periodic images to consider. The variable &#39;cutoff&#39; determines</span>
+<span class="sd">                The threshold is used to determine the minimum amount of</span>
+<span class="sd">                periodic images to consider. The variable *cutoff* determines</span>
 <span class="sd">                the value of the weighting function after which the rest of the</span>
-<span class="sd">                terms will be ignored. The K1 term is 0-dimensional, so</span>
+<span class="sd">                terms will be ignored. The k1 term is 0-dimensional, so</span>
 <span class="sd">                weighting is not used. Here are the available functions and a</span>
 <span class="sd">                description for them:</span>
 
-<span class="sd">                    &quot;unity&quot;: Constant weighting of 1 for all samples.</span>
-<span class="sd">                    &quot;exponential&quot;: Weighting of the form :math:`e^-(sx)`. The</span>
-<span class="sd">                        parameter :math:`s` is given in the attribute &#39;scale&#39;.</span>
+<span class="sd">                * unity: Constant weighting of 1 for all samples.</span>
+<span class="sd">                * exponential: Weighting of the form :math:`e^{-sx}`. The</span>
+<span class="sd">                  parameter :math:`s` is given in the attribute *scale*.</span>
 
 <span class="sd">                The meaning of x changes for different terms as follows:</span>
 
-<span class="sd">                    k=1: x = 0</span>
-<span class="sd">                    k=2: x = Distance between A-&gt;B</span>
-<span class="sd">                    k=3: x = Distance from A-&gt;B-&gt;C-&gt;A.</span>
+<span class="sd">                * :math:`k=1`: :math:`x` = 0</span>
+<span class="sd">                * :math:`k=2`: :math:`x` = Distance between A-&gt;B</span>
+<span class="sd">                * :math:`k=3`: :math:`x` = Distance from A-&gt;B-&gt;C-&gt;A.</span>
 
 <span class="sd">            normalize_by_volume (bool): Determines whether the output vectors are</span>
-<span class="sd">                normalized by the cell volume. Defaults to false.</span>
+<span class="sd">                normalized by the cell volume. Defaults to False.</span>
 <span class="sd">            normalize_gaussians (bool): Determines whether the gaussians are</span>
-<span class="sd">                normalized to an area of 1. Defaults to true. If false, the</span>
+<span class="sd">                normalized to an area of 1. Defaults to True. If False, the</span>
 <span class="sd">                normalization factor is dropped and the gaussians have the form.</span>
 <span class="sd">                :math:`e^-(x-\mu)^2/2\sigma^2`</span>
 <span class="sd">            flatten (bool): Whether the output of create() should be flattened</span>
@@ -300,10 +302,6 @@
 <span class="sd">                is provided.</span>
 <span class="sd">            sparse (bool): Whether the output should be a sparse matrix or a</span>
 <span class="sd">                dense numpy array.</span>
-
-<span class="sd">        Raises:</span>
-<span class="sd">            ValueError if the given k value is not supported, or the weighting</span>
-<span class="sd">            is not specified for periodic systems.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">sparse</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">flatten</span><span class="p">:</span>
@@ -339,7 +337,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_k3_weights</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_axis_k1</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_axis_k2</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_axis_k3</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_axis_k3</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="MBTR.initialize_atomic_numbers"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.initialize_atomic_numbers">[docs]</a>    <span class="k">def</span> <span class="nf">initialize_atomic_numbers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atomic_numbers</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Used to initialize the list of atomic numbers.</span>
@@ -360,23 +358,18 @@
 
         <span class="c1"># Check K value</span>
         <span class="n">supported_k</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Please provide the k values that you wish to be generated as a&quot;</span>
-                <span class="s2">&quot; list or set.&quot;</span>
+                <span class="s2">&quot;Could not make the given value of k into a set. Please &quot;</span>
+                <span class="s2">&quot;provide the k values as a single integer or an iterable of &quot;</span>
+                <span class="s2">&quot;integers.&quot;</span>
             <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;Could not make the given value of k into a set. Please &quot;</span>
-                    <span class="s2">&quot;provide the k values as a list or a set.&quot;</span>
-                <span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">supported_k</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;The given k parameter &#39;</span><span class="si">{}</span><span class="s2">&#39; has at least one invalid k value&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">)</span>
-                <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">supported_k</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;The given k parameter &#39;</span><span class="si">{}</span><span class="s2">&#39; has at least one invalid k value&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">)</span>
+            <span class="p">)</span>
 
         <span class="c1"># Check the weighting information</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">weighting</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -462,7 +455,7 @@
                     <span class="k">assert</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;min&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;max&quot;</span><span class="p">],</span> \
                         <span class="s2">&quot;The min value should be smaller than the max values&quot;</span></div>
 
-<div class="viewcode-block" id="MBTR.create"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
+<div class="viewcode-block" id="MBTR.create"><a class="viewcode-back" href="../../../tutorials/mbtr.html#dscribe.descriptors.mbtr.MBTR.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the many-body tensor representation for the given system.</span>
 
 <span class="sd">        Args:</span>
@@ -486,7 +479,8 @@
 
 <div class="viewcode-block" id="MBTR.create_with_grid"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.create_with_grid">[docs]</a>    <span class="k">def</span> <span class="nf">create_with_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Used to recalculate MBTR for an already seen system but with</span>
-<span class="sd">        different grid setttings. This function can be used after</span>
+<span class="sd">        different grid setttings. This function can be used after the scalar</span>
+<span class="sd">        values have been initialized with</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">grid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span>
@@ -1101,21 +1095,11 @@
 
     
     
-      <script type="text/javascript">
-          var DOCUMENTATION_OPTIONS = {
-              URL_ROOT:'../../../',
-              VERSION:'0.1.0',
-              LANGUAGE:'None',
-              COLLAPSE_INDEX:false,
-              FILE_SUFFIX:'.html',
-              HAS_SOURCE:  true,
-              SOURCELINK_SUFFIX: '.txt'
-          };
-      </script>
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
         <script type="text/javascript" src="../../../_static/jquery.js"></script>
         <script type="text/javascript" src="../../../_static/underscore.js"></script>
         <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
 
   

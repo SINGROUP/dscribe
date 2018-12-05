@@ -47,25 +47,25 @@ Background on Coulomb Matrix
 
 Since the Coulomb Matrix was published in 2012 more sophisticated descriptors have been developed. However, CM still does a reasonably good job when comparing molecules with each other. Apart from that, it can be understood intuitively and is a good introduction to descriptors.
 
-The CM is calculated with the equation below. 
+The CM is calculated with the equation below.
 
 .. math::
     \begin{equation}
     M_{ij}=\left\{
                     \begin{matrix}
                     0.5 \cdot Z_i^{2.4} & \text{for }   i = j   \\
-                     \frac{Z_i \cdot Z_j}{R_{ij}} & \text{for }   i \neq j  
+                     \frac{Z_i \cdot Z_j}{R_{ij}} & \text{for }   i \neq j
                     \end{matrix}
                   \right.
     \end{equation}
 
-The diagonal elements can be seen as the interaction of an atom with itself and are essentially a polynomial fit of the atomic energies to the nuclear charge :math:`Z_i`. The off-diagonal elements represent the Coulomb repulsion between nuclei :math:`i` and :math:`j`. 
+The diagonal elements can be seen as the interaction of an atom with itself and are essentially a polynomial fit of the atomic energies to the nuclear charge :math:`Z_i`. The off-diagonal elements represent the Coulomb repulsion between nuclei :math:`i` and :math:`j`.
 
-Let's have a look at the CM of methanol: 
+Let's have a look at the CM of methanol:
 
 image on methanol next to coulomb matrix
 
-.. image:: /_static/methanol-3d-balls.png
+.. image:: /_static/img/methanol-3d-balls.png
    :width: 344px
    :height: 229px
    :scale: 50 %
@@ -76,10 +76,10 @@ image on methanol next to coulomb matrix
     \begin{bmatrix}
     36.9 & 33.7 & 5.5  & 3.1  & 5.5  & 5.5 \\
     33.7 & 73.5 & 4.0  & 8.2  & 3.8  & 3.8  \\
-     5.5 & 4.0  & 0.5  & 0.35 & 0.56 & 0.56 \\ 
+     5.5 & 4.0  & 0.5  & 0.35 & 0.56 & 0.56 \\
      3.1 & 8.2  & 0.35 & 0.5  & 0.43 & 0.43 \\
      5.5 & 3.8  & 0.56 & 0.43 & 0.5  & 0.56 \\
-     5.5 & 3.8  & 0.56 & 0.43 & 0.56 & 0.5       
+     5.5 & 3.8  & 0.56 & 0.43 & 0.56 & 0.5
     \end{bmatrix}
 
 In the matrix above the first row corresponds to carbon (C) in methanol interacting with all the other atoms (columns 2-5) and itself (column 1). Likewise, the first column displays the same numbers, since the matrix is symmetric. Furthermore, the second row (column) corresponds to oxygen and the remaining rows (columns) correspond to hydrogen (H). Can you determine which one is which?
@@ -107,7 +107,7 @@ You did not get the matrix in the same order. By default, CM is sorted by the L2
 Zero-padding
 ~~~~~~~~~~~~~
 
-The number of features in CM depends on the size of the system. Since most machine learning methods require size-consistent inputs it is convenient to define the maximum number of atoms *n_atoms_max* in a dataset. If the structure has fewer atoms, the rest of the CM will be zero-padded. One can imagine non-interacting ghost atoms as place-holders to ensure the same number of atoms in every system. 
+The number of features in CM depends on the size of the system. Since most machine learning methods require size-consistent inputs it is convenient to define the maximum number of atoms *n_atoms_max* in a dataset. If the structure has fewer atoms, the rest of the CM will be zero-padded. One can imagine non-interacting ghost atoms as place-holders to ensure the same number of atoms in every system.
 
 .. literalinclude:: ../../../examples/coulombmatrix.py
    :language: python
@@ -149,7 +149,7 @@ Options for permutation
 
 The rows and columns are sorted by their L2-norm  after applying Gaussian noise to the norms. The standard deviation of the noise is determined by the additionally required *sigma*-parameter. *sigma* determines the standard deviation of the gaussian distributed noise determining how much the rows and columns of the randomly sorted matrix are scrambled. Feel free to try different *sigma* values to see the effect on the ordering.Optionally, you can specify a random *seed*. *sigma* and *seed* are ignored if *permutation* is other than "random".
 
-This option is useful if you want to augment your dataset, similar to augmented image datasets where each image gets mirrored, rotated, cropped or otherwise transformed. 
+This option is useful if you want to augment your dataset, similar to augmented image datasets where each image gets mirrored, rotated, cropped or otherwise transformed.
 You would need to create several instances of the randomly sorted CM in a loop. The advantage of augmenting data like this over using completely random CM lies in the lower number of "likely permutations". Rows and columns of the CM are allowed to flip just so that the feature space (all possible CM) is smooth but also compact. For further reading, consult:
 
 `Hansen, K.; Biegler, F.; Ramakrishnan, R.; Pronobis, W.; von Lilienfeld, O. A.; Müller, K.-R.; Tkatchenko, A. J. Phys. Chem. Lett. 2015, 6 (12), 2326–2331.
@@ -165,7 +165,7 @@ The last *permutation* option is strictly not a permutation, but rather a smalle
    :language: python
    :lines: 109-117
 
-On one hand, it is a more compact descriptor. On the other hand, it potentially destroys information encoded in the CM interactions. 
+On one hand, it is a more compact descriptor. On the other hand, it potentially destroys information encoded in the CM interactions.
 
 Creating multiple descriptors in parallel
 ------------------------------------------

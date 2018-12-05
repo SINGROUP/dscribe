@@ -74,14 +74,17 @@ class MBTR(Descriptor):
                 systems. Keeping the number of handled elements as low as
                 possible is preferable, especially if a dense representation
                 (e.g. numpy array) is needed as an output.
-            k (set or list): The interaction terms to consider from 1 to 3. The
-                size of the final output and the time taken in creating this
-                descriptor is exponentially dependent on this value.
+            k (int or iterable): The interaction term to consider from 1 to 3.
+                Also multiple terms can be created at once by providing an
+                iterable of integers. The size of the final output and the time
+                taken in creating this descriptor is exponentially dependent on
+                this value.
             periodic (bool): Determines whether the system is considered to be
                 periodic.
-            grid (dictionary): This dictionary can be used to precisely control
+            grid (dict): This dictionary can be used to precisely control
                 the broadening width, grid spacing and grid length for all the
-                different terms. Example:
+                different terms. Example::
+
                     grid = {
                         "k1": {
                             "min": 1,
@@ -98,12 +101,12 @@ class MBTR(Descriptor):
                         ...
                     }
 
-                Here 'min' is the minimum value of the axis, 'max' is the
-                maximum value of the axis, 'sigma' is the standard devation of
-                the gaussian broadening and 'n' is the number of points sampled
+                Here *min* is the minimum value of the axis, *max* is the
+                maximum value of the axis, *sigma* is the standard devation of
+                the gaussian broadening and *n* is the number of points sampled
                 on the grid.
             weighting (dictionary or string): A dictionary of weighting
-                function settings for each term. Example:
+                function settings for each term. Example::
 
                     weighting = {
                         "k2": {
@@ -116,28 +119,27 @@ class MBTR(Descriptor):
                         }
                     }
 
-                Weighting functions should be monotonically decreasing.
-                The threshold is used to determine the minimum mount of
-                periodic images to consider. The variable 'cutoff' determines
+                The threshold is used to determine the minimum amount of
+                periodic images to consider. The variable *cutoff* determines
                 the value of the weighting function after which the rest of the
-                terms will be ignored. The K1 term is 0-dimensional, so
+                terms will be ignored. The k1 term is 0-dimensional, so
                 weighting is not used. Here are the available functions and a
                 description for them:
 
-                    "unity": Constant weighting of 1 for all samples.
-                    "exponential": Weighting of the form :math:`e^-(sx)`. The
-                        parameter :math:`s` is given in the attribute 'scale'.
+                * unity: Constant weighting of 1 for all samples.
+                * exponential: Weighting of the form :math:`e^{-sx}`. The
+                  parameter :math:`s` is given in the attribute *scale*.
 
                 The meaning of x changes for different terms as follows:
 
-                    k=1: x = 0
-                    k=2: x = Distance between A->B
-                    k=3: x = Distance from A->B->C->A.
+                * :math:`k=1`: :math:`x` = 0
+                * :math:`k=2`: :math:`x` = Distance between A->B
+                * :math:`k=3`: :math:`x` = Distance from A->B->C->A.
 
             normalize_by_volume (bool): Determines whether the output vectors are
-                normalized by the cell volume. Defaults to false.
+                normalized by the cell volume. Defaults to False.
             normalize_gaussians (bool): Determines whether the gaussians are
-                normalized to an area of 1. Defaults to true. If false, the
+                normalized to an area of 1. Defaults to True. If False, the
                 normalization factor is dropped and the gaussians have the form.
                 :math:`e^-(x-\mu)^2/2\sigma^2`
             flatten (bool): Whether the output of create() should be flattened
@@ -145,10 +147,6 @@ class MBTR(Descriptor):
                 is provided.
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
-
-        Raises:
-            ValueError if the given k value is not supported, or the weighting
-            is not specified for periodic systems.
         """
 
         if sparse and not flatten:
@@ -205,23 +203,18 @@ class MBTR(Descriptor):
 
         # Check K value
         supported_k = set(range(1, 4))
-        if isinstance(self.k, int):
+        try:
+            self.k = set(self.k)
+        except Exception:
             raise ValueError(
-                "Please provide the k values that you wish to be generated as a"
-                " list or set."
+                "Could not make the given value of k into a set. Please "
+                "provide the k values as a single integer or an iterable of "
+                "integers."
             )
-        else:
-            try:
-                self.k = set(self.k)
-            except Exception:
-                raise ValueError(
-                    "Could not make the given value of k into a set. Please "
-                    "provide the k values as a list or a set."
-                )
-            if not self.k.issubset(supported_k):
-                raise ValueError(
-                    "The given k parameter '{}' has at least one invalid k value".format(self.k)
-                )
+        if not self.k.issubset(supported_k):
+            raise ValueError(
+                "The given k parameter '{}' has at least one invalid k value".format(self.k)
+            )
 
         # Check the weighting information
         if self.weighting is not None:

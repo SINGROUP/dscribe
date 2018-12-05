@@ -1215,7 +1215,8 @@ threshold.</p>
 <dt id="dscribe.descriptors.mbtr.MBTR.create_with_grid">
 <code class="descname">create_with_grid</code><span class="sig-paren">(</span><em>grid=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.create_with_grid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.create_with_grid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to recalculate MBTR for an already seen system but with
-different grid setttings. This function can be used after</p>
+different grid setttings. This function can be used after the scalar
+values have been initialized with</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -1425,7 +1426,7 @@ Chemistry, (2015),
 <p>Class for the Smooth Overlap of Atomic Orbitals (SOAP) descriptor.</p>
 <dl class="docutils">
 <dt>For reference, see:</dt>
-<dd><p class="first">“On representing chemical environments Albert”, Albert P. Bartók, Risi
+<dd><p class="first">“On representing chemical environments, Albert P. Bartók, Risi
 Kondor, and Gábor Csányi, Phys. Rev. B 87, 184115, (2013),
 <a class="reference external" href="https://doi.org/10.1103/PhysRevB.87.184115">https://doi.org/10.1103/PhysRevB.87.184115</a></p>
 <p class="last">“Comparing molecules and solids across structural and alchemical
@@ -1437,7 +1438,7 @@ Phys.  Chem. Chem. Phys. 18, 13754 (2016),
 <dl class="method">
 <dt id="dscribe.descriptors.soap.SOAP.create">
 <code class="descname">create</code><span class="sig-paren">(</span><em>system</em>, <em>positions=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.create" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the SOAP spectrum for the given system.</p>
+<dd><p>Return the SOAP output for the given system and given positions.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1445,13 +1446,13 @@ Phys.  Chem. Chem. Phys. 18, 13754 (2016),
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> | <a class="reference internal" href="dscribe.core.html#dscribe.core.system.System" title="dscribe.core.system.System"><code class="xref py py-class docutils literal notranslate"><span class="pre">System</span></code></a>) – Input system.</li>
 <li><strong>positions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – Cartesian positions or atomic indices. If
-specified, the SOAP spectrum will be created for these points. If
-not positions defined, the SOAP spectrum will be created for all
-atoms in the system.</li>
+specified, the SOAP spectrum will be created for these points.
+If no positions are defined, the SOAP output will be created
+for all atoms in the system.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The SOAP spectrum for the
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The SOAP output for the
 given system and positions. The return type depends on the
 ‘sparse’-attribute. The first dimension is given by the number of
 positions and the second dimension is determined by the
@@ -1578,21 +1579,11 @@ element-space.</p>
 
     
     
-      <script type="text/javascript">
-          var DOCUMENTATION_OPTIONS = {
-              URL_ROOT:'../',
-              VERSION:'0.1.0',
-              LANGUAGE:'None',
-              COLLAPSE_INDEX:false,
-              FILE_SUFFIX:'.html',
-              HAS_SOURCE:  true,
-              SOURCELINK_SUFFIX: '.txt'
-          };
-      </script>
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
         <script type="text/javascript" src="../_static/jquery.js"></script>
         <script type="text/javascript" src="../_static/underscore.js"></script>
         <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
 
   
