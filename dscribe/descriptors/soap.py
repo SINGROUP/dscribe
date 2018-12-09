@@ -27,6 +27,8 @@ class SOAP(Descriptor):
             rcut,
             nmax,
             lmax,
+            alpha=1.0,
+            method="analytic",
             periodic=False,
             crossover=True,
             average=False,
@@ -47,6 +49,12 @@ class SOAP(Descriptor):
             rcut (float): A cutoff for local region.
             nmax (int): The number of basis functions to be used.
             lmax (int): The number of l's to be used.
+            alpha (float): The standard deviation of the gaussians placed on
+                each atom to build the atom density.
+            method (string): The method used for calculation. Can be either
+                "analytic", or "numeric". In essence analytic method is much
+                faster, but does not support as high number of basis functions
+                as numeric.
             crossover (bool): Default True, if crossover of atoms should be included.
             average (bool): Whether to build an average output for all selected
                 positions. Before averaging the outputs for individual atoms are
@@ -73,6 +81,8 @@ class SOAP(Descriptor):
         self.rcut = rcut
         self.nmax = nmax
         self.lmax = lmax
+        self.alpha = alpha
+        self.method = method
         self.periodic = periodic
         self.crossover = crossover
         self.average = average
@@ -128,12 +138,17 @@ class SOAP(Descriptor):
 
         # Positions specified, use them
         if positions is not None:
-
             # Change function if periodic
             if self.periodic:
-                soap_func = soaplite.get_periodic_soap_locals
+                if self.method == "analytic":
+                    soap_func = soaplite.get_periodic_soap_locals
+                elif self.method == "numeric":
+                    soap_func = soaplite.get_periodic_soap_locals_proper
             else:
-                soap_func = soaplite.get_soap_locals
+                if self.method == "analytic":
+                    soap_func = soaplite.get_soap_locals
+                elif self.method == "numeric":
+                    soap_func = soaplite.get_soap_locals_proper
 
             # Check validity of position definitions and create final cartesian
             # position list
@@ -149,36 +164,65 @@ class SOAP(Descriptor):
                         "list of atom indices and/or positions"
                     )
 
-            soap_mat = soap_func(
-                system,
-                list_positions,
-                self.alphas,
-                self.betas,
-                rCut=self.rcut,
-                NradBas=self.nmax,
-                Lmax=self.lmax,
-                crossOver=self.crossover,
-                all_atomtypes=sub_elements.tolist()
-            )
+            if self.method == "analytic":
+                soap_mat = soap_func(
+                    system,
+                    list_positions,
+                    self.alphas,
+                    self.betas,
+                    rCut=self.rcut,
+                    NradBas=self.nmax,
+                    Lmax=self.lmax,
+                    crossOver=self.crossover,
+                    all_atomtypes=sub_elements.tolist(),
+                    eta=self.alpha
+                )
+            elif self.method == "numeric":
+                soap_mat = soap_func(
+                    system,
+                    list_positions,
+                    rCut=self.rcut,
+                    nMax=self.nmax,
+                    Lmax=self.lmax,
+                    # crossOver=self.crossover,
+                    all_atomtypes=sub_elements.tolist(),
+                    eta=self.alpha
+                )
         # No positions given, calculate SOAP for all atoms in the structure
         else:
-
             # Change function if periodic
             if self.periodic:
-                soap_func = soaplite.get_periodic_soap_structure
+                if self.method == "analytic":
+                    soap_func = soaplite.get_periodic_soap_structure
+                elif self.method == "numeric":
+                    soap_func = soaplite.get_periodic_soap_structure_proper
             else:
-                soap_func = soaplite.get_soap_structure
+                if self.method == "analytic":
+                    soap_func = soaplite.get_soap_structure
+                elif self.method == "numeric":
+                    soap_func = soaplite.get_soap_structure_proper
 
-            soap_mat = soap_func(
-                system,
-                self.alphas,
-                self.betas,
-                rCut=self.rcut,
-                NradBas=self.nmax,
-                Lmax=self.lmax,
-                crossOver=self.crossover,
-                all_atomtypes=sub_elements.tolist()
-            )
+            if self.method == "analytic":
+                soap_mat = soap_func(
+                    system,
+                    self.alphas,
+                    self.betas,
+                    rCut=self.rcut,
+                    NradBas=self.nmax,
+                    Lmax=self.lmax,
+                    crossOver=self.crossover,
+                    all_atomtypes=sub_elements.tolist(),
+                    eta=self.alpha
+                )
+            elif self.method == "numeric":
+                soap_mat = soap_func(
+                    system,
+                    rCut=self.rcut,
+                    nMax=self.nmax,
+                    Lmax=self.lmax,
+                    all_atomtypes=sub_elements.tolist(),
+                    eta=self.alpha
+                )
 
         # Map the output from subspace of elements to the full space of
         # elements
