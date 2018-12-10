@@ -9,7 +9,9 @@ import soaplite
 
 
 class SOAP(Descriptor):
-    """Class for the Smooth Overlap of Atomic Orbitals (SOAP) descriptor.
+    """Class for the Smooth Overlap of Atomic Orbitals (SOAP) descriptor. This
+    implementation uses orthogonalized spherical primitive gaussian type
+    orbitals as the radial basis set to reach a fast analytical solution.
 
     For reference, see:
         "On representing chemical environments, Albert P. Bartók, Risi
@@ -28,7 +30,6 @@ class SOAP(Descriptor):
             nmax,
             lmax,
             alpha=1.0,
-            method="analytic",
             periodic=False,
             crossover=True,
             average=False,
@@ -133,6 +134,7 @@ class SOAP(Descriptor):
 
         # Positions specified, use them
         if positions is not None:
+
             # Change function if periodic
             if self.periodic:
                 soap_func = soaplite.get_periodic_soap_locals
@@ -142,6 +144,11 @@ class SOAP(Descriptor):
             # Check validity of position definitions and create final cartesian
             # position list
             list_positions = []
+            if len(positions) == 0:
+                raise ValueError(
+                    "The argument 'positions' should contain a non-empty set of"
+                    " atomic indices or cartesian coordinates"
+                )
             for i in positions:
                 if np.issubdtype(type(i), np.integer):
                     list_positions.append(system.get_positions()[i])

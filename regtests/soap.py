@@ -90,25 +90,25 @@ class SoapTests(TestBaseClass, unittest.TestCase):
     def test_positions(self):
         """Tests that different positions are handled correctly.
         """
-        desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=False, crossover=True,)
+        desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=False, crossover=True)
         self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
         self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[]).shape[1])
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O).shape[1])
 
         desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=True, crossover=True,)
         self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
         self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[]).shape[1])
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O).shape[1])
 
         desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=True, crossover=False,)
         self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
         self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[]).shape[1])
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O).shape[1])
 
         desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=False, crossover=False,)
         self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
         self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[]).shape[1])
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O).shape[1])
 
         with self.assertRaises(ValueError):
             desc.create(H2O, positions=['a'])

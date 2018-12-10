@@ -36,7 +36,7 @@ if __name__ == "__main__":
             'ase',
             'future',
             'matplotlib',
-            'soaplite',
+            'soaplite==0.14.0',
         ],
         include_package_data=True,  # This ensures that files defined in MANIFEST.in are included
         ext_modules=extensions,
