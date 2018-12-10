@@ -43,6 +43,7 @@ H = Atoms(
 
 
 class SoapTests(TestBaseClass, unittest.TestCase):
+# class SoapTests(unittest.TestCase):
 
     def test_constructor(self):
         """Tests different valid and invalid constructor values.
@@ -262,7 +263,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             periodic=False,
             crossover=False,
             sparse=False,
-            alpha=1.001
+            sigma=1.001
         )
         output1 = desc.create(sys, positions=[0])
 
@@ -274,7 +275,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             periodic=False,
             crossover=False,
             sparse=False,
-            alpha=1.0
+            sigma=1.0
         )
         output2 = desc.create(sys, positions=[0])
 
@@ -291,7 +292,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             periodic=True,
             crossover=False,
             sparse=False,
-            alpha=1.001
+            sigma=1.001
         )
         output1 = desc.create(sys, positions=[0])
 
@@ -303,7 +304,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             periodic=True,
             crossover=False,
             sparse=False,
-            alpha=1.0
+            sigma=1.0
         )
         output2 = desc.create(sys, positions=[0])
 
@@ -408,6 +409,82 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         self.assertNotEqual(np.sum(hc_part4), 0)
         self.assertEqual(np.sum(co_part6), 0)
         self.assertNotEqual(np.sum(co_part7), 0)
+
+    # def test_integration(self):
+        # """Tests that the analytical integration corresponds to the numerical
+        # one.
+        # """
+        # import scipy
+        # from scipy.integrate import tplquad
+
+        # rcut = 5
+        # sigma = 1
+        # nmax = 2
+        # lmax = 2
+        # ix = 0
+        # iy = 0
+        # iz = 0
+
+        # # limits for radius
+        # r1 = 0.
+        # r2 = rcut
+        # # limits for theta
+        # t1 = 0
+        # t2 = np.pi
+        # # limits for phi
+        # p1 = 0
+        # p2 = 2*np.pi
+
+        # # Calculate the analytical power spectrum
+        # soap = SOAP(atomic_numbers=[1], lmax=lmax, nmax=nmax, rcut=rcut, crossover=False, sparse=False)
+        # system = Atoms(positions=[[ix, iy, iz]], symbols=["H"])
+        # output = soap.create(system, positions=[0])
+        # print(output)
+        # print(soap.alphas)
+        # print(len(soap.alphas))
+        # print(soap.betas)
+
+        # for n in range(nmax):
+            # for l in range(lmax):
+                # power = []
+                # for m in range(int(l+1)):
+                    # # print("n, l: {} {} {}".format(n, l, m))
+
+                    # # Calculate alphas and betas
+                    # alpha = 1
+                    # beta = 1
+
+                    # # Calculate numerical coefficients
+                    # def soap_coeff(phi, theta, r):
+
+                        # # Spherical harmonic
+                        # ylm = scipy.special.sph_harm(m, l, theta, phi)
+
+                        # # Spherical gaussian type orbital
+                        # gto = beta*r**l*np.exp(-alpha*r**2)
+
+                        # # Atomic density
+                        # rho = np.exp(-sigma*((r*np.sin(theta)*np.cos(phi) - ix)**2 + (r*np.sin(theta)*np.sin(phi) - iy)**2 + (r*np.cos(theta) - iz)**2))
+
+                        # # Jacobian
+                        # jacobian = np.sin(theta)*r**2
+
+                        # return gto*ylm*rho*jacobian
+
+                    # cnlm = tplquad(
+                        # soap_coeff,
+                        # r1,
+                        # r2,
+                        # lambda r: t1,
+                        # lambda r: t2,
+                        # lambda r, theta: p1,
+                        # lambda r, theta: p2
+                    # )[0]
+                    # print(n, l, m)
+                    # print(cnlm)
+                    # power.append(cnlm)
+                # print(n, l)
+                # print((np.array(power)**2).sum())
 
 if __name__ == '__main__':
     suites = []
