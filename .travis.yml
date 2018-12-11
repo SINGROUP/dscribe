@@ -28,3 +28,4 @@ jobs:
     - stage: test
       python: 3.6
       os: osx
+      osx_image: xcode8.3
