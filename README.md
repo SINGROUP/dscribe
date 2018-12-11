@@ -35,10 +35,11 @@ input_soap = soap_desc.create(mol, positions=[0])
 
 # Installation
 The package is compatible both with Python 2 and Python 3 (tested on 2.7 and
-3.6). The exact list of dependencies are given in setup.py and all of them will
-be automatically installed during setup.
+3.6). We currently only support Unix-based systems, including Linux and macOS.
+The exact list of dependencies are given in setup.py and all of them will be
+automatically installed during setup.
 
-The latest stable release is available through pip: (use the -\-user flag if
+The latest stable release is available through pip: (add the -\-user flag if
 root access is not available)
 
 ```sh

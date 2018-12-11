@@ -89,6 +89,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorials.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../doc/modules.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../citing.html">Citing DScribe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../about.html">About</a></li>
 </ul>
 
@@ -153,10 +154,9 @@
            <div itemprop="articleBody">
             
   <h1>Source code for dscribe.utils.rematch_kernel</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">dscribe</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">ase</span>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">scipy.spatial.distance</span> <span class="k">import</span> <span class="n">cdist</span>
+
 
 <div class="viewcode-block" id="RematchKernel"><a class="viewcode-back" href="../../../doc/dscribe.utils.html#dscribe.utils.rematch_kernel.RematchKernel">[docs]</a><span class="k">class</span> <span class="nc">RematchKernel</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -166,9 +166,7 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span>
 
-
-
-<div class="viewcode-block" id="RematchKernel.compute_envkernel"><a class="viewcode-back" href="../../../doc/dscribe.utils.html#dscribe.utils.rematch_kernel.RematchKernel.compute_envkernel">[docs]</a>    <span class="k">def</span> <span class="nf">compute_envkernel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">local_a</span><span class="p">,</span><span class="n">local_b</span><span class="p">,</span> <span class="n">gamma</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">):</span>
+<div class="viewcode-block" id="RematchKernel.compute_envkernel"><a class="viewcode-back" href="../../../doc/dscribe.utils.html#dscribe.utils.rematch_kernel.RematchKernel.compute_envkernel">[docs]</a>    <span class="k">def</span> <span class="nf">compute_envkernel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">local_a</span><span class="p">,</span> <span class="n">local_b</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Takes two matrices and computes the similarity</span>
 <span class="sd">        based on the gaussian kernel.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -189,7 +187,7 @@
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ndatapoints</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ndatapoints</span><span class="p">):</span>
                 <span class="n">envkernel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_envkernel</span><span class="p">(</span><span class="n">desc_list</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">desc_list</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
-                <span class="n">envkernel_dict</span><span class="p">[(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">)]</span> <span class="o">=</span> <span class="n">envkernel</span>
+                <span class="n">envkernel_dict</span><span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)]</span> <span class="o">=</span> <span class="n">envkernel</span>
         <span class="k">return</span> <span class="n">envkernel_dict</span></div>
 
 <div class="viewcode-block" id="RematchKernel.get_global_kernel"><a class="viewcode-back" href="../../../doc/dscribe.utils.html#dscribe.utils.rematch_kernel.RematchKernel.get_global_kernel">[docs]</a>    <span class="k">def</span> <span class="nf">get_global_kernel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">envkernel_dict</span><span class="p">,</span> <span class="n">gamma</span><span class="p">,</span> <span class="n">threshold</span><span class="p">):</span>
@@ -199,21 +197,18 @@
 <span class="sd">        Returns a squared matrix with the size of the given dataset.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">keys</span> <span class="o">=</span> <span class="n">envkernel_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-        <span class="n">envkernel_list</span> <span class="o">=</span> <span class="n">envkernel_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
         <span class="n">row_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">])</span>
         <span class="n">col_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">])</span>
         <span class="n">N</span><span class="p">,</span> <span class="n">M</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">row_ids</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">col_ids</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
 
         <span class="n">glosim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">M</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">j</span> <span class="ow">in</span> <span class="n">envkernel_dict</span><span class="p">:</span>
-            <span class="n">envkernel</span> <span class="o">=</span> <span class="n">envkernel_dict</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">envkernel_dict</span><span class="p">:</span>
+            <span class="n">envkernel</span> <span class="o">=</span> <span class="n">envkernel_dict</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
             <span class="n">glosim</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rematch</span><span class="p">(</span><span class="n">envkernel</span><span class="p">,</span>
                 <span class="n">gamma</span><span class="o">=</span><span class="n">gamma</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="n">threshold</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">glosim</span></div>
 
-
-
-<div class="viewcode-block" id="RematchKernel.rematch"><a class="viewcode-back" href="../../../doc/dscribe.utils.html#dscribe.utils.rematch_kernel.RematchKernel.rematch">[docs]</a>    <span class="k">def</span> <span class="nf">rematch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">envkernel</span><span class="p">,</span> <span class="n">gamma</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">threshold</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">):</span>
+<div class="viewcode-block" id="RematchKernel.rematch"><a class="viewcode-back" href="../../../doc/dscribe.utils.html#dscribe.utils.rematch_kernel.RematchKernel.rematch">[docs]</a>    <span class="k">def</span> <span class="nf">rematch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">envkernel</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the global similarity between two structures A and B.</span>
 <span class="sd">        It uses the Sinkhorn algorithm as reported in:</span>
@@ -235,8 +230,6 @@
         <span class="n">en</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">n</span><span class="p">,))</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
         <span class="n">em</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">m</span><span class="p">,))</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
 
-        <span class="n">Kp</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">en</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">K</span>
-
         <span class="c1"># converge balancing vectors u and v</span>
         <span class="n">itercount</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
@@ -254,7 +247,7 @@
         <span class="c1"># using Tr(X.T Y) = Sum[ij](Xij * Yij)</span>
         <span class="c1"># P.T * C</span>
         <span class="c1"># P_ij = u_i * v_j * K_ij</span>
-        <span class="n">pity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)))</span> <span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="n">pity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))),</span> <span class="n">v</span><span class="p">)</span>
 
         <span class="n">glosim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span> <span class="n">pity</span><span class="p">,</span> <span class="n">envkernel</span><span class="p">))</span>
 

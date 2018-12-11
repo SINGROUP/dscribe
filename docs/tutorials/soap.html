@@ -112,6 +112,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../doc/modules.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing DScribe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
 </ul>
 
@@ -217,7 +218,7 @@ Himanen &amp; Adam S. Foster, npj Computational Materials, 4, 37, 2018</a></p>
 <p>The arguments have the following effect:</p>
 <dl class="method">
 <dt id="dscribe.descriptors.soap.SOAP.__init__">
-<code class="descclassname">SOAP.</code><code class="descname">__init__</code><span class="sig-paren">(</span><em>atomic_numbers</em>, <em>rcut</em>, <em>nmax</em>, <em>lmax</em>, <em>periodic=False</em>, <em>crossover=True</em>, <em>average=False</em>, <em>normalize=False</em>, <em>sparse=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">SOAP.</code><code class="descname">__init__</code><span class="sig-paren">(</span><em>atomic_numbers</em>, <em>rcut</em>, <em>nmax</em>, <em>lmax</em>, <em>sigma=1.0</em>, <em>periodic=False</em>, <em>crossover=True</em>, <em>average=False</em>, <em>normalize=False</em>, <em>sparse=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -233,8 +234,10 @@ possible is preferable.</li>
 <li><strong>periodic</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Determines whether the system is considered to be
 periodic.</li>
 <li><strong>rcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – A cutoff for local region.</li>
-<li><strong>nmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The number of basis to be used for each l.</li>
+<li><strong>nmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The number of basis functions to be used.</li>
 <li><strong>lmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The number of l’s to be used.</li>
+<li><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The standard deviation of the gaussians placed on
+each atom to build the atom density.</li>
 <li><strong>crossover</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Default True, if crossover of atoms should be included.</li>
 <li><strong>average</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Whether to build an average output for all selected
 positions. Before averaging the outputs for individual atoms are

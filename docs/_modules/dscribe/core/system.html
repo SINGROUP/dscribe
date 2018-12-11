@@ -89,6 +89,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorials.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../doc/modules.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../citing.html">Citing DScribe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../about.html">About</a></li>
 </ul>
 
@@ -332,7 +333,9 @@
 <div class="viewcode-block" id="System.get_distance_matrix"><a class="viewcode-back" href="../../../doc/dscribe.core.html#dscribe.core.system.System.get_distance_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">get_distance_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculates the distance matrix A defined as:</span>
 
-<span class="sd">            A_ij = |r_i - r_j|</span>
+<span class="sd">        .. math::</span>
+
+<span class="sd">            A_{ij} = \lvert \mathbf{r}_i - \mathbf{r}_j \\rvert</span>
 
 <span class="sd">        For periodic systems the distance of an atom from itself is the</span>
 <span class="sd">        smallest displacement of an atom from one of it&#39;s periodic copies, and</span>
@@ -349,7 +352,9 @@
 <div class="viewcode-block" id="System.get_inverse_distance_matrix"><a class="viewcode-back" href="../../../doc/dscribe.core.html#dscribe.core.system.System.get_inverse_distance_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">get_inverse_distance_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculates the inverse distance matrix A defined as:</span>
 
-<span class="sd">            A_ij = 1/|r_i - r_j|</span>
+<span class="sd">        .. math::</span>
+
+<span class="sd">            A_{ij} = \\frac{1}{\lvert \mathbf{r}_i - \mathbf{r}_j \\rvert }</span>
 
 <span class="sd">        For periodic systems the distance of an atom from itself is the</span>
 <span class="sd">        smallest displacement of an atom from one of it&#39;s periodic copies, and</span>

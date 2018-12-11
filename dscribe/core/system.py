@@ -177,7 +177,9 @@ class System(Atoms):
     def get_distance_matrix(self):
         """Calculates the distance matrix A defined as:
 
-            A_ij = |r_i - r_j|
+        .. math::
+
+            A_{ij} = \lvert \mathbf{r}_i - \mathbf{r}_j \\rvert
 
         For periodic systems the distance of an atom from itself is the
         smallest displacement of an atom from one of it's periodic copies, and
@@ -194,7 +196,9 @@ class System(Atoms):
     def get_inverse_distance_matrix(self):
         """Calculates the inverse distance matrix A defined as:
 
-            A_ij = 1/|r_i - r_j|
+        .. math::
+
+            A_{ij} = \\frac{1}{\lvert \mathbf{r}_i - \mathbf{r}_j \\rvert }
 
         For periodic systems the distance of an atom from itself is the
         smallest displacement of an atom from one of it's periodic copies, and

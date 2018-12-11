@@ -1,7 +1,6 @@
-import dscribe
 import numpy as np
-import ase
 from scipy.spatial.distance import cdist
+
 
 class RematchKernel():
     """
@@ -11,9 +10,7 @@ class RematchKernel():
     def __init__(self):
         return
 
-
-
-    def compute_envkernel(self, local_a,local_b, gamma = 0.01):
+    def compute_envkernel(self, local_a, local_b, gamma=0.01):
         """Takes two matrices and computes the similarity
         based on the gaussian kernel.
         """
@@ -34,7 +31,7 @@ class RematchKernel():
         for i in range(ndatapoints):
             for j in range(ndatapoints):
                 envkernel = self.compute_envkernel(desc_list[i], desc_list[j])
-                envkernel_dict[(i,j)] = envkernel
+                envkernel_dict[(i, j)] = envkernel
         return envkernel_dict
 
     def get_global_kernel(self, envkernel_dict, gamma, threshold):
@@ -44,21 +41,18 @@ class RematchKernel():
         Returns a squared matrix with the size of the given dataset.
         """
         keys = envkernel_dict.keys()
-        envkernel_list = envkernel_dict.values()
         row_ids = np.array([key[0] for key in keys])
         col_ids = np.array([key[1] for key in keys])
         N, M = int(row_ids.max() + 1), int(col_ids.max() + 1)
 
         glosim = np.zeros((N, M), dtype=np.float64)
-        for i,j in envkernel_dict:
-            envkernel = envkernel_dict[i,j]
+        for i, j in envkernel_dict:
+            envkernel = envkernel_dict[i, j]
             glosim[i, j] = self.rematch(envkernel,
                 gamma=gamma, threshold=threshold)
         return glosim
 
-
-
-    def rematch(self, envkernel, gamma = 0.1, threshold = 1e-6):
+    def rematch(self, envkernel, gamma=0.1, threshold=1e-6):
         """
         Compute the global similarity between two structures A and B.
         It uses the Sinkhorn algorithm as reported in:
@@ -80,8 +74,6 @@ class RematchKernel():
         en = np.ones((n,)) / float(n)
         em = np.ones((m,)) / float(m)
 
-        Kp = (1 / en).reshape(-1, 1) * K
-
         # converge balancing vectors u and v
         itercount = 0
         error = 1
@@ -99,7 +91,7 @@ class RematchKernel():
         # using Tr(X.T Y) = Sum[ij](Xij * Yij)
         # P.T * C
         # P_ij = u_i * v_j * K_ij
-        pity = np.multiply( np.multiply(K, u.reshape((-1,1))) , v)
+        pity = np.multiply( np.multiply(K, u.reshape((-1, 1))), v)
 
         glosim = np.sum( np.multiply( pity, envkernel))
 

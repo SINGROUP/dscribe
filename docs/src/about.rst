@@ -4,8 +4,8 @@ About
 Authors
 -------
 This package is developed at Aalto University, Department of Applied Physics
-by the `Computational Electronic Structure Theory (CEST) <http://physics.aalto.fi/en/groups/cest/>`_ and `Surfaces and
-Interfaces at the Nanoscale (SIN) <http://physics.aalto.fi/en/groups/sin/>`_ groups.
+by the `Computational Electronic Structure Theory (CEST) <https://www.aalto.fi/department-of-applied-physics/computational-electronic-structure-theory-cest>`_ and `Surfaces and
+Interfaces at the Nanoscale (SIN) <https://www.aalto.fi/department-of-applied-physics/surfaces-and-interfaces-at-the-nanoscale-sin>`_ groups.
 
 Contact
 -------

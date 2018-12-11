@@ -104,6 +104,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing DScribe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
 </ul>
 
@@ -394,8 +395,8 @@ copies.</p>
 <dt id="dscribe.core.system.System.get_distance_matrix">
 <code class="descname">get_distance_matrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.get_distance_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.get_distance_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the distance matrix A defined as:</p>
-<blockquote>
-<div>A_ij = <a href="#id1"><span class="problematic" id="id2">|r_i - r_j|</span></a></div></blockquote>
+<div class="math notranslate nohighlight">
+\[A_{ij} = \lvert \mathbf{r}_i - \mathbf{r}_j \rvert\]</div>
 <p>For periodic systems the distance of an atom from itself is the
 smallest displacement of an atom from one of it’s periodic copies, and
 the distance of two different atoms is the distance of two closest
@@ -416,8 +417,8 @@ copies.</p>
 <dt id="dscribe.core.system.System.get_inverse_distance_matrix">
 <code class="descname">get_inverse_distance_matrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.get_inverse_distance_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.get_inverse_distance_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the inverse distance matrix A defined as:</p>
-<blockquote>
-<div>A_ij = 1/<a href="#id3"><span class="problematic" id="id4">|r_i - r_j|</span></a></div></blockquote>
+<div class="math notranslate nohighlight">
+\[A_{ij} = \frac{1}{\lvert \mathbf{r}_i - \mathbf{r}_j \rvert }\]</div>
 <p>For periodic systems the distance of an atom from itself is the
 smallest displacement of an atom from one of it’s periodic copies, and
 the distance of two different atoms is the distance of two closest
