@@ -9,7 +9,7 @@ extensions = [
             "dscribe/libacsf/acsf-compute.c",
         ],
         include_dirs=["dscribe/libacsf"],
-        libraries=["m"],
+        # libraries=["m"],
         extra_compile_args=["-O3", "-std=c99"]
     ),
     # The MBTR C++ extension, wrapped with cython
