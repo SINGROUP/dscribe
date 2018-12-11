@@ -12,4 +12,4 @@ git config --global user.name "Travis CI"
 cd ../..
 git add ./docs
 git commit -m "Travis documentation build: $TRAVIS_BUILD_NUMBER"
-git push --quiet https://SINGROUP:$GH_TOKEN@github.com/SINGROUP/dscribe development &>/dev/null
+git push --quiet https://SINGROUP:$GH_TOKEN@github.com/SINGROUP/dscribe master &>/dev/null
