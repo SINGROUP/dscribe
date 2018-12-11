@@ -11,6 +11,7 @@ script:
 # Defines the branches on which the tests are run on
 branches:
   only:
+  - master
   - development
 
 # Defines build stages.
@@ -25,7 +26,3 @@ jobs:
       after_success:
        - coveralls
        - .doc.sh
-    - stage: test
-      python: 3.6
-      os: osx
-      osx_image: xcode8.3
