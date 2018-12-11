@@ -25,4 +25,4 @@ jobs:
       os: linux
       after_success:
        - coveralls
-       - .doc.sh
+       - ./doc.sh
