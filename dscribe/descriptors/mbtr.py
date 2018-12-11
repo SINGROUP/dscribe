@@ -20,15 +20,15 @@ class MBTR(Descriptor):
 
     This implementation provides the following geometry functions:
 
-        -k=1: atomic number
-        -k=2: inverse distances
-        -k=3: cosines of angles
+    * k=1: atomic number
+    * k=2: inverse distances
+    * k=3: cosines of angles
 
     and the following weighting functions:
 
-        -k=1: unity(=no weighting)
-        -k=2: unity(=no weighting), exponential (:math:`e^-(sx)`)
-        -k=3: unity(=no weighting), exponential (:math:`e^-(sx)`)
+    * k=1: unity(=no weighting)
+    * k=2: unity(=no weighting), exponential (:math:`e^-(sx)`)
+    * k=3: unity(=no weighting), exponential (:math:`e^-(sx)`)
 
     You can use this descriptor for finite and periodic systems. When dealing
     with periodic systems, it is advisable to use a primitive cell, or if
