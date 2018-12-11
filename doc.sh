@@ -1,4 +1,5 @@
 # Build docs, copy to correct docs folder, delete build
+git checkout development
 cd docs/src
 sphinx-apidoc -o ./doc ../../dscribe
 make html
@@ -10,5 +11,6 @@ git config --global user.email "travis@travis-ci.org"
 git config --global user.name "Travis CI"
 cd ../..
 git add ./docs
+git status
 git commit -m "Travis documentation build: $TRAVIS_BUILD_NUMBER"
 git push --quiet https://SINGROUP:$GH_TOKEN@github.com/SINGROUP/dscribe development &>/dev/null
