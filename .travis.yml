@@ -1,7 +1,3 @@
-os:
-  - linux
-  - osx
-
 language: python
 
 # Command to install dependencies
@@ -22,8 +18,13 @@ jobs:
   include:
     - stage: test
       python: 2.7
+      os: linux
     - stage: test
       python: 3.6
+      os: linux
       after_success:
        - coveralls
        - .doc.sh
+    - stage: test
+      python: 3.6
+      os: osx
