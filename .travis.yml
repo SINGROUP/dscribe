@@ -24,5 +24,4 @@ jobs:
       python: 3.6
       os: linux
       after_success:
-       - coveralls
-       - ./doc.sh
+       - test $TRAVIS_BRANCH = "master" && coveralls &&./doc.sh
