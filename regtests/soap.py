@@ -6,7 +6,9 @@ import unittest
 
 import numpy as np
 
+import scipy
 import scipy.sparse
+from scipy.integrate import tplquad
 
 from dscribe.descriptors import SOAP
 from testbaseclass import TestBaseClass
@@ -43,7 +45,6 @@ H = Atoms(
 
 
 class SoapTests(TestBaseClass, unittest.TestCase):
-# class SoapTests(unittest.TestCase):
 
     def test_constructor(self):
         """Tests different valid and invalid constructor values.
@@ -250,66 +251,66 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         # Permutational
         self.assertTrue(self.is_permutation_symmetric(create))
 
-    def test_atom_gaussian(self):
-        """Tests that the gaussian width of the atoms is handled correctly.
-        """
-        # Test that it works for finite systems
-        sys = Atoms(symbols=["H"], positions=[[0, 0, 0]], cell=[2, 2, 2], pbc=True)
-        desc = SOAP(
-            atomic_numbers=[1],
-            rcut=5,
-            nmax=2,
-            lmax=5,
-            periodic=False,
-            crossover=False,
-            sparse=False,
-            sigma=1.001
-        )
-        output1 = desc.create(sys, positions=[0])
+    # def test_atom_gaussian(self):
+        # """Tests that the gaussian width of the atoms is handled correctly.
+        # """
+        # # Test that it works for finite systems
+        # sys = Atoms(symbols=["H"], positions=[[0, 0, 0]], cell=[2, 2, 2], pbc=True)
+        # desc = SOAP(
+            # atomic_numbers=[1],
+            # rcut=5,
+            # nmax=2,
+            # lmax=5,
+            # periodic=False,
+            # crossover=False,
+            # sparse=False,
+            # sigma=1.001
+        # )
+        # output1 = desc.create(sys, positions=[0])
 
-        desc = SOAP(
-            atomic_numbers=[1],
-            rcut=5,
-            nmax=2,
-            lmax=5,
-            periodic=False,
-            crossover=False,
-            sparse=False,
-            sigma=1.0
-        )
-        output2 = desc.create(sys, positions=[0])
+        # desc = SOAP(
+            # atomic_numbers=[1],
+            # rcut=5,
+            # nmax=2,
+            # lmax=5,
+            # periodic=False,
+            # crossover=False,
+            # sparse=False,
+            # sigma=1.0
+        # )
+        # output2 = desc.create(sys, positions=[0])
 
-        self.assertFalse(np.array_equal(output1, output2))
-        self.assertTrue(np.allclose(output1, output2, rtol=0.01))
+        # self.assertFalse(np.array_equal(output1, output2))
+        # self.assertTrue(np.allclose(output1, output2, rtol=0.01))
 
-        # Test that it works for periodic systems
-        sys = Atoms(symbols=["H"], positions=[[0, 0, 0]], cell=[2, 2, 2], pbc=True)
-        desc = SOAP(
-            atomic_numbers=[1],
-            rcut=5,
-            nmax=2,
-            lmax=5,
-            periodic=True,
-            crossover=False,
-            sparse=False,
-            sigma=1.001
-        )
-        output1 = desc.create(sys, positions=[0])
+        # # Test that it works for periodic systems
+        # sys = Atoms(symbols=["H"], positions=[[0, 0, 0]], cell=[2, 2, 2], pbc=True)
+        # desc = SOAP(
+            # atomic_numbers=[1],
+            # rcut=5,
+            # nmax=2,
+            # lmax=5,
+            # periodic=True,
+            # crossover=False,
+            # sparse=False,
+            # sigma=1.001
+        # )
+        # output1 = desc.create(sys, positions=[0])
 
-        desc = SOAP(
-            atomic_numbers=[1],
-            rcut=5,
-            nmax=2,
-            lmax=5,
-            periodic=True,
-            crossover=False,
-            sparse=False,
-            sigma=1.0
-        )
-        output2 = desc.create(sys, positions=[0])
+        # desc = SOAP(
+            # atomic_numbers=[1],
+            # rcut=5,
+            # nmax=2,
+            # lmax=5,
+            # periodic=True,
+            # crossover=False,
+            # sparse=False,
+            # sigma=1.0
+        # )
+        # output2 = desc.create(sys, positions=[0])
 
-        self.assertFalse(np.array_equal(output1, output2))
-        self.assertTrue(np.allclose(output1, output2, rtol=0.01))
+        # self.assertFalse(np.array_equal(output1, output2))
+        # self.assertTrue(np.allclose(output1, output2, rtol=0.01))
 
     def test_average(self):
         """Tests that the average output is created correctly.
@@ -410,81 +411,99 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         self.assertEqual(np.sum(co_part6), 0)
         self.assertNotEqual(np.sum(co_part7), 0)
 
-    # def test_integration(self):
-        # """Tests that the analytical integration corresponds to the numerical
-        # one.
-        # """
-        # import scipy
-        # from scipy.integrate import tplquad
+    def test_integration(self):
+        """Tests that the analytical integration corresponds to the numerical
+        one. The test is run on a system with one atom, which has been shifted
+        away from the origin.
+        """
+        sigma = 1.0
+        rcut = 5
+        nmax = 2
+        lmax = 3
+        ix = 0.5
+        iy = 0
+        iz = 0.3
+        ri_squared = ix**2+iy**2+iz**2
 
-        # rcut = 5
-        # sigma = 1
-        # nmax = 2
-        # lmax = 2
-        # ix = 0
-        # iy = 0
-        # iz = 0
+        # Limits for radius
+        r1 = 0.
+        r2 = rcut
+        # Limits for theta
+        t1 = 0
+        t2 = np.pi
+        # Limits for phi
+        p1 = 0
+        p2 = 2*np.pi
 
-        # # limits for radius
-        # r1 = 0.
-        # r2 = rcut
-        # # limits for theta
-        # t1 = 0
-        # t2 = np.pi
-        # # limits for phi
-        # p1 = 0
-        # p2 = 2*np.pi
+        system = Atoms(positions=[[ix, iy, iz]], symbols=["H"])
 
-        # # Calculate the analytical power spectrum
-        # soap = SOAP(atomic_numbers=[1], lmax=lmax, nmax=nmax, rcut=rcut, crossover=False, sparse=False)
-        # system = Atoms(positions=[[ix, iy, iz]], symbols=["H"])
-        # output = soap.create(system, positions=[0])
-        # print(output)
-        # print(soap.alphas)
-        # print(len(soap.alphas))
-        # print(soap.betas)
+        # Calculate the analytical power spectrum and the weights and decays of
+        # the radial basis functions.
+        soap = SOAP(atomic_numbers=[1], lmax=lmax, nmax=nmax, rcut=rcut, crossover=True, sparse=False)
+        analytical_power_spectrum = soap.create(system, positions=[[0, 0, 0]])
+        alphagrid = np.reshape(soap.alphas, [10, nmax])
+        betagrid = np.reshape(soap.betas, [10, nmax, nmax])
 
-        # for n in range(nmax):
-            # for l in range(lmax):
-                # power = []
-                # for m in range(int(l+1)):
-                    # # print("n, l: {} {} {}".format(n, l, m))
+        coeffs = []
+        for n in range(nmax):
+            n_coeffs = []
+            for l in range(lmax+1):
+                l_coeffs = []
+                for m in range(-l, l+1):
 
-                    # # Calculate alphas and betas
-                    # alpha = 1
-                    # beta = 1
+                    # Calculate numerical coefficients
+                    def soap_coeff(phi, theta, r):
 
-                    # # Calculate numerical coefficients
-                    # def soap_coeff(phi, theta, r):
+                        # Spherical harmonic
+                        ylm = scipy.special.sph_harm(m, l, phi, theta)  # NOTE: scipy swaps phi and theta
 
-                        # # Spherical harmonic
-                        # ylm = scipy.special.sph_harm(m, l, theta, phi)
+                        # Spherical gaussian type orbital
+                        gto = 0
+                        for i in range(nmax):
+                            i_alpha = alphagrid[l, i]
+                            i_beta = betagrid[l, n, i]
+                            i_gto = i_beta*r**l*np.exp(-i_alpha*r**2)
+                            gto += i_gto
 
-                        # # Spherical gaussian type orbital
-                        # gto = beta*r**l*np.exp(-alpha*r**2)
-
-                        # # Atomic density
+                        # Atomic density
                         # rho = np.exp(-sigma*((r*np.sin(theta)*np.cos(phi) - ix)**2 + (r*np.sin(theta)*np.sin(phi) - iy)**2 + (r*np.cos(theta) - iz)**2))
+                        rho = np.exp(-sigma*(r**2 + ri_squared + 2*r*(np.sin(theta)*np.cos(phi)*ix + np.sin(theta)*np.sin(phi)*iy + np.cos(theta)*iz)))
 
-                        # # Jacobian
-                        # jacobian = np.sin(theta)*r**2
+                        # Jacobian
+                        jacobian = np.sin(theta)*r**2
 
-                        # return gto*ylm*rho*jacobian
+                        return gto*ylm*rho*jacobian
 
-                    # cnlm = tplquad(
-                        # soap_coeff,
-                        # r1,
-                        # r2,
-                        # lambda r: t1,
-                        # lambda r: t2,
-                        # lambda r, theta: p1,
-                        # lambda r, theta: p2
-                    # )[0]
-                    # print(n, l, m)
-                    # print(cnlm)
-                    # power.append(cnlm)
-                # print(n, l)
-                # print((np.array(power)**2).sum())
+                    cnlm = tplquad(
+                        soap_coeff,
+                        r1,
+                        r2,
+                        lambda r: t1,
+                        lambda r: t2,
+                        lambda r, theta: p1,
+                        lambda r, theta: p2,
+                        epsabs=1e-3,
+                        epsrel=1e-1,
+                    )
+                    integral, error = cnlm
+                    l_coeffs.append(integral)
+                n_coeffs.append(l_coeffs)
+            coeffs.append(n_coeffs)
+
+        # Calculate power spectras
+        numerical_power_spectrum = []
+        for l in range(lmax+1):
+            for ni in range(nmax):
+                for nj in range(nmax):
+                    if nj >= ni:
+                        value = np.dot(coeffs[ni][l], coeffs[nj][l])
+                        numerical_power_spectrum.append(value)
+        numerical_power_spectrum = np.array(numerical_power_spectrum)
+
+        # print("Numerical: {}".format(numerical_power_spectrum))
+        # print("Analytical: {}".format(analytical_power_spectrum))
+
+        self.assertTrue(np.allclose(numerical_power_spectrum, analytical_power_spectrum, atol=1e-8, rtol=0.01))
 
 if __name__ == '__main__':
     suites = []

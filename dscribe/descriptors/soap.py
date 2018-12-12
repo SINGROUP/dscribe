@@ -30,7 +30,6 @@ class SOAP(Descriptor):
             rcut,
             nmax,
             lmax,
-            sigma=1.0,
             periodic=False,
             crossover=True,
             average=False,
@@ -51,8 +50,6 @@ class SOAP(Descriptor):
             rcut (float): A cutoff for local region.
             nmax (int): The number of basis functions to be used.
             lmax (int): The number of l's to be used.
-            sigma (float): The standard deviation of the gaussians placed on
-                each atom to build the atom density.
             crossover (bool): Default True, if crossover of atoms should be included.
             average (bool): Whether to build an average output for all selected
                 positions. Before averaging the outputs for individual atoms are
@@ -79,7 +76,6 @@ class SOAP(Descriptor):
         self.rcut = rcut
         self.nmax = nmax
         self.lmax = lmax
-        self.sigma = sigma
         self.periodic = periodic
         self.crossover = crossover
         self.average = average
@@ -171,7 +167,6 @@ class SOAP(Descriptor):
                 Lmax=self.lmax,
                 crossOver=self.crossover,
                 all_atomtypes=sub_elements.tolist(),
-                eta=self.sigma
             )
         # No positions given, calculate SOAP for all atoms in the structure
         else:
@@ -190,7 +185,6 @@ class SOAP(Descriptor):
                 Lmax=self.lmax,
                 crossOver=self.crossover,
                 all_atomtypes=sub_elements.tolist(),
-                eta=self.sigma
             )
 
         # Map the output from subspace of elements to the full space of
