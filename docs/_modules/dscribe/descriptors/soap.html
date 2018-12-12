@@ -186,7 +186,6 @@
             <span class="n">rcut</span><span class="p">,</span>
             <span class="n">nmax</span><span class="p">,</span>
             <span class="n">lmax</span><span class="p">,</span>
-            <span class="n">sigma</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
             <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">crossover</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">average</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -207,8 +206,6 @@
 <span class="sd">            rcut (float): A cutoff for local region.</span>
 <span class="sd">            nmax (int): The number of basis functions to be used.</span>
 <span class="sd">            lmax (int): The number of l&#39;s to be used.</span>
-<span class="sd">            sigma (float): The standard deviation of the gaussians placed on</span>
-<span class="sd">                each atom to build the atom density.</span>
 <span class="sd">            crossover (bool): Default True, if crossover of atoms should be included.</span>
 <span class="sd">            average (bool): Whether to build an average output for all selected</span>
 <span class="sd">                positions. Before averaging the outputs for individual atoms are</span>
@@ -235,7 +232,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">rcut</span> <span class="o">=</span> <span class="n">rcut</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nmax</span> <span class="o">=</span> <span class="n">nmax</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lmax</span> <span class="o">=</span> <span class="n">lmax</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> <span class="o">=</span> <span class="n">sigma</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span> <span class="o">=</span> <span class="n">periodic</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">crossover</span> <span class="o">=</span> <span class="n">crossover</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">average</span> <span class="o">=</span> <span class="n">average</span>
@@ -327,7 +323,6 @@
                 <span class="n">Lmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lmax</span><span class="p">,</span>
                 <span class="n">crossOver</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">crossover</span><span class="p">,</span>
                 <span class="n">all_atomtypes</span><span class="o">=</span><span class="n">sub_elements</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
-                <span class="n">eta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sigma</span>
             <span class="p">)</span>
         <span class="c1"># No positions given, calculate SOAP for all atoms in the structure</span>
         <span class="k">else</span><span class="p">:</span>
@@ -346,7 +341,6 @@
                 <span class="n">Lmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lmax</span><span class="p">,</span>
                 <span class="n">crossOver</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">crossover</span><span class="p">,</span>
                 <span class="n">all_atomtypes</span><span class="o">=</span><span class="n">sub_elements</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
-                <span class="n">eta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sigma</span>
             <span class="p">)</span>
 
         <span class="c1"># Map the output from subspace of elements to the full space of</span>
