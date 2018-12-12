@@ -1063,15 +1063,17 @@ scrambled.</dd>
 <dd><p>Bases: <a class="reference internal" href="#dscribe.descriptors.descriptor.Descriptor" title="dscribe.descriptors.descriptor.Descriptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.descriptors.descriptor.Descriptor</span></code></a></p>
 <p>Implementation of the Many-body tensor representation up to k=3.</p>
 <p>This implementation provides the following geometry functions:</p>
-<blockquote>
-<div>-k=1: atomic number
--k=2: inverse distances
--k=3: cosines of angles</div></blockquote>
+<ul class="simple">
+<li>k=1: atomic number</li>
+<li>k=2: inverse distances</li>
+<li>k=3: cosines of angles</li>
+</ul>
 <p>and the following weighting functions:</p>
-<blockquote>
-<div>-k=1: unity(=no weighting)
--k=2: unity(=no weighting), exponential (<span class="math notranslate nohighlight">\(e^-(sx)\)</span>)
--k=3: unity(=no weighting), exponential (<span class="math notranslate nohighlight">\(e^-(sx)\)</span>)</div></blockquote>
+<ul class="simple">
+<li>k=1: unity(=no weighting)</li>
+<li>k=2: unity(=no weighting), exponential (<span class="math notranslate nohighlight">\(e^-(sx)\)</span>)</li>
+<li>k=3: unity(=no weighting), exponential (<span class="math notranslate nohighlight">\(e^-(sx)\)</span>)</li>
+</ul>
 <p>You can use this descriptor for finite and periodic systems. When dealing
 with periodic systems, it is advisable to use a primitive cell, or if
 supercells are included to use normalization e.g. by volume or by the norm
