@@ -186,6 +186,7 @@
             <span class="n">rcut</span><span class="p">,</span>
             <span class="n">nmax</span><span class="p">,</span>
             <span class="n">lmax</span><span class="p">,</span>
+            <span class="n">eta</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
             <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">crossover</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">average</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -203,10 +204,14 @@
 <span class="sd">                possible is preferable.</span>
 <span class="sd">            periodic (bool): Determines whether the system is considered to be</span>
 <span class="sd">                periodic.</span>
-<span class="sd">            rcut (float): A cutoff for local region.</span>
+<span class="sd">            rcut (float): A cutoff for local region in angstroms. Should be</span>
+<span class="sd">                bigger than 1 angstrom.</span>
 <span class="sd">            nmax (int): The number of basis functions to be used.</span>
-<span class="sd">            lmax (int): The number of l&#39;s to be used.</span>
-<span class="sd">            crossover (bool): Default True, if crossover of atoms should be included.</span>
+<span class="sd">            lmax (int): The number of l&#39;s to be used. The computational time scales</span>
+<span class="sd">            eta (float): The prefactor of the gaussians used to expand the</span>
+<span class="sd">                atomic density. Bigger values correspond to tighter gaussians.</span>
+<span class="sd">            crossover (bool): Default True, if crossover of atomic types should</span>
+<span class="sd">                be included in the power spectrum.</span>
 <span class="sd">            average (bool): Whether to build an average output for all selected</span>
 <span class="sd">                positions. Before averaging the outputs for individual atoms are</span>
 <span class="sd">                normalized.</span>
@@ -223,6 +228,18 @@
                 <span class="s2">&quot;Non-positive atomic numbers not allowed.&quot;</span>
             <span class="p">)</span>
 
+        <span class="c1"># Check that eta is valid</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">eta</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Only positive gaussian width parameters &#39;eta&#39; are allowed.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Check that rcut is valid</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">rcut</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;The radial cutoff should be bigger than 1 angstrom.&quot;</span>
+            <span class="p">)</span>
+
         <span class="c1"># Sort the elements according to atomic number</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">atomic_numbers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">atomic_numbers</span><span class="p">))</span>
 
@@ -232,6 +249,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">rcut</span> <span class="o">=</span> <span class="n">rcut</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nmax</span> <span class="o">=</span> <span class="n">nmax</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lmax</span> <span class="o">=</span> <span class="n">lmax</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eta</span> <span class="o">=</span> <span class="n">eta</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span> <span class="o">=</span> <span class="n">periodic</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">crossover</span> <span class="o">=</span> <span class="n">crossover</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">average</span> <span class="o">=</span> <span class="n">average</span>
@@ -323,6 +341,7 @@
                 <span class="n">Lmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lmax</span><span class="p">,</span>
                 <span class="n">crossOver</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">crossover</span><span class="p">,</span>
                 <span class="n">all_atomtypes</span><span class="o">=</span><span class="n">sub_elements</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                <span class="n">eta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">eta</span>
             <span class="p">)</span>
         <span class="c1"># No positions given, calculate SOAP for all atoms in the structure</span>
         <span class="k">else</span><span class="p">:</span>
@@ -341,6 +360,7 @@
                 <span class="n">Lmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lmax</span><span class="p">,</span>
                 <span class="n">crossOver</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">crossover</span><span class="p">,</span>
                 <span class="n">all_atomtypes</span><span class="o">=</span><span class="n">sub_elements</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                <span class="n">eta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">eta</span>
             <span class="p">)</span>
 
         <span class="c1"># Map the output from subspace of elements to the full space of</span>
