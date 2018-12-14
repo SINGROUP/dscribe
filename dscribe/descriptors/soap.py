@@ -30,6 +30,7 @@ class SOAP(Descriptor):
             rcut,
             nmax,
             lmax,
+            eta=1.0,
             periodic=False,
             crossover=True,
             average=False,
@@ -47,10 +48,14 @@ class SOAP(Descriptor):
                 possible is preferable.
             periodic (bool): Determines whether the system is considered to be
                 periodic.
-            rcut (float): A cutoff for local region.
+            rcut (float): A cutoff for local region in angstroms. Should be
+                bigger than 1 angstrom.
             nmax (int): The number of basis functions to be used.
-            lmax (int): The number of l's to be used.
-            crossover (bool): Default True, if crossover of atoms should be included.
+            lmax (int): The number of l's to be used. The computational time scales
+            eta (float): The prefactor of the gaussians used to expand the
+                atomic density. Bigger values correspond to tighter gaussians.
+            crossover (bool): Default True, if crossover of atomic types should
+                be included in the power spectrum.
             average (bool): Whether to build an average output for all selected
                 positions. Before averaging the outputs for individual atoms are
                 normalized.
@@ -67,6 +72,18 @@ class SOAP(Descriptor):
                 "Non-positive atomic numbers not allowed."
             )
 
+        # Check that eta is valid
+        if (eta <= 0):
+            raise ValueError(
+                "Only positive gaussian width parameters 'eta' are allowed."
+            )
+
+        # Check that rcut is valid
+        if (rcut <= 1):
+            raise ValueError(
+                "The radial cutoff should be bigger than 1 angstrom."
+            )
+
         # Sort the elements according to atomic number
         self.atomic_numbers = np.sort(np.array(atomic_numbers))
 
@@ -76,6 +93,7 @@ class SOAP(Descriptor):
         self.rcut = rcut
         self.nmax = nmax
         self.lmax = lmax
+        self.eta = eta
         self.periodic = periodic
         self.crossover = crossover
         self.average = average
@@ -167,6 +185,7 @@ class SOAP(Descriptor):
                 Lmax=self.lmax,
                 crossOver=self.crossover,
                 all_atomtypes=sub_elements.tolist(),
+                eta=self.eta
             )
         # No positions given, calculate SOAP for all atoms in the structure
         else:
@@ -185,6 +204,7 @@ class SOAP(Descriptor):
                 Lmax=self.lmax,
                 crossOver=self.crossover,
                 all_atomtypes=sub_elements.tolist(),
+                eta=self.eta
             )
 
         # Map the output from subspace of elements to the full space of

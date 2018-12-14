@@ -53,6 +53,16 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         with self.assertRaises(ValueError):
             SOAP(atomic_numbers=[-1, 2], rcut=5, nmax=5, lmax=5, periodic=True)
 
+        # Invalid gaussian width
+        with self.assertRaises(ValueError):
+            SOAP(atomic_numbers=[-1, 2], rcut=5, eta=0, nmax=5, lmax=5, periodic=True)
+        with self.assertRaises(ValueError):
+            SOAP(atomic_numbers=[-1, 2], rcut=5, eta=-1, nmax=5, lmax=5, periodic=True)
+
+        # Invalid rcut
+        with self.assertRaises(ValueError):
+            SOAP(atomic_numbers=[-1, 2], rcut=0.5, eta=0, nmax=5, lmax=5, periodic=True)
+
     def test_number_of_features(self):
         """Tests that the reported number of features is correct.
         """
@@ -251,67 +261,6 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         # Permutational
         self.assertTrue(self.is_permutation_symmetric(create))
 
-    # def test_atom_gaussian(self):
-        # """Tests that the gaussian width of the atoms is handled correctly.
-        # """
-        # # Test that it works for finite systems
-        # sys = Atoms(symbols=["H"], positions=[[0, 0, 0]], cell=[2, 2, 2], pbc=True)
-        # desc = SOAP(
-            # atomic_numbers=[1],
-            # rcut=5,
-            # nmax=2,
-            # lmax=5,
-            # periodic=False,
-            # crossover=False,
-            # sparse=False,
-            # sigma=1.001
-        # )
-        # output1 = desc.create(sys, positions=[0])
-
-        # desc = SOAP(
-            # atomic_numbers=[1],
-            # rcut=5,
-            # nmax=2,
-            # lmax=5,
-            # periodic=False,
-            # crossover=False,
-            # sparse=False,
-            # sigma=1.0
-        # )
-        # output2 = desc.create(sys, positions=[0])
-
-        # self.assertFalse(np.array_equal(output1, output2))
-        # self.assertTrue(np.allclose(output1, output2, rtol=0.01))
-
-        # # Test that it works for periodic systems
-        # sys = Atoms(symbols=["H"], positions=[[0, 0, 0]], cell=[2, 2, 2], pbc=True)
-        # desc = SOAP(
-            # atomic_numbers=[1],
-            # rcut=5,
-            # nmax=2,
-            # lmax=5,
-            # periodic=True,
-            # crossover=False,
-            # sparse=False,
-            # sigma=1.001
-        # )
-        # output1 = desc.create(sys, positions=[0])
-
-        # desc = SOAP(
-            # atomic_numbers=[1],
-            # rcut=5,
-            # nmax=2,
-            # lmax=5,
-            # periodic=True,
-            # crossover=False,
-            # sparse=False,
-            # sigma=1.0
-        # )
-        # output2 = desc.create(sys, positions=[0])
-
-        # self.assertFalse(np.array_equal(output1, output2))
-        # self.assertTrue(np.allclose(output1, output2, rtol=0.01))
-
     def test_average(self):
         """Tests that the average output is created correctly.
         """
@@ -413,24 +362,30 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
     def test_integration(self):
         """Tests that the analytical integration corresponds to the numerical
-        one. The test is run on a system with one atom, which has been shifted
-        away from the origin.
+        one.
+
+        The test is run on a system with one atom, which has been shifted away
+        from the origin in all directions. The test is run up  to l=9 which is
+        the current limit of the analytic integrations. Also a non-unity
+        gaussian width is used for generality.
         """
-        sigma = 1.0
-        rcut = 5
+        sigma = 1.3
+        rcut = 5.0
         nmax = 2
-        lmax = 3
+        lmax = 9
         ix = 0.5
-        iy = 0
-        iz = 0.3
+        iy = 0.7
+        iz = 0.9
         ri_squared = ix**2+iy**2+iz**2
 
         # Limits for radius
         r1 = 0.
         r2 = rcut
+
         # Limits for theta
         t1 = 0
         t2 = np.pi
+
         # Limits for phi
         p1 = 0
         p2 = 2*np.pi
@@ -439,8 +394,8 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
         # Calculate the analytical power spectrum and the weights and decays of
         # the radial basis functions.
-        soap = SOAP(atomic_numbers=[1], lmax=lmax, nmax=nmax, rcut=rcut, crossover=True, sparse=False)
-        analytical_power_spectrum = soap.create(system, positions=[[0, 0, 0]])
+        soap = SOAP(atomic_numbers=[1], lmax=lmax, nmax=nmax, eta=sigma, rcut=rcut, crossover=True, sparse=False)
+        analytical_power_spectrum = soap.create(system, positions=[[0, 0, 0]])[0]
         alphagrid = np.reshape(soap.alphas, [10, nmax])
         betagrid = np.reshape(soap.betas, [10, nmax, nmax])
 
@@ -454,8 +409,20 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                     # Calculate numerical coefficients
                     def soap_coeff(phi, theta, r):
 
-                        # Spherical harmonic
-                        ylm = scipy.special.sph_harm(m, l, phi, theta)  # NOTE: scipy swaps phi and theta
+                        # Regular spherical harmonic
+                        ylm_comp = scipy.special.sph_harm(np.abs(m), l, phi, theta)  # NOTE: scipy swaps phi and theta
+
+                        # Construct real (tesseral) spherical harmonics for
+                        # easier integration without having to worry about the
+                        # imaginary part
+                        ylm_real = np.real(ylm_comp)
+                        ylm_imag = np.imag(ylm_comp)
+                        if m < 0:
+                            ylm = np.sqrt(2)*(-1)**m*ylm_imag
+                        elif m == 0:
+                            ylm = ylm_comp
+                        else:
+                            ylm = np.sqrt(2)*(-1)**m*ylm_real
 
                         # Spherical gaussian type orbital
                         gto = 0
@@ -466,8 +433,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                             gto += i_gto
 
                         # Atomic density
-                        # rho = np.exp(-sigma*((r*np.sin(theta)*np.cos(phi) - ix)**2 + (r*np.sin(theta)*np.sin(phi) - iy)**2 + (r*np.cos(theta) - iz)**2))
-                        rho = np.exp(-sigma*(r**2 + ri_squared + 2*r*(np.sin(theta)*np.cos(phi)*ix + np.sin(theta)*np.sin(phi)*iy + np.cos(theta)*iz)))
+                        rho = np.exp(-sigma*(r**2 + ri_squared - 2*r*(np.sin(theta)*np.cos(phi)*ix + np.sin(theta)*np.sin(phi)*iy + np.cos(theta)*iz)))
 
                         # Jacobian
                         jacobian = np.sin(theta)*r**2
@@ -482,8 +448,8 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                         lambda r: t2,
                         lambda r, theta: p1,
                         lambda r, theta: p2,
-                        epsabs=1e-3,
-                        epsrel=1e-1,
+                        epsabs=0.01,
+                        epsrel=0.01,
                     )
                     integral, error = cnlm
                     l_coeffs.append(integral)

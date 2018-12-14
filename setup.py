@@ -9,7 +9,6 @@ extensions = [
             "dscribe/libacsf/acsf-compute.c",
         ],
         include_dirs=["dscribe/libacsf"],
-        # libraries=["m"],
         extra_compile_args=["-O3", "-std=c99"]
     ),
     # The MBTR C++ extension, wrapped with cython
@@ -36,7 +35,7 @@ if __name__ == "__main__":
             'ase',
             'future',
             'matplotlib',
-            'soaplite==0.13.0',
+            'soaplite==0.14.0',
         ],
         include_package_data=True,  # This ensures that files defined in MANIFEST.in are included
         ext_modules=extensions,
