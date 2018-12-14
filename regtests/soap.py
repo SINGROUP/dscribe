@@ -365,14 +365,14 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         one.
 
         The test is run on a system with one atom, which has been shifted away
-        from the origin in all directions. The test is run up  to l=9 which is
-        the current limit of the analytic integrations. Also a non-unity
+        from the origin in all directions. The test is run only up to l=5 to
+        enable TravisCI to run the tests within time limit. Also a non-unity
         gaussian width is used for generality.
         """
         sigma = 1.3
         rcut = 5.0
         nmax = 2
-        lmax = 9
+        lmax = 5
         ix = 0.5
         iy = 0.7
         iz = 0.9
@@ -448,8 +448,8 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                         lambda r: t2,
                         lambda r, theta: p1,
                         lambda r, theta: p2,
-                        epsabs=0.01,
-                        epsrel=0.01,
+                        epsabs=0.1,
+                        epsrel=0.1,
                     )
                     integral, error = cnlm
                     l_coeffs.append(integral)
