@@ -55,13 +55,13 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
         # Invalid gaussian width
         with self.assertRaises(ValueError):
-            SOAP(atomic_numbers=[-1, 2], rcut=5, eta=0, nmax=5, lmax=5, periodic=True)
+            SOAP(atomic_numbers=[-1, 2], rcut=5, sigma=0, nmax=5, lmax=5, periodic=True)
         with self.assertRaises(ValueError):
-            SOAP(atomic_numbers=[-1, 2], rcut=5, eta=-1, nmax=5, lmax=5, periodic=True)
+            SOAP(atomic_numbers=[-1, 2], rcut=5, sigma=-1, nmax=5, lmax=5, periodic=True)
 
         # Invalid rcut
         with self.assertRaises(ValueError):
-            SOAP(atomic_numbers=[-1, 2], rcut=0.5, eta=0, nmax=5, lmax=5, periodic=True)
+            SOAP(atomic_numbers=[-1, 2], rcut=0.5, sigma=0, nmax=5, lmax=5, periodic=True)
 
     def test_number_of_features(self):
         """Tests that the reported number of features is correct.
@@ -369,7 +369,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         enable TravisCI to run the tests within time limit. Also a non-unity
         gaussian width is used for generality.
         """
-        sigma = 1.3
+        sigma = 0.15
         rcut = 5.0
         nmax = 2
         lmax = 5
@@ -394,7 +394,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
         # Calculate the analytical power spectrum and the weights and decays of
         # the radial basis functions.
-        soap = SOAP(atomic_numbers=[1], lmax=lmax, nmax=nmax, eta=sigma, rcut=rcut, crossover=True, sparse=False)
+        soap = SOAP(atomic_numbers=[1], lmax=lmax, nmax=nmax, sigma=sigma, rcut=rcut, crossover=True, sparse=False)
         analytical_power_spectrum = soap.create(system, positions=[[0, 0, 0]])[0]
         alphagrid = np.reshape(soap.alphas, [10, nmax])
         betagrid = np.reshape(soap.betas, [10, nmax, nmax])
@@ -433,7 +433,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                             gto += i_gto
 
                         # Atomic density
-                        rho = np.exp(-sigma*(r**2 + ri_squared - 2*r*(np.sin(theta)*np.cos(phi)*ix + np.sin(theta)*np.sin(phi)*iy + np.cos(theta)*iz)))
+                        rho = np.exp(-1/(2*sigma**2)*(r**2 + ri_squared - 2*r*(np.sin(theta)*np.cos(phi)*ix + np.sin(theta)*np.sin(phi)*iy + np.cos(theta)*iz)))
 
                         # Jacobian
                         jacobian = np.sin(theta)*r**2

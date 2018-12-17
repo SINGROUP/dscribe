@@ -24,7 +24,7 @@ extensions = [
 
 if __name__ == "__main__":
     setup(name='dscribe',
-        version='0.1.4',
+        version='0.1.6',
         url="https://singroup.github.io/dscribe/",
         description='A Python package for creating feature transformations in applications of machine learning to materials science.',
         long_description='A Python package for creating feature transformations in applications of machine learning to materials science.',
