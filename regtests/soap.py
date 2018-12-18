@@ -9,6 +9,7 @@ import numpy as np
 import scipy
 import scipy.sparse
 from scipy.integrate import tplquad
+from scipy.linalg import sqrtm
 
 from dscribe.descriptors import SOAP
 from testbaseclass import TestBaseClass
@@ -360,6 +361,48 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         self.assertEqual(np.sum(co_part6), 0)
         self.assertNotEqual(np.sum(co_part7), 0)
 
+    # def test_poly(self):
+        # """Tests that the polynomial radial basis set works as expected.
+        # """
+
+    def test_rbf_orthonormality(self):
+        """Tests that the radial basis functions are orthonormal.
+        """
+        sigma = 0.15
+        rcut = 2.0
+        nmax = 2
+        lmax = 3
+        soap = SOAP(atomic_numbers=[1], lmax=lmax, nmax=nmax, sigma=sigma, rcut=rcut, crossover=True, sparse=False)
+        alphas = np.reshape(soap.alphas, [10, nmax])
+        betas = np.reshape(soap.betas, [10, nmax, nmax])
+
+        nr = 10000
+        n_basis = 0
+        functions = np.zeros((nmax, lmax+1, nr))
+
+        # Form the radial basis functions
+        for n in range(nmax):
+            for l in range(lmax+1):
+                gto = np.zeros((nr))
+                rspace = np.linspace(0, rcut+5, nr)
+                for k in range(nmax):
+                    gto += betas[l, n, k]*rspace**l*np.exp(-alphas[l, k]*rspace**2)
+                n_basis += 1
+                functions[n, l, :] = gto
+
+        # Calculate the overlap integrals
+        S = np.zeros((nmax, nmax))
+        l = 0
+        for l in range(lmax+1):
+            for i in range(nmax):
+                for j in range(nmax):
+                    overlap = np.trapz(rspace**2*functions[i, l, :]*functions[j, l, :], dx=(rcut+5)/nr)
+                    S[i, j] = overlap
+
+            # Check that the basis functions for each l are orthonormal
+            diff = S-np.eye(nmax)
+            self.assertTrue(np.allclose(diff, np.zeros((nmax, nmax)), atol=1e-3))
+
     def test_integration(self):
         """Tests that the analytical integration corresponds to the numerical
         one.
@@ -370,9 +413,9 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         gaussian width is used for generality.
         """
         sigma = 0.15
-        rcut = 5.0
+        rcut = 2.0
         nmax = 2
-        lmax = 5
+        lmax = 3
         ix = 0.5
         iy = 0.7
         iz = 0.9
@@ -448,8 +491,8 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                         lambda r: t2,
                         lambda r, theta: p1,
                         lambda r, theta: p2,
-                        epsabs=0.1,
-                        epsrel=0.1,
+                        epsabs=0.01,
+                        epsrel=0.01,
                     )
                     integral, error = cnlm
                     l_coeffs.append(integral)

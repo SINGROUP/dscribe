@@ -31,6 +31,7 @@ class SOAP(Descriptor):
             nmax,
             lmax,
             sigma=1.0,
+            rbf="gto",
             periodic=False,
             crossover=True,
             average=False,
@@ -54,6 +55,10 @@ class SOAP(Descriptor):
             lmax (int): The number of l's to be used. The computational time scales
             sigma (float): The standard deviation of the gaussians used to expand the
                 atomic density.
+            rbf (str): The radial basis set to use. The available options are:
+            * polynomial: Cubic and higher order polynomials defined as
+            :math:`\phi(r) = (r_{cut} - r)^{\alpha+2}/N_{alpha}`
+            * gto: Spherical gaussian type orbitals defined as :math:`\phi(r) = \beta r^l e^{-\alpha r^2}`
             crossover (bool): Default True, if crossover of atomic types should
                 be included in the power spectrum.
             average (bool): Whether to build an average output for all selected
@@ -90,6 +95,14 @@ class SOAP(Descriptor):
 
         # Define a set of atomic numbers
         self.atomic_number_set = set(self.atomic_numbers)
+
+        supported_rbf = set(("gto",))
+        if rbf not in supported_rbf:
+            raise ValueError(
+                "Invalid radial basis function of type '{}' given. Please use "
+                "one of the following: {}".format(rbf, supported_rbf)
+            )
+        self.rbf = rbf
 
         self.rcut = rcut
         self.nmax = nmax
@@ -174,19 +187,23 @@ class SOAP(Descriptor):
                         "Create method requires the argument 'positions', a "
                         "list of atom indices and/or positions"
                     )
-
+            if self.periodic:
+                soap_func = soaplite.get_periodic_soap_locals
+            else:
+                soap_func = soaplite.get_soap_locals
             soap_mat = soap_func(
                 system,
                 list_positions,
                 self.alphas,
                 self.betas,
                 rCut=self.rcut,
-                NradBas=self.nmax,
+                nMax=self.nmax,
                 Lmax=self.lmax,
                 crossOver=self.crossover,
                 all_atomtypes=sub_elements.tolist(),
                 eta=self.eta
             )
+
         # No positions given, calculate SOAP for all atoms in the structure
         else:
             # Change function if periodic
@@ -200,7 +217,7 @@ class SOAP(Descriptor):
                 self.alphas,
                 self.betas,
                 rCut=self.rcut,
-                NradBas=self.nmax,
+                nMax=self.nmax,
                 Lmax=self.lmax,
                 crossOver=self.crossover,
                 all_atomtypes=sub_elements.tolist(),
