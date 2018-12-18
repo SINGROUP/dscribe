@@ -143,7 +143,7 @@ class SOAP(Descriptor):
             raise ValueError(
                 "The given system has the following atomic numbers not defined "
                 "in the SOAP constructor: {}"
-                .format(self.atomic_number_set.difference(zs))
+                .format(zs.difference(self.atomic_number_set))
             )
 
         # Ensuring self is updated

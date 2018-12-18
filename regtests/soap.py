@@ -459,11 +459,7 @@ class SoapTests(unittest.TestCase):
         sigma = 0.55
         rcut = 2.0
         nmax = 2
-        lmax = 9
-        ix = 0.5
-        iy = 0.7
-        iz = 0.9
-        ri_squared = ix**2+iy**2+iz**2
+        lmax = 1
 
         # Limits for radius
         r1 = 0.
@@ -477,84 +473,100 @@ class SoapTests(unittest.TestCase):
         p1 = 0
         p2 = 2*np.pi
 
-        system = Atoms(positions=[[ix, iy, iz]], symbols=["H"])
+        positions = np.array([[0.5, 0.7, 0.9], [-0.3, 0.5, 0.4]])
+        symbols = np.array(["H", "C"])
+        # positions = np.array([[0.5, 0.7, 0.9]])
+        # symbols = np.array(["H"])
+        system = Atoms(positions=positions, symbols=symbols)
+
+        atomic_numbers = system.get_atomic_numbers()
+        elements = set(system.get_atomic_numbers())
+        n_elems = len(elements)
 
         # Calculate the analytical power spectrum and the weights and decays of
         # the radial basis functions.
-        soap = SOAP(atomic_numbers=[1], lmax=lmax, nmax=nmax, sigma=sigma, rcut=rcut, crossover=True, sparse=False)
+        soap = SOAP(atomic_numbers=atomic_numbers, lmax=lmax, nmax=nmax, sigma=sigma, rcut=rcut, crossover=True, sparse=False)
         analytical_power_spectrum = soap.create(system, positions=[[0, 0, 0]])[0]
         alphagrid = np.reshape(soap.alphas, [10, nmax])
         betagrid = np.reshape(soap.betas, [10, nmax, nmax])
 
-        coeffs = []
-        for n in range(nmax):
-            n_coeffs = []
-            for l in range(lmax+1):
-                l_coeffs = []
-                for m in range(-l, l+1):
+        coeffs = np.zeros((n_elems, nmax, lmax+1, 2*lmax+1))
+        for iZ, Z in enumerate(elements):
+            indices = np.argwhere(atomic_numbers == Z)[0]
+            elem_pos = positions[indices]
+            for n in range(nmax):
+                for l in range(lmax+1):
+                    for im, m in enumerate(range(-l, l+1)):
 
-                    # Calculate numerical coefficients
-                    def soap_coeff(phi, theta, r):
+                        # Calculate numerical coefficients
+                        def soap_coeff(phi, theta, r):
 
-                        # Regular spherical harmonic
-                        ylm_comp = scipy.special.sph_harm(np.abs(m), l, phi, theta)  # NOTE: scipy swaps phi and theta
+                            # Regular spherical harmonic
+                            ylm_comp = scipy.special.sph_harm(np.abs(m), l, phi, theta)  # NOTE: scipy swaps phi and theta
 
-                        # Construct real (tesseral) spherical harmonics for
-                        # easier integration without having to worry about the
-                        # imaginary part
-                        ylm_real = np.real(ylm_comp)
-                        ylm_imag = np.imag(ylm_comp)
-                        if m < 0:
-                            ylm = np.sqrt(2)*(-1)**m*ylm_imag
-                        elif m == 0:
-                            ylm = ylm_comp
-                        else:
-                            ylm = np.sqrt(2)*(-1)**m*ylm_real
+                            # Construct real (tesseral) spherical harmonics for
+                            # easier integration without having to worry about the
+                            # imaginary part
+                            ylm_real = np.real(ylm_comp)
+                            ylm_imag = np.imag(ylm_comp)
+                            if m < 0:
+                                ylm = np.sqrt(2)*(-1)**m*ylm_imag
+                            elif m == 0:
+                                ylm = ylm_comp
+                            else:
+                                ylm = np.sqrt(2)*(-1)**m*ylm_real
 
-                        # Spherical gaussian type orbital
-                        gto = 0
-                        for i in range(nmax):
-                            i_alpha = alphagrid[l, i]
-                            i_beta = betagrid[l, n, i]
-                            i_gto = i_beta*r**l*np.exp(-i_alpha*r**2)
-                            gto += i_gto
+                            # Spherical gaussian type orbital
+                            gto = 0
+                            for i in range(nmax):
+                                i_alpha = alphagrid[l, i]
+                                i_beta = betagrid[l, n, i]
+                                i_gto = i_beta*r**l*np.exp(-i_alpha*r**2)
+                                gto += i_gto
 
-                        # Atomic density
-                        rho = np.exp(-1/(2*sigma**2)*(r**2 + ri_squared - 2*r*(np.sin(theta)*np.cos(phi)*ix + np.sin(theta)*np.sin(phi)*iy + np.cos(theta)*iz)))
+                            # Atomic density
+                            rho = 0
+                            for i_pos in elem_pos:
+                                ix = i_pos[0]
+                                iy = i_pos[1]
+                                iz = i_pos[2]
+                                ri_squared = ix**2+iy**2+iz**2
+                                rho += np.exp(-1/(2*sigma**2)*(r**2 + ri_squared - 2*r*(np.sin(theta)*np.cos(phi)*ix + np.sin(theta)*np.sin(phi)*iy + np.cos(theta)*iz)))
 
-                        # Jacobian
-                        jacobian = np.sin(theta)*r**2
+                            # Jacobian
+                            jacobian = np.sin(theta)*r**2
 
-                        return gto*ylm*rho*jacobian
+                            return gto*ylm*rho*jacobian
 
-                    cnlm = tplquad(
-                        soap_coeff,
-                        r1,
-                        r2,
-                        lambda r: t1,
-                        lambda r: t2,
-                        lambda r, theta: p1,
-                        lambda r, theta: p2,
-                        epsabs=0.01,
-                        epsrel=0.01,
-                    )
-                    integral, error = cnlm
-                    l_coeffs.append(integral)
-                n_coeffs.append(l_coeffs)
-            coeffs.append(n_coeffs)
+                        cnlm = tplquad(
+                            soap_coeff,
+                            r1,
+                            r2,
+                            lambda r: t1,
+                            lambda r: t2,
+                            lambda r, theta: p1,
+                            lambda r, theta: p2,
+                            epsabs=0.01,
+                            epsrel=0.01,
+                        )
+                        integral, error = cnlm
+                        coeffs[iZ, n, l, im] = integral
 
-        # Calculate the soap power spectras
+        # Calculate the partial power spectrum
         numerical_power_spectrum = []
-        for l in range(lmax+1):
-            for ni in range(nmax):
-                for nj in range(nmax):
-                    if nj >= ni:
-                        value = np.dot(coeffs[ni][l], coeffs[nj][l])
-                        prefactor = np.pi*np.sqrt(8/(2*l+1))
-                        # print(prefactor)
-                        value *= prefactor
-                        numerical_power_spectrum.append(value)
-        numerical_power_spectrum = np.array(numerical_power_spectrum)
+        for zi in range(n_elems):
+            for zj in range(n_elems):
+                for l in range(lmax+1):
+                    for ni in range(nmax):
+                        for nj in range(nmax):
+                            if nj >= ni:
+                                if zj >= zi:
+                                    # value = np.dot(coeffs[ni][l], coeffs[nj][l])
+                                    value = np.dot(coeffs[zi, ni, l, :], coeffs[zj, nj, l, :])
+                                    # prefactor = np.pi*np.sqrt(8/(2*l+1))
+                                    # print(prefactor)
+                                    # value *= prefactor
+                                    numerical_power_spectrum.append(value)
 
         print("Numerical: {}".format(numerical_power_spectrum))
         print("Analytical: {}".format(analytical_power_spectrum))
