@@ -45,407 +45,407 @@ H = Atoms(
 )
 
 
-class SoapTests(unittest.TestCase):
-# class SoapTests(TestBaseClass, unittest.TestCase):
-
-    # def test_constructor(self):
-        # """Tests different valid and invalid constructor values.
-        # """
-        # # Invalid atomic numbers
-        # with self.assertRaises(ValueError):
-            # SOAP(atomic_numbers=[-1, 2], rcut=5, nmax=5, lmax=5, periodic=True)
-
-        # # Invalid gaussian width
-        # with self.assertRaises(ValueError):
-            # SOAP(atomic_numbers=[-1, 2], rcut=5, sigma=0, nmax=5, lmax=5, periodic=True)
-        # with self.assertRaises(ValueError):
-            # SOAP(atomic_numbers=[-1, 2], rcut=5, sigma=-1, nmax=5, lmax=5, periodic=True)
-
-        # # Invalid rcut
-        # with self.assertRaises(ValueError):
-            # SOAP(atomic_numbers=[-1, 2], rcut=0.5, sigma=0, nmax=5, lmax=5, periodic=True)
-
-    # def test_number_of_features(self):
-        # """Tests that the reported number of features is correct.
-        # """
-        # lmax = 5
-        # nmax = 5
-        # n_elems = 2
-        # desc = SOAP(atomic_numbers=[1, 8], rcut=5, nmax=nmax, lmax=lmax, periodic=True)
-
-        # # Test that the reported number of features matches the expected
-        # n_features = desc.get_number_of_features()
-        # n_blocks = n_elems*(n_elems+1)/2
-        # expected = int((lmax + 1) * nmax * (nmax + 1) / 2 * n_blocks)
-        # self.assertEqual(n_features, expected)
-
-        # # Test that the outputted number of features matches the reported
-        # n_features = desc.get_number_of_features()
-        # vec = desc.create(H2O)
-        # self.assertEqual(n_features, vec.shape[1])
-
-    # def test_multiple_species(self):
-        # """Tests multiple species are handled correctly.
-        # """
-        # lmax = 5
-        # nmax = 5
-        # atomic_numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
-        # desc = SOAP(atomic_numbers=atomic_numbers, rcut=5, nmax=nmax, lmax=lmax, periodic=False, sparse=False, normalize=True)
-
-        # pos = np.expand_dims(np.linspace(0, 8, 8), 1)
-        # pos = np.hstack((pos, pos, pos))
-        # sys = Atoms(
-            # symbols=atomic_numbers[0:8],
-            # positions=pos,
-            # pbc=False
-        # )
-        # vec1 = desc.create(sys)
-
-        # sys2 = Atoms(
-            # symbols=atomic_numbers[8:],
-            # positions=pos,
-            # pbc=False
-        # )
-        # vec2 = desc.create(sys2)
-
-        # sys3 = Atoms(
-            # symbols=atomic_numbers[4:12],
-            # positions=pos,
-            # pbc=False
-        # )
-        # vec3 = desc.create(sys3)
-
-        # dot1 = np.dot(vec1[6, :], vec2[6, :])
-        # dot2 = np.dot(vec1[3, :], vec3[3, :])
-        # dot3 = np.dot(vec2[3, :], vec3[3, :])
-
-        # # The dot product for systems without overlap in species should be zero
-        # self.assertTrue(abs(dot1) <= 1e-8)
-
-        # # The systems with overlap in the elements should have onerlap in the
-        # # dot product
-        # self.assertTrue(abs(dot2) > 1e-3)
-        # self.assertTrue(abs(dot3) > 1e-3)
-
-    # def test_flatten(self):
-        # """Tests the flattening.
-        # """
-
-    # def test_sparse(self):
-        # """Tests the sparse matrix creation.
-        # """
-        # # Dense
-        # desc = SOAP(atomic_numbers=[1, 8], rcut=5, nmax=5, lmax=5, periodic=True, sparse=False)
-        # vec = desc.create(H2O)
-        # self.assertTrue(type(vec) == np.ndarray)
-
-        # # Sparse
-        # desc = SOAP(atomic_numbers=[1, 8], rcut=5, nmax=5, lmax=5, periodic=True, sparse=True)
-        # vec = desc.create(H2O)
-        # self.assertTrue(type(vec) == scipy.sparse.coo_matrix)
-
-    # def test_positions(self):
-        # """Tests that different positions are handled correctly.
-        # """
-        # desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=False, crossover=True)
-        # self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
-        # self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
-        # self.assertEqual(desc.get_number_of_features(), desc.create(H2O).shape[1])
-
-        # desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=True, crossover=True,)
-        # self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
-        # self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
-        # self.assertEqual(desc.get_number_of_features(), desc.create(H2O).shape[1])
-
-        # desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=True, crossover=False,)
-        # self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
-        # self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
-        # self.assertEqual(desc.get_number_of_features(), desc.create(H2O).shape[1])
-
-        # desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=False, crossover=False,)
-        # self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
-        # self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
-        # self.assertEqual(desc.get_number_of_features(), desc.create(H2O).shape[1])
-
-        # with self.assertRaises(ValueError):
-            # desc.create(H2O, positions=['a'])
-
-    # def test_unit_cells(self):
-        # """Tests if arbitrary unit cells are accepted"""
-        # desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=False, crossover=True,)
-
-        # molecule = H2O.copy()
-
-        # molecule.set_cell([
-            # [0.0, 0.0, 0.0],
-            # [0.0, 0.0, 0.0],
-            # [0.0, 0.0, 0.0]
-        # ])
-
-        # nocell = desc.create(molecule, positions=[[0, 0, 0]])
-
-        # desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=True, crossover=True,)
-
-        # # Invalid unit cell
-        # molecule.set_cell([
-            # [0.0, 0.0, 0.0],
-            # [0.0, 0.0, 0.0],
-            # [0.0, 0.0, 0.0]
-        # ])
-        # with self.assertRaises(ValueError):
-            # desc.create(molecule, positions=[[0, 0, 0]])
-
-        # molecule.set_pbc(True)
-        # molecule.set_cell([
-        # [20.0, 0.0, 0.0],
-        # [0.0, 30.0, 0.0],
-        # [0.0, 0.0, 40.0]
-            # ],
-            # )
-
-        # largecell = desc.create(molecule, positions=[[0, 0, 0]])
-
-        # molecule.set_cell([
-            # [2.0, 0.0, 0.0],
-            # [0.0, 2.0, 0.0],
-            # [0.0, 0.0, 2.0]
-        # ])
-
-        # cubic_cell = desc.create(molecule, positions=[[0, 0, 0]])
-
-        # molecule.set_cell([
-            # [0.0, 2.0, 2.0],
-            # [2.0, 0.0, 2.0],
-            # [2.0, 2.0, 0.0]
-        # ])
-
-        # triclinic_smallcell = desc.create(molecule, positions=[[0, 0, 0]])
-
-    # def test_is_periodic(self):
-        # """Tests whether periodic images are seen by the descriptor"""
-        # desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=False, crossover=True,)
-
-        # H2O.set_pbc(False)
-        # nocell = desc.create(H2O, positions=[[0, 0, 0]])
-
-        # H2O.set_pbc(True)
-        # H2O.set_cell([
-            # [2.0, 0.0, 0.0],
-            # [0.0, 2.0, 0.0],
-            # [0.0, 0.0, 2.0]
-        # ])
-        # desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=True, crossover=True,)
-
-        # cubic_cell = desc.create(H2O, positions=[[0, 0, 0]])
-
-        # self.assertTrue(np.sum(cubic_cell) > 0)
-
-    # def test_periodic_images(self):
-        # """Tests the periodic images seen by the descriptor
-        # """
-        # desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=False, crossover=True,)
-
-        # molecule = H2O.copy()
-
-        # # non-periodic for comparison
-        # molecule.set_cell([
-            # [0.0, 0.0, 0.0],
-            # [0.0, 0.0, 0.0],
-            # [0.0, 0.0, 0.0]
-        # ])
-        # nocell = desc.create(molecule, positions=[[0, 0, 0]]).toarray()
-
-        # # Make periodic
-        # desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=True, crossover=True,)
-        # molecule.set_pbc(True)
-
-        # # Cubic
-        # molecule.set_cell([
-            # [3.0, 0.0, 0.0],
-            # [0.0, 3.0, 0.0],
-            # [0.0, 0.0, 3.0]
-        # ])
-        # cubic_cell = desc.create(molecule, positions=[[0, 0, 0]]).toarray()
-        # suce = molecule * (2, 1, 1)
-        # cubic_suce = desc.create(suce, positions=[[0, 0, 0]]).toarray()
-
-        # # Triclinic
-        # molecule.set_cell([
-            # [0.0, 2.0, 2.0],
-            # [2.0, 0.0, 2.0],
-            # [2.0, 2.0, 0.0]
-        # ])
-        # triclinic_cell = desc.create(molecule, positions=[[0, 0, 0]]).toarray()
-        # suce = molecule * (2, 1, 1)
-        # triclinic_suce = desc.create(suce, positions=[[0, 0, 0]]).toarray()
-
-        # self.assertTrue(np.sum(np.abs((nocell[:3] - cubic_suce[:3]))) > 0.1)
-        # self.assertAlmostEqual(np.sum(cubic_cell[:3] - cubic_suce[:3]), 0)
-        # self.assertAlmostEqual(np.sum(triclinic_cell[:3] - triclinic_suce[:3]), 0)
-
-    # def test_symmetries(self):
-        # """Tests that the descriptor has the correct invariances.
-        # """
-        # def create(system):
-            # desc = SOAP(
-                # atomic_numbers=system.get_atomic_numbers(),
-                # rcut=8.0,
-                # lmax=5,
-                # nmax=5,
-                # periodic=False,
-                # crossover=True
-            # )
-            # return desc.create(system)
-
-        # # Rotational check
-        # self.assertTrue(self.is_rotationally_symmetric(create))
-
-        # # Translational
-        # self.assertTrue(self.is_translationally_symmetric(create))
-
-        # # Permutational
-        # self.assertTrue(self.is_permutation_symmetric(create))
-
-    # def test_average(self):
-        # """Tests that the average output is created correctly.
-        # """
-        # sys = Atoms(symbols=["H", "C"], positions=[[-1, 0, 0], [1, 0, 0]], cell=[2, 2, 2], pbc=True)
-
-        # # Create the average output
-        # desc = SOAP(
-            # atomic_numbers=[1, 6, 8],
-            # rcut=5,
-            # nmax=3,
-            # lmax=5,
-            # periodic=False,
-            # crossover=True,
-            # average=True,
-            # sparse=False
-        # )
-        # average = desc.create(sys)[0, :]
-
-        # # Create individual output for both atoms
-        # desc = SOAP(
-            # atomic_numbers=[1, 6, 8],
-            # rcut=5,
-            # nmax=3,
-            # lmax=5,
-            # periodic=False,
-            # crossover=True,
-            # average=False,
-            # sparse=False
-        # )
-        # first = desc.create(sys, positions=[0])[0, :]
-        # second = desc.create(sys, positions=[1])[0, :]
-
-        # # Check that the normalization is done correctly, by first normalizing
-        # # the outputs and then averaging them.
-        # first_normalized = first/np.linalg.norm(first, axis=0)
-        # second_normalized = second/np.linalg.norm(second, axis=0)
-        # assumed_average = (first_normalized+second_normalized)/2
-        # self.assertTrue(np.array_equal(average, assumed_average))
-
-    # def test_basis(self):
-        # """Tests that the output vectors behave correctly as a basis.
-        # """
-        # sys1 = Atoms(symbols=["H", "H"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
-        # sys2 = Atoms(symbols=["O", "O"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
-        # sys3 = Atoms(symbols=["C", "C"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
-        # sys4 = Atoms(symbols=["H", "C"], positions=[[-1, 0, 0], [1, 0, 0]], cell=[2, 2, 2], pbc=True)
-        # sys5 = Atoms(symbols=["H", "C"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
-        # sys6 = Atoms(symbols=["H", "O"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
-        # sys7 = Atoms(symbols=["C", "O"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
-
-        # desc = SOAP(
-            # atomic_numbers=[1, 6, 8],
-            # rcut=5,
-            # nmax=3,
-            # lmax=5,
-            # periodic=False,
-            # crossover=True,
-            # normalize=True,
-            # sparse=False
-        # )
-
-        # # Create normalized vectors for each system
-        # vec1 = desc.create(sys1, positions=[[0, 0, 0]])[0, :]
-        # vec2 = desc.create(sys2, positions=[[0, 0, 0]])[0, :]
-        # vec3 = desc.create(sys3, positions=[[0, 0, 0]])[0, :]
-        # vec4 = desc.create(sys4, positions=[[0, 0, 0]])[0, :]
-        # vec5 = desc.create(sys5, positions=[[0, 0, 0]])[0, :]
-        # vec6 = desc.create(sys6, positions=[[0, 0, 0]])[0, :]
-        # vec7 = desc.create(sys7, positions=[[0, 0, 0]])[0, :]
-
-        # # The dot-product should be zero when there are no overlapping elements
-        # dot = np.dot(vec1, vec2)
-        # self.assertEqual(dot, 0)
-        # dot = np.dot(vec2, vec3)
-        # self.assertEqual(dot, 0)
-
-        # # The dot-product should be non-zero when there are overlapping elements
-        # dot = np.dot(vec4, vec5)
-        # self.assertNotEqual(dot, 0)
-
-        # # Check that self-terms are in correct location
-        # n_elem_feat = desc.get_number_of_element_features()
-        # h_part1 = vec1[0:n_elem_feat]
-        # h_part2 = vec2[0:n_elem_feat]
-        # h_part4 = vec4[0:n_elem_feat]
-        # self.assertNotEqual(np.sum(h_part1), 0)
-        # self.assertEqual(np.sum(h_part2), 0)
-        # self.assertNotEqual(np.sum(h_part4), 0)
-
-        # # Check that cross terms are in correct location
-        # hc_part1 = vec1[1*n_elem_feat:2*n_elem_feat]
-        # hc_part4 = vec4[1*n_elem_feat:2*n_elem_feat]
-        # co_part6 = vec6[4*n_elem_feat:5*n_elem_feat]
-        # co_part7 = vec7[4*n_elem_feat:5*n_elem_feat]
-        # self.assertEqual(np.sum(hc_part1), 0)
-        # self.assertNotEqual(np.sum(hc_part4), 0)
-        # self.assertEqual(np.sum(co_part6), 0)
-        # self.assertNotEqual(np.sum(co_part7), 0)
-
-    # # # def test_poly(self):
-        # # # """Tests that the polynomial radial basis set works as expected.
-        # # # """
-
-    # def test_rbf_orthonormality(self):
-        # """Tests that the radial basis functions are orthonormal.
-        # """
-        # sigma = 0.15
-        # rcut = 2.0
-        # nmax = 2
-        # lmax = 3
-        # soap = SOAP(atomic_numbers=[1], lmax=lmax, nmax=nmax, sigma=sigma, rcut=rcut, crossover=True, sparse=False)
-        # alphas = np.reshape(soap.alphas, [10, nmax])
-        # betas = np.reshape(soap.betas, [10, nmax, nmax])
-
-        # nr = 10000
-        # n_basis = 0
-        # functions = np.zeros((nmax, lmax+1, nr))
-
-        # # Form the radial basis functions
-        # for n in range(nmax):
-            # for l in range(lmax+1):
-                # gto = np.zeros((nr))
-                # rspace = np.linspace(0, rcut+5, nr)
-                # for k in range(nmax):
-                    # gto += betas[l, n, k]*rspace**l*np.exp(-alphas[l, k]*rspace**2)
-                # n_basis += 1
-                # functions[n, l, :] = gto
-
-        # # Calculate the overlap integrals
-        # S = np.zeros((nmax, nmax))
-        # l = 0
-        # for l in range(lmax+1):
-            # for i in range(nmax):
-                # for j in range(nmax):
-                    # overlap = np.trapz(rspace**2*functions[i, l, :]*functions[j, l, :], dx=(rcut+5)/nr)
-                    # S[i, j] = overlap
-
-            # # Check that the basis functions for each l are orthonormal
-            # diff = S-np.eye(nmax)
-            # self.assertTrue(np.allclose(diff, np.zeros((nmax, nmax)), atol=1e-3))
+# class SoapTests(unittest.TestCase):
+class SoapTests(TestBaseClass, unittest.TestCase):
+
+    def test_constructor(self):
+        """Tests different valid and invalid constructor values.
+        """
+        # Invalid atomic numbers
+        with self.assertRaises(ValueError):
+            SOAP(atomic_numbers=[-1, 2], rcut=5, nmax=5, lmax=5, periodic=True)
+
+        # Invalid gaussian width
+        with self.assertRaises(ValueError):
+            SOAP(atomic_numbers=[-1, 2], rcut=5, sigma=0, nmax=5, lmax=5, periodic=True)
+        with self.assertRaises(ValueError):
+            SOAP(atomic_numbers=[-1, 2], rcut=5, sigma=-1, nmax=5, lmax=5, periodic=True)
+
+        # Invalid rcut
+        with self.assertRaises(ValueError):
+            SOAP(atomic_numbers=[-1, 2], rcut=0.5, sigma=0, nmax=5, lmax=5, periodic=True)
+
+    def test_number_of_features(self):
+        """Tests that the reported number of features is correct.
+        """
+        lmax = 5
+        nmax = 5
+        n_elems = 2
+        desc = SOAP(atomic_numbers=[1, 8], rcut=5, nmax=nmax, lmax=lmax, periodic=True)
+
+        # Test that the reported number of features matches the expected
+        n_features = desc.get_number_of_features()
+        n_blocks = n_elems*(n_elems+1)/2
+        expected = int((lmax + 1) * nmax * (nmax + 1) / 2 * n_blocks)
+        self.assertEqual(n_features, expected)
+
+        # Test that the outputted number of features matches the reported
+        n_features = desc.get_number_of_features()
+        vec = desc.create(H2O)
+        self.assertEqual(n_features, vec.shape[1])
+
+    def test_multiple_species(self):
+        """Tests multiple species are handled correctly.
+        """
+        lmax = 5
+        nmax = 5
+        atomic_numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+        desc = SOAP(atomic_numbers=atomic_numbers, rcut=5, nmax=nmax, lmax=lmax, periodic=False, sparse=False, normalize=True)
+
+        pos = np.expand_dims(np.linspace(0, 8, 8), 1)
+        pos = np.hstack((pos, pos, pos))
+        sys = Atoms(
+            symbols=atomic_numbers[0:8],
+            positions=pos,
+            pbc=False
+        )
+        vec1 = desc.create(sys)
+
+        sys2 = Atoms(
+            symbols=atomic_numbers[8:],
+            positions=pos,
+            pbc=False
+        )
+        vec2 = desc.create(sys2)
+
+        sys3 = Atoms(
+            symbols=atomic_numbers[4:12],
+            positions=pos,
+            pbc=False
+        )
+        vec3 = desc.create(sys3)
+
+        dot1 = np.dot(vec1[6, :], vec2[6, :])
+        dot2 = np.dot(vec1[3, :], vec3[3, :])
+        dot3 = np.dot(vec2[3, :], vec3[3, :])
+
+        # The dot product for systems without overlap in species should be zero
+        self.assertTrue(abs(dot1) <= 1e-8)
+
+        # The systems with overlap in the elements should have onerlap in the
+        # dot product
+        self.assertTrue(abs(dot2) > 1e-3)
+        self.assertTrue(abs(dot3) > 1e-3)
+
+    def test_flatten(self):
+        """Tests the flattening.
+        """
+
+    def test_sparse(self):
+        """Tests the sparse matrix creation.
+        """
+        # Dense
+        desc = SOAP(atomic_numbers=[1, 8], rcut=5, nmax=5, lmax=5, periodic=True, sparse=False)
+        vec = desc.create(H2O)
+        self.assertTrue(type(vec) == np.ndarray)
+
+        # Sparse
+        desc = SOAP(atomic_numbers=[1, 8], rcut=5, nmax=5, lmax=5, periodic=True, sparse=True)
+        vec = desc.create(H2O)
+        self.assertTrue(type(vec) == scipy.sparse.coo_matrix)
+
+    def test_positions(self):
+        """Tests that different positions are handled correctly.
+        """
+        desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=False, crossover=True)
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O).shape[1])
+
+        desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=True, crossover=True,)
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O).shape[1])
+
+        desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=True, crossover=False,)
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O).shape[1])
+
+        desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=False, crossover=False,)
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
+        self.assertEqual(desc.get_number_of_features(), desc.create(H2O).shape[1])
+
+        with self.assertRaises(ValueError):
+            desc.create(H2O, positions=['a'])
+
+    def test_unit_cells(self):
+        """Tests if arbitrary unit cells are accepted"""
+        desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=False, crossover=True,)
+
+        molecule = H2O.copy()
+
+        molecule.set_cell([
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0]
+        ])
+
+        nocell = desc.create(molecule, positions=[[0, 0, 0]])
+
+        desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=True, crossover=True,)
+
+        # Invalid unit cell
+        molecule.set_cell([
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0]
+        ])
+        with self.assertRaises(ValueError):
+            desc.create(molecule, positions=[[0, 0, 0]])
+
+        molecule.set_pbc(True)
+        molecule.set_cell([
+        [20.0, 0.0, 0.0],
+        [0.0, 30.0, 0.0],
+        [0.0, 0.0, 40.0]
+            ],
+            )
+
+        largecell = desc.create(molecule, positions=[[0, 0, 0]])
+
+        molecule.set_cell([
+            [2.0, 0.0, 0.0],
+            [0.0, 2.0, 0.0],
+            [0.0, 0.0, 2.0]
+        ])
+
+        cubic_cell = desc.create(molecule, positions=[[0, 0, 0]])
+
+        molecule.set_cell([
+            [0.0, 2.0, 2.0],
+            [2.0, 0.0, 2.0],
+            [2.0, 2.0, 0.0]
+        ])
+
+        triclinic_smallcell = desc.create(molecule, positions=[[0, 0, 0]])
+
+    def test_is_periodic(self):
+        """Tests whether periodic images are seen by the descriptor"""
+        desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=False, crossover=True,)
+
+        H2O.set_pbc(False)
+        nocell = desc.create(H2O, positions=[[0, 0, 0]])
+
+        H2O.set_pbc(True)
+        H2O.set_cell([
+            [2.0, 0.0, 0.0],
+            [0.0, 2.0, 0.0],
+            [0.0, 0.0, 2.0]
+        ])
+        desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=True, crossover=True,)
+
+        cubic_cell = desc.create(H2O, positions=[[0, 0, 0]])
+
+        self.assertTrue(np.sum(cubic_cell) > 0)
+
+    def test_periodic_images(self):
+        """Tests the periodic images seen by the descriptor
+        """
+        desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=False, crossover=True,)
+
+        molecule = H2O.copy()
+
+        # non-periodic for comparison
+        molecule.set_cell([
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0]
+        ])
+        nocell = desc.create(molecule, positions=[[0, 0, 0]]).toarray()
+
+        # Make periodic
+        desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=True, crossover=True,)
+        molecule.set_pbc(True)
+
+        # Cubic
+        molecule.set_cell([
+            [3.0, 0.0, 0.0],
+            [0.0, 3.0, 0.0],
+            [0.0, 0.0, 3.0]
+        ])
+        cubic_cell = desc.create(molecule, positions=[[0, 0, 0]]).toarray()
+        suce = molecule * (2, 1, 1)
+        cubic_suce = desc.create(suce, positions=[[0, 0, 0]]).toarray()
+
+        # Triclinic
+        molecule.set_cell([
+            [0.0, 2.0, 2.0],
+            [2.0, 0.0, 2.0],
+            [2.0, 2.0, 0.0]
+        ])
+        triclinic_cell = desc.create(molecule, positions=[[0, 0, 0]]).toarray()
+        suce = molecule * (2, 1, 1)
+        triclinic_suce = desc.create(suce, positions=[[0, 0, 0]]).toarray()
+
+        self.assertTrue(np.sum(np.abs((nocell[:3] - cubic_suce[:3]))) > 0.1)
+        self.assertAlmostEqual(np.sum(cubic_cell[:3] - cubic_suce[:3]), 0)
+        self.assertAlmostEqual(np.sum(triclinic_cell[:3] - triclinic_suce[:3]), 0)
+
+    def test_symmetries(self):
+        """Tests that the descriptor has the correct invariances.
+        """
+        def create(system):
+            desc = SOAP(
+                atomic_numbers=system.get_atomic_numbers(),
+                rcut=8.0,
+                lmax=5,
+                nmax=5,
+                periodic=False,
+                crossover=True
+            )
+            return desc.create(system)
+
+        # Rotational check
+        self.assertTrue(self.is_rotationally_symmetric(create))
+
+        # Translational
+        self.assertTrue(self.is_translationally_symmetric(create))
+
+        # Permutational
+        self.assertTrue(self.is_permutation_symmetric(create))
+
+    def test_average(self):
+        """Tests that the average output is created correctly.
+        """
+        sys = Atoms(symbols=["H", "C"], positions=[[-1, 0, 0], [1, 0, 0]], cell=[2, 2, 2], pbc=True)
+
+        # Create the average output
+        desc = SOAP(
+            atomic_numbers=[1, 6, 8],
+            rcut=5,
+            nmax=3,
+            lmax=5,
+            periodic=False,
+            crossover=True,
+            average=True,
+            sparse=False
+        )
+        average = desc.create(sys)[0, :]
+
+        # Create individual output for both atoms
+        desc = SOAP(
+            atomic_numbers=[1, 6, 8],
+            rcut=5,
+            nmax=3,
+            lmax=5,
+            periodic=False,
+            crossover=True,
+            average=False,
+            sparse=False
+        )
+        first = desc.create(sys, positions=[0])[0, :]
+        second = desc.create(sys, positions=[1])[0, :]
+
+        # Check that the normalization is done correctly, by first normalizing
+        # the outputs and then averaging them.
+        first_normalized = first/np.linalg.norm(first, axis=0)
+        second_normalized = second/np.linalg.norm(second, axis=0)
+        assumed_average = (first_normalized+second_normalized)/2
+        self.assertTrue(np.array_equal(average, assumed_average))
+
+    def test_basis(self):
+        """Tests that the output vectors behave correctly as a basis.
+        """
+        sys1 = Atoms(symbols=["H", "H"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
+        sys2 = Atoms(symbols=["O", "O"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
+        sys3 = Atoms(symbols=["C", "C"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
+        sys4 = Atoms(symbols=["H", "C"], positions=[[-1, 0, 0], [1, 0, 0]], cell=[2, 2, 2], pbc=True)
+        sys5 = Atoms(symbols=["H", "C"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
+        sys6 = Atoms(symbols=["H", "O"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
+        sys7 = Atoms(symbols=["C", "O"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
+
+        desc = SOAP(
+            atomic_numbers=[1, 6, 8],
+            rcut=5,
+            nmax=3,
+            lmax=5,
+            periodic=False,
+            crossover=True,
+            normalize=True,
+            sparse=False
+        )
+
+        # Create normalized vectors for each system
+        vec1 = desc.create(sys1, positions=[[0, 0, 0]])[0, :]
+        vec2 = desc.create(sys2, positions=[[0, 0, 0]])[0, :]
+        vec3 = desc.create(sys3, positions=[[0, 0, 0]])[0, :]
+        vec4 = desc.create(sys4, positions=[[0, 0, 0]])[0, :]
+        vec5 = desc.create(sys5, positions=[[0, 0, 0]])[0, :]
+        vec6 = desc.create(sys6, positions=[[0, 0, 0]])[0, :]
+        vec7 = desc.create(sys7, positions=[[0, 0, 0]])[0, :]
+
+        # The dot-product should be zero when there are no overlapping elements
+        dot = np.dot(vec1, vec2)
+        self.assertEqual(dot, 0)
+        dot = np.dot(vec2, vec3)
+        self.assertEqual(dot, 0)
+
+        # The dot-product should be non-zero when there are overlapping elements
+        dot = np.dot(vec4, vec5)
+        self.assertNotEqual(dot, 0)
+
+        # Check that self-terms are in correct location
+        n_elem_feat = desc.get_number_of_element_features()
+        h_part1 = vec1[0:n_elem_feat]
+        h_part2 = vec2[0:n_elem_feat]
+        h_part4 = vec4[0:n_elem_feat]
+        self.assertNotEqual(np.sum(h_part1), 0)
+        self.assertEqual(np.sum(h_part2), 0)
+        self.assertNotEqual(np.sum(h_part4), 0)
+
+        # Check that cross terms are in correct location
+        hc_part1 = vec1[1*n_elem_feat:2*n_elem_feat]
+        hc_part4 = vec4[1*n_elem_feat:2*n_elem_feat]
+        co_part6 = vec6[4*n_elem_feat:5*n_elem_feat]
+        co_part7 = vec7[4*n_elem_feat:5*n_elem_feat]
+        self.assertEqual(np.sum(hc_part1), 0)
+        self.assertNotEqual(np.sum(hc_part4), 0)
+        self.assertEqual(np.sum(co_part6), 0)
+        self.assertNotEqual(np.sum(co_part7), 0)
+
+    # # def test_poly(self):
+        # # """Tests that the polynomial radial basis set works as expected.
+        # # """
+
+    def test_rbf_orthonormality(self):
+        """Tests that the radial basis functions are orthonormal.
+        """
+        sigma = 0.15
+        rcut = 2.0
+        nmax = 2
+        lmax = 3
+        soap = SOAP(atomic_numbers=[1], lmax=lmax, nmax=nmax, sigma=sigma, rcut=rcut, crossover=True, sparse=False)
+        alphas = np.reshape(soap.alphas, [10, nmax])
+        betas = np.reshape(soap.betas, [10, nmax, nmax])
+
+        nr = 10000
+        n_basis = 0
+        functions = np.zeros((nmax, lmax+1, nr))
+
+        # Form the radial basis functions
+        for n in range(nmax):
+            for l in range(lmax+1):
+                gto = np.zeros((nr))
+                rspace = np.linspace(0, rcut+5, nr)
+                for k in range(nmax):
+                    gto += betas[l, n, k]*rspace**l*np.exp(-alphas[l, k]*rspace**2)
+                n_basis += 1
+                functions[n, l, :] = gto
+
+        # Calculate the overlap integrals
+        S = np.zeros((nmax, nmax))
+        l = 0
+        for l in range(lmax+1):
+            for i in range(nmax):
+                for j in range(nmax):
+                    overlap = np.trapz(rspace**2*functions[i, l, :]*functions[j, l, :], dx=(rcut+5)/nr)
+                    S[i, j] = overlap
+
+            # Check that the basis functions for each l are orthonormal
+            diff = S-np.eye(nmax)
+            self.assertTrue(np.allclose(diff, np.zeros((nmax, nmax)), atol=1e-3))
 
     def test_integration(self):
         """Tests that the analytical integration corresponds to the numerical
@@ -459,7 +459,7 @@ class SoapTests(unittest.TestCase):
         sigma = 0.55
         rcut = 2.0
         nmax = 2
-        lmax = 1
+        lmax = 3
 
         # Limits for radius
         r1 = 0.
@@ -546,8 +546,8 @@ class SoapTests(unittest.TestCase):
                             lambda r: t2,
                             lambda r, theta: p1,
                             lambda r, theta: p2,
-                            epsabs=0.01,
-                            epsrel=0.01,
+                            epsabs=0.001,
+                            epsrel=0.001,
                         )
                         integral, error = cnlm
                         coeffs[iZ, n, l, im] = integral
@@ -561,17 +561,15 @@ class SoapTests(unittest.TestCase):
                         for nj in range(nmax):
                             if nj >= ni:
                                 if zj >= zi:
-                                    # value = np.dot(coeffs[ni][l], coeffs[nj][l])
                                     value = np.dot(coeffs[zi, ni, l, :], coeffs[zj, nj, l, :])
-                                    # prefactor = np.pi*np.sqrt(8/(2*l+1))
-                                    # print(prefactor)
-                                    # value *= prefactor
+                                    prefactor = np.pi*np.sqrt(8/(2*l+1))
+                                    value *= prefactor
                                     numerical_power_spectrum.append(value)
 
-        print("Numerical: {}".format(numerical_power_spectrum))
-        print("Analytical: {}".format(analytical_power_spectrum))
+        # print("Numerical: {}".format(numerical_power_spectrum))
+        # print("Analytical: {}".format(analytical_power_spectrum))
 
-        self.assertTrue(np.allclose(numerical_power_spectrum, analytical_power_spectrum, atol=1e-8, rtol=0.01))
+        self.assertTrue(np.allclose(numerical_power_spectrum, analytical_power_spectrum, atol=0, rtol=0.02))
 
 if __name__ == '__main__':
     suites = []
