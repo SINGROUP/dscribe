@@ -96,7 +96,7 @@ class SOAP(Descriptor):
         # Define a set of atomic numbers
         self.atomic_number_set = set(self.atomic_numbers)
 
-        supported_rbf = set(("gto",))
+        supported_rbf = set(("gto", "polynomial"))
         if rbf not in supported_rbf:
             raise ValueError(
                 "Invalid radial basis function of type '{}' given. Please use "
@@ -163,12 +163,6 @@ class SOAP(Descriptor):
         # Positions specified, use them
         if positions is not None:
 
-            # Change function if periodic
-            if self.periodic:
-                soap_func = soaplite.get_periodic_soap_locals
-            else:
-                soap_func = soaplite.get_soap_locals
-
             # Check validity of position definitions and create final cartesian
             # position list
             list_positions = []
@@ -187,42 +181,75 @@ class SOAP(Descriptor):
                         "Create method requires the argument 'positions', a "
                         "list of atom indices and/or positions"
                     )
-            if self.periodic:
-                soap_func = soaplite.get_periodic_soap_locals
-            else:
-                soap_func = soaplite.get_soap_locals
-            soap_mat = soap_func(
-                system,
-                list_positions,
-                self.alphas,
-                self.betas,
-                rCut=self.rcut,
-                nMax=self.nmax,
-                Lmax=self.lmax,
-                crossOver=self.crossover,
-                all_atomtypes=sub_elements.tolist(),
-                eta=self.eta
-            )
+
+            # Determine the SOAPLite function to call based on periodicity and
+            # rbf
+            if self.rbf == "gto":
+                if self.periodic:
+                    soap_func = soaplite.get_periodic_soap_locals
+                else:
+                    soap_func = soaplite.get_soap_locals
+                soap_mat = soap_func(
+                    system,
+                    list_positions,
+                    self.alphas,
+                    self.betas,
+                    rCut=self.rcut,
+                    nMax=self.nmax,
+                    Lmax=self.lmax,
+                    crossOver=self.crossover,
+                    all_atomtypes=sub_elements.tolist(),
+                    eta=self.eta
+                )
+            elif self.rbf == "polynomial":
+                if self.periodic:
+                    soap_func = soaplite.get_periodic_soap_locals_poly
+                else:
+                    soap_func = soaplite.get_soap_locals_poly
+                soap_mat = soap_func(
+                    system,
+                    list_positions,
+                    rCut=self.rcut,
+                    nMax=self.nmax,
+                    Lmax=self.lmax,
+                    all_atomtypes=sub_elements.tolist(),
+                    eta=self.eta
+                )
 
         # No positions given, calculate SOAP for all atoms in the structure
         else:
-            # Change function if periodic
-            if self.periodic:
-                soap_func = soaplite.get_periodic_soap_structure
-            else:
-                soap_func = soaplite.get_soap_structure
-
-            soap_mat = soap_func(
-                system,
-                self.alphas,
-                self.betas,
-                rCut=self.rcut,
-                nMax=self.nmax,
-                Lmax=self.lmax,
-                crossOver=self.crossover,
-                all_atomtypes=sub_elements.tolist(),
-                eta=self.eta
-            )
+            # Determine the SOAPLite function to call based on periodicity and
+            # rbf
+            if self.rbf == "gto":
+                if self.periodic:
+                    soap_func = soaplite.get_periodic_soap_structure
+                else:
+                    soap_func = soaplite.get_soap_structure
+                soap_mat = soap_func(
+                    system,
+                    self.alphas,
+                    self.betas,
+                    rCut=self.rcut,
+                    nMax=self.nmax,
+                    Lmax=self.lmax,
+                    crossOver=self.crossover,
+                    all_atomtypes=sub_elements.tolist(),
+                    eta=self.eta
+                )
+            elif self.rbf == "polynomial":
+                if self.periodic:
+                    soap_func = soaplite.get_periodic_soap_structure_poly
+                else:
+                    soap_func = soaplite.get_soap_structure_poly
+                soap_mat = soap_func(
+                    system,
+                    rCut=self.rcut,
+                    nMax=self.nmax,
+                    Lmax=self.lmax,
+                    crossOver=self.crossover,
+                    all_atomtypes=sub_elements.tolist(),
+                    eta=self.eta
+                )
 
         # Map the output from subspace of elements to the full space of
         # elements
