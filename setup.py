@@ -24,7 +24,7 @@ extensions = [
 
 if __name__ == "__main__":
     setup(name='dscribe',
-        version='0.1.6',
+        version='0.1.7',
         url="https://singroup.github.io/dscribe/",
         description='A Python package for creating feature transformations in applications of machine learning to materials science.',
         long_description='A Python package for creating feature transformations in applications of machine learning to materials science.',
@@ -35,7 +35,7 @@ if __name__ == "__main__":
             'ase',
             'future',
             'matplotlib',
-            'soaplite==0.14.5',
+            'soaplite==0.14.7',
         ],
         include_package_data=True,  # This ensures that files defined in MANIFEST.in are included
         ext_modules=extensions,
