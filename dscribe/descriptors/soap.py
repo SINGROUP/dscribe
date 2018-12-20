@@ -55,8 +55,10 @@ class SOAP(Descriptor):
             lmax (int): The number of l's to be used. The computational time scales
             sigma (float): The standard deviation of the gaussians used to expand the
                 atomic density.
-            rbf (str): The radial basis set to use. The available options are:
-            * gto: Spherical gaussian type orbitals defined as :math:`\phi(r) = \beta r^l e^{-\alpha r^2}`
+            rbf (str): The radial basis functions to use. The available options are:
+
+                * "gto": Spherical gaussian type orbitals defined as :math:`\phi(r) = \\beta r^l e^{-\\alpha r^2}`
+
             crossover (bool): Default True, if crossover of atomic types should
                 be included in the power spectrum.
             average (bool): Whether to build an average output for all selected
