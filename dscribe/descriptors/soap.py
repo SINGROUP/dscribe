@@ -56,8 +56,6 @@ class SOAP(Descriptor):
             sigma (float): The standard deviation of the gaussians used to expand the
                 atomic density.
             rbf (str): The radial basis set to use. The available options are:
-            * polynomial: Cubic and higher order polynomials defined as
-            :math:`\phi(r) = (r_{cut} - r)^{\alpha+2}/N_{alpha}`
             * gto: Spherical gaussian type orbitals defined as :math:`\phi(r) = \beta r^l e^{-\alpha r^2}`
             crossover (bool): Default True, if crossover of atomic types should
                 be included in the power spectrum.
@@ -145,7 +143,7 @@ class SOAP(Descriptor):
             raise ValueError(
                 "The given system has the following atomic numbers not defined "
                 "in the SOAP constructor: {}"
-                .format(self.atomic_number_set.difference(zs))
+                .format(zs.difference(self.atomic_number_set))
             )
 
         # Ensuring self is updated
@@ -241,7 +239,7 @@ class SOAP(Descriptor):
 
         # Normalize if requested
         if self.normalize:
-            soap_mat = soap_mat / np.linalg.norm(soap_mat, axis=1)
+            soap_mat = soap_mat / np.linalg.norm(soap_mat, axis=1)[:, np.newaxis]
 
         # Make into a sparse array if requested
         if self.sparse:
@@ -264,7 +262,7 @@ class SOAP(Descriptor):
         n_elem_features = self.get_number_of_element_features()
         n_points = sub_output.shape[0]
 
-        # Define the final output space as a sparse matrix.
+        # Define the final output space as an array.
         output = np.zeros((n_points, n_features), dtype=np.float32)
 
         n_elem_sub = len(sub_elements)
