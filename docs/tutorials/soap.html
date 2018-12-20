@@ -239,24 +239,13 @@ bigger than 1 angstrom.</li>
 <li><strong>lmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The number of l’s to be used. The computational time scales</li>
 <li><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The standard deviation of the gaussians used to expand the
 atomic density.</li>
-<li><strong>rbf</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – The radial basis set to use. The available options are:</li>
-<li><strong>polynomial</strong> (<em>*</em>) – Cubic and higher order polynomials defined as</li>
+<li><strong>rbf</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – <p>The radial basis functions to use. The available options are:</p>
+<ul>
+<li>”gto”: Spherical gaussian type orbitals defined as <span class="math notranslate nohighlight">\(\phi(r) = \beta r^l e^{-\alpha r^2}\)</span></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
-<p>:param <span class="math notranslate nohighlight">\(\phi:
-:type :math:\)</span>phi: r) = (r_{cut} - r
-:param * gto: Spherical gaussian type orbitals defined as <span class="math notranslate nohighlight">\(\phi(r) = eta r^l e^{-lpha r^2}\)</span>
-:param crossover: Default True, if crossover of atomic types should</p>
-<blockquote>
-<div>be included in the power spectrum.</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+</li>
+<li><strong>crossover</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Default True, if crossover of atomic types should
+be included in the power spectrum.</li>
 <li><strong>average</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Whether to build an average output for all selected
 positions. Before averaging the outputs for individual atoms are
 normalized.</li>
