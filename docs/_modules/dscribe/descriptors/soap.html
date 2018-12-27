@@ -187,6 +187,7 @@
             <span class="n">nmax</span><span class="p">,</span>
             <span class="n">lmax</span><span class="p">,</span>
             <span class="n">sigma</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+            <span class="n">rbf</span><span class="o">=</span><span class="s2">&quot;gto&quot;</span><span class="p">,</span>
             <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">crossover</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">average</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -210,6 +211,10 @@
 <span class="sd">            lmax (int): The number of l&#39;s to be used. The computational time scales</span>
 <span class="sd">            sigma (float): The standard deviation of the gaussians used to expand the</span>
 <span class="sd">                atomic density.</span>
+<span class="sd">            rbf (str): The radial basis functions to use. The available options are:</span>
+
+<span class="sd">                * &quot;gto&quot;: Spherical gaussian type orbitals defined as :math:`\phi(r) = \\beta r^l e^{-\\alpha r^2}`</span>
+
 <span class="sd">            crossover (bool): Default True, if crossover of atomic types should</span>
 <span class="sd">                be included in the power spectrum.</span>
 <span class="sd">            average (bool): Whether to build an average output for all selected</span>
@@ -246,6 +251,14 @@
 
         <span class="c1"># Define a set of atomic numbers</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atomic_numbers</span><span class="p">)</span>
+
+        <span class="n">supported_rbf</span> <span class="o">=</span> <span class="nb">set</span><span class="p">((</span><span class="s2">&quot;gto&quot;</span><span class="p">,))</span>
+        <span class="k">if</span> <span class="n">rbf</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">supported_rbf</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Invalid radial basis function of type &#39;</span><span class="si">{}</span><span class="s2">&#39; given. Please use &quot;</span>
+                <span class="s2">&quot;one of the following: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rbf</span><span class="p">,</span> <span class="n">supported_rbf</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rbf</span> <span class="o">=</span> <span class="n">rbf</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">rcut</span> <span class="o">=</span> <span class="n">rcut</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nmax</span> <span class="o">=</span> <span class="n">nmax</span>
@@ -288,7 +301,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;The given system has the following atomic numbers not defined &quot;</span>
                 <span class="s2">&quot;in the SOAP constructor: </span><span class="si">{}</span><span class="s2">&quot;</span>
-                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_set</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">zs</span><span class="p">))</span>
+                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">zs</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_set</span><span class="p">))</span>
             <span class="p">)</span>
 
         <span class="c1"># Ensuring self is updated</span>
@@ -330,19 +343,23 @@
                         <span class="s2">&quot;Create method requires the argument &#39;positions&#39;, a &quot;</span>
                         <span class="s2">&quot;list of atom indices and/or positions&quot;</span>
                     <span class="p">)</span>
-
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">:</span>
+                <span class="n">soap_func</span> <span class="o">=</span> <span class="n">soaplite</span><span class="o">.</span><span class="n">get_periodic_soap_locals</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">soap_func</span> <span class="o">=</span> <span class="n">soaplite</span><span class="o">.</span><span class="n">get_soap_locals</span>
             <span class="n">soap_mat</span> <span class="o">=</span> <span class="n">soap_func</span><span class="p">(</span>
                 <span class="n">system</span><span class="p">,</span>
                 <span class="n">list_positions</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">alphas</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">,</span>
                 <span class="n">rCut</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rcut</span><span class="p">,</span>
-                <span class="n">NradBas</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nmax</span><span class="p">,</span>
+                <span class="n">nMax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nmax</span><span class="p">,</span>
                 <span class="n">Lmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lmax</span><span class="p">,</span>
                 <span class="n">crossOver</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">crossover</span><span class="p">,</span>
                 <span class="n">all_atomtypes</span><span class="o">=</span><span class="n">sub_elements</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
                 <span class="n">eta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">eta</span>
             <span class="p">)</span>
+
         <span class="c1"># No positions given, calculate SOAP for all atoms in the structure</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Change function if periodic</span>
@@ -356,7 +373,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">alphas</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">betas</span><span class="p">,</span>
                 <span class="n">rCut</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rcut</span><span class="p">,</span>
-                <span class="n">NradBas</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nmax</span><span class="p">,</span>
+                <span class="n">nMax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nmax</span><span class="p">,</span>
                 <span class="n">Lmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lmax</span><span class="p">,</span>
                 <span class="n">crossOver</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">crossover</span><span class="p">,</span>
                 <span class="n">all_atomtypes</span><span class="o">=</span><span class="n">sub_elements</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
@@ -380,7 +397,7 @@
 
         <span class="c1"># Normalize if requested</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize</span><span class="p">:</span>
-            <span class="n">soap_mat</span> <span class="o">=</span> <span class="n">soap_mat</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">soap_mat</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">soap_mat</span> <span class="o">=</span> <span class="n">soap_mat</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">soap_mat</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
 
         <span class="c1"># Make into a sparse array if requested</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sparse</span><span class="p">:</span>
@@ -403,7 +420,7 @@
         <span class="n">n_elem_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_number_of_element_features</span><span class="p">()</span>
         <span class="n">n_points</span> <span class="o">=</span> <span class="n">sub_output</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-        <span class="c1"># Define the final output space as a sparse matrix.</span>
+        <span class="c1"># Define the final output space as an array.</span>
         <span class="n">output</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_points</span><span class="p">,</span> <span class="n">n_features</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
         <span class="n">n_elem_sub</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sub_elements</span><span class="p">)</span>

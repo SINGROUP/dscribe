@@ -45,6 +45,7 @@ H = Atoms(
 )
 
 
+# class SoapTests(unittest.TestCase):
 class SoapTests(TestBaseClass, unittest.TestCase):
 # class SoapTests(unittest.TestCase):
 
@@ -83,6 +84,49 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         n_features = desc.get_number_of_features()
         vec = desc.create(H2O)
         self.assertEqual(n_features, vec.shape[1])
+
+    def test_multiple_species(self):
+        """Tests multiple species are handled correctly.
+        """
+        lmax = 5
+        nmax = 5
+        atomic_numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+        desc = SOAP(atomic_numbers=atomic_numbers, rcut=5, nmax=nmax, lmax=lmax, periodic=False, sparse=False, normalize=True)
+
+        pos = np.expand_dims(np.linspace(0, 8, 8), 1)
+        pos = np.hstack((pos, pos, pos))
+        sys = Atoms(
+            symbols=atomic_numbers[0:8],
+            positions=pos,
+            pbc=False
+        )
+        vec1 = desc.create(sys)
+
+        sys2 = Atoms(
+            symbols=atomic_numbers[8:],
+            positions=pos,
+            pbc=False
+        )
+        vec2 = desc.create(sys2)
+
+        sys3 = Atoms(
+            symbols=atomic_numbers[4:12],
+            positions=pos,
+            pbc=False
+        )
+        vec3 = desc.create(sys3)
+
+        dot1 = np.dot(vec1[6, :], vec2[6, :])
+        dot2 = np.dot(vec1[3, :], vec3[3, :])
+        dot3 = np.dot(vec2[3, :], vec3[3, :])
+
+        # The dot product for systems without overlap in species should be zero
+        self.assertTrue(abs(dot1) <= 1e-8)
+
+        # The systems with overlap in the elements should have onerlap in the
+        # dot product
+        self.assertTrue(abs(dot2) > 1e-3)
+        self.assertTrue(abs(dot3) > 1e-3)
 
     def test_flatten(self):
         """Tests the flattening.
@@ -382,7 +426,6 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
         vec = desc.create(H2O, positions=[0])
 
-
     def test_rbf_orthonormality(self):
         """Tests that the gto radial basis functions are orthonormal.
         """
@@ -530,6 +573,8 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                             if nj >= ni:
                                 if zj >= zi:
                                     value = np.dot(coeffs[zi, ni, l, :], coeffs[zj, nj, l, :])
+                                    prefactor = np.pi*np.sqrt(8/(2*l+1))
+                                    value *= prefactor
                                     numerical_power_spectrum.append(value)
 
         # print("Numerical: {}".format(numerical_power_spectrum))
@@ -537,149 +582,151 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
         self.assertTrue(np.allclose(numerical_power_spectrum, analytical_power_spectrum, atol=0, rtol=0.01))
 
-    def test_poly_integration(self):
-        """Tests that the partial power spectrum with the polynomial basis done
-        with C corresponds to the easier-to-code but less performant
-        integration done with python.
-        """
-        sigma = 0.55
-        rcut = 2.0
-        nmax = 2
-        lmax = 2
+    # def test_poly_integration(self):
+        # """Tests that the partial power spectrum with the polynomial basis done
+        # with C corresponds to the easier-to-code but less performant
+        # integration done with python.
+        # """
+        # sigma = 0.55
+        # rcut = 2.0
+        # nmax = 2
+        # lmax = 2
 
-        # Limits for radius
-        r1 = 0.
-        r2 = rcut+5
+        # # Limits for radius
+        # r1 = 0.
+        # r2 = rcut+5
 
-        # Limits for theta
-        t1 = 0
-        t2 = np.pi
+        # # Limits for theta
+        # t1 = 0
+        # t2 = np.pi
 
-        # Limits for phi
-        p1 = 0
-        p2 = 2*np.pi
+        # # Limits for phi
+        # p1 = 0
+        # p2 = 2*np.pi
 
-        positions = np.array([[0.5, 0.7, 0.9], [-0.3, 0.5, 0.4]])
-        symbols = np.array(["H", "C"])
-        system = Atoms(positions=positions, symbols=symbols)
+        # positions = np.array([[0.5, 0.7, 0.9], [-0.3, 0.5, 0.4]])
+        # symbols = np.array(["H", "C"])
+        # system = Atoms(positions=positions, symbols=symbols)
 
-        atomic_numbers = system.get_atomic_numbers()
-        elements = set(system.get_atomic_numbers())
-        n_elems = len(elements)
+        # atomic_numbers = system.get_atomic_numbers()
+        # elements = set(system.get_atomic_numbers())
+        # n_elems = len(elements)
 
-        # These are the analytically calculable overlap coefficients for the
-        # polynomial basis: Integrate[(r - rc)^(a + 2) (r - rc)^(b + 2) r^2,
-        # {r, 0, rc}]
+        # # These are the analytically calculable overlap coefficients for the
+        # # polynomial basis: Integrate[(r - rc)^(a + 2) (r - rc)^(b + 2) r^2,
+        # # {r, 0, rc}]
+        # # S = np.zeros((nmax, nmax))
+        # # for i in range(nmax):
+            # # for j in range(nmax):
+                # # S[i, j] = -(2*(-rcut)**(7+i+j))/((5+i+j)*(6+i+j)*(7+i+j))
+        # # betas = sqrtm(np.linalg.inv(S))
+
+        # # Calculate the functions on a grid
+        # nr = 10000
+        # functions = np.zeros((nmax, nr))
+        # rspace = np.linspace(0, rcut, nr)
+        # for n in range(nmax):
+            # functions[n, :] = (rcut-rspace)**(n+2)
+
+        # # Calculate the weight matrix that orthonormalizes the set
         # S = np.zeros((nmax, nmax))
         # for i in range(nmax):
             # for j in range(nmax):
-                # S[i, j] = -(2*(-rcut)**(7+i+j))/((5+i+j)*(6+i+j)*(7+i+j))
+                # overlap = np.trapz(rspace**2*functions[i, :]*functions[j, :], dx=(rcut)/nr)
+                # S[i, j] = overlap
         # betas = sqrtm(np.linalg.inv(S))
 
-        # Calculate the functions on a grid
-        nr = 10000
-        functions = np.zeros((nmax, nr))
-        rspace = np.linspace(0, rcut, nr)
-        for n in range(nmax):
-            functions[n, :] = (rcut-rspace)**(n+2)
+        # # Calculate overlap again to check that the set is really orthonormal
+        # # orth_func = np.dot(betas, functions)
+        # # S = np.zeros((nmax, nmax))
+        # # for i in range(nmax):
+            # # for j in range(nmax):
+                # # overlap = np.trapz(rspace**2*orth_func[i, :]*orth_func[j, :], dx=(rcut)/nr)
+                # # S[i, j] = overlap
+        # # print(S)
 
-        # Calculate the weight matrix that orthonormalizes the set
-        S = np.zeros((nmax, nmax))
-        for i in range(nmax):
-            for j in range(nmax):
-                overlap = np.trapz(rspace**2*functions[i, :]*functions[j, :], dx=(rcut)/nr)
-                S[i, j] = overlap
-        betas = sqrtm(np.linalg.inv(S))
+        # # Calculate the analytical power spectrum and the weights and decays of
+        # # the radial basis functions.
+        # soap = SOAP(atomic_numbers=atomic_numbers, lmax=lmax, nmax=nmax, sigma=sigma, rcut=rcut, rbf="polynomial", crossover=True, sparse=False)
+        # analytical_power_spectrum = soap.create(system, positions=[[0, 0, 0]])[0]
 
-        # Calculate overlap again to check that the set is really orthonormal
-        # orth_func = np.dot(betas, functions)
-        # S = np.zeros((nmax, nmax))
-        # for i in range(nmax):
-            # for j in range(nmax):
-                # overlap = np.trapz(rspace**2*orth_func[i, :]*orth_func[j, :], dx=(rcut)/nr)
-                # S[i, j] = overlap
-        # print(S)
+        # coeffs = np.zeros((n_elems, nmax, lmax+1, 2*lmax+1))
+        # for iZ, Z in enumerate(elements):
+            # indices = np.argwhere(atomic_numbers == Z)[0]
+            # elem_pos = positions[indices]
+            # for n in range(nmax):
+                # for l in range(lmax+1):
+                    # for im, m in enumerate(range(-l, l+1)):
 
-        # Calculate the analytical power spectrum and the weights and decays of
-        # the radial basis functions.
-        soap = SOAP(atomic_numbers=atomic_numbers, lmax=lmax, nmax=nmax, sigma=sigma, rcut=rcut, rbf="polynomial", crossover=True, sparse=False)
-        analytical_power_spectrum = soap.create(system, positions=[[0, 0, 0]])[0]
+                        # # Calculate numerical coefficients
+                        # def soap_coeff(phi, theta, r):
 
-        coeffs = np.zeros((n_elems, nmax, lmax+1, 2*lmax+1))
-        for iZ, Z in enumerate(elements):
-            indices = np.argwhere(atomic_numbers == Z)[0]
-            elem_pos = positions[indices]
-            for n in range(nmax):
-                for l in range(lmax+1):
-                    for im, m in enumerate(range(-l, l+1)):
+                            # # Regular spherical harmonic
+                            # ylm_comp = scipy.special.sph_harm(np.abs(m), l, phi, theta)  # NOTE: scipy swaps phi and theta
 
-                        # Calculate numerical coefficients
-                        def soap_coeff(phi, theta, r):
+                            # # Construct real (tesseral) spherical harmonics for
+                            # # easier integration without having to worry about the
+                            # # imaginary part
+                            # ylm_real = np.real(ylm_comp)
+                            # ylm_imag = np.imag(ylm_comp)
+                            # if m < 0:
+                                # ylm = np.sqrt(2)*(-1)**m*ylm_imag
+                            # elif m == 0:
+                                # ylm = ylm_comp
+                            # else:
+                                # ylm = np.sqrt(2)*(-1)**m*ylm_real
 
-                            # Regular spherical harmonic
-                            ylm_comp = scipy.special.sph_harm(np.abs(m), l, phi, theta)  # NOTE: scipy swaps phi and theta
+                            # # Polynomial basis
+                            # poly = 0
+                            # for k in range(nmax):
+                                # poly += betas[n, k]*(rcut-np.clip(r, 0, rcut))**(k+2)
 
-                            # Construct real (tesseral) spherical harmonics for
-                            # easier integration without having to worry about the
-                            # imaginary part
-                            ylm_real = np.real(ylm_comp)
-                            ylm_imag = np.imag(ylm_comp)
-                            if m < 0:
-                                ylm = np.sqrt(2)*(-1)**m*ylm_imag
-                            elif m == 0:
-                                ylm = ylm_comp
-                            else:
-                                ylm = np.sqrt(2)*(-1)**m*ylm_real
+                            # # Atomic density
+                            # rho = 0
+                            # for i_pos in elem_pos:
+                                # ix = i_pos[0]
+                                # iy = i_pos[1]
+                                # iz = i_pos[2]
+                                # ri_squared = ix**2+iy**2+iz**2
+                                # rho += np.exp(-1/(2*sigma**2)*(r**2 + ri_squared - 2*r*(np.sin(theta)*np.cos(phi)*ix + np.sin(theta)*np.sin(phi)*iy + np.cos(theta)*iz)))
 
-                            # Polynomial basis
-                            poly = 0
-                            for k in range(nmax):
-                                poly += betas[n, k]*(rcut-np.clip(r, 0, rcut))**(k+2)
+                            # # Jacobian
+                            # jacobian = np.sin(theta)*r**2
 
-                            # Atomic density
-                            rho = 0
-                            for i_pos in elem_pos:
-                                ix = i_pos[0]
-                                iy = i_pos[1]
-                                iz = i_pos[2]
-                                ri_squared = ix**2+iy**2+iz**2
-                                rho += np.exp(-1/(2*sigma**2)*(r**2 + ri_squared - 2*r*(np.sin(theta)*np.cos(phi)*ix + np.sin(theta)*np.sin(phi)*iy + np.cos(theta)*iz)))
+                            # return poly*ylm*rho*jacobian
 
-                            # Jacobian
-                            jacobian = np.sin(theta)*r**2
+                        # cnlm = tplquad(
+                            # soap_coeff,
+                            # r1,
+                            # r2,
+                            # lambda r: t1,
+                            # lambda r: t2,
+                            # lambda r, theta: p1,
+                            # lambda r, theta: p2,
+                            # epsabs=0.0001,
+                            # epsrel=0.0001,
+                        # )
+                        # integral, error = cnlm
+                        # coeffs[iZ, n, l, im] = integral
 
-                            return poly*ylm*rho*jacobian
+        # # Calculate the partial power spectrum
+        # numerical_power_spectrum = []
+        # for zi in range(n_elems):
+            # for zj in range(n_elems):
+                # for l in range(lmax+1):
+                    # for ni in range(nmax):
+                        # for nj in range(nmax):
+                            # if nj >= ni:
+                                # if zj >= zi:
+                                    # value = np.dot(coeffs[zi, ni, l, :], coeffs[zj, nj, l, :])
+                                    # prefactor = np.pi*np.sqrt(8/(2*l+1))
+                                    # value *= prefactor
+                                    # numerical_power_spectrum.append(value)
 
-                        cnlm = tplquad(
-                            soap_coeff,
-                            r1,
-                            r2,
-                            lambda r: t1,
-                            lambda r: t2,
-                            lambda r, theta: p1,
-                            lambda r, theta: p2,
-                            epsabs=0.0001,
-                            epsrel=0.0001,
-                        )
-                        integral, error = cnlm
-                        coeffs[iZ, n, l, im] = integral
+        # # print("Numerical: {}".format(numerical_power_spectrum))
+        # # print("Analytical: {}".format(analytical_power_spectrum))
 
-        # Calculate the partial power spectrum
-        numerical_power_spectrum = []
-        for zi in range(n_elems):
-            for zj in range(n_elems):
-                for l in range(lmax+1):
-                    for ni in range(nmax):
-                        for nj in range(nmax):
-                            if nj >= ni:
-                                if zj >= zi:
-                                    value = np.dot(coeffs[zi, ni, l, :], coeffs[zj, nj, l, :])
-                                    numerical_power_spectrum.append(value)
-
-        # print("Numerical: {}".format(numerical_power_spectrum))
-        # print("Analytical: {}".format(analytical_power_spectrum))
-
-        self.assertTrue(np.allclose(numerical_power_spectrum, analytical_power_spectrum, atol=0, rtol=0.01))
+        # self.assertTrue(np.allclose(numerical_power_spectrum, analytical_power_spectrum, atol=0, rtol=0.01))
 
 if __name__ == '__main__':
     suites = []
