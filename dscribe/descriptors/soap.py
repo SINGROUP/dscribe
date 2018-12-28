@@ -71,8 +71,9 @@ class SOAP(Descriptor):
         super().__init__(flatten=True, sparse=sparse)
 
         # Check that atomic numbers are valid
-        self.atomic_numbers = list(set(atomic_numbers))
-        if (np.array(atomic_numbers) <= 0).any():
+        self._atomic_number_set = set(atomic_numbers)
+        self._atomic_numbers = np.sort(np.array(list(self._atomic_number_set)))
+        if (self._atomic_numbers <= 0).any():
             raise ValueError(
                 "Non-positive atomic numbers not allowed."
             )
@@ -82,7 +83,7 @@ class SOAP(Descriptor):
             raise ValueError(
                 "Only positive gaussian width parameters 'sigma' are allowed."
             )
-        self.eta = 1/(2*sigma**2)
+        self._eta = 1/(2*sigma**2)
 
         # Check that rcut is valid
         if (rcut <= 1):
@@ -90,33 +91,24 @@ class SOAP(Descriptor):
                 "The radial cutoff should be bigger than 1 angstrom."
             )
 
-        # Sort the elements according to atomic number
-        self.atomic_numbers = np.sort(np.array(atomic_numbers))
-
-        # Define a set of atomic numbers
-        self.atomic_number_set = set(self.atomic_numbers)
-
         supported_rbf = set(("gto", "polynomial"))
         if rbf not in supported_rbf:
             raise ValueError(
                 "Invalid radial basis function of type '{}' given. Please use "
                 "one of the following: {}".format(rbf, supported_rbf)
             )
-        self.rbf = rbf
 
-        self.rcut = rcut
-        self.nmax = nmax
-        self.lmax = lmax
-        self.periodic = periodic
-        self.crossover = crossover
-        self.average = average
-        self.normalize = normalize
-        self.update()
+        self._rcut = rcut
+        self._nmax = nmax
+        self._lmax = lmax
+        self._rbf = rbf
+        self._periodic = periodic
+        self._crossover = crossover
+        self._average = average
+        self._normalize = normalize
 
-    def update(self):
-        """Updates alphas and betas corresponding to change in rcut or nmax.
-        """
-        self.alphas, self.betas = soaplite.genBasis.getBasisFunc(self.rcut, self.nmax)
+        if self._rbf == "gto":
+            self._alphas, self._betas = soaplite.genBasis.getBasisFunc(self._rcut, self._nmax)
 
     def create(self, system, positions=None):
         """Return the SOAP output for the given system and given positions.
@@ -141,19 +133,17 @@ class SOAP(Descriptor):
         # Check that the system does not have elements that are not in the list
         # of atomic numbers
         zs = set(system.get_atomic_numbers())
-        if not zs.issubset(self.atomic_number_set):
+        if not zs.issubset(self._atomic_number_set):
             raise ValueError(
                 "The given system has the following atomic numbers not defined "
                 "in the SOAP constructor: {}"
-                .format(zs.difference(self.atomic_number_set))
+                .format(zs.difference(self._atomic_number_set))
             )
 
-        # Ensuring self is updated
-        self.update()
         sub_elements = np.array(list(set(system.get_atomic_numbers())))
 
         # Check if periodic is valid
-        if self.periodic:
+        if self._periodic:
             cell = system.get_cell()
             if np.cross(cell[0], cell[1]).dot(cell[2]) == 0:
                 raise ValueError(
@@ -184,71 +174,71 @@ class SOAP(Descriptor):
 
             # Determine the SOAPLite function to call based on periodicity and
             # rbf
-            if self.rbf == "gto":
-                if self.periodic:
+            if self._rbf == "gto":
+                if self._periodic:
                     soap_func = soaplite.get_periodic_soap_locals
                 else:
                     soap_func = soaplite.get_soap_locals
                 soap_mat = soap_func(
                     system,
                     list_positions,
-                    self.alphas,
-                    self.betas,
-                    rCut=self.rcut,
-                    nMax=self.nmax,
-                    Lmax=self.lmax,
-                    crossOver=self.crossover,
+                    self._alphas,
+                    self._betas,
+                    rCut=self._rcut,
+                    nMax=self._nmax,
+                    Lmax=self._lmax,
+                    crossOver=self._crossover,
                     all_atomtypes=sub_elements.tolist(),
-                    eta=self.eta
+                    eta=self._eta
                 )
-            elif self.rbf == "polynomial":
-                if self.periodic:
+            elif self._rbf == "polynomial":
+                if self._periodic:
                     soap_func = soaplite.get_periodic_soap_locals_poly
                 else:
                     soap_func = soaplite.get_soap_locals_poly
                 soap_mat = soap_func(
                     system,
                     list_positions,
-                    rCut=self.rcut,
-                    nMax=self.nmax,
-                    Lmax=self.lmax,
+                    rCut=self._rcut,
+                    nMax=self._nmax,
+                    Lmax=self._lmax,
                     all_atomtypes=sub_elements.tolist(),
-                    eta=self.eta
+                    eta=self._eta
                 )
 
         # No positions given, calculate SOAP for all atoms in the structure
         else:
             # Determine the SOAPLite function to call based on periodicity and
             # rbf
-            if self.rbf == "gto":
-                if self.periodic:
+            if self._rbf == "gto":
+                if self._periodic:
                     soap_func = soaplite.get_periodic_soap_structure
                 else:
                     soap_func = soaplite.get_soap_structure
                 soap_mat = soap_func(
                     system,
-                    self.alphas,
-                    self.betas,
-                    rCut=self.rcut,
-                    nMax=self.nmax,
-                    Lmax=self.lmax,
-                    crossOver=self.crossover,
+                    self._alphas,
+                    self._betas,
+                    rCut=self._rcut,
+                    nMax=self._nmax,
+                    Lmax=self._lmax,
+                    crossOver=self._crossover,
                     all_atomtypes=sub_elements.tolist(),
-                    eta=self.eta
+                    eta=self._eta
                 )
-            elif self.rbf == "polynomial":
-                if self.periodic:
+            elif self._rbf == "polynomial":
+                if self._periodic:
                     soap_func = soaplite.get_periodic_soap_structure_poly
                 else:
                     soap_func = soaplite.get_soap_structure_poly
                 soap_mat = soap_func(
                     system,
-                    rCut=self.rcut,
-                    nMax=self.nmax,
-                    Lmax=self.lmax,
-                    crossOver=self.crossover,
+                    rCut=self._rcut,
+                    nMax=self._nmax,
+                    Lmax=self._lmax,
+                    crossOver=self._crossover,
                     all_atomtypes=sub_elements.tolist(),
-                    eta=self.eta
+                    eta=self._eta
                 )
 
         # Map the output from subspace of elements to the full space of
@@ -256,22 +246,22 @@ class SOAP(Descriptor):
         soap_mat = self.get_full_space_output(
             soap_mat,
             sub_elements,
-            self.atomic_numbers
+            self._atomic_numbers
         )
 
         # Create the averaged SOAP output if requested. The individual terms are
         # normalized first.
-        if self.average:
+        if self._average:
             soap_mat = soap_mat / np.linalg.norm(soap_mat, axis=1)[:, None]
             soap_mat = soap_mat.mean(axis=0)
             soap_mat = np.expand_dims(soap_mat, 0)
 
         # Normalize if requested
-        if self.normalize:
+        if self._normalize:
             soap_mat = soap_mat / np.linalg.norm(soap_mat, axis=1)[:, np.newaxis]
 
         # Make into a sparse array if requested
-        if self.sparse:
+        if self._sparse:
             soap_mat = coo_matrix(soap_mat)
 
         return soap_mat
@@ -342,7 +332,7 @@ class SOAP(Descriptor):
         Returns:
             int: The number of features per element pair.
         """
-        return int((self.lmax + 1) * self.nmax * (self.nmax + 1)/2)
+        return int((self._lmax + 1) * self._nmax * (self._nmax + 1)/2)
 
     def get_flattened_index(self, i, j, n):
         """Returns the 1D index of an element in an upper diagonal matrix that
@@ -358,8 +348,8 @@ class SOAP(Descriptor):
         Returns:
             int: Number of features for this descriptor.
         """
-        n_elems = len(self.atomic_numbers)
-        if self.crossover:
+        n_elems = len(self._atomic_numbers)
+        if self._crossover:
             n_blocks = n_elems * (n_elems + 1)/2
         else:
             n_blocks = n_elems
