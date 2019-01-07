@@ -1,4 +1,11 @@
+import platform
 from setuptools import setup, find_packages, Extension
+
+# On mac we need to specify that a minimum target version to get the correct
+# c++11 compilation flags (libc++) in place
+cpp_extra_compile_args = ['-std=c++11']
+if platform.system() == "Darwin":
+    cpp_extra_compile_args.append('-mmacosx-version-min=10.9')
 
 extensions = [
     # The ACSF C extension, wrapped with ctypes
@@ -8,6 +15,7 @@ extensions = [
             "dscribe/libacsf/acsf-utils.c",
             "dscribe/libacsf/acsf-compute.c",
         ],
+        language='c',
         include_dirs=["dscribe/libacsf"],
         extra_compile_args=["-O3", "-std=c99"]
     ),
@@ -17,14 +25,15 @@ extensions = [
         [
             "dscribe/libmbtr/cmbtrwrapper.cpp",
         ],
+        language='c++',
         include_dirs=["dscribe/libmbtr"],
-        extra_compile_args=['-std=c++11'],
+        extra_compile_args=cpp_extra_compile_args,
     ),
 ]
 
 if __name__ == "__main__":
     setup(name='dscribe',
-        version='0.1.7',
+        version='0.1.8',
         url="https://singroup.github.io/dscribe/",
         description='A Python package for creating feature transformations in applications of machine learning to materials science.',
         long_description='A Python package for creating feature transformations in applications of machine learning to materials science.',
