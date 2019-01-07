@@ -589,7 +589,7 @@ class SoapTests(unittest.TestCase):
         sigma = 0.55
         rcut = 2.0
         nmax = 2
-        lmax = 0
+        lmax = 1
 
         # Limits for radius
         r1 = 0.
@@ -611,38 +611,16 @@ class SoapTests(unittest.TestCase):
         elements = set(system.get_atomic_numbers())
         n_elems = len(elements)
 
-        # These are the analytically calculable overlap coefficients for the
-        # polynomial basis: Integrate[(r - rc)^(a + 2) (r - rc)^(b + 2) r^2,
-        # {r, 0, rc}]
-        # S = np.zeros((nmax, nmax))
-        # for i in range(nmax):
-            # for j in range(nmax):
-                # S[i, j] = -(2*(-rcut)**(7+i+j))/((5+i+j)*(6+i+j)*(7+i+j))
-        # betas = sqrtm(np.linalg.inv(S))
-
-        # Calculate the functions on a grid
-        nr = 10000
-        functions = np.zeros((nmax, nr))
-        rspace = np.linspace(0, rcut, nr)
-        for n in range(nmax):
-            functions[n, :] = (rcut-rspace)**(n+2)
-
-        # Calculate the weight matrix that orthonormalizes the set
+        # Calculate the overlap of the different polynomial functions in a
+        # matrix S. These overlaps defined through the dot product over the
+        # radial coordinate are analytically calculable: Integrate[(rc - r)^(a
+        # + 2) (rc - r)^(b + 2) r^2, {r, 0, rc}]. Then the weights B that make
+        # the basis orthonormal are given by B=S^{-1/2}
         S = np.zeros((nmax, nmax))
-        for i in range(nmax):
-            for j in range(nmax):
-                overlap = np.trapz(rspace**2*functions[i, :]*functions[j, :], dx=(rcut)/nr)
-                S[i, j] = overlap
+        for i in range(1, nmax+1):
+            for j in range(1, nmax+1):
+                S[i-1, j-1] = (2*(rcut)**(7+i+j))/((5+i+j)*(6+i+j)*(7+i+j))
         betas = sqrtm(np.linalg.inv(S))
-
-        # Calculate overlap again to check that the set is really orthonormal
-        orth_func = np.dot(betas, functions)
-        S = np.zeros((nmax, nmax))
-        for i in range(nmax):
-            for j in range(nmax):
-                overlap = np.trapz(rspace**2*orth_func[i, :]*orth_func[j, :], dx=(rcut)/nr)
-                S[i, j] = overlap
-        # print(S)
 
         # Calculate the analytical power spectrum and the weights and decays of
         # the radial basis functions.
@@ -677,8 +655,8 @@ class SoapTests(unittest.TestCase):
 
                             # Polynomial basis
                             poly = 0
-                            for k in range(nmax):
-                                poly += betas[n, k]*(rcut-np.clip(r, 0, rcut))**(k+2)
+                            for k in range(1, nmax+1):
+                                poly += betas[n, k-1]*(rcut-np.clip(r, 0, rcut))**(k+2)
 
                             # Atomic density
                             rho = 0
