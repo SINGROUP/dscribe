@@ -98,6 +98,13 @@ class SOAP(Descriptor):
                 "one of the following: {}".format(rbf, supported_rbf)
             )
 
+        # Crossover cannot be disabled on poly rbf
+        if not crossover and rbf == "polynomial":
+            raise ValueError(
+                "Disabling crossover is not currently supported when using "
+                "polynomial radial basis function".format(rbf, supported_rbf)
+            )
+
         self._rcut = rcut
         self._nmax = nmax
         self._lmax = lmax
