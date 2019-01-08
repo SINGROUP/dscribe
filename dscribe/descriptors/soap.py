@@ -243,7 +243,6 @@ class SOAP(Descriptor):
                     rCut=self._rcut,
                     nMax=self._nmax,
                     Lmax=self._lmax,
-                    crossOver=self._crossover,
                     all_atomtypes=sub_elements.tolist(),
                     eta=self._eta
                 )
