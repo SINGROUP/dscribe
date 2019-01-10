@@ -315,7 +315,7 @@ class SoapTests(unittest.TestCase):
         # self.assertTrue(self.is_translationally_symmetric(create_gto))
 
         # # Permutational
-        # self.assertTrue(self.is_permutation_symmetric(create_gto))
+        # # self.assertTrue(self.is_permutation_symmetric(create_gto))
 
         # def create_poly(system):
             # desc = SOAP(
@@ -332,7 +332,7 @@ class SoapTests(unittest.TestCase):
         # # Rotational check
         # self.assertTrue(self.is_rotationally_symmetric(create_poly))
 
-        # # Translational
+        # Translational
         # self.assertTrue(self.is_translationally_symmetric(create_poly))
 
         # # Permutational
@@ -625,9 +625,9 @@ class SoapTests(unittest.TestCase):
         p2 = 2*np.pi
 
         # positions = np.array([[0.5, 0.7, 0.9], [-0.3, 0.5, 0.4]])
-        positions = np.array([[0, 0, 0]])
-        symbols = np.array(["H"])
         # symbols = np.array(["H", "C"])
+        positions = np.array([[0.0, 0.0, 0.0]])
+        symbols = np.array(["H"])
         system = Atoms(positions=positions, symbols=symbols)
 
         atomic_numbers = system.get_atomic_numbers()
@@ -650,80 +650,80 @@ class SoapTests(unittest.TestCase):
         soap = SOAP(atomic_numbers=atomic_numbers, lmax=lmax, nmax=nmax, sigma=sigma, rcut=rcut, rbf="polynomial", crossover=True, sparse=False)
         analytical_power_spectrum = soap.create(system, positions=[[0, 0, 0]])[0]
 
-        # coeffs = np.zeros((n_elems, nmax, lmax+1, 2*lmax+1))
-        # for iZ, Z in enumerate(elements):
-            # indices = np.argwhere(atomic_numbers == Z)[0]
-            # elem_pos = positions[indices]
-            # for n in range(nmax):
-                # for l in range(lmax+1):
-                    # for im, m in enumerate(range(-l, l+1)):
+        coeffs = np.zeros((n_elems, nmax, lmax+1, 2*lmax+1))
+        for iZ, Z in enumerate(elements):
+            indices = np.argwhere(atomic_numbers == Z)[0]
+            elem_pos = positions[indices]
+            for n in range(nmax):
+                for l in range(lmax+1):
+                    for im, m in enumerate(range(-l, l+1)):
 
-                        # # Calculate numerical coefficients
-                        # def soap_coeff(phi, theta, r):
+                        # Calculate numerical coefficients
+                        def soap_coeff(phi, theta, r):
 
-                            # # Regular spherical harmonic
-                            # ylm_comp = scipy.special.sph_harm(np.abs(m), l, phi, theta)  # NOTE: scipy swaps phi and theta
+                            # Regular spherical harmonic
+                            ylm_comp = scipy.special.sph_harm(np.abs(m), l, phi, theta)  # NOTE: scipy swaps phi and theta
 
-                            # # Construct real (tesseral) spherical harmonics for
-                            # # easier integration without having to worry about the
-                            # # imaginary part
-                            # ylm_real = np.real(ylm_comp)
-                            # ylm_imag = np.imag(ylm_comp)
-                            # if m < 0:
-                                # ylm = np.sqrt(2)*(-1)**m*ylm_imag
-                            # elif m == 0:
-                                # ylm = ylm_comp
-                            # else:
-                                # ylm = np.sqrt(2)*(-1)**m*ylm_real
+                            # Construct real (tesseral) spherical harmonics for
+                            # easier integration without having to worry about the
+                            # imaginary part
+                            ylm_real = np.real(ylm_comp)
+                            ylm_imag = np.imag(ylm_comp)
+                            if m < 0:
+                                ylm = np.sqrt(2)*(-1)**m*ylm_imag
+                            elif m == 0:
+                                ylm = ylm_comp
+                            else:
+                                ylm = np.sqrt(2)*(-1)**m*ylm_real
 
-                            # # Polynomial basis
-                            # poly = 0
-                            # for k in range(1, nmax+1):
-                                # poly += betas[n, k-1]*(rcut-np.clip(r, 0, rcut))**(k+2)
+                            # Polynomial basis
+                            poly = 0
+                            for k in range(1, nmax+1):
+                                poly += betas[n, k-1]*(rcut-np.clip(r, 0, rcut))**(k+2)
 
-                            # # Atomic density
-                            # rho = 0
-                            # for i_pos in elem_pos:
-                                # ix = i_pos[0]
-                                # iy = i_pos[1]
-                                # iz = i_pos[2]
-                                # ri_squared = ix**2+iy**2+iz**2
-                                # rho += np.exp(-1/(2*sigma**2)*(r**2 + ri_squared - 2*r*(np.sin(theta)*np.cos(phi)*ix + np.sin(theta)*np.sin(phi)*iy + np.cos(theta)*iz)))
+                            # Atomic density
+                            rho = 0
+                            for i_pos in elem_pos:
+                                ix = i_pos[0]
+                                iy = i_pos[1]
+                                iz = i_pos[2]
+                                ri_squared = ix**2+iy**2+iz**2
+                                rho += np.exp(-1/(2*sigma**2)*(r**2 + ri_squared - 2*r*(np.sin(theta)*np.cos(phi)*ix + np.sin(theta)*np.sin(phi)*iy + np.cos(theta)*iz)))
 
-                            # # Jacobian
-                            # jacobian = np.sin(theta)*r**2
+                            # Jacobian
+                            jacobian = np.sin(theta)*r**2
 
-                            # return poly*ylm*rho*jacobian
+                            return poly*ylm*rho*jacobian
 
-                        # cnlm = tplquad(
-                            # soap_coeff,
-                            # r1,
-                            # r2,
-                            # lambda r: t1,
-                            # lambda r: t2,
-                            # lambda r, theta: p1,
-                            # lambda r, theta: p2,
-                            # epsabs=0.0001,
-                            # epsrel=0.0001,
-                        # )
-                        # integral, error = cnlm
-                        # coeffs[iZ, n, l, im] = integral
+                        cnlm = tplquad(
+                            soap_coeff,
+                            r1,
+                            r2,
+                            lambda r: t1,
+                            lambda r: t2,
+                            lambda r, theta: p1,
+                            lambda r, theta: p2,
+                            epsabs=0.0001,
+                            epsrel=0.0001,
+                        )
+                        integral, error = cnlm
+                        coeffs[iZ, n, l, im] = integral
 
-        # # Calculate the partial power spectrum
-        # numerical_power_spectrum = []
-        # for zi in range(n_elems):
-            # for zj in range(n_elems):
-                # for l in range(lmax+1):
-                    # for ni in range(nmax):
-                        # for nj in range(nmax):
-                            # if nj >= ni:
-                                # if zj >= zi:
-                                    # value = np.dot(coeffs[zi, ni, l, :], coeffs[zj, nj, l, :])
-                                    # prefactor = np.pi*np.sqrt(8/(2*l+1))
-                                    # value *= prefactor
-                                    # numerical_power_spectrum.append(value)
+        # Calculate the partial power spectrum
+        numerical_power_spectrum = []
+        for zi in range(n_elems):
+            for zj in range(n_elems):
+                for l in range(lmax+1):
+                    for ni in range(nmax):
+                        for nj in range(nmax):
+                            if nj >= ni:
+                                if zj >= zi:
+                                    value = np.dot(coeffs[zi, ni, l, :], coeffs[zj, nj, l, :])
+                                    prefactor = np.pi*np.sqrt(8/(2*l+1))
+                                    value *= prefactor
+                                    numerical_power_spectrum.append(value)
 
-        # print("Numerical: {}".format(numerical_power_spectrum))
+        print("Numerical: {}".format(numerical_power_spectrum))
         print("Analytical: {}".format(analytical_power_spectrum))
 
         # self.assertTrue(np.allclose(numerical_power_spectrum, analytical_power_spectrum, atol=0, rtol=0.01))
