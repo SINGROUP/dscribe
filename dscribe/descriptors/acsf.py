@@ -70,11 +70,11 @@ class ACSF(Descriptor):
     def __init__(
         self,
         atomic_numbers,
+        rcut=6.0,
         g2_params=None,
         g3_params=None,
         g4_params=None,
         g5_params=None,
-        rcut=5.0,
         sparse=False
     ):
         """
@@ -86,15 +86,16 @@ class ACSF(Descriptor):
                 to be encountered when creating the descriptors for a set of
                 systems. Keeping the number of handled elements as low as
                 possible is preferable.
-            g2_params (n*2 np.ndarray): A list pairs of :math:`\eta` and
-                :math:`R_s` parameters for the :math:`G^2` function.
+            rcut (float): The smooth cutoff value. This cutoff value is
+                used throughout the calculations for all symmetry functions.
+            g2_params (n*2 np.ndarray): A list of pairs of :math:`\eta` and
+                :math:`R_s` parameters for :math:`G^2` functions.
             g3_params (n*1 np.ndarray): A list of :math:`\kappa` parameters for
-                the :math:`G^3` function.
+                :math:`G^3` functions.
             g4_params (n*3 np.ndarray): A list of triplets of :math:`\eta`,
-                :math:`\zeta` and  :math:`\lambda` parameters for the :math:`G^4` function.
+                :math:`\zeta` and  :math:`\lambda` parameters for :math:`G^4` functions.
             g5_params (n*3 np.ndarray): A list of triplets of :math:`\eta`,
-                :math:`\zeta` and  :math:`\lambda` parameters for the :math:`G^5` function.
-            rcut (float): The smooth cutoff parameters.
+                :math:`\zeta` and  :math:`\lambda` parameters for :math:`G^5` functions.
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
         """
