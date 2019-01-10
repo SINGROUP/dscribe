@@ -223,14 +223,14 @@
 <span class="sd">        neural network potentials&quot;, Jörg Behler, The Journal of Chemical</span>
 <span class="sd">        Physics, 134, 074106 (2011), https://doi.org/10.1063/1.3553717</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+<div class="viewcode-block" id="ACSF.__init__"><a class="viewcode-back" href="../../../tutorials/acsf.html#dscribe.descriptors.acsf.ACSF.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">atomic_numbers</span><span class="p">,</span>
+        <span class="n">rcut</span><span class="o">=</span><span class="mf">6.0</span><span class="p">,</span>
         <span class="n">g2_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">g3_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">g4_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">g5_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">rcut</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
         <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -242,15 +242,16 @@
 <span class="sd">                to be encountered when creating the descriptors for a set of</span>
 <span class="sd">                systems. Keeping the number of handled elements as low as</span>
 <span class="sd">                possible is preferable.</span>
-<span class="sd">            g2_params (n*2 np.ndarray): A list pairs of :math:`\eta` and</span>
-<span class="sd">                :math:`R_s` parameters for the :math:`G^2` function.</span>
+<span class="sd">            rcut (float): The smooth cutoff value. This cutoff value is</span>
+<span class="sd">                used throughout the calculations for all symmetry functions.</span>
+<span class="sd">            g2_params (n*2 np.ndarray): A list of pairs of :math:`\eta` and</span>
+<span class="sd">                :math:`R_s` parameters for :math:`G^2` functions.</span>
 <span class="sd">            g3_params (n*1 np.ndarray): A list of :math:`\kappa` parameters for</span>
-<span class="sd">                the :math:`G^3` function.</span>
+<span class="sd">                :math:`G^3` functions.</span>
 <span class="sd">            g4_params (n*3 np.ndarray): A list of triplets of :math:`\eta`,</span>
-<span class="sd">                :math:`\zeta` and  :math:`\lambda` parameters for the :math:`G^4` function.</span>
+<span class="sd">                :math:`\zeta` and  :math:`\lambda` parameters for :math:`G^4` functions.</span>
 <span class="sd">            g5_params (n*3 np.ndarray): A list of triplets of :math:`\eta`,</span>
-<span class="sd">                :math:`\zeta` and  :math:`\lambda` parameters for the :math:`G^5` function.</span>
-<span class="sd">            rcut (float): The smooth cutoff parameters.</span>
+<span class="sd">                :math:`\zeta` and  :math:`\lambda` parameters for :math:`G^5` functions.</span>
 <span class="sd">            sparse (bool): Whether the output should be a sparse matrix or a</span>
 <span class="sd">                dense numpy array.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -275,9 +276,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_acsfBuffer</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">acsf_bond</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">acsf_ang</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acsf_ang</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="ACSF.create"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="ACSF.create"><a class="viewcode-back" href="../../../tutorials/acsf.html#dscribe.descriptors.acsf.ACSF.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Creates the descriptor for the given systems.</span>
 
 <span class="sd">        Args:</span>

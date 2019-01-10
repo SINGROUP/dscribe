@@ -93,7 +93,11 @@
 <li class="toctree-l2"><a class="reference internal" href="coulomb_matrix.html">Coulomb Matrix</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sine_matrix.html">Sine Matrix</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ewald_matrix.html">Ewald Matrix</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Atom-centered Symmetry Functions</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Atom-centered Symmetry Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#setup">Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#creation">Creation</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="soap.html">Smooth Overlap of Atomic Positions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mbtr.html">Many-body Tensor Representation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="kernels.html">Building kernels for kernel based learning methods</a></li>
@@ -170,7 +174,114 @@
             
   <div class="section" id="atom-centered-symmetry-functions">
 <h1>Atom-centered Symmetry Functions<a class="headerlink" href="#atom-centered-symmetry-functions" title="Permalink to this headline">¶</a></h1>
-<p>In progress!</p>
+<p>Atom-centered Symmetry Functions (ACSFs) can be used to represent the local
+environment near an atom by using a fingerprint composed of the output of
+multiple two- and three-body functions that can be customized to detect
+specific structural features.</p>
+<p>For more details see the original paper: <a class="reference external" href="https://doi.org/10.1063/1.3553717">Atom-centered symmetry functions for
+constructing high-dimensional neural network potentials, Jörg Behler, J. Chem.
+Phys. 134, 074106 (2011)</a></p>
+<div class="section" id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h2>
+<p>Instantiating an ACSF descriptor can be done as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">ACSF</span>
+
+<span class="c1"># Setting up the ACSF descriptor</span>
+<span class="n">acsf</span> <span class="o">=</span> <span class="n">ACSF</span><span class="p">(</span>
+    <span class="n">atomic_numbers</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+    <span class="n">rcut</span><span class="o">=</span><span class="mf">6.0</span><span class="p">,</span>
+    <span class="n">g2_params</span><span class="o">=</span><span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span>
+    <span class="n">g4_params</span><span class="o">=</span><span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The arguments have the following effect:</p>
+<dl class="method">
+<dt id="dscribe.descriptors.acsf.ACSF.__init__">
+<code class="descclassname">ACSF.</code><code class="descname">__init__</code><span class="sig-paren">(</span><em>atomic_numbers</em>, <em>rcut=6.0</em>, <em>g2_params=None</em>, <em>g3_params=None</em>, <em>g4_params=None</em>, <em>g5_params=None</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/acsf.html#ACSF.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>atomic_numbers</strong> (<em>iterable</em>) – A list of the atomic numbers that should
+be taken into account in the descriptor. Notice that this is
+not the atomic numbers that are present for an individual
+system, but should contain all the elements that are ever going
+to be encountered when creating the descriptors for a set of
+systems. Keeping the number of handled elements as low as
+possible is preferable.</li>
+<li><strong>rcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The smooth cutoff value. This cutoff value is
+used throughout the calculations for all symmetry functions.</li>
+<li><strong>g2_params</strong> (<em>n*2 np.ndarray</em>) – A list of pairs of <span class="math notranslate nohighlight">\(\eta\)</span> and
+<span class="math notranslate nohighlight">\(R_s\)</span> parameters for <span class="math notranslate nohighlight">\(G^2\)</span> functions.</li>
+<li><strong>g3_params</strong> (<em>n*1 np.ndarray</em>) – A list of <span class="math notranslate nohighlight">\(\kappa\)</span> parameters for
+<span class="math notranslate nohighlight">\(G^3\)</span> functions.</li>
+<li><strong>g4_params</strong> (<em>n*3 np.ndarray</em>) – A list of triplets of <span class="math notranslate nohighlight">\(\eta\)</span>,
+<span class="math notranslate nohighlight">\(\zeta\)</span> and  <span class="math notranslate nohighlight">\(\lambda\)</span> parameters for <span class="math notranslate nohighlight">\(G^4\)</span> functions.</li>
+<li><strong>g5_params</strong> (<em>n*3 np.ndarray</em>) – A list of triplets of <span class="math notranslate nohighlight">\(\eta\)</span>,
+<span class="math notranslate nohighlight">\(\zeta\)</span> and  <span class="math notranslate nohighlight">\(\lambda\)</span> parameters for <span class="math notranslate nohighlight">\(G^5\)</span> functions.</li>
+<li><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
+dense numpy array.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="creation">
+<h2>Creation<a class="headerlink" href="#creation" title="Permalink to this headline">¶</a></h2>
+<p>After ACSF has been set up, it may be used on atomic structures with the
+<a class="reference internal" href="#dscribe.descriptors.acsf.ACSF.create" title="dscribe.descriptors.acsf.ACSF.create"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ACSF.create()</span></code></a>-function.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Creating an atomic system as an ase.Atoms-object</span>
+<span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">molecule</span>
+
+<span class="n">water</span> <span class="o">=</span> <span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;H2O&quot;</span><span class="p">)</span>
+
+<span class="c1"># Create MBTR output for the hydrogen atom at index 1</span>
+<span class="n">acsf_water</span> <span class="o">=</span> <span class="n">acsf</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">water</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">acsf_water</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">acsf_water</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The call syntax for the create-function is as follows:</p>
+<dl class="method">
+<dt id="dscribe.descriptors.acsf.ACSF.create">
+<code class="descclassname">ACSF.</code><code class="descname">create</code><span class="sig-paren">(</span><em>system</em>, <em>positions=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/acsf.html#ACSF.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the descriptor for the given systems.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> | <a class="reference internal" href="../doc/dscribe.core.html#dscribe.core.system.System" title="dscribe.core.system.System"><code class="xref py py-class docutils literal notranslate"><span class="pre">System</span></code></a>) – Input system.</li>
+<li><strong>positions</strong> (<em>iterable</em>) – Indices of the atoms around which the ACSF
+will be returned. If no positions defined, ACSF will be created
+for all atoms in the system.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The ACSF output for the
+given system and positions. The return type depends on the
+‘sparse’-attribute. The first dimension is given by the number of
+positions and the second dimension is determined by the
+get_number_of_features()-function.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">np.ndarray | scipy.sparse.coo_matrix</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p>The output will in this case be a numpy array with shape [#positions,
+#features]. The number of features may be requested beforehand with the
+<a class="reference internal" href="../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.get_number_of_features" title="dscribe.descriptors.acsf.ACSF.get_number_of_features"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ACSF.get_number_of_features()</span></code></a>-function.</p>
+</div>
 </div>
 
 
