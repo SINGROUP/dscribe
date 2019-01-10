@@ -141,7 +141,7 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
         ang_hoh = H2O.get_angle(0, 1, 2) * np.pi / 180.0
         ang_hho = H2O.get_angle(1, 0, 2) * np.pi / 180.0
         ang_ohh = - H2O.get_angle(2, 0, 1) * np.pi / 180.0
-        rc = 5.0
+        rc = 6.0
 
         # G1
         desc = ACSF(atomic_numbers=[1, 8])
@@ -230,12 +230,12 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
         # The dot-product should be zero when the environment does not have the
         # same elements
         dot = np.dot(vec1, vec2)
-        self.assertEqual(dot, 0)
+        self.assertTrue(abs(dot) < 1e-8)
 
         # The dot-product should be one for identical environments, even if the
         # central atom is different
         dot = np.dot(vec3, vec4)
-        self.assertEqual(dot, 1)
+        self.assertTrue(abs(dot-1) < 1e-8)
 
     def test_unit_cells(self):
         """Tests if arbitrary unit cells are accepted.
