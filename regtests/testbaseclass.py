@@ -66,7 +66,6 @@ class TestBaseClass(ABC):
             i_system.rotate(45, rotation, rotate_cell=True)
             i_features = create(i_system)
             deviation = np.max(np.abs(features - i_features))
-            print(deviation)
             if deviation > 1e-4:
                 is_rot_sym = False
         return is_rot_sym
