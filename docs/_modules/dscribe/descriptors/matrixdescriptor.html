@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dscribe.descriptors.matrixdescriptor &mdash; DScribe 0.1.0 documentation</title>
+  <title>dscribe.descriptors.matrixdescriptor &mdash; DScribe 0.1.9 documentation</title>
   
 
   
@@ -61,7 +61,7 @@
             
             
               <div class="version">
-                0.1.0
+                0.1.9
               </div>
             
           
@@ -246,7 +246,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            ndarray: The zero padded Coulomb matrix either as a 2D array or as</span>
-<span class="sd">                a 1D array depending on the setting self.flatten.</span>
+<span class="sd">                a 1D array depending on the setting self._flatten.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Transform the input system into the internal System-object</span>
         <span class="n">system</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_system</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
@@ -270,11 +270,11 @@
         <span class="n">matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zero_pad</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
 
         <span class="c1"># Flatten the matrix if requested</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flatten</span><span class="p">:</span>
             <span class="n">matrix</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
 
         <span class="c1"># If a sparse matrix is requested, convert to coo_matrix</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sparse</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span><span class="p">:</span>
             <span class="n">matrix</span> <span class="o">=</span> <span class="n">coo_matrix</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">matrix</span></div>
