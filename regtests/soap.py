@@ -45,7 +45,6 @@ H = Atoms(
 )
 
 
-# class SoapTests(unittest.TestCase):
 class SoapTests(TestBaseClass, unittest.TestCase):
 
     def test_constructor(self):
@@ -131,6 +130,17 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         """Tests the flattening.
         """
 
+    def test_soap_structure(self):
+        """Tests that when no positions are given, the SOAP for the full
+        structure is calculated.
+        """
+        lmax = 5
+        nmax = 5
+        desc = SOAP(atomic_numbers=[1, 8], rcut=5, nmax=nmax, lmax=lmax, periodic=True)
+
+        vec = desc.create(H2O)
+        self.assertTrue(vec.shape[0] == 3)
+
     def test_sparse(self):
         """Tests the sparse matrix creation.
         """
@@ -197,11 +207,10 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
         molecule.set_pbc(True)
         molecule.set_cell([
-        [20.0, 0.0, 0.0],
-        [0.0, 30.0, 0.0],
-        [0.0, 0.0, 40.0]
-            ],
-            )
+            [20.0, 0.0, 0.0],
+            [0.0, 30.0, 0.0],
+            [0.0, 0.0, 40.0],
+        ])
 
         largecell = desc.create(molecule, positions=[[0, 0, 0]])
 
@@ -247,7 +256,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
         molecule = H2O.copy()
 
-        # non-periodic for comparison
+        # Non-periodic for comparison
         molecule.set_cell([
             [0.0, 0.0, 0.0],
             [0.0, 0.0, 0.0],
@@ -286,25 +295,47 @@ class SoapTests(TestBaseClass, unittest.TestCase):
     def test_symmetries(self):
         """Tests that the descriptor has the correct invariances.
         """
-        def create(system):
+        def create_gto(system):
             desc = SOAP(
                 atomic_numbers=system.get_atomic_numbers(),
                 rcut=8.0,
                 lmax=5,
                 nmax=5,
+                rbf="gto",
                 periodic=False,
                 crossover=True
             )
             return desc.create(system)
 
         # Rotational check
-        self.assertTrue(self.is_rotationally_symmetric(create))
+        self.assertTrue(self.is_rotationally_symmetric(create_gto))
 
         # Translational
-        self.assertTrue(self.is_translationally_symmetric(create))
+        self.assertTrue(self.is_translationally_symmetric(create_gto))
 
         # Permutational
-        self.assertTrue(self.is_permutation_symmetric(create))
+        # self.assertTrue(self.is_permutation_symmetric(create_gto))
+
+        def create_poly(system):
+            desc = SOAP(
+                atomic_numbers=system.get_atomic_numbers(),
+                rcut=8.0,
+                lmax=2,
+                nmax=1,
+                rbf="polynomial",
+                periodic=False,
+                crossover=True
+            )
+            return desc.create(system)
+
+        # Rotational check
+        self.assertTrue(self.is_rotationally_symmetric(create_poly))
+
+        # Translational
+        self.assertTrue(self.is_translationally_symmetric(create_poly))
+
+        # Permutational
+        self.assertTrue(self.is_permutation_symmetric(create_poly))
 
     def test_average(self):
         """Tests that the average output is created correctly.
@@ -405,20 +436,24 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         self.assertEqual(np.sum(co_part6), 0)
         self.assertNotEqual(np.sum(co_part7), 0)
 
-    # # def test_poly(self):
-        # # """Tests that the polynomial radial basis set works as expected.
-        # # """
+    def test_poly_rbf(self):
+        """Tests that the polynomial radial basis set works as expected.
+        """
+        lmax = 5
+        nmax = 5
+        desc = SOAP(atomic_numbers=[1, 8], rcut=5, nmax=nmax, lmax=lmax, rbf="polynomial", periodic=True)
+        vec = desc.create(H2O, positions=[0])
 
     def test_rbf_orthonormality(self):
-        """Tests that the radial basis functions are orthonormal.
+        """Tests that the gto radial basis functions are orthonormal.
         """
         sigma = 0.15
         rcut = 2.0
         nmax = 2
         lmax = 3
         soap = SOAP(atomic_numbers=[1], lmax=lmax, nmax=nmax, sigma=sigma, rcut=rcut, crossover=True, sparse=False)
-        alphas = np.reshape(soap.alphas, [10, nmax])
-        betas = np.reshape(soap.betas, [10, nmax, nmax])
+        alphas = np.reshape(soap._alphas, [10, nmax])
+        betas = np.reshape(soap._betas, [10, nmax, nmax])
 
         nr = 10000
         n_basis = 0
@@ -447,19 +482,15 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             diff = S-np.eye(nmax)
             self.assertTrue(np.allclose(diff, np.zeros((nmax, nmax)), atol=1e-3))
 
-    def test_integration(self):
-        """Tests that the analytical integration corresponds to the numerical
-        one.
-
-        The test is run on a system with one atom, which has been shifted away
-        from the origin in all directions. The test is run only up to l=5 to
-        enable TravisCI to run the tests within time limit. Also a non-unity
-        gaussian width is used for generality.
+    def test_gto_integration(self):
+        """Tests that the completely analytical partial power spectrum with the
+        GTO basis corresponds to the easier-to-code but less performant
+        numerical integration done with python.
         """
         sigma = 0.55
         rcut = 2.0
         nmax = 2
-        lmax = 3
+        lmax = 2
 
         # Limits for radius
         r1 = 0.
@@ -473,10 +504,8 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         p1 = 0
         p2 = 2*np.pi
 
-        positions = np.array([[0.5, 0.7, 0.9], [-0.3, 0.5, 0.4]])
+        positions = np.array([[0.0, 0.0, 0.0], [-0.3, 0.5, 0.4]])
         symbols = np.array(["H", "C"])
-        # positions = np.array([[0.5, 0.7, 0.9]])
-        # symbols = np.array(["H"])
         system = Atoms(positions=positions, symbols=symbols)
 
         atomic_numbers = system.get_atomic_numbers()
@@ -487,8 +516,8 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         # the radial basis functions.
         soap = SOAP(atomic_numbers=atomic_numbers, lmax=lmax, nmax=nmax, sigma=sigma, rcut=rcut, crossover=True, sparse=False)
         analytical_power_spectrum = soap.create(system, positions=[[0, 0, 0]])[0]
-        alphagrid = np.reshape(soap.alphas, [10, nmax])
-        betagrid = np.reshape(soap.betas, [10, nmax, nmax])
+        alphagrid = np.reshape(soap._alphas, [10, nmax])
+        betagrid = np.reshape(soap._betas, [10, nmax, nmax])
 
         coeffs = np.zeros((n_elems, nmax, lmax+1, 2*lmax+1))
         for iZ, Z in enumerate(elements):
@@ -569,7 +598,131 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         # print("Numerical: {}".format(numerical_power_spectrum))
         # print("Analytical: {}".format(analytical_power_spectrum))
 
-        self.assertTrue(np.allclose(numerical_power_spectrum, analytical_power_spectrum, atol=0, rtol=0.02))
+        self.assertTrue(np.allclose(numerical_power_spectrum, analytical_power_spectrum, atol=1e-15, rtol=0.01))
+
+    def test_poly_integration(self):
+        """Tests that the partial power spectrum with the polynomial basis done
+        with C corresponds to the easier-to-code but less performant
+        integration done with python.
+        """
+        sigma = 0.55
+        rcut = 2.0
+        nmax = 2
+        lmax = 2
+
+        # Limits for radius
+        r1 = 0.
+        r2 = rcut+5
+
+        # Limits for theta
+        t1 = 0
+        t2 = np.pi
+
+        # Limits for phi
+        p1 = 0
+        p2 = 2*np.pi
+
+        positions = np.array([[0.0, 0.0, 0.0], [-0.3, 0.5, 0.4]])
+        symbols = np.array(["H", "C"])
+        system = Atoms(positions=positions, symbols=symbols)
+
+        atomic_numbers = system.get_atomic_numbers()
+        elements = set(system.get_atomic_numbers())
+        n_elems = len(elements)
+
+        # Calculate the overlap of the different polynomial functions in a
+        # matrix S. These overlaps defined through the dot product over the
+        # radial coordinate are analytically calculable: Integrate[(rc - r)^(a
+        # + 2) (rc - r)^(b + 2) r^2, {r, 0, rc}]. Then the weights B that make
+        # the basis orthonormal are given by B=S^{-1/2}
+        S = np.zeros((nmax, nmax))
+        for i in range(1, nmax+1):
+            for j in range(1, nmax+1):
+                S[i-1, j-1] = (2*(rcut)**(7+i+j))/((5+i+j)*(6+i+j)*(7+i+j))
+        betas = sqrtm(np.linalg.inv(S))
+
+        # Calculate the analytical power spectrum and the weights and decays of
+        # the radial basis functions.
+        soap = SOAP(atomic_numbers=atomic_numbers, lmax=lmax, nmax=nmax, sigma=sigma, rcut=rcut, rbf="polynomial", crossover=True, sparse=False)
+        analytical_power_spectrum = soap.create(system, positions=[[0, 0, 0]])[0]
+
+        coeffs = np.zeros((n_elems, nmax, lmax+1, 2*lmax+1))
+        for iZ, Z in enumerate(elements):
+            indices = np.argwhere(atomic_numbers == Z)[0]
+            elem_pos = positions[indices]
+            for n in range(nmax):
+                for l in range(lmax+1):
+                    for im, m in enumerate(range(-l, l+1)):
+
+                        # Calculate numerical coefficients
+                        def soap_coeff(phi, theta, r):
+
+                            # Regular spherical harmonic
+                            ylm_comp = scipy.special.sph_harm(np.abs(m), l, phi, theta)  # NOTE: scipy swaps phi and theta
+
+                            # Construct real (tesseral) spherical harmonics for
+                            # easier integration without having to worry about the
+                            # imaginary part
+                            ylm_real = np.real(ylm_comp)
+                            ylm_imag = np.imag(ylm_comp)
+                            if m < 0:
+                                ylm = np.sqrt(2)*(-1)**m*ylm_imag
+                            elif m == 0:
+                                ylm = ylm_comp
+                            else:
+                                ylm = np.sqrt(2)*(-1)**m*ylm_real
+
+                            # Polynomial basis
+                            poly = 0
+                            for k in range(1, nmax+1):
+                                poly += betas[n, k-1]*(rcut-np.clip(r, 0, rcut))**(k+2)
+
+                            # Atomic density
+                            rho = 0
+                            for i_pos in elem_pos:
+                                ix = i_pos[0]
+                                iy = i_pos[1]
+                                iz = i_pos[2]
+                                ri_squared = ix**2+iy**2+iz**2
+                                rho += np.exp(-1/(2*sigma**2)*(r**2 + ri_squared - 2*r*(np.sin(theta)*np.cos(phi)*ix + np.sin(theta)*np.sin(phi)*iy + np.cos(theta)*iz)))
+
+                            # Jacobian
+                            jacobian = np.sin(theta)*r**2
+
+                            return poly*ylm*rho*jacobian
+
+                        cnlm = tplquad(
+                            soap_coeff,
+                            r1,
+                            r2,
+                            lambda r: t1,
+                            lambda r: t2,
+                            lambda r, theta: p1,
+                            lambda r, theta: p2,
+                            epsabs=0.0001,
+                            epsrel=0.0001,
+                        )
+                        integral, error = cnlm
+                        coeffs[iZ, n, l, im] = integral
+
+        # Calculate the partial power spectrum
+        numerical_power_spectrum = []
+        for zi in range(n_elems):
+            for zj in range(n_elems):
+                for l in range(lmax+1):
+                    for ni in range(nmax):
+                        for nj in range(nmax):
+                            if nj >= ni:
+                                if zj >= zi:
+                                    value = np.dot(coeffs[zi, ni, l, :], coeffs[zj, nj, l, :])
+                                    prefactor = np.pi*np.sqrt(8/(2*l+1))
+                                    value *= prefactor
+                                    numerical_power_spectrum.append(value)
+
+        # print("Numerical: {}".format(numerical_power_spectrum))
+        # print("Analytical: {}".format(analytical_power_spectrum))
+
+        self.assertTrue(np.allclose(numerical_power_spectrum, analytical_power_spectrum, atol=1e-15, rtol=0.01))
 
 if __name__ == '__main__':
     suites = []

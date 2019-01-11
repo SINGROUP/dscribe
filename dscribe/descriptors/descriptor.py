@@ -15,8 +15,8 @@ class Descriptor(with_metaclass(ABCMeta)):
             flatten (bool): Whether the output of create() should be flattened
                 to a 1D array.
         """
-        self.sparse = sparse
-        self.flatten = flatten
+        self._sparse = sparse
+        self._flatten = flatten
 
     @abstractmethod
     def create(self, system, *args, **kwargs):

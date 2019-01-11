@@ -90,7 +90,7 @@ class MatrixDescriptor(Descriptor):
 
         Returns:
             ndarray: The zero padded Coulomb matrix either as a 2D array or as
-                a 1D array depending on the setting self.flatten.
+                a 1D array depending on the setting self._flatten.
         """
         # Transform the input system into the internal System-object
         system = self.get_system(system)
@@ -114,11 +114,11 @@ class MatrixDescriptor(Descriptor):
         matrix = self.zero_pad(matrix)
 
         # Flatten the matrix if requested
-        if self.flatten:
+        if self._flatten:
             matrix = matrix.flatten()
 
         # If a sparse matrix is requested, convert to coo_matrix
-        if self.sparse:
+        if self._sparse:
             matrix = coo_matrix(matrix)
 
         return matrix
