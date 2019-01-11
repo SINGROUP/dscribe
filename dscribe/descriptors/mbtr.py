@@ -357,7 +357,7 @@ class MBTR(Descriptor):
                 mbtr[key] = norm_value
 
         # Flatten output if requested
-        if self.flatten:
+        if self._flatten:
             length = 0
 
             datas = []
@@ -378,7 +378,7 @@ class MBTR(Descriptor):
             mbtr = coo_matrix((datas, (rows, cols)), shape=[1, length], dtype=np.float32)
 
             # Make into a dense array if requested
-            if not self.sparse:
+            if not self._sparse:
                 mbtr = mbtr.toarray()
 
         return mbtr
@@ -779,7 +779,7 @@ class MBTR(Descriptor):
         k1_geoms, k1_weights = self._k1_geoms, self._k1_weights
 
         # Depending of flattening, use either a sparse matrix or a dense one.
-        if self.flatten:
+        if self._flatten:
             k1 = lil_matrix((1, n_elem*n), dtype=np.float32)
         else:
             k1 = np.zeros((n_elem, n), dtype=np.float32)
@@ -793,7 +793,7 @@ class MBTR(Descriptor):
             # Broaden with a gaussian
             gaussian_sum = self.gaussian_sum(geoms, weights, settings)
 
-            if self.flatten:
+            if self._flatten:
                 start = i*n
                 end = (i+1)*n
                 k1[0, start:end] = gaussian_sum
@@ -821,7 +821,7 @@ class MBTR(Descriptor):
         n_elem = self.n_elements
 
         # Depending of flattening, use either a sparse matrix or a dense one.
-        if self.flatten:
+        if self._flatten:
             k2 = lil_matrix(
                 (1, int(n_elem*(n_elem+1)/2*n)), dtype=np.float32)
         else:
@@ -842,7 +842,7 @@ class MBTR(Descriptor):
             # Broaden with a gaussian
             gaussian_sum = self.gaussian_sum(geoms, weights, settings)
 
-            if self.flatten:
+            if self._flatten:
                 start = m*n
                 end = (m + 1)*n
                 k2[0, start:end] = gaussian_sum
@@ -870,7 +870,7 @@ class MBTR(Descriptor):
         n_elem = self.n_elements
 
         # Depending of flattening, use either a sparse matrix or a dense one.
-        if self.flatten:
+        if self._flatten:
             k3 = lil_matrix(
                 (1, int(n_elem*n_elem*(n_elem+1)/2*n)), dtype=np.float32
             )
@@ -899,7 +899,7 @@ class MBTR(Descriptor):
             # Broaden with a gaussian
             gaussian_sum = self.gaussian_sum(geoms, weights, settings)
 
-            if self.flatten:
+            if self._flatten:
                 start = m*n
                 end = (m+1)*n
                 k3[0, start:end] = gaussian_sum

@@ -188,7 +188,7 @@ class ACSF(Descriptor):
         final_output = self._acsfBuffer[indices]
 
         # Return sparse matrix if requested
-        if self.sparse:
+        if self._sparse:
             final_output = coo_matrix(final_output)
 
         return final_output

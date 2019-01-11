@@ -265,7 +265,7 @@ class LMBTR(MBTR):
         # whether a spares of dense result is requested.
         n_pos = len(positions)
         n_features = self.get_number_of_features()
-        if self.flatten and self.sparse:
+        if self._flatten and self._sparse:
             data = []
             cols = []
             rows = []
@@ -285,7 +285,7 @@ class LMBTR(MBTR):
             cols = np.concatenate(cols)
             desc = coo_matrix((data, (rows, cols)), shape=(n_pos, n_features), dtype=np.float32)
         else:
-            if self.flatten and not self.sparse:
+            if self._flatten and not self._sparse:
                 desc = np.empty((n_pos, n_features), dtype=np.float32)
             else:
                 desc = np.empty((n_pos), dtype='object')

@@ -115,12 +115,12 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
         """Tests the sparse matrix creation.
         """
         # Sparse
-        default_desc.sparse = True
+        default_desc._sparse = True
         vec = default_desc.create(H2O)
         self.assertTrue(type(vec) == scipy.sparse.coo_matrix)
 
         # Dense
-        default_desc.sparse = False
+        default_desc._sparse = False
         vec = default_desc.create(H2O)
         self.assertTrue(type(vec) == np.ndarray)
 
