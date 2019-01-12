@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dscribe.descriptors.descriptor &mdash; DScribe 0.1.0 documentation</title>
+  <title>dscribe.descriptors.descriptor &mdash; DScribe 0.1.9 documentation</title>
   
 
   
@@ -61,7 +61,7 @@
             
             
               <div class="version">
-                0.1.0
+                0.1.9
               </div>
             
           
@@ -171,8 +171,8 @@
 <span class="sd">            flatten (bool): Whether the output of create() should be flattened</span>
 <span class="sd">                to a 1D array.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sparse</span> <span class="o">=</span> <span class="n">sparse</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span> <span class="o">=</span> <span class="n">flatten</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span> <span class="o">=</span> <span class="n">sparse</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_flatten</span> <span class="o">=</span> <span class="n">flatten</span>
 
 <div class="viewcode-block" id="Descriptor.create"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.create">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>

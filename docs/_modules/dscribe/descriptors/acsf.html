@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dscribe.descriptors.acsf &mdash; DScribe 0.1.0 documentation</title>
+  <title>dscribe.descriptors.acsf &mdash; DScribe 0.1.9 documentation</title>
   
 
   
@@ -61,7 +61,7 @@
             
             
               <div class="version">
-                0.1.0
+                0.1.9
               </div>
             
           
@@ -345,7 +345,7 @@
         <span class="n">final_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_acsfBuffer</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
 
         <span class="c1"># Return sparse matrix if requested</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sparse</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span><span class="p">:</span>
             <span class="n">final_output</span> <span class="o">=</span> <span class="n">coo_matrix</span><span class="p">(</span><span class="n">final_output</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">final_output</span></div>
