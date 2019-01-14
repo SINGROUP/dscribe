@@ -436,14 +436,6 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         self.assertEqual(np.sum(co_part6), 0)
         self.assertNotEqual(np.sum(co_part7), 0)
 
-    def test_poly_rbf(self):
-        """Tests that the polynomial radial basis set works as expected.
-        """
-        lmax = 5
-        nmax = 5
-        desc = SOAP(atomic_numbers=[1, 8], rcut=5, nmax=nmax, lmax=lmax, rbf="polynomial", periodic=False)
-        vec = desc.create(H2O, positions=[0])
-
     def test_rbf_orthonormality(self):
         """Tests that the gto radial basis functions are orthonormal.
         """

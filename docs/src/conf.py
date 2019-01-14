@@ -23,9 +23,9 @@ project = 'DScribe'
 author = 'Lauri Himanen, Eiaki Morooka, F. Federici Canova, Marc Jäger, Y. Ranawat'
 
 # The short X.Y version
-version = '0.1.9'
+version = '0.2.0'
 # The full version, including alpha/beta/rc tags
-release = '0.1.9'
+release = '0.2.0'
 
 
 # -- General configuration ---------------------------------------------------
