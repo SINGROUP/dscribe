@@ -241,7 +241,8 @@ bigger than 1 angstrom.</li>
 atomic density.</li>
 <li><strong>rbf</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – <p>The radial basis functions to use. The available options are:</p>
 <ul>
-<li>”gto”: Spherical gaussian type orbitals defined as <span class="math notranslate nohighlight">\(\phi(r) = \beta r^l e^{-\alpha r^2}\)</span></li>
+<li>”gto”: Spherical gaussian type orbitals defined as <span class="math notranslate nohighlight">\(g_{nl}(r) = \sum_{n'=1}^{n_\mathrm{max}}\,\beta_{nn'l} r^l e^{-\alpha_{n'l}r^2}\)</span></li>
+<li>”polynomial”: Polynomial basis defined as <span class="math notranslate nohighlight">\(g_{n}(r) = \sum_{n'=1}^{n_\mathrm{max}}\,\beta_{nn'} (r-r_\mathrm{cut})^{n'+2}\)</span></li>
 </ul>
 </li>
 <li><strong>crossover</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Default True, if crossover of atomic types should
