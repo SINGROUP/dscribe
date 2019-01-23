@@ -175,7 +175,7 @@
 
     <span class="c1"># Create descriptors for the dataset</span>
     <span class="n">n_samples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>
-    <span class="n">is_sparse</span> <span class="o">=</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">sparse</span>
+    <span class="n">is_sparse</span> <span class="o">=</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">_sparse</span>
     <span class="n">n_features</span> <span class="o">=</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">get_number_of_features</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">is_sparse</span><span class="p">:</span>
@@ -248,11 +248,11 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Get number of samples and whether the output is sparse or not.</span>
     <span class="n">n_features</span> <span class="o">=</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">get_number_of_features</span><span class="p">()</span>
-    <span class="n">is_sparse</span> <span class="o">=</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">sparse</span>
+    <span class="n">is_sparse</span> <span class="o">=</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">_sparse</span>
 
     <span class="c1"># If the descriptor is not flattened, the batch processing cannot be by</span>
     <span class="c1"># this function.</span>
-    <span class="n">flatten</span> <span class="o">=</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">flatten</span>
+    <span class="n">flatten</span> <span class="o">=</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">_flatten</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">flatten</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
             <span class="s2">&quot;The given descriptor is not specified to have flattened output &quot;</span>

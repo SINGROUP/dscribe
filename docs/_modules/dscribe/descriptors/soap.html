@@ -213,7 +213,8 @@
 <span class="sd">                atomic density.</span>
 <span class="sd">            rbf (str): The radial basis functions to use. The available options are:</span>
 
-<span class="sd">                * &quot;gto&quot;: Spherical gaussian type orbitals defined as :math:`\phi(r) = \\beta r^l e^{-\\alpha r^2}`</span>
+<span class="sd">                * &quot;gto&quot;: Spherical gaussian type orbitals defined as :math:`g_{nl}(r) = \sum_{n&#39;=1}^{n_\mathrm{max}}\,\\beta_{nn&#39;l} r^l e^{-\\alpha_{n&#39;l}r^2}`</span>
+<span class="sd">                * &quot;polynomial&quot;: Polynomial basis defined as :math:`g_{n}(r) = \sum_{n&#39;=1}^{n_\mathrm{max}}\,\\beta_{nn&#39;} (r-r_\mathrm{cut})^{n&#39;+2}`</span>
 
 <span class="sd">            crossover (bool): Default True, if crossover of atomic types should</span>
 <span class="sd">                be included in the power spectrum.</span>
