@@ -19,7 +19,7 @@ def create(inp):
 
     # Create descriptors for the dataset
     n_samples = len(samples)
-    is_sparse = descriptor.sparse
+    is_sparse = descriptor._sparse
     n_features = descriptor.get_number_of_features()
 
     if is_sparse:
@@ -92,11 +92,11 @@ def batch_create(descriptor, samples, n_proc, positions=None, create_func=None, 
     """
     # Get number of samples and whether the output is sparse or not.
     n_features = descriptor.get_number_of_features()
-    is_sparse = descriptor.sparse
+    is_sparse = descriptor._sparse
 
     # If the descriptor is not flattened, the batch processing cannot be by
     # this function.
-    flatten = descriptor.flatten
+    flatten = descriptor._flatten
     if not flatten:
         raise ValueError(
             "The given descriptor is not specified to have flattened output "

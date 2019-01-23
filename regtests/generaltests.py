@@ -7,8 +7,12 @@ import numpy as np
 import unittest
 
 from dscribe.core import System
+from dscribe.descriptors import CoulombMatrix
+from dscribe.descriptors import SOAP
+from dscribe.utils import batch_create
 
 from ase.lattice.cubic import SimpleCubicFactory
+from ase.build import molecule
 from ase.visualize import view
 
 
@@ -169,6 +173,33 @@ class GaussianTests(unittest.TestCase):
         # mpl.show()
 
 
+class BatchTests(unittest.TestCase):
+
+    def test_batch_create(self):
+        """Tests that the batch creation function works as expected.
+        """
+        samples = [molecule("H2O"), molecule("C6H6")]
+
+        # Test with global descriptor
+        descriptor = CoulombMatrix(n_atoms_max=12, permutation="sorted_l2")
+        x = batch_create(descriptor, samples, 2)
+
+        # Test with local descriptor
+        descriptor = SOAP(
+            atomic_numbers=[1, 6, 8],
+            rcut=5,
+            nmax=3,
+            lmax=3,
+            sigma=1,
+            periodic=False,
+            crossover=True,
+            average=False,
+            sparse=True,
+        )
+        positions = [[0],  [1]]
+        x = batch_create(descriptor, samples, positions=positions, n_proc=2)
+
+
 class ASETests(unittest.TestCase):
 
     def test_atoms_to_system(self):
@@ -199,6 +230,7 @@ if __name__ == '__main__':
     suites.append(unittest.TestLoader().loadTestsFromTestCase(ASETests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(GeometryTests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(GaussianTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(BatchTests))
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)
 

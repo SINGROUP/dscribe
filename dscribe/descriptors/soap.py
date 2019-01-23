@@ -57,7 +57,8 @@ class SOAP(Descriptor):
                 atomic density.
             rbf (str): The radial basis functions to use. The available options are:
 
-                * "gto": Spherical gaussian type orbitals defined as :math:`\phi(r) = \\beta r^l e^{-\\alpha r^2}`
+                * "gto": Spherical gaussian type orbitals defined as :math:`g_{nl}(r) = \sum_{n'=1}^{n_\mathrm{max}}\,\\beta_{nn'l} r^l e^{-\\alpha_{n'l}r^2}`
+                * "polynomial": Polynomial basis defined as :math:`g_{n}(r) = \sum_{n'=1}^{n_\mathrm{max}}\,\\beta_{nn'} (r-r_\mathrm{cut})^{n'+2}`
 
             crossover (bool): Default True, if crossover of atomic types should
                 be included in the power spectrum.
