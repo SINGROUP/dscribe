@@ -243,9 +243,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_eta</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
 
         <span class="c1"># Check that rcut is valid</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">rcut</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">rbf</span> <span class="o">==</span> <span class="s2">&quot;gto&quot;</span> <span class="ow">and</span> <span class="n">rcut</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;The radial cutoff should be bigger than 1 angstrom.&quot;</span>
+                <span class="s2">&quot;When using the gaussian radial basis set (gto), the radial &quot;</span>
+                <span class="s2">&quot;cutoff should be bigger than 1 angstrom.&quot;</span>
             <span class="p">)</span>
 
         <span class="n">supported_rbf</span> <span class="o">=</span> <span class="nb">set</span><span class="p">((</span><span class="s2">&quot;gto&quot;</span><span class="p">,</span> <span class="s2">&quot;polynomial&quot;</span><span class="p">))</span>
