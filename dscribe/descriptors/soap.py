@@ -87,9 +87,10 @@ class SOAP(Descriptor):
         self._eta = 1/(2*sigma**2)
 
         # Check that rcut is valid
-        if (rcut <= 1):
+        if rbf == "gto" and rcut <= 1:
             raise ValueError(
-                "The radial cutoff should be bigger than 1 angstrom."
+                "When using the gaussian radial basis set (gto), the radial "
+                "cutoff should be bigger than 1 angstrom."
             )
 
         supported_rbf = set(("gto", "polynomial"))
