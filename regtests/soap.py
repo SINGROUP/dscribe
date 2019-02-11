@@ -704,12 +704,11 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                 for l in range(lmax+1):
                     for ni in range(nmax):
                         for nj in range(nmax):
-                            if nj >= ni:
-                                if zj >= zi:
-                                    value = np.dot(coeffs[zi, ni, l, :], coeffs[zj, nj, l, :])
-                                    prefactor = np.pi*np.sqrt(8/(2*l+1))
-                                    value *= prefactor
-                                    numerical_power_spectrum.append(value)
+                            if nj >= ni and zj >= zi:
+                                value = np.dot(coeffs[zi, ni, l, :], coeffs[zj, nj, l, :])
+                                prefactor = np.pi*np.sqrt(8/(2*l+1))
+                                value *= prefactor
+                                numerical_power_spectrum.append(value)
 
         # print("Numerical: {}".format(numerical_power_spectrum))
         # print("Analytical: {}".format(analytical_power_spectrum))
