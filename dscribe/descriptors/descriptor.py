@@ -53,11 +53,11 @@ class Descriptor(with_metaclass(ABCMeta)):
             :class:`.System`: The given system transformed into a corresponding
                 System-object.
         """
-        system_type = type(system)
-        if system_type == Atoms:
-            return System.from_atoms(system)
-        elif system_type == System:
-            return system
+        if isinstance(system, Atoms):
+            if type(system) == System:
+                return system
+            else:
+                return System.from_atoms(system)
         else:
             raise ValueError(
                 "Invalid system with type: '{}'.".format(system_type)
