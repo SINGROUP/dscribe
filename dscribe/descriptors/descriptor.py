@@ -60,5 +60,5 @@ class Descriptor(with_metaclass(ABCMeta)):
                 return System.from_atoms(system)
         else:
             raise ValueError(
-                "Invalid system with type: '{}'.".format(system_type)
+                "Invalid system with type: '{}'.".format(type(system))
             )
