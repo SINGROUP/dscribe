@@ -1,0 +1,405 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dscribe.kernels package &mdash; DScribe 0.2.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="dscribe.libmbtr package" href="dscribe.libmbtr.html" />
+    <link rel="prev" title="dscribe.descriptors package" href="dscribe.descriptors.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/tutorials.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="dscribe.html">dscribe package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="dscribe.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="dscribe.core.html">dscribe.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dscribe.descriptors.html">dscribe.descriptors package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">dscribe.kernels package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dscribe.libmbtr.html">dscribe.libmbtr package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dscribe.utils.html">dscribe.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dscribe.html#module-dscribe">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing DScribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DScribe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">dscribe</a> &raquo;</li>
+        
+          <li><a href="dscribe.html">dscribe package</a> &raquo;</li>
+        
+      <li>dscribe.kernels package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/doc/dscribe.kernels.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="dscribe-kernels-package">
+<h1>dscribe.kernels package<a class="headerlink" href="#dscribe-kernels-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-dscribe.kernels.average">
+<span id="dscribe-kernels-average-module"></span><h2>dscribe.kernels.average module<a class="headerlink" href="#module-dscribe.kernels.average" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="dscribe.kernels.average.AverageKernel">
+<em class="property">class </em><code class="descclassname">dscribe.kernels.average.</code><code class="descname">AverageKernel</code><span class="sig-paren">(</span><em>metric</em>, <em>gamma=None</em>, <em>degree=3</em>, <em>coef0=1</em>, <em>kernel_params=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/kernels/average.html#AverageKernel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.kernels.average.AverageKernel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel" title="dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel</span></code></a></p>
+<p>Used to compute a global similarity of structures based on the average
+similarity of local atomic environments in the structure. More precisely,
+returns the similarity kernel K as:</p>
+<div class="math notranslate nohighlight">
+\[K(A, B) = \frac{1}{2}\sum_{ij} C_{ij}(A, B)\]</div>
+<p>where the similarity between local atomic environments <span class="math notranslate nohighlight">\(C_{ij}\)</span> has
+been calculated with the pairwise metric (e.g. linear, gaussian) defined by
+the parameters given in the constructor.</p>
+<dl class="method">
+<dt id="dscribe.kernels.average.AverageKernel.get_global_similarity">
+<code class="descname">get_global_similarity</code><span class="sig-paren">(</span><em>localkernel</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/kernels/average.html#AverageKernel.get_global_similarity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.kernels.average.AverageKernel.get_global_similarity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the average global similarity between two structures A and B.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>localkernel</strong> (<em>np.ndarray</em>) – NxM matrix of local similarities between
+structures A and B, with N and M atoms respectively.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Average similarity between the structures A and B.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-dscribe.kernels.localsimilaritykernel">
+<span id="dscribe-kernels-localsimilaritykernel-module"></span><h2>dscribe.kernels.localsimilaritykernel module<a class="headerlink" href="#module-dscribe.kernels.localsimilaritykernel" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel">
+<em class="property">class </em><code class="descclassname">dscribe.kernels.localsimilaritykernel.</code><code class="descname">LocalSimilarityKernel</code><span class="sig-paren">(</span><em>metric</em>, <em>gamma=None</em>, <em>degree=3</em>, <em>coef0=1</em>, <em>kernel_params=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/kernels/localsimilaritykernel.html#LocalSimilarityKernel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>An abstract base class for all kernels that use the similarity of local
+atomic environments to compute a global similarity measure.</p>
+<dl class="method">
+<dt id="dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel.create">
+<code class="descname">create</code><span class="sig-paren">(</span><em>x</em>, <em>y=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/kernels/localsimilaritykernel.html#LocalSimilarityKernel.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the kernel matrix based on the given lists of local
+features x and y.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>iterable</em>) – A list of local feature arrays for each structure.</li>
+<li><strong>y</strong> (<em>iterable</em>) – An optional second list of features. If not specified
+it is assumed that y=x.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The pairwise global similarity kernel K[i,j] between the given
+structures, in the same order as given in the input, i.e. the
+similarity of structures i and j is given by K[i,j], where features
+for structure i and j were in features[i] and features[j]
+respectively.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel.get_global_similarity">
+<code class="descname">get_global_similarity</code><span class="sig-paren">(</span><em>localkernel</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/kernels/localsimilaritykernel.html#LocalSimilarityKernel.get_global_similarity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel.get_global_similarity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the global similarity between two structures A and B.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>localkernel</strong> (<em>np.ndarray</em>) – NxM matrix of local similarities between
+structures A and B, with N and M atoms respectively.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Global similarity between the structures A and B.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel.get_pairwise_matrix">
+<code class="descname">get_pairwise_matrix</code><span class="sig-paren">(</span><em>X</em>, <em>Y=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/kernels/localsimilaritykernel.html#LocalSimilarityKernel.get_pairwise_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel.get_pairwise_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the pairwise similarity of atomic environments with
+scikit-learn, and the pairwise metric configured in the constructor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>X</strong> (<em>np.ndarray</em>) – Feature vector for the atoms in structure A</li>
+<li><strong>Y</strong> (<em>np.ndarray</em>) – Feature vector for the atoms in structure B</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>NxM matrix of local similarities between structures A</dt>
+<dd><p class="first last">and B, with N and M atoms respectively.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">np.ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-dscribe.kernels.rematch">
+<span id="dscribe-kernels-rematch-module"></span><h2>dscribe.kernels.rematch module<a class="headerlink" href="#module-dscribe.kernels.rematch" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="dscribe.kernels.rematch.REMatchKernel">
+<em class="property">class </em><code class="descclassname">dscribe.kernels.rematch.</code><code class="descname">REMatchKernel</code><span class="sig-paren">(</span><em>alpha=0.1</em>, <em>threshold=1e-06</em>, <em>metric='linear'</em>, <em>gamma=None</em>, <em>degree=3</em>, <em>coef0=1</em>, <em>kernel_params=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/kernels/rematch.html#REMatchKernel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.kernels.rematch.REMatchKernel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel" title="dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel</span></code></a></p>
+<p>Used to compute a global similarity of structures based on the
+regularized-entropy match (REMatch) kernel of local atomic environments in
+the structure. More precisely, returns the similarity kernel K as:</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}\DeclareMathOperator*{\argmax}{argmax}
+K(A, B) &amp;= \mathrm{Tr} \mathbf{P}^\alpha \mathbf{C}(A, B)\\\mathbf{P}^\alpha &amp;= \argmax_{\mathbf{P} \in \mathcal{U}(N, N)} \sum_{ij} P_{ij} (1-C_{ij} +\alpha \ln P_{ij})\end{aligned}\end{align} \]</div>
+<p>where the similarity between local atomic environments <span class="math notranslate nohighlight">\(C_{ij}\)</span> has
+been calculated with the pairwise metric (e.g. linear, gaussian) defined by
+the parameters given in the constructor.</p>
+<p>For reference, see:</p>
+<p>“Comparing molecules and solids across structural and alchemical
+space”, Sandip De, Albert P. Bartók, Gábor Csányi and Michele Ceriotti,
+Phys.  Chem. Chem. Phys. 18, 13754 (2016),
+<a class="reference external" href="https://doi.org/10.1039/c6cp00415f">https://doi.org/10.1039/c6cp00415f</a></p>
+<dl class="method">
+<dt id="dscribe.kernels.rematch.REMatchKernel.get_global_similarity">
+<code class="descname">get_global_similarity</code><span class="sig-paren">(</span><em>localkernel</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/kernels/rematch.html#REMatchKernel.get_global_similarity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.kernels.rematch.REMatchKernel.get_global_similarity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the REMatch similarity between two structures A and B.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>localkernel</strong> (<em>np.ndarray</em>) – NxM matrix of local similarities between
+structures A and B, with N and M atoms respectively.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">REMatch similarity between the structures A and B.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-dscribe.kernels">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-dscribe.kernels" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="dscribe.libmbtr.html" class="btn btn-neutral float-right" title="dscribe.libmbtr package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="dscribe.descriptors.html" class="btn btn-neutral float-left" title="dscribe.descriptors package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

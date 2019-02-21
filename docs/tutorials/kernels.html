@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Building kernels for kernel based learning methods &mdash; DScribe 0.2.0 documentation</title>
+  <title>Building similarity kernels from local environments &mdash; DScribe 0.2.0 documentation</title>
   
 
   
@@ -99,8 +99,7 @@
 <li class="toctree-l2"><a class="reference internal" href="acsf.html">Atom-centered Symmetry Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="soap.html">Smooth Overlap of Atomic Positions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mbtr.html">Many-body Tensor Representation</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Building kernels for kernel based learning methods</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#kernels-for-comparing-structures-based-on-local-features">Kernels for comparing structures based on local features</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Building similarity kernels from local environments</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#average-kernel">Average kernel</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#best-match-kernel">Best-match kernel</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#rematch-kernel">REMatch kernel</a></li>
@@ -158,7 +157,7 @@
         
           <li><a href="tutorials.html">Tutorials</a> &raquo;</li>
         
-      <li>Building kernels for kernel based learning methods</li>
+      <li>Building similarity kernels from local environments</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -177,35 +176,58 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="building-kernels-for-kernel-based-learning-methods">
-<h1>Building kernels for kernel based learning methods<a class="headerlink" href="#building-kernels-for-kernel-based-learning-methods" title="Permalink to this headline">¶</a></h1>
-<p>Kernel-based methods such as kernel-ridge regression and support-vector
-regression require the construction of a pairwise-similarity matrix. There are
-however different ways of building such a similarity matrix. A commonly used
-way is to measure similarity <span class="math notranslate nohighlight">\(\kappa(\vec{x}_1, \vec{x}_2)\)</span> between two
-samples <span class="math notranslate nohighlight">\(\vec{x}_1\)</span> and <span class="math notranslate nohighlight">\(\vec{x}_2\)</span> with a gaussian kernel:</p>
-<div class="math notranslate nohighlight">
-\[\kappa(\vec{x}_1, \vec{x}_2) = e^{-\gamma\lvert \vec{x}_1 - \vec{x}_2 \rvert^2}\]</div>
-<p>There are also other standard kernels, some of which are listed e.g. in the
-<a class="reference external" href="https://scikit-learn.org/stable/modules/metrics.html">sklearn-documentation</a>.</p>
-<p>In some cases it might however be benefitial to define a custom way of
-measuring similarity.</p>
-<div class="section" id="kernels-for-comparing-structures-based-on-local-features">
-<h2>Kernels for comparing structures based on local features<a class="headerlink" href="#kernels-for-comparing-structures-based-on-local-features" title="Permalink to this headline">¶</a></h2>
-<p>Measuring the similarity of two structures based on local features can benefit
-from a custom kernel. Here we introduce some ways of measuring similarity in
-these cases. For further reading, consider the original article:</p>
-<p><a class="reference external" href="https://doi.org/10.1039/C6CP00415F">“Comparing molecules and solids across structural and alchemical space, Sandip
+  <div class="section" id="building-similarity-kernels-from-local-environments">
+<h1>Building similarity kernels from local environments<a class="headerlink" href="#building-similarity-kernels-from-local-environments" title="Permalink to this headline">¶</a></h1>
+<p>Measuring the similarity of structures becomes easy when the feature vectors
+represent the whole structure, such as in the case of Coulomb matrix or MBTR.
+In these cases the feature vectors are directly comparable with different
+kernels, e.g. the linear or Gaussian kernel.</p>
+<p>Local descriptors such as SOAP or ACSF can be used in the same way to compare
+individual local atomic environments, but additional tools are needed to make
+comparison of entire structures based on local environments.
+This tutorial goes through two different strategies for building such global
+similarity measures by comparing local atomic environments between structures.</p>
+<p>For more insight into the problem, see:
+<a class="reference external" href="https://doi.org/10.1039/C6CP00415F">“Comparing molecules and solids across structural and alchemical space, Sandip
 De, Albert P. Bartók, Gábor Cásnyi, and Michele Ceriotti, Phys. Chem. Chem.
 Phys., 18, 13754-13769, 2016”</a></p>
-</div>
 <div class="section" id="average-kernel">
 <h2>Average kernel<a class="headerlink" href="#average-kernel" title="Permalink to this headline">¶</a></h2>
-<p>The simplest approach is to average the local contributions into one average
-vector, which can be compared with any standard kernel. For example the
-<a class="reference internal" href="../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP" title="dscribe.descriptors.soap.SOAP"><code class="xref py py-class docutils literal notranslate"><span class="pre">SOAP</span></code></a>-descriptor can provide the average vector directly by specifying
-average=True in the constructor. These vector may be fed into any generic
-purpose kernel model with any kernel function.</p>
+<p>The simplest approach is to average over the local contributions to create a
+global similarity measure. This average kernel <span class="math notranslate nohighlight">\(K\)</span> is defined as as:</p>
+<div class="math notranslate nohighlight">
+\[K(A, B) = \frac{1}{2}\sum_{ij} C_{ij}(A, B)\]</div>
+<p>where the similarity between local atomic environments <span class="math notranslate nohighlight">\(C_{ij}\)</span> can
+in general be calculated with any pairwise metric (e.g. linear, gaussian).</p>
+<p>. The class <a class="reference internal" href="../doc/dscribe.kernels.html#dscribe.kernels.average.AverageKernel" title="dscribe.kernels.average.AverageKernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">AverageKernel</span></code></a> can be used to calculate
+this similarity.  Here is an example of calculating an average kernel for two
+relatively similar molecules by using SOAP and a linear and Gaussian similarity
+metric:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">SOAP</span>
+<span class="kn">from</span> <span class="nn">dscribe.kernels</span> <span class="kn">import</span> <span class="n">AverageKernel</span>
+
+<span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">molecule</span>
+
+<span class="c1"># We will compare two similar molecules</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;H2O&quot;</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;H2O2&quot;</span><span class="p">)</span>
+
+<span class="c1"># First we will have to create the features for atomic environments. Lets</span>
+<span class="c1"># use SOAP.</span>
+<span class="n">desc</span> <span class="o">=</span> <span class="n">SOAP</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">periodic</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">crossover</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">a_features</span> <span class="o">=</span> <span class="n">desc</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="n">b_features</span> <span class="o">=</span> <span class="n">desc</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+
+<span class="c1"># Calculates the similarity with an average kernel and a linear metric. The</span>
+<span class="c1"># result will be a full similarity matrix.</span>
+<span class="n">re</span> <span class="o">=</span> <span class="n">AverageKernel</span><span class="p">(</span><span class="n">metric</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">)</span>
+<span class="n">re_kernel</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">create</span><span class="p">([</span><span class="n">a_features</span><span class="p">,</span> <span class="n">b_features</span><span class="p">])</span>
+
+<span class="c1"># Any metric supported by scikit-learn will work: e.g. a Gaussian:</span>
+<span class="n">re</span> <span class="o">=</span> <span class="n">AverageKernel</span><span class="p">(</span><span class="n">metric</span><span class="o">=</span><span class="s2">&quot;rbf&quot;</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">re_kernel</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">create</span><span class="p">([</span><span class="n">a_features</span><span class="p">,</span> <span class="n">b_features</span><span class="p">])</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="best-match-kernel">
 <h2>Best-match kernel<a class="headerlink" href="#best-match-kernel" title="Permalink to this headline">¶</a></h2>
@@ -213,18 +235,41 @@ purpose kernel model with any kernel function.</p>
 </div>
 <div class="section" id="rematch-kernel">
 <h2>REMatch kernel<a class="headerlink" href="#rematch-kernel" title="Permalink to this headline">¶</a></h2>
-<p>The ReMatch kernel, lets you choose between the best match of local
-environments and the averaging strategy. The parameter <em>gamma</em> determines the
-contribution of the two whereas <em>gamma = 0</em> means only the similarity of the
-best matching local environments is taken into account and <em>gamma</em> going
-towards infinite channels in the average solution.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dscribe.utils</span> <span class="kn">import</span> <span class="n">RematchKernel</span>
+<p>The REMatch kernel lets you choose between the best match of local environments
+and the averaging strategy. The parameter <span class="math notranslate nohighlight">\(\alpha\)</span> determines the
+contribution of the two: <span class="math notranslate nohighlight">\(\alpha = 0\)</span> means only the similarity of
+the best matching local environments is taken into account and <span class="math notranslate nohighlight">\(\alpha
+\rightarrow \infty\)</span> channels in the average solution. The similarity kernel
+<span class="math notranslate nohighlight">\(K\)</span> is defined as:</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}\DeclareMathOperator*{\argmax}{argmax}
+K(A, B) &amp;= \mathrm{Tr} \mathbf{P}^\alpha \mathbf{C}(A, B)\\\mathbf{P}^\alpha &amp;= \argmax_{\mathbf{P} \in \mathcal{U}(N, N)} \sum_{ij} P_{ij} (1-C_{ij} +\alpha \ln P_{ij})\end{aligned}\end{align} \]</div>
+<p>where the similarity between local atomic environments <span class="math notranslate nohighlight">\(C_{ij}\)</span> can once
+again be calculated with any pairwise metric (e.g. linear, gaussian).</p>
+<p>The class <a class="reference internal" href="../doc/dscribe.kernels.html#dscribe.kernels.rematch.REMatchKernel" title="dscribe.kernels.rematch.REMatchKernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">REMatchKernel</span></code></a> can be used to calculate this similarity:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">SOAP</span>
+<span class="kn">from</span> <span class="nn">dscribe.kernels</span> <span class="kn">import</span> <span class="n">REMatchKernel</span>
 
-<span class="n">rematch</span> <span class="o">=</span> <span class="n">RematchKernel</span><span class="p">()</span>
-<span class="n">envkernels</span> <span class="o">=</span> <span class="n">rematch</span><span class="o">.</span><span class="n">get_all_envkernels</span><span class="p">([</span><span class="n">soap_water</span><span class="p">,</span> <span class="n">soap_methanol</span><span class="p">])</span>
-<span class="n">remat</span> <span class="o">=</span> <span class="n">rematch</span><span class="o">.</span><span class="n">get_global_kernel</span><span class="p">(</span><span class="n">envkernels</span><span class="p">,</span> <span class="n">gamma</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">threshold</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">molecule</span>
 
-<span class="k">print</span><span class="p">(</span><span class="n">remat</span><span class="p">)</span>
+<span class="c1"># We will compare two similar molecules</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;H2O&quot;</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;H2O2&quot;</span><span class="p">)</span>
+
+<span class="c1"># First we will have to create the features for atomic environments. Lets</span>
+<span class="c1"># use SOAP.</span>
+<span class="n">desc</span> <span class="o">=</span> <span class="n">SOAP</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">periodic</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">crossover</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">a_features</span> <span class="o">=</span> <span class="n">desc</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="n">b_features</span> <span class="o">=</span> <span class="n">desc</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+
+<span class="c1"># Calculates the similarity with an average kernel, and a linear metric. The</span>
+<span class="c1"># result will be a full similarity matrix.</span>
+<span class="n">re</span> <span class="o">=</span> <span class="n">REMatchKernel</span><span class="p">(</span><span class="n">metric</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">)</span>
+<span class="n">re_kernel</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">create</span><span class="p">([</span><span class="n">a_features</span><span class="p">,</span> <span class="n">b_features</span><span class="p">])</span>
+
+<span class="c1"># Any metric supported by scikit-learn will work: e.g. a Gaussian:</span>
+<span class="n">re</span> <span class="o">=</span> <span class="n">REMatchKernel</span><span class="p">(</span><span class="n">metric</span><span class="o">=</span><span class="s2">&quot;rbf&quot;</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">)</span>
+<span class="n">re_kernel</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">create</span><span class="p">([</span><span class="n">a_features</span><span class="p">,</span> <span class="n">b_features</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
