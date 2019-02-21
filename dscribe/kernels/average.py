@@ -11,11 +11,13 @@ class AverageKernel(LocalSimilarityKernel):
     returns the similarity kernel K as:
 
     .. math::
-        K(A, B) = \\frac{1}{2}\sum_{ij} C_{ij}(A, B)
+        K(A, B) = \\frac{1}{N M}\sum_{ij} C_{ij}(A, B)
 
-    where the similarity between local atomic environments :math:`C_{ij}` has
-    been calculated with the pairwise metric (e.g. linear, gaussian) defined by
-    the parameters given in the constructor.
+    where :math:`N` is the number of atoms in structure :math:`A`, :math:`M` is
+    the number of atoms in structure :math:`B` and the similarity between local
+    atomic environments :math:`C_{ij}` has been calculated with the pairwise
+    metric (e.g. linear, gaussian) defined by the parameters given in the
+    constructor.
     """
     def get_global_similarity(self, localkernel):
         """
