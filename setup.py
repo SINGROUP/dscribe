@@ -43,7 +43,7 @@ if __name__ == "__main__":
             'scipy',
             'ase',
             'future',
-            'matplotlib',
+            'scikit-learn',
             'soaplite==1.0.2',
         ],
         include_package_data=True,  # This ensures that files defined in MANIFEST.in are included
