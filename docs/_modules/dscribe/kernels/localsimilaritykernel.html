@@ -172,6 +172,22 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">coef0</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">kernel_params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            kernel(string or callable): Kernel mapping used internally. A</span>
+<span class="sd">                callable should accept two arguments and the keyword arguments</span>
+<span class="sd">                passed to this object as kernel_params, and should return a</span>
+<span class="sd">                floating point number.</span>
+<span class="sd">            gamma(float): Gamma parameter for the RBF, laplacian, polynomial,</span>
+<span class="sd">                exponential chi2 and sigmoid kernels. Interpretation of the</span>
+<span class="sd">                default value is left to the kernel; see the documentation for</span>
+<span class="sd">                sklearn.metrics.pairwise. Ignored by other kernels.</span>
+<span class="sd">            degree(float): Degree of the polynomial kernel. Ignored by other</span>
+<span class="sd">                kernels.</span>
+<span class="sd">            coef0(float): Zero coefficient for polynomial and sigmoid kernels.</span>
+<span class="sd">                Ignored by other kernels.</span>
+<span class="sd">            kernel_params(mapping of string to any): Additional parameters</span>
+<span class="sd">                (keyword arguments) for kernel function passed as callable</span>
+<span class="sd">                object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">metric</span> <span class="o">=</span> <span class="n">metric</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">=</span> <span class="n">gamma</span>
@@ -207,33 +223,64 @@
         <span class="n">C_ij_dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_x</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_y</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">j</span> <span class="o">&gt;=</span> <span class="n">i</span><span class="p">:</span>
-                    <span class="n">x_i</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+                <span class="c1"># Skip lower triangular part for symmetric matrices</span>
+                <span class="k">if</span> <span class="n">self_sim</span> <span class="ow">and</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">i</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="n">x_i</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+                <span class="c1"># Save time on symmetry</span>
+                <span class="k">if</span> <span class="n">self_sim</span> <span class="ow">and</span> <span class="n">j</span> <span class="o">==</span> <span class="n">i</span><span class="p">:</span>
+                    <span class="n">C_ij</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pairwise_matrix</span><span class="p">(</span><span class="n">x_i</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
                     <span class="n">y_j</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
                     <span class="n">C_ij</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pairwise_matrix</span><span class="p">(</span><span class="n">x_i</span><span class="p">,</span> <span class="n">y_j</span><span class="p">)</span>
-                    <span class="n">C_ij_dict</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">C_ij</span>
+                <span class="n">C_ij_dict</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">C_ij</span>
 
         <span class="c1"># Calculate the global pairwise similarity between the entire</span>
         <span class="c1"># structures</span>
         <span class="n">K_ij</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_x</span><span class="p">,</span> <span class="n">n_y</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_x</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_y</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">j</span> <span class="o">&gt;=</span> <span class="n">i</span><span class="p">:</span>
-                    <span class="n">C_ij</span> <span class="o">=</span> <span class="n">C_ij_dict</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
-                    <span class="n">k_ij</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_global_similarity</span><span class="p">(</span>
-                        <span class="n">C_ij</span><span class="p">,</span>
-                    <span class="p">)</span>
-                    <span class="n">K_ij</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">k_ij</span>
-                    <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">i</span><span class="p">:</span>
-                        <span class="n">K_ij</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">k_ij</span>
+
+                <span class="c1"># Skip lower triangular part for symmetric matrices</span>
+                <span class="k">if</span> <span class="n">self_sim</span> <span class="ow">and</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">i</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="n">C_ij</span> <span class="o">=</span> <span class="n">C_ij_dict</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+                <span class="n">k_ij</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_global_similarity</span><span class="p">(</span><span class="n">C_ij</span><span class="p">)</span>
+                <span class="n">K_ij</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">k_ij</span>
+
+                <span class="c1"># Save data also on lower triangular part for symmetric matrices</span>
+                <span class="k">if</span> <span class="n">self_sim</span> <span class="ow">and</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">i</span><span class="p">:</span>
+                    <span class="n">K_ij</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">k_ij</span>
 
         <span class="c1"># Normalize the values.</span>
         <span class="k">if</span> <span class="n">self_sim</span><span class="p">:</span>
             <span class="n">k_ii</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diagonal</span><span class="p">(</span><span class="n">K_ij</span><span class="p">)</span>
-            <span class="n">k_ii_sqrt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">k_ii</span><span class="p">)</span>
+            <span class="n">x_k_ii_sqrt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">k_ii</span><span class="p">)</span>
+            <span class="n">y_k_ii_sqrt</span> <span class="o">=</span> <span class="n">x_k_ii_sqrt</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">pass</span>
-        <span class="n">K_ij</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">k_ii_sqrt</span><span class="p">,</span> <span class="n">k_ii_sqrt</span><span class="p">)</span>
+            <span class="c1"># Calculate self-similarity for X</span>
+            <span class="n">x_k_ii</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n_x</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_x</span><span class="p">):</span>
+                <span class="n">x_i</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">C_ii</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pairwise_matrix</span><span class="p">(</span><span class="n">x_i</span><span class="p">)</span>
+                <span class="n">k_ii</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_global_similarity</span><span class="p">(</span><span class="n">C_ii</span><span class="p">)</span>
+                <span class="n">x_k_ii</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">k_ii</span>
+            <span class="n">x_k_ii_sqrt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x_k_ii</span><span class="p">)</span>
+
+            <span class="c1"># Calculate self-similarity for Y</span>
+            <span class="n">y_k_ii</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n_y</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_y</span><span class="p">):</span>
+                <span class="n">y_i</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">C_ii</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pairwise_matrix</span><span class="p">(</span><span class="n">y_i</span><span class="p">)</span>
+                <span class="n">k_ii</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_global_similarity</span><span class="p">(</span><span class="n">C_ii</span><span class="p">)</span>
+                <span class="n">y_k_ii</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">k_ii</span>
+            <span class="n">y_k_ii_sqrt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">y_k_ii</span><span class="p">)</span>
+
+        <span class="n">K_ij</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">x_k_ii_sqrt</span><span class="p">,</span> <span class="n">y_k_ii_sqrt</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">K_ij</span></div>
 
