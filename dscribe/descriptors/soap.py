@@ -15,14 +15,14 @@ class SOAP(Descriptor):
     orbitals as the radial basis set to reach a fast analytical solution.
 
     For reference, see:
-        "On representing chemical environments, Albert P. Bartók, Risi
-        Kondor, and Gábor Csányi, Phys. Rev. B 87, 184115, (2013),
-        https://doi.org/10.1103/PhysRevB.87.184115
 
-        "Comparing molecules and solids across structural and alchemical
-        space", Sandip De, Albert P. Bartók, Gábor Csányi and Michele Ceriotti,
-        Phys.  Chem. Chem. Phys. 18, 13754 (2016),
-        https://doi.org/10.1039/c6cp00415f
+    "On representing chemical environments, Albert P. Bartók, Risi Kondor, and
+    Gábor Csányi, Phys. Rev. B 87, 184115, (2013),
+    https://doi.org/10.1103/PhysRevB.87.184115
+
+    "Comparing molecules and solids across structural and alchemical space",
+    Sandip De, Albert P. Bartók, Gábor Csányi and Michele Ceriotti, Phys.
+    Chem. Chem. Phys. 18, 13754 (2016), https://doi.org/10.1039/c6cp00415f
     """
     def __init__(
             self,

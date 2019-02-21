@@ -68,18 +68,18 @@ def batch_create(descriptor, samples, n_proc, positions=None, create_func=None, 
 
     Args:
         samples:
-        n_proc: The number of processes. The data will be split into this many
+        n_proc(int): The number of processes. The data will be split into this many
             parts and divided into different processes.
-        positions (iterable): Needs to be specified if the given descriptor is
+        positions(iterable): Needs to be specified if the given descriptor is
             local and requires a 'positions'-argument in the create-function.
             Should be a list of positions matching the given 'samples'.
-        create_func (function): A custom function for creating the output from
+        create_func(function): A custom function for creating the output from
             each process. If none specified a default function will be used.
             Takes in one tuple argument 'inp' with the following information:
-                inp[0]: samples
-                inp[1]: descriptor
-                inp[2]: verbose parameter
-                inp[3]: process id number
+            * inp[0]: samples
+            * inp[1]: descriptor
+            * inp[2]: verbose parameter
+            * inp[3]: process id number
             The function should return a 2D array. If descriptor.sparse is set
             to true, the output should be a scipy.linalg.coo_matrix, otherwise
             a numpy.ndarray should be returned.

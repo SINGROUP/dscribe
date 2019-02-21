@@ -15,7 +15,7 @@ import mbtr
 import lmbtr
 import soap
 import elementaldistribution
-import rematch_kernel
+import kernels
 
 # Initialize the test suite
 loader = unittest.TestLoader()
@@ -32,7 +32,7 @@ suite.addTests(loader.loadTestsFromModule(mbtr))
 suite.addTests(loader.loadTestsFromModule(lmbtr))
 suite.addTests(loader.loadTestsFromModule(soap))
 suite.addTests(loader.loadTestsFromModule(elementaldistribution))
-suite.addTests(loader.loadTestsFromModule(rematch_kernel))
+suite.addTests(loader.loadTestsFromModule(kernels))
 
 # Initialize a runner, pass it the suite and run it
 runner = unittest.TextTestRunner(verbosity=3)

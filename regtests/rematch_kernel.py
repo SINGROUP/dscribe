@@ -17,7 +17,7 @@ class RematchKernelTests(unittest.TestCase):
         once different, once identical.
         Also tests the global similarity computed from the unity
         environment kernel"""
-        desc = SOAP([1, 8], 10.0, 2, 0, periodic=False, crossover=True)
+        desc = SOAP([1, 8], 5.0, 2, 2, sigma=0.2, periodic=False, crossover=True, normalize=True)
         re = RematchKernel()
         A = molecule('H2O')
         B = molecule('H2O2')
@@ -25,12 +25,13 @@ class RematchKernelTests(unittest.TestCase):
         local_b = desc.create(B).toarray()
 
         # Different structures
-        envkernel = re.compute_envkernel(local_a, local_b)
-        glosim = re.rematch(envkernel, gamma=0.01)
-        self.assertTrue(0.99 > glosim)
+        # envkernel = re.compute_envkernel(local_a, local_b)
+        # glosim = re.rematch(envkernel, gamma=0.01)
+        # self.assertTrue(0.99 > glosim)
 
         # Same structures
         envkernel = re.compute_envkernel(local_a, local_a)
+        print(envkernel)
         glosim = re.rematch(envkernel, gamma=0.01)
         self.assertTrue(0.99 < glosim < 1.01)
 
