@@ -227,18 +227,18 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        samples:</span>
-<span class="sd">        n_proc: The number of processes. The data will be split into this many</span>
+<span class="sd">        n_proc(int): The number of processes. The data will be split into this many</span>
 <span class="sd">            parts and divided into different processes.</span>
-<span class="sd">        positions (iterable): Needs to be specified if the given descriptor is</span>
+<span class="sd">        positions(iterable): Needs to be specified if the given descriptor is</span>
 <span class="sd">            local and requires a &#39;positions&#39;-argument in the create-function.</span>
 <span class="sd">            Should be a list of positions matching the given &#39;samples&#39;.</span>
-<span class="sd">        create_func (function): A custom function for creating the output from</span>
+<span class="sd">        create_func(function): A custom function for creating the output from</span>
 <span class="sd">            each process. If none specified a default function will be used.</span>
 <span class="sd">            Takes in one tuple argument &#39;inp&#39; with the following information:</span>
-<span class="sd">                inp[0]: samples</span>
-<span class="sd">                inp[1]: descriptor</span>
-<span class="sd">                inp[2]: verbose parameter</span>
-<span class="sd">                inp[3]: process id number</span>
+<span class="sd">            * inp[0]: samples</span>
+<span class="sd">            * inp[1]: descriptor</span>
+<span class="sd">            * inp[2]: verbose parameter</span>
+<span class="sd">            * inp[3]: process id number</span>
 <span class="sd">            The function should return a 2D array. If descriptor.sparse is set</span>
 <span class="sd">            to true, the output should be a scipy.linalg.coo_matrix, otherwise</span>
 <span class="sd">            a numpy.ndarray should be returned.</span>

@@ -1,39 +1,41 @@
-Building kernels for kernel based learning methods
-==================================================
+Building similarity kernels from local environments
+===================================================
 
-Kernel-based methods such as kernel-ridge regression and support-vector
-regression require the construction of a pairwise-similarity matrix. There are
-however different ways of building such a similarity matrix. A commonly used
-way is to measure similarity :math:`\kappa(\vec{x}_1, \vec{x}_2)` between two
-samples :math:`\vec{x}_1` and :math:`\vec{x}_2` with a gaussian kernel:
+Measuring the similarity of structures becomes easy when the feature vectors
+represent the whole structure, such as in the case of Coulomb matrix or MBTR.
+In these cases the feature vectors are directly comparable with different
+kernels, e.g. the linear or Gaussian kernel.
 
-.. math::
-   \kappa(\vec{x}_1, \vec{x}_2) = e^{-\gamma\lvert \vec{x}_1 - \vec{x}_2 \rvert^2}
+Local descriptors such as SOAP or ACSF can be used in the same way to compare
+individual local atomic environments, but additional tools are needed to make
+comparison of entire structures based on local environments.
+This tutorial goes through two different strategies for building such global
+similarity measures by comparing local atomic environments between structures.
 
-There are also other standard kernels, some of which are listed e.g. in the
-`sklearn-documentation
-<https://scikit-learn.org/stable/modules/metrics.html>`_.
-
-In some cases it might however be benefitial to define a custom way of
-measuring similarity.
-
-Kernels for comparing structures based on local features
---------------------------------------------------------
-Measuring the similarity of two structures based on local features can benefit
-from a custom kernel. Here we introduce some ways of measuring similarity in
-these cases. For further reading, consider the original article:
-
+For more insight into the problem, see:
 `"Comparing molecules and solids across structural and alchemical space, Sandip
 De, Albert P. Bartók, Gábor Cásnyi, and Michele Ceriotti, Phys. Chem. Chem.
 Phys., 18, 13754-13769, 2016" <https://doi.org/10.1039/C6CP00415F>`_
 
 Average kernel
 --------------
-The simplest approach is to average the local contributions into one average
-vector, which can be compared with any standard kernel. For example the
-:class:`.SOAP`-descriptor can provide the average vector directly by specifying
-average=True in the constructor. These vector may be fed into any generic
-purpose kernel model with any kernel function.
+The simplest approach is to average over the local contributions to create a
+global similarity measure. This average kernel :math:`K` is defined as as:
+
+.. math::
+    K(A, B) = \frac{1}{2}\sum_{ij} C_{ij}(A, B)
+
+where the similarity between local atomic environments :math:`C_{ij}` can
+in general be calculated with any pairwise metric (e.g. linear, gaussian).
+
+. The class :class:`.AverageKernel` can be used to calculate
+this similarity.  Here is an example of calculating an average kernel for two
+relatively similar molecules by using SOAP and a linear and Gaussian similarity
+metric:
+
+.. literalinclude:: ../../../examples/averagekernel.py
+   :language: python
+   :lines: 7-29
 
 Best-match kernel
 -----------------
@@ -41,20 +43,24 @@ TODO
 
 REMatch kernel
 --------------
-The ReMatch kernel, lets you choose between the best match of local
-environments and the averaging strategy. The parameter *gamma* determines the
-contribution of the two whereas *gamma = 0* means only the similarity of the
-best matching local environments is taken into account and *gamma* going
-towards infinite channels in the average solution.
+The REMatch kernel lets you choose between the best match of local environments
+and the averaging strategy. The parameter :math:`\alpha` determines the
+contribution of the two: :math:`\alpha = 0` means only the similarity of
+the best matching local environments is taken into account and :math:`\alpha
+\rightarrow \infty` channels in the average solution. The similarity kernel
+:math:`K` is defined as:
 
-.. code-block:: python
+.. math::
+    \DeclareMathOperator*{\argmax}{argmax}
+    K(A, B) &= \mathrm{Tr} \mathbf{P}^\alpha \mathbf{C}(A, B)
 
-    from dscribe.utils import RematchKernel
+    \mathbf{P}^\alpha &= \argmax_{\mathbf{P} \in \mathcal{U}(N, N)} \sum_{ij} P_{ij} (1-C_{ij} +\alpha \ln P_{ij})
 
-    rematch = RematchKernel()
-    envkernels = rematch.get_all_envkernels([soap_water, soap_methanol])
-    remat = rematch.get_global_kernel(envkernels, gamma = 0.1, threshold = 1e-6)
+where the similarity between local atomic environments :math:`C_{ij}` can once
+again be calculated with any pairwise metric (e.g. linear, gaussian).
 
-    print(remat)
+The class :class:`.REMatchKernel` can be used to calculate this similarity:
 
-
+.. literalinclude:: ../../../examples/rematchkernel.py
+   :language: python
+   :lines: 7-29
