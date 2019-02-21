@@ -13,6 +13,22 @@ class LocalSimilarityKernel(with_metaclass(ABCMeta)):
     """
     def __init__(self, metric, gamma=None, degree=3, coef0=1, kernel_params=None):
         """
+        Args:
+            kernel(string or callable): Kernel mapping used internally. A
+                callable should accept two arguments and the keyword arguments
+                passed to this object as kernel_params, and should return a
+                floating point number.
+            gamma(float): Gamma parameter for the RBF, laplacian, polynomial,
+                exponential chi2 and sigmoid kernels. Interpretation of the
+                default value is left to the kernel; see the documentation for
+                sklearn.metrics.pairwise. Ignored by other kernels.
+            degree(float): Degree of the polynomial kernel. Ignored by other
+                kernels.
+            coef0(float): Zero coefficient for polynomial and sigmoid kernels.
+                Ignored by other kernels.
+            kernel_params(mapping of string to any): Additional parameters
+                (keyword arguments) for kernel function passed as callable
+                object.
         """
         self.metric = metric
         self.gamma = gamma
@@ -48,33 +64,64 @@ class LocalSimilarityKernel(with_metaclass(ABCMeta)):
         C_ij_dict = {}
         for i in range(n_x):
             for j in range(n_y):
-                if j >= i:
-                    x_i = x[i]
+
+                # Skip lower triangular part for symmetric matrices
+                if self_sim and j < i:
+                    continue
+
+                x_i = x[i]
+
+                # Save time on symmetry
+                if self_sim and j == i:
+                    C_ij = self.get_pairwise_matrix(x_i)
+                else:
                     y_j = y[j]
                     C_ij = self.get_pairwise_matrix(x_i, y_j)
-                    C_ij_dict[i, j] = C_ij
+                C_ij_dict[i, j] = C_ij
 
         # Calculate the global pairwise similarity between the entire
         # structures
         K_ij = np.zeros((n_x, n_y))
         for i in range(n_x):
             for j in range(n_y):
-                if j >= i:
-                    C_ij = C_ij_dict[i, j]
-                    k_ij = self.get_global_similarity(
-                        C_ij,
-                    )
-                    K_ij[i, j] = k_ij
-                    if j != i:
-                        K_ij[j, i] = k_ij
+
+                # Skip lower triangular part for symmetric matrices
+                if self_sim and j < i:
+                    continue
+
+                C_ij = C_ij_dict[i, j]
+                k_ij = self.get_global_similarity(C_ij)
+                K_ij[i, j] = k_ij
+
+                # Save data also on lower triangular part for symmetric matrices
+                if self_sim and j != i:
+                    K_ij[j, i] = k_ij
 
         # Normalize the values.
         if self_sim:
             k_ii = np.diagonal(K_ij)
-            k_ii_sqrt = np.sqrt(k_ii)
+            x_k_ii_sqrt = np.sqrt(k_ii)
+            y_k_ii_sqrt = x_k_ii_sqrt
         else:
-            pass
-        K_ij /= np.outer(k_ii_sqrt, k_ii_sqrt)
+            # Calculate self-similarity for X
+            x_k_ii = np.empty(n_x)
+            for i in range(n_x):
+                x_i = x[i]
+                C_ii = self.get_pairwise_matrix(x_i)
+                k_ii = self.get_global_similarity(C_ii)
+                x_k_ii[i] = k_ii
+            x_k_ii_sqrt = np.sqrt(x_k_ii)
+
+            # Calculate self-similarity for Y
+            y_k_ii = np.empty(n_y)
+            for i in range(n_y):
+                y_i = y[i]
+                C_ii = self.get_pairwise_matrix(y_i)
+                k_ii = self.get_global_similarity(C_ii)
+                y_k_ii[i] = k_ii
+            y_k_ii_sqrt = np.sqrt(y_k_ii)
+
+        K_ij /= np.outer(x_k_ii_sqrt, y_k_ii_sqrt)
 
         return K_ij
 

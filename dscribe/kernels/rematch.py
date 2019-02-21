@@ -38,13 +38,11 @@ class REMatchKernel(LocalSimilarityKernel):
             kernel(string or callable): Kernel mapping used internally. A
                 callable should accept two arguments and the keyword arguments
                 passed to this object as kernel_params, and should return a
-                floating point number. Set to "precomputed" in order to pass a
-                precomputed kernel matrix to the estimator methods instead of
-                samples.
+                floating point number.
             gamma(float): Gamma parameter for the RBF, laplacian, polynomial,
                 exponential chi2 and sigmoid kernels. Interpretation of the
                 default value is left to the kernel; see the documentation for
-                sklearn.metrics.pairwise.  Ignored by other kernels.
+                sklearn.metrics.pairwise. Ignored by other kernels.
             degree(float): Degree of the polynomial kernel. Ignored by other
                 kernels.
             coef0(float): Zero coefficient for polynomial and sigmoid kernels.
