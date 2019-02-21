@@ -1,20 +1,41 @@
 Smooth Overlap of Atomic Positions
 ==================================
 
-Smooth Overlap of Atomic Positions (SOAP) is a rotationally and permutationally
-invariant (atom-centered) local descriptor which uses gaussian-smoothing and
-spherical harmonics. It has been conceived in 2013:
+Smooth Overlap of Atomic Positions (SOAP) is a descriptor that encodes regions
+of atomic geometries by using a local expansion of a gaussian smeared atomic
+density with orthonormal functions based on spherical harmonics.
 
-`On representing chemical environments, Albert P. Bartók, Risi Kondor, and
-Gábor Csányi, Phys. Rev. B 87, 184115, (2013)
-<https://doi.org/10.1103/PhysRevB.87.184115>`_
+The output is a vector :math:`\mathbf{p}(\mathbf{r})`, where the different elements are formed
+from the partial SOAP power spectrum defined as :cite:`soap2`
 
-The current implementation is based on
+.. math::
+   p(\mathbf{r})^{Z Z'}_{n n' l} = \pi \sqrt{\frac{8}{2l+1}}\sum_m c^{Z}_{n l m}(\mathbf{r})^{\dagger}c^{Z'}_{n' l m}(\mathbf{r})
 
-`Machine learning hydrogen adsorption on nanoclusters through structural
-descriptors, Marc O. J. Jäger, Eiaki V. Morooka, Filippo Federici Canova, Lauri
-Himanen & Adam S. Foster, npj Computational Materials, 4, 37, 2018
-<https://doi.org/10.1038/s41524-018-0096-5>`_
+where :math:`\mathbf{r}` is a position in space, :math:`c^{Z}_{n l m}` are the
+expansion coefficients of the gaussian smoothed atomic density at position
+:math:`\mathbf{r}` (expanded in the basis of spherical harmonics and orthonormal
+radial basis functions), :math:`n` and :math:`n'` are indices for different
+radial basis functions up to :math:`n_\mathrm{max}`, :math:`l` is the angular
+degree of spherical harmonics up to :math:`l_\mathrm{max}` and :math:`Z` and
+:math:`Z'` are atomic species.  This form ensures stratification of the output
+by species and also provides information about cross-species interaction.
+
+In pseudo-code the ordering of the output vector is as follows:
+
+.. code-block:: none
+
+   for Z in atomic numbers in increasing order:
+      for Z' in atomic numbers in increasing order:
+         for l in range(l_max+1):
+            for n in range(n_max):
+               for n' in range(n_max):
+                  if n' >= n and Z' >= Z:
+                     append p(\chi)^{Z Z'}_{n n' l}` to output vector
+
+By default the implementation uses spherical gaussian type orbitals as radial
+basis functions :cite:`akisoap`, as they allow much faster analytic
+computation. We however also include the possibility of using the original
+polynomial radial basis set :cite:`soap1`.
 
 Setup
 -----
@@ -165,3 +186,5 @@ location using the optional parameter positions. We are going to alleviate this
 constraint soon. Try if it works now, the tutorial might not catch up with the
 development!
 
+.. bibliography:: ../references.bib
+   :style: plain

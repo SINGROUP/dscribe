@@ -17,13 +17,21 @@
   
 
   
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
@@ -32,21 +40,16 @@
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Many-body Tensor Representation" href="mbtr.html" />
     <link rel="prev" title="Atom-centered Symmetry Functions" href="acsf.html" /> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -182,15 +185,35 @@
             
   <div class="section" id="smooth-overlap-of-atomic-positions">
 <h1>Smooth Overlap of Atomic Positions<a class="headerlink" href="#smooth-overlap-of-atomic-positions" title="Permalink to this headline">¶</a></h1>
-<p>Smooth Overlap of Atomic Positions (SOAP) is a rotationally and permutationally
-invariant (atom-centered) local descriptor which uses gaussian-smoothing and
-spherical harmonics. It has been conceived in 2013:</p>
-<p><a class="reference external" href="https://doi.org/10.1103/PhysRevB.87.184115">On representing chemical environments, Albert P. Bartók, Risi Kondor, and
-Gábor Csányi, Phys. Rev. B 87, 184115, (2013)</a></p>
-<p>The current implementation is based on</p>
-<p><a class="reference external" href="https://doi.org/10.1038/s41524-018-0096-5">Machine learning hydrogen adsorption on nanoclusters through structural
-descriptors, Marc O. J. Jäger, Eiaki V. Morooka, Filippo Federici Canova, Lauri
-Himanen &amp; Adam S. Foster, npj Computational Materials, 4, 37, 2018</a></p>
+<p>Smooth Overlap of Atomic Positions (SOAP) is a descriptor that encodes regions
+of atomic geometries by using a local expansion of a gaussian smeared atomic
+density with orthonormal functions based on spherical harmonics.</p>
+<p>The output is a vector <span class="math notranslate nohighlight">\(\mathbf{p}(\mathbf{r})\)</span>, where the different elements are formed
+from the partial SOAP power spectrum defined as <a class="reference internal" href="#soap2" id="id1">[2]</a></p>
+<div class="math notranslate nohighlight">
+\[p(\mathbf{r})^{Z Z'}_{n n' l} = \pi \sqrt{\frac{8}{2l+1}}\sum_m c^{Z}_{n l m}(\mathbf{r})^{\dagger}c^{Z'}_{n' l m}(\mathbf{r})\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathbf{r}\)</span> is a position in space, <span class="math notranslate nohighlight">\(c^{Z}_{n l m}\)</span> are the
+expansion coefficients of the gaussian smoothed atomic density at position
+<span class="math notranslate nohighlight">\(\mathbf{r}\)</span> (expanded in the basis of spherical harmonics and orthonormal
+radial basis functions), <span class="math notranslate nohighlight">\(n\)</span> and <span class="math notranslate nohighlight">\(n'\)</span> are indices for different
+radial basis functions up to <span class="math notranslate nohighlight">\(n_\mathrm{max}\)</span>, <span class="math notranslate nohighlight">\(l\)</span> is the angular
+degree of spherical harmonics up to <span class="math notranslate nohighlight">\(l_\mathrm{max}\)</span> and <span class="math notranslate nohighlight">\(Z\)</span> and
+<span class="math notranslate nohighlight">\(Z'\)</span> are atomic species.  This form ensures stratification of the output
+by species and also provides information about cross-species interaction.</p>
+<p>In pseudo-code the ordering of the output vector is as follows:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>for Z in atomic numbers in increasing order:
+   for Z&#39; in atomic numbers in increasing order:
+      for l in range(l_max+1):
+         for n in range(n_max):
+            for n&#39; in range(n_max):
+               if n&#39; &gt;= n and Z&#39; &gt;= Z:
+                  append p(\chi)^{Z Z&#39;}_{n n&#39; l}` to output vector
+</pre></div>
+</div>
+<p>By default the implementation uses spherical gaussian type orbitals as radial
+basis functions <a class="reference internal" href="#akisoap" id="id2">[3]</a>, as they allow much faster analytic
+computation. We however also include the possibility of using the original
+polynomial radial basis set <a class="reference internal" href="#soap1" id="id3">[1]</a>.</p>
 <div class="section" id="setup">
 <h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h2>
 <p>Instantiating a SOAP descriptor can be done as follows:</p>
@@ -459,6 +482,25 @@ local environment per molecule. That means you would need to specify one
 location using the optional parameter positions. We are going to alleviate this
 constraint soon. Try if it works now, the tutorial might not catch up with the
 development!</p>
+<p id="bibtex-bibliography-tutorials/soap-0"><table class="docutils citation" frame="void" id="soap1" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[1]</a></td><td>Albert&nbsp;P. Bartók, Risi Kondor, and Gábor Csányi. On representing chemical environments. <em>Physical Review B - Condensed Matter and Materials Physics</em>, 87(18):1–16, 2013. <a class="reference external" href="https://doi.org/10.1103/PhysRevB.87.184115">doi:10.1103/PhysRevB.87.184115</a>.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="soap2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[2]</a></td><td>Sandip De, Albert&nbsp;P. Bartók, Gábor Csányi, and Michele Ceriotti. Comparing molecules and solids across structural and alchemical space. <em>Physical Chemistry Chemical Physics</em>, 18(20):13754–13769, 2016. <a class="reference external" href="https://doi.org/10.1039/c6cp00415f">doi:10.1039/c6cp00415f</a>.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="akisoap" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[3]</a></td><td>Marc O&nbsp;J Jäger, Eiaki&nbsp;V Morooka, Filippo&nbsp;Federici Canova, Lauri Himanen, and Adam&nbsp;S Foster. Machine learning hydrogen adsorption on nanoclusters through structural descriptors. <em>npj Computational Materials</em>, 2018. URL: <a class="reference external" href="http://dx.doi.org/10.1038/s41524-018-0096-5">http://dx.doi.org/10.1038/s41524-018-0096-5</a>, <a class="reference external" href="https://doi.org/https://dx.doi.org/10.17172/NOMAD/2018.06.12-2">doi:https://dx.doi.org/10.17172/NOMAD/2018.06.12-2</a>.</td></tr>
+</tbody>
+</table>
+</p>
 </div>
 </div>
 </div>
@@ -474,7 +516,7 @@ development!</p>
         <a href="mbtr.html" class="btn btn-neutral float-right" title="Many-body Tensor Representation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="acsf.html" class="btn btn-neutral" title="Atom-centered Symmetry Functions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="acsf.html" class="btn btn-neutral float-left" title="Atom-centered Symmetry Functions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -500,27 +542,16 @@ development!</p>
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>
