@@ -193,10 +193,12 @@
 similarity of local atomic environments in the structure. More precisely,
 returns the similarity kernel K as:</p>
 <div class="math notranslate nohighlight">
-\[K(A, B) = \frac{1}{2}\sum_{ij} C_{ij}(A, B)\]</div>
-<p>where the similarity between local atomic environments <span class="math notranslate nohighlight">\(C_{ij}\)</span> has
-been calculated with the pairwise metric (e.g. linear, gaussian) defined by
-the parameters given in the constructor.</p>
+\[K(A, B) = \frac{1}{N M}\sum_{ij} C_{ij}(A, B)\]</div>
+<p>where <span class="math notranslate nohighlight">\(N\)</span> is the number of atoms in structure <span class="math notranslate nohighlight">\(A\)</span>, <span class="math notranslate nohighlight">\(M\)</span> is
+the number of atoms in structure <span class="math notranslate nohighlight">\(B\)</span> and the similarity between local
+atomic environments <span class="math notranslate nohighlight">\(C_{ij}\)</span> has been calculated with the pairwise
+metric (e.g. linear, gaussian) defined by the parameters given in the
+constructor.</p>
 <dl class="method">
 <dt id="dscribe.kernels.average.AverageKernel.get_global_similarity">
 <code class="descname">get_global_similarity</code><span class="sig-paren">(</span><em>localkernel</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/kernels/average.html#AverageKernel.get_global_similarity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.kernels.average.AverageKernel.get_global_similarity" title="Permalink to this definition">¶</a></dt>

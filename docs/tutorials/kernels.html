@@ -196,9 +196,11 @@ Phys., 18, 13754-13769, 2016”</a></p>
 <p>The simplest approach is to average over the local contributions to create a
 global similarity measure. This average kernel <span class="math notranslate nohighlight">\(K\)</span> is defined as as:</p>
 <div class="math notranslate nohighlight">
-\[K(A, B) = \frac{1}{2}\sum_{ij} C_{ij}(A, B)\]</div>
-<p>where the similarity between local atomic environments <span class="math notranslate nohighlight">\(C_{ij}\)</span> can
-in general be calculated with any pairwise metric (e.g. linear, gaussian).</p>
+\[K(A, B) = \frac{1}{N M}\sum_{ij} C_{ij}(A, B)\]</div>
+<p>where <span class="math notranslate nohighlight">\(N\)</span> is the number of atoms in structure <span class="math notranslate nohighlight">\(A\)</span>, <span class="math notranslate nohighlight">\(M\)</span> is the
+number of atoms in structure <span class="math notranslate nohighlight">\(B\)</span> and the similarity between local atomic
+environments <span class="math notranslate nohighlight">\(C_{ij}\)</span> can in general be calculated with any pairwise
+metric (e.g.  linear, gaussian).</p>
 <p>. The class <a class="reference internal" href="../doc/dscribe.kernels.html#dscribe.kernels.average.AverageKernel" title="dscribe.kernels.average.AverageKernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">AverageKernel</span></code></a> can be used to calculate
 this similarity.  Here is an example of calculating an average kernel for two
 relatively similar molecules by using SOAP and a linear and Gaussian similarity
