@@ -170,11 +170,13 @@
 <span class="sd">    returns the similarity kernel K as:</span>
 
 <span class="sd">    .. math::</span>
-<span class="sd">        K(A, B) = \\frac{1}{2}\sum_{ij} C_{ij}(A, B)</span>
+<span class="sd">        K(A, B) = \\frac{1}{N M}\sum_{ij} C_{ij}(A, B)</span>
 
-<span class="sd">    where the similarity between local atomic environments :math:`C_{ij}` has</span>
-<span class="sd">    been calculated with the pairwise metric (e.g. linear, gaussian) defined by</span>
-<span class="sd">    the parameters given in the constructor.</span>
+<span class="sd">    where :math:`N` is the number of atoms in structure :math:`A`, :math:`M` is</span>
+<span class="sd">    the number of atoms in structure :math:`B` and the similarity between local</span>
+<span class="sd">    atomic environments :math:`C_{ij}` has been calculated with the pairwise</span>
+<span class="sd">    metric (e.g. linear, gaussian) defined by the parameters given in the</span>
+<span class="sd">    constructor.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="AverageKernel.get_global_similarity"><a class="viewcode-back" href="../../../doc/dscribe.kernels.html#dscribe.kernels.average.AverageKernel.get_global_similarity">[docs]</a>    <span class="k">def</span> <span class="nf">get_global_similarity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">localkernel</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>

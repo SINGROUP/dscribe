@@ -23,10 +23,12 @@ The simplest approach is to average over the local contributions to create a
 global similarity measure. This average kernel :math:`K` is defined as as:
 
 .. math::
-    K(A, B) = \frac{1}{2}\sum_{ij} C_{ij}(A, B)
+    K(A, B) = \frac{1}{N M}\sum_{ij} C_{ij}(A, B)
 
-where the similarity between local atomic environments :math:`C_{ij}` can
-in general be calculated with any pairwise metric (e.g. linear, gaussian).
+where :math:`N` is the number of atoms in structure :math:`A`, :math:`M` is the
+number of atoms in structure :math:`B` and the similarity between local atomic
+environments :math:`C_{ij}` can in general be calculated with any pairwise
+metric (e.g.  linear, gaussian).
 
 . The class :class:`.AverageKernel` can be used to calculate
 this similarity.  Here is an example of calculating an average kernel for two
