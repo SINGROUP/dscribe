@@ -99,7 +99,7 @@ class ACSF(Descriptor):
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
         """
-        super().__init__(flatten=False, sparse=sparse)
+        super().__init__(flatten=True, sparse=sparse)
 
         self._obj = ACSFObject()
         self._obj.alloc_atoms = 0

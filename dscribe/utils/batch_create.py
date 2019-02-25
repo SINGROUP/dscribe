@@ -11,16 +11,17 @@ def create(inp):
     (instead of nested within batch_create), because only top level functions
     are picklable by the multiprocessing library.
     """
+    global desc
     samples = inp[0]
-    descriptor = inp[1]
-    pos = inp[2]
-    verbose = inp[3]
-    proc_id = inp[4]
+    # descriptor = inp[1]
+    pos = inp[1]
+    verbose = inp[2]
+    proc_id = inp[3]
 
     # Create descriptors for the dataset
     n_samples = len(samples)
-    is_sparse = descriptor._sparse
-    n_features = descriptor.get_number_of_features()
+    is_sparse = desc._sparse
+    n_features = desc.get_number_of_features()
 
     if is_sparse:
         data = []
@@ -32,10 +33,10 @@ def create(inp):
     old_percent = 0
     for i_sample, sample in enumerate(samples):
         if pos is None:
-            vec = descriptor.create(sample)
+            vec = desc.create(sample)
         else:
             i_pos = pos[i_sample]
-            vec = descriptor.create(sample, i_pos)
+            vec = desc.create(sample, i_pos)
 
         if is_sparse:
             data.append(vec.data)
@@ -93,6 +94,8 @@ def batch_create(descriptor, samples, n_proc, positions=None, create_func=None, 
     # Get number of samples and whether the output is sparse or not.
     n_features = descriptor.get_number_of_features()
     is_sparse = descriptor._sparse
+    global desc
+    desc = descriptor
 
     # If the descriptor is not flattened, the batch processing cannot be by
     # this function.
@@ -109,9 +112,9 @@ def batch_create(descriptor, samples, n_proc, positions=None, create_func=None, 
     atoms_split = (samples[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_proc))
     if positions is not None:
         positions_split = (positions[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_proc))
-        inputs = [(x, descriptor, pos, verbose, proc_id) for proc_id, (x, pos) in enumerate(zip(atoms_split, positions_split))]
+        inputs = [(x, pos, verbose, proc_id) for proc_id, (x, pos) in enumerate(zip(atoms_split, positions_split))]
     else:
-        inputs = [(x, descriptor, None, verbose, proc_id) for proc_id, x in enumerate(atoms_split)]
+        inputs = [(x, None, verbose, proc_id) for proc_id, x in enumerate(atoms_split)]
 
     # Initialize a pool of processes, and tell each process in the pool to
     # handle a different part of the data
