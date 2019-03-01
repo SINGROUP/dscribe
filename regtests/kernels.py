@@ -68,7 +68,7 @@ class AverageKernelTests(unittest.TestCase):
         methods.
         """
         # Create SOAP features for a system
-        desc = SOAP([1, 8], 5.0, 2, 2, sigma=0.2, periodic=False, crossover=True, sparse=False, normalize=True)
+        desc = SOAP([1, 8], 5.0, 2, 2, sigma=0.2, periodic=False, crossover=True, sparse=False)
         a = molecule('H2O')
         b = molecule('O2')
         c = molecule('H2O2')
@@ -87,7 +87,7 @@ class AverageKernelTests(unittest.TestCase):
         """Tests that sparse features may also be used to construct the kernels.
         """
         # Create SOAP features for a system
-        desc = SOAP([1, 8], 5.0, 2, 2, sigma=0.2, periodic=False, crossover=True, sparse=True, normalize=True)
+        desc = SOAP([1, 8], 5.0, 2, 2, sigma=0.2, periodic=False, crossover=True, sparse=True)
         a = molecule('H2O')
         a_feat = desc.create(a)
         kernel = AverageKernel(metric="linear")
@@ -173,7 +173,7 @@ class REMatchKernelTests(unittest.TestCase):
         methods.
         """
         # Create SOAP features for a system
-        desc = SOAP([1, 8], 5.0, 2, 2, sigma=0.2, periodic=False, crossover=True, sparse=False, normalize=True)
+        desc = SOAP([1, 8], 5.0, 2, 2, sigma=0.2, periodic=False, crossover=True, sparse=False)
         a = molecule('H2O')
         b = molecule('O2')
         c = molecule('H2O2')
@@ -192,7 +192,7 @@ class REMatchKernelTests(unittest.TestCase):
         """Tests that sparse features may also be used to construct the kernels.
         """
         # Create SOAP features for a system
-        desc = SOAP([1, 8], 5.0, 2, 2, sigma=0.2, periodic=False, crossover=True, sparse=True, normalize=True)
+        desc = SOAP([1, 8], 5.0, 2, 2, sigma=0.2, periodic=False, crossover=True, sparse=True)
         a = molecule('H2O')
         a_feat = desc.create(a)
         kernel = REMatchKernel(metric="linear", alpha=0.1, threshold=1e-6)
