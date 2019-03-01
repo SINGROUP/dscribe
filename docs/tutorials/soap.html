@@ -241,7 +241,7 @@ polynomial radial basis set <a class="reference internal" href="#soap1" id="id3"
 <p>The arguments have the following effect:</p>
 <dl class="method">
 <dt id="dscribe.descriptors.soap.SOAP.__init__">
-<code class="descclassname">SOAP.</code><code class="descname">__init__</code><span class="sig-paren">(</span><em>atomic_numbers</em>, <em>rcut</em>, <em>nmax</em>, <em>lmax</em>, <em>sigma=1.0</em>, <em>rbf='gto'</em>, <em>periodic=False</em>, <em>crossover=True</em>, <em>average=False</em>, <em>normalize=False</em>, <em>sparse=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">SOAP.</code><code class="descname">__init__</code><span class="sig-paren">(</span><em>atomic_numbers</em>, <em>rcut</em>, <em>nmax</em>, <em>lmax</em>, <em>sigma=1.0</em>, <em>rbf='gto'</em>, <em>periodic=False</em>, <em>crossover=True</em>, <em>average=False</em>, <em>sparse=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -271,9 +271,7 @@ atomic density.</li>
 <li><strong>crossover</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Default True, if crossover of atomic types should
 be included in the power spectrum.</li>
 <li><strong>average</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Whether to build an average output for all selected
-positions. Before averaging the outputs for individual atoms are
-normalized.</li>
-<li><strong>normalize</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Whether to normalize the final output.</li>
+positions.</li>
 <li><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
 dense numpy array.</li>
 </ul>
