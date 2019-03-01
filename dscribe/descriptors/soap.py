@@ -35,7 +35,6 @@ class SOAP(Descriptor):
             periodic=False,
             crossover=True,
             average=False,
-            normalize=False,
             sparse=True
             ):
         """
@@ -64,8 +63,6 @@ class SOAP(Descriptor):
                 be included in the power spectrum.
             average (bool): Whether to build an average output for all selected
                 positions.
-            normalize (bool): Whether to normalize the final output to unit
-                length.
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
         """
@@ -114,7 +111,6 @@ class SOAP(Descriptor):
         self._periodic = periodic
         self._crossover = crossover
         self._average = average
-        self._normalize = normalize
 
         if self._rbf == "gto":
             self._alphas, self._betas = soaplite.genBasis.getBasisFunc(self._rcut, self._nmax)
@@ -261,10 +257,6 @@ class SOAP(Descriptor):
         if self._average:
             soap_mat = soap_mat.mean(axis=0)
             soap_mat = np.expand_dims(soap_mat, 0)
-
-        # Normalize if requested
-        if self._normalize:
-            soap_mat = soap_mat / np.linalg.norm(soap_mat, axis=1)[:, np.newaxis]
 
         # Make into a sparse array if requested
         if self._sparse:

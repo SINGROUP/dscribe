@@ -89,7 +89,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         lmax = 5
         nmax = 5
         atomic_numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
-        desc = SOAP(atomic_numbers=atomic_numbers, rcut=5, nmax=nmax, lmax=lmax, periodic=False, sparse=False, normalize=True)
+        desc = SOAP(atomic_numbers=atomic_numbers, rcut=5, nmax=nmax, lmax=lmax, periodic=False, sparse=False)
 
         pos = np.expand_dims(np.linspace(0, 8, 8), 1)
         pos = np.hstack((pos, pos, pos))
@@ -369,11 +369,8 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         first = desc.create(sys, positions=[0])[0, :]
         second = desc.create(sys, positions=[1])[0, :]
 
-        # Check that the normalization is done correctly, by first normalizing
-        # the outputs and then averaging them.
-        first_normalized = first/np.linalg.norm(first, axis=0)
-        second_normalized = second/np.linalg.norm(second, axis=0)
-        assumed_average = (first_normalized+second_normalized)/2
+        # Check that the averaging is done correctlyl
+        assumed_average = (first+second)/2
         self.assertTrue(np.array_equal(average, assumed_average))
 
     def test_basis(self):
@@ -394,11 +391,10 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             lmax=5,
             periodic=False,
             crossover=True,
-            normalize=True,
             sparse=False
         )
 
-        # Create normalized vectors for each system
+        # Create vectors for each system
         vec1 = desc.create(sys1, positions=[[0, 0, 0]])[0, :]
         vec2 = desc.create(sys2, positions=[[0, 0, 0]])[0, :]
         vec3 = desc.create(sys3, positions=[[0, 0, 0]])[0, :]

@@ -17,7 +17,7 @@ class AverageKernelTests(unittest.TestCase):
         """Tests that the similarity is correct.
         """
         # Create SOAP features for a system
-        desc = SOAP([1, 6, 7, 8], 5.0, 2, 2, sigma=0.2, periodic=False, crossover=True, sparse=False, normalize=True)
+        desc = SOAP([1, 6, 7, 8], 5.0, 2, 2, sigma=0.2, periodic=False, crossover=True, sparse=False)
 
         # Calculate that identical molecules are identical.
         a = molecule("H2O")
@@ -46,7 +46,7 @@ class AverageKernelTests(unittest.TestCase):
         """Tests that different metrics as defined by scikit-learn can be used.
         """
         # Create SOAP features for a system
-        desc = SOAP([1, 8], 5.0, 2, 2, sigma=0.2, periodic=False, crossover=True, sparse=False, normalize=True)
+        desc = SOAP([1, 8], 5.0, 2, 2, sigma=0.2, periodic=False, crossover=True, sparse=False)
         a = molecule('H2O')
         a_features = desc.create(a)
 
@@ -69,7 +69,7 @@ class REMatchKernelTests(unittest.TestCase):
         """Tests that the similarity is correct.
         """
         # Create SOAP features for a system
-        desc = SOAP([1, 6, 7, 8], 5.0, 2, 2, sigma=0.2, periodic=False, crossover=True, sparse=False, normalize=True)
+        desc = SOAP([1, 6, 7, 8], 5.0, 2, 2, sigma=0.2, periodic=False, crossover=True, sparse=False)
 
         # Calculate that identical molecules are identical.
         a = molecule("H2O")
@@ -99,7 +99,7 @@ class REMatchKernelTests(unittest.TestCase):
         kernel at the the limit of infinite alpha.
         """
         # Create SOAP features for a system
-        desc = SOAP([1, 8], 5.0, 2, 2, sigma=0.2, periodic=False, crossover=True, sparse=False, normalize=True)
+        desc = SOAP([1, 8], 5.0, 2, 2, sigma=0.2, periodic=False, crossover=True, sparse=False)
         a = molecule('H2O')
         b = molecule('H2O2')
         a_features = desc.create(a)
@@ -120,7 +120,7 @@ class REMatchKernelTests(unittest.TestCase):
         """Tests that different metrics as defined by scikit-learn can be used.
         """
         # Create SOAP features for a system
-        desc = SOAP([1, 8], 5.0, 2, 2, sigma=0.2, periodic=False, crossover=True, sparse=False, normalize=True)
+        desc = SOAP([1, 8], 5.0, 2, 2, sigma=0.2, periodic=False, crossover=True, sparse=False)
         a = molecule('H2O')
         a_features = desc.create(a)
 
@@ -139,7 +139,7 @@ class REMatchKernelTests(unittest.TestCase):
 
 if __name__ == '__main__':
     suites = []
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(AverageKernelTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(AverageKernelTests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(REMatchKernelTests))
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)
