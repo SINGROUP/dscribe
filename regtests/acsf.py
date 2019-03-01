@@ -211,31 +211,28 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
     def test_basis(self):
         """Tests that the output vectors behave correctly as a basis.
         """
-        sys1 = Atoms(symbols=["H", "H"], positions=[[0, 0, 0], [1, 0, 0]], cell=[2, 2, 2], pbc=True)
-        sys2 = Atoms(symbols=["H", "O"], positions=[[0, 0, 0], [1, 0, 0]], cell=[2, 2, 2], pbc=True)
+        sys1 = Atoms(symbols=["H", "H"], positions=[[0, 0, 0], [1, 0, 0]], cell=[2, 2, 2], pbc=False)
+        sys2 = Atoms(symbols=["H", "O"], positions=[[0, 0, 0], [1, 0, 0]], cell=[2, 2, 2], pbc=False)
 
-        # Create normalized vectors for each system
+        # Create vectors for each system
         vec1 = default_desc.create(sys1, positions=[0])[0, :]
-        vec1 /= np.linalg.norm(vec1)
 
         vec2 = default_desc.create(sys2, positions=[0])[0, :]
-        vec2 /= np.linalg.norm(vec2)
 
         vec3 = default_desc.create(sys1, positions=[1])[0, :]
-        vec3 /= np.linalg.norm(vec3)
 
         vec4 = default_desc.create(sys2, positions=[1])[0, :]
-        vec4 /= np.linalg.norm(vec4)
 
         # The dot-product should be zero when the environment does not have the
         # same elements
         dot = np.dot(vec1, vec2)
         self.assertTrue(abs(dot) < 1e-8)
 
-        # The dot-product should be one for identical environments, even if the
-        # central atom is different
-        dot = np.dot(vec3, vec4)
-        self.assertTrue(abs(dot-1) < 1e-8)
+        # The dot-product should be the same for two atoms with the same
+        # environment, even if the central atom is different.
+        dot1 = np.dot(vec3, vec3)
+        dot2 = np.dot(vec3, vec4)
+        self.assertTrue(abs(dot1-dot2) < 1e-8)
 
     def test_unit_cells(self):
         """Tests if arbitrary unit cells are accepted.

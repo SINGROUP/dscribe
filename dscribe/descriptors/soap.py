@@ -35,7 +35,6 @@ class SOAP(Descriptor):
             periodic=False,
             crossover=True,
             average=False,
-            normalize=False,
             sparse=True
             ):
         """
@@ -63,9 +62,7 @@ class SOAP(Descriptor):
             crossover (bool): Default True, if crossover of atomic types should
                 be included in the power spectrum.
             average (bool): Whether to build an average output for all selected
-                positions. Before averaging the outputs for individual atoms are
-                normalized.
-            normalize (bool): Whether to normalize the final output.
+                positions.
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
         """
@@ -114,7 +111,6 @@ class SOAP(Descriptor):
         self._periodic = periodic
         self._crossover = crossover
         self._average = average
-        self._normalize = normalize
 
         if self._rbf == "gto":
             self._alphas, self._betas = soaplite.genBasis.getBasisFunc(self._rcut, self._nmax)
@@ -257,16 +253,10 @@ class SOAP(Descriptor):
             self._atomic_numbers
         )
 
-        # Create the averaged SOAP output if requested. The individual terms are
-        # normalized first.
+        # Create the averaged SOAP output if requested.
         if self._average:
-            soap_mat = soap_mat / np.linalg.norm(soap_mat, axis=1)[:, None]
             soap_mat = soap_mat.mean(axis=0)
             soap_mat = np.expand_dims(soap_mat, 0)
-
-        # Normalize if requested
-        if self._normalize:
-            soap_mat = soap_mat / np.linalg.norm(soap_mat, axis=1)[:, np.newaxis]
 
         # Make into a sparse array if requested
         if self._sparse:
