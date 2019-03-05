@@ -194,7 +194,6 @@
             <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">crossover</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">average</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">sparse</span><span class="o">=</span><span class="kc">True</span>
             <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -222,9 +221,7 @@
 <span class="sd">            crossover (bool): Default True, if crossover of atomic types should</span>
 <span class="sd">                be included in the power spectrum.</span>
 <span class="sd">            average (bool): Whether to build an average output for all selected</span>
-<span class="sd">                positions. Before averaging the outputs for individual atoms are</span>
-<span class="sd">                normalized.</span>
-<span class="sd">            normalize (bool): Whether to normalize the final output.</span>
+<span class="sd">                positions.</span>
 <span class="sd">            sparse (bool): Whether the output should be a sparse matrix or a</span>
 <span class="sd">                dense numpy array.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -273,7 +270,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_periodic</span> <span class="o">=</span> <span class="n">periodic</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_crossover</span> <span class="o">=</span> <span class="n">crossover</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_average</span> <span class="o">=</span> <span class="n">average</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_normalize</span> <span class="o">=</span> <span class="n">normalize</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rbf</span> <span class="o">==</span> <span class="s2">&quot;gto&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_alphas</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_betas</span> <span class="o">=</span> <span class="n">soaplite</span><span class="o">.</span><span class="n">genBasis</span><span class="o">.</span><span class="n">getBasisFunc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rcut</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nmax</span><span class="p">)</span></div>
@@ -416,16 +412,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span>
         <span class="p">)</span>
 
-        <span class="c1"># Create the averaged SOAP output if requested. The individual terms are</span>
-        <span class="c1"># normalized first.</span>
+        <span class="c1"># Create the averaged SOAP output if requested.</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_average</span><span class="p">:</span>
-            <span class="n">soap_mat</span> <span class="o">=</span> <span class="n">soap_mat</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">soap_mat</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">]</span>
             <span class="n">soap_mat</span> <span class="o">=</span> <span class="n">soap_mat</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
             <span class="n">soap_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">soap_mat</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-
-        <span class="c1"># Normalize if requested</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize</span><span class="p">:</span>
-            <span class="n">soap_mat</span> <span class="o">=</span> <span class="n">soap_mat</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">soap_mat</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
 
         <span class="c1"># Make into a sparse array if requested</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span><span class="p">:</span>
