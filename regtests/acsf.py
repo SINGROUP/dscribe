@@ -127,15 +127,13 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
     def test_features(self):
         """Tests that the correct features are present in the descriptor.
         """
-        eta = 1
-        rs = 0.5
-        kappa = 1
-        eta = 1
+        rs = math.sqrt(2)
+        kappa = math.sqrt(3)
+        eta = math.sqrt(5)
         lmbd = 1
-        zeta = 1
+        zeta = math.sqrt(7)
 
         # Test against assumed values
-        # print(H2O)
         dist_oh = H2O.get_distance(0, 1)
         dist_hh = H2O.get_distance(0, 2)
         ang_hoh = H2O.get_angle(0, 1, 2) * np.pi / 180.0
@@ -174,7 +172,7 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
         self.assertAlmostEqual(acsfg3[1, 1], g3_oh)
 
         # G4
-        desc = ACSF(atomic_numbers=[1, 8], g4_params=[[eta, lmbd, zeta]])
+        desc = ACSF(atomic_numbers=[1, 8], g4_params=[[eta, zeta, lmbd]])
         acsfg4 = desc.create(H2O)
         gauss = np.exp(-eta * (2 * dist_oh * dist_oh + dist_hh * dist_hh)) * g1_ho * g1_hh * g1_ho
         g4_h_ho = np.power(2, 1 - zeta) * np.power((1 + lmbd*np.cos(ang_hho)), zeta) * gauss
@@ -185,7 +183,7 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
         self.assertAlmostEqual(acsfg4[1, 2], g4_o_hh)
 
         # G5
-        desc = ACSF(atomic_numbers=[1, 8], g5_params=[[eta, lmbd, zeta]])
+        desc = ACSF(atomic_numbers=[1, 8], g5_params=[[eta, zeta, lmbd]])
         acsfg5 = desc.create(H2O)
         gauss = np.exp(-eta * (dist_oh * dist_oh + dist_hh * dist_hh)) * g1_ho * g1_hh
         g5_h_ho = np.power(2, 1 - zeta) * np.power((1 + lmbd*np.cos(ang_hho)), zeta) * gauss
