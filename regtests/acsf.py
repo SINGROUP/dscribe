@@ -12,6 +12,7 @@ from dscribe.descriptors import ACSF
 from testbaseclass import TestBaseClass
 
 from ase import Atoms
+from ase.build import molecule
 
 
 H2O = Atoms(
@@ -42,7 +43,7 @@ H = Atoms(
 )
 
 default_desc = ACSF(
-    atomic_numbers=[1, 8],
+    species=[1, 8],
     g2_params=[[1, 2]],
     # g2_params=[[1, 2], [4, 5]],
     # g3_params=[1, 2, 3, 4],
@@ -56,53 +57,70 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
     def test_constructor(self):
         """Tests different valid and invalid constructor values.
         """
-        # Invalid atomic_numbers
+        # Invalid species
         with self.assertRaises(ValueError):
-            ACSF(atomic_numbers=None)
+            ACSF(species=None)
 
         # Invalid bond_params
         with self.assertRaises(ValueError):
-            ACSF(atomic_numbers=[1, 6, 8], g2_params=[1, 2, 3])
+            ACSF(species=[1, 6, 8], g2_params=[1, 2, 3])
 
         # Invalid bond_cos_params
         with self.assertRaises(ValueError):
-            ACSF(atomic_numbers=[1, 6, 8], g3_params=[[1, 2], [3, 1]])
+            ACSF(species=[1, 6, 8], g3_params=[[1, 2], [3, 1]])
 
         # Invalid bond_cos_params
         with self.assertRaises(ValueError):
-            ACSF(atomic_numbers=[1, 6, 8], g3_params=[[1, 2, 4], [3, 1]])
+            ACSF(species=[1, 6, 8], g3_params=[[1, 2, 4], [3, 1]])
 
         # Invalid ang4_params
         with self.assertRaises(ValueError):
-            ACSF(atomic_numbers=[1, 6, 8], g4_params=[[1, 2], [3, 1]])
+            ACSF(species=[1, 6, 8], g4_params=[[1, 2], [3, 1]])
 
         # Invalid ang5_params
         with self.assertRaises(ValueError):
-            ACSF(atomic_numbers=[1, 6, 8], g5_params=[[1, 2], [3, 1]])
+            ACSF(species=[1, 6, 8], g5_params=[[1, 2], [3, 1]])
+
+    def test_properties(self):
+        """Used to test that changing the setup through properties works as
+        intended.
+        """
+        # Test changing species
+        a = ACSF(
+            species=[1, 8],
+            g2_params=[[1, 2]]
+        )
+        nfeat1 = a.get_number_of_features()
+        vec1 = a.create(H2O)
+        a.species = ["C", "H", "O"]
+        nfeat2 = a.get_number_of_features()
+        vec2 = a.create(molecule("CH3OH"))
+        self.assertTrue(nfeat1 != nfeat2)
+        self.assertTrue(len(vec1) != len(vec2))
 
     def test_number_of_features(self):
         """Tests that the reported number of features is correct.
         """
-        atomic_numbers = [1, 8]
-        n_elem = len(atomic_numbers)
+        species = [1, 8]
+        n_elem = len(species)
 
-        desc = ACSF(atomic_numbers=atomic_numbers)
+        desc = ACSF(species=species)
         n_features = desc.get_number_of_features()
         self.assertEqual(n_features, n_elem)
 
-        desc = ACSF(atomic_numbers=atomic_numbers, g2_params=[[1, 2], [4, 5]])
+        desc = ACSF(species=species, g2_params=[[1, 2], [4, 5]])
         n_features = desc.get_number_of_features()
         self.assertEqual(n_features, n_elem * (2+1))
 
-        desc = ACSF(atomic_numbers=[1, 8], g3_params=[1, 2, 3, 4])
+        desc = ACSF(species=[1, 8], g3_params=[1, 2, 3, 4])
         n_features = desc.get_number_of_features()
         self.assertEqual(n_features, n_elem * (4+1))
 
-        desc = ACSF(atomic_numbers=[1, 8], g4_params=[[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]])
+        desc = ACSF(species=[1, 8], g4_params=[[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]])
         n_features = desc.get_number_of_features()
         self.assertEqual(n_features, n_elem + 4 * 3)
 
-        desc = ACSF(atomic_numbers=[1, 8], g2_params=[[1, 2], [4, 5]], g3_params=[1, 2, 3, 4],
+        desc = ACSF(species=[1, 8], g2_params=[[1, 2], [4, 5]], g3_params=[1, 2, 3, 4],
             g4_params=[[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]])
         n_features = desc.get_number_of_features()
         self.assertEqual(n_features, n_elem * (1 + 2 + 4) + 4 * 3)
@@ -142,7 +160,7 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
         rc = 6.0
 
         # G1
-        desc = ACSF(atomic_numbers=[1, 8])
+        desc = ACSF(species=[1, 8])
         acsfg1 = desc.create(H2O)
         g1_ho = 0.5 * (np.cos(np.pi*dist_oh / rc) + 1)
         g1_hh = 0.5 * (np.cos(np.pi*dist_hh / rc) + 1)
@@ -152,7 +170,7 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
         self.assertAlmostEqual(acsfg1[1, 0], g1_oh)
 
         # G2
-        desc = ACSF(atomic_numbers=[1, 8], g2_params=[[eta, rs]])
+        desc = ACSF(species=[1, 8], g2_params=[[eta, rs]])
         acsfg2 = desc.create(H2O)
         g2_hh = np.exp(-eta * np.power((dist_hh - rs), 2)) * g1_hh
         g2_ho = np.exp(-eta * np.power((dist_oh - rs), 2)) * g1_ho
@@ -162,7 +180,7 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
         self.assertAlmostEqual(acsfg2[1, 1], g2_oh)
 
         # G3
-        desc = ACSF(atomic_numbers=[1, 8], g3_params=[kappa])
+        desc = ACSF(species=[1, 8], g3_params=[kappa])
         acsfg3 = desc.create(H2O)
         g3_hh = np.cos(dist_hh * kappa) * g1_hh
         g3_ho = np.cos(dist_oh * kappa) * g1_ho
@@ -172,7 +190,7 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
         self.assertAlmostEqual(acsfg3[1, 1], g3_oh)
 
         # G4
-        desc = ACSF(atomic_numbers=[1, 8], g4_params=[[eta, zeta, lmbd]])
+        desc = ACSF(species=[1, 8], g4_params=[[eta, zeta, lmbd]])
         acsfg4 = desc.create(H2O)
         gauss = np.exp(-eta * (2 * dist_oh * dist_oh + dist_hh * dist_hh)) * g1_ho * g1_hh * g1_ho
         g4_h_ho = np.power(2, 1 - zeta) * np.power((1 + lmbd*np.cos(ang_hho)), zeta) * gauss
@@ -183,7 +201,7 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
         self.assertAlmostEqual(acsfg4[1, 2], g4_o_hh)
 
         # G5
-        desc = ACSF(atomic_numbers=[1, 8], g5_params=[[eta, zeta, lmbd]])
+        desc = ACSF(species=[1, 8], g5_params=[[eta, zeta, lmbd]])
         acsfg5 = desc.create(H2O)
         gauss = np.exp(-eta * (dist_oh * dist_oh + dist_hh * dist_hh)) * g1_ho * g1_hh
         g5_h_ho = np.power(2, 1 - zeta) * np.power((1 + lmbd*np.cos(ang_hho)), zeta) * gauss

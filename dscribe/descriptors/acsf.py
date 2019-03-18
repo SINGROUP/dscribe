@@ -11,6 +11,7 @@ from scipy.sparse import coo_matrix
 from ctypes import cdll, Structure, c_int, c_double, POINTER, byref
 
 from dscribe.descriptors.descriptor import Descriptor
+from dscribe.utils.species import get_atomic_numbers
 
 
 _PATH_TO_ACSF_SO = os.path.dirname(os.path.abspath(__file__))
@@ -69,7 +70,8 @@ class ACSF(Descriptor):
     """
     def __init__(
         self,
-        atomic_numbers,
+        species=None,
+        atomic_numbers=None,
         rcut=6.0,
         g2_params=None,
         g3_params=None,
@@ -79,13 +81,17 @@ class ACSF(Descriptor):
     ):
         """
         Args:
+            species (iterable): The chemical species as a list of atomic
+                numbers or as a list of chemical symbols. Notice that this is not
+                the atomic numbers that are present for an individual system, but
+                should contain all the elements that are ever going to be
+                encountered when creating the descriptors for a set of systems.
+                Keeping the number of chemical speices as low as possible is
+                preferable.
             atomic_numbers (iterable): A list of the atomic numbers that should
-                be taken into account in the descriptor. Notice that this is
-                not the atomic numbers that are present for an individual
-                system, but should contain all the elements that are ever going
-                to be encountered when creating the descriptors for a set of
-                systems. Keeping the number of handled elements as low as
-                possible is preferable.
+                be taken into account in the descriptor. Deprecated in favour of
+                the species-parameters, but provided for
+                backwards-compatibility.
             rcut (float): The smooth cutoff value. This cutoff value is
                 used throughout the calculations for all symmetry functions.
             g2_params (n*2 np.ndarray): A list of pairs of :math:`\eta` and
@@ -107,7 +113,9 @@ class ACSF(Descriptor):
 
         self._Zs = None
 
-        self.set_types(atomic_numbers)
+        species = self.get_species_definition(species, atomic_numbers)
+        self.species = species
+
         self.set_g2_params(g2_params)
         self.set_g3_params(g3_params)
         self.set_g4_params(g4_params)
@@ -153,10 +161,7 @@ class ACSF(Descriptor):
         self._obj.natm = c_int(n_atoms)
 
         # Check if there are types that have not been declared
-        input_types = set(system.get_atomic_numbers())
-        defined_types = set(self._types)
-        if not input_types.issubset(defined_types):
-            raise ValueError("The system has types that were not declared.")
+        self.check_atomic_numbers(system.get_atomic_numbers())
 
         # Setup pointer to the atomic positions
         self.positions = np.array(system.get_positions(), dtype=np.double)
@@ -206,33 +211,32 @@ class ACSF(Descriptor):
 
         return int(descsize)
 
-    def set_types(self, value):
+    @property
+    def species(self):
+        return self._species
+
+    @species.setter
+    def species(self, value):
         """Used to check the validity of given atomic numbers and to initialize
         the C-memory layout for them.
 
         Args:
-            value(iterable): Atomic numbers.
+            value(iterable): Chemical species either as a list of atomic
+                numbers or list of chemical symbols.
         """
-        if value is None:
-            raise ValueError("Atomic types cannot be None.")
+        # The species are stored as atomic numbers for internal use.
+        self._set_species(value)
 
-        pmatrix = np.array(value, dtype=np.int32)
-
-        if pmatrix.ndim != 1:
-            raise ValueError("Atomic types should be a vector of integers.")
-
+        # Here we setup the C memory layout
+        pmatrix = np.array(self._atomic_numbers, dtype=np.int32)
         pmatrix = np.unique(pmatrix)
         pmatrix = np.sort(pmatrix)
-
-        self._types = pmatrix
         self._obj.types = pmatrix.ctypes.data_as(POINTER(c_int))
-
-        # Set the internal indexer
-        self._obj.nTypes = c_int(pmatrix.shape[0])
+        self._obj.nTypes = c_int(pmatrix.shape[0])  # Set the internal indexer
         self._obj.nSymTypes = c_int(int((pmatrix.shape[0]*(pmatrix.shape[0]+1))/2))
 
         for i in range(pmatrix.shape[0]):
-            self._obj.typeID[ self._types[i]] = i
+            self._obj.typeID[ pmatrix[i]] = i
 
     def set_rcut(self, value):
         """Used to check the validity of given radial cutoff and to initialize

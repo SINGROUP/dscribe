@@ -7,6 +7,7 @@ import numpy as np
 import unittest
 
 from dscribe.core import System
+from dscribe.descriptors import ACSF
 from dscribe.descriptors import CoulombMatrix
 from dscribe.descriptors import SOAP
 from dscribe.utils import batch_create
@@ -225,12 +226,38 @@ class ASETests(unittest.TestCase):
         self.assertTrue(np.array_equal(nacl.get_scaled_positions(), system.get_scaled_positions()))
 
 
+class SpeciesTests(unittest.TestCase):
+
+    def test_species(self):
+        """Tests that the species are correctly determined.
+        """
+        # As atomic number in contructor
+        d = ACSF(species=[5, 1])
+        self.assertEqual(d.species, [5, 1])          # Saves the original variable
+        self.assertEqual(d._atomic_numbers, [1, 5])  # Ordered here
+
+        # Set through property
+        d.species = [10, 2]
+        self.assertEqual(d.species, [10, 2])
+        self.assertEqual(d._atomic_numbers, [2, 10])
+
+        # As chemical symbol in the contructor
+        d = ACSF(species=["O", "H"])
+        self.assertEqual(d.species, ["O", "H"])      # Saves the original variable
+        self.assertEqual(d._atomic_numbers, [1, 8])  # Ordered here
+
+        # Set through property
+        d.species = ["N", "Pb"]
+        self.assertEqual(d.species, ["N", "Pb"])
+        self.assertEqual(d._atomic_numbers, [7, 82])
+
 if __name__ == '__main__':
     suites = []
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(ASETests))
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(GeometryTests))
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(GaussianTests))
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(BatchTests))
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(ASETests))
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(GeometryTests))
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(GaussianTests))
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(BatchTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(SpeciesTests))
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)
 
