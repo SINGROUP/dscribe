@@ -253,6 +253,15 @@ class SpeciesTests(unittest.TestCase):
         self.assertEqual(d.species, ["N", "Pb"])
         self.assertEqual(d._atomic_numbers, [7, 82])
 
+    def test_atomic_number(self):
+        """Tests that using the deprecated atomic_numbers-parameters still
+        works.
+        """
+        # As atomic number in contructor
+        d = ACSF(rcut=6.0, atomic_numbers=[5, 1])
+        self.assertEqual(d.species, [5, 1])          # Saves the original variable
+        self.assertEqual(d._atomic_numbers, [1, 5])  # Ordered here
+
     def test_symbols_to_atomic_number(self):
         """Tests that chemical symbols are correctly transformed into atomic
         numbers.
