@@ -11,6 +11,7 @@ from scipy.signal import find_peaks_cwt
 from dscribe.descriptors import MBTR
 
 from ase.build import bulk
+from ase.build import molecule
 from ase import Atoms
 from ase.visualize import view
 import ase.geometry
@@ -95,7 +96,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         # Cannot create a sparse and non-flattened output.
         with self.assertRaises(ValueError):
             MBTR(
-                atomic_numbers=[1],
+                species=[1],
                 k=[1],
                 grid=default_grid,
                 periodic=False,
@@ -106,7 +107,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         # Invalid k value not in an iterable
         with self.assertRaises(ValueError):
             MBTR(
-                atomic_numbers=[1],
+                species=[1],
                 k=0,
                 grid=default_grid,
                 periodic=False,
@@ -115,7 +116,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         # Invalid k value
         with self.assertRaises(ValueError):
             MBTR(
-                atomic_numbers=[1],
+                species=[1],
                 k=[-1, 2],
                 grid=default_grid,
                 periodic=False,
@@ -124,7 +125,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         # Unsupported k=4
         with self.assertRaises(ValueError):
             MBTR(
-                atomic_numbers=[1],
+                species=[1],
                 k={1, 4},
                 grid=default_grid,
                 periodic=False,
@@ -133,7 +134,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         # Invalid weighting function
         with self.assertRaises(ValueError):
             MBTR(
-                atomic_numbers=[1],
+                species=[1],
                 k={2},
                 grid=default_grid,
                 weighting={"k2": {"function": "exp"}},
@@ -143,7 +144,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         # Missing cutoff and scale
         with self.assertRaises(ValueError):
             MBTR(
-                atomic_numbers=[1],
+                species=[1],
                 k={2},
                 grid=default_grid,
                 weighting={"k2": {"function": "exponential"}},
@@ -153,7 +154,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         # Missing scale
         with self.assertRaises(ValueError):
             MBTR(
-                atomic_numbers=[1],
+                species=[1],
                 k={2},
                 grid=default_grid,
                 weighting={"k2": {"function": "exponential", "cutoff": 1e-2}},
@@ -162,7 +163,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
 
         # Weighting not provided for finite system is fine
         MBTR(
-            atomic_numbers=[1],
+            species=[1],
             k={2},
             grid=default_grid,
             periodic=False,
@@ -171,12 +172,32 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         # Weighting needs to be provided for periodic system and terms k>1
         with self.assertRaises(ValueError):
             MBTR(
-                atomic_numbers=[1],
+                species=[1],
                 k={2},
                 grid=default_grid,
                 periodic=True,
                 weighting={"k2": {"function": "unity"}},
             )
+
+    def test_properties(self):
+        """Used to test that changing the setup through properties works as
+        intended.
+        """
+        # Test changing species
+        a = MBTR(
+            k=[1, 2, 3],
+            grid=default_grid,
+            periodic=False,
+            species=[1, 8],
+            sparse=False,
+        )
+        nfeat1 = a.get_number_of_features()
+        vec1 = a.create(H2O)
+        a.species = ["C", "H", "O"]
+        nfeat2 = a.get_number_of_features()
+        vec2 = a.create(molecule("CH3OH"))
+        self.assertTrue(nfeat1 != nfeat2)
+        self.assertTrue(vec1.shape[1] != vec2.shape[1])
 
     def test_number_of_features(self):
         """Tests that the reported number of features is correct.
@@ -186,7 +207,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         atomic_numbers = [1, 8]
         n_elem = len(atomic_numbers)
         mbtr = MBTR(
-            atomic_numbers=atomic_numbers,
+            species=atomic_numbers,
             k=[1],
             grid={
                 "k1": {
@@ -205,7 +226,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
 
         # K = 2
         mbtr = MBTR(
-            atomic_numbers=atomic_numbers,
+            species=atomic_numbers,
             k={1, 2},
             grid={
                 "k1": {
@@ -231,7 +252,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
 
         # K = 3
         mbtr = MBTR(
-            atomic_numbers=atomic_numbers,
+            species=atomic_numbers,
             k={1, 2, 3},
             grid={
                 "k1": {
@@ -266,13 +287,13 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         n_species = len(set(system.get_atomic_numbers()))
 
         # K1 unflattened
-        desc = MBTR([1, 8], k=[1], grid={"k1": {"n": n, "min": 1, "max": 8, "sigma": 0.1}}, periodic=False, flatten=False, sparse=False)
+        desc = MBTR(species=[1, 8], k=[1], grid={"k1": {"n": n, "min": 1, "max": 8, "sigma": 0.1}}, periodic=False, flatten=False, sparse=False)
         feat = desc.create(system)["k1"]
         self.assertEqual(feat.shape, (n_species, n))
 
         # K1 flattened. The sparse matrix only supports 2D matrices, so the first
         # dimension is always present, even if it is of length 1.
-        desc = MBTR([1, 8], k=[1], grid={"k1": {"n": n, "min": 1, "max": 8, "sigma": 0.1}}, periodic=False)
+        desc = MBTR(species=[1, 8], k=[1], grid={"k1": {"n": n, "min": 1, "max": 8, "sigma": 0.1}}, periodic=False)
         feat = desc.create(system)
         self.assertEqual(feat.shape, (1, n_species*n))
 
@@ -280,12 +301,12 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         """Tests the sparse matrix creation.
         """
         # Dense
-        desc = MBTR([1, 8], k=[1], grid=default_grid, periodic=False, flatten=True, sparse=False)
+        desc = MBTR(species=[1, 8], k=[1], grid=default_grid, periodic=False, flatten=True, sparse=False)
         vec = desc.create(H2O)
         self.assertTrue(type(vec) == np.ndarray)
 
         # Sparse
-        desc = MBTR([1, 8], k=[1], grid=default_grid, periodic=False, flatten=True, sparse=True)
+        desc = MBTR(species=[1, 8], k=[1], grid=default_grid, periodic=False, flatten=True, sparse=True)
         vec = desc.create(H2O)
         self.assertTrue(type(vec) == scipy.sparse.coo_matrix)
 
@@ -293,7 +314,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         """Tests that the values of the weight and geometry functions are
         correct for the k=1 term.
         """
-        mbtr = MBTR([1, 8], k=[1], grid=default_grid, periodic=False)
+        mbtr = MBTR(species=[1, 8], k=[1], grid=default_grid, periodic=False)
         mbtr.create(H2O)
         weights = mbtr._k1_weights
         geoms = mbtr._k1_geoms
@@ -314,7 +335,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
 
         # Test against system with different indexing
         mbtr = MBTR(
-            [1, 8],
+            species=[1, 8],
             k=[1],
             grid={"k1": {"min": 1, "max": 8, "sigma": 0.1, "n": 10}},
             periodic=False
@@ -329,7 +350,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         """Tests that the values of the weight and geometry functions are
         correct for the k=2 term.
         """
-        mbtr = MBTR([1, 8], k=[2], grid=default_grid, periodic=False)
+        mbtr = MBTR(species=[1, 8], k=[2], grid=default_grid, periodic=False)
         mbtr.create(H2O)
         weights = mbtr._k2_weights
         geoms = mbtr._k2_geoms
@@ -351,7 +372,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         self.dict_comparison(geoms, assumed_geoms)
 
         # Test against system with different indexing
-        mbtr = MBTR([1, 8], k=[2], grid=default_grid, periodic=False)
+        mbtr = MBTR(species=[1, 8], k=[2], grid=default_grid, periodic=False)
         mbtr.create(H2O_2)
         weights2 = mbtr._k2_weights
         geoms2 = mbtr._k2_geoms
@@ -376,7 +397,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         )
 
         mbtr = MBTR(
-            [1, 6],
+            species=[1, 6],
             k=[2],
             grid=default_grid,
             periodic=True,
@@ -443,7 +464,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         atoms2.wrap()
 
         mbtr = MBTR(
-            [1, 6],
+            species=[1, 6],
             k=[2],
             grid={
                 "k2": {
@@ -474,7 +495,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         gets rid of duplicate angles.
         """
         # Test with water molecule
-        mbtr = MBTR([1, 8], k=[3], grid=default_grid, periodic=False)
+        mbtr = MBTR(species=[1, 8], k=[3], grid=default_grid, periodic=False)
         mbtr.create(H2O)
         geoms = mbtr._k3_geoms
         weights = mbtr._k3_weights
@@ -492,7 +513,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         self.dict_comparison(weights, assumed_weights)
 
         # Test against system with different indexing
-        mbtr = MBTR([1, 8], k=[3], grid=default_grid, periodic=False)
+        mbtr = MBTR(species=[1, 8], k=[3], grid=default_grid, periodic=False)
         mbtr.create(H2O_2)
         weights2 = mbtr._k3_weights
         geoms2 = mbtr._k3_geoms
@@ -514,7 +535,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         )
         # view(atoms)
 
-        mbtr = MBTR([1, 2, 10], k=[3], grid=default_grid, periodic=False)
+        mbtr = MBTR(species=[1, 2, 10], k=[3], grid=default_grid, periodic=False)
         mbtr.create(atoms)
         angles = mbtr._k3_geoms
 
@@ -556,7 +577,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
 
         scale = 0.85
         mbtr = MBTR(
-            [1],
+            species=[1],
             k=[3],
             grid={
                 "k3": {
@@ -629,7 +650,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         atoms2.wrap()
 
         mbtr = MBTR(
-            [1],
+            species=[1],
             k=[3],
             grid={
                 "k3": {
@@ -663,7 +684,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         stop = 11
         n = 500
         mbtr = MBTR(
-            [1, 8],
+            species=[1, 8],
             k=[1],
             grid={
                 "k1": {
@@ -704,7 +725,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         stop = 11
         n = 500
         mbtr = MBTR(
-            [1, 8],
+            species=[1, 8],
             k=[1],
             grid={
                 "k1": {
@@ -743,7 +764,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
 
         def create(system):
             desc = MBTR(
-                atomic_numbers=[1, 8],
+                species=[1, 8],
                 k=[1, 2, 3],
                 periodic=False,
                 grid={
@@ -795,7 +816,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         """Tests that arbitrary unit cells are accepted.
         """
         desc = MBTR(
-            atomic_numbers=[1, 8],
+            species=[1, 8],
             k=[1, 2, 3],
             periodic=False,
             grid={
@@ -862,7 +883,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         """
         decay = 1
         desc = MBTR(
-            atomic_numbers=[1],
+            species=[1],
             k=[1, 2, 3],
             periodic=True,
             grid={
@@ -953,7 +974,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         # Tests that the correct peak locations are present in a cubic periodic
         # system.
         desc = MBTR(
-            atomic_numbers=[1],
+            species=[1],
             k=[3],
             periodic=True,
             grid={
@@ -1007,7 +1028,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         # Tests that the correct peak locations are present in a system with a
         # non-cubic basis
         desc = MBTR(
-            atomic_numbers=[1],
+            species=[1],
             k=[3],
             periodic=True,
             grid={
@@ -1083,7 +1104,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         }
 
         desc = MBTR(
-            atomic_numbers=[1, 8],
+            species=[1, 8],
             k=[1, 2, 3],
             periodic=True,
             grid=grid,
@@ -1133,7 +1154,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         sys3 = sys2*[2, 2, 2]
 
         desc = MBTR(
-            atomic_numbers=[1, 8],
+            species=[1, 8],
             k=[1, 2, 3],
             periodic=True,
             grid={

@@ -29,10 +29,10 @@ class SOAP(Descriptor):
             rcut,
             nmax,
             lmax,
-            species=None,
-            atomic_numbers=None,
             sigma=1.0,
             rbf="gto",
+            species=None,
+            atomic_numbers=None,
             periodic=False,
             crossover=True,
             average=False,
@@ -40,6 +40,10 @@ class SOAP(Descriptor):
             ):
         """
         Args:
+            rcut (float): A cutoff for local region in angstroms. Should be
+                bigger than 1 angstrom.
+            nmax (int): The number of basis functions to be used.
+            lmax (int): The number of l's to be used. The computational time scales
             species (iterable): The chemical species as a list of atomic
                 numbers or as a list of chemical symbols. Notice that this is not
                 the atomic numbers that are present for an individual system, but
@@ -51,12 +55,6 @@ class SOAP(Descriptor):
                 be taken into account in the descriptor. Deprecated in favour of
                 the species-parameters, but provided for
                 backwards-compatibility.
-            periodic (bool): Determines whether the system is considered to be
-                periodic.
-            rcut (float): A cutoff for local region in angstroms. Should be
-                bigger than 1 angstrom.
-            nmax (int): The number of basis functions to be used.
-            lmax (int): The number of l's to be used. The computational time scales
             sigma (float): The standard deviation of the gaussians used to expand the
                 atomic density.
             rbf (str): The radial basis functions to use. The available options are:
@@ -64,6 +62,8 @@ class SOAP(Descriptor):
                 * "gto": Spherical gaussian type orbitals defined as :math:`g_{nl}(r) = \sum_{n'=1}^{n_\mathrm{max}}\,\\beta_{nn'l} r^l e^{-\\alpha_{n'l}r^2}`
                 * "polynomial": Polynomial basis defined as :math:`g_{n}(r) = \sum_{n'=1}^{n_\mathrm{max}}\,\\beta_{nn'} (r-r_\mathrm{cut})^{n'+2}`
 
+            periodic (bool): Determines whether the system is considered to be
+                periodic.
             crossover (bool): Default True, if crossover of atomic types should
                 be included in the power spectrum.
             average (bool): Whether to build an average output for all selected

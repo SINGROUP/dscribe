@@ -54,11 +54,12 @@ class MBTR(Descriptor):
 
     def __init__(
             self,
-            atomic_numbers,
             k,
             periodic,
             grid=None,
             weighting=None,
+            species=None,
+            atomic_numbers=None,
             normalize_by_volume=False,
             normalize_gaussians=True,
             flatten=True,
@@ -66,14 +67,6 @@ class MBTR(Descriptor):
             ):
         """
         Args:
-            atomic_numbers (iterable): A list of the atomic numbers that should
-                be taken into account in the descriptor. Notice that this is
-                not the atomic numbers that are present for an individual
-                system, but should contain all the elements that are ever going
-                to be encountered when creating the descriptors for a set of
-                systems. Keeping the number of handled elements as low as
-                possible is preferable, especially if a dense representation
-                (e.g. numpy array) is needed as an output.
             k (int or iterable): The interaction term to consider from 1 to 3.
                 Also multiple terms can be created at once by providing an
                 iterable of integers. The size of the final output and the time
@@ -136,6 +129,17 @@ class MBTR(Descriptor):
                 * :math:`k=2`: :math:`x` = Distance between A->B
                 * :math:`k=3`: :math:`x` = Distance from A->B->C->A.
 
+            species (iterable): The chemical species as a list of atomic
+                numbers or as a list of chemical symbols. Notice that this is not
+                the atomic numbers that are present for an individual system, but
+                should contain all the elements that are ever going to be
+                encountered when creating the descriptors for a set of systems.
+                Keeping the number of chemical speices as low as possible is
+                preferable.
+            atomic_numbers (iterable): A list of the atomic numbers that should
+                be taken into account in the descriptor. Deprecated in favour of
+                the species-parameters, but provided for
+                backwards-compatibility.
             normalize_by_volume (bool): Determines whether the output vectors are
                 normalized by the cell volume. Defaults to False.
             normalize_gaussians (bool): Determines whether the gaussians are
@@ -148,7 +152,6 @@ class MBTR(Descriptor):
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
         """
-
         if sparse and not flatten:
             raise ValueError(
                 "Cannot provide a non-flattened output in sparse output because"
@@ -162,7 +165,11 @@ class MBTR(Descriptor):
             self.k = [k]
         else:
             self.k = k
-        self.atomic_numbers = atomic_numbers
+
+        # Setup the involved chemical species
+        species = self.get_species_definition(species, atomic_numbers)
+        self.species = species
+
         self.grid = grid
         self.weighting = weighting
         self.periodic = periodic
@@ -184,23 +191,9 @@ class MBTR(Descriptor):
         self._axis_k2 = None
         self._axis_k3 = None
 
-    def initialize_atomic_numbers(self, atomic_numbers):
-        """Used to initialize the list of atomic numbers.
-        """
-        # Check that atomic numbers are valid.  The given atomic numbers are
-        # first made into a set to remove duplicates, and then made into list
-        # for enabling ordering.
-        new_atomic_numbers = list(set(atomic_numbers))
-        if (np.array(new_atomic_numbers) <= 0).any():
-            raise ValueError(
-                "Non-positive atomic numbers not allowed."
-            )
-        self.atomic_numbers = new_atomic_numbers
-
     def update(self):
         """Checks and updates variables in mbtr class.
         """
-
         # Check K value
         supported_k = set(range(1, 4))
         try:
@@ -263,22 +256,6 @@ class MBTR(Descriptor):
         if self.grid is not None:
             self.check_grid(self.grid)
 
-        self.n_elements = None  # Number of elements for MBTR
-        self.initialize_atomic_numbers(self.atomic_numbers)
-        self.atomic_number_to_index = {}  # a
-        self.index_to_atomic_number = {}
-
-        # Sort the atomic numbers. This is not needed but makes things maybe a
-        # bit easier to debug.
-        self.atomic_numbers.sort()
-        for i_atom, atomic_number in enumerate(self.atomic_numbers):
-            self.atomic_number_to_index[atomic_number] = i_atom
-            self.index_to_atomic_number[i_atom] = atomic_number
-        self.n_elements = len(self.atomic_numbers)
-
-        self.max_atomic_number = max(self.atomic_numbers)
-        self.min_atomic_number = min(self.atomic_numbers)
-
     def check_grid(self, grid):
         """Used to ensure that the given grid settings are valid.
         """
@@ -321,6 +298,33 @@ class MBTR(Descriptor):
         self.initialize_scalars(system)
 
         return self.create_with_grid()
+
+    @property
+    def species(self):
+        return self._species
+
+    @species.setter
+    def species(self, value):
+        """Used to check the validity of given atomic numbers and to initialize
+        the C-memory layout for them.
+
+        Args:
+            value(iterable): Chemical species either as a list of atomic
+                numbers or list of chemical symbols.
+        """
+        # The species are stored as atomic numbers for internal use.
+        self._set_species(value)
+
+        # Setup mappings between atom indices and types together with some
+        # statistics
+        self.atomic_number_to_index = {}
+        self.index_to_atomic_number = {}
+        for i_atom, atomic_number in enumerate(self._atomic_numbers):
+            self.atomic_number_to_index[atomic_number] = i_atom
+            self.index_to_atomic_number[i_atom] = atomic_number
+        self.n_elements = len(self._atomic_numbers)
+        self.max_atomic_number = max(self._atomic_numbers)
+        self.min_atomic_number = min(self._atomic_numbers)
 
     def create_with_grid(self, grid=None):
         """Used to recalculate MBTR for an already seen system but with
@@ -405,18 +409,10 @@ class MBTR(Descriptor):
             self._interaction_limit = 1
         else:
             self._interaction_limit = len(system)
-        present_element_numbers = set(system.numbers)
-        self.present_indices = set()
-        for number in present_element_numbers:
-            try:
-                index = self.atomic_number_to_index[number]
-            except KeyError:
-                raise KeyError(
-                    "The given systems contains atomic element {} that has not "
-                    "been declared in 'atomic_numbers' given in the class "
-                    "constructor.".format(number)
-                )
-            self.present_indices.add(index)
+
+        # Check that the system does not have elements that are not in the list
+        # of atomic numbers
+        self.check_atomic_numbers(system.get_atomic_numbers())
 
         if 1 in self.k:
             self.k1_geoms_and_weights(system)

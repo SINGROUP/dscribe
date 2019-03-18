@@ -70,17 +70,19 @@ class ACSF(Descriptor):
     """
     def __init__(
         self,
-        species=None,
-        atomic_numbers=None,
-        rcut=6.0,
+        rcut,
         g2_params=None,
         g3_params=None,
         g4_params=None,
         g5_params=None,
+        species=None,
+        atomic_numbers=None,
         sparse=False
     ):
         """
         Args:
+            rcut (float): The smooth cutoff value. This cutoff value is
+                used throughout the calculations for all symmetry functions.
             species (iterable): The chemical species as a list of atomic
                 numbers or as a list of chemical symbols. Notice that this is not
                 the atomic numbers that are present for an individual system, but
@@ -92,8 +94,6 @@ class ACSF(Descriptor):
                 be taken into account in the descriptor. Deprecated in favour of
                 the species-parameters, but provided for
                 backwards-compatibility.
-            rcut (float): The smooth cutoff value. This cutoff value is
-                used throughout the calculations for all symmetry functions.
             g2_params (n*2 np.ndarray): A list of pairs of :math:`\eta` and
                 :math:`R_s` parameters for :math:`G^2` functions.
             g3_params (n*1 np.ndarray): A list of :math:`\kappa` parameters for

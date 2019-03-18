@@ -71,14 +71,15 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             rcut=3,
             nmax=3,
             lmax=3,
+            sparse=False,
         )
         nfeat1 = a.get_number_of_features()
-        vec1 = a.create(H2O).toarray()
+        vec1 = a.create(H2O)
         a.species = ["C", "H", "O"]
         nfeat2 = a.get_number_of_features()
-        vec2 = a.create(molecule("CH3OH")).toarray()
+        vec2 = a.create(molecule("CH3OH"))
         self.assertTrue(nfeat1 != nfeat2)
-        self.assertTrue(len(vec1) != len(vec2))
+        self.assertTrue(vec1.shape[1] != vec2.shape[1])
 
     def test_number_of_features(self):
         """Tests that the reported number of features is correct.
@@ -518,7 +519,6 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
         # Calculate the analytical power spectrum and the weights and decays of
         # the radial basis functions.
-        print(species)
         soap = SOAP(species=species, lmax=lmax, nmax=nmax, sigma=sigma, rcut=rcut, crossover=True, sparse=False)
         analytical_power_spectrum = soap.create(system, positions=[[0, 0, 0]])[0]
         alphagrid = np.reshape(soap._alphas, [10, nmax])
