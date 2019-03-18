@@ -93,9 +93,9 @@ def get_atomic_numbers(species):
         )
 
     # Determine if the given species are atomic numbers or chemical symbols
-    if all(isinstance(x, int) for x in species):
+    if all(isinstance(x, (int, np.integer)) for x in species):
         atomic_numbers = species
-    elif all(isinstance(x, str) for x in species):
+    elif all(isinstance(x, (str, np.str)) for x in species):
         atomic_numbers = symbols_to_numbers(species)
     else:
         raise ValueError(

@@ -113,6 +113,7 @@ class ACSF(Descriptor):
 
         self._Zs = None
 
+        # Setup the involved chemical species
         species = self.get_species_definition(species, atomic_numbers)
         self.species = species
 

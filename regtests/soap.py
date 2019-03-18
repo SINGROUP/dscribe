@@ -15,6 +15,7 @@ from dscribe.descriptors import SOAP
 from testbaseclass import TestBaseClass
 
 from ase import Atoms
+from ase.build import molecule
 
 
 H2O = Atoms(
@@ -50,19 +51,34 @@ class SoapTests(TestBaseClass, unittest.TestCase):
     def test_constructor(self):
         """Tests different valid and invalid constructor values.
         """
-        # Invalid atomic numbers
-        with self.assertRaises(ValueError):
-            SOAP(atomic_numbers=[-1, 2], rcut=5, nmax=5, lmax=5, periodic=True)
-
         # Invalid gaussian width
         with self.assertRaises(ValueError):
-            SOAP(atomic_numbers=[-1, 2], rcut=5, sigma=0, nmax=5, lmax=5, periodic=True)
+            SOAP(species=[-1, 2], rcut=5, sigma=0, nmax=5, lmax=5, periodic=True)
         with self.assertRaises(ValueError):
-            SOAP(atomic_numbers=[-1, 2], rcut=5, sigma=-1, nmax=5, lmax=5, periodic=True)
+            SOAP(species=[-1, 2], rcut=5, sigma=-1, nmax=5, lmax=5, periodic=True)
 
         # Invalid rcut
         with self.assertRaises(ValueError):
-            SOAP(atomic_numbers=[-1, 2], rcut=0.5, sigma=0, nmax=5, lmax=5, periodic=True)
+            SOAP(species=[-1, 2], rcut=0.5, sigma=0, nmax=5, lmax=5, periodic=True)
+
+    def test_properties(self):
+        """Used to test that changing the setup through properties works as
+        intended.
+        """
+        # Test changing species
+        a = SOAP(
+            species=[1, 8],
+            rcut=3,
+            nmax=3,
+            lmax=3,
+        )
+        nfeat1 = a.get_number_of_features()
+        vec1 = a.create(H2O).toarray()
+        a.species = ["C", "H", "O"]
+        nfeat2 = a.get_number_of_features()
+        vec2 = a.create(molecule("CH3OH")).toarray()
+        self.assertTrue(nfeat1 != nfeat2)
+        self.assertTrue(len(vec1) != len(vec2))
 
     def test_number_of_features(self):
         """Tests that the reported number of features is correct.
@@ -70,7 +86,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         lmax = 5
         nmax = 5
         n_elems = 2
-        desc = SOAP(atomic_numbers=[1, 8], rcut=5, nmax=nmax, lmax=lmax, periodic=True)
+        desc = SOAP(species=[1, 8], rcut=5, nmax=nmax, lmax=lmax, periodic=True)
 
         # Test that the reported number of features matches the expected
         n_features = desc.get_number_of_features()
@@ -88,27 +104,27 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         """
         lmax = 5
         nmax = 5
-        atomic_numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
-        desc = SOAP(atomic_numbers=atomic_numbers, rcut=5, nmax=nmax, lmax=lmax, periodic=False, sparse=False)
+        species = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+        desc = SOAP(species=species, rcut=5, nmax=nmax, lmax=lmax, periodic=False, sparse=False)
 
         pos = np.expand_dims(np.linspace(0, 8, 8), 1)
         pos = np.hstack((pos, pos, pos))
         sys = Atoms(
-            symbols=atomic_numbers[0:8],
+            symbols=species[0:8],
             positions=pos,
             pbc=False
         )
         vec1 = desc.create(sys)
 
         sys2 = Atoms(
-            symbols=atomic_numbers[8:],
+            symbols=species[8:],
             positions=pos,
             pbc=False
         )
         vec2 = desc.create(sys2)
 
         sys3 = Atoms(
-            symbols=atomic_numbers[4:12],
+            symbols=species[4:12],
             positions=pos,
             pbc=False
         )
@@ -136,7 +152,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         """
         lmax = 5
         nmax = 5
-        desc = SOAP(atomic_numbers=[1, 8], rcut=5, nmax=nmax, lmax=lmax, periodic=True)
+        desc = SOAP(species=[1, 8], rcut=5, nmax=nmax, lmax=lmax, periodic=True)
 
         vec = desc.create(H2O)
         self.assertTrue(vec.shape[0] == 3)
@@ -145,34 +161,34 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         """Tests the sparse matrix creation.
         """
         # Dense
-        desc = SOAP(atomic_numbers=[1, 8], rcut=5, nmax=5, lmax=5, periodic=True, sparse=False)
+        desc = SOAP(species=[1, 8], rcut=5, nmax=5, lmax=5, periodic=True, sparse=False)
         vec = desc.create(H2O)
         self.assertTrue(type(vec) == np.ndarray)
 
         # Sparse
-        desc = SOAP(atomic_numbers=[1, 8], rcut=5, nmax=5, lmax=5, periodic=True, sparse=True)
+        desc = SOAP(species=[1, 8], rcut=5, nmax=5, lmax=5, periodic=True, sparse=True)
         vec = desc.create(H2O)
         self.assertTrue(type(vec) == scipy.sparse.coo_matrix)
 
     def test_positions(self):
         """Tests that different positions are handled correctly.
         """
-        desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=False, crossover=True)
+        desc = SOAP(species=[1, 6, 8], rcut=10.0, nmax=2, lmax=0, periodic=False, crossover=True)
         self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
         self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
         self.assertEqual(desc.get_number_of_features(), desc.create(H2O).shape[1])
 
-        desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=True, crossover=True,)
+        desc = SOAP(species=[1, 6, 8], rcut=10.0, nmax=2, lmax=0, periodic=True, crossover=True,)
         self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
         self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
         self.assertEqual(desc.get_number_of_features(), desc.create(H2O).shape[1])
 
-        desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=True, crossover=False,)
+        desc = SOAP(species=[1, 6, 8], rcut=10.0, nmax=2, lmax=0, periodic=True, crossover=False,)
         self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
         self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
         self.assertEqual(desc.get_number_of_features(), desc.create(H2O).shape[1])
 
-        desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=False, crossover=False,)
+        desc = SOAP(species=[1, 6, 8], rcut=10.0, nmax=2, lmax=0, periodic=False, crossover=False,)
         self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
         self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
         self.assertEqual(desc.get_number_of_features(), desc.create(H2O).shape[1])
@@ -182,7 +198,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
     def test_unit_cells(self):
         """Tests if arbitrary unit cells are accepted"""
-        desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=False, crossover=True,)
+        desc = SOAP(species=[1, 6, 8], rcut=10.0, nmax=2, lmax=0, periodic=False, crossover=True)
 
         molecule = H2O.copy()
 
@@ -194,7 +210,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
         nocell = desc.create(molecule, positions=[[0, 0, 0]])
 
-        desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=True, crossover=True,)
+        desc = SOAP(species=[1, 6, 8], rcut=10.0, nmax=2, lmax=0, periodic=True, crossover=True,)
 
         # Invalid unit cell
         molecule.set_cell([
@@ -232,7 +248,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
     def test_is_periodic(self):
         """Tests whether periodic images are seen by the descriptor"""
-        desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=False, crossover=True,)
+        desc = SOAP(species=[1, 6, 8], rcut=10.0, nmax=2, lmax=0, periodic=False, crossover=True,)
 
         H2O.set_pbc(False)
         nocell = desc.create(H2O, positions=[[0, 0, 0]])
@@ -243,7 +259,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             [0.0, 2.0, 0.0],
             [0.0, 0.0, 2.0]
         ])
-        desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=True, crossover=True,)
+        desc = SOAP(species=[1, 6, 8], rcut=10.0, nmax=2, lmax=0, periodic=True, crossover=True,)
 
         cubic_cell = desc.create(H2O, positions=[[0, 0, 0]])
 
@@ -252,7 +268,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
     def test_periodic_images(self):
         """Tests the periodic images seen by the descriptor
         """
-        desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=False, crossover=True,)
+        desc = SOAP(species=[1, 6, 8], rcut=10.0, nmax=2, lmax=0, periodic=False, crossover=True,)
 
         molecule = H2O.copy()
 
@@ -265,7 +281,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         nocell = desc.create(molecule, positions=[[0, 0, 0]]).toarray()
 
         # Make periodic
-        desc = SOAP([1, 6, 8], 10.0, 2, 0, periodic=True, crossover=True,)
+        desc = SOAP(species=[1, 6, 8], rcut=10.0, nmax=2, lmax=0, periodic=True, crossover=True,)
         molecule.set_pbc(True)
 
         # Cubic
@@ -297,7 +313,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         """
         def create_gto(system):
             desc = SOAP(
-                atomic_numbers=system.get_atomic_numbers(),
+                species=system.get_atomic_numbers(),
                 rcut=8.0,
                 lmax=5,
                 nmax=5,
@@ -318,7 +334,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
         def create_poly(system):
             desc = SOAP(
-                atomic_numbers=system.get_atomic_numbers(),
+                species=system.get_atomic_numbers(),
                 rcut=8.0,
                 lmax=2,
                 nmax=1,
@@ -344,7 +360,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
         # Create the average output
         desc = SOAP(
-            atomic_numbers=[1, 6, 8],
+            species=[1, 6, 8],
             rcut=5,
             nmax=3,
             lmax=5,
@@ -357,7 +373,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
         # Create individual output for both atoms
         desc = SOAP(
-            atomic_numbers=[1, 6, 8],
+            species=[1, 6, 8],
             rcut=5,
             nmax=3,
             lmax=5,
@@ -385,7 +401,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         sys7 = Atoms(symbols=["C", "O"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
 
         desc = SOAP(
-            atomic_numbers=[1, 6, 8],
+            species=[1, 6, 8],
             rcut=5,
             nmax=3,
             lmax=5,
@@ -439,7 +455,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         rcut = 2.0
         nmax = 2
         lmax = 3
-        soap = SOAP(atomic_numbers=[1], lmax=lmax, nmax=nmax, sigma=sigma, rcut=rcut, crossover=True, sparse=False)
+        soap = SOAP(species=[1], lmax=lmax, nmax=nmax, sigma=sigma, rcut=rcut, crossover=True, sparse=False)
         alphas = np.reshape(soap._alphas, [10, nmax])
         betas = np.reshape(soap._betas, [10, nmax, nmax])
 
@@ -496,20 +512,21 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         symbols = np.array(["H", "C"])
         system = Atoms(positions=positions, symbols=symbols)
 
-        atomic_numbers = system.get_atomic_numbers()
+        species = system.get_atomic_numbers()
         elements = set(system.get_atomic_numbers())
         n_elems = len(elements)
 
         # Calculate the analytical power spectrum and the weights and decays of
         # the radial basis functions.
-        soap = SOAP(atomic_numbers=atomic_numbers, lmax=lmax, nmax=nmax, sigma=sigma, rcut=rcut, crossover=True, sparse=False)
+        print(species)
+        soap = SOAP(species=species, lmax=lmax, nmax=nmax, sigma=sigma, rcut=rcut, crossover=True, sparse=False)
         analytical_power_spectrum = soap.create(system, positions=[[0, 0, 0]])[0]
         alphagrid = np.reshape(soap._alphas, [10, nmax])
         betagrid = np.reshape(soap._betas, [10, nmax, nmax])
 
         coeffs = np.zeros((n_elems, nmax, lmax+1, 2*lmax+1))
         for iZ, Z in enumerate(elements):
-            indices = np.argwhere(atomic_numbers == Z)[0]
+            indices = np.argwhere(species == Z)[0]
             elem_pos = positions[indices]
             for n in range(nmax):
                 for l in range(lmax+1):
@@ -614,7 +631,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         symbols = np.array(["H", "C"])
         system = Atoms(positions=positions, symbols=symbols)
 
-        atomic_numbers = system.get_atomic_numbers()
+        species = system.get_atomic_numbers()
         elements = set(system.get_atomic_numbers())
         n_elems = len(elements)
 
@@ -631,12 +648,12 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
         # Calculate the analytical power spectrum and the weights and decays of
         # the radial basis functions.
-        soap = SOAP(atomic_numbers=atomic_numbers, lmax=lmax, nmax=nmax, sigma=sigma, rcut=rcut, rbf="polynomial", crossover=True, sparse=False)
+        soap = SOAP(species=species, lmax=lmax, nmax=nmax, sigma=sigma, rcut=rcut, rbf="polynomial", crossover=True, sparse=False)
         analytical_power_spectrum = soap.create(system, positions=[[0, 0, 0]])[0]
 
         coeffs = np.zeros((n_elems, nmax, lmax+1, 2*lmax+1))
         for iZ, Z in enumerate(elements):
-            indices = np.argwhere(atomic_numbers == Z)[0]
+            indices = np.argwhere(species == Z)[0]
             elem_pos = positions[indices]
             for n in range(nmax):
                 for l in range(lmax+1):

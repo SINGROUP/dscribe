@@ -26,10 +26,11 @@ class SOAP(Descriptor):
     """
     def __init__(
             self,
-            atomic_numbers,
             rcut,
             nmax,
             lmax,
+            species=None,
+            atomic_numbers=None,
             sigma=1.0,
             rbf="gto",
             periodic=False,
@@ -39,13 +40,17 @@ class SOAP(Descriptor):
             ):
         """
         Args:
+            species (iterable): The chemical species as a list of atomic
+                numbers or as a list of chemical symbols. Notice that this is not
+                the atomic numbers that are present for an individual system, but
+                should contain all the elements that are ever going to be
+                encountered when creating the descriptors for a set of systems.
+                Keeping the number of chemical speices as low as possible is
+                preferable.
             atomic_numbers (iterable): A list of the atomic numbers that should
-                be taken into account in the descriptor. Notice that this is
-                not the atomic numbers that are present for an individual
-                system, but should contain all the elements that are ever going
-                to be encountered when creating the descriptors for a set of
-                systems. Keeping the number of handled elements as low as
-                possible is preferable.
+                be taken into account in the descriptor. Deprecated in favour of
+                the species-parameters, but provided for
+                backwards-compatibility.
             periodic (bool): Determines whether the system is considered to be
                 periodic.
             rcut (float): A cutoff for local region in angstroms. Should be
@@ -68,13 +73,9 @@ class SOAP(Descriptor):
         """
         super().__init__(flatten=True, sparse=sparse)
 
-        # Check that atomic numbers are valid
-        self._atomic_number_set = set(atomic_numbers)
-        self._atomic_numbers = np.sort(np.array(list(self._atomic_number_set)))
-        if (self._atomic_numbers <= 0).any():
-            raise ValueError(
-                "Non-positive atomic numbers not allowed."
-            )
+        # Setup the involved chemical species
+        species = self.get_species_definition(species, atomic_numbers)
+        self.species = species
 
         # Check that sigma is valid
         if (sigma <= 0):
@@ -137,14 +138,7 @@ class SOAP(Descriptor):
 
         # Check that the system does not have elements that are not in the list
         # of atomic numbers
-        zs = set(system.get_atomic_numbers())
-        if not zs.issubset(self._atomic_number_set):
-            raise ValueError(
-                "The given system has the following atomic numbers not defined "
-                "in the SOAP constructor: {}"
-                .format(zs.difference(self._atomic_number_set))
-            )
-
+        self.check_atomic_numbers(system.get_atomic_numbers())
         sub_elements = np.array(list(set(system.get_atomic_numbers())))
 
         # Check if periodic is valid
@@ -263,6 +257,22 @@ class SOAP(Descriptor):
             soap_mat = coo_matrix(soap_mat)
 
         return soap_mat
+
+    @property
+    def species(self):
+        return self._species
+
+    @species.setter
+    def species(self, value):
+        """Used to check the validity of given atomic numbers and to initialize
+        the C-memory layout for them.
+
+        Args:
+            value(iterable): Chemical species either as a list of atomic
+                numbers or list of chemical symbols.
+        """
+        # The species are stored as atomic numbers for internal use.
+        self._set_species(value)
 
     def get_full_space_output(self, sub_output, sub_elements, full_elements_sorted):
         """Used to partition the SOAP output to different locations depending
