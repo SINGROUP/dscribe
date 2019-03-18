@@ -17,7 +17,16 @@ class AverageKernelTests(unittest.TestCase):
         """Tests that the similarity is correct.
         """
         # Create SOAP features for a system
-        desc = SOAP([1, 6, 7, 8], 5.0, 2, 2, sigma=0.2, periodic=False, crossover=True, sparse=False)
+        desc = SOAP(
+            species=[1, 6, 7, 8],
+            rcut=5.0,
+            nmax=2,
+            lmax=2,
+            sigma=0.2,
+            periodic=False,
+            crossover=True,
+            sparse=False
+        )
 
         # Calculate that identical molecules are identical.
         a = molecule("H2O")
@@ -46,7 +55,16 @@ class AverageKernelTests(unittest.TestCase):
         """Tests that different metrics as defined by scikit-learn can be used.
         """
         # Create SOAP features for a system
-        desc = SOAP([1, 8], 5.0, 2, 2, sigma=0.2, periodic=False, crossover=True, sparse=False)
+        desc = SOAP(
+            species=[1, 8],
+            rcut=5.0,
+            nmax=2,
+            lmax=2,
+            sigma=0.2,
+            periodic=False,
+            crossover=True,
+            sparse=False
+        )
         a = molecule('H2O')
         a_features = desc.create(a)
 
@@ -68,7 +86,16 @@ class AverageKernelTests(unittest.TestCase):
         methods.
         """
         # Create SOAP features for a system
-        desc = SOAP([1, 8], 5.0, 2, 2, sigma=0.2, periodic=False, crossover=True, sparse=False)
+        desc = SOAP(
+            species=[1, 8],
+            rcut=5.0,
+            nmax=2,
+            lmax=2,
+            sigma=0.2,
+            periodic=False,
+            crossover=True,
+            sparse=False
+        )
         a = molecule('H2O')
         b = molecule('O2')
         c = molecule('H2O2')
@@ -87,7 +114,16 @@ class AverageKernelTests(unittest.TestCase):
         """Tests that sparse features may also be used to construct the kernels.
         """
         # Create SOAP features for a system
-        desc = SOAP([1, 8], 5.0, 2, 2, sigma=0.2, periodic=False, crossover=True, sparse=True)
+        desc = SOAP(
+            species=[1, 8],
+            rcut=5.0,
+            nmax=2,
+            lmax=2,
+            sigma=0.2,
+            periodic=False,
+            crossover=True,
+            sparse=True
+        )
         a = molecule('H2O')
         a_feat = desc.create(a)
         kernel = AverageKernel(metric="linear")
@@ -100,7 +136,16 @@ class REMatchKernelTests(unittest.TestCase):
         """Tests that the similarity is correct.
         """
         # Create SOAP features for a system
-        desc = SOAP([1, 6, 7, 8], 5.0, 2, 2, sigma=0.2, periodic=False, crossover=True, sparse=False)
+        desc = SOAP(
+            species=[1, 6, 7, 8],
+            rcut=5.0,
+            nmax=2,
+            lmax=2,
+            sigma=0.2,
+            periodic=False,
+            crossover=True,
+            sparse=False
+        )
 
         # Calculate that identical molecules are identical.
         a = molecule("H2O")
@@ -130,7 +175,16 @@ class REMatchKernelTests(unittest.TestCase):
         kernel at the the limit of infinite alpha.
         """
         # Create SOAP features for a system
-        desc = SOAP([1, 8], 5.0, 2, 2, sigma=0.2, periodic=False, crossover=True, sparse=False)
+        desc = SOAP(
+            species=[1, 8],
+            rcut=5.0,
+            nmax=2,
+            lmax=2,
+            sigma=0.2,
+            periodic=False,
+            crossover=True,
+            sparse=False
+        )
         a = molecule('H2O')
         b = molecule('H2O2')
         a_features = desc.create(a)
@@ -151,7 +205,16 @@ class REMatchKernelTests(unittest.TestCase):
         """Tests that different metrics as defined by scikit-learn can be used.
         """
         # Create SOAP features for a system
-        desc = SOAP([1, 8], 5.0, 2, 2, sigma=0.2, periodic=False, crossover=True, sparse=False)
+        desc = SOAP(
+            species=[1, 8],
+            rcut=5.0,
+            nmax=2,
+            lmax=2,
+            sigma=0.2,
+            periodic=False,
+            crossover=True,
+            sparse=False
+        )
         a = molecule('H2O')
         a_features = desc.create(a)
 
@@ -173,7 +236,16 @@ class REMatchKernelTests(unittest.TestCase):
         methods.
         """
         # Create SOAP features for a system
-        desc = SOAP([1, 8], 5.0, 2, 2, sigma=0.2, periodic=False, crossover=True, sparse=False)
+        desc = SOAP(
+            species=[1, 8],
+            rcut=5.0,
+            nmax=2,
+            lmax=2,
+            sigma=0.2,
+            periodic=False,
+            crossover=True,
+            sparse=False
+        )
         a = molecule('H2O')
         b = molecule('O2')
         c = molecule('H2O2')
@@ -192,7 +264,16 @@ class REMatchKernelTests(unittest.TestCase):
         """Tests that sparse features may also be used to construct the kernels.
         """
         # Create SOAP features for a system
-        desc = SOAP([1, 8], 5.0, 2, 2, sigma=0.2, periodic=False, crossover=True, sparse=True)
+        desc = SOAP(
+            species=[1, 8],
+            rcut=5.0,
+            nmax=2,
+            lmax=2,
+            sigma=0.2,
+            periodic=False,
+            crossover=True,
+            sparse=True
+        )
         a = molecule('H2O')
         a_feat = desc.create(a)
         kernel = REMatchKernel(metric="linear", alpha=0.1, threshold=1e-6)
