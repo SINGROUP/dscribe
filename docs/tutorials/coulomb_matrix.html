@@ -207,7 +207,6 @@
 <span class="n">cm</span> <span class="o">=</span> <span class="n">CoulombMatrix</span><span class="p">(</span>
     <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
 <span class="p">)</span>
-
 </pre></div>
 </div>
 <p>The arguments have the following effect:</p>
@@ -269,7 +268,6 @@ dense numpy array.</li>
 
 <span class="k">print</span><span class="p">(</span><span class="n">cm_methanol</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="s2">&quot;flattened&quot;</span><span class="p">,</span> <span class="n">cm_methanol</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-
 </pre></div>
 </div>
 <p>The call syntax for the create-function is as follows:</p>
@@ -329,14 +327,12 @@ M_{ij}=\left\{
 <h3>No flattening<a class="headerlink" href="#no-flattening" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># No flattening</span>
 <span class="n">cm</span> <span class="o">=</span> <span class="n">CoulombMatrix</span><span class="p">(</span>
-    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="bp">False</span>
 <span class="p">)</span>
 <span class="n">cm_methanol</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">methanol</span><span class="p">)</span>
 
 <span class="k">print</span><span class="p">(</span><span class="n">cm_methanol</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="s2">&quot;not flattened&quot;</span><span class="p">,</span> <span class="n">cm_methanol</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-
-
 </pre></div>
 </div>
 </div>
@@ -345,9 +341,9 @@ M_{ij}=\left\{
 <p>You did not get the matrix in the same order. By default, CM is sorted by the L2-norm (more on that later). In order to get the unsorted CM it is necessary to specify the keyword <em>permutation</em> = “None” when setting it up.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># No Sorting</span>
 <span class="n">cm</span> <span class="o">=</span> <span class="n">CoulombMatrix</span><span class="p">(</span>
-    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> 
-    <span class="n">permutation</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
-
+    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">permutation</span><span class="o">=</span><span class="s1">&#39;none&#39;</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -356,13 +352,12 @@ M_{ij}=\left\{
 <p>The number of features in CM depends on the size of the system. Since most machine learning methods require size-consistent inputs it is convenient to define the maximum number of atoms <em>n_atoms_max</em> in a dataset. If the structure has fewer atoms, the rest of the CM will be zero-padded. One can imagine non-interacting ghost atoms as place-holders to ensure the same number of atoms in every system.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Introduce zero-padding</span>
 <span class="n">cm</span> <span class="o">=</span> <span class="n">CoulombMatrix</span><span class="p">(</span>
-    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">flatten</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="bp">False</span>
 <span class="p">)</span>
 <span class="n">cm_methanol</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">methanol</span><span class="p">)</span>
 
 <span class="k">print</span><span class="p">(</span><span class="s2">&quot;zero-padded&quot;</span><span class="p">,</span> <span class="n">cm_methanol</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="n">cm_methanol</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-
 </pre></div>
 </div>
 </div>
@@ -377,12 +372,11 @@ M_{ij}=\left\{
     <span class="p">])</span>
 
 <span class="n">cm</span> <span class="o">=</span> <span class="n">CoulombMatrix</span><span class="p">(</span>
-    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="bp">False</span>
 <span class="p">)</span>
 
 <span class="n">cm_methanol</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">methanol</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="s2">&quot;with pbc&quot;</span><span class="p">,</span> <span class="n">cm_methanol</span><span class="p">)</span>
-
 </pre></div>
 </div>
 <p>Instead, the <a class="reference internal" href="sine_matrix.html"><span class="doc">Sine Matrix</span></a> and the <cite>Ewald Matrix &lt;ewald_matrix&gt;</cite> have been designed as periodic counterparts to the CM.</p>
@@ -393,24 +387,23 @@ M_{ij}=\left\{
 <p>A good descriptor should be invariant with respect to translation, rotation and permutation. No matter how you translate or rotate it or change the indexing of the atoms (not the atom types!), it will still be the same molecule! The following lines confirm that this is true for CM.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Translation, rotation and permutation</span>
 <span class="n">cm</span> <span class="o">=</span> <span class="n">CoulombMatrix</span><span class="p">(</span>
-    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="bp">False</span>
 <span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="s2">&quot;invariance with respect to translation, rotation and permutation&quot;</span><span class="p">)</span>
-<span class="c1"># translate</span>
+<span class="c1"># Translate</span>
 <span class="n">methanol</span><span class="o">.</span><span class="n">translate</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
 <span class="n">cm_methanol</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">methanol</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="n">cm_methanol</span><span class="p">)</span>
 
-<span class="c1">#rotate</span>
+<span class="c1"># Rotate</span>
 <span class="n">methanol</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="mi">90</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
 <span class="n">cm_methanol</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">methanol</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="n">cm_methanol</span><span class="p">)</span>
 
-<span class="c1">#permutate</span>
+<span class="c1"># Permutate</span>
 <span class="n">upside_down_methanol</span> <span class="o">=</span> <span class="n">methanol</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 <span class="n">cm_methanol</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">upside_down_methanol</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="n">cm_methanol</span><span class="p">)</span>
-
 </pre></div>
 </div>
 <p>Permutational invariance is obtained because it is sorted by default. The rows and columns are sorted in decending order with respect to the L2-norm.</p>
@@ -420,8 +413,9 @@ M_{ij}=\left\{
 <p>“None” keeps the order of the rows and columns as the atoms are read from the ase object. The default is “sorted_l2” which sorts rows and columns by their L2-norm. There are two more options: “random” and “eigenspectrum”. The term random can be misleading at first sight because it does not scramble the rows and columns completely randomly.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># No Sorting</span>
 <span class="n">cm</span> <span class="o">=</span> <span class="n">CoulombMatrix</span><span class="p">(</span>
-    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> 
-    <span class="n">permutation</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
+    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">permutation</span><span class="o">=</span><span class="s1">&#39;none&#39;</span>
+<span class="p">)</span>
 
 <span class="n">cm_methanol</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">methanol</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="n">methanol</span><span class="o">.</span><span class="n">get_chemical_symbols</span><span class="p">())</span>
@@ -429,19 +423,20 @@ M_{ij}=\left\{
 
 <span class="c1"># Sort by L2-norm from high to low</span>
 <span class="n">cm</span> <span class="o">=</span> <span class="n">CoulombMatrix</span><span class="p">(</span>
-    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> 
-    <span class="n">permutation</span><span class="o">=</span><span class="s1">&#39;sorted_l2&#39;</span><span class="p">)</span>
+    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">permutation</span><span class="o">=</span><span class="s1">&#39;sorted_l2&#39;</span>
+<span class="p">)</span>
 
 <span class="n">cm_methanol</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">methanol</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="s2">&quot;default: sorted by L2-norm&quot;</span><span class="p">,</span> <span class="n">cm_methanol</span><span class="p">)</span>
 
 <span class="c1"># Smoothening by randomly sorting</span>
 <span class="n">cm</span> <span class="o">=</span> <span class="n">CoulombMatrix</span><span class="p">(</span>
-    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span>
-    <span class="n">permutation</span><span class="o">=</span><span class="s1">&#39;random&#39;</span><span class="p">,</span> 
-    <span class="n">sigma</span><span class="o">=</span><span class="mi">70</span><span class="p">,</span> 
-    <span class="n">seed</span> <span class="o">=</span> <span class="bp">None</span><span class="p">)</span>
-
+    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">permutation</span><span class="o">=</span><span class="s1">&#39;random&#39;</span><span class="p">,</span>
+    <span class="n">sigma</span><span class="o">=</span><span class="mi">70</span><span class="p">,</span>
+    <span class="n">seed</span><span class="o">=</span><span class="bp">None</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 <p>The rows and columns are sorted by their L2-norm  after applying Gaussian noise to the norms. The standard deviation of the noise is determined by the additionally required <em>sigma</em>-parameter. <em>sigma</em> determines the standard deviation of the gaussian distributed noise determining how much the rows and columns of the randomly sorted matrix are scrambled. Feel free to try different <em>sigma</em> values to see the effect on the ordering.Optionally, you can specify a random <em>seed</em>. <em>sigma</em> and <em>seed</em> are ignored if <em>permutation</em> is other than “random”.</p>
@@ -453,13 +448,12 @@ You would need to create several instances of the randomly sorted CM in a loop. 
 <p>The last <em>permutation</em> option is strictly not a permutation, but rather a smaller descriptor. Here, only the eigenvalues of the matrix are returned sorted by their absolute value in descending order.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Denser descriptor Eigenvector</span>
 <span class="n">cm</span> <span class="o">=</span> <span class="n">CoulombMatrix</span><span class="p">(</span>
-    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> 
-    <span class="n">permutation</span><span class="o">=</span><span class="s1">&#39;eigenspectrum&#39;</span><span class="p">)</span>
+    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">permutation</span><span class="o">=</span><span class="s1">&#39;eigenspectrum&#39;</span>
+<span class="p">)</span>
 
 <span class="n">cm_methanol</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">methanol</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="s2">&quot;eigenvalues&quot;</span><span class="p">,</span> <span class="n">cm_methanol</span><span class="p">)</span>
-
-
 </pre></div>
 </div>
 <p>On one hand, it is a more compact descriptor. On the other hand, it potentially destroys information encoded in the CM interactions.</p>

@@ -244,6 +244,8 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.check_atomic_numbers">check_atomic_numbers() (dscribe.descriptors.descriptor.Descriptor method)</a>
+</li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.check_grid">check_grid() (dscribe.descriptors.mbtr.MBTR method)</a>
 </li>
       <li><a href="doc/dscribe.libmbtr.html#dscribe.libmbtr.cmbtrwrapper.CMBTRWrapper">CMBTRWrapper (class in dscribe.libmbtr.cmbtrwrapper)</a>
@@ -346,6 +348,8 @@
 </li>
       <li><a href="doc/dscribe.utils.html#module-dscribe.utils.batch_create">dscribe.utils.batch_create (module)</a>
 </li>
+      <li><a href="doc/dscribe.utils.html#module-dscribe.utils.species">dscribe.utils.species (module)</a>
+</li>
       <li><a href="doc/dscribe.utils.html#module-dscribe.utils.stats">dscribe.utils.stats (module)</a>
 </li>
   </ul></td>
@@ -382,6 +386,8 @@
         <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.gaussian_sum">(dscribe.descriptors.mbtr.MBTR method)</a>
 </li>
       </ul></li>
+      <li><a href="doc/dscribe.utils.html#dscribe.utils.species.get_atomic_numbers">get_atomic_numbers() (in module dscribe.utils.species)</a>
+</li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.elementaldistribution.ElementalDistribution.get_axis">get_axis() (dscribe.descriptors.elementaldistribution.ElementalDistribution method)</a>
 </li>
       <li><a href="doc/dscribe.core.html#dscribe.core.lattice.Lattice.get_cartesian_coords">get_cartesian_coords() (dscribe.core.lattice.Lattice method)</a>
@@ -464,6 +470,8 @@
 </li>
       <li><a href="doc/dscribe.core.html#dscribe.core.lattice.Lattice.get_points_in_sphere">get_points_in_sphere() (dscribe.core.lattice.Lattice method)</a>
 </li>
+      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.get_species_definition">get_species_definition() (dscribe.descriptors.descriptor.Descriptor method)</a>
+</li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_sub_to_full_map">get_sub_to_full_map() (dscribe.descriptors.soap.SOAP method)</a>
 </li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.get_system">get_system() (dscribe.descriptors.descriptor.Descriptor method)</a>
@@ -474,16 +482,10 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.lmbtr.LMBTR.initialize_atomic_numbers">initialize_atomic_numbers() (dscribe.descriptors.lmbtr.LMBTR method)</a>
-
-      <ul>
-        <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.initialize_atomic_numbers">(dscribe.descriptors.mbtr.MBTR method)</a>
-</li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.initialize_scalars">initialize_scalars() (dscribe.descriptors.mbtr.MBTR method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="doc/dscribe.core.html#dscribe.core.lattice.Lattice.inv_matrix">inv_matrix (dscribe.core.lattice.Lattice attribute)</a>
 </li>
   </ul></td>
@@ -608,19 +610,29 @@
 </li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.set_rcut">set_rcut() (dscribe.descriptors.acsf.ACSF method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="doc/dscribe.core.html#dscribe.core.system.System.set_scaled_positions">set_scaled_positions() (dscribe.core.system.System method)</a>
-</li>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.set_types">set_types() (dscribe.descriptors.acsf.ACSF method)</a>
 </li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.sinematrix.SineMatrix">SineMatrix (class in dscribe.descriptors.sinematrix)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP">SOAP (class in dscribe.descriptors.soap)</a>
 </li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.sort">sort() (dscribe.descriptors.matrixdescriptor.MatrixDescriptor method)</a>
 </li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.sort_randomly">sort_randomly() (dscribe.descriptors.matrixdescriptor.MatrixDescriptor method)</a>
+</li>
+      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.species">species (dscribe.descriptors.acsf.ACSF attribute)</a>
+
+      <ul>
+        <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.lmbtr.LMBTR.species">(dscribe.descriptors.lmbtr.LMBTR attribute)</a>
+</li>
+        <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.species">(dscribe.descriptors.mbtr.MBTR attribute)</a>
+</li>
+        <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.species">(dscribe.descriptors.soap.SOAP attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="doc/dscribe.utils.html#dscribe.utils.species.symbols_to_numbers">symbols_to_numbers() (in module dscribe.utils.species)</a>
 </li>
       <li><a href="doc/dscribe.core.html#dscribe.core.system.System">System (class in dscribe.core.system)</a>
 </li>

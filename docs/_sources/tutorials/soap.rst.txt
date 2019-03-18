@@ -44,7 +44,7 @@ Instantiating a SOAP descriptor can be done as follows:
 
 .. literalinclude:: ../../../examples/soap.py
    :language: python
-   :lines: 1-19
+   :lines: 1-15
 
 The arguments have the following effect:
 
@@ -90,7 +90,7 @@ Adding SOAP to the water is as easy as:
 
 .. literalinclude:: ../../../examples/soap.py
    :language: python
-   :lines: 23-26
+   :lines: 22-26
 
 We are expecting a matrix where each row represents the local environment of
 one atom of the molecule. The nth feature vector corresponds to the local SOAP
@@ -119,7 +119,7 @@ In this case a cell needs to be defined for the ase object.
 
 .. literalinclude:: ../../../examples/soap.py
    :language: python
-   :lines: 51-60
+   :lines: 51-62
 
 Since the SOAP feature vectors of each of the four copper atoms in the cubic
 unit cell match, they turn out to be equivalent.
@@ -137,7 +137,7 @@ the different types:
 
 .. literalinclude:: ../../../examples/soap.py
    :language: python
-   :lines: 63-69
+   :lines: 69-88
 
 Most operations work on sparse matrices as they would on numpy matrices.
 Otherwise, a sparse matrix can simply be converted calling the *.toarray()*
@@ -153,7 +153,7 @@ essentially means averaging over atoms of the same type.
 
 .. literalinclude:: ../../../examples/soap.py
    :language: python
-   :lines: 72-81
+   :lines: 90-98
 
 The result will be a feature vector and not a matrix, so it no longer depends
 on the system size. This is necessary to compare two or more structures with
@@ -162,10 +162,10 @@ our choice.
 
 .. literalinclude:: ../../../examples/soap.py
    :language: python
-   :lines: 83-89
+   :lines: 100-115
 
-It seams that the local environments of water and hydrogen peroxide are more
-similar to each other. To see other methods for comparing structures of different
+It seems that the local environments of water and hydrogen peroxide are more
+similar to each other. To see more advanced methods for comparing structures of different
 sizes with each other, see the :doc:`kernel building tutorial <kernels>`.
 
 Working on multiple samples
@@ -178,7 +178,7 @@ to build the output for multiple systems in parallel.
 
 .. literalinclude:: ../../../examples/soap.py
    :language: python
-   :lines: 92-97
+   :lines: 117-121
 
 Implementation note: If you specify *average = False*, you can only run one
 local environment per molecule. That means you would need to specify one

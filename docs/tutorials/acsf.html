@@ -191,7 +191,7 @@ Phys. 134, 074106 (2011)</a></p>
 
 <span class="c1"># Setting up the ACSF descriptor</span>
 <span class="n">acsf</span> <span class="o">=</span> <span class="n">ACSF</span><span class="p">(</span>
-    <span class="n">atomic_numbers</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+    <span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
     <span class="n">rcut</span><span class="o">=</span><span class="mf">6.0</span><span class="p">,</span>
     <span class="n">g2_params</span><span class="o">=</span><span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span>
     <span class="n">g4_params</span><span class="o">=</span><span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]],</span>
@@ -201,21 +201,25 @@ Phys. 134, 074106 (2011)</a></p>
 <p>The arguments have the following effect:</p>
 <dl class="method">
 <dt id="dscribe.descriptors.acsf.ACSF.__init__">
-<code class="descclassname">ACSF.</code><code class="descname">__init__</code><span class="sig-paren">(</span><em>atomic_numbers</em>, <em>rcut=6.0</em>, <em>g2_params=None</em>, <em>g3_params=None</em>, <em>g4_params=None</em>, <em>g5_params=None</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/acsf.html#ACSF.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">ACSF.</code><code class="descname">__init__</code><span class="sig-paren">(</span><em>rcut</em>, <em>g2_params=None</em>, <em>g3_params=None</em>, <em>g4_params=None</em>, <em>g5_params=None</em>, <em>species=None</em>, <em>atomic_numbers=None</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/acsf.html#ACSF.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>atomic_numbers</strong> (<em>iterable</em>) – A list of the atomic numbers that should
-be taken into account in the descriptor. Notice that this is
-not the atomic numbers that are present for an individual
-system, but should contain all the elements that are ever going
-to be encountered when creating the descriptors for a set of
-systems. Keeping the number of handled elements as low as
-possible is preferable.</li>
 <li><strong>rcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The smooth cutoff value. This cutoff value is
 used throughout the calculations for all symmetry functions.</li>
+<li><strong>species</strong> (<em>iterable</em>) – The chemical species as a list of atomic
+numbers or as a list of chemical symbols. Notice that this is not
+the atomic numbers that are present for an individual system, but
+should contain all the elements that are ever going to be
+encountered when creating the descriptors for a set of systems.
+Keeping the number of chemical speices as low as possible is
+preferable.</li>
+<li><strong>atomic_numbers</strong> (<em>iterable</em>) – A list of the atomic numbers that should
+be taken into account in the descriptor. Deprecated in favour of
+the species-parameters, but provided for
+backwards-compatibility.</li>
 <li><strong>g2_params</strong> (<em>n*2 np.ndarray</em>) – A list of pairs of <span class="math notranslate nohighlight">\(\eta\)</span> and
 <span class="math notranslate nohighlight">\(R_s\)</span> parameters for <span class="math notranslate nohighlight">\(G^2\)</span> functions.</li>
 <li><strong>g3_params</strong> (<em>n*1 np.ndarray</em>) – A list of <span class="math notranslate nohighlight">\(\kappa\)</span> parameters for

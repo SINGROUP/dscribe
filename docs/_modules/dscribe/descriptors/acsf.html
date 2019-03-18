@@ -170,6 +170,7 @@
 <span class="kn">from</span> <span class="nn">ctypes</span> <span class="k">import</span> <span class="n">cdll</span><span class="p">,</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_double</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">,</span> <span class="n">byref</span>
 
 <span class="kn">from</span> <span class="nn">dscribe.descriptors.descriptor</span> <span class="k">import</span> <span class="n">Descriptor</span>
+<span class="kn">from</span> <span class="nn">dscribe.utils.species</span> <span class="k">import</span> <span class="n">get_atomic_numbers</span>
 
 
 <span class="n">_PATH_TO_ACSF_SO</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
@@ -228,25 +229,30 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="ACSF.__init__"><a class="viewcode-back" href="../../../tutorials/acsf.html#dscribe.descriptors.acsf.ACSF.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">atomic_numbers</span><span class="p">,</span>
-        <span class="n">rcut</span><span class="o">=</span><span class="mf">6.0</span><span class="p">,</span>
+        <span class="n">rcut</span><span class="p">,</span>
         <span class="n">g2_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">g3_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">g4_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">g5_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">species</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">atomic_numbers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
-<span class="sd">            atomic_numbers (iterable): A list of the atomic numbers that should</span>
-<span class="sd">                be taken into account in the descriptor. Notice that this is</span>
-<span class="sd">                not the atomic numbers that are present for an individual</span>
-<span class="sd">                system, but should contain all the elements that are ever going</span>
-<span class="sd">                to be encountered when creating the descriptors for a set of</span>
-<span class="sd">                systems. Keeping the number of handled elements as low as</span>
-<span class="sd">                possible is preferable.</span>
 <span class="sd">            rcut (float): The smooth cutoff value. This cutoff value is</span>
 <span class="sd">                used throughout the calculations for all symmetry functions.</span>
+<span class="sd">            species (iterable): The chemical species as a list of atomic</span>
+<span class="sd">                numbers or as a list of chemical symbols. Notice that this is not</span>
+<span class="sd">                the atomic numbers that are present for an individual system, but</span>
+<span class="sd">                should contain all the elements that are ever going to be</span>
+<span class="sd">                encountered when creating the descriptors for a set of systems.</span>
+<span class="sd">                Keeping the number of chemical speices as low as possible is</span>
+<span class="sd">                preferable.</span>
+<span class="sd">            atomic_numbers (iterable): A list of the atomic numbers that should</span>
+<span class="sd">                be taken into account in the descriptor. Deprecated in favour of</span>
+<span class="sd">                the species-parameters, but provided for</span>
+<span class="sd">                backwards-compatibility.</span>
 <span class="sd">            g2_params (n*2 np.ndarray): A list of pairs of :math:`\eta` and</span>
 <span class="sd">                :math:`R_s` parameters for :math:`G^2` functions.</span>
 <span class="sd">            g3_params (n*1 np.ndarray): A list of :math:`\kappa` parameters for</span>
@@ -266,7 +272,10 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_Zs</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_types</span><span class="p">(</span><span class="n">atomic_numbers</span><span class="p">)</span>
+        <span class="c1"># Setup the involved chemical species</span>
+        <span class="n">species</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_species_definition</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="n">atomic_numbers</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">species</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">set_g2_params</span><span class="p">(</span><span class="n">g2_params</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_g3_params</span><span class="p">(</span><span class="n">g3_params</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_g4_params</span><span class="p">(</span><span class="n">g4_params</span><span class="p">)</span>
@@ -312,10 +321,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">natm</span> <span class="o">=</span> <span class="n">c_int</span><span class="p">(</span><span class="n">n_atoms</span><span class="p">)</span>
 
         <span class="c1"># Check if there are types that have not been declared</span>
-        <span class="n">input_types</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">())</span>
-        <span class="n">defined_types</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_types</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">input_types</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">defined_types</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The system has types that were not declared.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_atomic_numbers</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">())</span>
 
         <span class="c1"># Setup pointer to the atomic positions</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">positions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
@@ -365,33 +371,32 @@
 
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">descsize</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ACSF.set_types"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.set_types">[docs]</a>    <span class="k">def</span> <span class="nf">set_types</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">species</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_species</span>
+
+    <span class="nd">@species</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Used to check the validity of given atomic numbers and to initialize</span>
 <span class="sd">        the C-memory layout for them.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            value(iterable): Atomic numbers.</span>
+<span class="sd">            value(iterable): Chemical species either as a list of atomic</span>
+<span class="sd">                numbers or list of chemical symbols.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Atomic types cannot be None.&quot;</span><span class="p">)</span>
+        <span class="c1"># The species are stored as atomic numbers for internal use.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_species</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
-        <span class="n">pmatrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">pmatrix</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Atomic types should be a vector of integers.&quot;</span><span class="p">)</span>
-
+        <span class="c1"># Here we setup the C memory layout</span>
+        <span class="n">pmatrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
         <span class="n">pmatrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">pmatrix</span><span class="p">)</span>
         <span class="n">pmatrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">pmatrix</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_types</span> <span class="o">=</span> <span class="n">pmatrix</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">types</span> <span class="o">=</span> <span class="n">pmatrix</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data_as</span><span class="p">(</span><span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">))</span>
-
-        <span class="c1"># Set the internal indexer</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">nTypes</span> <span class="o">=</span> <span class="n">c_int</span><span class="p">(</span><span class="n">pmatrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">nTypes</span> <span class="o">=</span> <span class="n">c_int</span><span class="p">(</span><span class="n">pmatrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1"># Set the internal indexer</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">nSymTypes</span> <span class="o">=</span> <span class="n">c_int</span><span class="p">(</span><span class="nb">int</span><span class="p">((</span><span class="n">pmatrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">pmatrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span>
 
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">pmatrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">typeID</span><span class="p">[</span> <span class="bp">self</span><span class="o">.</span><span class="n">_types</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">i</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">typeID</span><span class="p">[</span> <span class="n">pmatrix</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">i</span>
 
 <div class="viewcode-block" id="ACSF.set_rcut"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.set_rcut">[docs]</a>    <span class="k">def</span> <span class="nf">set_rcut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Used to check the validity of given radial cutoff and to initialize</span>

@@ -239,6 +239,48 @@ are picklable by the multiprocessing library.</p>
 </dd></dl>
 
 </div>
+<div class="section" id="module-dscribe.utils.species">
+<span id="dscribe-utils-species-module"></span><h2>dscribe.utils.species module<a class="headerlink" href="#module-dscribe.utils.species" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="dscribe.utils.species.get_atomic_numbers">
+<code class="descclassname">dscribe.utils.species.</code><code class="descname">get_atomic_numbers</code><span class="sig-paren">(</span><em>species</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/utils/species.html#get_atomic_numbers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.utils.species.get_atomic_numbers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a list of chemical species either as a atomic numbers or chemcal
+symbols, return the correponding list of ordered atomic numbers with
+duplicates removed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>species</strong> (<em>iterable of ints</em><em> or </em><em>strings</em>) – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list of atomic numbers as an integer array.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">np.ndarray</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="dscribe.utils.species.symbols_to_numbers">
+<code class="descclassname">dscribe.utils.species.</code><code class="descname">symbols_to_numbers</code><span class="sig-paren">(</span><em>symbols</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/utils/species.html#symbols_to_numbers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.utils.species.symbols_to_numbers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transforms a set of chemical symbols into the corresponding atomic
+numbers.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>symbols</strong> (<em>iterable</em>) – List of chemical symbols.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Atomic numbers as an array of integers.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">np.ndarray</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
 <div class="section" id="module-dscribe.utils.stats">
 <span id="dscribe-utils-stats-module"></span><h2>dscribe.utils.stats module<a class="headerlink" href="#module-dscribe.utils.stats" title="Permalink to this headline">¶</a></h2>
 <dl class="function">

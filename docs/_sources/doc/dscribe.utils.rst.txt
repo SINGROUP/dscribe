@@ -12,6 +12,14 @@ dscribe.utils.batch\_create module
     :undoc-members:
     :show-inheritance:
 
+dscribe.utils.species module
+----------------------------
+
+.. automodule:: dscribe.utils.species
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 dscribe.utils.stats module
 --------------------------
 

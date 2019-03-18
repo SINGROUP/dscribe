@@ -160,8 +160,11 @@
 <span></span><span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span> <span class="nn">future.utils</span> <span class="k">import</span> <span class="n">with_metaclass</span>
 
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
 <span class="kn">from</span> <span class="nn">ase</span> <span class="k">import</span> <span class="n">Atoms</span>
 <span class="kn">from</span> <span class="nn">dscribe.core.system</span> <span class="k">import</span> <span class="n">System</span>
+<span class="kn">from</span> <span class="nn">dscribe.utils.species</span> <span class="k">import</span> <span class="n">get_atomic_numbers</span>
 
 
 <div class="viewcode-block" id="Descriptor"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor">[docs]</a><span class="k">class</span> <span class="nc">Descriptor</span><span class="p">(</span><span class="n">with_metaclass</span><span class="p">(</span><span class="n">ABCMeta</span><span class="p">)):</span>
@@ -176,6 +179,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span> <span class="o">=</span> <span class="n">sparse</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_flatten</span> <span class="o">=</span> <span class="n">flatten</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_atomic_number_set</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_species</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="Descriptor.create"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.create">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -220,6 +226,75 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;Invalid system with type: &#39;</span><span class="si">{}</span><span class="s2">&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">system</span><span class="p">))</span>
+            <span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_set_species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Used to setup the species information for this descriptor. This</span>
+<span class="sd">        information includes an ordered list of unique atomic numbers, a set</span>
+<span class="sd">        of atomic numbers and the original variable contents.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            species(iterable): Chemical species either as a list of atomic</span>
+<span class="sd">                numbers or list of chemical symbols.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># The species are stored as atomic numbers for internal use.</span>
+        <span class="n">atomic_numbers</span> <span class="o">=</span> <span class="n">get_atomic_numbers</span><span class="p">(</span><span class="n">species</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span> <span class="o">=</span> <span class="n">atomic_numbers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_atomic_number_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_species</span> <span class="o">=</span> <span class="n">species</span>
+
+<div class="viewcode-block" id="Descriptor.get_species_definition"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.get_species_definition">[docs]</a>    <span class="k">def</span> <span class="nf">get_species_definition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">atomic_numbers</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;A convenience function that is included to decide the correct source</span>
+<span class="sd">        of species information.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            species(iterable): Species information either as atomic numbers or</span>
+<span class="sd">                chemical symbols.</span>
+<span class="sd">            atomic_numbers(iterable): Species information as atomic numbers</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The correct variable for the species information.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If both or none of the species information is defined.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># First check that the chemical species are defined either as number or</span>
+        <span class="c1"># symbols</span>
+        <span class="k">if</span> <span class="n">atomic_numbers</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">species</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Please provide the atomic species either as chemical symbols &quot;</span>
+                <span class="s2">&quot;or as atomic numbers.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">atomic_numbers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">species</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Both species and atomic numbers provided. Please only provide&quot;</span>
+                <span class="s2">&quot;either one.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">atomic_numbers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">atomic_numbers</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">species</span></div>
+
+<div class="viewcode-block" id="Descriptor.check_atomic_numbers"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.check_atomic_numbers">[docs]</a>    <span class="k">def</span> <span class="nf">check_atomic_numbers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atomic_numbers</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Used to check that the given atomic numbers have been defined for</span>
+<span class="sd">        this descriptor.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            species(iterable): Atomic numbers to check.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If the atomic numbers in the given system are not</span>
+<span class="sd">            included in the species given to this descriptor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Check that the system does not have elements that are not in the list</span>
+        <span class="c1"># of atomic numbers</span>
+        <span class="n">zs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">atomic_numbers</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">zs</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_number_set</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;The given system has the following atomic numbers not defined &quot;</span>
+                <span class="s2">&quot;for this descriptor: </span><span class="si">{}</span><span class="s2">&quot;</span>
+                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">zs</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_number_set</span><span class="p">))</span>
             <span class="p">)</span></div></div>
 </pre></div>
 

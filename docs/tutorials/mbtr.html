@@ -209,7 +209,7 @@ arXiv preprint, (2017)</a></p>
 
 <span class="c1"># Setting up the MBTR descriptor</span>
 <span class="n">mbtr</span> <span class="o">=</span> <span class="n">MBTR</span><span class="p">(</span>
-    <span class="n">atomic_numbers</span><span class="o">=</span><span class="n">atomic_numbers</span><span class="p">,</span>
+    <span class="n">species</span><span class="o">=</span><span class="n">atomic_numbers</span><span class="p">,</span>
     <span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
     <span class="n">periodic</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
     <span class="n">grid</span><span class="o">=</span><span class="p">{</span>
@@ -222,20 +222,12 @@ arXiv preprint, (2017)</a></p>
 <p>The arguments have the following effect:</p>
 <dl class="method">
 <dt id="dscribe.descriptors.mbtr.MBTR.__init__">
-<code class="descclassname">MBTR.</code><code class="descname">__init__</code><span class="sig-paren">(</span><em>atomic_numbers</em>, <em>k</em>, <em>periodic</em>, <em>grid=None</em>, <em>weighting=None</em>, <em>normalize_by_volume=False</em>, <em>normalize_gaussians=True</em>, <em>flatten=True</em>, <em>sparse=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">MBTR.</code><code class="descname">__init__</code><span class="sig-paren">(</span><em>k</em>, <em>periodic</em>, <em>grid=None</em>, <em>weighting=None</em>, <em>species=None</em>, <em>atomic_numbers=None</em>, <em>normalize_by_volume=False</em>, <em>normalize_gaussians=True</em>, <em>flatten=True</em>, <em>sparse=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>atomic_numbers</strong> (<em>iterable</em>) – A list of the atomic numbers that should
-be taken into account in the descriptor. Notice that this is
-not the atomic numbers that are present for an individual
-system, but should contain all the elements that are ever going
-to be encountered when creating the descriptors for a set of
-systems. Keeping the number of handled elements as low as
-possible is preferable, especially if a dense representation
-(e.g. numpy array) is needed as an output.</li>
 <li><strong>k</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em> or </em><em>iterable</em>) – The interaction term to consider from 1 to 3.
 Also multiple terms can be created at once by providing an
 iterable of integers. The size of the final output and the time
@@ -300,6 +292,17 @@ parameter <span class="math notranslate nohighlight">\(s\)</span> is given in th
 <li><span class="math notranslate nohighlight">\(k=3\)</span>: <span class="math notranslate nohighlight">\(x\)</span> = Distance from A-&gt;B-&gt;C-&gt;A.</li>
 </ul>
 </li>
+<li><strong>species</strong> (<em>iterable</em>) – The chemical species as a list of atomic
+numbers or as a list of chemical symbols. Notice that this is not
+the atomic numbers that are present for an individual system, but
+should contain all the elements that are ever going to be
+encountered when creating the descriptors for a set of systems.
+Keeping the number of chemical speices as low as possible is
+preferable.</li>
+<li><strong>atomic_numbers</strong> (<em>iterable</em>) – A list of the atomic numbers that should
+be taken into account in the descriptor. Deprecated in favour of
+the species-parameters, but provided for
+backwards-compatibility.</li>
 <li><strong>normalize_by_volume</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Determines whether the output vectors are
 normalized by the cell volume. Defaults to False.</li>
 <li><strong>normalize_gaussians</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Determines whether the gaussians are
@@ -389,7 +392,7 @@ matplotlib.</p>
 
 <span class="n">decay</span> <span class="o">=</span> <span class="mf">0.5</span>
 <span class="n">mbtr</span> <span class="o">=</span> <span class="n">MBTR</span><span class="p">(</span>
-    <span class="n">atomic_numbers</span><span class="o">=</span><span class="p">[</span><span class="mi">11</span><span class="p">,</span> <span class="mi">17</span><span class="p">],</span>
+    <span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="mi">11</span><span class="p">,</span> <span class="mi">17</span><span class="p">],</span>
     <span class="n">k</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
     <span class="n">periodic</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
     <span class="n">grid</span><span class="o">=</span><span class="p">{</span>

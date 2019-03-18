@@ -187,7 +187,7 @@
 <span id="dscribe-descriptors-acsf-module"></span><h2>dscribe.descriptors.acsf module<a class="headerlink" href="#module-dscribe.descriptors.acsf" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="dscribe.descriptors.acsf.ACSF">
-<em class="property">class </em><code class="descclassname">dscribe.descriptors.acsf.</code><code class="descname">ACSF</code><span class="sig-paren">(</span><em>atomic_numbers</em>, <em>rcut=6.0</em>, <em>g2_params=None</em>, <em>g3_params=None</em>, <em>g4_params=None</em>, <em>g5_params=None</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/acsf.html#ACSF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dscribe.descriptors.acsf.</code><code class="descname">ACSF</code><span class="sig-paren">(</span><em>rcut</em>, <em>g2_params=None</em>, <em>g3_params=None</em>, <em>g4_params=None</em>, <em>g5_params=None</em>, <em>species=None</em>, <em>atomic_numbers=None</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/acsf.html#ACSF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dscribe.descriptors.descriptor.Descriptor" title="dscribe.descriptors.descriptor.Descriptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.descriptors.descriptor.Descriptor</span></code></a></p>
 <p>Implementation of Atom-Centered Symmetry Functions. Currently valid for
 finite systems only.</p>
@@ -322,20 +322,10 @@ the C-memory layout for it.</p>
 </table>
 </dd></dl>
 
-<dl class="method">
-<dt id="dscribe.descriptors.acsf.ACSF.set_types">
-<code class="descname">set_types</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/acsf.html#ACSF.set_types"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.set_types" title="Permalink to this definition">¶</a></dt>
-<dd><p>Used to check the validity of given atomic numbers and to initialize
-the C-memory layout for them.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>value</strong> (<em>iterable</em>) – Atomic numbers.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
+<dl class="attribute">
+<dt id="dscribe.descriptors.acsf.ACSF.species">
+<code class="descname">species</code><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.species" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -526,6 +516,28 @@ Processing Systems 25 (NIPS 2012)</dd>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>An abstract base class for all descriptors.</p>
 <dl class="method">
+<dt id="dscribe.descriptors.descriptor.Descriptor.check_atomic_numbers">
+<code class="descname">check_atomic_numbers</code><span class="sig-paren">(</span><em>atomic_numbers</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/descriptor.html#Descriptor.check_atomic_numbers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor.check_atomic_numbers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to check that the given atomic numbers have been defined for
+this descriptor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>species</strong> (<em>iterable</em>) – Atomic numbers to check.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> – If the atomic numbers in the given system are not</li>
+<li>included in the species given to this descriptor.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="dscribe.descriptors.descriptor.Descriptor.create">
 <code class="descname">create</code><span class="sig-paren">(</span><em>system</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/descriptor.html#Descriptor.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor.create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates the descriptor for the given systems.</p>
@@ -562,6 +574,32 @@ will have.</p>
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Number of features for this descriptor.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dscribe.descriptors.descriptor.Descriptor.get_species_definition">
+<code class="descname">get_species_definition</code><span class="sig-paren">(</span><em>species</em>, <em>atomic_numbers</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/descriptor.html#Descriptor.get_species_definition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor.get_species_definition" title="Permalink to this definition">¶</a></dt>
+<dd><p>A convenience function that is included to decide the correct source
+of species information.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>species</strong> (<em>iterable</em>) – Species information either as atomic numbers or
+chemical symbols.</li>
+<li><strong>atomic_numbers</strong> (<em>iterable</em>) – Species information as atomic numbers</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The correct variable for the species information.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> – If both or none of the species information is defined.</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -821,7 +859,7 @@ total interaction energy in a system with atoms i and j.</p>
 <span id="dscribe-descriptors-lmbtr-module"></span><h2>dscribe.descriptors.lmbtr module<a class="headerlink" href="#module-dscribe.descriptors.lmbtr" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="dscribe.descriptors.lmbtr.LMBTR">
-<em class="property">class </em><code class="descclassname">dscribe.descriptors.lmbtr.</code><code class="descname">LMBTR</code><span class="sig-paren">(</span><em>atomic_numbers</em>, <em>k</em>, <em>periodic</em>, <em>grid</em>, <em>virtual_positions</em>, <em>weighting=None</em>, <em>normalize_gaussians=True</em>, <em>flatten=True</em>, <em>sparse=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/lmbtr.html#LMBTR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dscribe.descriptors.lmbtr.</code><code class="descname">LMBTR</code><span class="sig-paren">(</span><em>k</em>, <em>periodic</em>, <em>grid</em>, <em>virtual_positions</em>, <em>weighting=None</em>, <em>species=None</em>, <em>atomic_numbers=None</em>, <em>normalize_gaussians=True</em>, <em>flatten=True</em>, <em>sparse=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/lmbtr.html#LMBTR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dscribe.descriptors.mbtr.MBTR" title="dscribe.descriptors.mbtr.MBTR"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.descriptors.mbtr.MBTR</span></code></a></p>
 <p>Implementation of local – per chosen atom – kind of the Many-body
 tensor representation up to k=3.</p>
@@ -895,11 +933,10 @@ in positions.</p>
 <code class="descname">decay_factor</code><em class="property"> = 4.242640687119286</em><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.decay_factor" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="dscribe.descriptors.lmbtr.LMBTR.initialize_atomic_numbers">
-<code class="descname">initialize_atomic_numbers</code><span class="sig-paren">(</span><em>atomic_numbers</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/lmbtr.html#LMBTR.initialize_atomic_numbers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.initialize_atomic_numbers" title="Permalink to this definition">¶</a></dt>
-<dd><p>Used to initialize the list of atomic numbers.</p>
-</dd></dl>
+<dl class="attribute">
+<dt id="dscribe.descriptors.lmbtr.LMBTR.species">
+<code class="descname">species</code><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.species" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -1063,7 +1100,7 @@ scrambled.</dd>
 <span id="dscribe-descriptors-mbtr-module"></span><h2>dscribe.descriptors.mbtr module<a class="headerlink" href="#module-dscribe.descriptors.mbtr" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="dscribe.descriptors.mbtr.MBTR">
-<em class="property">class </em><code class="descclassname">dscribe.descriptors.mbtr.</code><code class="descname">MBTR</code><span class="sig-paren">(</span><em>atomic_numbers</em>, <em>k</em>, <em>periodic</em>, <em>grid=None</em>, <em>weighting=None</em>, <em>normalize_by_volume=False</em>, <em>normalize_gaussians=True</em>, <em>flatten=True</em>, <em>sparse=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dscribe.descriptors.mbtr.</code><code class="descname">MBTR</code><span class="sig-paren">(</span><em>k</em>, <em>periodic</em>, <em>grid=None</em>, <em>weighting=None</em>, <em>species=None</em>, <em>atomic_numbers=None</em>, <em>normalize_by_volume=False</em>, <em>normalize_gaussians=True</em>, <em>flatten=True</em>, <em>sparse=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dscribe.descriptors.descriptor.Descriptor" title="dscribe.descriptors.descriptor.Descriptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.descriptors.descriptor.Descriptor</span></code></a></p>
 <p>Implementation of the Many-body tensor representation up to k=3.</p>
 <p>This implementation provides the following geometry functions:</p>
@@ -1294,12 +1331,6 @@ will have.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dscribe.descriptors.mbtr.MBTR.initialize_atomic_numbers">
-<code class="descname">initialize_atomic_numbers</code><span class="sig-paren">(</span><em>atomic_numbers</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.initialize_atomic_numbers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.initialize_atomic_numbers" title="Permalink to this definition">¶</a></dt>
-<dd><p>Used to initialize the list of atomic numbers.</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="dscribe.descriptors.mbtr.MBTR.initialize_scalars">
 <code class="descname">initialize_scalars</code><span class="sig-paren">(</span><em>system</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.initialize_scalars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.initialize_scalars" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to initialize the scalar values for each k-term.</p>
@@ -1366,6 +1397,11 @@ corresponding to the angles are stored in a similar dictionary.</td>
 </table>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="dscribe.descriptors.mbtr.MBTR.species">
+<code class="descname">species</code><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.species" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="dscribe.descriptors.mbtr.MBTR.update">
 <code class="descname">update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.update" title="Permalink to this definition">¶</a></dt>
@@ -1428,7 +1464,7 @@ Chemistry, (2015),
 <span id="dscribe-descriptors-soap-module"></span><h2>dscribe.descriptors.soap module<a class="headerlink" href="#module-dscribe.descriptors.soap" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="dscribe.descriptors.soap.SOAP">
-<em class="property">class </em><code class="descclassname">dscribe.descriptors.soap.</code><code class="descname">SOAP</code><span class="sig-paren">(</span><em>atomic_numbers</em>, <em>rcut</em>, <em>nmax</em>, <em>lmax</em>, <em>sigma=1.0</em>, <em>rbf='gto'</em>, <em>periodic=False</em>, <em>crossover=True</em>, <em>average=False</em>, <em>sparse=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dscribe.descriptors.soap.</code><code class="descname">SOAP</code><span class="sig-paren">(</span><em>rcut</em>, <em>nmax</em>, <em>lmax</em>, <em>sigma=1.0</em>, <em>rbf='gto'</em>, <em>species=None</em>, <em>atomic_numbers=None</em>, <em>periodic=False</em>, <em>crossover=True</em>, <em>average=False</em>, <em>sparse=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dscribe.descriptors.descriptor.Descriptor" title="dscribe.descriptors.descriptor.Descriptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.descriptors.descriptor.Descriptor</span></code></a></p>
 <p>Class for the Smooth Overlap of Atomic Orbitals (SOAP) descriptor. This
 implementation uses orthogonalized spherical primitive gaussian type
@@ -1528,6 +1564,11 @@ will have.</p>
 <dd><p>Used to map an index in the sub-space of elements to the full
 element-space.</p>
 </dd></dl>
+
+<dl class="attribute">
+<dt id="dscribe.descriptors.soap.SOAP.species">
+<code class="descname">species</code><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.species" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 

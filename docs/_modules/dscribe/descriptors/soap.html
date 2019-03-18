@@ -185,12 +185,13 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="SOAP.__init__"><a class="viewcode-back" href="../../../tutorials/soap.html#dscribe.descriptors.soap.SOAP.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
-            <span class="n">atomic_numbers</span><span class="p">,</span>
             <span class="n">rcut</span><span class="p">,</span>
             <span class="n">nmax</span><span class="p">,</span>
             <span class="n">lmax</span><span class="p">,</span>
             <span class="n">sigma</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
             <span class="n">rbf</span><span class="o">=</span><span class="s2">&quot;gto&quot;</span><span class="p">,</span>
+            <span class="n">species</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">atomic_numbers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">crossover</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">average</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -198,19 +199,21 @@
             <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
-<span class="sd">            atomic_numbers (iterable): A list of the atomic numbers that should</span>
-<span class="sd">                be taken into account in the descriptor. Notice that this is</span>
-<span class="sd">                not the atomic numbers that are present for an individual</span>
-<span class="sd">                system, but should contain all the elements that are ever going</span>
-<span class="sd">                to be encountered when creating the descriptors for a set of</span>
-<span class="sd">                systems. Keeping the number of handled elements as low as</span>
-<span class="sd">                possible is preferable.</span>
-<span class="sd">            periodic (bool): Determines whether the system is considered to be</span>
-<span class="sd">                periodic.</span>
 <span class="sd">            rcut (float): A cutoff for local region in angstroms. Should be</span>
 <span class="sd">                bigger than 1 angstrom.</span>
 <span class="sd">            nmax (int): The number of basis functions to be used.</span>
 <span class="sd">            lmax (int): The number of l&#39;s to be used. The computational time scales</span>
+<span class="sd">            species (iterable): The chemical species as a list of atomic</span>
+<span class="sd">                numbers or as a list of chemical symbols. Notice that this is not</span>
+<span class="sd">                the atomic numbers that are present for an individual system, but</span>
+<span class="sd">                should contain all the elements that are ever going to be</span>
+<span class="sd">                encountered when creating the descriptors for a set of systems.</span>
+<span class="sd">                Keeping the number of chemical speices as low as possible is</span>
+<span class="sd">                preferable.</span>
+<span class="sd">            atomic_numbers (iterable): A list of the atomic numbers that should</span>
+<span class="sd">                be taken into account in the descriptor. Deprecated in favour of</span>
+<span class="sd">                the species-parameters, but provided for</span>
+<span class="sd">                backwards-compatibility.</span>
 <span class="sd">            sigma (float): The standard deviation of the gaussians used to expand the</span>
 <span class="sd">                atomic density.</span>
 <span class="sd">            rbf (str): The radial basis functions to use. The available options are:</span>
@@ -218,6 +221,8 @@
 <span class="sd">                * &quot;gto&quot;: Spherical gaussian type orbitals defined as :math:`g_{nl}(r) = \sum_{n&#39;=1}^{n_\mathrm{max}}\,\\beta_{nn&#39;l} r^l e^{-\\alpha_{n&#39;l}r^2}`</span>
 <span class="sd">                * &quot;polynomial&quot;: Polynomial basis defined as :math:`g_{n}(r) = \sum_{n&#39;=1}^{n_\mathrm{max}}\,\\beta_{nn&#39;} (r-r_\mathrm{cut})^{n&#39;+2}`</span>
 
+<span class="sd">            periodic (bool): Determines whether the system is considered to be</span>
+<span class="sd">                periodic.</span>
 <span class="sd">            crossover (bool): Default True, if crossover of atomic types should</span>
 <span class="sd">                be included in the power spectrum.</span>
 <span class="sd">            average (bool): Whether to build an average output for all selected</span>
@@ -227,13 +232,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="n">sparse</span><span class="p">)</span>
 
-        <span class="c1"># Check that atomic numbers are valid</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_atomic_number_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">atomic_numbers</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_number_set</span><span class="p">)))</span>
-        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Non-positive atomic numbers not allowed.&quot;</span>
-            <span class="p">)</span>
+        <span class="c1"># Setup the involved chemical species</span>
+        <span class="n">species</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_species_definition</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="n">atomic_numbers</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">species</span>
 
         <span class="c1"># Check that sigma is valid</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">sigma</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">):</span>
@@ -296,14 +297,7 @@
 
         <span class="c1"># Check that the system does not have elements that are not in the list</span>
         <span class="c1"># of atomic numbers</span>
-        <span class="n">zs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">())</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">zs</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_number_set</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;The given system has the following atomic numbers not defined &quot;</span>
-                <span class="s2">&quot;in the SOAP constructor: </span><span class="si">{}</span><span class="s2">&quot;</span>
-                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">zs</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_number_set</span><span class="p">))</span>
-            <span class="p">)</span>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_atomic_numbers</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">())</span>
         <span class="n">sub_elements</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">())))</span>
 
         <span class="c1"># Check if periodic is valid</span>
@@ -422,6 +416,22 @@
             <span class="n">soap_mat</span> <span class="o">=</span> <span class="n">coo_matrix</span><span class="p">(</span><span class="n">soap_mat</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">soap_mat</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">species</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_species</span>
+
+    <span class="nd">@species</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Used to check the validity of given atomic numbers and to initialize</span>
+<span class="sd">        the C-memory layout for them.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value(iterable): Chemical species either as a list of atomic</span>
+<span class="sd">                numbers or list of chemical symbols.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># The species are stored as atomic numbers for internal use.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_species</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
 <div class="viewcode-block" id="SOAP.get_full_space_output"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_full_space_output">[docs]</a>    <span class="k">def</span> <span class="nf">get_full_space_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sub_output</span><span class="p">,</span> <span class="n">sub_elements</span><span class="p">,</span> <span class="n">full_elements_sorted</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Used to partition the SOAP output to different locations depending</span>

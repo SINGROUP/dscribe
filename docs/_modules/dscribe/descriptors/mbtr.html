@@ -213,11 +213,12 @@
 
 <div class="viewcode-block" id="MBTR.__init__"><a class="viewcode-back" href="../../../tutorials/mbtr.html#dscribe.descriptors.mbtr.MBTR.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
-            <span class="n">atomic_numbers</span><span class="p">,</span>
             <span class="n">k</span><span class="p">,</span>
             <span class="n">periodic</span><span class="p">,</span>
             <span class="n">grid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">weighting</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">species</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">atomic_numbers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">normalize_by_volume</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">normalize_gaussians</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -225,14 +226,6 @@
             <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
-<span class="sd">            atomic_numbers (iterable): A list of the atomic numbers that should</span>
-<span class="sd">                be taken into account in the descriptor. Notice that this is</span>
-<span class="sd">                not the atomic numbers that are present for an individual</span>
-<span class="sd">                system, but should contain all the elements that are ever going</span>
-<span class="sd">                to be encountered when creating the descriptors for a set of</span>
-<span class="sd">                systems. Keeping the number of handled elements as low as</span>
-<span class="sd">                possible is preferable, especially if a dense representation</span>
-<span class="sd">                (e.g. numpy array) is needed as an output.</span>
 <span class="sd">            k (int or iterable): The interaction term to consider from 1 to 3.</span>
 <span class="sd">                Also multiple terms can be created at once by providing an</span>
 <span class="sd">                iterable of integers. The size of the final output and the time</span>
@@ -295,6 +288,17 @@
 <span class="sd">                * :math:`k=2`: :math:`x` = Distance between A-&gt;B</span>
 <span class="sd">                * :math:`k=3`: :math:`x` = Distance from A-&gt;B-&gt;C-&gt;A.</span>
 
+<span class="sd">            species (iterable): The chemical species as a list of atomic</span>
+<span class="sd">                numbers or as a list of chemical symbols. Notice that this is not</span>
+<span class="sd">                the atomic numbers that are present for an individual system, but</span>
+<span class="sd">                should contain all the elements that are ever going to be</span>
+<span class="sd">                encountered when creating the descriptors for a set of systems.</span>
+<span class="sd">                Keeping the number of chemical speices as low as possible is</span>
+<span class="sd">                preferable.</span>
+<span class="sd">            atomic_numbers (iterable): A list of the atomic numbers that should</span>
+<span class="sd">                be taken into account in the descriptor. Deprecated in favour of</span>
+<span class="sd">                the species-parameters, but provided for</span>
+<span class="sd">                backwards-compatibility.</span>
 <span class="sd">            normalize_by_volume (bool): Determines whether the output vectors are</span>
 <span class="sd">                normalized by the cell volume. Defaults to False.</span>
 <span class="sd">            normalize_gaussians (bool): Determines whether the gaussians are</span>
@@ -307,7 +311,6 @@
 <span class="sd">            sparse (bool): Whether the output should be a sparse matrix or a</span>
 <span class="sd">                dense numpy array.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="k">if</span> <span class="n">sparse</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">flatten</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;Cannot provide a non-flattened output in sparse output because&quot;</span>
@@ -321,7 +324,11 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">=</span> <span class="n">k</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">atomic_numbers</span> <span class="o">=</span> <span class="n">atomic_numbers</span>
+
+        <span class="c1"># Setup the involved chemical species</span>
+        <span class="n">species</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_species_definition</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="n">atomic_numbers</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">species</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">grid</span> <span class="o">=</span> <span class="n">grid</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">weighting</span> <span class="o">=</span> <span class="n">weighting</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span> <span class="o">=</span> <span class="n">periodic</span>
@@ -343,23 +350,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_axis_k2</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_axis_k3</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="MBTR.initialize_atomic_numbers"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.initialize_atomic_numbers">[docs]</a>    <span class="k">def</span> <span class="nf">initialize_atomic_numbers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atomic_numbers</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Used to initialize the list of atomic numbers.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Check that atomic numbers are valid.  The given atomic numbers are</span>
-        <span class="c1"># first made into a set to remove duplicates, and then made into list</span>
-        <span class="c1"># for enabling ordering.</span>
-        <span class="n">new_atomic_numbers</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">atomic_numbers</span><span class="p">))</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_atomic_numbers</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Non-positive atomic numbers not allowed.&quot;</span>
-            <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">atomic_numbers</span> <span class="o">=</span> <span class="n">new_atomic_numbers</span></div>
-
 <div class="viewcode-block" id="MBTR.update"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Checks and updates variables in mbtr class.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="c1"># Check K value</span>
         <span class="n">supported_k</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
         <span class="k">try</span><span class="p">:</span>
@@ -420,23 +413,7 @@
 
         <span class="c1"># Check the given grid</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">check_grid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">n_elements</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Number of elements for MBTR</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">initialize_atomic_numbers</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atomic_numbers</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_to_index</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># a</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">index_to_atomic_number</span> <span class="o">=</span> <span class="p">{}</span>
-
-        <span class="c1"># Sort the atomic numbers. This is not needed but makes things maybe a</span>
-        <span class="c1"># bit easier to debug.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">atomic_numbers</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">i_atom</span><span class="p">,</span> <span class="n">atomic_number</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atomic_numbers</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_to_index</span><span class="p">[</span><span class="n">atomic_number</span><span class="p">]</span> <span class="o">=</span> <span class="n">i_atom</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">index_to_atomic_number</span><span class="p">[</span><span class="n">i_atom</span><span class="p">]</span> <span class="o">=</span> <span class="n">atomic_number</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">n_elements</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atomic_numbers</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">max_atomic_number</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atomic_numbers</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">min_atomic_number</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atomic_numbers</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">check_grid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MBTR.check_grid"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.check_grid">[docs]</a>    <span class="k">def</span> <span class="nf">check_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Used to ensure that the given grid settings are valid.</span>
@@ -480,6 +457,33 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">initialize_scalars</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_with_grid</span><span class="p">()</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">species</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_species</span>
+
+    <span class="nd">@species</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Used to check the validity of given atomic numbers and to initialize</span>
+<span class="sd">        the C-memory layout for them.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value(iterable): Chemical species either as a list of atomic</span>
+<span class="sd">                numbers or list of chemical symbols.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># The species are stored as atomic numbers for internal use.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_species</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="c1"># Setup mappings between atom indices and types together with some</span>
+        <span class="c1"># statistics</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_to_index</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index_to_atomic_number</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">i_atom</span><span class="p">,</span> <span class="n">atomic_number</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_to_index</span><span class="p">[</span><span class="n">atomic_number</span><span class="p">]</span> <span class="o">=</span> <span class="n">i_atom</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">index_to_atomic_number</span><span class="p">[</span><span class="n">i_atom</span><span class="p">]</span> <span class="o">=</span> <span class="n">atomic_number</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_elements</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_atomic_number</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_atomic_number</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">)</span>
 
 <div class="viewcode-block" id="MBTR.create_with_grid"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.create_with_grid">[docs]</a>    <span class="k">def</span> <span class="nf">create_with_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Used to recalculate MBTR for an already seen system but with</span>
@@ -564,18 +568,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_limit</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_limit</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
-        <span class="n">present_element_numbers</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">numbers</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">present_indices</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">number</span> <span class="ow">in</span> <span class="n">present_element_numbers</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_to_index</span><span class="p">[</span><span class="n">number</span><span class="p">]</span>
-            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
-                    <span class="s2">&quot;The given systems contains atomic element </span><span class="si">{}</span><span class="s2"> that has not &quot;</span>
-                    <span class="s2">&quot;been declared in &#39;atomic_numbers&#39; given in the class &quot;</span>
-                    <span class="s2">&quot;constructor.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">number</span><span class="p">)</span>
-                <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">present_indices</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+
+        <span class="c1"># Check that the system does not have elements that are not in the list</span>
+        <span class="c1"># of atomic numbers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_atomic_numbers</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">())</span>
 
         <span class="k">if</span> <span class="mi">1</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">k1_geoms_and_weights</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
