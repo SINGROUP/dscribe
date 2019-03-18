@@ -11,10 +11,12 @@ from dscribe.descriptors import ACSF
 from dscribe.descriptors import CoulombMatrix
 from dscribe.descriptors import SOAP
 from dscribe.utils import batch_create
+from dscribe.utils.species import symbols_to_numbers
 
 from ase.lattice.cubic import SimpleCubicFactory
 from ase.build import molecule
 from ase.visualize import view
+import ase.data
 
 
 class GeometryTests(unittest.TestCase):
@@ -232,7 +234,7 @@ class SpeciesTests(unittest.TestCase):
         """Tests that the species are correctly determined.
         """
         # As atomic number in contructor
-        d = ACSF(species=[5, 1])
+        d = ACSF(rcut=6.0, species=[5, 1])
         self.assertEqual(d.species, [5, 1])          # Saves the original variable
         self.assertEqual(d._atomic_numbers, [1, 5])  # Ordered here
 
@@ -242,7 +244,7 @@ class SpeciesTests(unittest.TestCase):
         self.assertEqual(d._atomic_numbers, [2, 10])
 
         # As chemical symbol in the contructor
-        d = ACSF(species=["O", "H"])
+        d = ACSF(rcut=6.0, species=["O", "H"])
         self.assertEqual(d.species, ["O", "H"])      # Saves the original variable
         self.assertEqual(d._atomic_numbers, [1, 8])  # Ordered here
 
@@ -250,6 +252,15 @@ class SpeciesTests(unittest.TestCase):
         d.species = ["N", "Pb"]
         self.assertEqual(d.species, ["N", "Pb"])
         self.assertEqual(d._atomic_numbers, [7, 82])
+
+    def test_symbols_to_atomic_number(self):
+        """Tests that chemical symbols are correctly transformed into atomic
+        numbers.
+        """
+        for chemical_symbol in ase.data.chemical_symbols[1:]:
+            atomic_number = symbols_to_numbers([chemical_symbol])
+            true_atomic_number = ase.data.chemical_symbols.index(chemical_symbol)
+            self.assertEqual(atomic_number, true_atomic_number)
 
 if __name__ == '__main__':
     suites = []
