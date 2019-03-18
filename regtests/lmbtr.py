@@ -77,7 +77,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         """
         with self.assertRaises(ValueError):
             LMBTR(
-                atomic_numbers=[1],
+                species=[1],
                 k=0,
                 grid=default_grid,
                 virtual_positions=False,
@@ -86,7 +86,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
 
         with self.assertRaises(ValueError):
             LMBTR(
-                atomic_numbers=[1],
+                species=[1],
                 k=[-1, 2],
                 grid=default_grid,
                 virtual_positions=False,
@@ -95,7 +95,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
 
         with self.assertRaises(ValueError):
             LMBTR(
-                atomic_numbers=[1],
+                species=[1],
                 k={1, 4},
                 grid=default_grid,
                 virtual_positions=False,
@@ -108,7 +108,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         """
         decay_factor = 0.5
         lmbtr = LMBTR(
-            atomic_numbers=[1, 8],
+            species=[1, 8],
             k=[1, 2],
             grid={
                 "k1": {
@@ -187,7 +187,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
 
         # Non-virtual positions
         lmbtr = LMBTR(
-            [1, 8],
+            species=[1, 8],
             k=[3],
             grid=default_grid,
             virtual_positions=False,
@@ -207,7 +207,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         atomic_numbers = [1, 8]
         n_elem = len(atomic_numbers) + 1  # Including ghost atom
         lmbtr = LMBTR(
-            atomic_numbers=atomic_numbers,
+            species=atomic_numbers,
             k=[1],
             grid={
                 "k1": {
@@ -227,7 +227,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
 
         # K = 2
         lmbtr = LMBTR(
-            atomic_numbers=atomic_numbers,
+            species=atomic_numbers,
             k={1, 2},
             grid={
                 "k1": {
@@ -253,7 +253,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
 
         # K = 3
         lmbtr = LMBTR(
-            atomic_numbers=atomic_numbers,
+            species=atomic_numbers,
             k={3},
             grid={
                 "k1": {
@@ -290,7 +290,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
 
         # K2 unflattened
         desc = LMBTR(
-            [1, 8],
+            species=[1, 8],
             k=[2],
             grid={"k2": {"n": n, "min": 0, "max": 2, "sigma": 0.1}},
             virtual_positions=False,
@@ -298,13 +298,14 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
             flatten=False,
             sparse=False
         )
+        # print(desc._atomic_numbers)
         feat = desc.create(system, positions=[0])[0]["k2"]
         self.assertEqual(feat.shape, (n_elem, n_elem, n))
 
         # K2 flattened. The sparse matrix only supports 2D matrices, so the first
         # dimension is always present, even if it is of length 1.
         desc = LMBTR(
-            [1, 8],
+            species=[1, 8],
             k=[2],
             grid={"k2": {"n": n, "min": 0, "max": 2, "sigma": 0.1}},
             virtual_positions=False,
@@ -320,7 +321,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         """
         # Dense
         desc = LMBTR(
-            [1, 8],
+            species=[1, 8],
             k=[1],
             grid=default_grid,
             virtual_positions=False,
@@ -333,7 +334,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
 
         # Sparse
         desc = LMBTR(
-            [1, 8],
+            species=[1, 8],
             k=[1],
             grid=default_grid,
             virtual_positions=False,
@@ -360,7 +361,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
 
         decay_factor = 0.5
         lmbtr = LMBTR(
-            atomic_numbers=[1],
+            species=[1],
             k=[2],
             periodic=True,
             grid={
@@ -392,7 +393,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         """Tests that the values of the weight and geometry functions are
         correct for the k=2 term.
         """
-        lmbtr = LMBTR([1, 8], k=[2], grid=default_grid, virtual_positions=False, periodic=False)
+        lmbtr = LMBTR(species=[1, 8], k=[2], grid=default_grid, virtual_positions=False, periodic=False)
         lmbtr.create(H2O, positions=[1])
         geoms = lmbtr._k2_geoms
         weights = lmbtr._k2_weights
@@ -411,7 +412,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         self.dict_comparison(assumed_weights, weights)
 
         # Test against system with different indexing
-        lmbtr = LMBTR([1, 8], k=[2], grid=default_grid, virtual_positions=False, periodic=False)
+        lmbtr = LMBTR(species=[1, 8], k=[2], grid=default_grid, virtual_positions=False, periodic=False)
         lmbtr.create(H2O_2, positions=[0])
         geoms2 = lmbtr._k2_geoms
         self.dict_comparison(geoms, geoms2)
@@ -433,7 +434,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
             pbc=True,
         )
 
-        lmbtr = LMBTR([1, 8], k=[3], grid=default_grid, virtual_positions=False, periodic=False)
+        lmbtr = LMBTR(species=[1, 8], k=[3], grid=default_grid, virtual_positions=False, periodic=False)
         lmbtr.create(system, positions=[0])
         geoms = lmbtr._k3_geoms
         weights = lmbtr._k3_weights
@@ -462,7 +463,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         """LMBTR: Tests translational and rotational symmetries for a finite system.
         """
         desc = LMBTR(
-            atomic_numbers=[1, 8],
+            species=[1, 8],
             k=[1, 2, 3],
             periodic=False,
             grid={

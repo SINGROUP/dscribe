@@ -55,25 +55,19 @@ class LMBTR(MBTR):
 
     def __init__(
             self,
-            atomic_numbers,
             k,
             periodic,
             grid,
             virtual_positions,
             weighting=None,
+            species=None,
+            atomic_numbers=None,
             normalize_gaussians=True,
             flatten=True,
             sparse=True,
             ):
         """
         Args:
-            atomic_numbers (iterable): A list of the atomic numbers that should
-                be taken into account in the descriptor. Notice that this is
-                not the atomic numbers that are present for an individual
-                system, but should contain all the elements that are ever going
-                to be encountered when creating the descriptors for a set of
-                systems.  Keeping the number of handled elements as low as
-                possible is preferable.
             k (set or list): The interaction terms to consider from 1 to 3. The
                 size of the final output and the time taken in creating this
                 descriptor is exponentially dependent on this value.
@@ -143,6 +137,17 @@ class LMBTR(MBTR):
                     k=2: x = Distance between A->B
                     k=3: x = Distance from A->B->C->A.
 
+            species (iterable): The chemical species as a list of atomic
+                numbers or as a list of chemical symbols. Notice that this is not
+                the atomic numbers that are present for an individual system, but
+                should contain all the elements that are ever going to be
+                encountered when creating the descriptors for a set of systems.
+                Keeping the number of chemical speices as low as possible is
+                preferable.
+            atomic_numbers (iterable): A list of the atomic numbers that should
+                be taken into account in the descriptor. Deprecated in favour of
+                the species-parameters, but provided for
+                backwards-compatibility.
             normalize_gaussians (bool): Determines whether the gaussians are
                 normalized to an area of 1. If false, the normalization factor
                 is dropped and the gaussians have the form.
@@ -158,11 +163,12 @@ class LMBTR(MBTR):
             is not specified for periodic systems.
         """
         super().__init__(
-            atomic_numbers,
-            k,
-            periodic,
-            grid,
-            weighting,
+            k=k,
+            periodic=periodic,
+            grid=grid,
+            weighting=weighting,
+            species=species,
+            atomic_numbers=atomic_numbers,
             normalize_by_volume=False,
             normalize_gaussians=normalize_gaussians,
             flatten=flatten,
@@ -198,10 +204,15 @@ class LMBTR(MBTR):
         # Transform the input system into the internal System-object
         system = self.get_system(system)
 
+        # Check that the system does not have elements that are not in the list
+        # of atomic numbers
+        atomic_number_set = set(system.get_atomic_numbers())
+        self.check_atomic_numbers(atomic_number_set)
+
         # Ensure that the atomic number 0 is not present in the system
-        if 0 in system.get_atomic_numbers():
+        if 0 in atomic_number_set:
             raise ValueError(
-                "Please do not use the atomic number 0 in local MBTR "
+                "Please do not use the atomic number 0 in local MBTR"
                 ", as it is reserved for the ghost atom used by the "
                 "implementation."
             )
@@ -295,19 +306,40 @@ class LMBTR(MBTR):
 
         return desc
 
-    def initialize_atomic_numbers(self, atomic_numbers):
-        """Used to initialize the list of atomic numbers.
-        """
-        # Check that atomic numbers are valid.  The given atomic numbers are
-        # first made into a set to remove duplicates, and then made into list
-        # for enabling ordering.
-        new_atomic_numbers = list(set(atomic_numbers))
-        if (np.array(new_atomic_numbers) < 0).any():
-            raise ValueError(
-                "Negative atomic numbers not allowed."
-            )
-        self.atomic_numbers = new_atomic_numbers
+    @property
+    def species(self):
+        return self._species
 
-        # The ghost atoms will have atomic number 0
-        if 0 not in self.atomic_numbers:
-            self.atomic_numbers.append(0)
+    @species.setter
+    def species(self, value):
+        """Used to check the validity of given atomic numbers and to initialize
+        the C-memory layout for them.
+
+        Args:
+            value(iterable): Chemical species either as a list of atomic
+                numbers or list of chemical symbols.
+        """
+        # The species are stored as atomic numbers for internal use.
+        self._set_species(value)
+
+        # The atomic number 0 is reserved for ghost atoms in this
+        # implementation.
+        if 0 in self._atomic_number_set:
+            raise ValueError(
+                "The atomic number 0 is reserved for the ghost atoms in this "
+                "implementation."
+            )
+        self._atomic_number_set.add(0)
+        indices = np.searchsorted(self._atomic_numbers, 0)
+        self._atomic_numbers = np.insert(self._atomic_numbers, indices, 0)
+
+        # Setup mappings between atom indices and types together with some
+        # statistics
+        self.atomic_number_to_index = {}
+        self.index_to_atomic_number = {}
+        for i_atom, atomic_number in enumerate(self._atomic_numbers):
+            self.atomic_number_to_index[atomic_number] = i_atom
+            self.index_to_atomic_number[i_atom] = atomic_number
+        self.n_elements = len(self._atomic_numbers)
+        self.max_atomic_number = max(self._atomic_numbers)
+        self.min_atomic_number = min(self._atomic_numbers)

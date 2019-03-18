@@ -66,7 +66,7 @@ def symbols_to_numbers(symbols):
         if number is None:
             raise ValueError(
                 "Given chemical symbol {} is invalid and doesn't have an atomic"
-                "number associated with it.".format(symbol)
+                " number associated with it.".format(symbol)
             )
         numbers.append(number)
 
@@ -108,48 +108,3 @@ def get_atomic_numbers(species):
     new_atomic_numbers = sorted(list(set(atomic_numbers)))
 
     return new_atomic_numbers
-
-    # First check that the chemical species are defined either as number or
-    # symbols, not both
-    # if atomic_numbers is None and species is None:
-        # raise ValueError(
-            # "Please provide the atomic species either as chemical symbols "
-            # "or as atomic numbers."
-        # )
-    # elif atomic_numbers is not None and species is not None:
-        # raise ValueError(
-            # "Both species and atomic numbers provided. Please only provide"
-            # "either one."
-        # )
-
-    # Handle atomic numbers
-    # if atomic_numbers is not None:
-
-        # # Check that an iterable is given
-        # is_iterable = hasattr(value, '__iter__')
-        # if not is_iterable:
-            # raise ValueError(
-                # "Please provide the atomic numbers as an iterable, e.g. a list."
-            # )
-
-    # # Handle chemical symbols
-    # else:
-        # # Check that an iterable is given
-        # is_iterable = hasattr(value, '__iter__')
-        # if not is_iterable:
-            # raise ValueError(
-                # "Please provide the atomic numbers as an iterable, e.g. a list."
-            # )
-        # # If species given, determine if they are atomic numbers or chemical
-        # # symbols
-        # if all(isinstance(x, int) for x in species):
-            # atomic_numbers = species
-        # elif all(isinstance(x, str) for x in species):
-            # atomic_numbers = symbols_to_numbers(species)
-
-    # # Save species as atomic numbers internally
-    # new_atomic_numbers = list(set(atomic_numbers))
-    # if (np.array(new_atomic_numbers) <= 0).any():
-        # raise ValueError(
-            # "Non-positive atomic numbers not allowed."
-        # )
