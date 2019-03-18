@@ -185,7 +185,7 @@ class BatchTests(unittest.TestCase):
 
         # Test with global descriptor
         descriptor = CoulombMatrix(n_atoms_max=12, permutation="sorted_l2")
-        x = batch_create(descriptor, samples, 2)
+        x = batch_create(descriptor, samples, 2, verbose=False)
 
         # Test with local descriptor
         descriptor = SOAP(
@@ -200,7 +200,7 @@ class BatchTests(unittest.TestCase):
             sparse=True,
         )
         positions = [[0],  [1]]
-        x = batch_create(descriptor, samples, positions=positions, n_proc=2)
+        x = batch_create(descriptor, samples, positions=positions, n_proc=2, verbose=False)
 
 
 class ASETests(unittest.TestCase):
@@ -264,10 +264,10 @@ class SpeciesTests(unittest.TestCase):
 
 if __name__ == '__main__':
     suites = []
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(ASETests))
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(GeometryTests))
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(GaussianTests))
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(BatchTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(ASETests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(GeometryTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(GaussianTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(BatchTests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(SpeciesTests))
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)

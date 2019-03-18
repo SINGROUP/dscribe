@@ -28,7 +28,7 @@ atomic_numbers = stats["atomic_numbers"]
 cm = CoulombMatrix(n_atoms_max, permutation="sorted_l2").create(atoms)
 sm = SineMatrix(n_atoms_max, permutation="sorted_l2").create(atoms)
 mbtr = MBTR(
-    atomic_numbers,
+    species=atomic_numbers,
     k=[1, 2, 3],
     periodic=True,
     weighting={
@@ -42,5 +42,10 @@ mbtr = MBTR(
             "scale": 0.5,
             "cutoff": 1e-3
         },
+    },
+    grid={
+        "k1": {"min": 0, "max": 100, "sigma": 0.1, "n": 100},
+        "k2": {"min": 0, "max": 3, "sigma": 0.1, "n": 100},
+        "k3": {"min": -1, "max": 1, "sigma": 0.1, "n": 100},
     }
 ).create(atoms)

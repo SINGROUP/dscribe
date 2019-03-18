@@ -2,7 +2,7 @@ from dscribe.descriptors import ACSF
 
 # Setting up the ACSF descriptor
 acsf = ACSF(
-    atomic_numbers=[1, 8],
+    species=[1, 8],
     rcut=6.0,
     g2_params=[[1, 1], [1, 2], [1, 3]],
     g4_params=[[1, 1, 1], [1, 2, 1], [1, 1, -1], [1, 2, -1]],

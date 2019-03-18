@@ -23,7 +23,7 @@ print("flattened", cm_methanol.shape)
 
 # No flattening
 cm = CoulombMatrix(
-    n_atoms_max=6, flatten = False
+    n_atoms_max=6, flatten=False
 )
 cm_methanol = cm.create(methanol)
 
@@ -33,7 +33,7 @@ print("not flattened", cm_methanol.shape)
 
 # Introduce zero-padding
 cm = CoulombMatrix(
-    n_atoms_max=10, flatten = False
+    n_atoms_max=10, flatten=False
 )
 cm_methanol = cm.create(methanol)
 
@@ -48,7 +48,7 @@ methanol.set_cell([[10.0, 0.0, 0.0],
     ])
 
 cm = CoulombMatrix(
-    n_atoms_max=6, flatten = False
+    n_atoms_max=6, flatten=False
 )
 
 cm_methanol = cm.create(methanol)
@@ -59,20 +59,20 @@ print("with pbc", cm_methanol)
 
 # Translation, rotation and permutation
 cm = CoulombMatrix(
-    n_atoms_max=6, flatten = False
+    n_atoms_max=6, flatten=False
 )
 print("invariance with respect to translation, rotation and permutation")
-# translate
+# Translate
 methanol.translate((5, 7, 9))
 cm_methanol = cm.create(methanol)
 print(cm_methanol)
 
-#rotate
+# Rotate
 methanol.rotate(90, 'z', center=(0, 0, 0))
 cm_methanol = cm.create(methanol)
 print(cm_methanol)
 
-#permutate
+# Permutate
 upside_down_methanol = methanol[::-1]
 cm_methanol = cm.create(upside_down_methanol)
 print(cm_methanol)
@@ -81,8 +81,9 @@ print(cm_methanol)
 
 # No Sorting
 cm = CoulombMatrix(
-    n_atoms_max=6, flatten = False, 
-    permutation='none')
+    n_atoms_max=6, flatten=False,
+    permutation='none'
+)
 
 cm_methanol = cm.create(methanol)
 print(methanol.get_chemical_symbols())
@@ -90,26 +91,29 @@ print("in order of appearance", cm_methanol)
 
 # Sort by L2-norm from high to low
 cm = CoulombMatrix(
-    n_atoms_max=6, flatten = False, 
-    permutation='sorted_l2')
+    n_atoms_max=6, flatten=False,
+    permutation='sorted_l2'
+)
 
 cm_methanol = cm.create(methanol)
 print("default: sorted by L2-norm", cm_methanol)
 
 # Smoothening by randomly sorting
 cm = CoulombMatrix(
-    n_atoms_max=6, flatten = False,
-    permutation='random', 
-    sigma=70, 
-    seed = None)
+    n_atoms_max=6, flatten=False,
+    permutation='random',
+    sigma=70,
+    seed=None
+)
 
 cm_methanol = cm.create(methanol)
 print("randomly sorted", cm_methanol)
 
 # Denser descriptor Eigenvector
 cm = CoulombMatrix(
-    n_atoms_max=6, flatten = False, 
-    permutation='eigenspectrum')
+    n_atoms_max=6, flatten=False,
+    permutation='eigenspectrum'
+)
 
 cm_methanol = cm.create(methanol)
 print("eigenvalues", cm_methanol)

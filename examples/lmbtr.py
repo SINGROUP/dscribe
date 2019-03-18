@@ -30,9 +30,10 @@ NaCl_conv = System(
 # atom
 decay_factor = 0.5
 mbtr = LMBTR(
-    atomic_numbers=[11, 17],
+    species=[11, 17],
     k=[2, 3],
     periodic=True,
+    virtual_positions=False,
     grid={
         "k1": {
             "min": 10,
@@ -65,7 +66,9 @@ mbtr = LMBTR(
             "cutoff": 1e-3
         },
     },
-    flatten=False)
+    sparse=False,
+    flatten=False
+)
 
 # The output of local MBTR is a list of atomic environments for each given
 # position

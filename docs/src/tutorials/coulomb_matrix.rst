@@ -17,7 +17,7 @@ Instantiating a CM descriptor can be done as follows:
 
 .. literalinclude:: ../../../examples/coulombmatrix.py
    :language: python
-   :lines: 1-12
+   :lines: 1-11
 
 The arguments have the following effect:
 
@@ -31,7 +31,7 @@ After CM has been set up, it may be used on atomic structures with the
 
 .. literalinclude:: ../../../examples/coulombmatrix.py
    :language: python
-   :lines: 13-23
+   :lines: 13-22
 
 The call syntax for the create-function is as follows:
 
@@ -91,7 +91,7 @@ No flattening
 
 .. literalinclude:: ../../../examples/coulombmatrix.py
    :language: python
-   :lines: 24-33
+   :lines: 24-31
 
 No Sorting
 ~~~~~~~~~~~
@@ -111,7 +111,7 @@ The number of features in CM depends on the size of the system. Since most machi
 
 .. literalinclude:: ../../../examples/coulombmatrix.py
    :language: python
-   :lines: 34-42
+   :lines: 34-41
 
 
 Not meant for periodic systems
@@ -121,7 +121,7 @@ The CM was not designed for periodic systems. If you do add periodic boundary co
 
 .. literalinclude:: ../../../examples/coulombmatrix.py
    :language: python
-   :lines: 43-56
+   :lines: 43-55
 
 Instead, the :doc:`Sine Matrix <sine_matrix>` and the `Ewald Matrix <ewald_matrix>` have been designed as periodic counterparts to the CM.
 
@@ -133,7 +133,7 @@ A good descriptor should be invariant with respect to translation, rotation and 
 
 .. literalinclude:: ../../../examples/coulombmatrix.py
    :language: python
-   :lines: 60-79
+   :lines: 60-78
 
 Permutational invariance is obtained because it is sorted by default. The rows and columns are sorted in decending order with respect to the L2-norm.
 
@@ -145,7 +145,7 @@ Options for permutation
 
 .. literalinclude:: ../../../examples/coulombmatrix.py
    :language: python
-   :lines: 82-105
+   :lines: 82-107
 
 The rows and columns are sorted by their L2-norm  after applying Gaussian noise to the norms. The standard deviation of the noise is determined by the additionally required *sigma*-parameter. *sigma* determines the standard deviation of the gaussian distributed noise determining how much the rows and columns of the randomly sorted matrix are scrambled. Feel free to try different *sigma* values to see the effect on the ordering.Optionally, you can specify a random *seed*. *sigma* and *seed* are ignored if *permutation* is other than "random".
 
@@ -163,7 +163,7 @@ The last *permutation* option is strictly not a permutation, but rather a smalle
 
 .. literalinclude:: ../../../examples/coulombmatrix.py
    :language: python
-   :lines: 109-117
+   :lines: 112-119
 
 On one hand, it is a more compact descriptor. On the other hand, it potentially destroys information encoded in the CM interactions.
 
@@ -178,5 +178,5 @@ to build the output for multiple systems in parallel.
 
 .. literalinclude:: ../../../examples/coulombmatrix.py
    :language: python
-   :lines: 118-129
+   :lines: 122-133
 

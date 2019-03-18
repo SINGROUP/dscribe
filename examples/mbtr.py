@@ -5,7 +5,7 @@ n = 100
 
 # Setting up the MBTR descriptor
 mbtr = MBTR(
-    atomic_numbers=atomic_numbers,
+    species=atomic_numbers,
     k=2,
     periodic=False,
     grid={
@@ -37,7 +37,7 @@ import matplotlib.pyplot as plt
 
 decay = 0.5
 mbtr = MBTR(
-    atomic_numbers=[11, 17],
+    species=[11, 17],
     k=[1, 2, 3],
     periodic=True,
     grid={

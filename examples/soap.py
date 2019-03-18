@@ -7,7 +7,7 @@ lmax = 6
 
 # Setting up the SOAP descriptor
 soap = SOAP(
-    atomic_numbers=atomic_numbers,
+    species=atomic_numbers,
     periodic=False,
     rcut=rcut,
     nmax=nmax,
@@ -26,7 +26,7 @@ print(soap_water)
 print(soap_water.shape)
 
 # Lets change the SOAP setup and see how features change
-minimal_soap = SOAP(atomic_numbers, rcut, 2, 0)
+minimal_soap = SOAP(species=atomic_numbers, rcut=rcut, nmax=2, lmax=0)
 n_features = minimal_soap.get_number_of_features()
 
 print("minimal number of features", n_features)
@@ -35,7 +35,7 @@ print("minimal number of features", n_features)
 print("previous sum", soap_water.sum(axis=1))
 
 atomic_numbers = [1, 6, 8]
-soap = SOAP(atomic_numbers, rcut, nmax, lmax)
+soap = SOAP(species=atomic_numbers, rcut=rcut, nmax=nmax, lmax=lmax)
 
 soap_water = soap.create(water, positions=[0])
 
@@ -52,7 +52,14 @@ from ase.build import bulk
 
 copper = bulk('Cu', 'fcc', a=3.6, cubic=True)
 print(copper.get_pbc())
-periodic_soap = SOAP([29], rcut, nmax, lmax, periodic=True, sparse=False)
+periodic_soap = SOAP(
+    species=[29],
+    rcut=rcut,
+    nmax=nmax,
+    lmax=nmax,
+    periodic=True,
+    sparse=False
+)
 
 soap_copper = periodic_soap.create(copper)
 
@@ -60,16 +67,35 @@ print(soap_copper)
 print(soap_copper.sum(axis=1))
 
 # Sparse output
-soap = SOAP(atomic_numbers, rcut, nmax, lmax, sparse=True)
+soap = SOAP(
+    species=atomic_numbers,
+    rcut=rcut,
+    nmax=nmax,
+    lmax=lmax,
+    sparse=True
+)
 soap_water = soap.create(water)
 print(type(soap_water))
 
-soap = SOAP(atomic_numbers, rcut, nmax, lmax, sparse=False)
+soap = SOAP(
+    species=atomic_numbers,
+    rcut=rcut,
+    nmax=nmax,
+    lmax=lmax,
+    sparse=False
+)
 soap_water = soap.create(water)
 print(type(soap_water))
 
 # Average output
-average_soap = SOAP(atomic_numbers, rcut, nmax, lmax, average=True, sparse=False)
+average_soap = SOAP(
+    species=atomic_numbers,
+    rcut=rcut,
+    nmax=nmax,
+    lmax=lmax,
+    average=True,
+    sparse=False
+)
 
 soap_water = average_soap.create(water)
 print("average soap water", soap_water.shape)
