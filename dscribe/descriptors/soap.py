@@ -128,10 +128,10 @@ class SOAP(Descriptor):
         Args:
             system (single or multiple class:`ase.Atoms`): One or many atomic structures.
             positions (list): Positions where to calculate SOAP. Can be
-                provided as cartesian positions or atomic indices. If no positions
-                are defined, the SOAP output will be created for all atoms in
-                the system. When providing multiple systems, also provide the
-                positions within a list.
+                provided as cartesian positions or atomic indices. If no
+                positions are defined, the SOAP output will be created for all
+                atoms in the system. When calculating SOAP for multiple
+                systems, provide the positions as a list for each system.
             n_jobs (int): Number of parallel jobs to instantiate. Can be only
                 used if multiple samples are provided. Defaults to serial
                 calculation with n_jobs=1.
@@ -154,7 +154,8 @@ class SOAP(Descriptor):
         inp = list(zip(system, positions))
 
         # For SOAP the output size for each job depends on the exact arguments.
-        # Here we precalculate this size for each job to preallocate memory.
+        # Here we precalculate the size for each job to preallocate memory and
+        # make the process faster.
         n_samples = len(system)
         k, m = divmod(n_samples, n_jobs)
         jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
@@ -223,12 +224,19 @@ class SOAP(Descriptor):
             if len(positions) == 0:
                 raise ValueError(
                     "The argument 'positions' should contain a non-empty set of"
-                    " atomic indices or cartesian coordinates"
+                    " atomic indices or cartesian coordinates with x, y and z "
+                    "components."
                 )
             for i in positions:
                 if np.issubdtype(type(i), np.integer):
                     list_positions.append(system.get_positions()[i])
                 elif isinstance(i, list) or isinstance(i, tuple):
+                    if len(i) != 3:
+                        raise ValueError(
+                            "The argument 'positions' should contain a "
+                            "non-empty set of atomic indices or cartesian "
+                            "coordinates with x, y and z components."
+                        )
                     list_positions.append(i)
                 else:
                     raise ValueError(

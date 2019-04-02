@@ -142,8 +142,25 @@ class Descriptor(with_metaclass(ABCMeta)):
                 .format(zs.difference(self._atomic_number_set))
             )
 
-    def create_parallel(self, inp, func, n_jobs, output_sizes=None):
-        """
+    def create_parallel(self, inp, func, n_jobs, output_sizes=None, verbose=False):
+        """Used to parallelize the descriptor creation across multiple systems.
+
+        Args:
+            inp(list): Contains a tuple of input arguments for each processed
+                system. These arguments are fed to the function specified by
+                "func".
+            func(function): Function that outputs the descriptor when given
+                input arguments from "inp".
+            n_jobs (int): Number of parallel jobs.
+            output_sizes(list of ints): The size of the output for each job.
+                Makes the creation faster by preallocating the correct amount of
+                memory beforehand. If not specified, a dynamically created list of
+                outputs is used.
+
+        Returns:
+            np.ndarray | scipy.sparse.csr_matrix | list: The descriptor output
+            for each given input. The return type depends on the desciptor
+            setup.
         """
         # Split data into n_jobs (almost) equal jobs
         n_samples = len(inp)
@@ -153,11 +170,9 @@ class Descriptor(with_metaclass(ABCMeta)):
         jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
 
         # Define the function that is parallized
-        def create_multiple(arguments, func, is_sparse, n_desc, n_features=None):
-            """This is the function that is called by each process but with
-            different parts of the data. This function is a module level function
-            (instead of nested within batch_create), because only top level functions
-            are picklable by the multiprocessing library.
+        def create_multiple(arguments, func, is_sparse, n_features, n_desc):
+            """This is the function that is called by each job but with
+            different parts of the data.
             """
             # Initialize output
             if is_sparse:
@@ -165,7 +180,7 @@ class Descriptor(with_metaclass(ABCMeta)):
                 rows = []
                 cols = []
             else:
-                if n_features is not None:
+                if n_desc is not None:
                     results = np.empty((n_desc, n_features), dtype=np.float32)
                 else:
                     results = []
@@ -179,7 +194,7 @@ class Descriptor(with_metaclass(ABCMeta)):
                     rows.append(i_out.row + offset)
                     cols.append(i_out.col)
                 else:
-                    if n_features is None:
+                    if n_desc is None:
                         results.append(i_out)
                     else:
                         results[offset:offset+i_out.shape[0], :] = i_out
@@ -193,9 +208,11 @@ class Descriptor(with_metaclass(ABCMeta)):
 
             return results
 
-        # Calculate the result in parallel with multiple processes with joblib
+        # Calculate the result in parallel with joblib
+        if output_sizes is None:
+            output_sizes = n_jobs*[None]
         with parallel_backend('loky', n_jobs=n_jobs):
-            vec_lists = Parallel()(delayed(create_multiple)(i_args, func, is_sparse, n_desc, n_features) for i_args, n_desc in zip(jobs, output_sizes))
+            vec_lists = Parallel()(delayed(create_multiple)(i_args, func, is_sparse, n_features, n_desc) for i_args, n_desc in zip(jobs, output_sizes))
 
         if self._sparse:
             row_offset = 0
