@@ -3,9 +3,15 @@ from __future__ import absolute_import, division, print_function
 from builtins import super
 import numpy as np
 
+from joblib import Parallel, delayed, parallel_backend
+
 from scipy.sparse import coo_matrix
 
+from ase import Atoms
+
 from dscribe.descriptors import Descriptor
+from dscribe.core import System
+
 import soaplite
 
 
@@ -116,7 +122,66 @@ class SOAP(Descriptor):
         if self._rbf == "gto":
             self._alphas, self._betas = soaplite.genBasis.getBasisFunc(self._rcut, self._nmax)
 
-    def create(self, system, positions=None):
+    def create(self, system, positions=None, n_jobs=1, verbose=False):
+        """Return the SOAP output for the given systems and given positions.
+
+        Args:
+            system (single or multiple class:`ase.Atoms`): One or many atomic structures.
+            positions (list): Positions where to calculate SOAP. Can be
+                provided as cartesian positions or atomic indices. If no positions
+                are defined, the SOAP output will be created for all atoms in
+                the system. When providing multiple systems, also provide the
+                positions within a list.
+            n_jobs (int): Number of parallel jobs to instantiate. Can be only
+                used if multiple samples are provided. Defaults to serial
+                calculation with n_jobs=1.
+            verbose (bool): Controls whether to print the progress of the jobs
+                to console.
+
+        Returns:
+            np.ndarray | scipy.sparse.csr_matrix: The SOAP output for the given
+            systems and positions. The return type depends on the
+            'sparse'-attribute. The first dimension is determined by the amount
+            of positions and systems and the second dimension is determined by
+            the get_number_of_features()-function. The output is ordered so
+            that it contains the positions for each given system i
+        """
+        # If single system given, skip the parallelization
+        if isinstance(system, (Atoms, System)):
+            return self.create_single(system, positions)
+
+        # Combine input arguments
+        inp = list(zip(system, positions))
+
+        # For SOAP the output size for each job depends on the exact arguments.
+        # Here we precalculate this size for each job to preallocate memory.
+        n_samples = len(system)
+        k, m = divmod(n_samples, n_jobs)
+        jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
+        output_sizes = []
+        for i_job in jobs:
+            n_desc = 0
+            if self._average:
+                n_desc = len(i_job)
+            elif positions is None:
+                n_desc = 0
+                for job in i_job:
+                    n_desc += len(job[0])
+            else:
+                n_desc = 0
+                for i_sample, i_pos in i_job:
+                    if i_pos is not None:
+                        n_desc += len(i_pos)
+                    else:
+                        n_desc += len(i_sample)
+            output_sizes.append(n_desc)
+
+        # Create in parallel
+        output = self.create_parallel(inp, self.create_single, n_jobs, output_sizes)
+
+        return output
+
+    def create_single(self, system, positions=None):
         """Return the SOAP output for the given system and given positions.
 
         Args:
@@ -187,7 +252,7 @@ class SOAP(Descriptor):
                     nMax=self._nmax,
                     Lmax=self._lmax,
                     crossOver=self._crossover,
-                    all_atomtypes=sub_elements.tolist(),
+                    all_atomtypes=None,
                     eta=self._eta
                 )
             elif self._rbf == "polynomial":
@@ -201,7 +266,7 @@ class SOAP(Descriptor):
                     rCut=self._rcut,
                     nMax=self._nmax,
                     Lmax=self._lmax,
-                    all_atomtypes=sub_elements.tolist(),
+                    all_atomtypes=None,
                     eta=self._eta
                 )
 
@@ -222,7 +287,7 @@ class SOAP(Descriptor):
                     nMax=self._nmax,
                     Lmax=self._lmax,
                     crossOver=self._crossover,
-                    all_atomtypes=sub_elements.tolist(),
+                    all_atomtypes=None,
                     eta=self._eta
                 )
             elif self._rbf == "polynomial":
@@ -235,7 +300,7 @@ class SOAP(Descriptor):
                     rCut=self._rcut,
                     nMax=self._nmax,
                     Lmax=self._lmax,
-                    all_atomtypes=sub_elements.tolist(),
+                    all_atomtypes=None,
                     eta=self._eta
                 )
 
@@ -276,9 +341,18 @@ class SOAP(Descriptor):
 
     def get_full_space_output(self, sub_output, sub_elements, full_elements_sorted):
         """Used to partition the SOAP output to different locations depending
-        on the interacting elements. The SOAPLite implementation can currently
-        only handle a limited amount of elements, but this wrapper enables the
-        usage of more elements by partitioning the output.
+        on the interacting elements. SOAPLite return the output partitioned by
+        the elements present in the given system. This function correctly
+        places those results within a bigger chemical space.
+
+        Args:
+            sub_output(np.ndarray): The output fron SOAPLite
+            sub_elements(list): The atomic numbers present in the subspace
+            full_elements_sorted(list): The atomic numbers present in the full
+                space, sorted.
+
+        Returns:
+            np.ndarray: The given SOAP output mapped to the full chemical space.
         """
         # Get mapping between elements in the subspace and alements in the full
         # space
