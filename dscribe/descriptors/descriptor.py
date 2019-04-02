@@ -142,7 +142,7 @@ class Descriptor(with_metaclass(ABCMeta)):
                 .format(zs.difference(self._atomic_number_set))
             )
 
-    def create_parallel(self, inp, func, n_jobs, output_sizes=None, verbose=False):
+    def create_parallel(self, inp, func, n_jobs, output_sizes=None, verbose=False, backend="threading"):
         """Used to parallelize the descriptor creation across multiple systems.
 
         Args:
@@ -169,49 +169,10 @@ class Descriptor(with_metaclass(ABCMeta)):
         k, m = divmod(n_samples, n_jobs)
         jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
 
-        # Define the function that is parallized
-        def create_multiple(arguments, func, is_sparse, n_features, n_desc):
-            """This is the function that is called by each job but with
-            different parts of the data.
-            """
-            # Initialize output
-            if is_sparse:
-                data = []
-                rows = []
-                cols = []
-            else:
-                if n_desc is not None:
-                    results = np.empty((n_desc, n_features), dtype=np.float32)
-                else:
-                    results = []
-
-            offset = 0
-            for i_arg in arguments:
-                i_out = func(*i_arg)
-
-                if is_sparse:
-                    data.append(i_out.data)
-                    rows.append(i_out.row + offset)
-                    cols.append(i_out.col)
-                else:
-                    if n_desc is None:
-                        results.append(i_out)
-                    else:
-                        results[offset:offset+i_out.shape[0], :] = i_out
-                        offset += i_out.shape[0]
-
-            if is_sparse:
-                data = np.concatenate(data)
-                rows = np.concatenate(rows)
-                cols = np.concatenate(cols)
-                results = coo_matrix((data, (rows, cols)), shape=[n_desc, n_features], dtype=np.float32)
-
-            return results
-
         # Calculate the result in parallel with joblib
         if output_sizes is None:
             output_sizes = n_jobs*[None]
-        with parallel_backend('loky', n_jobs=n_jobs):
+        with parallel_backend(backend, n_jobs=n_jobs):
             vec_lists = Parallel()(delayed(create_multiple)(i_args, func, is_sparse, n_features, n_desc) for i_args, n_desc in zip(jobs, output_sizes))
 
         if self._sparse:
@@ -253,3 +214,42 @@ class Descriptor(with_metaclass(ABCMeta)):
                 results = np.concatenate(vec_lists, axis=0)
 
         return results
+
+# Define the function that is parallized
+def create_multiple(arguments, func, is_sparse, n_features, n_desc):
+    """This is the function that is called by each job but with
+    different parts of the data.
+    """
+    # Initialize output
+    if is_sparse:
+        data = []
+        rows = []
+        cols = []
+    else:
+        if n_desc is not None:
+            results = np.empty((n_desc, n_features), dtype=np.float32)
+        else:
+            results = []
+
+    offset = 0
+    for i_arg in arguments:
+        i_out = func(*i_arg)
+
+        if is_sparse:
+            data.append(i_out.data)
+            rows.append(i_out.row + offset)
+            cols.append(i_out.col)
+        else:
+            if n_desc is None:
+                results.append(i_out)
+            else:
+                results[offset:offset+i_out.shape[0], :] = i_out
+                offset += i_out.shape[0]
+
+    if is_sparse:
+        data = np.concatenate(data)
+        rows = np.concatenate(rows)
+        cols = np.concatenate(cols)
+        results = coo_matrix((data, (rows, cols)), shape=[n_desc, n_features], dtype=np.float32)
+
+    return results

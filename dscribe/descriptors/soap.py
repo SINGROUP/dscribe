@@ -122,7 +122,7 @@ class SOAP(Descriptor):
         if self._rbf == "gto":
             self._alphas, self._betas = soaplite.genBasis.getBasisFunc(self._rcut, self._nmax)
 
-    def create(self, system, positions=None, n_jobs=1, verbose=False):
+    def create(self, system, positions=None, n_jobs=1, verbose=False, backend="threading"):
         """Return the SOAP output for the given systems and given positions.
 
         Args:
@@ -135,6 +135,10 @@ class SOAP(Descriptor):
             n_jobs (int): Number of parallel jobs to instantiate. Can be only
                 used if multiple samples are provided. Defaults to serial
                 calculation with n_jobs=1.
+            backend (str): The parallelization method as defined by joblib.
+                SOAP is written as a C-extension and the Global Interpreter Lock
+                (GIL) is released for most of the computation making threading
+                usually a good option. See joblib documentation for details.
             verbose (bool): Controls whether to print the progress of the jobs
                 to console.
 
@@ -151,7 +155,10 @@ class SOAP(Descriptor):
             return self.create_single(system, positions)
 
         # Combine input arguments
-        inp = list(zip(system, positions))
+        if positions is None:
+            inp = [(i_sys,) for i_sys in system]
+        else:
+            inp = list(zip(system, positions))
 
         # For SOAP the output size for each job depends on the exact arguments.
         # Here we precalculate the size for each job to preallocate memory and
@@ -178,7 +185,7 @@ class SOAP(Descriptor):
             output_sizes.append(n_desc)
 
         # Create in parallel
-        output = self.create_parallel(inp, self.create_single, n_jobs, output_sizes)
+        output = self.create_parallel(inp, self.create_single, n_jobs, output_sizes, backend=backend)
 
         return output
 

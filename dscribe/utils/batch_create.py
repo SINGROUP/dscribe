@@ -121,7 +121,11 @@ def batch_create(descriptor, samples, n_proc, positions=None, create_func=None, 
     pool = multiprocessing.Pool(processes=n_proc)
     if create_func is None:
         create_func = create
+    import time
+    start = time.time()
     vec_lists = pool.map(create_func, inputs)  # pool.map keeps the order
+    end = time.time()
+    print("Elapsed: {}".format(end-start))
 
     if is_sparse:
         # Put results into one big sparse matrix
