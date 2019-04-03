@@ -83,24 +83,24 @@ class GeometryTests(unittest.TestCase):
         expected = np.linalg.norm(positions[0, :] - positions[1, :])
         self.assertTrue(np.allclose(distance, expected))
 
-    # def test_transformations(self):
-        # """Test that coordinates are correctly transformed from scaled to
-        # cartesian and back again.
-        # """
-        # system = System(
-            # scaled_positions=[[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]],
-            # symbols=["H", "H"],
-            # cell=[
-                # [5, 5, 0],
-                # [0, -5, -5],
-                # [5, 0, 5]
-            # ],
-        # )
+    def test_transformations(self):
+        """Test that coordinates are correctly transformed from scaled to
+        cartesian and back again.
+        """
+        system = System(
+            scaled_positions=[[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]],
+            symbols=["H", "H"],
+            cell=[
+                [5, 5, 0],
+                [0, -5, -5],
+                [5, 0, 5]
+            ],
+        )
 
-        # orig = np.array([[2, 1.45, -4.8]])
-        # scal = system.to_scaled(orig)
-        # cart = system.to_cartesian(scal)
-        # self.assertTrue(np.allclose(orig, cart))
+        orig = np.array([[2, 1.45, -4.8]])
+        scal = system.to_scaled(orig)
+        cart = system.to_cartesian(scal)
+        self.assertTrue(np.allclose(orig, cart))
 
 
 class GaussianTests(unittest.TestCase):
@@ -176,32 +176,6 @@ class GaussianTests(unittest.TestCase):
         # mpl.show()
 
 
-class BatchTests(unittest.TestCase):
-
-    # def test_batch_create(self):
-        # """Tests that the batch creation function works as expected.
-        # """
-        # samples = [molecule("H2O"), molecule("C6H6")]
-
-        # # Test with global descriptor
-        # descriptor = CoulombMatrix(n_atoms_max=12, permutation="sorted_l2")
-        # x = batch_create(descriptor, samples, 2, verbose=False)
-
-        # # Test with local descriptor
-        # descriptor = SOAP(
-            # atomic_numbers=[1, 6, 8],
-            # rcut=5,
-            # nmax=3,
-            # lmax=3,
-            # sigma=1,
-            # periodic=False,
-            # crossover=True,
-            # average=False,
-            # sparse=True,
-        # )
-        # positions = [[0],  [1]]
-        # x = batch_create(descriptor, samples, positions=positions, n_proc=2, verbose=False)
-
 class ASETests(unittest.TestCase):
 
     def test_atoms_to_system(self):
@@ -272,11 +246,10 @@ class SpeciesTests(unittest.TestCase):
 
 if __name__ == '__main__':
     suites = []
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(ASETests))
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(GeometryTests))
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(GaussianTests))
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(BatchTests))
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SpeciesTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(ASETests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(GeometryTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(GaussianTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(SpeciesTests))
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)
 
