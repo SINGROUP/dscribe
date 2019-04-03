@@ -1,5 +1,6 @@
-from __future__ import absolute_import, division, print_function
-from builtins import super
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
+from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
 import math
 import numpy as np
 
@@ -306,8 +307,7 @@ class MBTR(Descriptor):
         # Combine input arguments
         inp = [(i_sys,) for i_sys in system]
 
-        # Here we precalculate the size for each job to preallocate memory and
-        # make the process faster.
+        # Here we precalculate the size for each job to preallocate memory.
         n_samples = len(system)
         k, m = divmod(n_samples, n_jobs)
         jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))

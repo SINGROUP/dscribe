@@ -83,13 +83,13 @@ class MatrixDescriptor(Descriptor):
             np.ndarray: The final two-dimensional matrix for this descriptor.
         """
 
-    def create(self, system):
+    def create_single(self, system):
         """
         Args:
             system (:class:`ase.Atoms` | :class:`.System`): Input system.
 
         Returns:
-            ndarray: The zero padded Coulomb matrix either as a 2D array or as
+            ndarray: The zero padded matrix either as a 2D array or as
                 a 1D array depending on the setting self._flatten.
         """
         # Transform the input system into the internal System-object
