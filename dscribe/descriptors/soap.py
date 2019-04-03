@@ -122,7 +122,7 @@ class SOAP(Descriptor):
         if self._rbf == "gto":
             self._alphas, self._betas = soaplite.genBasis.getBasisFunc(self._rcut, self._nmax)
 
-    def create(self, system, positions=None, n_jobs=1, verbose=False, backend="threading"):
+    def create(self, system, positions=None, n_jobs=1, verbose=False, backend="multiprocessing"):
         """Return the SOAP output for the given systems and given positions.
 
         Args:

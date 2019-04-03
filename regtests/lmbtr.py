@@ -11,7 +11,7 @@ import scipy.sparse
 from dscribe.descriptors import LMBTR
 
 from ase import Atoms
-from ase.visualize import view
+from ase.build import molecule
 
 from testbaseclass import TestBaseClass
 
@@ -344,6 +344,105 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         )
         vec = desc.create(H2O, positions=[0])
         self.assertTrue(type(vec) == scipy.sparse.coo_matrix)
+
+    def test_parallel_dense(self):
+        """Tests creating dense output parallelly.
+        """
+        samples = [molecule("CO"), molecule("N2O")]
+        desc = LMBTR(
+            species=[6, 7, 8],
+            k=[2],
+            grid={"k2": {"n": 100, "min": 0, "max": 2, "sigma": 0.1}},
+            virtual_positions=False,
+            periodic=False,
+            flatten=True,
+            sparse=False
+        )
+        n_features = desc.get_number_of_features()
+
+        # Test when position given as indices
+        output = desc.create(
+            system=samples,
+            positions=[[0], [0, 1]],
+            n_jobs=2,
+        )
+        assumed = np.empty((3, n_features))
+        assumed[0, :] = desc.create(samples[0], [0])
+        assumed[1, :] = desc.create(samples[1], [0])
+        assumed[2, :] = desc.create(samples[1], [1])
+        self.assertTrue(np.allclose(output, assumed))
+
+        # Test with cartesian positions. In this case virtual positions have to
+        # be enabled
+        desc = LMBTR(
+            species=[6, 7, 8],
+            k=[2],
+            grid={"k2": {"n": 100, "min": 0, "max": 2, "sigma": 0.1}},
+            virtual_positions=True,
+            periodic=False,
+            flatten=True,
+            sparse=False
+        )
+        output = desc.create(
+            system=samples,
+            positions=[[[0, 0, 0], [1, 2, 0]], [[1, 2, 0]]],
+            n_jobs=2,
+        )
+        assumed = np.empty((2+1, n_features))
+        assumed[0, :] = desc.create(samples[0], [[0, 0, 0]])
+        assumed[1, :] = desc.create(samples[0], [[1, 2, 0]])
+        assumed[2, :] = desc.create(samples[1], [[1, 2, 0]])
+        self.assertTrue(np.allclose(output, assumed))
+
+    def test_parallel_sparse(self):
+        """Tests creating sparse output parallelly.
+        """
+        # Test indices
+        samples = [molecule("CO"), molecule("N2O")]
+        desc = LMBTR(
+            species=[6, 7, 8],
+            k=[2],
+            grid={"k2": {"n": 100, "min": 0, "max": 2, "sigma": 0.1}},
+            virtual_positions=False,
+            periodic=False,
+            flatten=True,
+            sparse=True
+        )
+        n_features = desc.get_number_of_features()
+
+        # Test when position given as indices
+        output = desc.create(
+            system=samples,
+            positions=[[0], [0, 1]],
+            n_jobs=2,
+        ).toarray()
+        assumed = np.empty((3, n_features))
+        assumed[0, :] = desc.create(samples[0], [0]).toarray()
+        assumed[1, :] = desc.create(samples[1], [0]).toarray()
+        assumed[2, :] = desc.create(samples[1], [1]).toarray()
+        self.assertTrue(np.allclose(output, assumed))
+
+        # Test with cartesian positions. In this case virtual positions have to
+        # be enabled
+        desc = LMBTR(
+            species=[6, 7, 8],
+            k=[2],
+            grid={"k2": {"n": 100, "min": 0, "max": 2, "sigma": 0.1}},
+            virtual_positions=True,
+            periodic=False,
+            flatten=True,
+            sparse=True
+        )
+        output = desc.create(
+            system=samples,
+            positions=[[[0, 0, 0], [1, 2, 0]], [[1, 2, 0]]],
+            n_jobs=2,
+        ).toarray()
+        assumed = np.empty((2+1, n_features))
+        assumed[0, :] = desc.create(samples[0], [[0, 0, 0]]).toarray()
+        assumed[1, :] = desc.create(samples[0], [[1, 2, 0]]).toarray()
+        assumed[2, :] = desc.create(samples[1], [[1, 2, 0]]).toarray()
+        self.assertTrue(np.allclose(output, assumed))
 
     def test_periodic(self):
         """LMBTR: Test periodic flag

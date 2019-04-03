@@ -178,10 +178,80 @@ class LMBTR(MBTR):
         self._is_local = True
         self._interaction_limit = 1
 
-    def create(
+    def create(self, system, positions=None, scaled_positions=False, n_jobs=1, verbose=False, backend="multiprocessing"):
+        """Return the LMBTR output for the given systems and given positions.
+
+        Args:
+            system (single or multiple class:`ase.Atoms`): One or many atomic
+                structures.
+            positions (list): Positions where to calculate LMBTR. Can be
+                provided as cartesian positions or atomic indices. If no
+                positions are defined, the LMBTR output will be created for all
+                atoms in the system. When calculating LMBTR for multiple
+                systems, provide the positions as a list for each system.
+            scaled_positions (boolean): Controls whether the given positions
+                are given as scaled to the unit cell basis or not. Scaled
+                positions require that a cell is available for the system.
+                Provide either one value or a list of values for each system.
+            n_jobs (int): Number of parallel jobs to instantiate. Can be only
+                used if multiple samples are provided. Defaults to serial
+                calculation with n_jobs=1.
+            backend (str): The parallelization method as defined by joblib.
+                LMBTR is written as a C++-extension and the Global Interpreter
+                Lock (GIL) is released for most of the computation making
+                threading usually a good option. See joblib documentation for
+                details.
+            verbose (bool): Controls whether to print the progress of the jobs
+                to console.
+
+        Returns:
+            np.ndarray | scipy.sparse.csr_matrix: The LMBTR output for the given
+            systems and positions. The return type depends on the
+            'sparse'-attribute. The first dimension is determined by the amount
+            of positions and systems and the second dimension is determined by
+            the get_number_of_features()-function.
+        """
+        # If single system given, skip the parallelization
+        if isinstance(system, (Atoms, System)):
+            return self.create_single(system, positions, scaled_positions)
+
+        # Combine input arguments
+        n_samples = len(system)
+        if np.ndim(scaled_positions) == 0:
+            scaled_positions = n_samples*[scaled_positions]
+        inp = [(i_sys, i_pos, i_scaled) for i_sys, i_pos, i_scaled in zip(system, positions, scaled_positions)]
+
+        # For ACSF the output size for each job depends on the exact arguments.
+        # Here we precalculate the size for each job to preallocate memory and
+        # make the process faster.
+        n_samples = len(system)
+        k, m = divmod(n_samples, n_jobs)
+        jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
+        output_sizes = []
+        for i_job in jobs:
+            n_desc = 0
+            if positions is None:
+                n_desc = 0
+                for job in i_job:
+                    n_desc += len(job[0])
+            else:
+                n_desc = 0
+                for i_sample, i_pos, i_scale in i_job:
+                    if i_pos is not None:
+                        n_desc += len(i_pos)
+                    else:
+                        n_desc += len(i_sample)
+            output_sizes.append(n_desc)
+
+        # Create in parallel
+        output = self.create_parallel(inp, self.create_single, n_jobs, output_sizes, backend=backend)
+
+        return output
+
+    def create_single(
             self,
             system,
-            positions,
+            positions=None,
             scaled_positions=False
             ):
         """Return the local many-body tensor representation for the given
@@ -282,7 +352,7 @@ class LMBTR(MBTR):
             rows = []
             row_offset = 0
             for i, i_system in enumerate(systems):
-                i_res = super().create(i_system)
+                i_res = super().create_single(i_system)
                 data.append(i_res.data)
                 rows.append(i_res.row + row_offset)
                 cols.append(i_res.col)
@@ -301,7 +371,7 @@ class LMBTR(MBTR):
             else:
                 desc = np.empty((n_pos), dtype='object')
             for i, i_system in enumerate(systems):
-                i_desc = super().create(i_system)
+                i_desc = super().create_single(i_system)
                 desc[i] = i_desc
 
         return desc

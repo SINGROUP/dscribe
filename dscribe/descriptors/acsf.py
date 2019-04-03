@@ -77,7 +77,7 @@ class ACSF(Descriptor):
         self.g5_params = g5_params
         self.rcut = rcut
 
-    def create(self, system, positions=None, n_jobs=1, verbose=False, backend="threading"):
+    def create(self, system, positions=None, n_jobs=1, verbose=False, backend="multiprocessing"):
         """Return the ACSF output for the given systems and given positions.
 
         Args:
