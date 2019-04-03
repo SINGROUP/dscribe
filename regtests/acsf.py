@@ -46,11 +46,10 @@ H = Atoms(
 default_desc = ACSF(
     rcut=6.0,
     species=[1, 8],
-    g2_params=[[1, 2]],
-    # g2_params=[[1, 2], [4, 5]],
-    # g3_params=[1, 2, 3, 4],
-    # g4_params=[[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]],
-    # g5_params=[[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]],
+    g2_params=[[1, 2], [4, 5]],
+    g3_params=[1, 2, 3, 4],
+    g4_params=[[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]],
+    g5_params=[[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]],
 )
 
 
@@ -146,6 +145,89 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
         vec = default_desc.create(H2O)
         self.assertTrue(type(vec) == np.ndarray)
 
+    def test_parallel_dense(self):
+        """Tests creating dense output parallelly.
+        """
+        samples = [molecule("CO"), molecule("N2O")]
+        desc = ACSF(
+            rcut=6.0,
+            species=[6, 7, 8],
+            g2_params=[[1, 2], [4, 5]],
+            g3_params=[1, 2, 3, 4],
+            g4_params=[[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]],
+            g5_params=[[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]],
+        )
+        n_features = desc.get_number_of_features()
+
+        # Test when position given as indices
+        output = desc.create(
+            system=samples,
+            positions=[[0], [0, 1]],
+            n_jobs=2,
+        )
+        assumed = np.empty((3, n_features))
+        assumed[0, :] = desc.create(samples[0], [0])
+        assumed[1, :] = desc.create(samples[1], [0])
+        assumed[2, :] = desc.create(samples[1], [1])
+        self.assertTrue(np.allclose(output, assumed))
+
+        # Test with no positions specified
+        output = desc.create(
+            system=samples,
+            positions=[None, None],
+            n_jobs=2,
+        )
+        assumed = np.empty((2+3, n_features))
+        assumed[0, :] = desc.create(samples[0], [0])
+        assumed[1, :] = desc.create(samples[0], [1])
+        assumed[2, :] = desc.create(samples[1], [0])
+        assumed[3, :] = desc.create(samples[1], [1])
+        assumed[4, :] = desc.create(samples[1], [2])
+        self.assertTrue(np.allclose(output, assumed))
+
+    def test_parallel_sparse(self):
+        """Tests creating sparse output parallelly.
+        """
+        # Test indices
+        samples = [molecule("CO"), molecule("N2O")]
+        desc = ACSF(
+            rcut=6.0,
+            species=[6, 7, 8],
+            g2_params=[[1, 2], [4, 5]],
+            g3_params=[1, 2, 3, 4],
+            g4_params=[[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]],
+            g5_params=[[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]],
+            sparse=True
+        )
+        n_features = desc.get_number_of_features()
+
+        # Test when position given as indices
+        output = desc.create(
+            system=samples,
+            positions=[[0], [0, 1]],
+            n_jobs=2,
+        ).toarray()
+        assumed = np.empty((3, n_features))
+        assumed[0, :] = desc.create(samples[0], [0]).toarray()
+        assumed[1, :] = desc.create(samples[1], [0]).toarray()
+        assumed[2, :] = desc.create(samples[1], [1]).toarray()
+        self.assertTrue(np.allclose(output, assumed))
+
+        # Test with no positions specified
+        output = desc.create(
+            system=samples,
+            positions=[None, None],
+            n_jobs=2,
+        ).toarray()
+
+        assumed = np.empty((2+3, n_features))
+        assumed[0, :] = desc.create(samples[0], [0]).toarray()
+        assumed[1, :] = desc.create(samples[0], [1]).toarray()
+        assumed[2, :] = desc.create(samples[1], [0]).toarray()
+        assumed[3, :] = desc.create(samples[1], [1]).toarray()
+        assumed[4, :] = desc.create(samples[1], [2]).toarray()
+        self.assertTrue(np.allclose(output, assumed))
+
     def test_features(self):
         """Tests that the correct features are present in the descriptor.
         """
@@ -169,9 +251,9 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
         g1_ho = 0.5 * (np.cos(np.pi*dist_oh / rc) + 1)
         g1_hh = 0.5 * (np.cos(np.pi*dist_hh / rc) + 1)
         g1_oh = 2 * 0.5 * (np.cos(np.pi*dist_oh / rc) + 1)
-        self.assertAlmostEqual(acsfg1[0, 0], g1_hh)
-        self.assertAlmostEqual(acsfg1[0, 1], g1_ho)
-        self.assertAlmostEqual(acsfg1[1, 0], g1_oh)
+        self.assertAlmostEqual(acsfg1[0, 0], g1_hh, places=6)
+        self.assertAlmostEqual(acsfg1[0, 1], g1_ho, places=6)
+        self.assertAlmostEqual(acsfg1[1, 0], g1_oh, places=6)
 
         # G2
         desc = ACSF(rcut=6.0, species=[1, 8], g2_params=[[eta, rs]])
@@ -179,9 +261,9 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
         g2_hh = np.exp(-eta * np.power((dist_hh - rs), 2)) * g1_hh
         g2_ho = np.exp(-eta * np.power((dist_oh - rs), 2)) * g1_ho
         g2_oh = np.exp(-eta * np.power((dist_oh - rs), 2)) * g1_oh
-        self.assertAlmostEqual(acsfg2[0, 1], g2_hh)
-        self.assertAlmostEqual(acsfg2[0, 3], g2_ho)
-        self.assertAlmostEqual(acsfg2[1, 1], g2_oh)
+        self.assertAlmostEqual(acsfg2[0, 1], g2_hh, places=6)
+        self.assertAlmostEqual(acsfg2[0, 3], g2_ho, places=6)
+        self.assertAlmostEqual(acsfg2[1, 1], g2_oh, places=6)
 
         # G3
         desc = ACSF(rcut=6.0, species=[1, 8], g3_params=[kappa])
@@ -189,9 +271,9 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
         g3_hh = np.cos(dist_hh * kappa) * g1_hh
         g3_ho = np.cos(dist_oh * kappa) * g1_ho
         g3_oh = np.cos(dist_oh * kappa) * g1_oh
-        self.assertAlmostEqual(acsfg3[0, 1], g3_hh)
-        self.assertAlmostEqual(acsfg3[0, 3], g3_ho)
-        self.assertAlmostEqual(acsfg3[1, 1], g3_oh)
+        self.assertAlmostEqual(acsfg3[0, 1], g3_hh, places=6)
+        self.assertAlmostEqual(acsfg3[0, 3], g3_ho, places=6)
+        self.assertAlmostEqual(acsfg3[1, 1], g3_oh, places=6)
 
         # G4
         desc = ACSF(rcut=6.0, species=[1, 8], g4_params=[[eta, zeta, lmbd]])
@@ -200,9 +282,9 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
         g4_h_ho = np.power(2, 1 - zeta) * np.power((1 + lmbd*np.cos(ang_hho)), zeta) * gauss
         g4_h_oh = np.power(2, 1 - zeta) * np.power((1 + lmbd*np.cos(ang_ohh)), zeta) * gauss
         g4_o_hh = np.power(2, 1 - zeta) * np.power((1 + lmbd*np.cos(ang_hoh)), zeta) * gauss
-        self.assertAlmostEqual(acsfg4[0, 3], g4_h_ho)
-        self.assertAlmostEqual(acsfg4[2, 3], g4_h_oh)
-        self.assertAlmostEqual(acsfg4[1, 2], g4_o_hh)
+        self.assertAlmostEqual(acsfg4[0, 3], g4_h_ho, places=6)
+        self.assertAlmostEqual(acsfg4[2, 3], g4_h_oh, places=6)
+        self.assertAlmostEqual(acsfg4[1, 2], g4_o_hh, places=6)
 
         # G5
         desc = ACSF(rcut=6.0, species=[1, 8], g5_params=[[eta, zeta, lmbd]])
@@ -211,9 +293,9 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
         g5_h_ho = np.power(2, 1 - zeta) * np.power((1 + lmbd*np.cos(ang_hho)), zeta) * gauss
         g5_h_oh = np.power(2, 1 - zeta) * np.power((1 + lmbd*np.cos(ang_ohh)), zeta) * gauss
         g5_o_hh = np.power(2, 1 - zeta) * np.power((1 + lmbd*np.cos(ang_hoh)), zeta) * np.exp(-eta * (2 * dist_oh * dist_oh)) * g1_ho * g1_ho
-        self.assertAlmostEqual(acsfg5[0, 3], g5_h_ho)
-        self.assertAlmostEqual(acsfg5[2, 3], g5_h_oh)
-        self.assertAlmostEqual(acsfg5[1, 2], g5_o_hh)
+        self.assertAlmostEqual(acsfg5[0, 3], g5_h_ho, places=6)
+        self.assertAlmostEqual(acsfg5[2, 3], g5_h_oh, places=6)
+        self.assertAlmostEqual(acsfg5[1, 2], g5_o_hh, places=6)
 
     def test_symmetries(self):
         """Tests translational and rotational symmetries

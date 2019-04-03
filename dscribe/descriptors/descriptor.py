@@ -142,7 +142,7 @@ class Descriptor(with_metaclass(ABCMeta)):
                 .format(zs.difference(self._atomic_number_set))
             )
 
-    def create_parallel(self, inp, func, n_jobs, output_sizes=None, verbose=False, backend="threading"):
+    def create_parallel(self, inp, func, n_jobs, output_sizes=None, verbose=False, backend="multiprocessing"):
         """Used to parallelize the descriptor creation across multiple systems.
 
         Args:
@@ -215,7 +215,7 @@ class Descriptor(with_metaclass(ABCMeta)):
 
         return results
 
-# Define the function that is parallized
+
 def create_multiple(arguments, func, is_sparse, n_features, n_desc):
     """This is the function that is called by each job but with
     different parts of the data.

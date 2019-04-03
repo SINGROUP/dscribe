@@ -1,58 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
-import os
-import glob
 
 import numpy as np
 
 from scipy.sparse import coo_matrix
 
-from ctypes import cdll, Structure, c_int, c_double, POINTER, byref
-
 from dscribe.descriptors.descriptor import Descriptor
-from dscribe.utils.species import get_atomic_numbers
+from dscribe.core import System
 
+from ase import Atoms
 
-_PATH_TO_ACSF_SO = os.path.dirname(os.path.abspath(__file__))
-_ACSF_SOFILES = glob.glob( "".join([ _PATH_TO_ACSF_SO, "/../libacsf/libacsf.*so*"]))
-_LIBACSF = cdll.LoadLibrary(_ACSF_SOFILES[0])
-
-
-class ACSFObject(Structure):
-    """Wrapper class for the ACSF C library.
-    """
-    _fields_ = [
-        ('natm', c_int),
-        ('Z', POINTER(c_int)),
-        ('positions', POINTER(c_double)),
-        ('nTypes', c_int),
-        ('types', POINTER(c_int)),
-        ('typeID', (c_int*100)),
-        ('nSymTypes', c_int),
-        ('cutoff', c_double),
-
-        ('n_bond_params', c_int),
-        ('bond_params', POINTER(c_double)),
-
-        ('n_bond_cos_params', c_int),
-        ('bond_cos_params', POINTER(c_double)),
-
-        ('n_ang4_params', c_int),
-        ('ang4_params', POINTER(c_double)),
-
-        ('n_ang5_params', c_int),
-        ('ang5_params', POINTER(c_double)),
-
-        ('distances', POINTER(c_double)),
-        ('nG2', c_int),
-        ('nG3', c_int),
-
-        ('acsfs', POINTER(c_double))
-    ]
-
-_LIBACSF.acsf_compute_acsfs.argtypes = [POINTER(ACSFObject)]
-_LIBACSF.acsf_compute_acsfs_some.argtypes = [POINTER(ACSFObject), POINTER(c_int), c_int]
+from dscribe.libacsf.acsfwrapper import ACSFWrapper
 
 
 class ACSF(Descriptor):
@@ -83,6 +42,14 @@ class ACSF(Descriptor):
         Args:
             rcut (float): The smooth cutoff value. This cutoff value is
                 used throughout the calculations for all symmetry functions.
+            g2_params (n*2 np.ndarray): A list of pairs of :math:`\eta` and
+                :math:`R_s` parameters for :math:`G^2` functions.
+            g3_params (n*1 np.ndarray): A list of :math:`\kappa` parameters for
+                :math:`G^3` functions.
+            g4_params (n*3 np.ndarray): A list of triplets of :math:`\eta`,
+                :math:`\zeta` and  :math:`\lambda` parameters for :math:`G^4` functions.
+            g5_params (n*3 np.ndarray): A list of triplets of :math:`\eta`,
+                :math:`\zeta` and  :math:`\lambda` parameters for :math:`G^5` functions.
             species (iterable): The chemical species as a list of atomic
                 numbers or as a list of chemical symbols. Notice that this is not
                 the atomic numbers that are present for an individual system, but
@@ -94,44 +61,88 @@ class ACSF(Descriptor):
                 be taken into account in the descriptor. Deprecated in favour of
                 the species-parameters, but provided for
                 backwards-compatibility.
-            g2_params (n*2 np.ndarray): A list of pairs of :math:`\eta` and
-                :math:`R_s` parameters for :math:`G^2` functions.
-            g3_params (n*1 np.ndarray): A list of :math:`\kappa` parameters for
-                :math:`G^3` functions.
-            g4_params (n*3 np.ndarray): A list of triplets of :math:`\eta`,
-                :math:`\zeta` and  :math:`\lambda` parameters for :math:`G^4` functions.
-            g5_params (n*3 np.ndarray): A list of triplets of :math:`\eta`,
-                :math:`\zeta` and  :math:`\lambda` parameters for :math:`G^5` functions.
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
         """
         super().__init__(flatten=True, sparse=sparse)
 
-        self._obj = ACSFObject()
-        self._obj.alloc_atoms = 0
-        self._obj.alloc_work = 0
+        self.acsf_wrapper = ACSFWrapper()
 
-        self._Zs = None
-
-        # Setup the involved chemical species
+        # Setup
         species = self.get_species_definition(species, atomic_numbers)
         self.species = species
+        self.g2_params = g2_params
+        self.g3_params = g3_params
+        self.g4_params = g4_params
+        self.g5_params = g5_params
+        self.rcut = rcut
 
-        self.set_g2_params(g2_params)
-        self.set_g3_params(g3_params)
-        self.set_g4_params(g4_params)
-        self.set_g5_params(g5_params)
-        self.set_rcut(rcut)
+    def create(self, system, positions=None, n_jobs=1, verbose=False, backend="loky"):
+        """Return the SOAP output for the given systems and given positions.
 
-        self.positions = None
-        self.distances = None
+        Args:
+            system (single or multiple class:`ase.Atoms`): One or many atomic structures.
+            positions (list): Positions where to calculate ACSF. Can be
+                provided as cartesian positions or atomic indices. If no
+                positions are defined, the SOAP output will be created for all
+                atoms in the system. When calculating SOAP for multiple
+                systems, provide the positions as a list for each system.
+            n_jobs (int): Number of parallel jobs to instantiate. Can be only
+                used if multiple samples are provided. Defaults to serial
+                calculation with n_jobs=1.
+            backend (str): The parallelization method as defined by joblib.
+                ACSF is written as a C-extension and the Global Interpreter Lock
+                (GIL) is released for most of the computation making threading
+                usually a good option. See joblib documentation for details.
+            verbose (bool): Controls whether to print the progress of the jobs
+                to console.
 
-        self._acsfBuffer = None
+        Returns:
+            np.ndarray | scipy.sparse.csr_matrix: The SOAP output for the given
+            systems and positions. The return type depends on the
+            'sparse'-attribute. The first dimension is determined by the amount
+            of positions and systems and the second dimension is determined by
+            the get_number_of_features()-function. The output is ordered so
+            that it contains the positions for each given system i
+        """
+        # If single system given, skip the parallelization
+        if isinstance(system, (Atoms, System)):
+            return self.create_single(system, positions)
 
-        self.acsf_bond = None
-        self.acsf_ang = None
+        # Combine input arguments
+        if positions is None:
+            inp = [(i_sys,) for i_sys in system]
+        else:
+            inp = list(zip(system, positions))
 
-    def create(self, system, positions=None):
+        # For ACSF the output size for each job depends on the exact arguments.
+        # Here we precalculate the size for each job to preallocate memory and
+        # make the process faster.
+        n_samples = len(system)
+        k, m = divmod(n_samples, n_jobs)
+        jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
+        output_sizes = []
+        for i_job in jobs:
+            n_desc = 0
+            if positions is None:
+                n_desc = 0
+                for job in i_job:
+                    n_desc += len(job[0])
+            else:
+                n_desc = 0
+                for i_sample, i_pos in i_job:
+                    if i_pos is not None:
+                        n_desc += len(i_pos)
+                    else:
+                        n_desc += len(i_sample)
+            output_sizes.append(n_desc)
+
+        # Create in parallel
+        output = self.create_parallel(inp, self.create_single, n_jobs, output_sizes, backend=backend)
+
+        return output
+
+    def create_single(self, system, positions=None):
         """Creates the descriptor for the given systems.
 
         Args:
@@ -153,52 +164,28 @@ class ACSF(Descriptor):
         # Make sure that periodicity is not taken into account
         system.set_pbc(False)
 
-        # Copy the atomic numbers
-        self._Zs = np.array(system.get_atomic_numbers(), dtype=np.int32)
-        self._obj.Z = self._Zs.ctypes.data_as(POINTER(c_int))
+        # # Create C-compatible list of atomic indices for which the ACSF is calculated
+        if positions is None:
+            indices = np.arange(len(system))
+        else:
+            indices = positions
 
-        # Set the number of atoms
-        n_atoms = len(system)
-        self._obj.natm = c_int(n_atoms)
+        # Calculate ACSF with C++
+        output = self.acsf_wrapper.create(
+            system.get_positions(),
+            system.get_atomic_numbers(),
+            system.get_distance_matrix(),
+            indices,
+        )
 
         # Check if there are types that have not been declared
         self.check_atomic_numbers(system.get_atomic_numbers())
 
-        # Setup pointer to the atomic positions
-        self.positions = np.array(system.get_positions(), dtype=np.double)
-        self._obj.positions = self.positions.ctypes.data_as(POINTER(c_double))
-
-        # Setup pointer to the distance matrix
-        self.distances = system.get_distance_matrix()
-        self._obj.distances = self.distances.ctypes.data_as(POINTER(c_double))
-
-        # Amount of ACSFs for one atom for each type pair or triplet
-        self._obj.nG2 = c_int(1 + self._obj.n_bond_params + self._obj.n_bond_cos_params)
-        self._obj.nG3 = c_int(self._obj.n_ang4_params + self._obj.n_ang5_params)
-
-        # We allocate memory for the ACSF of all atoms in the system, because
-        # the current ACSF library expects this full-size memory buffer.
-        self._acsfBuffer = np.zeros((n_atoms, self._obj.nG2 * self._obj.nTypes + self._obj.nG3 * self._obj.nSymTypes))
-        self._obj.acsfs = self._acsfBuffer.ctypes.data_as(POINTER(c_double))
-
-        # Create C-compatible list of atomic indices for which the ACSF is calculated
-        if positions is None:
-            indices = np.arange(len(system), dtype=np.int32)
-        else:
-            indices = np.array(positions, dtype=np.int32)
-        indices_ptr = indices.ctypes.data_as(POINTER(c_int))
-
-        # Calculate ACSF for the given atomic indices
-        _LIBACSF.acsf_compute_acsfs_some(byref(self._obj), indices_ptr, c_int(len(indices)))
-
-        # Retrieve only the relevant part of the output, rest are zeros.
-        final_output = self._acsfBuffer[indices]
-
         # Return sparse matrix if requested
         if self._sparse:
-            final_output = coo_matrix(final_output)
+            output = coo_matrix(output)
 
-        return final_output
+        return output
 
     def get_number_of_features(self):
         """Used to inquire the final number of features that this descriptor
@@ -207,8 +194,9 @@ class ACSF(Descriptor):
         Returns:
             int: Number of features for this descriptor.
         """
-        descsize = (1 + self._obj.n_bond_params + self._obj.n_bond_cos_params) * self._obj.nTypes
-        descsize += (self._obj.n_ang4_params + self._obj.n_ang5_params) * self._obj.nSymTypes
+        wrapper = self.acsf_wrapper
+        descsize = (1 + wrapper.n_g2 + wrapper.n_g3) * wrapper.n_types
+        descsize += (wrapper.n_g4 + wrapper.n_g5) * wrapper.n_type_pairs
 
         return int(descsize)
 
@@ -227,66 +215,57 @@ class ACSF(Descriptor):
         """
         # The species are stored as atomic numbers for internal use.
         self._set_species(value)
+        self.acsf_wrapper.atomic_numbers = self._atomic_numbers
 
-        # Here we setup the C memory layout
-        pmatrix = np.array(self._atomic_numbers, dtype=np.int32)
-        pmatrix = np.unique(pmatrix)
-        pmatrix = np.sort(pmatrix)
-        self._obj.types = pmatrix.ctypes.data_as(POINTER(c_int))
-        self._obj.nTypes = c_int(pmatrix.shape[0])  # Set the internal indexer
-        self._obj.nSymTypes = c_int(int((pmatrix.shape[0]*(pmatrix.shape[0]+1))/2))
+    @property
+    def rcut(self):
+        return self.acsf_wrapper.rcut
 
-        for i in range(pmatrix.shape[0]):
-            self._obj.typeID[ pmatrix[i]] = i
-
-    def set_rcut(self, value):
-        """Used to check the validity of given radial cutoff and to initialize
-        the C-memory layout for it.
+    @rcut.setter
+    def rcut(self, value):
+        """Used to check the validity of given radial cutoff.
 
         Args:
             value(float): Radial cutoff.
         """
         if value <= 0:
-            raise ValueError("Vutoff radius should be positive.")
+            raise ValueError("Cutoff radius should be positive.")
+        self.acsf_wrapper.rcut = value
 
-        self._obj.cutoff = c_double(value)
+    @property
+    def g2_params(self):
+        return self.acsf_wrapper.g2_params
 
-    def set_g2_params(self, value):
-        """Used to check the validity of given G2 parameters and to
-        initialize the C-memory layout for them.
+    @g2_params.setter
+    def g2_params(self, value):
+        """Used to check the validity of given G2 parameters.
 
         Args:
             value(n*3 array): List of G2 parameters.
         """
-        # Handle the disable case
+        # Disable case
         if value is None:
-            self._obj.n_bond_params = 0
-            self._bond_params = None
-            return
+            value = []
+        else:
+            # Check dimensions
+            value = np.array(value, dtype=np.float)
+            if value.ndim != 2:
+                raise ValueError("g2_params should be a matrix with two columns (eta, Rs).")
+            if value.shape[1] != 2:
+                raise ValueError("g2_params should be a matrix with two columns (eta, Rs).")
 
-        # Convert to array just to be safe!
-        pmatrix = np.array(value, dtype=np.double)
+            # Check that etas are positive
+            if np.any(value[:, 0] <= 0) is True:
+                raise ValueError("G2 eta parameters should be positive numbers.")
 
-        if pmatrix.ndim != 2:
-            raise ValueError("bond_params should be a matrix with two columns (eta, Rs).")
+        self.acsf_wrapper.g2_params = value
 
-        if pmatrix.shape[1] != 2:
-            raise ValueError("bond_params should be a matrix with two columns (eta, Rs).")
+    @property
+    def g3_params(self):
+        return self.acsf_wrapper.g3_params
 
-        # Check that etas are positive
-        if np.any(pmatrix[:, 0] <= 0) is True:
-            raise ValueError("2-body eta parameters should be positive numbers.")
-
-        # Store what the user gave in the private variable
-        self._bond_params = pmatrix
-
-        # Get the number of parameter pairs
-        self._obj.n_bond_params = c_int(pmatrix.shape[0])
-
-        # Assign it
-        self._obj.bond_params = self._bond_params.ctypes.data_as(POINTER(c_double))
-
-    def set_g3_params(self, value):
+    @g3_params.setter
+    def g3_params(self, value):
         """Used to check the validity of given G3 parameters and to
         initialize the C-memory layout for them.
 
@@ -295,26 +274,21 @@ class ACSF(Descriptor):
         """
         # Handle the disable case
         if value is None:
-            self._obj.n_bond_cos_params = 0
-            self._bond_cos_params = None
-            return
+            value = []
+        else:
+            # Check dimensions
+            value = np.array(value, dtype=np.float)
+            if value.ndim != 1:
+                raise ValueError("g3_params should be a vector.")
 
-        # Convert to array just to be safe!
-        pmatrix = np.array(value, dtype=np.double)
+        self.acsf_wrapper.g3_params = value
 
-        if pmatrix.ndim != 1:
-                raise ValueError("arghhh! bond_cos_params should be a vector.")
+    @property
+    def g4_params(self):
+        return self.acsf_wrapper.g4_params
 
-        # Store what the user gave in the private variable
-        self._bond_cos_params = pmatrix
-
-        # Get the number of parameter pairs
-        self._obj.n_bond_cos_params = c_int(pmatrix.shape[0])
-
-        # Assign it
-        self._obj.bond_cos_params = self._bond_cos_params.ctypes.data_as(POINTER(c_double))
-
-    def set_g4_params(self, value):
+    @g4_params.setter
+    def g4_params(self, value):
         """Used to check the validity of given G4 parameters and to
         initialize the C-memory layout for them.
 
@@ -323,61 +297,46 @@ class ACSF(Descriptor):
         """
         # Handle the disable case
         if value is None:
-            self._obj.n_ang4_params = 0
-            self._ang4_params = None
-            return
+            value = []
+        else:
+            # Check dimensions
+            value = np.array(value, dtype=np.float)
+            if value.ndim != 2:
+                raise ValueError("g4_params should be a matrix with three columns (eta, zeta, lambda).")
+            if value.shape[1] != 3:
+                raise ValueError("g4_params should be a matrix with three columns (eta, zeta, lambda).")
 
-        # Convert to array just to be safe!
-        pmatrix = np.array(value, dtype=np.double)
+            # Check that etas are positive
+            if np.any(value[:, 2] <= 0) is True:
+                raise ValueError("3-body G4 eta parameters should be positive numbers.")
 
-        if pmatrix.ndim != 2:
-            raise ValueError("arghhh! ang4_params should be a matrix with three columns (eta, zeta, lambda).")
-        if pmatrix.shape[1] != 3:
-            raise ValueError("arghhh! ang4_params should be a matrix with three columns (eta, zeta, lambda).")
+        self.acsf_wrapper.g4_params = value
 
-        # Check that etas are positive
-        if np.any(pmatrix[:, 2] <= 0) is True:
-            raise ValueError("3-body G4 eta parameters should be positive numbers.")
+    @property
+    def g5_params(self):
+        return self.acsf_wrapper.g5_params
 
-        # Store what the user gave in the private variable
-        self._ang4_params = pmatrix
-
-        # Get the number of parameter pairs
-        self._obj.n_ang4_params = c_int(pmatrix.shape[0])
-
-        # Assign it
-        self._obj.ang4_params = self._ang4_params.ctypes.data_as(POINTER(c_double))
-
-    def set_g5_params(self, value):
+    @g5_params.setter
+    def g5_params(self, value):
         """Used to check the validity of given G5 parameters and to
         initialize the C-memory layout for them.
 
         Args:
             value(n*3 array): List of G5 parameters.
         """
-        # handle the disable case
+        # Handle the disable case
         if value is None:
-            self._obj.n_ang5_params = 0
-            self._ang5_params = None
-            return
+            value = []
+        else:
+            # Check dimensions
+            value = np.array(value, dtype=np.float)
+            if value.ndim != 2:
+                raise ValueError("g5_params should be a matrix with three columns (eta, zeta, lambda).")
+            if value.shape[1] != 3:
+                raise ValueError("g5_params should be a matrix with three columns (eta, zeta, lambda).")
 
-        # Convert to array just to be safe!
-        pmatrix = np.array(value, dtype=np.double)
+            # Check that etas are positive
+            if np.any(value[:, 2] <= 0) is True:
+                raise ValueError("3-body G5 eta parameters should be positive numbers.")
 
-        if pmatrix.ndim != 2:
-            raise ValueError("ang4_params should be a matrix with three columns (eta, zeta, lambda).")
-        if pmatrix.shape[1] != 3:
-            raise ValueError("ang4_params should be a matrix with three columns (eta, zeta, lambda).")
-
-        # Check that etas are positive
-        if np.any(pmatrix[:, 2] <= 0) is True:
-            raise ValueError("3-body G5 eta parameters should be positive numbers.")
-
-        # Store what the user gave in the private variable
-        self._ang5_params = pmatrix
-
-        # Get the number of parameter pairs
-        self._obj.n_ang5_params = c_int(pmatrix.shape[0])
-
-        # Assign it
-        self._obj.ang5_params = self._ang5_params.ctypes.data_as(POINTER(c_double))
+        self.acsf_wrapper.g5_params = value

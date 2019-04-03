@@ -9,15 +9,25 @@ if platform.system() == "Darwin":
 
 extensions = [
     # The ACSF C extension, wrapped with ctypes
+    # Extension(
+        # "dscribe.libacsf.libacsf",
+        # [
+            # "dscribe/libacsf/acsf-utils.c",
+            # "dscribe/libacsf/acsf-compute.c",
+        # ],
+        # language='c',
+        # include_dirs=["dscribe/libacsf"],
+        # extra_compile_args=["-O3", "-std=c99"]
+    # ),
+    # The ACSF C++ extension, wrapped with cython
     Extension(
-        "dscribe.libacsf.libacsf",
+        "dscribe.libacsf.acsfwrapper",
         [
-            "dscribe/libacsf/acsf-utils.c",
-            "dscribe/libacsf/acsf-compute.c",
+            "dscribe/libacsf/acsfwrapper.cpp",
         ],
-        language='c',
+        language='c++',
         include_dirs=["dscribe/libacsf"],
-        extra_compile_args=["-O3", "-std=c99"]
+        extra_compile_args=cpp_extra_compile_args,
     ),
     # The MBTR C++ extension, wrapped with cython
     Extension(
