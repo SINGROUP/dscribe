@@ -178,7 +178,7 @@ class LMBTR(MBTR):
         self._is_local = True
         self._interaction_limit = 1
 
-    def create(self, system, positions=None, scaled_positions=False, n_jobs=1, verbose=False, backend="multiprocessing"):
+    def create(self, system, positions=None, scaled_positions=False, n_jobs=1, verbose=False, backend="threading"):
         """Return the LMBTR output for the given systems and given positions.
 
         Args:
@@ -193,16 +193,24 @@ class LMBTR(MBTR):
                 are given as scaled to the unit cell basis or not. Scaled
                 positions require that a cell is available for the system.
                 Provide either one value or a list of values for each system.
-            n_jobs (int): Number of parallel jobs to instantiate. Can be only
-                used if multiple samples are provided. Defaults to serial
-                calculation with n_jobs=1.
-            backend (str): The parallelization method as defined by joblib.
-                LMBTR is written as a C++-extension and the Global Interpreter
-                Lock (GIL) is released for most of the computation making
-                threading usually a good option. See joblib documentation for
-                details.
-            verbose (bool): Controls whether to print the progress of the jobs
-                to console.
+            n_jobs (int): Number of parallel jobs to instantiate. Parallellizes
+                the calculation across samples. Defaults to serial calculation
+                with n_jobs=1.
+            verbose(bool): Controls whether to print the progress of each job
+                into to the console.
+            backend (str): The parallelization method. Valid options are:
+
+                * "threading": Parallelization based on threads. Has bery low
+                memory and initialization overhead. Performance is limited by
+                the amount of pure python code that needs to run. Ideal when
+                most of the calculation time is used by C/C++ extensions that
+                release the Global Interpreter Lock (GIL).
+                * "multiprocessing": Parallelization based on processes. Uses
+                the "loky" backend in joblib to serialize the jobs and run them
+                in separate processes. Using separate processes has a bigger
+                memory and initialization overhead than threads, but may
+                provide better scalability if perfomance is limited by the
+                Global Interpreter Lock (GIL).
 
         Returns:
             np.ndarray | scipy.sparse.csr_matrix: The LMBTR output for the given
@@ -244,7 +252,7 @@ class LMBTR(MBTR):
             output_sizes.append(n_desc)
 
         # Create in parallel
-        output = self.create_parallel(inp, self.create_single, n_jobs, output_sizes, backend=backend)
+        output = self.create_parallel(inp, self.create_single, n_jobs, output_sizes, verbose=verbose, backend=backend)
 
         return output
 

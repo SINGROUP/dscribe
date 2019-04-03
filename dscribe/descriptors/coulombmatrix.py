@@ -35,21 +35,29 @@ class CoulombMatrix(MatrixDescriptor):
         Prediction", Gregoire Montavon et. al, Advances in Neural Information
         Processing Systems 25 (NIPS 2012)
     """
-    def create(self, system, n_jobs=1, verbose=False, backend="multiprocessing"):
+    def create(self, system, n_jobs=1, verbose=False, backend="threading"):
         """Return the Coulomb matrix for the given systems.
 
         Args:
             system (single or multiple class:`ase.Atoms`): One or many atomic structures.
-            n_jobs (int): Number of parallel jobs to instantiate. Can be only
-                used if multiple samples are provided. Defaults to serial
-                calculation with n_jobs=1.
-            backend (str): The parallelization method as defined by joblib.
-                The calculation utilizes numpy extensively and the Global
-                Interpreter Lock (GIL) is released for most of the computation
-                making threading usually a good option. See joblib documentation
-                for details.
-            verbose (bool): Controls whether to print the progress of the jobs
-                to console.
+            n_jobs (int): Number of parallel jobs to instantiate. Parallellizes
+                the calculation across samples. Defaults to serial calculation
+                with n_jobs=1.
+            verbose(bool): Controls whether to print the progress of each job
+                into to the console.
+            backend (str): The parallelization method. Valid options are:
+
+                * "threading": Parallelization based on threads. Has bery low
+                memory and initialization overhead. Performance is limited by
+                the amount of pure python code that needs to run. Ideal when
+                most of the calculation time is used by C/C++ extensions that
+                release the Global Interpreter Lock (GIL).
+                * "multiprocessing": Parallelization based on processes. Uses
+                the "loky" backend in joblib to serialize the jobs and run them
+                in separate processes. Using separate processes has a bigger
+                memory and initialization overhead than threads, but may
+                provide better scalability if perfomance is limited by the
+                Global Interpreter Lock (GIL).
 
         Returns:
             np.ndarray | scipy.sparse.csr_matrix: The Coulomb matrix output for
@@ -72,7 +80,7 @@ class CoulombMatrix(MatrixDescriptor):
         output_sizes = [len(job) for job in jobs]
 
         # Create in parallel
-        output = self.create_parallel(inp, self.create_single, n_jobs, output_sizes, backend=backend)
+        output = self.create_parallel(inp, self.create_single, n_jobs, output_sizes, verbose=verbose, backend=backend)
 
         return output
 

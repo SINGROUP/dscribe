@@ -142,7 +142,7 @@ class Descriptor(with_metaclass(ABCMeta)):
                 .format(zs.difference(self._atomic_number_set))
             )
 
-    def create_parallel(self, inp, func, n_jobs, output_sizes=None, verbose=False, backend="multiprocessing"):
+    def create_parallel(self, inp, func, n_jobs, output_sizes=None, verbose=False, backend="loky"):
         """Used to parallelize the descriptor creation across multiple systems.
 
         Args:
@@ -151,17 +151,42 @@ class Descriptor(with_metaclass(ABCMeta)):
                 "func".
             func(function): Function that outputs the descriptor when given
                 input arguments from "inp".
-            n_jobs (int): Number of parallel jobs.
+            n_jobs (int): Number of parallel jobs to instantiate. Parallellizes
+                the calculation across samples. Defaults to serial calculation
+                with n_jobs=1.
             output_sizes(list of ints): The size of the output for each job.
                 Makes the creation faster by preallocating the correct amount of
                 memory beforehand. If not specified, a dynamically created list of
                 outputs is used.
+            verbose(bool): Controls whether to print the progress of each job
+                into to the console.
+            backend (str): The parallelization method. Valid options are:
+
+                * "threading": Parallelization based on threads. Has bery low
+                memory and initialization overhead. Performance is limited by
+                the amount of pure python code that needs to run. Ideal when
+                most of the calculation time is used by C/C++ extensions that
+                release the GIL.
+                * "multiprocessing": Parallelization based on processes. Uses
+                the "loky" backend in joblib to serialize the jobs and run them
+                in separate processes. Using separate processes has a bigger
+                memory and initialization overhead than threads, but may
+                provide better scalability if perfomance is limited by the
+                Global Interpreter Lock (GIL).
 
         Returns:
             np.ndarray | scipy.sparse.csr_matrix | list: The descriptor output
             for each given input. The return type depends on the desciptor
             setup.
         """
+        # Check backend
+        valid_backends = set(("loky", "threading"))
+        if backend not in valid_backends:
+            raise ValueError(
+                "Invalid parallelization backend '{}' provided. Use one of the "
+                "following: {}".format(backend, ", ".join(valid_backends))
+            )
+
         # Split data into n_jobs (almost) equal jobs
         n_samples = len(inp)
         n_features = self.get_number_of_features()
@@ -172,8 +197,65 @@ class Descriptor(with_metaclass(ABCMeta)):
         # Calculate the result in parallel with joblib
         if output_sizes is None:
             output_sizes = n_jobs*[None]
+
+        def create_multiple(arguments, func, is_sparse, n_features, n_desc, index, verbose):
+            """This is the function that is called by each job but with
+            different parts of the data.
+            """
+            # Initialize output
+            if is_sparse:
+                data = []
+                rows = []
+                cols = []
+            else:
+                if n_desc is not None:
+                    results = np.empty((n_desc, n_features), dtype=np.float32)
+                else:
+                    results = []
+
+            offset = 0
+            i_sample = 0
+            old_percent = 0
+            n_samples = len(arguments)
+
+            for i_sample, i_arg in enumerate(arguments):
+                i_out = func(*i_arg)
+
+                if is_sparse:
+                    data.append(i_out.data)
+                    rows.append(i_out.row + offset)
+                    cols.append(i_out.col)
+                else:
+                    if n_desc is None:
+                        results.append(i_out)
+                    else:
+                        results[offset:offset+i_out.shape[0], :] = i_out
+                        offset += i_out.shape[0]
+
+                if verbose:
+                    current_percent = (i_sample+1)/n_samples*100
+                    if current_percent >= old_percent + 1:
+                        old_percent = current_percent
+                        print("Process {0}: {1:.1f} %".format(index, current_percent))
+
+            if is_sparse:
+                data = np.concatenate(data)
+                rows = np.concatenate(rows)
+                cols = np.concatenate(cols)
+                results = coo_matrix((data, (rows, cols)), shape=[n_desc, n_features], dtype=np.float32)
+
+            return (results, index)
+
         with parallel_backend(backend, n_jobs=n_jobs):
-            vec_lists = Parallel()(delayed(create_multiple)(i_args, func, is_sparse, n_features, n_desc) for i_args, n_desc in zip(jobs, output_sizes))
+            vec_lists = Parallel()(delayed(create_multiple)(i_args, func, is_sparse, n_features, n_desc, index, verbose) for index, (i_args, n_desc) in enumerate(zip(jobs, output_sizes)))
+
+        # When using the threading backend the order has to be explicitly
+        # restored
+        if backend == "threading":
+            vec_lists.sort(key=lambda x: x[1])
+
+        # Remove the job index
+        vec_lists = [x[0] for x in vec_lists]
 
         if self._sparse:
             row_offset = 0
@@ -214,42 +296,3 @@ class Descriptor(with_metaclass(ABCMeta)):
                 results = np.concatenate(vec_lists, axis=0)
 
         return results
-
-
-def create_multiple(arguments, func, is_sparse, n_features, n_desc):
-    """This is the function that is called by each job but with
-    different parts of the data.
-    """
-    # Initialize output
-    if is_sparse:
-        data = []
-        rows = []
-        cols = []
-    else:
-        if n_desc is not None:
-            results = np.empty((n_desc, n_features), dtype=np.float32)
-        else:
-            results = []
-
-    offset = 0
-    for i_arg in arguments:
-        i_out = func(*i_arg)
-
-        if is_sparse:
-            data.append(i_out.data)
-            rows.append(i_out.row + offset)
-            cols.append(i_out.col)
-        else:
-            if n_desc is None:
-                results.append(i_out)
-            else:
-                results[offset:offset+i_out.shape[0], :] = i_out
-                offset += i_out.shape[0]
-
-    if is_sparse:
-        data = np.concatenate(data)
-        rows = np.concatenate(rows)
-        cols = np.concatenate(cols)
-        results = coo_matrix((data, (rows, cols)), shape=[n_desc, n_features], dtype=np.float32)
-
-    return results
