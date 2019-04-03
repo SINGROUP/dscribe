@@ -49,7 +49,7 @@ class EwaldMatrix(MatrixDescriptor):
         https://doi.org/10.1080/08927022.2013.840898
         "
     """
-    def create(self, system, accuracy=1e-5, w=1, rcut=None, gcut=None, a=None, n_jobs=1, verbose=False, backend="threading"):
+    def create(self, system, accuracy=1e-5, w=1, rcut=None, gcut=None, a=None, n_jobs=1, verbose=False, backend="multiprocessing"):
         """Return the Coulomb matrix for the given systems.
 
         Args:
@@ -177,7 +177,8 @@ class EwaldMatrix(MatrixDescriptor):
         self.gcut = gcut
         self.rcut = rcut
 
-        return super().create_single(system)
+        matrix = super().create_single(system)
+        return matrix
 
     def get_matrix(self, system):
         """

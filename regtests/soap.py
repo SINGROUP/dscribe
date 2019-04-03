@@ -214,6 +214,18 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         )
         n_features = desc.get_number_of_features()
 
+        # Multiple systems, serial job
+        output = desc.create(
+            system=samples,
+            positions=[[0], [0, 1]],
+            n_jobs=1,
+        )
+        assumed = np.empty((3, n_features))
+        assumed[0, :] = desc.create(samples[0], [0])
+        assumed[1, :] = desc.create(samples[1], [0])
+        assumed[2, :] = desc.create(samples[1], [1])
+        self.assertTrue(np.allclose(output, assumed))
+
         # Test when position given as indices
         output = desc.create(
             system=samples,
@@ -281,6 +293,18 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             sparse=True,
         )
         n_features = desc.get_number_of_features()
+
+        # Multiple systems, serial job
+        output = desc.create(
+            system=samples,
+            positions=[[0], [0, 1]],
+            n_jobs=1,
+        ).toarray()
+        assumed = np.empty((3, n_features))
+        assumed[0, :] = desc.create(samples[0], [0]).toarray()
+        assumed[1, :] = desc.create(samples[1], [0]).toarray()
+        assumed[2, :] = desc.create(samples[1], [1]).toarray()
+        self.assertTrue(np.allclose(output, assumed))
 
         # Test when position given as indices
         output = desc.create(

@@ -115,7 +115,7 @@ class MatrixDescriptor(Descriptor):
 
         # Flatten the matrix if requested
         if self._flatten:
-            matrix = matrix.flatten()
+            matrix = np.reshape(matrix, (1, np.product(matrix.shape)))
 
         # If a sparse matrix is requested, convert to coo_matrix
         if self._sparse:

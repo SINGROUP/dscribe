@@ -92,7 +92,7 @@ class CoulombMatrixTests(TestBaseClass, unittest.TestCase):
         # Flattened
         desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=True)
         cm = desc.create(H2O)
-        self.assertEqual(cm.shape, (25,))
+        self.assertEqual(cm.shape, (1, 25))
 
     def test_sparse(self):
         """Tests the sparse matrix creation.
@@ -114,7 +114,17 @@ class CoulombMatrixTests(TestBaseClass, unittest.TestCase):
         desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=True, sparse=False)
         n_features = desc.get_number_of_features()
 
-        # Test multiple systems
+        # Test multiple systems, serial job
+        output = desc.create(
+            system=samples,
+            n_jobs=1,
+        )
+        assumed = np.empty((2, n_features))
+        assumed[0, :] = desc.create(samples[0])
+        assumed[1, :] = desc.create(samples[1])
+        self.assertTrue(np.allclose(output, assumed))
+
+        # Test multiple systems, parallel job
         output = desc.create(
             system=samples,
             n_jobs=2,
@@ -132,7 +142,17 @@ class CoulombMatrixTests(TestBaseClass, unittest.TestCase):
         desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=True, sparse=True)
         n_features = desc.get_number_of_features()
 
-        # Test when position given as indices
+        # Test multiple systems, serial job
+        output = desc.create(
+            system=samples,
+            n_jobs=1,
+        ).toarray()
+        assumed = np.empty((2, n_features))
+        assumed[0, :] = desc.create(samples[0]).toarray()
+        assumed[1, :] = desc.create(samples[1]).toarray()
+        self.assertTrue(np.allclose(output, assumed))
+
+        # Test multiple systems, parallel job
         output = desc.create(
             system=samples,
             n_jobs=2,

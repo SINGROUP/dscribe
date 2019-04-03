@@ -193,6 +193,7 @@ class Descriptor(with_metaclass(ABCMeta)):
         is_sparse = self._sparse
         k, m = divmod(n_samples, n_jobs)
         jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
+        # print(list(jobs))
 
         # Calculate the result in parallel with joblib
         if output_sizes is None:
@@ -230,13 +231,14 @@ class Descriptor(with_metaclass(ABCMeta)):
                         results.append(i_out)
                     else:
                         results[offset:offset+i_out.shape[0], :] = i_out
-                        offset += i_out.shape[0]
 
                 if verbose:
                     current_percent = (i_sample+1)/n_samples*100
                     if current_percent >= old_percent + 1:
                         old_percent = current_percent
                         print("Process {0}: {1:.1f} %".format(index, current_percent))
+
+                offset += i_out.shape[0]
 
             if is_sparse:
                 data = np.concatenate(data)
@@ -247,12 +249,14 @@ class Descriptor(with_metaclass(ABCMeta)):
             return (results, index)
 
         # We use the loky-backend provided by joblib because it allows proper
-        # serialization of member functions.
+        # serialization of methods.
         if backend == "multiprocessing":
             joblib_backend = "loky"
         else:
             joblib_backend = backend
 
+        # print(list(jobs)[0])
+        # print(output_sizes)
         with parallel_backend(joblib_backend, n_jobs=n_jobs):
             vec_lists = Parallel()(delayed(create_multiple)(i_args, func, is_sparse, n_features, n_desc, index, verbose) for index, (i_args, n_desc) in enumerate(zip(jobs, output_sizes)))
 
