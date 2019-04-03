@@ -8,17 +8,6 @@ if platform.system() == "Darwin":
     cpp_extra_compile_args.append('-mmacosx-version-min=10.9')
 
 extensions = [
-    # The ACSF C extension, wrapped with ctypes
-    # Extension(
-        # "dscribe.libacsf.libacsf",
-        # [
-            # "dscribe/libacsf/acsf-utils.c",
-            # "dscribe/libacsf/acsf-compute.c",
-        # ],
-        # language='c',
-        # include_dirs=["dscribe/libacsf"],
-        # extra_compile_args=["-O3", "-std=c99"]
-    # ),
     # The ACSF C++ extension, wrapped with cython
     Extension(
         "dscribe.libacsf.acsfwrapper",
@@ -31,9 +20,9 @@ extensions = [
     ),
     # The MBTR C++ extension, wrapped with cython
     Extension(
-        "dscribe.libmbtr.cmbtrwrapper",
+        "dscribe.libmbtr.mbtrwrapper",
         [
-            "dscribe/libmbtr/cmbtrwrapper.cpp",
+            "dscribe/libmbtr/mbtrwrapper.cpp",
         ],
         language='c++',
         include_dirs=["dscribe/libmbtr"],

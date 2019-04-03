@@ -77,7 +77,7 @@ class ACSF(Descriptor):
         self.g5_params = g5_params
         self.rcut = rcut
 
-    def create(self, system, positions=None, n_jobs=1, verbose=False, backend="loky"):
+    def create(self, system, positions=None, n_jobs=1, verbose=False, backend="threading"):
         """Return the SOAP output for the given systems and given positions.
 
         Args:
@@ -91,7 +91,7 @@ class ACSF(Descriptor):
                 used if multiple samples are provided. Defaults to serial
                 calculation with n_jobs=1.
             backend (str): The parallelization method as defined by joblib.
-                ACSF is written as a C-extension and the Global Interpreter Lock
+                ACSF is written as a C++-extension and the Global Interpreter Lock
                 (GIL) is released for most of the computation making threading
                 usually a good option. See joblib documentation for details.
             verbose (bool): Controls whether to print the progress of the jobs

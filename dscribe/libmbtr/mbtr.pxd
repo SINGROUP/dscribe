@@ -4,12 +4,12 @@ from libcpp.map cimport map
 from libcpp.pair cimport pair
 from libcpp.string cimport string
 
-cdef extern from "cmbtr.cpp":
+cdef extern from "mbtr.cpp":
     pass
 
-cdef extern from "cmbtr.h":
-  cdef cppclass CMBTR:
-        CMBTR(vector[vector[float]], vector[int], map[int,int], int, bool) except +
+cdef extern from "mbtr.h":
+  cdef cppclass MBTR:
+        MBTR(vector[vector[float]], vector[int], map[int,int], int, bool) except +
         vector[vector[vector[float]]] getDisplacementTensor()
         vector[vector[float]] getDistanceMatrix()
         vector[vector[float]] getInverseDistanceMatrix()

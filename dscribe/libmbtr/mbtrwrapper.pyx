@@ -4,13 +4,13 @@ import numpy as np
 from libcpp cimport bool
 from libcpp.vector cimport vector
 from libcpp.map cimport map
-from cmbtr cimport CMBTR
+from mbtr cimport MBTR
 
-cdef class CMBTRWrapper:
-    cdef CMBTR *thisptr      # hold a C++ instance which we're wrapping
+cdef class MBTRWrapper:
+    cdef MBTR *thisptr      # hold a C++ instance which we're wrapping
 
     def __cinit__(self, vector[vector[float]] positions, vector[int] atomic_numbers, map[int,int] atomic_number_to_index_map, int interaction_limit, bool is_local):
-        self.thisptr = new CMBTR(positions, atomic_numbers, atomic_number_to_index_map, interaction_limit, is_local)
+        self.thisptr = new MBTR(positions, atomic_numbers, atomic_number_to_index_map, interaction_limit, is_local)
 
     def __dealloc__(self):
         del self.thisptr

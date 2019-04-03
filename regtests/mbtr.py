@@ -310,6 +310,83 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         vec = desc.create(H2O)
         self.assertTrue(type(vec) == scipy.sparse.coo_matrix)
 
+    def test_parallel_dense(self):
+        """Tests creating dense output parallelly.
+        """
+        samples = [molecule("CO"), molecule("N2O")]
+        desc = MBTR(
+            species=[6, 7, 8],
+            k={1, 2},
+            grid={
+                "k1": {
+                    "min": 1,
+                    "max": 8,
+                    "sigma": 0.1,
+                    "n": 100,
+                },
+                "k2": {
+                    "min": 0,
+                    "max": 1/0.7,
+                    "sigma": 0.1,
+                    "n": 100,
+                }
+            },
+            weighting={"k2": {"function": "exponential", "scale": 0.5, "cutoff": 1e-2}},
+            periodic=False,
+            flatten=True,
+            sparse=False,
+        )
+        n_features = desc.get_number_of_features()
+
+        # Test multiple systems
+        output = desc.create(
+            system=samples,
+            n_jobs=2,
+        )
+        assumed = np.empty((2, n_features))
+        assumed[0, :] = desc.create(samples[0])
+        assumed[1, :] = desc.create(samples[1])
+        self.assertTrue(np.allclose(output, assumed))
+
+    def test_parallel_sparse(self):
+        """Tests creating sparse output parallelly.
+        """
+        # Test indices
+        samples = [molecule("CO"), molecule("N2O")]
+        desc = MBTR(
+            species=[6, 7, 8],
+            k={1, 2},
+            grid={
+                "k1": {
+                    "min": 1,
+                    "max": 8,
+                    "sigma": 0.1,
+                    "n": 100,
+                },
+                "k2": {
+                    "min": 0,
+                    "max": 1/0.7,
+                    "sigma": 0.1,
+                    "n": 100,
+                }
+            },
+            weighting={"k2": {"function": "exponential", "scale": 0.5, "cutoff": 1e-2}},
+            periodic=False,
+            flatten=True,
+            sparse=True,
+        )
+        n_features = desc.get_number_of_features()
+
+        # Test when position given as indices
+        output = desc.create(
+            system=samples,
+            n_jobs=2,
+        ).toarray()
+        assumed = np.empty((2, n_features))
+        assumed[0, :] = desc.create(samples[0]).toarray()
+        assumed[1, :] = desc.create(samples[1]).toarray()
+        self.assertTrue(np.allclose(output, assumed))
+
     def test_k1_weights_and_geoms_finite(self):
         """Tests that the values of the weight and geometry functions are
         correct for the k=1 term.

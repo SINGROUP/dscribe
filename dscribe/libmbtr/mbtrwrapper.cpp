@@ -4,19 +4,19 @@
 {
     "distutils": {
         "depends": [
-            "/home/lauri/Dropbox/PhD Studies/describe/describe/libmbtr/cmbtr.cpp",
-            "/home/lauri/Dropbox/PhD Studies/describe/describe/libmbtr/cmbtr.h"
+            "dscribe/libmbtr/mbtr.cpp",
+            "dscribe/libmbtr/mbtr.h"
         ],
         "include_dirs": [
-            "/home/lauri/Dropbox/PhD Studies/describe/describe/libmbtr"
+            "./dscribe/libmbtr"
         ],
         "language": "c++",
-        "name": "describe.libmbtr.cmbtrwrapper",
+        "name": "dscribe.libmbtr.mbtrwrapper",
         "sources": [
-            "/home/lauri/Dropbox/PhD Studies/describe/describe/libmbtr/cmbtrwrapper.pyx"
+            "/home/lauri/repositories/dscribe/dscribe/libmbtr/mbtrwrapper.pyx"
         ]
     },
-    "module_name": "describe.libmbtr.cmbtrwrapper"
+    "module_name": "dscribe.libmbtr.mbtrwrapper"
 }
 END: Cython Metadata */
 
@@ -593,8 +593,8 @@ static CYTHON_INLINE float __PYX_NAN() {
   #endif
 #endif
 
-#define __PYX_HAVE__describe__libmbtr__cmbtrwrapper
-#define __PYX_HAVE_API__describe__libmbtr__cmbtrwrapper
+#define __PYX_HAVE__dscribe__libmbtr__mbtrwrapper
+#define __PYX_HAVE_API__dscribe__libmbtr__mbtrwrapper
 /* Early includes */
 #include "ios"
 #include "new"
@@ -605,8 +605,8 @@ static CYTHON_INLINE float __PYX_NAN() {
 #include <map>
 #include <string.h>
 #include <string>
-#include "cmbtr.cpp"
-#include "cmbtr.h"
+#include "mbtr.cpp"
+#include "mbtr.h"
 #ifdef _OPENMP
 #include <omp.h>
 #endif /* _OPENMP */
@@ -811,52 +811,52 @@ static const char *__pyx_filename;
 
 static const char *__pyx_f[] = {
   "stringsource",
-  "cmbtrwrapper.pyx",
+  "dscribe/libmbtr/mbtrwrapper.pyx",
 };
 
 /*--- Type declarations ---*/
-struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper;
-struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights;
-struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr;
-struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights;
-struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr;
+struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper;
+struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights;
+struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr;
+struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights;
+struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr;
 
-/* "describe/libmbtr/cmbtrwrapper.pyx":9
- * from cmbtr cimport CMBTR
+/* "dscribe/libmbtr/mbtrwrapper.pyx":9
+ * from mbtr cimport MBTR
  * 
- * cdef class CMBTRWrapper:             # <<<<<<<<<<<<<<
- *     cdef CMBTR *thisptr      # hold a C++ instance which we're wrapping
+ * cdef class MBTRWrapper:             # <<<<<<<<<<<<<<
+ *     cdef MBTR *thisptr      # hold a C++ instance which we're wrapping
  * 
  */
-struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper {
+struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper {
   PyObject_HEAD
-  CMBTR *thisptr;
+  MBTR *thisptr;
 };
 
 
-/* "describe/libmbtr/cmbtrwrapper.pyx":39
+/* "dscribe/libmbtr/mbtrwrapper.pyx":39
  *         return new_geom_map, new_weight_map
  * 
  *     def get_k2_geoms_and_weights(self, geom_func, weight_func, parameters):             # <<<<<<<<<<<<<<
  *         """Cython cannot directly provide the keys as tuples, so we have to do
  *         the conversion here on the python side.
  */
-struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights {
+struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights {
   PyObject_HEAD
   PyObject *__pyx_v_key;
 };
 
 
-/* "describe/libmbtr/cmbtrwrapper.pyx":48
+/* "dscribe/libmbtr/mbtrwrapper.pyx":48
  * 
  *         for key, value in geom_map.items():
  *             new_key = tuple(int(x) for x in key.decode("utf-8").split(","))             # <<<<<<<<<<<<<<
  *             new_geom_map[new_key] = value
  *             new_weight_map[new_key] = weight_map[key]
  */
-struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr {
+struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr {
   PyObject_HEAD
-  struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights *__pyx_outer_scope;
+  struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights *__pyx_outer_scope;
   PyObject *__pyx_v_x;
   PyObject *__pyx_t_0;
   Py_ssize_t __pyx_t_1;
@@ -864,29 +864,29 @@ struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr 
 };
 
 
-/* "describe/libmbtr/cmbtrwrapper.pyx":54
+/* "dscribe/libmbtr/mbtrwrapper.pyx":54
  *         return new_geom_map, new_weight_map
  * 
  *     def get_k3_geoms_and_weights(self, geom_func, weight_func, parameters):             # <<<<<<<<<<<<<<
  *         """Cython cannot directly provide the keys as tuples, so we have to do
  *         the conversion here on the python side.
  */
-struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights {
+struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights {
   PyObject_HEAD
   PyObject *__pyx_v_key;
 };
 
 
-/* "describe/libmbtr/cmbtrwrapper.pyx":63
+/* "dscribe/libmbtr/mbtrwrapper.pyx":63
  * 
  *         for key, value in geom_map.items():
  *             new_key = tuple(int(x) for x in key.decode("utf-8").split(","))             # <<<<<<<<<<<<<<
  *             new_geom_map[new_key] = value
  *             new_weight_map[new_key] = weight_map[key]
  */
-struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr {
+struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr {
   PyObject_HEAD
-  struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights *__pyx_outer_scope;
+  struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights *__pyx_outer_scope;
   PyObject *__pyx_v_x;
   PyObject *__pyx_t_0;
   Py_ssize_t __pyx_t_1;
@@ -1375,14 +1375,14 @@ static int __Pyx_InitStrings(__Pyx_StringTabEntry *t);
 
 /* Module declarations from 'libcpp.string' */
 
-/* Module declarations from 'describe.libmbtr.cmbtr' */
+/* Module declarations from 'dscribe.libmbtr.mbtr' */
 
-/* Module declarations from 'describe.libmbtr.cmbtrwrapper' */
-static PyTypeObject *__pyx_ptype_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper = 0;
-static PyTypeObject *__pyx_ptype_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights = 0;
-static PyTypeObject *__pyx_ptype_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr = 0;
-static PyTypeObject *__pyx_ptype_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights = 0;
-static PyTypeObject *__pyx_ptype_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr = 0;
+/* Module declarations from 'dscribe.libmbtr.mbtrwrapper' */
+static PyTypeObject *__pyx_ptype_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper = 0;
+static PyTypeObject *__pyx_ptype_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights = 0;
+static PyTypeObject *__pyx_ptype_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr = 0;
+static PyTypeObject *__pyx_ptype_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights = 0;
+static PyTypeObject *__pyx_ptype_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr = 0;
 static std::vector<float>  __pyx_convert_vector_from_py_float(PyObject *); /*proto*/
 static std::vector<std::vector<float> >  __pyx_convert_vector_from_py_std_3a__3a_vector_3c_float_3e___(PyObject *); /*proto*/
 static std::vector<int>  __pyx_convert_vector_from_py_int(PyObject *); /*proto*/
@@ -1399,11 +1399,11 @@ static CYTHON_INLINE PyObject *__pyx_convert_PyBytes_string_to_py_std__in_string
 static CYTHON_INLINE PyObject *__pyx_convert_PyByteArray_string_to_py_std__in_string(std::string const &); /*proto*/
 static PyObject *__pyx_convert_map_to_py_std_3a__3a_string____std_3a__3a_vector_3c_float_3e___(std::map<std::string,std::vector<float> >  const &); /*proto*/
 static PyObject *__pyx_convert_pair_to_py_std_3a__3a_map_3c_std_3a__3a_string_2c_std_3a__3a_vector_3c_float_3e____3e_______std_3a__3a_map_3c_std_3a__3a_string_2c_std_3a__3a_vector_3c_float_3e____3e___(std::pair<std::map<std::string,std::vector<float> > ,std::map<std::string,std::vector<float> > >  const &); /*proto*/
-#define __Pyx_MODULE_NAME "describe.libmbtr.cmbtrwrapper"
-extern int __pyx_module_is_main_describe__libmbtr__cmbtrwrapper;
-int __pyx_module_is_main_describe__libmbtr__cmbtrwrapper = 0;
+#define __Pyx_MODULE_NAME "dscribe.libmbtr.mbtrwrapper"
+extern int __pyx_module_is_main_dscribe__libmbtr__mbtrwrapper;
+int __pyx_module_is_main_dscribe__libmbtr__mbtrwrapper = 0;
 
-/* Implementation of 'describe.libmbtr.cmbtrwrapper' */
+/* Implementation of 'dscribe.libmbtr.mbtrwrapper' */
 static PyObject *__pyx_builtin_TypeError;
 static PyObject *__pyx_builtin_range;
 static const char __pyx_k__3[] = ",";
@@ -1443,7 +1443,7 @@ static const char __pyx_k_setstate_cython[] = "__setstate_cython__";
 static const char __pyx_k_interaction_limit[] = "interaction_limit";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
 static const char __pyx_k_atomic_number_to_index_map[] = "atomic_number_to_index_map";
-static const char __pyx_k_describe_libmbtr_cmbtrwrapper[] = "describe.libmbtr.cmbtrwrapper";
+static const char __pyx_k_dscribe_libmbtr_mbtrwrapper[] = "dscribe.libmbtr.mbtrwrapper";
 static const char __pyx_k_get_k2_geoms_and_weights_locals[] = "get_k2_geoms_and_weights.<locals>.genexpr";
 static const char __pyx_k_get_k3_geoms_and_weights_locals[] = "get_k3_geoms_and_weights.<locals>.genexpr";
 static const char __pyx_k_no_default___reduce___due_to_non[] = "no default __reduce__ due to non-trivial __cinit__";
@@ -1456,7 +1456,7 @@ static PyObject *__pyx_n_s_atomic_numbers;
 static PyObject *__pyx_n_s_cline_in_traceback;
 static PyObject *__pyx_n_s_close;
 static PyObject *__pyx_n_s_decode;
-static PyObject *__pyx_n_s_describe_libmbtr_cmbtrwrapper;
+static PyObject *__pyx_n_s_dscribe_libmbtr_mbtrwrapper;
 static PyObject *__pyx_n_s_dtype;
 static PyObject *__pyx_n_s_float32;
 static PyObject *__pyx_n_s_genexpr;
@@ -1488,22 +1488,22 @@ static PyObject *__pyx_n_s_test;
 static PyObject *__pyx_n_s_throw;
 static PyObject *__pyx_kp_s_utf_8;
 static PyObject *__pyx_n_s_weight_func;
-static int __pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper___cinit__(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *__pyx_v_self, std::vector<std::vector<float> >  __pyx_v_positions, std::vector<int>  __pyx_v_atomic_numbers, std::map<int,int>  __pyx_v_atomic_number_to_index_map, int __pyx_v_interaction_limit, bool __pyx_v_is_local); /* proto */
-static void __pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_2__dealloc__(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_4get_displacement_tensor(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_6get_distance_matrix(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_8get_k1_geoms_and_weights(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *__pyx_v_self, PyObject *__pyx_v_geom_func, PyObject *__pyx_v_weight_func, PyObject *__pyx_v_parameters); /* proto */
-static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_24get_k2_geoms_and_weights_genexpr(PyObject *__pyx_self); /* proto */
-static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_10get_k2_geoms_and_weights(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *__pyx_v_self, PyObject *__pyx_v_geom_func, PyObject *__pyx_v_weight_func, PyObject *__pyx_v_parameters); /* proto */
-static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_24get_k3_geoms_and_weights_genexpr(PyObject *__pyx_self); /* proto */
-static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get_k3_geoms_and_weights(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *__pyx_v_self, PyObject *__pyx_v_geom_func, PyObject *__pyx_v_weight_func, PyObject *__pyx_v_parameters); /* proto */
-static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_14__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_16__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
-static PyObject *__pyx_tp_new_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static int __pyx_pf_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper___cinit__(struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper *__pyx_v_self, std::vector<std::vector<float> >  __pyx_v_positions, std::vector<int>  __pyx_v_atomic_numbers, std::map<int,int>  __pyx_v_atomic_number_to_index_map, int __pyx_v_interaction_limit, bool __pyx_v_is_local); /* proto */
+static void __pyx_pf_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_2__dealloc__(struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_4get_displacement_tensor(struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_6get_distance_matrix(struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_8get_k1_geoms_and_weights(struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper *__pyx_v_self, PyObject *__pyx_v_geom_func, PyObject *__pyx_v_weight_func, PyObject *__pyx_v_parameters); /* proto */
+static PyObject *__pyx_pf_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_24get_k2_geoms_and_weights_genexpr(PyObject *__pyx_self); /* proto */
+static PyObject *__pyx_pf_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_10get_k2_geoms_and_weights(struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper *__pyx_v_self, PyObject *__pyx_v_geom_func, PyObject *__pyx_v_weight_func, PyObject *__pyx_v_parameters); /* proto */
+static PyObject *__pyx_pf_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_24get_k3_geoms_and_weights_genexpr(PyObject *__pyx_self); /* proto */
+static PyObject *__pyx_pf_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_12get_k3_geoms_and_weights(struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper *__pyx_v_self, PyObject *__pyx_v_geom_func, PyObject *__pyx_v_weight_func, PyObject *__pyx_v_parameters); /* proto */
+static PyObject *__pyx_pf_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_14__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_16__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
+static PyObject *__pyx_tp_new_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tuple_;
 static PyObject *__pyx_tuple__2;
 static PyObject *__pyx_tuple__4;
@@ -1513,17 +1513,17 @@ static PyObject *__pyx_tuple__7;
 static PyObject *__pyx_tuple__8;
 /* Late includes */
 
-/* "describe/libmbtr/cmbtrwrapper.pyx":12
- *     cdef CMBTR *thisptr      # hold a C++ instance which we're wrapping
+/* "dscribe/libmbtr/mbtrwrapper.pyx":12
+ *     cdef MBTR *thisptr      # hold a C++ instance which we're wrapping
  * 
  *     def __cinit__(self, vector[vector[float]] positions, vector[int] atomic_numbers, map[int,int] atomic_number_to_index_map, int interaction_limit, bool is_local):             # <<<<<<<<<<<<<<
- *         self.thisptr = new CMBTR(positions, atomic_numbers, atomic_number_to_index_map, interaction_limit, is_local)
+ *         self.thisptr = new MBTR(positions, atomic_numbers, atomic_number_to_index_map, interaction_limit, is_local)
  * 
  */
 
 /* Python wrapper */
-static int __pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   std::vector<std::vector<float> >  __pyx_v_positions;
   std::vector<int>  __pyx_v_atomic_numbers;
   std::map<int,int>  __pyx_v_atomic_number_to_index_map;
@@ -1604,43 +1604,43 @@ static int __pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_1__cinit__(
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 5, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 12, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("describe.libmbtr.cmbtrwrapper.CMBTRWrapper.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("dscribe.libmbtr.mbtrwrapper.MBTRWrapper.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper___cinit__(((struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *)__pyx_v_self), __pyx_v_positions, __pyx_v_atomic_numbers, __pyx_v_atomic_number_to_index_map, __pyx_v_interaction_limit, __pyx_v_is_local);
+  __pyx_r = __pyx_pf_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper___cinit__(((struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper *)__pyx_v_self), __pyx_v_positions, __pyx_v_atomic_numbers, __pyx_v_atomic_number_to_index_map, __pyx_v_interaction_limit, __pyx_v_is_local);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper___cinit__(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *__pyx_v_self, std::vector<std::vector<float> >  __pyx_v_positions, std::vector<int>  __pyx_v_atomic_numbers, std::map<int,int>  __pyx_v_atomic_number_to_index_map, int __pyx_v_interaction_limit, bool __pyx_v_is_local) {
+static int __pyx_pf_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper___cinit__(struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper *__pyx_v_self, std::vector<std::vector<float> >  __pyx_v_positions, std::vector<int>  __pyx_v_atomic_numbers, std::map<int,int>  __pyx_v_atomic_number_to_index_map, int __pyx_v_interaction_limit, bool __pyx_v_is_local) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
-  CMBTR *__pyx_t_1;
+  MBTR *__pyx_t_1;
   __Pyx_RefNannySetupContext("__cinit__", 0);
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":13
+  /* "dscribe/libmbtr/mbtrwrapper.pyx":13
  * 
  *     def __cinit__(self, vector[vector[float]] positions, vector[int] atomic_numbers, map[int,int] atomic_number_to_index_map, int interaction_limit, bool is_local):
- *         self.thisptr = new CMBTR(positions, atomic_numbers, atomic_number_to_index_map, interaction_limit, is_local)             # <<<<<<<<<<<<<<
+ *         self.thisptr = new MBTR(positions, atomic_numbers, atomic_number_to_index_map, interaction_limit, is_local)             # <<<<<<<<<<<<<<
  * 
  *     def __dealloc__(self):
  */
   try {
-    __pyx_t_1 = new CMBTR(__pyx_v_positions, __pyx_v_atomic_numbers, __pyx_v_atomic_number_to_index_map, __pyx_v_interaction_limit, __pyx_v_is_local);
+    __pyx_t_1 = new MBTR(__pyx_v_positions, __pyx_v_atomic_numbers, __pyx_v_atomic_number_to_index_map, __pyx_v_interaction_limit, __pyx_v_is_local);
   } catch(...) {
     __Pyx_CppExn2PyErr();
     __PYX_ERR(1, 13, __pyx_L1_error)
   }
   __pyx_v_self->thisptr = __pyx_t_1;
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":12
- *     cdef CMBTR *thisptr      # hold a C++ instance which we're wrapping
+  /* "dscribe/libmbtr/mbtrwrapper.pyx":12
+ *     cdef MBTR *thisptr      # hold a C++ instance which we're wrapping
  * 
  *     def __cinit__(self, vector[vector[float]] positions, vector[int] atomic_numbers, map[int,int] atomic_number_to_index_map, int interaction_limit, bool is_local):             # <<<<<<<<<<<<<<
- *         self.thisptr = new CMBTR(positions, atomic_numbers, atomic_number_to_index_map, interaction_limit, is_local)
+ *         self.thisptr = new MBTR(positions, atomic_numbers, atomic_number_to_index_map, interaction_limit, is_local)
  * 
  */
 
@@ -1648,15 +1648,15 @@ static int __pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper___cinit__(s
   __pyx_r = 0;
   goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_AddTraceback("describe.libmbtr.cmbtrwrapper.CMBTRWrapper.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("dscribe.libmbtr.mbtrwrapper.MBTRWrapper.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "describe/libmbtr/cmbtrwrapper.pyx":15
- *         self.thisptr = new CMBTR(positions, atomic_numbers, atomic_number_to_index_map, interaction_limit, is_local)
+/* "dscribe/libmbtr/mbtrwrapper.pyx":15
+ *         self.thisptr = new MBTR(positions, atomic_numbers, atomic_number_to_index_map, interaction_limit, is_local)
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
  *         del self.thisptr
@@ -1664,21 +1664,21 @@ static int __pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper___cinit__(s
  */
 
 /* Python wrapper */
-static void __pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_3__dealloc__(PyObject *__pyx_v_self); /*proto*/
-static void __pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_3__dealloc__(PyObject *__pyx_v_self) {
+static void __pyx_pw_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_3__dealloc__(PyObject *__pyx_v_self); /*proto*/
+static void __pyx_pw_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_3__dealloc__(PyObject *__pyx_v_self) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__dealloc__ (wrapper)", 0);
-  __pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_2__dealloc__(((struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *)__pyx_v_self));
+  __pyx_pf_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_2__dealloc__(((struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
 }
 
-static void __pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_2__dealloc__(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *__pyx_v_self) {
+static void __pyx_pf_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_2__dealloc__(struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper *__pyx_v_self) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__dealloc__", 0);
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":16
+  /* "dscribe/libmbtr/mbtrwrapper.pyx":16
  * 
  *     def __dealloc__(self):
  *         del self.thisptr             # <<<<<<<<<<<<<<
@@ -1687,8 +1687,8 @@ static void __pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_2__dealloc
  */
   delete __pyx_v_self->thisptr;
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":15
- *         self.thisptr = new CMBTR(positions, atomic_numbers, atomic_number_to_index_map, interaction_limit, is_local)
+  /* "dscribe/libmbtr/mbtrwrapper.pyx":15
+ *         self.thisptr = new MBTR(positions, atomic_numbers, atomic_number_to_index_map, interaction_limit, is_local)
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
  *         del self.thisptr
@@ -1699,7 +1699,7 @@ static void __pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_2__dealloc
   __Pyx_RefNannyFinishContext();
 }
 
-/* "describe/libmbtr/cmbtrwrapper.pyx":18
+/* "dscribe/libmbtr/mbtrwrapper.pyx":18
  *         del self.thisptr
  * 
  *     def get_displacement_tensor(self):             # <<<<<<<<<<<<<<
@@ -1708,19 +1708,19 @@ static void __pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_2__dealloc
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_5get_displacement_tensor(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_5get_displacement_tensor(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_5get_displacement_tensor(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_5get_displacement_tensor(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("get_displacement_tensor (wrapper)", 0);
-  __pyx_r = __pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_4get_displacement_tensor(((struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_4get_displacement_tensor(((struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_4get_displacement_tensor(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *__pyx_v_self) {
+static PyObject *__pyx_pf_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_4get_displacement_tensor(struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -1730,7 +1730,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_4get_
   PyObject *__pyx_t_5 = NULL;
   __Pyx_RefNannySetupContext("get_displacement_tensor", 0);
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":19
+  /* "dscribe/libmbtr/mbtrwrapper.pyx":19
  * 
  *     def get_displacement_tensor(self):
  *         return np.array(self.thisptr.getDisplacementTensor(), dtype=np.float32)             # <<<<<<<<<<<<<<
@@ -1768,7 +1768,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_4get_
   __pyx_t_5 = 0;
   goto __pyx_L0;
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":18
+  /* "dscribe/libmbtr/mbtrwrapper.pyx":18
  *         del self.thisptr
  * 
  *     def get_displacement_tensor(self):             # <<<<<<<<<<<<<<
@@ -1783,7 +1783,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_4get_
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("describe.libmbtr.cmbtrwrapper.CMBTRWrapper.get_displacement_tensor", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("dscribe.libmbtr.mbtrwrapper.MBTRWrapper.get_displacement_tensor", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -1791,7 +1791,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_4get_
   return __pyx_r;
 }
 
-/* "describe/libmbtr/cmbtrwrapper.pyx":21
+/* "dscribe/libmbtr/mbtrwrapper.pyx":21
  *         return np.array(self.thisptr.getDisplacementTensor(), dtype=np.float32)
  * 
  *     def get_distance_matrix(self):             # <<<<<<<<<<<<<<
@@ -1800,19 +1800,19 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_4get_
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_7get_distance_matrix(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_7get_distance_matrix(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_7get_distance_matrix(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_7get_distance_matrix(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("get_distance_matrix (wrapper)", 0);
-  __pyx_r = __pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_6get_distance_matrix(((struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_6get_distance_matrix(((struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_6get_distance_matrix(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *__pyx_v_self) {
+static PyObject *__pyx_pf_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_6get_distance_matrix(struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -1822,7 +1822,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_6get_
   PyObject *__pyx_t_5 = NULL;
   __Pyx_RefNannySetupContext("get_distance_matrix", 0);
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":22
+  /* "dscribe/libmbtr/mbtrwrapper.pyx":22
  * 
  *     def get_distance_matrix(self):
  *         return np.array(self.thisptr.getDistanceMatrix(), dtype=np.float32)             # <<<<<<<<<<<<<<
@@ -1860,7 +1860,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_6get_
   __pyx_t_5 = 0;
   goto __pyx_L0;
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":21
+  /* "dscribe/libmbtr/mbtrwrapper.pyx":21
  *         return np.array(self.thisptr.getDisplacementTensor(), dtype=np.float32)
  * 
  *     def get_distance_matrix(self):             # <<<<<<<<<<<<<<
@@ -1875,7 +1875,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_6get_
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("describe.libmbtr.cmbtrwrapper.CMBTRWrapper.get_distance_matrix", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("dscribe.libmbtr.mbtrwrapper.MBTRWrapper.get_distance_matrix", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -1883,7 +1883,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_6get_
   return __pyx_r;
 }
 
-/* "describe/libmbtr/cmbtrwrapper.pyx":24
+/* "dscribe/libmbtr/mbtrwrapper.pyx":24
  *         return np.array(self.thisptr.getDistanceMatrix(), dtype=np.float32)
  * 
  *     def get_k1_geoms_and_weights(self, geom_func, weight_func, parameters):             # <<<<<<<<<<<<<<
@@ -1892,9 +1892,9 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_6get_
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_9get_k1_geoms_and_weights(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_8get_k1_geoms_and_weights[] = "Cython cannot directly provide the keys as tuples, so we have to do\n        the conversion here on the python side.\n        ";
-static PyObject *__pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_9get_k1_geoms_and_weights(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_9get_k1_geoms_and_weights(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_8get_k1_geoms_and_weights[] = "Cython cannot directly provide the keys as tuples, so we have to do\n        the conversion here on the python side.\n        ";
+static PyObject *__pyx_pw_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_9get_k1_geoms_and_weights(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_geom_func = 0;
   PyObject *__pyx_v_weight_func = 0;
   PyObject *__pyx_v_parameters = 0;
@@ -1953,18 +1953,18 @@ static PyObject *__pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_9get_
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("get_k1_geoms_and_weights", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 24, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("describe.libmbtr.cmbtrwrapper.CMBTRWrapper.get_k1_geoms_and_weights", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("dscribe.libmbtr.mbtrwrapper.MBTRWrapper.get_k1_geoms_and_weights", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_8get_k1_geoms_and_weights(((struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *)__pyx_v_self), __pyx_v_geom_func, __pyx_v_weight_func, __pyx_v_parameters);
+  __pyx_r = __pyx_pf_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_8get_k1_geoms_and_weights(((struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper *)__pyx_v_self), __pyx_v_geom_func, __pyx_v_weight_func, __pyx_v_parameters);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_8get_k1_geoms_and_weights(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *__pyx_v_self, PyObject *__pyx_v_geom_func, PyObject *__pyx_v_weight_func, PyObject *__pyx_v_parameters) {
+static PyObject *__pyx_pf_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_8get_k1_geoms_and_weights(struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper *__pyx_v_self, PyObject *__pyx_v_geom_func, PyObject *__pyx_v_weight_func, PyObject *__pyx_v_parameters) {
   PyObject *__pyx_v_geom_map = NULL;
   PyObject *__pyx_v_weight_map = NULL;
   PyObject *__pyx_v_new_geom_map = NULL;
@@ -1988,7 +1988,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_8get_
   PyObject *__pyx_t_12 = NULL;
   __Pyx_RefNannySetupContext("get_k1_geoms_and_weights", 0);
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":28
+  /* "dscribe/libmbtr/mbtrwrapper.pyx":28
  *         the conversion here on the python side.
  *         """
  *         geom_map, weight_map = self.thisptr.getK1GeomsAndWeightsCython(geom_func, weight_func, parameters);             # <<<<<<<<<<<<<<
@@ -2057,7 +2057,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_8get_
   __pyx_v_weight_map = __pyx_t_7;
   __pyx_t_7 = 0;
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":29
+  /* "dscribe/libmbtr/mbtrwrapper.pyx":29
  *         """
  *         geom_map, weight_map = self.thisptr.getK1GeomsAndWeightsCython(geom_func, weight_func, parameters);
  *         new_geom_map = {}             # <<<<<<<<<<<<<<
@@ -2069,7 +2069,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_8get_
   __pyx_v_new_geom_map = ((PyObject*)__pyx_t_5);
   __pyx_t_5 = 0;
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":30
+  /* "dscribe/libmbtr/mbtrwrapper.pyx":30
  *         geom_map, weight_map = self.thisptr.getK1GeomsAndWeightsCython(geom_func, weight_func, parameters);
  *         new_geom_map = {}
  *         new_weight_map = {}             # <<<<<<<<<<<<<<
@@ -2081,7 +2081,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_8get_
   __pyx_v_new_weight_map = ((PyObject*)__pyx_t_5);
   __pyx_t_5 = 0;
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":32
+  /* "dscribe/libmbtr/mbtrwrapper.pyx":32
  *         new_weight_map = {}
  * 
  *         for key, value in geom_map.items():             # <<<<<<<<<<<<<<
@@ -2199,7 +2199,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_8get_
     __Pyx_XDECREF_SET(__pyx_v_value, __pyx_t_8);
     __pyx_t_8 = 0;
 
-    /* "describe/libmbtr/cmbtrwrapper.pyx":33
+    /* "dscribe/libmbtr/mbtrwrapper.pyx":33
  * 
  *         for key, value in geom_map.items():
  *             new_key = tuple([int(key.decode("utf-8"))])             # <<<<<<<<<<<<<<
@@ -2225,7 +2225,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_8get_
     __Pyx_XDECREF_SET(__pyx_v_new_key, ((PyObject*)__pyx_t_5));
     __pyx_t_5 = 0;
 
-    /* "describe/libmbtr/cmbtrwrapper.pyx":34
+    /* "dscribe/libmbtr/mbtrwrapper.pyx":34
  *         for key, value in geom_map.items():
  *             new_key = tuple([int(key.decode("utf-8"))])
  *             new_geom_map[new_key] = value             # <<<<<<<<<<<<<<
@@ -2234,7 +2234,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_8get_
  */
     if (unlikely(PyDict_SetItem(__pyx_v_new_geom_map, __pyx_v_new_key, __pyx_v_value) < 0)) __PYX_ERR(1, 34, __pyx_L1_error)
 
-    /* "describe/libmbtr/cmbtrwrapper.pyx":35
+    /* "dscribe/libmbtr/mbtrwrapper.pyx":35
  *             new_key = tuple([int(key.decode("utf-8"))])
  *             new_geom_map[new_key] = value
  *             new_weight_map[new_key] = weight_map[key]             # <<<<<<<<<<<<<<
@@ -2246,7 +2246,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_8get_
     if (unlikely(PyDict_SetItem(__pyx_v_new_weight_map, __pyx_v_new_key, __pyx_t_5) < 0)) __PYX_ERR(1, 35, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-    /* "describe/libmbtr/cmbtrwrapper.pyx":32
+    /* "dscribe/libmbtr/mbtrwrapper.pyx":32
  *         new_weight_map = {}
  * 
  *         for key, value in geom_map.items():             # <<<<<<<<<<<<<<
@@ -2256,7 +2256,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_8get_
   }
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":37
+  /* "dscribe/libmbtr/mbtrwrapper.pyx":37
  *             new_weight_map[new_key] = weight_map[key]
  * 
  *         return new_geom_map, new_weight_map             # <<<<<<<<<<<<<<
@@ -2276,7 +2276,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_8get_
   __pyx_t_7 = 0;
   goto __pyx_L0;
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":24
+  /* "dscribe/libmbtr/mbtrwrapper.pyx":24
  *         return np.array(self.thisptr.getDistanceMatrix(), dtype=np.float32)
  * 
  *     def get_k1_geoms_and_weights(self, geom_func, weight_func, parameters):             # <<<<<<<<<<<<<<
@@ -2291,7 +2291,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_8get_
   __Pyx_XDECREF(__pyx_t_7);
   __Pyx_XDECREF(__pyx_t_8);
   __Pyx_XDECREF(__pyx_t_12);
-  __Pyx_AddTraceback("describe.libmbtr.cmbtrwrapper.CMBTRWrapper.get_k1_geoms_and_weights", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("dscribe.libmbtr.mbtrwrapper.MBTRWrapper.get_k1_geoms_and_weights", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_geom_map);
@@ -2306,7 +2306,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_8get_
   return __pyx_r;
 }
 
-/* "describe/libmbtr/cmbtrwrapper.pyx":39
+/* "dscribe/libmbtr/mbtrwrapper.pyx":39
  *         return new_geom_map, new_weight_map
  * 
  *     def get_k2_geoms_and_weights(self, geom_func, weight_func, parameters):             # <<<<<<<<<<<<<<
@@ -2315,9 +2315,9 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_8get_
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_11get_k2_geoms_and_weights(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_10get_k2_geoms_and_weights[] = "Cython cannot directly provide the keys as tuples, so we have to do\n        the conversion here on the python side.\n        ";
-static PyObject *__pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_11get_k2_geoms_and_weights(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_11get_k2_geoms_and_weights(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_10get_k2_geoms_and_weights[] = "Cython cannot directly provide the keys as tuples, so we have to do\n        the conversion here on the python side.\n        ";
+static PyObject *__pyx_pw_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_11get_k2_geoms_and_weights(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_geom_func = 0;
   PyObject *__pyx_v_weight_func = 0;
   PyObject *__pyx_v_parameters = 0;
@@ -2376,19 +2376,19 @@ static PyObject *__pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_11get
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("get_k2_geoms_and_weights", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 39, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("describe.libmbtr.cmbtrwrapper.CMBTRWrapper.get_k2_geoms_and_weights", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("dscribe.libmbtr.mbtrwrapper.MBTRWrapper.get_k2_geoms_and_weights", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_10get_k2_geoms_and_weights(((struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *)__pyx_v_self), __pyx_v_geom_func, __pyx_v_weight_func, __pyx_v_parameters);
+  __pyx_r = __pyx_pf_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_10get_k2_geoms_and_weights(((struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper *)__pyx_v_self), __pyx_v_geom_func, __pyx_v_weight_func, __pyx_v_parameters);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
-static PyObject *__pyx_gb_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_24get_k2_geoms_and_weights_2generator(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
+static PyObject *__pyx_gb_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_24get_k2_geoms_and_weights_2generator(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
 
-/* "describe/libmbtr/cmbtrwrapper.pyx":48
+/* "dscribe/libmbtr/mbtrwrapper.pyx":48
  * 
  *         for key, value in geom_map.items():
  *             new_key = tuple(int(x) for x in key.decode("utf-8").split(","))             # <<<<<<<<<<<<<<
@@ -2396,24 +2396,24 @@ static PyObject *__pyx_gb_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_24get
  *             new_weight_map[new_key] = weight_map[key]
  */
 
-static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_24get_k2_geoms_and_weights_genexpr(PyObject *__pyx_self) {
-  struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr *__pyx_cur_scope;
+static PyObject *__pyx_pf_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_24get_k2_geoms_and_weights_genexpr(PyObject *__pyx_self) {
+  struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr *__pyx_cur_scope;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("genexpr", 0);
-  __pyx_cur_scope = (struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr *)__pyx_tp_new_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr(__pyx_ptype_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr, __pyx_empty_tuple, NULL);
+  __pyx_cur_scope = (struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr *)__pyx_tp_new_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr(__pyx_ptype_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr, __pyx_empty_tuple, NULL);
   if (unlikely(!__pyx_cur_scope)) {
-    __pyx_cur_scope = ((struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr *)Py_None);
+    __pyx_cur_scope = ((struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr *)Py_None);
     __Pyx_INCREF(Py_None);
     __PYX_ERR(1, 48, __pyx_L1_error)
   } else {
     __Pyx_GOTREF(__pyx_cur_scope);
   }
-  __pyx_cur_scope->__pyx_outer_scope = (struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights *) __pyx_self;
+  __pyx_cur_scope->__pyx_outer_scope = (struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights *) __pyx_self;
   __Pyx_INCREF(((PyObject *)__pyx_cur_scope->__pyx_outer_scope));
   __Pyx_GIVEREF(__pyx_cur_scope->__pyx_outer_scope);
   {
-    __pyx_CoroutineObject *gen = __Pyx_Generator_New((__pyx_coroutine_body_t) __pyx_gb_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_24get_k2_geoms_and_weights_2generator, NULL, (PyObject *) __pyx_cur_scope, __pyx_n_s_genexpr, __pyx_n_s_get_k2_geoms_and_weights_locals, __pyx_n_s_describe_libmbtr_cmbtrwrapper); if (unlikely(!gen)) __PYX_ERR(1, 48, __pyx_L1_error)
+    __pyx_CoroutineObject *gen = __Pyx_Generator_New((__pyx_coroutine_body_t) __pyx_gb_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_24get_k2_geoms_and_weights_2generator, NULL, (PyObject *) __pyx_cur_scope, __pyx_n_s_genexpr, __pyx_n_s_get_k2_geoms_and_weights_locals, __pyx_n_s_dscribe_libmbtr_mbtrwrapper); if (unlikely(!gen)) __PYX_ERR(1, 48, __pyx_L1_error)
     __Pyx_DECREF(__pyx_cur_scope);
     __Pyx_RefNannyFinishContext();
     return (PyObject *) gen;
@@ -2421,7 +2421,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_24get
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_AddTraceback("describe.libmbtr.cmbtrwrapper.CMBTRWrapper.get_k2_geoms_and_weights.genexpr", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("dscribe.libmbtr.mbtrwrapper.MBTRWrapper.get_k2_geoms_and_weights.genexpr", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_DECREF(((PyObject *)__pyx_cur_scope));
   __Pyx_XGIVEREF(__pyx_r);
@@ -2429,9 +2429,9 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_24get
   return __pyx_r;
 }
 
-static PyObject *__pyx_gb_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_24get_k2_geoms_and_weights_2generator(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value) /* generator body */
+static PyObject *__pyx_gb_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_24get_k2_geoms_and_weights_2generator(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value) /* generator body */
 {
-  struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr *__pyx_cur_scope = ((struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr *)__pyx_generator->closure);
+  struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr *__pyx_cur_scope = ((struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr *)__pyx_generator->closure);
   PyObject *__pyx_r = NULL;
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -2545,7 +2545,7 @@ static PyObject *__pyx_gb_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_24get
   return __pyx_r;
 }
 
-/* "describe/libmbtr/cmbtrwrapper.pyx":39
+/* "dscribe/libmbtr/mbtrwrapper.pyx":39
  *         return new_geom_map, new_weight_map
  * 
  *     def get_k2_geoms_and_weights(self, geom_func, weight_func, parameters):             # <<<<<<<<<<<<<<
@@ -2553,8 +2553,8 @@ static PyObject *__pyx_gb_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_24get
  *         the conversion here on the python side.
  */
 
-static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_10get_k2_geoms_and_weights(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *__pyx_v_self, PyObject *__pyx_v_geom_func, PyObject *__pyx_v_weight_func, PyObject *__pyx_v_parameters) {
-  struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights *__pyx_cur_scope;
+static PyObject *__pyx_pf_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_10get_k2_geoms_and_weights(struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper *__pyx_v_self, PyObject *__pyx_v_geom_func, PyObject *__pyx_v_weight_func, PyObject *__pyx_v_parameters) {
+  struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights *__pyx_cur_scope;
   PyObject *__pyx_v_geom_map = NULL;
   PyObject *__pyx_v_weight_map = NULL;
   PyObject *__pyx_v_new_geom_map = NULL;
@@ -2576,16 +2576,16 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_10get
   PyObject *(*__pyx_t_11)(PyObject *);
   PyObject *__pyx_t_12 = NULL;
   __Pyx_RefNannySetupContext("get_k2_geoms_and_weights", 0);
-  __pyx_cur_scope = (struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights *)__pyx_tp_new_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights(__pyx_ptype_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights, __pyx_empty_tuple, NULL);
+  __pyx_cur_scope = (struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights *)__pyx_tp_new_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights(__pyx_ptype_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights, __pyx_empty_tuple, NULL);
   if (unlikely(!__pyx_cur_scope)) {
-    __pyx_cur_scope = ((struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights *)Py_None);
+    __pyx_cur_scope = ((struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights *)Py_None);
     __Pyx_INCREF(Py_None);
     __PYX_ERR(1, 39, __pyx_L1_error)
   } else {
     __Pyx_GOTREF(__pyx_cur_scope);
   }
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":43
+  /* "dscribe/libmbtr/mbtrwrapper.pyx":43
  *         the conversion here on the python side.
  *         """
  *         geom_map, weight_map = self.thisptr.getK2GeomsAndWeightsCython(geom_func, weight_func, parameters);             # <<<<<<<<<<<<<<
@@ -2654,7 +2654,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_10get
   __pyx_v_weight_map = __pyx_t_7;
   __pyx_t_7 = 0;
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":44
+  /* "dscribe/libmbtr/mbtrwrapper.pyx":44
  *         """
  *         geom_map, weight_map = self.thisptr.getK2GeomsAndWeightsCython(geom_func, weight_func, parameters);
  *         new_geom_map = {}             # <<<<<<<<<<<<<<
@@ -2666,7 +2666,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_10get
   __pyx_v_new_geom_map = ((PyObject*)__pyx_t_5);
   __pyx_t_5 = 0;
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":45
+  /* "dscribe/libmbtr/mbtrwrapper.pyx":45
  *         geom_map, weight_map = self.thisptr.getK2GeomsAndWeightsCython(geom_func, weight_func, parameters);
  *         new_geom_map = {}
  *         new_weight_map = {}             # <<<<<<<<<<<<<<
@@ -2678,7 +2678,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_10get
   __pyx_v_new_weight_map = ((PyObject*)__pyx_t_5);
   __pyx_t_5 = 0;
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":47
+  /* "dscribe/libmbtr/mbtrwrapper.pyx":47
  *         new_weight_map = {}
  * 
  *         for key, value in geom_map.items():             # <<<<<<<<<<<<<<
@@ -2798,14 +2798,14 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_10get
     __Pyx_XDECREF_SET(__pyx_v_value, __pyx_t_8);
     __pyx_t_8 = 0;
 
-    /* "describe/libmbtr/cmbtrwrapper.pyx":48
+    /* "dscribe/libmbtr/mbtrwrapper.pyx":48
  * 
  *         for key, value in geom_map.items():
  *             new_key = tuple(int(x) for x in key.decode("utf-8").split(","))             # <<<<<<<<<<<<<<
  *             new_geom_map[new_key] = value
  *             new_weight_map[new_key] = weight_map[key]
  */
-    __pyx_t_5 = __pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_24get_k2_geoms_and_weights_genexpr(((PyObject*)__pyx_cur_scope)); if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 48, __pyx_L1_error)
+    __pyx_t_5 = __pyx_pf_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_24get_k2_geoms_and_weights_genexpr(((PyObject*)__pyx_cur_scope)); if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 48, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __pyx_t_8 = __Pyx_PySequence_Tuple(__pyx_t_5); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 48, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
@@ -2813,7 +2813,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_10get
     __Pyx_XDECREF_SET(__pyx_v_new_key, ((PyObject*)__pyx_t_8));
     __pyx_t_8 = 0;
 
-    /* "describe/libmbtr/cmbtrwrapper.pyx":49
+    /* "dscribe/libmbtr/mbtrwrapper.pyx":49
  *         for key, value in geom_map.items():
  *             new_key = tuple(int(x) for x in key.decode("utf-8").split(","))
  *             new_geom_map[new_key] = value             # <<<<<<<<<<<<<<
@@ -2822,7 +2822,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_10get
  */
     if (unlikely(PyDict_SetItem(__pyx_v_new_geom_map, __pyx_v_new_key, __pyx_v_value) < 0)) __PYX_ERR(1, 49, __pyx_L1_error)
 
-    /* "describe/libmbtr/cmbtrwrapper.pyx":50
+    /* "dscribe/libmbtr/mbtrwrapper.pyx":50
  *             new_key = tuple(int(x) for x in key.decode("utf-8").split(","))
  *             new_geom_map[new_key] = value
  *             new_weight_map[new_key] = weight_map[key]             # <<<<<<<<<<<<<<
@@ -2834,7 +2834,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_10get
     if (unlikely(PyDict_SetItem(__pyx_v_new_weight_map, __pyx_v_new_key, __pyx_t_8) < 0)) __PYX_ERR(1, 50, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-    /* "describe/libmbtr/cmbtrwrapper.pyx":47
+    /* "dscribe/libmbtr/mbtrwrapper.pyx":47
  *         new_weight_map = {}
  * 
  *         for key, value in geom_map.items():             # <<<<<<<<<<<<<<
@@ -2844,7 +2844,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_10get
   }
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":52
+  /* "dscribe/libmbtr/mbtrwrapper.pyx":52
  *             new_weight_map[new_key] = weight_map[key]
  * 
  *         return new_geom_map, new_weight_map             # <<<<<<<<<<<<<<
@@ -2864,7 +2864,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_10get
   __pyx_t_7 = 0;
   goto __pyx_L0;
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":39
+  /* "dscribe/libmbtr/mbtrwrapper.pyx":39
  *         return new_geom_map, new_weight_map
  * 
  *     def get_k2_geoms_and_weights(self, geom_func, weight_func, parameters):             # <<<<<<<<<<<<<<
@@ -2879,7 +2879,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_10get
   __Pyx_XDECREF(__pyx_t_7);
   __Pyx_XDECREF(__pyx_t_8);
   __Pyx_XDECREF(__pyx_t_12);
-  __Pyx_AddTraceback("describe.libmbtr.cmbtrwrapper.CMBTRWrapper.get_k2_geoms_and_weights", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("dscribe.libmbtr.mbtrwrapper.MBTRWrapper.get_k2_geoms_and_weights", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_geom_map);
@@ -2894,7 +2894,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_10get
   return __pyx_r;
 }
 
-/* "describe/libmbtr/cmbtrwrapper.pyx":54
+/* "dscribe/libmbtr/mbtrwrapper.pyx":54
  *         return new_geom_map, new_weight_map
  * 
  *     def get_k3_geoms_and_weights(self, geom_func, weight_func, parameters):             # <<<<<<<<<<<<<<
@@ -2903,9 +2903,9 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_10get
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_13get_k3_geoms_and_weights(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get_k3_geoms_and_weights[] = "Cython cannot directly provide the keys as tuples, so we have to do\n        the conversion here on the python side.\n        ";
-static PyObject *__pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_13get_k3_geoms_and_weights(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_13get_k3_geoms_and_weights(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_12get_k3_geoms_and_weights[] = "Cython cannot directly provide the keys as tuples, so we have to do\n        the conversion here on the python side.\n        ";
+static PyObject *__pyx_pw_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_13get_k3_geoms_and_weights(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_geom_func = 0;
   PyObject *__pyx_v_weight_func = 0;
   PyObject *__pyx_v_parameters = 0;
@@ -2964,19 +2964,19 @@ static PyObject *__pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_13get
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("get_k3_geoms_and_weights", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 54, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("describe.libmbtr.cmbtrwrapper.CMBTRWrapper.get_k3_geoms_and_weights", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("dscribe.libmbtr.mbtrwrapper.MBTRWrapper.get_k3_geoms_and_weights", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get_k3_geoms_and_weights(((struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *)__pyx_v_self), __pyx_v_geom_func, __pyx_v_weight_func, __pyx_v_parameters);
+  __pyx_r = __pyx_pf_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_12get_k3_geoms_and_weights(((struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper *)__pyx_v_self), __pyx_v_geom_func, __pyx_v_weight_func, __pyx_v_parameters);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
-static PyObject *__pyx_gb_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_24get_k3_geoms_and_weights_2generator1(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
+static PyObject *__pyx_gb_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_24get_k3_geoms_and_weights_2generator1(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
 
-/* "describe/libmbtr/cmbtrwrapper.pyx":63
+/* "dscribe/libmbtr/mbtrwrapper.pyx":63
  * 
  *         for key, value in geom_map.items():
  *             new_key = tuple(int(x) for x in key.decode("utf-8").split(","))             # <<<<<<<<<<<<<<
@@ -2984,24 +2984,24 @@ static PyObject *__pyx_gb_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_24get
  *             new_weight_map[new_key] = weight_map[key]
  */
 
-static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_24get_k3_geoms_and_weights_genexpr(PyObject *__pyx_self) {
-  struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr *__pyx_cur_scope;
+static PyObject *__pyx_pf_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_24get_k3_geoms_and_weights_genexpr(PyObject *__pyx_self) {
+  struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr *__pyx_cur_scope;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("genexpr", 0);
-  __pyx_cur_scope = (struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr *)__pyx_tp_new_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr(__pyx_ptype_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr, __pyx_empty_tuple, NULL);
+  __pyx_cur_scope = (struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr *)__pyx_tp_new_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr(__pyx_ptype_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr, __pyx_empty_tuple, NULL);
   if (unlikely(!__pyx_cur_scope)) {
-    __pyx_cur_scope = ((struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr *)Py_None);
+    __pyx_cur_scope = ((struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr *)Py_None);
     __Pyx_INCREF(Py_None);
     __PYX_ERR(1, 63, __pyx_L1_error)
   } else {
     __Pyx_GOTREF(__pyx_cur_scope);
   }
-  __pyx_cur_scope->__pyx_outer_scope = (struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights *) __pyx_self;
+  __pyx_cur_scope->__pyx_outer_scope = (struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights *) __pyx_self;
   __Pyx_INCREF(((PyObject *)__pyx_cur_scope->__pyx_outer_scope));
   __Pyx_GIVEREF(__pyx_cur_scope->__pyx_outer_scope);
   {
-    __pyx_CoroutineObject *gen = __Pyx_Generator_New((__pyx_coroutine_body_t) __pyx_gb_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_24get_k3_geoms_and_weights_2generator1, NULL, (PyObject *) __pyx_cur_scope, __pyx_n_s_genexpr, __pyx_n_s_get_k3_geoms_and_weights_locals, __pyx_n_s_describe_libmbtr_cmbtrwrapper); if (unlikely(!gen)) __PYX_ERR(1, 63, __pyx_L1_error)
+    __pyx_CoroutineObject *gen = __Pyx_Generator_New((__pyx_coroutine_body_t) __pyx_gb_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_24get_k3_geoms_and_weights_2generator1, NULL, (PyObject *) __pyx_cur_scope, __pyx_n_s_genexpr, __pyx_n_s_get_k3_geoms_and_weights_locals, __pyx_n_s_dscribe_libmbtr_mbtrwrapper); if (unlikely(!gen)) __PYX_ERR(1, 63, __pyx_L1_error)
     __Pyx_DECREF(__pyx_cur_scope);
     __Pyx_RefNannyFinishContext();
     return (PyObject *) gen;
@@ -3009,7 +3009,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_24get
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_AddTraceback("describe.libmbtr.cmbtrwrapper.CMBTRWrapper.get_k3_geoms_and_weights.genexpr", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("dscribe.libmbtr.mbtrwrapper.MBTRWrapper.get_k3_geoms_and_weights.genexpr", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_DECREF(((PyObject *)__pyx_cur_scope));
   __Pyx_XGIVEREF(__pyx_r);
@@ -3017,9 +3017,9 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_24get
   return __pyx_r;
 }
 
-static PyObject *__pyx_gb_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_24get_k3_geoms_and_weights_2generator1(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value) /* generator body */
+static PyObject *__pyx_gb_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_24get_k3_geoms_and_weights_2generator1(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value) /* generator body */
 {
-  struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr *__pyx_cur_scope = ((struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr *)__pyx_generator->closure);
+  struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr *__pyx_cur_scope = ((struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr *)__pyx_generator->closure);
   PyObject *__pyx_r = NULL;
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -3133,7 +3133,7 @@ static PyObject *__pyx_gb_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_24get
   return __pyx_r;
 }
 
-/* "describe/libmbtr/cmbtrwrapper.pyx":54
+/* "dscribe/libmbtr/mbtrwrapper.pyx":54
  *         return new_geom_map, new_weight_map
  * 
  *     def get_k3_geoms_and_weights(self, geom_func, weight_func, parameters):             # <<<<<<<<<<<<<<
@@ -3141,8 +3141,8 @@ static PyObject *__pyx_gb_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_24get
  *         the conversion here on the python side.
  */
 
-static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get_k3_geoms_and_weights(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *__pyx_v_self, PyObject *__pyx_v_geom_func, PyObject *__pyx_v_weight_func, PyObject *__pyx_v_parameters) {
-  struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights *__pyx_cur_scope;
+static PyObject *__pyx_pf_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_12get_k3_geoms_and_weights(struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper *__pyx_v_self, PyObject *__pyx_v_geom_func, PyObject *__pyx_v_weight_func, PyObject *__pyx_v_parameters) {
+  struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights *__pyx_cur_scope;
   PyObject *__pyx_v_geom_map = NULL;
   PyObject *__pyx_v_weight_map = NULL;
   PyObject *__pyx_v_new_geom_map = NULL;
@@ -3164,16 +3164,16 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get
   PyObject *(*__pyx_t_11)(PyObject *);
   PyObject *__pyx_t_12 = NULL;
   __Pyx_RefNannySetupContext("get_k3_geoms_and_weights", 0);
-  __pyx_cur_scope = (struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights *)__pyx_tp_new_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights(__pyx_ptype_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights, __pyx_empty_tuple, NULL);
+  __pyx_cur_scope = (struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights *)__pyx_tp_new_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights(__pyx_ptype_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights, __pyx_empty_tuple, NULL);
   if (unlikely(!__pyx_cur_scope)) {
-    __pyx_cur_scope = ((struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights *)Py_None);
+    __pyx_cur_scope = ((struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights *)Py_None);
     __Pyx_INCREF(Py_None);
     __PYX_ERR(1, 54, __pyx_L1_error)
   } else {
     __Pyx_GOTREF(__pyx_cur_scope);
   }
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":58
+  /* "dscribe/libmbtr/mbtrwrapper.pyx":58
  *         the conversion here on the python side.
  *         """
  *         geom_map, weight_map = self.thisptr.getK3GeomsAndWeightsCython(geom_func, weight_func, parameters);             # <<<<<<<<<<<<<<
@@ -3242,7 +3242,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get
   __pyx_v_weight_map = __pyx_t_7;
   __pyx_t_7 = 0;
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":59
+  /* "dscribe/libmbtr/mbtrwrapper.pyx":59
  *         """
  *         geom_map, weight_map = self.thisptr.getK3GeomsAndWeightsCython(geom_func, weight_func, parameters);
  *         new_geom_map = {}             # <<<<<<<<<<<<<<
@@ -3254,7 +3254,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get
   __pyx_v_new_geom_map = ((PyObject*)__pyx_t_5);
   __pyx_t_5 = 0;
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":60
+  /* "dscribe/libmbtr/mbtrwrapper.pyx":60
  *         geom_map, weight_map = self.thisptr.getK3GeomsAndWeightsCython(geom_func, weight_func, parameters);
  *         new_geom_map = {}
  *         new_weight_map = {}             # <<<<<<<<<<<<<<
@@ -3266,7 +3266,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get
   __pyx_v_new_weight_map = ((PyObject*)__pyx_t_5);
   __pyx_t_5 = 0;
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":62
+  /* "dscribe/libmbtr/mbtrwrapper.pyx":62
  *         new_weight_map = {}
  * 
  *         for key, value in geom_map.items():             # <<<<<<<<<<<<<<
@@ -3386,14 +3386,14 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get
     __Pyx_XDECREF_SET(__pyx_v_value, __pyx_t_8);
     __pyx_t_8 = 0;
 
-    /* "describe/libmbtr/cmbtrwrapper.pyx":63
+    /* "dscribe/libmbtr/mbtrwrapper.pyx":63
  * 
  *         for key, value in geom_map.items():
  *             new_key = tuple(int(x) for x in key.decode("utf-8").split(","))             # <<<<<<<<<<<<<<
  *             new_geom_map[new_key] = value
  *             new_weight_map[new_key] = weight_map[key]
  */
-    __pyx_t_5 = __pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_24get_k3_geoms_and_weights_genexpr(((PyObject*)__pyx_cur_scope)); if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 63, __pyx_L1_error)
+    __pyx_t_5 = __pyx_pf_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_24get_k3_geoms_and_weights_genexpr(((PyObject*)__pyx_cur_scope)); if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 63, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __pyx_t_8 = __Pyx_PySequence_Tuple(__pyx_t_5); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 63, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
@@ -3401,7 +3401,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get
     __Pyx_XDECREF_SET(__pyx_v_new_key, ((PyObject*)__pyx_t_8));
     __pyx_t_8 = 0;
 
-    /* "describe/libmbtr/cmbtrwrapper.pyx":64
+    /* "dscribe/libmbtr/mbtrwrapper.pyx":64
  *         for key, value in geom_map.items():
  *             new_key = tuple(int(x) for x in key.decode("utf-8").split(","))
  *             new_geom_map[new_key] = value             # <<<<<<<<<<<<<<
@@ -3410,7 +3410,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get
  */
     if (unlikely(PyDict_SetItem(__pyx_v_new_geom_map, __pyx_v_new_key, __pyx_v_value) < 0)) __PYX_ERR(1, 64, __pyx_L1_error)
 
-    /* "describe/libmbtr/cmbtrwrapper.pyx":65
+    /* "dscribe/libmbtr/mbtrwrapper.pyx":65
  *             new_key = tuple(int(x) for x in key.decode("utf-8").split(","))
  *             new_geom_map[new_key] = value
  *             new_weight_map[new_key] = weight_map[key]             # <<<<<<<<<<<<<<
@@ -3422,7 +3422,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get
     if (unlikely(PyDict_SetItem(__pyx_v_new_weight_map, __pyx_v_new_key, __pyx_t_8) < 0)) __PYX_ERR(1, 65, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-    /* "describe/libmbtr/cmbtrwrapper.pyx":62
+    /* "dscribe/libmbtr/mbtrwrapper.pyx":62
  *         new_weight_map = {}
  * 
  *         for key, value in geom_map.items():             # <<<<<<<<<<<<<<
@@ -3432,7 +3432,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get
   }
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":67
+  /* "dscribe/libmbtr/mbtrwrapper.pyx":67
  *             new_weight_map[new_key] = weight_map[key]
  * 
  *         return new_geom_map, new_weight_map             # <<<<<<<<<<<<<<
@@ -3450,7 +3450,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get
   __pyx_t_7 = 0;
   goto __pyx_L0;
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":54
+  /* "dscribe/libmbtr/mbtrwrapper.pyx":54
  *         return new_geom_map, new_weight_map
  * 
  *     def get_k3_geoms_and_weights(self, geom_func, weight_func, parameters):             # <<<<<<<<<<<<<<
@@ -3465,7 +3465,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get
   __Pyx_XDECREF(__pyx_t_7);
   __Pyx_XDECREF(__pyx_t_8);
   __Pyx_XDECREF(__pyx_t_12);
-  __Pyx_AddTraceback("describe.libmbtr.cmbtrwrapper.CMBTRWrapper.get_k3_geoms_and_weights", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("dscribe.libmbtr.mbtrwrapper.MBTRWrapper.get_k3_geoms_and_weights", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_geom_map);
@@ -3487,19 +3487,19 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_15__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_15__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_15__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_15__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_14__reduce_cython__(((struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *)__pyx_v_self));
+  __pyx_r = __pyx_pf_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_14__reduce_cython__(((struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_14__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *__pyx_v_self) {
+static PyObject *__pyx_pf_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_14__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -3526,7 +3526,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_14__r
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("describe.libmbtr.cmbtrwrapper.CMBTRWrapper.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("dscribe.libmbtr.mbtrwrapper.MBTRWrapper.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
@@ -3541,19 +3541,19 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_14__r
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_17__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
-static PyObject *__pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_17__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pw_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_17__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_17__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_16__setstate_cython__(((struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  __pyx_r = __pyx_pf_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_16__setstate_cython__(((struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_16__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_16__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -3580,7 +3580,7 @@ static PyObject *__pyx_pf_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_16__s
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("describe.libmbtr.cmbtrwrapper.CMBTRWrapper.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("dscribe.libmbtr.mbtrwrapper.MBTRWrapper.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
@@ -4789,7 +4789,7 @@ static PyObject *__pyx_convert_pair_to_py_std_3a__3a_map_3c_std_3a__3a_string_2c
   return __pyx_r;
 }
 
-static PyObject *__pyx_tp_new_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper(PyTypeObject *t, PyObject *a, PyObject *k) {
+static PyObject *__pyx_tp_new_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper(PyTypeObject *t, PyObject *a, PyObject *k) {
   PyObject *o;
   if (likely((t->tp_flags & Py_TPFLAGS_IS_ABSTRACT) == 0)) {
     o = (*t->tp_alloc)(t, 0);
@@ -4797,14 +4797,14 @@ static PyObject *__pyx_tp_new_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper(PyT
     o = (PyObject *) PyBaseObject_Type.tp_new(t, __pyx_empty_tuple, 0);
   }
   if (unlikely(!o)) return 0;
-  if (unlikely(__pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_1__cinit__(o, a, k) < 0)) goto bad;
+  if (unlikely(__pyx_pw_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_1__cinit__(o, a, k) < 0)) goto bad;
   return o;
   bad:
   Py_DECREF(o); o = 0;
   return NULL;
 }
 
-static void __pyx_tp_dealloc_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper(PyObject *o) {
+static void __pyx_tp_dealloc_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper(PyObject *o) {
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(PyType_HasFeature(Py_TYPE(o), Py_TPFLAGS_HAVE_FINALIZE) && Py_TYPE(o)->tp_finalize) && (!PyType_IS_GC(Py_TYPE(o)) || !_PyGC_FINALIZED(o))) {
     if (PyObject_CallFinalizerFromDealloc(o)) return;
@@ -4814,30 +4814,30 @@ static void __pyx_tp_dealloc_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper(PyOb
     PyObject *etype, *eval, *etb;
     PyErr_Fetch(&etype, &eval, &etb);
     ++Py_REFCNT(o);
-    __pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_3__dealloc__(o);
+    __pyx_pw_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_3__dealloc__(o);
     --Py_REFCNT(o);
     PyErr_Restore(etype, eval, etb);
   }
   (*Py_TYPE(o)->tp_free)(o);
 }
 
-static PyMethodDef __pyx_methods_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper[] = {
-  {"get_displacement_tensor", (PyCFunction)__pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_5get_displacement_tensor, METH_NOARGS, 0},
-  {"get_distance_matrix", (PyCFunction)__pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_7get_distance_matrix, METH_NOARGS, 0},
-  {"get_k1_geoms_and_weights", (PyCFunction)__pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_9get_k1_geoms_and_weights, METH_VARARGS|METH_KEYWORDS, __pyx_doc_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_8get_k1_geoms_and_weights},
-  {"get_k2_geoms_and_weights", (PyCFunction)__pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_11get_k2_geoms_and_weights, METH_VARARGS|METH_KEYWORDS, __pyx_doc_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_10get_k2_geoms_and_weights},
-  {"get_k3_geoms_and_weights", (PyCFunction)__pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_13get_k3_geoms_and_weights, METH_VARARGS|METH_KEYWORDS, __pyx_doc_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_12get_k3_geoms_and_weights},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_15__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_8describe_7libmbtr_12cmbtrwrapper_12CMBTRWrapper_17__setstate_cython__, METH_O, 0},
+static PyMethodDef __pyx_methods_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper[] = {
+  {"get_displacement_tensor", (PyCFunction)__pyx_pw_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_5get_displacement_tensor, METH_NOARGS, 0},
+  {"get_distance_matrix", (PyCFunction)__pyx_pw_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_7get_distance_matrix, METH_NOARGS, 0},
+  {"get_k1_geoms_and_weights", (PyCFunction)__pyx_pw_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_9get_k1_geoms_and_weights, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_8get_k1_geoms_and_weights},
+  {"get_k2_geoms_and_weights", (PyCFunction)__pyx_pw_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_11get_k2_geoms_and_weights, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_10get_k2_geoms_and_weights},
+  {"get_k3_geoms_and_weights", (PyCFunction)__pyx_pw_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_13get_k3_geoms_and_weights, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_12get_k3_geoms_and_weights},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_15__reduce_cython__, METH_NOARGS, 0},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_7dscribe_7libmbtr_11mbtrwrapper_11MBTRWrapper_17__setstate_cython__, METH_O, 0},
   {0, 0, 0, 0}
 };
 
-static PyTypeObject __pyx_type_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper = {
+static PyTypeObject __pyx_type_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper = {
   PyVarObject_HEAD_INIT(0, 0)
-  "describe.libmbtr.cmbtrwrapper.CMBTRWrapper", /*tp_name*/
-  sizeof(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper), /*tp_basicsize*/
+  "dscribe.libmbtr.mbtrwrapper.MBTRWrapper", /*tp_name*/
+  sizeof(struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper, /*tp_dealloc*/
+  __pyx_tp_dealloc_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper, /*tp_dealloc*/
   0, /*tp_print*/
   0, /*tp_getattr*/
   0, /*tp_setattr*/
@@ -4865,7 +4865,7 @@ static PyTypeObject __pyx_type_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper = 
   0, /*tp_weaklistoffset*/
   0, /*tp_iter*/
   0, /*tp_iternext*/
-  __pyx_methods_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper, /*tp_methods*/
+  __pyx_methods_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper, /*tp_methods*/
   0, /*tp_members*/
   0, /*tp_getset*/
   0, /*tp_base*/
@@ -4875,7 +4875,7 @@ static PyTypeObject __pyx_type_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper = 
   0, /*tp_dictoffset*/
   0, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper, /*tp_new*/
+  __pyx_tp_new_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -4890,14 +4890,14 @@ static PyTypeObject __pyx_type_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper = 
   #endif
 };
 
-static struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights *__pyx_freelist_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights[8];
-static int __pyx_freecount_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights = 0;
+static struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights *__pyx_freelist_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights[8];
+static int __pyx_freecount_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights = 0;
 
-static PyObject *__pyx_tp_new_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
+static PyObject *__pyx_tp_new_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
   PyObject *o;
-  if (CYTHON_COMPILING_IN_CPYTHON && likely((__pyx_freecount_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights > 0) & (t->tp_basicsize == sizeof(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights)))) {
-    o = (PyObject*)__pyx_freelist_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights[--__pyx_freecount_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights];
-    memset(o, 0, sizeof(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights));
+  if (CYTHON_COMPILING_IN_CPYTHON && likely((__pyx_freecount_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights > 0) & (t->tp_basicsize == sizeof(struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights)))) {
+    o = (PyObject*)__pyx_freelist_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights[--__pyx_freecount_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights];
+    memset(o, 0, sizeof(struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights));
     (void) PyObject_INIT(o, t);
     PyObject_GC_Track(o);
   } else {
@@ -4907,41 +4907,41 @@ static PyObject *__pyx_tp_new_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_stru
   return o;
 }
 
-static void __pyx_tp_dealloc_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights(PyObject *o) {
-  struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights *p = (struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights *)o;
+static void __pyx_tp_dealloc_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights(PyObject *o) {
+  struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights *p = (struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights *)o;
   PyObject_GC_UnTrack(o);
   Py_CLEAR(p->__pyx_v_key);
-  if (CYTHON_COMPILING_IN_CPYTHON && ((__pyx_freecount_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights < 8) & (Py_TYPE(o)->tp_basicsize == sizeof(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights)))) {
-    __pyx_freelist_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights[__pyx_freecount_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights++] = ((struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights *)o);
+  if (CYTHON_COMPILING_IN_CPYTHON && ((__pyx_freecount_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights < 8) & (Py_TYPE(o)->tp_basicsize == sizeof(struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights)))) {
+    __pyx_freelist_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights[__pyx_freecount_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights++] = ((struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights *)o);
   } else {
     (*Py_TYPE(o)->tp_free)(o);
   }
 }
 
-static int __pyx_tp_traverse_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights *p = (struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights *)o;
+  struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights *p = (struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights *)o;
   if (p->__pyx_v_key) {
     e = (*v)(p->__pyx_v_key, a); if (e) return e;
   }
   return 0;
 }
 
-static int __pyx_tp_clear_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights(PyObject *o) {
+static int __pyx_tp_clear_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights(PyObject *o) {
   PyObject* tmp;
-  struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights *p = (struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights *)o;
+  struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights *p = (struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights *)o;
   tmp = ((PyObject*)p->__pyx_v_key);
   p->__pyx_v_key = Py_None; Py_INCREF(Py_None);
   Py_XDECREF(tmp);
   return 0;
 }
 
-static PyTypeObject __pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights = {
+static PyTypeObject __pyx_type_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights = {
   PyVarObject_HEAD_INIT(0, 0)
-  "describe.libmbtr.cmbtrwrapper.__pyx_scope_struct__get_k2_geoms_and_weights", /*tp_name*/
-  sizeof(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights), /*tp_basicsize*/
+  "dscribe.libmbtr.mbtrwrapper.__pyx_scope_struct__get_k2_geoms_and_weights", /*tp_name*/
+  sizeof(struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights, /*tp_dealloc*/
+  __pyx_tp_dealloc_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights, /*tp_dealloc*/
   0, /*tp_print*/
   0, /*tp_getattr*/
   0, /*tp_setattr*/
@@ -4963,8 +4963,8 @@ static PyTypeObject __pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_str
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   0, /*tp_doc*/
-  __pyx_tp_traverse_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights, /*tp_traverse*/
-  __pyx_tp_clear_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights, /*tp_clear*/
+  __pyx_tp_traverse_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights, /*tp_traverse*/
+  __pyx_tp_clear_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
   0, /*tp_iter*/
@@ -4979,7 +4979,7 @@ static PyTypeObject __pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_str
   0, /*tp_dictoffset*/
   0, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights, /*tp_new*/
+  __pyx_tp_new_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -4994,14 +4994,14 @@ static PyTypeObject __pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_str
   #endif
 };
 
-static struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr *__pyx_freelist_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr[8];
-static int __pyx_freecount_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr = 0;
+static struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr *__pyx_freelist_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr[8];
+static int __pyx_freecount_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr = 0;
 
-static PyObject *__pyx_tp_new_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
+static PyObject *__pyx_tp_new_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
   PyObject *o;
-  if (CYTHON_COMPILING_IN_CPYTHON && likely((__pyx_freecount_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr > 0) & (t->tp_basicsize == sizeof(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr)))) {
-    o = (PyObject*)__pyx_freelist_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr[--__pyx_freecount_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr];
-    memset(o, 0, sizeof(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr));
+  if (CYTHON_COMPILING_IN_CPYTHON && likely((__pyx_freecount_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr > 0) & (t->tp_basicsize == sizeof(struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr)))) {
+    o = (PyObject*)__pyx_freelist_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr[--__pyx_freecount_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr];
+    memset(o, 0, sizeof(struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr));
     (void) PyObject_INIT(o, t);
     PyObject_GC_Track(o);
   } else {
@@ -5011,22 +5011,22 @@ static PyObject *__pyx_tp_new_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_stru
   return o;
 }
 
-static void __pyx_tp_dealloc_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr(PyObject *o) {
-  struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr *p = (struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr *)o;
+static void __pyx_tp_dealloc_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr(PyObject *o) {
+  struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr *p = (struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr *)o;
   PyObject_GC_UnTrack(o);
   Py_CLEAR(p->__pyx_outer_scope);
   Py_CLEAR(p->__pyx_v_x);
   Py_CLEAR(p->__pyx_t_0);
-  if (CYTHON_COMPILING_IN_CPYTHON && ((__pyx_freecount_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr < 8) & (Py_TYPE(o)->tp_basicsize == sizeof(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr)))) {
-    __pyx_freelist_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr[__pyx_freecount_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr++] = ((struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr *)o);
+  if (CYTHON_COMPILING_IN_CPYTHON && ((__pyx_freecount_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr < 8) & (Py_TYPE(o)->tp_basicsize == sizeof(struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr)))) {
+    __pyx_freelist_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr[__pyx_freecount_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr++] = ((struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr *)o);
   } else {
     (*Py_TYPE(o)->tp_free)(o);
   }
 }
 
-static int __pyx_tp_traverse_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr *p = (struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr *)o;
+  struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr *p = (struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr *)o;
   if (p->__pyx_outer_scope) {
     e = (*v)(((PyObject *)p->__pyx_outer_scope), a); if (e) return e;
   }
@@ -5039,12 +5039,12 @@ static int __pyx_tp_traverse_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struc
   return 0;
 }
 
-static PyTypeObject __pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr = {
+static PyTypeObject __pyx_type_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr = {
   PyVarObject_HEAD_INIT(0, 0)
-  "describe.libmbtr.cmbtrwrapper.__pyx_scope_struct_1_genexpr", /*tp_name*/
-  sizeof(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr), /*tp_basicsize*/
+  "dscribe.libmbtr.mbtrwrapper.__pyx_scope_struct_1_genexpr", /*tp_name*/
+  sizeof(struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr, /*tp_dealloc*/
+  __pyx_tp_dealloc_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr, /*tp_dealloc*/
   0, /*tp_print*/
   0, /*tp_getattr*/
   0, /*tp_setattr*/
@@ -5066,7 +5066,7 @@ static PyTypeObject __pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_str
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   0, /*tp_doc*/
-  __pyx_tp_traverse_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr, /*tp_traverse*/
+  __pyx_tp_traverse_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr, /*tp_traverse*/
   0, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
@@ -5082,7 +5082,7 @@ static PyTypeObject __pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_str
   0, /*tp_dictoffset*/
   0, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr, /*tp_new*/
+  __pyx_tp_new_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -5097,14 +5097,14 @@ static PyTypeObject __pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_str
   #endif
 };
 
-static struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights *__pyx_freelist_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights[8];
-static int __pyx_freecount_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights = 0;
+static struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights *__pyx_freelist_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights[8];
+static int __pyx_freecount_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights = 0;
 
-static PyObject *__pyx_tp_new_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
+static PyObject *__pyx_tp_new_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
   PyObject *o;
-  if (CYTHON_COMPILING_IN_CPYTHON && likely((__pyx_freecount_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights > 0) & (t->tp_basicsize == sizeof(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights)))) {
-    o = (PyObject*)__pyx_freelist_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights[--__pyx_freecount_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights];
-    memset(o, 0, sizeof(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights));
+  if (CYTHON_COMPILING_IN_CPYTHON && likely((__pyx_freecount_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights > 0) & (t->tp_basicsize == sizeof(struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights)))) {
+    o = (PyObject*)__pyx_freelist_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights[--__pyx_freecount_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights];
+    memset(o, 0, sizeof(struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights));
     (void) PyObject_INIT(o, t);
     PyObject_GC_Track(o);
   } else {
@@ -5114,41 +5114,41 @@ static PyObject *__pyx_tp_new_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_stru
   return o;
 }
 
-static void __pyx_tp_dealloc_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights(PyObject *o) {
-  struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights *p = (struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights *)o;
+static void __pyx_tp_dealloc_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights(PyObject *o) {
+  struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights *p = (struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights *)o;
   PyObject_GC_UnTrack(o);
   Py_CLEAR(p->__pyx_v_key);
-  if (CYTHON_COMPILING_IN_CPYTHON && ((__pyx_freecount_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights < 8) & (Py_TYPE(o)->tp_basicsize == sizeof(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights)))) {
-    __pyx_freelist_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights[__pyx_freecount_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights++] = ((struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights *)o);
+  if (CYTHON_COMPILING_IN_CPYTHON && ((__pyx_freecount_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights < 8) & (Py_TYPE(o)->tp_basicsize == sizeof(struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights)))) {
+    __pyx_freelist_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights[__pyx_freecount_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights++] = ((struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights *)o);
   } else {
     (*Py_TYPE(o)->tp_free)(o);
   }
 }
 
-static int __pyx_tp_traverse_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights *p = (struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights *)o;
+  struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights *p = (struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights *)o;
   if (p->__pyx_v_key) {
     e = (*v)(p->__pyx_v_key, a); if (e) return e;
   }
   return 0;
 }
 
-static int __pyx_tp_clear_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights(PyObject *o) {
+static int __pyx_tp_clear_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights(PyObject *o) {
   PyObject* tmp;
-  struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights *p = (struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights *)o;
+  struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights *p = (struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights *)o;
   tmp = ((PyObject*)p->__pyx_v_key);
   p->__pyx_v_key = Py_None; Py_INCREF(Py_None);
   Py_XDECREF(tmp);
   return 0;
 }
 
-static PyTypeObject __pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights = {
+static PyTypeObject __pyx_type_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights = {
   PyVarObject_HEAD_INIT(0, 0)
-  "describe.libmbtr.cmbtrwrapper.__pyx_scope_struct_2_get_k3_geoms_and_weights", /*tp_name*/
-  sizeof(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights), /*tp_basicsize*/
+  "dscribe.libmbtr.mbtrwrapper.__pyx_scope_struct_2_get_k3_geoms_and_weights", /*tp_name*/
+  sizeof(struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights, /*tp_dealloc*/
+  __pyx_tp_dealloc_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights, /*tp_dealloc*/
   0, /*tp_print*/
   0, /*tp_getattr*/
   0, /*tp_setattr*/
@@ -5170,8 +5170,8 @@ static PyTypeObject __pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_str
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   0, /*tp_doc*/
-  __pyx_tp_traverse_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights, /*tp_traverse*/
-  __pyx_tp_clear_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights, /*tp_clear*/
+  __pyx_tp_traverse_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights, /*tp_traverse*/
+  __pyx_tp_clear_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
   0, /*tp_iter*/
@@ -5186,7 +5186,7 @@ static PyTypeObject __pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_str
   0, /*tp_dictoffset*/
   0, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights, /*tp_new*/
+  __pyx_tp_new_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -5201,14 +5201,14 @@ static PyTypeObject __pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_str
   #endif
 };
 
-static struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr *__pyx_freelist_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr[8];
-static int __pyx_freecount_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr = 0;
+static struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr *__pyx_freelist_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr[8];
+static int __pyx_freecount_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr = 0;
 
-static PyObject *__pyx_tp_new_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
+static PyObject *__pyx_tp_new_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
   PyObject *o;
-  if (CYTHON_COMPILING_IN_CPYTHON && likely((__pyx_freecount_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr > 0) & (t->tp_basicsize == sizeof(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr)))) {
-    o = (PyObject*)__pyx_freelist_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr[--__pyx_freecount_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr];
-    memset(o, 0, sizeof(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr));
+  if (CYTHON_COMPILING_IN_CPYTHON && likely((__pyx_freecount_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr > 0) & (t->tp_basicsize == sizeof(struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr)))) {
+    o = (PyObject*)__pyx_freelist_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr[--__pyx_freecount_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr];
+    memset(o, 0, sizeof(struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr));
     (void) PyObject_INIT(o, t);
     PyObject_GC_Track(o);
   } else {
@@ -5218,22 +5218,22 @@ static PyObject *__pyx_tp_new_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_stru
   return o;
 }
 
-static void __pyx_tp_dealloc_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr(PyObject *o) {
-  struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr *p = (struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr *)o;
+static void __pyx_tp_dealloc_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr(PyObject *o) {
+  struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr *p = (struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr *)o;
   PyObject_GC_UnTrack(o);
   Py_CLEAR(p->__pyx_outer_scope);
   Py_CLEAR(p->__pyx_v_x);
   Py_CLEAR(p->__pyx_t_0);
-  if (CYTHON_COMPILING_IN_CPYTHON && ((__pyx_freecount_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr < 8) & (Py_TYPE(o)->tp_basicsize == sizeof(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr)))) {
-    __pyx_freelist_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr[__pyx_freecount_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr++] = ((struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr *)o);
+  if (CYTHON_COMPILING_IN_CPYTHON && ((__pyx_freecount_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr < 8) & (Py_TYPE(o)->tp_basicsize == sizeof(struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr)))) {
+    __pyx_freelist_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr[__pyx_freecount_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr++] = ((struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr *)o);
   } else {
     (*Py_TYPE(o)->tp_free)(o);
   }
 }
 
-static int __pyx_tp_traverse_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr *p = (struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr *)o;
+  struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr *p = (struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr *)o;
   if (p->__pyx_outer_scope) {
     e = (*v)(((PyObject *)p->__pyx_outer_scope), a); if (e) return e;
   }
@@ -5246,12 +5246,12 @@ static int __pyx_tp_traverse_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struc
   return 0;
 }
 
-static PyTypeObject __pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr = {
+static PyTypeObject __pyx_type_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr = {
   PyVarObject_HEAD_INIT(0, 0)
-  "describe.libmbtr.cmbtrwrapper.__pyx_scope_struct_3_genexpr", /*tp_name*/
-  sizeof(struct __pyx_obj_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr), /*tp_basicsize*/
+  "dscribe.libmbtr.mbtrwrapper.__pyx_scope_struct_3_genexpr", /*tp_name*/
+  sizeof(struct __pyx_obj_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr, /*tp_dealloc*/
+  __pyx_tp_dealloc_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr, /*tp_dealloc*/
   0, /*tp_print*/
   0, /*tp_getattr*/
   0, /*tp_setattr*/
@@ -5273,7 +5273,7 @@ static PyTypeObject __pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_str
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   0, /*tp_doc*/
-  __pyx_tp_traverse_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr, /*tp_traverse*/
+  __pyx_tp_traverse_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr, /*tp_traverse*/
   0, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
@@ -5289,7 +5289,7 @@ static PyTypeObject __pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_str
   0, /*tp_dictoffset*/
   0, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr, /*tp_new*/
+  __pyx_tp_new_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -5311,17 +5311,17 @@ static PyMethodDef __pyx_methods[] = {
 #if PY_MAJOR_VERSION >= 3
 #if CYTHON_PEP489_MULTI_PHASE_INIT
 static PyObject* __pyx_pymod_create(PyObject *spec, PyModuleDef *def); /*proto*/
-static int __pyx_pymod_exec_cmbtrwrapper(PyObject* module); /*proto*/
+static int __pyx_pymod_exec_mbtrwrapper(PyObject* module); /*proto*/
 static PyModuleDef_Slot __pyx_moduledef_slots[] = {
   {Py_mod_create, (void*)__pyx_pymod_create},
-  {Py_mod_exec, (void*)__pyx_pymod_exec_cmbtrwrapper},
+  {Py_mod_exec, (void*)__pyx_pymod_exec_mbtrwrapper},
   {0, NULL}
 };
 #endif
 
 static struct PyModuleDef __pyx_moduledef = {
     PyModuleDef_HEAD_INIT,
-    "cmbtrwrapper",
+    "mbtrwrapper",
     0, /* m_doc */
   #if CYTHON_PEP489_MULTI_PHASE_INIT
     0, /* m_size */
@@ -5350,7 +5350,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_cline_in_traceback, __pyx_k_cline_in_traceback, sizeof(__pyx_k_cline_in_traceback), 0, 0, 1, 1},
   {&__pyx_n_s_close, __pyx_k_close, sizeof(__pyx_k_close), 0, 0, 1, 1},
   {&__pyx_n_s_decode, __pyx_k_decode, sizeof(__pyx_k_decode), 0, 0, 1, 1},
-  {&__pyx_n_s_describe_libmbtr_cmbtrwrapper, __pyx_k_describe_libmbtr_cmbtrwrapper, sizeof(__pyx_k_describe_libmbtr_cmbtrwrapper), 0, 0, 1, 1},
+  {&__pyx_n_s_dscribe_libmbtr_mbtrwrapper, __pyx_k_dscribe_libmbtr_mbtrwrapper, sizeof(__pyx_k_dscribe_libmbtr_mbtrwrapper), 0, 0, 1, 1},
   {&__pyx_n_s_dtype, __pyx_k_dtype, sizeof(__pyx_k_dtype), 0, 0, 1, 1},
   {&__pyx_n_s_float32, __pyx_k_float32, sizeof(__pyx_k_float32), 0, 0, 1, 1},
   {&__pyx_n_s_genexpr, __pyx_k_genexpr, sizeof(__pyx_k_genexpr), 0, 0, 1, 1},
@@ -5396,7 +5396,7 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":33
+  /* "dscribe/libmbtr/mbtrwrapper.pyx":33
  * 
  *         for key, value in geom_map.items():
  *             new_key = tuple([int(key.decode("utf-8"))])             # <<<<<<<<<<<<<<
@@ -5407,7 +5407,7 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple_);
   __Pyx_GIVEREF(__pyx_tuple_);
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":48
+  /* "dscribe/libmbtr/mbtrwrapper.pyx":48
  * 
  *         for key, value in geom_map.items():
  *             new_key = tuple(int(x) for x in key.decode("utf-8").split(","))             # <<<<<<<<<<<<<<
@@ -5421,7 +5421,7 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__4);
   __Pyx_GIVEREF(__pyx_tuple__4);
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":63
+  /* "dscribe/libmbtr/mbtrwrapper.pyx":63
  * 
  *         for key, value in geom_map.items():
  *             new_key = tuple(int(x) for x in key.decode("utf-8").split(","))             # <<<<<<<<<<<<<<
@@ -5503,38 +5503,38 @@ static int __Pyx_modinit_type_init_code(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_modinit_type_init_code", 0);
   /*--- Type init code ---*/
-  if (PyType_Ready(&__pyx_type_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper) < 0) __PYX_ERR(1, 9, __pyx_L1_error)
-  __pyx_type_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper.tp_print = 0;
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper.tp_dictoffset && __pyx_type_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper.tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_type_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper.tp_getattro = __Pyx_PyObject_GenericGetAttr;
+  if (PyType_Ready(&__pyx_type_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper) < 0) __PYX_ERR(1, 9, __pyx_L1_error)
+  __pyx_type_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper.tp_print = 0;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper.tp_dictoffset && __pyx_type_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper.tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_type_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (PyObject_SetAttrString(__pyx_m, "CMBTRWrapper", (PyObject *)&__pyx_type_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper) < 0) __PYX_ERR(1, 9, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper) < 0) __PYX_ERR(1, 9, __pyx_L1_error)
-  __pyx_ptype_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper = &__pyx_type_8describe_7libmbtr_12cmbtrwrapper_CMBTRWrapper;
-  if (PyType_Ready(&__pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights) < 0) __PYX_ERR(1, 39, __pyx_L1_error)
-  __pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights.tp_print = 0;
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights.tp_dictoffset && __pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights.tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights.tp_getattro = __Pyx_PyObject_GenericGetAttrNoDict;
+  if (PyObject_SetAttrString(__pyx_m, "MBTRWrapper", (PyObject *)&__pyx_type_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper) < 0) __PYX_ERR(1, 9, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper) < 0) __PYX_ERR(1, 9, __pyx_L1_error)
+  __pyx_ptype_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper = &__pyx_type_7dscribe_7libmbtr_11mbtrwrapper_MBTRWrapper;
+  if (PyType_Ready(&__pyx_type_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights) < 0) __PYX_ERR(1, 39, __pyx_L1_error)
+  __pyx_type_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights.tp_print = 0;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights.tp_dictoffset && __pyx_type_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights.tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_type_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights.tp_getattro = __Pyx_PyObject_GenericGetAttrNoDict;
   }
-  __pyx_ptype_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights = &__pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights;
-  if (PyType_Ready(&__pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr) < 0) __PYX_ERR(1, 48, __pyx_L1_error)
-  __pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr.tp_print = 0;
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr.tp_dictoffset && __pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr.tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr.tp_getattro = __Pyx_PyObject_GenericGetAttrNoDict;
+  __pyx_ptype_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights = &__pyx_type_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct__get_k2_geoms_and_weights;
+  if (PyType_Ready(&__pyx_type_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr) < 0) __PYX_ERR(1, 48, __pyx_L1_error)
+  __pyx_type_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr.tp_print = 0;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr.tp_dictoffset && __pyx_type_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr.tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_type_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr.tp_getattro = __Pyx_PyObject_GenericGetAttrNoDict;
   }
-  __pyx_ptype_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr = &__pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_1_genexpr;
-  if (PyType_Ready(&__pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights) < 0) __PYX_ERR(1, 54, __pyx_L1_error)
-  __pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights.tp_print = 0;
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights.tp_dictoffset && __pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights.tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights.tp_getattro = __Pyx_PyObject_GenericGetAttrNoDict;
+  __pyx_ptype_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr = &__pyx_type_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_1_genexpr;
+  if (PyType_Ready(&__pyx_type_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights) < 0) __PYX_ERR(1, 54, __pyx_L1_error)
+  __pyx_type_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights.tp_print = 0;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights.tp_dictoffset && __pyx_type_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights.tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_type_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights.tp_getattro = __Pyx_PyObject_GenericGetAttrNoDict;
   }
-  __pyx_ptype_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights = &__pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights;
-  if (PyType_Ready(&__pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr) < 0) __PYX_ERR(1, 63, __pyx_L1_error)
-  __pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr.tp_print = 0;
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr.tp_dictoffset && __pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr.tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr.tp_getattro = __Pyx_PyObject_GenericGetAttrNoDict;
+  __pyx_ptype_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights = &__pyx_type_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_2_get_k3_geoms_and_weights;
+  if (PyType_Ready(&__pyx_type_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr) < 0) __PYX_ERR(1, 63, __pyx_L1_error)
+  __pyx_type_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr.tp_print = 0;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr.tp_dictoffset && __pyx_type_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr.tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_type_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr.tp_getattro = __Pyx_PyObject_GenericGetAttrNoDict;
   }
-  __pyx_ptype_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr = &__pyx_type_8describe_7libmbtr_12cmbtrwrapper___pyx_scope_struct_3_genexpr;
+  __pyx_ptype_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr = &__pyx_type_7dscribe_7libmbtr_11mbtrwrapper___pyx_scope_struct_3_genexpr;
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -5592,11 +5592,11 @@ static int __Pyx_modinit_function_import_code(void) {
 
 
 #if PY_MAJOR_VERSION < 3
-__Pyx_PyMODINIT_FUNC initcmbtrwrapper(void) CYTHON_SMALL_CODE; /*proto*/
-__Pyx_PyMODINIT_FUNC initcmbtrwrapper(void)
+__Pyx_PyMODINIT_FUNC initmbtrwrapper(void) CYTHON_SMALL_CODE; /*proto*/
+__Pyx_PyMODINIT_FUNC initmbtrwrapper(void)
 #else
-__Pyx_PyMODINIT_FUNC PyInit_cmbtrwrapper(void) CYTHON_SMALL_CODE; /*proto*/
-__Pyx_PyMODINIT_FUNC PyInit_cmbtrwrapper(void)
+__Pyx_PyMODINIT_FUNC PyInit_mbtrwrapper(void) CYTHON_SMALL_CODE; /*proto*/
+__Pyx_PyMODINIT_FUNC PyInit_mbtrwrapper(void)
 #if CYTHON_PEP489_MULTI_PHASE_INIT
 {
   return PyModuleDef_Init(&__pyx_moduledef);
@@ -5636,7 +5636,7 @@ bad:
 }
 
 
-static int __pyx_pymod_exec_cmbtrwrapper(PyObject *__pyx_pyinit_module)
+static int __pyx_pymod_exec_mbtrwrapper(PyObject *__pyx_pyinit_module)
 #endif
 #endif
 {
@@ -5656,7 +5656,7 @@ if (!__Pyx_RefNanny) {
       Py_FatalError("failed to import 'refnanny' module");
 }
 #endif
-  __Pyx_RefNannySetupContext("__Pyx_PyMODINIT_FUNC PyInit_cmbtrwrapper(void)", 0);
+  __Pyx_RefNannySetupContext("__Pyx_PyMODINIT_FUNC PyInit_mbtrwrapper(void)", 0);
   if (__Pyx_check_binary_version() < 0) __PYX_ERR(1, 1, __pyx_L1_error)
   __pyx_empty_tuple = PyTuple_New(0); if (unlikely(!__pyx_empty_tuple)) __PYX_ERR(1, 1, __pyx_L1_error)
   __pyx_empty_bytes = PyBytes_FromStringAndSize("", 0); if (unlikely(!__pyx_empty_bytes)) __PYX_ERR(1, 1, __pyx_L1_error)
@@ -5692,7 +5692,7 @@ if (!__Pyx_RefNanny) {
   Py_INCREF(__pyx_m);
   #else
   #if PY_MAJOR_VERSION < 3
-  __pyx_m = Py_InitModule4("cmbtrwrapper", __pyx_methods, 0, 0, PYTHON_API_VERSION); Py_XINCREF(__pyx_m);
+  __pyx_m = Py_InitModule4("mbtrwrapper", __pyx_methods, 0, 0, PYTHON_API_VERSION); Py_XINCREF(__pyx_m);
   #else
   __pyx_m = PyModule_Create(&__pyx_moduledef);
   #endif
@@ -5711,14 +5711,14 @@ if (!__Pyx_RefNanny) {
   #if PY_MAJOR_VERSION < 3 && (__PYX_DEFAULT_STRING_ENCODING_IS_ASCII || __PYX_DEFAULT_STRING_ENCODING_IS_DEFAULT)
   if (__Pyx_init_sys_getdefaultencoding_params() < 0) __PYX_ERR(1, 1, __pyx_L1_error)
   #endif
-  if (__pyx_module_is_main_describe__libmbtr__cmbtrwrapper) {
+  if (__pyx_module_is_main_dscribe__libmbtr__mbtrwrapper) {
     if (PyObject_SetAttrString(__pyx_m, "__name__", __pyx_n_s_main) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
   }
   #if PY_MAJOR_VERSION >= 3
   {
     PyObject *modules = PyImport_GetModuleDict(); if (unlikely(!modules)) __PYX_ERR(1, 1, __pyx_L1_error)
-    if (!PyDict_GetItemString(modules, "describe.libmbtr.cmbtrwrapper")) {
-      if (unlikely(PyDict_SetItemString(modules, "describe.libmbtr.cmbtrwrapper", __pyx_m) < 0)) __PYX_ERR(1, 1, __pyx_L1_error)
+    if (!PyDict_GetItemString(modules, "dscribe.libmbtr.mbtrwrapper")) {
+      if (unlikely(PyDict_SetItemString(modules, "dscribe.libmbtr.mbtrwrapper", __pyx_m) < 0)) __PYX_ERR(1, 1, __pyx_L1_error)
     }
   }
   #endif
@@ -5739,7 +5739,7 @@ if (!__Pyx_RefNanny) {
   if (__Pyx_patch_abc() < 0) __PYX_ERR(1, 1, __pyx_L1_error)
   #endif
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":3
+  /* "dscribe/libmbtr/mbtrwrapper.pyx":3
  * # distutils: language = c++
  * 
  * import numpy as np             # <<<<<<<<<<<<<<
@@ -5751,7 +5751,7 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_np, __pyx_t_1) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "describe/libmbtr/cmbtrwrapper.pyx":1
+  /* "dscribe/libmbtr/mbtrwrapper.pyx":1
  * # distutils: language = c++             # <<<<<<<<<<<<<<
  * 
  * import numpy as np
@@ -5776,11 +5776,11 @@ if (!__Pyx_RefNanny) {
   __Pyx_XDECREF(__pyx_t_1);
   if (__pyx_m) {
     if (__pyx_d) {
-      __Pyx_AddTraceback("init describe.libmbtr.cmbtrwrapper", 0, __pyx_lineno, __pyx_filename);
+      __Pyx_AddTraceback("init dscribe.libmbtr.mbtrwrapper", 0, __pyx_lineno, __pyx_filename);
     }
     Py_DECREF(__pyx_m); __pyx_m = 0;
   } else if (!PyErr_Occurred()) {
-    PyErr_SetString(PyExc_ImportError, "init describe.libmbtr.cmbtrwrapper");
+    PyErr_SetString(PyExc_ImportError, "init dscribe.libmbtr.mbtrwrapper");
   }
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();

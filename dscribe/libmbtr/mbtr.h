@@ -1,5 +1,5 @@
-#ifndef CMBTR_H
-#define CMBTR_H
+#ifndef MBTR_H
+#define MBTR_H
 
 using namespace std;
 
@@ -57,13 +57,13 @@ struct index3d {
 /**
  * Implementation for the performance-critical parts of MBTR.
  */
-class CMBTR {
+class MBTR {
 
     public:
         /**
          * Default constructor
          */
-        CMBTR() {};
+        MBTR() {};
 
         /**
          * Constructor
@@ -77,7 +77,7 @@ class CMBTR {
          * interacting with other atoms.
          * @param local Whether a local or a global MBTR is calculated.
          */
-        CMBTR(vector<vector<float> > positions, vector<int> atomicNumbers, map<int,int> atomicNumberToIndexMap, int interactionLimit, bool local=false);
+        MBTR(vector<vector<float> > positions, vector<int> atomicNumbers, map<int,int> atomicNumberToIndexMap, int interactionLimit, bool local=false);
 
         /**
          * Returns a list of 1D indices for the atom combinations that need to

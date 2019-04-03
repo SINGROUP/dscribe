@@ -1,4 +1,4 @@
-#include "cmbtr.h"
+#include "mbtr.h"
 #include <vector>
 #include <map>
 #include <tuple>
@@ -12,7 +12,7 @@
 #include <stdexcept>
 using namespace std;
 
-CMBTR::CMBTR(vector<vector<float> > positions, vector<int> atomicNumbers, map<int,int> atomicNumberToIndexMap, int interactionLimit, bool isLocal)
+MBTR::MBTR(vector<vector<float> > positions, vector<int> atomicNumbers, map<int,int> atomicNumberToIndexMap, int interactionLimit, bool isLocal)
     : positions(positions)
     , atomicNumbers(atomicNumbers)
     , atomicNumberToIndexMap(atomicNumberToIndexMap)
@@ -28,7 +28,7 @@ CMBTR::CMBTR(vector<vector<float> > positions, vector<int> atomicNumbers, map<in
 {
 }
 
-vector<vector<vector<float> > > CMBTR::getDisplacementTensor()
+vector<vector<vector<float> > > MBTR::getDisplacementTensor()
 {
     // Use cached value if possible
     if (!this->displacementTensorInitialized) {
@@ -67,7 +67,7 @@ vector<vector<vector<float> > > CMBTR::getDisplacementTensor()
     }
     return this->displacementTensor;
 }
-vector<vector<float> > CMBTR::getDistanceMatrix()
+vector<vector<float> > MBTR::getDistanceMatrix()
 {
     int nAtoms = this->atomicNumbers.size();
 
@@ -100,7 +100,7 @@ vector<vector<float> > CMBTR::getDistanceMatrix()
     return distanceMatrix;
 }
 
-vector<index1d> CMBTR::getk1Indices()
+vector<index1d> MBTR::getk1Indices()
 {
     // Use cached value if possible
     if (!this->k1IndicesInitialized) {
@@ -124,7 +124,7 @@ vector<index1d> CMBTR::getk1Indices()
     return this->k1Indices;
 }
 
-vector<index2d> CMBTR::getk2Indices()
+vector<index2d> MBTR::getk2Indices()
 {
     // Use cached value if possible
     if (!this->k2IndicesInitialized) {
@@ -155,7 +155,7 @@ vector<index2d> CMBTR::getk2Indices()
     return this->k2Indices;
 }
 
-vector<index3d> CMBTR::getk3Indices()
+vector<index3d> MBTR::getk3Indices()
 {
     // Use cached value if possible
     if (!this->k3IndicesInitialized) {
@@ -193,7 +193,7 @@ vector<index3d> CMBTR::getk3Indices()
     return this->k3Indices;
 }
 
-map<index1d, float> CMBTR::k1GeomAtomicNumber(const vector<index1d> &indexList)
+map<index1d, float> MBTR::k1GeomAtomicNumber(const vector<index1d> &indexList)
 {
     map<index1d,float> valueMap;
     for (const index1d& index : indexList) {
@@ -205,7 +205,7 @@ map<index1d, float> CMBTR::k1GeomAtomicNumber(const vector<index1d> &indexList)
     return valueMap;
 }
 
-map<index2d, float> CMBTR::k2GeomInverseDistance(const vector<index2d> &indexList)
+map<index2d, float> MBTR::k2GeomInverseDistance(const vector<index2d> &indexList)
 {
     vector<vector<float> > distMatrix = this->getDistanceMatrix();
 
@@ -221,7 +221,7 @@ map<index2d, float> CMBTR::k2GeomInverseDistance(const vector<index2d> &indexLis
     return valueMap;
 }
 
-map<index3d, float> CMBTR::k3GeomCosine(const vector<index3d> &indexList)
+map<index3d, float> MBTR::k3GeomCosine(const vector<index3d> &indexList)
 {
     vector<vector<float> > distMatrix = this->getDistanceMatrix();
     vector<vector<vector<float> > > dispTensor = this->getDisplacementTensor();
@@ -242,7 +242,7 @@ map<index3d, float> CMBTR::k3GeomCosine(const vector<index3d> &indexList)
     return valueMap;
 }
 
-map<index1d, float> CMBTR::k1WeightUnity(const vector<index1d> &indexList)
+map<index1d, float> MBTR::k1WeightUnity(const vector<index1d> &indexList)
 {
     map<index1d, float> valueMap;
 
@@ -253,7 +253,7 @@ map<index1d, float> CMBTR::k1WeightUnity(const vector<index1d> &indexList)
     return valueMap;
 }
 
-map<index2d, float> CMBTR::k2WeightUnity(const vector<index2d> &indexList)
+map<index2d, float> MBTR::k2WeightUnity(const vector<index2d> &indexList)
 {
     map<index2d, float> valueMap;
 
@@ -264,7 +264,7 @@ map<index2d, float> CMBTR::k2WeightUnity(const vector<index2d> &indexList)
     return valueMap;
 }
 
-map<index3d, float> CMBTR::k3WeightUnity(const vector<index3d> &indexList)
+map<index3d, float> MBTR::k3WeightUnity(const vector<index3d> &indexList)
 {
     map<index3d, float> valueMap;
 
@@ -275,7 +275,7 @@ map<index3d, float> CMBTR::k3WeightUnity(const vector<index3d> &indexList)
     return valueMap;
 }
 
-map<index2d, float> CMBTR::k2WeightExponential(const vector<index2d> &indexList, float scale, float cutoff)
+map<index2d, float> MBTR::k2WeightExponential(const vector<index2d> &indexList, float scale, float cutoff)
 {
     vector<vector<float> > distMatrix = this->getDistanceMatrix();
     map<index2d, float> valueMap;
@@ -294,7 +294,7 @@ map<index2d, float> CMBTR::k2WeightExponential(const vector<index2d> &indexList,
     return valueMap;
 }
 
-map<index3d, float> CMBTR::k3WeightExponential(const vector<index3d> &indexList, float scale, float cutoff)
+map<index3d, float> MBTR::k3WeightExponential(const vector<index3d> &indexList, float scale, float cutoff)
 {
     vector<vector<float> > distMatrix = this->getDistanceMatrix();
     map<index3d, float> valueMap;
@@ -317,7 +317,7 @@ map<index3d, float> CMBTR::k3WeightExponential(const vector<index3d> &indexList,
     return valueMap;
 }
 
-pair<map<index1d, vector<float> >, map<index1d,vector<float> > > CMBTR::getK1GeomsAndWeights(string geomFunc, string weightFunc, map<string, float> parameters)
+pair<map<index1d, vector<float> >, map<index1d,vector<float> > > MBTR::getK1GeomsAndWeights(string geomFunc, string weightFunc, map<string, float> parameters)
 {
     // Use cached value if possible
     if (!this->k1IndicesInitialized) {
@@ -376,7 +376,7 @@ pair<map<index1d, vector<float> >, map<index1d,vector<float> > > CMBTR::getK1Geo
     return this->k1Map;
 }
 
-pair<map<index2d, vector<float> >, map<index2d,vector<float> > > CMBTR::getK2GeomsAndWeights(string geomFunc, string weightFunc, map<string, float> parameters)
+pair<map<index2d, vector<float> >, map<index2d,vector<float> > > MBTR::getK2GeomsAndWeights(string geomFunc, string weightFunc, map<string, float> parameters)
 {
     // Use cached value if possible
     if (!this->k2IndicesInitialized) {
@@ -460,7 +460,7 @@ pair<map<index2d, vector<float> >, map<index2d,vector<float> > > CMBTR::getK2Geo
     return this->k2Map;
 }
 
-pair<map<index3d, vector<float> >, map<index3d,vector<float> > > CMBTR::getK3GeomsAndWeights(string geomFunc, string weightFunc, map<string, float> parameters)
+pair<map<index3d, vector<float> >, map<index3d,vector<float> > > MBTR::getK3GeomsAndWeights(string geomFunc, string weightFunc, map<string, float> parameters)
 {
     // Use cached value if possible
     if (!this->k3IndicesInitialized) {
@@ -547,7 +547,7 @@ pair<map<index3d, vector<float> >, map<index3d,vector<float> > > CMBTR::getK3Geo
     return this->k3Map;
 }
 
-pair<map<string,vector<float> >, map<string,vector<float> > > CMBTR::getK1GeomsAndWeightsCython(string geomFunc, string weightFunc, map<string, float> parameters)
+pair<map<string,vector<float> >, map<string,vector<float> > > MBTR::getK1GeomsAndWeightsCython(string geomFunc, string weightFunc, map<string, float> parameters)
 {
     pair<map<index1d,vector<float> >, map<index1d,vector<float> > > cMap = this->getK1GeomsAndWeights(geomFunc, weightFunc, parameters);
     map<index1d, vector<float> > geomValues = cMap.first;
@@ -566,7 +566,7 @@ pair<map<string,vector<float> >, map<string,vector<float> > > CMBTR::getK1GeomsA
     return make_pair(cythonGeom, cythonWeight);
 }
 
-pair<map<string,vector<float> >, map<string,vector<float> > > CMBTR::getK2GeomsAndWeightsCython(string geomFunc, string weightFunc, map<string, float> parameters)
+pair<map<string,vector<float> >, map<string,vector<float> > > MBTR::getK2GeomsAndWeightsCython(string geomFunc, string weightFunc, map<string, float> parameters)
 {
     pair<map<index2d,vector<float> >, map<index2d,vector<float> > > cMap = this->getK2GeomsAndWeights(geomFunc, weightFunc, parameters);
     map<index2d, vector<float> > geomValues = cMap.first;
@@ -587,7 +587,7 @@ pair<map<string,vector<float> >, map<string,vector<float> > > CMBTR::getK2GeomsA
     return make_pair(cythonGeom, cythonWeight);
 }
 
-pair<map<string,vector<float> >, map<string,vector<float> > > CMBTR::getK3GeomsAndWeightsCython(string geomFunc, string weightFunc, map<string, float> parameters)
+pair<map<string,vector<float> >, map<string,vector<float> > > MBTR::getK3GeomsAndWeightsCython(string geomFunc, string weightFunc, map<string, float> parameters)
 {
     pair<map<index3d,vector<float> >, map<index3d,vector<float> > > cMap = this->getK3GeomsAndWeights(geomFunc, weightFunc, parameters);
     map<index3d, vector<float> > geomValues = cMap.first;
