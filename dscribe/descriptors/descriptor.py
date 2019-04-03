@@ -142,7 +142,7 @@ class Descriptor(with_metaclass(ABCMeta)):
                 .format(zs.difference(self._atomic_number_set))
             )
 
-    def create_parallel(self, inp, func, n_jobs, output_sizes=None, verbose=False, backend="loky"):
+    def create_parallel(self, inp, func, n_jobs, output_sizes=None, verbose=False, backend="multiprocessing"):
         """Used to parallelize the descriptor creation across multiple systems.
 
         Args:
@@ -180,7 +180,7 @@ class Descriptor(with_metaclass(ABCMeta)):
             setup.
         """
         # Check backend
-        valid_backends = set(("loky", "threading"))
+        valid_backends = set(("multiprocessing", "threading"))
         if backend not in valid_backends:
             raise ValueError(
                 "Invalid parallelization backend '{}' provided. Use one of the "
@@ -246,7 +246,14 @@ class Descriptor(with_metaclass(ABCMeta)):
 
             return (results, index)
 
-        with parallel_backend(backend, n_jobs=n_jobs):
+        # We use the loky-backend provided by joblib because it allows proper
+        # serialization of member functions.
+        if backend == "multiprocessing":
+            joblib_backend = "loky"
+        else:
+            joblib_backend = backend
+
+        with parallel_backend(joblib_backend, n_jobs=n_jobs):
             vec_lists = Parallel()(delayed(create_multiple)(i_args, func, is_sparse, n_features, n_desc, index, verbose) for index, (i_args, n_desc) in enumerate(zip(jobs, output_sizes)))
 
         # When using the threading backend the order has to be explicitly
