@@ -78,7 +78,7 @@ class ACSF(Descriptor):
         self.rcut = rcut
 
     def create(self, system, positions=None, n_jobs=1, verbose=False, backend="threading"):
-        """Return the SOAP output for the given systems and given positions.
+        """Return the ACSF output for the given systems and given positions.
 
         Args:
             system (single or multiple class:`ase.Atoms`): One or many atomic structures.
@@ -98,12 +98,11 @@ class ACSF(Descriptor):
                 to console.
 
         Returns:
-            np.ndarray | scipy.sparse.csr_matrix: The SOAP output for the given
+            np.ndarray | scipy.sparse.csr_matrix: The ACSF output for the given
             systems and positions. The return type depends on the
             'sparse'-attribute. The first dimension is determined by the amount
             of positions and systems and the second dimension is determined by
-            the get_number_of_features()-function. The output is ordered so
-            that it contains the positions for each given system i
+            the get_number_of_features()-function.
         """
         # If single system given, skip the parallelization
         if isinstance(system, (Atoms, System)):

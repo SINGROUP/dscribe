@@ -90,9 +90,8 @@ class EwaldMatrix(MatrixDescriptor):
             np.ndarray | scipy.sparse.csr_matrix: The Coulomb matrix output for
             the given systems. The return type depends on the
             'sparse'-attribute. The first dimension is determined by the amount
-            of positions and systems and the second dimension is determined by
-            the get_number_of_features()-function. The output is ordered so
-            that it contains the positions for each given system i
+            of systems and the second dimension is determined by the
+            get_number_of_features()-function.
         """
         # If single system given, skip the parallelization
         if isinstance(system, (Atoms, System)):

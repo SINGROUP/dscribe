@@ -147,23 +147,28 @@ class SOAP(Descriptor):
             systems and positions. The return type depends on the
             'sparse'-attribute. The first dimension is determined by the amount
             of positions and systems and the second dimension is determined by
-            the get_number_of_features()-function. The output is ordered so
-            that it contains the positions for each given system i
+            the get_number_of_features()-function.
         """
         # If single system given, skip the parallelization
         if isinstance(system, (Atoms, System)):
             return self.create_single(system, positions)
 
         # Combine input arguments
+        n_samples = len(system)
         if positions is None:
             inp = [(i_sys,) for i_sys in system]
         else:
+            n_pos = len(positions)
+            if n_pos != n_samples:
+                raise ValueError(
+                    "The given number of positions does not match the given"
+                    "number os systems."
+                )
             inp = list(zip(system, positions))
 
         # For SOAP the output size for each job depends on the exact arguments.
         # Here we precalculate the size for each job to preallocate memory and
         # make the process faster.
-        n_samples = len(system)
         k, m = divmod(n_samples, n_jobs)
         jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
         output_sizes = []
