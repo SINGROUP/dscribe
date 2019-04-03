@@ -377,7 +377,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         )
         n_features = desc.get_number_of_features()
 
-        # Test when position given as indices
+        # Test multiple systems
         output = desc.create(
             system=samples,
             n_jobs=2,

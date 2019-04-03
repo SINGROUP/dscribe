@@ -8,6 +8,7 @@ import unittest
 from dscribe.descriptors import EwaldMatrix
 
 from ase import Atoms
+from ase.build import bulk
 
 import scipy.constants
 import scipy.sparse
@@ -95,6 +96,41 @@ class EwaldMatrixTests(TestBaseClass, unittest.TestCase):
         desc = EwaldMatrix(n_atoms_max=5, permutation="none", flatten=True, sparse=True)
         vec = desc.create(H2O)
         self.assertTrue(type(vec) == scipy.sparse.coo_matrix)
+
+    def test_parallel_dense(self):
+        """Tests creating dense output parallelly.
+        """
+        samples = [bulk("NaCl", "rocksalt", a=5.64), bulk('Cu', 'fcc', a=3.6)]
+        desc = EwaldMatrix(n_atoms_max=5, permutation="none", flatten=True, sparse=False)
+        n_features = desc.get_number_of_features()
+
+        # Test multiple systems
+        output = desc.create(
+            system=samples,
+            n_jobs=2,
+        )
+        assumed = np.empty((2, n_features))
+        assumed[0, :] = desc.create(samples[0])
+        assumed[1, :] = desc.create(samples[1])
+        self.assertTrue(np.allclose(output, assumed))
+
+    def test_parallel_sparse(self):
+        """Tests creating sparse output parallelly.
+        """
+        # Test indices
+        samples = [bulk("NaCl", "rocksalt", a=5.64), bulk('Cu', 'fcc', a=3.6)]
+        desc = EwaldMatrix(n_atoms_max=5, permutation="none", flatten=True, sparse=True)
+        n_features = desc.get_number_of_features()
+
+        # Test when position given as indices
+        output = desc.create(
+            system=samples,
+            n_jobs=2,
+        ).toarray()
+        assumed = np.empty((2, n_features))
+        assumed[0, :] = desc.create(samples[0]).toarray()
+        assumed[1, :] = desc.create(samples[1]).toarray()
+        self.assertTrue(np.allclose(output, assumed))
 
     def test_a_independence(self):
         """Tests that the matrix elements are independent of the screening

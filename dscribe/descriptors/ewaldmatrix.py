@@ -4,8 +4,11 @@ import math
 
 import numpy as np
 
+from ase import Atoms
+
 from scipy.special import erfc
 
+from dscribe.core import System
 from dscribe.descriptors.matrixdescriptor import MatrixDescriptor
 from dscribe.core.lattice import Lattice
 
@@ -46,7 +49,80 @@ class EwaldMatrix(MatrixDescriptor):
         https://doi.org/10.1080/08927022.2013.840898
         "
     """
-    def create(self, system, accuracy=1e-5, w=1, rcut=None, gcut=None, a=None):
+    def create(self, system, accuracy=1e-5, w=1, rcut=None, gcut=None, a=None, n_jobs=1, verbose=False, backend="multiprocessing"):
+        """Return the Coulomb matrix for the given systems.
+
+        Args:
+            system (single or multiple class:`ase.Atoms`): One or many atomic structures.
+            accuracy (float): The accuracy to which the sum is converged to.
+                Corresponds to the variable :math`A` in
+                https://doi.org/10.1080/08927022.2013.840898. Used only if
+                gcut, rcut and a have not been specified. Provide either one
+                value or a list of values for each system.
+            w (float): Weight parameter that represents the relative
+                computational expense of calculating a term in real and
+                reciprocal space. This has little effect on the total energy,
+                but may influence speed of computation in large systems. Note
+                that this parameter is used only when the cutoffs and a are set
+                to None. Provide either one value or a list of values for each
+                system.
+            rcut (float): Real space cutoff radius dictating how many terms are
+                used in the real space sum. Provide either one value or a list
+                of values for each system.
+            gcut (float): Reciprocal space cutoff radius. Provide either one
+                value or a list of values for each system.
+            a (float): The screening parameter that controls the width of the
+                Gaussians. Corresponds to the standard deviation of the
+                Gaussians. Provide either one value or a list of values for
+                each system.
+            n_jobs (int): Number of parallel jobs to instantiate. Can be only
+                used if multiple samples are provided. Defaults to serial
+                calculation with n_jobs=1.
+            backend (str): The parallelization method as defined by joblib.
+                The calculation utilizes numpy extensively and the Global
+                Interpreter Lock (GIL) is released for most of the computation
+                making threading usually a good option. See joblib documentation
+                for details.
+            verbose (bool): Controls whether to print the progress of the jobs
+                to console.
+
+        Returns:
+            np.ndarray | scipy.sparse.csr_matrix: The Coulomb matrix output for
+            the given systems. The return type depends on the
+            'sparse'-attribute. The first dimension is determined by the amount
+            of positions and systems and the second dimension is determined by
+            the get_number_of_features()-function. The output is ordered so
+            that it contains the positions for each given system i
+        """
+        # If single system given, skip the parallelization
+        if isinstance(system, (Atoms, System)):
+            return self.create_single(system, accuracy, w, rcut, gcut, a)
+
+        # Combine input arguments
+        n_samples = len(system)
+        if np.ndim(accuracy) == 0:
+            accuracy = n_samples*[accuracy]
+        if np.ndim(w) == 0:
+            w = n_samples*[w]
+        if np.ndim(rcut) == 0:
+            rcut = n_samples*[rcut]
+        if np.ndim(gcut) == 0:
+            gcut = n_samples*[gcut]
+        if np.ndim(a) == 0:
+            a = n_samples*[a]
+        inp = [(i_sys, i_accuracy, i_w, i_rcut, i_gcut, i_a) for i_sys, i_accuracy, i_w, i_rcut, i_gcut, i_a in zip(system, accuracy, w, rcut, gcut, a)]
+
+        # Here we precalculate the size for each job to preallocate memory.
+        k, m = divmod(n_samples, n_jobs)
+        jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
+        output_sizes = [len(job) for job in jobs]
+
+        # Create in parallel
+        output = self.create_parallel(inp, self.create_single, n_jobs, output_sizes, backend=backend)
+
+        return output
+
+    def create_single(self, system, accuracy=1e-5, w=1, rcut=None, gcut=None, a=None):
         """
         Args:
             system (:class:`ase.Atoms` | :class:`.System`): Input system.
@@ -94,7 +170,7 @@ class EwaldMatrix(MatrixDescriptor):
         self.gcut = gcut
         self.rcut = rcut
 
-        return super().create(system)
+        return super().create_single(system)
 
     def get_matrix(self, system):
         """
