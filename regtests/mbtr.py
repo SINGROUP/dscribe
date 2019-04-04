@@ -338,7 +338,17 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         )
         n_features = desc.get_number_of_features()
 
-        # Test multiple systems
+        # Multiple systems, serial job
+        output = desc.create(
+            system=samples,
+            n_jobs=1,
+        )
+        assumed = np.empty((2, n_features))
+        assumed[0, :] = desc.create(samples[0])
+        assumed[1, :] = desc.create(samples[1])
+        self.assertTrue(np.allclose(output, assumed))
+
+        # Multiple systems, parallel job
         output = desc.create(
             system=samples,
             n_jobs=2,
@@ -377,7 +387,17 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         )
         n_features = desc.get_number_of_features()
 
-        # Test multiple systems
+        # Multiple systems, serial job
+        output = desc.create(
+            system=samples,
+            n_jobs=1,
+        ).toarray()
+        assumed = np.empty((2, n_features))
+        assumed[0, :] = desc.create(samples[0]).toarray()
+        assumed[1, :] = desc.create(samples[1]).toarray()
+        self.assertTrue(np.allclose(output, assumed))
+
+        # Multiple systems, parallel job
         output = desc.create(
             system=samples,
             n_jobs=2,

@@ -9,7 +9,7 @@ from ase import Atoms
 from dscribe.core.system import System
 from dscribe.utils.species import get_atomic_numbers
 
-from joblib import Parallel, delayed, parallel_backend
+from joblib import Parallel, delayed
 
 
 class Descriptor(with_metaclass(ABCMeta)):
@@ -142,7 +142,7 @@ class Descriptor(with_metaclass(ABCMeta)):
                 .format(zs.difference(self._atomic_number_set))
             )
 
-    def create_parallel(self, inp, func, n_jobs, output_sizes=None, verbose=False, backend="multiprocessing"):
+    def create_parallel(self, inp, func, n_jobs, output_sizes=None, verbose=False, prefer="processes"):
         """Used to parallelize the descriptor creation across multiple systems.
 
         Args:
@@ -162,38 +162,29 @@ class Descriptor(with_metaclass(ABCMeta)):
                 into to the console.
             backend (str): The parallelization method. Valid options are:
 
-                * "threading": Parallelization based on threads. Has bery low
-                memory and initialization overhead. Performance is limited by
-                the amount of pure python code that needs to run. Ideal when
-                most of the calculation time is used by C/C++ extensions that
-                release the GIL.
-                * "multiprocessing": Parallelization based on processes. Uses
+                * "processes": Parallelization based on processes. Uses
                 the "loky" backend in joblib to serialize the jobs and run them
                 in separate processes. Using separate processes has a bigger
                 memory and initialization overhead than threads, but may
                 provide better scalability if perfomance is limited by the
                 Global Interpreter Lock (GIL).
+                * "threads": Parallelization based on threads. Has bery low
+                memory and initialization overhead. Performance is limited by
+                the amount of pure python code that needs to run. Ideal when
+                most of the calculation time is used by C/C++ extensions that
+                release the GIL.
 
         Returns:
             np.ndarray | scipy.sparse.csr_matrix | list: The descriptor output
             for each given input. The return type depends on the desciptor
             setup.
         """
-        # Check backend
-        valid_backends = set(("multiprocessing", "threading"))
-        if backend not in valid_backends:
-            raise ValueError(
-                "Invalid parallelization backend '{}' provided. Use one of the "
-                "following: {}".format(backend, ", ".join(valid_backends))
-            )
-
         # Split data into n_jobs (almost) equal jobs
         n_samples = len(inp)
         n_features = self.get_number_of_features()
         is_sparse = self._sparse
         k, m = divmod(n_samples, n_jobs)
         jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
-        # print(list(jobs))
 
         # Calculate the result in parallel with joblib
         if output_sizes is None:
@@ -248,22 +239,11 @@ class Descriptor(with_metaclass(ABCMeta)):
 
             return (results, index)
 
-        # We use the loky-backend provided by joblib because it allows proper
-        # serialization of methods.
-        if backend == "multiprocessing":
-            joblib_backend = "loky"
-        else:
-            joblib_backend = backend
+        vec_lists = Parallel(n_jobs=n_jobs, prefer=prefer)(delayed(create_multiple)(i_args, func, is_sparse, n_features, n_desc, index, verbose) for index, (i_args, n_desc) in enumerate(zip(jobs, output_sizes)))
 
-        # print(list(jobs)[0])
-        # print(output_sizes)
-        with parallel_backend(joblib_backend, n_jobs=n_jobs):
-            vec_lists = Parallel()(delayed(create_multiple)(i_args, func, is_sparse, n_features, n_desc, index, verbose) for index, (i_args, n_desc) in enumerate(zip(jobs, output_sizes)))
-
-        # When using the threading backend the order has to be explicitly
-        # restored
-        if backend == "threading":
-            vec_lists.sort(key=lambda x: x[1])
+        # Restore the caluclation order. If using the threading backend, the
+        # input order may have been lost.
+        vec_lists.sort(key=lambda x: x[1])
 
         # Remove the job index
         vec_lists = [x[0] for x in vec_lists]

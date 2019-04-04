@@ -77,7 +77,7 @@ class ACSF(Descriptor):
         self.g5_params = g5_params
         self.rcut = rcut
 
-    def create(self, system, positions=None, n_jobs=1, verbose=False, backend="threading"):
+    def create(self, system, positions=None, n_jobs=1, verbose=False):
         """Return the ACSF output for the given systems and given positions.
 
         Args:
@@ -92,19 +92,6 @@ class ACSF(Descriptor):
                 with n_jobs=1.
             verbose(bool): Controls whether to print the progress of each job
                 into to the console.
-            backend (str): The parallelization method. Valid options are:
-
-                * "threading": Parallelization based on threads. Has bery low
-                memory and initialization overhead. Performance is limited by
-                the amount of pure python code that needs to run. Ideal when
-                most of the calculation time is used by C/C++ extensions that
-                release the Global Interpreter Lock (GIL).
-                * "multiprocessing": Parallelization based on processes. Uses
-                the "loky" backend in joblib to serialize the jobs and run them
-                in separate processes. Using separate processes has a bigger
-                memory and initialization overhead than threads, but may
-                provide better scalability if perfomance is limited by the
-                Global Interpreter Lock (GIL).
 
         Returns:
             np.ndarray | scipy.sparse.csr_matrix: The ACSF output for the given
@@ -146,12 +133,12 @@ class ACSF(Descriptor):
             output_sizes.append(n_desc)
 
         # Create in parallel
-        output = self.create_parallel(inp, self.create_single, n_jobs, output_sizes, verbose=verbose, backend=backend)
+        output = self.create_parallel(inp, self.create_single, n_jobs, output_sizes, verbose=verbose)
 
         return output
 
     def create_single(self, system, positions=None):
-        """Creates the descriptor for the given systems.
+        """Creates the descriptor for the given system.
 
         Args:
             system (:class:`ase.Atoms` | :class:`.System`): Input system.

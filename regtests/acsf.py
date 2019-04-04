@@ -213,7 +213,7 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
         )
         n_features = desc.get_number_of_features()
 
-        # Multipl systems, serial job
+        # Multiple systems, serial job
         output = desc.create(
             system=samples,
             positions=[[0], [0, 1]],
