@@ -71,7 +71,7 @@ class SortedMatrixTests(TestBaseClass, unittest.TestCase):
         # Flattened
         desc = CoulombMatrix(n_atoms_max=5, permutation="sorted_l2", flatten=True)
         cm = desc.create(H2O)
-        self.assertEqual(cm.shape, (25,))
+        self.assertEqual(cm.shape, (1, 25))
 
     def test_sparse(self):
         """Tests the sparse matrix creation.
@@ -92,7 +92,7 @@ class SortedMatrixTests(TestBaseClass, unittest.TestCase):
         desc = CoulombMatrix(n_atoms_max=5, permutation="sorted_l2", flatten=False)
         cm = desc.create(H2O)
 
-        lens = np.linalg.norm(cm, axis=0)
+        lens = np.linalg.norm(cm, axis=1)
         old_len = lens[0]
         for length in lens[1:]:
             self.assertTrue(length <= old_len)
@@ -138,16 +138,16 @@ class EigenSpectrumTests(TestBaseClass, unittest.TestCase):
         desc = CoulombMatrix(n_atoms_max=5, permutation="eigenspectrum")
         cm = desc.create(H2O)
 
-        self.assertEqual(len(cm), 5)
+        self.assertEqual(cm.shape, (1, 5))
 
         # Test that eigenvalues are in decreasing order when looking at absolute value
         prev_eig = float("Inf")
-        for eigenvalue in cm[:len(H2O)]:
+        for eigenvalue in cm[0, :len(H2O)]:
             self.assertTrue(abs(eigenvalue) <= abs(prev_eig))
             prev_eig = eigenvalue
 
         # Test that array is zero-padded
-        self.assertTrue(np.array_equal(cm[len(H2O):], [0, 0]))
+        self.assertTrue(np.array_equal(cm[0, len(H2O):], [0, 0]))
 
     def test_flatten(self):
         """Tests the flattening.
@@ -155,12 +155,13 @@ class EigenSpectrumTests(TestBaseClass, unittest.TestCase):
         # Unflattened
         desc = CoulombMatrix(n_atoms_max=5, permutation="eigenspectrum", flatten=False)
         cm = desc.create(H2O)
-        self.assertEqual(cm.shape, (5,))
+        # print(cm)
+        self.assertEqual(cm.shape, (1, 5))
 
         # Flattened
         desc = CoulombMatrix(n_atoms_max=5, permutation="eigenspectrum", flatten=True)
         cm = desc.create(H2O)
-        self.assertEqual(cm.shape, (5,))
+        self.assertEqual(cm.shape, (1, 5))
 
     def test_sparse(self):
         """Tests the sparse matrix creation.
@@ -228,7 +229,7 @@ class RandomMatrixTests(TestBaseClass, unittest.TestCase):
         # Flattened
         desc = CoulombMatrix(n_atoms_max=5, permutation="random", sigma=100, flatten=True)
         cm = desc.create(H2O)
-        self.assertEqual(cm.shape, (25,))
+        self.assertEqual(cm.shape, (1, 25))
 
     def test_sparse(self):
         """Tests the sparse matrix creation.

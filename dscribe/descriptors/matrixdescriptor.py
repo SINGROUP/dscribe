@@ -113,8 +113,8 @@ class MatrixDescriptor(Descriptor):
         # Add zero padding
         matrix = self.zero_pad(matrix)
 
-        # Flatten the matrix if requested
-        if self._flatten:
+        # Flatten
+        if self.permutation == "eigenspectrum" or self._flatten:
             matrix = np.reshape(matrix, (1, np.product(matrix.shape)))
 
         # If a sparse matrix is requested, convert to coo_matrix
