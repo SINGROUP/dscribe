@@ -4,10 +4,10 @@ dscribe.libmbtr package
 Submodules
 ----------
 
-dscribe.libmbtr.cmbtrwrapper module
------------------------------------
+dscribe.libmbtr.mbtrwrapper module
+----------------------------------
 
-.. automodule:: dscribe.libmbtr.cmbtrwrapper
+.. automodule:: dscribe.libmbtr.mbtrwrapper
     :members:
     :undoc-members:
     :show-inheritance:

@@ -1,14 +1,22 @@
+import numpy as np
+from ase.build import molecule
 from dscribe.descriptors import SOAP
 from dscribe.descriptors import CoulombMatrix
-from ase.build import molecule
 
-# Define geometry
-mol = molecule("H2O")
+# Define atomic structures
+samples = [molecule("H2O"), molecule("NO2"), molecule("CO2")]
 
 # Setup descriptors
 cm_desc = CoulombMatrix(n_atoms_max=3, permutation="sorted_l2")
-soap_desc = SOAP(species=[1, 8], rcut=5, nmax=8, lmax=6, crossover=True)
+soap_desc = SOAP(species=["C", "H", "O", "N"], rcut=5, nmax=8, lmax=6, crossover=True)
 
 # Create descriptors as numpy arrays or scipy sparse matrices
-input_cm = cm_desc.create(mol)
-input_soap = soap_desc.create(mol, positions=[0])
+water = samples[0]
+coulomb_matrix = cm_desc.create(water)
+soap = soap_desc.create(water, positions=[0])
+
+# Easy to use also on multiple systems, can be parallelized across processes
+coulomb_matrices = cm_desc.create(samples)
+coulomb_matrices = cm_desc.create(samples, n_jobs=3)
+oxygen_indices = [np.where(x.get_atomic_numbers() == 8)[0] for x in samples]
+oxygen_soap = soap_desc.create(samples, oxygen_indices, n_jobs=3)
