@@ -37,7 +37,8 @@ rcut = 30
 gcut = 20
 
 
-class EwaldMatrixTests(TestBaseClass, unittest.TestCase):
+class EwaldMatrixTests(unittest.TestCase):
+# class EwaldMatrixTests(TestBaseClass, unittest.TestCase):
 
     def test_constructor(self):
         """Tests different valid and invalid constructor values.
@@ -125,6 +126,17 @@ class EwaldMatrixTests(TestBaseClass, unittest.TestCase):
         assumed[1, :] = desc.create(samples[1])
         self.assertTrue(np.allclose(output, assumed))
 
+        # Non-flattened output
+        desc = EwaldMatrix(n_atoms_max=5, permutation="none", flatten=False, sparse=False)
+        output = desc.create(
+            system=samples,
+            n_jobs=2,
+        )
+        assumed = np.empty((2, 5, 5))
+        assumed[0] = desc.create(samples[0])
+        assumed[1] = desc.create(samples[1])
+        self.assertTrue(np.allclose(np.array(output), assumed))
+
     def test_parallel_sparse(self):
         """Tests creating sparse output parallelly.
         """
@@ -152,6 +164,17 @@ class EwaldMatrixTests(TestBaseClass, unittest.TestCase):
         assumed[0, :] = desc.create(samples[0]).toarray()
         assumed[1, :] = desc.create(samples[1]).toarray()
         self.assertTrue(np.allclose(output, assumed))
+
+        # Non-flattened output
+        desc = EwaldMatrix(n_atoms_max=5, permutation="none", flatten=False, sparse=True)
+        output = [x.toarray() for x in desc.create(
+            system=samples,
+            n_jobs=2,
+        )]
+        assumed = np.empty((2, 5, 5))
+        assumed[0] = desc.create(samples[0]).toarray()
+        assumed[1] = desc.create(samples[1]).toarray()
+        self.assertTrue(np.allclose(np.array(output), assumed))
 
     def test_a_independence(self):
         """Tests that the matrix elements are independent of the screening

@@ -226,14 +226,13 @@ class Descriptor(with_metaclass(ABCMeta)):
                         cols.append(i_out.col)
                     else:
                         results[offset:offset+i_out.shape[0], :] = i_out
+                    offset += i_out.shape[0]
 
                 if verbose:
                     current_percent = (i_sample+1)/n_samples*100
                     if current_percent >= old_percent + 1:
                         old_percent = current_percent
                         print("Process {0}: {1:.1f} %".format(index, current_percent))
-
-                offset += i_out.shape[0]
 
             if n_desc is not None and is_sparse:
                 data = np.concatenate(data)

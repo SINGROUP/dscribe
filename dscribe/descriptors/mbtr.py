@@ -148,7 +148,8 @@ class MBTR(Descriptor):
                 :math:`e^-(x-\mu)^2/2\sigma^2`
             flatten (bool): Whether the output of create() should be flattened
                 to a 1D array. If False, a dictionary of the different tensors
-                is provided.
+                is provided, containing the values under keys: "k1", "k2", and
+                "k3":
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
         """
@@ -289,12 +290,12 @@ class MBTR(Descriptor):
                 into to the console.
 
         Returns:
-            np.ndarray | scipy.sparse.csr_matrix: The MBTR output for the given
-            systems. The return type depends on the 'sparse'-attribute. The
-            first dimension is determined by the amount of positions and
-            systems and the second dimension is determined by the
-            get_number_of_features()-function. The output is ordered so that it
-            contains the positions for each given system i
+            np.ndarray | scipy.sparse.csr_matrix | list: Coulomb matrix for the
+            given systems. The return type depends on the 'sparse' and
+            'flatten'-attributes. For flattened output a single numpy array or
+            sparse scipy.csr_matrix is returned. The first dimension is
+            determined by the amount of systems. If the output is not
+            flattened, a simple python list is returned.
         """
         # If single system given, skip the parallelization
         if isinstance(system, (Atoms, System)):
@@ -304,10 +305,13 @@ class MBTR(Descriptor):
         inp = [(i_sys,) for i_sys in system]
 
         # Here we precalculate the size for each job to preallocate memory.
-        n_samples = len(system)
-        k, m = divmod(n_samples, n_jobs)
-        jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
-        output_sizes = [len(job) for job in jobs]
+        if self._flatten:
+            n_samples = len(system)
+            k, m = divmod(n_samples, n_jobs)
+            jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
+            output_sizes = [len(job) for job in jobs]
+        else:
+            output_sizes = None
 
         # Create in parallel
         output = self.create_parallel(inp, self.create_single, n_jobs, output_sizes, verbose=verbose)
