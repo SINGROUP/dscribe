@@ -1,6 +1,6 @@
 from dscribe.descriptors import SOAP
 
-atomic_numbers = [1, 8]
+atomic_numbers = [1, 6, 7, 8]
 rcut = 6.0
 nmax = 8
 lmax = 6
@@ -14,9 +14,10 @@ soap = SOAP(
     lmax=lmax,
 )
 
-# Creating an atomic system as an ase.Atoms-object
+# Creation
 from ase.build import molecule
 
+# Molecule created as an ASE.Atoms
 water = molecule("H2O")
 
 # Create SOAP output for the system
@@ -24,6 +25,12 @@ soap_water = soap.create(water, positions=[0])
 
 print(soap_water)
 print(soap_water.shape)
+
+# Create output for multiple system
+samples = [molecule("H2O"), molecule("NO2"), molecule("CO2")]
+positions = [[0], [1, 2], [1, 2]]
+coulomb_matrices = soap.create(samples, positions)            # Serial
+coulomb_matrices = soap.create(samples, positions, n_jobs=2)  # Parallel
 
 # Lets change the SOAP setup and see how features change
 minimal_soap = SOAP(species=atomic_numbers, rcut=rcut, nmax=2, lmax=0)
@@ -106,6 +113,7 @@ print("average soap methanol", soap_methanol.shape)
 h2o2 = molecule('H2O2')
 soap_peroxide = average_soap.create(h2o2)
 
+# Distance
 from scipy.spatial.distance import pdist, squareform
 import numpy as np
 
@@ -113,11 +121,3 @@ molecules = np.vstack([soap_water, soap_methanol, soap_peroxide])
 distance = squareform(pdist(molecules))
 print("distance matrix: water - methanol - H2O2")
 print(distance)
-
-# Creating multiple descriptors in parallel
-from dscribe.utils import batch_create
-
-molecule_lst = [water, methanol]
-batch = batch_create(average_soap, molecule_lst, n_proc=1)
-
-print(batch.shape)

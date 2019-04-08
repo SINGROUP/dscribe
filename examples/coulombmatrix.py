@@ -94,7 +94,7 @@ cm_methanol = cm.create(methanol)
 print(methanol.get_chemical_symbols())
 print("in order of appearance", cm_methanol)
 
-# Sort by L2-norm from high to low
+# Sort by Euclidean (L2) norm.
 cm = CoulombMatrix(
     n_atoms_max=6, flatten=False,
     permutation='sorted_l2'
@@ -103,7 +103,7 @@ cm = CoulombMatrix(
 cm_methanol = cm.create(methanol)
 print("default: sorted by L2-norm", cm_methanol)
 
-# Smoothening by randomly sorting
+# Random
 cm = CoulombMatrix(
     n_atoms_max=6, flatten=False,
     permutation='random',
@@ -114,7 +114,7 @@ cm = CoulombMatrix(
 cm_methanol = cm.create(methanol)
 print("randomly sorted", cm_methanol)
 
-# Denser descriptor Eigenvector
+# Eigenspectrum
 cm = CoulombMatrix(
     n_atoms_max=6, flatten=False,
     permutation='eigenspectrum'

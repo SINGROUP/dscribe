@@ -174,7 +174,7 @@ class CoulombMatrixTests(TestBaseClass, unittest.TestCase):
         self.assertTrue(np.allclose(output, assumed))
 
         # Non-flattened output
-        desc = SineMatrix(n_atoms_max=5, permutation="none", flatten=False, sparse=True)
+        desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=False, sparse=True)
         output = [x.toarray() for x in desc.create(
             system=samples,
             n_jobs=2,

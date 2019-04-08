@@ -2,12 +2,8 @@ Coulomb Matrix
 ==============
 
 Coulomb Matrix (CM) is a simple global descriptor which mimics the
-electrostatic interaction between nuclei. The original article outlines the
+electrostatic interaction between nuclei. The original article :cite:`cm` outlines the
 concept of the descriptor and the relation to its name giver coulomb repulsion.
-
-`Rupp, M.; Tkatchenko, A.; Muller, K.-R.; von Lilienfeld, O. A.; Müller, K.-R.; Lilienfeld, V.; Anatole, O. Phys. Rev. Lett. 2012, 108 (5), 58301
-<https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.108.058301>`_
-
 
 Setup
 -----
@@ -33,7 +29,7 @@ After CM has been set up, it may be used on atomic structures with the
 .. literalinclude:: ../../../examples/coulombmatrix.py
    :start-after: Creation
    :language: python
-   :lines: 1-15
+   :lines: 1-16
 
 The call syntax for the create-function is as follows:
 
@@ -172,12 +168,12 @@ following lines confirm that this is true for CM.
 Options for permutation
 -----------------------
 The following snippet introduces the different options for handling permutation
-invariance.
+invariance. See :cite:`cm_versions` for more information on these methods.
 
 .. literalinclude:: ../../../examples/coulombmatrix.py
    :language: python
    :start-after: No sorting
-   :lines: 1-38
+   :lines: 1-37
 
 - *sorted_l2 (default)*: Sorts rows and columns by their L2-norm.
 - *none*: keeps the order of the rows and columns as the atoms are read from
@@ -197,11 +193,13 @@ invariance.
   sorted CM in a loop. The advantage of augmenting data like this over using
   completely random CM lies in the lower number of "likely permutations". Rows
   and columns of the CM are allowed to flip just so that the feature space
-  (all possible CM) is smooth but also compact. For further reading, consult:
-  `Hansen, K.; Biegler, F.; Ramakrishnan, R.; Pronobis, W.; von Lilienfeld, O. A.; Müller, K.-R.; Tkatchenko, A. J. Phys. Chem. Lett. 2015, 6 (12), 2326–2331.
-  <https://pubs.acs.org/doi/abs/10.1021/acs.jpclett.5b00831>`_
+  (all possible CM) is smooth but also compact.
 - *eigenspectrum*: Only the eigenvalues of the matrix are returned sorted by
   their absolute value in descending order. On one hand, it is a more compact
   descriptor, but on the other hand, it potentially loses information encoded
   in the CM interactions.
 
+.. bibliography:: ../references.bib
+   :style: unsrt
+   :cited:
+   :filter: docname in docnames

@@ -55,7 +55,7 @@ class SOAP(Descriptor):
                 the atomic numbers that are present for an individual system, but
                 should contain all the elements that are ever going to be
                 encountered when creating the descriptors for a set of systems.
-                Keeping the number of chemical speices as low as possible is
+                Keeping the number of chemical species as low as possible is
                 preferable.
             atomic_numbers (iterable): A list of the atomic numbers that should
                 be taken into account in the descriptor. Deprecated in favour of

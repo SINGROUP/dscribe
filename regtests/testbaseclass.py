@@ -37,11 +37,6 @@ class TestBaseClass(ABC):
         """
 
     @abc.abstractmethod
-    def test_flatten(self):
-        """
-        """
-
-    @abc.abstractmethod
     def test_sparse(self):
         """Tests that the sparse-attribute is handled correctly: if true, a
         scipy.sparse.coo_matrix should be returned, otherwise return a numpy
