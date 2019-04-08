@@ -48,8 +48,8 @@ class SOAP(Descriptor):
         Args:
             rcut (float): A cutoff for local region in angstroms. Should be
                 bigger than 1 angstrom.
-            nmax (int): The number of basis functions to be used.
-            lmax (int): The number of l's to be used. The computational time scales
+            nmax (int): The number of radial basis functions.
+            lmax (int): The maximum degree of spherical harmonics.
             species (iterable): The chemical species as a list of atomic
                 numbers or as a list of chemical symbols. Notice that this is not
                 the atomic numbers that are present for an individual system, but
