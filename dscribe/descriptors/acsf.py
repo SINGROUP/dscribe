@@ -98,7 +98,9 @@ class ACSF(Descriptor):
             systems and positions. The return type depends on the
             'sparse'-attribute. The first dimension is determined by the amount
             of positions and systems and the second dimension is determined by
-            the get_number_of_features()-function.
+            the get_number_of_features()-function. When multiple systems are
+            provided the results are ordered by the input order of systems and
+            their positions.
         """
         # If single system given, skip the parallelization
         if isinstance(system, (Atoms, System)):
