@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dscribe.kernels package &mdash; DScribe 0.2.2 documentation</title>
+  <title>dscribe.kernels package &mdash; DScribe 0.2.3 documentation</title>
   
 
   
@@ -38,7 +38,7 @@
     <link rel="author" title="About these documents" href="../about.html" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="dscribe.libmbtr package" href="dscribe.libmbtr.html" />
+    <link rel="next" title="dscribe.libacsf package" href="dscribe.libacsf.html" />
     <link rel="prev" title="dscribe.descriptors package" href="dscribe.descriptors.html" /> 
 </head>
 
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                0.2.2
+                0.2.3
               </div>
             
           
@@ -99,6 +99,7 @@
 <li class="toctree-l4"><a class="reference internal" href="dscribe.core.html">dscribe.core package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="dscribe.descriptors.html">dscribe.descriptors package</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">dscribe.kernels package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dscribe.libacsf.html">dscribe.libacsf package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="dscribe.libmbtr.html">dscribe.libmbtr package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="dscribe.utils.html">dscribe.utils package</a></li>
 </ul>
@@ -108,6 +109,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing DScribe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
 </ul>
@@ -203,19 +205,18 @@ constructor.</p>
 <dt id="dscribe.kernels.average.AverageKernel.get_global_similarity">
 <code class="descname">get_global_similarity</code><span class="sig-paren">(</span><em>localkernel</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/kernels/average.html#AverageKernel.get_global_similarity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.kernels.average.AverageKernel.get_global_similarity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes the average global similarity between two structures A and B.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>localkernel</strong> (<em>np.ndarray</em>) – NxM matrix of local similarities between
-structures A and B, with N and M atoms respectively.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Average similarity between the structures A and B.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>localkernel</strong> (<em>np.ndarray</em>) – NxM matrix of local similarities between
+structures A and B, with N and M atoms respectively.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Average similarity between the structures A and B.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -234,45 +235,40 @@ atomic environments to compute a global similarity measure.</p>
 <code class="descname">create</code><span class="sig-paren">(</span><em>x</em>, <em>y=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/kernels/localsimilaritykernel.html#LocalSimilarityKernel.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel.create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates the kernel matrix based on the given lists of local
 features x and y.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>x</strong> (<em>iterable</em>) – A list of local feature arrays for each structure.</li>
-<li><strong>y</strong> (<em>iterable</em>) – An optional second list of features. If not specified
-it is assumed that y=x.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>iterable</em>) – A list of local feature arrays for each structure.</p></li>
+<li><p><strong>y</strong> (<em>iterable</em>) – An optional second list of features. If not specified
+it is assumed that y=x.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The pairwise global similarity kernel K[i,j] between the given
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The pairwise global similarity kernel K[i,j] between the given
 structures, in the same order as given in the input, i.e. the
 similarity of structures i and j is given by K[i,j], where features
 for structure i and j were in features[i] and features[j]
 respectively.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel.get_global_similarity">
 <code class="descname">get_global_similarity</code><span class="sig-paren">(</span><em>localkernel</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/kernels/localsimilaritykernel.html#LocalSimilarityKernel.get_global_similarity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel.get_global_similarity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes the global similarity between two structures A and B.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>localkernel</strong> (<em>np.ndarray</em>) – NxM matrix of local similarities between
-structures A and B, with N and M atoms respectively.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Global similarity between the structures A and B.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>localkernel</strong> (<em>np.ndarray</em>) – NxM matrix of local similarities between
+structures A and B, with N and M atoms respectively.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Global similarity between the structures A and B.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -280,29 +276,24 @@ structures A and B, with N and M atoms respectively.</td>
 <code class="descname">get_pairwise_matrix</code><span class="sig-paren">(</span><em>X</em>, <em>Y=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/kernels/localsimilaritykernel.html#LocalSimilarityKernel.get_pairwise_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel.get_pairwise_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the pairwise similarity of atomic environments with
 scikit-learn, and the pairwise metric configured in the constructor.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>X</strong> (<em>np.ndarray</em>) – Feature vector for the atoms in structure A</li>
-<li><strong>Y</strong> (<em>np.ndarray</em>) – Feature vector for the atoms in structure B</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>np.ndarray</em>) – Feature vector for the atoms in structure A</p></li>
+<li><p><strong>Y</strong> (<em>np.ndarray</em>) – Feature vector for the atoms in structure B</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
-<dt>NxM matrix of local similarities between structures A</dt>
-<dd><p class="first last">and B, with N and M atoms respectively.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>NxM matrix of local similarities between structures A</dt><dd><p>and B, with N and M atoms respectively.</p>
 </dd>
 </dl>
 </p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">np.ndarray</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -332,19 +323,18 @@ Phys.  Chem. Chem. Phys. 18, 13754 (2016),
 <dt id="dscribe.kernels.rematch.REMatchKernel.get_global_similarity">
 <code class="descname">get_global_similarity</code><span class="sig-paren">(</span><em>localkernel</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/kernels/rematch.html#REMatchKernel.get_global_similarity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.kernels.rematch.REMatchKernel.get_global_similarity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes the REMatch similarity between two structures A and B.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>localkernel</strong> (<em>np.ndarray</em>) – NxM matrix of local similarities between
-structures A and B, with N and M atoms respectively.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">REMatch similarity between the structures A and B.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>localkernel</strong> (<em>np.ndarray</em>) – NxM matrix of local similarities between
+structures A and B, with N and M atoms respectively.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>REMatch similarity between the structures A and B.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -363,7 +353,7 @@ structures A and B, with N and M atoms respectively.</td>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="dscribe.libmbtr.html" class="btn btn-neutral float-right" title="dscribe.libmbtr package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="dscribe.libacsf.html" class="btn btn-neutral float-right" title="dscribe.libacsf package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="dscribe.descriptors.html" class="btn btn-neutral float-left" title="dscribe.descriptors package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

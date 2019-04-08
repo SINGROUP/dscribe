@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dscribe.utils package &mdash; DScribe 0.2.2 documentation</title>
+  <title>dscribe.utils package &mdash; DScribe 0.2.3 documentation</title>
   
 
   
@@ -38,7 +38,7 @@
     <link rel="author" title="About these documents" href="../about.html" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Citing DScribe" href="../citing.html" />
+    <link rel="next" title="Contributing" href="../contributing.html" />
     <link rel="prev" title="dscribe.libmbtr package" href="dscribe.libmbtr.html" /> 
 </head>
 
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                0.2.2
+                0.2.3
               </div>
             
           
@@ -99,6 +99,7 @@
 <li class="toctree-l4"><a class="reference internal" href="dscribe.core.html">dscribe.core package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="dscribe.descriptors.html">dscribe.descriptors package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="dscribe.kernels.html">dscribe.kernels package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dscribe.libacsf.html">dscribe.libacsf package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="dscribe.libmbtr.html">dscribe.libmbtr package</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">dscribe.utils package</a></li>
 </ul>
@@ -108,6 +109,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing DScribe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
 </ul>
@@ -183,82 +185,37 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-dscribe.utils.batch_create">
-<span id="dscribe-utils-batch-create-module"></span><h2>dscribe.utils.batch_create module<a class="headerlink" href="#module-dscribe.utils.batch_create" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
-<dt id="dscribe.utils.batch_create.batch_create">
-<code class="descclassname">dscribe.utils.batch_create.</code><code class="descname">batch_create</code><span class="sig-paren">(</span><em>descriptor</em>, <em>samples</em>, <em>n_proc</em>, <em>positions=None</em>, <em>create_func=None</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/utils/batch_create.html#batch_create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.utils.batch_create.batch_create" title="Permalink to this definition">¶</a></dt>
-<dd><p>Used to create a descriptor output for multiple samples in parallel and
-store the result in a n_samples x n_features sparse or dense array.</p>
-<p>Uses the python multiprocessing library and data parallellism to create the
-descriptors in parallel.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>samples</strong> – </li>
-<li><strong>n_proc</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The number of processes. The data will be split into this many
-parts and divided into different processes.</li>
-<li><strong>positions</strong> (<em>iterable</em>) – Needs to be specified if the given descriptor is
-local and requires a ‘positions’-argument in the create-function.
-Should be a list of positions matching the given ‘samples’.</li>
-<li><strong>create_func</strong> (<em>function</em>) – A custom function for creating the output from
-each process. If none specified a default function will be used.
-Takes in one tuple argument ‘inp’ with the following information:
-* inp[0]: samples
-* inp[1]: descriptor
-* inp[2]: verbose parameter
-* inp[3]: process id number
-The function should return a 2D array. If descriptor.sparse is set
-to true, the output should be a scipy.linalg.coo_matrix, otherwise
-a numpy.ndarray should be returned.</li>
-<li><strong>verbose</strong> (<em>boolean</em>) – Whether to report a percentage of the samples
-covered from each process.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The descriptor vectors for all
-samples in a single (n_samples x n_features) array.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">np.ndarray | scipy.sparse.coo_matrix</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="dscribe.utils.batch_create.create">
-<code class="descclassname">dscribe.utils.batch_create.</code><code class="descname">create</code><span class="sig-paren">(</span><em>inp</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/utils/batch_create.html#create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.utils.batch_create.create" title="Permalink to this definition">¶</a></dt>
-<dd><p>This is the function that is called by each process but with
-different parts of the data. This function is a module level function
-(instead of nested within batch_create), because only top level functions
-are picklable by the multiprocessing library.</p>
-</dd></dl>
-
-</div>
 <div class="section" id="module-dscribe.utils.species">
 <span id="dscribe-utils-species-module"></span><h2>dscribe.utils.species module<a class="headerlink" href="#module-dscribe.utils.species" title="Permalink to this headline">¶</a></h2>
+<p>Copyright 2019 DScribe developers</p>
+<p>Licensed under the Apache License, Version 2.0 (the “License”);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<blockquote>
+<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+</div></blockquote>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</p>
 <dl class="function">
 <dt id="dscribe.utils.species.get_atomic_numbers">
 <code class="descclassname">dscribe.utils.species.</code><code class="descname">get_atomic_numbers</code><span class="sig-paren">(</span><em>species</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/utils/species.html#get_atomic_numbers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.utils.species.get_atomic_numbers" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a list of chemical species either as a atomic numbers or chemcal
 symbols, return the correponding list of ordered atomic numbers with
 duplicates removed.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>species</strong> (<em>iterable of ints</em><em> or </em><em>strings</em>) – </td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list of atomic numbers as an integer array.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">np.ndarray</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>species</strong> (<em>iterable of ints</em><em> or </em><em>strings</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of atomic numbers as an integer array.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -266,52 +223,76 @@ duplicates removed.</p>
 <code class="descclassname">dscribe.utils.species.</code><code class="descname">symbols_to_numbers</code><span class="sig-paren">(</span><em>symbols</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/utils/species.html#symbols_to_numbers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.utils.species.symbols_to_numbers" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transforms a set of chemical symbols into the corresponding atomic
 numbers.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>symbols</strong> (<em>iterable</em>) – List of chemical symbols.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Atomic numbers as an array of integers.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">np.ndarray</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>symbols</strong> (<em>iterable</em>) – List of chemical symbols.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Atomic numbers as an array of integers.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
 <div class="section" id="module-dscribe.utils.stats">
 <span id="dscribe-utils-stats-module"></span><h2>dscribe.utils.stats module<a class="headerlink" href="#module-dscribe.utils.stats" title="Permalink to this headline">¶</a></h2>
+<p>Copyright 2019 DScribe developers</p>
+<p>Licensed under the Apache License, Version 2.0 (the “License”);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<blockquote>
+<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+</div></blockquote>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</p>
 <dl class="function">
 <dt id="dscribe.utils.stats.system_stats">
 <code class="descclassname">dscribe.utils.stats.</code><code class="descname">system_stats</code><span class="sig-paren">(</span><em>system_iterator</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/utils/stats.html#system_stats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.utils.stats.system_stats" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>system_stats</strong> (<em>iterable containing ASE.Atoms</em><em> or </em><a class="reference internal" href="dscribe.core.html#dscribe.core.system.System" title="dscribe.core.system.System"><em>System</em></a>) – The atomic
-systems for which to gather statistics.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of different statistics for the system. The
-dictionary will contain:<blockquote>
-<div>n_atoms_max: The maximum number of atoms in a system.
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>system_stats</strong> (<em>iterable containing ASE.Atoms</em><em> or </em><a class="reference internal" href="dscribe.core.html#dscribe.core.system.System" title="dscribe.core.system.System"><em>System</em></a>) – The atomic
+systems for which to gather statistics.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>A dictionary of different statistics for the system. The
+dictionary will contain:</p>
+<blockquote>
+<div><p>n_atoms_max: The maximum number of atoms in a system.
 max_atomic_number: The highest atomic number
 min_atomic_number: The lowest atomic number
 atomic_numbers: List of present atomic numbers
 element_symbols: List of present atomic symbols
-min_distance: Minimum distance in the system</div></blockquote>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Dict</td>
-</tr>
-</tbody>
-</table>
+min_distance: Minimum distance in the system</p>
+</div></blockquote>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
 <div class="section" id="module-dscribe.utils">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-dscribe.utils" title="Permalink to this headline">¶</a></h2>
+<p>Copyright 2019 DScribe developers</p>
+<p>Licensed under the Apache License, Version 2.0 (the “License”);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<blockquote>
+<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+</div></blockquote>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</p>
 </div>
 </div>
 
@@ -323,7 +304,7 @@ min_distance: Minimum distance in the system</div></blockquote>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../citing.html" class="btn btn-neutral float-right" title="Citing DScribe" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../contributing.html" class="btn btn-neutral float-right" title="Contributing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="dscribe.libmbtr.html" class="btn btn-neutral float-left" title="dscribe.libmbtr package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

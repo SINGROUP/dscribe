@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Many-body Tensor Representation &mdash; DScribe 0.2.2 documentation</title>
+  <title>Many-body Tensor Representation &mdash; DScribe 0.2.3 documentation</title>
   
 
   
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                0.2.2
+                0.2.3
               </div>
             
           
@@ -116,6 +116,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../doc/modules.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing DScribe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
 </ul>
@@ -194,7 +195,7 @@ into a single scalar value. The distribution of these scalar values is then
 constructed with kernel density estimation to represent the structure.</p>
 <div class="figure align-center" id="id1">
 <a class="reference internal image-reference" href="../_images/mbtr.jpg"><img alt="MBTR stratification" src="../_images/mbtr.jpg" style="width: 565.5px; height: 386.0px;" /></a>
-<p class="caption"><span class="caption-text">Illustration of the MBTR output for a water molecule.</span></p>
+<p class="caption"><span class="caption-text">Illustration of the MBTR output for a water molecule.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
 </div>
 <p>For more details see the original paper: <a class="reference external" href="http://arxiv.org/abs/1704.06439">Unified Representation for Machine
 Learning of Molecules and Crystals, Haoyan Huo and Matthias Rupp,
@@ -223,19 +224,17 @@ arXiv preprint, (2017)</a></p>
 <dl class="method">
 <dt id="dscribe.descriptors.mbtr.MBTR.__init__">
 <code class="descclassname">MBTR.</code><code class="descname">__init__</code><span class="sig-paren">(</span><em>k</em>, <em>periodic</em>, <em>grid=None</em>, <em>weighting=None</em>, <em>species=None</em>, <em>atomic_numbers=None</em>, <em>normalize_by_volume=False</em>, <em>normalize_gaussians=True</em>, <em>flatten=True</em>, <em>sparse=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>k</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em> or </em><em>iterable</em>) – The interaction term to consider from 1 to 3.
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>k</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em> or </em><em>iterable</em>) – The interaction term to consider from 1 to 3.
 Also multiple terms can be created at once by providing an
 iterable of integers. The size of the final output and the time
 taken in creating this descriptor is exponentially dependent on
-this value.</li>
-<li><strong>periodic</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Determines whether the system is considered to be
-periodic.</li>
-<li><strong>grid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – <p>This dictionary can be used to precisely control
+this value.</p></li>
+<li><p><strong>periodic</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Determines whether the system is considered to be
+periodic.</p></li>
+<li><p><strong>grid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – <p>This dictionary can be used to precisely control
 the broadening width, grid spacing and grid length for all the
 different terms. Example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">grid</span> <span class="o">=</span> <span class="p">{</span>
@@ -259,8 +258,8 @@ different terms. Example:</p>
 maximum value of the axis, <em>sigma</em> is the standard devation of
 the gaussian broadening and <em>n</em> is the number of points sampled
 on the grid.</p>
-</li>
-<li><strong>weighting</strong> (<em>dictionary</em><em> or </em><em>string</em>) – <p>A dictionary of weighting
+</p></li>
+<li><p><strong>weighting</strong> (<em>dictionary</em><em> or </em><em>string</em>) – <p>A dictionary of weighting
 function settings for each term. Example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">weighting</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;k2&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -281,44 +280,43 @@ terms will be ignored. The k1 term is 0-dimensional, so
 weighting is not used. Here are the available functions and a
 description for them:</p>
 <ul>
-<li>unity: Constant weighting of 1 for all samples.</li>
-<li>exponential: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span>. The
-parameter <span class="math notranslate nohighlight">\(s\)</span> is given in the attribute <em>scale</em>.</li>
+<li><p>unity: Constant weighting of 1 for all samples.</p></li>
+<li><p>exponential: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span>. The
+parameter <span class="math notranslate nohighlight">\(s\)</span> is given in the attribute <em>scale</em>.</p></li>
 </ul>
 <p>The meaning of x changes for different terms as follows:</p>
 <ul>
-<li><span class="math notranslate nohighlight">\(k=1\)</span>: <span class="math notranslate nohighlight">\(x\)</span> = 0</li>
-<li><span class="math notranslate nohighlight">\(k=2\)</span>: <span class="math notranslate nohighlight">\(x\)</span> = Distance between A-&gt;B</li>
-<li><span class="math notranslate nohighlight">\(k=3\)</span>: <span class="math notranslate nohighlight">\(x\)</span> = Distance from A-&gt;B-&gt;C-&gt;A.</li>
+<li><p><span class="math notranslate nohighlight">\(k=1\)</span>: <span class="math notranslate nohighlight">\(x\)</span> = 0</p></li>
+<li><p><span class="math notranslate nohighlight">\(k=2\)</span>: <span class="math notranslate nohighlight">\(x\)</span> = Distance between A-&gt;B</p></li>
+<li><p><span class="math notranslate nohighlight">\(k=3\)</span>: <span class="math notranslate nohighlight">\(x\)</span> = Distance from A-&gt;B-&gt;C-&gt;A.</p></li>
 </ul>
-</li>
-<li><strong>species</strong> (<em>iterable</em>) – The chemical species as a list of atomic
+</p></li>
+<li><p><strong>species</strong> (<em>iterable</em>) – The chemical species as a list of atomic
 numbers or as a list of chemical symbols. Notice that this is not
 the atomic numbers that are present for an individual system, but
 should contain all the elements that are ever going to be
 encountered when creating the descriptors for a set of systems.
 Keeping the number of chemical speices as low as possible is
-preferable.</li>
-<li><strong>atomic_numbers</strong> (<em>iterable</em>) – A list of the atomic numbers that should
+preferable.</p></li>
+<li><p><strong>atomic_numbers</strong> (<em>iterable</em>) – A list of the atomic numbers that should
 be taken into account in the descriptor. Deprecated in favour of
 the species-parameters, but provided for
-backwards-compatibility.</li>
-<li><strong>normalize_by_volume</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Determines whether the output vectors are
-normalized by the cell volume. Defaults to False.</li>
-<li><strong>normalize_gaussians</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Determines whether the gaussians are
+backwards-compatibility.</p></li>
+<li><p><strong>normalize_by_volume</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Determines whether the output vectors are
+normalized by the cell volume. Defaults to False.</p></li>
+<li><p><strong>normalize_gaussians</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Determines whether the gaussians are
 normalized to an area of 1. Defaults to True. If False, the
 normalization factor is dropped and the gaussians have the form.
-<span class="math notranslate nohighlight">\(e^-(x-\mu)^2/2\sigma^2\)</span></li>
-<li><strong>flatten</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Whether the output of create() should be flattened
+<span class="math notranslate nohighlight">\(e^-(x-\mu)^2/2\sigma^2\)</span></p></li>
+<li><p><strong>flatten</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Whether the output of create() should be flattened
 to a 1D array. If False, a dictionary of the different tensors
-is provided.</li>
-<li><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
-dense numpy array.</li>
+is provided, containing the values under keys: “k1”, “k2”, and
+“k3”:</p></li>
+<li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
+dense numpy array.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -341,25 +339,31 @@ dense numpy array.</li>
 <p>The call syntax for the create-function is as follows:</p>
 <dl class="method">
 <dt id="dscribe.descriptors.mbtr.MBTR.create">
-<code class="descclassname">MBTR.</code><code class="descname">create</code><span class="sig-paren">(</span><em>system</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.create" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the many-body tensor representation for the given system.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> | <a class="reference internal" href="../doc/dscribe.core.html#dscribe.core.system.System" title="dscribe.core.system.System"><code class="xref py py-class docutils literal notranslate"><span class="pre">System</span></code></a>) – Input system.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The return type is
-specified by the ‘flatten’ and ‘sparse’-parameters. If the output
-is not flattened, a dictionary containing of MBTR outputs as numpy
-arrays is created. Each output is under a “kX” key. If the output
-is flattened, a single concatenated output vector is returned,
-either as a sparse or a dense vector.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict | np.ndarray | scipy.sparse.coo_matrix</td>
-</tr>
-</tbody>
-</table>
+<code class="descclassname">MBTR.</code><code class="descname">create</code><span class="sig-paren">(</span><em>system</em>, <em>n_jobs=1</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return MBTR output for the given systems.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>single</strong><strong> or </strong><strong>multiple class</strong> (<em>system</em>) – <cite>ase.Atoms</cite>): One or many atomic structures.</p></li>
+<li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
+the calculation across samples. Defaults to serial calculation
+with n_jobs=1.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Controls whether to print the progress of each job
+into to the console.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Coulomb matrix for the
+given systems. The return type depends on the ‘sparse’ and
+‘flatten’-attributes. For flattened output a single numpy array or
+sparse scipy.csr_matrix is returned. The first dimension is
+determined by the amount of systems. If the output is not
+flattened, a simple python list is returned.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray | scipy.sparse.csr_matrix | list</p>
+</dd>
+</dl>
 </dd></dl>
 
 <p>The output will in this case be a numpy array with shape [#positions,

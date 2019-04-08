@@ -5,8 +5,9 @@ Smooth Overlap of Atomic Positions (SOAP) is a descriptor that encodes regions
 of atomic geometries by using a local expansion of a gaussian smeared atomic
 density with orthonormal functions based on spherical harmonics.
 
-The output is a vector :math:`\mathbf{p}(\mathbf{r})`, where the different elements are formed
-from the partial SOAP power spectrum defined as :cite:`soap2`
+The output is a vector :math:`\mathbf{p}(\mathbf{r})`, where the different
+elements are formed from the partial SOAP power spectrum defined as
+:cite:`soap2`
 
 .. math::
    p(\mathbf{r})^{Z Z'}_{n n' l} = \pi \sqrt{\frac{8}{2l+1}}\sum_m c^{Z}_{n l m}(\mathbf{r})^{\dagger}c^{Z'}_{n' l m}(\mathbf{r})
@@ -50,9 +51,8 @@ The arguments have the following effect:
 
 .. automethod:: dscribe.descriptors.soap.SOAP.__init__
 
-Since a smooth cutoff-function is used, sudden changes of configurations at the
-cutoff distance are mitigated. Increasing the arguments *nmax* and *lmax*
-makes SOAP more accurate but also increases the number of features.
+Increasing the arguments *nmax* and *lmax* makes SOAP more accurate but also
+increases the number of features.
 
 Creation
 --------
@@ -60,8 +60,9 @@ After SOAP has been set up, it may be used on atomic structures with the
 :meth:`.SOAP.create`-function.
 
 .. literalinclude:: ../../../examples/soap.py
+   :start-after: Creation
    :language: python
-   :lines: 17-23
+   :lines: 1-16
 
 As SOAP is a local descriptor, it also takes as input a list of atomic indices
 or positions. If no such positions are defined, SOAP will be created for each
@@ -119,7 +120,8 @@ In this case a cell needs to be defined for the ase object.
 
 .. literalinclude:: ../../../examples/soap.py
    :language: python
-   :lines: 51-62
+   :start-after: Periodic systems
+   :lines: 1-17
 
 Since the SOAP feature vectors of each of the four copper atoms in the cubic
 unit cell match, they turn out to be equivalent.
@@ -137,7 +139,8 @@ the different types:
 
 .. literalinclude:: ../../../examples/soap.py
    :language: python
-   :lines: 69-88
+   :start-after: Periodic systems
+   :lines: 1-19
 
 Most operations work on sparse matrices as they would on numpy matrices.
 Otherwise, a sparse matrix can simply be converted calling the *.toarray()*
@@ -147,44 +150,33 @@ method. For further information check the `scipy documentation
 Average output
 ~~~~~~~~~~~~~~
 
-One way of turning a local descriptor into a global descriptor is by taking the
-average over all atoms. Since SOAP separates features by atom types, this
-essentially means averaging over atoms of the same type.
+One way of turning a local descriptor into a global descriptor is simply by
+taking the average over all atoms. Since SOAP separates features by atom types,
+this essentially means averaging over atoms of the same type.
 
 .. literalinclude:: ../../../examples/soap.py
    :language: python
-   :lines: 90-98
+   :start-after: Average output
+   :lines: 1-17
 
 The result will be a feature vector and not a matrix, so it no longer depends
 on the system size. This is necessary to compare two or more structures with
-different number of elements. We can do so by e.g. applying the distance metric of
-our choice.
+different number of elements. We can do so by e.g. applying the distance metric
+of our choice.
 
 .. literalinclude:: ../../../examples/soap.py
    :language: python
-   :lines: 100-115
+   :start-after: Distance
+   :lines: 1-7
 
 It seems that the local environments of water and hydrogen peroxide are more
-similar to each other. To see more advanced methods for comparing structures of different
-sizes with each other, see the :doc:`kernel building tutorial <kernels>`.
-
-Working on multiple samples
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-In machine learning we usually want to compare many structures with each other.
-With the above functions, it is possible to iterate over a list of ase-ojects.
-For convenience we provide the :func:`.create_batch` function that can be used
-to build the output for multiple systems in parallel.
-
-.. literalinclude:: ../../../examples/soap.py
-   :language: python
-   :lines: 117-121
-
-Implementation note: If you specify *average = False*, you can only run one
-local environment per molecule. That means you would need to specify one
-location using the optional parameter positions. We are going to alleviate this
-constraint soon. Try if it works now, the tutorial might not catch up with the
-development!
+similar to each other. To see more advanced methods for comparing structures of
+different sizes with each other, see the :doc:`kernel building tutorial
+<kernels>`. Notice that simply averaging the SOAP vector does not always
+correspond to the Average Kernel discussed in the kernel building tutorial, as
+for non-linear kernels the order of kernel calculation and averaging matters.
 
 .. bibliography:: ../references.bib
-   :style: plain
+   :style: unsrt
+   :cited:
+   :filter: docname in docnames
