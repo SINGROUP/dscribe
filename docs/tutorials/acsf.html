@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Atom-centered Symmetry Functions &mdash; DScribe 0.2.2 documentation</title>
+  <title>Atom-centered Symmetry Functions &mdash; DScribe 0.2.3 documentation</title>
   
 
   
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                0.2.2
+                0.2.3
               </div>
             
           
@@ -107,6 +107,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../doc/modules.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing DScribe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
 </ul>
@@ -202,39 +203,35 @@ Phys. 134, 074106 (2011)</a></p>
 <dl class="method">
 <dt id="dscribe.descriptors.acsf.ACSF.__init__">
 <code class="descclassname">ACSF.</code><code class="descname">__init__</code><span class="sig-paren">(</span><em>rcut</em>, <em>g2_params=None</em>, <em>g3_params=None</em>, <em>g4_params=None</em>, <em>g5_params=None</em>, <em>species=None</em>, <em>atomic_numbers=None</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/acsf.html#ACSF.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>rcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The smooth cutoff value. This cutoff value is
-used throughout the calculations for all symmetry functions.</li>
-<li><strong>species</strong> (<em>iterable</em>) – The chemical species as a list of atomic
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The smooth cutoff value. This cutoff value is
+used throughout the calculations for all symmetry functions.</p></li>
+<li><p><strong>g2_params</strong> (<em>n*2 np.ndarray</em>) – A list of pairs of <span class="math notranslate nohighlight">\(\eta\)</span> and
+<span class="math notranslate nohighlight">\(R_s\)</span> parameters for <span class="math notranslate nohighlight">\(G^2\)</span> functions.</p></li>
+<li><p><strong>g3_params</strong> (<em>n*1 np.ndarray</em>) – A list of <span class="math notranslate nohighlight">\(\kappa\)</span> parameters for
+<span class="math notranslate nohighlight">\(G^3\)</span> functions.</p></li>
+<li><p><strong>g4_params</strong> (<em>n*3 np.ndarray</em>) – A list of triplets of <span class="math notranslate nohighlight">\(\eta\)</span>,
+<span class="math notranslate nohighlight">\(\zeta\)</span> and  <span class="math notranslate nohighlight">\(\lambda\)</span> parameters for <span class="math notranslate nohighlight">\(G^4\)</span> functions.</p></li>
+<li><p><strong>g5_params</strong> (<em>n*3 np.ndarray</em>) – A list of triplets of <span class="math notranslate nohighlight">\(\eta\)</span>,
+<span class="math notranslate nohighlight">\(\zeta\)</span> and  <span class="math notranslate nohighlight">\(\lambda\)</span> parameters for <span class="math notranslate nohighlight">\(G^5\)</span> functions.</p></li>
+<li><p><strong>species</strong> (<em>iterable</em>) – The chemical species as a list of atomic
 numbers or as a list of chemical symbols. Notice that this is not
 the atomic numbers that are present for an individual system, but
 should contain all the elements that are ever going to be
 encountered when creating the descriptors for a set of systems.
-Keeping the number of chemical speices as low as possible is
-preferable.</li>
-<li><strong>atomic_numbers</strong> (<em>iterable</em>) – A list of the atomic numbers that should
+Keeping the number of chemical species as low as possible is
+preferable.</p></li>
+<li><p><strong>atomic_numbers</strong> (<em>iterable</em>) – A list of the atomic numbers that should
 be taken into account in the descriptor. Deprecated in favour of
 the species-parameters, but provided for
-backwards-compatibility.</li>
-<li><strong>g2_params</strong> (<em>n*2 np.ndarray</em>) – A list of pairs of <span class="math notranslate nohighlight">\(\eta\)</span> and
-<span class="math notranslate nohighlight">\(R_s\)</span> parameters for <span class="math notranslate nohighlight">\(G^2\)</span> functions.</li>
-<li><strong>g3_params</strong> (<em>n*1 np.ndarray</em>) – A list of <span class="math notranslate nohighlight">\(\kappa\)</span> parameters for
-<span class="math notranslate nohighlight">\(G^3\)</span> functions.</li>
-<li><strong>g4_params</strong> (<em>n*3 np.ndarray</em>) – A list of triplets of <span class="math notranslate nohighlight">\(\eta\)</span>,
-<span class="math notranslate nohighlight">\(\zeta\)</span> and  <span class="math notranslate nohighlight">\(\lambda\)</span> parameters for <span class="math notranslate nohighlight">\(G^4\)</span> functions.</li>
-<li><strong>g5_params</strong> (<em>n*3 np.ndarray</em>) – A list of triplets of <span class="math notranslate nohighlight">\(\eta\)</span>,
-<span class="math notranslate nohighlight">\(\zeta\)</span> and  <span class="math notranslate nohighlight">\(\lambda\)</span> parameters for <span class="math notranslate nohighlight">\(G^5\)</span> functions.</li>
-<li><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
-dense numpy array.</li>
+backwards-compatibility.</p></li>
+<li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
+dense numpy array.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -257,32 +254,35 @@ dense numpy array.</li>
 <p>The call syntax for the create-function is as follows:</p>
 <dl class="method">
 <dt id="dscribe.descriptors.acsf.ACSF.create">
-<code class="descclassname">ACSF.</code><code class="descname">create</code><span class="sig-paren">(</span><em>system</em>, <em>positions=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/acsf.html#ACSF.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.create" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates the descriptor for the given systems.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> | <a class="reference internal" href="../doc/dscribe.core.html#dscribe.core.system.System" title="dscribe.core.system.System"><code class="xref py py-class docutils literal notranslate"><span class="pre">System</span></code></a>) – Input system.</li>
-<li><strong>positions</strong> (<em>iterable</em>) – Indices of the atoms around which the ACSF
-will be returned. If no positions defined, ACSF will be created
-for all atoms in the system.</li>
+<code class="descclassname">ACSF.</code><code class="descname">create</code><span class="sig-paren">(</span><em>system</em>, <em>positions=None</em>, <em>n_jobs=1</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/acsf.html#ACSF.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the ACSF output for the given systems and given positions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>single</strong><strong> or </strong><strong>multiple class</strong> (<em>system</em>) – <cite>ase.Atoms</cite>): One or many atomic structures.</p></li>
+<li><p><strong>positions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – Positions where to calculate ACSF. Can be
+provided as cartesian positions or atomic indices. If no
+positions are defined, the SOAP output will be created for all
+atoms in the system. When calculating SOAP for multiple
+systems, provide the positions as a list for each system.</p></li>
+<li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
+the calculation across samples. Defaults to serial calculation
+with n_jobs=1.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Controls whether to print the progress of each job
+into to the console.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The ACSF output for the
-given system and positions. The return type depends on the
-‘sparse’-attribute. The first dimension is given by the number of
-positions and the second dimension is determined by the
-get_number_of_features()-function.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">np.ndarray | scipy.sparse.coo_matrix</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The ACSF output for the given
+systems and positions. The return type depends on the
+‘sparse’-attribute. The first dimension is determined by the amount
+of positions and systems and the second dimension is determined by
+the get_number_of_features()-function.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray | scipy.sparse.csr_matrix</p>
+</dd>
+</dl>
 </dd></dl>
 
 <p>The output will in this case be a numpy array with shape [#positions,

@@ -2,7 +2,9 @@ Installation
 ============
 The package is compatible both with Python 2 and Python 3 (tested on 2.7 and
 3.6). We currently only support Unix-based systems, including Linux and macOS.
-The exact list of dependencies are given in setup.py and all of them will be
+For Windows-machines we suggest using the `Windows Subsystem for Linux
+(WSL) <https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux>`_. The exact
+list of dependencies are given in setup.py and all of them will be
 automatically installed during setup.
 
 The latest stable release is available through pip: (add the *-\\-user* flag if

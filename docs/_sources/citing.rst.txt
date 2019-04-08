@@ -1,4 +1,4 @@
 Citing DScribe
 ==============
 
-We are currently preparing a publication: *L. Himanen, E. Morooka, F. Federici Canova, M. Jäger, Y. Ranawat, A. S. Foster, P. Rinke, submitted (2019)*
+We are currently preparing a publication: *L. Himanen, M. Jäger, E. Morooka, F. Federici Canova, Y. Ranawat, D. Z, Gao, P. Rinke, A. S. Foster, submitted (2019)*
