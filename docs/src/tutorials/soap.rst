@@ -59,7 +59,7 @@ Creation
 After SOAP has been set up, it may be used on atomic structures with the
 :meth:`.SOAP.create`-function.
 
-.. literalinclude:: ../../../examples/coulombmatrix.py
+.. literalinclude:: ../../../examples/soap.py
    :start-after: Creation
    :language: python
    :lines: 1-16
@@ -173,8 +173,8 @@ It seems that the local environments of water and hydrogen peroxide are more
 similar to each other. To see more advanced methods for comparing structures of
 different sizes with each other, see the :doc:`kernel building tutorial
 <kernels>`. Notice that simply averaging the SOAP vector does not always
-correspond to the Average Kernel discussed in the advanced tutorial, as for
-non-linear kernels the order of kernel calculation and averaging matters.
+correspond to the Average Kernel discussed in the kernel building tutorial, as
+for non-linear kernels the order of kernel calculation and averaging matters.
 
 .. bibliography:: ../references.bib
    :style: unsrt
