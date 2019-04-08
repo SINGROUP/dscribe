@@ -8,14 +8,9 @@ import unittest
 
 from dscribe.core import System
 from dscribe.descriptors import ACSF
-from dscribe.descriptors import CoulombMatrix
-from dscribe.descriptors import SOAP
-from dscribe.utils import batch_create
 from dscribe.utils.species import symbols_to_numbers
 
 from ase.lattice.cubic import SimpleCubicFactory
-from ase.build import molecule
-from ase.visualize import view
 import ase.data
 
 

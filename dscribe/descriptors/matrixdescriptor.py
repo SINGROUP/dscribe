@@ -30,11 +30,13 @@ class MatrixDescriptor(Descriptor):
                       after applying Gaussian noise to the norms. The standard
                       deviation of the noise is determined by the
                       sigma-parameter.
-            sigma (float): Standard deviation of the gaussian distributed noise
+            sigma (float): Provide only when using the *random*-permutation
+                option. Standard deviation of the gaussian distributed noise
                 determining how much the rows and columns of the randomly
                 sorted matrix are scrambled.
-            seed (int): A seed to use for drawing samples from a normal
-                distribution when the permutation method is set to random.
+            seed (int): Provide only when using the *random*-permutation
+                option. A seed to use for drawing samples from a normal
+                distribution.
             flatten (bool): Whether the output of create() should be flattened
                 to a 1D array.
             sparse (bool): Whether the output should be a sparse matrix or a

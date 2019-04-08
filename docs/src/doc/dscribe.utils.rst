@@ -4,14 +4,6 @@ dscribe.utils package
 Submodules
 ----------
 
-dscribe.utils.batch\_create module
-----------------------------------
-
-.. automodule:: dscribe.utils.batch_create
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 dscribe.utils.species module
 ----------------------------
 

@@ -10,16 +10,22 @@ cm = CoulombMatrix(
     n_atoms_max=6,
 )
 
-# Creating an atomic system as an ase.Atoms-object
+# Creation
 from ase.build import molecule
+
+# Molecule created as an ASE.Atoms
 methanol = molecule("CH3OH")
-print(methanol)
 
 # Create CM output for the system
 cm_methanol = cm.create(methanol)
 
 print(cm_methanol)
 print("flattened", cm_methanol.shape)
+
+# Create output for multiple system
+samples = [molecule("H2O"), molecule("NO2"), molecule("CO2")]
+coulomb_matrices = cm.create(samples)            # Serial
+coulomb_matrices = cm.create(samples, n_jobs=2)  # Parallel
 
 # No flattening
 cm = CoulombMatrix(
@@ -31,7 +37,7 @@ print(cm_methanol)
 print("not flattened", cm_methanol.shape)
 
 
-# Introduce zero-padding
+# Zero-padding
 cm = CoulombMatrix(
     n_atoms_max=10, flatten=False
 )
@@ -54,32 +60,31 @@ cm = CoulombMatrix(
 cm_methanol = cm.create(methanol)
 print("with pbc", cm_methanol)
 
-## Sparse output
-# no example
-
-# Translation, rotation and permutation
+# Invariance
 cm = CoulombMatrix(
-    n_atoms_max=6, flatten=False
+    n_atoms_max=6,
+    flatten=False,
+    permutation="sorted_l2"
 )
-print("invariance with respect to translation, rotation and permutation")
-# Translate
+
+# Translation
 methanol.translate((5, 7, 9))
 cm_methanol = cm.create(methanol)
 print(cm_methanol)
 
-# Rotate
+# Rotation
 methanol.rotate(90, 'z', center=(0, 0, 0))
 cm_methanol = cm.create(methanol)
 print(cm_methanol)
 
-# Permutate
+# Permutation
 upside_down_methanol = methanol[::-1]
 cm_methanol = cm.create(upside_down_methanol)
 print(cm_methanol)
 
 # Options for permutation
 
-# No Sorting
+# No sorting
 cm = CoulombMatrix(
     n_atoms_max=6, flatten=False,
     permutation='none'
@@ -117,17 +122,3 @@ cm = CoulombMatrix(
 
 cm_methanol = cm.create(methanol)
 print("eigenvalues", cm_methanol)
-
-
-# Creating multiple descriptors in parallel
-from dscribe.utils import batch_create
-water = molecule("H2O")
-
-molecule_lst = [water, methanol]
-
-cm = CoulombMatrix(
-    n_atoms_max=6,
-)
-batch = batch_create(cm, molecule_lst, n_proc=1)
-
-print(batch.shape)
