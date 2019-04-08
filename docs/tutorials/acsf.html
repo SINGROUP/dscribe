@@ -277,7 +277,9 @@ into to the console.</p></li>
 systems and positions. The return type depends on the
 ‘sparse’-attribute. The first dimension is determined by the amount
 of positions and systems and the second dimension is determined by
-the get_number_of_features()-function.</p>
+the get_number_of_features()-function. When multiple systems are
+provided the results are ordered by the input order of systems and
+their positions.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>np.ndarray | scipy.sparse.csr_matrix</p>

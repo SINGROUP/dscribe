@@ -258,7 +258,9 @@
 <span class="sd">            systems and positions. The return type depends on the</span>
 <span class="sd">            &#39;sparse&#39;-attribute. The first dimension is determined by the amount</span>
 <span class="sd">            of positions and systems and the second dimension is determined by</span>
-<span class="sd">            the get_number_of_features()-function.</span>
+<span class="sd">            the get_number_of_features()-function. When multiple systems are</span>
+<span class="sd">            provided the results are ordered by the input order of systems and</span>
+<span class="sd">            their positions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># If single system given, skip the parallelization</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="p">(</span><span class="n">Atoms</span><span class="p">,</span> <span class="n">System</span><span class="p">)):</span>
