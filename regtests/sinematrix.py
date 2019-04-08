@@ -100,6 +100,17 @@ class SineMatrixTests(TestBaseClass, unittest.TestCase):
         assumed[1, :] = desc.create(samples[1])
         self.assertTrue(np.allclose(output, assumed))
 
+        # Non-flattened output
+        desc = SineMatrix(n_atoms_max=5, permutation="none", flatten=False, sparse=False)
+        output = desc.create(
+            system=samples,
+            n_jobs=2,
+        )
+        assumed = np.empty((2, 5, 5))
+        assumed[0] = desc.create(samples[0])
+        assumed[1] = desc.create(samples[1])
+        self.assertTrue(np.allclose(np.array(output), assumed))
+
     def test_parallel_sparse(self):
         """Tests creating sparse output parallelly.
         """
@@ -127,6 +138,17 @@ class SineMatrixTests(TestBaseClass, unittest.TestCase):
         assumed[0, :] = desc.create(samples[0]).toarray()
         assumed[1, :] = desc.create(samples[1]).toarray()
         self.assertTrue(np.allclose(output, assumed))
+
+        # Non-flattened output
+        desc = SineMatrix(n_atoms_max=5, permutation="none", flatten=False, sparse=True)
+        output = [x.toarray() for x in desc.create(
+            system=samples,
+            n_jobs=2,
+        )]
+        assumed = np.empty((2, 5, 5))
+        assumed[0] = desc.create(samples[0]).toarray()
+        assumed[1] = desc.create(samples[1]).toarray()
+        self.assertTrue(np.allclose(np.array(output), assumed))
 
     def test_features(self):
         """Tests that the correct features are present in the desciptor.

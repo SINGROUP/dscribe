@@ -190,21 +190,24 @@ class Descriptor(with_metaclass(ABCMeta)):
         # Calculate the result in parallel with joblib
         if output_sizes is None:
             output_sizes = n_jobs*[None]
+            static_size = False
+        else:
+            static_size = True
 
         def create_multiple(arguments, func, is_sparse, n_features, n_desc, index, verbose):
             """This is the function that is called by each job but with
             different parts of the data.
             """
             # Initialize output
-            if is_sparse:
-                data = []
-                rows = []
-                cols = []
+            if n_desc is None:
+                results = []
             else:
-                if n_desc is not None:
-                    results = np.empty((n_desc, n_features), dtype=np.float32)
+                if is_sparse:
+                    data = []
+                    rows = []
+                    cols = []
                 else:
-                    results = []
+                    results = np.empty((n_desc, n_features), dtype=np.float32)
 
             offset = 0
             i_sample = 0
@@ -214,13 +217,13 @@ class Descriptor(with_metaclass(ABCMeta)):
             for i_sample, i_arg in enumerate(arguments):
                 i_out = func(*i_arg)
 
-                if is_sparse:
-                    data.append(i_out.data)
-                    rows.append(i_out.row + offset)
-                    cols.append(i_out.col)
+                if n_desc is None:
+                    results.append(i_out)
                 else:
-                    if n_desc is None:
-                        results.append(i_out)
+                    if is_sparse:
+                        data.append(i_out.data)
+                        rows.append(i_out.row + offset)
+                        cols.append(i_out.col)
                     else:
                         results[offset:offset+i_out.shape[0], :] = i_out
 
@@ -232,7 +235,7 @@ class Descriptor(with_metaclass(ABCMeta)):
 
                 offset += i_out.shape[0]
 
-            if is_sparse:
+            if n_desc is not None and is_sparse:
                 data = np.concatenate(data)
                 rows = np.concatenate(rows)
                 cols = np.concatenate(cols)
@@ -249,42 +252,42 @@ class Descriptor(with_metaclass(ABCMeta)):
         # Remove the job index
         vec_lists = [x[0] for x in vec_lists]
 
-        if self._sparse:
-            row_offset = 0
-            data = []
-            cols = []
-            rows = []
-            n_descs = 0
-            for i, i_res in enumerate(vec_lists):
-                n_descs += i_res.shape[0]
-                i_res = i_res.tocoo()
-                i_n_desc = i_res.shape[0]
-                i_data = i_res.data
-                i_col = i_res.col
-                i_row = i_res.row
+        if static_size is True:
+            if self._sparse:
+                row_offset = 0
+                data = []
+                cols = []
+                rows = []
+                n_descs = 0
+                for i, i_res in enumerate(vec_lists):
+                    n_descs += i_res.shape[0]
+                    i_res = i_res.tocoo()
+                    i_n_desc = i_res.shape[0]
+                    i_data = i_res.data
+                    i_col = i_res.col
+                    i_row = i_res.row
 
-                data.append(i_data)
-                rows.append(i_row + row_offset)
-                cols.append(i_col)
+                    data.append(i_data)
+                    rows.append(i_row + row_offset)
+                    cols.append(i_col)
 
-                # Increase the row offset
-                row_offset += i_n_desc
+                    # Increase the row offset
+                    row_offset += i_n_desc
 
-            # Saves the descriptors as a sparse matrix
-            data = np.concatenate(data)
-            rows = np.concatenate(rows)
-            cols = np.concatenate(cols)
-            results = coo_matrix((data, (rows, cols)), shape=[n_descs, n_features], dtype=np.float32)
+                # Saves the descriptors as a sparse matrix
+                data = np.concatenate(data)
+                rows = np.concatenate(rows)
+                cols = np.concatenate(cols)
+                results = coo_matrix((data, (rows, cols)), shape=[n_descs, n_features], dtype=np.float32)
 
-            # The final output is transformed into CSR form which is faster for
-            # linear algebra
-            results = results.tocsr()
-        else:
-            if n_features is None:
-                results = []
-                for part in vec_lists:
-                    results.extend(part)
+                # The final output is transformed into CSR form which is faster for
+                # linear algebra
+                results = results.tocsr()
             else:
                 results = np.concatenate(vec_lists, axis=0)
+        else:
+            results = []
+            for part in vec_lists:
+                results.extend(part)
 
         return results

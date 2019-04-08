@@ -45,11 +45,12 @@ class SineMatrix(MatrixDescriptor):
                 into to the console.
 
         Returns:
-            np.ndarray | scipy.sparse.csr_matrix: The Sine matrix output for
-            the given systems. The return type depends on the
-            'sparse'-attribute. The first dimension is determined by the amount
-            of systems and the second dimension is determined by the
-            get_number_of_features()-function.
+            np.ndarray | scipy.sparse.csr_matrix | list: Coulomb matrix for the
+            given systems. The return type depends on the 'sparse' and
+            'flatten'-attributes. For flattened output a single numpy array or
+            sparse scipy.csr_matrix is returned. The first dimension is
+            determined by the amount of systems. If the output is not
+            flattened, a simple python list is returned.
         """
         # If single system given, skip the parallelization
         if isinstance(system, (Atoms, System)):
@@ -59,10 +60,13 @@ class SineMatrix(MatrixDescriptor):
         inp = [(i_sys,) for i_sys in system]
 
         # Here we precalculate the size for each job to preallocate memory.
-        n_samples = len(system)
-        k, m = divmod(n_samples, n_jobs)
-        jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
-        output_sizes = [len(job) for job in jobs]
+        if self._flatten:
+            n_samples = len(system)
+            k, m = divmod(n_samples, n_jobs)
+            jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
+            output_sizes = [len(job) for job in jobs]
+        else:
+            output_sizes = None
 
         # Create in parallel
         output = self.create_parallel(inp, self.create_single, n_jobs, output_sizes, verbose=verbose)
