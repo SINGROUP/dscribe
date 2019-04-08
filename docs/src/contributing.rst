@@ -4,9 +4,8 @@ Contributing
 Follow these general instructions if you wish to contribute a new descriptor
 implementation to DScribe:
 
-    1. Contact the authors to get initial approval for your idea of a new
-       descriptor implementation. Preferably backed up by publications or other
-       results.
+    1. Contact the authors to discuss your idea for a new descriptor
+       implementation.
     2. Read the code style guideline (below).
     3. Fork the repository and do all modifications within it.
     4. Implement the descriptor as a class within a new module in
@@ -23,7 +22,7 @@ implementation to DScribe:
        running *dscribe/regtests/testrunner.py*.
     7. Create tutorial for the descriptor in *dscribe/docs/src/tutorials*.
        Follow the structure of the existing tutorials.
-    8. Create a pull request in Gitlab.
+    8. Create a pull request in GitHub.
 
 Code style guideline
 --------------------
