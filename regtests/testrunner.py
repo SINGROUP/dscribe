@@ -7,7 +7,7 @@ import sys
 # Import the test modules
 import generaltests
 import coulombmatrix
-import ewaldmatrix
+import ewaldsummatrix
 import sinematrix
 import matrixpermutation
 import acsf
@@ -25,7 +25,7 @@ suite = unittest.TestSuite()
 suite.addTests(loader.loadTestsFromModule(generaltests))
 suite.addTests(loader.loadTestsFromModule(coulombmatrix))
 suite.addTests(loader.loadTestsFromModule(matrixpermutation))
-suite.addTests(loader.loadTestsFromModule(ewaldmatrix))
+suite.addTests(loader.loadTestsFromModule(ewaldsummatrix))
 suite.addTests(loader.loadTestsFromModule(sinematrix))
 suite.addTests(loader.loadTestsFromModule(acsf))
 suite.addTests(loader.loadTestsFromModule(mbtr))

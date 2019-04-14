@@ -16,9 +16,9 @@ Capabilities at a Glance
 
 DScribe currently includes the following descriptors:
 
-  - :doc:`Coulomb Matrix <tutorials/coulomb_matrix>`
-  - :doc:`Sine Matrix <tutorials/sine_matrix>`
-  - :doc:`Ewald Matrix <tutorials/ewald_matrix>`
+  - :doc:`Coulomb matrix <tutorials/coulomb_matrix>`
+  - :doc:`Sine matrix <tutorials/sine_matrix>`
+  - :doc:`Ewald sum matrix <tutorials/ewald_sum_matrix>`
   - :doc:`Atom-centered Symmetry Functions (ACSF) <tutorials/acsf>`
   - :doc:`Smooth Overlap of Atomic Positions (SOAP) <tutorials/soap>`
   - :doc:`Many-body Tensor Representation (MBTR) <tutorials/mbtr>`

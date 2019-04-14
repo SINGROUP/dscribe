@@ -2,7 +2,7 @@ from dscribe.descriptors.descriptor import Descriptor
 from dscribe.descriptors.acsf import ACSF
 from dscribe.descriptors.mbtr import MBTR
 from dscribe.descriptors.lmbtr import LMBTR
-from dscribe.descriptors.ewaldmatrix import EwaldMatrix
+from dscribe.descriptors.ewaldsummatrix import EwaldSumMatrix
 from dscribe.descriptors.coulombmatrix import CoulombMatrix
 from dscribe.descriptors.sinematrix import SineMatrix
 from dscribe.descriptors.elementaldistribution import ElementalDistribution

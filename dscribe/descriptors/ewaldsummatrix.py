@@ -13,13 +13,13 @@ from dscribe.descriptors.matrixdescriptor import MatrixDescriptor
 from dscribe.core.lattice import Lattice
 
 
-class EwaldMatrix(MatrixDescriptor):
+class EwaldSumMatrix(MatrixDescriptor):
     """
-    Calculates an Ewald matrix for the a given system.
+    Calculates an Ewald sum matrix for the a given system.
 
-    Each entry M_ij of the Ewald matrix will contain the Coulomb energy between
-    atoms i and j calculated with the Ewald summation method. In the Ewald
-    method a constant neutralizing background charge has been added to
+    Each entry M_ij of the Ewald sum matrix will contain the Coulomb energy
+    between atoms i and j calculated with the Ewald summation method. In the
+    Ewald method a constant neutralizing background charge has been added to
     counteract the positive net charge.
 
     The total electrostatic interaction energy in the system can calculated by
@@ -55,7 +55,7 @@ class EwaldMatrix(MatrixDescriptor):
         Args:
             system (single or multiple class:`ase.Atoms`): One or many atomic structures.
             accuracy (float): The accuracy to which the sum is converged to.
-                Corresponds to the variable :math`A` in
+                Corresponds to the variable :math:`A` in
                 https://doi.org/10.1080/08927022.2013.840898. Used only if
                 gcut, rcut and a have not been specified. Provide either one
                 value or a list of values for each system.
@@ -72,9 +72,10 @@ class EwaldMatrix(MatrixDescriptor):
             gcut (float): Reciprocal space cutoff radius. Provide either one
                 value or a list of values for each system.
             a (float): The screening parameter that controls the width of the
-                Gaussians. Corresponds to the standard deviation of the
-                Gaussians. Provide either one value or a list of values for
-                each system.
+                Gaussians. If not provided, a default value of :math:`\\alpha =
+                \sqrt{\pi}\left(\\frac{N}{V^2}\\right)^{1/6}` is used.
+                Corresponds to the standard deviation of the Gaussians. Provide
+                either one value or a list of values for each system.
             n_jobs (int): Number of parallel jobs to instantiate. Parallellizes
                 the calculation across samples. Defaults to serial calculation
                 with n_jobs=1.
@@ -82,7 +83,7 @@ class EwaldMatrix(MatrixDescriptor):
                 into to the console.
 
         Returns:
-            np.ndarray | scipy.sparse.csr_matrix | list: Coulomb matrix for the
+            np.ndarray | scipy.sparse.csr_matrix | list: Ewald sum matrix for the
             given systems. The return type depends on the 'sparse' and
             'flatten'-attributes. For flattened output a single numpy array or
             sparse scipy.csr_matrix is returned. The first dimension is
@@ -125,7 +126,7 @@ class EwaldMatrix(MatrixDescriptor):
         Args:
             system (:class:`ase.Atoms` | :class:`.System`): Input system.
             accuracy (float): The accuracy to which the sum is converged to.
-                Corresponds to the variable :math`A` in
+                Corresponds to the variable :math:`A` in
                 https://doi.org/10.1080/08927022.2013.840898. Used only if gcut,
                 rcut and a have not been specified.
             w (float): Weight parameter that represents the relative
@@ -138,7 +139,9 @@ class EwaldMatrix(MatrixDescriptor):
                 many terms are used in the real space sum.
             gcut (float): Reciprocal space cutoff radius.
             a (float): The screening parameter that controls the width of the
-                Gaussians. Corresponds to the standard deviation of the Gaussians
+                Gaussians. If not provided, a default value of :math:`\\alpha =
+                \sqrt{\pi}\left(\\frac{N}{V^2}\\right)^{1/6}` is used.
+                Corresponds to the standard deviation of the Gaussians.
         """
         self.q = system.get_atomic_numbers()
         self.q_squared = self.q**2
@@ -194,7 +197,7 @@ class EwaldMatrix(MatrixDescriptor):
         return total
 
     def _calc_zero(self):
-        """Calculates the constant part of the Ewald matrix.
+        """Calculates the constant part of the Ewald sum matrix.
 
         The constant part contains the correction for the self-interaction
         between the point charges and the Gaussian charge distribution added on

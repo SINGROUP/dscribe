@@ -6,7 +6,7 @@ import math
 import numpy as np
 import unittest
 
-from dscribe.descriptors import EwaldMatrix
+from dscribe.descriptors import EwaldSumMatrix
 
 from ase import Atoms
 from ase.build import bulk
@@ -37,38 +37,38 @@ rcut = 30
 gcut = 20
 
 
-class EwaldMatrixTests(TestBaseClass, unittest.TestCase):
+class EwaldSumMatrixTests(TestBaseClass, unittest.TestCase):
 
     def test_constructor(self):
         """Tests different valid and invalid constructor values.
         """
         with self.assertRaises(ValueError):
-            EwaldMatrix(n_atoms_max=5, permutation="unknown")
+            EwaldSumMatrix(n_atoms_max=5, permutation="unknown")
         with self.assertRaises(ValueError):
-            EwaldMatrix(n_atoms_max=-1)
+            EwaldSumMatrix(n_atoms_max=-1)
 
     def test_create(self):
         """Tests different valid and invalid create values.
         """
         with self.assertRaises(ValueError):
-            desc = EwaldMatrix(n_atoms_max=5)
+            desc = EwaldSumMatrix(n_atoms_max=5)
             desc.create(H2O, rcut=10)
         with self.assertRaises(ValueError):
-            desc = EwaldMatrix(n_atoms_max=5)
+            desc = EwaldSumMatrix(n_atoms_max=5)
             desc.create(H2O, gcut=10)
 
         # Providing a only is valid
-        desc = EwaldMatrix(n_atoms_max=5)
+        desc = EwaldSumMatrix(n_atoms_max=5)
         desc.create(H2O, a=0.5)
 
         # Providing no parameters is valid
-        desc = EwaldMatrix(n_atoms_max=5)
+        desc = EwaldSumMatrix(n_atoms_max=5)
         desc.create(H2O)
 
     def test_number_of_features(self):
         """Tests that the reported number of features is correct.
         """
-        desc = EwaldMatrix(n_atoms_max=5, permutation="none", flatten=False)
+        desc = EwaldSumMatrix(n_atoms_max=5, permutation="none", flatten=False)
         n_features = desc.get_number_of_features()
         self.assertEqual(n_features, 25)
 
@@ -76,12 +76,12 @@ class EwaldMatrixTests(TestBaseClass, unittest.TestCase):
         """Tests the flattening.
         """
         # Unflattened
-        desc = EwaldMatrix(n_atoms_max=5, permutation="none", flatten=False)
+        desc = EwaldSumMatrix(n_atoms_max=5, permutation="none", flatten=False)
         matrix = desc.create(H2O)
         self.assertEqual(matrix.shape, (5, 5))
 
         # Flattened
-        desc = EwaldMatrix(n_atoms_max=5, permutation="none", flatten=True)
+        desc = EwaldSumMatrix(n_atoms_max=5, permutation="none", flatten=True)
         matrix = desc.create(H2O)
         self.assertEqual(matrix.shape, (1, 25))
 
@@ -89,12 +89,12 @@ class EwaldMatrixTests(TestBaseClass, unittest.TestCase):
         """Tests the sparse matrix creation.
         """
         # Dense
-        desc = EwaldMatrix(n_atoms_max=5, permutation="none", flatten=True, sparse=False)
+        desc = EwaldSumMatrix(n_atoms_max=5, permutation="none", flatten=True, sparse=False)
         vec = desc.create(H2O)
         self.assertTrue(type(vec) == np.ndarray)
 
         # Sparse
-        desc = EwaldMatrix(n_atoms_max=5, permutation="none", flatten=True, sparse=True)
+        desc = EwaldSumMatrix(n_atoms_max=5, permutation="none", flatten=True, sparse=True)
         vec = desc.create(H2O)
         self.assertTrue(type(vec) == scipy.sparse.coo_matrix)
 
@@ -102,7 +102,7 @@ class EwaldMatrixTests(TestBaseClass, unittest.TestCase):
         """Tests creating dense output parallelly.
         """
         samples = [bulk("NaCl", "rocksalt", a=5.64), bulk('Cu', 'fcc', a=3.6)]
-        desc = EwaldMatrix(n_atoms_max=5, permutation="none", flatten=True, sparse=False)
+        desc = EwaldSumMatrix(n_atoms_max=5, permutation="none", flatten=True, sparse=False)
         n_features = desc.get_number_of_features()
 
         # Test multiple systems, serial job
@@ -126,7 +126,7 @@ class EwaldMatrixTests(TestBaseClass, unittest.TestCase):
         self.assertTrue(np.allclose(output, assumed))
 
         # Non-flattened output
-        desc = EwaldMatrix(n_atoms_max=5, permutation="none", flatten=False, sparse=False)
+        desc = EwaldSumMatrix(n_atoms_max=5, permutation="none", flatten=False, sparse=False)
         output = desc.create(
             system=samples,
             n_jobs=2,
@@ -141,7 +141,7 @@ class EwaldMatrixTests(TestBaseClass, unittest.TestCase):
         """
         # Test indices
         samples = [bulk("NaCl", "rocksalt", a=5.64), bulk('Cu', 'fcc', a=3.6)]
-        desc = EwaldMatrix(n_atoms_max=5, permutation="none", flatten=True, sparse=True)
+        desc = EwaldSumMatrix(n_atoms_max=5, permutation="none", flatten=True, sparse=True)
         n_features = desc.get_number_of_features()
 
         # Test multiple systems, serial job
@@ -165,7 +165,7 @@ class EwaldMatrixTests(TestBaseClass, unittest.TestCase):
         self.assertTrue(np.allclose(output, assumed))
 
         # Non-flattened output
-        desc = EwaldMatrix(n_atoms_max=5, permutation="none", flatten=False, sparse=True)
+        desc = EwaldSumMatrix(n_atoms_max=5, permutation="none", flatten=False, sparse=True)
         output = [x.toarray() for x in desc.create(
             system=samples,
             n_jobs=2,
@@ -186,7 +186,7 @@ class EwaldMatrixTests(TestBaseClass, unittest.TestCase):
         gcut = 30
         prev_array = None
         for i, a in enumerate([0.1, 0.5, 1, 2, 3]):
-            desc = EwaldMatrix(n_atoms_max=5, permutation="none", flatten=False)
+            desc = EwaldSumMatrix(n_atoms_max=5, permutation="none", flatten=False)
             matrix = desc.create(H2O, a=a, rcut=rcut, gcut=gcut)
 
             if i > 0:
@@ -201,7 +201,7 @@ class EwaldMatrixTests(TestBaseClass, unittest.TestCase):
         system = H2O
         n_atoms = len(system)
         a = 0.5
-        desc = EwaldMatrix(n_atoms_max=3, permutation="none", flatten=False)
+        desc = EwaldSumMatrix(n_atoms_max=3, permutation="none", flatten=False)
 
         # The Ewald matrix contains the electrostatic interaction between atoms
         # i and j. Here we construct the total electrostatic energy for a
@@ -262,7 +262,7 @@ class EwaldMatrixTests(TestBaseClass, unittest.TestCase):
         """
         system = H2O
         n_atoms = len(system)
-        desc = EwaldMatrix(n_atoms_max=3, permutation="none", flatten=False)
+        desc = EwaldSumMatrix(n_atoms_max=3, permutation="none", flatten=False)
 
         # The Ewald matrix contains the electrostatic interaction between atoms i
         # and j. Here we construct the total electrostatic energy from this matrix.
@@ -321,7 +321,7 @@ class EwaldMatrixTests(TestBaseClass, unittest.TestCase):
     def test_unit_cells(self):
         """Tests if arbitrary unit cells are accepted
         """
-        desc = EwaldMatrix(n_atoms_max=3, permutation="none", flatten=False)
+        desc = EwaldSumMatrix(n_atoms_max=3, permutation="none", flatten=False)
         molecule = H2O.copy()
 
         # A system without cell should produce an error
@@ -362,7 +362,7 @@ class EwaldMatrixTests(TestBaseClass, unittest.TestCase):
         """Tests the symmetries of the descriptor.
         """
         def create(system):
-            desc = EwaldMatrix(n_atoms_max=3, permutation="sorted_l2", flatten=True)
+            desc = EwaldSumMatrix(n_atoms_max=3, permutation="sorted_l2", flatten=True)
             return desc.create(system)
 
         # Rotational
@@ -377,6 +377,6 @@ class EwaldMatrixTests(TestBaseClass, unittest.TestCase):
 
 if __name__ == '__main__':
     suites = []
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(EwaldMatrixTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(EwaldSumMatrixTests))
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)
