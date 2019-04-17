@@ -28,7 +28,8 @@ term is non-zero and additionally depends on the screening parameter
 Setup
 -----
 
-Instantiating an Ewald sum matrix descriptor can be done as follows:
+Instantiating the object that is used to create Ewald sum matrices can be done as
+follows:
 
 .. literalinclude:: ../../../examples/ewaldsummatrix.py
    :language: python
@@ -42,7 +43,7 @@ Creation
 --------
 
 After the Ewald sum matrix has been set up, it may be used on periodic atomic
-structures with the :meth:`.EwaldSumMatrix.create`-function.
+structures with the :meth:`~.EwaldSumMatrix.create`-method.
 
 .. literalinclude:: ../../../examples/ewaldsummatrix.py
    :start-after: Creation
@@ -57,24 +58,21 @@ Note that if you specify in *n_atoms_max* a lower number than atoms in your
 structure it will cause an error. The output will in this case be a flattened
 matrix, specifically a numpy array with size #atoms * #atoms. The number of
 features may be requested beforehand with the
-:meth:`.EwaldSumMatrix.get_number_of_features`-function.
+:meth:`~.MatrixDescriptor.get_number_of_features`-method.
 
 In the case of multiple samples, the creation can also be parallellized by using the
 *n_jobs*-parameter. This splits the list of structures into equally sized parts
 and spaws a separate process to handle each part.
 
-.. bibliography:: ../references.bib
-   :style: unsrt
-   :cited:
-   :filter: docname in docnames
-
 Examples
 --------
+The following examples demonstrate usage of the descriptor. These
+examples are also available in dscribe/examples/ewaldsummatrix.py.
 
 Accuracy
 ~~~~~~~~
 Easiest way to control the accuracy of the Ewald summation is to use the
-**accuracy**-parameter. Lower values of this parameter correspond to tighter
+*accuracy*-parameter. Lower values of this parameter correspond to tighter
 convergence criteria and better accuracy.
 
 .. literalinclude:: ../../../examples/ewaldsummatrix.py
@@ -106,3 +104,7 @@ pymatgen:
    :start-after: Energy
    :language: python
    :lines: 24-32
+
+.. bibliography:: ../references.bib
+   :style: unsrt
+   :filter: docname in docnames

@@ -1,69 +1,19 @@
 Coulomb Matrix
 ==============
 
-Coulomb Matrix (CM) is a simple global descriptor which mimics the
-electrostatic interaction between nuclei. The original article :cite:`cm` outlines the
-concept of the descriptor and the relation to its name giver coulomb repulsion.
+Coulomb Matrix (CM) :cite:`cm` is a simple global descriptor which mimics the
+electrostatic interaction between nuclei.
 
-Setup
------
-
-In order to create a coulomb matrix, we first set up the descriptor-object.
-
-Instantiating a CM descriptor can be done as follows:
-
-.. literalinclude:: ../../../examples/coulombmatrix.py
-   :language: python
-   :lines: 1-11
-
-The arguments have the following effect:
-
-.. automethod:: dscribe.descriptors.coulombmatrix.CoulombMatrix.__init__
-
-Creation
---------
-
-After CM has been set up, it may be used on atomic structures with the
-:meth:`.CoulombMatrix.create`-function.
-
-.. literalinclude:: ../../../examples/coulombmatrix.py
-   :start-after: Creation
-   :language: python
-   :lines: 1-16
-
-The call syntax for the create-function is as follows:
-
-.. automethod:: dscribe.descriptors.coulombmatrix.CoulombMatrix.create
-
-Note that if you specify in *n_atoms_max* a lower number than atoms in your
-structure it will cause an error. The output will in this case be a flattened
-matrix, specifically a numpy array with size #atoms * #atoms. The number of
-features may be requested beforehand with the
-:meth:`.CoulombMatrix.get_number_of_features`-function.
-
-In the case of multiple samples, the creation can also be parallellized by using the
-*n_jobs*-parameter. This splits the list of structures into equally sized parts
-and spaws a separate process to handle each part.
-
-
-Background on Coulomb Matrix
-----------------------------
-
-Since the Coulomb Matrix was published in 2012 more sophisticated descriptors
-have been developed. However, CM still does a reasonably good job when
-comparing molecules with each other. Apart from that, it can be understood
-intuitively and is a good introduction to descriptors.
-
-The CM is calculated with the equation below.
+Coulomb matrix is calculated with the equation below.
 
 .. math::
     \begin{equation}
-    M_{ij}=\left\{
-                    \begin{matrix}
-                    0.5 \cdot Z_i^{2.4} & \text{for }   i = j   \\
-                     \frac{Z_i \cdot Z_j}{R_{ij}} & \text{for }   i \neq j
-                    \end{matrix}
-                  \right.
+    M_{ij}^\mathrm{Coulomb}=\left\{
+        \begin{matrix}
+        0.5 Z_i^{2.4} & \text{for } i = j \\
+            \frac{Z_i Z_j}{R_{ij}} & \text{for } i \neq j
+        \end{matrix}
+        \right.
     \end{equation}
 
 The diagonal elements can be seen as the interaction of an atom with itself and
@@ -71,9 +21,7 @@ are essentially a polynomial fit of the atomic energies to the nuclear charge
 :math:`Z_i`. The off-diagonal elements represent the Coulomb repulsion between
 nuclei :math:`i` and :math:`j`.
 
-Let's have a look at the CM of methanol:
-
-image on methanol next to coulomb matrix
+Let's have a look at the CM for methanol:
 
 .. image:: /_static/img/methanol-3d-balls.png
    :width: 344px
@@ -99,12 +47,60 @@ symmetric. Furthermore, the second row (column) corresponds to oxygen and the
 remaining rows (columns) correspond to hydrogen (H). Can you determine which
 one is which?
 
-The ordering of the rows and columns is arbitrary. If oxygen appeared before
-carbon, the first and the second row and coulumn would have to be flipped. Let
-us reproduce the above matrix by switching off the *flatten* keyword.
+Since the Coulomb Matrix was published in 2012 more sophisticated descriptors
+have been developed. However, CM still does a reasonably good job when
+comparing molecules with each other. Apart from that, it can be understood
+intuitively and is a good introduction to descriptors.
+
+Setup
+-----
+
+Instantiating the object that is used to create Coulomb matrices can be done as
+follows:
+
+.. literalinclude:: ../../../examples/coulombmatrix.py
+   :language: python
+   :lines: 1-11
+
+The constructor takes the following parameters:
+
+.. automethod:: dscribe.descriptors.coulombmatrix.CoulombMatrix.__init__
+
+Creation
+--------
+
+After CM has been set up, it may be used on atomic structures with the
+:meth:`~.CoulombMatrix.create`-method.
+
+.. literalinclude:: ../../../examples/coulombmatrix.py
+   :start-after: Creation
+   :language: python
+   :lines: 1-15
+
+The call syntax for the create-function is as follows:
+
+.. automethod:: dscribe.descriptors.coulombmatrix.CoulombMatrix.create
+
+Note that if you specify in *n_atoms_max* a lower number than atoms in your
+structure it will cause an error. The output will in this case be a flattened
+matrix, specifically a numpy array with size #atoms * #atoms. The number of
+features may be requested beforehand with the
+:meth:`~.MatrixDescriptor.get_number_of_features`-method.
+
+In the case of multiple samples, the creation can also be parallellized by using the
+*n_jobs*-parameter. This splits the list of structures into equally sized parts
+and spaws a separate process to handle each part.
+
+Examples
+--------
+
+The following examples demonstrate usage of the descriptor. These
+examples are also available in dscribe/examples/coulombmatrix.py.
 
 No flattening
 ~~~~~~~~~~~~~
+You can control whether the returned array is two-dimensional or
+one-dimensional by using the *flatten*-parameter
 
 .. literalinclude:: ../../../examples/coulombmatrix.py
    :language: python
@@ -113,11 +109,9 @@ No flattening
 
 No Sorting
 ~~~~~~~~~~~
-
-You did not get the matrix in the same order. By default, CM is sorted by the
-L2-norm (more on that later). In order to get the unsorted CM it is necessary
-to specify the keyword *permutation* = "None" when setting it up.
-
+By default, CM is sorted by the L2-norm (more on that later). In order to get
+the unsorted CM it is necessary to specify the keyword *permutation = "none"*
+when setting it up.
 
 .. literalinclude:: ../../../examples/coulombmatrix.py
    :language: python
@@ -126,7 +120,6 @@ to specify the keyword *permutation* = "None" when setting it up.
 
 Zero-padding
 ~~~~~~~~~~~~~
-
 The number of features in CM depends on the size of the system. Since most
 machine learning methods require size-consistent inputs it is convenient to
 define the maximum number of atoms *n_atoms_max* in a dataset. If the structure
@@ -140,8 +133,7 @@ in every system.
    :lines: 1-7
 
 Not meant for periodic systems
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The CM was not designed for periodic systems. If you do add periodic boundary
 conditions, you will see that it does not change the elements.
 
@@ -150,11 +142,11 @@ conditions, you will see that it does not change the elements.
    :start-after: Not meant for periodic systems
    :lines: 1-12
 
-Instead, the :doc:`Sine Matrix <sine_matrix>` and the `Ewald Matrix <ewald_matrix>` have been designed as periodic counterparts to the CM.
+Instead, the :doc:`Sine Matrix <sine_matrix>` and the `Ewald Matrix
+<ewald_matrix>` have been designed as periodic counterparts to the CM.
 
 Invariance
 -----------
-
 A good descriptor should be invariant with respect to translation, rotation and
 permutation. No matter how you translate or rotate it or change the indexing of
 the atoms (not the atom types!), it will still be the same molecule! The
@@ -163,7 +155,7 @@ following lines confirm that this is true for CM.
 .. literalinclude:: ../../../examples/coulombmatrix.py
    :language: python
    :start-after: Invariance
-   :lines: 1-21
+   :lines: 1-20
 
 Options for permutation
 -----------------------
@@ -175,10 +167,10 @@ invariance. See :cite:`cm_versions` for more information on these methods.
    :start-after: No sorting
    :lines: 1-37
 
-- *sorted_l2 (default)*: Sorts rows and columns by their L2-norm.
-- *none*: keeps the order of the rows and columns as the atoms are read from
+- **sorted_l2 (default)**: Sorts rows and columns by their L2-norm.
+- **none**: keeps the order of the rows and columns as the atoms are read from
   the ase object.
-- *random*: The term random can be misleading at first sight because it does not
+- **random**: The term random can be misleading at first sight because it does not
   scramble the rows and columns completely randomly. The rows and columns are
   sorted by their L2-norm  after applying Gaussian noise to the norms. The
   standard deviation of the noise is determined by the additionally required
@@ -194,12 +186,11 @@ invariance. See :cite:`cm_versions` for more information on these methods.
   completely random CM lies in the lower number of "likely permutations". Rows
   and columns of the CM are allowed to flip just so that the feature space
   (all possible CM) is smooth but also compact.
-- *eigenspectrum*: Only the eigenvalues of the matrix are returned sorted by
+- **eigenspectrum**: Only the eigenvalues of the matrix are returned sorted by
   their absolute value in descending order. On one hand, it is a more compact
   descriptor, but on the other hand, it potentially loses information encoded
   in the CM interactions.
 
 .. bibliography:: ../references.bib
    :style: unsrt
-   :cited:
    :filter: docname in docnames

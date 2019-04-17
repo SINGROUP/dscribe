@@ -1,8 +1,9 @@
 from dscribe.descriptors import ACSF
+from scipy.constants imoprt
 
 # Setting up the ACSF descriptor
 acsf = ACSF(
-    species=[1, 8],
+    species=["H", "O"],
     rcut=6.0,
     g2_params=[[1, 1], [1, 2], [1, 3]],
     g4_params=[[1, 1, 1], [1, 2, 1], [1, 1, -1], [1, 2, -1]],
