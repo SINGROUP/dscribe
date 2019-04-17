@@ -40,8 +40,9 @@ class ACSF(Descriptor):
     ):
         """
         Args:
-            rcut (float): The smooth cutoff value. This cutoff value is
-                used throughout the calculations for all symmetry functions.
+            rcut (float): The smooth cutoff value in angstroms. This cutoff
+                value is used throughout the calculations for all symmetry
+                functions.
             g2_params (n*2 np.ndarray): A list of pairs of :math:`\eta` and
                 :math:`R_s` parameters for :math:`G^2` functions.
             g3_params (n*1 np.ndarray): A list of :math:`\kappa` parameters for

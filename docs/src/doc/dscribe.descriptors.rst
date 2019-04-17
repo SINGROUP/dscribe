@@ -36,10 +36,10 @@ dscribe.descriptors.elementaldistribution module
     :undoc-members:
     :show-inheritance:
 
-dscribe.descriptors.ewaldmatrix module
---------------------------------------
+dscribe.descriptors.ewaldsummatrix module
+-----------------------------------------
 
-.. automodule:: dscribe.descriptors.ewaldmatrix
+.. automodule:: dscribe.descriptors.ewaldsummatrix
     :members:
     :undoc-members:
     :show-inheritance:

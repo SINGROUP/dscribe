@@ -11,11 +11,7 @@ individual local atomic environments, but additional tools are needed to make
 comparison of entire structures based on local environments.
 This tutorial goes through two different strategies for building such global
 similarity measures by comparing local atomic environments between structures.
-
-For more insight into the problem, see:
-`"Comparing molecules and solids across structural and alchemical space, Sandip
-De, Albert P. Bartók, Gábor Cásnyi, and Michele Ceriotti, Phys. Chem. Chem.
-Phys., 18, 13754-13769, 2016" <https://doi.org/10.1039/C6CP00415F>`_
+For more insight, see :cite:`kernels`.
 
 Average kernel
 --------------
@@ -66,3 +62,7 @@ The class :class:`.REMatchKernel` can be used to calculate this similarity:
 .. literalinclude:: ../../../examples/kernels/rematchkernel.py
    :language: python
    :lines: 7-29
+
+.. bibliography:: ../references.bib
+   :style: unsrt
+   :filter: docname in docnames

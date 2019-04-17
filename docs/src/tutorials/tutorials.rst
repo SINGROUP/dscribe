@@ -8,7 +8,7 @@ Tutorials
 
    coulomb_matrix
    sine_matrix
-   ewald_matrix
+   ewald_sum_matrix
    acsf
    soap
    mbtr
