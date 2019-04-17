@@ -41,13 +41,13 @@ polynomial radial basis set :cite:`soap1`.
 Setup
 -----
 
-Instantiating a SOAP descriptor can be done as follows:
+Instantiating the object that is used to create SOAP can be done as follows:
 
 .. literalinclude:: ../../../examples/soap.py
    :language: python
    :lines: 1-15
 
-The arguments have the following effect:
+The constructor takes the following parameters:
 
 .. automethod:: dscribe.descriptors.soap.SOAP.__init__
 
@@ -57,7 +57,7 @@ increases the number of features.
 Creation
 --------
 After SOAP has been set up, it may be used on atomic structures with the
-:meth:`.SOAP.create`-function.
+:meth:`~.SOAP.create`-method.
 
 .. literalinclude:: ../../../examples/soap.py
    :start-after: Creation
@@ -66,13 +66,13 @@ After SOAP has been set up, it may be used on atomic structures with the
 
 As SOAP is a local descriptor, it also takes as input a list of atomic indices
 or positions. If no such positions are defined, SOAP will be created for each
-atom in the system. The call syntax for the create-function is as follows:
+atom in the system. The call syntax for the create-method is as follows:
 
 .. automethod:: dscribe.descriptors.soap.SOAP.create
 
 The output will in this case be a numpy array with shape [#positions,
 #features]. The number of features may be requested beforehand with the
-:meth:`.SOAP.get_number_of_features`-function.
+:meth:`~.SOAP.get_number_of_features`-method.
 
 Examples
 --------
@@ -81,36 +81,20 @@ examples are also available in dscribe/examples/soap.py.
 
 Finite systems
 ~~~~~~~~~~~~~~
-Let's first create an ase object for a water molecule:
+Adding SOAP to water is as easy as:
 
 .. literalinclude:: ../../../examples/soap.py
    :language: python
-   :lines: 18-20
-
-Adding SOAP to the water is as easy as:
-
-.. literalinclude:: ../../../examples/soap.py
-   :language: python
-   :lines: 22-26
+   :lines: 18-27
 
 We are expecting a matrix where each row represents the local environment of
-one atom of the molecule. The nth feature vector corresponds to the local SOAP
-around the nth atom of the ase object. The length of the feature vector depends
-on the number of species defined in *atomic_numbers* as well as *nmax* and
-*lmax*. You can try by changing *nmax* and *lmax*.
+one atom of the molecule. The length of the feature vector depends on the
+number of species defined in **species** as well as *nmax* and *lmax*. You can
+try by changing *nmax* and *lmax*.
 
 .. literalinclude:: ../../../examples/soap.py
    :language: python
-   :lines: 29-32
-
-Let's SOAP another molecule. In order to compare water with methanol, one needs
-to adapt the species in atomic_numbers first defined when initializing SOAP.
-Adding carbon (atomic number = 6) will not affect the previous features of
-water, it will merely add zero-padded regions to the feature vector.
-
-.. literalinclude:: ../../../examples/soap.py
-   :language: python
-   :lines: 35-48
+   :lines: 35-40
 
 Periodic systems
 ~~~~~~~~~~~~~~~~
@@ -139,7 +123,7 @@ the different types:
 
 .. literalinclude:: ../../../examples/soap.py
    :language: python
-   :start-after: Periodic systems
+   :start-after: Sparse output
    :lines: 1-19
 
 Most operations work on sparse matrices as they would on numpy matrices.
@@ -178,5 +162,4 @@ for non-linear kernels the order of kernel calculation and averaging matters.
 
 .. bibliography:: ../references.bib
    :style: unsrt
-   :cited:
    :filter: docname in docnames

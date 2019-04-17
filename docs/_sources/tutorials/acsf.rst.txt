@@ -1,14 +1,10 @@
 Atom-centered Symmetry Functions
 ================================
 
-Atom-centered Symmetry Functions (ACSFs) can be used to represent the local
-environment near an atom by using a fingerprint composed of the output of
-multiple two- and three-body functions that can be customized to detect
-specific structural features.
-
-For more details see the original paper: `Atom-centered symmetry functions for
-constructing high-dimensional neural network potentials, Jörg Behler, J. Chem.
-Phys. 134, 074106 (2011) <https://doi.org/10.1063/1.3553717>`_
+Atom-centered Symmetry Functions (ACSFs) :cite:`acsf` can be used to represent
+the local environment near an atom by using a fingerprint composed of the
+output of multiple two- and three-body functions that can be customized to
+detect specific structural features.
 
 Setup
 -----
@@ -27,7 +23,7 @@ The arguments have the following effect:
 Creation
 --------
 After ACSF has been set up, it may be used on atomic structures with the
-:meth:`.ACSF.create`-function.
+:meth:`~.ACSF.create`-method.
 
 .. literalinclude:: ../../../examples/acsf.py
    :language: python
@@ -39,4 +35,13 @@ The call syntax for the create-function is as follows:
 
 The output will in this case be a numpy array with shape [#positions,
 #features]. The number of features may be requested beforehand with the
-:meth:`.ACSF.get_number_of_features`-function.
+:meth:`~.ACSF.get_number_of_features`-method.
+
+Examples
+--------
+The following examples demonstrate common use cases for the descriptor. These
+examples are also available in dscribe/examples/mbtr.py.
+
+.. bibliography:: ../references.bib
+   :style: unsrt
+   :filter: docname in docnames

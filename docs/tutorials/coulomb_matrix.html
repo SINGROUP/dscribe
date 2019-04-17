@@ -96,7 +96,7 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Coulomb Matrix</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#setup">Setup</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#creation">Creation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#background-on-coulomb-matrix">Background on Coulomb Matrix</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#no-flattening">No flattening</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#no-sorting">No Sorting</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#zero-padding">Zero-padding</a></li>
@@ -108,7 +108,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="sine_matrix.html">Sine Matrix</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ewald_matrix.html">Ewald Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ewald_sum_matrix.html">Ewald sum matrix</a></li>
 <li class="toctree-l2"><a class="reference internal" href="acsf.html">Atom-centered Symmetry Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="soap.html">Smooth Overlap of Atomic Positions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mbtr.html">Many-body Tensor Representation</a></li>
@@ -187,13 +187,47 @@
             
   <div class="section" id="coulomb-matrix">
 <h1>Coulomb Matrix<a class="headerlink" href="#coulomb-matrix" title="Permalink to this headline">¶</a></h1>
-<p>Coulomb Matrix (CM) is a simple global descriptor which mimics the
-electrostatic interaction between nuclei. The original article <a class="reference internal" href="#cm" id="id1">[1]</a> outlines the
-concept of the descriptor and the relation to its name giver coulomb repulsion.</p>
+<p>Coulomb Matrix (CM) <a class="reference internal" href="#cm" id="id1">[1]</a> is a simple global descriptor which mimics the
+electrostatic interaction between nuclei.</p>
+<p>Coulomb matrix is calculated with the equation below.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{equation}
+M_{ij}^\mathrm{Coulomb}=\left\{
+    \begin{matrix}
+    0.5 Z_i^{2.4} &amp; \text{for } i = j \\
+        \frac{Z_i Z_j}{R_{ij}} &amp; \text{for } i \neq j
+    \end{matrix}
+    \right.
+\end{equation}\end{split}\]</div>
+<p>The diagonal elements can be seen as the interaction of an atom with itself and
+are essentially a polynomial fit of the atomic energies to the nuclear charge
+<span class="math notranslate nohighlight">\(Z_i\)</span>. The off-diagonal elements represent the Coulomb repulsion between
+nuclei <span class="math notranslate nohighlight">\(i\)</span> and <span class="math notranslate nohighlight">\(j\)</span>.</p>
+<p>Let’s have a look at the CM for methanol:</p>
+<a class="reference internal image-reference" href="../_images/methanol-3d-balls.png"><img alt="image of methanol" class="align-center" src="../_images/methanol-3d-balls.png" style="width: 172.0px; height: 114.5px;" /></a>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+36.9 &amp; 33.7 &amp; 5.5  &amp; 3.1  &amp; 5.5  &amp; 5.5 \\
+33.7 &amp; 73.5 &amp; 4.0  &amp; 8.2  &amp; 3.8  &amp; 3.8  \\
+ 5.5 &amp; 4.0  &amp; 0.5  &amp; 0.35 &amp; 0.56 &amp; 0.56 \\
+ 3.1 &amp; 8.2  &amp; 0.35 &amp; 0.5  &amp; 0.43 &amp; 0.43 \\
+ 5.5 &amp; 3.8  &amp; 0.56 &amp; 0.43 &amp; 0.5  &amp; 0.56 \\
+ 5.5 &amp; 3.8  &amp; 0.56 &amp; 0.43 &amp; 0.56 &amp; 0.5
+\end{bmatrix}\end{split}\]</div>
+<p>In the matrix above the first row corresponds to carbon (C) in methanol
+interacting with all the other atoms (columns 2-5) and itself (column 1).
+Likewise, the first column displays the same numbers, since the matrix is
+symmetric. Furthermore, the second row (column) corresponds to oxygen and the
+remaining rows (columns) correspond to hydrogen (H). Can you determine which
+one is which?</p>
+<p>Since the Coulomb Matrix was published in 2012 more sophisticated descriptors
+have been developed. However, CM still does a reasonably good job when
+comparing molecules with each other. Apart from that, it can be understood
+intuitively and is a good introduction to descriptors.</p>
 <div class="section" id="setup">
 <h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h2>
-<p>In order to create a coulomb matrix, we first set up the descriptor-object.</p>
-<p>Instantiating a CM descriptor can be done as follows:</p>
+<p>Instantiating the object that is used to create Coulomb matrices can be done as
+follows:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">CoulombMatrix</span>
 
 <span class="n">atomic_numbers</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span>
@@ -207,7 +241,7 @@ concept of the descriptor and the relation to its name giver coulomb repulsion.<
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>The arguments have the following effect:</p>
+<p>The constructor takes the following parameters:</p>
 <dl class="method">
 <dt id="dscribe.descriptors.coulombmatrix.CoulombMatrix.__init__">
 <code class="descclassname">CoulombMatrix.</code><code class="descname">__init__</code><span class="sig-paren">(</span><em>n_atoms_max</em>, <em>permutation='sorted_l2'</em>, <em>sigma=None</em>, <em>seed=None</em>, <em>flatten=True</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="headerlink" href="#dscribe.descriptors.coulombmatrix.CoulombMatrix.__init__" title="Permalink to this definition">¶</a></dt>
@@ -253,7 +287,7 @@ dense numpy array.</p></li>
 <div class="section" id="creation">
 <h2>Creation<a class="headerlink" href="#creation" title="Permalink to this headline">¶</a></h2>
 <p>After CM has been set up, it may be used on atomic structures with the
-<a class="reference internal" href="#dscribe.descriptors.coulombmatrix.CoulombMatrix.create" title="dscribe.descriptors.coulombmatrix.CoulombMatrix.create"><code class="xref py py-meth docutils literal notranslate"><span class="pre">CoulombMatrix.create()</span></code></a>-function.</p>
+<a class="reference internal" href="#dscribe.descriptors.coulombmatrix.CoulombMatrix.create" title="dscribe.descriptors.coulombmatrix.CoulombMatrix.create"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create()</span></code></a>-method.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">molecule</span>
 
 <span class="c1"># Molecule created as an ASE.Atoms</span>
@@ -269,7 +303,6 @@ dense numpy array.</p></li>
 <span class="n">samples</span> <span class="o">=</span> <span class="p">[</span><span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;H2O&quot;</span><span class="p">),</span> <span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;NO2&quot;</span><span class="p">),</span> <span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;CO2&quot;</span><span class="p">)]</span>
 <span class="n">coulomb_matrices</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>            <span class="c1"># Serial</span>
 <span class="n">coulomb_matrices</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># Parallel</span>
-
 </pre></div>
 </div>
 <p>The call syntax for the create-function is as follows:</p>
@@ -306,54 +339,19 @@ flattened, a simple python list is returned.</p>
 structure it will cause an error. The output will in this case be a flattened
 matrix, specifically a numpy array with size #atoms * #atoms. The number of
 features may be requested beforehand with the
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">CoulombMatrix.get_number_of_features()</span></code>-function.</p>
+<a class="reference internal" href="../doc/dscribe.descriptors.html#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.get_number_of_features" title="dscribe.descriptors.matrixdescriptor.MatrixDescriptor.get_number_of_features"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_number_of_features()</span></code></a>-method.</p>
 <p>In the case of multiple samples, the creation can also be parallellized by using the
 <em>n_jobs</em>-parameter. This splits the list of structures into equally sized parts
 and spaws a separate process to handle each part.</p>
 </div>
-<div class="section" id="background-on-coulomb-matrix">
-<h2>Background on Coulomb Matrix<a class="headerlink" href="#background-on-coulomb-matrix" title="Permalink to this headline">¶</a></h2>
-<p>Since the Coulomb Matrix was published in 2012 more sophisticated descriptors
-have been developed. However, CM still does a reasonably good job when
-comparing molecules with each other. Apart from that, it can be understood
-intuitively and is a good introduction to descriptors.</p>
-<p>The CM is calculated with the equation below.</p>
-<div class="math notranslate nohighlight">
-\[\begin{split}\begin{equation}
-M_{ij}=\left\{
-                \begin{matrix}
-                0.5 \cdot Z_i^{2.4} &amp; \text{for }   i = j   \\
-                 \frac{Z_i \cdot Z_j}{R_{ij}} &amp; \text{for }   i \neq j
-                \end{matrix}
-              \right.
-\end{equation}\end{split}\]</div>
-<p>The diagonal elements can be seen as the interaction of an atom with itself and
-are essentially a polynomial fit of the atomic energies to the nuclear charge
-<span class="math notranslate nohighlight">\(Z_i\)</span>. The off-diagonal elements represent the Coulomb repulsion between
-nuclei <span class="math notranslate nohighlight">\(i\)</span> and <span class="math notranslate nohighlight">\(j\)</span>.</p>
-<p>Let’s have a look at the CM of methanol:</p>
-<p>image on methanol next to coulomb matrix</p>
-<a class="reference internal image-reference" href="../_images/methanol-3d-balls.png"><img alt="image of methanol" class="align-center" src="../_images/methanol-3d-balls.png" style="width: 172.0px; height: 114.5px;" /></a>
-<div class="math notranslate nohighlight">
-\[\begin{split}\begin{bmatrix}
-36.9 &amp; 33.7 &amp; 5.5  &amp; 3.1  &amp; 5.5  &amp; 5.5 \\
-33.7 &amp; 73.5 &amp; 4.0  &amp; 8.2  &amp; 3.8  &amp; 3.8  \\
- 5.5 &amp; 4.0  &amp; 0.5  &amp; 0.35 &amp; 0.56 &amp; 0.56 \\
- 3.1 &amp; 8.2  &amp; 0.35 &amp; 0.5  &amp; 0.43 &amp; 0.43 \\
- 5.5 &amp; 3.8  &amp; 0.56 &amp; 0.43 &amp; 0.5  &amp; 0.56 \\
- 5.5 &amp; 3.8  &amp; 0.56 &amp; 0.43 &amp; 0.56 &amp; 0.5
-\end{bmatrix}\end{split}\]</div>
-<p>In the matrix above the first row corresponds to carbon (C) in methanol
-interacting with all the other atoms (columns 2-5) and itself (column 1).
-Likewise, the first column displays the same numbers, since the matrix is
-symmetric. Furthermore, the second row (column) corresponds to oxygen and the
-remaining rows (columns) correspond to hydrogen (H). Can you determine which
-one is which?</p>
-<p>The ordering of the rows and columns is arbitrary. If oxygen appeared before
-carbon, the first and the second row and coulumn would have to be flipped. Let
-us reproduce the above matrix by switching off the <em>flatten</em> keyword.</p>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>The following examples demonstrate usage of the descriptor. These
+examples are also available in dscribe/examples/coulombmatrix.py.</p>
 <div class="section" id="no-flattening">
 <h3>No flattening<a class="headerlink" href="#no-flattening" title="Permalink to this headline">¶</a></h3>
+<p>You can control whether the returned array is two-dimensional or
+one-dimensional by using the <em>flatten</em>-parameter</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cm</span> <span class="o">=</span> <span class="n">CoulombMatrix</span><span class="p">(</span>
     <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="bp">False</span>
 <span class="p">)</span>
@@ -366,9 +364,9 @@ us reproduce the above matrix by switching off the <em>flatten</em> keyword.</p>
 </div>
 <div class="section" id="no-sorting">
 <h3>No Sorting<a class="headerlink" href="#no-sorting" title="Permalink to this headline">¶</a></h3>
-<p>You did not get the matrix in the same order. By default, CM is sorted by the
-L2-norm (more on that later). In order to get the unsorted CM it is necessary
-to specify the keyword <em>permutation</em> = “None” when setting it up.</p>
+<p>By default, CM is sorted by the L2-norm (more on that later). In order to get
+the unsorted CM it is necessary to specify the keyword <em>permutation = “none”</em>
+when setting it up.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cm</span> <span class="o">=</span> <span class="n">CoulombMatrix</span><span class="p">(</span>
     <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
     <span class="n">permutation</span><span class="o">=</span><span class="s1">&#39;none&#39;</span>
@@ -416,7 +414,8 @@ conditions, you will see that it does not change the elements.</p>
 <span class="k">print</span><span class="p">(</span><span class="s2">&quot;with pbc&quot;</span><span class="p">,</span> <span class="n">cm_methanol</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Instead, the <a class="reference internal" href="sine_matrix.html"><span class="doc">Sine Matrix</span></a> and the <cite>Ewald Matrix &lt;ewald_matrix&gt;</cite> have been designed as periodic counterparts to the CM.</p>
+<p>Instead, the <a class="reference internal" href="sine_matrix.html"><span class="doc">Sine Matrix</span></a> and the <cite>Ewald Matrix
+&lt;ewald_matrix&gt;</cite> have been designed as periodic counterparts to the CM.</p>
 </div>
 </div>
 <div class="section" id="invariance">
@@ -445,7 +444,6 @@ following lines confirm that this is true for CM.</p>
 <span class="n">upside_down_methanol</span> <span class="o">=</span> <span class="n">methanol</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 <span class="n">cm_methanol</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">upside_down_methanol</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="n">cm_methanol</span><span class="p">)</span>
-
 </pre></div>
 </div>
 </div>
@@ -493,10 +491,10 @@ invariance. See <a class="reference internal" href="#cm-versions" id="id2">[2]</
 </pre></div>
 </div>
 <ul class="simple">
-<li><p><em>sorted_l2 (default)</em>: Sorts rows and columns by their L2-norm.</p></li>
-<li><p><em>none</em>: keeps the order of the rows and columns as the atoms are read from
+<li><p><strong>sorted_l2 (default)</strong>: Sorts rows and columns by their L2-norm.</p></li>
+<li><p><strong>none</strong>: keeps the order of the rows and columns as the atoms are read from
 the ase object.</p></li>
-<li><p><em>random</em>: The term random can be misleading at first sight because it does not
+<li><p><strong>random</strong>: The term random can be misleading at first sight because it does not
 scramble the rows and columns completely randomly. The rows and columns are
 sorted by their L2-norm  after applying Gaussian noise to the norms. The
 standard deviation of the noise is determined by the additionally required
@@ -512,7 +510,7 @@ sorted CM in a loop. The advantage of augmenting data like this over using
 completely random CM lies in the lower number of “likely permutations”. Rows
 and columns of the CM are allowed to flip just so that the feature space
 (all possible CM) is smooth but also compact.</p></li>
-<li><p><em>eigenspectrum</em>: Only the eigenvalues of the matrix are returned sorted by
+<li><p><strong>eigenspectrum</strong>: Only the eigenvalues of the matrix are returned sorted by
 their absolute value in descending order. On one hand, it is a more compact
 descriptor, but on the other hand, it potentially loses information encoded
 in the CM interactions.</p></li>

@@ -95,18 +95,13 @@
 <li class="toctree-l1 current"><a class="reference internal" href="tutorials.html">Tutorials</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="coulomb_matrix.html">Coulomb Matrix</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sine_matrix.html">Sine Matrix</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ewald_matrix.html">Ewald Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ewald_sum_matrix.html">Ewald sum matrix</a></li>
 <li class="toctree-l2"><a class="reference internal" href="acsf.html">Atom-centered Symmetry Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="soap.html">Smooth Overlap of Atomic Positions</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Many-body Tensor Representation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#setup">Setup</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#creation">Creation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#finite-systems">Finite systems</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#periodic-systems">Periodic systems</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#sparse-output">Sparse output</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#working-on-multiple-samples">Working on multiple samples</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#hyperparameter-optimization">Hyperparameter optimization</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#visualization">Visualization</a></li>
 </ul>
 </li>
@@ -187,19 +182,16 @@
             
   <div class="section" id="many-body-tensor-representation">
 <h1>Many-body Tensor Representation<a class="headerlink" href="#many-body-tensor-representation" title="Permalink to this headline">¶</a></h1>
-<p>The many-body tensor representation (MBTR) encodes a structure by using a
-distribution of different structural motifs. It can be used directly for both
-finite and periodic systems.</p>
+<p>The many-body tensor representation (MBTR) <a class="reference internal" href="#mbtr" id="id1">[1]</a> encodes a structure by
+using a distribution of different structural motifs. It can be used directly
+for both finite and periodic systems.</p>
 <p>In MBTR a geometry function <span class="math notranslate nohighlight">\(g_k\)</span> is used to transform a chain of <span class="math notranslate nohighlight">\(k\)</span> atoms,
 into a single scalar value. The distribution of these scalar values is then
 constructed with kernel density estimation to represent the structure.</p>
-<div class="figure align-center" id="id1">
-<a class="reference internal image-reference" href="../_images/mbtr.jpg"><img alt="MBTR stratification" src="../_images/mbtr.jpg" style="width: 565.5px; height: 386.0px;" /></a>
-<p class="caption"><span class="caption-text">Illustration of the MBTR output for a water molecule.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+<div class="figure align-center" id="id2">
+<a class="reference internal image-reference" href="../_images/mbtr.jpg"><img alt="MBTR stratification" src="../_images/mbtr.jpg" style="width: 572.0px; height: 386.0px;" /></a>
+<p class="caption"><span class="caption-text">Illustration of the MBTR output for a water molecule.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </div>
-<p>For more details see the original paper: <a class="reference external" href="http://arxiv.org/abs/1704.06439">Unified Representation for Machine
-Learning of Molecules and Crystals, Haoyan Huo and Matthias Rupp,
-arXiv preprint, (2017)</a></p>
 <div class="section" id="setup">
 <h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h2>
 <p>Instantiating an MBTR descriptor can be done as follows:</p>
@@ -323,7 +315,7 @@ dense numpy array.</p></li>
 <div class="section" id="creation">
 <h2>Creation<a class="headerlink" href="#creation" title="Permalink to this headline">¶</a></h2>
 <p>After MBTR has been set up, it may be used on atomic structures with the
-<a class="reference internal" href="#dscribe.descriptors.mbtr.MBTR.create" title="dscribe.descriptors.mbtr.MBTR.create"><code class="xref py py-meth docutils literal notranslate"><span class="pre">MBTR.create()</span></code></a>-function.</p>
+<a class="reference internal" href="#dscribe.descriptors.mbtr.MBTR.create" title="dscribe.descriptors.mbtr.MBTR.create"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create()</span></code></a>-method.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Creating an atomic system as an ase.Atoms-object</span>
 <span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">molecule</span>
 <span class="kn">import</span> <span class="nn">ase.data</span>
@@ -368,30 +360,16 @@ flattened, a simple python list is returned.</p>
 
 <p>The output will in this case be a numpy array with shape [#positions,
 #features]. The number of features may be requested beforehand with the
-<a class="reference internal" href="../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.get_number_of_features" title="dscribe.descriptors.mbtr.MBTR.get_number_of_features"><code class="xref py py-meth docutils literal notranslate"><span class="pre">MBTR.get_number_of_features()</span></code></a>-function.</p>
+<a class="reference internal" href="../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.get_number_of_features" title="dscribe.descriptors.mbtr.MBTR.get_number_of_features"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_number_of_features()</span></code></a>-method.</p>
 </div>
 <div class="section" id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="finite-systems">
-<h3>Finite systems<a class="headerlink" href="#finite-systems" title="Permalink to this headline">¶</a></h3>
-</div>
-<div class="section" id="periodic-systems">
-<h3>Periodic systems<a class="headerlink" href="#periodic-systems" title="Permalink to this headline">¶</a></h3>
-</div>
-<div class="section" id="sparse-output">
-<h3>Sparse output<a class="headerlink" href="#sparse-output" title="Permalink to this headline">¶</a></h3>
-</div>
-<div class="section" id="working-on-multiple-samples">
-<h3>Working on multiple samples<a class="headerlink" href="#working-on-multiple-samples" title="Permalink to this headline">¶</a></h3>
-</div>
-<div class="section" id="hyperparameter-optimization">
-<h3>Hyperparameter optimization<a class="headerlink" href="#hyperparameter-optimization" title="Permalink to this headline">¶</a></h3>
-</div>
+<p>The following examples demonstrate common use cases for the descriptor. These
+examples are also available in dscribe/examples/mbtr.py.</p>
 <div class="section" id="visualization">
 <h3>Visualization<a class="headerlink" href="#visualization" title="Permalink to this headline">¶</a></h3>
-<p>The MBTR output vector can also be visualized easily. The following snippet
-demonstrates how the output for <span class="math notranslate nohighlight">\(k=2\)</span> can be visualized with
-matplotlib.</p>
+<p>The MBTR output vector can be visualized easily. The following snippet
+demonstrates how the output for <span class="math notranslate nohighlight">\(k=2\)</span> can be visualized with matplotlib.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
 
 <span class="n">decay</span> <span class="o">=</span> <span class="mf">0.5</span>
@@ -433,6 +411,12 @@ matplotlib.</p>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
+<p id="bibtex-bibliography-tutorials/mbtr-0"><dl class="citation">
+<dt class="label" id="mbtr"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>Haoyan Huo and Matthias Rupp. Unified representation of molecules and crystals for machine learning. <em>arXiv e-prints</em>, pages arXiv:1704.06439, Apr 2017. <a class="reference external" href="https://arxiv.org/abs/1704.06439">arXiv:1704.06439</a>.</p>
+</dd>
+</dl>
+</p>
 </div>
 </div>
 </div>
