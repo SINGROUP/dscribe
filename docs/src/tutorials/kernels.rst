@@ -16,7 +16,7 @@ For more insight, see :cite:`kernels`.
 Average kernel
 --------------
 The simplest approach is to average over the local contributions to create a
-global similarity measure. This average kernel :math:`K` is defined as as:
+global similarity measure. This average kernel :math:`K` is defined as:
 
 .. math::
     K(A, B) = \frac{1}{N M}\sum_{ij} C_{ij}(A, B)
@@ -26,7 +26,7 @@ number of atoms in structure :math:`B` and the similarity between local atomic
 environments :math:`C_{ij}` can in general be calculated with any pairwise
 metric (e.g.  linear, gaussian).
 
-. The class :class:`.AverageKernel` can be used to calculate
+The class :class:`.AverageKernel` can be used to calculate
 this similarity.  Here is an example of calculating an average kernel for two
 relatively similar molecules by using SOAP and a linear and Gaussian similarity
 metric:

@@ -17,7 +17,7 @@ and the discussion history is preserved.
 .. raw:: html
 
     <script type="text/javascript" src="_static/js/spamspan.js"></script>
-    <p>If you want to contact the author on other matters, use the following email:
+    <p>If you want to contact the authors on other matters, use the following email:
         <span class="spamspan">
         <span class="u">lauri.himanen</span>
         [at]
@@ -27,15 +27,11 @@ and the discussion history is preserved.
 
 License
 -------
-The software is licensed under the Apache 2 license.
+The software is licensed under the Apache License, Version 2.0
 
 
 Funding
 -------
-This project has received funding from the European Union’s Horizon 2020
-research and innovation programme under grant agreement No 676580 with The
-Novel Materials Discovery (NOMAD) Laboratory, a European Center of Excellence
-and from the Jenny and Antti Wihuri Foundation. This work was furthermore
-supported by the Academy of Finland through its Centres of Excellence Programme
-2015-2017 under project number 284621, as well as its Key Project Funding
-scheme under project number 305632.
+This project has received funding from the Jenny and Antti Wihuri Foundation
+and the European Union's Horizon 2020 research and innovation programme under
+grant agreements number no. 676580 NOMAD and no. 686053 CRITCAT.
