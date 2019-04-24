@@ -53,3 +53,6 @@ img.logo {
 .wy-side-nav-search>a img.logo {
   width: 300px;
 }
+.wy-nav-top {
+  background: #343131;
+}
