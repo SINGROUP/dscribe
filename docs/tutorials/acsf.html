@@ -39,7 +39,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Smooth Overlap of Atomic Positions" href="soap.html" />
-    <link rel="prev" title="Ewald Matrix" href="ewald_matrix.html" /> 
+    <link rel="prev" title="Ewald sum matrix" href="ewald_sum_matrix.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -95,10 +95,11 @@
 <li class="toctree-l1 current"><a class="reference internal" href="tutorials.html">Tutorials</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="coulomb_matrix.html">Coulomb Matrix</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sine_matrix.html">Sine Matrix</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ewald_matrix.html">Ewald Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ewald_sum_matrix.html">Ewald sum matrix</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Atom-centered Symmetry Functions</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#setup">Setup</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#creation">Creation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="soap.html">Smooth Overlap of Atomic Positions</a></li>
@@ -178,25 +179,22 @@
             
   <div class="section" id="atom-centered-symmetry-functions">
 <h1>Atom-centered Symmetry Functions<a class="headerlink" href="#atom-centered-symmetry-functions" title="Permalink to this headline">¶</a></h1>
-<p>Atom-centered Symmetry Functions (ACSFs) can be used to represent the local
-environment near an atom by using a fingerprint composed of the output of
-multiple two- and three-body functions that can be customized to detect
-specific structural features.</p>
-<p>For more details see the original paper: <a class="reference external" href="https://doi.org/10.1063/1.3553717">Atom-centered symmetry functions for
-constructing high-dimensional neural network potentials, Jörg Behler, J. Chem.
-Phys. 134, 074106 (2011)</a></p>
+<p>Atom-centered Symmetry Functions (ACSFs) <a class="reference internal" href="#acsf" id="id1">[1]</a> can be used to represent
+the local environment near an atom by using a fingerprint composed of the
+output of multiple two- and three-body functions that can be customized to
+detect specific structural features.</p>
 <div class="section" id="setup">
 <h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h2>
 <p>Instantiating an ACSF descriptor can be done as follows:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">ACSF</span>
+<span class="kn">from</span> <span class="nn">scipy.constants</span> <span class="nn">imoprt</span>
 
 <span class="c1"># Setting up the ACSF descriptor</span>
 <span class="n">acsf</span> <span class="o">=</span> <span class="n">ACSF</span><span class="p">(</span>
-    <span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+    <span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">],</span>
     <span class="n">rcut</span><span class="o">=</span><span class="mf">6.0</span><span class="p">,</span>
     <span class="n">g2_params</span><span class="o">=</span><span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span>
     <span class="n">g4_params</span><span class="o">=</span><span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]],</span>
-<span class="p">)</span>
 </pre></div>
 </div>
 <p>The arguments have the following effect:</p>
@@ -206,8 +204,9 @@ Phys. 134, 074106 (2011)</a></p>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>rcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The smooth cutoff value. This cutoff value is
-used throughout the calculations for all symmetry functions.</p></li>
+<li><p><strong>rcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The smooth cutoff value in angstroms. This cutoff
+value is used throughout the calculations for all symmetry
+functions.</p></li>
 <li><p><strong>g2_params</strong> (<em>n*2 np.ndarray</em>) – A list of pairs of <span class="math notranslate nohighlight">\(\eta\)</span> and
 <span class="math notranslate nohighlight">\(R_s\)</span> parameters for <span class="math notranslate nohighlight">\(G^2\)</span> functions.</p></li>
 <li><p><strong>g3_params</strong> (<em>n*1 np.ndarray</em>) – A list of <span class="math notranslate nohighlight">\(\kappa\)</span> parameters for
@@ -238,8 +237,9 @@ dense numpy array.</p></li>
 <div class="section" id="creation">
 <h2>Creation<a class="headerlink" href="#creation" title="Permalink to this headline">¶</a></h2>
 <p>After ACSF has been set up, it may be used on atomic structures with the
-<a class="reference internal" href="#dscribe.descriptors.acsf.ACSF.create" title="dscribe.descriptors.acsf.ACSF.create"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ACSF.create()</span></code></a>-function.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Creating an atomic system as an ase.Atoms-object</span>
+<a class="reference internal" href="#dscribe.descriptors.acsf.ACSF.create" title="dscribe.descriptors.acsf.ACSF.create"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create()</span></code></a>-method.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="c1"># Creating an atomic system as an ase.Atoms-object</span>
 <span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">molecule</span>
 
 <span class="n">water</span> <span class="o">=</span> <span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;H2O&quot;</span><span class="p">)</span>
@@ -248,7 +248,6 @@ dense numpy array.</p></li>
 <span class="n">acsf_water</span> <span class="o">=</span> <span class="n">acsf</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">water</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
 <span class="k">print</span><span class="p">(</span><span class="n">acsf_water</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">acsf_water</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The call syntax for the create-function is as follows:</p>
@@ -289,7 +288,18 @@ their positions.</p>
 
 <p>The output will in this case be a numpy array with shape [#positions,
 #features]. The number of features may be requested beforehand with the
-<a class="reference internal" href="../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.get_number_of_features" title="dscribe.descriptors.acsf.ACSF.get_number_of_features"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ACSF.get_number_of_features()</span></code></a>-function.</p>
+<a class="reference internal" href="../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.get_number_of_features" title="dscribe.descriptors.acsf.ACSF.get_number_of_features"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_number_of_features()</span></code></a>-method.</p>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>The following examples demonstrate common use cases for the descriptor. These
+examples are also available in dscribe/examples/mbtr.py.</p>
+<p id="bibtex-bibliography-tutorials/acsf-0"><dl class="citation">
+<dt class="label" id="acsf"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>Jörg Behler. Atom-centered symmetry functions for constructing high-dimensional neural network potentials. <em>J. Chem. Phys.</em>, 134(7):074106, 2011.</p>
+</dd>
+</dl>
+</p>
 </div>
 </div>
 
@@ -304,7 +314,7 @@ their positions.</p>
         <a href="soap.html" class="btn btn-neutral float-right" title="Smooth Overlap of Atomic Positions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="ewald_matrix.html" class="btn btn-neutral float-left" title="Ewald Matrix" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="ewald_sum_matrix.html" class="btn btn-neutral float-left" title="Ewald sum matrix" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

@@ -671,16 +671,16 @@ will have.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="module-dscribe.descriptors.ewaldmatrix">
-<span id="dscribe-descriptors-ewaldmatrix-module"></span><h2>dscribe.descriptors.ewaldmatrix module<a class="headerlink" href="#module-dscribe.descriptors.ewaldmatrix" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-dscribe.descriptors.ewaldsummatrix">
+<span id="dscribe-descriptors-ewaldsummatrix-module"></span><h2>dscribe.descriptors.ewaldsummatrix module<a class="headerlink" href="#module-dscribe.descriptors.ewaldsummatrix" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="dscribe.descriptors.ewaldmatrix.EwaldMatrix">
-<em class="property">class </em><code class="descclassname">dscribe.descriptors.ewaldmatrix.</code><code class="descname">EwaldMatrix</code><span class="sig-paren">(</span><em>n_atoms_max</em>, <em>permutation='sorted_l2'</em>, <em>sigma=None</em>, <em>seed=None</em>, <em>flatten=True</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/ewaldmatrix.html#EwaldMatrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.ewaldmatrix.EwaldMatrix" title="Permalink to this definition">¶</a></dt>
+<dt id="dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix">
+<em class="property">class </em><code class="descclassname">dscribe.descriptors.ewaldsummatrix.</code><code class="descname">EwaldSumMatrix</code><span class="sig-paren">(</span><em>n_atoms_max</em>, <em>permutation='sorted_l2'</em>, <em>sigma=None</em>, <em>seed=None</em>, <em>flatten=True</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/ewaldsummatrix.html#EwaldSumMatrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dscribe.descriptors.matrixdescriptor.MatrixDescriptor" title="dscribe.descriptors.matrixdescriptor.MatrixDescriptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.descriptors.matrixdescriptor.MatrixDescriptor</span></code></a></p>
-<p>Calculates an Ewald matrix for the a given system.</p>
-<p>Each entry M_ij of the Ewald matrix will contain the Coulomb energy between
-atoms i and j calculated with the Ewald summation method. In the Ewald
-method a constant neutralizing background charge has been added to
+<p>Calculates an Ewald sum matrix for the a given system.</p>
+<p>Each entry M_ij of the Ewald sum matrix will contain the Coulomb energy
+between atoms i and j calculated with the Ewald summation method. In the
+Ewald method a constant neutralizing background charge has been added to
 counteract the positive net charge.</p>
 <p>The total electrostatic interaction energy in the system can calculated by
 summing the upper diagonal part of the matrix, including the diagonal
@@ -708,15 +708,15 @@ structure. Mol. Simul., 1:207-224, 1988,
 </dd>
 </dl>
 <dl class="method">
-<dt id="dscribe.descriptors.ewaldmatrix.EwaldMatrix.create">
-<code class="descname">create</code><span class="sig-paren">(</span><em>system</em>, <em>accuracy=1e-05</em>, <em>w=1</em>, <em>rcut=None</em>, <em>gcut=None</em>, <em>a=None</em>, <em>n_jobs=1</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/ewaldmatrix.html#EwaldMatrix.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.ewaldmatrix.EwaldMatrix.create" title="Permalink to this definition">¶</a></dt>
+<dt id="dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create">
+<code class="descname">create</code><span class="sig-paren">(</span><em>system</em>, <em>accuracy=1e-05</em>, <em>w=1</em>, <em>rcut=None</em>, <em>gcut=None</em>, <em>a=None</em>, <em>n_jobs=1</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/ewaldsummatrix.html#EwaldSumMatrix.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the Coulomb matrix for the given systems.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>(</strong><strong>single</strong><strong> or </strong><strong>multiple class</strong> (<em>system</em>) – <cite>ase.Atoms</cite>): One or many atomic structures.</p></li>
 <li><p><strong>accuracy</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The accuracy to which the sum is converged to.
-Corresponds to the variable :math`A` in
+Corresponds to the variable <span class="math notranslate nohighlight">\(A\)</span> in
 <a class="reference external" href="https://doi.org/10.1080/08927022.2013.840898">https://doi.org/10.1080/08927022.2013.840898</a>. Used only if
 gcut, rcut and a have not been specified. Provide either one
 value or a list of values for each system.</p></li>
@@ -733,9 +733,10 @@ of values for each system.</p></li>
 <li><p><strong>gcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Reciprocal space cutoff radius. Provide either one
 value or a list of values for each system.</p></li>
 <li><p><strong>a</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The screening parameter that controls the width of the
-Gaussians. Corresponds to the standard deviation of the
-Gaussians. Provide either one value or a list of values for
-each system.</p></li>
+Gaussians. If not provided, a default value of <span class="math notranslate nohighlight">\(\alpha =
+\sqrt{\pi}\left(\frac{N}{V^2}\right)^{1/6}\)</span> is used.
+Corresponds to the standard deviation of the Gaussians. Provide
+either one value or a list of values for each system.</p></li>
 <li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
 the calculation across samples. Defaults to serial calculation
 with n_jobs=1.</p></li>
@@ -744,7 +745,7 @@ into to the console.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Coulomb matrix for the
+<dd class="field-even"><p>Ewald sum matrix for the
 given systems. The return type depends on the ‘sparse’ and
 ‘flatten’-attributes. For flattened output a single numpy array or
 sparse scipy.csr_matrix is returned. The first dimension is
@@ -758,14 +759,14 @@ flattened, a simple python list is returned.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dscribe.descriptors.ewaldmatrix.EwaldMatrix.create_single">
-<code class="descname">create_single</code><span class="sig-paren">(</span><em>system</em>, <em>accuracy=1e-05</em>, <em>w=1</em>, <em>rcut=None</em>, <em>gcut=None</em>, <em>a=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/ewaldmatrix.html#EwaldMatrix.create_single"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.ewaldmatrix.EwaldMatrix.create_single" title="Permalink to this definition">¶</a></dt>
+<dt id="dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create_single">
+<code class="descname">create_single</code><span class="sig-paren">(</span><em>system</em>, <em>accuracy=1e-05</em>, <em>w=1</em>, <em>rcut=None</em>, <em>gcut=None</em>, <em>a=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/ewaldsummatrix.html#EwaldSumMatrix.create_single"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create_single" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> | <a class="reference internal" href="dscribe.core.html#dscribe.core.system.System" title="dscribe.core.system.System"><code class="xref py py-class docutils literal notranslate"><span class="pre">System</span></code></a>) – Input system.</p></li>
 <li><p><strong>accuracy</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The accuracy to which the sum is converged to.
-Corresponds to the variable :math`A` in
+Corresponds to the variable <span class="math notranslate nohighlight">\(A\)</span> in
 <a class="reference external" href="https://doi.org/10.1080/08927022.2013.840898">https://doi.org/10.1080/08927022.2013.840898</a>. Used only if gcut,
 rcut and a have not been specified.</p></li>
 <li><p><strong>w</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Weight parameter that represents the relative
@@ -778,15 +779,17 @@ to None.</p></li>
 many terms are used in the real space sum.</p></li>
 <li><p><strong>gcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Reciprocal space cutoff radius.</p></li>
 <li><p><strong>a</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The screening parameter that controls the width of the
-Gaussians. Corresponds to the standard deviation of the Gaussians</p></li>
+Gaussians. If not provided, a default value of <span class="math notranslate nohighlight">\(\alpha =
+\sqrt{\pi}\left(\frac{N}{V^2}\right)^{1/6}\)</span> is used.
+Corresponds to the standard deviation of the Gaussians.</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
-<dt id="dscribe.descriptors.ewaldmatrix.EwaldMatrix.get_matrix">
-<code class="descname">get_matrix</code><span class="sig-paren">(</span><em>system</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/ewaldmatrix.html#EwaldMatrix.get_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.ewaldmatrix.EwaldMatrix.get_matrix" title="Permalink to this definition">¶</a></dt>
+<dt id="dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.get_matrix">
+<code class="descname">get_matrix</code><span class="sig-paren">(</span><em>system</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/ewaldsummatrix.html#EwaldSumMatrix.get_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.get_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>The total energy matrix. Each matrix element (i, j) corresponds to the
 total interaction energy in a system with atoms i and j.</p>
 <dl class="field-list simple">
