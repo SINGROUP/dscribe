@@ -6,12 +6,13 @@ n = 100
 # Setting up the MBTR descriptor
 mbtr = MBTR(
     species=atomic_numbers,
-    k=2,
-    periodic=False,
-    grid={
-        "k2": {"min": 0, "max": 1, "n": n, "sigma": 0.1}
+    settings={
+        "k2": {
+            "geometry": {"function": "inverse_distances", "min": 0, "max": 1, "n": n, "sigma": 0.1},
+            "weighting": {"function": "exponential", "scale": 0.5, "cutoff": 1e-3},
+        },
     },
-    weighting=None
+    periodic=False,
 )
 
 # Creating an atomic system as an ase.Atoms-object

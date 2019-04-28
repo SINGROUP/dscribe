@@ -21,8 +21,8 @@ class MBTR(Descriptor):
     This implementation provides the following geometry functions:
 
     * k=1: atomic number
-    * k=2: inverse distances
-    * k=3: cosines of angles
+    * k=2: distances, inverse distances
+    * k=3: angles (degree), cosines of angles
 
     and the following weighting functions:
 
@@ -54,10 +54,10 @@ class MBTR(Descriptor):
 
     def __init__(
             self,
-            k,
             periodic,
-            grid=None,
-            weighting=None,
+            k1=None,
+            k2=None,
+            k3=None,
             species=None,
             atomic_numbers=None,
             normalize_by_volume=False,
@@ -66,69 +66,76 @@ class MBTR(Descriptor):
             sparse=True
             ):
         """
+        Here *function* is the used geometry function, *min* is the
+        minimum value of the axis, *max* is the maximum value of the
+        axis, *sigma* is the standard deviation of the gaussian
+        broadening and *n* is the number of points sampled on the grid.
+
+        The threshold is used to determine the minimum amount of
+        periodic images to consider. The variable *cutoff* determines
+        the value of the weighting function after which the rest of the
+        terms will be ignored. The k1 term is 0-dimensional, so
+        weighting is not used. Here are the available functions and a
+        description for them:
+
+        * unity: Constant weighting of 1 for all samples.
+        * exponential: Weighting of the form :math:`e^{-sx}`. The
+            parameter :math:`s` is given in the attribute *scale*.
+
+        The meaning of x changes for different terms as follows:
+
+        * :math:`k=1`: :math:`x` = 0
+        * :math:`k=2`: :math:`x` = Distance between A->B
+        * :math:`k=3`: :math:`x` = Distance from A->B->C->A.
         Args:
-            k (int or iterable): The interaction term to consider from 1 to 3.
-                Also multiple terms can be created at once by providing an
-                iterable of integers. The size of the final output and the time
-                taken in creating this descriptor is exponentially dependent on
-                this value.
             periodic (bool): Determines whether the system is considered to be
                 periodic.
-            grid (dict): This dictionary can be used to precisely control
-                the broadening width, grid spacing and grid length for all the
-                different terms. Example::
-
-                    grid = {
-                        "k1": {
-                            "min": 1,
-                            "max": 10
-                            "sigma": 0.1
-                            "n": 100
-                        },
-                        "k2": {
-                            "min": 0,
-                            "max": 1/0.70,
-                            "sigma": 0.01,
-                            "n": 100
-                        },
-                        ...
+            k1 (dict): Setup for the k=1 term. For example:
+                k1 = {
+                    geometry = {
+                        "function": "atomic_number",
+                        "min": 1,
+                        "max": 10
+                        "sigma": 0.1
+                        "n": 100
                     }
+                }
+            k2 (dict): Dictionary containing the setup for the k=2 term.
+                Contains setup for the used geometry function, discretization and
+                weighting function. For example::
 
-                Here *min* is the minimum value of the axis, *max* is the
-                maximum value of the axis, *sigma* is the standard devation of
-                the gaussian broadening and *n* is the number of points sampled
-                on the grid.
-            weighting (dictionary or string): A dictionary of weighting
-                function settings for each term. Example::
-
-                    weighting = {
-                        "k2": {
-                            "function": "unity",
-                        },
-                        "k3": {
-                            "function": "exponential",
-                            "scale": 0.5,
-                            "cutoff": 1e-3,
-                        }
+                k2 = {
+                    "geometry" = {
+                        "function": "inverse_distance",
+                        "min": 0,
+                        "max": 2
+                        "sigma": 0.05
+                        "n": 100
                     }
+                    "weighting" = {
+                        "function": "exponential",
+                        "scale": 0.5,
+                        "cutoff": 1e-3
+                    }
+                }
+            k3 (dict): Dictionary containing the setup for the k=3 term.
+                Contains setup for the used geometry function, discretization and
+                weighting function. For example::
 
-                The threshold is used to determine the minimum amount of
-                periodic images to consider. The variable *cutoff* determines
-                the value of the weighting function after which the rest of the
-                terms will be ignored. The k1 term is 0-dimensional, so
-                weighting is not used. Here are the available functions and a
-                description for them:
-
-                * unity: Constant weighting of 1 for all samples.
-                * exponential: Weighting of the form :math:`e^{-sx}`. The
-                  parameter :math:`s` is given in the attribute *scale*.
-
-                The meaning of x changes for different terms as follows:
-
-                * :math:`k=1`: :math:`x` = 0
-                * :math:`k=2`: :math:`x` = Distance between A->B
-                * :math:`k=3`: :math:`x` = Distance from A->B->C->A.
-
+                k3 = {
+                    "geometry" = {
+                        "function": "angles",
+                        "min": 0,
+                        "max": 180
+                        "sigma": 0.05
+                        "n": 100
+                    }
+                    "weighting" = {
+                        "function": "exponential",
+                        "scale": 0.5,
+                        "cutoff": 1e-3
+                    }
+                }
             species (iterable): The chemical species as a list of atomic
                 numbers or as a list of chemical symbols. Notice that this is not
                 the atomic numbers that are present for an individual system, but
@@ -162,22 +169,19 @@ class MBTR(Descriptor):
             )
         super().__init__(flatten, sparse)
         self.system = None
-        if isinstance(k, int):
-            self.k = [k]
-        else:
-            self.k = k
+        self.periodic = periodic
+        self.k1 = k1
+        self.k2 = k2
+        self.k3 = k3
 
         # Setup the involved chemical species
         species = self.get_species_definition(species, atomic_numbers)
         self.species = species
 
-        self.grid = grid
-        self.weighting = weighting
-        self.periodic = periodic
         self.normalize_by_volume = normalize_by_volume
         self.normalize_gaussians = normalize_gaussians
         self.virtual_positions = False
-        self.update()
+        # self.update()
 
         # Initializing .create() level variables
         self._interaction_limit = None
@@ -192,91 +196,162 @@ class MBTR(Descriptor):
         self._axis_k2 = None
         self._axis_k3 = None
 
-    def update(self):
-        """Checks and updates variables in mbtr class.
+    @property
+    def k1(self):
+        return self._k1
+
+    @k1.setter
+    def k1(self, value):
+        """Used to check the validity of given k=1 setup.
+
+        Args:
+            value(dict): The k=1 setup
         """
-        # Check K value
-        supported_k = set(range(1, 4))
-        try:
-            self.k = set(self.k)
-        except Exception:
-            raise ValueError(
-                "Could not make the given value of k into a set. Please "
-                "provide the k values as a single integer or an iterable of "
-                "integers."
-            )
-        if not self.k.issubset(supported_k):
-            raise ValueError(
-                "The given k parameter '{}' has at least one invalid k value".format(self.k)
-            )
+        if value is not None:
+            # Check the grid
+            self.check_grid(value["geometry"])
 
-        # Check the weighting information
-        if self.weighting is not None:
-            for k in self.k:
-                if k > 1:
-                    weight_info = self.weighting["k{}".format(k)]
-                    function = weight_info.get("function")
-                    valid_functions = set(("exponential", "unity"))
-                    needed = ()
-                    if function not in valid_functions:
-                        raise ValueError(
-                            "Unknown weighting function specified. Please use "
-                            "one of the following: {}".format(valid_functions)
-                        )
-                    else:
-                        if function == "exponential":
-                            needed = ("cutoff", "scale")
-                    for key in needed:
-                        value = weight_info.get(key)
-                        if value is None:
-                            raise ValueError(
-                                "Missing value for '{}' in the 'weighting' "
-                                "specification given in the MBTR constructor."
-                                .format(key)
-                            )
-
-        # Check that a weighting function is specified for each term k>1
-        if self.periodic:
-            for k in self.k:
-                if k > 1:
-                    error = ValueError(
-                        "Periodic systems will need to have a weighting "
-                        "function defined in the 'weighting' dictionary of "
-                        "the MBTR constructor when requesting k > 1"
+            # Check the geometry function
+            geom_func = value["geometry"].get("function")
+            if geom_func is not None:
+                valid_geom_func = set(("unity",))
+                if geom_func not in valid_geom_func:
+                    raise ValueError(
+                        "Unknown geometry function specified for k=1. Please use one of"
+                        " the following: {}".format(valid_geom_func)
                     )
-                    if self.weighting is None:
-                        raise error
-                    weight_info = self.weighting["k{}".format(k)]
-                    if weight_info is None:
-                        raise error
-                    function = weight_info["function"]
-                    if function is None or function == "unity":
-                        raise error
+            else:
+                value["geometry"]["function"] = "unity"
 
-        # Check the given grid
-        if self.grid is not None:
-            self.check_grid(self.grid)
+            # Check the weighting function
+            weighting = value.get("weighting")
+            if weighting is not None:
+                valid_weight_func = set(("unity",))
+                weight_func = value["weighting"]["function"]
+                if weight_func not in valid_weight_func:
+                    raise ValueError(
+                        "Unknown weighting function specified for k=1. Please use one of"
+                        " the following: {}".format(valid_weight_func)
+                    )
+
+        self._k1 = value
+
+    @property
+    def k2(self):
+        return self._k2
+
+    @k2.setter
+    def k2(self, value):
+        """Used to check the validity of given k=2 setup.
+
+        Args:
+            value(dict): The k=2 setup
+        """
+        if value is not None:
+            # Check the grid
+            self.check_grid(value["geometry"])
+
+            # Check the geometry function
+            valid_geom_func = set(("distance", "inverse_distance"))
+            geom_func = value["geometry"]["function"]
+            if geom_func not in valid_geom_func:
+                raise ValueError(
+                    "Unknown geometry function specified for k=2. Please use one of"
+                    " the following: {}".format(valid_geom_func)
+                )
+            # Check the weighting function
+            weighting = value.get("weighting")
+            if weighting is not None:
+                valid_weight_func = set(("unity", "exponential"))
+                weight_func = value["weighting"]["function"]
+                if weight_func not in valid_weight_func:
+                    raise ValueError(
+                        "Unknown weighting function specified for k=2. Please use one of"
+                        " the following: {}".format(valid_weight_func)
+                    )
+                else:
+                    if weight_func == "exponential":
+                        needed = ("cutoff", "scale")
+                for key in needed:
+                    param = value["weighting"].get(key)
+                    if param is None:
+                        raise ValueError(
+                            "Missing value for '{}' in the k=2 weighting.".format(key)
+                        )
+            elif self.periodic:
+                raise ValueError(
+                    "Periodic systems will need to have a weighting function "
+                    "defined in the 'weighting' dictionary"
+                )
+
+        self._k2 = value
+
+    @property
+    def k3(self):
+        return self._k3
+
+    @k3.setter
+    def k3(self, value):
+        """Used to check the validity of given k=3 setup.
+
+        Args:
+            value(dict): The k=3 setup
+        """
+        if value is not None:
+            # Check the grid
+            self.check_grid(value["geometry"])
+
+            # Check the geometry function
+            valid_geom_func = set(("angle", "cosine"))
+            geom_func = value["geometry"]["function"]
+            if geom_func not in valid_geom_func:
+                raise ValueError(
+                    "Unknown geometry function specified for k=3. Please use one of"
+                    " the following: {}".format(valid_geom_func)
+                )
+
+            # Check the weighting function
+            weighting = value.get("weighting")
+            if weighting is not None:
+                valid_weight_func = set(("unity", "exponential"))
+                weight_func = value["weighting"]["function"]
+                if weight_func not in valid_weight_func:
+                    raise ValueError(
+                        "Unknown weighting function specified for k=3. Please use one of"
+                        " the following: {}".format(valid_weight_func)
+                    )
+                else:
+                    if weight_func == "exponential":
+                        needed = ("cutoff", "scale")
+                for key in needed:
+                    param = value["weighting"].get(key)
+                    if param is None:
+                        raise ValueError(
+                            "Missing value for '{}' in the k=3 weighting.".format(key)
+                        )
+            elif self.periodic:
+                raise ValueError(
+                    "Periodic systems will need to have a weighting function "
+                    "defined in the 'weighting' dictionary"
+                )
+
+        self._k3 = value
 
     def check_grid(self, grid):
         """Used to ensure that the given grid settings are valid.
         """
-        if grid is not None:
-            for i in self.k:
-                info = grid.get("k{}".format(i))
-                if info is not None:
-                    msg = "The grid information is missing the value for {}"
-                    val_names = ["min", "max", "sigma", "n"]
-                    for val_name in val_names:
-                        try:
-                            info[val_name]
-                        except Exception:
-                            raise KeyError(msg.format(val_name))
+        msg = "The grid information is missing the value for {}"
+        val_names = ["min", "max", "sigma", "n"]
+        for val_name in val_names:
+            try:
+                grid[val_name]
+            except Exception:
+                raise KeyError(msg.format(val_name))
 
-                    # Make the n into integer
-                    n = grid.get("k{}".format(i))["n"]
-                    grid.get("k{}".format(i))["n"] = int(n)
-                    assert info["min"] < info["max"], \
-                        "The min value should be smaller than the max values"
+        # Make the n into integer
+        grid["n"] = int(grid["n"])
+        assert grid["min"] < grid["max"], \
+            "The min value should be smaller than the max value."
 
     def create(self, system, n_jobs=1, verbose=False):
         """Return MBTR output for the given systems.
@@ -379,17 +454,17 @@ class MBTR(Descriptor):
             self.grid = grid
 
         mbtr = {}
-        if 1 in self.k:
+        if self.k1 is not None:
             settings_k1 = self.get_k1_settings()
             k1 = self.K1(settings_k1)
             mbtr["k1"] = k1
 
-        if 2 in self.k:
+        if self.k2 is not None:
             settings_k2 = self.get_k2_settings()
             k2 = self.K2(settings_k2)
             mbtr["k2"] = k2
 
-        if 3 in self.k:
+        if self.k3 is not None:
             settings_k3 = self.get_k3_settings()
             k3 = self.K3(settings_k3)
             mbtr["k3"] = k3
@@ -444,7 +519,7 @@ class MBTR(Descriptor):
         self._axis_k2 = None
         self._axis_k3 = None
 
-        self.update()
+        # self.update()
 
         if self._is_local:
             self._interaction_limit = 1
@@ -455,9 +530,9 @@ class MBTR(Descriptor):
         # of atomic numbers
         self.check_atomic_numbers(system.get_atomic_numbers())
 
-        if 1 in self.k:
+        if self.k1 is not None:
             self.k1_geoms_and_weights(system)
-        if 2 in self.k:
+        if self.k2 is not None:
             # If needed, create the extended system
             system_k2 = system
             if self.periodic:
@@ -467,7 +542,7 @@ class MBTR(Descriptor):
             # Free memory
             system_k2 = None
 
-        if 3 in self.k:
+        if self.k3 is not None:
             # If needed, create the extended system
             system_k3 = system
             if self.periodic:
@@ -502,19 +577,15 @@ class MBTR(Descriptor):
         n_features = 0
         n_elem = self.n_elements
 
-        if 0 in self.k:
-            n_k0_grid = self.get_k0_settings()["d1"]["n"]
-            n_k0 = 2*n_k0_grid
-            n_features += n_k0
-        if 1 in self.k:
+        if self.k1 is not None:
             n_k1_grid = self.get_k1_settings()["n"]
             n_k1 = n_elem*n_k1_grid
             n_features += n_k1
-        if 2 in self.k:
+        if self.k2 is not None:
             n_k2_grid = self.get_k2_settings()["n"]
             n_k2 = (n_elem*(n_elem+1)/2)*n_k2_grid
             n_features += n_k2
-        if 3 in self.k:
+        if self.k3 is not None:
             n_k3_grid = self.get_k3_settings()["n"]
             n_k3 = (n_elem*n_elem*(n_elem+1)/2)*n_k3_grid
             n_features += n_k3
@@ -540,8 +611,7 @@ class MBTR(Descriptor):
             most have a weight that is larger or equivalent to the given
             threshold.
         """
-
-        # We need to speciy that the relative positions should not be wrapped.
+        # We need to specify that the relative positions should not be wrapped.
         # Otherwise the repeated systems may overlap with the positions taken
         # with get_positions()
         relative_pos = np.array(primitive_system.get_scaled_positions(wrap=False))
@@ -554,12 +624,12 @@ class MBTR(Descriptor):
         # exponential weight to come down to the given threshold.
         cell_vector_lengths = np.linalg.norm(cell, axis=1)
         n_copies_axis = np.zeros(3, dtype=int)
-        weight_info = self.weighting["k{}".format(term_number)]
-        weighting_function = weight_info["function"]
-        cutoff = self.weighting["k{}".format(term_number)]["cutoff"]
+        weighting = getattr(self, "k{}".format(term_number))["weighting"]
+        weighting_function = weighting["function"]
+        cutoff = self.weighting_func["k{}".format(term_number)]["cutoff"]
 
         if weighting_function == "exponential":
-            scale = weight_info["scale"]
+            scale = weighting["scale"]
             function = lambda x: np.exp(-scale*x)
 
         for i_axis, axis_length in enumerate(cell_vector_lengths):
@@ -711,7 +781,16 @@ class MBTR(Descriptor):
             # For k=1, the geometry function is given by the atomic number, and
             # the weighting function is unity by default.
             parameters = {}
-            self._k1_geoms, self._k1_weights = cmbtr.get_k1_geoms_and_weights(geom_func=b"atomic_number", weight_func=b"unity", parameters=parameters)
+
+            geom_func_name = self.k1["geometry"]["function"]
+            if geom_func_name is None:
+                geom_func_name = "atomic_numbers"
+
+            self._k1_geoms, self._k1_weights = cmbtr.get_k1_geoms_and_weights(
+                geom_func=geom_func_name.encode(),
+                weight_func=b"unity",
+                parameters=parameters
+            )
         return self._k1_geoms, self._k1_weights
 
     def k2_geoms_and_weights(self, system):
@@ -737,20 +816,20 @@ class MBTR(Descriptor):
             )
 
             # Determine the weighting function
-            if self.weighting is not None:
-                weight_info = self.weighting["k2"]
-                weighting_function = weight_info["function"]
-            else:
-                weighting_function = "unity"
+            weighting = self.k2["weighting"]
+            weighting_function = weighting["function"]
             parameters = {}
             if weighting_function == "exponential":
                 parameters = {
-                    b"scale": weight_info["scale"],
-                    b"cutoff": weight_info["cutoff"]
+                    b"scale": weighting["scale"],
+                    b"cutoff": weighting["cutoff"]
                 }
 
+            # Determine the geometry function
+            geom_func_name = self.k2["geometry"]["function"]
+
             self._k2_geoms, self._k2_weights = cmbtr.get_k2_geoms_and_weights(
-                geom_func=b"inverse_distance",
+                geom_func=geom_func_name.encode(),
                 weight_func=weighting_function.encode(),
                 parameters=parameters
             )
@@ -780,11 +859,8 @@ class MBTR(Descriptor):
             )
 
             # Determine the weighting function
-            if self.weighting is not None:
-                weight_info = self.weighting["k3"]
-                weighting_function = weight_info["function"]
-            else:
-                weighting_function = "unity"
+            weight_info = self.k3["weighting"]
+            weighting_function = weight_info["function"]
             parameters = {}
             if weighting_function == "exponential":
                 parameters = {
@@ -792,7 +868,14 @@ class MBTR(Descriptor):
                     b"cutoff": weight_info["cutoff"]
                 }
 
-            self._k3_geoms, self._k3_weights = cmbtr.get_k3_geoms_and_weights(geom_func=b"cosine", weight_func=weighting_function.encode(), parameters=parameters)
+            # Determine the geometry function
+            geom_func_name = self.geometry_func["k3"]["function"]
+
+            self._k3_geoms, self._k3_weights = cmbtr.get_k3_geoms_and_weights(
+                geom_func=geom_func_name.encode(),
+                weight_func=weighting_function.encode(),
+                parameters=parameters
+            )
 
         return self._k3_geoms, self._k3_weights
 
