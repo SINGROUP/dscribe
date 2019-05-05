@@ -461,8 +461,8 @@ class MBTR(Descriptor):
             # If needed, create the extended system
             system_k2 = system
             if self.periodic:
-                system_k2 = self.create_extended_system(system, 2)
-            self.k2_geoms_and_weights(system_k2)
+                system_k2, copy_indices = self.create_extended_system(system, 2)
+            self.k2_geoms_and_weights(system_k2, copy_indices)
 
             # Free memory
             system_k2 = None
@@ -471,8 +471,8 @@ class MBTR(Descriptor):
             # If needed, create the extended system
             system_k3 = system
             if self.periodic:
-                system_k3 = self.create_extended_system(system, 3)
-            self.k3_geoms_and_weights(system_k3)
+                system_k3, copy_indices = self.create_extended_system(system, 3)
+            self.k3_geoms_and_weights(system_k3, copy_indices)
 
             # Free memory
             system_k3 = None
@@ -540,8 +540,7 @@ class MBTR(Descriptor):
             most have a weight that is larger or equivalent to the given
             threshold.
         """
-
-        # We need to speciy that the relative positions should not be wrapped.
+        # We need to specify that the relative positions should not be wrapped.
         # Otherwise the repeated systems may overlap with the positions taken
         # with get_positions()
         relative_pos = np.array(primitive_system.get_scaled_positions(wrap=False))
@@ -567,7 +566,7 @@ class MBTR(Descriptor):
             n_copies = -1
             while (not limit_found):
                 n_copies += 1
-                distance = n_copies*cell_vector_lengths[0]
+                distance = n_copies*cell_vector_lengths[i_axis]
 
                 # For terms k>2 we double the distances to take into
                 # account the "loop" that is required.
@@ -576,7 +575,7 @@ class MBTR(Descriptor):
 
                 weight = function(distance)
                 if weight < cutoff:
-                    n_copies_axis[i_axis] = n_copies
+                    n_copies_axis[i_axis] = n_copies+1
                     limit_found = True
 
         # Create copies of the cell but keep track of the atoms in the
@@ -588,6 +587,11 @@ class MBTR(Descriptor):
         a = np.array([1, 0, 0])
         b = np.array([0, 1, 0])
         c = np.array([0, 0, 1])
+
+        copy_indices = []
+        for i_copy_atom in range(len(primitive_system)):
+            copy_indices.append((0, 0, 0))
+
         for i in range(-n_copies_axis[0], n_copies_axis[0]+1):
             for j in range(-n_copies_axis[1], n_copies_axis[1]+1):
                 for k in range(-n_copies_axis[2], n_copies_axis[2]+1):
@@ -638,6 +642,9 @@ class MBTR(Descriptor):
                     pos_extended.append(valid_pos)
                     num_extended.append(valid_num)
 
+                    for i_copy_atom in range(len(valid_num)):
+                        copy_indices.append((i, j, k))
+
         pos_extended = np.concatenate(pos_extended)
         num_extended = np.concatenate(num_extended)
 
@@ -648,7 +655,12 @@ class MBTR(Descriptor):
             pbc=False
         )
 
-        return extended_system
+        print("Indices, atoms: {}, {}".format(len(copy_indices), len(extended_system)))
+
+        # from ase.visualize import view
+        # print(len(extended_system))
+        # view(extended_system)
+        return extended_system, copy_indices
 
     def gaussian_sum(self, centers, weights, settings):
         """Calculates a discrete version of a sum of Gaussian distributions.
@@ -714,7 +726,7 @@ class MBTR(Descriptor):
             self._k1_geoms, self._k1_weights = cmbtr.get_k1_geoms_and_weights(geom_func=b"atomic_number", weight_func=b"unity", parameters=parameters)
         return self._k1_geoms, self._k1_weights
 
-    def k2_geoms_and_weights(self, system):
+    def k2_geoms_and_weights(self, system, copy_indices):
         """Calculates the value of the geometry function and corresponding
         weights for unique two-body combinations.
 
@@ -733,6 +745,7 @@ class MBTR(Descriptor):
                 system.get_atomic_numbers(),
                 self.atomic_number_to_index,
                 interaction_limit=self._interaction_limit,
+                indices=copy_indices,
                 is_local=self._is_local
             )
 
@@ -756,7 +769,7 @@ class MBTR(Descriptor):
             )
         return self._k2_geoms, self._k2_weights
 
-    def k3_geoms_and_weights(self, system):
+    def k3_geoms_and_weights(self, system, copy_indices):
         """Calculates the value of the geometry function and corresponding
         weights for unique three-body combinations.
 
@@ -776,6 +789,7 @@ class MBTR(Descriptor):
                 system.get_atomic_numbers(),
                 self.atomic_number_to_index,
                 interaction_limit=self._interaction_limit,
+                indices=copy_indices,
                 is_local=self._is_local
             )
 
@@ -856,6 +870,9 @@ class MBTR(Descriptor):
 
         k2_geoms, k2_weights = self._k2_geoms, self._k2_weights
         n_elem = self.n_elements
+
+        # print(np.unique(k2_geoms[(0, 0)]))
+        # print(np.unique(k2_weights[(0, 0)]))
 
         # Depending of flattening, use either a sparse matrix or a dense one.
         if self._flatten:

@@ -9,7 +9,9 @@ into a single scalar value. The distribution of these scalar values is then
 constructed with kernel density estimation to represent the structure.
 
 .. figure:: /_static/img/mbtr.jpg
-   :scale: 50 %
+   :width: 1144px
+   :height: 772px
+   :scale: 40 %
    :alt: MBTR stratification
    :align: center
 
@@ -50,6 +52,30 @@ Examples
 --------
 The following examples demonstrate common use cases for the descriptor. These
 examples are also available in dscribe/examples/mbtr.py.
+
+Finite systems
+~~~~~~~~~~~~~~
+For finite systems we have to specify *periodic=False* in the constructor. The
+need to apply weighting depends on the size of the system: for small systems,
+such as small molecules, the benefits are small. However for larger systems,
+such as clusters and bigger molecules, adding weighting will help in removing
+"noise" coming from atom combinations that are physically very far apart and do
+not have any meaningful direct interaction in the system. The following code
+demonstrates both approaches.
+
+Periodic systems
+~~~~~~~~~~~~~~~~
+When applying MBTR to periodic systems, use *periodic=True* in the constructor.
+For periodic systems a weighting function needs to be defined, and an exception
+is raised if it not given. The weighting essentially determines how many
+periodic copies of the cell we need to include in the calculation, and without
+it we would not know when to stop the periodic repetition. The following code
+demonstrate how to apply MBTR on a periodic crystal.
+
+A problem with periodic crystals that is not directly solved by the MBTR
+formalism is the fact that multiple different cells shapes and sizes can be
+used for the same crystal. Different shapes and sizes will have the same
+looking MBTR output, but will be scaled differently.
 
 Visualization
 ~~~~~~~~~~~~~

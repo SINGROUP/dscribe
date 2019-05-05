@@ -7,18 +7,21 @@
 #include <numeric>
 #include <utility>
 #include <cmath>
+#include <iostream>
 #include <algorithm>
 #include <sstream>
 #include <stdexcept>
 using namespace std;
 
-MBTR::MBTR(vector<vector<float> > positions, vector<int> atomicNumbers, map<int,int> atomicNumberToIndexMap, int interactionLimit, bool isLocal)
+MBTR::MBTR(vector<vector<float> > positions, vector<int> atomicNumbers, map<int,int> atomicNumberToIndexMap, int interactionLimit, vector<vector<int> > indices, bool isLocal)
     : positions(positions)
     , atomicNumbers(atomicNumbers)
     , atomicNumberToIndexMap(atomicNumberToIndexMap)
     , interactionLimit(interactionLimit)
+    , indices(indices)
     , isLocal(isLocal)
     , displacementTensorInitialized(false)
+    , distanceMatrixInitialized(false)
     , k1IndicesInitialized(false)
     , k2IndicesInitialized(false)
     , k3IndicesInitialized(false)
@@ -69,35 +72,40 @@ vector<vector<vector<float> > > MBTR::getDisplacementTensor()
 }
 vector<vector<float> > MBTR::getDistanceMatrix()
 {
-    int nAtoms = this->atomicNumbers.size();
+    // Use cached value if possible
+    if (!this->distanceMatrixInitialized) {
+        int nAtoms = this->atomicNumbers.size();
 
-    // Initialize matrix
-    vector<vector<float> > distanceMatrix(nAtoms, vector<float>(nAtoms));
+        // Initialize matrix
+        vector<vector<float> > distMatrix(nAtoms, vector<float>(nAtoms));
 
-    // Displacement tensor
-    vector<vector<vector<float> > > tensor = this->getDisplacementTensor();
+        // Displacement tensor
+        vector<vector<vector<float> > > tensor = this->getDisplacementTensor();
 
-    // Calculate distances
-    for (int i=0; i < nAtoms; ++i) {
-        for (int j=0; j < nAtoms; ++j) {
+        // Calculate distances
+        for (int i=0; i < nAtoms; ++i) {
+            for (int j=0; j < nAtoms; ++j) {
 
-            // Due to symmetry only upper triangular part is processed.
-            if (i <= j) {
-                continue;
+                // Due to symmetry only upper triangular part is processed.
+                if (i <= j) {
+                    continue;
+                }
+
+                float norm = 0;
+                vector<float>& iPos = tensor[i][j];
+                for (int k=0; k < 3; ++k) {
+                    norm += pow(iPos[k], 2.0);
+                }
+                norm = sqrt(norm);
+                distMatrix[i][j] = norm;
+                distMatrix[j][i] = norm;
             }
-
-            float norm = 0;
-            vector<float>& iPos = tensor[i][j];
-            for (int k=0; k < 3; ++k) {
-                norm += pow(iPos[k], 2.0);
-            }
-            norm = sqrt(norm);
-            distanceMatrix[i][j] = norm;
-            distanceMatrix[j][i] = norm;
         }
+        this->distanceMatrix = distMatrix;
+        this->distanceMatrixInitialized = true;
     }
 
-    return distanceMatrix;
+    return this->distanceMatrix;
 }
 
 vector<index1d> MBTR::getk1Indices()
@@ -514,10 +522,37 @@ pair<map<index3d, vector<float> >, map<index3d,vector<float> > > MBTR::getK3Geom
             // supercells equal to the primitive cell within a constant that is
             // given by the number of repetitions of the primitive cell in the
             // supercell.
-            if (!this->isLocal) {
-                if (!((i < this->interactionLimit) && (j < this->interactionLimit) && (k < this->interactionLimit))) {
-                    weightValue /= 2;
-                }
+            //if (!this->isLocal) {
+                //if (!((i < this->interactionLimit) && (j < this->interactionLimit) && (k < this->interactionLimit))) {
+                    //weightValue /= 2;
+                //}
+            //}
+
+            // When only one of the atoms is in the original cell, the weight
+            // is halved?
+            //if (!this->isLocal) {
+                //bool iInCell = i < this->interactionLimit;
+                //bool jInCell = j < this->interactionLimit;
+                //bool kInCell = k < this->interactionLimit;
+
+                //if ((int)iInCell + (int)jInCell + (int)kInCell < 3) {
+                    //weightValue /= 2;
+                //}
+            //}
+
+            vector<int> i_copy = this->indices[i];
+            vector<int> j_copy = this->indices[j];
+            vector<int> k_copy = this->indices[k];
+
+            bool ij_equal = i_copy == j_copy;
+            bool ik_equal = i_copy == k_copy;
+            bool jk_equal = j_copy == k_copy;
+            int equal_sum = (int)ij_equal + (int)ik_equal + (int)jk_equal;
+
+            if (equal_sum == 1) {
+                weightValue /= 2;
+            } else if (equal_sum == 0) {
+                weightValue /= 3;
             }
 
             // Get the index of the present elements in the final vector
