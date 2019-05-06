@@ -169,7 +169,7 @@ class LMBTR(MBTR):
             weighting=weighting,
             species=species,
             atomic_numbers=atomic_numbers,
-            normalize_by_volume=False,
+            normalization="none",
             normalize_gaussians=normalize_gaussians,
             flatten=flatten,
             sparse=sparse,

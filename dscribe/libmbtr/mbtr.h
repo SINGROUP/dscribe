@@ -248,7 +248,7 @@ class MBTR {
         vector<int> atomicNumbers;
         map<int,int> atomicNumberToIndexMap;
         int interactionLimit;
-        vector<vector<int> > indices;
+        vector<vector<int> > cellIndices;
         bool isLocal;
         vector<vector<vector<float> > > displacementTensor;
         bool displacementTensorInitialized;

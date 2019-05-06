@@ -438,10 +438,19 @@ pair<map<index2d, vector<float> >, map<index2d,vector<float> > > MBTR::getK2Geom
             // given by the number of repetitions of the primitive cell in the
             // supercell.
             if (!this->isLocal) {
-                if (!((i < this->interactionLimit) && (j < this->interactionLimit))) {
+                vector<int> i_copy = this->cellIndices[i];
+                vector<int> j_copy = this->cellIndices[j];
+
+                if (i_copy != j_copy) {
                     weightValue /= 2;
                 }
             }
+            //if (!this->isLocal) {
+                //if (!((i < this->interactionLimit) && (j < this->interactionLimit))) {
+                    //weightValue /= 2;
+                //}
+            //}
+
 
             // Get the index of the present elements in the final vector
             int i_elem = this->atomicNumbers[i];
@@ -526,9 +535,9 @@ pair<map<index3d, vector<float> >, map<index3d,vector<float> > > MBTR::getK3Geom
             // respect to the original cell at index [0, 0, 0]) are present for
             // the atoms in the triple.
             if (!this->isLocal) {
-                vector<int> i_copy = this->indices[i];
-                vector<int> j_copy = this->indices[j];
-                vector<int> k_copy = this->indices[k];
+                vector<int> i_copy = this->cellIndices[i];
+                vector<int> j_copy = this->cellIndices[j];
+                vector<int> k_copy = this->cellIndices[k];
 
                 bool ij_equal = i_copy == j_copy;
                 bool ik_equal = i_copy == k_copy;

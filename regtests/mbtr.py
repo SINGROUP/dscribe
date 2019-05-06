@@ -13,10 +13,7 @@ from dscribe.descriptors import MBTR
 from ase.build import bulk
 from ase.build import molecule
 from ase import Atoms
-from ase.visualize import view
 import ase.geometry
-
-import matplotlib.pyplot as mpl
 
 from testbaseclass import TestBaseClass
 
@@ -86,96 +83,6 @@ H = Atoms(
     ],
     symbols=["H"],
 )
-
-
-class Tests(unittest.TestCase):
-
-    def test_normalization(self):
-        """Tests that each normalization method works correctly.
-        """
-        n = 100
-        desc = MBTR(
-            species=["H", "O"],
-            k=[1, 2, 3],
-            grid={
-                "k1": {"n": n, "min": 1, "max": 8, "sigma": 0.1},
-                "k2": {"n": n, "min": 0, "max": 5, "sigma": 0.1},
-                "k3": {"n": n, "min": -1, "max": 1, "sigma": 0.1},
-            },
-            periodic=False,
-            normalization="none",
-            flatten=False,
-            sparse=False,
-        )
-
-        # Calculate the norms
-        feat1 = desc.create(H2O)
-        k1 = feat1["k1"]
-        k2 = feat1["k2"]
-        k3 = feat1["k3"]
-        k1_norm = np.linalg.norm(k1.ravel())
-        k2_norm = np.linalg.norm(k2.ravel())
-        k3_norm = np.linalg.norm(k3.ravel())
-        norm_total = np.linalg.norm(np.hstack((k1.ravel(), k2.ravel(), k3.ravel())))
-
-        # Test normalization of non-flat dense output with l2_each
-        desc.normalization = "l2_each"
-        feat2 = desc.create(H2O)
-        k1_each = feat2["k1"]
-        k2_each = feat2["k2"]
-        k3_each = feat2["k3"]
-        self.assertTrue(np.array_equal(k1/k1_norm, k1_each))
-        self.assertTrue(np.array_equal(k2/k2_norm, k2_each))
-        self.assertTrue(np.array_equal(k3/k3_norm, k3_each))
-
-        # Test normalization of non-flat dense output with l2_all
-        desc.normalization = "l2_all"
-        feat3 = desc.create(H2O)
-        k1_all = feat3["k1"]
-        k2_all = feat3["k2"]
-        k3_all = feat3["k3"]
-        self.assertTrue(np.array_equal(k1/norm_total, k1_all))
-        self.assertTrue(np.array_equal(k2/norm_total, k2_all))
-        self.assertTrue(np.array_equal(k3/norm_total, k3_all))
-
-        # Flattened dense output
-        desc.flatten = True
-        desc.normalization = "none"
-        feat_flat = desc.create(H2O)
-
-        # Test normalization of flat dense output with l2_each
-        desc.sparse = False
-        desc.normalization = "l2_each"
-        n_elem = len(desc.species)
-        feat = desc.create(H2O)
-        n1 = int(n*n_elem)
-        n2 = int((n_elem*(n_elem+1)/2)*n)
-        a1 = feat_flat[0, 0:n1]/k1_norm
-        a2 = feat_flat[0, n1:n1+n2]/k2_norm
-        a3 = feat_flat[0, n1+n2:]/k3_norm
-        feat_flat_manual_norm_each = np.hstack((a1, a2, a3))
-        self.assertTrue(np.array_equal(feat[0, :], feat_flat_manual_norm_each))
-
-        # Test normalization of flat dense output with l2_all
-        desc.sparse = False
-        desc.normalization = "l2_all"
-        n_elem = len(desc.species)
-        feat = desc.create(H2O)
-        exp_feat = feat_flat/norm_total
-        self.assertTrue(np.array_equal(feat, exp_feat))
-
-        # Test normalization of flat sparse output with l2_each
-        desc.sparse = True
-        desc.normalization = "l2_each"
-        feat = desc.create(H2O).toarray()
-        self.assertTrue(np.array_equal(feat[0, :], feat_flat_manual_norm_each))
-
-        # Test normalization of flat sparse output with l2_all
-        desc.sparse = True
-        desc.normalization = "l2_all"
-        feat = desc.create(H2O).toarray()
-        exp_feat = feat_flat/norm_total
-        self.assertTrue(np.array_equal(feat, exp_feat))
 
 
 class MBTRTests(TestBaseClass, unittest.TestCase):
@@ -522,39 +429,17 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             k=[1, 2, 3],
             periodic=True,
             grid={
-                "k1": {
-                    "min": 0,
-                    "max": 2,
-                    "sigma": 0.1,
-                    "n": 100,
-                },
-                "k2": {
-                    "min": 0,
-                    "max": 1.0,
-                    "sigma": 0.02,
-                    "n": 200,
-                },
-                "k3": {
-                    "min": -1.0,
-                    "max": 1.0,
-                    "sigma": 0.02,
-                    "n": 200,
-                },
+                "k1": {"min": 0, "max": 2, "sigma": 0.1, "n": 100},
+                "k2": {"min": 0, "max": 1.0, "sigma": 0.02, "n": 200},
+                "k3": {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 200},
             },
             weighting={
-                "k2": {
-                    "function": "exponential",
-                    "scale": decay,
-                    "cutoff": 1e-3
-                },
-                "k3": {
-                    "function": "exponential",
-                    "scale": decay,
-                    "cutoff": 1e-3
-                },
+                "k2": {"function": "exponential", "scale": decay, "cutoff": 1e-3},
+                "k3": {"function": "exponential", "scale": decay, "cutoff": 1e-3},
             },
             flatten=True,
             sparse=False,
+            normalization="l2_each",
         )
 
         # Create various supercells for the FCC structure
@@ -565,14 +450,98 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
 
         output = desc.create([a1, a2, a3, a4])
 
-        # Normalize the output to unit euclidean length
-        output /= np.linalg.norm(output, axis=1)[:, np.newaxis]
-
         # Test for equality
         self.assertTrue(np.allclose(output[0, :], output[0, :]))
         self.assertTrue(np.allclose(output[0, :], output[1, :]))
         self.assertTrue(np.allclose(output[0, :], output[2, :]))
         self.assertTrue(np.allclose(output[0, :], output[3, :]))
+
+    def test_normalization(self):
+        """Tests that each normalization method works correctly.
+        """
+        n = 100
+        desc = MBTR(
+            species=["H", "O"],
+            k=[1, 2, 3],
+            grid={
+                "k1": {"n": n, "min": 1, "max": 8, "sigma": 0.1},
+                "k2": {"n": n, "min": 0, "max": 5, "sigma": 0.1},
+                "k3": {"n": n, "min": -1, "max": 1, "sigma": 0.1},
+            },
+            periodic=False,
+            normalization="none",
+            flatten=False,
+            sparse=False,
+        )
+
+        # Calculate the norms
+        feat1 = desc.create(H2O)
+        k1 = feat1["k1"]
+        k2 = feat1["k2"]
+        k3 = feat1["k3"]
+        k1_norm = np.linalg.norm(k1.ravel())
+        k2_norm = np.linalg.norm(k2.ravel())
+        k3_norm = np.linalg.norm(k3.ravel())
+        norm_total = np.linalg.norm(np.hstack((k1.ravel(), k2.ravel(), k3.ravel())))
+
+        # Test normalization of non-flat dense output with l2_each
+        desc.normalization = "l2_each"
+        feat2 = desc.create(H2O)
+        k1_each = feat2["k1"]
+        k2_each = feat2["k2"]
+        k3_each = feat2["k3"]
+        self.assertTrue(np.array_equal(k1/k1_norm, k1_each))
+        self.assertTrue(np.array_equal(k2/k2_norm, k2_each))
+        self.assertTrue(np.array_equal(k3/k3_norm, k3_each))
+
+        # Test normalization of non-flat dense output with l2_all
+        desc.normalization = "l2_all"
+        feat3 = desc.create(H2O)
+        k1_all = feat3["k1"]
+        k2_all = feat3["k2"]
+        k3_all = feat3["k3"]
+        self.assertTrue(np.array_equal(k1/norm_total, k1_all))
+        self.assertTrue(np.array_equal(k2/norm_total, k2_all))
+        self.assertTrue(np.array_equal(k3/norm_total, k3_all))
+
+        # Flattened dense output
+        desc.flatten = True
+        desc.normalization = "none"
+        feat_flat = desc.create(H2O)
+
+        # Test normalization of flat dense output with l2_each
+        desc.sparse = False
+        desc.normalization = "l2_each"
+        n_elem = len(desc.species)
+        feat = desc.create(H2O)
+        n1 = int(n*n_elem)
+        n2 = int((n_elem*(n_elem+1)/2)*n)
+        a1 = feat_flat[0, 0:n1]/k1_norm
+        a2 = feat_flat[0, n1:n1+n2]/k2_norm
+        a3 = feat_flat[0, n1+n2:]/k3_norm
+        feat_flat_manual_norm_each = np.hstack((a1, a2, a3))
+        self.assertTrue(np.array_equal(feat[0, :], feat_flat_manual_norm_each))
+
+        # Test normalization of flat dense output with l2_all
+        desc.sparse = False
+        desc.normalization = "l2_all"
+        n_elem = len(desc.species)
+        feat = desc.create(H2O)
+        exp_feat = feat_flat/norm_total
+        self.assertTrue(np.array_equal(feat, exp_feat))
+
+        # Test normalization of flat sparse output with l2_each
+        desc.sparse = True
+        desc.normalization = "l2_each"
+        feat = desc.create(H2O).toarray()
+        self.assertTrue(np.array_equal(feat[0, :], feat_flat_manual_norm_each))
+
+        # Test normalization of flat sparse output with l2_all
+        desc.sparse = True
+        desc.normalization = "l2_all"
+        feat = desc.create(H2O).toarray()
+        exp_feat = feat_flat/norm_total
+        self.assertTrue(np.array_equal(feat, exp_feat))
 
     def test_k1_weights_and_geoms_finite(self):
         """Tests that the values of the weight and geometry functions are
@@ -1477,7 +1446,6 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
 
 if __name__ == '__main__':
     suites = []
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(Tests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(MBTRTests))
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)
