@@ -13,12 +13,12 @@
 #include <stdexcept>
 using namespace std;
 
-MBTR::MBTR(vector<vector<float> > positions, vector<int> atomicNumbers, map<int,int> atomicNumberToIndexMap, int interactionLimit, vector<vector<int> > indices, bool isLocal)
+MBTR::MBTR(vector<vector<float> > positions, vector<int> atomicNumbers, map<int,int> atomicNumberToIndexMap, int interactionLimit, vector<vector<int> > cellIndices, bool isLocal)
     : positions(positions)
     , atomicNumbers(atomicNumbers)
     , atomicNumberToIndexMap(atomicNumberToIndexMap)
     , interactionLimit(interactionLimit)
-    , indices(indices)
+    , cellIndices(cellIndices)
     , isLocal(isLocal)
     , displacementTensorInitialized(false)
     , distanceMatrixInitialized(false)
@@ -515,44 +515,31 @@ pair<map<index3d, vector<float> >, map<index3d,vector<float> > > MBTR::getK3Geom
             float geomValue = geomValues[index];
             float weightValue = weightValues[index];
 
-            // When at least one of the atoms is in a different copy of the cell, the
-            // weight is halved. This is done in order to avoid double counting
-            // the same distance in the opposite direction. This correction
-            // makes periodic cells with different translations equal and also
-            // supercells equal to the primitive cell within a constant that is
-            // given by the number of repetitions of the primitive cell in the
-            // supercell.
-            //if (!this->isLocal) {
-                //if (!((i < this->interactionLimit) && (j < this->interactionLimit) && (k < this->interactionLimit))) {
-                    //weightValue /= 2;
-                //}
-            //}
+            // The contributions are weighted by their multiplicity arising from
+            // the translational symmetry. Each triple of atoms is repeated N
+            // times in the extended system through translational symmetry. The
+            // weight for the angles is thus divided by N so that the
+            // multiplication from symmetry is countered. This makes the final
+            // spectrum invariant to the selected supercell size and shape
+            // after normalization. The number of repetitions N is given by how
+            // many unique cell indices (the index of the repeated cell with
+            // respect to the original cell at index [0, 0, 0]) are present for
+            // the atoms in the triple.
+            if (!this->isLocal) {
+                vector<int> i_copy = this->indices[i];
+                vector<int> j_copy = this->indices[j];
+                vector<int> k_copy = this->indices[k];
 
-            // When only one of the atoms is in the original cell, the weight
-            // is halved?
-            //if (!this->isLocal) {
-                //bool iInCell = i < this->interactionLimit;
-                //bool jInCell = j < this->interactionLimit;
-                //bool kInCell = k < this->interactionLimit;
+                bool ij_equal = i_copy == j_copy;
+                bool ik_equal = i_copy == k_copy;
+                bool jk_equal = j_copy == k_copy;
+                int equal_sum = (int)ij_equal + (int)ik_equal + (int)jk_equal;
 
-                //if ((int)iInCell + (int)jInCell + (int)kInCell < 3) {
-                    //weightValue /= 2;
-                //}
-            //}
-
-            vector<int> i_copy = this->indices[i];
-            vector<int> j_copy = this->indices[j];
-            vector<int> k_copy = this->indices[k];
-
-            bool ij_equal = i_copy == j_copy;
-            bool ik_equal = i_copy == k_copy;
-            bool jk_equal = j_copy == k_copy;
-            int equal_sum = (int)ij_equal + (int)ik_equal + (int)jk_equal;
-
-            if (equal_sum == 1) {
-                weightValue /= 2;
-            } else if (equal_sum == 0) {
-                weightValue /= 3;
+                if (equal_sum == 1) {
+                    weightValue /= 2;
+                } else if (equal_sum == 0) {
+                    weightValue /= 3;
+                }
             }
 
             // Get the index of the present elements in the final vector

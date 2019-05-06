@@ -79,7 +79,7 @@ import numpy as np
 decay = 1
 desc = MBTR(
     species=[1],
-    k=[3],
+    k=[2, 3],
     periodic=True,
     grid={
         "k1": {
@@ -117,65 +117,33 @@ desc = MBTR(
     sparse=False,
 )
 
-# Testing that the same crystal, but different unit cells will have a
-# similar spectrum after normalization.
-# a1 = bulk('H', 'fcc', a=2.0)
+# Testing that the same crystal, but different unit cells will have an
+# identical spectrum after normalization.
 from ase.visualize import view
 from ase import Atoms
 
-a = Atoms(
-    cell=[1, 1, 1],
-    scaled_positions=[[0.5, 0.5, 0.5]],
-    symbols=["H"],
-)
-# view(a)
-# a1 = a*[2, 1, 1]
-# a2 = a*[1, 2, 1]
-# a3 = a*[1, 1, 2]
+a1 = bulk('H', 'fcc', a=2.0)                     # Primitive
+a2 = a1*[2, 2, 2]                                # Supercell
+a3 = bulk('H', 'fcc', a=2.0, orthorhombic=True)  # Orthorhombic
+a4 = bulk('H', 'fcc', a=2.0, cubic=True)         # Conventional cubic
 
-a1 = bulk('H', 'fcc', a=2.0)
-a2 = bulk('H', 'fcc', a=2.0, orthorhombic=True)
-a3 = bulk('H', 'fcc', a=2.0, cubic=True)
-
-# a2 = a1*[2,2,1]
-# a3 = a1*[3,3,1]
-# a4 = a1*[4,4,1]
-
-# view(a1)
-# view(a2)
-# view(a3)
-
-# o1 = desc.create(a1)
-# print(len(desc._k3_geoms[(0, 0, 0)]))
-# geoms1 = sorted(desc._k3_geoms.values())
-# o2 = desc.create(a2)
-# print(len(desc._k3_geoms[(0, 0, 0)]))
-# geoms2 = sorted(desc._k2_geoms.values())
-# o3 = desc.create(a3)
-# print(len(desc._k3_geoms[(0, 0, 0)]))
-# geoms3 = sorted(desc._k2_geoms.values())
-
-# print(np.allclose(geoms1, geoms2, atol=1e-2))
-# print(np.allclose(geoms1, geoms3))
-
-output = desc.create([a1, a2, a3])
-# output = desc.create([a1, a2, a3])
-# output = desc.create([a1])
+output = desc.create([a1, a2, a3, a4])
 
 # Plot the MBTR output for the different cells before normalization
 n_feat = desc.get_number_of_features()
-# mpl.plot(desc._axis_k3, output[0, :], label="x")
-# mpl.plot(desc._axis_k3, output[1, :], label="y")
-# mpl.plot(desc._axis_k3, output[3, :], label="z")
-# mpl.legend()
-# mpl.show()
+mpl.plot(range(n_feat), output[0, :], label="Primitive cell")
+mpl.plot(range(n_feat), output[1, :], label="2x2 supercell")
+mpl.plot(range(n_feat), output[2, :], label="Orthorhombic cell")
+mpl.plot(range(n_feat), output[3, :], label="Conventional cubic cell")
+mpl.legend()
+mpl.show()
 
 # Normalize the output to unit euclidean length
 output /= np.linalg.norm(output, axis=1)[:, np.newaxis]
 
 # Plot the MBTR output for the different cells after normalization
-mpl.plot(range(n_feat), output[0, :], label="Triclinic cell")
-mpl.plot(range(n_feat), output[1, :], label="Orthorhombic cell")
-mpl.plot(range(n_feat), output[2, :], label="Cubic cell")
-# mpl.plot(range(n_feat), output[3, :], label="Cubic cell")
+mpl.plot(range(n_feat), output[0, :], label="Primitive cell")
+mpl.plot(range(n_feat), output[1, :], label="2x2 supercell")
+mpl.plot(range(n_feat), output[2, :], label="Orthorhombic cell")
+mpl.plot(range(n_feat), output[3, :], label="Conventional cubic cell")
 mpl.show()

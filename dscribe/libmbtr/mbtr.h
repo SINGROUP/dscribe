@@ -75,9 +75,10 @@ class MBTR {
          * @param interactionLimit The number of atoms that are interacting.
          * The atoms with indices < interactionLimit are considered to be
          * interacting with other atoms.
+         * @param cellIndices
          * @param local Whether a local or a global MBTR is calculated.
          */
-        MBTR(vector<vector<float> > positions, vector<int> atomicNumbers, map<int,int> atomicNumberToIndexMap, int interactionLimit,  vector<vector<int>> indices, bool local=false);
+        MBTR(vector<vector<float> > positions, vector<int> atomicNumbers, map<int,int> atomicNumberToIndexMap, int interactionLimit,  vector<vector<int>> cellIndices, bool local=false);
 
         /**
          * Returns a list of 1D indices for the atom combinations that need to

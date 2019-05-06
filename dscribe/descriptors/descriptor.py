@@ -22,7 +22,7 @@ class Descriptor(with_metaclass(ABCMeta)):
             flatten (bool): Whether the output of create() should be flattened
                 to a 1D array.
         """
-        self._sparse = sparse
+        self.sparse = sparse
         self._flatten = flatten
         self._atomic_numbers = None
         self._atomic_number_set = None
@@ -72,6 +72,32 @@ class Descriptor(with_metaclass(ABCMeta)):
             raise ValueError(
                 "Invalid system with type: '{}'.".format(type(system))
             )
+
+    @property
+    def sparse(self):
+        return self._sparse
+
+    @sparse.setter
+    def sparse(self, value):
+        """Sets whether the output should be sparse or not.
+
+        Args:
+            value(float): Should the output be in sparse format.
+        """
+        self._sparse = value
+
+    @property
+    def flatten(self):
+        return self._flatten
+
+    @flatten.setter
+    def flatten(self, value):
+        """Sets whether the output should be flattened or not.
+
+        Args:
+            value(float): Should the output be flattened.
+        """
+        self._flatten = value
 
     def _set_species(self, species):
         """Used to setup the species information for this descriptor. This
