@@ -37,7 +37,8 @@ class SineMatrix(MatrixDescriptor):
         """Return the Sine matrix for the given systems.
 
         Args:
-            system (single or multiple class:`ase.Atoms`): One or many atomic structures.
+            system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or
+                many atomic structures.
             n_jobs (int): Number of parallel jobs to instantiate. Parallellizes
                 the calculation across samples. Defaults to serial calculation
                 with n_jobs=1.
@@ -45,7 +46,7 @@ class SineMatrix(MatrixDescriptor):
                 into to the console.
 
         Returns:
-            np.ndarray | scipy.sparse.csr_matrix | list: Coulomb matrix for the
+            np.ndarray | scipy.sparse.csr_matrix | list: Sine matrix for the
             given systems. The return type depends on the 'sparse' and
             'flatten'-attributes. For flattened output a single numpy array or
             sparse scipy.csr_matrix is returned. The first dimension is

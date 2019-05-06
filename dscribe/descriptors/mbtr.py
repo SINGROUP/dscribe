@@ -144,15 +144,13 @@ class MBTR(Descriptor):
             normalize_gaussians (bool): Determines whether the gaussians are
                 normalized to an area of 1. Defaults to True. If False, the
                 normalization factor is dropped and the gaussians have the form.
-                :math:`e^-(x-\mu)^2/2\sigma^2`
+                :math:`e^{-(x-\mu)^2/2\sigma^2}`
             normalization (str): Determines the method for normalizing the
                 output. The available options are:
 
-                * none: No normalization.
+                * "none": No normalization.
                 * "l2_each": Normalize the Euclidean length of each k-term
                   individually to unity.
-                * "l2_all": Normalize the Euclidean length of all k-terms
-                  combined to unity.
 
             flatten (bool): Whether the output of create() should be flattened
                 to a 1D array. If False, a dictionary of the different tensors
@@ -290,7 +288,7 @@ class MBTR(Descriptor):
         """Return MBTR output for the given systems.
 
         Args:
-            system (single or multiple class:`ase.Atoms`): One or many atomic structures.
+            system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or many atomic structures.
             n_jobs (int): Number of parallel jobs to instantiate. Parallellizes
                 the calculation across samples. Defaults to serial calculation
                 with n_jobs=1.
@@ -298,12 +296,13 @@ class MBTR(Descriptor):
                 into to the console.
 
         Returns:
-            np.ndarray | scipy.sparse.csr_matrix | list: Coulomb matrix for the
+            np.ndarray | scipy.sparse.csr_matrix | list: MBTR for the
             given systems. The return type depends on the 'sparse' and
             'flatten'-attributes. For flattened output a single numpy array or
             sparse scipy.csr_matrix is returned. The first dimension is
             determined by the amount of systems. If the output is not
-            flattened, a simple python list is returned.
+            flattened, dictionaries containing the MBTR tensors for each k-term
+            are returned.
         """
         # If single system given, skip the parallelization
         if isinstance(system, (Atoms, System)):
@@ -386,7 +385,7 @@ class MBTR(Descriptor):
         Args:
             value(str): The normalization method to use.
         """
-        norm_options = set(("l2_each", "l2_all", "none"))
+        norm_options = set(("l2_each", "none"))
         if value not in norm_options:
             raise ValueError(
                 "Unknown normalization option given. Please use one of the "
@@ -433,22 +432,6 @@ class MBTR(Descriptor):
                     i_data = value.ravel()
                     i_norm = np.linalg.norm(i_data)
                     mbtr[key] = value/i_norm
-        if self.normalization == "l2_all":
-            if self._flatten is True:
-                total_data = []
-                for key, value in mbtr.items():
-                    i_data = np.array(value.tocsr().data)
-                    total_data.append(i_data)
-            else:
-                total_data = []
-                for key, value in mbtr.items():
-                    i_data = value.ravel()
-                    total_data.append(i_data)
-
-            total_data = np.hstack(total_data)
-            total_norm = np.linalg.norm(total_data)
-            for key, value in mbtr.items():
-                mbtr[key] = value/total_norm
 
         # Flatten output if requested
         if self._flatten:

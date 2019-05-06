@@ -53,7 +53,8 @@ class EwaldSumMatrix(MatrixDescriptor):
         """Return the Coulomb matrix for the given systems.
 
         Args:
-            system (single or multiple class:`ase.Atoms`): One or many atomic structures.
+            system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or
+                many atomic structures.
             accuracy (float): The accuracy to which the sum is converged to.
                 Corresponds to the variable :math:`A` in
                 https://doi.org/10.1080/08927022.2013.840898. Used only if

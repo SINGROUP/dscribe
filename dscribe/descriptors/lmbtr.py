@@ -182,8 +182,8 @@ class LMBTR(MBTR):
         """Return the LMBTR output for the given systems and given positions.
 
         Args:
-            system (single or multiple class:`ase.Atoms`): One or many atomic
-                structures.
+            system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or
+                many atomic structures.
             positions (list): Positions where to calculate LMBTR. Can be
                 provided as cartesian positions or atomic indices. If no
                 positions are defined, the LMBTR output will be created for all
