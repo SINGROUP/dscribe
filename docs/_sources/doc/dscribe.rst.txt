@@ -9,6 +9,7 @@ Subpackages
     dscribe.core
     dscribe.descriptors
     dscribe.kernels
+    dscribe.libacsf
     dscribe.libmbtr
     dscribe.utils
 

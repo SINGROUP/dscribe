@@ -1,13 +1,13 @@
-dscribe.libmbtr package
+dscribe.libacsf package
 =======================
 
 Submodules
 ----------
 
-dscribe.libmbtr.mbtrwrapper module
+dscribe.libacsf.acsfwrapper module
 ----------------------------------
 
-.. automodule:: dscribe.libmbtr.mbtrwrapper
+.. automodule:: dscribe.libacsf.acsfwrapper
     :members:
     :undoc-members:
     :show-inheritance:
@@ -16,7 +16,7 @@ dscribe.libmbtr.mbtrwrapper module
 Module contents
 ---------------
 
-.. automodule:: dscribe.libmbtr
+.. automodule:: dscribe.libacsf
     :members:
     :undoc-members:
     :show-inheritance:

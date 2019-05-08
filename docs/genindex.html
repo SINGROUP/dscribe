@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Index &mdash; DScribe 0.2.2 documentation</title>
+  <title>Index &mdash; DScribe 0.2.3 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                0.2.2
+                0.2.3
               </div>
             
           
@@ -93,6 +93,7 @@
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/tutorials.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="doc/modules.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="citing.html">Citing DScribe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="about.html">About</a></li>
 </ul>
@@ -174,7 +175,6 @@
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
- | <a href="#P"><strong>P</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
@@ -191,6 +191,8 @@
       <ul>
         <li><a href="tutorials/coulomb_matrix.html#dscribe.descriptors.coulombmatrix.CoulombMatrix.__init__">(dscribe.descriptors.coulombmatrix.CoulombMatrix method)</a>
 </li>
+        <li><a href="tutorials/ewald_sum_matrix.html#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.__init__">(dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix method)</a>
+</li>
         <li><a href="tutorials/mbtr.html#dscribe.descriptors.mbtr.MBTR.__init__">(dscribe.descriptors.mbtr.MBTR method)</a>
 </li>
         <li><a href="tutorials/soap.html#dscribe.descriptors.soap.SOAP.__init__">(dscribe.descriptors.soap.SOAP method)</a>
@@ -206,19 +208,15 @@
 </li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF">ACSF (class in dscribe.descriptors.acsf)</a>
 </li>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSFObject">ACSFObject (class in dscribe.descriptors.acsf)</a>
-</li>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSFObject.acsfs">acsfs (dscribe.descriptors.acsf.ACSFObject attribute)</a>
+      <li><a href="doc/dscribe.libacsf.html#dscribe.libacsf.acsfwrapper.ACSFWrapper">ACSFWrapper (class in dscribe.libacsf.acsfwrapper)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="doc/dscribe.core.html#dscribe.core.lattice.Lattice.alpha">alpha (dscribe.core.lattice.Lattice attribute)</a>
 </li>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSFObject.ang4_params">ang4_params (dscribe.descriptors.acsf.ACSFObject attribute)</a>
-</li>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSFObject.ang5_params">ang5_params (dscribe.descriptors.acsf.ACSFObject attribute)</a>
-</li>
       <li><a href="doc/dscribe.core.html#dscribe.core.lattice.Lattice.angles">angles (dscribe.core.lattice.Lattice attribute)</a>
+</li>
+      <li><a href="doc/dscribe.libacsf.html#dscribe.libacsf.acsfwrapper.ACSFWrapper.atomic_numbers">atomic_numbers (dscribe.libacsf.acsfwrapper.ACSFWrapper attribute)</a>
 </li>
       <li><a href="doc/dscribe.kernels.html#dscribe.kernels.average.AverageKernel">AverageKernel (class in dscribe.kernels.average)</a>
 </li>
@@ -228,15 +226,7 @@
 <h2 id="B">B</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="doc/dscribe.utils.html#dscribe.utils.batch_create.batch_create">batch_create() (in module dscribe.utils.batch_create)</a>
-</li>
       <li><a href="doc/dscribe.core.html#dscribe.core.lattice.Lattice.beta">beta (dscribe.core.lattice.Lattice attribute)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSFObject.bond_cos_params">bond_cos_params (dscribe.descriptors.acsf.ACSFObject attribute)</a>
-</li>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSFObject.bond_params">bond_params (dscribe.descriptors.acsf.ACSFObject attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -248,41 +238,53 @@
 </li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.check_grid">check_grid() (dscribe.descriptors.mbtr.MBTR method)</a>
 </li>
-      <li><a href="doc/dscribe.libmbtr.html#dscribe.libmbtr.cmbtrwrapper.CMBTRWrapper">CMBTRWrapper (class in dscribe.libmbtr.cmbtrwrapper)</a>
-</li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.coulombmatrix.CoulombMatrix">CoulombMatrix (class in dscribe.descriptors.coulombmatrix)</a>
 </li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.create">create() (dscribe.descriptors.acsf.ACSF method)</a>, <a href="tutorials/acsf.html#dscribe.descriptors.acsf.ACSF.create">[1]</a>
 
       <ul>
-        <li><a href="tutorials/coulomb_matrix.html#dscribe.descriptors.coulombmatrix.CoulombMatrix.create">(dscribe.descriptors.coulombmatrix.CoulombMatrix method)</a>
+        <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.coulombmatrix.CoulombMatrix.create">(dscribe.descriptors.coulombmatrix.CoulombMatrix method)</a>, <a href="tutorials/coulomb_matrix.html#dscribe.descriptors.coulombmatrix.CoulombMatrix.create">[1]</a>
 </li>
         <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.create">(dscribe.descriptors.descriptor.Descriptor method)</a>
 </li>
         <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.elementaldistribution.ElementalDistribution.create">(dscribe.descriptors.elementaldistribution.ElementalDistribution method)</a>
 </li>
-        <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.ewaldmatrix.EwaldMatrix.create">(dscribe.descriptors.ewaldmatrix.EwaldMatrix method)</a>
+        <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create">(dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix method)</a>, <a href="tutorials/ewald_sum_matrix.html#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create">[1]</a>
 </li>
         <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.lmbtr.LMBTR.create">(dscribe.descriptors.lmbtr.LMBTR method)</a>
 </li>
-        <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.create">(dscribe.descriptors.matrixdescriptor.MatrixDescriptor method)</a>
-</li>
         <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.create">(dscribe.descriptors.mbtr.MBTR method)</a>, <a href="tutorials/mbtr.html#dscribe.descriptors.mbtr.MBTR.create">[1]</a>
+</li>
+        <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.sinematrix.SineMatrix.create">(dscribe.descriptors.sinematrix.SineMatrix method)</a>
 </li>
         <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.create">(dscribe.descriptors.soap.SOAP method)</a>, <a href="tutorials/soap.html#dscribe.descriptors.soap.SOAP.create">[1]</a>
 </li>
         <li><a href="doc/dscribe.kernels.html#dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel.create">(dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel method)</a>
 </li>
-        <li><a href="doc/dscribe.utils.html#dscribe.utils.batch_create.create">(in module dscribe.utils.batch_create)</a>
+        <li><a href="doc/dscribe.libacsf.html#dscribe.libacsf.acsfwrapper.ACSFWrapper.create">(dscribe.libacsf.acsfwrapper.ACSFWrapper method)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.create_extended_system">create_extended_system() (dscribe.descriptors.mbtr.MBTR method)</a>
 </li>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.create_with_grid">create_with_grid() (dscribe.descriptors.mbtr.MBTR method)</a>
+      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.create_parallel">create_parallel() (dscribe.descriptors.descriptor.Descriptor method)</a>
 </li>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSFObject.cutoff">cutoff (dscribe.descriptors.acsf.ACSFObject attribute)</a>
+      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.create_single">create_single() (dscribe.descriptors.acsf.ACSF method)</a>
+
+      <ul>
+        <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create_single">(dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix method)</a>
+</li>
+        <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.lmbtr.LMBTR.create_single">(dscribe.descriptors.lmbtr.LMBTR method)</a>
+</li>
+        <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.create_single">(dscribe.descriptors.matrixdescriptor.MatrixDescriptor method)</a>
+</li>
+        <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.create_single">(dscribe.descriptors.mbtr.MBTR method)</a>
+</li>
+        <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.create_single">(dscribe.descriptors.soap.SOAP method)</a>
+</li>
+      </ul></li>
+      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.create_with_grid">create_with_grid() (dscribe.descriptors.mbtr.MBTR method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -297,8 +299,6 @@
 </li>
       </ul></li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor">Descriptor (class in dscribe.descriptors.descriptor)</a>
-</li>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSFObject.distances">distances (dscribe.descriptors.acsf.ACSFObject attribute)</a>
 </li>
       <li><a href="doc/dscribe.html#module-dscribe">dscribe (module)</a>
 </li>
@@ -318,12 +318,12 @@
 </li>
       <li><a href="doc/dscribe.descriptors.html#module-dscribe.descriptors.elementaldistribution">dscribe.descriptors.elementaldistribution (module)</a>
 </li>
-      <li><a href="doc/dscribe.descriptors.html#module-dscribe.descriptors.ewaldmatrix">dscribe.descriptors.ewaldmatrix (module)</a>
+      <li><a href="doc/dscribe.descriptors.html#module-dscribe.descriptors.ewaldsummatrix">dscribe.descriptors.ewaldsummatrix (module)</a>
+</li>
+      <li><a href="doc/dscribe.descriptors.html#module-dscribe.descriptors.lmbtr">dscribe.descriptors.lmbtr (module)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="doc/dscribe.descriptors.html#module-dscribe.descriptors.lmbtr">dscribe.descriptors.lmbtr (module)</a>
-</li>
       <li><a href="doc/dscribe.descriptors.html#module-dscribe.descriptors.matrixdescriptor">dscribe.descriptors.matrixdescriptor (module)</a>
 </li>
       <li><a href="doc/dscribe.descriptors.html#module-dscribe.descriptors.mbtr">dscribe.descriptors.mbtr (module)</a>
@@ -340,13 +340,15 @@
 </li>
       <li><a href="doc/dscribe.kernels.html#module-dscribe.kernels.rematch">dscribe.kernels.rematch (module)</a>
 </li>
+      <li><a href="doc/dscribe.libacsf.html#module-dscribe.libacsf">dscribe.libacsf (module)</a>
+</li>
+      <li><a href="doc/dscribe.libacsf.html#module-dscribe.libacsf.acsfwrapper">dscribe.libacsf.acsfwrapper (module)</a>
+</li>
       <li><a href="doc/dscribe.libmbtr.html#module-dscribe.libmbtr">dscribe.libmbtr (module)</a>
 </li>
-      <li><a href="doc/dscribe.libmbtr.html#module-dscribe.libmbtr.cmbtrwrapper">dscribe.libmbtr.cmbtrwrapper (module)</a>
+      <li><a href="doc/dscribe.libmbtr.html#module-dscribe.libmbtr.mbtrwrapper">dscribe.libmbtr.mbtrwrapper (module)</a>
 </li>
       <li><a href="doc/dscribe.utils.html#module-dscribe.utils">dscribe.utils (module)</a>
-</li>
-      <li><a href="doc/dscribe.utils.html#module-dscribe.utils.batch_create">dscribe.utils.batch_create (module)</a>
 </li>
       <li><a href="doc/dscribe.utils.html#module-dscribe.utils.species">dscribe.utils.species (module)</a>
 </li>
@@ -362,7 +364,7 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.ewaldmatrix.EwaldMatrix">EwaldMatrix (class in dscribe.descriptors.ewaldmatrix)</a>
+      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix">EwaldSumMatrix (class in dscribe.descriptors.ewaldsummatrix)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -378,6 +380,30 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.g2_params">g2_params (dscribe.descriptors.acsf.ACSF attribute)</a>
+
+      <ul>
+        <li><a href="doc/dscribe.libacsf.html#dscribe.libacsf.acsfwrapper.ACSFWrapper.g2_params">(dscribe.libacsf.acsfwrapper.ACSFWrapper attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.g3_params">g3_params (dscribe.descriptors.acsf.ACSF attribute)</a>
+
+      <ul>
+        <li><a href="doc/dscribe.libacsf.html#dscribe.libacsf.acsfwrapper.ACSFWrapper.g3_params">(dscribe.libacsf.acsfwrapper.ACSFWrapper attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.g4_params">g4_params (dscribe.descriptors.acsf.ACSF attribute)</a>
+
+      <ul>
+        <li><a href="doc/dscribe.libacsf.html#dscribe.libacsf.acsfwrapper.ACSFWrapper.g4_params">(dscribe.libacsf.acsfwrapper.ACSFWrapper attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.g5_params">g5_params (dscribe.descriptors.acsf.ACSF attribute)</a>
+
+      <ul>
+        <li><a href="doc/dscribe.libacsf.html#dscribe.libacsf.acsfwrapper.ACSFWrapper.g5_params">(dscribe.libacsf.acsfwrapper.ACSFWrapper attribute)</a>
+</li>
+      </ul></li>
       <li><a href="doc/dscribe.core.html#dscribe.core.lattice.Lattice.gamma">gamma (dscribe.core.lattice.Lattice attribute)</a>
 </li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.elementaldistribution.ElementalDistribution.gaussian_sum">gaussian_sum() (dscribe.descriptors.elementaldistribution.ElementalDistribution method)</a>
@@ -397,13 +423,13 @@
       <li><a href="doc/dscribe.core.html#dscribe.core.system.System.get_displacement_tensor">get_displacement_tensor() (dscribe.core.system.System method)</a>
 
       <ul>
-        <li><a href="doc/dscribe.libmbtr.html#dscribe.libmbtr.cmbtrwrapper.CMBTRWrapper.get_displacement_tensor">(dscribe.libmbtr.cmbtrwrapper.CMBTRWrapper method)</a>
+        <li><a href="doc/dscribe.libmbtr.html#dscribe.libmbtr.mbtrwrapper.MBTRWrapper.get_displacement_tensor">(dscribe.libmbtr.mbtrwrapper.MBTRWrapper method)</a>
 </li>
       </ul></li>
       <li><a href="doc/dscribe.core.html#dscribe.core.system.System.get_distance_matrix">get_distance_matrix() (dscribe.core.system.System method)</a>
 
       <ul>
-        <li><a href="doc/dscribe.libmbtr.html#dscribe.libmbtr.cmbtrwrapper.CMBTRWrapper.get_distance_matrix">(dscribe.libmbtr.cmbtrwrapper.CMBTRWrapper method)</a>
+        <li><a href="doc/dscribe.libmbtr.html#dscribe.libmbtr.mbtrwrapper.MBTRWrapper.get_distance_matrix">(dscribe.libmbtr.mbtrwrapper.MBTRWrapper method)</a>
 </li>
       </ul></li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.get_eigenspectrum">get_eigenspectrum() (dscribe.descriptors.matrixdescriptor.MatrixDescriptor method)</a>
@@ -424,26 +450,26 @@
         <li><a href="doc/dscribe.kernels.html#dscribe.kernels.rematch.REMatchKernel.get_global_similarity">(dscribe.kernels.rematch.REMatchKernel method)</a>
 </li>
       </ul></li>
-      <li><a href="doc/dscribe.core.html#dscribe.core.system.System.get_inverse_distance_matrix">get_inverse_distance_matrix() (dscribe.core.system.System method)</a>
-</li>
-      <li><a href="doc/dscribe.libmbtr.html#dscribe.libmbtr.cmbtrwrapper.CMBTRWrapper.get_k1_geoms_and_weights">get_k1_geoms_and_weights() (dscribe.libmbtr.cmbtrwrapper.CMBTRWrapper method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="doc/dscribe.core.html#dscribe.core.system.System.get_inverse_distance_matrix">get_inverse_distance_matrix() (dscribe.core.system.System method)</a>
+</li>
+      <li><a href="doc/dscribe.libmbtr.html#dscribe.libmbtr.mbtrwrapper.MBTRWrapper.get_k1_geoms_and_weights">get_k1_geoms_and_weights() (dscribe.libmbtr.mbtrwrapper.MBTRWrapper method)</a>
+</li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.get_k1_settings">get_k1_settings() (dscribe.descriptors.mbtr.MBTR method)</a>
 </li>
-      <li><a href="doc/dscribe.libmbtr.html#dscribe.libmbtr.cmbtrwrapper.CMBTRWrapper.get_k2_geoms_and_weights">get_k2_geoms_and_weights() (dscribe.libmbtr.cmbtrwrapper.CMBTRWrapper method)</a>
+      <li><a href="doc/dscribe.libmbtr.html#dscribe.libmbtr.mbtrwrapper.MBTRWrapper.get_k2_geoms_and_weights">get_k2_geoms_and_weights() (dscribe.libmbtr.mbtrwrapper.MBTRWrapper method)</a>
 </li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.get_k2_settings">get_k2_settings() (dscribe.descriptors.mbtr.MBTR method)</a>
 </li>
-      <li><a href="doc/dscribe.libmbtr.html#dscribe.libmbtr.cmbtrwrapper.CMBTRWrapper.get_k3_geoms_and_weights">get_k3_geoms_and_weights() (dscribe.libmbtr.cmbtrwrapper.CMBTRWrapper method)</a>
+      <li><a href="doc/dscribe.libmbtr.html#dscribe.libmbtr.mbtrwrapper.MBTRWrapper.get_k3_geoms_and_weights">get_k3_geoms_and_weights() (dscribe.libmbtr.mbtrwrapper.MBTRWrapper method)</a>
 </li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.get_k3_settings">get_k3_settings() (dscribe.descriptors.mbtr.MBTR method)</a>
 </li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.coulombmatrix.CoulombMatrix.get_matrix">get_matrix() (dscribe.descriptors.coulombmatrix.CoulombMatrix method)</a>
 
       <ul>
-        <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.ewaldmatrix.EwaldMatrix.get_matrix">(dscribe.descriptors.ewaldmatrix.EwaldMatrix method)</a>
+        <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.get_matrix">(dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix method)</a>
 </li>
         <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.get_matrix">(dscribe.descriptors.matrixdescriptor.MatrixDescriptor method)</a>
 </li>
@@ -534,11 +560,13 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="doc/dscribe.core.html#dscribe.core.lattice.Lattice.matrix">matrix (dscribe.core.lattice.Lattice attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.matrixdescriptor.MatrixDescriptor">MatrixDescriptor (class in dscribe.descriptors.matrixdescriptor)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR">MBTR (class in dscribe.descriptors.mbtr)</a>
+</li>
+      <li><a href="doc/dscribe.libmbtr.html#dscribe.libmbtr.mbtrwrapper.MBTRWrapper">MBTRWrapper (class in dscribe.libmbtr.mbtrwrapper)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -546,33 +574,19 @@
 <h2 id="N">N</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSFObject.n_ang4_params">n_ang4_params (dscribe.descriptors.acsf.ACSFObject attribute)</a>
+      <li><a href="doc/dscribe.libacsf.html#dscribe.libacsf.acsfwrapper.ACSFWrapper.n_g2">n_g2 (dscribe.libacsf.acsfwrapper.ACSFWrapper attribute)</a>
 </li>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSFObject.n_ang5_params">n_ang5_params (dscribe.descriptors.acsf.ACSFObject attribute)</a>
+      <li><a href="doc/dscribe.libacsf.html#dscribe.libacsf.acsfwrapper.ACSFWrapper.n_g3">n_g3 (dscribe.libacsf.acsfwrapper.ACSFWrapper attribute)</a>
 </li>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSFObject.n_bond_cos_params">n_bond_cos_params (dscribe.descriptors.acsf.ACSFObject attribute)</a>
-</li>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSFObject.n_bond_params">n_bond_params (dscribe.descriptors.acsf.ACSFObject attribute)</a>
+      <li><a href="doc/dscribe.libacsf.html#dscribe.libacsf.acsfwrapper.ACSFWrapper.n_g4">n_g4 (dscribe.libacsf.acsfwrapper.ACSFWrapper attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSFObject.natm">natm (dscribe.descriptors.acsf.ACSFObject attribute)</a>
+      <li><a href="doc/dscribe.libacsf.html#dscribe.libacsf.acsfwrapper.ACSFWrapper.n_g5">n_g5 (dscribe.libacsf.acsfwrapper.ACSFWrapper attribute)</a>
 </li>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSFObject.nG2">nG2 (dscribe.descriptors.acsf.ACSFObject attribute)</a>
+      <li><a href="doc/dscribe.libacsf.html#dscribe.libacsf.acsfwrapper.ACSFWrapper.n_type_pairs">n_type_pairs (dscribe.libacsf.acsfwrapper.ACSFWrapper attribute)</a>
 </li>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSFObject.nG3">nG3 (dscribe.descriptors.acsf.ACSFObject attribute)</a>
-</li>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSFObject.nSymTypes">nSymTypes (dscribe.descriptors.acsf.ACSFObject attribute)</a>
-</li>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSFObject.nTypes">nTypes (dscribe.descriptors.acsf.ACSFObject attribute)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="P">P</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSFObject.positions">positions (dscribe.descriptors.acsf.ACSFObject attribute)</a>
+      <li><a href="doc/dscribe.libacsf.html#dscribe.libacsf.acsfwrapper.ACSFWrapper.n_types">n_types (dscribe.libacsf.acsfwrapper.ACSFWrapper attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -580,10 +594,18 @@
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="doc/dscribe.core.html#dscribe.core.lattice.Lattice.reciprocal_lattice">reciprocal_lattice (dscribe.core.lattice.Lattice attribute)</a>
+      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.rcut">rcut (dscribe.descriptors.acsf.ACSF attribute)</a>
+
+      <ul>
+        <li><a href="doc/dscribe.libacsf.html#dscribe.libacsf.acsfwrapper.ACSFWrapper.rcut">(dscribe.libacsf.acsfwrapper.ACSFWrapper attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="doc/dscribe.libacsf.html#dscribe.libacsf.acsfwrapper.rebuild">rebuild() (in module dscribe.libacsf.acsfwrapper)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="doc/dscribe.core.html#dscribe.core.lattice.Lattice.reciprocal_lattice">reciprocal_lattice (dscribe.core.lattice.Lattice attribute)</a>
+</li>
       <li><a href="doc/dscribe.core.html#dscribe.core.lattice.Lattice.reciprocal_lattice_crystallographic">reciprocal_lattice_crystallographic (dscribe.core.lattice.Lattice attribute)</a>
 </li>
       <li><a href="doc/dscribe.kernels.html#dscribe.kernels.rematch.REMatchKernel">REMatchKernel (class in dscribe.kernels.rematch)</a>
@@ -596,30 +618,20 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="doc/dscribe.core.html#dscribe.core.system.System.set_cell">set_cell() (dscribe.core.system.System method)</a>
 </li>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.set_g2_params">set_g2_params() (dscribe.descriptors.acsf.ACSF method)</a>
-</li>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.set_g3_params">set_g3_params() (dscribe.descriptors.acsf.ACSF method)</a>
-</li>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.set_g4_params">set_g4_params() (dscribe.descriptors.acsf.ACSF method)</a>
-</li>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.set_g5_params">set_g5_params() (dscribe.descriptors.acsf.ACSF method)</a>
-</li>
       <li><a href="doc/dscribe.core.html#dscribe.core.system.System.set_pbc">set_pbc() (dscribe.core.system.System method)</a>
 </li>
       <li><a href="doc/dscribe.core.html#dscribe.core.system.System.set_positions">set_positions() (dscribe.core.system.System method)</a>
-</li>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.set_rcut">set_rcut() (dscribe.descriptors.acsf.ACSF method)</a>
 </li>
       <li><a href="doc/dscribe.core.html#dscribe.core.system.System.set_scaled_positions">set_scaled_positions() (dscribe.core.system.System method)</a>
 </li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.sinematrix.SineMatrix">SineMatrix (class in dscribe.descriptors.sinematrix)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP">SOAP (class in dscribe.descriptors.soap)</a>
 </li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.sort">sort() (dscribe.descriptors.matrixdescriptor.MatrixDescriptor method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.sort_randomly">sort_randomly() (dscribe.descriptors.matrixdescriptor.MatrixDescriptor method)</a>
 </li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.species">species (dscribe.descriptors.acsf.ACSF attribute)</a>
@@ -646,13 +658,9 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="doc/dscribe.core.html#dscribe.core.system.System.to_cartesian">to_cartesian() (dscribe.core.system.System method)</a>
 </li>
-      <li><a href="doc/dscribe.core.html#dscribe.core.system.System.to_scaled">to_scaled() (dscribe.core.system.System method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSFObject.typeID">typeID (dscribe.descriptors.acsf.ACSFObject attribute)</a>
-</li>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSFObject.types">types (dscribe.descriptors.acsf.ACSFObject attribute)</a>
+      <li><a href="doc/dscribe.core.html#dscribe.core.system.System.to_scaled">to_scaled() (dscribe.core.system.System method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -675,10 +683,6 @@
 
 <h2 id="Z">Z</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSFObject.Z">Z (dscribe.descriptors.acsf.ACSFObject attribute)</a>
-</li>
-  </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.zero_pad">zero_pad() (dscribe.descriptors.matrixdescriptor.MatrixDescriptor method)</a>
 </li>

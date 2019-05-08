@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dscribe.descriptors.ewaldmatrix &mdash; DScribe 0.2.3 documentation</title>
+  <title>dscribe.descriptors.ewaldsummatrix &mdash; DScribe 0.2.3 documentation</title>
   
 
   
@@ -142,7 +142,7 @@
         
           <li><a href="../../index.html">Module code</a> &raquo;</li>
         
-      <li>dscribe.descriptors.ewaldmatrix</li>
+      <li>dscribe.descriptors.ewaldsummatrix</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -157,7 +157,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <h1>Source code for dscribe.descriptors.ewaldmatrix</h1><div class="highlight"><pre>
+  <h1>Source code for dscribe.descriptors.ewaldsummatrix</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
 <span class="kn">from</span> <span class="nn">builtins</span> <span class="k">import</span> <span class="p">(</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">open</span><span class="p">,</span> <span class="nb">super</span><span class="p">,</span> <span class="nb">range</span><span class="p">,</span> <span class="nb">zip</span><span class="p">,</span> <span class="nb">round</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">pow</span><span class="p">,</span> <span class="nb">object</span><span class="p">)</span>
 <span class="kn">import</span> <span class="nn">math</span>
@@ -173,13 +173,13 @@
 <span class="kn">from</span> <span class="nn">dscribe.core.lattice</span> <span class="k">import</span> <span class="n">Lattice</span>
 
 
-<div class="viewcode-block" id="EwaldMatrix"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.ewaldmatrix.EwaldMatrix">[docs]</a><span class="k">class</span> <span class="nc">EwaldMatrix</span><span class="p">(</span><span class="n">MatrixDescriptor</span><span class="p">):</span>
+<div class="viewcode-block" id="EwaldSumMatrix"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix">[docs]</a><span class="k">class</span> <span class="nc">EwaldSumMatrix</span><span class="p">(</span><span class="n">MatrixDescriptor</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Calculates an Ewald matrix for the a given system.</span>
+<span class="sd">    Calculates an Ewald sum matrix for the a given system.</span>
 
-<span class="sd">    Each entry M_ij of the Ewald matrix will contain the Coulomb energy between</span>
-<span class="sd">    atoms i and j calculated with the Ewald summation method. In the Ewald</span>
-<span class="sd">    method a constant neutralizing background charge has been added to</span>
+<span class="sd">    Each entry M_ij of the Ewald sum matrix will contain the Coulomb energy</span>
+<span class="sd">    between atoms i and j calculated with the Ewald summation method. In the</span>
+<span class="sd">    Ewald method a constant neutralizing background charge has been added to</span>
 <span class="sd">    counteract the positive net charge.</span>
 
 <span class="sd">    The total electrostatic interaction energy in the system can calculated by</span>
@@ -209,13 +209,13 @@
 <span class="sd">        https://doi.org/10.1080/08927022.2013.840898</span>
 <span class="sd">        &quot;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="EwaldMatrix.create"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.ewaldmatrix.EwaldMatrix.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">rcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="EwaldSumMatrix.create"><a class="viewcode-back" href="../../../tutorials/ewald_sum_matrix.html#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">rcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the Coulomb matrix for the given systems.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            system (single or multiple class:`ase.Atoms`): One or many atomic structures.</span>
 <span class="sd">            accuracy (float): The accuracy to which the sum is converged to.</span>
-<span class="sd">                Corresponds to the variable :math`A` in</span>
+<span class="sd">                Corresponds to the variable :math:`A` in</span>
 <span class="sd">                https://doi.org/10.1080/08927022.2013.840898. Used only if</span>
 <span class="sd">                gcut, rcut and a have not been specified. Provide either one</span>
 <span class="sd">                value or a list of values for each system.</span>
@@ -232,9 +232,10 @@
 <span class="sd">            gcut (float): Reciprocal space cutoff radius. Provide either one</span>
 <span class="sd">                value or a list of values for each system.</span>
 <span class="sd">            a (float): The screening parameter that controls the width of the</span>
-<span class="sd">                Gaussians. Corresponds to the standard deviation of the</span>
-<span class="sd">                Gaussians. Provide either one value or a list of values for</span>
-<span class="sd">                each system.</span>
+<span class="sd">                Gaussians. If not provided, a default value of :math:`\\alpha =</span>
+<span class="sd">                \sqrt{\pi}\left(\\frac{N}{V^2}\\right)^{1/6}` is used.</span>
+<span class="sd">                Corresponds to the standard deviation of the Gaussians. Provide</span>
+<span class="sd">                either one value or a list of values for each system.</span>
 <span class="sd">            n_jobs (int): Number of parallel jobs to instantiate. Parallellizes</span>
 <span class="sd">                the calculation across samples. Defaults to serial calculation</span>
 <span class="sd">                with n_jobs=1.</span>
@@ -242,7 +243,7 @@
 <span class="sd">                into to the console.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            np.ndarray | scipy.sparse.csr_matrix | list: Coulomb matrix for the</span>
+<span class="sd">            np.ndarray | scipy.sparse.csr_matrix | list: Ewald sum matrix for the</span>
 <span class="sd">            given systems. The return type depends on the &#39;sparse&#39; and</span>
 <span class="sd">            &#39;flatten&#39;-attributes. For flattened output a single numpy array or</span>
 <span class="sd">            sparse scipy.csr_matrix is returned. The first dimension is</span>
@@ -280,12 +281,12 @@
 
         <span class="k">return</span> <span class="n">output</span></div>
 
-<div class="viewcode-block" id="EwaldMatrix.create_single"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.ewaldmatrix.EwaldMatrix.create_single">[docs]</a>    <span class="k">def</span> <span class="nf">create_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">rcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="EwaldSumMatrix.create_single"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create_single">[docs]</a>    <span class="k">def</span> <span class="nf">create_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">rcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            system (:class:`ase.Atoms` | :class:`.System`): Input system.</span>
 <span class="sd">            accuracy (float): The accuracy to which the sum is converged to.</span>
-<span class="sd">                Corresponds to the variable :math`A` in</span>
+<span class="sd">                Corresponds to the variable :math:`A` in</span>
 <span class="sd">                https://doi.org/10.1080/08927022.2013.840898. Used only if gcut,</span>
 <span class="sd">                rcut and a have not been specified.</span>
 <span class="sd">            w (float): Weight parameter that represents the relative</span>
@@ -298,7 +299,9 @@
 <span class="sd">                many terms are used in the real space sum.</span>
 <span class="sd">            gcut (float): Reciprocal space cutoff radius.</span>
 <span class="sd">            a (float): The screening parameter that controls the width of the</span>
-<span class="sd">                Gaussians. Corresponds to the standard deviation of the Gaussians</span>
+<span class="sd">                Gaussians. If not provided, a default value of :math:`\\alpha =</span>
+<span class="sd">                \sqrt{\pi}\left(\\frac{N}{V^2}\\right)^{1/6}` is used.</span>
+<span class="sd">                Corresponds to the standard deviation of the Gaussians.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">q</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">q_squared</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">**</span><span class="mi">2</span>
@@ -331,7 +334,7 @@
         <span class="n">matrix</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">create_single</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">matrix</span></div>
 
-<div class="viewcode-block" id="EwaldMatrix.get_matrix"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.ewaldmatrix.EwaldMatrix.get_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">get_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
+<div class="viewcode-block" id="EwaldSumMatrix.get_matrix"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.get_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">get_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The total energy matrix. Each matrix element (i, j) corresponds to the</span>
 <span class="sd">        total interaction energy in a system with atoms i and j.</span>
@@ -354,7 +357,7 @@
         <span class="k">return</span> <span class="n">total</span></div>
 
     <span class="k">def</span> <span class="nf">_calc_zero</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Calculates the constant part of the Ewald matrix.</span>
+        <span class="sd">&quot;&quot;&quot;Calculates the constant part of the Ewald sum matrix.</span>
 
 <span class="sd">        The constant part contains the correction for the self-interaction</span>
 <span class="sd">        between the point charges and the Gaussian charge distribution added on</span>

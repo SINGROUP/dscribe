@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dscribe.descriptors.sinematrix &mdash; DScribe 0.2.2 documentation</title>
+  <title>dscribe.descriptors.sinematrix &mdash; DScribe 0.2.3 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                0.2.2
+                0.2.3
               </div>
             
           
@@ -92,6 +92,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorials.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../doc/modules.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../citing.html">Citing DScribe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../about.html">About</a></li>
 </ul>
@@ -157,12 +158,15 @@
            <div itemprop="articleBody">
             
   <h1>Source code for dscribe.descriptors.sinematrix</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
-<span class="kn">from</span> <span class="nn">builtins</span> <span class="k">import</span> <span class="p">(</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">open</span><span class="p">,</span> <span class="nb">super</span><span class="p">,</span> <span class="nb">range</span><span class="p">,</span>
-                      <span class="nb">zip</span><span class="p">,</span> <span class="nb">round</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">pow</span><span class="p">,</span> <span class="nb">object</span><span class="p">)</span>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
+<span class="kn">from</span> <span class="nn">builtins</span> <span class="k">import</span> <span class="p">(</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">open</span><span class="p">,</span> <span class="nb">super</span><span class="p">,</span> <span class="nb">range</span><span class="p">,</span> <span class="nb">zip</span><span class="p">,</span> <span class="nb">round</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">pow</span><span class="p">,</span> <span class="nb">object</span><span class="p">)</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
+<span class="kn">from</span> <span class="nn">ase</span> <span class="k">import</span> <span class="n">Atoms</span>
+
+<span class="kn">from</span> <span class="nn">dscribe.core</span> <span class="k">import</span> <span class="n">System</span>
 <span class="kn">from</span> <span class="nn">dscribe.descriptors.matrixdescriptor</span> <span class="k">import</span> <span class="n">MatrixDescriptor</span>
 
 
@@ -189,6 +193,46 @@
 <span class="sd">        Chemistry, (2015),</span>
 <span class="sd">        https://doi.org/10.1002/qua.24917</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SineMatrix.create"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.sinematrix.SineMatrix.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the Sine matrix for the given systems.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            system (single or multiple class:`ase.Atoms`): One or many atomic structures.</span>
+<span class="sd">            n_jobs (int): Number of parallel jobs to instantiate. Parallellizes</span>
+<span class="sd">                the calculation across samples. Defaults to serial calculation</span>
+<span class="sd">                with n_jobs=1.</span>
+<span class="sd">            verbose(bool): Controls whether to print the progress of each job</span>
+<span class="sd">                into to the console.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray | scipy.sparse.csr_matrix | list: Coulomb matrix for the</span>
+<span class="sd">            given systems. The return type depends on the &#39;sparse&#39; and</span>
+<span class="sd">            &#39;flatten&#39;-attributes. For flattened output a single numpy array or</span>
+<span class="sd">            sparse scipy.csr_matrix is returned. The first dimension is</span>
+<span class="sd">            determined by the amount of systems. If the output is not</span>
+<span class="sd">            flattened, a simple python list is returned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># If single system given, skip the parallelization</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="p">(</span><span class="n">Atoms</span><span class="p">,</span> <span class="n">System</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_single</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+
+        <span class="c1"># Combine input arguments</span>
+        <span class="n">inp</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i_sys</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i_sys</span> <span class="ow">in</span> <span class="n">system</span><span class="p">]</span>
+
+        <span class="c1"># Here we precalculate the size for each job to preallocate memory.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flatten</span><span class="p">:</span>
+            <span class="n">n_samples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+            <span class="n">k</span><span class="p">,</span> <span class="n">m</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">)</span>
+            <span class="n">jobs</span> <span class="o">=</span> <span class="p">(</span><span class="n">inp</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">k</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">m</span><span class="p">):(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">k</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">m</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_jobs</span><span class="p">))</span>
+            <span class="n">output_sizes</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">job</span><span class="p">)</span> <span class="k">for</span> <span class="n">job</span> <span class="ow">in</span> <span class="n">jobs</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">output_sizes</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Create in parallel</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_parallel</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_single</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">,</span> <span class="n">output_sizes</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">output</span></div>
+
 <div class="viewcode-block" id="SineMatrix.get_matrix"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.sinematrix.SineMatrix.get_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">get_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Creates the Sine matrix for the given system.</span>
 

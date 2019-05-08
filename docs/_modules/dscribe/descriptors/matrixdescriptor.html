@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dscribe.descriptors.matrixdescriptor &mdash; DScribe 0.2.2 documentation</title>
+  <title>dscribe.descriptors.matrixdescriptor &mdash; DScribe 0.2.3 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                0.2.2
+                0.2.3
               </div>
             
           
@@ -92,6 +92,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorials.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../doc/modules.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../citing.html">Citing DScribe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../about.html">About</a></li>
 </ul>
@@ -189,11 +190,13 @@
 <span class="sd">                      after applying Gaussian noise to the norms. The standard</span>
 <span class="sd">                      deviation of the noise is determined by the</span>
 <span class="sd">                      sigma-parameter.</span>
-<span class="sd">            sigma (float): Standard deviation of the gaussian distributed noise</span>
+<span class="sd">            sigma (float): Provide only when using the *random*-permutation</span>
+<span class="sd">                option. Standard deviation of the gaussian distributed noise</span>
 <span class="sd">                determining how much the rows and columns of the randomly</span>
 <span class="sd">                sorted matrix are scrambled.</span>
-<span class="sd">            seed (int): A seed to use for drawing samples from a normal</span>
-<span class="sd">                distribution when the permutation method is set to random.</span>
+<span class="sd">            seed (int): Provide only when using the *random*-permutation</span>
+<span class="sd">                option. A seed to use for drawing samples from a normal</span>
+<span class="sd">                distribution.</span>
 <span class="sd">            flatten (bool): Whether the output of create() should be flattened</span>
 <span class="sd">                to a 1D array.</span>
 <span class="sd">            sparse (bool): Whether the output should be a sparse matrix or a</span>
@@ -242,13 +245,13 @@
 <span class="sd">            np.ndarray: The final two-dimensional matrix for this descriptor.</span>
 <span class="sd">        &quot;&quot;&quot;</span></div>
 
-<div class="viewcode-block" id="MatrixDescriptor.create"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
+<div class="viewcode-block" id="MatrixDescriptor.create_single"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.create_single">[docs]</a>    <span class="k">def</span> <span class="nf">create_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            system (:class:`ase.Atoms` | :class:`.System`): Input system.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            ndarray: The zero padded Coulomb matrix either as a 2D array or as</span>
+<span class="sd">            ndarray: The zero padded matrix either as a 2D array or as</span>
 <span class="sd">                a 1D array depending on the setting self._flatten.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Transform the input system into the internal System-object</span>
@@ -272,9 +275,9 @@
         <span class="c1"># Add zero padding</span>
         <span class="n">matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zero_pad</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
 
-        <span class="c1"># Flatten the matrix if requested</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flatten</span><span class="p">:</span>
-            <span class="n">matrix</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="c1"># Flatten</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">permutation</span> <span class="o">==</span> <span class="s2">&quot;eigenspectrum&quot;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flatten</span><span class="p">:</span>
+            <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">)))</span>
 
         <span class="c1"># If a sparse matrix is requested, convert to coo_matrix</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span><span class="p">:</span>
