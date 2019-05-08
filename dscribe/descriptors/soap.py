@@ -70,8 +70,13 @@ class SOAP(Descriptor):
 
             periodic (bool): Determines whether the system is considered to be
                 periodic.
-            crossover (bool): Default True, if crossover of atomic types should
-                be included in the power spectrum.
+            crossover (bool): Determines if crossover of atomic types should
+                be included in the power spectrum. If enabled, the power
+                spectrum is calculated over all unique species combinations Z
+                and Z'. If disabled, the power spectrum does not contain
+                cross-species information and is only run over each unique
+                species Z. Turned on by default to correspond to the original
+                definition
             average (bool): Whether to build an average output for all selected
                 positions.
             sparse (bool): Whether the output should be a sparse matrix or a
@@ -372,6 +377,7 @@ class SOAP(Descriptor):
         Returns:
             np.ndarray: The given SOAP output mapped to the full chemical space.
         """
+        # print(sub_output.shape)
         # Get mapping between elements in the subspace and alements in the full
         # space
         space_map = self.get_sub_to_full_map(sub_elements, full_elements_sorted)
@@ -384,29 +390,54 @@ class SOAP(Descriptor):
         # Define the final output space as an array.
         output = np.zeros((n_points, n_features), dtype=np.float32)
 
-        n_elem_sub = len(sub_elements)
-        n_elem_full = len(full_elements_sorted)
-        for i_sub in range(n_elem_sub):
-            for j_sub in range(n_elem_sub):
-                if j_sub >= i_sub:
+        # When crossover is enabled, we need to store the contents for all
+        # unique species combinations
+        if self._crossover:
+            n_elem_sub = len(sub_elements)
+            n_elem_full = len(full_elements_sorted)
+            for i_sub in range(n_elem_sub):
+                for j_sub in range(n_elem_sub):
+                    if j_sub >= i_sub:
 
-                    # This is the index of the spectrum. It is given by enumerating the
-                    # elements of an upper triangular matrix from left to right and top
-                    # to bottom.
-                    m = self.get_flattened_index(i_sub, j_sub, n_elem_sub)
-                    start_sub = m*n_elem_features
-                    end_sub = (m+1)*n_elem_features
-                    sub_out = sub_output[:, start_sub:end_sub]
+                        # This is the index of the spectrum. It is given by enumerating the
+                        # elements of an upper triangular matrix from left to right and top
+                        # to bottom.
+                        m = self.get_flattened_index(i_sub, j_sub, n_elem_sub)
+                        start_sub = m*n_elem_features
+                        end_sub = (m+1)*n_elem_features
+                        sub_out = sub_output[:, start_sub:end_sub]
+                        # print(sub_out.shape)
 
-                    # Figure out position in the full element space
-                    i_full = space_map[i_sub]
-                    j_full = space_map[j_sub]
-                    m_full = self.get_flattened_index(i_full, j_full, n_elem_full)
+                        # Figure out position in the full element space
+                        i_full = space_map[i_sub]
+                        j_full = space_map[j_sub]
+                        m_full = self.get_flattened_index(i_full, j_full, n_elem_full)
 
-                    # Place output to full output vector
-                    start_full = m_full*n_elem_features
-                    end_full = (m_full+1)*n_elem_features
-                    output[:, start_full:end_full] = sub_out
+                        # Place output to full output vector
+                        start_full = m_full*n_elem_features
+                        end_full = (m_full+1)*n_elem_features
+                        output[:, start_full:end_full] = sub_out
+        # When crossover is disabled, we need to store only power spectrums
+        # that contain for each species
+        else:
+            n_elem_sub = len(sub_elements)
+            n_elem_full = len(full_elements_sorted)
+            for m in range(n_elem_sub):
+                # This is the index of the spectrum. It is given by enumerating the
+                # elements of an upper triangular matrix from left to right and top
+                # to bottom.
+                start_sub = m*n_elem_features
+                end_sub = (m+1)*n_elem_features
+                sub_out = sub_output[:, start_sub:end_sub]
+                # print(sub_out.shape)
+
+                # Figure out position in the full element space
+                m_full = space_map[m]
+
+                # Place output to full output vector
+                start_full = m_full*n_elem_features
+                end_full = (m_full+1)*n_elem_features
+                output[:, start_full:end_full] = sub_out
 
         return output
 
