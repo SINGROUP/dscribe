@@ -482,7 +482,6 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         k1_norm = np.linalg.norm(k1.ravel())
         k2_norm = np.linalg.norm(k2.ravel())
         k3_norm = np.linalg.norm(k3.ravel())
-        norm_total = np.linalg.norm(np.hstack((k1.ravel(), k2.ravel(), k3.ravel())))
 
         # Test normalization of non-flat dense output with l2_each
         desc.normalization = "l2_each"
@@ -493,16 +492,6 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         self.assertTrue(np.array_equal(k1/k1_norm, k1_each))
         self.assertTrue(np.array_equal(k2/k2_norm, k2_each))
         self.assertTrue(np.array_equal(k3/k3_norm, k3_each))
-
-        # Test normalization of non-flat dense output with l2_all
-        desc.normalization = "l2_all"
-        feat3 = desc.create(H2O)
-        k1_all = feat3["k1"]
-        k2_all = feat3["k2"]
-        k3_all = feat3["k3"]
-        self.assertTrue(np.array_equal(k1/norm_total, k1_all))
-        self.assertTrue(np.array_equal(k2/norm_total, k2_all))
-        self.assertTrue(np.array_equal(k3/norm_total, k3_all))
 
         # Flattened dense output
         desc.flatten = True
@@ -522,26 +511,11 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         feat_flat_manual_norm_each = np.hstack((a1, a2, a3))
         self.assertTrue(np.array_equal(feat[0, :], feat_flat_manual_norm_each))
 
-        # Test normalization of flat dense output with l2_all
-        desc.sparse = False
-        desc.normalization = "l2_all"
-        n_elem = len(desc.species)
-        feat = desc.create(H2O)
-        exp_feat = feat_flat/norm_total
-        self.assertTrue(np.array_equal(feat, exp_feat))
-
         # Test normalization of flat sparse output with l2_each
         desc.sparse = True
         desc.normalization = "l2_each"
         feat = desc.create(H2O).toarray()
         self.assertTrue(np.array_equal(feat[0, :], feat_flat_manual_norm_each))
-
-        # Test normalization of flat sparse output with l2_all
-        desc.sparse = True
-        desc.normalization = "l2_all"
-        feat = desc.create(H2O).toarray()
-        exp_feat = feat_flat/norm_total
-        self.assertTrue(np.array_equal(feat, exp_feat))
 
     def test_k1_weights_and_geoms_finite(self):
         """Tests that the values of the weight and geometry functions are
