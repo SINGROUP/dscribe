@@ -130,7 +130,7 @@ class ElementalDistribution(Descriptor):
             elif dist_type == "discrete":
 
                 # Check that all values are integer
-                if not all(np.issubdtype(item, np.dtype(int).type) for item in values):
+                if not all(np.issubdtype(item, np.integer) for item in values):
                     raise ValueError(
                         "Not all the values given for property '{}' are integer "
                         "numbers.".format(prop_name)
