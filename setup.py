@@ -1,11 +1,10 @@
 import platform
 from setuptools import setup, find_packages, Extension
 
-# On mac we need to specify that a minimum target version to get the correct
-# c++11 compilation flags (libc++) in place
+# On Mac we need to specify that libc++ should be used
 cpp_extra_compile_args = ['-std=c++11']
 if platform.system() == "Darwin":
-    cpp_extra_compile_args.append('-mmacosx-version-min=10.9')
+    cpp_extra_compile_args.append('-stdlib=libc++')
 
 extensions = [
     # The ACSF C++ extension, wrapped with cython
@@ -32,7 +31,7 @@ extensions = [
 
 if __name__ == "__main__":
     setup(name='dscribe',
-        version="0.2.3",
+        version="0.2.4",
         url="https://singroup.github.io/dscribe/",
         description='A Python package for creating feature transformations in applications of machine learning to materials science.',
         long_description='A Python package for creating feature transformations in applications of machine learning to materials science.',
