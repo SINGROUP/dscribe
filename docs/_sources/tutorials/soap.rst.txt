@@ -89,7 +89,7 @@ Adding SOAP to water is as easy as:
 
 We are expecting a matrix where each row represents the local environment of
 one atom of the molecule. The length of the feature vector depends on the
-number of species defined in **species** as well as *nmax* and *lmax*. You can
+number of species defined in *species* as well as *nmax* and *lmax*. You can
 try by changing *nmax* and *lmax*.
 
 .. literalinclude:: ../../../examples/soap.py

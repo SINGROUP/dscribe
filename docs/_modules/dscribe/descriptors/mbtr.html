@@ -159,6 +159,20 @@
             
   <h1>Source code for dscribe.descriptors.mbtr</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;Copyright 2019 DScribe developers</span>
+
+<span class="sd">Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="sd">you may not use this file except in compliance with the License.</span>
+<span class="sd">You may obtain a copy of the License at</span>
+
+<span class="sd">    http://www.apache.org/licenses/LICENSE-2.0</span>
+
+<span class="sd">Unless required by applicable law or agreed to in writing, software</span>
+<span class="sd">distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="sd">WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="sd">See the License for the specific language governing permissions and</span>
+<span class="sd">limitations under the License.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
 <span class="kn">from</span> <span class="nn">builtins</span> <span class="k">import</span> <span class="p">(</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">open</span><span class="p">,</span> <span class="nb">super</span><span class="p">,</span> <span class="nb">range</span><span class="p">,</span> <span class="nb">zip</span><span class="p">,</span> <span class="nb">round</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">pow</span><span class="p">,</span> <span class="nb">object</span><span class="p">)</span>
 <span class="kn">import</span> <span class="nn">math</span>
@@ -167,6 +181,7 @@
 <span class="kn">from</span> <span class="nn">scipy.spatial.distance</span> <span class="k">import</span> <span class="n">cdist</span>
 <span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="k">import</span> <span class="n">lil_matrix</span><span class="p">,</span> <span class="n">coo_matrix</span>
 <span class="kn">from</span> <span class="nn">scipy.special</span> <span class="k">import</span> <span class="n">erf</span>
+<span class="kn">import</span> <span class="nn">scipy.linalg</span>
 
 <span class="kn">from</span> <span class="nn">ase</span> <span class="k">import</span> <span class="n">Atoms</span>
 
@@ -220,8 +235,8 @@
             <span class="n">weighting</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">species</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">atomic_numbers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">normalize_by_volume</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">normalize_gaussians</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">normalization</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
             <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">sparse</span><span class="o">=</span><span class="kc">True</span>
             <span class="p">):</span>
@@ -300,12 +315,17 @@
 <span class="sd">                be taken into account in the descriptor. Deprecated in favour of</span>
 <span class="sd">                the species-parameters, but provided for</span>
 <span class="sd">                backwards-compatibility.</span>
-<span class="sd">            normalize_by_volume (bool): Determines whether the output vectors are</span>
-<span class="sd">                normalized by the cell volume. Defaults to False.</span>
 <span class="sd">            normalize_gaussians (bool): Determines whether the gaussians are</span>
 <span class="sd">                normalized to an area of 1. Defaults to True. If False, the</span>
 <span class="sd">                normalization factor is dropped and the gaussians have the form.</span>
-<span class="sd">                :math:`e^-(x-\mu)^2/2\sigma^2`</span>
+<span class="sd">                :math:`e^{-(x-\mu)^2/2\sigma^2}`</span>
+<span class="sd">            normalization (str): Determines the method for normalizing the</span>
+<span class="sd">                output. The available options are:</span>
+
+<span class="sd">                * &quot;none&quot;: No normalization.</span>
+<span class="sd">                * &quot;l2_each&quot;: Normalize the Euclidean length of each k-term</span>
+<span class="sd">                  individually to unity.</span>
+
 <span class="sd">            flatten (bool): Whether the output of create() should be flattened</span>
 <span class="sd">                to a 1D array. If False, a dictionary of the different tensors</span>
 <span class="sd">                is provided, containing the values under keys: &quot;k1&quot;, &quot;k2&quot;, and</span>
@@ -334,7 +354,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">grid</span> <span class="o">=</span> <span class="n">grid</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">weighting</span> <span class="o">=</span> <span class="n">weighting</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span> <span class="o">=</span> <span class="n">periodic</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">normalize_by_volume</span> <span class="o">=</span> <span class="n">normalize_by_volume</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">normalization</span> <span class="o">=</span> <span class="n">normalization</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">normalize_gaussians</span> <span class="o">=</span> <span class="n">normalize_gaussians</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">virtual_positions</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
@@ -442,7 +462,7 @@
         <span class="sd">&quot;&quot;&quot;Return MBTR output for the given systems.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            system (single or multiple class:`ase.Atoms`): One or many atomic structures.</span>
+<span class="sd">            system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or many atomic structures.</span>
 <span class="sd">            n_jobs (int): Number of parallel jobs to instantiate. Parallellizes</span>
 <span class="sd">                the calculation across samples. Defaults to serial calculation</span>
 <span class="sd">                with n_jobs=1.</span>
@@ -450,12 +470,13 @@
 <span class="sd">                into to the console.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            np.ndarray | scipy.sparse.csr_matrix | list: Coulomb matrix for the</span>
+<span class="sd">            np.ndarray | scipy.sparse.csr_matrix | list: MBTR for the</span>
 <span class="sd">            given systems. The return type depends on the &#39;sparse&#39; and</span>
 <span class="sd">            &#39;flatten&#39;-attributes. For flattened output a single numpy array or</span>
 <span class="sd">            sparse scipy.csr_matrix is returned. The first dimension is</span>
 <span class="sd">            determined by the amount of systems. If the output is not</span>
-<span class="sd">            flattened, a simple python list is returned.</span>
+<span class="sd">            flattened, dictionaries containing the MBTR tensors for each k-term</span>
+<span class="sd">            are returned.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># If single system given, skip the parallelization</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="p">(</span><span class="n">Atoms</span><span class="p">,</span> <span class="n">System</span><span class="p">)):</span>
@@ -527,10 +548,29 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">max_atomic_number</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_atomic_number</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">)</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">normalization</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalization</span>
+
+    <span class="nd">@normalization</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">normalization</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Checks that the given normalization is valid.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value(str): The normalization method to use.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">norm_options</span> <span class="o">=</span> <span class="nb">set</span><span class="p">((</span><span class="s2">&quot;l2_each&quot;</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">norm_options</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Unknown normalization option given. Please use one of the &quot;</span>
+                <span class="s2">&quot;following: </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">norm_options</span><span class="p">]))</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_normalization</span> <span class="o">=</span> <span class="n">value</span>
+
 <div class="viewcode-block" id="MBTR.create_with_grid"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.create_with_grid">[docs]</a>    <span class="k">def</span> <span class="nf">create_with_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Used to recalculate MBTR for an already seen system but with</span>
 <span class="sd">        different grid setttings. This function can be used after the scalar</span>
-<span class="sd">        values have been initialized with</span>
+<span class="sd">        values have been initialized with &quot;initialize_scalars&quot;.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">grid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span>
@@ -554,12 +594,18 @@
             <span class="n">k3</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">K3</span><span class="p">(</span><span class="n">settings_k3</span><span class="p">)</span>
             <span class="n">mbtr</span><span class="p">[</span><span class="s2">&quot;k3&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">k3</span>
 
-        <span class="c1"># Normalize with respect to cell volume if requested</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_by_volume</span><span class="p">:</span>
-            <span class="n">volume</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">get_volume</span><span class="p">()</span>
-            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">mbtr</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="n">norm_value</span> <span class="o">=</span> <span class="n">value</span><span class="o">/</span><span class="n">volume</span>
-                <span class="n">mbtr</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">norm_value</span>
+        <span class="c1"># Handle normalization</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalization</span> <span class="o">==</span> <span class="s2">&quot;l2_each&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flatten</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">mbtr</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">i_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">tocsr</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+                    <span class="n">i_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">i_data</span><span class="p">)</span>
+                    <span class="n">mbtr</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">/</span><span class="n">i_norm</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">mbtr</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">i_data</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+                    <span class="n">i_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">i_data</span><span class="p">)</span>
+                    <span class="n">mbtr</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">/</span><span class="n">i_norm</span>
 
         <span class="c1"># Flatten output if requested</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flatten</span><span class="p">:</span>
@@ -616,13 +662,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">check_atomic_numbers</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">())</span>
 
         <span class="k">if</span> <span class="mi">1</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">k1_geoms_and_weights</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+            <span class="n">cell_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">),</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">k1_geoms_and_weights</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">cell_indices</span><span class="p">)</span>
         <span class="k">if</span> <span class="mi">2</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">:</span>
             <span class="c1"># If needed, create the extended system</span>
             <span class="n">system_k2</span> <span class="o">=</span> <span class="n">system</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">:</span>
-                <span class="n">system_k2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_extended_system</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">k2_geoms_and_weights</span><span class="p">(</span><span class="n">system_k2</span><span class="p">)</span>
+                <span class="n">system_k2</span><span class="p">,</span> <span class="n">cell_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_extended_system</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cell_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">),</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">k2_geoms_and_weights</span><span class="p">(</span><span class="n">system_k2</span><span class="p">,</span> <span class="n">cell_indices</span><span class="p">)</span>
 
             <span class="c1"># Free memory</span>
             <span class="n">system_k2</span> <span class="o">=</span> <span class="kc">None</span>
@@ -631,8 +680,10 @@
             <span class="c1"># If needed, create the extended system</span>
             <span class="n">system_k3</span> <span class="o">=</span> <span class="n">system</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">:</span>
-                <span class="n">system_k3</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_extended_system</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">k3_geoms_and_weights</span><span class="p">(</span><span class="n">system_k3</span><span class="p">)</span>
+                <span class="n">system_k3</span><span class="p">,</span> <span class="n">cell_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_extended_system</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cell_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">),</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">k3_geoms_and_weights</span><span class="p">(</span><span class="n">system_k3</span><span class="p">,</span> <span class="n">cell_indices</span><span class="p">)</span>
 
             <span class="c1"># Free memory</span>
             <span class="n">system_k3</span> <span class="o">=</span> <span class="kc">None</span></div>
@@ -662,10 +713,6 @@
         <span class="n">n_features</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">n_elem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_elements</span>
 
-        <span class="k">if</span> <span class="mi">0</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">:</span>
-            <span class="n">n_k0_grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_k0_settings</span><span class="p">()[</span><span class="s2">&quot;d1&quot;</span><span class="p">][</span><span class="s2">&quot;n&quot;</span><span class="p">]</span>
-            <span class="n">n_k0</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">n_k0_grid</span>
-            <span class="n">n_features</span> <span class="o">+=</span> <span class="n">n_k0</span>
         <span class="k">if</span> <span class="mi">1</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">:</span>
             <span class="n">n_k1_grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_k1_settings</span><span class="p">()[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span>
             <span class="n">n_k1</span> <span class="o">=</span> <span class="n">n_elem</span><span class="o">*</span><span class="n">n_k1_grid</span>
@@ -696,12 +743,12 @@
 <span class="sd">                distance is x, for k&gt;2, the distance is given by 2*x.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            System: The new system that is extended so that each atom can at</span>
-<span class="sd">            most have a weight that is larger or equivalent to the given</span>
-<span class="sd">            threshold.</span>
+<span class="sd">            tuple: Tuple containing the new extended system as the first entry</span>
+<span class="sd">            and the index of the periodically repeated cell for each atom as</span>
+<span class="sd">            the second entry. The extended system is determined is extended so that each atom can at most</span>
+<span class="sd">            have a weight that is larger or equivalent to the given threshold.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="c1"># We need to speciy that the relative positions should not be wrapped.</span>
+        <span class="c1"># We need to specify that the relative positions should not be wrapped.</span>
         <span class="c1"># Otherwise the repeated systems may overlap with the positions taken</span>
         <span class="c1"># with get_positions()</span>
         <span class="n">relative_pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">primitive_system</span><span class="o">.</span><span class="n">get_scaled_positions</span><span class="p">(</span><span class="n">wrap</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
@@ -727,7 +774,7 @@
             <span class="n">n_copies</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
             <span class="k">while</span> <span class="p">(</span><span class="ow">not</span> <span class="n">limit_found</span><span class="p">):</span>
                 <span class="n">n_copies</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="n">distance</span> <span class="o">=</span> <span class="n">n_copies</span><span class="o">*</span><span class="n">cell_vector_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">distance</span> <span class="o">=</span> <span class="n">n_copies</span><span class="o">*</span><span class="n">cell_vector_lengths</span><span class="p">[</span><span class="n">i_axis</span><span class="p">]</span>
 
                 <span class="c1"># For terms k&gt;2 we double the distances to take into</span>
                 <span class="c1"># account the &quot;loop&quot; that is required.</span>
@@ -736,7 +783,7 @@
 
                 <span class="n">weight</span> <span class="o">=</span> <span class="n">function</span><span class="p">(</span><span class="n">distance</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">weight</span> <span class="o">&lt;</span> <span class="n">cutoff</span><span class="p">:</span>
-                    <span class="n">n_copies_axis</span><span class="p">[</span><span class="n">i_axis</span><span class="p">]</span> <span class="o">=</span> <span class="n">n_copies</span>
+                    <span class="n">n_copies_axis</span><span class="p">[</span><span class="n">i_axis</span><span class="p">]</span> <span class="o">=</span> <span class="n">n_copies</span><span class="o">+</span><span class="mi">1</span>
                     <span class="n">limit_found</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="c1"># Create copies of the cell but keep track of the atoms in the</span>
@@ -748,6 +795,8 @@
         <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
         <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">cell_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">primitive_system</span><span class="p">),</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)]</span>
+
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">n_copies_axis</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">n_copies_axis</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">n_copies_axis</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">n_copies_axis</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">n_copies_axis</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">n_copies_axis</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
@@ -792,14 +841,19 @@
                     <span class="c1"># range from at least one atom in the original cell</span>
                     <span class="n">valids_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">weight_mask</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-                    <span class="n">valid_pos</span> <span class="o">=</span> <span class="n">pos_copy_cartesian</span><span class="p">[</span><span class="n">valids_mask</span><span class="p">]</span>
-                    <span class="n">valid_num</span> <span class="o">=</span> <span class="n">num_copy</span><span class="p">[</span><span class="n">valids_mask</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">valids_mask</span><span class="p">):</span>
+                        <span class="n">valid_pos</span> <span class="o">=</span> <span class="n">pos_copy_cartesian</span><span class="p">[</span><span class="n">valids_mask</span><span class="p">]</span>
+                        <span class="n">valid_num</span> <span class="o">=</span> <span class="n">num_copy</span><span class="p">[</span><span class="n">valids_mask</span><span class="p">]</span>
+                        <span class="n">valid_ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">valid_num</span><span class="p">),</span> <span class="mi">1</span><span class="p">))</span>
 
-                    <span class="n">pos_extended</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">valid_pos</span><span class="p">)</span>
-                    <span class="n">num_extended</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">valid_num</span><span class="p">)</span>
+                        <span class="n">pos_extended</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">valid_pos</span><span class="p">)</span>
+                        <span class="n">num_extended</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">valid_num</span><span class="p">)</span>
+                        <span class="n">cell_indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">valid_ind</span><span class="p">)</span>
+
 
         <span class="n">pos_extended</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">pos_extended</span><span class="p">)</span>
         <span class="n">num_extended</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">num_extended</span><span class="p">)</span>
+        <span class="n">cell_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">cell_indices</span><span class="p">)</span>
 
         <span class="n">extended_system</span> <span class="o">=</span> <span class="n">System</span><span class="p">(</span>
             <span class="n">positions</span><span class="o">=</span><span class="n">pos_extended</span><span class="p">,</span>
@@ -808,7 +862,7 @@
             <span class="n">pbc</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">extended_system</span></div>
+        <span class="k">return</span> <span class="n">extended_system</span><span class="p">,</span> <span class="n">cell_indices</span></div>
 
 <div class="viewcode-block" id="MBTR.gaussian_sum"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.gaussian_sum">[docs]</a>    <span class="k">def</span> <span class="nf">gaussian_sum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">centers</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">settings</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculates a discrete version of a sum of Gaussian distributions.</span>
@@ -848,11 +902,12 @@
 
         <span class="k">return</span> <span class="n">pdf</span></div>
 
-<div class="viewcode-block" id="MBTR.k1_geoms_and_weights"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.k1_geoms_and_weights">[docs]</a>    <span class="k">def</span> <span class="nf">k1_geoms_and_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
+<div class="viewcode-block" id="MBTR.k1_geoms_and_weights"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.k1_geoms_and_weights">[docs]</a>    <span class="k">def</span> <span class="nf">k1_geoms_and_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">cell_indices</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculate the atom count for each element.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            system (System): The atomic system.</span>
+<span class="sd">            cell_indices (np.ndarray): The cell indices for each atom.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            1D ndarray: The counts for each element in a list where the index</span>
@@ -865,6 +920,7 @@
                 <span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">(),</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_to_index</span><span class="p">,</span>
                 <span class="n">interaction_limit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_limit</span><span class="p">,</span>
+                <span class="n">indices</span><span class="o">=</span><span class="n">cell_indices</span><span class="p">,</span>
                 <span class="n">is_local</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_is_local</span>
             <span class="p">)</span>
 
@@ -874,7 +930,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_k1_geoms</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_k1_weights</span> <span class="o">=</span> <span class="n">cmbtr</span><span class="o">.</span><span class="n">get_k1_geoms_and_weights</span><span class="p">(</span><span class="n">geom_func</span><span class="o">=</span><span class="sa">b</span><span class="s2">&quot;atomic_number&quot;</span><span class="p">,</span> <span class="n">weight_func</span><span class="o">=</span><span class="sa">b</span><span class="s2">&quot;unity&quot;</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_k1_geoms</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_k1_weights</span></div>
 
-<div class="viewcode-block" id="MBTR.k2_geoms_and_weights"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.k2_geoms_and_weights">[docs]</a>    <span class="k">def</span> <span class="nf">k2_geoms_and_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
+<div class="viewcode-block" id="MBTR.k2_geoms_and_weights"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.k2_geoms_and_weights">[docs]</a>    <span class="k">def</span> <span class="nf">k2_geoms_and_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">cell_indices</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculates the value of the geometry function and corresponding</span>
 <span class="sd">        weights for unique two-body combinations.</span>
 
@@ -893,6 +949,7 @@
                 <span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">(),</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_to_index</span><span class="p">,</span>
                 <span class="n">interaction_limit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_limit</span><span class="p">,</span>
+                <span class="n">indices</span><span class="o">=</span><span class="n">cell_indices</span><span class="p">,</span>
                 <span class="n">is_local</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_is_local</span>
             <span class="p">)</span>
 
@@ -916,7 +973,7 @@
             <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_k2_geoms</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_k2_weights</span></div>
 
-<div class="viewcode-block" id="MBTR.k3_geoms_and_weights"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.k3_geoms_and_weights">[docs]</a>    <span class="k">def</span> <span class="nf">k3_geoms_and_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
+<div class="viewcode-block" id="MBTR.k3_geoms_and_weights"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.k3_geoms_and_weights">[docs]</a>    <span class="k">def</span> <span class="nf">k3_geoms_and_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">cell_indices</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculates the value of the geometry function and corresponding</span>
 <span class="sd">        weights for unique three-body combinations.</span>
 
@@ -936,6 +993,7 @@
                 <span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">(),</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_to_index</span><span class="p">,</span>
                 <span class="n">interaction_limit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_limit</span><span class="p">,</span>
+                <span class="n">indices</span><span class="o">=</span><span class="n">cell_indices</span><span class="p">,</span>
                 <span class="n">is_local</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_is_local</span>
             <span class="p">)</span>
 
@@ -1016,6 +1074,9 @@
 
         <span class="n">k2_geoms</span><span class="p">,</span> <span class="n">k2_weights</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_k2_geoms</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_k2_weights</span>
         <span class="n">n_elem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_elements</span>
+
+        <span class="c1"># print(np.unique(k2_geoms[(0, 0)]))</span>
+        <span class="c1"># print(np.unique(k2_weights[(0, 0)]))</span>
 
         <span class="c1"># Depending of flattening, use either a sparse matrix or a dense one.</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flatten</span><span class="p">:</span>
