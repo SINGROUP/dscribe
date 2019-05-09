@@ -267,8 +267,13 @@ atomic density.</p></li>
 </p></li>
 <li><p><strong>periodic</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Determines whether the system is considered to be
 periodic.</p></li>
-<li><p><strong>crossover</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Default True, if crossover of atomic types should
-be included in the power spectrum.</p></li>
+<li><p><strong>crossover</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Determines if crossover of atomic types should
+be included in the power spectrum. If enabled, the power
+spectrum is calculated over all unique species combinations Z
+and Z’. If disabled, the power spectrum does not contain
+cross-species information and is only run over each unique
+species Z. Turned on by default to correspond to the original
+definition</p></li>
 <li><p><strong>average</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Whether to build an average output for all selected
 positions.</p></li>
 <li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
@@ -313,7 +318,8 @@ atom in the system. The call syntax for the create-method is as follows:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>(</strong><strong>single</strong><strong> or </strong><strong>multiple class</strong> (<em>system</em>) – <cite>ase.Atoms</cite>): One or many atomic structures.</p></li>
+<li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> or list of <code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code>) – One or
+many atomic structures.</p></li>
 <li><p><strong>positions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – Positions where to calculate SOAP. Can be
 provided as cartesian positions or atomic indices. If no
 positions are defined, the SOAP output will be created for all
@@ -366,7 +372,7 @@ examples are also available in dscribe/examples/soap.py.</p>
 </div>
 <p>We are expecting a matrix where each row represents the local environment of
 one atom of the molecule. The length of the feature vector depends on the
-number of species defined in <strong>species</strong> as well as <em>nmax</em> and <em>lmax</em>. You can
+number of species defined in <em>species</em> as well as <em>nmax</em> and <em>lmax</em>. You can
 try by changing <em>nmax</em> and <em>lmax</em>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Lets change the SOAP setup and see how the number of features changes</span>
 <span class="n">small_soap</span> <span class="o">=</span> <span class="n">SOAP</span><span class="p">(</span><span class="n">species</span><span class="o">=</span><span class="n">species</span><span class="p">,</span> <span class="n">rcut</span><span class="o">=</span><span class="n">rcut</span><span class="p">,</span> <span class="n">nmax</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">lmax</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
