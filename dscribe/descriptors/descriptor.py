@@ -1,5 +1,22 @@
-from abc import ABCMeta, abstractmethod
+# -*- coding: utf-8 -*-
+"""Copyright 2019 DScribe developers
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"""
+from __future__ import absolute_import, division, print_function, unicode_literals
+from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
 from future.utils import with_metaclass
+from abc import ABCMeta, abstractmethod
 
 import numpy as np
 
@@ -22,7 +39,7 @@ class Descriptor(with_metaclass(ABCMeta)):
             flatten (bool): Whether the output of create() should be flattened
                 to a 1D array.
         """
-        self._sparse = sparse
+        self.sparse = sparse
         self._flatten = flatten
         self._atomic_numbers = None
         self._atomic_number_set = None
@@ -72,6 +89,32 @@ class Descriptor(with_metaclass(ABCMeta)):
             raise ValueError(
                 "Invalid system with type: '{}'.".format(type(system))
             )
+
+    @property
+    def sparse(self):
+        return self._sparse
+
+    @sparse.setter
+    def sparse(self, value):
+        """Sets whether the output should be sparse or not.
+
+        Args:
+            value(float): Should the output be in sparse format.
+        """
+        self._sparse = value
+
+    @property
+    def flatten(self):
+        return self._flatten
+
+    @flatten.setter
+    def flatten(self, value):
+        """Sets whether the output should be flattened or not.
+
+        Args:
+            value(float): Should the output be flattened.
+        """
+        self._flatten = value
 
     def _set_species(self, species):
         """Used to setup the species information for this descriptor. This

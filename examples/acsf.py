@@ -1,5 +1,4 @@
 from dscribe.descriptors import ACSF
-from scipy.constants imoprt
 
 # Setting up the ACSF descriptor
 acsf = ACSF(

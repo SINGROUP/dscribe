@@ -1,4 +1,18 @@
 # -*- coding: utf-8 -*-
+"""Copyright 2019 DScribe developers
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"""
 from __future__ import absolute_import, division, print_function, unicode_literals
 from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
 import math
@@ -7,6 +21,7 @@ import numpy as np
 from scipy.spatial.distance import cdist
 from scipy.sparse import lil_matrix, coo_matrix
 from scipy.special import erf
+import scipy.linalg
 
 from ase import Atoms
 
@@ -60,8 +75,8 @@ class MBTR(Descriptor):
             k3=None,
             species=None,
             atomic_numbers=None,
-            normalize_by_volume=False,
             normalize_gaussians=True,
+            normalization="none",
             flatten=True,
             sparse=True
             ):
@@ -152,7 +167,14 @@ class MBTR(Descriptor):
             normalize_gaussians (bool): Determines whether the gaussians are
                 normalized to an area of 1. Defaults to True. If False, the
                 normalization factor is dropped and the gaussians have the form.
-                :math:`e^-(x-\mu)^2/2\sigma^2`
+                :math:`e^{-(x-\mu)^2/2\sigma^2}`
+            normalization (str): Determines the method for normalizing the
+                output. The available options are:
+
+                * "none": No normalization.
+                * "l2_each": Normalize the Euclidean length of each k-term
+                  individually to unity.
+
             flatten (bool): Whether the output of create() should be flattened
                 to a 1D array. If False, a dictionary of the different tensors
                 is provided, containing the values under keys: "k1", "k2", and
@@ -276,7 +298,7 @@ class MBTR(Descriptor):
                     param = value["weighting"].get(key)
                     if param is None:
                         raise ValueError(
-                            "Missing value for '{}' in the k=2 weighting.".format(key)
+ll                            "Missing value for '{}' in the k=2 weighting.".format(key)
                         )
             elif self.periodic:
                 raise ValueError(
@@ -357,7 +379,7 @@ class MBTR(Descriptor):
         """Return MBTR output for the given systems.
 
         Args:
-            system (single or multiple class:`ase.Atoms`): One or many atomic structures.
+            system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or many atomic structures.
             n_jobs (int): Number of parallel jobs to instantiate. Parallellizes
                 the calculation across samples. Defaults to serial calculation
                 with n_jobs=1.
@@ -365,12 +387,13 @@ class MBTR(Descriptor):
                 into to the console.
 
         Returns:
-            np.ndarray | scipy.sparse.csr_matrix | list: Coulomb matrix for the
+            np.ndarray | scipy.sparse.csr_matrix | list: MBTR for the
             given systems. The return type depends on the 'sparse' and
             'flatten'-attributes. For flattened output a single numpy array or
             sparse scipy.csr_matrix is returned. The first dimension is
             determined by the amount of systems. If the output is not
-            flattened, a simple python list is returned.
+            flattened, dictionaries containing the MBTR tensors for each k-term
+            are returned.
         """
         # If single system given, skip the parallelization
         if isinstance(system, (Atoms, System)):
@@ -442,10 +465,29 @@ class MBTR(Descriptor):
         self.max_atomic_number = max(self._atomic_numbers)
         self.min_atomic_number = min(self._atomic_numbers)
 
+    @property
+    def normalization(self):
+        return self._normalization
+
+    @normalization.setter
+    def normalization(self, value):
+        """Checks that the given normalization is valid.
+
+        Args:
+            value(str): The normalization method to use.
+        """
+        norm_options = set(("l2_each", "none"))
+        if value not in norm_options:
+            raise ValueError(
+                "Unknown normalization option given. Please use one of the "
+                "following: {}.".format(", ".join([str(x) for x in norm_options]))
+            )
+        self._normalization = value
+
     def create_with_grid(self, grid=None):
         """Used to recalculate MBTR for an already seen system but with
         different grid setttings. This function can be used after the scalar
-        values have been initialized with
+        values have been initialized with "initialize_scalars".
         """
         if grid is None:
             grid = self.grid
@@ -469,12 +511,18 @@ class MBTR(Descriptor):
             k3 = self.K3(settings_k3)
             mbtr["k3"] = k3
 
-        # Normalize with respect to cell volume if requested
-        if self.normalize_by_volume:
-            volume = self.system.get_volume()
-            for key, value in mbtr.items():
-                norm_value = value/volume
-                mbtr[key] = norm_value
+        # Handle normalization
+        if self.normalization == "l2_each":
+            if self._flatten is True:
+                for key, value in mbtr.items():
+                    i_data = np.array(value.tocsr().data)
+                    i_norm = np.linalg.norm(i_data)
+                    mbtr[key] = value/i_norm
+            else:
+                for key, value in mbtr.items():
+                    i_data = value.ravel()
+                    i_norm = np.linalg.norm(i_data)
+                    mbtr[key] = value/i_norm
 
         # Flatten output if requested
         if self._flatten:
@@ -530,14 +578,18 @@ class MBTR(Descriptor):
         # of atomic numbers
         self.check_atomic_numbers(system.get_atomic_numbers())
 
+
         if self.k1 is not None:
-            self.k1_geoms_and_weights(system)
+            cell_indices = np.zeros((len(system), 3), dtype=int)
+            self.k1_geoms_and_weights(system, cell_indices)
         if self.k2 is not None:
             # If needed, create the extended system
             system_k2 = system
             if self.periodic:
-                system_k2 = self.create_extended_system(system, 2)
-            self.k2_geoms_and_weights(system_k2)
+                system_k2, cell_indices = self.create_extended_system(system, 2)
+            else:
+                cell_indices = np.zeros((len(system), 3), dtype=int)
+            self.k2_geoms_and_weights(system_k2, cell_indices)
 
             # Free memory
             system_k2 = None
@@ -546,8 +598,10 @@ class MBTR(Descriptor):
             # If needed, create the extended system
             system_k3 = system
             if self.periodic:
-                system_k3 = self.create_extended_system(system, 3)
-            self.k3_geoms_and_weights(system_k3)
+                system_k3, cell_indices = self.create_extended_system(system, 3)
+            else:
+                cell_indices = np.zeros((len(system), 3), dtype=int)
+            self.k3_geoms_and_weights(system_k3, cell_indices)
 
             # Free memory
             system_k3 = None
@@ -607,9 +661,10 @@ class MBTR(Descriptor):
                 distance is x, for k>2, the distance is given by 2*x.
 
         Returns:
-            System: The new system that is extended so that each atom can at
-            most have a weight that is larger or equivalent to the given
-            threshold.
+            tuple: Tuple containing the new extended system as the first entry
+            and the index of the periodically repeated cell for each atom as
+            the second entry. The extended system is determined is extended so that each atom can at most
+            have a weight that is larger or equivalent to the given threshold.
         """
         # We need to specify that the relative positions should not be wrapped.
         # Otherwise the repeated systems may overlap with the positions taken
@@ -624,9 +679,9 @@ class MBTR(Descriptor):
         # exponential weight to come down to the given threshold.
         cell_vector_lengths = np.linalg.norm(cell, axis=1)
         n_copies_axis = np.zeros(3, dtype=int)
-        weighting = getattr(self, "k{}".format(term_number))["weighting"]
-        weighting_function = weighting["function"]
-        cutoff = self.weighting_func["k{}".format(term_number)]["cutoff"]
+        weight_info = self.weighting["k{}".format(term_number)]
+        weighting_function = weight_info["function"]
+        cutoff = self.weighting["k{}".format(term_number)]["cutoff"]
 
         if weighting_function == "exponential":
             scale = weighting["scale"]
@@ -637,7 +692,7 @@ class MBTR(Descriptor):
             n_copies = -1
             while (not limit_found):
                 n_copies += 1
-                distance = n_copies*cell_vector_lengths[0]
+                distance = n_copies*cell_vector_lengths[i_axis]
 
                 # For terms k>2 we double the distances to take into
                 # account the "loop" that is required.
@@ -658,6 +713,8 @@ class MBTR(Descriptor):
         a = np.array([1, 0, 0])
         b = np.array([0, 1, 0])
         c = np.array([0, 0, 1])
+        cell_indices = [np.zeros((len(primitive_system), 3), dtype=int)]
+
         for i in range(-n_copies_axis[0], n_copies_axis[0]+1):
             for j in range(-n_copies_axis[1], n_copies_axis[1]+1):
                 for k in range(-n_copies_axis[2], n_copies_axis[2]+1):
@@ -702,14 +759,19 @@ class MBTR(Descriptor):
                     # range from at least one atom in the original cell
                     valids_mask = np.any(weight_mask, axis=1)
 
-                    valid_pos = pos_copy_cartesian[valids_mask]
-                    valid_num = num_copy[valids_mask]
+                    if np.any(valids_mask):
+                        valid_pos = pos_copy_cartesian[valids_mask]
+                        valid_num = num_copy[valids_mask]
+                        valid_ind = np.tile(np.array([i, j, k], dtype=int), (len(valid_num), 1))
 
-                    pos_extended.append(valid_pos)
-                    num_extended.append(valid_num)
+                        pos_extended.append(valid_pos)
+                        num_extended.append(valid_num)
+                        cell_indices.append(valid_ind)
+
 
         pos_extended = np.concatenate(pos_extended)
         num_extended = np.concatenate(num_extended)
+        cell_indices = np.vstack(cell_indices)
 
         extended_system = System(
             positions=pos_extended,
@@ -718,7 +780,7 @@ class MBTR(Descriptor):
             pbc=False
         )
 
-        return extended_system
+        return extended_system, cell_indices
 
     def gaussian_sum(self, centers, weights, settings):
         """Calculates a discrete version of a sum of Gaussian distributions.
@@ -758,11 +820,12 @@ class MBTR(Descriptor):
 
         return pdf
 
-    def k1_geoms_and_weights(self, system):
+    def k1_geoms_and_weights(self, system, cell_indices):
         """Calculate the atom count for each element.
 
         Args:
             system (System): The atomic system.
+            cell_indices (np.ndarray): The cell indices for each atom.
 
         Returns:
             1D ndarray: The counts for each element in a list where the index
@@ -775,6 +838,7 @@ class MBTR(Descriptor):
                 system.get_atomic_numbers(),
                 self.atomic_number_to_index,
                 interaction_limit=self._interaction_limit,
+                indices=cell_indices,
                 is_local=self._is_local
             )
 
@@ -793,7 +857,7 @@ class MBTR(Descriptor):
             )
         return self._k1_geoms, self._k1_weights
 
-    def k2_geoms_and_weights(self, system):
+    def k2_geoms_and_weights(self, system, cell_indices):
         """Calculates the value of the geometry function and corresponding
         weights for unique two-body combinations.
 
@@ -812,6 +876,7 @@ class MBTR(Descriptor):
                 system.get_atomic_numbers(),
                 self.atomic_number_to_index,
                 interaction_limit=self._interaction_limit,
+                indices=cell_indices,
                 is_local=self._is_local
             )
 
@@ -835,7 +900,7 @@ class MBTR(Descriptor):
             )
         return self._k2_geoms, self._k2_weights
 
-    def k3_geoms_and_weights(self, system):
+    def k3_geoms_and_weights(self, system, cell_indices):
         """Calculates the value of the geometry function and corresponding
         weights for unique three-body combinations.
 
@@ -855,6 +920,7 @@ class MBTR(Descriptor):
                 system.get_atomic_numbers(),
                 self.atomic_number_to_index,
                 interaction_limit=self._interaction_limit,
+                indices=cell_indices,
                 is_local=self._is_local
             )
 

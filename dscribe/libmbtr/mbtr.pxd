@@ -9,7 +9,7 @@ cdef extern from "mbtr.cpp":
 
 cdef extern from "mbtr.h":
   cdef cppclass MBTR:
-        MBTR(vector[vector[float]], vector[int], map[int,int], int, bool) except +
+        MBTR(vector[vector[float]], vector[int], map[int,int], int, vector[vector[int]], bool) except +
         vector[vector[vector[float]]] getDisplacementTensor()
         vector[vector[float]] getDistanceMatrix()
         vector[vector[float]] getInverseDistanceMatrix()

@@ -13,7 +13,7 @@ Instantiating an ACSF descriptor can be done as follows:
 
 .. literalinclude:: ../../../examples/acsf.py
    :language: python
-   :lines: 1-9
+   :lines: 1-10
 
 The arguments have the following effect:
 
@@ -27,7 +27,7 @@ After ACSF has been set up, it may be used on atomic structures with the
 
 .. literalinclude:: ../../../examples/acsf.py
    :language: python
-   :lines: 11-20
+   :lines: 12-21
 
 The call syntax for the create-function is as follows:
 
@@ -36,11 +36,6 @@ The call syntax for the create-function is as follows:
 The output will in this case be a numpy array with shape [#positions,
 #features]. The number of features may be requested beforehand with the
 :meth:`~.ACSF.get_number_of_features`-method.
-
-Examples
---------
-The following examples demonstrate common use cases for the descriptor. These
-examples are also available in dscribe/examples/mbtr.py.
 
 .. bibliography:: ../references.bib
    :style: unsrt

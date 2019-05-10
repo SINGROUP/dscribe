@@ -159,11 +159,23 @@
             
   <h1>Source code for dscribe.descriptors.soap</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span>
-<span class="kn">from</span> <span class="nn">builtins</span> <span class="k">import</span> <span class="nb">super</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="sd">&quot;&quot;&quot;Copyright 2019 DScribe developers</span>
 
-<span class="kn">from</span> <span class="nn">joblib</span> <span class="k">import</span> <span class="n">Parallel</span><span class="p">,</span> <span class="n">delayed</span><span class="p">,</span> <span class="n">parallel_backend</span>
+<span class="sd">Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="sd">you may not use this file except in compliance with the License.</span>
+<span class="sd">You may obtain a copy of the License at</span>
+
+<span class="sd">    http://www.apache.org/licenses/LICENSE-2.0</span>
+
+<span class="sd">Unless required by applicable law or agreed to in writing, software</span>
+<span class="sd">distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="sd">WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="sd">See the License for the specific language governing permissions and</span>
+<span class="sd">limitations under the License.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
+<span class="kn">from</span> <span class="nn">builtins</span> <span class="k">import</span> <span class="p">(</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">open</span><span class="p">,</span> <span class="nb">super</span><span class="p">,</span> <span class="nb">range</span><span class="p">,</span> <span class="nb">zip</span><span class="p">,</span> <span class="nb">round</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">pow</span><span class="p">,</span> <span class="nb">object</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="k">import</span> <span class="n">coo_matrix</span>
 
@@ -230,8 +242,13 @@
 
 <span class="sd">            periodic (bool): Determines whether the system is considered to be</span>
 <span class="sd">                periodic.</span>
-<span class="sd">            crossover (bool): Default True, if crossover of atomic types should</span>
-<span class="sd">                be included in the power spectrum.</span>
+<span class="sd">            crossover (bool): Determines if crossover of atomic types should</span>
+<span class="sd">                be included in the power spectrum. If enabled, the power</span>
+<span class="sd">                spectrum is calculated over all unique species combinations Z</span>
+<span class="sd">                and Z&#39;. If disabled, the power spectrum does not contain</span>
+<span class="sd">                cross-species information and is only run over each unique</span>
+<span class="sd">                species Z. Turned on by default to correspond to the original</span>
+<span class="sd">                definition</span>
 <span class="sd">            average (bool): Whether to build an average output for all selected</span>
 <span class="sd">                positions.</span>
 <span class="sd">            sparse (bool): Whether the output should be a sparse matrix or a</span>
@@ -286,7 +303,8 @@
         <span class="sd">&quot;&quot;&quot;Return the SOAP output for the given systems and given positions.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            system (single or multiple class:`ase.Atoms`): One or many atomic structures.</span>
+<span class="sd">            system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or</span>
+<span class="sd">                many atomic structures.</span>
 <span class="sd">            positions (list): Positions where to calculate SOAP. Can be</span>
 <span class="sd">                provided as cartesian positions or atomic indices. If no</span>
 <span class="sd">                positions are defined, the SOAP output will be created for all</span>
@@ -532,6 +550,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            np.ndarray: The given SOAP output mapped to the full chemical space.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># print(sub_output.shape)</span>
         <span class="c1"># Get mapping between elements in the subspace and alements in the full</span>
         <span class="c1"># space</span>
         <span class="n">space_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sub_to_full_map</span><span class="p">(</span><span class="n">sub_elements</span><span class="p">,</span> <span class="n">full_elements_sorted</span><span class="p">)</span>
@@ -544,29 +563,54 @@
         <span class="c1"># Define the final output space as an array.</span>
         <span class="n">output</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_points</span><span class="p">,</span> <span class="n">n_features</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
-        <span class="n">n_elem_sub</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sub_elements</span><span class="p">)</span>
-        <span class="n">n_elem_full</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">full_elements_sorted</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">i_sub</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_elem_sub</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">j_sub</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_elem_sub</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">j_sub</span> <span class="o">&gt;=</span> <span class="n">i_sub</span><span class="p">:</span>
+        <span class="c1"># When crossover is enabled, we need to store the contents for all</span>
+        <span class="c1"># unique species combinations</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_crossover</span><span class="p">:</span>
+            <span class="n">n_elem_sub</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sub_elements</span><span class="p">)</span>
+            <span class="n">n_elem_full</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">full_elements_sorted</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i_sub</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_elem_sub</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">j_sub</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_elem_sub</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">j_sub</span> <span class="o">&gt;=</span> <span class="n">i_sub</span><span class="p">:</span>
 
-                    <span class="c1"># This is the index of the spectrum. It is given by enumerating the</span>
-                    <span class="c1"># elements of an upper triangular matrix from left to right and top</span>
-                    <span class="c1"># to bottom.</span>
-                    <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_flattened_index</span><span class="p">(</span><span class="n">i_sub</span><span class="p">,</span> <span class="n">j_sub</span><span class="p">,</span> <span class="n">n_elem_sub</span><span class="p">)</span>
-                    <span class="n">start_sub</span> <span class="o">=</span> <span class="n">m</span><span class="o">*</span><span class="n">n_elem_features</span>
-                    <span class="n">end_sub</span> <span class="o">=</span> <span class="p">(</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n_elem_features</span>
-                    <span class="n">sub_out</span> <span class="o">=</span> <span class="n">sub_output</span><span class="p">[:,</span> <span class="n">start_sub</span><span class="p">:</span><span class="n">end_sub</span><span class="p">]</span>
+                        <span class="c1"># This is the index of the spectrum. It is given by enumerating the</span>
+                        <span class="c1"># elements of an upper triangular matrix from left to right and top</span>
+                        <span class="c1"># to bottom.</span>
+                        <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_flattened_index</span><span class="p">(</span><span class="n">i_sub</span><span class="p">,</span> <span class="n">j_sub</span><span class="p">,</span> <span class="n">n_elem_sub</span><span class="p">)</span>
+                        <span class="n">start_sub</span> <span class="o">=</span> <span class="n">m</span><span class="o">*</span><span class="n">n_elem_features</span>
+                        <span class="n">end_sub</span> <span class="o">=</span> <span class="p">(</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n_elem_features</span>
+                        <span class="n">sub_out</span> <span class="o">=</span> <span class="n">sub_output</span><span class="p">[:,</span> <span class="n">start_sub</span><span class="p">:</span><span class="n">end_sub</span><span class="p">]</span>
+                        <span class="c1"># print(sub_out.shape)</span>
 
-                    <span class="c1"># Figure out position in the full element space</span>
-                    <span class="n">i_full</span> <span class="o">=</span> <span class="n">space_map</span><span class="p">[</span><span class="n">i_sub</span><span class="p">]</span>
-                    <span class="n">j_full</span> <span class="o">=</span> <span class="n">space_map</span><span class="p">[</span><span class="n">j_sub</span><span class="p">]</span>
-                    <span class="n">m_full</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_flattened_index</span><span class="p">(</span><span class="n">i_full</span><span class="p">,</span> <span class="n">j_full</span><span class="p">,</span> <span class="n">n_elem_full</span><span class="p">)</span>
+                        <span class="c1"># Figure out position in the full element space</span>
+                        <span class="n">i_full</span> <span class="o">=</span> <span class="n">space_map</span><span class="p">[</span><span class="n">i_sub</span><span class="p">]</span>
+                        <span class="n">j_full</span> <span class="o">=</span> <span class="n">space_map</span><span class="p">[</span><span class="n">j_sub</span><span class="p">]</span>
+                        <span class="n">m_full</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_flattened_index</span><span class="p">(</span><span class="n">i_full</span><span class="p">,</span> <span class="n">j_full</span><span class="p">,</span> <span class="n">n_elem_full</span><span class="p">)</span>
 
-                    <span class="c1"># Place output to full output vector</span>
-                    <span class="n">start_full</span> <span class="o">=</span> <span class="n">m_full</span><span class="o">*</span><span class="n">n_elem_features</span>
-                    <span class="n">end_full</span> <span class="o">=</span> <span class="p">(</span><span class="n">m_full</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n_elem_features</span>
-                    <span class="n">output</span><span class="p">[:,</span> <span class="n">start_full</span><span class="p">:</span><span class="n">end_full</span><span class="p">]</span> <span class="o">=</span> <span class="n">sub_out</span>
+                        <span class="c1"># Place output to full output vector</span>
+                        <span class="n">start_full</span> <span class="o">=</span> <span class="n">m_full</span><span class="o">*</span><span class="n">n_elem_features</span>
+                        <span class="n">end_full</span> <span class="o">=</span> <span class="p">(</span><span class="n">m_full</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n_elem_features</span>
+                        <span class="n">output</span><span class="p">[:,</span> <span class="n">start_full</span><span class="p">:</span><span class="n">end_full</span><span class="p">]</span> <span class="o">=</span> <span class="n">sub_out</span>
+        <span class="c1"># When crossover is disabled, we need to store only power spectrums</span>
+        <span class="c1"># that contain for each species</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">n_elem_sub</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sub_elements</span><span class="p">)</span>
+            <span class="n">n_elem_full</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">full_elements_sorted</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_elem_sub</span><span class="p">):</span>
+                <span class="c1"># This is the index of the spectrum. It is given by enumerating the</span>
+                <span class="c1"># elements of an upper triangular matrix from left to right and top</span>
+                <span class="c1"># to bottom.</span>
+                <span class="n">start_sub</span> <span class="o">=</span> <span class="n">m</span><span class="o">*</span><span class="n">n_elem_features</span>
+                <span class="n">end_sub</span> <span class="o">=</span> <span class="p">(</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n_elem_features</span>
+                <span class="n">sub_out</span> <span class="o">=</span> <span class="n">sub_output</span><span class="p">[:,</span> <span class="n">start_sub</span><span class="p">:</span><span class="n">end_sub</span><span class="p">]</span>
+                <span class="c1"># print(sub_out.shape)</span>
+
+                <span class="c1"># Figure out position in the full element space</span>
+                <span class="n">m_full</span> <span class="o">=</span> <span class="n">space_map</span><span class="p">[</span><span class="n">m</span><span class="p">]</span>
+
+                <span class="c1"># Place output to full output vector</span>
+                <span class="n">start_full</span> <span class="o">=</span> <span class="n">m_full</span><span class="o">*</span><span class="n">n_elem_features</span>
+                <span class="n">end_full</span> <span class="o">=</span> <span class="p">(</span><span class="n">m_full</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n_elem_features</span>
+                <span class="n">output</span><span class="p">[:,</span> <span class="n">start_full</span><span class="p">:</span><span class="n">end_full</span><span class="p">]</span> <span class="o">=</span> <span class="n">sub_out</span>
 
         <span class="k">return</span> <span class="n">output</span></div>
 

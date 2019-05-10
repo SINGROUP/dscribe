@@ -7,18 +7,21 @@
 #include <numeric>
 #include <utility>
 #include <cmath>
+#include <iostream>
 #include <algorithm>
 #include <sstream>
 #include <stdexcept>
 using namespace std;
 
-MBTR::MBTR(vector<vector<float> > positions, vector<int> atomicNumbers, map<int,int> atomicNumberToIndexMap, int interactionLimit, bool isLocal)
+MBTR::MBTR(vector<vector<float> > positions, vector<int> atomicNumbers, map<int,int> atomicNumberToIndexMap, int interactionLimit, vector<vector<int> > cellIndices, bool isLocal)
     : positions(positions)
     , atomicNumbers(atomicNumbers)
     , atomicNumberToIndexMap(atomicNumberToIndexMap)
     , interactionLimit(interactionLimit)
+    , cellIndices(cellIndices)
     , isLocal(isLocal)
     , displacementTensorInitialized(false)
+    , distanceMatrixInitialized(false)
     , k1IndicesInitialized(false)
     , k2IndicesInitialized(false)
     , k3IndicesInitialized(false)
@@ -69,35 +72,40 @@ vector<vector<vector<float> > > MBTR::getDisplacementTensor()
 }
 vector<vector<float> > MBTR::getDistanceMatrix()
 {
-    int nAtoms = this->atomicNumbers.size();
+    // Use cached value if possible
+    if (!this->distanceMatrixInitialized) {
+        int nAtoms = this->atomicNumbers.size();
 
-    // Initialize matrix
-    vector<vector<float> > distanceMatrix(nAtoms, vector<float>(nAtoms));
+        // Initialize matrix
+        vector<vector<float> > distMatrix(nAtoms, vector<float>(nAtoms));
 
-    // Displacement tensor
-    vector<vector<vector<float> > > tensor = this->getDisplacementTensor();
+        // Displacement tensor
+        vector<vector<vector<float> > > tensor = this->getDisplacementTensor();
 
-    // Calculate distances
-    for (int i=0; i < nAtoms; ++i) {
-        for (int j=0; j < nAtoms; ++j) {
+        // Calculate distances
+        for (int i=0; i < nAtoms; ++i) {
+            for (int j=0; j < nAtoms; ++j) {
 
-            // Due to symmetry only upper triangular part is processed.
-            if (i <= j) {
-                continue;
+                // Due to symmetry only upper triangular part is processed.
+                if (i <= j) {
+                    continue;
+                }
+
+                float norm = 0;
+                vector<float>& iPos = tensor[i][j];
+                for (int k=0; k < 3; ++k) {
+                    norm += pow(iPos[k], 2.0);
+                }
+                norm = sqrt(norm);
+                distMatrix[i][j] = norm;
+                distMatrix[j][i] = norm;
             }
-
-            float norm = 0;
-            vector<float>& iPos = tensor[i][j];
-            for (int k=0; k < 3; ++k) {
-                norm += pow(iPos[k], 2.0);
-            }
-            norm = sqrt(norm);
-            distanceMatrix[i][j] = norm;
-            distanceMatrix[j][i] = norm;
         }
+        this->distanceMatrix = distMatrix;
+        this->distanceMatrixInitialized = true;
     }
 
-    return distanceMatrix;
+    return this->distanceMatrix;
 }
 
 vector<index1d> MBTR::getk1Indices()
@@ -450,10 +458,19 @@ pair<map<index2d, vector<float> >, map<index2d,vector<float> > > MBTR::getK2Geom
             // given by the number of repetitions of the primitive cell in the
             // supercell.
             if (!this->isLocal) {
-                if (!((i < this->interactionLimit) && (j < this->interactionLimit))) {
+                vector<int> i_copy = this->cellIndices[i];
+                vector<int> j_copy = this->cellIndices[j];
+
+                if (i_copy != j_copy) {
                     weightValue /= 2;
                 }
             }
+            //if (!this->isLocal) {
+                //if (!((i < this->interactionLimit) && (j < this->interactionLimit))) {
+                    //weightValue /= 2;
+                //}
+            //}
+
 
             // Get the index of the present elements in the final vector
             int i_elem = this->atomicNumbers[i];
@@ -529,16 +546,30 @@ pair<map<index3d, vector<float> >, map<index3d,vector<float> > > MBTR::getK3Geom
             float geomValue = geomValues[index];
             float weightValue = weightValues[index];
 
-            // When at least one of the atoms is in a different copy of the cell, the
-            // weight is halved. This is done in order to avoid double counting
-            // the same distance in the opposite direction. This correction
-            // makes periodic cells with different translations equal and also
-            // supercells equal to the primitive cell within a constant that is
-            // given by the number of repetitions of the primitive cell in the
-            // supercell.
+            // The contributions are weighted by their multiplicity arising from
+            // the translational symmetry. Each triple of atoms is repeated N
+            // times in the extended system through translational symmetry. The
+            // weight for the angles is thus divided by N so that the
+            // multiplication from symmetry is countered. This makes the final
+            // spectrum invariant to the selected supercell size and shape
+            // after normalization. The number of repetitions N is given by how
+            // many unique cell indices (the index of the repeated cell with
+            // respect to the original cell at index [0, 0, 0]) are present for
+            // the atoms in the triple.
             if (!this->isLocal) {
-                if (!((i < this->interactionLimit) && (j < this->interactionLimit) && (k < this->interactionLimit))) {
+                vector<int> i_copy = this->cellIndices[i];
+                vector<int> j_copy = this->cellIndices[j];
+                vector<int> k_copy = this->cellIndices[k];
+
+                bool ij_equal = i_copy == j_copy;
+                bool ik_equal = i_copy == k_copy;
+                bool jk_equal = j_copy == k_copy;
+                int equal_sum = (int)ij_equal + (int)ik_equal + (int)jk_equal;
+
+                if (equal_sum == 1) {
                     weightValue /= 2;
+                } else if (equal_sum == 0) {
+                    weightValue /= 3;
                 }
             }
 

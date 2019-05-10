@@ -33,7 +33,7 @@ class ElementalDistributionTests(unittest.TestCase):
             ElementalDistribution(
                 properties={
                     "first_property": {
-                        "type": "unknown",
+                        "type": "discrete",
                         "min": 0,
                         "max": 2.5,
                         "std": 0.5,

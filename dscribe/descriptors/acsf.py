@@ -1,6 +1,20 @@
 # -*- coding: utf-8 -*-
+"""Copyright 2019 DScribe developers
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"""
 from __future__ import absolute_import, division, print_function, unicode_literals
-from builtins import *
+from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
 
 import numpy as np
 
@@ -82,7 +96,8 @@ class ACSF(Descriptor):
         """Return the ACSF output for the given systems and given positions.
 
         Args:
-            system (single or multiple class:`ase.Atoms`): One or many atomic structures.
+            system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or
+                many atomic structures.
             positions (list): Positions where to calculate ACSF. Can be
                 provided as cartesian positions or atomic indices. If no
                 positions are defined, the SOAP output will be created for all

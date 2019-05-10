@@ -1,4 +1,18 @@
 # -*- coding: utf-8 -*-
+"""Copyright 2019 DScribe developers
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"""
 from __future__ import absolute_import, division, print_function, unicode_literals
 from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
 
@@ -37,7 +51,8 @@ class SineMatrix(MatrixDescriptor):
         """Return the Sine matrix for the given systems.
 
         Args:
-            system (single or multiple class:`ase.Atoms`): One or many atomic structures.
+            system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or
+                many atomic structures.
             n_jobs (int): Number of parallel jobs to instantiate. Parallellizes
                 the calculation across samples. Defaults to serial calculation
                 with n_jobs=1.
@@ -45,7 +60,7 @@ class SineMatrix(MatrixDescriptor):
                 into to the console.
 
         Returns:
-            np.ndarray | scipy.sparse.csr_matrix | list: Coulomb matrix for the
+            np.ndarray | scipy.sparse.csr_matrix | list: Sine matrix for the
             given systems. The return type depends on the 'sparse' and
             'flatten'-attributes. For flattened output a single numpy array or
             sparse scipy.csr_matrix is returned. The first dimension is

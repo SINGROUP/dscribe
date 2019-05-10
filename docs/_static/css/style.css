@@ -56,3 +56,6 @@ img.logo {
 .wy-nav-top {
   background: #343131;
 }
+.figure > a > img {
+  object-fit: contain;
+}
