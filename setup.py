@@ -41,7 +41,7 @@ if __name__ == "__main__":
             'scipy',
             'ase',
             'future',
-            'scikit-learn',
+            'scikit-learn==0.20.3',
             'joblib',
             'soaplite==1.0.3',
         ],
