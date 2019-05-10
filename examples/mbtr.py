@@ -81,8 +81,8 @@ from ase.visualize import view
 desc = MBTR(
     species=["C"],
     k2={
-        "geometry": {"function": "inverse_distance"},
-        "grid": {"min": 0, "max": 1.0, "sigma": 0.02, "n": 200},
+        "geometry": {"function": "distance"},
+        "grid": {"min": 0.4, "max": 8, "sigma": 0.1, "n": 200},
     },
     periodic=False,
     flatten=True,
@@ -101,8 +101,8 @@ desc.k2["weighting"] = {"function": "exponential", "scale": 1.1, "cutoff": 1e-2}
 output_weight = desc.create(system)
 
 fig, ax = mpl.subplots()
-x = np.linspace(0, 1, 200)
-ax.set_xlabel("Inverse distance (1/angstrom)")
+x = np.linspace(0.3, 10, 200)
+ax.set_xlabel("Distance angstrom")
 ax.plot(x, output_no_weight[0, :], label="No weighting")
 ax.plot(x, output_weight[0, :], label="Exponential weighting")
 ax.legend()
