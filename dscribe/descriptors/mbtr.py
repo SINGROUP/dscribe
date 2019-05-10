@@ -123,8 +123,8 @@ class MBTR(Descriptor):
                     "geometry" = {
                         "function": "inverse_distance",
                         "min": 0,
-                        "max": 2
-                        "sigma": 0.05
+                        "max": 2,
+                        "sigma": 0.05,
                         "n": 100
                     }
                     "weighting" = {
@@ -139,10 +139,10 @@ class MBTR(Descriptor):
 
                 k3 = {
                     "geometry" = {
-                        "function": "angles",
+                        "function": "angle",
                         "min": 0,
-                        "max": 180
-                        "sigma": 0.05
+                        "max": 180,
+                        "sigma": 0.05,
                         "n": 100
                     }
                     "weighting" = {
@@ -162,8 +162,6 @@ class MBTR(Descriptor):
                 be taken into account in the descriptor. Deprecated in favour of
                 the species-parameters, but provided for
                 backwards-compatibility.
-            normalize_by_volume (bool): Determines whether the output vectors are
-                normalized by the cell volume. Defaults to False.
             normalize_gaussians (bool): Determines whether the gaussians are
                 normalized to an area of 1. Defaults to True. If False, the
                 normalization factor is dropped and the gaussians have the form.
@@ -200,10 +198,9 @@ class MBTR(Descriptor):
         species = self.get_species_definition(species, atomic_numbers)
         self.species = species
 
-        self.normalize_by_volume = normalize_by_volume
+        self.normalization = normalization
         self.normalize_gaussians = normalize_gaussians
         self.virtual_positions = False
-        # self.update()
 
         # Initializing .create() level variables
         self._interaction_limit = None
@@ -231,19 +228,17 @@ class MBTR(Descriptor):
         """
         if value is not None:
             # Check the grid
-            self.check_grid(value["geometry"])
+            self.check_grid(value["grid"])
 
             # Check the geometry function
             geom_func = value["geometry"].get("function")
             if geom_func is not None:
-                valid_geom_func = set(("unity",))
+                valid_geom_func = set(("atomic_number",))
                 if geom_func not in valid_geom_func:
                     raise ValueError(
                         "Unknown geometry function specified for k=1. Please use one of"
                         " the following: {}".format(valid_geom_func)
                     )
-            else:
-                value["geometry"]["function"] = "unity"
 
             # Check the weighting function
             weighting = value.get("weighting")
@@ -271,7 +266,7 @@ class MBTR(Descriptor):
         """
         if value is not None:
             # Check the grid
-            self.check_grid(value["geometry"])
+            self.check_grid(value["grid"])
 
             # Check the geometry function
             valid_geom_func = set(("distance", "inverse_distance"))
@@ -298,13 +293,14 @@ class MBTR(Descriptor):
                     param = value["weighting"].get(key)
                     if param is None:
                         raise ValueError(
-ll                            "Missing value for '{}' in the k=2 weighting.".format(key)
+                            "Missing value for '{}' in the k=2 weighting.".format(key)
                         )
-            elif self.periodic:
-                raise ValueError(
-                    "Periodic systems will need to have a weighting function "
-                    "defined in the 'weighting' dictionary"
-                )
+            else:
+                if self.periodic:
+                    raise ValueError(
+                        "Periodic systems need to have a weighting function."
+                    )
+                value["weighting"] = {"function": "unity"}
 
         self._k2 = value
 
@@ -321,7 +317,7 @@ ll                            "Missing value for '{}' in the k=2 weighting.".for
         """
         if value is not None:
             # Check the grid
-            self.check_grid(value["geometry"])
+            self.check_grid(value["grid"])
 
             # Check the geometry function
             valid_geom_func = set(("angle", "cosine"))
@@ -351,13 +347,61 @@ ll                            "Missing value for '{}' in the k=2 weighting.".for
                         raise ValueError(
                             "Missing value for '{}' in the k=3 weighting.".format(key)
                         )
-            elif self.periodic:
-                raise ValueError(
-                    "Periodic systems will need to have a weighting function "
-                    "defined in the 'weighting' dictionary"
-                )
+
+            else:
+                if self.periodic:
+                    raise ValueError(
+                        "Periodic systems need to have a weighting function."
+                    )
+                value["weighting"] = {"function": "unity"}
 
         self._k3 = value
+
+    @property
+    def species(self):
+        return self._species
+
+    @species.setter
+    def species(self, value):
+        """Used to check the validity of given atomic numbers and to initialize
+        the C-memory layout for them.
+
+        Args:
+            value(iterable): Chemical species either as a list of atomic
+                numbers or list of chemical symbols.
+        """
+        # The species are stored as atomic numbers for internal use.
+        self._set_species(value)
+
+        # Setup mappings between atom indices and types together with some
+        # statistics
+        self.atomic_number_to_index = {}
+        self.index_to_atomic_number = {}
+        for i_atom, atomic_number in enumerate(self._atomic_numbers):
+            self.atomic_number_to_index[atomic_number] = i_atom
+            self.index_to_atomic_number[i_atom] = atomic_number
+        self.n_elements = len(self._atomic_numbers)
+        self.max_atomic_number = max(self._atomic_numbers)
+        self.min_atomic_number = min(self._atomic_numbers)
+
+    @property
+    def normalization(self):
+        return self._normalization
+
+    @normalization.setter
+    def normalization(self, value):
+        """Checks that the given normalization is valid.
+
+        Args:
+            value(str): The normalization method to use.
+        """
+        norm_options = set(("l2_each", "none"))
+        if value not in norm_options:
+            raise ValueError(
+                "Unknown normalization option given. Please use one of the "
+                "following: {}.".format(", ".join([str(x) for x in norm_options]))
+            )
+        self._normalization = value
 
     def check_grid(self, grid):
         """Used to ensure that the given grid settings are valid.
@@ -436,79 +480,36 @@ ll                            "Missing value for '{}' in the k=2 weighting.".for
         # Initializes the scalar numbers that depend no the system
         self.initialize_scalars(system)
 
-        return self.create_with_grid()
+        # Create output with the currently set grid
+        grid = {}
+        if self.k1 is not None:
+            grid["k1"] = self.k1["grid"]
+        if self.k2 is not None:
+            grid["k2"] = self.k2["grid"]
+        if self.k3 is not None:
+            grid["k3"] = self.k3["grid"]
+        output = self.create_with_grid(grid)
+        return output
 
-    @property
-    def species(self):
-        return self._species
-
-    @species.setter
-    def species(self, value):
-        """Used to check the validity of given atomic numbers and to initialize
-        the C-memory layout for them.
-
-        Args:
-            value(iterable): Chemical species either as a list of atomic
-                numbers or list of chemical symbols.
-        """
-        # The species are stored as atomic numbers for internal use.
-        self._set_species(value)
-
-        # Setup mappings between atom indices and types together with some
-        # statistics
-        self.atomic_number_to_index = {}
-        self.index_to_atomic_number = {}
-        for i_atom, atomic_number in enumerate(self._atomic_numbers):
-            self.atomic_number_to_index[atomic_number] = i_atom
-            self.index_to_atomic_number[i_atom] = atomic_number
-        self.n_elements = len(self._atomic_numbers)
-        self.max_atomic_number = max(self._atomic_numbers)
-        self.min_atomic_number = min(self._atomic_numbers)
-
-    @property
-    def normalization(self):
-        return self._normalization
-
-    @normalization.setter
-    def normalization(self, value):
-        """Checks that the given normalization is valid.
-
-        Args:
-            value(str): The normalization method to use.
-        """
-        norm_options = set(("l2_each", "none"))
-        if value not in norm_options:
-            raise ValueError(
-                "Unknown normalization option given. Please use one of the "
-                "following: {}.".format(", ".join([str(x) for x in norm_options]))
-            )
-        self._normalization = value
-
-    def create_with_grid(self, grid=None):
+    def create_with_grid(self, grid):
         """Used to recalculate MBTR for an already seen system but with
         different grid setttings. This function can be used after the scalar
         values have been initialized with "initialize_scalars".
         """
-        if grid is None:
-            grid = self.grid
-        else:
-            self.check_grid(grid)
-            self.grid = grid
+        for value in grid.values():
+            self.check_grid(value)
 
         mbtr = {}
         if self.k1 is not None:
-            settings_k1 = self.get_k1_settings()
-            k1 = self.K1(settings_k1)
+            k1 = self.get_k1_convolution(grid["k1"])
             mbtr["k1"] = k1
 
         if self.k2 is not None:
-            settings_k2 = self.get_k2_settings()
-            k2 = self.K2(settings_k2)
+            k2 = self.get_k2_convolution(grid["k2"])
             mbtr["k2"] = k2
 
         if self.k3 is not None:
-            settings_k3 = self.get_k3_settings()
-            k3 = self.K3(settings_k3)
+            k3 = self.get_k3_convolution(grid["k3"])
             mbtr["k3"] = k3
 
         # Handle normalization
@@ -567,8 +568,6 @@ ll                            "Missing value for '{}' in the k=2 weighting.".for
         self._axis_k2 = None
         self._axis_k3 = None
 
-        # self.update()
-
         if self._is_local:
             self._interaction_limit = 1
         else:
@@ -577,7 +576,6 @@ ll                            "Missing value for '{}' in the k=2 weighting.".for
         # Check that the system does not have elements that are not in the list
         # of atomic numbers
         self.check_atomic_numbers(system.get_atomic_numbers())
-
 
         if self.k1 is not None:
             cell_indices = np.zeros((len(system), 3), dtype=int)
@@ -606,21 +604,6 @@ ll                            "Missing value for '{}' in the k=2 weighting.".for
             # Free memory
             system_k3 = None
 
-    def get_k1_settings(self):
-        """Returns the min, max, dx and sigma for K1.
-        """
-        return self.grid["k1"]
-
-    def get_k2_settings(self):
-        """Returns the min, max, dx and sigma for K2.
-        """
-        return self.grid["k2"]
-
-    def get_k3_settings(self):
-        """Returns the min, max, dx and sigma for K3.
-        """
-        return self.grid["k3"]
-
     def get_number_of_features(self):
         """Used to inquire the final number of features that this descriptor
         will have.
@@ -632,15 +615,15 @@ ll                            "Missing value for '{}' in the k=2 weighting.".for
         n_elem = self.n_elements
 
         if self.k1 is not None:
-            n_k1_grid = self.get_k1_settings()["n"]
+            n_k1_grid = self.k1["grid"]["n"]
             n_k1 = n_elem*n_k1_grid
             n_features += n_k1
         if self.k2 is not None:
-            n_k2_grid = self.get_k2_settings()["n"]
+            n_k2_grid = self.k2["grid"]["n"]
             n_k2 = (n_elem*(n_elem+1)/2)*n_k2_grid
             n_features += n_k2
         if self.k3 is not None:
-            n_k3_grid = self.get_k3_settings()["n"]
+            n_k3_grid = self.k3["grid"]["n"]
             n_k3 = (n_elem*n_elem*(n_elem+1)/2)*n_k3_grid
             n_features += n_k3
 
@@ -679,9 +662,9 @@ ll                            "Missing value for '{}' in the k=2 weighting.".for
         # exponential weight to come down to the given threshold.
         cell_vector_lengths = np.linalg.norm(cell, axis=1)
         n_copies_axis = np.zeros(3, dtype=int)
-        weight_info = self.weighting["k{}".format(term_number)]
-        weighting_function = weight_info["function"]
-        cutoff = self.weighting["k{}".format(term_number)]["cutoff"]
+        weighting = getattr(self, "k{}".format(term_number))["weighting"]
+        weighting_function = weighting["function"]
+        cutoff = weighting["cutoff"]
 
         if weighting_function == "exponential":
             scale = weighting["scale"]
@@ -767,7 +750,6 @@ ll                            "Missing value for '{}' in the k=2 weighting.".for
                         pos_extended.append(valid_pos)
                         num_extended.append(valid_num)
                         cell_indices.append(valid_ind)
-
 
         pos_extended = np.concatenate(pos_extended)
         num_extended = np.concatenate(num_extended)
@@ -935,7 +917,7 @@ ll                            "Missing value for '{}' in the k=2 weighting.".for
                 }
 
             # Determine the geometry function
-            geom_func_name = self.geometry_func["k3"]["function"]
+            geom_func_name = self.k3["geometry"]["function"]
 
             self._k3_geoms, self._k3_weights = cmbtr.get_k3_geoms_and_weights(
                 geom_func=geom_func_name.encode(),
@@ -945,20 +927,19 @@ ll                            "Missing value for '{}' in the k=2 weighting.".for
 
         return self._k3_geoms, self._k3_weights
 
-    def K1(self, settings):
+    def get_k1_convolution(self, grid):
         """Calculates the first order terms where the scalar mapping is the
         number of atoms of a certain type.
 
         Args:
-            system (System): Atomic system.
-            settings (dict): Grid settings.
+            grid (dict): Grid settings.
 
         Returns:
             ndarray | scipy.sparse.lil_matrix: K1 values.
         """
-        start = settings["min"]
-        stop = settings["max"]
-        n = settings["n"]
+        start = grid["min"]
+        stop = grid["max"]
+        n = grid["n"]
         self._axis_k1 = np.linspace(start, stop, n)
 
         n_elem = self.n_elements
@@ -977,7 +958,7 @@ ll                            "Missing value for '{}' in the k=2 weighting.".for
             weights = np.array(k1_weights[key])
 
             # Broaden with a gaussian
-            gaussian_sum = self.gaussian_sum(geoms, weights, settings)
+            gaussian_sum = self.gaussian_sum(geoms, weights, grid)
 
             if self._flatten:
                 start = i*n
@@ -988,19 +969,19 @@ ll                            "Missing value for '{}' in the k=2 weighting.".for
 
         return k1
 
-    def K2(self, settings):
+    def get_k2_convolution(self, grid):
         """Calculates the second order terms where the scalar mapping is the
         inverse distance between atoms.
 
         Args:
-            settings (dict): The grid settings
+            grid (dict): The grid settings
 
         Returns:
             1D ndarray: flattened K2 values.
         """
-        start = settings["min"]
-        stop = settings["max"]
-        n = settings["n"]
+        start = grid["min"]
+        stop = grid["max"]
+        n = grid["n"]
         self._axis_k2 = np.linspace(start, stop, n)
 
         k2_geoms, k2_weights = self._k2_geoms, self._k2_weights
@@ -1026,7 +1007,7 @@ ll                            "Missing value for '{}' in the k=2 weighting.".for
             weights = np.array(k2_weights[key])
 
             # Broaden with a gaussian
-            gaussian_sum = self.gaussian_sum(geoms, weights, settings)
+            gaussian_sum = self.gaussian_sum(geoms, weights, grid)
 
             if self._flatten:
                 start = m*n
@@ -1037,19 +1018,19 @@ ll                            "Missing value for '{}' in the k=2 weighting.".for
 
         return k2
 
-    def K3(self, settings):
+    def get_k3_convolution(self, grid):
         """Calculates the third order terms where the scalar mapping is the
         angle between 3 atoms.
 
         Args:
-            settings (dict): The grid settings
+            grid (dict): The grid settings
 
         Returns:
             1D ndarray: flattened K3 values.
         """
-        start = settings["min"]
-        stop = settings["max"]
-        n = settings["n"]
+        start = grid["min"]
+        stop = grid["max"]
+        n = grid["n"]
         self._axis_k3 = np.linspace(start, stop, n)
 
         k3_geoms, k3_weights = self._k3_geoms, self._k3_weights
@@ -1078,7 +1059,7 @@ ll                            "Missing value for '{}' in the k=2 weighting.".for
             weights = np.array(k3_weights[key])
 
             # Broaden with a gaussian
-            gaussian_sum = self.gaussian_sum(geoms, weights, settings)
+            gaussian_sum = self.gaussian_sum(geoms, weights, grid)
 
             if self._flatten:
                 start = m*n

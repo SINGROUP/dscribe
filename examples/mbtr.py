@@ -1,14 +1,28 @@
 import numpy as np
 from dscribe.descriptors import MBTR
+from ase.build import bulk
+
+nacl = bulk("NaCl", "rocksalt", a=5.64, cubic=True)
 
 # Setup
 mbtr = MBTR(
-    species=atomic_numbers,
+    species=["H", "O"],
+    k1={
+        "geometry": {"function": "atomic_number"},
+        "grid": {"min": 0, "max": 8, "n": 100, "sigma": 0.1},
+    },
     k2={
-        "geometry": {"function": "inverse_distances", "min": 0, "max": 1, "n": n, "sigma": 0.1},
+        "geometry": {"function": "inverse_distance"},
+        "grid": {"min": 0, "max": 1, "n": 100, "sigma": 0.1},
+        "weighting": {"function": "exponential", "scale": 0.5, "cutoff": 1e-3},
+    },
+    k3={
+        "geometry": {"function": "cosine"},
+        "grid": {"min": -1, "max": 1, "n": 100, "sigma": 0.1},
         "weighting": {"function": "exponential", "scale": 0.5, "cutoff": 1e-3},
     },
     periodic=False,
+    normalization="l2_each",
 )
 
 # Create
@@ -33,14 +47,12 @@ nacl = bulk("NaCl", "rocksalt", a=5.64)
 decay = 0.5
 mbtr = MBTR(
     species=["Na", "Cl"],
-    k=[2],
+    k2={
+        "geometry": {"function": "inverse_distance"},
+        "grid": {"min": 0, "max": 0.5, "sigma": 0.01, "n": 200},
+        "weighting": {"function": "exponential", "scale": decay, "cutoff": 1e-3},
+    },
     periodic=True,
-    grid={
-        "k2": {"min": 0, "max": 0.5, "sigma": 0.01, "n": 200},
-    },
-    weighting={
-        "k2": {"function": "exponential", "scale": decay, "cutoff": 1e-3},
-    },
     flatten=False,
     sparse=False
 )
@@ -68,11 +80,11 @@ from ase.visualize import view
 
 desc = MBTR(
     species=["C"],
-    k=[2],
-    periodic=False,
-    grid={
-        "k2": {"min": 0, "max": 1.0, "sigma": 0.02, "n": 200},
+    k2={
+        "geometry": {"function": "inverse_distance"},
+        "grid": {"min": 0, "max": 1.0, "sigma": 0.02, "n": 200},
     },
+    periodic=False,
     flatten=True,
     sparse=False,
     normalization="l2_each",
@@ -85,9 +97,7 @@ view(system)
 output_no_weight = desc.create(system)
 
 # Exponential weighting
-desc.weighting = {
-    "k2": {"function": "exponential", "scale": 1.1, "cutoff": 1e-2},
-}
+desc.k2["weighting"] = {"function": "exponential", "scale": 1.1, "cutoff": 1e-2}
 output_weight = desc.create(system)
 
 fig, ax = mpl.subplots()
@@ -101,20 +111,25 @@ mpl.show()
 # Periodic
 desc = MBTR(
     species=["H"],
-    k=[1, 2, 3],
     periodic=True,
-    grid={
-        "k1": {"min": 0, "max": 2, "sigma": 0.1, "n": 100},
-        "k2": {"min": 0, "max": 1.0, "sigma": 0.02, "n": 200},
-        "k3": {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 200},
+    k1={
+        "geometry": {"function": "atomic_number"},
+        "grid": {"min": 0, "max": 2, "sigma": 0.1, "n": 100},
     },
-    weighting={
-        "k2": {"function": "exponential", "scale": 1, "cutoff": 1e-3},
-        "k3": {"function": "exponential", "scale": 1, "cutoff": 1e-3},
+    k2={
+        "geometry": {"function": "inverse_distance"},
+        "grid": {"min": 0, "max": 1.0, "sigma": 0.02, "n": 200},
+        "weighting": {"function": "exponential", "scale": 1.0, "cutoff": 1e-3},
+    },
+    k3={
+        "geometry": {"function": "cosine"},
+        "grid": {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 200},
+        "weighting": {"function": "exponential", "scale": 1.0, "cutoff": 1e-3},
     },
     flatten=True,
     sparse=False,
 )
+
 
 a1 = bulk('H', 'fcc', a=2.0)
 output = desc.create(a1)
