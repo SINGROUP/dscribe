@@ -623,7 +623,7 @@ class MBTR(Descriptor):
 
                 weight = function(distance)
                 if weight < cutoff:
-                    n_copies_axis[i_axis] = n_copies+1
+                    n_copies_axis[i_axis] = n_copies
                     limit_found = True
 
         # Create copies of the cell but keep track of the atoms in the
