@@ -40,19 +40,59 @@ default_grid = {
 }
 
 default_k1 = {
-    "geometry": {"min": 1, "max": 90, "sigma": 0.1, "n": 50}
+    "geometry": {"function": "atomic_number"},
+    "grid": {"min": 1, "max": 90, "sigma": 0.1, "n": 50}
 }
 
 default_k2 = {
-    "geometry": {"function": "inverse_distance", "min": 0, "max": 1/0.7, "sigma": 0.1, "n": 50},
+    "geometry": {"function": "inverse_distance"},
+    "grid": {"min": 0, "max": 1/0.7, "sigma": 0.1, "n": 50},
     "weighting": {"function": "exponential", "scale": 0.5, "cutoff": 1e-2},
 }
 
 default_k3 = {
-    "geometry": {"function": "angles", "min": 0, "max": 180, "sigma": 2, "n": 50},
+    "geometry": {"function": "angle"},
+    "grid": {"min": 0, "max": 180, "sigma": 2, "n": 50},
     "weighting": {"function": "exponential", "scale": 0.5, "cutoff": 1e-2},
 }
 
+default_desc_k1 = MBTR(
+    species=[1, 8],
+    k1=default_k1,
+    periodic=False,
+    flatten=True,
+    sparse=False
+)
+
+default_desc_k2 = MBTR(
+    species=[1, 8],
+    k2=default_k2,
+    periodic=False,
+    flatten=True,
+    sparse=False
+)
+
+default_desc_k1_k2_k3 = MBTR(
+    species=["H"],
+    periodic=True,
+    k1={
+        "geometry": {"function": "atomic_number"},
+        "grid": {"min": 0, "max": 2, "sigma": 0.1, "n": 100},
+    },
+    k2={
+        "geometry": {"function": "inverse_distance"},
+        "grid": {"min": 0, "max": 1.0, "sigma": 0.02, "n": 100},
+        "weighting": {"function": "exponential", "scale": 1, "cutoff": 1e-3},
+    },
+    k3={
+        "geometry": {"function": "cosine"},
+        "grid": {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 100},
+        "weighting": {"function": "exponential", "scale": 1, "cutoff": 1e-3},
+    },
+    flatten=True,
+    sparse=False,
+    normalization="l2_each",
+)
 
 H2O = Atoms(
     cell=[
@@ -118,24 +158,32 @@ class MBTRNew(unittest.TestCase):
         with self.assertRaises(ValueError):
             MBTR(
                 species=["H"],
-                k2={"geometry": default_k2["geometry"]},
+                k2={"geometry": default_k2["geometry"],
+                    "grid": default_k2["grid"]
+                },
                 periodic=True,
             )
             MBTR(
                 species=["H"],
-                k2={"geometry": default_k2["geometry"], "weighting": {"function": "unity"}},
+                k2={"geometry": default_k2["geometry"],
+                    "grid": default_k2["grid"],
+                    "weighting": {"function": "unity"}
+                },
                 periodic=True,
             )
 
         with self.assertRaises(ValueError):
             MBTR(
                 species=["H"],
-                k3={"geometry": default_k3["geometry"]},
+                k3={"geometry": default_k3["geometry"],
+                    "grid": default_k3["grid"]},
                 periodic=True,
             )
             MBTR(
                 species=["H"],
-                k3={"geometry": default_k3["geometry"], "weighting": {"function": "unity"}},
+                k3={"geometry": default_k3["geometry"],
+                    "grid": default_k3["grid"],
+                    "weighting": {"function": "unity"}},
                 periodic=True,
             )
 
@@ -143,19 +191,28 @@ class MBTRNew(unittest.TestCase):
         with self.assertRaises(ValueError):
             MBTR(
                 species=[1],
-                k1={"geometry": default_k1["geometry"], "weighting": {"function": "none"}},
+                k1={"geometry": default_k1["geometry"],
+                    "grid": default_k1["grid"],
+                    "weighting": {"function": "none"}
+                },
                 periodic=True,
             )
         with self.assertRaises(ValueError):
             MBTR(
                 species=[1],
-                k2={"geometry": default_k2["geometry"], "weighting": {"function": "none"}},
+                k2={"geometry": default_k2["geometry"],
+                    "grid": default_k2["grid"],
+                    "weighting": {"function": "none"}
+                },
                 periodic=True,
             )
         with self.assertRaises(ValueError):
             MBTR(
                 species=[1],
-                k3={"geometry": default_k3["geometry"], "weighting": {"function": "none"}},
+                k3={"geometry": default_k3["geometry"],
+                    "grid": default_k3["grid"],
+                    "weighting": {"function": "none"}
+                },
                 periodic=True,
             )
 
@@ -163,19 +220,25 @@ class MBTRNew(unittest.TestCase):
         with self.assertRaises(ValueError):
             MBTR(
                 species=[1],
-                k1={"geometry": {"function": "none", "min": 0, "max": 1, "n": 10, "sigma": 0.1}},
+                k1={"geometry": {"function": "none"},
+                    "grid": {"min": 0, "max": 1, "n": 10, "sigma": 0.1}
+                },
                 periodic=False,
             )
         with self.assertRaises(ValueError):
             MBTR(
                 species=[1],
-                k2={"geometry": {"function": "none", "min": 0, "max": 1, "n": 10, "sigma": 0.1}},
+                k2={"geometry": {"function": "none"},
+                    "grid": {"min": 0, "max": 1, "n": 10, "sigma": 0.1}
+                },
                 periodic=False,
             )
         with self.assertRaises(ValueError):
             MBTR(
                 species=[1],
-                k3={"geometry": {"function": "none", "min": 0, "max": 1, "n": 10, "sigma": 0.1}},
+                k3={"geometry": {"function": "none"},
+                    "grid": {"min": 0, "max": 1, "n": 10, "sigma": 0.1}
+                },
                 periodic=False,
             )
 
@@ -199,109 +262,19 @@ class MBTRNew(unittest.TestCase):
                 periodic=True,
             )
 
-
-class MBTRTests(TestBaseClass, unittest.TestCase):
-
-    def test_constructor(self):
-        """Tests different valid and invalid constructor values.
-        """
-        # Cannot create a sparse and non-flattened output.
-        with self.assertRaises(ValueError):
-            MBTR(
-                species=[1],
-                k=[1],
-                grid=default_grid,
-                periodic=False,
-                flatten=False,
-                sparse=True,
-            )
-
-        # Invalid k value not in an iterable
-        with self.assertRaises(ValueError):
-            MBTR(
-                species=[1],
-                k=0,
-                grid=default_grid,
-                periodic=False,
-            )
-
-        # Invalid k value
-        with self.assertRaises(ValueError):
-            MBTR(
-                species=[1],
-                k=[-1, 2],
-                grid=default_grid,
-                periodic=False,
-            )
-
-        # Unsupported k=4
-        with self.assertRaises(ValueError):
-            MBTR(
-                species=[1],
-                k={1, 4},
-                grid=default_grid,
-                periodic=False,
-            )
-
-        # Invalid weighting function
-        with self.assertRaises(ValueError):
-            MBTR(
-                species=[1],
-                k={2},
-                grid=default_grid,
-                weighting={"k2": {"function": "exp"}},
-                periodic=True,
-            )
-
-        # Missing cutoff and scale
-        with self.assertRaises(ValueError):
-            MBTR(
-                species=[1],
-                k={2},
-                grid=default_grid,
-                weighting={"k2": {"function": "exponential"}},
-                periodic=True,
-            )
-
-        # Missing scale
-        with self.assertRaises(ValueError):
-            MBTR(
-                species=[1],
-                k={2},
-                grid=default_grid,
-                weighting={"k2": {"function": "exponential", "cutoff": 1e-2}},
-                periodic=True,
-            )
-
-        # Weighting not provided for finite system is fine
-        MBTR(
-            species=[1],
-            k={2},
-            grid=default_grid,
-            periodic=False,
-        )
-
-        # Weighting needs to be provided for periodic system and terms k>1
-        with self.assertRaises(ValueError):
-            MBTR(
-                species=[1],
-                k={2},
-                grid=default_grid,
-                periodic=True,
-                weighting={"k2": {"function": "unity"}},
-            )
-
     def test_properties(self):
         """Used to test that changing the setup through properties works as
         intended.
         """
         # Test changing species
         a = MBTR(
-            k=[1, 2, 3],
-            grid=default_grid,
+            k1=default_k1,
+            k2=default_k2,
+            k3=default_k3,
             periodic=False,
             species=[1, 8],
             sparse=False,
+            flatten=True,
         )
         nfeat1 = a.get_number_of_features()
         vec1 = a.create(H2O)
@@ -311,23 +284,42 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         self.assertTrue(nfeat1 != nfeat2)
         self.assertTrue(vec1.shape[1] != vec2.shape[1])
 
+        # Test changing geometry function and grid setup
+        a.k1 = {
+            "geometry": {"function": "atomic_number"},
+            "grid": {"min": 5, "max": 6, "sigma": 0.1, "n": 50},
+        }
+        vec3 = a.create(H2O)
+        self.assertTrue(not np.allclose(vec2, vec3))
+
+        a.k2 = {
+            "geometry": {"function": "distance"},
+            "grid": {"min": 0, "max": 10, "sigma": 0.1, "n": 50},
+            "weighting": {"function": "exponential", "scale": 0.6, "cutoff": 1e-2},
+        }
+        vec4 = a.create(H2O)
+        self.assertTrue(not np.allclose(vec3, vec4))
+
+        a.k3 = {
+            "geometry": {"function": "angle"},
+            "grid": {"min": 0, "max": 180, "sigma": 5, "n": 50},
+            "weighting": {"function": "exponential", "scale": 0.6, "cutoff": 1e-2},
+        }
+        vec5 = a.create(H2O)
+        self.assertTrue(not np.allclose(vec4, vec5))
+
     def test_number_of_features(self):
         """Tests that the reported number of features is correct.
         """
-        # K = 1
+        # K=1
         n = 100
         atomic_numbers = [1, 8]
         n_elem = len(atomic_numbers)
         mbtr = MBTR(
             species=atomic_numbers,
-            k=[1],
-            grid={
-                "k1": {
-                    "min": 1,
-                    "max": 8,
-                    "sigma": 0.1,
-                    "n": 100,
-                }
+            k1={
+                "geometry": {"function": "atomic_number"},
+                "grid": {"min": 1, "max": 8, "sigma": 0.1, "n": 100}
             },
             periodic=False,
             flatten=True
@@ -336,25 +328,18 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         expected = n_elem*n
         self.assertEqual(n_features, expected)
 
-        # K = 2
+        # K=2
         mbtr = MBTR(
             species=atomic_numbers,
-            k={1, 2},
-            grid={
-                "k1": {
-                    "min": 1,
-                    "max": 8,
-                    "sigma": 0.1,
-                    "n": 100,
-                },
-                "k2": {
-                    "min": 0,
-                    "max": 1/0.7,
-                    "sigma": 0.1,
-                    "n": n,
-                }
+            k1={
+                "geometry": {"function": "atomic_number"},
+                "grid": {"min": 1, "max": 8, "sigma": 0.1, "n": 100},
             },
-            weighting={"k2": {"function": "exponential", "scale": 0.5, "cutoff": 1e-2}},
+            k2={
+                "geometry": {"function": "inverse_distance"},
+                "grid": {"min": 0, "max": 1/0.7, "sigma": 0.1, "n": n},
+                "weighting": {"function": "exponential", "scale": 0.5, "cutoff": 1e-2},
+            },
             periodic=False,
             flatten=True
         )
@@ -362,29 +347,22 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         expected = n_elem*n + 1/2*(n_elem)*(n_elem+1)*n
         self.assertEqual(n_features, expected)
 
-        # K = 3
+        # K=3
         mbtr = MBTR(
             species=atomic_numbers,
-            k={1, 2, 3},
-            grid={
-                "k1": {
-                    "min": 1,
-                    "max": 8,
-                    "sigma": 0.1,
-                    "n": 100,
-                },
-                "k2": {
-                    "min": 0,
-                    "max": 1/0.7,
-                    "sigma": 0.1,
-                    "n": n,
-                },
-                "k3": {
-                    "min": -1,
-                    "max": 1,
-                    "sigma": 0.1,
-                    "n": n,
-                }
+            k1={
+                "geometry": {"function": "atomic_number"},
+                "grid": {"min": 1, "max": 8, "sigma": 0.1, "n": 100},
+            },
+            k2={
+                "geometry": {"function": "inverse_distance"},
+                "grid": {"min": 0, "max": 1/0.7, "sigma": 0.1, "n": n},
+                "weighting": {"function": "exponential", "scale": 0.5, "cutoff": 1e-2},
+            },
+            k3={
+                "geometry": {"function": "cosine"},
+                "grid": {"min": -1, "max": 1, "sigma": 0.1, "n": n},
+                "weighting": {"function": "exponential", "scale": 0.5, "cutoff": 1e-2},
             },
             periodic=False,
             flatten=True
@@ -394,18 +372,29 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         self.assertEqual(n_features, expected)
 
     def test_flatten(self):
+        """Tests that flattened, and non-flattened output works correctly.
+        """
         system = H2O
         n = 10
         n_species = len(set(system.get_atomic_numbers()))
 
         # K1 unflattened
-        desc = MBTR(species=[1, 8], k=[1], grid={"k1": {"n": n, "min": 1, "max": 8, "sigma": 0.1}}, periodic=False, flatten=False, sparse=False)
+        desc = MBTR(
+            species=[1, 8],
+            k1={
+                "grid": {"n": n, "min": 1, "max": 8, "sigma": 0.1},
+                "geometry": {"function": "atomic_number"}
+            },
+            periodic=False,
+            flatten=False,
+            sparse=False
+        )
         feat = desc.create(system)["k1"]
         self.assertEqual(feat.shape, (n_species, n))
 
         # K1 flattened. The sparse matrix only supports 2D matrices, so the first
         # dimension is always present, even if it is of length 1.
-        desc = MBTR(species=[1, 8], k=[1], grid={"k1": {"n": n, "min": 1, "max": 8, "sigma": 0.1}}, periodic=False)
+        desc.flatten = True
         feat = desc.create(system)
         self.assertEqual(feat.shape, (1, n_species*n))
 
@@ -413,12 +402,14 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         """Tests the sparse matrix creation.
         """
         # Dense
-        desc = MBTR(species=[1, 8], k=[1], grid=default_grid, periodic=False, flatten=True, sparse=False)
+        desc = copy.deepcopy(default_desc_k1)
+        desc.sparse = False
         vec = desc.create(H2O)
         self.assertTrue(type(vec) == np.ndarray)
 
         # Sparse
-        desc = MBTR(species=[1, 8], k=[1], grid=default_grid, periodic=False, flatten=True, sparse=True)
+        desc = copy.deepcopy(default_desc_k1)
+        desc.sparse = True
         vec = desc.create(H2O)
         self.assertTrue(type(vec) == scipy.sparse.coo_matrix)
 
@@ -426,28 +417,8 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         """Tests creating dense output parallelly.
         """
         samples = [molecule("CO"), molecule("N2O")]
-        desc = MBTR(
-            species=[6, 7, 8],
-            k={1, 2},
-            grid={
-                "k1": {
-                    "min": 1,
-                    "max": 8,
-                    "sigma": 0.1,
-                    "n": 100,
-                },
-                "k2": {
-                    "min": 0,
-                    "max": 1/0.7,
-                    "sigma": 0.1,
-                    "n": 100,
-                }
-            },
-            weighting={"k2": {"function": "exponential", "scale": 0.5, "cutoff": 1e-2}},
-            periodic=False,
-            flatten=True,
-            sparse=False,
-        )
+        desc = copy.deepcopy(default_desc_k2)
+        desc.species = ["C", "O", "N"]
         n_features = desc.get_number_of_features()
 
         # Multiple systems, serial job
@@ -490,28 +461,9 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         """
         # Test indices
         samples = [molecule("CO"), molecule("N2O")]
-        desc = MBTR(
-            species=[6, 7, 8],
-            k={1, 2},
-            grid={
-                "k1": {
-                    "min": 1,
-                    "max": 8,
-                    "sigma": 0.1,
-                    "n": 100,
-                },
-                "k2": {
-                    "min": 0,
-                    "max": 1/0.7,
-                    "sigma": 0.1,
-                    "n": 100,
-                }
-            },
-            weighting={"k2": {"function": "exponential", "scale": 0.5, "cutoff": 1e-2}},
-            periodic=False,
-            flatten=True,
-            sparse=True,
-        )
+        desc = copy.deepcopy(default_desc_k2)
+        desc.species = ["C", "O", "N"]
+        desc.sparse = True
         n_features = desc.get_number_of_features()
 
         # Multiple systems, serial job
@@ -540,17 +492,21 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         """
         decay = 1
         desc = MBTR(
-            species=[1],
-            k=[1, 2, 3],
+            species=["H"],
             periodic=True,
-            grid={
-                "k1": {"min": 0, "max": 2, "sigma": 0.1, "n": 100},
-                "k2": {"min": 0, "max": 1.0, "sigma": 0.02, "n": 200},
-                "k3": {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 200},
+            k1={
+                "geometry": {"function": "atomic_number"},
+                "grid": {"min": 0, "max": 2, "sigma": 0.1, "n": 100},
             },
-            weighting={
-                "k2": {"function": "exponential", "scale": decay, "cutoff": 1e-3},
-                "k3": {"function": "exponential", "scale": decay, "cutoff": 1e-3},
+            k2={
+                "geometry": {"function": "inverse_distance"},
+                "grid": {"min": 0, "max": 1.0, "sigma": 0.02, "n": 200},
+                "weighting": {"function": "exponential", "scale": decay, "cutoff": 1e-3},
+            },
+            k3={
+                "geometry": {"function": "cosine"},
+                "grid": {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 200},
+                "weighting": {"function": "exponential", "scale": decay, "cutoff": 1e-3},
             },
             flatten=True,
             sparse=False,
@@ -570,6 +526,431 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         self.assertTrue(np.allclose(output[0, :], output[1, :]))
         self.assertTrue(np.allclose(output[0, :], output[2, :]))
         self.assertTrue(np.allclose(output[0, :], output[3, :]))
+
+    def test_normalization(self):
+        """Tests that each normalization method works correctly.
+        """
+        n = 100
+        desc = copy.deepcopy(default_desc_k1_k2_k3)
+        desc.species = ("H", "O")
+        desc.normalization = "none"
+        desc.flatten = False
+        desc.sparse = False
+
+        # Calculate the norms
+        feat1 = desc.create(H2O)
+        k1 = feat1["k1"]
+        k2 = feat1["k2"]
+        k3 = feat1["k3"]
+        k1_norm = np.linalg.norm(k1.ravel())
+        k2_norm = np.linalg.norm(k2.ravel())
+        k3_norm = np.linalg.norm(k3.ravel())
+
+        # Test normalization of non-flat dense output with l2_each
+        desc.normalization = "l2_each"
+        feat2 = desc.create(H2O)
+        k1_each = feat2["k1"]
+        k2_each = feat2["k2"]
+        k3_each = feat2["k3"]
+        self.assertTrue(np.array_equal(k1/k1_norm, k1_each))
+        self.assertTrue(np.array_equal(k2/k2_norm, k2_each))
+        self.assertTrue(np.array_equal(k3/k3_norm, k3_each))
+
+        # Flattened dense output
+        desc.flatten = True
+        desc.normalization = "none"
+        feat_flat = desc.create(H2O)
+
+        # Test normalization of flat dense output with l2_each
+        desc.sparse = False
+        desc.normalization = "l2_each"
+        n_elem = len(desc.species)
+        feat = desc.create(H2O)
+        n1 = int(n*n_elem)
+        n2 = int((n_elem*(n_elem+1)/2)*n)
+        a1 = feat_flat[0, 0:n1]/k1_norm
+        a2 = feat_flat[0, n1:n1+n2]/k2_norm
+        a3 = feat_flat[0, n1+n2:]/k3_norm
+        feat_flat_manual_norm_each = np.hstack((a1, a2, a3))
+        self.assertTrue(np.array_equal(feat[0, :], feat_flat_manual_norm_each))
+
+        # Test normalization of flat sparse output with l2_each
+        desc.sparse = True
+        desc.normalization = "l2_each"
+        feat = desc.create(H2O).toarray()
+        self.assertTrue(np.array_equal(feat[0, :], feat_flat_manual_norm_each))
+
+
+class MBTRTests(TestBaseClass, unittest.TestCase):
+
+    # def test_constructor(self):
+        # """Tests different valid and invalid constructor values.
+        # """
+        # # Cannot create a sparse and non-flattened output.
+        # with self.assertRaises(ValueError):
+            # MBTR(
+                # species=[1],
+                # k=[1],
+                # grid=default_grid,
+                # periodic=False,
+                # flatten=False,
+                # sparse=True,
+            # )
+
+        # # Invalid k value not in an iterable
+        # with self.assertRaises(ValueError):
+            # MBTR(
+                # species=[1],
+                # k=0,
+                # grid=default_grid,
+                # periodic=False,
+            # )
+
+        # # Invalid k value
+        # with self.assertRaises(ValueError):
+            # MBTR(
+                # species=[1],
+                # k=[-1, 2],
+                # grid=default_grid,
+                # periodic=False,
+            # )
+
+        # # Unsupported k=4
+        # with self.assertRaises(ValueError):
+            # MBTR(
+                # species=[1],
+                # k={1, 4},
+                # grid=default_grid,
+                # periodic=False,
+            # )
+
+        # # Invalid weighting function
+        # with self.assertRaises(ValueError):
+            # MBTR(
+                # species=[1],
+                # k={2},
+                # grid=default_grid,
+                # weighting={"k2": {"function": "exp"}},
+                # periodic=True,
+            # )
+
+        # # Missing cutoff and scale
+        # with self.assertRaises(ValueError):
+            # MBTR(
+                # species=[1],
+                # k={2},
+                # grid=default_grid,
+                # weighting={"k2": {"function": "exponential"}},
+                # periodic=True,
+            # )
+
+        # # Missing scale
+        # with self.assertRaises(ValueError):
+            # MBTR(
+                # species=[1],
+                # k={2},
+                # grid=default_grid,
+                # weighting={"k2": {"function": "exponential", "cutoff": 1e-2}},
+                # periodic=True,
+            # )
+
+        # # Weighting not provided for finite system is fine
+        # MBTR(
+            # species=[1],
+            # k={2},
+            # grid=default_grid,
+            # periodic=False,
+        # )
+
+        # # Weighting needs to be provided for periodic system and terms k>1
+        # with self.assertRaises(ValueError):
+            # MBTR(
+                # species=[1],
+                # k={2},
+                # grid=default_grid,
+                # periodic=True,
+                # weighting={"k2": {"function": "unity"}},
+            # )
+
+    # def test_properties(self):
+        # """Used to test that changing the setup through properties works as
+        # intended.
+        # """
+        # # Test changing species
+        # a = MBTR(
+            # k=[1, 2, 3],
+            # grid=default_grid,
+            # periodic=False,
+            # species=[1, 8],
+            # sparse=False,
+        # )
+        # nfeat1 = a.get_number_of_features()
+        # vec1 = a.create(H2O)
+        # a.species = ["C", "H", "O"]
+        # nfeat2 = a.get_number_of_features()
+        # vec2 = a.create(molecule("CH3OH"))
+        # self.assertTrue(nfeat1 != nfeat2)
+        # self.assertTrue(vec1.shape[1] != vec2.shape[1])
+
+    # def test_number_of_features(self):
+        # """Tests that the reported number of features is correct.
+        # """
+        # # K = 1
+        # n = 100
+        # atomic_numbers = [1, 8]
+        # n_elem = len(atomic_numbers)
+        # mbtr = MBTR(
+            # species=atomic_numbers,
+            # k=[1],
+            # grid={
+                # "k1": {
+                    # "min": 1,
+                    # "max": 8,
+                    # "sigma": 0.1,
+                    # "n": 100,
+                # }
+            # },
+            # periodic=False,
+            # flatten=True
+        # )
+        # n_features = mbtr.get_number_of_features()
+        # expected = n_elem*n
+        # self.assertEqual(n_features, expected)
+
+        # # K = 2
+        # mbtr = MBTR(
+            # species=atomic_numbers,
+            # k={1, 2},
+            # grid={
+                # "k1": {
+                    # "min": 1,
+                    # "max": 8,
+                    # "sigma": 0.1,
+                    # "n": 100,
+                # },
+                # "k2": {
+                    # "min": 0,
+                    # "max": 1/0.7,
+                    # "sigma": 0.1,
+                    # "n": n,
+                # }
+            # },
+            # weighting={"k2": {"function": "exponential", "scale": 0.5, "cutoff": 1e-2}},
+            # periodic=False,
+            # flatten=True
+        # )
+        # n_features = mbtr.get_number_of_features()
+        # expected = n_elem*n + 1/2*(n_elem)*(n_elem+1)*n
+        # self.assertEqual(n_features, expected)
+
+        # # K = 3
+        # mbtr = MBTR(
+            # species=atomic_numbers,
+            # k={1, 2, 3},
+            # grid={
+                # "k1": {
+                    # "min": 1,
+                    # "max": 8,
+                    # "sigma": 0.1,
+                    # "n": 100,
+                # },
+                # "k2": {
+                    # "min": 0,
+                    # "max": 1/0.7,
+                    # "sigma": 0.1,
+                    # "n": n,
+                # },
+                # "k3": {
+                    # "min": -1,
+                    # "max": 1,
+                    # "sigma": 0.1,
+                    # "n": n,
+                # }
+            # },
+            # periodic=False,
+            # flatten=True
+        # )
+        # n_features = mbtr.get_number_of_features()
+        # expected = n_elem*n + 1/2*(n_elem)*(n_elem+1)*n + n_elem*1/2*(n_elem)*(n_elem+1)*n
+        # self.assertEqual(n_features, expected)
+
+    # def test_flatten(self):
+        # system = H2O
+        # n = 10
+        # n_species = len(set(system.get_atomic_numbers()))
+
+        # # K1 unflattened
+        # desc = MBTR(species=[1, 8], k=[1], grid={"k1": {"n": n, "min": 1, "max": 8, "sigma": 0.1}}, periodic=False, flatten=False, sparse=False)
+        # feat = desc.create(system)["k1"]
+        # self.assertEqual(feat.shape, (n_species, n))
+
+        # # K1 flattened. The sparse matrix only supports 2D matrices, so the first
+        # # dimension is always present, even if it is of length 1.
+        # desc = MBTR(species=[1, 8], k=[1], grid={"k1": {"n": n, "min": 1, "max": 8, "sigma": 0.1}}, periodic=False)
+        # feat = desc.create(system)
+        # self.assertEqual(feat.shape, (1, n_species*n))
+
+    # def test_sparse(self):
+        # """Tests the sparse matrix creation.
+        # """
+        # # Dense
+        # desc = MBTR(species=[1, 8], k=[1], grid=default_grid, periodic=False, flatten=True, sparse=False)
+        # vec = desc.create(H2O)
+        # self.assertTrue(type(vec) == np.ndarray)
+
+        # # Sparse
+        # desc = MBTR(species=[1, 8], k=[1], grid=default_grid, periodic=False, flatten=True, sparse=True)
+        # vec = desc.create(H2O)
+        # self.assertTrue(type(vec) == scipy.sparse.coo_matrix)
+
+    # def test_parallel_dense(self):
+        # """Tests creating dense output parallelly.
+        # """
+        # samples = [molecule("CO"), molecule("N2O")]
+        # desc = MBTR(
+            # species=[6, 7, 8],
+            # k={1, 2},
+            # grid={
+                # "k1": {
+                    # "min": 1,
+                    # "max": 8,
+                    # "sigma": 0.1,
+                    # "n": 100,
+                # },
+                # "k2": {
+                    # "min": 0,
+                    # "max": 1/0.7,
+                    # "sigma": 0.1,
+                    # "n": 100,
+                # }
+            # },
+            # weighting={"k2": {"function": "exponential", "scale": 0.5, "cutoff": 1e-2}},
+            # periodic=False,
+            # flatten=True,
+            # sparse=False,
+        # )
+        # n_features = desc.get_number_of_features()
+
+        # # Multiple systems, serial job
+        # output = desc.create(
+            # system=samples,
+            # n_jobs=1,
+        # )
+        # assumed = np.empty((2, n_features))
+        # assumed[0, :] = desc.create(samples[0])
+        # assumed[1, :] = desc.create(samples[1])
+        # self.assertTrue(np.allclose(output, assumed))
+
+        # # Multiple systems, parallel job
+        # output = desc.create(
+            # system=samples,
+            # n_jobs=2,
+        # )
+        # assumed = np.empty((2, n_features))
+        # assumed[0, :] = desc.create(samples[0])
+        # assumed[1, :] = desc.create(samples[1])
+        # self.assertTrue(np.allclose(output, assumed))
+
+        # # Non-flattened output
+        # desc._flatten = False
+        # output = desc.create(
+            # system=samples,
+            # n_jobs=2,
+        # )
+        # assumed = []
+        # assumed.append(desc.create(samples[0]))
+        # assumed.append(desc.create(samples[1]))
+        # for i, val in enumerate(output):
+            # for key in val.keys():
+                # i_tensor = val[key]
+                # j_tensor = assumed[i][key]
+                # self.assertTrue(np.allclose(i_tensor, j_tensor))
+
+    # def test_parallel_sparse(self):
+        # """Tests creating sparse output parallelly.
+        # """
+        # # Test indices
+        # samples = [molecule("CO"), molecule("N2O")]
+        # desc = MBTR(
+            # species=[6, 7, 8],
+            # k={1, 2},
+            # grid={
+                # "k1": {
+                    # "min": 1,
+                    # "max": 8,
+                    # "sigma": 0.1,
+                    # "n": 100,
+                # },
+                # "k2": {
+                    # "min": 0,
+                    # "max": 1/0.7,
+                    # "sigma": 0.1,
+                    # "n": 100,
+                # }
+            # },
+            # weighting={"k2": {"function": "exponential", "scale": 0.5, "cutoff": 1e-2}},
+            # periodic=False,
+            # flatten=True,
+            # sparse=True,
+        # )
+        # n_features = desc.get_number_of_features()
+
+        # # Multiple systems, serial job
+        # output = desc.create(
+            # system=samples,
+            # n_jobs=1,
+        # ).toarray()
+        # assumed = np.empty((2, n_features))
+        # assumed[0, :] = desc.create(samples[0]).toarray()
+        # assumed[1, :] = desc.create(samples[1]).toarray()
+        # self.assertTrue(np.allclose(output, assumed))
+
+        # # Multiple systems, parallel job
+        # output = desc.create(
+            # system=samples,
+            # n_jobs=2,
+        # ).toarray()
+        # assumed = np.empty((2, n_features))
+        # assumed[0, :] = desc.create(samples[0]).toarray()
+        # assumed[1, :] = desc.create(samples[1]).toarray()
+        # self.assertTrue(np.allclose(output, assumed))
+
+    # def test_periodic_supercell_similarity(self):
+        # """Tests that the output spectrum of various supercells of the same
+        # crystal is identical after it is normalized.
+        # """
+        # decay = 1
+        # desc = MBTR(
+            # species=[1],
+            # k=[1, 2, 3],
+            # periodic=True,
+            # grid={
+                # "k1": {"min": 0, "max": 2, "sigma": 0.1, "n": 100},
+                # "k2": {"min": 0, "max": 1.0, "sigma": 0.02, "n": 200},
+                # "k3": {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 200},
+            # },
+            # weighting={
+                # "k2": {"function": "exponential", "scale": decay, "cutoff": 1e-3},
+                # "k3": {"function": "exponential", "scale": decay, "cutoff": 1e-3},
+            # },
+            # flatten=True,
+            # sparse=False,
+            # normalization="l2_each",
+        # )
+
+        # # Create various supercells for the FCC structure
+        # a1 = bulk('H', 'fcc', a=2.0)                     # Primitive
+        # a2 = a1*[2, 2, 2]                                # Supercell
+        # a3 = bulk('H', 'fcc', a=2.0, orthorhombic=True)  # Orthorhombic
+        # a4 = bulk('H', 'fcc', a=2.0, cubic=True)         # Conventional cubic
+
+        # output = desc.create([a1, a2, a3, a4])
+
+        # # Test for equality
+        # self.assertTrue(np.allclose(output[0, :], output[0, :]))
+        # self.assertTrue(np.allclose(output[0, :], output[1, :]))
+        # self.assertTrue(np.allclose(output[0, :], output[2, :]))
+        # self.assertTrue(np.allclose(output[0, :], output[3, :]))
 
     def test_normalization(self):
         """Tests that each normalization method works correctly.

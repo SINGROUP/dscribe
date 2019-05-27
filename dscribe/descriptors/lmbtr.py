@@ -70,11 +70,11 @@ class LMBTR(MBTR):
 
     def __init__(
             self,
-            k,
             periodic,
-            grid,
             virtual_positions,
-            weighting=None,
+            k1=None,
+            k2=None,
+            k3=None,
             species=None,
             atomic_numbers=None,
             normalize_gaussians=True,
@@ -178,10 +178,10 @@ class LMBTR(MBTR):
             is not specified for periodic systems.
         """
         super().__init__(
-            k=k,
+            k1=k1,
+            k2=k2,
+            k3=k3,
             periodic=periodic,
-            grid=grid,
-            weighting=weighting,
             species=species,
             atomic_numbers=atomic_numbers,
             normalization="none",
@@ -231,27 +231,28 @@ class LMBTR(MBTR):
             scaled_positions = n_samples*[scaled_positions]
         inp = [(i_sys, i_pos, i_scaled) for i_sys, i_pos, i_scaled in zip(system, positions, scaled_positions)]
 
-        # For ACSF the output size for each job depends on the exact arguments.
-        # Here we precalculate the size for each job to preallocate memory and
-        # make the process faster.
-        n_samples = len(system)
-        k, m = divmod(n_samples, n_jobs)
-        jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
-        output_sizes = []
-        for i_job in jobs:
-            n_desc = 0
-            if positions is None:
+        # Here we precalculate the size for each job to preallocate memory.
+        if self._flatten:
+            n_samples = len(system)
+            k, m = divmod(n_samples, n_jobs)
+            jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
+            output_sizes = []
+            for i_job in jobs:
                 n_desc = 0
-                for job in i_job:
-                    n_desc += len(job[0])
-            else:
-                n_desc = 0
-                for i_sample, i_pos, i_scale in i_job:
-                    if i_pos is not None:
-                        n_desc += len(i_pos)
-                    else:
-                        n_desc += len(i_sample)
-            output_sizes.append(n_desc)
+                if positions is None:
+                    n_desc = 0
+                    for job in i_job:
+                        n_desc += len(job[0])
+                else:
+                    n_desc = 0
+                    for i_sample, i_pos, i_scale in i_job:
+                        if i_pos is not None:
+                            n_desc += len(i_pos)
+                        else:
+                            n_desc += len(i_sample)
+                output_sizes.append(n_desc)
+        else:
+            output_sizes = None
 
         # Create in parallel
         output = self.create_parallel(inp, self.create_single, n_jobs, output_sizes, verbose=verbose)
@@ -296,9 +297,6 @@ class LMBTR(MBTR):
                 ", as it is reserved for the ghost atom used by the "
                 "implementation."
             )
-
-        # Ensuring self is updated
-        self.update()
 
         # Checking scaled position
         if scaled_positions:

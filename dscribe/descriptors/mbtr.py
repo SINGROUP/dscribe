@@ -227,6 +227,13 @@ class MBTR(Descriptor):
             value(dict): The k=1 setup
         """
         if value is not None:
+            # Check that only valid keys are used.
+            valid_keys = set(("geometry", "grid"))
+            keys = set(value.keys())
+            if not keys.issubset(valid_keys):
+                invalid_keys = keys - valid_keys
+                raise ValueError("The given setup contains the following invalid keys: {}".format(invalid_keys))
+
             # Check the grid
             self.check_grid(value["grid"])
 
@@ -265,6 +272,13 @@ class MBTR(Descriptor):
             value(dict): The k=2 setup
         """
         if value is not None:
+            # Check that only valid keys are used.
+            valid_keys = set(("geometry", "grid", "weighting"))
+            keys = set(value.keys())
+            if not keys.issubset(valid_keys):
+                invalid_keys = keys - valid_keys
+                raise ValueError("The given setup contains the following invalid keys: {}".format(invalid_keys))
+
             # Check the grid
             self.check_grid(value["grid"])
 
@@ -316,6 +330,13 @@ class MBTR(Descriptor):
             value(dict): The k=3 setup
         """
         if value is not None:
+            # Check that only valid keys are used.
+            valid_keys = set(("geometry", "grid", "weighting"))
+            keys = set(value.keys())
+            if not keys.issubset(valid_keys):
+                invalid_keys = keys - valid_keys
+                raise ValueError("The given setup contains the following invalid keys: {}".format(invalid_keys))
+
             # Check the grid
             self.check_grid(value["grid"])
 
@@ -447,7 +468,7 @@ class MBTR(Descriptor):
         inp = [(i_sys,) for i_sys in system]
 
         # Here we precalculate the size for each job to preallocate memory.
-        if self._flatten:
+        if self.flatten:
             n_samples = len(system)
             k, m = divmod(n_samples, n_jobs)
             jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
@@ -514,7 +535,7 @@ class MBTR(Descriptor):
 
         # Handle normalization
         if self.normalization == "l2_each":
-            if self._flatten is True:
+            if self.flatten is True:
                 for key, value in mbtr.items():
                     i_data = np.array(value.tocsr().data)
                     i_norm = np.linalg.norm(i_data)
@@ -526,7 +547,7 @@ class MBTR(Descriptor):
                     mbtr[key] = value/i_norm
 
         # Flatten output if requested
-        if self._flatten:
+        if self.flatten:
             length = 0
 
             datas = []
@@ -547,7 +568,7 @@ class MBTR(Descriptor):
             mbtr = coo_matrix((datas, (rows, cols)), shape=[1, length], dtype=np.float32)
 
             # Make into a dense array if requested
-            if not self._sparse:
+            if not self.sparse:
                 mbtr = mbtr.toarray()
 
         return mbtr
@@ -946,7 +967,7 @@ class MBTR(Descriptor):
         k1_geoms, k1_weights = self._k1_geoms, self._k1_weights
 
         # Depending of flattening, use either a sparse matrix or a dense one.
-        if self._flatten:
+        if self.flatten:
             k1 = lil_matrix((1, n_elem*n), dtype=np.float32)
         else:
             k1 = np.zeros((n_elem, n), dtype=np.float32)
@@ -960,7 +981,7 @@ class MBTR(Descriptor):
             # Broaden with a gaussian
             gaussian_sum = self.gaussian_sum(geoms, weights, grid)
 
-            if self._flatten:
+            if self.flatten:
                 start = i*n
                 end = (i+1)*n
                 k1[0, start:end] = gaussian_sum
@@ -988,7 +1009,7 @@ class MBTR(Descriptor):
         n_elem = self.n_elements
 
         # Depending of flattening, use either a sparse matrix or a dense one.
-        if self._flatten:
+        if self.flatten:
             k2 = lil_matrix(
                 (1, int(n_elem*(n_elem+1)/2*n)), dtype=np.float32)
         else:
@@ -1009,7 +1030,7 @@ class MBTR(Descriptor):
             # Broaden with a gaussian
             gaussian_sum = self.gaussian_sum(geoms, weights, grid)
 
-            if self._flatten:
+            if self.flatten:
                 start = m*n
                 end = (m + 1)*n
                 k2[0, start:end] = gaussian_sum
@@ -1037,7 +1058,7 @@ class MBTR(Descriptor):
         n_elem = self.n_elements
 
         # Depending of flattening, use either a sparse matrix or a dense one.
-        if self._flatten:
+        if self.flatten:
             k3 = lil_matrix(
                 (1, int(n_elem*n_elem*(n_elem+1)/2*n)), dtype=np.float32
             )
@@ -1061,7 +1082,7 @@ class MBTR(Descriptor):
             # Broaden with a gaussian
             gaussian_sum = self.gaussian_sum(geoms, weights, grid)
 
-            if self._flatten:
+            if self.flatten:
                 start = m*n
                 end = (m+1)*n
                 k3[0, start:end] = gaussian_sum
