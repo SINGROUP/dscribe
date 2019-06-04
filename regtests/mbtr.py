@@ -72,6 +72,14 @@ default_desc_k2 = MBTR(
     sparse=False
 )
 
+default_desc_k3 = MBTR(
+    species=[1, 8],
+    k3=default_k3,
+    periodic=False,
+    flatten=True,
+    sparse=False
+)
+
 default_desc_k1_k2_k3 = MBTR(
     species=["H"],
     periodic=True,

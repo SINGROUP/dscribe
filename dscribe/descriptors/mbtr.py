@@ -21,13 +21,26 @@ import numpy as np
 from scipy.spatial.distance import cdist
 from scipy.sparse import lil_matrix, coo_matrix
 from scipy.special import erf
-import scipy.linalg
 
 from ase import Atoms
 
 from dscribe.core import System
 from dscribe.descriptors import Descriptor
 from dscribe.libmbtr.mbtrwrapper import MBTRWrapper
+
+
+class MBTRGrid(dict):
+    """Custom class for storing and modifying the MBTR grid setup. Needed in
+    order to keep track of changes to the grid spacing.
+    """
+    def __init__(self, *arg, **kw):
+        super().__init__(*arg, **kw)
+        self.parent = None
+
+    def __setitem__(self, key, item):
+        super().__setitem__(key, item)
+        if key == "n":
+            self.parent.calculate_locations()
 
 
 class MBTR(Descriptor):
@@ -257,6 +270,9 @@ class MBTR(Descriptor):
                         "Unknown weighting function specified for k=1. Please use one of"
                         " the following: {}".format(valid_weight_func)
                     )
+            grid = MBTRGrid(value["grid"])
+            grid.parent = self
+            value["grid"] = grid
 
         self._k1 = value
 
@@ -315,6 +331,10 @@ class MBTR(Descriptor):
                         "Periodic systems need to have a weighting function."
                     )
                 value["weighting"] = {"function": "unity"}
+
+            grid = MBTRGrid(value["grid"])
+            grid.parent = self
+            value["grid"] = grid
 
         self._k2 = value
 
@@ -375,6 +395,10 @@ class MBTR(Descriptor):
                         "Periodic systems need to have a weighting function."
                     )
                 value["weighting"] = {"function": "unity"}
+
+            grid = MBTRGrid(value["grid"])
+            grid.parent = self
+            value["grid"] = grid
 
         self._k3 = value
 

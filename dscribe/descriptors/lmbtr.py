@@ -19,8 +19,10 @@ import math
 import numpy as np
 
 from scipy.sparse import coo_matrix
+from scipy.sparse import lil_matrix
 
 from ase import Atoms
+import ase.data
 
 from dscribe.core import System
 from dscribe.descriptors import MBTR
@@ -384,6 +386,192 @@ class LMBTR(MBTR):
 
         return desc
 
+    def get_number_of_features(self):
+        """Used to inquire the final number of features that this descriptor
+        will have.
+
+        The number of features for the LMBTR is calculated as follows:
+
+        For the pair term (k=2), only pairs where at least one of the atom is
+        the central atom (in periodic systems the central atom may connect to
+        itself) are considered. This means that there are only as many
+        combinations as there are different elements to pair the central atom
+        with (n_elem)
+
+        For the three-body term (k=3), only triplets where at least one of the
+        atoms is the central atom (in periodic systems the central atom may
+        connect to itself) and the k >= i (symmetry) are considered.
+
+        Returns:
+            int: Number of features for this descriptor.
+        """
+        if self._number_of_features is None:
+            self.calculate_locations()
+
+        return self._number_of_features
+
+    def get_k2_convolution(self, grid):
+        """Calculates the second order terms where the scalar mapping is the
+        inverse distance between atoms.
+
+        Args:
+            grid (dict): The grid settings
+
+        Returns:
+            1D ndarray: flattened K2 values.
+        """
+        start = grid["min"]
+        stop = grid["max"]
+        n = grid["n"]
+        self._axis_k2 = np.linspace(start, stop, n)
+
+        k2_geoms, k2_weights = self._k2_geoms, self._k2_weights
+        n_elem = self.n_elements
+
+        # Depending of flattening, use either a sparse matrix or a dense one.
+        if self.flatten:
+            k2 = lil_matrix(
+                (1, int(n_elem*n)), dtype=np.float32)
+
+            for key in k2_geoms.keys():
+                i = key[0]
+
+                geoms = np.array(k2_geoms[key])
+                weights = np.array(k2_weights[key])
+
+                # Broaden with a gaussian
+                gaussian_sum = self.gaussian_sum(geoms, weights, grid)
+
+                start, end = self.get_location((0, i))
+                k2[0, start:end] = gaussian_sum
+        else:
+            k2 = np.zeros((n_elem, n), dtype=np.float32)
+            for key in k2_geoms.keys():
+                i = key[0]
+
+                geoms = np.array(k2_geoms[key])
+                weights = np.array(k2_weights[key])
+
+                # Broaden with a gaussian
+                gaussian_sum = self.gaussian_sum(geoms, weights, grid)
+
+                k2[i, :] = gaussian_sum
+
+        return k2
+
+    def get_k3_convolution(self, grid):
+        """Calculates the third order terms where the scalar mapping is the
+        angle between 3 atoms.
+
+        Args:
+            grid (dict): The grid settings
+
+        Returns:
+            1D ndarray: flattened K3 values.
+        """
+        start = grid["min"]
+        stop = grid["max"]
+        n = grid["n"]
+        self._axis_k3 = np.linspace(start, stop, n)
+
+        k3_geoms, k3_weights = self._k3_geoms, self._k3_weights
+        n_elem = self.n_elements
+
+        # Depending of flattening, use either a sparse matrix or a dense one.
+        if self.flatten:
+            k3 = lil_matrix(
+                (1, int(n_elem*n_elem*(n_elem+1)/2*n)), dtype=np.float32
+            )
+            for key in k3_geoms.keys():
+                i = key[0]
+                j = key[1]
+                k = key[2]
+
+                geoms = np.array(k3_geoms[key])
+                weights = np.array(k3_weights[key])
+
+                # Broaden with a gaussian
+                gaussian_sum = self.gaussian_sum(geoms, weights, grid)
+
+                start, end = self.get_location((i, j, k))
+                k3[0, start:end] = gaussian_sum
+        else:
+            k3 = np.zeros((n_elem, n_elem, n_elem, n), dtype=np.float32)
+            for key in k3_geoms.keys():
+                i = key[0]
+                j = key[1]
+                k = key[2]
+
+                geoms = np.array(k3_geoms[key])
+                weights = np.array(k3_weights[key])
+
+                # Broaden with a gaussian
+                gaussian_sum = self.gaussian_sum(geoms, weights, grid)
+
+                k3[i, j, k, :] = gaussian_sum
+
+        return k3
+
+    def get_location(self, species):
+        """Can be used to query the location of a species combination in the
+        the flattened output.
+        """
+        # Change chemical elements into atomic numbers
+        numbers = []
+        for specie in species:
+            if isinstance(specie, str):
+                specie = ase.data.atomic_numbers[specie]
+            numbers.append(specie)
+
+        # Fix ordering
+        if len(numbers) == 2:
+            if numbers[0] > numbers[1]:
+                numbers = reversed(numbers)
+        if len(numbers) == 3:
+            if numbers[0] > numbers[2]:
+                numbers = reversed(numbers)
+
+        loc = self._locations
+        start, end = loc[tuple(numbers)]
+
+        return start, end
+
+    def calculate_locations(self):
+        """Used to calculate the locations of species combinations in the
+        flattened output.
+        """
+        n_elem = self.n_elements
+        locations = {}
+
+        # k=2
+        if self.k2 is not None:
+            n2 = self.k2["grid"]["n"]
+            m = 0
+            for i in range(n_elem):
+                start = m*n2
+                end = (m+1)*n2
+                locations[(0, i)] = start, end
+                m += 1
+        offset = m*n2
+
+        # k=3
+        if self.k3 is not None:
+            n3 = self.k3["grid"]["n"]
+            m = 0
+            for i in range(n_elem):
+                for j in range(n_elem):
+                    for k in range(n_elem):
+                        if k >= i and (i == 0 or j == 0 or k == 0):
+                            start = offset+m*n3
+                            end = offset+(m+1)*n3
+                            locations[(i, j, k)] = start, end
+                            m += 1
+
+        self._locations = locations
+        self._number_of_features = end
+
+        return self._locations
+
     @property
     def species(self):
         return self._species
@@ -421,3 +609,6 @@ class LMBTR(MBTR):
         self.n_elements = len(self._atomic_numbers)
         self.max_atomic_number = max(self._atomic_numbers)
         self.min_atomic_number = min(self._atomic_numbers)
+
+        # Recalculate locations
+        self.calculate_locations()
