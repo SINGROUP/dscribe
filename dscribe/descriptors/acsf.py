@@ -177,7 +177,8 @@ class ACSF(Descriptor):
         # Make sure that periodicity is not taken into account
         system.set_pbc(False)
 
-        # # Create C-compatible list of atomic indices for which the ACSF is calculated
+        # Create C-compatible list of atomic indices for which the ACSF is
+        # calculated
         if positions is None:
             indices = np.arange(len(system))
         else:

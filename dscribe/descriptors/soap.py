@@ -258,7 +258,7 @@ class SOAP(Descriptor):
             for i in positions:
                 if np.issubdtype(type(i), np.integer):
                     list_positions.append(system.get_positions()[i])
-                elif isinstance(i, list) or isinstance(i, tuple):
+                elif isinstance(i, (list, tuple, np.ndarray)):
                     if len(i) != 3:
                         raise ValueError(
                             "The argument 'positions' should contain a "
@@ -267,9 +267,10 @@ class SOAP(Descriptor):
                         )
                     list_positions.append(i)
                 else:
+                    print(type(i))
                     raise ValueError(
                         "Create method requires the argument 'positions', a "
-                        "list of atom indices and/or positions"
+                        "list of atom indices and/or positions."
                     )
 
             # Determine the SOAPLite function to call based on periodicity and

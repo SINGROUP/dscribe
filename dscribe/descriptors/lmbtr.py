@@ -431,10 +431,10 @@ class LMBTR(MBTR):
         # Depending of flattening, use either a sparse matrix or a dense one.
         if self.flatten:
             k2 = lil_matrix(
-                (1, int(n_elem*n)), dtype=np.float32)
+                (1, self._number_of_k2_features), dtype=np.float32)
 
             for key in k2_geoms.keys():
-                i = key[0]
+                i = key[1]
 
                 geoms = np.array(k2_geoms[key])
                 weights = np.array(k2_weights[key])
@@ -442,7 +442,7 @@ class LMBTR(MBTR):
                 # Broaden with a gaussian
                 gaussian_sum = self.gaussian_sum(geoms, weights, grid)
 
-                start, end = self.get_location((0, i))
+                start, end = self._locations_each[(0, i)]
                 k2[0, start:end] = gaussian_sum
         else:
             k2 = np.zeros((n_elem, n), dtype=np.float32)
@@ -480,7 +480,7 @@ class LMBTR(MBTR):
         # Depending of flattening, use either a sparse matrix or a dense one.
         if self.flatten:
             k3 = lil_matrix(
-                (1, int(n_elem*n_elem*(n_elem+1)/2*n)), dtype=np.float32
+                (1, self._number_of_k3_features), dtype=np.float32
             )
             for key in k3_geoms.keys():
                 i = key[0]
@@ -493,7 +493,7 @@ class LMBTR(MBTR):
                 # Broaden with a gaussian
                 gaussian_sum = self.gaussian_sum(geoms, weights, grid)
 
-                start, end = self.get_location((i, j, k))
+                start, end = self._locations_each[(i, j, k)]
                 k3[0, start:end] = gaussian_sum
         else:
             k3 = np.zeros((n_elem, n_elem, n_elem, n), dtype=np.float32)
@@ -523,6 +523,9 @@ class LMBTR(MBTR):
                 specie = ase.data.atomic_numbers[specie]
             numbers.append(specie)
 
+        # Change into internal indexing
+        numbers = [self.atomic_number_to_index[x] for x in numbers]
+
         # Fix ordering
         if len(numbers) == 2:
             if numbers[0] > numbers[1]:
@@ -541,18 +544,24 @@ class LMBTR(MBTR):
         flattened output.
         """
         n_elem = self.n_elements
+        n_features = 0
         locations = {}
+        locations_each = {}
 
         # k=2
+        offset = 0
         if self.k2 is not None:
             n2 = self.k2["grid"]["n"]
             m = 0
             for i in range(n_elem):
                 start = m*n2
                 end = (m+1)*n2
+                locations_each[(0, i)] = start, end
                 locations[(0, i)] = start, end
                 m += 1
-        offset = m*n2
+            offset = m*n2
+            self._number_of_k2_features = m*n2
+            n_features += self._number_of_k2_features
 
         # k=3
         if self.k3 is not None:
@@ -562,13 +571,17 @@ class LMBTR(MBTR):
                 for j in range(n_elem):
                     for k in range(n_elem):
                         if k >= i and (i == 0 or j == 0 or k == 0):
-                            start = offset+m*n3
-                            end = offset+(m+1)*n3
-                            locations[(i, j, k)] = start, end
+                            start = m*n3
+                            end = (m+1)*n3
+                            locations_each[(i, j, k)] = start, end
+                            locations[(i, j, k)] = offset+start, offset+end
                             m += 1
+            self._number_of_k3_features = m*n3
+            n_features += self._number_of_k3_features
 
         self._locations = locations
-        self._number_of_features = end
+        self._locations_each = locations_each
+        self._number_of_features = n_features
 
         return self._locations
 
