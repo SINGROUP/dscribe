@@ -28,7 +28,7 @@ Instantiating an MBTR descriptor can be done as follows:
 
 .. literalinclude:: ../../../examples/mbtr.py
    :language: python
-   :lines: 1-15
+   :lines: 1-24
 
 The arguments have the following effect:
 

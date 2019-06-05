@@ -2,8 +2,6 @@ import numpy as np
 from dscribe.descriptors import MBTR
 from ase.build import bulk
 
-nacl = bulk("NaCl", "rocksalt", a=5.64, cubic=True)
-
 # Setup
 mbtr = MBTR(
     species=["H", "O"],

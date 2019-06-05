@@ -95,7 +95,6 @@ default_desc_k1 = LMBTR(
     periodic=False,
     flatten=True,
     sparse=False,
-    virtual_positions=False,
 )
 
 default_desc_k2 = LMBTR(
@@ -104,7 +103,6 @@ default_desc_k2 = LMBTR(
     periodic=False,
     flatten=True,
     sparse=False,
-    virtual_positions=False,
 )
 
 default_desc_k3 = LMBTR(
@@ -113,7 +111,6 @@ default_desc_k3 = LMBTR(
     periodic=False,
     flatten=True,
     sparse=False,
-    virtual_positions=False,
 )
 
 
@@ -260,10 +257,10 @@ class LMBTRTests(unittest.TestCase):
         self.assertEqual(n_features, expected)
         self.assertEqual(n_features, real)
 
-        # K = 3
+        # k=3
         lmbtr = copy.deepcopy(default_desc_k3)
         n_features = lmbtr.get_number_of_features()
-        expected = n_elem*n_elem*(n_elem+1)/2*n
+        expected = (n_elem*n_elem+(n_elem-1)*(n_elem)/2)*n
         real = lmbtr.create(H2O, positions=[0]).shape[1]
         self.assertEqual(n_features, expected)
         self.assertEqual(n_features, real)

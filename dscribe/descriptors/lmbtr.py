@@ -72,14 +72,15 @@ class LMBTR(MBTR):
 
     def __init__(
             self,
+            species,
             periodic,
-            virtual_positions,
             k1=None,
             k2=None,
             k3=None,
-            species=None,
             atomic_numbers=None,
+            is_center_periodic=True,
             normalize_gaussians=True,
+            normalization="none",
             flatten=True,
             sparse=True,
             ):
@@ -116,12 +117,6 @@ class LMBTR(MBTR):
                 maximum value of the axis, 'sigma' is the standard devation of
                 the gaussian broadening and 'n' is the number of points sampled
                 on the grid.
-            virtual_positions (bool): Determines whether the local positions
-                are virtual or not. A virtual position does not correspond to any
-                physical atom, and is thus not repeated in periodic systems. If set
-                to False, the position corresponds to a physical atom which will be
-                repeated in periodic systems and may interact with periodic copies
-                of itself.
             weighting (dictionary or string): A dictionary of weighting
                 function settings for each term. Example:
 
@@ -165,6 +160,13 @@ class LMBTR(MBTR):
                 be taken into account in the descriptor. Deprecated in favour of
                 the species-parameters, but provided for
                 backwards-compatibility.
+            is_center_periodic (bool): When using positions not corresponding
+                to real atoms, this flag determines whether these positions
+                are periodically repeated or not. If Flase, the local position does not
+                correspond to any physical atom, and is thus not repeated in
+                periodic systems. If set to True, the position corresponds to
+                a physical atom which will be repeated in periodic systems and
+                may interact with periodic copies of itself.
             normalize_gaussians (bool): Determines whether the gaussians are
                 normalized to an area of 1. If false, the normalization factor
                 is dropped and the gaussians have the form.
@@ -186,16 +188,16 @@ class LMBTR(MBTR):
             periodic=periodic,
             species=species,
             atomic_numbers=atomic_numbers,
-            normalization="none",
+            normalization=normalization,
             normalize_gaussians=normalize_gaussians,
             flatten=flatten,
             sparse=sparse,
         )
-        self.virtual_positions = virtual_positions
+        self.is_center_periodic = is_center_periodic
         self._is_local = True
         self._interaction_limit = 1
 
-    def create(self, system, positions=None, scaled_positions=False, n_jobs=1, verbose=False):
+    def create(self, system, positions=None, n_jobs=1, verbose=False):
         """Return the LMBTR output for the given systems and given positions.
 
         Args:
@@ -206,10 +208,6 @@ class LMBTR(MBTR):
                 positions are defined, the LMBTR output will be created for all
                 atoms in the system. When calculating LMBTR for multiple
                 systems, provide the positions as a list for each system.
-            scaled_positions (boolean): Controls whether the given positions
-                are given as scaled to the unit cell basis or not. Scaled
-                positions require that a cell is available for the system.
-                Provide either one value or a list of values for each system.
             n_jobs (int): Number of parallel jobs to instantiate. Parallellizes
                 the calculation across samples. Defaults to serial calculation
                 with n_jobs=1.
@@ -225,13 +223,11 @@ class LMBTR(MBTR):
         """
         # If single system given, skip the parallelization
         if isinstance(system, (Atoms, System)):
-            return self.create_single(system, positions, scaled_positions)
+            return self.create_single(system, positions)
 
         # Combine input arguments
         n_samples = len(system)
-        if np.ndim(scaled_positions) == 0:
-            scaled_positions = n_samples*[scaled_positions]
-        inp = [(i_sys, i_pos, i_scaled) for i_sys, i_pos, i_scaled in zip(system, positions, scaled_positions)]
+        inp = [(i_sys, i_pos) for i_sys, i_pos in zip(system, positions)]
 
         # Here we precalculate the size for each job to preallocate memory.
         if self._flatten:
@@ -264,8 +260,7 @@ class LMBTR(MBTR):
     def create_single(
             self,
             system,
-            positions=None,
-            scaled_positions=False
+            positions,
             ):
         """Return the local many-body tensor representation for the given
         system and positions.
@@ -275,14 +270,11 @@ class LMBTR(MBTR):
             positions (iterable): Positions or atom index of points, from
                 which local_mbtr is created. Can be a list of integer numbers
                 or a list of xyz-coordinates.
-            scaled_positions (boolean): Controls whether the given positions
-                are given as scaled to the unit cell basis or not. Scaled
-                positions require that a cell is available for the system.
 
         Returns:
             1D ndarray: The local many-body tensor representations of given
-                positions, for k terms, as an array. These are ordered as given
-                in positions.
+            positions, for k terms, as an array. These are ordered as given in
+            positions.
         """
         # Transform the input system into the internal System-object
         system = self.get_system(system)
@@ -300,43 +292,53 @@ class LMBTR(MBTR):
                 "implementation."
             )
 
-        # Checking scaled position
-        if scaled_positions:
-            if np.linalg.norm(system.get_cell()) == 0:
-                raise ValueError(
-                    "System doesn't have cell to justify scaled positions."
-                )
-
         # Figure out the atom index or atom location from the given positions
         systems = []
+
+        # Positions specified, use them
+        if positions is not None:
+
+            # Check validity of position definitions and create final cartesian
+            # position list
+            list_positions = []
+            if len(positions) == 0:
+                raise ValueError(
+                    "The argument 'positions' should contain a non-empty set of"
+                    " atomic indices or cartesian coordinates with x, y and z "
+                    "components."
+                )
+            for i in positions:
+                if np.issubdtype(type(i), np.integer):
+                    list_positions.append(system.get_positions()[i])
+                elif isinstance(i, (list, tuple, np.ndarray)):
+                    if len(i) != 3:
+                        raise ValueError(
+                            "The argument 'positions' should contain a "
+                            "non-empty set of atomic indices or cartesian "
+                            "coordinates with x, y and z components."
+                        )
+                    list_positions.append(i)
+                else:
+                    raise ValueError(
+                        "Create method requires the argument 'positions', a "
+                        "list of atom indices and/or positions."
+                    )
 
         # If virtual positions requested, create new atoms with atomic number 0
         # at the requested position.
         for i_pos in positions:
-            if self.virtual_positions:
-                if not isinstance(i_pos, (list, tuple, np.ndarray)):
+            if isinstance(i_pos, (list, tuple, np.ndarray)):
+                if len(i_pos) != 3:
                     raise ValueError(
-                        "The given position of type '{}' could not be "
-                        "interpreted as a valid location. If you wish to use "
-                        "existing atoms as centers, please set "
-                        "'virtual_positions' to False.".format(type(i_pos))
+                        "The argument 'positions' should contain a "
+                        "non-empty set of atomic indices or cartesian "
+                        "coordinates with x, y and z components."
                     )
-                if scaled_positions:
-                    i_pos = np.dot(i_pos, system.get_cell())
-                else:
-                    i_pos = np.array(i_pos)
-
+                i_pos = np.array(i_pos)
                 i_pos = np.expand_dims(i_pos, axis=0)
                 new_system = System('X', positions=i_pos)
                 new_system += system
-            else:
-                if not np.issubdtype(type(i_pos), np.integer):
-                    raise ValueError(
-                        "The given position of type '{}' could not be "
-                        "interpreted as a valid index. If you wish to use "
-                        "custom locations as centers, please set "
-                        "'virtual_positions' to True.".format(type(i_pos))
-                    )
+            elif np.issubdtype(type(i_pos), np.integer):
                 new_system = Atoms()
                 center_atom = system[i_pos]
                 new_system += center_atom
@@ -344,6 +346,11 @@ class LMBTR(MBTR):
                 system_copy = system.copy()
                 del system_copy[i_pos]
                 new_system += system_copy
+            else:
+                raise ValueError(
+                    "Create method requires the argument 'positions', a "
+                    "list of atom indices and/or positions."
+                )
 
             # Set the periodicity and cell to match the original system, as
             # they are lost in the system concatenation
@@ -396,19 +403,33 @@ class LMBTR(MBTR):
         the central atom (in periodic systems the central atom may connect to
         itself) are considered. This means that there are only as many
         combinations as there are different elements to pair the central atom
-        with (n_elem)
+        with (n_elem). This nmber of combinations is the multiplied by the
+        discretization of the k=2 grid.
 
         For the three-body term (k=3), only triplets where at least one of the
         atoms is the central atom (in periodic systems the central atom may
-        connect to itself) and the k >= i (symmetry) are considered.
+        connect to itself) and the k >= i (symmetry) are considered. This means
+        that as k runs from 0 to n-1, where n is the number of elements, there
+        are n + k combinations that fill this rule. This sum becomes:
+        :math:`\sum_{k=0}^{n-1} n + k = n^2+(n-1)*n/2`. This number of
+        combinations is the multiplied by the discretization of the k=3 grid.
 
         Returns:
             int: Number of features for this descriptor.
         """
-        if self._number_of_features is None:
-            self.calculate_locations()
+        n_features = 0
+        n_elem = self.n_elements
 
-        return self._number_of_features
+        if self.k2 is not None:
+            n_k2_grid = self.k2["grid"]["n"]
+            n_k2 = (n_elem)*n_k2_grid
+            n_features += n_k2
+        if self.k3 is not None:
+            n_k3_grid = self.k3["grid"]["n"]
+            n_k3 = n_elem*(3*n_elem-1)*n_k3_grid/2  # = (n_elem*n_elem + (n_elem-1)*n_elem/2)*n_k3_grid
+            n_features += n_k3
+
+        return int(n_features)
 
     def get_k2_convolution(self, grid):
         """Calculates the second order terms where the scalar mapping is the
@@ -431,7 +452,7 @@ class LMBTR(MBTR):
         # Depending of flattening, use either a sparse matrix or a dense one.
         if self.flatten:
             k2 = lil_matrix(
-                (1, self._number_of_k2_features), dtype=np.float32)
+                (1, n_elem*n), dtype=np.float32)
 
             for key in k2_geoms.keys():
                 i = key[1]
@@ -480,7 +501,7 @@ class LMBTR(MBTR):
         # Depending of flattening, use either a sparse matrix or a dense one.
         if self.flatten:
             k3 = lil_matrix(
-                (1, self._number_of_k3_features), dtype=np.float32
+                (1, int((n_elem*(3*n_elem-1)*n/2))), dtype=np.float32
             )
             for key in k3_geoms.keys():
                 i = key[0]
@@ -515,12 +536,31 @@ class LMBTR(MBTR):
     def get_location(self, species):
         """Can be used to query the location of a species combination in the
         the flattened output.
+
+        Args:
+            species(tuple): A tuple containing a species combination as
+            chemical symbols or atomic numbers. The central atom is marked as
+            species "X". The tuple can be for example ("X", "O") or ("X", "O",
+            "H")
+
+        Returns:
+            tuple: tuple containing the location of the specified species
+            combination. The location is given as a tuple with the start index
+            in the first entry and the end index in the second entry, e.g. (0,
+            100).
+
+        Raises:
+            ValueError: If the requested species combination is not in the
+            output or if invalid species defined.
         """
         # Change chemical elements into atomic numbers
         numbers = []
         for specie in species:
             if isinstance(specie, str):
-                specie = ase.data.atomic_numbers[specie]
+                try:
+                    specie = ase.data.atomic_numbers[specie]
+                except KeyError:
+                    raise ValueError("Invalid chemical species")
             numbers.append(specie)
 
         # Change into internal indexing
@@ -544,7 +584,6 @@ class LMBTR(MBTR):
         flattened output.
         """
         n_elem = self.n_elements
-        n_features = 0
         locations = {}
         locations_each = {}
 
@@ -560,8 +599,6 @@ class LMBTR(MBTR):
                 locations[(0, i)] = start, end
                 m += 1
             offset = m*n2
-            self._number_of_k2_features = m*n2
-            n_features += self._number_of_k2_features
 
         # k=3
         if self.k3 is not None:
@@ -576,12 +613,9 @@ class LMBTR(MBTR):
                             locations_each[(i, j, k)] = start, end
                             locations[(i, j, k)] = offset+start, offset+end
                             m += 1
-            self._number_of_k3_features = m*n3
-            n_features += self._number_of_k3_features
 
         self._locations = locations
         self._locations_each = locations_each
-        self._number_of_features = n_features
 
         return self._locations
 

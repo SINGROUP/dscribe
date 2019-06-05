@@ -40,28 +40,69 @@ class MBTRGrid(dict):
     def __setitem__(self, key, item):
         super().__setitem__(key, item)
         if key == "n":
-            self.parent.calculate_locations()
+            if hasattr(self.parent, "_species"):
+                self.parent.calculate_locations()
 
 
 class MBTR(Descriptor):
-    """Implementation of the Many-body tensor representation up to k=3.
+    """Implementation of the Many-body tensor representation up to :math:`k=3`.
 
-    This implementation provides the following geometry functions:
-
-    * k=1: atomic number
-    * k=2: distances, inverse distances
-    * k=3: angles (degree), cosines of angles
-
-    and the following weighting functions:
-
-    * k=1: unity(=no weighting)
-    * k=2: unity(=no weighting), exponential (:math:`e^-(sx)`)
-    * k=3: unity(=no weighting), exponential (:math:`e^-(sx)`)
+    You can choose which terms to include by providing a dictionary in the
+    k1, k2 or k3 arguments. This dictionary should contain information
+    under three keys: "geometry", "grid" and "weighting". See the examples
+    below for how to format these dictionaries.
 
     You can use this descriptor for finite and periodic systems. When dealing
-    with periodic systems, it is advisable to use a primitive cell, or if
-    supercells are included to use normalization e.g. by volume or by the norm
-    of the final vector.
+    with periodic systems or when using machine learning models that use the
+    Euclidean norm to measure distance between vectors, it is advisable to use
+    some form of normalization.
+
+    For the geometry functions the following choices are available:
+
+    * :math:`k=1`:
+
+       * "atomic_number": The atomic numbers.
+
+    * :math:`k=2`:
+
+       * "distance": Pairwise distance in angstroms.
+       * "inverse_distance": Pairwise inverse distance in 1/angstrom.
+
+    * :math:`k=3`:
+
+       * "angle": Angle in degrees.
+       * "cosine": Cosine of the angle.
+
+    For the weighting the following functions are available:
+
+    * :math:`k=1`:
+
+       * "unity": No weighting.
+
+    * :math:`k=2`:
+
+       * "unity": No weighting.
+       * "exp" or "exponential": Weighting of the form :math:`e^{-sx}`
+
+    * :math:`k=3`:
+
+       * "unity": No weighting.
+       * "exp" or "exponential": Weighting of the form :math:`e^{-sx}`
+
+    The exponential weighting is motivated by the exponential decay of screened
+    Coulombic interactions in solids. In the exponential weighting the
+    parameters **cutoff** determines the value of the weighting function after
+    which the rest of the terms will be ignored and the parameter **scale**
+    corresponds to :math:`s`. The meaning of :math:`x` changes for different
+    terms as follows:
+
+    * :math:`k=2`: :math:`x` = Distance between A->B
+    * :math:`k=3`: :math:`x` = Distance from A->B->C->A.
+
+    In the grid setup *min* is the minimum value of the axis, *max* is the
+    maximum value of the axis, *sigma* is the standard deviation of the
+    gaussian broadening and *n* is the number of points sampled on the
+    grid.
 
     If flatten=False, a list of dense np.ndarrays for each k in ascending order
     is returned. These arrays are of dimension (n_elements x n_elements x
@@ -82,11 +123,11 @@ class MBTR(Descriptor):
 
     def __init__(
             self,
+            species,
             periodic,
             k1=None,
             k2=None,
             k3=None,
-            species=None,
             atomic_numbers=None,
             normalize_gaussians=True,
             normalization="none",
@@ -94,76 +135,36 @@ class MBTR(Descriptor):
             sparse=True
             ):
         """
-        Here *function* is the used geometry function, *min* is the
-        minimum value of the axis, *max* is the maximum value of the
-        axis, *sigma* is the standard deviation of the gaussian
-        broadening and *n* is the number of points sampled on the grid.
-
-        The threshold is used to determine the minimum amount of
-        periodic images to consider. The variable *cutoff* determines
-        the value of the weighting function after which the rest of the
-        terms will be ignored. The k1 term is 0-dimensional, so
-        weighting is not used. Here are the available functions and a
-        description for them:
-
-        * unity: Constant weighting of 1 for all samples.
-        * exponential: Weighting of the form :math:`e^{-sx}`. The
-            parameter :math:`s` is given in the attribute *scale*.
-
-        The meaning of x changes for different terms as follows:
-
-        * :math:`k=1`: :math:`x` = 0
-        * :math:`k=2`: :math:`x` = Distance between A->B
-        * :math:`k=3`: :math:`x` = Distance from A->B->C->A.
         Args:
             periodic (bool): Determines whether the system is considered to be
                 periodic.
-            k1 (dict): Setup for the k=1 term. For example:
+            k1 (dict): Setup for the k=1 term. For example::
+
                 k1 = {
-                    geometry = {
-                        "function": "atomic_number",
-                        "min": 1,
-                        "max": 10
-                        "sigma": 0.1
-                        "n": 100
-                    }
+                    "geometry": {"function": "atomic_number"},
+                    "grid": {"min": 1, "max": 10, "sigma": 0.1, "n": 50}
                 }
+
             k2 (dict): Dictionary containing the setup for the k=2 term.
                 Contains setup for the used geometry function, discretization and
                 weighting function. For example::
 
-                k2 = {
-                    "geometry" = {
-                        "function": "inverse_distance",
-                        "min": 0,
-                        "max": 2,
-                        "sigma": 0.05,
-                        "n": 100
+                    k2 = {
+                        "geometry": {"function": "inverse_distance"},
+                        "grid": {"min": 0.1, "max": 2, "sigma": 0.1, "n": 50},
+                        "weighting": {"function": "exp", "scale": 0.75, "cutoff": 1e-2}
                     }
-                    "weighting" = {
-                        "function": "exponential",
-                        "scale": 0.5,
-                        "cutoff": 1e-3
-                    }
-                }
+
             k3 (dict): Dictionary containing the setup for the k=3 term.
                 Contains setup for the used geometry function, discretization and
                 weighting function. For example::
 
-                k3 = {
-                    "geometry" = {
-                        "function": "angle",
-                        "min": 0,
-                        "max": 180,
-                        "sigma": 0.05,
-                        "n": 100
+                    k3 = {
+                        "geometry": {"function": "angle"},
+                        "grid": {"min": 0, "max": 180, "sigma": 5, "n": 50},
+                        "weighting" = {"function": "exp", "scale": 0.5, "cutoff": 1e-3}
                     }
-                    "weighting" = {
-                        "function": "exponential",
-                        "scale": 0.5,
-                        "cutoff": 1e-3
-                    }
-                }
+
             species (iterable): The chemical species as a list of atomic
                 numbers or as a list of chemical symbols. Notice that this is not
                 the atomic numbers that are present for an individual system, but
@@ -186,9 +187,9 @@ class MBTR(Descriptor):
                 * "l2_each": Normalize the Euclidean length of each k-term
                   individually to unity.
 
-            flatten (bool): Whether the output of create() should be flattened
-                to a 1D array. If False, a dictionary of the different tensors
-                is provided, containing the values under keys: "k1", "k2", and
+            flatten (bool): Whether the output should be flattened to a 1D
+                array. If False, a dictionary of the different tensors is
+                provided, containing the values under keys: "k1", "k2", and
                 "k3":
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
@@ -213,7 +214,7 @@ class MBTR(Descriptor):
 
         self.normalization = normalization
         self.normalize_gaussians = normalize_gaussians
-        self.virtual_positions = False
+        self.is_center_periodic = True
 
         # Initializing .create() level variables
         self._interaction_limit = None
@@ -756,7 +757,7 @@ class MBTR(Descriptor):
                     # If the given position is virtual and does not correspond
                     # to a physical atom, the position is not repeated in the
                     # copies.
-                    if self.virtual_positions and self._interaction_limit == 1:
+                    if not self.is_center_periodic and self._interaction_limit == 1:
                         num_copy = np.array(numbers)[1:]
                         pos_copy = np.array(relative_pos)[1:]
 

@@ -267,7 +267,6 @@ class SOAP(Descriptor):
                         )
                     list_positions.append(i)
                 else:
-                    print(type(i))
                     raise ValueError(
                         "Create method requires the argument 'positions', a "
                         "list of atom indices and/or positions."
