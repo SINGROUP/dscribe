@@ -15,7 +15,6 @@ limitations under the License.
 """
 from __future__ import absolute_import, division, print_function
 from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
-import math
 import numpy as np
 
 from scipy.sparse import coo_matrix
@@ -33,25 +32,62 @@ class LMBTR(MBTR):
     tensor representation up to k=3.
 
     Notice that the species of the central atom is not encoded in the output,
-    only the surrounding environment is encoded. In a typical application one
-    can train a different model for each central species.
+    but is instead represented by a chemical species X with atomic number 0.
+    This allows LMBTR to be also used on general positions not corresponding to
+    real atoms. The surrounding environment is encoded by the two- and
+    three-body interactions with neighouring atoms. If there is a need to
+    distinguish the central species, one can for example train a different
+    model for each central species.
 
-    This implementation provides the following geometry functions:
-
-        -k=1: atomic number
-        -k=2: inverse distances
-        -k=3: cosines of angles
-
-    and the following weighting functions:
-
-        -k=1: unity(=no weighting)
-        -k=2: unity(=no weighting), exponential (:math:`e^-(sx)`)
-        -k=3: unity(=no weighting), exponential (:math:`e^-(sx)`)
+    You can choose which terms to include by providing a dictionary in the k2
+    or k3 arguments. The k1 term is not used in the local version. This
+    dictionary should contain information under three keys: "geometry", "grid"
+    and "weighting". See the examples below for how to format these
+    dictionaries.
 
     You can use this descriptor for finite and periodic systems. When dealing
-    with periodic systems, it is advisable to use a primitive cell, or if
-    supercells are included to use normalization e.g. by volume or by the norm
-    of the final vector.
+    with periodic systems or when using machine learning models that use the
+    Euclidean norm to measure distance between vectors, it is advisable to use
+    some form of normalization.
+
+    For the geometry functions the following choices are available:
+
+    * :math:`k=2`:
+
+       * "distance": Pairwise distance in angstroms.
+       * "inverse_distance": Pairwise inverse distance in 1/angstrom.
+
+    * :math:`k=3`:
+
+       * "angle": Angle in degrees.
+       * "cosine": Cosine of the angle.
+
+    For the weighting the following functions are available:
+
+    * :math:`k=2`:
+
+       * "unity": No weighting.
+       * "exp" or "exponential": Weighting of the form :math:`e^{-sx}`
+
+    * :math:`k=3`:
+
+       * "unity": No weighting.
+       * "exp" or "exponential": Weighting of the form :math:`e^{-sx}`
+
+    The exponential weighting is motivated by the exponential decay of screened
+    Coulombic interactions in solids. In the exponential weighting the
+    parameters **cutoff** determines the value of the weighting function after
+    which the rest of the terms will be ignored and the parameter **scale**
+    corresponds to :math:`s`. The meaning of :math:`x` changes for different
+    terms as follows:
+
+    * :math:`k=2`: :math:`x` = Distance between A->B
+    * :math:`k=3`: :math:`x` = Distance from A->B->C->A.
+
+    In the grid setup *min* is the minimum value of the axis, *max* is the
+    maximum value of the axis, *sigma* is the standard deviation of the
+    gaussian broadening and *n* is the number of points sampled on the
+    grid.
 
     If flatten=False, a list of dense np.ndarrays for each k in ascending order
     is returned. These arrays are of dimension (n_elements x n_elements x
@@ -68,17 +104,14 @@ class LMBTR(MBTR):
     This implementation does not support the use of a non-identity correlation
     matrix.
     """
-    decay_factor = math.sqrt(2)*3
-
     def __init__(
             self,
             species,
             periodic,
-            k1=None,
             k2=None,
             k3=None,
             atomic_numbers=None,
-            is_center_periodic=True,
+            is_center_periodic=None,
             normalize_gaussians=True,
             normalization="none",
             flatten=True,
@@ -86,69 +119,6 @@ class LMBTR(MBTR):
             ):
         """
         Args:
-            k (set or list): The interaction terms to consider from 1 to 3. The
-                size of the final output and the time taken in creating this
-                descriptor is exponentially dependent on this value.
-            periodic (bool): Boolean for if the system is periodic or none. If
-                this is set to true, you should provide the primitive system as
-                input and then the number of periodic copies is determined from the
-                'cutoff'-values specified in the weighting argument.
-            grid (dictionary): This dictionary can be used to precisely control
-                the broadening width, grid spacing and grid length for all the
-                different terms. If not provided, a set of sensible defaults
-                will be used. Example:
-                    grid = {
-                        "k1": {
-                            "min": 1,
-                            "max": 10
-                            "sigma": 0.1
-                            "n": 100
-                        },
-                        "k2": {
-                            "min": 0,
-                            "max": 1/0.70,
-                            "sigma": 0.01,
-                            "n": 100
-                        },
-                        ...
-                    }
-
-                Here 'min' is the minimum value of the axis, 'max' is the
-                maximum value of the axis, 'sigma' is the standard devation of
-                the gaussian broadening and 'n' is the number of points sampled
-                on the grid.
-            weighting (dictionary or string): A dictionary of weighting
-                function settings for each term. Example:
-
-                    weighting = {
-                        "k2": {
-                            "function": "unity",
-                        },
-                        "k3": {
-                            "function": "exponential",
-                            "scale": 0.5,
-                            "cutoff": 1e-3,
-                        }
-                    }
-
-                Weighting functions should be monotonically decreasing.
-                The threshold is used to determine the minimum mount of
-                periodic images to consider. The variable 'cutoff' determines
-                the value of the weighting function after which the rest of the
-                terms will be ignored. The K1 term is 0-dimensional, so
-                weighting is not used. Here are the available functions and a
-                description for them:
-
-                    "unity": Constant weighting of 1 for all samples.
-                    "exponential": Weighting of the form :math:`e^-(sx)`. The
-                        parameter :math:`s` is given in the attribute 'scale'.
-
-                The meaning of x changes for different terms as follows:
-
-                    k=1: x = 0
-                    k=2: x = Distance between A->B
-                    k=3: x = Distance from A->B->C->A.
-
             species (iterable): The chemical species as a list of atomic
                 numbers or as a list of chemical symbols. Notice that this is not
                 the atomic numbers that are present for an individual system, but
@@ -156,33 +126,60 @@ class LMBTR(MBTR):
                 encountered when creating the descriptors for a set of systems.
                 Keeping the number of chemical speices as low as possible is
                 preferable.
+            periodic (bool): Determines whether the system is considered to be
+                periodic.
+            k2 (dict): Dictionary containing the setup for the k=2 term.
+                Contains setup for the used geometry function, discretization and
+                weighting function. For example::
+
+                    k2 = {
+                        "geometry": {"function": "inverse_distance"},
+                        "grid": {"min": 0.1, "max": 2, "sigma": 0.1, "n": 50},
+                        "weighting": {"function": "exp", "scale": 0.75, "cutoff": 1e-2}
+                    }
+
+            k3 (dict): Dictionary containing the setup for the k=3 term.
+                Contains setup for the used geometry function, discretization and
+                weighting function. For example::
+
+                    k3 = {
+                        "geometry": {"function": "angle"},
+                        "grid": {"min": 0, "max": 180, "sigma": 5, "n": 50},
+                        "weighting" = {"function": "exp", "scale": 0.5, "cutoff": 1e-3}
+                    }
+
             atomic_numbers (iterable): A list of the atomic numbers that should
                 be taken into account in the descriptor. Deprecated in favour of
                 the species-parameters, but provided for
                 backwards-compatibility.
-            is_center_periodic (bool): When using positions not corresponding
-                to real atoms, this flag determines whether these positions
-                are periodically repeated or not. If Flase, the local position does not
-                correspond to any physical atom, and is thus not repeated in
-                periodic systems. If set to True, the position corresponds to
-                a physical atom which will be repeated in periodic systems and
-                may interact with periodic copies of itself.
+            is_center_periodic (bool): Determines whether the central positions
+                are periodically repeated or not. If not specified, default to
+                the value of the "periodic"-parameter. If False, the central
+                position is not repeated in periodic systems. If set to True,
+                the position will be repeated in periodic systems and may
+                interact with periodic copies of itself. Typically set to False
+                when studying non-physical positions in periodic systems,
+                otherwise set to False.
             normalize_gaussians (bool): Determines whether the gaussians are
-                normalized to an area of 1. If false, the normalization factor
-                is dropped and the gaussians have the form.
-                :math:`e^-(x-\mu)^2/2\sigma^2`
-            flatten (bool): Whether the output of create() should be flattened
-                to a 1D array. If False, a dictionary of the different tensors is
-                provided.
+                normalized to an area of 1. Defaults to True. If False, the
+                normalization factor is dropped and the gaussians have the form.
+                :math:`e^{-(x-\mu)^2/2\sigma^2}`
+            normalization (str): Determines the method for normalizing the
+                output. The available options are:
+
+                * "none": No normalization.
+                * "l2_each": Normalize the Euclidean length of each k-term
+                  individually to unity.
+
+            flatten (bool): Whether the output should be flattened to a 1D
+                array. If False, a dictionary of the different tensors is
+                provided, containing the values under keys: "k1", "k2", and
+                "k3":
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
-
-        Raises:
-            ValueError if the given k value is not supported, or the weighting
-            is not specified for periodic systems.
         """
         super().__init__(
-            k1=k1,
+            k1=None,
             k2=k2,
             k3=k3,
             periodic=periodic,
@@ -193,9 +190,18 @@ class LMBTR(MBTR):
             flatten=flatten,
             sparse=sparse,
         )
-        self.is_center_periodic = is_center_periodic
+        # These attributes have to be set after the MBTR constructor to
+        # override the defaults.
         self._is_local = True
         self._interaction_limit = 1
+
+        # These attributes can be set whenever
+        self.is_center_periodic = periodic if is_center_periodic is None else is_center_periodic
+
+        # Check the setup for errors
+        self.check_setup()
+
+        self.updated = True
 
     def create(self, system, positions=None, n_jobs=1, verbose=False):
         """Return the LMBTR output for the given systems and given positions.
@@ -221,6 +227,13 @@ class LMBTR(MBTR):
             of positions and systems and the second dimension is determined by
             the get_number_of_features()-function.
         """
+        # Check the setup for errors that may be been introduced after the
+        # constructor call.
+        self.check_setup()
+
+        # Ensure that the locations have been calculated
+        self.calculate_locations()
+
         # If single system given, skip the parallelization
         if isinstance(system, (Atoms, System)):
             return self.create_single(system, positions)
@@ -243,7 +256,7 @@ class LMBTR(MBTR):
                         n_desc += len(job[0])
                 else:
                     n_desc = 0
-                    for i_sample, i_pos, i_scale in i_job:
+                    for i_sample, i_pos in i_job:
                         if i_pos is not None:
                             n_desc += len(i_pos)
                         else:
@@ -309,6 +322,12 @@ class LMBTR(MBTR):
                 )
             for i in positions:
                 if np.issubdtype(type(i), np.integer):
+                    i_len = len(system)
+                    if i >= i_len or i < 0:
+                        raise ValueError(
+                            "The provided index {} is not valid for the system "
+                            "with {} atoms.".format(i, i_len)
+                        )
                     list_positions.append(system.get_positions()[i])
                 elif isinstance(i, (list, tuple, np.ndarray)):
                     if len(i) != 3:
@@ -324,9 +343,12 @@ class LMBTR(MBTR):
                         "list of atom indices and/or positions."
                     )
 
-        # If virtual positions requested, create new atoms with atomic number 0
-        # at the requested position.
         for i_pos in positions:
+            # Position designated as cartesian position, add a new atom at that
+            # location with the chemical element X and place is as the first
+            # atom in the system. The interaction limit makes sure that only
+            # interactions of this first atom to every other atom are
+            # considered.
             if isinstance(i_pos, (list, tuple, np.ndarray)):
                 if len(i_pos) != 3:
                     raise ValueError(
@@ -338,6 +360,11 @@ class LMBTR(MBTR):
                 i_pos = np.expand_dims(i_pos, axis=0)
                 new_system = System('X', positions=i_pos)
                 new_system += system
+            # Position designated as integer, use the atom at that index as
+            # center. For the calculation this central atoms is shifted to be
+            # the first atom in the system, and the interaction limit makes
+            # sure that only interactions of this first atom to every other
+            # atom are considered.
             elif np.issubdtype(type(i_pos), np.integer):
                 new_system = Atoms()
                 center_atom = system[i_pos]
@@ -574,6 +601,7 @@ class LMBTR(MBTR):
             if numbers[0] > numbers[2]:
                 numbers = reversed(numbers)
 
+        self.calculate_locations()
         loc = self._locations
         start, end = loc[tuple(numbers)]
 
@@ -583,41 +611,52 @@ class LMBTR(MBTR):
         """Used to calculate the locations of species combinations in the
         flattened output.
         """
-        n_elem = self.n_elements
-        locations = {}
-        locations_each = {}
-
-        # k=2
-        offset = 0
+        k2updated = False
+        k3updated = False
         if self.k2 is not None:
-            n2 = self.k2["grid"]["n"]
-            m = 0
-            for i in range(n_elem):
-                start = m*n2
-                end = (m+1)*n2
-                locations_each[(0, i)] = start, end
-                locations[(0, i)] = start, end
-                m += 1
-            offset = m*n2
-
-        # k=3
+            k2updated = self.k2["grid"].nupdated
         if self.k3 is not None:
-            n3 = self.k3["grid"]["n"]
-            m = 0
-            for i in range(n_elem):
-                for j in range(n_elem):
-                    for k in range(n_elem):
-                        if k >= i and (i == 0 or j == 0 or k == 0):
-                            start = m*n3
-                            end = (m+1)*n3
-                            locations_each[(i, j, k)] = start, end
-                            locations[(i, j, k)] = offset+start, offset+end
-                            m += 1
+            k3updated = self.k3["grid"].nupdated
 
-        self._locations = locations
-        self._locations_each = locations_each
+        if self.updated or k2updated or k3updated:
+            n_elem = self.n_elements
+            locations = {}
+            locations_each = {}
 
-        return self._locations
+            # k=2
+            offset = 0
+            if self.k2 is not None:
+                n2 = self.k2["grid"]["n"]
+                m = 0
+                for i in range(n_elem):
+                    start = m*n2
+                    end = (m+1)*n2
+                    locations_each[(0, i)] = start, end
+                    locations[(0, i)] = start, end
+                    m += 1
+                offset = m*n2
+
+            # k=3
+            if self.k3 is not None:
+                n3 = self.k3["grid"]["n"]
+                m = 0
+                for i in range(n_elem):
+                    for j in range(n_elem):
+                        for k in range(n_elem):
+                            if k >= i and (i == 0 or j == 0 or k == 0):
+                                start = m*n3
+                                end = (m+1)*n3
+                                locations_each[(i, j, k)] = start, end
+                                locations[(i, j, k)] = offset+start, offset+end
+                                m += 1
+
+            self._locations = locations
+            self._locations_each = locations_each
+            self.updated = False
+            if self.k2 is not None:
+                self.k2["grid"].nupdated = False
+            if self.k3 is not None:
+                self.k3["grid"].nupdated = False
 
     @property
     def species(self):
@@ -658,4 +697,13 @@ class LMBTR(MBTR):
         self.min_atomic_number = min(self._atomic_numbers)
 
         # Recalculate locations
-        self.calculate_locations()
+        self.updated = True
+
+    def check_setup(self):
+        """Used to check that the given setup is valid.
+        """
+        if self.periodic is False and self.is_center_periodic is True:
+            raise ValueError(
+                "Cannot make the central atom periodic if the whole system is "
+                "not periodic."
+            )

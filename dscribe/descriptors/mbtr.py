@@ -17,6 +17,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
 import math
 import numpy as np
+import copy
 
 from scipy.spatial.distance import cdist
 from scipy.sparse import lil_matrix, coo_matrix
@@ -35,13 +36,12 @@ class MBTRGrid(dict):
     """
     def __init__(self, *arg, **kw):
         super().__init__(*arg, **kw)
-        self.parent = None
+        self.nupdated = False
 
     def __setitem__(self, key, item):
         super().__setitem__(key, item)
         if key == "n":
-            if hasattr(self.parent, "_species"):
-                self.parent.calculate_locations()
+            self.nupdated = True
 
 
 class MBTR(Descriptor):
@@ -119,8 +119,6 @@ class MBTR(Descriptor):
     This implementation does not support the use of a non-identity correlation
     matrix.
     """
-    decay_factor = math.sqrt(2)*3
-
     def __init__(
             self,
             species,
@@ -136,6 +134,13 @@ class MBTR(Descriptor):
             ):
         """
         Args:
+            species (iterable): The chemical species as a list of atomic
+                numbers or as a list of chemical symbols. Notice that this is not
+                the atomic numbers that are present for an individual system, but
+                should contain all the elements that are ever going to be
+                encountered when creating the descriptors for a set of systems.
+                Keeping the number of chemical speices as low as possible is
+                preferable.
             periodic (bool): Determines whether the system is considered to be
                 periodic.
             k1 (dict): Setup for the k=1 term. For example::
@@ -165,13 +170,6 @@ class MBTR(Descriptor):
                         "weighting" = {"function": "exp", "scale": 0.5, "cutoff": 1e-3}
                     }
 
-            species (iterable): The chemical species as a list of atomic
-                numbers or as a list of chemical symbols. Notice that this is not
-                the atomic numbers that are present for an individual system, but
-                should contain all the elements that are ever going to be
-                encountered when creating the descriptors for a set of systems.
-                Keeping the number of chemical speices as low as possible is
-                preferable.
             atomic_numbers (iterable): A list of the atomic numbers that should
                 be taken into account in the descriptor. Deprecated in favour of
                 the species-parameters, but provided for
@@ -214,7 +212,7 @@ class MBTR(Descriptor):
 
         self.normalization = normalization
         self.normalize_gaussians = normalize_gaussians
-        self.is_center_periodic = True
+        self.is_center_periodic = periodic
 
         # Initializing .create() level variables
         self._interaction_limit = None
@@ -272,7 +270,6 @@ class MBTR(Descriptor):
                         " the following: {}".format(valid_weight_func)
                     )
             grid = MBTRGrid(value["grid"])
-            grid.parent = self
             value["grid"] = grid
 
         self._k1 = value
@@ -334,7 +331,6 @@ class MBTR(Descriptor):
                 value["weighting"] = {"function": "unity"}
 
             grid = MBTRGrid(value["grid"])
-            grid.parent = self
             value["grid"] = grid
 
         self._k2 = value
@@ -398,7 +394,7 @@ class MBTR(Descriptor):
                 value["weighting"] = {"function": "unity"}
 
             grid = MBTRGrid(value["grid"])
-            grid.parent = self
+            # grid.parent = self
             value["grid"] = grid
 
         self._k3 = value

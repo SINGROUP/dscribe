@@ -12,7 +12,7 @@ import scipy.sparse
 from dscribe.descriptors import LMBTR
 
 from ase import Atoms
-from ase.build import molecule
+from ase.build import molecule, bulk
 
 from testbaseclass import TestBaseClass
 
@@ -50,35 +50,10 @@ HHe = Atoms(
     symbols=["H", "He"],
 )
 
-# default_grid = {
-    # "k1": {
-        # "min": 1,
-        # "max": 90,
-        # "sigma": 0.1,
-        # "n": 50,
-    # },
-    # "k2": {
-        # "min": 0,
-        # "max": 1/0.7,
-        # "sigma": 0.1,
-        # "n": 50,
-    # },
-    # "k3": {
-        # "min": -1,
-        # "max": 1,
-        # "sigma": 0.1,
-        # "n": 50,
-    # }
-# }
-
-default_k1 = {
-    "geometry": {"function": "atomic_number"},
-    "grid": {"min": 1, "max": 90, "sigma": 0.1, "n": 50}
-}
-
+nk2 = 50
 default_k2 = {
     "geometry": {"function": "inverse_distance"},
-    "grid": {"min": 0, "max": 1/0.7, "sigma": 0.1, "n": 50},
+    "grid": {"min": 0, "max": 1/0.7, "sigma": 0.1, "n": nk2},
     "weighting": {"function": "exponential", "scale": 0.5, "cutoff": 1e-2},
 }
 
@@ -87,15 +62,6 @@ default_k3 = {
     "grid": {"min": 0, "max": 180, "sigma": 2, "n": 50},
     "weighting": {"function": "exponential", "scale": 0.5, "cutoff": 1e-2},
 }
-
-
-default_desc_k1 = LMBTR(
-    species=[1, 8],
-    k1=default_k1,
-    periodic=False,
-    flatten=True,
-    sparse=False,
-)
 
 default_desc_k2 = LMBTR(
     species=[1, 8],
@@ -113,135 +79,57 @@ default_desc_k3 = LMBTR(
     sparse=False,
 )
 
+default_desc_k2_k3 = LMBTR(
+    species=[1, 8],
+    k2=default_k2,
+    k3=default_k3,
+    periodic=False,
+    flatten=True,
+    sparse=False,
+)
+
 
 # class LMBTRTests(TestBaseClass, unittest.TestCase):
 class LMBTRTests(unittest.TestCase):
-    # def test_constructor(self):
-        # """LMBTR: Tests different valid and invalid constructor values.
-        # """
-        # with self.assertRaises(ValueError):
-            # LMBTR(
-                # species=[1],
-                # k=0,
-                # grid=default_grid,
-                # virtual_positions=False,
-                # periodic=False,
-            # )
+    def test_constructor(self):
+        """LMBTR: Tests different valid and invalid constructor values.
+        """
+        # Cannot make center periodic if the whole sytem is not
+        with self.assertRaises(ValueError):
+            LMBTR(
+                species=[1],
+                k2=default_k2,
+                periodic=False,
+                is_center_periodic=True,
+            )
 
-        # with self.assertRaises(ValueError):
-            # LMBTR(
-                # species=[1],
-                # k=[-1, 2],
-                # grid=default_grid,
-                # virtual_positions=False,
-                # periodic=False,
-            # )
+    def test_positions(self):
+        """Tests that the position argument is handled correctly. The position
+        can be a list of integers or a list of 3D positions.
+        """
+        lmbtr = copy.deepcopy(default_desc_k2_k3)
 
-        # with self.assertRaises(ValueError):
-            # LMBTR(
-                # species=[1],
-                # k={1, 4},
-                # grid=default_grid,
-                # virtual_positions=False,
-                # periodic=False,
-            # )
+        # Position as a cartesian coordinate in list
+        lmbtr.create(H2O, positions=[[0, 1, 0]])
 
-    # def test_positions(self):
-        # """Tests that the position argument is handled correctly. The position
-        # can be a list of integers or a list of 3D positions.
-        # """
-        # decay_factor = 0.5
-        # lmbtr = LMBTR(
-            # species=[1, 8],
-            # k=[1, 2],
-            # grid={
-                # "k1": {
-                    # "min": 10,
-                    # "max": 18,
-                    # "sigma": 0.1,
-                    # "n": 200,
-                # },
-                # "k2": {
-                    # "min": 0,
-                    # "max": 0.7,
-                    # "sigma": 0.01,
-                    # "n": 200,
-                # },
-                # "k3": {
-                    # "min": -1.0,
-                    # "max": 1.0,
-                    # "sigma": 0.05,
-                    # "n": 200,
-                # }
-            # },
-            # weighting={
-                # "k2": {
-                    # "function": "exponential",
-                    # "scale": decay_factor,
-                    # "cutoff": 1e-3
-                # },
-                # "k3": {
-                    # "function": "exponential",
-                    # "scale": decay_factor,
-                    # "cutoff": 1e-3
-                # },
-            # },
-            # periodic=True,
-            # virtual_positions=True,
-            # flatten=False,
-            # sparse=False
-        # )
+        # Position as a cartesian coordinate in numpy array
+        lmbtr.create(H2O, positions=np.array([[0, 1, 0]]))
 
-        # # Position as a cartesian coordinate in list
-        # lmbtr.create(H2O, positions=[[0, 1, 0]])
+        # Positions as lists of vectors
+        positions = [[0, 1, 2], [0, 0, 0]]
+        lmbtr.create(H2O, positions)
 
-        # # Position as a cartesian coordinate in numpy array
-        # lmbtr.create(H2O, positions=np.array([[0, 1, 0]]))
+        # Position outside range
+        with self.assertRaises(ValueError):
+            lmbtr.create(H2O, positions=[3])
 
-        # # Position as a scaled coordinate in list
-        # lmbtr.create(H2O, positions=[[0, 0, 0.5]], scaled_positions=True)
+        # Invalid data type
+        with self.assertRaises(ValueError):
+            lmbtr.create(H2O, positions=['a'])
 
-        # # Position as a scaled coordinate in numpy array
-        # lmbtr.create(H2O, positions=np.array([[0, 0, 0.5]]), scaled_positions=True)
-
-        # # Positions as lists of vectors
-        # positions = [[0, 1, 2], [0, 0, 0]]
-        # desc = lmbtr.create(H2O, positions)
-
-        # # Position outside range
-        # with self.assertRaises(ValueError):
-            # lmbtr.create(H2O, positions=[3])
-
-        # # Invalid data type
-        # with self.assertRaises(ValueError):
-            # lmbtr.create(H2O, positions=['a'])
-
-        # # Cannot use scaled positions without cell information
-        # with self.assertRaises(ValueError):
-            # H = Atoms(
-                # positions=[[0, 0, 0]],
-                # symbols=["H"],
-            # )
-
-            # lmbtr.create(
-                # H,
-                # positions=[[0, 0, 1]],
-                # scaled_positions=True
-            # )
-
-        # # Non-virtual positions
-        # lmbtr = LMBTR(
-            # species=[1, 8],
-            # k=[3],
-            # grid=default_grid,
-            # virtual_positions=False,
-            # periodic=False,
-            # flatten=True
-        # )
-
-        # # Positions as a list of integers pointing to atom indices
-        # positions = [0, 1, 2]
-        # desc = lmbtr.create(H2O, positions)
+        # Positions as a list of integers pointing to atom indices
+        positions = [0, 1, 2]
+        lmbtr.create(H2O, positions)
 
     def test_number_of_features(self):
         """LMBTR: Tests that the reported number of features is correct.
@@ -265,128 +153,112 @@ class LMBTRTests(unittest.TestCase):
         self.assertEqual(n_features, expected)
         self.assertEqual(n_features, real)
 
-    # def test_flatten(self):
-        # system = H2O
-        # n = 10
-        # n_elem = len(set(system.get_atomic_numbers())) + 1
+    def test_center_periodicity(self):
+        """Tests that the flag that controls whether the central atoms is
+        repeated is working corrrectly.
+        """
+        system = bulk("Si", "diamond", a=5)
 
-        # # K2 unflattened
-        # desc = LMBTR(
-            # species=[1, 8],
-            # k=[2],
-            # grid={"k2": {"n": n, "min": 0, "max": 2, "sigma": 0.1}},
-            # virtual_positions=False,
-            # periodic=False,
-            # flatten=False,
-            # sparse=False
-        # )
-        # # print(desc._atomic_numbers)
-        # feat = desc.create(system, positions=[0])[0]["k2"]
-        # self.assertEqual(feat.shape, (n_elem, n_elem, n))
+        # k=2
+        lmbtr = copy.deepcopy(default_desc_k2)
+        lmbtr.species = ["Si"]
+        lmbtr.is_center_periodic = True
+        lmbtr.periodic = True
+        out = lmbtr.create(system, positions=[0])
+        xx = lmbtr.get_location(("X", "X"))
+        out_xx = out[0, xx[0]:xx[1]]
 
-        # # K2 flattened. The sparse matrix only supports 2D matrices, so the first
-        # # dimension is always present, even if it is of length 1.
-        # desc = LMBTR(
-            # species=[1, 8],
-            # k=[2],
-            # grid={"k2": {"n": n, "min": 0, "max": 2, "sigma": 0.1}},
-            # virtual_positions=False,
-            # periodic=False,
-            # flatten=True,
-            # sparse=False
-        # )
-        # feat = desc.create(system, positions=[0])
-        # self.assertEqual(feat.shape, (1, (1/2*(n_elem)*(n_elem+1)*n)))
+        # Test that the output contains some as the central atom is
+        # repeated
+        self.assertTrue(out_xx.sum() > 0)
 
-    # def test_sparse(self):
-        # """Tests the sparse matrix creation.
-        # """
-        # # Dense
-        # desc = LMBTR(
-            # species=[1, 8],
-            # k=[1],
-            # grid=default_grid,
-            # virtual_positions=False,
-            # periodic=False,
-            # flatten=True,
-            # sparse=False
-        # )
-        # vec = desc.create(H2O, positions=[0])
-        # self.assertTrue(type(vec) == np.ndarray)
+        lmbtr = copy.deepcopy(default_desc_k2)
+        lmbtr.species = ["Si"]
+        lmbtr.is_center_periodic = False
+        lmbtr.periodic = True
+        out = lmbtr.create(system, positions=[0])
+        xx = lmbtr.get_location(("X", "X"))
+        out_xx = out[0, xx[0]:xx[1]]
 
-        # # Sparse
-        # desc = LMBTR(
-            # species=[1, 8],
-            # k=[1],
-            # grid=default_grid,
-            # virtual_positions=False,
-            # periodic=False,
-            # flatten=True,
-            # sparse=True
-        # )
-        # vec = desc.create(H2O, positions=[0])
-        # self.assertTrue(type(vec) == scipy.sparse.coo_matrix)
+        # Test that the output contains no features as the central atom is not
+        # repeated
+        self.assertTrue(out_xx.sum() == 0)
 
-    # def test_parallel_dense(self):
-        # """Tests creating dense output parallelly.
-        # """
-        # samples = [molecule("CO"), molecule("N2O")]
-        # desc = LMBTR(
-            # species=[6, 7, 8],
-            # k=[2],
-            # grid={"k2": {"n": 100, "min": 0, "max": 2, "sigma": 0.1}},
-            # virtual_positions=False,
-            # periodic=False,
-            # flatten=True,
-            # sparse=False
-        # )
-        # n_features = desc.get_number_of_features()
+    def test_flatten(self):
+        system = H2O
+        n_elem = len(set(system.get_atomic_numbers())) + 1
 
-        # # Multiple systems, serial job
-        # output = desc.create(
-            # system=samples,
-            # positions=[[0], [0, 1]],
-            # n_jobs=1,
-        # )
-        # assumed = np.empty((3, n_features))
-        # assumed[0, :] = desc.create(samples[0], [0])
-        # assumed[1, :] = desc.create(samples[1], [0])
-        # assumed[2, :] = desc.create(samples[1], [1])
-        # self.assertTrue(np.allclose(output, assumed))
+        # K2 unflattened
+        desc = copy.deepcopy(default_desc_k2)
+        desc.flatten = False
+        feat = desc.create(system, positions=[0])[0]["k2"]
+        self.assertEqual(feat.shape, (n_elem, nk2))
 
-        # # Test when position given as indices
-        # output = desc.create(
-            # system=samples,
-            # positions=[[0], [0, 1]],
-            # n_jobs=2,
-        # )
-        # assumed = np.empty((3, n_features))
-        # assumed[0, :] = desc.create(samples[0], [0])
-        # assumed[1, :] = desc.create(samples[1], [0])
-        # assumed[2, :] = desc.create(samples[1], [1])
-        # self.assertTrue(np.allclose(output, assumed))
+        # K2 flattened. The sparse matrix only supports 2D matrices, so the first
+        # dimension is always present, even if it is of length 1.
+        desc = copy.deepcopy(default_desc_k2)
+        desc.flatten = True
+        feat = desc.create(system, positions=[0])
+        self.assertEqual(feat.shape, (1, n_elem*nk2))
 
-        # # Test with cartesian positions. In this case virtual positions have to
-        # # be enabled
-        # desc = LMBTR(
-            # species=[6, 7, 8],
-            # k=[2],
-            # grid={"k2": {"n": 100, "min": 0, "max": 2, "sigma": 0.1}},
-            # virtual_positions=True,
-            # periodic=False,
-            # flatten=True,
-            # sparse=False
-        # )
-        # output = desc.create(
-            # system=samples,
-            # positions=[[[0, 0, 0], [1, 2, 0]], [[1, 2, 0]]],
-            # n_jobs=2,
-        # )
-        # assumed = np.empty((2+1, n_features))
-        # assumed[0, :] = desc.create(samples[0], [[0, 0, 0]])
-        # assumed[1, :] = desc.create(samples[0], [[1, 2, 0]])
-        # assumed[2, :] = desc.create(samples[1], [[1, 2, 0]])
-        # self.assertTrue(np.allclose(output, assumed))
+    def test_sparse(self):
+        """Tests the sparse matrix creation.
+        """
+        # Dense
+        desc = copy.deepcopy(default_desc_k2_k3)
+        desc.sparse = False
+        vec = desc.create(H2O, positions=[0])
+        self.assertTrue(type(vec) == np.ndarray)
+
+        # Sparse
+        desc = copy.deepcopy(default_desc_k2_k3)
+        desc.sparse = True
+        vec = desc.create(H2O, positions=[0])
+        self.assertTrue(type(vec) == scipy.sparse.coo_matrix)
+
+    def test_parallel_dense(self):
+        """Tests creating dense output parallelly.
+        """
+        samples = [molecule("CO"), molecule("N2O")]
+        desc = copy.deepcopy(default_desc_k2)
+        desc.species = ["C", "O", "N"]
+        n_features = desc.get_number_of_features()
+
+        # Multiple systems, serial job
+        output = desc.create(
+            system=samples,
+            positions=[[0], [0, 1]],
+            n_jobs=1,
+        )
+        assumed = np.empty((3, n_features))
+        assumed[0, :] = desc.create(samples[0], [0])
+        assumed[1, :] = desc.create(samples[1], [0])
+        assumed[2, :] = desc.create(samples[1], [1])
+        self.assertTrue(np.allclose(output, assumed))
+
+        # Test when position given as indices
+        output = desc.create(
+            system=samples,
+            positions=[[0], [0, 1]],
+            n_jobs=2,
+        )
+        assumed = np.empty((3, n_features))
+        assumed[0, :] = desc.create(samples[0], [0])
+        assumed[1, :] = desc.create(samples[1], [0])
+        assumed[2, :] = desc.create(samples[1], [1])
+        self.assertTrue(np.allclose(output, assumed))
+
+        # Test with cartesian positions.
+        output = desc.create(
+            system=samples,
+            positions=[[[0, 0, 0], [1, 2, 0]], [[1, 2, 0]]],
+            n_jobs=2,
+        )
+        assumed = np.empty((2+1, n_features))
+        assumed[0, :] = desc.create(samples[0], [[0, 0, 0]])
+        assumed[1, :] = desc.create(samples[0], [[1, 2, 0]])
+        assumed[2, :] = desc.create(samples[1], [[1, 2, 0]])
+        self.assertTrue(np.allclose(output, assumed))
 
     # def test_parallel_sparse(self):
         # """Tests creating sparse output parallelly.
@@ -634,3 +506,71 @@ if __name__ == "__main__":
     suites.append(unittest.TestLoader().loadTestsFromTestCase(LMBTRTests))
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)
+
+    # def test_species_encoding(self):
+        # """Tests that that settings for turning on or off the species encoding
+        # work as intended.
+        # """
+        # # k=2
+        # lmbtr = copy.deepcopy(default_desc_k2)
+        # lmbtr.encode_species = True
+        # atomic_numbers = lmbtr._atomic_numbers
+        # out = lmbtr.create(H2O, positions=[0])
+        # center_o = lmbtr.get_location(("H", "O"))
+        # center_h = lmbtr.get_location(("H", "H"))
+        # encoded_o = out[0, center_o[0]:center_o[1]]
+        # encoded_h = out[0, center_h[0]:center_h[1]]
+
+        # # Test that the atomic numbers doesn't include the special number 0
+        # # used for the central atom.
+        # self.assertTrue(np.array_equal(atomic_numbers, [1, 8]))
+
+        # lmbtr = copy.deepcopy(default_desc_k2)
+        # lmbtr.encode_species = False
+        # out = lmbtr.create(H2O, positions=[0])
+        # atomic_numbers = lmbtr._atomic_numbers
+        # center_o = lmbtr.get_location(("X", "O"))
+        # center_h = lmbtr.get_location(("X", "H"))
+        # unencoded_o = out[0, center_o[0]:center_o[1]]
+        # unencoded_h = out[0, center_h[0]:center_h[1]]
+
+        # # Test that the atomic numbers now include the special number 0 used
+        # # for the central atom.
+        # self.assertTrue(np.array_equal(atomic_numbers, [0, 1, 8]))
+
+        # # Test that the output is indentical even if species is encoded with a
+        # # different name.
+        # self.assertTrue(np.array_equal(encoded_h, unencoded_h))
+        # self.assertTrue(np.array_equal(encoded_o, unencoded_o))
+
+        # # k=3
+        # lmbtr = copy.deepcopy(default_desc_k3)
+        # lmbtr.encode_species = True
+        # atomic_numbers = lmbtr._atomic_numbers
+        # out = lmbtr.create(H2O, positions=[0])
+        # center_hoh = lmbtr.get_location(("H", "O", "H"))
+        # center_hho = lmbtr.get_location(("H", "H", "O"))
+        # encoded_hoh = out[0, center_o[0]:center_hoh[1]]
+        # encoded_hho = out[0, center_h[0]:center_hho[1]]
+
+        # # Test that the atomic numbers doesn't include the special number 0
+        # # used for the central atom.
+        # self.assertTrue(np.array_equal(atomic_numbers, [1, 8]))
+
+        # lmbtr = copy.deepcopy(default_desc_k3)
+        # lmbtr.encode_species = False
+        # out = lmbtr.create(H2O, positions=[0])
+        # atomic_numbers = lmbtr._atomic_numbers
+        # center_hoh = lmbtr.get_location(("X", "O", "H"))
+        # center_hho = lmbtr.get_location(("X", "H", "O"))
+        # unencoded_hoh = out[0, center_o[0]:center_hoh[1]]
+        # unencoded_hho = out[0, center_h[0]:center_hho[1]]
+
+        # # Test that the atomic numbers now include the special number 0 used
+        # # for the central atom.
+        # self.assertTrue(np.array_equal(atomic_numbers, [0, 1, 8]))
+
+        # # Test that the output is indentical even if species is encoded with a
+        # # different name.
+        # self.assertTrue(np.array_equal(encoded_hoh, unencoded_hoh))
+        # self.assertTrue(np.array_equal(encoded_hho, unencoded_hho))

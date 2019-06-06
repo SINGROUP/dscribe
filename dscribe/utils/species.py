@@ -76,6 +76,6 @@ def get_atomic_numbers(species):
         )
 
     # Return species as atomic numbers with possible duplicates removed
-    new_atomic_numbers = sorted(list(set(atomic_numbers)))
+    new_atomic_numbers = np.array(sorted(list(set(atomic_numbers))))
 
     return new_atomic_numbers
