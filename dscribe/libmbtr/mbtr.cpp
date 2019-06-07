@@ -425,7 +425,7 @@ pair<map<index2d, vector<float> >, map<index2d,vector<float> > > MBTR::getK2Geom
 
         // Calculate all weighting values
         map<index2d, float> weightValues;
-        if (weightFunc == "exponential") {
+        if (weightFunc == "exponential" || weightFunc == "exp") {
             float scale = parameters["scale"];
             float cutoff = parameters["cutoff"];
             weightValues = this->k2WeightExponential(indexList, scale, cutoff);
@@ -520,7 +520,7 @@ pair<map<index3d, vector<float> >, map<index3d,vector<float> > > MBTR::getK3Geom
 
         // Calculate all weighting values
         map<index3d, float> weightValues;
-        if (weightFunc == "exponential") {
+        if (weightFunc == "exponential" || weightFunc == "exp") {
             float scale = parameters["scale"];
             float cutoff = parameters["cutoff"];
             weightValues = this->k3WeightExponential(indexList, scale, cutoff);

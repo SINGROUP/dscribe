@@ -25,7 +25,6 @@ import ase.data
 
 from dscribe.core import System
 from dscribe.descriptors import MBTR
-import dscribe.utils.species
 
 
 class LMBTR(MBTR):
@@ -115,7 +114,7 @@ class LMBTR(MBTR):
             normalize_gaussians=True,
             normalization="none",
             flatten=True,
-            sparse=True,
+            sparse=False,
             ):
         """
         Args:
@@ -697,8 +696,10 @@ class LMBTR(MBTR):
         self.updated = True
 
     def check_setup(self):
-        """Used to check that the given setup is valid.
+        """Used to check that the given attributes make up a valid setup.
         """
+        super().check_setup()
+
         if self.periodic is False and self.is_center_periodic is True:
             raise ValueError(
                 "Cannot make the central atom periodic if the whole system is "

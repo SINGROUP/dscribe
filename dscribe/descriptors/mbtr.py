@@ -17,7 +17,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
 import math
 import numpy as np
-import copy
 
 from scipy.spatial.distance import cdist
 from scipy.sparse import lil_matrix, coo_matrix
@@ -26,22 +25,9 @@ from scipy.special import erf
 from ase import Atoms
 
 from dscribe.core import System
+from dscribe.descriptors.mbtrsetup import MBTRK1Setup, MBTRK2Setup, MBTRK3Setup, check_grid
 from dscribe.descriptors import Descriptor
 from dscribe.libmbtr.mbtrwrapper import MBTRWrapper
-
-
-class MBTRGrid(dict):
-    """Custom class for storing and modifying the MBTR grid setup. Needed in
-    order to keep track of changes to the grid spacing.
-    """
-    def __init__(self, *arg, **kw):
-        super().__init__(*arg, **kw)
-        self.nupdated = False
-
-    def __setitem__(self, key, item):
-        super().__setitem__(key, item)
-        if key == "n":
-            self.nupdated = True
 
 
 class MBTR(Descriptor):
@@ -129,7 +115,7 @@ class MBTR(Descriptor):
             normalize_gaussians=True,
             normalization="none",
             flatten=True,
-            sparse=True
+            sparse=False
             ):
         """
         Args:
@@ -196,10 +182,10 @@ class MBTR(Descriptor):
             )
         super().__init__(flatten, sparse)
         self.system = None
-        self.periodic = periodic
         self.k1 = k1
         self.k2 = k2
         self.k3 = k3
+        self.periodic = periodic
 
         # Setup the involved chemical species
         self.species = species
@@ -221,51 +207,18 @@ class MBTR(Descriptor):
         self._axis_k2 = None
         self._axis_k3 = None
 
+        # Used to check the more complex validity of the setup that depends on
+        # multiple attributes
+        self.check_setup()
+
     @property
     def k1(self):
         return self._k1
 
     @k1.setter
     def k1(self, value):
-        """Used to check the validity of given k=1 setup.
-
-        Args:
-            value(dict): The k=1 setup
-        """
         if value is not None:
-            # Check that only valid keys are used.
-            valid_keys = set(("geometry", "grid"))
-            keys = set(value.keys())
-            if not keys.issubset(valid_keys):
-                invalid_keys = keys - valid_keys
-                raise ValueError("The given setup contains the following invalid keys: {}".format(invalid_keys))
-
-            # Check the grid
-            self.check_grid(value["grid"])
-
-            # Check the geometry function
-            geom_func = value["geometry"].get("function")
-            if geom_func is not None:
-                valid_geom_func = set(("atomic_number",))
-                if geom_func not in valid_geom_func:
-                    raise ValueError(
-                        "Unknown geometry function specified for k=1. Please use one of"
-                        " the following: {}".format(valid_geom_func)
-                    )
-
-            # Check the weighting function
-            weighting = value.get("weighting")
-            if weighting is not None:
-                valid_weight_func = set(("unity",))
-                weight_func = value["weighting"]["function"]
-                if weight_func not in valid_weight_func:
-                    raise ValueError(
-                        "Unknown weighting function specified for k=1. Please use one of"
-                        " the following: {}".format(valid_weight_func)
-                    )
-            grid = MBTRGrid(value["grid"])
-            value["grid"] = grid
-
+            value = MBTRK1Setup(value)
         self._k1 = value
 
     @property
@@ -274,59 +227,8 @@ class MBTR(Descriptor):
 
     @k2.setter
     def k2(self, value):
-        """Used to check the validity of given k=2 setup.
-
-        Args:
-            value(dict): The k=2 setup
-        """
         if value is not None:
-            # Check that only valid keys are used.
-            valid_keys = set(("geometry", "grid", "weighting"))
-            keys = set(value.keys())
-            if not keys.issubset(valid_keys):
-                invalid_keys = keys - valid_keys
-                raise ValueError("The given setup contains the following invalid keys: {}".format(invalid_keys))
-
-            # Check the grid
-            self.check_grid(value["grid"])
-
-            # Check the geometry function
-            valid_geom_func = set(("distance", "inverse_distance"))
-            geom_func = value["geometry"]["function"]
-            if geom_func not in valid_geom_func:
-                raise ValueError(
-                    "Unknown geometry function specified for k=2. Please use one of"
-                    " the following: {}".format(valid_geom_func)
-                )
-            # Check the weighting function
-            weighting = value.get("weighting")
-            if weighting is not None:
-                valid_weight_func = set(("unity", "exponential"))
-                weight_func = value["weighting"]["function"]
-                if weight_func not in valid_weight_func:
-                    raise ValueError(
-                        "Unknown weighting function specified for k=2. Please use one of"
-                        " the following: {}".format(valid_weight_func)
-                    )
-                else:
-                    if weight_func == "exponential":
-                        needed = ("cutoff", "scale")
-                for key in needed:
-                    param = value["weighting"].get(key)
-                    if param is None:
-                        raise ValueError(
-                            "Missing value for '{}' in the k=2 weighting.".format(key)
-                        )
-            else:
-                if self.periodic:
-                    raise ValueError(
-                        "Periodic systems need to have a weighting function."
-                    )
-                value["weighting"] = {"function": "unity"}
-
-            grid = MBTRGrid(value["grid"])
-            value["grid"] = grid
-
+            value = MBTRK2Setup(value)
         self._k2 = value
 
     @property
@@ -335,62 +237,8 @@ class MBTR(Descriptor):
 
     @k3.setter
     def k3(self, value):
-        """Used to check the validity of given k=3 setup.
-
-        Args:
-            value(dict): The k=3 setup
-        """
         if value is not None:
-            # Check that only valid keys are used.
-            valid_keys = set(("geometry", "grid", "weighting"))
-            keys = set(value.keys())
-            if not keys.issubset(valid_keys):
-                invalid_keys = keys - valid_keys
-                raise ValueError("The given setup contains the following invalid keys: {}".format(invalid_keys))
-
-            # Check the grid
-            self.check_grid(value["grid"])
-
-            # Check the geometry function
-            valid_geom_func = set(("angle", "cosine"))
-            geom_func = value["geometry"]["function"]
-            if geom_func not in valid_geom_func:
-                raise ValueError(
-                    "Unknown geometry function specified for k=3. Please use one of"
-                    " the following: {}".format(valid_geom_func)
-                )
-
-            # Check the weighting function
-            weighting = value.get("weighting")
-            if weighting is not None:
-                valid_weight_func = set(("unity", "exponential"))
-                weight_func = value["weighting"]["function"]
-                if weight_func not in valid_weight_func:
-                    raise ValueError(
-                        "Unknown weighting function specified for k=3. Please use one of"
-                        " the following: {}".format(valid_weight_func)
-                    )
-                else:
-                    if weight_func == "exponential":
-                        needed = ("cutoff", "scale")
-                for key in needed:
-                    param = value["weighting"].get(key)
-                    if param is None:
-                        raise ValueError(
-                            "Missing value for '{}' in the k=3 weighting.".format(key)
-                        )
-
-            else:
-                if self.periodic:
-                    raise ValueError(
-                        "Periodic systems need to have a weighting function."
-                    )
-                value["weighting"] = {"function": "unity"}
-
-            grid = MBTRGrid(value["grid"])
-            # grid.parent = self
-            value["grid"] = grid
-
+            value = MBTRK3Setup(value)
         self._k3 = value
 
     @property
@@ -439,22 +287,6 @@ class MBTR(Descriptor):
             )
         self._normalization = value
 
-    def check_grid(self, grid):
-        """Used to ensure that the given grid settings are valid.
-        """
-        msg = "The grid information is missing the value for {}"
-        val_names = ["min", "max", "sigma", "n"]
-        for val_name in val_names:
-            try:
-                grid[val_name]
-            except Exception:
-                raise KeyError(msg.format(val_name))
-
-        # Make the n into integer
-        grid["n"] = int(grid["n"])
-        assert grid["min"] < grid["max"], \
-            "The min value should be smaller than the max value."
-
     def create(self, system, n_jobs=1, verbose=False):
         """Return MBTR output for the given systems.
 
@@ -475,6 +307,10 @@ class MBTR(Descriptor):
             flattened, dictionaries containing the MBTR tensors for each k-term
             are returned.
         """
+        # Used to check the more complex validity of the setup that depends on
+        # multiple attributes
+        self.check_setup()
+
         # If single system given, skip the parallelization
         if isinstance(system, (Atoms, System)):
             return self.create_single(system)
@@ -533,7 +369,7 @@ class MBTR(Descriptor):
         values have been initialized with "initialize_scalars".
         """
         for value in grid.values():
-            self.check_grid(value)
+            check_grid(value)
 
         mbtr = {}
         if self.k1 is not None:
@@ -702,7 +538,7 @@ class MBTR(Descriptor):
         weighting_function = weighting["function"]
         cutoff = weighting["cutoff"]
 
-        if weighting_function == "exponential":
+        if weighting_function == "exponential" or weighting_function == "exp":
             scale = weighting["scale"]
             function = lambda x: np.exp(-scale*x)
 
@@ -902,7 +738,7 @@ class MBTR(Descriptor):
             weighting = self.k2["weighting"]
             weighting_function = weighting["function"]
             parameters = {}
-            if weighting_function == "exponential":
+            if weighting_function == "exponential" or weighting_function == "exp":
                 parameters = {
                     b"scale": weighting["scale"],
                     b"cutoff": weighting["cutoff"]
@@ -946,7 +782,7 @@ class MBTR(Descriptor):
             weight_info = self.k3["weighting"]
             weighting_function = weight_info["function"]
             parameters = {}
-            if weighting_function == "exponential":
+            if weighting_function == "exponential" or weighting_function == "exp":
                 parameters = {
                     b"scale": weight_info["scale"],
                     b"cutoff": weight_info["cutoff"]
@@ -1105,3 +941,36 @@ class MBTR(Descriptor):
                 k3[i, j, k, :] = gaussian_sum
 
         return k3
+
+    def check_setup(self):
+        """Used to check that the given attributes make up a valid setup.
+        """
+        # Check that weighting function is specified for periodic systems
+        if self.periodic:
+
+            if self.k2 is not None:
+                valid = False
+                weighting = self.k2.get("weighting")
+                if weighting is not None:
+                    function = weighting.get("function")
+                    if function is not None:
+                        if function != "unity":
+                            valid = True
+                if not valid:
+                    raise ValueError(
+                        "Periodic systems need to have a weighting function."
+                    )
+
+            if self.k3 is not None:
+                valid = False
+                weighting = self.k3.get("weighting")
+                if weighting is not None:
+                    function = weighting.get("function")
+                    if function is not None:
+                        if function != "unity":
+                            valid = True
+
+                if not valid:
+                    raise ValueError(
+                        "Periodic systems need to have a weighting function."
+                    )
