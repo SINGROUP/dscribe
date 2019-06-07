@@ -25,6 +25,7 @@ import ase.data
 
 from dscribe.core import System
 from dscribe.descriptors import MBTR
+import dscribe.utils.species
 
 
 class LMBTR(MBTR):
@@ -110,7 +111,6 @@ class LMBTR(MBTR):
             periodic,
             k2=None,
             k3=None,
-            atomic_numbers=None,
             is_center_periodic=None,
             normalize_gaussians=True,
             normalization="none",
@@ -148,10 +148,6 @@ class LMBTR(MBTR):
                         "weighting" = {"function": "exp", "scale": 0.5, "cutoff": 1e-3}
                     }
 
-            atomic_numbers (iterable): A list of the atomic numbers that should
-                be taken into account in the descriptor. Deprecated in favour of
-                the species-parameters, but provided for
-                backwards-compatibility.
             is_center_periodic (bool): Determines whether the central positions
                 are periodically repeated or not. If not specified, default to
                 the value of the "periodic"-parameter. If False, the central
@@ -184,7 +180,6 @@ class LMBTR(MBTR):
             k3=k3,
             periodic=periodic,
             species=species,
-            atomic_numbers=atomic_numbers,
             normalization=normalization,
             normalize_gaussians=normalize_gaussians,
             flatten=flatten,
@@ -571,15 +566,17 @@ class LMBTR(MBTR):
             "H")
 
         Returns:
-            tuple: tuple containing the location of the specified species
-            combination. The location is given as a tuple with the start index
-            in the first entry and the end index in the second entry, e.g. (0,
-            100).
+            slice: slice containing the location of the specified species
+            combination. The location is given as a python slice-object, that
+            can be directly used to target ranges in the output.
 
         Raises:
             ValueError: If the requested species combination is not in the
             output or if invalid species defined.
         """
+        # Ensure that the locations are up to date
+        self.calculate_locations()
+
         # Change chemical elements into atomic numbers
         numbers = []
         for specie in species:
@@ -605,7 +602,7 @@ class LMBTR(MBTR):
         loc = self._locations
         start, end = loc[tuple(numbers)]
 
-        return start, end
+        return slice(start, end)
 
     def calculate_locations(self):
         """Used to calculate the locations of species combinations in the

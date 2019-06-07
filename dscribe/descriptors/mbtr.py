@@ -126,7 +126,6 @@ class MBTR(Descriptor):
             k1=None,
             k2=None,
             k3=None,
-            atomic_numbers=None,
             normalize_gaussians=True,
             normalization="none",
             flatten=True,
@@ -170,10 +169,6 @@ class MBTR(Descriptor):
                         "weighting" = {"function": "exp", "scale": 0.5, "cutoff": 1e-3}
                     }
 
-            atomic_numbers (iterable): A list of the atomic numbers that should
-                be taken into account in the descriptor. Deprecated in favour of
-                the species-parameters, but provided for
-                backwards-compatibility.
             normalize_gaussians (bool): Determines whether the gaussians are
                 normalized to an area of 1. Defaults to True. If False, the
                 normalization factor is dropped and the gaussians have the form.
@@ -207,7 +202,6 @@ class MBTR(Descriptor):
         self.k3 = k3
 
         # Setup the involved chemical species
-        species = self.get_species_definition(species, atomic_numbers)
         self.species = species
 
         self.normalization = normalization
