@@ -156,85 +156,137 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         self.assertEqual(n_features, expected)
         self.assertEqual(n_features, real)
 
-    def test_locations(self):
-        """Tests that the function used to query combination locations in the
-        output works.
+    def test_locations_k2(self):
+        """Tests that the function used to query combination locations for k=2
+        in the output works.
         """
-        desc = copy.deepcopy(default_desc_k2_k3)
-        desc.species = ["H", "O", "C", "N"]
 
         CO2 = molecule("CO2")
-        N2O = molecule("N2O")
         H2O = molecule("H2O")
+        descriptors = [
+            copy.deepcopy(default_desc_k2),
+            copy.deepcopy(default_desc_k2_k3)
+        ]
 
-        co2_out = desc.create(CO2, positions=[1])[0, :]
-        n2o_out = desc.create(N2O, positions=[0])[0, :]
-        h2o_out = desc.create(H2O, positions=[1])[0, :]
+        for desc in descriptors:
+            desc.periodic = False
+            desc.species = ["H", "O", "C"]
 
-        loc_o = desc.get_location(("X", "O"))
-        loc_h = desc.get_location(("X", "H"))
-        loc_n = desc.get_location(("X", "N"))
-        loc_c = desc.get_location(("X", "C"))
+            CO2 = molecule("CO2")
+            H2O = molecule("H2O")
 
-        loc_oc = desc.get_location(("X", "O", "C"))
-        loc_on = desc.get_location(("X", "O", "N"))
-        loc_oh = desc.get_location(("X", "O", "H"))
+            co2_out = desc.create(CO2, positions=[1])[0, :]
+            h2o_out = desc.create(H2O, positions=[1])[0, :]
 
-        # Test that only CO has X-C pairs
-        co2_c = co2_out[loc_c]
-        n2o_c = n2o_out[loc_c]
-        h2o_c = h2o_out[loc_c]
-        self.assertTrue(n2o_c.sum() == 0)
-        self.assertTrue(h2o_c.sum() == 0)
-        self.assertTrue(co2_c.sum() != 0)
+            loc_xh = desc.get_location(("X", "H"))
+            loc_xc = desc.get_location(("X", "C"))
+            loc_xo = desc.get_location(("X", "O"))
 
-        # Test that only N2O has X-N pairs
-        co2_n = co2_out[loc_n]
-        n2o_n = n2o_out[loc_n]
-        h2o_n = h2o_out[loc_n]
-        self.assertTrue(n2o_n.sum() != 0)
-        self.assertTrue(h2o_n.sum() == 0)
-        self.assertTrue(co2_n.sum() == 0)
+            # X-H
+            self.assertTrue(co2_out[loc_xh].sum() == 0)
+            self.assertTrue(h2o_out[loc_xh].sum() != 0)
 
-        # Test that only H2O has X-H pairs
-        co2_h = co2_out[loc_h]
-        n2o_h = n2o_out[loc_h]
-        h2o_h = h2o_out[loc_h]
-        self.assertTrue(n2o_h.sum() == 0)
-        self.assertTrue(h2o_h.sum() != 0)
-        self.assertTrue(co2_h.sum() == 0)
+            # X-C
+            self.assertTrue(co2_out[loc_xc].sum() != 0)
+            self.assertTrue(h2o_out[loc_xc].sum() == 0)
 
-        # Test that all have X-O pairs
-        co2_o = co2_out[loc_o]
-        n2o_o = n2o_out[loc_o]
-        h2o_o = h2o_out[loc_o]
-        self.assertTrue(n2o_o.sum() != 0)
-        self.assertTrue(h2o_o.sum() != 0)
-        self.assertTrue(co2_o.sum() != 0)
+            # X-O
+            self.assertTrue(co2_out[loc_xo].sum() != 0)
+            self.assertTrue(h2o_out[loc_xo].sum() != 0)
 
-        # Test that only CO2 has X-O-C
-        co2_oc = co2_out[loc_oc]
-        n2o_oc = n2o_out[loc_oc]
-        h2o_oc = h2o_out[loc_oc]
-        self.assertTrue(n2o_oc.sum() == 0)
-        self.assertTrue(h2o_oc.sum() == 0)
-        self.assertTrue(co2_oc.sum() != 0)
+    def test_locations_k3(self):
+        """Tests that the function used to query combination locations for k=2
+        in the output works.
+        """
 
-        # Test that only N2O has X-O-N
-        co2_on = co2_out[loc_on]
-        n2o_on = n2o_out[loc_on]
-        h2o_on = h2o_out[loc_on]
-        self.assertTrue(n2o_on.sum() != 0)
-        self.assertTrue(h2o_on.sum() == 0)
-        self.assertTrue(co2_on.sum() == 0)
+        CO2 = molecule("CO2")
+        H2O = molecule("H2O")
+        descriptors = [
+            copy.deepcopy(default_desc_k3),
+            copy.deepcopy(default_desc_k2_k3)
+        ]
 
-        # Test that only H2O has X-O-H
-        co2_oh = co2_out[loc_oh]
-        n2o_oh = n2o_out[loc_oh]
-        h2o_oh = h2o_out[loc_oh]
-        self.assertTrue(n2o_oh.sum() == 0)
-        self.assertTrue(h2o_oh.sum() != 0)
-        self.assertTrue(co2_oh.sum() == 0)
+        for desc in descriptors:
+            desc.periodic = False
+            desc.species = ["H", "O", "C"]
+            co2_out = desc.create(CO2, positions=[1])[0, :]
+            h2o_out = desc.create(H2O, positions=[1])[0, :]
+
+            loc_xhh = desc.get_location(("X", "H", "H"))
+            loc_xho = desc.get_location(("X", "H", "O"))
+            loc_xhc = desc.get_location(("X", "H", "C"))
+            loc_xoh = desc.get_location(("X", "O", "H"))
+            loc_xoo = desc.get_location(("X", "O", "O"))
+            loc_xoc = desc.get_location(("X", "O", "C"))
+            loc_xch = desc.get_location(("X", "C", "H"))
+            loc_xco = desc.get_location(("X", "C", "O"))
+            loc_xcc = desc.get_location(("X", "C", "C"))
+            loc_hxh = desc.get_location(("H", "X", "H"))
+            loc_hxo = desc.get_location(("H", "X", "O"))
+            loc_hxc = desc.get_location(("H", "X", "C"))
+            loc_cxo = desc.get_location(("C", "X", "O"))
+            loc_oxo = desc.get_location(("O", "X", "O"))
+            loc_cxc = desc.get_location(("C", "X", "C"))
+
+            # X-H-H
+            self.assertTrue(co2_out[loc_xhh].sum() == 0)
+            self.assertTrue(h2o_out[loc_xhh].sum() == 0)
+
+            # X-H-O
+            self.assertTrue(co2_out[loc_xho].sum() == 0)
+            self.assertTrue(h2o_out[loc_xho].sum() != 0)
+
+            # X-H-C
+            self.assertTrue(co2_out[loc_xhc].sum() == 0)
+            self.assertTrue(h2o_out[loc_xhc].sum() == 0)
+
+            # X-O-H
+            self.assertTrue(co2_out[loc_xoh].sum() == 0)
+            self.assertTrue(h2o_out[loc_xoh].sum() != 0)
+
+            # X-O-O
+            self.assertTrue(co2_out[loc_xoo].sum() == 0)
+            self.assertTrue(h2o_out[loc_xoo].sum() == 0)
+
+            # X-O-C
+            self.assertTrue(co2_out[loc_xoc].sum() != 0)
+            self.assertTrue(h2o_out[loc_xoc].sum() == 0)
+
+            # X-C-H
+            self.assertTrue(co2_out[loc_xch].sum() == 0)
+            self.assertTrue(h2o_out[loc_xch].sum() == 0)
+
+            # X-C-O
+            self.assertTrue(co2_out[loc_xco].sum() != 0)
+            self.assertTrue(h2o_out[loc_xco].sum() == 0)
+
+            # X-C-C
+            self.assertTrue(co2_out[loc_xcc].sum() == 0)
+            self.assertTrue(h2o_out[loc_xcc].sum() == 0)
+
+            # H-X-H
+            self.assertTrue(co2_out[loc_hxh].sum() == 0)
+            self.assertTrue(h2o_out[loc_hxh].sum() == 0)
+
+            # H-X-O
+            self.assertTrue(co2_out[loc_hxo].sum() == 0)
+            self.assertTrue(h2o_out[loc_hxo].sum() != 0)
+
+            # H-X-C
+            self.assertTrue(co2_out[loc_hxc].sum() == 0)
+            self.assertTrue(h2o_out[loc_hxc].sum() == 0)
+
+            # C-X-O
+            self.assertTrue(co2_out[loc_cxo].sum() != 0)
+            self.assertTrue(h2o_out[loc_cxo].sum() == 0)
+
+            # O-X-O
+            self.assertTrue(co2_out[loc_oxo].sum() == 0)
+            self.assertTrue(h2o_out[loc_oxo].sum() == 0)
+
+            # C-X-C
+            self.assertTrue(co2_out[loc_cxc].sum() == 0)
+            self.assertTrue(h2o_out[loc_cxc].sum() == 0)
 
     def test_center_periodicity(self):
         """Tests that the flag that controls whether the central atoms is

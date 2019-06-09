@@ -192,8 +192,12 @@ class LMBTR(MBTR):
         # These attributes can be set whenever
         self.is_center_periodic = periodic if is_center_periodic is None else is_center_periodic
 
-        # Check the setup for errors
-        self.check_setup()
+        # Check that center is not defined as periodic if the system is not
+        if self.periodic is False and self.is_center_periodic is True:
+            raise ValueError(
+                "Cannot make the central atom periodic if the whole system is "
+                "not periodic."
+            )
 
         self.updated = True
 
@@ -221,13 +225,6 @@ class LMBTR(MBTR):
             of positions and systems and the second dimension is determined by
             the get_number_of_features()-function.
         """
-        # Check the setup for errors that may be been introduced after the
-        # constructor call.
-        self.check_setup()
-
-        # Ensure that the locations have been calculated
-        self.calculate_locations()
-
         # If single system given, skip the parallelization
         if isinstance(system, (Atoms, System)):
             return self.create_single(system, positions)
@@ -484,7 +481,9 @@ class LMBTR(MBTR):
                 # Broaden with a gaussian
                 gaussian_sum = self.gaussian_sum(geoms, weights, grid)
 
-                start, end = self._locations_each[(0, i)]
+                m = i
+                start = int(m*n)
+                end = int((m+1)*n)
                 k2[0, start:end] = gaussian_sum
         else:
             k2 = np.zeros((n_elem, n), dtype=np.float32)
@@ -535,7 +534,18 @@ class LMBTR(MBTR):
                 # Broaden with a gaussian
                 gaussian_sum = self.gaussian_sum(geoms, weights, grid)
 
-                start, end = self._locations_each[(i, j, k)]
+                # This is the index of the spectrum. It is given by enumerating the
+                # elements of a three-dimensional array and only considering
+                # elements for which k>=i and i || j == 0. The enumeration begins
+                # from [0, 0, 0], and ends at [n_elem, n_elem, n_elem], looping the
+                # elements in the order k, i, j.
+                if j == 0:
+                    m = k + i*n_elem - i*(i+1)/2
+                else:
+                    m = n_elem*(n_elem+1)/2+(j-1)*n_elem + k
+                start = int(m*n)
+                end = int((m+1)*n)
+
                 k3[0, start:end] = gaussian_sum
         else:
             k3 = np.zeros((n_elem, n_elem, n_elem, n), dtype=np.float32)
@@ -573,8 +583,14 @@ class LMBTR(MBTR):
             ValueError: If the requested species combination is not in the
             output or if invalid species defined.
         """
-        # Ensure that the locations are up to date
-        self.calculate_locations()
+        # Check that the corresponding part is calculated
+        k = len(species)
+        term = getattr(self, "k{}".format(k))
+        if term is None:
+            raise ValueError(
+                "Cannot retrieve the location for {}, as the term {} has not "
+                "been specifed.".format(species, term)
+            )
 
         # Change chemical elements into atomic numbers
         numbers = []
@@ -588,71 +604,121 @@ class LMBTR(MBTR):
 
         # Change into internal indexing
         numbers = [self.atomic_number_to_index[x] for x in numbers]
+        n_elem = self.n_elements
 
-        # Fix ordering
+        # k=2
         if len(numbers) == 2:
             if numbers[0] > numbers[1]:
-                numbers = reversed(numbers)
+                numbers = list(reversed(numbers))
+
+            n2 = self.k2["grid"]["n"]
+            j = numbers[1]
+            # if i != "X":
+                # raise ValueError(
+                    # "Local MBTR does not contain k=2 terms without the central "
+                    # "species X."
+                # )
+            m = j
+            start = int(m*n2)
+            end = int((m+1)*n2)
+
+        # k=3
         if len(numbers) == 3:
             if numbers[0] > numbers[2]:
-                numbers = reversed(numbers)
+                numbers = list(reversed(numbers))
 
-        self.calculate_locations()
-        loc = self._locations
-        start, end = loc[tuple(numbers)]
+            n3 = self.k3["grid"]["n"]
+            i = numbers[0]
+            j = numbers[1]
+            k = numbers[2]
+            # if i != "X" or j != "X":
+                # raise ValueError(
+                    # "Local MBTR does not contain k=3 terms without the central "
+                    # "species X."
+                # )
 
-        return slice(start, end)
+            # This is the index of the spectrum. It is given by enumerating the
+            # elements of a three-dimensional array and only considering
+            # elements for which k>=i and i || j == 0. The enumeration begins
+            # from [0, 0, 0], and ends at [n_elem, n_elem, n_elem], looping the
+            # elements in the order k, i, j.
+            if j == 0:
+                m = k + i*n_elem - i*(i+1)/2
+            else:
+                m = n_elem*(n_elem+1)/2+(j-1)*n_elem + k
 
-    def calculate_locations(self):
-        """Used to calculate the locations of species combinations in the
-        flattened output.
-        """
-        k2updated = False
-        k3updated = False
-        if self.k2 is not None:
-            k2updated = self.k2["grid"].nupdated
-        if self.k3 is not None:
-            k3updated = self.k3["grid"].nupdated
-
-        if self.updated or k2updated or k3updated:
-            n_elem = self.n_elements
-            locations = {}
-            locations_each = {}
-
-            # k=2
             offset = 0
             if self.k2 is not None:
                 n2 = self.k2["grid"]["n"]
-                m = 0
-                for i in range(n_elem):
-                    start = m*n2
-                    end = (m+1)*n2
-                    locations_each[(0, i)] = start, end
-                    locations[(0, i)] = start, end
-                    m += 1
-                offset = m*n2
+                offset += n_elem*n2
+            start = int(offset+m*n3)
+            end = int(offset+(m+1)*n3)
 
-            # k=3
-            if self.k3 is not None:
-                n3 = self.k3["grid"]["n"]
-                m = 0
-                for i in range(n_elem):
-                    for j in range(n_elem):
-                        for k in range(n_elem):
-                            if k >= i and (i == 0 or j == 0 or k == 0):
-                                start = m*n3
-                                end = (m+1)*n3
-                                locations_each[(i, j, k)] = start, end
-                                locations[(i, j, k)] = offset+start, offset+end
-                                m += 1
+        return slice(start, end)
 
-            self._locations = locations
-            self._locations_each = locations_each
-            self.updated = False
-            if self.k2 is not None:
-                self.k2["grid"].nupdated = False
-            if self.k3 is not None:
-                self.k3["grid"].nupdated = False
+        # Fix ordering
+        # if len(numbers) == 2:
+            # if numbers[0] > numbers[1]:
+                # numbers = reversed(numbers)
+        # if len(numbers) == 3:
+            # if numbers[0] > numbers[2]:
+                # numbers = reversed(numbers)
+
+        # loc = self._locations
+        # start, end = loc[tuple(numbers)]
+
+        # return slice(start, end)
+
+    # def calculate_locations(self):
+        # """Used to calculate the locations of species combinations in the
+        # flattened output.
+        # """
+        # k2updated = False
+        # k3updated = False
+        # if self.k2 is not None:
+            # k2updated = self.k2["grid"].nupdated
+        # if self.k3 is not None:
+            # k3updated = self.k3["grid"].nupdated
+
+        # if self.updated or k2updated or k3updated:
+            # n_elem = self.n_elements
+            # locations = {}
+            # locations_each = {}
+
+            # # k=2
+            # offset = 0
+            # if self.k2 is not None:
+                # n2 = self.k2["grid"]["n"]
+                # m = 0
+                # for i in range(n_elem):
+                    # start = m*n2
+                    # end = (m+1)*n2
+                    # locations_each[(0, i)] = start, end
+                    # locations[(0, i)] = start, end
+                    # m += 1
+                # offset = m*n2
+
+            # # k=3
+            # if self.k3 is not None:
+                # n3 = self.k3["grid"]["n"]
+                # m = 0
+                # for i in range(n_elem):
+                    # for j in range(n_elem):
+                        # for k in range(n_elem):
+                            # if k >= i and (i == 0 or j == 0 or k == 0):
+                                # start = m*n3
+                                # end = (m+1)*n3
+                                # locations_each[(i, j, k)] = start, end
+                                # locations[(i, j, k)] = offset+start, offset+end
+                                # m += 1
+
+            # self._locations = locations
+            # self._locations_each = locations_each
+            # self.updated = False
+            # if self.k2 is not None:
+                # self.k2["grid"].nupdated = False
+            # if self.k3 is not None:
+                # self.k3["grid"].nupdated = False
 
     @property
     def species(self):
@@ -694,14 +760,3 @@ class LMBTR(MBTR):
 
         # Recalculate locations
         self.updated = True
-
-    def check_setup(self):
-        """Used to check that the given attributes make up a valid setup.
-        """
-        super().check_setup()
-
-        if self.periodic is False and self.is_center_periodic is True:
-            raise ValueError(
-                "Cannot make the central atom periodic if the whole system is "
-                "not periodic."
-            )

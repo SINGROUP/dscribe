@@ -18,6 +18,8 @@ import ase.geometry
 
 from testbaseclass import TestBaseClass
 
+import matplotlib.pyplot as mpl
+
 default_k1 = {
     "geometry": {"function": "atomic_number"},
     "grid": {"min": 1, "max": 90, "sigma": 0.1, "n": 50}
@@ -64,7 +66,7 @@ default_desc_k1_k2_k3 = MBTR(
     periodic=True,
     k1={
         "geometry": {"function": "atomic_number"},
-        "grid": {"min": 0, "max": 2, "sigma": 0.1, "n": 100},
+        "grid": {"min": 0, "max": 9, "sigma": 0.1, "n": 100},
     },
     k2={
         "geometry": {"function": "inverse_distance"},
@@ -313,6 +315,152 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         expected = n_elem*n + 1/2*(n_elem)*(n_elem+1)*n + n_elem*1/2*(n_elem)*(n_elem+1)*n
         self.assertEqual(n_features, expected)
 
+    def test_locations_k1(self):
+        """Tests that the function used to query combination locations for k=1
+        in the output works.
+        """
+        CO2 = molecule("CO2")
+        H2O = molecule("H2O")
+        descriptors = [
+            copy.deepcopy(default_desc_k1),
+            copy.deepcopy(default_desc_k1_k2_k3)
+        ]
+
+        for desc in descriptors:
+            desc.periodic = False
+            desc.species = ["H", "O", "C"]
+
+            co2_out = desc.create(CO2)[0, :]
+            h2o_out = desc.create(H2O)[0, :]
+
+            loc_h = desc.get_location(("H"))
+            loc_c = desc.get_location(("C"))
+            loc_o = desc.get_location(("O"))
+
+            # H
+            self.assertTrue(co2_out[loc_h].sum() == 0)
+            self.assertTrue(h2o_out[loc_h].sum() != 0)
+
+            # C
+            self.assertTrue(co2_out[loc_c].sum() != 0)
+            self.assertTrue(h2o_out[loc_c].sum() == 0)
+
+            # O
+            self.assertTrue(co2_out[loc_o].sum() != 0)
+            self.assertTrue(h2o_out[loc_o].sum() != 0)
+
+    def test_locations_k2(self):
+        """Tests that the function used to query combination locations for k=2
+        in the output works.
+        """
+
+        CO2 = molecule("CO2")
+        H2O = molecule("H2O")
+        descriptors = [
+            copy.deepcopy(default_desc_k2),
+            copy.deepcopy(default_desc_k1_k2_k3)
+        ]
+
+        for desc in descriptors:
+            desc.periodic = False
+            desc.species = ["H", "O", "C"]
+
+            CO2 = molecule("CO2")
+            H2O = molecule("H2O")
+
+            co2_out = desc.create(CO2)[0, :]
+            h2o_out = desc.create(H2O)[0, :]
+
+            loc_hh = desc.get_location(("H", "H"))
+            loc_hc = desc.get_location(("H", "C"))
+            loc_ho = desc.get_location(("H", "O"))
+            loc_co = desc.get_location(("C", "O"))
+            loc_cc = desc.get_location(("C", "C"))
+            loc_oo = desc.get_location(("O", "O"))
+
+            # H-H
+            self.assertTrue(co2_out[loc_hh].sum() == 0)
+            self.assertTrue(h2o_out[loc_hh].sum() != 0)
+
+            # H-C
+            self.assertTrue(co2_out[loc_hc].sum() == 0)
+            self.assertTrue(h2o_out[loc_hc].sum() == 0)
+
+            # H-O
+            self.assertTrue(co2_out[loc_ho].sum() == 0)
+            self.assertTrue(h2o_out[loc_ho].sum() != 0)
+
+            # C-O
+            self.assertTrue(co2_out[loc_co].sum() != 0)
+            self.assertTrue(h2o_out[loc_co].sum() == 0)
+
+            # C-C
+            self.assertTrue(co2_out[loc_cc].sum() == 0)
+            self.assertTrue(h2o_out[loc_cc].sum() == 0)
+
+            # O-O
+            self.assertTrue(co2_out[loc_oo].sum() != 0)
+            self.assertTrue(h2o_out[loc_oo].sum() == 0)
+
+    def test_locations_k3(self):
+        """Tests that the function used to query combination locations for k=2
+        in the output works.
+        """
+
+        CO2 = molecule("CO2")
+        H2O = molecule("H2O")
+        descriptors = [
+            copy.deepcopy(default_desc_k3),
+            copy.deepcopy(default_desc_k1_k2_k3)
+        ]
+
+        for desc in descriptors:
+            desc.periodic = False
+            desc.species = ["H", "O", "C"]
+            co2_out = desc.create(CO2)[0, :]
+            h2o_out = desc.create(H2O)[0, :]
+
+            loc_hhh = desc.get_location(("H", "H", "H"))
+            loc_hho = desc.get_location(("H", "H", "O"))
+            loc_hoo = desc.get_location(("H", "O", "O"))
+            loc_hoh = desc.get_location(("H", "O", "H"))
+            loc_ooo = desc.get_location(("O", "O", "O"))
+            loc_ooh = desc.get_location(("O", "O", "H"))
+            loc_oho = desc.get_location(("O", "H", "O"))
+            loc_ohh = desc.get_location(("O", "H", "H"))
+
+            # H-H-H
+            self.assertTrue(co2_out[loc_hhh].sum() == 0)
+            self.assertTrue(h2o_out[loc_hhh].sum() == 0)
+
+            # H-H-O
+            self.assertTrue(co2_out[loc_hho].sum() == 0)
+            self.assertTrue(h2o_out[loc_hho].sum() != 0)
+
+            # H-O-O
+            self.assertTrue(co2_out[loc_hoo].sum() == 0)
+            self.assertTrue(h2o_out[loc_hoo].sum() == 0)
+
+            # H-O-H
+            self.assertTrue(co2_out[loc_hoh].sum() == 0)
+            self.assertTrue(h2o_out[loc_hoh].sum() != 0)
+
+            # O-O-O
+            self.assertTrue(co2_out[loc_ooo].sum() == 0)
+            self.assertTrue(h2o_out[loc_ooo].sum() == 0)
+
+            # O-O-H
+            self.assertTrue(co2_out[loc_ooh].sum() == 0)
+            self.assertTrue(h2o_out[loc_ooh].sum() == 0)
+
+            # O-H-O
+            self.assertTrue(co2_out[loc_oho].sum() == 0)
+            self.assertTrue(h2o_out[loc_oho].sum() == 0)
+
+            # O-H-H
+            self.assertTrue(co2_out[loc_ohh].sum() == 0)
+            self.assertTrue(h2o_out[loc_ohh].sum() != 0)
+
     def test_sparse(self):
         """Tests the sparse matrix creation.
         """
@@ -373,6 +521,16 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         }
         vec5 = a.create(H2O)
         self.assertTrue(not np.allclose(vec4, vec5))
+
+    def test_exceptions(self):
+        """Used to test different expections that should be raised.
+        """
+        a = copy.deepcopy(default_desc_k1_k2_k3)
+
+        # Invalid max value when creating
+        with self.assertRaises(ValueError):
+            a.k2["grid"]["max"] = -1
+            a.create(H2O)
 
     def test_flatten(self):
         """Tests that flattened, and non-flattened output works correctly.
