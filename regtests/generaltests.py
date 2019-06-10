@@ -204,31 +204,22 @@ class SpeciesTests(unittest.TestCase):
         # As atomic number in contructor
         d = ACSF(rcut=6.0, species=[5, 1])
         self.assertEqual(d.species, [5, 1])          # Saves the original variable
-        self.assertEqual(d._atomic_numbers, [1, 5])  # Ordered here
+        self.assertTrue(np.array_equal(d._atomic_numbers, [1, 5]))  # Ordered here
 
         # Set through property
         d.species = [10, 2]
         self.assertEqual(d.species, [10, 2])
-        self.assertEqual(d._atomic_numbers, [2, 10])
+        self.assertTrue(np.array_equal(d._atomic_numbers, [2, 10]))  # Ordered here
 
         # As chemical symbol in the contructor
         d = ACSF(rcut=6.0, species=["O", "H"])
         self.assertEqual(d.species, ["O", "H"])      # Saves the original variable
-        self.assertEqual(d._atomic_numbers, [1, 8])  # Ordered here
+        self.assertTrue(np.array_equal(d._atomic_numbers, [1, 8]))  # Ordered here
 
         # Set through property
         d.species = ["N", "Pb"]
         self.assertEqual(d.species, ["N", "Pb"])
-        self.assertEqual(d._atomic_numbers, [7, 82])
-
-    def test_atomic_number(self):
-        """Tests that using the deprecated atomic_numbers-parameters still
-        works.
-        """
-        # As atomic number in contructor
-        d = ACSF(rcut=6.0, atomic_numbers=[5, 1])
-        self.assertEqual(d.species, [5, 1])          # Saves the original variable
-        self.assertEqual(d._atomic_numbers, [1, 5])  # Ordered here
+        self.assertTrue(np.array_equal(d._atomic_numbers, [7, 82]))
 
     def test_symbols_to_atomic_number(self):
         """Tests that chemical symbols are correctly transformed into atomic
