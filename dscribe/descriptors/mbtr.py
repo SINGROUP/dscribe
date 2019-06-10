@@ -959,14 +959,17 @@ class MBTR(Descriptor):
             )
 
             # Determine the weighting function
-            weighting = self.k2["weighting"]
-            weighting_function = weighting["function"]
+            weighting = self.k2.get("weighting")
             parameters = {}
-            if weighting_function == "exponential" or weighting_function == "exp":
-                parameters = {
-                    b"scale": weighting["scale"],
-                    b"cutoff": weighting["cutoff"]
-                }
+            if weighting is not None:
+                weighting_function = weighting["function"]
+                if weighting_function == "exponential" or weighting_function == "exp":
+                    parameters = {
+                        b"scale": weighting["scale"],
+                        b"cutoff": weighting["cutoff"]
+                    }
+            else:
+                weighting_function = "unity"
 
             # Determine the geometry function
             geom_func_name = self.k2["geometry"]["function"]
@@ -1003,14 +1006,17 @@ class MBTR(Descriptor):
             )
 
             # Determine the weighting function
-            weight_info = self.k3["weighting"]
-            weighting_function = weight_info["function"]
+            weight_info = self.k3.get("weighting")
             parameters = {}
-            if weighting_function == "exponential" or weighting_function == "exp":
-                parameters = {
-                    b"scale": weight_info["scale"],
-                    b"cutoff": weight_info["cutoff"]
-                }
+            if weight_info is not None:
+                weighting_function = weight_info["function"]
+                if weighting_function == "exponential" or weighting_function == "exp":
+                    parameters = {
+                        b"scale": weight_info["scale"],
+                        b"cutoff": weight_info["cutoff"]
+                    }
+            else:
+                weighting_function = "unity"
 
             # Determine the geometry function
             geom_func_name = self.k3["geometry"]["function"]

@@ -92,6 +92,7 @@ average_soap = SOAP(
 soap_water = average_soap.create(water)
 print("average soap water", soap_water.shape)
 
+methanol = molecule('CH3OH')
 soap_methanol = average_soap.create(methanol)
 print("average soap methanol", soap_methanol.shape)
 

@@ -106,6 +106,8 @@ ax.plot(x, output_weight[0, :], label="Exponential weighting")
 ax.legend()
 mpl.show()
 
+# Geometry functions
+
 # Periodic
 desc = MBTR(
     species=["H"],

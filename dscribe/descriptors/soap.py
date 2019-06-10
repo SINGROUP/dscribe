@@ -60,7 +60,7 @@ class SOAP(Descriptor):
             periodic=False,
             crossover=True,
             average=False,
-            sparse=True
+            sparse=False
             ):
         """
         Args:

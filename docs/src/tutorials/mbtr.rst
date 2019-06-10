@@ -58,6 +58,15 @@ Examples
 The following examples demonstrate common use cases for the descriptor. These
 examples are also available in dscribe/examples/mbtr.py.
 
+Geometry functions
+------------------
+The implementation allows you to specify in some cases the function through
+which the k-body information is encoded. The following functions are available:
+
+Locating information
+--------------------
+
+
 Visualization
 ~~~~~~~~~~~~~
 The MBTR output vector can be visualized easily. The following snippet

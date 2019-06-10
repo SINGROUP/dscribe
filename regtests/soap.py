@@ -716,7 +716,8 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                         # Calculate numerical coefficients
                         def soap_coeff(phi, theta, r):
 
-                            # Regular spherical harmonic
+                            # Regular spherical harmonic, notice the abs(m)
+                            # needed for constructing the real form
                             ylm_comp = scipy.special.sph_harm(np.abs(m), l, phi, theta)  # NOTE: scipy swaps phi and theta
 
                             # Construct real (tesseral) spherical harmonics for
@@ -845,7 +846,8 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                         # Calculate numerical coefficients
                         def soap_coeff(phi, theta, r):
 
-                            # Regular spherical harmonic
+                            # Regular spherical harmonic, notice the abs(m)
+                            # needed for constructing the real form
                             ylm_comp = scipy.special.sph_harm(np.abs(m), l, phi, theta)  # NOTE: scipy swaps phi and theta
 
                             # Construct real (tesseral) spherical harmonics for
