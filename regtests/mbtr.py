@@ -522,16 +522,6 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         vec5 = a.create(H2O)
         self.assertTrue(not np.allclose(vec4, vec5))
 
-    def test_exceptions(self):
-        """Used to test different expections that should be raised.
-        """
-        a = copy.deepcopy(default_desc_k1_k2_k3)
-
-        # Invalid max value when creating
-        with self.assertRaises(ValueError):
-            a.k2["grid"]["max"] = -1
-            a.create(H2O)
-
     def test_flatten(self):
         """Tests that flattened, and non-flattened output works correctly.
         """

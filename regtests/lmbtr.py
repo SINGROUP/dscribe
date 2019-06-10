@@ -97,7 +97,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         subclassed from MBTr, many of the tests are already performed in the
         regression tests for MBTR.
         """
-        # Cannot make center periodic if the whole sytem is not
+        # Cannot make center periodic if the whole system is not
         with self.assertRaises(ValueError):
             LMBTR(
                 species=[1],

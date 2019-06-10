@@ -26,7 +26,6 @@ from ase import Atoms
 import ase.data
 
 from dscribe.core import System
-# from dscribe.descriptors.mbtrsetup import MBTRK1Setup, MBTRK2Setup, MBTRK3Setup, check_grid
 from dscribe.descriptors import Descriptor
 from dscribe.libmbtr.mbtrwrapper import MBTRWrapper
 
