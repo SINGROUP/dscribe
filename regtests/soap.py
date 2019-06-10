@@ -190,24 +190,36 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         """Tests that different positions are handled correctly.
         """
         desc = SOAP(species=[1, 6, 8], rcut=10.0, nmax=2, lmax=0, periodic=False, crossover=True)
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O).shape[1])
+        n_feat = desc.get_number_of_features()
+        self.assertEqual((1, n_feat), desc.create(H2O, positions=np.array([[0, 0, 0]])).shape)
+        self.assertEqual((1, n_feat), desc.create(H2O, positions=[[0, 0, 0]]).shape)
+        self.assertEqual((3, n_feat), desc.create(H2O, positions=[0, 1, 2]).shape)
+        self.assertEqual((3, n_feat), desc.create(H2O, positions=np.array([0, 1, 2])).shape)
+        self.assertEqual((3, n_feat), desc.create(H2O).shape)
 
         desc = SOAP(species=[1, 6, 8], rcut=10.0, nmax=2, lmax=0, periodic=True, crossover=True,)
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O).shape[1])
+        n_feat = desc.get_number_of_features()
+        self.assertEqual((1, n_feat), desc.create(H2O, positions=np.array([[0, 0, 0]])).shape)
+        self.assertEqual((1, n_feat), desc.create(H2O, positions=[[0, 0, 0]]).shape)
+        self.assertEqual((3, n_feat), desc.create(H2O, positions=[0, 1, 2]).shape)
+        self.assertEqual((3, n_feat), desc.create(H2O, positions=np.array([0, 1, 2])).shape)
+        self.assertEqual((3, n_feat), desc.create(H2O).shape)
 
         desc = SOAP(species=[1, 6, 8], rcut=10.0, nmax=2, lmax=0, periodic=True, crossover=False,)
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O).shape[1])
+        n_feat = desc.get_number_of_features()
+        self.assertEqual((1, n_feat), desc.create(H2O, positions=np.array([[0, 0, 0]])).shape)
+        self.assertEqual((1, n_feat), desc.create(H2O, positions=[[0, 0, 0]]).shape)
+        self.assertEqual((3, n_feat), desc.create(H2O, positions=[0, 1, 2]).shape)
+        self.assertEqual((3, n_feat), desc.create(H2O, positions=np.array([0, 1, 2])).shape)
+        self.assertEqual((3, n_feat), desc.create(H2O).shape)
 
         desc = SOAP(species=[1, 6, 8], rcut=10.0, nmax=2, lmax=0, periodic=False, crossover=False,)
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O).shape[1])
+        n_feat = desc.get_number_of_features()
+        self.assertEqual((1, n_feat), desc.create(H2O, positions=np.array([[0, 0, 0]])).shape)
+        self.assertEqual((1, n_feat), desc.create(H2O, positions=[[0, 0, 0]]).shape)
+        self.assertEqual((3, n_feat), desc.create(H2O, positions=[0, 1, 2]).shape)
+        self.assertEqual((3, n_feat), desc.create(H2O, positions=np.array([0, 1, 2])).shape)
+        self.assertEqual((3, n_feat), desc.create(H2O).shape)
 
         with self.assertRaises(ValueError):
             desc.create(H2O, positions=['a'])
@@ -217,7 +229,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         """
         samples = [molecule("CO"), molecule("N2O")]
         desc = SOAP(
-            atomic_numbers=[6, 7, 8],
+            species=[6, 7, 8],
             rcut=5,
             nmax=3,
             lmax=3,
@@ -297,7 +309,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         # Test indices
         samples = [molecule("CO"), molecule("N2O")]
         desc = SOAP(
-            atomic_numbers=[6, 7, 8],
+            species=[6, 7, 8],
             rcut=5,
             nmax=3,
             lmax=3,
