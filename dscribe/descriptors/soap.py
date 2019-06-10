@@ -28,9 +28,11 @@ import soaplite
 
 
 class SOAP(Descriptor):
-    """Class for the Smooth Overlap of Atomic Orbitals (SOAP) descriptor. This
-    implementation uses orthogonalized spherical primitive gaussian type
-    orbitals as the radial basis set to reach a fast analytical solution.
+    """Class for generating a partial power spectrum from Smooth Overlap of
+    Atomic Orbitals (SOAP). This implementation uses real (tesseral) spherical
+    harmonics as the angular basis set and provides two orthonormalized
+    alternatives for the radial basis functions: spherical primitive gaussian
+    type orbitals ("gto") or the polynomial basis set ("polynomial").
 
     For reference, see:
 
@@ -41,6 +43,11 @@ class SOAP(Descriptor):
     "Comparing molecules and solids across structural and alchemical space",
     Sandip De, Albert P. Bartók, Gábor Csányi and Michele Ceriotti, Phys.
     Chem. Chem. Phys. 18, 13754 (2016), https://doi.org/10.1039/c6cp00415f
+
+    "Machine learning hydrogen adsorption on nanoclusters through structural
+    descriptors", Marc O. J. Jäger, Eiaki V. Morooka, Filippo Federici Canova,
+    Lauri Himanen & Adam S. Foster, npj Comput. Mater., 4, 37 (2018),
+    https://doi.org/10.1038/s41524-018-0096-5
     """
     def __init__(
             self,
@@ -50,7 +57,6 @@ class SOAP(Descriptor):
             sigma=1.0,
             rbf="gto",
             species=None,
-            atomic_numbers=None,
             periodic=False,
             crossover=True,
             average=False,
@@ -69,10 +75,6 @@ class SOAP(Descriptor):
                 encountered when creating the descriptors for a set of systems.
                 Keeping the number of chemical species as low as possible is
                 preferable.
-            atomic_numbers (iterable): A list of the atomic numbers that should
-                be taken into account in the descriptor. Deprecated in favour of
-                the species-parameters, but provided for
-                backwards-compatibility.
             sigma (float): The standard deviation of the gaussians used to expand the
                 atomic density.
             rbf (str): The radial basis functions to use. The available options are:
@@ -97,7 +99,6 @@ class SOAP(Descriptor):
         super().__init__(flatten=True, sparse=sparse)
 
         # Setup the involved chemical species
-        species = self.get_species_definition(species, atomic_numbers)
         self.species = species
 
         # Check that sigma is valid

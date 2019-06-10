@@ -49,7 +49,6 @@ class ACSF(Descriptor):
         g4_params=None,
         g5_params=None,
         species=None,
-        atomic_numbers=None,
         sparse=False
     ):
         """
@@ -72,10 +71,6 @@ class ACSF(Descriptor):
                 encountered when creating the descriptors for a set of systems.
                 Keeping the number of chemical species as low as possible is
                 preferable.
-            atomic_numbers (iterable): A list of the atomic numbers that should
-                be taken into account in the descriptor. Deprecated in favour of
-                the species-parameters, but provided for
-                backwards-compatibility.
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
         """
@@ -84,7 +79,6 @@ class ACSF(Descriptor):
         self.acsf_wrapper = ACSFWrapper()
 
         # Setup
-        species = self.get_species_definition(species, atomic_numbers)
         self.species = species
         self.g2_params = g2_params
         self.g3_params = g3_params

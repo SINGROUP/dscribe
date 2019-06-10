@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Copyright 2019 DScribe developers
+"""Copyright 2019 DScribe developers
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
-from builtins import *
+from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
 
 import math
 import unittest

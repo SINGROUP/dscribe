@@ -3,7 +3,8 @@ Smooth Overlap of Atomic Positions
 
 Smooth Overlap of Atomic Positions (SOAP) is a descriptor that encodes regions
 of atomic geometries by using a local expansion of a gaussian smeared atomic
-density with orthonormal functions based on spherical harmonics.
+density with orthonormal functions based on spherical harmonics and a set of
+radial basis functions.
 
 The output is a vector :math:`\mathbf{p}(\mathbf{r})`, where the different
 elements are formed from the partial SOAP power spectrum defined as
@@ -12,16 +13,38 @@ elements are formed from the partial SOAP power spectrum defined as
 .. math::
    p(\mathbf{r})^{Z Z'}_{n n' l} = \pi \sqrt{\frac{8}{2l+1}}\sum_m c^{Z}_{n l m}(\mathbf{r})^{\dagger}c^{Z'}_{n' l m}(\mathbf{r})
 
-where :math:`\mathbf{r}` is a position in space, :math:`c^{Z}_{n l m}` are the
-expansion coefficients of the gaussian smoothed atomic density at position
-:math:`\mathbf{r}` (expanded in the basis of spherical harmonics and orthonormal
-radial basis functions), :math:`n` and :math:`n'` are indices for different
-radial basis functions up to :math:`n_\mathrm{max}`, :math:`l` is the angular
-degree of spherical harmonics up to :math:`l_\mathrm{max}` and :math:`Z` and
-:math:`Z'` are atomic species.  This form ensures stratification of the output
-by species and also provides information about cross-species interaction.
+where :math:`n` and :math:`n'` are indices for different radial basis functions
+up to :math:`n_\mathrm{max}`, :math:`l` is the angular degree of spherical
+harmonics up to :math:`l_\mathrm{max}` and :math:`Z` and :math:`Z'` are atomic
+species.
 
-In pseudo-code the ordering of the output vector is as follows:
+The coefficients :math:`c^Z_{nlm}` are defined as the following inner
+products:
+
+.. math::
+   c^Z_{nlm}(\mathbf{x}) =\iiint_{\mathcal{R}^3}\mathrm{d}V g_{n}(r)Y_{lm}(\theta, \phi)\rho^Z(\mathbf{r}).
+
+where :math:`\mathbf{r}` is a position in space, :math:`\rho^Z(\mathbf{r})` is the gaussian
+smoothed atomic density for atoms with atomic number :math:`Z` at position
+:math:`\mathbf{r}`, :math:`Y_{lm}(\theta, \phi)` are the real spherical
+harmonics, and :math:`g_{n}(r)` is the radial basis function.
+
+For the radial degree of freedom the selection of the basis function
+:math:`g_{n}(r)` is not as trivial and multiple approaches may be used. By
+default the DScribe implementation uses spherical gaussian type orbitals as
+radial basis functions :cite:`akisoap`, as they allow much faster analytic
+computation. We however also include the possibility of using the original
+polynomial radial basis set :cite:`soap1`.
+
+As the atomic density is a real-valued quantity (no imaginary part) it is
+natural to use the `real (tesseral) spherical harmonics
+<https://en.wikipedia.org/wiki/Spherical_harmonics#Real_form>`_. This real form
+spans the same space as the complex version, and is defined as a linear
+combination of the complex basis.
+
+The partial SOAP spectrum ensures stratification of the output by species and
+also provides information about cross-species interaction. In pseudo-code the
+ordering of the output vector is as follows:
 
 .. code-block:: none
 
@@ -33,10 +56,6 @@ In pseudo-code the ordering of the output vector is as follows:
                   if n' >= n and Z' >= Z:
                      append p(\chi)^{Z Z'}_{n n' l}` to output vector
 
-By default the implementation uses spherical gaussian type orbitals as radial
-basis functions :cite:`akisoap`, as they allow much faster analytic
-computation. We however also include the possibility of using the original
-polynomial radial basis set :cite:`soap1`.
 
 Setup
 -----
