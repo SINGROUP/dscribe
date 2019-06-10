@@ -255,22 +255,32 @@ class SOAP(Descriptor):
                     " atomic indices or cartesian coordinates with x, y and z "
                     "components."
                 )
-            for i in positions:
-                if np.issubdtype(type(i), np.integer):
-                    list_positions.append(system.get_positions()[i])
-                elif isinstance(i, list) or isinstance(i, tuple):
-                    if len(i) != 3:
-                        raise ValueError(
-                            "The argument 'positions' should contain a "
-                            "non-empty set of atomic indices or cartesian "
-                            "coordinates with x, y and z components."
-                        )
-                    list_positions.append(i)
+                
+            if isinstance(positions, np.ndarray):
+                if positions.dtype == np.int:
+                    list_positions = system.get_positions()[positions]
                 else:
-                    raise ValueError(
-                        "Create method requires the argument 'positions', a "
-                        "list of atom indices and/or positions"
-                    )
+                    if positions.ndim == 2 and positions.shape[1] == 3:
+                        list_positions = positions
+                    else:
+                        raise ValueError("Invalid `positions` shape %s" % str(positions.shape))
+            else: # Check if it's a correctly formed list
+                for i in positions:
+                    if np.issubdtype(type(i), np.integer):
+                        list_positions.append(system.get_positions()[i])
+                    elif isinstance(i, list) or isinstance(i, tuple):
+                        if len(i) != 3:
+                            raise ValueError(
+                                "The argument 'positions' should contain a "
+                                "non-empty set of atomic indices or cartesian "
+                                "coordinates with x, y and z components."
+                            )
+                        list_positions.append(i)
+                    else:
+                        raise ValueError(
+                            "Create method requires the argument 'positions', a "
+                            "list of atom indices and/or positions"
+                        )
 
             # Determine the SOAPLite function to call based on periodicity and
             # rbf
