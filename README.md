@@ -40,6 +40,7 @@ oxygen_soap = soap_desc.create(samples, oxygen_indices, n_jobs=3)
  * Atom-centered Symmetry Functions (ACSF)
  * Smooth Overlap of Atomic Orbitals (SOAP)
  * Many-body Tensor Representation (MBTR)
+ * Local Many-body Tensor Representation (LMBTR)
 
 # Installation
 The package is compatible both with Python 2 and Python 3 (tested on 2.7 and
