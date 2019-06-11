@@ -13,7 +13,7 @@ Instantiating an ACSF descriptor can be done as follows:
 
 .. literalinclude:: ../../../examples/acsf.py
    :language: python
-   :lines: 1-10
+   :lines: 1-9
 
 The arguments have the following effect:
 
