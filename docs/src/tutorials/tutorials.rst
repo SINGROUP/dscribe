@@ -12,4 +12,5 @@ Tutorials
    acsf
    soap
    mbtr
+   lmbtr
    kernels

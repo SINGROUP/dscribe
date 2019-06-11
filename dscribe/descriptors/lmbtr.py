@@ -148,7 +148,7 @@ class LMBTR(MBTR):
                     }
 
             is_center_periodic (bool): Determines whether the central positions
-                are periodically repeated or not. If not specified, default to
+                are periodically repeated or not. If not specified, defaults to
                 the value of the "periodic"-parameter. If False, the central
                 position is not repeated in periodic systems. If set to True,
                 the position will be repeated in periodic systems and may
