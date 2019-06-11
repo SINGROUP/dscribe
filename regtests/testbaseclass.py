@@ -130,4 +130,4 @@ class TestBaseClass(ABC):
             true_elem.sort()
             for i_elem, val_assumed in enumerate(assumed_elem):
                 val_true = true_elem[i_elem]
-                self.assertAlmostEqual(val_assumed, val_true, places=6)
+                self.assertAlmostEqual(val_assumed, val_true, places=4)

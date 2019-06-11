@@ -131,39 +131,6 @@ class Descriptor(with_metaclass(ABCMeta)):
         self._atomic_number_set = set(self._atomic_numbers)
         self._species = species
 
-    def get_species_definition(self, species, atomic_numbers):
-        """A convenience function that is included to decide the correct source
-        of species information.
-
-        Args:
-            species(iterable): Species information either as atomic numbers or
-                chemical symbols.
-            atomic_numbers(iterable): Species information as atomic numbers
-
-        Returns:
-            The correct variable for the species information.
-
-        Raises:
-            ValueError: If both or none of the species information is defined.
-        """
-        # First check that the chemical species are defined either as number or
-        # symbols
-        if atomic_numbers is None and species is None:
-            raise ValueError(
-                "Please provide the atomic species either as chemical symbols "
-                "or as atomic numbers."
-            )
-        elif atomic_numbers is not None and species is not None:
-            raise ValueError(
-                "Both species and atomic numbers provided. Please only provide"
-                "either one."
-            )
-
-        if atomic_numbers is not None:
-            return atomic_numbers
-        else:
-            return species
-
     def check_atomic_numbers(self, atomic_numbers):
         """Used to check that the given atomic numbers have been defined for
         this descriptor.

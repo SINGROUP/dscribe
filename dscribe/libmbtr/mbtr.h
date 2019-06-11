@@ -2,6 +2,7 @@
 #define MBTR_H
 
 using namespace std;
+#define PI 3.1415926535897932384626433832795028841971693993751058209749445923078164062
 
 /**
  * Represents a single integer index: i.
@@ -159,11 +160,26 @@ class MBTR {
         map<index1d, float> k1GeomAtomicNumber(const vector<index1d> &indexList);
 
         /**
+         * Calculates the distance geometry function defined for k=2.
+         *
+         * @return A map of distance values for the given atomic pairs.
+         */
+        map<index2d, float> k2GeomDistance(const vector<index2d> &indexList);
+
+        /**
          * Calculates the inverse distance geometry function defined for k=2.
          *
          * @return A map of inverse distance values for the given atomic pairs.
          */
         map<index2d, float> k2GeomInverseDistance(const vector<index2d> &indexList);
+
+        /**
+         * Calculates the angle (degrees) geometry function defined for k3.
+         *
+         * @return The angle defined between the given three atomic indices.
+         * Between 0 and 180 degrees.
+         */
+        map<index3d, float> k3GeomAngle(const vector<index3d> &indexList);
 
         /**
          * Calculates the cosine geometry function defined for k3.

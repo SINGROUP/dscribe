@@ -215,6 +215,15 @@ map<index1d, float> MBTR::k1GeomAtomicNumber(const vector<index1d> &indexList)
 
 map<index2d, float> MBTR::k2GeomInverseDistance(const vector<index2d> &indexList)
 {
+    map<index2d, float> valueMap = this->k2GeomDistance(indexList);
+    for(auto& item : valueMap) {
+        item.second = 1/item.second;
+    }
+    return valueMap;
+}
+
+map<index2d, float> MBTR::k2GeomDistance(const vector<index2d> &indexList)
+{
     vector<vector<float> > distMatrix = this->getDistanceMatrix();
 
     map<index2d,float> valueMap;
@@ -222,8 +231,8 @@ map<index2d, float> MBTR::k2GeomInverseDistance(const vector<index2d> &indexList
         int i = index.i;
         int j = index.j;
 
-        float invDist = 1/distMatrix[i][j];
-        valueMap[index] = invDist;
+        float dist = distMatrix[i][j];
+        valueMap[index] = dist;
     }
 
     return valueMap;
@@ -247,6 +256,15 @@ map<index3d, float> MBTR::k3GeomCosine(const vector<index3d> &indexList)
         valueMap[index] = cosine;
     }
 
+    return valueMap;
+}
+
+map<index3d, float> MBTR::k3GeomAngle(const vector<index3d> &indexList)
+{
+    map<index3d, float> valueMap = this->k3GeomCosine(indexList);
+    for(auto& item : valueMap) {
+        item.second = acos(item.second)*180.0/PI;
+    }
     return valueMap;
 }
 
@@ -399,13 +417,15 @@ pair<map<index2d, vector<float> >, map<index2d,vector<float> > > MBTR::getK2Geom
         map<index2d, float> geomValues;
         if (geomFunc == "inverse_distance") {
             geomValues = this->k2GeomInverseDistance(indexList);
+        } else if (geomFunc == "distance") {
+            geomValues = this->k2GeomDistance(indexList);
         } else {
             throw invalid_argument("Invalid geometry function.");
         }
 
         // Calculate all weighting values
         map<index2d, float> weightValues;
-        if (weightFunc == "exponential") {
+        if (weightFunc == "exponential" || weightFunc == "exp") {
             float scale = parameters["scale"];
             float cutoff = parameters["cutoff"];
             weightValues = this->k2WeightExponential(indexList, scale, cutoff);
@@ -492,13 +512,15 @@ pair<map<index3d, vector<float> >, map<index3d,vector<float> > > MBTR::getK3Geom
         map<index3d, float> geomValues;
         if (geomFunc == "cosine") {
             geomValues = this->k3GeomCosine(indexList);
+        } else if (geomFunc == "angle") {
+            geomValues = this->k3GeomAngle(indexList);
         } else {
             throw invalid_argument("Invalid geometry function.");
         }
 
         // Calculate all weighting values
         map<index3d, float> weightValues;
-        if (weightFunc == "exponential") {
+        if (weightFunc == "exponential" || weightFunc == "exp") {
             float scale = parameters["scale"];
             float cutoff = parameters["cutoff"];
             weightValues = this->k3WeightExponential(indexList, scale, cutoff);

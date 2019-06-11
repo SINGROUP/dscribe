@@ -28,7 +28,7 @@ Instantiating an MBTR descriptor can be done as follows:
 
 .. literalinclude:: ../../../examples/mbtr.py
    :language: python
-   :lines: 1-15
+   :lines: 1-24
 
 The arguments have the following effect:
 
@@ -56,7 +56,15 @@ The output will in this case be a numpy array with shape [#positions,
 Examples
 --------
 The following examples demonstrate common use cases for the descriptor. These
-examples are also available in dscribe/examples/mbtr.py.
+examples are also available in dscribe/examples/lmbtr.py.
+
+Geometry functions
+~~~~~~~~~~~~~~~~~~
+The implementation allows you to specify in some cases the function through
+which the k-body information is encoded. The following functions are available:
+
+Locating information
+~~~~~~~~~~~~~~~~~~~~
 
 Visualization
 ~~~~~~~~~~~~~
@@ -175,7 +183,7 @@ cells representing the same material:
 .. literalinclude:: ../../../examples/mbtr.py
    :start-after: Supercells
    :language: python
-   :lines: 18-26
+   :lines: 19-26
 
 .. figure:: /_static/img/mbtr_periodic_normalized.png
    :width: 1144px

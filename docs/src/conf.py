@@ -22,11 +22,9 @@
 project = 'DScribe'
 author = 'Lauri Himanen, Eiaki Morooka, F. Federici Canova, Marc Jäger, Y. Ranawat'
 
-# The short X.Y version
-version = '0.2.5'
-# The full version, including alpha/beta/rc tags
-release = '0.2.5'
-
+version = '0.2.7a'
+release = '0.2.7a'
+stable_version = "0.2.5"
 
 # -- General configuration ---------------------------------------------------
 
@@ -37,8 +35,14 @@ release = '0.2.5'
 def setup(app):
     app.add_stylesheet('css/style.css')
 
+
 html_context = {
     'css_files': ['_static/css/style.css'],
+    'current_version': version,
+    'versions': [
+        ('{} (development)'.format(version), 'https://singroup.github.io/dscribe/'),
+        ('{} (latest stable)'.format(stable_version), 'https://singroup.github.io/dscribe/stable')
+    ]
 }
 
 # Add any Sphinx extension module names here, as strings. They can be

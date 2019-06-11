@@ -1,3 +1,18 @@
+# -*- coding: utf-8 -*-
+"""Copyright 2019 DScribe developers
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"""
 from __future__ import absolute_import, division, print_function, unicode_literals
 from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
 
@@ -175,24 +190,36 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         """Tests that different positions are handled correctly.
         """
         desc = SOAP(species=[1, 6, 8], rcut=10.0, nmax=2, lmax=0, periodic=False, crossover=True)
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O).shape[1])
+        n_feat = desc.get_number_of_features()
+        self.assertEqual((1, n_feat), desc.create(H2O, positions=np.array([[0, 0, 0]])).shape)
+        self.assertEqual((1, n_feat), desc.create(H2O, positions=[[0, 0, 0]]).shape)
+        self.assertEqual((3, n_feat), desc.create(H2O, positions=[0, 1, 2]).shape)
+        self.assertEqual((3, n_feat), desc.create(H2O, positions=np.array([0, 1, 2])).shape)
+        self.assertEqual((3, n_feat), desc.create(H2O).shape)
 
         desc = SOAP(species=[1, 6, 8], rcut=10.0, nmax=2, lmax=0, periodic=True, crossover=True,)
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O).shape[1])
+        n_feat = desc.get_number_of_features()
+        self.assertEqual((1, n_feat), desc.create(H2O, positions=np.array([[0, 0, 0]])).shape)
+        self.assertEqual((1, n_feat), desc.create(H2O, positions=[[0, 0, 0]]).shape)
+        self.assertEqual((3, n_feat), desc.create(H2O, positions=[0, 1, 2]).shape)
+        self.assertEqual((3, n_feat), desc.create(H2O, positions=np.array([0, 1, 2])).shape)
+        self.assertEqual((3, n_feat), desc.create(H2O).shape)
 
         desc = SOAP(species=[1, 6, 8], rcut=10.0, nmax=2, lmax=0, periodic=True, crossover=False,)
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O).shape[1])
+        n_feat = desc.get_number_of_features()
+        self.assertEqual((1, n_feat), desc.create(H2O, positions=np.array([[0, 0, 0]])).shape)
+        self.assertEqual((1, n_feat), desc.create(H2O, positions=[[0, 0, 0]]).shape)
+        self.assertEqual((3, n_feat), desc.create(H2O, positions=[0, 1, 2]).shape)
+        self.assertEqual((3, n_feat), desc.create(H2O, positions=np.array([0, 1, 2])).shape)
+        self.assertEqual((3, n_feat), desc.create(H2O).shape)
 
         desc = SOAP(species=[1, 6, 8], rcut=10.0, nmax=2, lmax=0, periodic=False, crossover=False,)
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[[0, 0, 0]]).shape[1])
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O, positions=[0]).shape[1])
-        self.assertEqual(desc.get_number_of_features(), desc.create(H2O).shape[1])
+        n_feat = desc.get_number_of_features()
+        self.assertEqual((1, n_feat), desc.create(H2O, positions=np.array([[0, 0, 0]])).shape)
+        self.assertEqual((1, n_feat), desc.create(H2O, positions=[[0, 0, 0]]).shape)
+        self.assertEqual((3, n_feat), desc.create(H2O, positions=[0, 1, 2]).shape)
+        self.assertEqual((3, n_feat), desc.create(H2O, positions=np.array([0, 1, 2])).shape)
+        self.assertEqual((3, n_feat), desc.create(H2O).shape)
 
         with self.assertRaises(ValueError):
             desc.create(H2O, positions=['a'])
@@ -202,7 +229,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         """
         samples = [molecule("CO"), molecule("N2O")]
         desc = SOAP(
-            atomic_numbers=[6, 7, 8],
+            species=[6, 7, 8],
             rcut=5,
             nmax=3,
             lmax=3,
@@ -282,7 +309,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         # Test indices
         samples = [molecule("CO"), molecule("N2O")]
         desc = SOAP(
-            atomic_numbers=[6, 7, 8],
+            species=[6, 7, 8],
             rcut=5,
             nmax=3,
             lmax=3,
@@ -439,7 +466,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             [0.0, 0.0, 0.0],
             [0.0, 0.0, 0.0]
         ])
-        nocell = desc.create(molecule, positions=[[0, 0, 0]]).toarray()
+        nocell = desc.create(molecule, positions=[[0, 0, 0]])
 
         # Make periodic
         desc = SOAP(species=[1, 6, 8], rcut=10.0, nmax=2, lmax=0, periodic=True, crossover=True,)
@@ -451,9 +478,9 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             [0.0, 3.0, 0.0],
             [0.0, 0.0, 3.0]
         ])
-        cubic_cell = desc.create(molecule, positions=[[0, 0, 0]]).toarray()
+        cubic_cell = desc.create(molecule, positions=[[0, 0, 0]])
         suce = molecule * (2, 1, 1)
-        cubic_suce = desc.create(suce, positions=[[0, 0, 0]]).toarray()
+        cubic_suce = desc.create(suce, positions=[[0, 0, 0]])
 
         # Triclinic
         molecule.set_cell([
@@ -461,9 +488,9 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             [2.0, 0.0, 2.0],
             [2.0, 2.0, 0.0]
         ])
-        triclinic_cell = desc.create(molecule, positions=[[0, 0, 0]]).toarray()
+        triclinic_cell = desc.create(molecule, positions=[[0, 0, 0]])
         suce = molecule * (2, 1, 1)
-        triclinic_suce = desc.create(suce, positions=[[0, 0, 0]]).toarray()
+        triclinic_suce = desc.create(suce, positions=[[0, 0, 0]])
 
         self.assertTrue(np.sum(np.abs((nocell[:3] - cubic_suce[:3]))) > 0.1)
         self.assertAlmostEqual(np.sum(cubic_cell[:3] - cubic_suce[:3]), 0)
@@ -689,12 +716,15 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                         # Calculate numerical coefficients
                         def soap_coeff(phi, theta, r):
 
-                            # Regular spherical harmonic
+                            # Regular spherical harmonic, notice the abs(m)
+                            # needed for constructing the real form
                             ylm_comp = scipy.special.sph_harm(np.abs(m), l, phi, theta)  # NOTE: scipy swaps phi and theta
 
                             # Construct real (tesseral) spherical harmonics for
-                            # easier integration without having to worry about the
-                            # imaginary part
+                            # easier integration without having to worry about
+                            # the imaginary part. The real spherical harmonics
+                            # span the same space, but are just computationally
+                            # easier.
                             ylm_real = np.real(ylm_comp)
                             ylm_imag = np.imag(ylm_comp)
                             if m < 0:
@@ -816,12 +846,15 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                         # Calculate numerical coefficients
                         def soap_coeff(phi, theta, r):
 
-                            # Regular spherical harmonic
+                            # Regular spherical harmonic, notice the abs(m)
+                            # needed for constructing the real form
                             ylm_comp = scipy.special.sph_harm(np.abs(m), l, phi, theta)  # NOTE: scipy swaps phi and theta
 
                             # Construct real (tesseral) spherical harmonics for
-                            # easier integration without having to worry about the
-                            # imaginary part
+                            # easier integration without having to worry about
+                            # the imaginary part. The real spherical harmonics
+                            # span the same space, but are just computationally
+                            # easier.
                             ylm_real = np.real(ylm_comp)
                             ylm_imag = np.imag(ylm_comp)
                             if m < 0:
