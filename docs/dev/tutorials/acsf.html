@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Atom-centered Symmetry Functions &mdash; DScribe 0.2.5 documentation</title>
+  <title>Atom-centered Symmetry Functions &mdash; DScribe 0.2.6 documentation</title>
   
 
   
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                0.2.5
+                0.2.7a
               </div>
             
           
@@ -103,6 +103,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="soap.html">Smooth Overlap of Atomic Positions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mbtr.html">Many-body Tensor Representation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lmbtr.html">Local Many-body Tensor Representation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="kernels.html">Building similarity kernels from local environments</a></li>
 </ul>
 </li>
@@ -194,13 +195,12 @@ detect specific structural features.</p>
     <span class="n">g2_params</span><span class="o">=</span><span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span>
     <span class="n">g4_params</span><span class="o">=</span><span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]],</span>
 <span class="p">)</span>
-
 </pre></div>
 </div>
 <p>The arguments have the following effect:</p>
 <dl class="method">
 <dt id="dscribe.descriptors.acsf.ACSF.__init__">
-<code class="sig-prename descclassname">ACSF.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">rcut</em>, <em class="sig-param">g2_params=None</em>, <em class="sig-param">g3_params=None</em>, <em class="sig-param">g4_params=None</em>, <em class="sig-param">g5_params=None</em>, <em class="sig-param">species=None</em>, <em class="sig-param">atomic_numbers=None</em>, <em class="sig-param">sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/acsf.html#ACSF.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">ACSF.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">rcut</em>, <em class="sig-param">g2_params=None</em>, <em class="sig-param">g3_params=None</em>, <em class="sig-param">g4_params=None</em>, <em class="sig-param">g5_params=None</em>, <em class="sig-param">species=None</em>, <em class="sig-param">sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/acsf.html#ACSF.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -222,10 +222,6 @@ should contain all the elements that are ever going to be
 encountered when creating the descriptors for a set of systems.
 Keeping the number of chemical species as low as possible is
 preferable.</p></li>
-<li><p><strong>atomic_numbers</strong> (<em>iterable</em>) – A list of the atomic numbers that should
-be taken into account in the descriptor. Deprecated in favour of
-the species-parameters, but provided for
-backwards-compatibility.</p></li>
 <li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
 dense numpy array.</p></li>
 </ul>
@@ -333,6 +329,23 @@ their positions.</p>
 
   </div>
   
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Versions</span>
+      v: 0.2.7a
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl>
+        <dt>Versions</dt>
+        
+          <dd><a href="https://singroup.github.io/dscribe/dev">0.2.7a (development)</a></dd>
+        
+          <dd><a href="https://singroup.github.io/dscribe">0.2.6 (latest stable)</a></dd>
+        
+      </dl>
+    </div>
+  </div>
 
 
   <script type="text/javascript">

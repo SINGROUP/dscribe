@@ -22,6 +22,7 @@ DScribe currently includes the following descriptors:
   - :doc:`Atom-centered Symmetry Functions (ACSF) <tutorials/acsf>`
   - :doc:`Smooth Overlap of Atomic Positions (SOAP) <tutorials/soap>`
   - :doc:`Many-body Tensor Representation (MBTR) <tutorials/mbtr>`
+  - :doc:`Local Many-body Tensor Representation (LMBTR) <tutorials/lmbtr>`
 
 Check the tutorials for more information.
 
