@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dscribe.descriptors.soap &mdash; DScribe 0.2.5 documentation</title>
+  <title>dscribe.descriptors.soap &mdash; DScribe 0.2.7a documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                0.2.5
+                0.2.7a
               </div>
             
           
@@ -188,9 +188,11 @@
 
 
 <div class="viewcode-block" id="SOAP"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP">[docs]</a><span class="k">class</span> <span class="nc">SOAP</span><span class="p">(</span><span class="n">Descriptor</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Class for the Smooth Overlap of Atomic Orbitals (SOAP) descriptor. This</span>
-<span class="sd">    implementation uses orthogonalized spherical primitive gaussian type</span>
-<span class="sd">    orbitals as the radial basis set to reach a fast analytical solution.</span>
+    <span class="sd">&quot;&quot;&quot;Class for generating a partial power spectrum from Smooth Overlap of</span>
+<span class="sd">    Atomic Orbitals (SOAP). This implementation uses real (tesseral) spherical</span>
+<span class="sd">    harmonics as the angular basis set and provides two orthonormalized</span>
+<span class="sd">    alternatives for the radial basis functions: spherical primitive gaussian</span>
+<span class="sd">    type orbitals (&quot;gto&quot;) or the polynomial basis set (&quot;polynomial&quot;).</span>
 
 <span class="sd">    For reference, see:</span>
 
@@ -201,6 +203,11 @@
 <span class="sd">    &quot;Comparing molecules and solids across structural and alchemical space&quot;,</span>
 <span class="sd">    Sandip De, Albert P. Bartók, Gábor Csányi and Michele Ceriotti, Phys.</span>
 <span class="sd">    Chem. Chem. Phys. 18, 13754 (2016), https://doi.org/10.1039/c6cp00415f</span>
+
+<span class="sd">    &quot;Machine learning hydrogen adsorption on nanoclusters through structural</span>
+<span class="sd">    descriptors&quot;, Marc O. J. Jäger, Eiaki V. Morooka, Filippo Federici Canova,</span>
+<span class="sd">    Lauri Himanen &amp; Adam S. Foster, npj Comput. Mater., 4, 37 (2018),</span>
+<span class="sd">    https://doi.org/10.1038/s41524-018-0096-5</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="SOAP.__init__"><a class="viewcode-back" href="../../../tutorials/soap.html#dscribe.descriptors.soap.SOAP.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
@@ -210,11 +217,10 @@
             <span class="n">sigma</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
             <span class="n">rbf</span><span class="o">=</span><span class="s2">&quot;gto&quot;</span><span class="p">,</span>
             <span class="n">species</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">atomic_numbers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">crossover</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">average</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">sparse</span><span class="o">=</span><span class="kc">True</span>
+            <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span>
             <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
@@ -229,10 +235,6 @@
 <span class="sd">                encountered when creating the descriptors for a set of systems.</span>
 <span class="sd">                Keeping the number of chemical species as low as possible is</span>
 <span class="sd">                preferable.</span>
-<span class="sd">            atomic_numbers (iterable): A list of the atomic numbers that should</span>
-<span class="sd">                be taken into account in the descriptor. Deprecated in favour of</span>
-<span class="sd">                the species-parameters, but provided for</span>
-<span class="sd">                backwards-compatibility.</span>
 <span class="sd">            sigma (float): The standard deviation of the gaussians used to expand the</span>
 <span class="sd">                atomic density.</span>
 <span class="sd">            rbf (str): The radial basis functions to use. The available options are:</span>
@@ -257,7 +259,6 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="n">sparse</span><span class="p">)</span>
 
         <span class="c1"># Setup the involved chemical species</span>
-        <span class="n">species</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_species_definition</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="n">atomic_numbers</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">species</span>
 
         <span class="c1"># Check that sigma is valid</span>
@@ -418,7 +419,7 @@
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">positions</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
                     <span class="n">list_positions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()[</span><span class="n">i</span><span class="p">])</span>
-                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
                     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
                         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                             <span class="s2">&quot;The argument &#39;positions&#39; should contain a &quot;</span>
@@ -429,7 +430,7 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                         <span class="s2">&quot;Create method requires the argument &#39;positions&#39;, a &quot;</span>
-                        <span class="s2">&quot;list of atom indices and/or positions&quot;</span>
+                        <span class="s2">&quot;list of atom indices and/or positions.&quot;</span>
                     <span class="p">)</span>
 
             <span class="c1"># Determine the SOAPLite function to call based on periodicity and</span>
@@ -688,6 +689,23 @@
 
   </div>
   
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Versions</span>
+      v: 0.2.7a
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl>
+        <dt>Versions</dt>
+        
+          <dd><a href="https://singroup.github.io/dscribe/">0.2.7a (development)</a></dd>
+        
+          <dd><a href="https://singroup.github.io/dscribe/stable">0.2.5 (latest stable)</a></dd>
+        
+      </dl>
+    </div>
+  </div>
 
 
   <script type="text/javascript">

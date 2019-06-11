@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dscribe.descriptors.descriptor &mdash; DScribe 0.2.5 documentation</title>
+  <title>dscribe.descriptors.descriptor &mdash; DScribe 0.2.7a documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                0.2.5
+                0.2.7a
               </div>
             
           
@@ -291,39 +291,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_atomic_number_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_species</span> <span class="o">=</span> <span class="n">species</span>
 
-<div class="viewcode-block" id="Descriptor.get_species_definition"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.get_species_definition">[docs]</a>    <span class="k">def</span> <span class="nf">get_species_definition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">atomic_numbers</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;A convenience function that is included to decide the correct source</span>
-<span class="sd">        of species information.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            species(iterable): Species information either as atomic numbers or</span>
-<span class="sd">                chemical symbols.</span>
-<span class="sd">            atomic_numbers(iterable): Species information as atomic numbers</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            The correct variable for the species information.</span>
-
-<span class="sd">        Raises:</span>
-<span class="sd">            ValueError: If both or none of the species information is defined.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># First check that the chemical species are defined either as number or</span>
-        <span class="c1"># symbols</span>
-        <span class="k">if</span> <span class="n">atomic_numbers</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">species</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Please provide the atomic species either as chemical symbols &quot;</span>
-                <span class="s2">&quot;or as atomic numbers.&quot;</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">atomic_numbers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">species</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Both species and atomic numbers provided. Please only provide&quot;</span>
-                <span class="s2">&quot;either one.&quot;</span>
-            <span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">atomic_numbers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">atomic_numbers</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">species</span></div>
-
 <div class="viewcode-block" id="Descriptor.check_atomic_numbers"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.check_atomic_numbers">[docs]</a>    <span class="k">def</span> <span class="nf">check_atomic_numbers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atomic_numbers</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Used to check that the given atomic numbers have been defined for</span>
 <span class="sd">        this descriptor.</span>
@@ -520,6 +487,23 @@
 
   </div>
   
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Versions</span>
+      v: 0.2.7a
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl>
+        <dt>Versions</dt>
+        
+          <dd><a href="https://singroup.github.io/dscribe/">0.2.7a (development)</a></dd>
+        
+          <dd><a href="https://singroup.github.io/dscribe/stable">0.2.5 (latest stable)</a></dd>
+        
+      </dl>
+    </div>
+  </div>
 
 
   <script type="text/javascript">

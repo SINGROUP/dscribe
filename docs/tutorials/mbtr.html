@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Many-body Tensor Representation &mdash; DScribe 0.2.5 documentation</title>
+  <title>Many-body Tensor Representation &mdash; DScribe 0.2.7a documentation</title>
   
 
   
@@ -38,7 +38,7 @@
     <link rel="author" title="About these documents" href="../about.html" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Building similarity kernels from local environments" href="kernels.html" />
+    <link rel="next" title="Local Many-body Tensor Representation" href="lmbtr.html" />
     <link rel="prev" title="Smooth Overlap of Atomic Positions" href="soap.html" /> 
 </head>
 
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                0.2.5
+                0.2.7a
               </div>
             
           
@@ -102,6 +102,8 @@
 <li class="toctree-l3"><a class="reference internal" href="#setup">Setup</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#creation">Creation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#geometry-functions">Geometry functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#locating-information">Locating information</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#visualization">Visualization</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#normalization">Normalization</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#finite-systems">Finite systems</a></li>
@@ -110,6 +112,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="lmbtr.html">Local Many-body Tensor Representation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="kernels.html">Building similarity kernels from local environments</a></li>
 </ul>
 </li>
@@ -204,92 +207,37 @@ structure.</p>
 <p>Instantiating an MBTR descriptor can be done as follows:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">MBTR</span>
+<span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">bulk</span>
 
 <span class="c1"># Setup</span>
 <span class="n">mbtr</span> <span class="o">=</span> <span class="n">MBTR</span><span class="p">(</span>
     <span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">],</span>
-    <span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-    <span class="n">periodic</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-    <span class="n">grid</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;k2&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">}</span>
+    <span class="n">k1</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;atomic_number&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">},</span>
     <span class="p">},</span>
-    <span class="n">weighting</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-    <span class="n">flatten</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-    <span class="n">sparse</span><span class="o">=</span><span class="bp">False</span>
+    <span class="n">k2</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;inverse_distance&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">},</span>
+        <span class="s2">&quot;weighting&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exponential&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">},</span>
+    <span class="p">},</span>
+    <span class="n">k3</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;cosine&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">},</span>
+        <span class="s2">&quot;weighting&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exponential&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">},</span>
+    <span class="p">},</span>
+    <span class="n">periodic</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">normalization</span><span class="o">=</span><span class="s2">&quot;l2_each&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 <p>The arguments have the following effect:</p>
 <dl class="method">
 <dt id="dscribe.descriptors.mbtr.MBTR.__init__">
-<code class="descclassname">MBTR.</code><code class="descname">__init__</code><span class="sig-paren">(</span><em>k</em>, <em>periodic</em>, <em>grid=None</em>, <em>weighting=None</em>, <em>species=None</em>, <em>atomic_numbers=None</em>, <em>normalize_gaussians=True</em>, <em>normalization='none'</em>, <em>flatten=True</em>, <em>sparse=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">MBTR.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">species</em>, <em class="sig-param">periodic</em>, <em class="sig-param">k1=None</em>, <em class="sig-param">k2=None</em>, <em class="sig-param">k3=None</em>, <em class="sig-param">normalize_gaussians=True</em>, <em class="sig-param">normalization='none'</em>, <em class="sig-param">flatten=True</em>, <em class="sig-param">sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>k</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em> or </em><em>iterable</em>) – The interaction term to consider from 1 to 3.
-Also multiple terms can be created at once by providing an
-iterable of integers. The size of the final output and the time
-taken in creating this descriptor is exponentially dependent on
-this value.</p></li>
-<li><p><strong>periodic</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Determines whether the system is considered to be
-periodic.</p></li>
-<li><p><strong>grid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – <p>This dictionary can be used to precisely control
-the broadening width, grid spacing and grid length for all the
-different terms. Example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">grid</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;k1&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">10</span>
-        <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.1</span>
-        <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">100</span>
-    <span class="p">},</span>
-    <span class="s2">&quot;k2&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="o">/</span><span class="mf">0.70</span><span class="p">,</span>
-        <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
-        <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">100</span>
-    <span class="p">},</span>
-    <span class="o">...</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>Here <em>min</em> is the minimum value of the axis, <em>max</em> is the
-maximum value of the axis, <em>sigma</em> is the standard devation of
-the gaussian broadening and <em>n</em> is the number of points sampled
-on the grid.</p>
-</p></li>
-<li><p><strong>weighting</strong> (<em>dictionary</em><em> or </em><em>string</em>) – <p>A dictionary of weighting
-function settings for each term. Example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">weighting</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;k2&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;unity&quot;</span><span class="p">,</span>
-    <span class="p">},</span>
-    <span class="s2">&quot;k3&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exponential&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
-        <span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>The threshold is used to determine the minimum amount of
-periodic images to consider. The variable <em>cutoff</em> determines
-the value of the weighting function after which the rest of the
-terms will be ignored. The k1 term is 0-dimensional, so
-weighting is not used. Here are the available functions and a
-description for them:</p>
-<ul>
-<li><p>unity: Constant weighting of 1 for all samples.</p></li>
-<li><p>exponential: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span>. The
-parameter <span class="math notranslate nohighlight">\(s\)</span> is given in the attribute <em>scale</em>.</p></li>
-</ul>
-<p>The meaning of x changes for different terms as follows:</p>
-<ul>
-<li><p><span class="math notranslate nohighlight">\(k=1\)</span>: <span class="math notranslate nohighlight">\(x\)</span> = 0</p></li>
-<li><p><span class="math notranslate nohighlight">\(k=2\)</span>: <span class="math notranslate nohighlight">\(x\)</span> = Distance between A-&gt;B</p></li>
-<li><p><span class="math notranslate nohighlight">\(k=3\)</span>: <span class="math notranslate nohighlight">\(x\)</span> = Distance from A-&gt;B-&gt;C-&gt;A.</p></li>
-</ul>
-</p></li>
 <li><p><strong>species</strong> (<em>iterable</em>) – The chemical species as a list of atomic
 numbers or as a list of chemical symbols. Notice that this is not
 the atomic numbers that are present for an individual system, but
@@ -297,10 +245,38 @@ should contain all the elements that are ever going to be
 encountered when creating the descriptors for a set of systems.
 Keeping the number of chemical speices as low as possible is
 preferable.</p></li>
-<li><p><strong>atomic_numbers</strong> (<em>iterable</em>) – A list of the atomic numbers that should
-be taken into account in the descriptor. Deprecated in favour of
-the species-parameters, but provided for
-backwards-compatibility.</p></li>
+<li><p><strong>periodic</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Determines whether the system is considered to be
+periodic.</p></li>
+<li><p><strong>k1</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – <p>Setup for the k=1 term. For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">k1</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;atomic_number&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</p></li>
+<li><p><strong>k2</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – <p>Dictionary containing the setup for the k=2 term.
+Contains setup for the used geometry function, discretization and
+weighting function. For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">k2</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;inverse_distance&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">},</span>
+    <span class="s2">&quot;weighting&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exp&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.75</span><span class="p">,</span> <span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="mf">1e-2</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</p></li>
+<li><p><strong>k3</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – <p>Dictionary containing the setup for the k=3 term.
+Contains setup for the used geometry function, discretization and
+weighting function. For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">k3</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;angle&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">180</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">},</span>
+    <span class="s2">&quot;weighting&quot;</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exp&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</p></li>
 <li><p><strong>normalize_gaussians</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Determines whether the gaussians are
 normalized to an area of 1. Defaults to True. If False, the
 normalization factor is dropped and the gaussians have the form.
@@ -313,9 +289,9 @@ output. The available options are:</p>
 individually to unity.</p></li>
 </ul>
 </p></li>
-<li><p><strong>flatten</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Whether the output of create() should be flattened
-to a 1D array. If False, a dictionary of the different tensors
-is provided, containing the values under keys: “k1”, “k2”, and
+<li><p><strong>flatten</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Whether the output should be flattened to a 1D
+array. If False, a dictionary of the different tensors is
+provided, containing the values under keys: “k1”, “k2”, and
 “k3”:</p></li>
 <li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
 dense numpy array.</p></li>
@@ -343,7 +319,7 @@ dense numpy array.</p></li>
 <p>The call syntax for the create-function is as follows:</p>
 <dl class="method">
 <dt id="dscribe.descriptors.mbtr.MBTR.create">
-<code class="descclassname">MBTR.</code><code class="descname">create</code><span class="sig-paren">(</span><em>system</em>, <em>n_jobs=1</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.create" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">MBTR.</code><code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param">system</em>, <em class="sig-param">n_jobs=1</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return MBTR output for the given systems.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -378,7 +354,15 @@ are returned.</p>
 <div class="section" id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
 <p>The following examples demonstrate common use cases for the descriptor. These
-examples are also available in dscribe/examples/mbtr.py.</p>
+examples are also available in dscribe/examples/lmbtr.py.</p>
+<div class="section" id="geometry-functions">
+<h3>Geometry functions<a class="headerlink" href="#geometry-functions" title="Permalink to this headline">¶</a></h3>
+<p>The implementation allows you to specify in some cases the function through
+which the k-body information is encoded. The following functions are available:</p>
+</div>
+<div class="section" id="locating-information">
+<h3>Locating information<a class="headerlink" href="#locating-information" title="Permalink to this headline">¶</a></h3>
+</div>
 <div class="section" id="visualization">
 <h3>Visualization<a class="headerlink" href="#visualization" title="Permalink to this headline">¶</a></h3>
 <p>The MBTR output vector can be visualized easily. The following snippet
@@ -393,14 +377,12 @@ demonstrates how the output for <span class="math notranslate nohighlight">\(k=2
 <span class="n">decay</span> <span class="o">=</span> <span class="mf">0.5</span>
 <span class="n">mbtr</span> <span class="o">=</span> <span class="n">MBTR</span><span class="p">(</span>
     <span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Na&quot;</span><span class="p">,</span> <span class="s2">&quot;Cl&quot;</span><span class="p">],</span>
-    <span class="n">k</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+    <span class="n">k2</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;inverse_distance&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">},</span>
+        <span class="s2">&quot;weighting&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exponential&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="n">decay</span><span class="p">,</span> <span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">},</span>
+    <span class="p">},</span>
     <span class="n">periodic</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-    <span class="n">grid</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;k2&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">},</span>
-    <span class="p">},</span>
-    <span class="n">weighting</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;k2&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exponential&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="n">decay</span><span class="p">,</span> <span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">},</span>
-    <span class="p">},</span>
     <span class="n">flatten</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
     <span class="n">sparse</span><span class="o">=</span><span class="bp">False</span>
 <span class="p">)</span>
@@ -418,6 +400,8 @@ demonstrates how the output for <span class="math notranslate nohighlight">\(k=2
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_elements</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_elements</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">j</span> <span class="o">&gt;=</span> <span class="n">i</span><span class="p">:</span>
+            <span class="n">mpl</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mbtr_output</span><span class="p">[</span><span class="s2">&quot;k2&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;{}-{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">smap</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">smap</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Inverse distance (1/angstrom)&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="figure align-center" id="id3">
@@ -466,11 +450,11 @@ demonstrates both approaches.</p>
 
 <span class="n">desc</span> <span class="o">=</span> <span class="n">MBTR</span><span class="p">(</span>
     <span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">],</span>
-    <span class="n">k</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
-    <span class="n">periodic</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-    <span class="n">grid</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;k2&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">},</span>
+    <span class="n">k2</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;distance&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">},</span>
     <span class="p">},</span>
+    <span class="n">periodic</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
     <span class="n">flatten</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
     <span class="n">sparse</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
     <span class="n">normalization</span><span class="o">=</span><span class="s2">&quot;l2_each&quot;</span><span class="p">,</span>
@@ -483,18 +467,18 @@ demonstrates both approaches.</p>
 <span class="n">output_no_weight</span> <span class="o">=</span> <span class="n">desc</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
 
 <span class="c1"># Exponential weighting</span>
-<span class="n">desc</span><span class="o">.</span><span class="n">weighting</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;k2&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exponential&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">1.1</span><span class="p">,</span> <span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="mf">1e-2</span><span class="p">},</span>
-<span class="p">}</span>
+<span class="n">desc</span><span class="o">.</span><span class="n">k2</span><span class="p">[</span><span class="s2">&quot;weighting&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exponential&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">1.1</span><span class="p">,</span> <span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="mf">1e-2</span><span class="p">}</span>
 <span class="n">output_weight</span> <span class="o">=</span> <span class="n">desc</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
 
 <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Inverse distance (1/angstrom)&quot;</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Distance angstrom&quot;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">output_no_weight</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;No weighting&quot;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">output_weight</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Exponential weighting&quot;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
 <span class="n">mpl</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># Geometry functions</span>
 </pre></div>
 </div>
 <div class="figure align-center" id="id4">
@@ -514,23 +498,23 @@ it we would not know when to stop the periodic repetition. The following code
 demonstrates how to apply MBTR on a periodic crystal:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">desc</span> <span class="o">=</span> <span class="n">MBTR</span><span class="p">(</span>
     <span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">],</span>
-    <span class="n">k</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
     <span class="n">periodic</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-    <span class="n">grid</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;k1&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">},</span>
-        <span class="s2">&quot;k2&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">},</span>
-        <span class="s2">&quot;k3&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">},</span>
+    <span class="n">k1</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;atomic_number&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">},</span>
     <span class="p">},</span>
-    <span class="n">weighting</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;k2&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exponential&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">},</span>
-        <span class="s2">&quot;k3&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exponential&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">},</span>
+    <span class="n">k2</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;inverse_distance&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">},</span>
+        <span class="s2">&quot;weighting&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exponential&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">},</span>
+    <span class="p">},</span>
+    <span class="n">k3</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;cosine&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">},</span>
+        <span class="s2">&quot;weighting&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exponential&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">},</span>
     <span class="p">},</span>
     <span class="n">flatten</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
     <span class="n">sparse</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-<span class="p">)</span>
-
-<span class="n">a1</span> <span class="o">=</span> <span class="n">bulk</span><span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="s1">&#39;fcc&#39;</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
-<span class="n">output</span> <span class="o">=</span> <span class="n">desc</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">a1</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>A problem with periodic crystals that is not directly solved by the MBTR
@@ -566,8 +550,7 @@ shapes in the output are the same, but the intensities are different
 <p>However, if the output is normalized (see the example about different
 normalization methods) we can recover truly identical output for the different
 cells representing the same material:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="c1"># With normalization to unit euclidean length the outputs become identical</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># With normalization to unit euclidean length the outputs become identical</span>
 <span class="n">desc</span><span class="o">.</span><span class="n">normalization</span> <span class="o">=</span> <span class="s2">&quot;l2_each&quot;</span>
 <span class="n">output</span> <span class="o">=</span> <span class="n">desc</span><span class="o">.</span><span class="n">create</span><span class="p">([</span><span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">,</span> <span class="n">a3</span><span class="p">,</span> <span class="n">a4</span><span class="p">])</span>
 <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
@@ -606,7 +589,7 @@ of the original cell are involved in forming the pair or triple.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="kernels.html" class="btn btn-neutral float-right" title="Building similarity kernels from local environments" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="lmbtr.html" class="btn btn-neutral float-right" title="Local Many-body Tensor Representation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="soap.html" class="btn btn-neutral float-left" title="Smooth Overlap of Atomic Positions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -633,6 +616,23 @@ of the original cell are involved in forming the pair or triple.</p>
 
   </div>
   
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Versions</span>
+      v: 0.2.7a
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl>
+        <dt>Versions</dt>
+        
+          <dd><a href="https://singroup.github.io/dscribe/">0.2.7a (development)</a></dd>
+        
+          <dd><a href="https://singroup.github.io/dscribe/stable">0.2.5 (latest stable)</a></dd>
+        
+      </dl>
+    </div>
+  </div>
 
 
   <script type="text/javascript">

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Ewald sum matrix &mdash; DScribe 0.2.5 documentation</title>
+  <title>Ewald sum matrix &mdash; DScribe 0.2.7a documentation</title>
   
 
   
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                0.2.5
+                0.2.7a
               </div>
             
           
@@ -108,6 +108,7 @@
 <li class="toctree-l2"><a class="reference internal" href="acsf.html">Atom-centered Symmetry Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="soap.html">Smooth Overlap of Atomic Positions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mbtr.html">Many-body Tensor Representation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lmbtr.html">Local Many-body Tensor Representation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="kernels.html">Building similarity kernels from local environments</a></li>
 </ul>
 </li>
@@ -222,7 +223,7 @@ follows:</p>
 <p>The constructor takes the following parameters:</p>
 <dl class="method">
 <dt id="dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.__init__">
-<code class="descclassname">EwaldSumMatrix.</code><code class="descname">__init__</code><span class="sig-paren">(</span><em>n_atoms_max</em>, <em>permutation='sorted_l2'</em>, <em>sigma=None</em>, <em>seed=None</em>, <em>flatten=True</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="headerlink" href="#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">EwaldSumMatrix.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">n_atoms_max</em>, <em class="sig-param">permutation='sorted_l2'</em>, <em class="sig-param">sigma=None</em>, <em class="sig-param">seed=None</em>, <em class="sig-param">flatten=True</em>, <em class="sig-param">sparse=False</em><span class="sig-paren">)</span><a class="headerlink" href="#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -285,7 +286,7 @@ structures with the <a class="reference internal" href="#dscribe.descriptors.ewa
 <p>The call syntax for the create-function is as follows:</p>
 <dl class="method">
 <dt id="dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create">
-<code class="descclassname">EwaldSumMatrix.</code><code class="descname">create</code><span class="sig-paren">(</span><em>system</em>, <em>accuracy=1e-05</em>, <em>w=1</em>, <em>rcut=None</em>, <em>gcut=None</em>, <em>a=None</em>, <em>n_jobs=1</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/ewaldsummatrix.html#EwaldSumMatrix.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">EwaldSumMatrix.</code><code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param">system</em>, <em class="sig-param">accuracy=1e-05</em>, <em class="sig-param">w=1</em>, <em class="sig-param">rcut=None</em>, <em class="sig-param">gcut=None</em>, <em class="sig-param">a=None</em>, <em class="sig-param">n_jobs=1</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/ewaldsummatrix.html#EwaldSumMatrix.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the Coulomb matrix for the given systems.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -446,6 +447,23 @@ pymatgen:</p>
 
   </div>
   
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Versions</span>
+      v: 0.2.7a
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl>
+        <dt>Versions</dt>
+        
+          <dd><a href="https://singroup.github.io/dscribe/">0.2.7a (development)</a></dd>
+        
+          <dd><a href="https://singroup.github.io/dscribe/stable">0.2.5 (latest stable)</a></dd>
+        
+      </dl>
+    </div>
+  </div>
 
 
   <script type="text/javascript">
