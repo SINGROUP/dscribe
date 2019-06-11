@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dscribe.descriptors package &mdash; DScribe 0.2.5 documentation</title>
+  <title>dscribe.descriptors package &mdash; DScribe 0.2.6 documentation</title>
   
 
   
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                0.2.5
+                0.2.6
               </div>
             
           
@@ -201,7 +201,7 @@ See the License for the specific language governing permissions and
 limitations under the License.</p>
 <dl class="class">
 <dt id="dscribe.descriptors.acsf.ACSF">
-<em class="property">class </em><code class="descclassname">dscribe.descriptors.acsf.</code><code class="descname">ACSF</code><span class="sig-paren">(</span><em>rcut</em>, <em>g2_params=None</em>, <em>g3_params=None</em>, <em>g4_params=None</em>, <em>g5_params=None</em>, <em>species=None</em>, <em>atomic_numbers=None</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/acsf.html#ACSF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.descriptors.acsf.</code><code class="sig-name descname">ACSF</code><span class="sig-paren">(</span><em class="sig-param">rcut</em>, <em class="sig-param">g2_params=None</em>, <em class="sig-param">g3_params=None</em>, <em class="sig-param">g4_params=None</em>, <em class="sig-param">g5_params=None</em>, <em class="sig-param">species=None</em>, <em class="sig-param">sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/acsf.html#ACSF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dscribe.descriptors.descriptor.Descriptor" title="dscribe.descriptors.descriptor.Descriptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.descriptors.descriptor.Descriptor</span></code></a></p>
 <p>Implementation of Atom-Centered Symmetry Functions. Currently valid for
 finite systems only.</p>
@@ -216,7 +216,7 @@ Physics, 134, 074106 (2011), <a class="reference external" href="https://doi.org
 </dl>
 <dl class="method">
 <dt id="dscribe.descriptors.acsf.ACSF.create">
-<code class="descname">create</code><span class="sig-paren">(</span><em>system</em>, <em>positions=None</em>, <em>n_jobs=1</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/acsf.html#ACSF.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.create" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param">system</em>, <em class="sig-param">positions=None</em>, <em class="sig-param">n_jobs=1</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/acsf.html#ACSF.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the ACSF output for the given systems and given positions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -252,7 +252,7 @@ their positions.</p>
 
 <dl class="method">
 <dt id="dscribe.descriptors.acsf.ACSF.create_single">
-<code class="descname">create_single</code><span class="sig-paren">(</span><em>system</em>, <em>positions=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/acsf.html#ACSF.create_single"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.create_single" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create_single</code><span class="sig-paren">(</span><em class="sig-param">system</em>, <em class="sig-param">positions=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/acsf.html#ACSF.create_single"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.create_single" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates the descriptor for the given system.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -276,29 +276,29 @@ get_number_of_features()-function.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="dscribe.descriptors.acsf.ACSF.g2_params">
-<code class="descname">g2_params</code><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.g2_params" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">g2_params</code><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.g2_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="dscribe.descriptors.acsf.ACSF.g3_params">
-<code class="descname">g3_params</code><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.g3_params" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">g3_params</code><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.g3_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="dscribe.descriptors.acsf.ACSF.g4_params">
-<code class="descname">g4_params</code><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.g4_params" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">g4_params</code><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.g4_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="dscribe.descriptors.acsf.ACSF.g5_params">
-<code class="descname">g5_params</code><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.g5_params" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">g5_params</code><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.g5_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="dscribe.descriptors.acsf.ACSF.get_number_of_features">
-<code class="descname">get_number_of_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/acsf.html#ACSF.get_number_of_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.get_number_of_features" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_number_of_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/acsf.html#ACSF.get_number_of_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.get_number_of_features" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to inquire the final number of features that this descriptor
 will have.</p>
 <dl class="field-list simple">
@@ -311,14 +311,14 @@ will have.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="dscribe.descriptors.acsf.ACSF.rcut">
-<code class="descname">rcut</code><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.rcut" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">rcut</code><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.rcut" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="dscribe.descriptors.acsf.ACSF.species">
-<code class="descname">species</code><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.species" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">species</code><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.species" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -340,7 +340,7 @@ See the License for the specific language governing permissions and
 limitations under the License.</p>
 <dl class="class">
 <dt id="dscribe.descriptors.coulombmatrix.CoulombMatrix">
-<em class="property">class </em><code class="descclassname">dscribe.descriptors.coulombmatrix.</code><code class="descname">CoulombMatrix</code><span class="sig-paren">(</span><em>n_atoms_max</em>, <em>permutation='sorted_l2'</em>, <em>sigma=None</em>, <em>seed=None</em>, <em>flatten=True</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/coulombmatrix.html#CoulombMatrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.coulombmatrix.CoulombMatrix" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.descriptors.coulombmatrix.</code><code class="sig-name descname">CoulombMatrix</code><span class="sig-paren">(</span><em class="sig-param">n_atoms_max</em>, <em class="sig-param">permutation='sorted_l2'</em>, <em class="sig-param">sigma=None</em>, <em class="sig-param">seed=None</em>, <em class="sig-param">flatten=True</em>, <em class="sig-param">sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/coulombmatrix.html#CoulombMatrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.coulombmatrix.CoulombMatrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dscribe.descriptors.matrixdescriptor.MatrixDescriptor" title="dscribe.descriptors.matrixdescriptor.MatrixDescriptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.descriptors.matrixdescriptor.MatrixDescriptor</span></code></a></p>
 <p>Calculates the zero padded Coulomb matrix.</p>
 <p>The Coulomb matrix is defined as:</p>
@@ -368,7 +368,7 @@ Processing Systems 25 (NIPS 2012)</p>
 </dl>
 <dl class="method">
 <dt id="dscribe.descriptors.coulombmatrix.CoulombMatrix.create">
-<code class="descname">create</code><span class="sig-paren">(</span><em>system</em>, <em>n_jobs=1</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/coulombmatrix.html#CoulombMatrix.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.coulombmatrix.CoulombMatrix.create" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param">system</em>, <em class="sig-param">n_jobs=1</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/coulombmatrix.html#CoulombMatrix.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.coulombmatrix.CoulombMatrix.create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the Coulomb matrix for the given systems.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -398,7 +398,7 @@ flattened, a simple python list is returned.</p>
 
 <dl class="method">
 <dt id="dscribe.descriptors.coulombmatrix.CoulombMatrix.get_matrix">
-<code class="descname">get_matrix</code><span class="sig-paren">(</span><em>system</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/coulombmatrix.html#CoulombMatrix.get_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.coulombmatrix.CoulombMatrix.get_matrix" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_matrix</code><span class="sig-paren">(</span><em class="sig-param">system</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/coulombmatrix.html#CoulombMatrix.get_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.coulombmatrix.CoulombMatrix.get_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates the Coulomb matrix for the given system.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -432,12 +432,12 @@ See the License for the specific language governing permissions and
 limitations under the License.</p>
 <dl class="class">
 <dt id="dscribe.descriptors.descriptor.Descriptor">
-<em class="property">class </em><code class="descclassname">dscribe.descriptors.descriptor.</code><code class="descname">Descriptor</code><span class="sig-paren">(</span><em>flatten</em>, <em>sparse</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/descriptor.html#Descriptor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.descriptors.descriptor.</code><code class="sig-name descname">Descriptor</code><span class="sig-paren">(</span><em class="sig-param">flatten</em>, <em class="sig-param">sparse</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/descriptor.html#Descriptor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>An abstract base class for all descriptors.</p>
 <dl class="method">
 <dt id="dscribe.descriptors.descriptor.Descriptor.check_atomic_numbers">
-<code class="descname">check_atomic_numbers</code><span class="sig-paren">(</span><em>atomic_numbers</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/descriptor.html#Descriptor.check_atomic_numbers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor.check_atomic_numbers" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">check_atomic_numbers</code><span class="sig-paren">(</span><em class="sig-param">atomic_numbers</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/descriptor.html#Descriptor.check_atomic_numbers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor.check_atomic_numbers" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to check that the given atomic numbers have been defined for
 this descriptor.</p>
 <dl class="field-list simple">
@@ -455,7 +455,7 @@ this descriptor.</p>
 
 <dl class="method">
 <dt id="dscribe.descriptors.descriptor.Descriptor.create">
-<code class="descname">create</code><span class="sig-paren">(</span><em>system</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/descriptor.html#Descriptor.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor.create" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param">system</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/descriptor.html#Descriptor.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor.create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates the descriptor for the given systems.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -476,7 +476,7 @@ this descriptor.</p>
 
 <dl class="method">
 <dt id="dscribe.descriptors.descriptor.Descriptor.create_parallel">
-<code class="descname">create_parallel</code><span class="sig-paren">(</span><em>inp</em>, <em>func</em>, <em>n_jobs</em>, <em>output_sizes=None</em>, <em>verbose=False</em>, <em>prefer='processes'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/descriptor.html#Descriptor.create_parallel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor.create_parallel" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create_parallel</code><span class="sig-paren">(</span><em class="sig-param">inp</em>, <em class="sig-param">func</em>, <em class="sig-param">n_jobs</em>, <em class="sig-param">output_sizes=None</em>, <em class="sig-param">verbose=False</em>, <em class="sig-param">prefer='processes'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/descriptor.html#Descriptor.create_parallel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor.create_parallel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to parallelize the descriptor creation across multiple systems.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -523,14 +523,14 @@ setup.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="dscribe.descriptors.descriptor.Descriptor.flatten">
-<code class="descname">flatten</code><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor.flatten" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">flatten</code><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor.flatten" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="dscribe.descriptors.descriptor.Descriptor.get_number_of_features">
-<code class="descname">get_number_of_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/descriptor.html#Descriptor.get_number_of_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor.get_number_of_features" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">get_number_of_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/descriptor.html#Descriptor.get_number_of_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor.get_number_of_features" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to inquire the final number of features that this descriptor
 will have.</p>
 <dl class="field-list simple">
@@ -544,30 +544,8 @@ will have.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dscribe.descriptors.descriptor.Descriptor.get_species_definition">
-<code class="descname">get_species_definition</code><span class="sig-paren">(</span><em>species</em>, <em>atomic_numbers</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/descriptor.html#Descriptor.get_species_definition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor.get_species_definition" title="Permalink to this definition">¶</a></dt>
-<dd><p>A convenience function that is included to decide the correct source
-of species information.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>species</strong> (<em>iterable</em>) – Species information either as atomic numbers or
-chemical symbols.</p></li>
-<li><p><strong>atomic_numbers</strong> (<em>iterable</em>) – Species information as atomic numbers</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The correct variable for the species information.</p>
-</dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – If both or none of the species information is defined.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
 <dt id="dscribe.descriptors.descriptor.Descriptor.get_system">
-<code class="descname">get_system</code><span class="sig-paren">(</span><em>system</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/descriptor.html#Descriptor.get_system"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor.get_system" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_system</code><span class="sig-paren">(</span><em class="sig-param">system</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/descriptor.html#Descriptor.get_system"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor.get_system" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to convert the given atomic system into a custom System-object
 that is used internally. The System class inherits from ase.Atoms, but
 includes built-in caching for geometric quantities that may be re-used
@@ -589,9 +567,9 @@ by the descriptors.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="dscribe.descriptors.descriptor.Descriptor.sparse">
-<code class="descname">sparse</code><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor.sparse" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">sparse</code><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor.sparse" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -613,7 +591,7 @@ See the License for the specific language governing permissions and
 limitations under the License.</p>
 <dl class="class">
 <dt id="dscribe.descriptors.elementaldistribution.ElementalDistribution">
-<em class="property">class </em><code class="descclassname">dscribe.descriptors.elementaldistribution.</code><code class="descname">ElementalDistribution</code><span class="sig-paren">(</span><em>properties</em>, <em>flatten=True</em>, <em>sparse=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/elementaldistribution.html#ElementalDistribution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.elementaldistribution.ElementalDistribution" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.descriptors.elementaldistribution.</code><code class="sig-name descname">ElementalDistribution</code><span class="sig-paren">(</span><em class="sig-param">properties</em>, <em class="sig-param">flatten=True</em>, <em class="sig-param">sparse=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/elementaldistribution.html#ElementalDistribution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.elementaldistribution.ElementalDistribution" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dscribe.descriptors.descriptor.Descriptor" title="dscribe.descriptors.descriptor.Descriptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.descriptors.descriptor.Descriptor</span></code></a></p>
 <p>Represents a generic distribution on any given grid for any given
 properties. Can create both continuos and discrete distributions.</p>
@@ -629,7 +607,7 @@ max = values.max() + 3*std</p>
 to specify the values.</p>
 <dl class="method">
 <dt id="dscribe.descriptors.elementaldistribution.ElementalDistribution.create">
-<code class="descname">create</code><span class="sig-paren">(</span><em>system</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/elementaldistribution.html#ElementalDistribution.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.elementaldistribution.ElementalDistribution.create" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param">system</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/elementaldistribution.html#ElementalDistribution.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.elementaldistribution.ElementalDistribution.create" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> | <a class="reference internal" href="dscribe.core.html#dscribe.core.system.System" title="dscribe.core.system.System"><code class="xref py py-class docutils literal notranslate"><span class="pre">System</span></code></a>) – Input system.</p>
@@ -649,7 +627,7 @@ to specify the values.</p>
 
 <dl class="method">
 <dt id="dscribe.descriptors.elementaldistribution.ElementalDistribution.gaussian_sum">
-<code class="descname">gaussian_sum</code><span class="sig-paren">(</span><em>centers</em>, <em>weights</em>, <em>minimum</em>, <em>maximum</em>, <em>std</em>, <em>n</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/elementaldistribution.html#ElementalDistribution.gaussian_sum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.elementaldistribution.ElementalDistribution.gaussian_sum" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">gaussian_sum</code><span class="sig-paren">(</span><em class="sig-param">centers</em>, <em class="sig-param">weights</em>, <em class="sig-param">minimum</em>, <em class="sig-param">maximum</em>, <em class="sig-param">std</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/elementaldistribution.html#ElementalDistribution.gaussian_sum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.elementaldistribution.ElementalDistribution.gaussian_sum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates a discrete version of a sum of Gaussian distributions.</p>
 <p>The calculation is done through the cumulative distribution function
 that is better at keeping the integral of the probability function
@@ -677,7 +655,7 @@ containing the following information:</p></li>
 
 <dl class="method">
 <dt id="dscribe.descriptors.elementaldistribution.ElementalDistribution.get_axis">
-<code class="descname">get_axis</code><span class="sig-paren">(</span><em>property_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/elementaldistribution.html#ElementalDistribution.get_axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.elementaldistribution.ElementalDistribution.get_axis" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_axis</code><span class="sig-paren">(</span><em class="sig-param">property_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/elementaldistribution.html#ElementalDistribution.get_axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.elementaldistribution.ElementalDistribution.get_axis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to return the used x-axis for the given property.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -697,7 +675,7 @@ containing the following information:</p></li>
 
 <dl class="method">
 <dt id="dscribe.descriptors.elementaldistribution.ElementalDistribution.get_element_occurrence">
-<code class="descname">get_element_occurrence</code><span class="sig-paren">(</span><em>system</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/elementaldistribution.html#ElementalDistribution.get_element_occurrence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.elementaldistribution.ElementalDistribution.get_element_occurrence" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_element_occurrence</code><span class="sig-paren">(</span><em class="sig-param">system</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/elementaldistribution.html#ElementalDistribution.get_element_occurrence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.elementaldistribution.ElementalDistribution.get_element_occurrence" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the count of each atomic element in the given system.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -715,7 +693,7 @@ of atomic number x is self.atomic_number_to_index[x]</p>
 
 <dl class="method">
 <dt id="dscribe.descriptors.elementaldistribution.ElementalDistribution.get_number_of_features">
-<code class="descname">get_number_of_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/elementaldistribution.html#ElementalDistribution.get_number_of_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.elementaldistribution.ElementalDistribution.get_number_of_features" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_number_of_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/elementaldistribution.html#ElementalDistribution.get_number_of_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.elementaldistribution.ElementalDistribution.get_number_of_features" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to inquire the final number of features that this descriptor
 will have.</p>
 <dl class="field-list simple">
@@ -747,7 +725,7 @@ See the License for the specific language governing permissions and
 limitations under the License.</p>
 <dl class="class">
 <dt id="dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix">
-<em class="property">class </em><code class="descclassname">dscribe.descriptors.ewaldsummatrix.</code><code class="descname">EwaldSumMatrix</code><span class="sig-paren">(</span><em>n_atoms_max</em>, <em>permutation='sorted_l2'</em>, <em>sigma=None</em>, <em>seed=None</em>, <em>flatten=True</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/ewaldsummatrix.html#EwaldSumMatrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.descriptors.ewaldsummatrix.</code><code class="sig-name descname">EwaldSumMatrix</code><span class="sig-paren">(</span><em class="sig-param">n_atoms_max</em>, <em class="sig-param">permutation='sorted_l2'</em>, <em class="sig-param">sigma=None</em>, <em class="sig-param">seed=None</em>, <em class="sig-param">flatten=True</em>, <em class="sig-param">sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/ewaldsummatrix.html#EwaldSumMatrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dscribe.descriptors.matrixdescriptor.MatrixDescriptor" title="dscribe.descriptors.matrixdescriptor.MatrixDescriptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.descriptors.matrixdescriptor.MatrixDescriptor</span></code></a></p>
 <p>Calculates an Ewald sum matrix for the a given system.</p>
 <p>Each entry M_ij of the Ewald sum matrix will contain the Coulomb energy
@@ -781,7 +759,7 @@ structure. Mol. Simul., 1:207-224, 1988,
 </dl>
 <dl class="method">
 <dt id="dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create">
-<code class="descname">create</code><span class="sig-paren">(</span><em>system</em>, <em>accuracy=1e-05</em>, <em>w=1</em>, <em>rcut=None</em>, <em>gcut=None</em>, <em>a=None</em>, <em>n_jobs=1</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/ewaldsummatrix.html#EwaldSumMatrix.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param">system</em>, <em class="sig-param">accuracy=1e-05</em>, <em class="sig-param">w=1</em>, <em class="sig-param">rcut=None</em>, <em class="sig-param">gcut=None</em>, <em class="sig-param">a=None</em>, <em class="sig-param">n_jobs=1</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/ewaldsummatrix.html#EwaldSumMatrix.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the Coulomb matrix for the given systems.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -833,7 +811,7 @@ flattened, a simple python list is returned.</p>
 
 <dl class="method">
 <dt id="dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create_single">
-<code class="descname">create_single</code><span class="sig-paren">(</span><em>system</em>, <em>accuracy=1e-05</em>, <em>w=1</em>, <em>rcut=None</em>, <em>gcut=None</em>, <em>a=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/ewaldsummatrix.html#EwaldSumMatrix.create_single"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create_single" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create_single</code><span class="sig-paren">(</span><em class="sig-param">system</em>, <em class="sig-param">accuracy=1e-05</em>, <em class="sig-param">w=1</em>, <em class="sig-param">rcut=None</em>, <em class="sig-param">gcut=None</em>, <em class="sig-param">a=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/ewaldsummatrix.html#EwaldSumMatrix.create_single"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create_single" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -862,7 +840,7 @@ Corresponds to the standard deviation of the Gaussians.</p></li>
 
 <dl class="method">
 <dt id="dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.get_matrix">
-<code class="descname">get_matrix</code><span class="sig-paren">(</span><em>system</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/ewaldsummatrix.html#EwaldSumMatrix.get_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.get_matrix" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_matrix</code><span class="sig-paren">(</span><em class="sig-param">system</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/ewaldsummatrix.html#EwaldSumMatrix.get_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.get_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>The total energy matrix. Each matrix element (i, j) corresponds to the
 total interaction energy in a system with atoms i and j.</p>
 <dl class="field-list simple">
@@ -897,29 +875,78 @@ See the License for the specific language governing permissions and
 limitations under the License.</p>
 <dl class="class">
 <dt id="dscribe.descriptors.lmbtr.LMBTR">
-<em class="property">class </em><code class="descclassname">dscribe.descriptors.lmbtr.</code><code class="descname">LMBTR</code><span class="sig-paren">(</span><em>k</em>, <em>periodic</em>, <em>grid</em>, <em>virtual_positions</em>, <em>weighting=None</em>, <em>species=None</em>, <em>atomic_numbers=None</em>, <em>normalize_gaussians=True</em>, <em>flatten=True</em>, <em>sparse=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/lmbtr.html#LMBTR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.descriptors.lmbtr.</code><code class="sig-name descname">LMBTR</code><span class="sig-paren">(</span><em class="sig-param">species</em>, <em class="sig-param">periodic</em>, <em class="sig-param">k2=None</em>, <em class="sig-param">k3=None</em>, <em class="sig-param">is_center_periodic=None</em>, <em class="sig-param">normalize_gaussians=True</em>, <em class="sig-param">normalization='none'</em>, <em class="sig-param">flatten=True</em>, <em class="sig-param">sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/lmbtr.html#LMBTR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dscribe.descriptors.mbtr.MBTR" title="dscribe.descriptors.mbtr.MBTR"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.descriptors.mbtr.MBTR</span></code></a></p>
 <p>Implementation of local – per chosen atom – kind of the Many-body
 tensor representation up to k=3.</p>
 <p>Notice that the species of the central atom is not encoded in the output,
-only the surrounding environment is encoded. In a typical application one
-can train a different model for each central species.</p>
-<p>This implementation provides the following geometry functions:</p>
-<blockquote>
-<div><p>-k=1: atomic number
--k=2: inverse distances
--k=3: cosines of angles</p>
-</div></blockquote>
-<p>and the following weighting functions:</p>
-<blockquote>
-<div><p>-k=1: unity(=no weighting)
--k=2: unity(=no weighting), exponential (<span class="math notranslate nohighlight">\(e^-(sx)\)</span>)
--k=3: unity(=no weighting), exponential (<span class="math notranslate nohighlight">\(e^-(sx)\)</span>)</p>
-</div></blockquote>
+but is instead represented by a chemical species X with atomic number 0.
+This allows LMBTR to be also used on general positions not corresponding to
+real atoms. The surrounding environment is encoded by the two- and
+three-body interactions with neighouring atoms. If there is a need to
+distinguish the central species, one can for example train a different
+model for each central species.</p>
+<p>You can choose which terms to include by providing a dictionary in the k2
+or k3 arguments. The k1 term is not used in the local version. This
+dictionary should contain information under three keys: “geometry”, “grid”
+and “weighting”. See the examples below for how to format these
+dictionaries.</p>
 <p>You can use this descriptor for finite and periodic systems. When dealing
-with periodic systems, it is advisable to use a primitive cell, or if
-supercells are included to use normalization e.g. by volume or by the norm
-of the final vector.</p>
+with periodic systems or when using machine learning models that use the
+Euclidean norm to measure distance between vectors, it is advisable to use
+some form of normalization.</p>
+<p>For the geometry functions the following choices are available:</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(k=2\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>“distance”: Pairwise distance in angstroms.</p></li>
+<li><p>“inverse_distance”: Pairwise inverse distance in 1/angstrom.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><span class="math notranslate nohighlight">\(k=3\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>“angle”: Angle in degrees.</p></li>
+<li><p>“cosine”: Cosine of the angle.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<p>For the weighting the following functions are available:</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(k=2\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>“unity”: No weighting.</p></li>
+<li><p>“exp” or “exponential”: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span></p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><span class="math notranslate nohighlight">\(k=3\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>“unity”: No weighting.</p></li>
+<li><p>“exp” or “exponential”: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span></p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<p>The exponential weighting is motivated by the exponential decay of screened
+Coulombic interactions in solids. In the exponential weighting the
+parameters <strong>cutoff</strong> determines the value of the weighting function after
+which the rest of the terms will be ignored and the parameter <strong>scale</strong>
+corresponds to <span class="math notranslate nohighlight">\(s\)</span>. The meaning of <span class="math notranslate nohighlight">\(x\)</span> changes for different
+terms as follows:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(k=2\)</span>: <span class="math notranslate nohighlight">\(x\)</span> = Distance between A-&gt;B</p></li>
+<li><p><span class="math notranslate nohighlight">\(k=3\)</span>: <span class="math notranslate nohighlight">\(x\)</span> = Distance from A-&gt;B-&gt;C-&gt;A.</p></li>
+</ul>
+<p>In the grid setup <em>min</em> is the minimum value of the axis, <em>max</em> is the
+maximum value of the axis, <em>sigma</em> is the standard deviation of the
+gaussian broadening and <em>n</em> is the number of points sampled on the
+grid.</p>
 <p>If flatten=False, a list of dense np.ndarrays for each k in ascending order
 is returned. These arrays are of dimension (n_elements x n_elements x
 n_grid_points), where the elements are sorted in ascending order by their
@@ -934,7 +961,7 @@ ascending order by (i * n_elements) + (j * n_elements) + (h * n_elements).</p>
 matrix.</p>
 <dl class="method">
 <dt id="dscribe.descriptors.lmbtr.LMBTR.create">
-<code class="descname">create</code><span class="sig-paren">(</span><em>system</em>, <em>positions=None</em>, <em>scaled_positions=False</em>, <em>n_jobs=1</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/lmbtr.html#LMBTR.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.create" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param">system</em>, <em class="sig-param">positions=None</em>, <em class="sig-param">n_jobs=1</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/lmbtr.html#LMBTR.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the LMBTR output for the given systems and given positions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -946,10 +973,6 @@ provided as cartesian positions or atomic indices. If no
 positions are defined, the LMBTR output will be created for all
 atoms in the system. When calculating LMBTR for multiple
 systems, provide the positions as a list for each system.</p></li>
-<li><p><strong>scaled_positions</strong> (<em>boolean</em>) – Controls whether the given positions
-are given as scaled to the unit cell basis or not. Scaled
-positions require that a cell is available for the system.
-Provide either one value or a list of values for each system.</p></li>
 <li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
 the calculation across samples. Defaults to serial calculation
 with n_jobs=1.</p></li>
@@ -972,7 +995,7 @@ the get_number_of_features()-function.</p>
 
 <dl class="method">
 <dt id="dscribe.descriptors.lmbtr.LMBTR.create_single">
-<code class="descname">create_single</code><span class="sig-paren">(</span><em>system</em>, <em>positions=None</em>, <em>scaled_positions=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/lmbtr.html#LMBTR.create_single"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.create_single" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create_single</code><span class="sig-paren">(</span><em class="sig-param">system</em>, <em class="sig-param">positions</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/lmbtr.html#LMBTR.create_single"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.create_single" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the local many-body tensor representation for the given
 system and positions.</p>
 <dl class="field-list simple">
@@ -982,18 +1005,12 @@ system and positions.</p>
 <li><p><strong>positions</strong> (<em>iterable</em>) – Positions or atom index of points, from
 which local_mbtr is created. Can be a list of integer numbers
 or a list of xyz-coordinates.</p></li>
-<li><p><strong>scaled_positions</strong> (<em>boolean</em>) – Controls whether the given positions
-are given as scaled to the unit cell basis or not. Scaled
-positions require that a cell is available for the system.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>The local many-body tensor representations of given</dt><dd><p>positions, for k terms, as an array. These are ordered as given
-in positions.</p>
-</dd>
-</dl>
-</p>
+<dd class="field-even"><p>The local many-body tensor representations of given
+positions, for k terms, as an array. These are ordered as given in
+positions.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>1D ndarray</p>
@@ -1001,14 +1018,105 @@ in positions.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
-<dt id="dscribe.descriptors.lmbtr.LMBTR.decay_factor">
-<code class="descname">decay_factor</code><em class="property"> = 4.242640687119286</em><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.decay_factor" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dl class="method">
+<dt id="dscribe.descriptors.lmbtr.LMBTR.get_k2_convolution">
+<code class="sig-name descname">get_k2_convolution</code><span class="sig-paren">(</span><em class="sig-param">grid</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/lmbtr.html#LMBTR.get_k2_convolution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.get_k2_convolution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the second order terms where the scalar mapping is the
+inverse distance between atoms.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>grid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – The grid settings</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>flattened K2 values.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>1D ndarray</p>
+</dd>
+</dl>
+</dd></dl>
 
-<dl class="attribute">
+<dl class="method">
+<dt id="dscribe.descriptors.lmbtr.LMBTR.get_k3_convolution">
+<code class="sig-name descname">get_k3_convolution</code><span class="sig-paren">(</span><em class="sig-param">grid</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/lmbtr.html#LMBTR.get_k3_convolution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.get_k3_convolution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the third order terms where the scalar mapping is the
+angle between 3 atoms.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>grid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – The grid settings</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>flattened K3 values.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>1D ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dscribe.descriptors.lmbtr.LMBTR.get_location">
+<code class="sig-name descname">get_location</code><span class="sig-paren">(</span><em class="sig-param">species</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/lmbtr.html#LMBTR.get_location"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.get_location" title="Permalink to this definition">¶</a></dt>
+<dd><p>Can be used to query the location of a species combination in the
+the flattened output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>species</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)"><em>tuple</em></a>) – A tuple containing a species combination as</p></li>
+<li><p><strong>symbols</strong><strong> or </strong><strong>atomic numbers. The central atom is marked as</strong> (<em>chemical</em>) – </p></li>
+<li><p><strong>&quot;X&quot;. The tuple can be for example</strong> (<em>species</em>) – </p></li>
+<li><p><strong>&quot;H&quot;</strong><strong>)</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>slice containing the location of the specified species
+combination. The location is given as a python slice-object, that
+can be directly used to target ranges in the output.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#slice" title="(in Python v3.7)">slice</a></p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – If the requested species combination is not in the</p></li>
+<li><p><strong>output</strong><strong> or </strong><strong>if invalid species defined.</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dscribe.descriptors.lmbtr.LMBTR.get_number_of_features">
+<code class="sig-name descname">get_number_of_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/lmbtr.html#LMBTR.get_number_of_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.get_number_of_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to inquire the final number of features that this descriptor
+will have.</p>
+<p>The number of features for the LMBTR is calculated as follows:</p>
+<p>For the pair term (k=2), only pairs where at least one of the atom is
+the central atom (in periodic systems the central atom may connect to
+itself) are considered. This means that there are only as many
+combinations as there are different elements to pair the central atom
+with (n_elem). This nmber of combinations is the multiplied by the
+discretization of the k=2 grid.</p>
+<p>For the three-body term (k=3), only triplets where at least one of the
+atoms is the central atom (in periodic systems the central atom may
+connect to itself) and the k &gt;= i (symmetry) are considered. This means
+that as k runs from 0 to n-1, where n is the number of elements, there
+are n + k combinations that fill this rule. This sum becomes:
+<span class="math notranslate nohighlight">\(\sum_{k=0}^{n-1} n + k = n^2+(n-1)*n/2\)</span>. This number of
+combinations is the multiplied by the discretization of the k=3 grid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Number of features for this descriptor.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="dscribe.descriptors.lmbtr.LMBTR.species">
-<code class="descname">species</code><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.species" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">species</code><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.species" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1030,12 +1138,12 @@ See the License for the specific language governing permissions and
 limitations under the License.</p>
 <dl class="class">
 <dt id="dscribe.descriptors.matrixdescriptor.MatrixDescriptor">
-<em class="property">class </em><code class="descclassname">dscribe.descriptors.matrixdescriptor.</code><code class="descname">MatrixDescriptor</code><span class="sig-paren">(</span><em>n_atoms_max</em>, <em>permutation='sorted_l2'</em>, <em>sigma=None</em>, <em>seed=None</em>, <em>flatten=True</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/matrixdescriptor.html#MatrixDescriptor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.matrixdescriptor.MatrixDescriptor" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.descriptors.matrixdescriptor.</code><code class="sig-name descname">MatrixDescriptor</code><span class="sig-paren">(</span><em class="sig-param">n_atoms_max</em>, <em class="sig-param">permutation='sorted_l2'</em>, <em class="sig-param">sigma=None</em>, <em class="sig-param">seed=None</em>, <em class="sig-param">flatten=True</em>, <em class="sig-param">sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/matrixdescriptor.html#MatrixDescriptor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.matrixdescriptor.MatrixDescriptor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dscribe.descriptors.descriptor.Descriptor" title="dscribe.descriptors.descriptor.Descriptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.descriptors.descriptor.Descriptor</span></code></a></p>
 <p>A common base class for two-body matrix-like descriptors.</p>
 <dl class="method">
 <dt id="dscribe.descriptors.matrixdescriptor.MatrixDescriptor.create_single">
-<code class="descname">create_single</code><span class="sig-paren">(</span><em>system</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/matrixdescriptor.html#MatrixDescriptor.create_single"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.create_single" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create_single</code><span class="sig-paren">(</span><em class="sig-param">system</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/matrixdescriptor.html#MatrixDescriptor.create_single"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.create_single" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> | <a class="reference internal" href="dscribe.core.html#dscribe.core.system.System" title="dscribe.core.system.System"><code class="xref py py-class docutils literal notranslate"><span class="pre">System</span></code></a>) – Input system.</p>
@@ -1055,7 +1163,7 @@ limitations under the License.</p>
 
 <dl class="method">
 <dt id="dscribe.descriptors.matrixdescriptor.MatrixDescriptor.get_eigenspectrum">
-<code class="descname">get_eigenspectrum</code><span class="sig-paren">(</span><em>matrix</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/matrixdescriptor.html#MatrixDescriptor.get_eigenspectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.get_eigenspectrum" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_eigenspectrum</code><span class="sig-paren">(</span><em class="sig-param">matrix</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/matrixdescriptor.html#MatrixDescriptor.get_eigenspectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.get_eigenspectrum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the eigenvalues of the matrix and returns a list of them
 sorted by their descending absolute value.</p>
 <dl class="field-list simple">
@@ -1073,7 +1181,7 @@ sorted by their descending absolute value.</p>
 
 <dl class="method">
 <dt id="dscribe.descriptors.matrixdescriptor.MatrixDescriptor.get_matrix">
-<code class="descname">get_matrix</code><span class="sig-paren">(</span><em>system</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/matrixdescriptor.html#MatrixDescriptor.get_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.get_matrix" title="Permalink to this definition">¶</a></dt>
+<em class="property">abstract </em><code class="sig-name descname">get_matrix</code><span class="sig-paren">(</span><em class="sig-param">system</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/matrixdescriptor.html#MatrixDescriptor.get_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.get_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to get the final matrix for this descriptor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1090,7 +1198,7 @@ sorted by their descending absolute value.</p>
 
 <dl class="method">
 <dt id="dscribe.descriptors.matrixdescriptor.MatrixDescriptor.get_number_of_features">
-<code class="descname">get_number_of_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/matrixdescriptor.html#MatrixDescriptor.get_number_of_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.get_number_of_features" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_number_of_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/matrixdescriptor.html#MatrixDescriptor.get_number_of_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.get_number_of_features" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to inquire the final number of features that this descriptor
 will have.</p>
 <dl class="field-list simple">
@@ -1105,7 +1213,7 @@ will have.</p>
 
 <dl class="method">
 <dt id="dscribe.descriptors.matrixdescriptor.MatrixDescriptor.sort">
-<code class="descname">sort</code><span class="sig-paren">(</span><em>matrix</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/matrixdescriptor.html#MatrixDescriptor.sort"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.sort" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sort</code><span class="sig-paren">(</span><em class="sig-param">matrix</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/matrixdescriptor.html#MatrixDescriptor.sort"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.sort" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sorts the given matrix by using the L2 norm.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1122,7 +1230,7 @@ will have.</p>
 
 <dl class="method">
 <dt id="dscribe.descriptors.matrixdescriptor.MatrixDescriptor.sort_randomly">
-<code class="descname">sort_randomly</code><span class="sig-paren">(</span><em>matrix</em>, <em>sigma</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/matrixdescriptor.html#MatrixDescriptor.sort_randomly"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.sort_randomly" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sort_randomly</code><span class="sig-paren">(</span><em class="sig-param">matrix</em>, <em class="sig-param">sigma</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/matrixdescriptor.html#MatrixDescriptor.sort_randomly"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.sort_randomly" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a coulomb matrix, it adds random noise to the sorting defined by
 sigma. For sorting, L2-norm is used.</p>
 <dl class="field-list simple">
@@ -1150,7 +1258,7 @@ scrambled.</p>
 
 <dl class="method">
 <dt id="dscribe.descriptors.matrixdescriptor.MatrixDescriptor.zero_pad">
-<code class="descname">zero_pad</code><span class="sig-paren">(</span><em>array</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/matrixdescriptor.html#MatrixDescriptor.zero_pad"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.zero_pad" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">zero_pad</code><span class="sig-paren">(</span><em class="sig-param">array</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/matrixdescriptor.html#MatrixDescriptor.zero_pad"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.zero_pad" title="Permalink to this definition">¶</a></dt>
 <dd><p>Zero-pads the given matrix.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1184,25 +1292,83 @@ See the License for the specific language governing permissions and
 limitations under the License.</p>
 <dl class="class">
 <dt id="dscribe.descriptors.mbtr.MBTR">
-<em class="property">class </em><code class="descclassname">dscribe.descriptors.mbtr.</code><code class="descname">MBTR</code><span class="sig-paren">(</span><em>k</em>, <em>periodic</em>, <em>grid=None</em>, <em>weighting=None</em>, <em>species=None</em>, <em>atomic_numbers=None</em>, <em>normalize_gaussians=True</em>, <em>normalization='none'</em>, <em>flatten=True</em>, <em>sparse=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.descriptors.mbtr.</code><code class="sig-name descname">MBTR</code><span class="sig-paren">(</span><em class="sig-param">species</em>, <em class="sig-param">periodic</em>, <em class="sig-param">k1=None</em>, <em class="sig-param">k2=None</em>, <em class="sig-param">k3=None</em>, <em class="sig-param">normalize_gaussians=True</em>, <em class="sig-param">normalization='none'</em>, <em class="sig-param">flatten=True</em>, <em class="sig-param">sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dscribe.descriptors.descriptor.Descriptor" title="dscribe.descriptors.descriptor.Descriptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.descriptors.descriptor.Descriptor</span></code></a></p>
-<p>Implementation of the Many-body tensor representation up to k=3.</p>
-<p>This implementation provides the following geometry functions:</p>
-<ul class="simple">
-<li><p>k=1: atomic number</p></li>
-<li><p>k=2: inverse distances</p></li>
-<li><p>k=3: cosines of angles</p></li>
-</ul>
-<p>and the following weighting functions:</p>
-<ul class="simple">
-<li><p>k=1: unity(=no weighting)</p></li>
-<li><p>k=2: unity(=no weighting), exponential (<span class="math notranslate nohighlight">\(e^-(sx)\)</span>)</p></li>
-<li><p>k=3: unity(=no weighting), exponential (<span class="math notranslate nohighlight">\(e^-(sx)\)</span>)</p></li>
-</ul>
+<p>Implementation of the Many-body tensor representation up to <span class="math notranslate nohighlight">\(k=3\)</span>.</p>
+<p>You can choose which terms to include by providing a dictionary in the
+k1, k2 or k3 arguments. This dictionary should contain information
+under three keys: “geometry”, “grid” and “weighting”. See the examples
+below for how to format these dictionaries.</p>
 <p>You can use this descriptor for finite and periodic systems. When dealing
-with periodic systems, it is advisable to use a primitive cell, or if
-supercells are included to use normalization e.g. by volume or by the norm
-of the final vector.</p>
+with periodic systems or when using machine learning models that use the
+Euclidean norm to measure distance between vectors, it is advisable to use
+some form of normalization.</p>
+<p>For the geometry functions the following choices are available:</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(k=1\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>“atomic_number”: The atomic numbers.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><span class="math notranslate nohighlight">\(k=2\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>“distance”: Pairwise distance in angstroms.</p></li>
+<li><p>“inverse_distance”: Pairwise inverse distance in 1/angstrom.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><span class="math notranslate nohighlight">\(k=3\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>“angle”: Angle in degrees.</p></li>
+<li><p>“cosine”: Cosine of the angle.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<p>For the weighting the following functions are available:</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(k=1\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>“unity”: No weighting.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><span class="math notranslate nohighlight">\(k=2\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>“unity”: No weighting.</p></li>
+<li><p>“exp” or “exponential”: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span></p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><span class="math notranslate nohighlight">\(k=3\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>“unity”: No weighting.</p></li>
+<li><p>“exp” or “exponential”: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span></p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<p>The exponential weighting is motivated by the exponential decay of screened
+Coulombic interactions in solids. In the exponential weighting the
+parameters <strong>cutoff</strong> determines the value of the weighting function after
+which the rest of the terms will be ignored and the parameter <strong>scale</strong>
+corresponds to <span class="math notranslate nohighlight">\(s\)</span>. The meaning of <span class="math notranslate nohighlight">\(x\)</span> changes for different
+terms as follows:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(k=2\)</span>: <span class="math notranslate nohighlight">\(x\)</span> = Distance between A-&gt;B</p></li>
+<li><p><span class="math notranslate nohighlight">\(k=3\)</span>: <span class="math notranslate nohighlight">\(x\)</span> = Distance from A-&gt;B-&gt;C-&gt;A.</p></li>
+</ul>
+<p>In the grid setup <em>min</em> is the minimum value of the axis, <em>max</em> is the
+maximum value of the axis, <em>sigma</em> is the standard deviation of the
+gaussian broadening and <em>n</em> is the number of points sampled on the
+grid.</p>
 <p>If flatten=False, a list of dense np.ndarrays for each k in ascending order
 is returned. These arrays are of dimension (n_elements x n_elements x
 n_grid_points), where the elements are sorted in ascending order by their
@@ -1216,71 +1382,19 @@ ascending order by (i * n_elements) + (j * n_elements) + (h * n_elements).</p>
 <p>This implementation does not support the use of a non-identity correlation
 matrix.</p>
 <dl class="method">
-<dt id="dscribe.descriptors.mbtr.MBTR.K1">
-<code class="descname">K1</code><span class="sig-paren">(</span><em>settings</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.K1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.K1" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates the first order terms where the scalar mapping is the
-number of atoms of a certain type.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>system</strong> (<a class="reference internal" href="dscribe.core.html#dscribe.core.system.System" title="dscribe.core.system.System"><em>System</em></a>) – Atomic system.</p></li>
-<li><p><strong>settings</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Grid settings.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>K1 values.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarray | scipy.sparse.lil_matrix</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="dscribe.descriptors.mbtr.MBTR.K2">
-<code class="descname">K2</code><span class="sig-paren">(</span><em>settings</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.K2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.K2" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates the second order terms where the scalar mapping is the
-inverse distance between atoms.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>settings</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – The grid settings</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>flattened K2 values.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>1D ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="dscribe.descriptors.mbtr.MBTR.K3">
-<code class="descname">K3</code><span class="sig-paren">(</span><em>settings</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.K3"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.K3" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates the third order terms where the scalar mapping is the
-angle between 3 atoms.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>settings</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – The grid settings</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>flattened K3 values.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>1D ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
 <dt id="dscribe.descriptors.mbtr.MBTR.check_grid">
-<code class="descname">check_grid</code><span class="sig-paren">(</span><em>grid</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.check_grid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.check_grid" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">check_grid</code><span class="sig-paren">(</span><em class="sig-param">grid</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.check_grid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.check_grid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to ensure that the given grid settings are valid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>grid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Dictionary containing the grid setup.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="dscribe.descriptors.mbtr.MBTR.create">
-<code class="descname">create</code><span class="sig-paren">(</span><em>system</em>, <em>n_jobs=1</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.create" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param">system</em>, <em class="sig-param">n_jobs=1</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return MBTR output for the given systems.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1310,7 +1424,7 @@ are returned.</p>
 
 <dl class="method">
 <dt id="dscribe.descriptors.mbtr.MBTR.create_extended_system">
-<code class="descname">create_extended_system</code><span class="sig-paren">(</span><em>primitive_system</em>, <em>term_number</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.create_extended_system"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.create_extended_system" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create_extended_system</code><span class="sig-paren">(</span><em class="sig-param">primitive_system</em>, <em class="sig-param">term_number</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.create_extended_system"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.create_extended_system" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to create a periodically extended system, that is as small as
 possible by rejecting atoms for which the given weighting will be below
 the given threshold.</p>
@@ -1339,7 +1453,7 @@ have a weight that is larger or equivalent to the given threshold.</p>
 
 <dl class="method">
 <dt id="dscribe.descriptors.mbtr.MBTR.create_single">
-<code class="descname">create_single</code><span class="sig-paren">(</span><em>system</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.create_single"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.create_single" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create_single</code><span class="sig-paren">(</span><em class="sig-param">system</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.create_single"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.create_single" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the many-body tensor representation for the given system.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1361,20 +1475,15 @@ either as a sparse or a dense vector.</p>
 
 <dl class="method">
 <dt id="dscribe.descriptors.mbtr.MBTR.create_with_grid">
-<code class="descname">create_with_grid</code><span class="sig-paren">(</span><em>grid=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.create_with_grid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.create_with_grid" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create_with_grid</code><span class="sig-paren">(</span><em class="sig-param">grid</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.create_with_grid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.create_with_grid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to recalculate MBTR for an already seen system but with
 different grid setttings. This function can be used after the scalar
 values have been initialized with “initialize_scalars”.</p>
 </dd></dl>
 
-<dl class="attribute">
-<dt id="dscribe.descriptors.mbtr.MBTR.decay_factor">
-<code class="descname">decay_factor</code><em class="property"> = 4.242640687119286</em><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.decay_factor" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="method">
 <dt id="dscribe.descriptors.mbtr.MBTR.gaussian_sum">
-<code class="descname">gaussian_sum</code><span class="sig-paren">(</span><em>centers</em>, <em>weights</em>, <em>settings</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.gaussian_sum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.gaussian_sum" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">gaussian_sum</code><span class="sig-paren">(</span><em class="sig-param">centers</em>, <em class="sig-param">weights</em>, <em class="sig-param">settings</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.gaussian_sum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.gaussian_sum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates a discrete version of a sum of Gaussian distributions.</p>
 <p>The calculation is done through the cumulative distribution function
 that is better at keeping the integral of the probability function
@@ -1396,26 +1505,92 @@ gaussian with the given standard deviation.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dscribe.descriptors.mbtr.MBTR.get_k1_settings">
-<code class="descname">get_k1_settings</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.get_k1_settings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.get_k1_settings" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the min, max, dx and sigma for K1.</p>
+<dt id="dscribe.descriptors.mbtr.MBTR.get_k1_convolution">
+<code class="sig-name descname">get_k1_convolution</code><span class="sig-paren">(</span><em class="sig-param">grid</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.get_k1_convolution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.get_k1_convolution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the first order terms where the scalar mapping is the
+number of atoms of a certain type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>grid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Grid settings.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>K1 values.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray | scipy.sparse.lil_matrix</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
-<dt id="dscribe.descriptors.mbtr.MBTR.get_k2_settings">
-<code class="descname">get_k2_settings</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.get_k2_settings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.get_k2_settings" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the min, max, dx and sigma for K2.</p>
+<dt id="dscribe.descriptors.mbtr.MBTR.get_k2_convolution">
+<code class="sig-name descname">get_k2_convolution</code><span class="sig-paren">(</span><em class="sig-param">grid</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.get_k2_convolution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.get_k2_convolution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the second order terms where the scalar mapping is the
+inverse distance between atoms.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>grid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – The grid settings</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>flattened K2 values.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>1D ndarray</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
-<dt id="dscribe.descriptors.mbtr.MBTR.get_k3_settings">
-<code class="descname">get_k3_settings</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.get_k3_settings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.get_k3_settings" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the min, max, dx and sigma for K3.</p>
+<dt id="dscribe.descriptors.mbtr.MBTR.get_k3_convolution">
+<code class="sig-name descname">get_k3_convolution</code><span class="sig-paren">(</span><em class="sig-param">grid</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.get_k3_convolution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.get_k3_convolution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the third order terms where the scalar mapping is the
+angle between 3 atoms.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>grid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – The grid settings</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>flattened K3 values.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>1D ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dscribe.descriptors.mbtr.MBTR.get_location">
+<code class="sig-name descname">get_location</code><span class="sig-paren">(</span><em class="sig-param">species</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.get_location"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.get_location" title="Permalink to this definition">¶</a></dt>
+<dd><p>Can be used to query the location of a species combination in the
+the flattened output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>species</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)"><em>tuple</em></a>) – A tuple containing a species combination as</p></li>
+<li><p><strong>symbols</strong><strong> or </strong><strong>atomic numbers. The tuple can be for example</strong> (<em>chemical</em>) – </p></li>
+<li><p><strong>(</strong><strong>&quot;H&quot;</strong><strong>)</strong><strong>,</strong> (<em>&quot;H&quot;</em><em>, </em><em>&quot;O&quot;</em><em>) or </em><em>(</em><em>&quot;H&quot;</em><em>, </em><em>&quot;O&quot;</em><em>, </em><em>&quot;H&quot;</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>slice containing the location of the specified species
+combination. The location is given as a python slice-object, that
+can be directly used to target ranges in the output.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#slice" title="(in Python v3.7)">slice</a></p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – If the requested species combination is not in the</p></li>
+<li><p><strong>output</strong><strong> or </strong><strong>if invalid species defined.</strong> – </p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="dscribe.descriptors.mbtr.MBTR.get_number_of_features">
-<code class="descname">get_number_of_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.get_number_of_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.get_number_of_features" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_number_of_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.get_number_of_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.get_number_of_features" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to inquire the final number of features that this descriptor
 will have.</p>
 <dl class="field-list simple">
@@ -1430,13 +1605,18 @@ will have.</p>
 
 <dl class="method">
 <dt id="dscribe.descriptors.mbtr.MBTR.initialize_scalars">
-<code class="descname">initialize_scalars</code><span class="sig-paren">(</span><em>system</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.initialize_scalars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.initialize_scalars" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">initialize_scalars</code><span class="sig-paren">(</span><em class="sig-param">system</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.initialize_scalars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.initialize_scalars" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to initialize the scalar values for each k-term.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="dscribe.descriptors.mbtr.MBTR.k1">
+<em class="property">property </em><code class="sig-name descname">k1</code><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.k1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="dscribe.descriptors.mbtr.MBTR.k1_geoms_and_weights">
-<code class="descname">k1_geoms_and_weights</code><span class="sig-paren">(</span><em>system</em>, <em>cell_indices</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.k1_geoms_and_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.k1_geoms_and_weights" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">k1_geoms_and_weights</code><span class="sig-paren">(</span><em class="sig-param">system</em>, <em class="sig-param">cell_indices</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.k1_geoms_and_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.k1_geoms_and_weights" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the atom count for each element.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1456,8 +1636,13 @@ of atomic number x is self.atomic_number_to_index[x]</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="dscribe.descriptors.mbtr.MBTR.k2">
+<em class="property">property </em><code class="sig-name descname">k2</code><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.k2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="dscribe.descriptors.mbtr.MBTR.k2_geoms_and_weights">
-<code class="descname">k2_geoms_and_weights</code><span class="sig-paren">(</span><em>system</em>, <em>cell_indices</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.k2_geoms_and_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.k2_geoms_and_weights" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">k2_geoms_and_weights</code><span class="sig-paren">(</span><em class="sig-param">system</em>, <em class="sig-param">cell_indices</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.k2_geoms_and_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.k2_geoms_and_weights" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the value of the geometry function and corresponding
 weights for unique two-body combinations.</p>
 <dl class="field-list simple">
@@ -1476,8 +1661,13 @@ in the entry where j&gt;=i.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="dscribe.descriptors.mbtr.MBTR.k3">
+<em class="property">property </em><code class="sig-name descname">k3</code><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.k3" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="dscribe.descriptors.mbtr.MBTR.k3_geoms_and_weights">
-<code class="descname">k3_geoms_and_weights</code><span class="sig-paren">(</span><em>system</em>, <em>cell_indices</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.k3_geoms_and_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.k3_geoms_and_weights" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">k3_geoms_and_weights</code><span class="sig-paren">(</span><em class="sig-param">system</em>, <em class="sig-param">cell_indices</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.k3_geoms_and_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.k3_geoms_and_weights" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the value of the geometry function and corresponding
 weights for unique three-body combinations.</p>
 <dl class="field-list simple">
@@ -1495,21 +1685,15 @@ corresponding to the angles are stored in a similar dictionary.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="dscribe.descriptors.mbtr.MBTR.normalization">
-<code class="descname">normalization</code><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.normalization" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="dscribe.descriptors.mbtr.MBTR.species">
-<code class="descname">species</code><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.species" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">normalization</code><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.normalization" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="dscribe.descriptors.mbtr.MBTR.update">
-<code class="descname">update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.update" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks and updates variables in mbtr class.</p>
-</dd></dl>
+<dt id="dscribe.descriptors.mbtr.MBTR.species">
+<em class="property">property </em><code class="sig-name descname">species</code><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.species" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -1530,7 +1714,7 @@ See the License for the specific language governing permissions and
 limitations under the License.</p>
 <dl class="class">
 <dt id="dscribe.descriptors.sinematrix.SineMatrix">
-<em class="property">class </em><code class="descclassname">dscribe.descriptors.sinematrix.</code><code class="descname">SineMatrix</code><span class="sig-paren">(</span><em>n_atoms_max</em>, <em>permutation='sorted_l2'</em>, <em>sigma=None</em>, <em>seed=None</em>, <em>flatten=True</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/sinematrix.html#SineMatrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.sinematrix.SineMatrix" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.descriptors.sinematrix.</code><code class="sig-name descname">SineMatrix</code><span class="sig-paren">(</span><em class="sig-param">n_atoms_max</em>, <em class="sig-param">permutation='sorted_l2'</em>, <em class="sig-param">sigma=None</em>, <em class="sig-param">seed=None</em>, <em class="sig-param">flatten=True</em>, <em class="sig-param">sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/sinematrix.html#SineMatrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.sinematrix.SineMatrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dscribe.descriptors.matrixdescriptor.MatrixDescriptor" title="dscribe.descriptors.matrixdescriptor.MatrixDescriptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.descriptors.matrixdescriptor.MatrixDescriptor</span></code></a></p>
 <p>Calculates the zero padded Sine matrix for different systems.</p>
 <p>The Sine matrix is defined as:</p>
@@ -1556,7 +1740,7 @@ Chemistry, (2015),
 </dl>
 <dl class="method">
 <dt id="dscribe.descriptors.sinematrix.SineMatrix.create">
-<code class="descname">create</code><span class="sig-paren">(</span><em>system</em>, <em>n_jobs=1</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/sinematrix.html#SineMatrix.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.sinematrix.SineMatrix.create" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param">system</em>, <em class="sig-param">n_jobs=1</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/sinematrix.html#SineMatrix.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.sinematrix.SineMatrix.create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the Sine matrix for the given systems.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1586,7 +1770,7 @@ flattened, a simple python list is returned.</p>
 
 <dl class="method">
 <dt id="dscribe.descriptors.sinematrix.SineMatrix.get_matrix">
-<code class="descname">get_matrix</code><span class="sig-paren">(</span><em>system</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/sinematrix.html#SineMatrix.get_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.sinematrix.SineMatrix.get_matrix" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_matrix</code><span class="sig-paren">(</span><em class="sig-param">system</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/sinematrix.html#SineMatrix.get_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.sinematrix.SineMatrix.get_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates the Sine matrix for the given system.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1620,11 +1804,13 @@ See the License for the specific language governing permissions and
 limitations under the License.</p>
 <dl class="class">
 <dt id="dscribe.descriptors.soap.SOAP">
-<em class="property">class </em><code class="descclassname">dscribe.descriptors.soap.</code><code class="descname">SOAP</code><span class="sig-paren">(</span><em>rcut</em>, <em>nmax</em>, <em>lmax</em>, <em>sigma=1.0</em>, <em>rbf='gto'</em>, <em>species=None</em>, <em>atomic_numbers=None</em>, <em>periodic=False</em>, <em>crossover=True</em>, <em>average=False</em>, <em>sparse=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.descriptors.soap.</code><code class="sig-name descname">SOAP</code><span class="sig-paren">(</span><em class="sig-param">rcut</em>, <em class="sig-param">nmax</em>, <em class="sig-param">lmax</em>, <em class="sig-param">sigma=1.0</em>, <em class="sig-param">rbf='gto'</em>, <em class="sig-param">species=None</em>, <em class="sig-param">periodic=False</em>, <em class="sig-param">crossover=True</em>, <em class="sig-param">average=False</em>, <em class="sig-param">sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dscribe.descriptors.descriptor.Descriptor" title="dscribe.descriptors.descriptor.Descriptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.descriptors.descriptor.Descriptor</span></code></a></p>
-<p>Class for the Smooth Overlap of Atomic Orbitals (SOAP) descriptor. This
-implementation uses orthogonalized spherical primitive gaussian type
-orbitals as the radial basis set to reach a fast analytical solution.</p>
+<p>Class for generating a partial power spectrum from Smooth Overlap of
+Atomic Orbitals (SOAP). This implementation uses real (tesseral) spherical
+harmonics as the angular basis set and provides two orthonormalized
+alternatives for the radial basis functions: spherical primitive gaussian
+type orbitals (“gto”) or the polynomial basis set (“polynomial”).</p>
 <p>For reference, see:</p>
 <p>“On representing chemical environments, Albert P. Bartók, Risi Kondor, and
 Gábor Csányi, Phys. Rev. B 87, 184115, (2013),
@@ -1632,9 +1818,13 @@ Gábor Csányi, Phys. Rev. B 87, 184115, (2013),
 <p>“Comparing molecules and solids across structural and alchemical space”,
 Sandip De, Albert P. Bartók, Gábor Csányi and Michele Ceriotti, Phys.
 Chem. Chem. Phys. 18, 13754 (2016), <a class="reference external" href="https://doi.org/10.1039/c6cp00415f">https://doi.org/10.1039/c6cp00415f</a></p>
+<p>“Machine learning hydrogen adsorption on nanoclusters through structural
+descriptors”, Marc O. J. Jäger, Eiaki V. Morooka, Filippo Federici Canova,
+Lauri Himanen &amp; Adam S. Foster, npj Comput. Mater., 4, 37 (2018),
+<a class="reference external" href="https://doi.org/10.1038/s41524-018-0096-5">https://doi.org/10.1038/s41524-018-0096-5</a></p>
 <dl class="method">
 <dt id="dscribe.descriptors.soap.SOAP.create">
-<code class="descname">create</code><span class="sig-paren">(</span><em>system</em>, <em>positions=None</em>, <em>n_jobs=1</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.create" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param">system</em>, <em class="sig-param">positions=None</em>, <em class="sig-param">n_jobs=1</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the SOAP output for the given systems and given positions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1670,7 +1860,7 @@ their positions.</p>
 
 <dl class="method">
 <dt id="dscribe.descriptors.soap.SOAP.create_single">
-<code class="descname">create_single</code><span class="sig-paren">(</span><em>system</em>, <em>positions=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.create_single"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.create_single" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create_single</code><span class="sig-paren">(</span><em class="sig-param">system</em>, <em class="sig-param">positions=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.create_single"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.create_single" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the SOAP output for the given system and given positions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1697,7 +1887,7 @@ get_number_of_features()-function.</p>
 
 <dl class="method">
 <dt id="dscribe.descriptors.soap.SOAP.get_flattened_index">
-<code class="descname">get_flattened_index</code><span class="sig-paren">(</span><em>i</em>, <em>j</em>, <em>n</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.get_flattened_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.get_flattened_index" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_flattened_index</code><span class="sig-paren">(</span><em class="sig-param">i</em>, <em class="sig-param">j</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.get_flattened_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.get_flattened_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the 1D index of an element in an upper diagonal matrix that
 has been flattened by iterating over the elements from left to right
 and top to bottom.</p>
@@ -1705,7 +1895,7 @@ and top to bottom.</p>
 
 <dl class="method">
 <dt id="dscribe.descriptors.soap.SOAP.get_full_space_output">
-<code class="descname">get_full_space_output</code><span class="sig-paren">(</span><em>sub_output</em>, <em>sub_elements</em>, <em>full_elements_sorted</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.get_full_space_output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.get_full_space_output" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_full_space_output</code><span class="sig-paren">(</span><em class="sig-param">sub_output</em>, <em class="sig-param">sub_elements</em>, <em class="sig-param">full_elements_sorted</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.get_full_space_output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.get_full_space_output" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to partition the SOAP output to different locations depending
 on the interacting elements. SOAPLite return the output partitioned by
 the elements present in the given system. This function correctly
@@ -1730,7 +1920,7 @@ space, sorted.</p></li>
 
 <dl class="method">
 <dt id="dscribe.descriptors.soap.SOAP.get_number_of_element_features">
-<code class="descname">get_number_of_element_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.get_number_of_element_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.get_number_of_element_features" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_number_of_element_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.get_number_of_element_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.get_number_of_element_features" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to query the number of elements in the SOAP feature space for
 a single element pair.</p>
 <dl class="field-list simple">
@@ -1745,7 +1935,7 @@ a single element pair.</p>
 
 <dl class="method">
 <dt id="dscribe.descriptors.soap.SOAP.get_number_of_features">
-<code class="descname">get_number_of_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.get_number_of_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.get_number_of_features" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_number_of_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.get_number_of_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.get_number_of_features" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to inquire the final number of features that this descriptor
 will have.</p>
 <dl class="field-list simple">
@@ -1760,14 +1950,14 @@ will have.</p>
 
 <dl class="method">
 <dt id="dscribe.descriptors.soap.SOAP.get_sub_to_full_map">
-<code class="descname">get_sub_to_full_map</code><span class="sig-paren">(</span><em>sub_elements</em>, <em>full_elements</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.get_sub_to_full_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.get_sub_to_full_map" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_sub_to_full_map</code><span class="sig-paren">(</span><em class="sig-param">sub_elements</em>, <em class="sig-param">full_elements</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.get_sub_to_full_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.get_sub_to_full_map" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to map an index in the sub-space of elements to the full
 element-space.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="dscribe.descriptors.soap.SOAP.species">
-<code class="descname">species</code><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.species" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">species</code><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.species" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1825,6 +2015,23 @@ limitations under the License.</p>
 
   </div>
   
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Versions</span>
+      v: 0.2.6
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl>
+        <dt>Versions</dt>
+        
+          <dd><a href="https://singroup.github.io/dscribe/dev">0.2.7a (development)</a></dd>
+        
+          <dd><a href="https://singroup.github.io/dscribe">0.2.6 (latest stable)</a></dd>
+        
+      </dl>
+    </div>
+  </div>
 
 
   <script type="text/javascript">

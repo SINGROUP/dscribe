@@ -3,25 +3,25 @@ Smooth Overlap of Atomic Positions
 
 Smooth Overlap of Atomic Positions (SOAP) is a descriptor that encodes regions
 of atomic geometries by using a local expansion of a gaussian smeared atomic
-density with orthonormal functions based on spherical harmonics and a set of
-radial basis functions.
+density with orthonormal functions based on spherical harmonics and radial
+basis functions.
 
 The SOAP output from DScribe is the partial power spectrum vector
 :math:`\mathbf{p}(\mathbf{r})`, where the elements are defined as :cite:`soap2`
 
 .. math::
-   p(\mathbf{r})^{Z Z'}_{n n' l} = \pi \sqrt{\frac{8}{2l+1}}\sum_m c^{Z}_{n l m}(\mathbf{r})^{\dagger}c^{Z'}_{n' l m}(\mathbf{r})
+   p(\mathbf{r})^{Z_1 Z_2}_{n n' l} = \pi \sqrt{\frac{8}{2l+1}}\sum_m c^{Z_1}_{n l m}(\mathbf{r})^*c^{Z_2}_{n' l m}(\mathbf{r})
 
-where :math:`n` and :math:`n'` are indices for different radial basis functions
-up to :math:`n_\mathrm{max}`, :math:`l` is the angular degree of spherical
-harmonics up to :math:`l_\mathrm{max}` and :math:`Z` and :math:`Z'` are atomic
-species.
+where :math:`n` and :math:`n'` are indices for the different radial basis
+functions up to :math:`n_\mathrm{max}`, :math:`l` is the angular degree of the
+spherical harmonics up to :math:`l_\mathrm{max}` and :math:`Z_1` and :math:`Z_2`
+are atomic species.
 
 The coefficients :math:`c^Z_{nlm}` are defined as the following inner
 products:
 
 .. math::
-   c^Z_{nlm}(\mathbf{x}) =\iiint_{\mathcal{R}^3}\mathrm{d}V g_{n}(r)Y_{lm}(\theta, \phi)\rho^Z(\mathbf{r}).
+   c^Z_{nlm}(\mathbf{r}) =\iiint_{\mathcal{R}^3}\mathrm{d}V g_{n}(r)Y_{lm}(\theta, \phi)\rho^Z(\mathbf{r}).
 
 where :math:`\mathbf{r}` is a position in space, :math:`\rho^Z(\mathbf{r})` is
 the gaussian smoothed atomic density for atoms with atomic number :math:`Z`,
@@ -35,12 +35,13 @@ radial basis functions :cite:`akisoap`, as they allow much faster analytic
 computation. We however also include the possibility of using the original
 polynomial radial basis set :cite:`soap1`.
 
-In DScribe `real (tesseral) spherical harmonics
-<https://en.wikipedia.org/wiki/Spherical_harmonics#Real_form>`_ are used to
-expand as the angular basis. This real form spans the same space as the complex
-version, and is defined as a linear combination of the complex basis. As the
-atomic density is a real-valued quantity (no imaginary part) it is natural and
-computationally easier to use this form that does not require complex algebra.
+The spherical harmonics definition used by DScribe is based on `real (tesseral)
+spherical harmonics
+<https://en.wikipedia.org/wiki/Spherical_harmonics#Real_form>`_. This real form
+spans the same space as the complex version, and is defined as a linear
+combination of the complex basis. As the atomic density is a real-valued
+quantity (no imaginary part) it is natural and computationally easier to use
+this form that does not require complex algebra.
 
 The SOAP kernel :cite:`soap1` between two atomic environments can be retrieved
 as a normalized polynomial kernel of the partial powers spectrums:
