@@ -466,7 +466,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             [0.0, 0.0, 0.0],
             [0.0, 0.0, 0.0]
         ])
-        nocell = desc.create(molecule, positions=[[0, 0, 0]]).toarray()
+        nocell = desc.create(molecule, positions=[[0, 0, 0]])
 
         # Make periodic
         desc = SOAP(species=[1, 6, 8], rcut=10.0, nmax=2, lmax=0, periodic=True, crossover=True,)
@@ -478,9 +478,9 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             [0.0, 3.0, 0.0],
             [0.0, 0.0, 3.0]
         ])
-        cubic_cell = desc.create(molecule, positions=[[0, 0, 0]]).toarray()
+        cubic_cell = desc.create(molecule, positions=[[0, 0, 0]])
         suce = molecule * (2, 1, 1)
-        cubic_suce = desc.create(suce, positions=[[0, 0, 0]]).toarray()
+        cubic_suce = desc.create(suce, positions=[[0, 0, 0]])
 
         # Triclinic
         molecule.set_cell([
@@ -488,9 +488,9 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             [2.0, 0.0, 2.0],
             [2.0, 2.0, 0.0]
         ])
-        triclinic_cell = desc.create(molecule, positions=[[0, 0, 0]]).toarray()
+        triclinic_cell = desc.create(molecule, positions=[[0, 0, 0]])
         suce = molecule * (2, 1, 1)
-        triclinic_suce = desc.create(suce, positions=[[0, 0, 0]]).toarray()
+        triclinic_suce = desc.create(suce, positions=[[0, 0, 0]])
 
         self.assertTrue(np.sum(np.abs((nocell[:3] - cubic_suce[:3]))) > 0.1)
         self.assertAlmostEqual(np.sum(cubic_cell[:3] - cubic_suce[:3]), 0)
