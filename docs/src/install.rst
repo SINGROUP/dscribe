@@ -22,3 +22,15 @@ github and install with pip from local file:
     git clone https://github.com/SINGROUP/dscribe.git
     cd dscribe
     pip install .
+
+Common issues
+-------------
+ - **fatal error: Python.h: No such file or directory**: The package depends on
+   C/C++ extensions that are compiled during the setup. For the compilation to
+   work you will need to install the pythonX.X-dev package, where X.X is the
+   python version you use to run dscribe. E.g. for python 3.7 on Ubuntu this
+   package could be installed with:
+
+   .. code-block:: sh
+
+       sudo apt install python3.7-dev
