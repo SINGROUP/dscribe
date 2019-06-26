@@ -27,7 +27,7 @@ Common issues
 -------------
  - **fatal error: Python.h: No such file or directory**: The package depends on
    C/C++ extensions that are compiled during the setup. For the compilation to
-   work you will need to install the pythonX.X-dev package, where X.X is the
+   work you will need to install the *pythonX.X-dev*-package, where X.X is the
    python version you use to run dscribe. E.g. for python 3.7 on Ubuntu this
    package could be installed with:
 
