@@ -1,10 +1,24 @@
+import os
 import platform
+from distutils.sysconfig import get_config_var
+from distutils.version import LooseVersion
 from setuptools import setup, find_packages, Extension
 
-# On Mac we need to specify that libc++ should be used
 cpp_extra_compile_args = ['-std=c++11']
+
+# Taken from the setup.py file in the pandas-library, see the following issue
+# for more details: https://github.com/pandas-dev/pandas/issues/23424. For mac,
+# ensure extensions are built for macos 10.9 when compiling on a 10.9 system or
+# above, overriding distutils behaviour which is to target the version that
+# python was built for. This may be overridden by setting
+# MACOSX_DEPLOYMENT_TARGET before calling setup.py
 if platform.system() == "Darwin":
-    cpp_extra_compile_args.append('-stdlib=libc++')
+    if 'MACOSX_DEPLOYMENT_TARGET' not in os.environ:
+        current_system = LooseVersion(platform.mac_ver()[0])
+        python_target = LooseVersion(
+            get_config_var('MACOSX_DEPLOYMENT_TARGET'))
+        if python_target < '10.9' and current_system >= '10.9':
+            os.environ['MACOSX_DEPLOYMENT_TARGET'] = '10.9'
 
 extensions = [
     # The ACSF C++ extension, wrapped with cython
