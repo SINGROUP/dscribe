@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dscribe.utils.species &mdash; DScribe 0.2.3 documentation</title>
+  <title>dscribe.utils.species &mdash; DScribe 0.2.6 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                0.2.3
+                0.2.6
               </div>
             
           
@@ -236,7 +236,7 @@
         <span class="p">)</span>
 
     <span class="c1"># Return species as atomic numbers with possible duplicates removed</span>
-    <span class="n">new_atomic_numbers</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">atomic_numbers</span><span class="p">)))</span>
+    <span class="n">new_atomic_numbers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">atomic_numbers</span><span class="p">))))</span>
 
     <span class="k">return</span> <span class="n">new_atomic_numbers</span></div>
 </pre></div>
@@ -266,6 +266,23 @@
 
   </div>
   
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Versions</span>
+      v: 0.2.6
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl>
+        <dt>Versions</dt>
+        
+          <dd><a href="https://singroup.github.io/dscribe/dev">0.2.7a (development)</a></dd>
+        
+          <dd><a href="https://singroup.github.io/dscribe">0.2.6 (latest stable)</a></dd>
+        
+      </dl>
+    </div>
+  </div>
 
 
   <script type="text/javascript">

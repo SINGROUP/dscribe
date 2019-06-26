@@ -1,6 +1,5 @@
 import numpy as np
 from dscribe.descriptors import MBTR
-from ase.build import bulk
 
 # Setup
 mbtr = MBTR(
@@ -33,6 +32,30 @@ mbtr_water = mbtr.create(water)
 
 print(mbtr_water)
 print(mbtr_water.shape)
+
+# Setup
+mbtr = MBTR(
+    species=["H", "O"],
+    k2={
+        "geometry": {"function": "inverse_distance"},
+        "grid": {"min": 0, "max": 1, "n": 100, "sigma": 0.1},
+        "weighting": {"function": "exponential", "scale": 0.5, "cutoff": 1e-3},
+    },
+    periodic=False,
+    normalization="l2_each",
+)
+
+# Locations
+# The locations of specific element combinations can be retrieved like this.
+h_loc = mbtr.get_location(("H"))
+ho_loc = mbtr.get_location(("H", "O"))
+hoh_loc = mbtr.get_location(("H", "O", "H"))
+
+# These locations can be directly used to slice the corresponding part from an
+# MBTR output for e.g. plotting.
+mbtr_water[0, h_loc]
+mbtr_water[0, ho_loc]
+mbtr_water[0, hoh_loc]
 
 # Visualization
 import ase.data

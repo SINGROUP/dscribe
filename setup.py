@@ -55,7 +55,7 @@ extensions = [
 
 if __name__ == "__main__":
     setup(name='dscribe',
-        version="0.2.4",
+        version="0.2.6",
         url="https://singroup.github.io/dscribe/",
         description='A Python package for creating feature transformations in applications of machine learning to materials science.',
         long_description='A Python package for creating feature transformations in applications of machine learning to materials science.',
@@ -65,7 +65,7 @@ if __name__ == "__main__":
             'scipy',
             'ase',
             'future',
-            'scikit-learn',
+            'scikit-learn==0.20.3',
             'joblib',
             'soaplite==1.0.3',
         ],

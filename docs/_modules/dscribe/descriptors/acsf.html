@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dscribe.descriptors.acsf &mdash; DScribe 0.2.3 documentation</title>
+  <title>dscribe.descriptors.acsf &mdash; DScribe 0.2.6 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                0.2.3
+                0.2.6
               </div>
             
           
@@ -209,7 +209,6 @@
         <span class="n">g4_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">g5_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">species</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">atomic_numbers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -232,10 +231,6 @@
 <span class="sd">                encountered when creating the descriptors for a set of systems.</span>
 <span class="sd">                Keeping the number of chemical species as low as possible is</span>
 <span class="sd">                preferable.</span>
-<span class="sd">            atomic_numbers (iterable): A list of the atomic numbers that should</span>
-<span class="sd">                be taken into account in the descriptor. Deprecated in favour of</span>
-<span class="sd">                the species-parameters, but provided for</span>
-<span class="sd">                backwards-compatibility.</span>
 <span class="sd">            sparse (bool): Whether the output should be a sparse matrix or a</span>
 <span class="sd">                dense numpy array.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -244,7 +239,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span> <span class="o">=</span> <span class="n">ACSFWrapper</span><span class="p">()</span>
 
         <span class="c1"># Setup</span>
-        <span class="n">species</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_species_definition</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="n">atomic_numbers</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">species</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">g2_params</span> <span class="o">=</span> <span class="n">g2_params</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">g3_params</span> <span class="o">=</span> <span class="n">g3_params</span>
@@ -337,7 +331,8 @@
         <span class="c1"># Make sure that periodicity is not taken into account</span>
         <span class="n">system</span><span class="o">.</span><span class="n">set_pbc</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
 
-        <span class="c1"># # Create C-compatible list of atomic indices for which the ACSF is calculated</span>
+        <span class="c1"># Create C-compatible list of atomic indices for which the ACSF is</span>
+        <span class="c1"># calculated</span>
         <span class="k">if</span> <span class="n">positions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
@@ -540,6 +535,23 @@
 
   </div>
   
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Versions</span>
+      v: 0.2.6
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl>
+        <dt>Versions</dt>
+        
+          <dd><a href="https://singroup.github.io/dscribe/dev">0.2.7a (development)</a></dd>
+        
+          <dd><a href="https://singroup.github.io/dscribe">0.2.6 (latest stable)</a></dd>
+        
+      </dl>
+    </div>
+  </div>
 
 
   <script type="text/javascript">

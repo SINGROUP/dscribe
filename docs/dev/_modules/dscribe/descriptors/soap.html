@@ -1,0 +1,723 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dscribe.descriptors.soap &mdash; DScribe 0.2.6 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/style.css" type="text/css" />
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html">
+          
+
+          
+            
+            <img src="../../../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.2.7a
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../doc/modules.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../citing.html">Citing DScribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about.html">About</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DScribe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>dscribe.descriptors.soap</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for dscribe.descriptors.soap</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;Copyright 2019 DScribe developers</span>
+
+<span class="sd">Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="sd">you may not use this file except in compliance with the License.</span>
+<span class="sd">You may obtain a copy of the License at</span>
+
+<span class="sd">    http://www.apache.org/licenses/LICENSE-2.0</span>
+
+<span class="sd">Unless required by applicable law or agreed to in writing, software</span>
+<span class="sd">distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="sd">WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="sd">See the License for the specific language governing permissions and</span>
+<span class="sd">limitations under the License.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
+<span class="kn">from</span> <span class="nn">builtins</span> <span class="k">import</span> <span class="p">(</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">open</span><span class="p">,</span> <span class="nb">super</span><span class="p">,</span> <span class="nb">range</span><span class="p">,</span> <span class="nb">zip</span><span class="p">,</span> <span class="nb">round</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">pow</span><span class="p">,</span> <span class="nb">object</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="k">import</span> <span class="n">coo_matrix</span>
+
+<span class="kn">from</span> <span class="nn">ase</span> <span class="k">import</span> <span class="n">Atoms</span>
+
+<span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="k">import</span> <span class="n">Descriptor</span>
+<span class="kn">from</span> <span class="nn">dscribe.core</span> <span class="k">import</span> <span class="n">System</span>
+
+<span class="kn">import</span> <span class="nn">soaplite</span>
+
+
+<div class="viewcode-block" id="SOAP"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP">[docs]</a><span class="k">class</span> <span class="nc">SOAP</span><span class="p">(</span><span class="n">Descriptor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class for generating a partial power spectrum from Smooth Overlap of</span>
+<span class="sd">    Atomic Orbitals (SOAP). This implementation uses real (tesseral) spherical</span>
+<span class="sd">    harmonics as the angular basis set and provides two orthonormalized</span>
+<span class="sd">    alternatives for the radial basis functions: spherical primitive gaussian</span>
+<span class="sd">    type orbitals (&quot;gto&quot;) or the polynomial basis set (&quot;polynomial&quot;).</span>
+
+<span class="sd">    For reference, see:</span>
+
+<span class="sd">    &quot;On representing chemical environments, Albert P. Bartók, Risi Kondor, and</span>
+<span class="sd">    Gábor Csányi, Phys. Rev. B 87, 184115, (2013),</span>
+<span class="sd">    https://doi.org/10.1103/PhysRevB.87.184115</span>
+
+<span class="sd">    &quot;Comparing molecules and solids across structural and alchemical space&quot;,</span>
+<span class="sd">    Sandip De, Albert P. Bartók, Gábor Csányi and Michele Ceriotti, Phys.</span>
+<span class="sd">    Chem. Chem. Phys. 18, 13754 (2016), https://doi.org/10.1039/c6cp00415f</span>
+
+<span class="sd">    &quot;Machine learning hydrogen adsorption on nanoclusters through structural</span>
+<span class="sd">    descriptors&quot;, Marc O. J. Jäger, Eiaki V. Morooka, Filippo Federici Canova,</span>
+<span class="sd">    Lauri Himanen &amp; Adam S. Foster, npj Comput. Mater., 4, 37 (2018),</span>
+<span class="sd">    https://doi.org/10.1038/s41524-018-0096-5</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SOAP.__init__"><a class="viewcode-back" href="../../../tutorials/soap.html#dscribe.descriptors.soap.SOAP.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">rcut</span><span class="p">,</span>
+            <span class="n">nmax</span><span class="p">,</span>
+            <span class="n">lmax</span><span class="p">,</span>
+            <span class="n">sigma</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+            <span class="n">rbf</span><span class="o">=</span><span class="s2">&quot;gto&quot;</span><span class="p">,</span>
+            <span class="n">species</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">crossover</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">average</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            rcut (float): A cutoff for local region in angstroms. Should be</span>
+<span class="sd">                bigger than 1 angstrom.</span>
+<span class="sd">            nmax (int): The number of radial basis functions.</span>
+<span class="sd">            lmax (int): The maximum degree of spherical harmonics.</span>
+<span class="sd">            species (iterable): The chemical species as a list of atomic</span>
+<span class="sd">                numbers or as a list of chemical symbols. Notice that this is not</span>
+<span class="sd">                the atomic numbers that are present for an individual system, but</span>
+<span class="sd">                should contain all the elements that are ever going to be</span>
+<span class="sd">                encountered when creating the descriptors for a set of systems.</span>
+<span class="sd">                Keeping the number of chemical species as low as possible is</span>
+<span class="sd">                preferable.</span>
+<span class="sd">            sigma (float): The standard deviation of the gaussians used to expand the</span>
+<span class="sd">                atomic density.</span>
+<span class="sd">            rbf (str): The radial basis functions to use. The available options are:</span>
+
+<span class="sd">                * &quot;gto&quot;: Spherical gaussian type orbitals defined as :math:`g_{nl}(r) = \sum_{n&#39;=1}^{n_\mathrm{max}}\,\\beta_{nn&#39;l} r^l e^{-\\alpha_{n&#39;l}r^2}`</span>
+<span class="sd">                * &quot;polynomial&quot;: Polynomial basis defined as :math:`g_{n}(r) = \sum_{n&#39;=1}^{n_\mathrm{max}}\,\\beta_{nn&#39;} (r-r_\mathrm{cut})^{n&#39;+2}`</span>
+
+<span class="sd">            periodic (bool): Determines whether the system is considered to be</span>
+<span class="sd">                periodic.</span>
+<span class="sd">            crossover (bool): Determines if crossover of atomic types should</span>
+<span class="sd">                be included in the power spectrum. If enabled, the power</span>
+<span class="sd">                spectrum is calculated over all unique species combinations Z</span>
+<span class="sd">                and Z&#39;. If disabled, the power spectrum does not contain</span>
+<span class="sd">                cross-species information and is only run over each unique</span>
+<span class="sd">                species Z. Turned on by default to correspond to the original</span>
+<span class="sd">                definition</span>
+<span class="sd">            average (bool): Whether to build an average output for all selected</span>
+<span class="sd">                positions.</span>
+<span class="sd">            sparse (bool): Whether the output should be a sparse matrix or a</span>
+<span class="sd">                dense numpy array.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="n">sparse</span><span class="p">)</span>
+
+        <span class="c1"># Setup the involved chemical species</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">species</span>
+
+        <span class="c1"># Check that sigma is valid</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">sigma</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Only positive gaussian width parameters &#39;sigma&#39; are allowed.&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_eta</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># Check that rcut is valid</span>
+        <span class="k">if</span> <span class="n">rbf</span> <span class="o">==</span> <span class="s2">&quot;gto&quot;</span> <span class="ow">and</span> <span class="n">rcut</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;When using the gaussian radial basis set (gto), the radial &quot;</span>
+                <span class="s2">&quot;cutoff should be bigger than 1 angstrom.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">supported_rbf</span> <span class="o">=</span> <span class="nb">set</span><span class="p">((</span><span class="s2">&quot;gto&quot;</span><span class="p">,</span> <span class="s2">&quot;polynomial&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">rbf</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">supported_rbf</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Invalid radial basis function of type &#39;</span><span class="si">{}</span><span class="s2">&#39; given. Please use &quot;</span>
+                <span class="s2">&quot;one of the following: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rbf</span><span class="p">,</span> <span class="n">supported_rbf</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Crossover cannot be disabled on poly rbf</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">crossover</span> <span class="ow">and</span> <span class="n">rbf</span> <span class="o">==</span> <span class="s2">&quot;polynomial&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Disabling crossover is not currently supported when using &quot;</span>
+                <span class="s2">&quot;polynomial radial basis function&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rbf</span><span class="p">,</span> <span class="n">supported_rbf</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rcut</span> <span class="o">=</span> <span class="n">rcut</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nmax</span> <span class="o">=</span> <span class="n">nmax</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lmax</span> <span class="o">=</span> <span class="n">lmax</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rbf</span> <span class="o">=</span> <span class="n">rbf</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_periodic</span> <span class="o">=</span> <span class="n">periodic</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_crossover</span> <span class="o">=</span> <span class="n">crossover</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_average</span> <span class="o">=</span> <span class="n">average</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rbf</span> <span class="o">==</span> <span class="s2">&quot;gto&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_alphas</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_betas</span> <span class="o">=</span> <span class="n">soaplite</span><span class="o">.</span><span class="n">genBasis</span><span class="o">.</span><span class="n">getBasisFunc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rcut</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nmax</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SOAP.create"><a class="viewcode-back" href="../../../tutorials/soap.html#dscribe.descriptors.soap.SOAP.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the SOAP output for the given systems and given positions.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or</span>
+<span class="sd">                many atomic structures.</span>
+<span class="sd">            positions (list): Positions where to calculate SOAP. Can be</span>
+<span class="sd">                provided as cartesian positions or atomic indices. If no</span>
+<span class="sd">                positions are defined, the SOAP output will be created for all</span>
+<span class="sd">                atoms in the system. When calculating SOAP for multiple</span>
+<span class="sd">                systems, provide the positions as a list for each system.</span>
+<span class="sd">            n_jobs (int): Number of parallel jobs to instantiate. Parallellizes</span>
+<span class="sd">                the calculation across samples. Defaults to serial calculation</span>
+<span class="sd">                with n_jobs=1.</span>
+<span class="sd">            verbose(bool): Controls whether to print the progress of each job</span>
+<span class="sd">                into to the console.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray | scipy.sparse.csr_matrix: The SOAP output for the given</span>
+<span class="sd">            systems and positions. The return type depends on the</span>
+<span class="sd">            &#39;sparse&#39;-attribute. The first dimension is determined by the amount</span>
+<span class="sd">            of positions and systems and the second dimension is determined by</span>
+<span class="sd">            the get_number_of_features()-function. When multiple systems are</span>
+<span class="sd">            provided the results are ordered by the input order of systems and</span>
+<span class="sd">            their positions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># If single system given, skip the parallelization</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="p">(</span><span class="n">Atoms</span><span class="p">,</span> <span class="n">System</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_single</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="p">)</span>
+
+        <span class="c1"># Combine input arguments</span>
+        <span class="n">n_samples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">positions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">inp</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i_sys</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i_sys</span> <span class="ow">in</span> <span class="n">system</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">n_pos</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">positions</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">n_pos</span> <span class="o">!=</span> <span class="n">n_samples</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;The given number of positions does not match the given&quot;</span>
+                    <span class="s2">&quot;number os systems.&quot;</span>
+                <span class="p">)</span>
+            <span class="n">inp</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="p">))</span>
+
+        <span class="c1"># For SOAP the output size for each job depends on the exact arguments.</span>
+        <span class="c1"># Here we precalculate the size for each job to preallocate memory and</span>
+        <span class="c1"># make the process faster.</span>
+        <span class="n">k</span><span class="p">,</span> <span class="n">m</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">)</span>
+        <span class="n">jobs</span> <span class="o">=</span> <span class="p">(</span><span class="n">inp</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">k</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">m</span><span class="p">):(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">k</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">m</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_jobs</span><span class="p">))</span>
+        <span class="n">output_sizes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i_job</span> <span class="ow">in</span> <span class="n">jobs</span><span class="p">:</span>
+            <span class="n">n_desc</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_average</span><span class="p">:</span>
+                <span class="n">n_desc</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">i_job</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">positions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">n_desc</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">for</span> <span class="n">job</span> <span class="ow">in</span> <span class="n">i_job</span><span class="p">:</span>
+                    <span class="n">n_desc</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">job</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">n_desc</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">for</span> <span class="n">i_sample</span><span class="p">,</span> <span class="n">i_pos</span> <span class="ow">in</span> <span class="n">i_job</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">i_pos</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">n_desc</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">i_pos</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">n_desc</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">i_sample</span><span class="p">)</span>
+            <span class="n">output_sizes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n_desc</span><span class="p">)</span>
+
+        <span class="c1"># Create in parallel</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_parallel</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_single</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">,</span> <span class="n">output_sizes</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">output</span></div>
+
+<div class="viewcode-block" id="SOAP.create_single"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.create_single">[docs]</a>    <span class="k">def</span> <span class="nf">create_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the SOAP output for the given system and given positions.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            system (:class:`ase.Atoms` | :class:`.System`): Input system.</span>
+<span class="sd">            positions (list): Cartesian positions or atomic indices. If</span>
+<span class="sd">                specified, the SOAP spectrum will be created for these points.</span>
+<span class="sd">                If no positions are defined, the SOAP output will be created</span>
+<span class="sd">                for all atoms in the system.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray | scipy.sparse.coo_matrix: The SOAP output for the</span>
+<span class="sd">            given system and positions. The return type depends on the</span>
+<span class="sd">            &#39;sparse&#39;-attribute. The first dimension is given by the number of</span>
+<span class="sd">            positions and the second dimension is determined by the</span>
+<span class="sd">            get_number_of_features()-function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Transform the input system into the internal System-object</span>
+        <span class="n">system</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_system</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+
+        <span class="c1"># Check that the system does not have elements that are not in the list</span>
+        <span class="c1"># of atomic numbers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_atomic_numbers</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">())</span>
+        <span class="n">sub_elements</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">())))</span>
+
+        <span class="c1"># Check if periodic is valid</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_periodic</span><span class="p">:</span>
+            <span class="n">cell</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_cell</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">cell</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cell</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">cell</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;System doesn&#39;t have cell to justify periodicity.&quot;</span>
+                <span class="p">)</span>
+
+        <span class="c1"># Positions specified, use them</span>
+        <span class="k">if</span> <span class="n">positions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+            <span class="c1"># Check validity of position definitions and create final cartesian</span>
+            <span class="c1"># position list</span>
+            <span class="n">list_positions</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">positions</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;The argument &#39;positions&#39; should contain a non-empty set of&quot;</span>
+                    <span class="s2">&quot; atomic indices or cartesian coordinates with x, y and z &quot;</span>
+                    <span class="s2">&quot;components.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">positions</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
+                    <span class="n">list_positions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()[</span><span class="n">i</span><span class="p">])</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="s2">&quot;The argument &#39;positions&#39; should contain a &quot;</span>
+                            <span class="s2">&quot;non-empty set of atomic indices or cartesian &quot;</span>
+                            <span class="s2">&quot;coordinates with x, y and z components.&quot;</span>
+                        <span class="p">)</span>
+                    <span class="n">list_positions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;Create method requires the argument &#39;positions&#39;, a &quot;</span>
+                        <span class="s2">&quot;list of atom indices and/or positions.&quot;</span>
+                    <span class="p">)</span>
+
+            <span class="c1"># Determine the SOAPLite function to call based on periodicity and</span>
+            <span class="c1"># rbf</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rbf</span> <span class="o">==</span> <span class="s2">&quot;gto&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_periodic</span><span class="p">:</span>
+                    <span class="n">soap_func</span> <span class="o">=</span> <span class="n">soaplite</span><span class="o">.</span><span class="n">get_periodic_soap_locals</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">soap_func</span> <span class="o">=</span> <span class="n">soaplite</span><span class="o">.</span><span class="n">get_soap_locals</span>
+                <span class="n">soap_mat</span> <span class="o">=</span> <span class="n">soap_func</span><span class="p">(</span>
+                    <span class="n">system</span><span class="p">,</span>
+                    <span class="n">list_positions</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_alphas</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_betas</span><span class="p">,</span>
+                    <span class="n">rCut</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_rcut</span><span class="p">,</span>
+                    <span class="n">nMax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_nmax</span><span class="p">,</span>
+                    <span class="n">Lmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_lmax</span><span class="p">,</span>
+                    <span class="n">crossOver</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_crossover</span><span class="p">,</span>
+                    <span class="n">all_atomtypes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">eta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_eta</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rbf</span> <span class="o">==</span> <span class="s2">&quot;polynomial&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_periodic</span><span class="p">:</span>
+                    <span class="n">soap_func</span> <span class="o">=</span> <span class="n">soaplite</span><span class="o">.</span><span class="n">get_periodic_soap_locals_poly</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">soap_func</span> <span class="o">=</span> <span class="n">soaplite</span><span class="o">.</span><span class="n">get_soap_locals_poly</span>
+                <span class="n">soap_mat</span> <span class="o">=</span> <span class="n">soap_func</span><span class="p">(</span>
+                    <span class="n">system</span><span class="p">,</span>
+                    <span class="n">list_positions</span><span class="p">,</span>
+                    <span class="n">rCut</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_rcut</span><span class="p">,</span>
+                    <span class="n">nMax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_nmax</span><span class="p">,</span>
+                    <span class="n">Lmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_lmax</span><span class="p">,</span>
+                    <span class="n">all_atomtypes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">eta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_eta</span>
+                <span class="p">)</span>
+
+        <span class="c1"># No positions given, calculate SOAP for all atoms in the structure</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Determine the SOAPLite function to call based on periodicity and</span>
+            <span class="c1"># rbf</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rbf</span> <span class="o">==</span> <span class="s2">&quot;gto&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_periodic</span><span class="p">:</span>
+                    <span class="n">soap_func</span> <span class="o">=</span> <span class="n">soaplite</span><span class="o">.</span><span class="n">get_periodic_soap_structure</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">soap_func</span> <span class="o">=</span> <span class="n">soaplite</span><span class="o">.</span><span class="n">get_soap_structure</span>
+                <span class="n">soap_mat</span> <span class="o">=</span> <span class="n">soap_func</span><span class="p">(</span>
+                    <span class="n">system</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_alphas</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_betas</span><span class="p">,</span>
+                    <span class="n">rCut</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_rcut</span><span class="p">,</span>
+                    <span class="n">nMax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_nmax</span><span class="p">,</span>
+                    <span class="n">Lmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_lmax</span><span class="p">,</span>
+                    <span class="n">crossOver</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_crossover</span><span class="p">,</span>
+                    <span class="n">all_atomtypes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">eta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_eta</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rbf</span> <span class="o">==</span> <span class="s2">&quot;polynomial&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_periodic</span><span class="p">:</span>
+                    <span class="n">soap_func</span> <span class="o">=</span> <span class="n">soaplite</span><span class="o">.</span><span class="n">get_periodic_soap_structure_poly</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">soap_func</span> <span class="o">=</span> <span class="n">soaplite</span><span class="o">.</span><span class="n">get_soap_structure_poly</span>
+                <span class="n">soap_mat</span> <span class="o">=</span> <span class="n">soap_func</span><span class="p">(</span>
+                    <span class="n">system</span><span class="p">,</span>
+                    <span class="n">rCut</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_rcut</span><span class="p">,</span>
+                    <span class="n">nMax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_nmax</span><span class="p">,</span>
+                    <span class="n">Lmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_lmax</span><span class="p">,</span>
+                    <span class="n">all_atomtypes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">eta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_eta</span>
+                <span class="p">)</span>
+
+        <span class="c1"># Map the output from subspace of elements to the full space of</span>
+        <span class="c1"># elements</span>
+        <span class="n">soap_mat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_full_space_output</span><span class="p">(</span>
+            <span class="n">soap_mat</span><span class="p">,</span>
+            <span class="n">sub_elements</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Create the averaged SOAP output if requested.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_average</span><span class="p">:</span>
+            <span class="n">soap_mat</span> <span class="o">=</span> <span class="n">soap_mat</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">soap_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">soap_mat</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Make into a sparse array if requested</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span><span class="p">:</span>
+            <span class="n">soap_mat</span> <span class="o">=</span> <span class="n">coo_matrix</span><span class="p">(</span><span class="n">soap_mat</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">soap_mat</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">species</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_species</span>
+
+    <span class="nd">@species</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Used to check the validity of given atomic numbers and to initialize</span>
+<span class="sd">        the C-memory layout for them.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value(iterable): Chemical species either as a list of atomic</span>
+<span class="sd">                numbers or list of chemical symbols.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># The species are stored as atomic numbers for internal use.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_species</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SOAP.get_full_space_output"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_full_space_output">[docs]</a>    <span class="k">def</span> <span class="nf">get_full_space_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sub_output</span><span class="p">,</span> <span class="n">sub_elements</span><span class="p">,</span> <span class="n">full_elements_sorted</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Used to partition the SOAP output to different locations depending</span>
+<span class="sd">        on the interacting elements. SOAPLite return the output partitioned by</span>
+<span class="sd">        the elements present in the given system. This function correctly</span>
+<span class="sd">        places those results within a bigger chemical space.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            sub_output(np.ndarray): The output fron SOAPLite</span>
+<span class="sd">            sub_elements(list): The atomic numbers present in the subspace</span>
+<span class="sd">            full_elements_sorted(list): The atomic numbers present in the full</span>
+<span class="sd">                space, sorted.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: The given SOAP output mapped to the full chemical space.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># print(sub_output.shape)</span>
+        <span class="c1"># Get mapping between elements in the subspace and alements in the full</span>
+        <span class="c1"># space</span>
+        <span class="n">space_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sub_to_full_map</span><span class="p">(</span><span class="n">sub_elements</span><span class="p">,</span> <span class="n">full_elements_sorted</span><span class="p">)</span>
+
+        <span class="c1"># Reserve space for a sparse matric containing the full output space</span>
+        <span class="n">n_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_number_of_features</span><span class="p">()</span>
+        <span class="n">n_elem_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_number_of_element_features</span><span class="p">()</span>
+        <span class="n">n_points</span> <span class="o">=</span> <span class="n">sub_output</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># Define the final output space as an array.</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_points</span><span class="p">,</span> <span class="n">n_features</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+        <span class="c1"># When crossover is enabled, we need to store the contents for all</span>
+        <span class="c1"># unique species combinations</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_crossover</span><span class="p">:</span>
+            <span class="n">n_elem_sub</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sub_elements</span><span class="p">)</span>
+            <span class="n">n_elem_full</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">full_elements_sorted</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i_sub</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_elem_sub</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">j_sub</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_elem_sub</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">j_sub</span> <span class="o">&gt;=</span> <span class="n">i_sub</span><span class="p">:</span>
+
+                        <span class="c1"># This is the index of the spectrum. It is given by enumerating the</span>
+                        <span class="c1"># elements of an upper triangular matrix from left to right and top</span>
+                        <span class="c1"># to bottom.</span>
+                        <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_flattened_index</span><span class="p">(</span><span class="n">i_sub</span><span class="p">,</span> <span class="n">j_sub</span><span class="p">,</span> <span class="n">n_elem_sub</span><span class="p">)</span>
+                        <span class="n">start_sub</span> <span class="o">=</span> <span class="n">m</span><span class="o">*</span><span class="n">n_elem_features</span>
+                        <span class="n">end_sub</span> <span class="o">=</span> <span class="p">(</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n_elem_features</span>
+                        <span class="n">sub_out</span> <span class="o">=</span> <span class="n">sub_output</span><span class="p">[:,</span> <span class="n">start_sub</span><span class="p">:</span><span class="n">end_sub</span><span class="p">]</span>
+                        <span class="c1"># print(sub_out.shape)</span>
+
+                        <span class="c1"># Figure out position in the full element space</span>
+                        <span class="n">i_full</span> <span class="o">=</span> <span class="n">space_map</span><span class="p">[</span><span class="n">i_sub</span><span class="p">]</span>
+                        <span class="n">j_full</span> <span class="o">=</span> <span class="n">space_map</span><span class="p">[</span><span class="n">j_sub</span><span class="p">]</span>
+                        <span class="n">m_full</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_flattened_index</span><span class="p">(</span><span class="n">i_full</span><span class="p">,</span> <span class="n">j_full</span><span class="p">,</span> <span class="n">n_elem_full</span><span class="p">)</span>
+
+                        <span class="c1"># Place output to full output vector</span>
+                        <span class="n">start_full</span> <span class="o">=</span> <span class="n">m_full</span><span class="o">*</span><span class="n">n_elem_features</span>
+                        <span class="n">end_full</span> <span class="o">=</span> <span class="p">(</span><span class="n">m_full</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n_elem_features</span>
+                        <span class="n">output</span><span class="p">[:,</span> <span class="n">start_full</span><span class="p">:</span><span class="n">end_full</span><span class="p">]</span> <span class="o">=</span> <span class="n">sub_out</span>
+        <span class="c1"># When crossover is disabled, we need to store only power spectrums</span>
+        <span class="c1"># that contain for each species</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">n_elem_sub</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sub_elements</span><span class="p">)</span>
+            <span class="n">n_elem_full</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">full_elements_sorted</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_elem_sub</span><span class="p">):</span>
+                <span class="c1"># This is the index of the spectrum. It is given by enumerating the</span>
+                <span class="c1"># elements of an upper triangular matrix from left to right and top</span>
+                <span class="c1"># to bottom.</span>
+                <span class="n">start_sub</span> <span class="o">=</span> <span class="n">m</span><span class="o">*</span><span class="n">n_elem_features</span>
+                <span class="n">end_sub</span> <span class="o">=</span> <span class="p">(</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n_elem_features</span>
+                <span class="n">sub_out</span> <span class="o">=</span> <span class="n">sub_output</span><span class="p">[:,</span> <span class="n">start_sub</span><span class="p">:</span><span class="n">end_sub</span><span class="p">]</span>
+                <span class="c1"># print(sub_out.shape)</span>
+
+                <span class="c1"># Figure out position in the full element space</span>
+                <span class="n">m_full</span> <span class="o">=</span> <span class="n">space_map</span><span class="p">[</span><span class="n">m</span><span class="p">]</span>
+
+                <span class="c1"># Place output to full output vector</span>
+                <span class="n">start_full</span> <span class="o">=</span> <span class="n">m_full</span><span class="o">*</span><span class="n">n_elem_features</span>
+                <span class="n">end_full</span> <span class="o">=</span> <span class="p">(</span><span class="n">m_full</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n_elem_features</span>
+                <span class="n">output</span><span class="p">[:,</span> <span class="n">start_full</span><span class="p">:</span><span class="n">end_full</span><span class="p">]</span> <span class="o">=</span> <span class="n">sub_out</span>
+
+        <span class="k">return</span> <span class="n">output</span></div>
+
+<div class="viewcode-block" id="SOAP.get_sub_to_full_map"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_sub_to_full_map">[docs]</a>    <span class="k">def</span> <span class="nf">get_sub_to_full_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sub_elements</span><span class="p">,</span> <span class="n">full_elements</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Used to map an index in the sub-space of elements to the full</span>
+<span class="sd">        element-space.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Sort the elements according to atomic number</span>
+        <span class="n">sub_elements_sorted</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">sub_elements</span><span class="p">)</span>
+        <span class="n">full_elements_sorted</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">full_elements</span><span class="p">)</span>
+
+        <span class="n">mapping</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">i_sub</span><span class="p">,</span> <span class="n">z</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sub_elements_sorted</span><span class="p">):</span>
+            <span class="n">i_full</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">full_elements_sorted</span> <span class="o">==</span> <span class="n">z</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">mapping</span><span class="p">[</span><span class="n">i_sub</span><span class="p">]</span> <span class="o">=</span> <span class="n">i_full</span>
+
+        <span class="k">return</span> <span class="n">mapping</span></div>
+
+<div class="viewcode-block" id="SOAP.get_number_of_element_features"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_number_of_element_features">[docs]</a>    <span class="k">def</span> <span class="nf">get_number_of_element_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Used to query the number of elements in the SOAP feature space for</span>
+<span class="sd">        a single element pair.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: The number of features per element pair.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nmax</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SOAP.get_flattened_index"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_flattened_index">[docs]</a>    <span class="k">def</span> <span class="nf">get_flattened_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the 1D index of an element in an upper diagonal matrix that</span>
+<span class="sd">        has been flattened by iterating over the elements from left to right</span>
+<span class="sd">        and top to bottom.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">j</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="n">n</span> <span class="o">-</span> <span class="n">i</span><span class="o">*</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SOAP.get_number_of_features"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_number_of_features">[docs]</a>    <span class="k">def</span> <span class="nf">get_number_of_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Used to inquire the final number of features that this descriptor</span>
+<span class="sd">        will have.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: Number of features for this descriptor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">n_elems</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_crossover</span><span class="p">:</span>
+            <span class="n">n_blocks</span> <span class="o">=</span> <span class="n">n_elems</span> <span class="o">*</span> <span class="p">(</span><span class="n">n_elems</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">n_blocks</span> <span class="o">=</span> <span class="n">n_elems</span>
+
+        <span class="n">n_element_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_number_of_element_features</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_element_features</span> <span class="o">*</span> <span class="n">n_blocks</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Versions</span>
+      v: 0.2.7a
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl>
+        <dt>Versions</dt>
+        
+          <dd><a href="https://singroup.github.io/dscribe/dev">0.2.7a (development)</a></dd>
+        
+          <dd><a href="https://singroup.github.io/dscribe">0.2.6 (latest stable)</a></dd>
+        
+      </dl>
+    </div>
+  </div>
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

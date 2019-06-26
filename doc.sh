@@ -3,7 +3,7 @@ git checkout master
 cd docs/src
 sphinx-apidoc -o ./doc ../../dscribe
 make html
-cp -a build/html/. ../
+cp -a build/html/. ../dev
 rm -r build
 
 # Push changes to docs
