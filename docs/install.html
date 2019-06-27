@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Installation &mdash; DScribe 0.2.6 documentation</title>
+  <title>Installation &mdash; DScribe 0.2.7 documentation</title>
   
 
   
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                0.2.6
+                0.2.7
               </div>
             
           
@@ -91,7 +91,10 @@
             
             
               <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#common-issues">Common issues</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/tutorials.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="doc/modules.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
@@ -181,6 +184,22 @@ github and install with pip from local file:</p>
 pip install .
 </pre></div>
 </div>
+<div class="section" id="common-issues">
+<h2>Common issues<a class="headerlink" href="#common-issues" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul>
+<li><p><strong>fatal error: Python.h: No such file or directory</strong>: The package depends on
+C/C++ extensions that are compiled during the setup. For the compilation to
+work you will need to install the <em>pythonX.X-dev</em>-package, where X.X is the
+python version you use to run dscribe. E.g. for python 3.7 on Ubuntu this
+package could be installed with:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>sudo apt install python3.7-dev
+</pre></div>
+</div>
+</li>
+</ul>
+</div></blockquote>
+</div>
 </div>
 
 
@@ -221,16 +240,16 @@ pip install .
   <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="fa fa-book"> Versions</span>
-      v: 0.2.6
+      v: 0.2.7
       <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
       <dl>
         <dt>Versions</dt>
         
-          <dd><a href="https://singroup.github.io/dscribe/dev">0.2.7a (development)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe/dev">0.2.8a (development)</a></dd>
         
-          <dd><a href="https://singroup.github.io/dscribe">0.2.6 (latest stable)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe">0.2.7 (latest stable)</a></dd>
         
       </dl>
     </div>
