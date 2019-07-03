@@ -1,10 +1,10 @@
 # Update pip
-pip install pip --update
+pip install pip --upgrade
 
 # Install numpy before requirements, as we need a specific version for
 # different python versions, and using a requirements file cannot ensure the
 # installation of a specific version
-if [$TRAVIS_PYTHON_VERSION <= "3.5"]
+if [[ $TRAVIS_PYTHON_VERSION == '3.4' ]]
 then
     pip install numpy==1.15.4
 fi
