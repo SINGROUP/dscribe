@@ -1,5 +1,3 @@
-numpy==1.15.4; python_version <= '3.4'
-numpy; python_version > '3.4'
 cython
 coverage
 coveralls
