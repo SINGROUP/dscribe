@@ -18,10 +18,13 @@ branches:
 jobs:
   include:
     - stage: test
-      python: 3.4
+      python: 3.5
       os: linux
     - stage: test
       python: 3.6
+      os: linux
+    - stage: test
+      python: 3.7
       os: linux
       after_success:
        - test $TRAVIS_BRANCH = "master" && coveralls && ./doc.sh

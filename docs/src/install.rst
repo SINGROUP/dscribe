@@ -1,7 +1,7 @@
 Installation
 ============
 The newest versions of the package are compatible with Python 3.X (tested on
-3.4 and 3.7). The versions <= 0.2.7 also support Python 2.7. We currently only
+3.5, 3.6 and 3.7). The versions <= 0.2.7 also support Python 2.7. We currently only
 support Unix-based systems, including Linux and macOS. For Windows-machines we
 suggest using the `Windows Subsystem for Linux (WSL)
 <https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux>`_. The exact list
