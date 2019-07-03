@@ -7,6 +7,7 @@ pip install pip --upgrade
 if [[ $TRAVIS_PYTHON_VERSION == '3.4' ]]
 then
     pip install numpy==1.15.4
+    pip install ruamel.yaml==0.15.94
 fi
 
 # Development dependencies
