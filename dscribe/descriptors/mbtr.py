@@ -167,7 +167,7 @@ class MBTR(Descriptor):
                   individually to unity.
                 * "n_atoms": Normalize the output by dividing it with the number
                   of atoms in the system. If the system is periodic, the number
-                  of atoms is determined from the given cell.
+                  of atoms is determined from the given unit cell.
 
             flatten (bool): Whether the output should be flattened to a 1D
                 array. If False, a dictionary of the different tensors is

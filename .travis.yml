@@ -18,7 +18,7 @@ branches:
 jobs:
   include:
     - stage: test
-      python: 2.7
+      python: 3.4
       os: linux
     - stage: test
       python: 3.6

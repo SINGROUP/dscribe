@@ -176,6 +176,11 @@ The different normalization options provided in the MBTR constructor are:
    quantity is *intensive* - does not scale with the system size, and if the
    learning method uses the Euclidean norm to determine the similarity of
    inputs.
+ * **"n_atoms"**: The whole output is divided by the number of atoms in the
+   system. If the system is periodic, the number of atoms is determined from
+   the given system cell. This form of normalization does also make the output
+   for different crystal supercells equal, but does not equalize the norm of
+   different k-terms.
 
 Periodic systems
 ~~~~~~~~~~~~~~~~
