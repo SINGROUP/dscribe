@@ -7,6 +7,7 @@ pip install pip --update
 if [$TRAVIS_PYTHON_VERSION <= "3.5"]
 then
     pip install numpy==1.15.4
+fi
 
 # Development dependencies
 pip install -r devrequirements.txt
