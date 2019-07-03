@@ -130,6 +130,7 @@ H = Atoms(
 
 
 class MBTRTests(TestBaseClass, unittest.TestCase):
+# class MBTRTests(unittest.TestCase):
     def test_constructor(self):
         """Tests different valid and invalid constructor values.
         """
@@ -716,6 +717,20 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         desc.normalization = "l2_each"
         feat = desc.create(H2O).toarray()
         self.assertTrue(np.allclose(feat[0, :], feat_flat_manual_norm_each, atol=1e-7, rtol=0))
+
+        # Test normalization of flat dense output with n_atoms
+        desc.sparse = False
+        desc.normalization = "n_atoms"
+        n_atoms = len(H2O)
+        n_elem = len(desc.species)
+        feat = desc.create(H2O)
+        self.assertTrue(np.allclose(feat[0, :], feat_flat/n_atoms, atol=1e-7, rtol=0))
+
+        # Test normalization of flat sparse output with n_atoms
+        desc.sparse = True
+        desc.normalization = "n_atoms"
+        feat = desc.create(H2O).toarray()
+        self.assertTrue(np.allclose(feat[0, :], feat_flat/n_atoms, atol=1e-7, rtol=0))
 
     def test_k1_weights_and_geoms_finite(self):
         """Tests that the values of the weight and geometry functions are
