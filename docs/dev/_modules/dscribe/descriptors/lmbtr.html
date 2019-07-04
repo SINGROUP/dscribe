@@ -361,6 +361,27 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">updated</span> <span class="o">=</span> <span class="kc">True</span></div>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">normalization</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalization</span>
+
+    <span class="nd">@normalization</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">normalization</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Checks that the given normalization is valid. Overrides the</span>
+<span class="sd">        normalization check from original MBTR because the normalization with</span>
+<span class="sd">        respect to number of atoms is not valid for a local descriptor.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value(str): The normalization method to use.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">norm_options</span> <span class="o">=</span> <span class="nb">set</span><span class="p">((</span><span class="s2">&quot;l2_each&quot;</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">norm_options</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Unknown normalization option given. Please use one of the &quot;</span>
+                <span class="s2">&quot;following: </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">norm_options</span><span class="p">]))</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_normalization</span> <span class="o">=</span> <span class="n">value</span>
+
 <div class="viewcode-block" id="LMBTR.create"><a class="viewcode-back" href="../../../tutorials/lmbtr.html#dscribe.descriptors.lmbtr.LMBTR.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the LMBTR output for the given systems and given positions.</span>
 

@@ -285,6 +285,9 @@ output. The available options are:</p>
 <li><p>”none”: No normalization.</p></li>
 <li><p>”l2_each”: Normalize the Euclidean length of each k-term
 individually to unity.</p></li>
+<li><p>”n_atoms”: Normalize the output by dividing it with the number
+of atoms in the system. If the system is periodic, the number
+of atoms is determined from the given unit cell.</p></li>
 </ul>
 </p></li>
 <li><p><strong>flatten</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Whether the output should be flattened to a 1D
@@ -539,6 +542,11 @@ scaled to unit Euclidean norm. This option can be used if the predicted
 quantity is <em>intensive</em> - does not scale with the system size, and if the
 learning method uses the Euclidean norm to determine the similarity of
 inputs.</p></li>
+<li><p><strong>“n_atoms”</strong>: The whole output is divided by the number of atoms in the
+system. If the system is periodic, the number of atoms is determined from
+the given system cell. This form of normalization does also make the output
+for different crystal supercells equal, but does not equalize the norm of
+different k-terms.</p></li>
 </ul>
 </div></blockquote>
 </div>

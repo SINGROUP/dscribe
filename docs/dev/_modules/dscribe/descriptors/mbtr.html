@@ -325,6 +325,9 @@
 <span class="sd">                * &quot;none&quot;: No normalization.</span>
 <span class="sd">                * &quot;l2_each&quot;: Normalize the Euclidean length of each k-term</span>
 <span class="sd">                  individually to unity.</span>
+<span class="sd">                * &quot;n_atoms&quot;: Normalize the output by dividing it with the number</span>
+<span class="sd">                  of atoms in the system. If the system is periodic, the number</span>
+<span class="sd">                  of atoms is determined from the given unit cell.</span>
 
 <span class="sd">            flatten (bool): Whether the output should be flattened to a 1D</span>
 <span class="sd">                array. If False, a dictionary of the different tensors is</span>
@@ -569,7 +572,7 @@
 <span class="sd">        Args:</span>
 <span class="sd">            value(str): The normalization method to use.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">norm_options</span> <span class="o">=</span> <span class="nb">set</span><span class="p">((</span><span class="s2">&quot;l2_each&quot;</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span><span class="p">))</span>
+        <span class="n">norm_options</span> <span class="o">=</span> <span class="nb">set</span><span class="p">((</span><span class="s2">&quot;l2_each&quot;</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="s2">&quot;n_atoms&quot;</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">norm_options</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;Unknown normalization option given. Please use one of the &quot;</span>
@@ -682,6 +685,14 @@
                     <span class="n">i_data</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
                     <span class="n">i_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">i_data</span><span class="p">)</span>
                     <span class="n">mbtr</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">/</span><span class="n">i_norm</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalization</span> <span class="o">==</span> <span class="s2">&quot;n_atoms&quot;</span><span class="p">:</span>
+            <span class="n">n_atoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">mbtr</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">mbtr</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">/</span><span class="n">n_atoms</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">mbtr</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">mbtr</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">/</span><span class="n">n_atoms</span>
 
         <span class="c1"># Flatten output if requested</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">:</span>
