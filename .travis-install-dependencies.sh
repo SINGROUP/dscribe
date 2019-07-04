@@ -1,3 +1,6 @@
+# Update pip
+pip install pip --upgrade
+
 # Development dependencies
 pip install -r devrequirements.txt
 

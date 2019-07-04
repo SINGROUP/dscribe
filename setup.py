@@ -1,12 +1,14 @@
 import sys
+
+# Check python version
+if sys.version_info[:2] < (3, 0):
+    raise RuntimeError("Python version >= 3.0 required.")
+
 import platform
 from distutils.ccompiler import new_compiler
 from distutils.sysconfig import customize_compiler
 from setuptools import setup, find_packages, Extension
-if sys.version_info[0] >= 3:
-    from subprocess import getoutput
-else:
-    from commands import getoutput
+from subprocess import getoutput
 
 
 def using_clang():
@@ -55,7 +57,7 @@ extensions = [
 
 if __name__ == "__main__":
     setup(name='dscribe',
-        version="0.2.7",
+        version="0.2.8a0",
         url="https://singroup.github.io/dscribe/",
         description='A Python package for creating feature transformations in applications of machine learning to materials science.',
         long_description='A Python package for creating feature transformations in applications of machine learning to materials science.',
@@ -65,7 +67,7 @@ if __name__ == "__main__":
             'scipy',
             'ase',
             'future',
-            'scikit-learn==0.20.3',
+            'scikit-learn',
             'joblib',
             'soaplite==1.0.3',
         ],
@@ -73,20 +75,22 @@ if __name__ == "__main__":
         ext_modules=extensions,
         license="Apache License 2.0",
         classifiers=[
-            'Development Status :: 4 - Beta',
+            'Development Status :: 5 - Production/Stable',
             'Intended Audience :: Developers',
             'Topic :: Scientific/Engineering :: Physics',
             'License :: OSI Approved :: Apache Software License',
-            'Programming Language :: Python :: 2',
-            'Programming Language :: Python :: 2.6',
-            'Programming Language :: Python :: 2.7',
             'Programming Language :: Python :: 3',
+            'Programming Language :: Python :: 3.0',
+            'Programming Language :: Python :: 3.1',
             'Programming Language :: Python :: 3.2',
             'Programming Language :: Python :: 3.3',
             'Programming Language :: Python :: 3.4',
             'Programming Language :: Python :: 3.5',
             'Programming Language :: Python :: 3.6',
+            'Programming Language :: Python :: 3.7',
+            'Programming Language :: Python :: 3.8',
+            'Programming Language :: Python :: 3 :: Only',
         ],
         keywords='descriptor machine learning atomistic structure materials science',
-        python_requires='>=2.6, <4',
+        python_requires='>=3, <4',
     )

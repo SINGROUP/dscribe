@@ -201,6 +201,27 @@ class LMBTR(MBTR):
 
         self.updated = True
 
+    @property
+    def normalization(self):
+        return self._normalization
+
+    @normalization.setter
+    def normalization(self, value):
+        """Checks that the given normalization is valid. Overrides the
+        normalization check from original MBTR because the normalization with
+        respect to number of atoms is not valid for a local descriptor.
+
+        Args:
+            value(str): The normalization method to use.
+        """
+        norm_options = set(("l2_each", "none"))
+        if value not in norm_options:
+            raise ValueError(
+                "Unknown normalization option given. Please use one of the "
+                "following: {}.".format(", ".join([str(x) for x in norm_options]))
+            )
+        self._normalization = value
+
     def create(self, system, positions=None, n_jobs=1, verbose=False):
         """Return the LMBTR output for the given systems and given positions.
 

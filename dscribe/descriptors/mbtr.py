@@ -165,6 +165,9 @@ class MBTR(Descriptor):
                 * "none": No normalization.
                 * "l2_each": Normalize the Euclidean length of each k-term
                   individually to unity.
+                * "n_atoms": Normalize the output by dividing it with the number
+                  of atoms in the system. If the system is periodic, the number
+                  of atoms is determined from the given unit cell.
 
             flatten (bool): Whether the output should be flattened to a 1D
                 array. If False, a dictionary of the different tensors is
@@ -409,7 +412,7 @@ class MBTR(Descriptor):
         Args:
             value(str): The normalization method to use.
         """
-        norm_options = set(("l2_each", "none"))
+        norm_options = set(("l2_each", "none", "n_atoms"))
         if value not in norm_options:
             raise ValueError(
                 "Unknown normalization option given. Please use one of the "
@@ -522,6 +525,14 @@ class MBTR(Descriptor):
                     i_data = value.ravel()
                     i_norm = np.linalg.norm(i_data)
                     mbtr[key] = value/i_norm
+        elif self.normalization == "n_atoms":
+            n_atoms = len(self.system)
+            if self.flatten is True:
+                for key, value in mbtr.items():
+                    mbtr[key] = value/n_atoms
+            else:
+                for key, value in mbtr.items():
+                    mbtr[key] = value/n_atoms
 
         # Flatten output if requested
         if self.flatten:

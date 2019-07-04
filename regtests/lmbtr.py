@@ -147,6 +147,35 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         positions = [0, 1, 2]
         lmbtr.create(H2O, positions)
 
+    def test_normalization(self):
+        """Tests that each normalization method works correctly.
+        """
+        n = 100
+        desc = copy.deepcopy(default_desc_k2_k3)
+        desc.species = ("H", "O")
+        desc.normalization = "none"
+        desc.flatten = False
+        desc.sparse = False
+
+        # Calculate the norms
+        feat1 = desc.create(H2O, positions=[0])
+        k2 = feat1[0]["k2"]
+        k3 = feat1[0]["k3"]
+        k2_norm = np.linalg.norm(k2.ravel())
+        k3_norm = np.linalg.norm(k3.ravel())
+
+        # Test normalization of non-flat dense output with l2_each
+        desc.normalization = "l2_each"
+        feat2 = desc.create(H2O, [0])
+        k2_each = feat2[0]["k2"]
+        k3_each = feat2[0]["k3"]
+        self.assertTrue(np.array_equal(k2/k2_norm, k2_each))
+        self.assertTrue(np.array_equal(k3/k3_norm, k3_each))
+
+        # Check that the n_atoms normalization is not allowed
+        with self.assertRaises(ValueError):
+            desc.normalization = "n_atoms"
+
     def test_number_of_features(self):
         """LMBTR: Tests that the reported number of features is correct.
         """
