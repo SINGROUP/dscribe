@@ -222,12 +222,11 @@
 <span class="sd">                into to the console.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            np.ndarray | scipy.sparse.csr_matrix | list: Coulomb matrix for the</span>
-<span class="sd">            given systems. The return type depends on the &#39;sparse&#39; and</span>
+<span class="sd">            np.ndarray | scipy.sparse.csr_matrix: Coulomb matrix for the given</span>
+<span class="sd">            systems. The return type depends on the &#39;sparse&#39; and</span>
 <span class="sd">            &#39;flatten&#39;-attributes. For flattened output a single numpy array or</span>
 <span class="sd">            sparse scipy.csr_matrix is returned. The first dimension is</span>
-<span class="sd">            determined by the amount of systems. If the output is not</span>
-<span class="sd">            flattened, a simple python list is returned.</span>
+<span class="sd">            determined by the amount of systems.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># If single system given, skip the parallelization</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="p">(</span><span class="n">Atoms</span><span class="p">,</span> <span class="n">System</span><span class="p">)):</span>
