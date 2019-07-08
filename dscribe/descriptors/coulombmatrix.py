@@ -62,12 +62,11 @@ class CoulombMatrix(MatrixDescriptor):
                 into to the console.
 
         Returns:
-            np.ndarray | scipy.sparse.csr_matrix | list: Coulomb matrix for the
-            given systems. The return type depends on the 'sparse' and
+            np.ndarray | scipy.sparse.csr_matrix: Coulomb matrix for the given
+            systems. The return type depends on the 'sparse' and
             'flatten'-attributes. For flattened output a single numpy array or
             sparse scipy.csr_matrix is returned. The first dimension is
-            determined by the amount of systems. If the output is not
-            flattened, a simple python list is returned.
+            determined by the amount of systems.
         """
         # If single system given, skip the parallelization
         if isinstance(system, (Atoms, System)):
