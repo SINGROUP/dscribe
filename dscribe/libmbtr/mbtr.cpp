@@ -253,6 +253,12 @@ map<index3d, float> MBTR::k3GeomCosine(const vector<index3d> &indexList)
         vector<float> b = dispTensor[k][j];
         float dotProd = inner_product(a.begin(), a.end(), b.begin(), 0.0);
         float cosine = dotProd / (distMatrix[i][j]*distMatrix[k][j]);
+
+        // Due to numerical reasons the cosine might be slighlty under -1 or
+        // above 1 degrees. E.g. acos is not defined then so we clip the values
+        // to prevent NaN:s
+        cosine = max(-1.0f, min(cosine, 1.0f));
+
         valueMap[index] = cosine;
     }
 
