@@ -28,8 +28,6 @@ from ase import Atoms
 from dscribe.libacsf.acsfwrapper import ACSFWrapper
 import dscribe.utils.geometry
 
-import chronic
-
 
 class ACSF(Descriptor):
     """Implementation of Atom-Centered Symmetry Functions. Currently valid for

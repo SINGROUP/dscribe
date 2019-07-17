@@ -68,7 +68,6 @@ default_desc = ACSF(
 
 
 class ACSFTests(TestBaseClass, unittest.TestCase):
-# class ACSFTests(unittest.TestCase):
 
     def test_constructor(self):
         """Tests different valid and invalid constructor values.

@@ -46,9 +46,14 @@ class ACSF {
         vector<int> atomicNumbers;
 
     private:
-        float computeCutoff(float Rij);
-        void computeBond(vector<float> &output, vector<int> &atomicNumbers, vector<vector<float> > &distances, int ai, int bi);
-        void computeAngle(vector<float> &output, vector<int> &atomicNumbers, vector<vector<float> > &distances, int i, int j, int k);
+        float computeCutoff(float r_ij);
+        void computeG1(vector<float> &output, int &offset, float &fc_ij);
+        void computeG2(vector<float> &output, int &offset, float &r_ij, float &fc_ij);
+        void computeG3(vector<float> &output, int &offset, float &r_ij, float &fc_ij);
+        void computeG4(vector<float> &output, int &offset, float &costheta, float &r_jk, float &r_ij_square, float &r_ik_square, float &r_jk_square, float &fc_ij, float &fc_ik);
+        void computeG5(vector<float> &output, int &offset, float &costheta, float &r_ij_square, float &r_ik_square, float &fc_ij, float &fc_ik);
+        //void computeBond(vector<float> &output, vector<int> &atomicNumbers, vector<vector<float> > &distances, int ai, int bi);
+        //void computeAngle(vector<float> &output, vector<int> &atomicNumbers, vector<vector<float> > &distances, int i, int j, int k);
         map<int, int> atomicNumberToIndexMap;
 };
 
