@@ -26,6 +26,7 @@ from dscribe.core import System
 from ase import Atoms
 
 from dscribe.libacsf.acsfwrapper import ACSFWrapper
+import dscribe.utils.geometry
 
 
 class ACSF(Descriptor):
@@ -178,11 +179,18 @@ class ACSF(Descriptor):
         else:
             indices = positions
 
+        # Calculate the sparse distance matrix using the radial cutoff to
+        # reduce computational complexity from O(n^2) to O(n log(n))
+        dmat = system.get_distance_matrix_within_radius(self.rcut, "coo_matrix")
+        neighbours = dscribe.utils.geometry.get_adjacency_list(dmat, return_values=False)
+        dmat = {(i, j): v for i, j, v in zip(dmat.row, dmat.col, dmat.data)}
+
         # Calculate ACSF with C++
         output = self.acsf_wrapper.create(
             system.get_positions(),
             system.get_atomic_numbers(),
-            system.get_distance_matrix(),
+            dmat,
+            neighbours,
             indices,
         )
 

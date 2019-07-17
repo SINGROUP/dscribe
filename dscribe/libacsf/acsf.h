@@ -24,7 +24,7 @@ class ACSF {
             vector<int> atomicNumbers
         );
 
-        vector<vector<float> > create(vector<vector<float> > &positions, vector<int> &atomicNumbers, vector<vector<float> > &distances, vector<int> &indices);
+        vector<vector<float> > create(vector<vector<float> > &positions, vector<int> &atomicNumbers, map<vector<int>, float> &distances, map<int, vector<int> > &neighbours, vector<int> &indices);
         void setRCut(float rCut);
         void setG2Params(vector<vector<float> > g2Params);
         void setG3Params(vector<float> g3Params);
@@ -47,8 +47,8 @@ class ACSF {
 
     private:
         float computeCutoff(float Rij);
-        void computeBond(vector<float> &output, vector<int> &atomicNumbers, vector<vector<float> > &distances, int ai, int bi);
-        void computeAngle(vector<float> &output, vector<int> &atomicNumbers, vector<vector<float> > &distances, int i, int j, int k);
+        void computeBond(vector<float> &output, vector<int> &atomicNumbers, map<vector<int>, float> &distances, int ai, int bi);
+        void computeAngle(vector<float> &output, vector<int> &atomicNumbers, map<vector<int>, float> &distances, int i, int j, int k);
         map<int, int> atomicNumberToIndexMap;
 };
 

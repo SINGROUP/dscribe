@@ -66,7 +66,7 @@ void ACSF::setAtomicNumbers(vector<int> atomicNumbers)
     this->atomicNumberToIndexMap = atomicNumberToIndexMap;
 }
 
-vector<vector<float> > ACSF::create(vector<vector<float> > &positions, vector<int> &atomicNumbers, vector<vector<float> > &distances, vector<int> &indices)
+vector<vector<float> > ACSF::create(vector<vector<float> > &positions, vector<int> &atomicNumbers, map<vector<int>, float> &distances, map<int, vector<int> > &neighbours, vector<int> &indices)
 {
     // Allocate memory
     int nIndices = indices.size();
@@ -76,18 +76,36 @@ vector<vector<float> > ACSF::create(vector<vector<float> > &positions, vector<in
     int nAtoms = atomicNumbers.size();
     int index = 0;
     for (int &i : indices) {
-        for (int j=0; j < nAtoms; ++j) {
+
+        // Compute pairwise terms only for neighbors within cutoff
+        vector<int> i_neighbours = neighbours[i];
+        for (int j : i_neighbours) {
             if (i == j) {
                 continue;
             }
             computeBond(output[index], atomicNumbers, distances, i, j);
-            for (int k=0; k < j; ++k) {
-                if (k == i) {
+
+            // Compute pairwise terms only for neighbors within cutoff
+            for (int k : i_neighbours) {
+                if (k == i || k >= j) {
                     continue;
                 }
                 computeAngle(output[index], atomicNumbers, distances, i, j, k);
             }
         }
+
+        //for (int j=0; j < nAtoms; ++j) {
+            //if (i == j) {
+                //continue;
+            //}
+            //computeBond(output[index], atomicNumbers, distances, i, j);
+            //for (int k=0; k < j; ++k) {
+                //if (k == i) {
+                    //continue;
+                //}
+                //computeAngle(output[index], atomicNumbers, distances, i, j, k);
+            //}
+        //}
         ++index;
     }
 
@@ -103,13 +121,14 @@ inline float ACSF::computeCutoff(float Rij) {
 
 /*! \brief Compute the G1, G2 and G3 terms for atom ai with bi
  * */
-void ACSF::computeBond(vector<float> &output, vector<int> &atomicNumbers, vector<vector<float> > &distances, int ai, int bi) {
+void ACSF::computeBond(vector<float> &output, vector<int> &atomicNumbers, map<vector<int>, float> &distances, int ai, int bi) {
 
 	// index of type of B
 	int bti = atomicNumberToIndexMap[atomicNumbers[bi]];
 
 	// fetch distance from the matrix
-	float Rij = distances[ai][bi];
+	vector<int> key{ai, bi};
+	float Rij = distances[key];
 	if (Rij >= rCut) {
 	    return;
     }
@@ -144,24 +163,27 @@ void ACSF::computeBond(vector<float> &output, vector<int> &atomicNumbers, vector
 
 /*! \brief Compute the G4 and G5 terms for triplet i, j, k
  * */
-void ACSF::computeAngle(vector<float> &output, vector<int> &atomicNumbers, vector<vector<float> > &distances, int i, int j, int k) {
+void ACSF::computeAngle(vector<float> &output, vector<int> &atomicNumbers, map<vector<int>, float> &distances, int i, int j, int k) {
 
 	// index of type of B
 	int typj = atomicNumberToIndexMap[atomicNumbers[j]];
 	int typk = atomicNumberToIndexMap[atomicNumbers[k]];
 
 	// fetch distance from matrix
-	float Rij = distances[i][j];
+	vector<int> key_ij{i, j};
+	float Rij = distances[key_ij];
 	if (Rij >= rCut) {
 	    return;
     }
 
-	float Rik = distances[i][k];
+	vector<int> key_ik{i, k};
+	float Rik = distances[key_ik];
 	if (Rik >= rCut) {
 	    return;
     }
 
-	float Rjk = distances[k][j];
+	vector<int> key_jk{j, k};
+	float Rjk = distances[key_jk];
 	if (Rjk >= rCut) {
 	    return;
     }

@@ -18,6 +18,7 @@ from builtins import super
 from ase import Atoms
 import ase.geometry
 import numpy as np
+import scipy.spatial
 
 
 class System(Atoms):
@@ -207,6 +208,42 @@ class System(Atoms):
         if self._distance_matrix is None:
             self.get_displacement_tensor()
         return self._distance_matrix
+
+    def get_distance_matrix_within_radius(self, radius, output_type="dict"):
+        """Calculates a sparse distance matrix by only considering distances
+        within a certain cutoff. Uses a k-d tree to reach O(n log(N)) time
+        complexity.
+
+        Args:
+            radius(float): The cutoff radius within which distances are
+                calculated. Distances outside this radius are not included.
+            output_type(str): Which container to use for output data. Options:
+                "dok_matrix", "coo_matrix", "dict", or "ndarray". Default:
+                "dok_matrix".
+
+        Returns:
+            dok_matrix | np.array | coo_matrix | dict: Symmetric sparse 2D
+            matrix containing the pairwise distances.
+        """
+        pos = self.get_positions()
+        tree1 = scipy.spatial.cKDTree(
+            pos,
+            leafsize=16,
+            compact_nodes=True,
+            copy_data=False,
+            balanced_tree=True,
+            boxsize=None
+        )
+        tree2 = scipy.spatial.cKDTree(
+            pos,
+            leafsize=16,
+            compact_nodes=True,
+            copy_data=False,
+            balanced_tree=True,
+            boxsize=None
+        )
+        dmat = tree1.sparse_distance_matrix(tree2, radius, output_type=output_type)
+        return dmat
 
     def get_inverse_distance_matrix(self):
         """Calculates the inverse distance matrix A defined as:
