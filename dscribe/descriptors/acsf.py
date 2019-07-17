@@ -16,6 +16,8 @@ limitations under the License.
 from __future__ import absolute_import, division, print_function, unicode_literals
 from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
 
+import sys
+
 import numpy as np
 
 from scipy.sparse import coo_matrix
@@ -181,14 +183,17 @@ class ACSF(Descriptor):
 
         # Calculate the sparse distance matrix using the radial cutoff to
         # reduce computational complexity from O(n^2) to O(n log(n))
+        n_atoms = len(system)
         dmat = system.get_distance_matrix_within_radius(self.rcut, "coo_matrix")
         neighbours = dscribe.utils.geometry.get_adjacency_list(dmat, return_values=False)
+        dmat_dense = np.full((n_atoms, n_atoms), sys.float_info.max)  # The non-neighbor values are treated as "infinitely far".
+        dmat_dense[dmat.col, dmat.row] = dmat.data
 
         # Calculate ACSF with C++
         output = self.acsf_wrapper.create(
             system.get_positions(),
             system.get_atomic_numbers(),
-            dmat.toarray(),
+            dmat_dense,
             neighbours,
             indices,
         )

@@ -86,10 +86,6 @@ vector<vector<float> > ACSF::create(vector<vector<float> > &positions, vector<in
 
             // Precompute some values
             float r_ij = distances[i][j];
-            if (r_ij > rCut) {
-                continue;
-            }
-
             float fc_ij = computeCutoff(r_ij);
             int index_j = atomicNumberToIndexMap[atomicNumbers[j]];
             int offset = index_j * (1+nG2+nG3);  // Skip G1, G2, G3 types that are not the ones of atom bi
@@ -113,10 +109,6 @@ vector<vector<float> > ACSF::create(vector<vector<float> > &positions, vector<in
                     // Precompute some values that are used by both G4 and G5
                     float r_ik = distances[i][k];
                     float r_jk = distances[j][k];
-                    if (r_ik > rCut) {
-                        continue;
-                    }
-
                     float fc_ik = computeCutoff(r_ik);
                     float r_ij_square = r_ij*r_ij;
                     float r_ik_square = r_ik*r_ik;
