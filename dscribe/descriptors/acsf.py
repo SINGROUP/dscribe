@@ -28,6 +28,8 @@ from ase import Atoms
 from dscribe.libacsf.acsfwrapper import ACSFWrapper
 import dscribe.utils.geometry
 
+import chronic
+
 
 class ACSF(Descriptor):
     """Implementation of Atom-Centered Symmetry Functions. Currently valid for
@@ -181,18 +183,20 @@ class ACSF(Descriptor):
 
         # Calculate the sparse distance matrix using the radial cutoff to
         # reduce computational complexity from O(n^2) to O(n log(n))
-        dmat = system.get_distance_matrix_within_radius(self.rcut, "coo_matrix")
-        neighbours = dscribe.utils.geometry.get_adjacency_list(dmat, return_values=False)
-        dmat = {(i, j): v for i, j, v in zip(dmat.row, dmat.col, dmat.data)}
+        with chronic.Timer('adjacencies'):
+            dmat = system.get_distance_matrix_within_radius(self.rcut, "coo_matrix")
+            neighbours = dscribe.utils.geometry.get_adjacency_list(dmat, return_values=False)
+            dmat = {(i, j): v for i, j, v in zip(dmat.row, dmat.col, dmat.data)}
 
         # Calculate ACSF with C++
-        output = self.acsf_wrapper.create(
-            system.get_positions(),
-            system.get_atomic_numbers(),
-            dmat,
-            neighbours,
-            indices,
-        )
+        with chronic.Timer('cpp'):
+            output = self.acsf_wrapper.create(
+                system.get_positions(),
+                system.get_atomic_numbers(),
+                dmat,
+                neighbours,
+                indices,
+            )
 
         # Check if there are types that have not been declared
         self.check_atomic_numbers(system.get_atomic_numbers())
