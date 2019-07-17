@@ -2,6 +2,7 @@
 #define ACSF_H
 
 #include <map>
+#include <unordered_map>
 
 #define PI 3.1415926535897932384626433832795028841971693993751058209749445923078164062
 
@@ -54,7 +55,7 @@ class ACSF {
         void computeG5(vector<float> &output, int &offset, float &costheta, float &r_ij_square, float &r_ik_square, float &fc_ij, float &fc_ik);
         //void computeBond(vector<float> &output, vector<int> &atomicNumbers, vector<vector<float> > &distances, int ai, int bi);
         //void computeAngle(vector<float> &output, vector<int> &atomicNumbers, vector<vector<float> > &distances, int i, int j, int k);
-        map<int, int> atomicNumberToIndexMap;
+        unordered_map<int, int> atomicNumberToIndexMap;
 };
 
 #endif
