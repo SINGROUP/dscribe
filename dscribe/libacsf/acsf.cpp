@@ -79,14 +79,14 @@ vector<vector<float> > ACSF::create(vector<vector<float> > &positions, vector<in
 
         // Compute pairwise terms only for neighbors within cutoff
         vector<int> i_neighbours = neighbours[i];
-        for (int j : i_neighbours) {
+        for (int &j : i_neighbours) {
             if (i == j) {
                 continue;
             }
             computeBond(output[index], atomicNumbers, distances, i, j);
 
             // Compute angle terms only when both neighbors are within cutoff
-            for (int k : i_neighbours) {
+            for (int &k : i_neighbours) {
                 if (k == i || k >= j) {
                     continue;
                 }
