@@ -1298,7 +1298,6 @@ static PyTypeObject *__pyx_ptype_7dscribe_7libacsf_11acsfwrapper_ACSFWrapper = 0
 static std::vector<float>  __pyx_convert_vector_from_py_float(PyObject *); /*proto*/
 static std::vector<std::vector<float> >  __pyx_convert_vector_from_py_std_3a__3a_vector_3c_float_3e___(PyObject *); /*proto*/
 static std::vector<int>  __pyx_convert_vector_from_py_int(PyObject *); /*proto*/
-static std::map<std::vector<int> ,float>  __pyx_convert_map_from_py_std_3a__3a_vector_3c_int_3e_____and_float(PyObject *); /*proto*/
 static std::map<int,std::vector<int> >  __pyx_convert_map_from_py_int__and_std_3a__3a_vector_3c_int_3e___(PyObject *); /*proto*/
 static PyObject *__pyx_convert_vector_to_py_float(const std::vector<float>  &); /*proto*/
 static PyObject *__pyx_convert_vector_to_py_std_3a__3a_vector_3c_float_3e___(const std::vector<std::vector<float> >  &); /*proto*/
@@ -1366,7 +1365,7 @@ static PyObject *__pyx_n_s_test;
 static PyObject *__pyx_pf_7dscribe_7libacsf_11acsfwrapper_rebuild(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_rcut, PyObject *__pyx_v_g2_params, PyObject *__pyx_v_g3_params, PyObject *__pyx_v_g4_params, PyObject *__pyx_v_g5_params, PyObject *__pyx_v_atomic_numbers); /* proto */
 static int __pyx_pf_7dscribe_7libacsf_11acsfwrapper_11ACSFWrapper___cinit__(struct __pyx_obj_7dscribe_7libacsf_11acsfwrapper_ACSFWrapper *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_7dscribe_7libacsf_11acsfwrapper_11ACSFWrapper_2__reduce__(struct __pyx_obj_7dscribe_7libacsf_11acsfwrapper_ACSFWrapper *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_7dscribe_7libacsf_11acsfwrapper_11ACSFWrapper_4create(struct __pyx_obj_7dscribe_7libacsf_11acsfwrapper_ACSFWrapper *__pyx_v_self, std::vector<std::vector<float> >  __pyx_v_positions, std::vector<int>  __pyx_v_atomic_numbers, std::map<std::vector<int> ,float>  __pyx_v_distances, std::map<int,std::vector<int> >  __pyx_v_neighbours, std::vector<int>  __pyx_v_indices); /* proto */
+static PyObject *__pyx_pf_7dscribe_7libacsf_11acsfwrapper_11ACSFWrapper_4create(struct __pyx_obj_7dscribe_7libacsf_11acsfwrapper_ACSFWrapper *__pyx_v_self, std::vector<std::vector<float> >  __pyx_v_positions, std::vector<int>  __pyx_v_atomic_numbers, std::vector<std::vector<float> >  __pyx_v_distances, std::map<int,std::vector<int> >  __pyx_v_neighbours, std::vector<int>  __pyx_v_indices); /* proto */
 static PyObject *__pyx_pf_7dscribe_7libacsf_11acsfwrapper_11ACSFWrapper_4rcut___get__(struct __pyx_obj_7dscribe_7libacsf_11acsfwrapper_ACSFWrapper *__pyx_v_self); /* proto */
 static int __pyx_pf_7dscribe_7libacsf_11acsfwrapper_11ACSFWrapper_4rcut_2__set__(struct __pyx_obj_7dscribe_7libacsf_11acsfwrapper_ACSFWrapper *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
 static PyObject *__pyx_pf_7dscribe_7libacsf_11acsfwrapper_11ACSFWrapper_9g2_params___get__(struct __pyx_obj_7dscribe_7libacsf_11acsfwrapper_ACSFWrapper *__pyx_v_self); /* proto */
@@ -1714,7 +1713,7 @@ static PyObject *__pyx_pf_7dscribe_7libacsf_11acsfwrapper_11ACSFWrapper_2__reduc
  *         """
  *         return (rebuild, (self.rcut, self.g2_params, self.g3_params, self.g4_params, self.g5_params, self.atomic_numbers))             # <<<<<<<<<<<<<<
  * 
- *     def create(self, vector[vector[float]] positions, vector[int] atomic_numbers, map[vector[int], float] distances, map[int, vector[int]] neighbours, vector[int] indices):
+ *     def create(self, vector[vector[float]] positions, vector[int] atomic_numbers, vector[vector[float]]  distances, map[int, vector[int]] neighbours, vector[int] indices):
  */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_rebuild); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 32, __pyx_L1_error)
@@ -1792,7 +1791,7 @@ static PyObject *__pyx_pf_7dscribe_7libacsf_11acsfwrapper_11ACSFWrapper_2__reduc
 /* "dscribe/libacsf/acsfwrapper.pyx":34
  *         return (rebuild, (self.rcut, self.g2_params, self.g3_params, self.g4_params, self.g5_params, self.atomic_numbers))
  * 
- *     def create(self, vector[vector[float]] positions, vector[int] atomic_numbers, map[vector[int], float] distances, map[int, vector[int]] neighbours, vector[int] indices):             # <<<<<<<<<<<<<<
+ *     def create(self, vector[vector[float]] positions, vector[int] atomic_numbers, vector[vector[float]]  distances, map[int, vector[int]] neighbours, vector[int] indices):             # <<<<<<<<<<<<<<
  *         return np.array(self.thisptr.create(positions, atomic_numbers, distances, neighbours, indices), dtype=np.float32)
  * 
  */
@@ -1802,7 +1801,7 @@ static PyObject *__pyx_pw_7dscribe_7libacsf_11acsfwrapper_11ACSFWrapper_5create(
 static PyObject *__pyx_pw_7dscribe_7libacsf_11acsfwrapper_11ACSFWrapper_5create(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   std::vector<std::vector<float> >  __pyx_v_positions;
   std::vector<int>  __pyx_v_atomic_numbers;
-  std::map<std::vector<int> ,float>  __pyx_v_distances;
+  std::vector<std::vector<float> >  __pyx_v_distances;
   std::map<int,std::vector<int> >  __pyx_v_neighbours;
   std::vector<int>  __pyx_v_indices;
   PyObject *__pyx_r = 0;
@@ -1872,7 +1871,7 @@ static PyObject *__pyx_pw_7dscribe_7libacsf_11acsfwrapper_11ACSFWrapper_5create(
     }
     __pyx_v_positions = __pyx_convert_vector_from_py_std_3a__3a_vector_3c_float_3e___(values[0]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 34, __pyx_L3_error)
     __pyx_v_atomic_numbers = __pyx_convert_vector_from_py_int(values[1]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 34, __pyx_L3_error)
-    __pyx_v_distances = __pyx_convert_map_from_py_std_3a__3a_vector_3c_int_3e_____and_float(values[2]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 34, __pyx_L3_error)
+    __pyx_v_distances = __pyx_convert_vector_from_py_std_3a__3a_vector_3c_float_3e___(values[2]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 34, __pyx_L3_error)
     __pyx_v_neighbours = __pyx_convert_map_from_py_int__and_std_3a__3a_vector_3c_int_3e___(values[3]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 34, __pyx_L3_error)
     __pyx_v_indices = __pyx_convert_vector_from_py_int(values[4]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 34, __pyx_L3_error)
   }
@@ -1891,7 +1890,7 @@ static PyObject *__pyx_pw_7dscribe_7libacsf_11acsfwrapper_11ACSFWrapper_5create(
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_7dscribe_7libacsf_11acsfwrapper_11ACSFWrapper_4create(struct __pyx_obj_7dscribe_7libacsf_11acsfwrapper_ACSFWrapper *__pyx_v_self, std::vector<std::vector<float> >  __pyx_v_positions, std::vector<int>  __pyx_v_atomic_numbers, std::map<std::vector<int> ,float>  __pyx_v_distances, std::map<int,std::vector<int> >  __pyx_v_neighbours, std::vector<int>  __pyx_v_indices) {
+static PyObject *__pyx_pf_7dscribe_7libacsf_11acsfwrapper_11ACSFWrapper_4create(struct __pyx_obj_7dscribe_7libacsf_11acsfwrapper_ACSFWrapper *__pyx_v_self, std::vector<std::vector<float> >  __pyx_v_positions, std::vector<int>  __pyx_v_atomic_numbers, std::vector<std::vector<float> >  __pyx_v_distances, std::map<int,std::vector<int> >  __pyx_v_neighbours, std::vector<int>  __pyx_v_indices) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -1903,7 +1902,7 @@ static PyObject *__pyx_pf_7dscribe_7libacsf_11acsfwrapper_11ACSFWrapper_4create(
 
   /* "dscribe/libacsf/acsfwrapper.pyx":35
  * 
- *     def create(self, vector[vector[float]] positions, vector[int] atomic_numbers, map[vector[int], float] distances, map[int, vector[int]] neighbours, vector[int] indices):
+ *     def create(self, vector[vector[float]] positions, vector[int] atomic_numbers, vector[vector[float]]  distances, map[int, vector[int]] neighbours, vector[int] indices):
  *         return np.array(self.thisptr.create(positions, atomic_numbers, distances, neighbours, indices), dtype=np.float32)             # <<<<<<<<<<<<<<
  * 
  *     @property
@@ -1942,7 +1941,7 @@ static PyObject *__pyx_pf_7dscribe_7libacsf_11acsfwrapper_11ACSFWrapper_4create(
   /* "dscribe/libacsf/acsfwrapper.pyx":34
  *         return (rebuild, (self.rcut, self.g2_params, self.g3_params, self.g4_params, self.g5_params, self.atomic_numbers))
  * 
- *     def create(self, vector[vector[float]] positions, vector[int] atomic_numbers, map[vector[int], float] distances, map[int, vector[int]] neighbours, vector[int] indices):             # <<<<<<<<<<<<<<
+ *     def create(self, vector[vector[float]] positions, vector[int] atomic_numbers, vector[vector[float]]  distances, map[int, vector[int]] neighbours, vector[int] indices):             # <<<<<<<<<<<<<<
  *         return np.array(self.thisptr.create(positions, atomic_numbers, distances, neighbours, indices), dtype=np.float32)
  * 
  */
@@ -3357,116 +3356,11 @@ static std::vector<int>  __pyx_convert_vector_from_py_int(PyObject *__pyx_v_o) {
 
 /* "map.from_py":174
  * 
- * @cname("__pyx_convert_map_from_py_std_3a__3a_vector_3c_int_3e_____and_float")
- * cdef map[X,Y] __pyx_convert_map_from_py_std_3a__3a_vector_3c_int_3e_____and_float(object o) except *:             # <<<<<<<<<<<<<<
+ * @cname("__pyx_convert_map_from_py_int__and_std_3a__3a_vector_3c_int_3e___")
+ * cdef map[X,Y] __pyx_convert_map_from_py_int__and_std_3a__3a_vector_3c_int_3e___(object o) except *:             # <<<<<<<<<<<<<<
  *     cdef dict d = o
  *     cdef map[X,Y] m
  */
-
-static std::map<std::vector<int> ,float>  __pyx_convert_map_from_py_std_3a__3a_vector_3c_int_3e_____and_float(PyObject *__pyx_v_o) {
-  PyObject *__pyx_v_d = 0;
-  std::map<std::vector<int> ,float>  __pyx_v_m;
-  PyObject *__pyx_v_key = NULL;
-  PyObject *__pyx_v_value = NULL;
-  std::map<std::vector<int> ,float>  __pyx_r;
-  __Pyx_RefNannyDeclarations
-  PyObject *__pyx_t_1 = NULL;
-  Py_ssize_t __pyx_t_2;
-  Py_ssize_t __pyx_t_3;
-  int __pyx_t_4;
-  PyObject *__pyx_t_5 = NULL;
-  PyObject *__pyx_t_6 = NULL;
-  int __pyx_t_7;
-  std::vector<int>  __pyx_t_8;
-  float __pyx_t_9;
-  __Pyx_RefNannySetupContext("__pyx_convert_map_from_py_std_3a__3a_vector_3c_int_3e_____and_float", 0);
-
-  /* "map.from_py":175
- * @cname("__pyx_convert_map_from_py_std_3a__3a_vector_3c_int_3e_____and_float")
- * cdef map[X,Y] __pyx_convert_map_from_py_std_3a__3a_vector_3c_int_3e_____and_float(object o) except *:
- *     cdef dict d = o             # <<<<<<<<<<<<<<
- *     cdef map[X,Y] m
- *     for key, value in d.iteritems():
- */
-  if (!(likely(PyDict_CheckExact(__pyx_v_o))||((__pyx_v_o) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "dict", Py_TYPE(__pyx_v_o)->tp_name), 0))) __PYX_ERR(1, 175, __pyx_L1_error)
-  __pyx_t_1 = __pyx_v_o;
-  __Pyx_INCREF(__pyx_t_1);
-  __pyx_v_d = ((PyObject*)__pyx_t_1);
-  __pyx_t_1 = 0;
-
-  /* "map.from_py":177
- *     cdef dict d = o
- *     cdef map[X,Y] m
- *     for key, value in d.iteritems():             # <<<<<<<<<<<<<<
- *         m.insert(pair[X,Y](<X>key, <Y>value))
- *     return m
- */
-  __pyx_t_2 = 0;
-  if (unlikely(__pyx_v_d == Py_None)) {
-    PyErr_Format(PyExc_AttributeError, "'NoneType' object has no attribute '%.30s'", "iteritems");
-    __PYX_ERR(1, 177, __pyx_L1_error)
-  }
-  __pyx_t_5 = __Pyx_dict_iterator(__pyx_v_d, 1, __pyx_n_s_iteritems, (&__pyx_t_3), (&__pyx_t_4)); if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 177, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
-  __Pyx_XDECREF(__pyx_t_1);
-  __pyx_t_1 = __pyx_t_5;
-  __pyx_t_5 = 0;
-  while (1) {
-    __pyx_t_7 = __Pyx_dict_iter_next(__pyx_t_1, __pyx_t_3, &__pyx_t_2, &__pyx_t_5, &__pyx_t_6, NULL, __pyx_t_4);
-    if (unlikely(__pyx_t_7 == 0)) break;
-    if (unlikely(__pyx_t_7 == -1)) __PYX_ERR(1, 177, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_5);
-    __Pyx_GOTREF(__pyx_t_6);
-    __Pyx_XDECREF_SET(__pyx_v_key, __pyx_t_5);
-    __pyx_t_5 = 0;
-    __Pyx_XDECREF_SET(__pyx_v_value, __pyx_t_6);
-    __pyx_t_6 = 0;
-
-    /* "map.from_py":178
- *     cdef map[X,Y] m
- *     for key, value in d.iteritems():
- *         m.insert(pair[X,Y](<X>key, <Y>value))             # <<<<<<<<<<<<<<
- *     return m
- * 
- */
-    __pyx_t_8 = __pyx_convert_vector_from_py_int(__pyx_v_key); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 178, __pyx_L1_error)
-    __pyx_t_9 = __pyx_PyFloat_AsFloat(__pyx_v_value); if (unlikely((__pyx_t_9 == (float)-1) && PyErr_Occurred())) __PYX_ERR(1, 178, __pyx_L1_error)
-    __pyx_v_m.insert(std::pair<std::vector<int> ,float> (((std::vector<int> )__pyx_t_8), ((float)__pyx_t_9)));
-  }
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-
-  /* "map.from_py":179
- *     for key, value in d.iteritems():
- *         m.insert(pair[X,Y](<X>key, <Y>value))
- *     return m             # <<<<<<<<<<<<<<
- * 
- * 
- */
-  __pyx_r = __pyx_v_m;
-  goto __pyx_L0;
-
-  /* "map.from_py":174
- * 
- * @cname("__pyx_convert_map_from_py_std_3a__3a_vector_3c_int_3e_____and_float")
- * cdef map[X,Y] __pyx_convert_map_from_py_std_3a__3a_vector_3c_int_3e_____and_float(object o) except *:             # <<<<<<<<<<<<<<
- *     cdef dict d = o
- *     cdef map[X,Y] m
- */
-
-  /* function exit code */
-  __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_AddTraceback("map.from_py.__pyx_convert_map_from_py_std_3a__3a_vector_3c_int_3e_____and_float", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __Pyx_pretend_to_initialize(&__pyx_r);
-  __pyx_L0:;
-  __Pyx_XDECREF(__pyx_v_d);
-  __Pyx_XDECREF(__pyx_v_key);
-  __Pyx_XDECREF(__pyx_v_value);
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
 
 static std::map<int,std::vector<int> >  __pyx_convert_map_from_py_int__and_std_3a__3a_vector_3c_int_3e___(PyObject *__pyx_v_o) {
   PyObject *__pyx_v_d = 0;

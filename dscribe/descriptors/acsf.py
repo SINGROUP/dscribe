@@ -183,20 +183,17 @@ class ACSF(Descriptor):
 
         # Calculate the sparse distance matrix using the radial cutoff to
         # reduce computational complexity from O(n^2) to O(n log(n))
-        with chronic.Timer('adjacencies'):
-            dmat = system.get_distance_matrix_within_radius(self.rcut, "coo_matrix")
-            neighbours = dscribe.utils.geometry.get_adjacency_list(dmat, return_values=False)
-            dmat = {(i, j): v for i, j, v in zip(dmat.row, dmat.col, dmat.data)}
+        dmat = system.get_distance_matrix_within_radius(self.rcut, "coo_matrix")
+        neighbours = dscribe.utils.geometry.get_adjacency_list(dmat, return_values=False)
 
         # Calculate ACSF with C++
-        with chronic.Timer('cpp'):
-            output = self.acsf_wrapper.create(
-                system.get_positions(),
-                system.get_atomic_numbers(),
-                dmat,
-                neighbours,
-                indices,
-            )
+        output = self.acsf_wrapper.create(
+            system.get_positions(),
+            system.get_atomic_numbers(),
+            dmat.toarray(),
+            neighbours,
+            indices,
+        )
 
         # Check if there are types that have not been declared
         self.check_atomic_numbers(system.get_atomic_numbers())

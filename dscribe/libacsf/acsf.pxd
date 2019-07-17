@@ -13,7 +13,7 @@ cdef extern from "acsf.h":
         ACSF(float, vector[vector[float]], vector[float], vector[vector[float]], vector[vector[float]], vector[int]) except +
 
         # Methods
-        vector[vector[float]] create(vector[vector[float]], vector[int], map[vector[int], float], map[int, vector[int]], vector[int])
+        vector[vector[float]] create(vector[vector[float]], vector[int], vector[vector[float]], map[int, vector[int]], vector[int])
         void setRCut(float rCut)
         void setG2Params(vector[vector[float]] g2_params)
         void setG3Params(vector[float] g3_params)

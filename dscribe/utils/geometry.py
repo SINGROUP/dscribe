@@ -16,13 +16,10 @@ def get_adjacency_list(adjacency_matrix, return_values=False):
     if return_values is False:
         for i, j in zip(coo.row, coo.col):
             adjacency_list[i].append(j)
-            # adjacency_list[j].append(i)
         return dict(adjacency_list)
     else:
         values = defaultdict(list)
         for i, j, v in zip(coo.row, coo.col, coo.data):
             adjacency_list[i].append(j)
-            # adjacency_list[j].append(i)
             values[i].append(v)
-            # values[j].append(v)
         return dict(adjacency_list), dict(values)
