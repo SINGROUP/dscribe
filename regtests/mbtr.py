@@ -549,33 +549,6 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         feat = desc.create(system)
         self.assertEqual(feat.shape, (1, n_species*n))
 
-    def test_angle_180(self):
-        """Tests that angles near 0 and 180 degree are not  .
-        """
-        system = H2O
-        n = 10
-        n_species = len(set(system.get_atomic_numbers()))
-
-        # K1 unflattened
-        desc = MBTR(
-            species=[1, 8],
-            k1={
-                "grid": {"n": n, "min": 1, "max": 8, "sigma": 0.1},
-                "geometry": {"function": "atomic_number"}
-            },
-            periodic=False,
-            flatten=False,
-            sparse=False
-        )
-        feat = desc.create(system)["k1"]
-        self.assertEqual(feat.shape, (n_species, n))
-
-        # K1 flattened. The sparse matrix only supports 2D matrices, so the first
-        # dimension is always present, even if it is of length 1.
-        desc.flatten = True
-        feat = desc.create(system)
-        self.assertEqual(feat.shape, (1, n_species*n))
-
     def test_parallel_dense(self):
         """Tests creating dense output parallelly.
         """
