@@ -31,8 +31,6 @@ from dscribe.descriptors import Descriptor
 from dscribe.libmbtr.mbtrwrapper import MBTRWrapper
 import dscribe.utils.geometry
 
-import chronic
-
 
 class MBTR(Descriptor):
     """Implementation of the Many-body tensor representation up to :math:`k=3`.
