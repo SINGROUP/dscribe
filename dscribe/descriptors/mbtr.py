@@ -481,19 +481,18 @@ class MBTR(Descriptor):
         system = self.get_system(system)
 
         # Initializes the scalar numbers that depend no the system
-        with chronic.Timer("Scalars"):
-            self.initialize_scalars(system)
+        self.initialize_scalars(system)
 
         # Create output with the currently set grid
-        with chronic.Timer("Grid"):
-            grid = {}
-            if self.k1 is not None:
-                grid["k1"] = self.k1["grid"]
-            if self.k2 is not None:
-                grid["k2"] = self.k2["grid"]
-            if self.k3 is not None:
-                grid["k3"] = self.k3["grid"]
-            output = self.create_with_grid(grid)
+        grid = {}
+        if self.k1 is not None:
+            grid["k1"] = self.k1["grid"]
+        if self.k2 is not None:
+            grid["k2"] = self.k2["grid"]
+        if self.k3 is not None:
+            grid["k3"] = self.k3["grid"]
+        output = self.create_with_grid(grid)
+
         return output
 
     def create_with_grid(self, grid):
