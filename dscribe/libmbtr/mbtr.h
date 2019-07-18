@@ -34,6 +34,21 @@ class MBTR {
          */
         MBTR(vector<vector<float> > positions, vector<int> atomicNumbers, map<int,int> atomicNumberToIndexMap, int interactionLimit,  vector<vector<int>> cellIndices, bool local=false);
 
+        map<string, vector<double> > getK1(string geomFunc, string weightFunc, map<string, float> parameters, float min, float max, float sigma, float n);
+        map<string, vector<double> > getK2(const vector<vector<float> > &distances, const vector<vector<int> > &neighbours, string geomFunc, string weightFunc, map<string, float> parameters, float min, float max, float sigma, float n);
+        map<string, vector<double> > getK3(const vector<vector<float> > &distances, const vector<vector<int> > &neighbours, string geomFunc, string weightFunc, map<string, float> parameters, float min, float max, float sigma, float n);
+        float k1GeomAtomicNumber(int &i);
+        float k1WeightUnity(int &i);
+        float k2GeomInverseDistance(int &i, const int &j, const vector<vector<float> > &distances);
+        float k2GeomDistance(int &i, const int &j, const vector<vector<float> > &distances);
+        float k2WeightUnity(int &i, const int &j, const vector<vector<float> > &distances);
+        float k2WeightExponential(int &i, const int &j, const vector<vector<float> > &distances, float &scale, float &cutoff);
+        float k3GeomCosine(int &i, const int &j, const int &k, const vector<vector<float> > &distances);
+        float k3GeomAngle(int &i, const int &j, const int &k, const vector<vector<float> > &distances);
+        float k3WeightUnity(int &i, const int &j, const int &k, const vector<vector<float> > &distances);
+        float k3WeightExponential(int &i, const int &j, const int &k, const vector<vector<float> > &distances, float &scale, float &cutoff);
+        vector<double> gaussian(const float &center, const float &sigma, const float &weight, const float &min, const float &max, const float &n);
+
         /**
          * Returns a list of 1D indices for the atom combinations that need to
          * be calculated for the k=1 term.
