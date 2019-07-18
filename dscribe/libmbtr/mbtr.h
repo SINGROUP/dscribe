@@ -4,56 +4,60 @@
 using namespace std;
 #define PI 3.1415926535897932384626433832795028841971693993751058209749445923078164062
 
+typedef tuple<int> index1d;
+typedef tuple<int, int> index2d;
+typedef tuple<int, int, int> index3d;
+
 /**
  * Represents a single integer index: i.
  */
-struct index1d {
-    int i;
+//struct index1d {
+    //int i;
 
-    // These comparison operators are needed in order to use this struct as map
-    // key
-    bool operator==(const index1d &o) const {
-        return (i == o.i);
-    }
-    bool operator<(const index1d &o) const {
-        return i < o.i;
-    }
-};
+    //// These comparison operators are needed in order to use this struct as map
+    //// key
+    //bool operator==(const index1d &o) const {
+        //return (i == o.i);
+    //}
+    //bool operator<(const index1d &o) const {
+        //return i < o.i;
+    //}
+//};
 
 /**
  * Represents a combination of two integer indices: i and j.
  */
-struct index2d {
-    int i;
-    int j;
+//struct index2d {
+    //int i;
+    //int j;
 
-    // These comparison operators are needed in order to use this struct as map
-    // key
-    bool operator==(const index2d &o) const {
-        return (i == o.i) && (j == o.j);
-    }
-    bool operator<(const index2d &o) const {
-        return (i < o.i) || (i == o.i && j < o.j);
-    }
-};
+    //// These comparison operators are needed in order to use this struct as map
+    //// key
+    //bool operator==(const index2d &o) const {
+        //return (i == o.i) && (j == o.j);
+    //}
+    //bool operator<(const index2d &o) const {
+        //return (i < o.i) || (i == o.i && j < o.j);
+    //}
+//};
 
 /**
  * Represents a combination of three integer indices: i, j and k.
  */
-struct index3d {
-    int i;
-    int j;
-    int k;
+//struct index3d {
+    //int i;
+    //int j;
+    //int k;
 
-    // These comparison operators are needed in order to use this struct as map
-    // key
-    bool operator==(const index3d &o) const {
-        return (i == o.i) && (j == o.j) & (k == o.k);
-    }
-    bool operator<(const index3d &o) const {
-        return (i < o.i) || (i == o.i && j < o.j) || (i == o.i && j == o.j && k < o.k);
-    }
-};
+    //// These comparison operators are needed in order to use this struct as map
+    //// key
+    //bool operator==(const index3d &o) const {
+        //return (i == o.i) && (j == o.j) & (k == o.k);
+    //}
+    //bool operator<(const index3d &o) const {
+        //return (i < o.i) || (i == o.i && j < o.j) || (i == o.i && j == o.j && k < o.k);
+    //}
+//};
 
 /**
  * Implementation for the performance-critical parts of MBTR.
@@ -95,7 +99,7 @@ class MBTR {
          *
          * @return A list of 2D indices.
          */
-        vector<index2d> getk2Indices();
+        vector<index2d> getk2Indices(const vector<vector<int> > &neighbours);
 
         /**
          * Returns a list of 3D indices for the atom combinations that need to
@@ -103,7 +107,7 @@ class MBTR {
          *
          * @return A list of 3D indices for k3.
          */
-        vector<index3d> getk3Indices();
+        vector<index3d> getk3Indices(const vector<vector<int> > &neighbours);
 
         /**
          * Weighting of 1 for all indices. Usually used for finite small
@@ -138,7 +142,7 @@ class MBTR {
          * @param cutoff Minimum value of the weighting to consider.
          * @return Map of distances for pairs of atomic indices.
          */
-        map<index2d, float> k2WeightExponential(const vector<index2d> &indexList, float scale, float cutoff);
+        map<index2d, float> k2WeightExponential(const vector<index2d> &indexList, float scale, float cutoff, const vector<vector<float> > &distances);
 
         /**
          * Weighting defined as e^(-sx), where x is the distance from
@@ -149,7 +153,7 @@ class MBTR {
          * @param cutoff Minimum value of the weighting to consider.
          * @return Map of distances for triplets of atomic indices.
          */
-        map<index3d, float> k3WeightExponential(const vector<index3d> &indexList, float scale, float cutoff);
+        map<index3d, float> k3WeightExponential(const vector<index3d> &indexList, float scale, float cutoff, const vector<vector<float> > &distances);
 
         /**
          * Calculates the geometry function based on atomic numbers defined for
@@ -164,14 +168,14 @@ class MBTR {
          *
          * @return A map of distance values for the given atomic pairs.
          */
-        map<index2d, float> k2GeomDistance(const vector<index2d> &indexList);
+        map<index2d, float> k2GeomDistance(const vector<index2d> &indexList, const vector<vector<float> > &distances);
 
         /**
          * Calculates the inverse distance geometry function defined for k=2.
          *
          * @return A map of inverse distance values for the given atomic pairs.
          */
-        map<index2d, float> k2GeomInverseDistance(const vector<index2d> &indexList);
+        map<index2d, float> k2GeomInverseDistance(const vector<index2d> &indexList, const vector<vector<float> > &distances);
 
         /**
          * Calculates the angle (degrees) geometry function defined for k3.
@@ -179,7 +183,7 @@ class MBTR {
          * @return The angle defined between the given three atomic indices.
          * Between 0 and 180 degrees.
          */
-        map<index3d, float> k3GeomAngle(const vector<index3d> &indexList);
+        map<index3d, float> k3GeomAngle(const vector<index3d> &indexList, const vector<vector<float> > &distances);
 
         /**
          * Calculates the cosine geometry function defined for k3.
@@ -187,7 +191,7 @@ class MBTR {
          * @return The cosine value for the angle defined between the given
          * three atomic indices.
          */
-        map<index3d, float> k3GeomCosine(const vector<index3d> &indexList);
+        map<index3d, float> k3GeomCosine(const vector<index3d> &indexList, const vector<vector<float> > &distances);
 
         /**
          * Calculates a 3D matrix of distance vectors between atomic positions.
@@ -196,7 +200,7 @@ class MBTR {
          * index of ith atom, second index is the index of jth atom, third
          * index is the cartesian component.
          */
-        vector<vector<vector<float> > > getDisplacementTensor();
+        //vector<vector<vector<float> > > getDisplacementTensor();
 
         /**
          * Calculates a 2D matrix of distances between atomic positions.
@@ -204,7 +208,7 @@ class MBTR {
          * @return A 2D matrix of distances. First index is the
          * index of ith atom, second index is the index of jth atom.
          */
-        vector<vector<float> > getDistanceMatrix();
+        //vector<vector<float> > getDistanceMatrix();
 
         /**
          * Calculates a list of values for the k=1 geometry functions and the
@@ -222,7 +226,7 @@ class MBTR {
          * @return A pair of maps for the geometry- and weighting function
          * values for each pair of atomic elements.
          */
-        pair<map<index2d,vector<float> >, map<index2d,vector<float> > > getK2GeomsAndWeights(string geomFunc, string weightFunc, map<string, float> parameters=map<string, float>());
+        pair<map<index2d,vector<float> >, map<index2d,vector<float> > > getK2GeomsAndWeights(const vector<vector<float> > &distances, const vector<vector<int> > &neighbours, string geomFunc, string weightFunc, map<string, float> parameters=map<string, float>());
 
         /**
          * Calculates a list of values for the k=3 geometry functions and the
@@ -231,7 +235,7 @@ class MBTR {
          * @return A pair of maps for the geometry- and weighting function
          * values for each triplet of atomic elements.
          */
-        pair<map<index3d,vector<float> >, map<index3d,vector<float> > > getK3GeomsAndWeights(string geomFunc, string weightFunc, map<string, float> parameters=map<string, float>());
+        pair<map<index3d,vector<float> >, map<index3d,vector<float> > > getK3GeomsAndWeights(const vector<vector<float> > &distances, const vector<vector<int> > &neighbours, string geomFunc, string weightFunc, map<string, float> parameters=map<string, float>());
 
         /**
          * A convenience function that provides a Cython-compatible interface
@@ -248,7 +252,7 @@ class MBTR {
          * formed by casting the atomic indices to strings and concatenating
          * them with comma as a separator.
          */
-        pair<map<string,vector<float> >, map<string,vector<float> > > getK2GeomsAndWeightsCython(string geomFunc, string weightFunc, map<string, float> parameters=map<string, float>());
+        pair<map<string,vector<float> >, map<string,vector<float> > > getK2GeomsAndWeightsCython(const vector<vector<float> > &distances, const vector<vector<int> > &neighbours, string geomFunc, string weightFunc, map<string, float> parameters=map<string, float>());
 
         /**
          * A convenience function that provides a Cython-compatible interface
@@ -257,7 +261,7 @@ class MBTR {
          * formed by casting the atomic indices to strings and concatenating
          * them with comma as a separator.
          */
-        pair<map<string,vector<float> >, map<string,vector<float> > > getK3GeomsAndWeightsCython(string geomFunc, string weightFunc, map<string, float> parameters=map<string, float>());
+        pair<map<string,vector<float> >, map<string,vector<float> > > getK3GeomsAndWeightsCython(const vector<vector<float> > &distances, const vector<vector<int> > &neighbours, string geomFunc, string weightFunc, map<string, float> parameters=map<string, float>());
 
     private:
         vector<vector<float> > positions;

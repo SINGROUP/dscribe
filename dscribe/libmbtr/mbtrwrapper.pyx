@@ -15,11 +15,11 @@ cdef class MBTRWrapper:
     def __dealloc__(self):
         del self.thisptr
 
-    def get_displacement_tensor(self):
-        return np.array(self.thisptr.getDisplacementTensor(), dtype=np.float32)
+    # def get_displacement_tensor(self):
+        # return np.array(self.thisptr.getDisplacementTensor(), dtype=np.float32)
 
-    def get_distance_matrix(self):
-        return np.array(self.thisptr.getDistanceMatrix(), dtype=np.float32)
+    # def get_distance_matrix(self):
+        # return np.array(self.thisptr.getDistanceMatrix(), dtype=np.float32)
 
     def get_k1_geoms_and_weights(self, geom_func, weight_func, parameters):
         """Cython cannot directly provide the keys as tuples, so we have to do
@@ -36,11 +36,11 @@ cdef class MBTRWrapper:
 
         return new_geom_map, new_weight_map
 
-    def get_k2_geoms_and_weights(self, geom_func, weight_func, parameters):
+    def get_k2_geoms_and_weights(self, distances, neighbours,  geom_func, weight_func, parameters):
         """Cython cannot directly provide the keys as tuples, so we have to do
         the conversion here on the python side.
         """
-        geom_map, weight_map = self.thisptr.getK2GeomsAndWeightsCython(geom_func, weight_func, parameters);
+        geom_map, weight_map = self.thisptr.getK2GeomsAndWeightsCython(distances, neighbours, geom_func, weight_func, parameters);
         new_geom_map = {}
         new_weight_map = {}
 
@@ -51,11 +51,11 @@ cdef class MBTRWrapper:
 
         return new_geom_map, new_weight_map
 
-    def get_k3_geoms_and_weights(self, geom_func, weight_func, parameters):
+    def get_k3_geoms_and_weights(self, distances, neighbours, geom_func, weight_func, parameters):
         """Cython cannot directly provide the keys as tuples, so we have to do
         the conversion here on the python side.
         """
-        geom_map, weight_map = self.thisptr.getK3GeomsAndWeightsCython(geom_func, weight_func, parameters);
+        geom_map, weight_map = self.thisptr.getK3GeomsAndWeightsCython(distances, neighbours, geom_func, weight_func, parameters);
         new_geom_map = {}
         new_weight_map = {}
 

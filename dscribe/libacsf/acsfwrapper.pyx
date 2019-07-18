@@ -2,7 +2,6 @@
 
 import numpy as np
 from libcpp.vector cimport vector
-from libcpp.map cimport map
 from acsf cimport ACSF
 
 def rebuild(rcut, g2_params, g3_params, g4_params, g5_params, atomic_numbers):
@@ -31,7 +30,7 @@ cdef class ACSFWrapper:
         """
         return (rebuild, (self.rcut, self.g2_params, self.g3_params, self.g4_params, self.g5_params, self.atomic_numbers))
 
-    def create(self, vector[vector[float]] positions, vector[int] atomic_numbers, vector[vector[float]]  distances, map[int, vector[int]] neighbours, vector[int] indices):
+    def create(self, vector[vector[float]] positions, vector[int] atomic_numbers, vector[vector[float]]  distances, vector[vector[int]] neighbours, vector[int] indices):
         return np.array(self.thisptr.create(positions, atomic_numbers, distances, neighbours, indices), dtype=np.float32)
 
     @property

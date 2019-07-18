@@ -1,7 +1,6 @@
 #ifndef ACSF_H
 #define ACSF_H
 
-#include <map>
 #include <unordered_map>
 
 #define PI 3.1415926535897932384626433832795028841971693993751058209749445923078164062
@@ -25,7 +24,7 @@ class ACSF {
             vector<int> atomicNumbers
         );
 
-        vector<vector<float> > create(vector<vector<float> > &positions, vector<int> &atomicNumbers, vector<vector<float> > &distances, map<int, vector<int> > &neighbours, vector<int> &indices);
+        vector<vector<float> > create(vector<vector<float> > &positions, vector<int> &atomicNumbers, const vector<vector<float> > &distances, const vector<vector<int> > &neighbours, vector<int> &indices);
         void setRCut(float rCut);
         void setG2Params(vector<vector<float> > g2Params);
         void setG3Params(vector<float> g3Params);

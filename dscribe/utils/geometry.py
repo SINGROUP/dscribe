@@ -1,25 +1,26 @@
-from collections import defaultdict
+import scipy.sparse
 
 
-def get_adjacency_list(adjacency_matrix, return_values=False):
+def get_adjacency_list(adjacency_matrix):
     """Used to transform an adjacency matrix into an adjacency list. The
     adjacency list provides much faster access to the neighbours of a node.
 
     Args:
+        adjacency_matrix(scipy.sparse.spmatrix): The adjacency matrix from
+            which the adjacency list is constructed from. Any of the scipy
+            sparse matrix classes.
 
     Returns:
-        dict: A dictionary with node index as key, and the neighbour indices as
-        values.
+        list: A list of neighbouring indices. The list of neighbouring indices
+        for atom at index i is given by accessing the ith element of this list.
     """
-    coo = adjacency_matrix.tocoo()
-    adjacency_list = defaultdict(list)
-    if return_values is False:
-        for i, j in zip(coo.row, coo.col):
-            adjacency_list[i].append(j)
-        return dict(adjacency_list)
-    else:
-        values = defaultdict(list)
-        for i, j, v in zip(coo.row, coo.col, coo.data):
-            adjacency_list[i].append(j)
-            values[i].append(v)
-        return dict(adjacency_list), dict(values)
+    # Ensure that we have a coo-matrix
+    if type(adjacency_matrix) != scipy.sparse.coo_matrix:
+        adjacency_matrix = adjacency_matrix.tocoo()
+
+    # Build adjacency list
+    adjacency_list = [[] for i in range(adjacency_matrix.shape[0])]
+    for i, j in zip(adjacency_matrix.row, adjacency_matrix.col):
+        adjacency_list[i].append(j)
+
+    return adjacency_list

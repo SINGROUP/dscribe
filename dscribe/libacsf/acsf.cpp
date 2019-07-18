@@ -1,6 +1,7 @@
 #include "acsf.h"
 #include <vector>
 #include <tuple>
+#include <map>
 #include <math.h>
 #include <string>
 #include <numeric>
@@ -66,7 +67,7 @@ void ACSF::setAtomicNumbers(vector<int> atomicNumbers)
     this->atomicNumberToIndexMap = atomicNumberToIndexMap;
 }
 
-vector<vector<float> > ACSF::create(vector<vector<float> > &positions, vector<int> &atomicNumbers, vector<vector<float> > &distances, map<int, vector<int> > &neighbours, vector<int> &indices)
+vector<vector<float> > ACSF::create(vector<vector<float> > &positions, vector<int> &atomicNumbers, const vector<vector<float> > &distances, const vector<vector<int> > &neighbours, vector<int> &indices)
 {
     // Allocate memory
     int nIndices = indices.size();
@@ -77,9 +78,9 @@ vector<vector<float> > ACSF::create(vector<vector<float> > &positions, vector<in
     for (int &i : indices) {
 
         // Compute pairwise terms only for neighbors within cutoff
-        vector<int> &i_neighbours = neighbours[i];
+        const vector<int> &i_neighbours = neighbours[i];
         vector<float> &row = output[index];
-        for (int &j : i_neighbours) {
+        for (const int &j : i_neighbours) {
             if (i == j) {
                 continue;
             }
@@ -101,7 +102,7 @@ vector<vector<float> > ACSF::create(vector<vector<float> > &positions, vector<in
 
             // Compute angle terms only when both neighbors are within cutoff
             if (g4Params.size() != 0 || g5Params.size() != 0) {
-                for (int &k : i_neighbours) {
+                for (const int &k : i_neighbours) {
                     if (k == i || k >= j) {
                         continue;
                     }

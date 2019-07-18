@@ -15,6 +15,7 @@ limitations under the License.
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
+import sys
 import math
 import numpy as np
 
@@ -28,6 +29,9 @@ import ase.data
 from dscribe.core import System
 from dscribe.descriptors import Descriptor
 from dscribe.libmbtr.mbtrwrapper import MBTRWrapper
+import dscribe.utils.geometry
+
+import chronic
 
 
 class MBTR(Descriptor):
@@ -479,17 +483,19 @@ class MBTR(Descriptor):
         system = self.get_system(system)
 
         # Initializes the scalar numbers that depend no the system
-        self.initialize_scalars(system)
+        with chronic.Timer("Scalars"):
+            self.initialize_scalars(system)
 
         # Create output with the currently set grid
-        grid = {}
-        if self.k1 is not None:
-            grid["k1"] = self.k1["grid"]
-        if self.k2 is not None:
-            grid["k2"] = self.k2["grid"]
-        if self.k3 is not None:
-            grid["k3"] = self.k3["grid"]
-        output = self.create_with_grid(grid)
+        with chronic.Timer("Grid"):
+            grid = {}
+            if self.k1 is not None:
+                grid["k1"] = self.k1["grid"]
+            if self.k2 is not None:
+                grid["k2"] = self.k2["grid"]
+            if self.k3 is not None:
+                grid["k3"] = self.k3["grid"]
+            output = self.create_with_grid(grid)
         return output
 
     def create_with_grid(self, grid):
@@ -564,6 +570,9 @@ class MBTR(Descriptor):
     def initialize_scalars(self, system):
         """Used to initialize the scalar values for each k-term.
         """
+        # Transform the input system into the internal System-object
+        system = self.get_system(system)
+
         # Ensuring variables are re-initialized when a new system is introduced
         self._interaction_limit = None
         self.system = system
@@ -969,12 +978,14 @@ class MBTR(Descriptor):
                 is_local=self._is_local
             )
 
-            # Determine the weighting function
+            # Determine the weighting function and possible radial cutoff
+            radial_cutoff = None
             weighting = self.k2.get("weighting")
             parameters = {}
             if weighting is not None:
                 weighting_function = weighting["function"]
                 if weighting_function == "exponential" or weighting_function == "exp":
+                    radial_cutoff = -math.log(weighting["cutoff"])/weighting["scale"]
                     parameters = {
                         b"scale": weighting["scale"],
                         b"cutoff": weighting["cutoff"]
@@ -985,7 +996,23 @@ class MBTR(Descriptor):
             # Determine the geometry function
             geom_func_name = self.k2["geometry"]["function"]
 
+            # If radial cutoff is finite, use it to calculate the sparse
+            # distance matrix to reduce computational complexity from O(n^2) to
+            # O(n log(n))
+            n_atoms = len(system)
+            if radial_cutoff is not None:
+                dmat = system.get_distance_matrix_within_radius(radial_cutoff, "coo_matrix")
+                adj_list = dscribe.utils.geometry.get_adjacency_list(dmat)
+                dmat_dense = np.full((n_atoms, n_atoms), sys.float_info.max)  # The non-neighbor values are treated as "infinitely far".
+                dmat_dense[dmat.col, dmat.row] = dmat.data
+            # If no weighting is used, the full distance matrix is calculated
+            else:
+                dmat_dense = system.get_distance_matrix()
+                adj_list = np.tile(np.arange(n_atoms), (n_atoms, 1))
+
             self._k2_geoms, self._k2_weights = cmbtr.get_k2_geoms_and_weights(
+                distances=dmat_dense,
+                neighbours=adj_list,
                 geom_func=geom_func_name.encode(),
                 weight_func=weighting_function.encode(),
                 parameters=parameters
@@ -1016,15 +1043,17 @@ class MBTR(Descriptor):
                 is_local=self._is_local
             )
 
-            # Determine the weighting function
-            weight_info = self.k3.get("weighting")
+            # Determine the weighting function and possible radial cutoff
+            radial_cutoff = None
+            weighting = self.k3.get("weighting")
             parameters = {}
-            if weight_info is not None:
-                weighting_function = weight_info["function"]
+            if weighting is not None:
+                weighting_function = weighting["function"]
                 if weighting_function == "exponential" or weighting_function == "exp":
+                    radial_cutoff = -0.5*math.log(weighting["cutoff"])/weighting["scale"]
                     parameters = {
-                        b"scale": weight_info["scale"],
-                        b"cutoff": weight_info["cutoff"]
+                        b"scale": weighting["scale"],
+                        b"cutoff": weighting["cutoff"]
                     }
             else:
                 weighting_function = "unity"
@@ -1032,7 +1061,23 @@ class MBTR(Descriptor):
             # Determine the geometry function
             geom_func_name = self.k3["geometry"]["function"]
 
+            # If radial cutoff is finite, use it to calculate the sparse
+            # distance matrix to reduce computational complexity from O(n^2) to
+            # O(n log(n))
+            n_atoms = len(system)
+            if radial_cutoff is not None:
+                dmat = system.get_distance_matrix_within_radius(radial_cutoff, "coo_matrix")
+                adj_list = dscribe.utils.geometry.get_adjacency_list(dmat)
+                dmat_dense = np.full((n_atoms, n_atoms), sys.float_info.max)  # The non-neighbor values are treated as "infinitely far".
+                dmat_dense[dmat.col, dmat.row] = dmat.data
+            # If no weighting is used, the full distance matrix is calculated
+            else:
+                dmat_dense = system.get_distance_matrix()
+                adj_list = np.tile(np.arange(n_atoms), (n_atoms, 1))
+
             self._k3_geoms, self._k3_weights = cmbtr.get_k3_geoms_and_weights(
+                distances=dmat_dense,
+                neighbours=adj_list,
                 geom_func=geom_func_name.encode(),
                 weight_func=weighting_function.encode(),
                 parameters=parameters

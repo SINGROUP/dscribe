@@ -31,82 +31,82 @@ MBTR::MBTR(vector<vector<float> > positions, vector<int> atomicNumbers, map<int,
 {
 }
 
-vector<vector<vector<float> > > MBTR::getDisplacementTensor()
-{
-    // Use cached value if possible
-    if (!this->displacementTensorInitialized) {
-        int nAtoms = this->atomicNumbers.size();
+//vector<vector<vector<float> > > MBTR::getDisplacementTensor()
+//{
+    //// Use cached value if possible
+    //if (!this->displacementTensorInitialized) {
+        //int nAtoms = this->atomicNumbers.size();
 
-        // Initialize tensor
-        vector<vector<vector<float> > > tensor(nAtoms, vector<vector<float> >(nAtoms, vector<float>(3)));
+        //// Initialize tensor
+        //vector<vector<vector<float> > > tensor(nAtoms, vector<vector<float> >(nAtoms, vector<float>(3)));
 
-        // Calculate the distance between all pairs and store in the tensor
-        for (int i=0; i < nAtoms; ++i) {
-            for (int j=0; j < nAtoms; ++j) {
+        //// Calculate the distance between all pairs and store in the tensor
+        //for (int i=0; i < nAtoms; ++i) {
+            //for (int j=0; j < nAtoms; ++j) {
 
-                // Due to symmetry only upper triangular part is processed.
-                if (i <= j) {
-                    continue;
-                }
+                //// Due to symmetry only upper triangular part is processed.
+                //if (i <= j) {
+                    //continue;
+                //}
 
-                // Calculate distance between the two atoms, store in tensor
-                vector<float>& iPos = this->positions[i];
-                vector<float>& jPos = this->positions[j];
-                vector<float> diff(3);
-                vector<float> negDiff(3);
+                //// Calculate distance between the two atoms, store in tensor
+                //vector<float>& iPos = this->positions[i];
+                //vector<float>& jPos = this->positions[j];
+                //vector<float> diff(3);
+                //vector<float> negDiff(3);
 
-                for (int k=0; k < 3; ++k) {
-                    float iDiff = jPos[k] - iPos[k];
-                    diff[k] = iDiff;
-                    negDiff[k] = -iDiff;
-                }
+                //for (int k=0; k < 3; ++k) {
+                    //float iDiff = jPos[k] - iPos[k];
+                    //diff[k] = iDiff;
+                    //negDiff[k] = -iDiff;
+                //}
 
-                tensor[i][j] = diff;
-                tensor[j][i] = negDiff;
-            }
-        }
-        this->displacementTensor = tensor;
-        this->displacementTensorInitialized = true;
-    }
-    return this->displacementTensor;
-}
-vector<vector<float> > MBTR::getDistanceMatrix()
-{
-    // Use cached value if possible
-    if (!this->distanceMatrixInitialized) {
-        int nAtoms = this->atomicNumbers.size();
+                //tensor[i][j] = diff;
+                //tensor[j][i] = negDiff;
+            //}
+        //}
+        //this->displacementTensor = tensor;
+        //this->displacementTensorInitialized = true;
+    //}
+    //return this->displacementTensor;
+//}
+//vector<vector<float> > MBTR::getDistanceMatrix()
+//{
+    //// Use cached value if possible
+    //if (!this->distanceMatrixInitialized) {
+        //int nAtoms = this->atomicNumbers.size();
 
-        // Initialize matrix
-        vector<vector<float> > distMatrix(nAtoms, vector<float>(nAtoms));
+        //// Initialize matrix
+        //vector<vector<float> > distMatrix(nAtoms, vector<float>(nAtoms));
 
-        // Displacement tensor
-        vector<vector<vector<float> > > tensor = this->getDisplacementTensor();
+        //// Displacement tensor
+        //vector<vector<vector<float> > > tensor = this->getDisplacementTensor();
 
-        // Calculate distances
-        for (int i=0; i < nAtoms; ++i) {
-            for (int j=0; j < nAtoms; ++j) {
+        //// Calculate distances
+        //for (int i=0; i < nAtoms; ++i) {
+            //for (int j=0; j < nAtoms; ++j) {
 
-                // Due to symmetry only upper triangular part is processed.
-                if (i <= j) {
-                    continue;
-                }
+                //// Due to symmetry only upper triangular part is processed.
+                //if (i <= j) {
+                    //continue;
+                //}
 
-                float norm = 0;
-                vector<float>& iPos = tensor[i][j];
-                for (int k=0; k < 3; ++k) {
-                    norm += pow(iPos[k], 2.0);
-                }
-                norm = sqrt(norm);
-                distMatrix[i][j] = norm;
-                distMatrix[j][i] = norm;
-            }
-        }
-        this->distanceMatrix = distMatrix;
-        this->distanceMatrixInitialized = true;
-    }
+                //float norm = 0;
+                //vector<float>& iPos = tensor[i][j];
+                //for (int k=0; k < 3; ++k) {
+                    //norm += pow(iPos[k], 2.0);
+                //}
+                //norm = sqrt(norm);
+                //distMatrix[i][j] = norm;
+                //distMatrix[j][i] = norm;
+            //}
+        //}
+        //this->distanceMatrix = distMatrix;
+        //this->distanceMatrixInitialized = true;
+    //}
 
-    return this->distanceMatrix;
-}
+    //return this->distanceMatrix;
+//}
 
 vector<index1d> MBTR::getk1Indices()
 {
@@ -122,7 +122,7 @@ vector<index1d> MBTR::getk1Indices()
             // Only consider triplets that have one atom in the original
             // cell
             if (i < this->interactionLimit) {
-                index1d key = {i};
+                index1d key (i);
                 indexList.push_back(key);
             }
         }
@@ -132,7 +132,7 @@ vector<index1d> MBTR::getk1Indices()
     return this->k1Indices;
 }
 
-vector<index2d> MBTR::getk2Indices()
+vector<index2d> MBTR::getk2Indices(const vector<vector<int> > &neighbours)
 {
     // Use cached value if possible
     if (!this->k2IndicesInitialized) {
@@ -142,16 +142,18 @@ vector<index2d> MBTR::getk2Indices()
         // Initialize the map containing the mappings
         vector<index2d> indexList;
 
+        // We have to loop over all atoms in the system
         for (int i=0; i < nAtoms; ++i) {
-            for (int j=0; j < nAtoms; ++j) {
 
-                // Due to symmetry only upper triangular part is processed.
+            // For each atom we loop only over the neighbours
+            const vector<int> &i_neighbours = neighbours[i];
+            for (const int &j : i_neighbours) {
                 if (j > i) {
 
                     // Only consider triplets that have one atom in the original
                     // cell
                     if (i < this->interactionLimit || j < this->interactionLimit) {
-                        index2d key = {i, j};
+                        index2d key (i, j);
                         indexList.push_back(key);
                     }
                 }
@@ -163,7 +165,7 @@ vector<index2d> MBTR::getk2Indices()
     return this->k2Indices;
 }
 
-vector<index3d> MBTR::getk3Indices()
+vector<index3d> MBTR::getk3Indices(const vector<vector<int> > &neighbours)
 {
     // Use cached value if possible
     if (!this->k3IndicesInitialized) {
@@ -174,9 +176,12 @@ vector<index3d> MBTR::getk3Indices()
         vector<index3d> indexList;
 
         for (int i=0; i < nAtoms; ++i) {
-            for (int j=0; j < nAtoms; ++j) {
-                for (int k=0; k < nAtoms; ++k) {
 
+            // For each atom we loop only over the atoms triplest that are
+            // within the neighbourhood
+            const vector<int> &i_neighbours = neighbours[i];
+            for (const int &j : i_neighbours) {
+                for (const int &k : i_neighbours) {
                     // Only consider triplets that have one atom in the original
                     // cell
                     if (i < this->interactionLimit || j < this->interactionLimit || k < this->interactionLimit) {
@@ -187,13 +192,33 @@ vector<index3d> MBTR::getk3Indices()
                             // The angles are symmetric: ijk = kji. The value is
                             // calculated only for the triplet where k > i.
                             if (k > i) {
-                                index3d key = {i, j, k};
+                                index3d key (i, j, k);
                                 indexList.push_back(key);
                             }
                         }
                     }
                 }
             }
+            //for (int j=0; j < nAtoms; ++j) {
+                //for (int k=0; k < nAtoms; ++k) {
+
+                    //// Only consider triplets that have one atom in the original
+                    //// cell
+                    //if (i < this->interactionLimit || j < this->interactionLimit || k < this->interactionLimit) {
+                        //// Calculate angle for all index permutations from choosing
+                        //// three out of nAtoms. The same atom cannot be present twice
+                        //// in the permutation.
+                        //if (j != i && k != j && k != i) {
+                            //// The angles are symmetric: ijk = kji. The value is
+                            //// calculated only for the triplet where k > i.
+                            //if (k > i) {
+                                //index3d key = {i, j, k};
+                                //indexList.push_back(key);
+                            //}
+                        //}
+                    //}
+                //}
+            //}
         }
         this->k3Indices = indexList;
         this->k3IndicesInitialized = true;
@@ -205,7 +230,7 @@ map<index1d, float> MBTR::k1GeomAtomicNumber(const vector<index1d> &indexList)
 {
     map<index1d,float> valueMap;
     for (const index1d& index : indexList) {
-        int i = index.i;
+        int i = get<0>(index);
         int atomicNumber = this->atomicNumbers[i];
         valueMap[index] = atomicNumber;
     }
@@ -213,46 +238,43 @@ map<index1d, float> MBTR::k1GeomAtomicNumber(const vector<index1d> &indexList)
     return valueMap;
 }
 
-map<index2d, float> MBTR::k2GeomInverseDistance(const vector<index2d> &indexList)
+map<index2d, float> MBTR::k2GeomInverseDistance(const vector<index2d> &indexList, const vector<vector<float> > &distances)
 {
-    map<index2d, float> valueMap = this->k2GeomDistance(indexList);
+    map<index2d, float> valueMap = this->k2GeomDistance(indexList, distances);
     for(auto& item : valueMap) {
         item.second = 1/item.second;
     }
     return valueMap;
 }
 
-map<index2d, float> MBTR::k2GeomDistance(const vector<index2d> &indexList)
+map<index2d, float> MBTR::k2GeomDistance(const vector<index2d> &indexList, const vector<vector<float> > &distances)
 {
-    vector<vector<float> > distMatrix = this->getDistanceMatrix();
-
     map<index2d,float> valueMap;
     for (const index2d& index : indexList) {
-        int i = index.i;
-        int j = index.j;
+        int i = get<0>(index);
+        int j = get<1>(index);
 
-        float dist = distMatrix[i][j];
+        float dist = distances[i][j];
         valueMap[index] = dist;
     }
 
     return valueMap;
 }
 
-map<index3d, float> MBTR::k3GeomCosine(const vector<index3d> &indexList)
+map<index3d, float> MBTR::k3GeomCosine(const vector<index3d> &indexList, const vector<vector<float> > &distances)
 {
-    vector<vector<float> > distMatrix = this->getDistanceMatrix();
-    vector<vector<vector<float> > > dispTensor = this->getDisplacementTensor();
-
     map<index3d,float> valueMap;
     for (const index3d& index : indexList) {
-        int i = index.i;
-        int j = index.j;
-        int k = index.k;
-
-        vector<float> a = dispTensor[i][j];
-        vector<float> b = dispTensor[k][j];
-        float dotProd = inner_product(a.begin(), a.end(), b.begin(), 0.0);
-        float cosine = dotProd / (distMatrix[i][j]*distMatrix[k][j]);
+        int i = get<0>(index);
+        int j = get<1>(index);
+        int k = get<2>(index);
+        float r_ji = distances[j][i];
+        float r_ik = distances[i][k];
+        float r_jk = distances[j][k];
+        float r_ji_square = r_ji*r_ji;
+        float r_ik_square = r_ik*r_ik;
+        float r_jk_square = r_jk*r_jk;
+        float cosine = 0.5/(r_jk*r_ji) * (r_ji_square+r_jk_square-r_ik_square);
 
         // Due to numerical reasons the cosine might be slighlty under -1 or
         // above 1 degrees. E.g. acos is not defined then so we clip the values
@@ -265,9 +287,9 @@ map<index3d, float> MBTR::k3GeomCosine(const vector<index3d> &indexList)
     return valueMap;
 }
 
-map<index3d, float> MBTR::k3GeomAngle(const vector<index3d> &indexList)
+map<index3d, float> MBTR::k3GeomAngle(const vector<index3d> &indexList, const vector<vector<float> > &distances)
 {
-    map<index3d, float> valueMap = this->k3GeomCosine(indexList);
+    map<index3d, float> valueMap = this->k3GeomCosine(indexList, distances);
     for(auto& item : valueMap) {
         item.second = acos(item.second)*180.0/PI;
     }
@@ -307,16 +329,15 @@ map<index3d, float> MBTR::k3WeightUnity(const vector<index3d> &indexList)
     return valueMap;
 }
 
-map<index2d, float> MBTR::k2WeightExponential(const vector<index2d> &indexList, float scale, float cutoff)
+map<index2d, float> MBTR::k2WeightExponential(const vector<index2d> &indexList, float scale, float cutoff, const vector<vector<float> > &distances)
 {
-    vector<vector<float> > distMatrix = this->getDistanceMatrix();
     map<index2d, float> valueMap;
 
     for (const index2d& index : indexList) {
-        int i = index.i;
-        int j = index.j;
+        int i = get<0>(index);
+        int j = get<1>(index);
 
-        float dist = distMatrix[i][j];
+        float dist = distances[i][j];
         float expValue = exp(-scale*dist);
         if (expValue >= cutoff) {
             valueMap[index] = expValue;
@@ -326,19 +347,18 @@ map<index2d, float> MBTR::k2WeightExponential(const vector<index2d> &indexList, 
     return valueMap;
 }
 
-map<index3d, float> MBTR::k3WeightExponential(const vector<index3d> &indexList, float scale, float cutoff)
+map<index3d, float> MBTR::k3WeightExponential(const vector<index3d> &indexList, float scale, float cutoff, const vector<vector<float> > &distances)
 {
-    vector<vector<float> > distMatrix = this->getDistanceMatrix();
     map<index3d, float> valueMap;
 
     for (const index3d& index : indexList) {
-        int i = index.i;
-        int j = index.j;
-        int k = index.k;
+        int i = get<0>(index);
+        int j = get<1>(index);
+        int k = get<2>(index);
 
-        float dist1 = distMatrix[i][j];
-        float dist2 = distMatrix[j][k];
-        float dist3 = distMatrix[k][i];
+        float dist1 = distances[i][j];
+        float dist2 = distances[j][k];
+        float dist3 = distances[k][i];
         float distTotal = dist1 + dist2 + dist3;
         float expValue = exp(-scale*distTotal);
         if (expValue >= cutoff) {
@@ -378,7 +398,7 @@ pair<map<index1d, vector<float> >, map<index1d,vector<float> > > MBTR::getK1Geom
 
         // Save the geometry and distances to the maps
         for (index1d& index : indexList) {
-            int i = index.i;
+            int i = get<0>(index);
 
             // By default C++ map will return a default constructed float when
             // if the key is not found with the []-operator. Instead we
@@ -395,7 +415,7 @@ pair<map<index1d, vector<float> >, map<index1d,vector<float> > > MBTR::getK1Geom
             int i_index = this->atomicNumberToIndexMap[i_elem];
 
             // Save information in the part where j_index >= i_index
-            index1d indexKey = {i_index};
+            index1d indexKey (i_index);
 
             // Save the values
             geomMap[indexKey].push_back(geomValue);
@@ -408,12 +428,12 @@ pair<map<index1d, vector<float> >, map<index1d,vector<float> > > MBTR::getK1Geom
     return this->k1Map;
 }
 
-pair<map<index2d, vector<float> >, map<index2d,vector<float> > > MBTR::getK2GeomsAndWeights(string geomFunc, string weightFunc, map<string, float> parameters)
+pair<map<index2d, vector<float> >, map<index2d,vector<float> > > MBTR::getK2GeomsAndWeights(const vector<vector<float> > &distances, const vector<vector<int> > &neighbours, string geomFunc, string weightFunc, map<string, float> parameters)
 {
     // Use cached value if possible
     if (!this->k2IndicesInitialized) {
 
-        vector<index2d> indexList = this->getk2Indices();
+        vector<index2d> indexList = this->getk2Indices(neighbours);
 
         // Initialize the maps
         map<index2d, vector<float> > geomMap;
@@ -422,9 +442,9 @@ pair<map<index2d, vector<float> >, map<index2d,vector<float> > > MBTR::getK2Geom
         // Calculate all geometry values
         map<index2d, float> geomValues;
         if (geomFunc == "inverse_distance") {
-            geomValues = this->k2GeomInverseDistance(indexList);
+            geomValues = this->k2GeomInverseDistance(indexList, distances);
         } else if (geomFunc == "distance") {
-            geomValues = this->k2GeomDistance(indexList);
+            geomValues = this->k2GeomDistance(indexList, distances);
         } else {
             throw invalid_argument("Invalid geometry function.");
         }
@@ -434,7 +454,7 @@ pair<map<index2d, vector<float> >, map<index2d,vector<float> > > MBTR::getK2Geom
         if (weightFunc == "exponential" || weightFunc == "exp") {
             float scale = parameters["scale"];
             float cutoff = parameters["cutoff"];
-            weightValues = this->k2WeightExponential(indexList, scale, cutoff);
+            weightValues = this->k2WeightExponential(indexList, scale, cutoff, distances);
         } else if (weightFunc == "unity") {
             weightValues = this->k2WeightUnity(indexList);
         } else {
@@ -443,8 +463,8 @@ pair<map<index2d, vector<float> >, map<index2d,vector<float> > > MBTR::getK2Geom
 
         // Save the geometry and distances to the maps
         for (index2d& index : indexList) {
-            int i = index.i;
-            int j = index.j;
+            int i = get<0>(index);
+            int j = get<1>(index);
 
             // By default C++ map will return a default constructed float when
             // if the key is not found with the []-operator. Instead we
@@ -471,12 +491,6 @@ pair<map<index2d, vector<float> >, map<index2d,vector<float> > > MBTR::getK2Geom
                     weightValue /= 2;
                 }
             }
-            //if (!this->isLocal) {
-                //if (!((i < this->interactionLimit) && (j < this->interactionLimit))) {
-                    //weightValue /= 2;
-                //}
-            //}
-
 
             // Get the index of the present elements in the final vector
             int i_elem = this->atomicNumbers[i];
@@ -487,9 +501,9 @@ pair<map<index2d, vector<float> >, map<index2d,vector<float> > > MBTR::getK2Geom
             // Save information in the part where j_index >= i_index
             index2d indexKey;
             if (j_index < i_index) {
-                indexKey = {j_index, i_index};
+                indexKey = index2d(j_index, i_index);
             } else {
-                indexKey = {i_index, j_index};
+                indexKey = index2d(i_index, j_index);
             }
 
             // Save the values
@@ -503,12 +517,12 @@ pair<map<index2d, vector<float> >, map<index2d,vector<float> > > MBTR::getK2Geom
     return this->k2Map;
 }
 
-pair<map<index3d, vector<float> >, map<index3d,vector<float> > > MBTR::getK3GeomsAndWeights(string geomFunc, string weightFunc, map<string, float> parameters)
+pair<map<index3d, vector<float> >, map<index3d,vector<float> > > MBTR::getK3GeomsAndWeights(const vector<vector<float> > &distances, const vector<vector<int> > &neighbours, string geomFunc, string weightFunc, map<string, float> parameters)
 {
     // Use cached value if possible
     if (!this->k3IndicesInitialized) {
 
-        vector<index3d> indexList = this->getk3Indices();
+        vector<index3d> indexList = this->getk3Indices(neighbours);
 
         // Initialize the maps
         map<index3d, vector<float> > geomMap;
@@ -517,9 +531,9 @@ pair<map<index3d, vector<float> >, map<index3d,vector<float> > > MBTR::getK3Geom
         // Calculate all geometry values
         map<index3d, float> geomValues;
         if (geomFunc == "cosine") {
-            geomValues = this->k3GeomCosine(indexList);
+            geomValues = this->k3GeomCosine(indexList, distances);
         } else if (geomFunc == "angle") {
-            geomValues = this->k3GeomAngle(indexList);
+            geomValues = this->k3GeomAngle(indexList, distances);
         } else {
             throw invalid_argument("Invalid geometry function.");
         }
@@ -529,7 +543,7 @@ pair<map<index3d, vector<float> >, map<index3d,vector<float> > > MBTR::getK3Geom
         if (weightFunc == "exponential" || weightFunc == "exp") {
             float scale = parameters["scale"];
             float cutoff = parameters["cutoff"];
-            weightValues = this->k3WeightExponential(indexList, scale, cutoff);
+            weightValues = this->k3WeightExponential(indexList, scale, cutoff, distances);
         } else if (weightFunc == "unity") {
             weightValues = this->k3WeightUnity(indexList);
         } else {
@@ -538,9 +552,9 @@ pair<map<index3d, vector<float> >, map<index3d,vector<float> > > MBTR::getK3Geom
 
         // Save the geometry and distances to the maps
         for (index3d& index : indexList) {
-            int i = index.i;
-            int j = index.j;
-            int k = index.k;
+            int i = get<0>(index);
+            int j = get<1>(index);
+            int k = get<2>(index);
 
             // By default C++ map will return a default constructed float when
             // if the key is not found with the []-operator. Instead we
@@ -590,9 +604,9 @@ pair<map<index3d, vector<float> >, map<index3d,vector<float> > > MBTR::getK3Geom
             // Save information in the part where k_index >= i_index
             index3d indexKey;
             if (k_index < i_index) {
-                indexKey = {k_index, j_index, i_index};
+                indexKey = index3d(k_index, j_index, i_index);
             } else {
-                indexKey = {i_index, j_index, k_index};
+                indexKey = index3d(i_index, j_index, k_index);
             }
 
             // Save the values
@@ -617,7 +631,7 @@ pair<map<string,vector<float> >, map<string,vector<float> > > MBTR::getK1GeomsAn
 
     for (auto const& x : geomValues) {
         stringstream ss;
-        ss << x.first.i;
+        ss << get<0>(x.first);
         string stringKey = ss.str();
         cythonGeom[stringKey] = x.second;
         cythonWeight[stringKey] = weightValues[x.first];
@@ -625,9 +639,9 @@ pair<map<string,vector<float> >, map<string,vector<float> > > MBTR::getK1GeomsAn
     return make_pair(cythonGeom, cythonWeight);
 }
 
-pair<map<string,vector<float> >, map<string,vector<float> > > MBTR::getK2GeomsAndWeightsCython(string geomFunc, string weightFunc, map<string, float> parameters)
+pair<map<string,vector<float> >, map<string,vector<float> > > MBTR::getK2GeomsAndWeightsCython(const vector<vector<float> > &distances, const vector<vector<int> > &neighbours, string geomFunc, string weightFunc, map<string, float> parameters)
 {
-    pair<map<index2d,vector<float> >, map<index2d,vector<float> > > cMap = this->getK2GeomsAndWeights(geomFunc, weightFunc, parameters);
+    pair<map<index2d,vector<float> >, map<index2d,vector<float> > > cMap = this->getK2GeomsAndWeights(distances, neighbours, geomFunc, weightFunc, parameters);
     map<index2d, vector<float> > geomValues = cMap.first;
     map<index2d, vector<float> > weightValues = cMap.second;
 
@@ -636,9 +650,9 @@ pair<map<string,vector<float> >, map<string,vector<float> > > MBTR::getK2GeomsAn
 
     for (auto const& x : geomValues) {
         stringstream ss;
-        ss << x.first.i;
+        ss << get<0>(x.first);
         ss << ",";
-        ss << x.first.j;
+        ss << get<1>(x.first);
         string stringKey = ss.str();
         cythonGeom[stringKey] = x.second;
         cythonWeight[stringKey] = weightValues[x.first];
@@ -646,9 +660,9 @@ pair<map<string,vector<float> >, map<string,vector<float> > > MBTR::getK2GeomsAn
     return make_pair(cythonGeom, cythonWeight);
 }
 
-pair<map<string,vector<float> >, map<string,vector<float> > > MBTR::getK3GeomsAndWeightsCython(string geomFunc, string weightFunc, map<string, float> parameters)
+pair<map<string,vector<float> >, map<string,vector<float> > > MBTR::getK3GeomsAndWeightsCython(const vector<vector<float> > &distances, const vector<vector<int> > &neighbours, string geomFunc, string weightFunc, map<string, float> parameters)
 {
-    pair<map<index3d,vector<float> >, map<index3d,vector<float> > > cMap = this->getK3GeomsAndWeights(geomFunc, weightFunc, parameters);
+    pair<map<index3d,vector<float> >, map<index3d,vector<float> > > cMap = this->getK3GeomsAndWeights(distances, neighbours, geomFunc, weightFunc, parameters);
     map<index3d, vector<float> > geomValues = cMap.first;
     map<index3d, vector<float> > weightValues = cMap.second;
 
@@ -657,11 +671,11 @@ pair<map<string,vector<float> >, map<string,vector<float> > > MBTR::getK3GeomsAn
 
     for (auto const& x : geomValues) {
         stringstream ss;
-        ss << x.first.i;
+        ss << get<0>(x.first);
         ss << ",";
-        ss << x.first.j;
+        ss << get<1>(x.first);
         ss << ",";
-        ss << x.first.k;
+        ss << get<2>(x.first);
         string stringKey = ss.str();
         cythonGeom[stringKey] = x.second;
         cythonWeight[stringKey] = weightValues[x.first];

@@ -131,6 +131,36 @@ H = Atoms(
 
 class MBTRTests(TestBaseClass, unittest.TestCase):
 # class MBTRTests(unittest.TestCase):
+
+    # def dict_comparison(self, first, second):
+        # """Used to compare values in two dictionaries.
+        # """
+        # n_first = len(first)
+        # n_second = len(second)
+
+        # if n_first != n_second:
+            # raise ValueError(
+                # "The dictionaries do not have the same number of elements."
+            # )
+
+        # first_keys = set(first.keys())
+        # second_keys = set(second.keys())
+        # if first_keys != second_keys:
+            # raise ValueError(
+                # "The dictionaries do not have the same keys."
+            # )
+
+        # for key in first_keys:
+            # assumed_elem = second[key]
+            # true_elem = first[key]
+
+            # # Sort the lists first to perform comparison
+            # assumed_elem.sort()
+            # true_elem.sort()
+            # for i_elem, val_assumed in enumerate(assumed_elem):
+                # val_true = true_elem[i_elem]
+                # self.assertAlmostEqual(val_assumed, val_true, places=4)
+
     def test_constructor(self):
         """Tests different valid and invalid constructor values.
         """
