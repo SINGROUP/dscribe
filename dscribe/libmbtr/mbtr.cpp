@@ -31,83 +31,6 @@ MBTR::MBTR(vector<vector<float> > positions, vector<int> atomicNumbers, map<int,
 {
 }
 
-//vector<vector<vector<float> > > MBTR::getDisplacementTensor()
-//{
-    //// Use cached value if possible
-    //if (!this->displacementTensorInitialized) {
-        //int nAtoms = this->atomicNumbers.size();
-
-        //// Initialize tensor
-        //vector<vector<vector<float> > > tensor(nAtoms, vector<vector<float> >(nAtoms, vector<float>(3)));
-
-        //// Calculate the distance between all pairs and store in the tensor
-        //for (int i=0; i < nAtoms; ++i) {
-            //for (int j=0; j < nAtoms; ++j) {
-
-                //// Due to symmetry only upper triangular part is processed.
-                //if (i <= j) {
-                    //continue;
-                //}
-
-                //// Calculate distance between the two atoms, store in tensor
-                //vector<float>& iPos = this->positions[i];
-                //vector<float>& jPos = this->positions[j];
-                //vector<float> diff(3);
-                //vector<float> negDiff(3);
-
-                //for (int k=0; k < 3; ++k) {
-                    //float iDiff = jPos[k] - iPos[k];
-                    //diff[k] = iDiff;
-                    //negDiff[k] = -iDiff;
-                //}
-
-                //tensor[i][j] = diff;
-                //tensor[j][i] = negDiff;
-            //}
-        //}
-        //this->displacementTensor = tensor;
-        //this->displacementTensorInitialized = true;
-    //}
-    //return this->displacementTensor;
-//}
-//vector<vector<float> > MBTR::getDistanceMatrix()
-//{
-    //// Use cached value if possible
-    //if (!this->distanceMatrixInitialized) {
-        //int nAtoms = this->atomicNumbers.size();
-
-        //// Initialize matrix
-        //vector<vector<float> > distMatrix(nAtoms, vector<float>(nAtoms));
-
-        //// Displacement tensor
-        //vector<vector<vector<float> > > tensor = this->getDisplacementTensor();
-
-        //// Calculate distances
-        //for (int i=0; i < nAtoms; ++i) {
-            //for (int j=0; j < nAtoms; ++j) {
-
-                //// Due to symmetry only upper triangular part is processed.
-                //if (i <= j) {
-                    //continue;
-                //}
-
-                //float norm = 0;
-                //vector<float>& iPos = tensor[i][j];
-                //for (int k=0; k < 3; ++k) {
-                    //norm += pow(iPos[k], 2.0);
-                //}
-                //norm = sqrt(norm);
-                //distMatrix[i][j] = norm;
-                //distMatrix[j][i] = norm;
-            //}
-        //}
-        //this->distanceMatrix = distMatrix;
-        //this->distanceMatrixInitialized = true;
-    //}
-
-    //return this->distanceMatrix;
-//}
-
 vector<index1d> MBTR::getk1Indices()
 {
     // Use cached value if possible
@@ -119,10 +42,9 @@ vector<index1d> MBTR::getk1Indices()
         vector<index1d> indexList;
 
         for (int i=0; i < nAtoms; ++i) {
-            // Only consider triplets that have one atom in the original
-            // cell
+            // Only consider atoms within the original cell
             if (i < this->interactionLimit) {
-                index1d key (i);
+                index1d key(i);
                 indexList.push_back(key);
             }
         }
@@ -153,7 +75,7 @@ vector<index2d> MBTR::getk2Indices(const vector<vector<int> > &neighbours)
                     // Only consider triplets that have one atom in the original
                     // cell
                     if (i < this->interactionLimit || j < this->interactionLimit) {
-                        index2d key (i, j);
+                        index2d key(i, j);
                         indexList.push_back(key);
                     }
                 }
@@ -192,33 +114,13 @@ vector<index3d> MBTR::getk3Indices(const vector<vector<int> > &neighbours)
                             // The angles are symmetric: ijk = kji. The value is
                             // calculated only for the triplet where k > i.
                             if (k > i) {
-                                index3d key (i, j, k);
+                                index3d key(i, j, k);
                                 indexList.push_back(key);
                             }
                         }
                     }
                 }
             }
-            //for (int j=0; j < nAtoms; ++j) {
-                //for (int k=0; k < nAtoms; ++k) {
-
-                    //// Only consider triplets that have one atom in the original
-                    //// cell
-                    //if (i < this->interactionLimit || j < this->interactionLimit || k < this->interactionLimit) {
-                        //// Calculate angle for all index permutations from choosing
-                        //// three out of nAtoms. The same atom cannot be present twice
-                        //// in the permutation.
-                        //if (j != i && k != j && k != i) {
-                            //// The angles are symmetric: ijk = kji. The value is
-                            //// calculated only for the triplet where k > i.
-                            //if (k > i) {
-                                //index3d key = {i, j, k};
-                                //indexList.push_back(key);
-                            //}
-                        //}
-                    //}
-                //}
-            //}
         }
         this->k3Indices = indexList;
         this->k3IndicesInitialized = true;

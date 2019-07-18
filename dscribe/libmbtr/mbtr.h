@@ -9,57 +9,6 @@ typedef tuple<int, int> index2d;
 typedef tuple<int, int, int> index3d;
 
 /**
- * Represents a single integer index: i.
- */
-//struct index1d {
-    //int i;
-
-    //// These comparison operators are needed in order to use this struct as map
-    //// key
-    //bool operator==(const index1d &o) const {
-        //return (i == o.i);
-    //}
-    //bool operator<(const index1d &o) const {
-        //return i < o.i;
-    //}
-//};
-
-/**
- * Represents a combination of two integer indices: i and j.
- */
-//struct index2d {
-    //int i;
-    //int j;
-
-    //// These comparison operators are needed in order to use this struct as map
-    //// key
-    //bool operator==(const index2d &o) const {
-        //return (i == o.i) && (j == o.j);
-    //}
-    //bool operator<(const index2d &o) const {
-        //return (i < o.i) || (i == o.i && j < o.j);
-    //}
-//};
-
-/**
- * Represents a combination of three integer indices: i, j and k.
- */
-//struct index3d {
-    //int i;
-    //int j;
-    //int k;
-
-    //// These comparison operators are needed in order to use this struct as map
-    //// key
-    //bool operator==(const index3d &o) const {
-        //return (i == o.i) && (j == o.j) & (k == o.k);
-    //}
-    //bool operator<(const index3d &o) const {
-        //return (i < o.i) || (i == o.i && j < o.j) || (i == o.i && j == o.j && k < o.k);
-    //}
-//};
-
-/**
  * Implementation for the performance-critical parts of MBTR.
  */
 class MBTR {

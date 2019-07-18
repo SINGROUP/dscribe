@@ -15,12 +15,6 @@ cdef class MBTRWrapper:
     def __dealloc__(self):
         del self.thisptr
 
-    # def get_displacement_tensor(self):
-        # return np.array(self.thisptr.getDisplacementTensor(), dtype=np.float32)
-
-    # def get_distance_matrix(self):
-        # return np.array(self.thisptr.getDistanceMatrix(), dtype=np.float32)
-
     def get_k1_geoms_and_weights(self, geom_func, weight_func, parameters):
         """Cython cannot directly provide the keys as tuples, so we have to do
         the conversion here on the python side.
