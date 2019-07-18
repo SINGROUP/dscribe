@@ -130,36 +130,6 @@ H = Atoms(
 
 
 class MBTRTests(TestBaseClass, unittest.TestCase):
-# class MBTRTests(unittest.TestCase):
-
-    # def dict_comparison(self, first, second):
-        # """Used to compare values in two dictionaries.
-        # """
-        # n_first = len(first)
-        # n_second = len(second)
-
-        # if n_first != n_second:
-            # raise ValueError(
-                # "The dictionaries do not have the same number of elements."
-            # )
-
-        # first_keys = set(first.keys())
-        # second_keys = set(second.keys())
-        # if first_keys != second_keys:
-            # raise ValueError(
-                # "The dictionaries do not have the same keys."
-            # )
-
-        # for key in first_keys:
-            # assumed_elem = second[key]
-            # true_elem = first[key]
-
-            # # Sort the lists first to perform comparison
-            # assumed_elem.sort()
-            # true_elem.sort()
-            # for i_elem, val_assumed in enumerate(assumed_elem):
-                # val_true = true_elem[i_elem]
-                # self.assertAlmostEqual(val_assumed, val_true, places=4)
 
     def test_constructor(self):
         """Tests different valid and invalid constructor values.
@@ -1141,37 +1111,37 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         # Permutational
         self.assertTrue(self.is_permutation_symmetric(create))
 
-    # def test_unit_cells(self):
-        # """Tests that arbitrary unit cells are accepted.
-        # """
-        # desc = copy.deepcopy(default_desc_k1_k2_k3)
-        # desc.periodic = False
-        # desc.species = ["H", "O"]
-        # molecule = H2O.copy()
+    def test_unit_cells(self):
+        """Tests that arbitrary unit cells are accepted.
+        """
+        desc = copy.deepcopy(default_desc_k1_k2_k3)
+        desc.periodic = False
+        desc.species = ["H", "O"]
+        molecule = H2O.copy()
 
-        # # No cell needed for finite systems
-        # molecule.set_cell([
-            # [0.0, 0.0, 0.0],
-            # [0.0, 0.0, 0.0],
-            # [0.0, 0.0, 0.0]
-        # ])
-        # nocell = desc.create(molecule)
+        # No cell needed for finite systems
+        molecule.set_cell([
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0]
+        ])
+        nocell = desc.create(molecule)
 
-        # # Different periodic cells
-        # desc.periodic = True
-        # molecule.set_cell([
-            # [2.0, 0.0, 0.0],
-            # [0.0, 2.0, 0.0],
-            # [0.0, 0.0, 2.0]
-        # ])
-        # cubic_cell = desc.create(molecule)
+        # Different periodic cells
+        desc.periodic = True
+        molecule.set_cell([
+            [2.0, 0.0, 0.0],
+            [0.0, 2.0, 0.0],
+            [0.0, 0.0, 2.0]
+        ])
+        cubic_cell = desc.create(molecule)
 
-        # molecule.set_cell([
-            # [0.0, 2.0, 2.0],
-            # [2.0, 0.0, 2.0],
-            # [2.0, 2.0, 0.0]
-        # ])
-        # triclinic_smallcell = desc.create(molecule)
+        molecule.set_cell([
+            [0.0, 2.0, 2.0],
+            [2.0, 0.0, 2.0],
+            [2.0, 2.0, 0.0]
+        ])
+        triclinic_smallcell = desc.create(molecule)
 
     def test_periodic_images(self):
         """Tests that periodic images are handled correctly.
