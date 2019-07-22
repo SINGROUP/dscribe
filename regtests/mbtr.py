@@ -132,7 +132,6 @@ H = Atoms(
 # class MBTRTests(TestBaseClass, unittest.TestCase):
 class MBTRTests(unittest.TestCase):
 
-
     # def test_constructor(self):
         # """Tests different valid and invalid constructor values.
         # """
@@ -624,46 +623,49 @@ class MBTRTests(unittest.TestCase):
         # assumed[1, :] = desc.create(samples[1]).toarray()
         # self.assertTrue(np.allclose(output, assumed))
 
-    # def test_periodic_supercell_similarity(self):
-        # """Tests that the output spectrum of various supercells of the same
-        # crystal is identical after it is normalized.
-        # """
-        # decay = 1
-        # desc = MBTR(
-            # species=["H"],
-            # periodic=True,
-            # k1={
-                # "geometry": {"function": "atomic_number"},
-                # "grid": {"min": 0, "max": 2, "sigma": 0.1, "n": 100},
-            # },
-            # k2={
-                # "geometry": {"function": "inverse_distance"},
-                # "grid": {"min": 0, "max": 1.0, "sigma": 0.02, "n": 200},
-                # "weighting": {"function": "exponential", "scale": decay, "cutoff": 1e-3},
-            # },
-            # k3={
-                # "geometry": {"function": "cosine"},
-                # "grid": {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 200},
-                # "weighting": {"function": "exponential", "scale": decay, "cutoff": 1e-3},
-            # },
-            # flatten=True,
-            # sparse=False,
-            # normalization="l2_each",
-        # )
+    def test_periodic_supercell_similarity(self):
+        """Tests that the output spectrum of various supercells of the same
+        crystal is identical after it is normalized.
+        """
+        decay = 1
+        desc = MBTR(
+            species=["H"],
+            periodic=True,
+            k1={
+                "geometry": {"function": "atomic_number"},
+                "grid": {"min": 0, "max": 2, "sigma": 0.1, "n": 100},
+            },
+            k2={
+                "geometry": {"function": "inverse_distance"},
+                "grid": {"min": 0, "max": 1.0, "sigma": 0.02, "n": 200},
+                "weighting": {"function": "exponential", "scale": decay, "cutoff": 1e-3},
+            },
+            k3={
+                "geometry": {"function": "cosine"},
+                "grid": {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 200},
+                "weighting": {"function": "exponential", "scale": decay, "cutoff": 1e-3},
+            },
+            flatten=True,
+            sparse=False,
+            normalization="l2_each",
+        )
 
-        # # Create various supercells for the FCC structure
-        # a1 = bulk('H', 'fcc', a=2.0)                     # Primitive
-        # a2 = a1*[2, 2, 2]                                # Supercell
-        # a3 = bulk('H', 'fcc', a=2.0, orthorhombic=True)  # Orthorhombic
-        # a4 = bulk('H', 'fcc', a=2.0, cubic=True)         # Conventional cubic
+        # Create various supercells for the FCC structure
+        a1 = bulk('H', 'fcc', a=2.0)                     # Primitive
+        a2 = a1*[2, 2, 2]                                # Supercell
+        a3 = bulk('H', 'fcc', a=2.0, orthorhombic=True)  # Orthorhombic
+        a4 = bulk('H', 'fcc', a=2.0, cubic=True)         # Conventional cubic
 
-        # output = desc.create([a1, a2, a3, a4])
+        output = desc.create([a1, a2, a3, a4])
 
-        # # Test for equality
-        # self.assertTrue(np.allclose(output[0, :], output[0, :]))
-        # self.assertTrue(np.allclose(output[0, :], output[1, :]))
-        # self.assertTrue(np.allclose(output[0, :], output[2, :]))
-        # self.assertTrue(np.allclose(output[0, :], output[3, :]))
+        mpl.plot(output.T)
+        mpl.show()
+
+        # Test for equality
+        self.assertTrue(np.allclose(output[0, :], output[0, :]))
+        self.assertTrue(np.allclose(output[0, :], output[1, :]))
+        self.assertTrue(np.allclose(output[0, :], output[2, :]))
+        self.assertTrue(np.allclose(output[0, :], output[3, :]))
 
     # def test_normalization(self):
         # """Tests that each normalization method works correctly.
@@ -807,9 +809,9 @@ class MBTRTests(unittest.TestCase):
         features = desc.create(H2O)
         grid = desc.k2["grid"]
         x = np.linspace(grid["min"], grid["max"], grid["n"])
-        mpl.plot(x, features[0, desc.get_location(("H", "H"))])
-        mpl.plot(x, features[0, desc.get_location(("H", "O"))])
-        mpl.show()
+        # mpl.plot(x, features[0, desc.get_location(("H", "H"))])
+        # mpl.plot(x, features[0, desc.get_location(("H", "O"))])
+        # mpl.show()
         # weights = desc._k2_weights
         # geoms = desc._k2_geoms
 

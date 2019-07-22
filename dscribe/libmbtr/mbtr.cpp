@@ -78,7 +78,7 @@ map<string, vector<double> > MBTR::getK1(string geomFunc, string weightFunc, map
     return k1Map;
 }
 
-map<string, vector<double> > MBTR::getK2(const vector<vector<float> > &distances, const vector<vector<int> > &neighbours, string geomFunc, string weightFunc, map<string, float> parameters, float min, float max, float sigma, float n)
+map<string, vector<double> > MBTR::getK2(const vector<vector<double> > &distances, const vector<vector<int> > &neighbours, string geomFunc, string weightFunc, map<string, float> parameters, float min, float max, float sigma, float n)
 {
     map<string, vector<double> > k2Map;
     int nAtoms = this->atomicNumbers.size();
@@ -176,7 +176,7 @@ map<string, vector<double> > MBTR::getK2(const vector<vector<float> > &distances
     return k2Map;
 }
 
-map<string, vector<double> > MBTR::getK3(const vector<vector<float> > &distances, const vector<vector<int> > &neighbours, string geomFunc, string weightFunc, map<string, float> parameters, float min, float max, float sigma, float n)
+map<string, vector<double> > MBTR::getK3(const vector<vector<double> > &distances, const vector<vector<int> > &neighbours, string geomFunc, string weightFunc, map<string, float> parameters, float min, float max, float sigma, float n)
 {
     map<string, vector<double> > k3Map;
     int nAtoms = this->atomicNumbers.size();
@@ -296,7 +296,7 @@ map<string, vector<double> > MBTR::getK3(const vector<vector<float> > &distances
     return k3Map;
 }
 
-inline vector<double> MBTR::gaussian(const float &center, const float &sigma, const float &weight, const float &min, const float &max, const float &n) {
+inline vector<double> MBTR::gaussian(const double &center, const double &sigma, const double &weight, const double &min, const double &max, const int &n) {
 
     // Calculate CDF
     double dx = (max-min)/(n-1);
@@ -304,7 +304,7 @@ inline vector<double> MBTR::gaussian(const float &center, const float &sigma, co
     double sigmasqrt2 = sigma*sqrt(2.0);
     double x = min-dx/2;
     for (auto &it : cdf) {
-        it = weight*1.0/2.0*(1.0 + erf(double((x-center)/sigmasqrt2)));
+        it = weight*1.0/2.0*(1.0 + erf((x-center)/sigmasqrt2));
         x += dx;
     }
 
@@ -427,25 +427,25 @@ inline float MBTR::k1WeightUnity(int &i)
     return 1;
 }
 
-inline float MBTR::k2GeomInverseDistance(int &i, const int &j, const vector<vector<float> > &distances)
+inline float MBTR::k2GeomInverseDistance(int &i, const int &j, const vector<vector<double> > &distances)
 {
     float dist = k2GeomDistance(i, j, distances);
     float invDist = 1/dist;
     return invDist;
 }
 
-inline float MBTR::k2GeomDistance(int &i, const int &j, const vector<vector<float> > &distances)
+inline float MBTR::k2GeomDistance(int &i, const int &j, const vector<vector<double> > &distances)
 {
     float dist = distances[i][j];
     return dist;
 }
 
-inline float MBTR::k2WeightUnity(int &i, const int &j, const vector<vector<float> > &distances)
+inline float MBTR::k2WeightUnity(int &i, const int &j, const vector<vector<double> > &distances)
 {
     return 1;
 }
 
-inline float MBTR::k2WeightExponential(int &i, const int &j, const vector<vector<float> > &distances, float &scale, float &cutoff)
+inline float MBTR::k2WeightExponential(int &i, const int &j, const vector<vector<double> > &distances, float &scale, float &cutoff)
 {
     float dist = distances[i][j];
     float expValue = exp(-scale*dist);
@@ -455,7 +455,7 @@ inline float MBTR::k2WeightExponential(int &i, const int &j, const vector<vector
     return expValue;
 }
 
-inline float MBTR::k3GeomCosine(int &i, const int &j, const int &k, const vector<vector<float> > &distances)
+inline float MBTR::k3GeomCosine(int &i, const int &j, const int &k, const vector<vector<double> > &distances)
 {
     float r_ji = distances[j][i];
     float r_ik = distances[i][k];
@@ -473,7 +473,7 @@ inline float MBTR::k3GeomCosine(int &i, const int &j, const int &k, const vector
     return cosine;
 }
 
-inline float MBTR::k3GeomAngle(int &i, const int &j, const int &k, const vector<vector<float> > &distances)
+inline float MBTR::k3GeomAngle(int &i, const int &j, const int &k, const vector<vector<double> > &distances)
 {
     float cosine = this->k3GeomCosine(i, j, k, distances);
     float angle = acos(cosine)*180.0/PI;
@@ -481,7 +481,7 @@ inline float MBTR::k3GeomAngle(int &i, const int &j, const int &k, const vector<
     return angle;
 }
 
-inline float MBTR::k3WeightExponential(int &i, const int &j, const int &k, const vector<vector<float> > &distances, float &scale, float &cutoff)
+inline float MBTR::k3WeightExponential(int &i, const int &j, const int &k, const vector<vector<double> > &distances, float &scale, float &cutoff)
 {
     float dist1 = distances[i][j];
     float dist2 = distances[j][k];
@@ -495,7 +495,7 @@ inline float MBTR::k3WeightExponential(int &i, const int &j, const int &k, const
     return expValue;
 }
 
-inline float MBTR::k3WeightUnity(int &i, const int &j, const int &k, const vector<vector<float> > &distances)
+inline float MBTR::k3WeightUnity(int &i, const int &j, const int &k, const vector<vector<double> > &distances)
 {
     return 1;
 }

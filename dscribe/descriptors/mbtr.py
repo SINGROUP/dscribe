@@ -954,6 +954,9 @@ class MBTR(Descriptor):
         # Determine the geometry function
         geom_func_name = self.k2["geometry"]["function"]
 
+        #=======================================================================
+        # Calculate with new version
+
         # If radial cutoff is finite, use it to calculate the sparse
         # distance matrix to reduce computational complexity from O(n^2) to
         # O(n log(n))
@@ -1008,6 +1011,9 @@ class MBTR(Descriptor):
                 k2[0, start:end] = gaussian_sum
             else:
                 k2[i, j, :] = gaussian_sum
+
+        #=======================================================================
+        # Calculate with old version
 
         return k2
 
@@ -1151,54 +1157,54 @@ class MBTR(Descriptor):
 
         # return k1
 
-    # def get_k2_convolution(self, grid):
-        # """Calculates the second order terms where the scalar mapping is the
-        # inverse distance between atoms.
+    def get_k2_convolution(self, grid):
+        """Calculates the second order terms where the scalar mapping is the
+        inverse distance between atoms.
 
-        # Args:
-            # grid (dict): The grid settings
+        Args:
+            grid (dict): The grid settings
 
-        # Returns:
-            # 1D ndarray: flattened K2 values.
-        # """
-        # start = grid["min"]
-        # stop = grid["max"]
-        # n = grid["n"]
-        # self._axis_k2 = np.linspace(start, stop, n)
+        Returns:
+            1D ndarray: flattened K2 values.
+        """
+        start = grid["min"]
+        stop = grid["max"]
+        n = grid["n"]
+        self._axis_k2 = np.linspace(start, stop, n)
 
-        # k2_geoms, k2_weights = self._k2_geoms, self._k2_weights
-        # n_elem = self.n_elements
+        k2_geoms, k2_weights = self._k2_geoms, self._k2_weights
+        n_elem = self.n_elements
 
-        # # Depending of flattening, use either a sparse matrix or a dense one.
-        # if self.flatten:
-            # k2 = lil_matrix(
-                # (1, int(n_elem*(n_elem+1)/2*n)), dtype=np.float32)
-        # else:
-            # k2 = np.zeros((self.n_elements, self.n_elements, n), dtype=np.float32)
+        # Depending of flattening, use either a sparse matrix or a dense one.
+        if self.flatten:
+            k2 = lil_matrix(
+                (1, int(n_elem*(n_elem+1)/2*n)), dtype=np.float32)
+        else:
+            k2 = np.zeros((self.n_elements, self.n_elements, n), dtype=np.float32)
 
-        # for key in k2_geoms.keys():
-            # i = key[0]
-            # j = key[1]
+        for key in k2_geoms.keys():
+            i = key[0]
+            j = key[1]
 
-            # # This is the index of the spectrum. It is given by enumerating the
-            # # elements of an upper triangular matrix from left to right and top
-            # # to bottom.
-            # m = int(j + i*n_elem - i*(i+1)/2)
+            # This is the index of the spectrum. It is given by enumerating the
+            # elements of an upper triangular matrix from left to right and top
+            # to bottom.
+            m = int(j + i*n_elem - i*(i+1)/2)
 
-            # geoms = np.array(k2_geoms[key])
-            # weights = np.array(k2_weights[key])
+            geoms = np.array(k2_geoms[key])
+            weights = np.array(k2_weights[key])
 
-            # # Broaden with a gaussian
-            # gaussian_sum = self.gaussian_sum(geoms, weights, grid)
+            # Broaden with a gaussian
+            gaussian_sum = self.gaussian_sum(geoms, weights, grid)
 
-            # if self.flatten:
-                # start = m*n
-                # end = (m + 1)*n
-                # k2[0, start:end] = gaussian_sum
-            # else:
-                # k2[i, j, :] = gaussian_sum
+            if self.flatten:
+                start = m*n
+                end = (m + 1)*n
+                k2[0, start:end] = gaussian_sum
+            else:
+                k2[i, j, :] = gaussian_sum
 
-        # return k2
+        return k2
 
     # def get_k3_convolution(self, grid):
         # """Calculates the third order terms where the scalar mapping is the
@@ -1252,48 +1258,48 @@ class MBTR(Descriptor):
 
         # return k3
 
-    # def gaussian_sum(self, centers, weights, settings):
-        # """Calculates a discrete version of a sum of Gaussian distributions.
+    def gaussian_sum(self, centers, weights, settings):
+        """Calculates a discrete version of a sum of Gaussian distributions.
 
-        # The calculation is done through the cumulative distribution function
-        # that is better at keeping the integral of the probability function
-        # constant with coarser grids.
+        The calculation is done through the cumulative distribution function
+        that is better at keeping the integral of the probability function
+        constant with coarser grids.
 
-        # The values are normalized by dividing with the maximum value of a
-        # gaussian with the given standard deviation.
+        The values are normalized by dividing with the maximum value of a
+        gaussian with the given standard deviation.
 
-        # Args:
-            # centers (1D np.ndarray): The means of the gaussians.
-            # weights (1D np.ndarray): The weights for the gaussians.
-            # settings (dict): The grid settings
+        Args:
+            centers (1D np.ndarray): The means of the gaussians.
+            weights (1D np.ndarray): The weights for the gaussians.
+            settings (dict): The grid settings
 
-        # Returns:
-            # Value of the gaussian sums on the given grid.
-        # """
-        # start = settings["min"]
-        # stop = settings["max"]
-        # sigma = settings["sigma"]
-        # n = settings["n"]
+        Returns:
+            Value of the gaussian sums on the given grid.
+        """
+        start = settings["min"]
+        stop = settings["max"]
+        sigma = settings["sigma"]
+        n = settings["n"]
 
-        # dx = (stop - start)/(n-1)
-        # x = np.linspace(start-dx/2, stop+dx/2, n+1)
+        dx = (stop - start)/(n-1)
+        x = np.linspace(start-dx/2, stop+dx/2, n+1)
 
-        # # One could calculate the full gaussian value with numpy using a single
-        # # call. The intermediate step before summing up may however be too big
-        # # to fit into memory. This is why the summation is done in a loop.
-        # f = np.zeros(n+1)
-        # pos = x[np.newaxis, :] - centers[:, np.newaxis]
-        # y = weights[:, np.newaxis]*1/2*(1 + erf(pos/(sigma*np.sqrt(2))))
-        # f = np.sum(y, axis=0)
+        # One could calculate the full gaussian value with numpy using a single
+        # call. The intermediate step before summing up may however be too big
+        # to fit into memory. This is why the summation is done in a loop.
+        f = np.zeros(n+1)
+        pos = x[np.newaxis, :] - centers[:, np.newaxis]
+        y = weights[:, np.newaxis]*1/2*(1 + erf(pos/(sigma*np.sqrt(2))))
+        f = np.sum(y, axis=0)
 
-        # if not self.normalize_gaussians:
-            # max_val = 1/(sigma*math.sqrt(2*math.pi))
-            # f /= max_val
+        if not self.normalize_gaussians:
+            max_val = 1/(sigma*math.sqrt(2*math.pi))
+            f /= max_val
 
-        # f_rolled = np.roll(f, -1)
-        # pdf = (f_rolled - f)[0:-1]/dx  # PDF is the derivative of CDF
+        f_rolled = np.roll(f, -1)
+        pdf = (f_rolled - f)[0:-1]/dx  # PDF is the derivative of CDF
 
-        # return pdf
+        return pdf
 
     # def k1_geoms_and_weights(self, system, cell_indices):
         # """Calculate the atom count for each element.
