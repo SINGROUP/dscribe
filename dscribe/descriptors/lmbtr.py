@@ -428,6 +428,7 @@ class LMBTR(MBTR):
                 desc = np.empty((n_pos), dtype='object')
             for i, i_system in enumerate(systems):
                 i_desc = super().create_single(i_system)
+                print(i_desc.shape)
                 desc[i] = i_desc
 
         return desc
@@ -634,11 +635,6 @@ class LMBTR(MBTR):
 
             n2 = self.k2["grid"]["n"]
             j = numbers[1]
-            # if i != "X":
-                # raise ValueError(
-                    # "Local MBTR does not contain k=2 terms without the central "
-                    # "species X."
-                # )
             m = j
             start = int(m*n2)
             end = int((m+1)*n2)
@@ -652,11 +648,6 @@ class LMBTR(MBTR):
             i = numbers[0]
             j = numbers[1]
             k = numbers[2]
-            # if i != "X" or j != "X":
-                # raise ValueError(
-                    # "Local MBTR does not contain k=3 terms without the central "
-                    # "species X."
-                # )
 
             # This is the index of the spectrum. It is given by enumerating the
             # elements of a three-dimensional array and only considering
@@ -676,70 +667,6 @@ class LMBTR(MBTR):
             end = int(offset+(m+1)*n3)
 
         return slice(start, end)
-
-        # Fix ordering
-        # if len(numbers) == 2:
-            # if numbers[0] > numbers[1]:
-                # numbers = reversed(numbers)
-        # if len(numbers) == 3:
-            # if numbers[0] > numbers[2]:
-                # numbers = reversed(numbers)
-
-        # loc = self._locations
-        # start, end = loc[tuple(numbers)]
-
-        # return slice(start, end)
-
-    # def calculate_locations(self):
-        # """Used to calculate the locations of species combinations in the
-        # flattened output.
-        # """
-        # k2updated = False
-        # k3updated = False
-        # if self.k2 is not None:
-            # k2updated = self.k2["grid"].nupdated
-        # if self.k3 is not None:
-            # k3updated = self.k3["grid"].nupdated
-
-        # if self.updated or k2updated or k3updated:
-            # n_elem = self.n_elements
-            # locations = {}
-            # locations_each = {}
-
-            # # k=2
-            # offset = 0
-            # if self.k2 is not None:
-                # n2 = self.k2["grid"]["n"]
-                # m = 0
-                # for i in range(n_elem):
-                    # start = m*n2
-                    # end = (m+1)*n2
-                    # locations_each[(0, i)] = start, end
-                    # locations[(0, i)] = start, end
-                    # m += 1
-                # offset = m*n2
-
-            # # k=3
-            # if self.k3 is not None:
-                # n3 = self.k3["grid"]["n"]
-                # m = 0
-                # for i in range(n_elem):
-                    # for j in range(n_elem):
-                        # for k in range(n_elem):
-                            # if k >= i and (i == 0 or j == 0 or k == 0):
-                                # start = m*n3
-                                # end = (m+1)*n3
-                                # locations_each[(i, j, k)] = start, end
-                                # locations[(i, j, k)] = offset+start, offset+end
-                                # m += 1
-
-            # self._locations = locations
-            # self._locations_each = locations_each
-            # self.updated = False
-            # if self.k2 is not None:
-                # self.k2["grid"].nupdated = False
-            # if self.k3 is not None:
-                # self.k3["grid"].nupdated = False
 
     @property
     def species(self):
