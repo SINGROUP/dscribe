@@ -132,496 +132,496 @@ H = Atoms(
 # class MBTRTests(TestBaseClass, unittest.TestCase):
 class MBTRTests(unittest.TestCase):
 
-    # def test_constructor(self):
-        # """Tests different valid and invalid constructor values.
-        # """
-        # # Cannot create a sparse and non-flattened output.
-        # with self.assertRaises(ValueError):
-            # MBTR(
-                # species=["H"],
-                # k1=default_k1,
-                # periodic=False,
-                # flatten=False,
-                # sparse=True,
-            # )
+    def test_constructor(self):
+        """Tests different valid and invalid constructor values.
+        """
+        # Cannot create a sparse and non-flattened output.
+        with self.assertRaises(ValueError):
+            MBTR(
+                species=["H"],
+                k1=default_k1,
+                periodic=False,
+                flatten=False,
+                sparse=True,
+            )
 
-        # # Weighting needs to be provided for periodic system and terms k>1
-        # with self.assertRaises(ValueError):
-            # MBTR(
-                # species=["H"],
-                # k2={"geometry": default_k2["geometry"],
-                    # "grid": default_k2["grid"]
-                # },
-                # periodic=True,
-            # )
-            # MBTR(
-                # species=["H"],
-                # k2={"geometry": default_k2["geometry"],
-                    # "grid": default_k2["grid"],
-                    # "weighting": {"function": "unity"}
-                # },
-                # periodic=True,
-            # )
+        # Weighting needs to be provided for periodic system and terms k>1
+        with self.assertRaises(ValueError):
+            MBTR(
+                species=["H"],
+                k2={"geometry": default_k2["geometry"],
+                    "grid": default_k2["grid"]
+                },
+                periodic=True,
+            )
+            MBTR(
+                species=["H"],
+                k2={"geometry": default_k2["geometry"],
+                    "grid": default_k2["grid"],
+                    "weighting": {"function": "unity"}
+                },
+                periodic=True,
+            )
 
-        # with self.assertRaises(ValueError):
-            # MBTR(
-                # species=["H"],
-                # k3={"geometry": default_k3["geometry"],
-                    # "grid": default_k3["grid"]},
-                # periodic=True,
-            # )
-            # MBTR(
-                # species=["H"],
-                # k3={"geometry": default_k3["geometry"],
-                    # "grid": default_k3["grid"],
-                    # "weighting": {"function": "unity"}},
-                # periodic=True,
-            # )
+        with self.assertRaises(ValueError):
+            MBTR(
+                species=["H"],
+                k3={"geometry": default_k3["geometry"],
+                    "grid": default_k3["grid"]},
+                periodic=True,
+            )
+            MBTR(
+                species=["H"],
+                k3={"geometry": default_k3["geometry"],
+                    "grid": default_k3["grid"],
+                    "weighting": {"function": "unity"}},
+                periodic=True,
+            )
 
-        # # Invalid weighting function
-        # with self.assertRaises(ValueError):
-            # MBTR(
-                # species=[1],
-                # k1={"geometry": default_k1["geometry"],
-                    # "grid": default_k1["grid"],
-                    # "weighting": {"function": "none"}
-                # },
-                # periodic=True
-            # )
+        # Invalid weighting function
+        with self.assertRaises(ValueError):
+            MBTR(
+                species=[1],
+                k1={"geometry": default_k1["geometry"],
+                    "grid": default_k1["grid"],
+                    "weighting": {"function": "none"}
+                },
+                periodic=True
+            )
 
-        # with self.assertRaises(ValueError):
-            # MBTR(
-                # species=[1],
-                # k2={"geometry": default_k2["geometry"],
-                    # "grid": default_k2["grid"],
-                    # "weighting": {"function": "none"}
-                # },
-                # periodic=True,
-            # )
-        # with self.assertRaises(ValueError):
-            # MBTR(
-                # species=[1],
-                # k3={"geometry": default_k3["geometry"],
-                    # "grid": default_k3["grid"],
-                    # "weighting": {"function": "none"}
-                # },
-                # periodic=True,
-            # )
+        with self.assertRaises(ValueError):
+            MBTR(
+                species=[1],
+                k2={"geometry": default_k2["geometry"],
+                    "grid": default_k2["grid"],
+                    "weighting": {"function": "none"}
+                },
+                periodic=True,
+            )
+        with self.assertRaises(ValueError):
+            MBTR(
+                species=[1],
+                k3={"geometry": default_k3["geometry"],
+                    "grid": default_k3["grid"],
+                    "weighting": {"function": "none"}
+                },
+                periodic=True,
+            )
 
-        # # Invalid geometry function
-        # with self.assertRaises(ValueError):
-            # MBTR(
-                # species=[1],
-                # k1={"geometry": {"function": "none"},
-                    # "grid": {"min": 0, "max": 1, "n": 10, "sigma": 0.1}
-                # },
-                # periodic=False,
-            # )
-        # with self.assertRaises(ValueError):
-            # MBTR(
-                # species=[1],
-                # k2={"geometry": {"function": "none"},
-                    # "grid": {"min": 0, "max": 1, "n": 10, "sigma": 0.1}
-                # },
-                # periodic=False,
-            # )
-        # with self.assertRaises(ValueError):
-            # MBTR(
-                # species=[1],
-                # k3={"geometry": {"function": "none"},
-                    # "grid": {"min": 0, "max": 1, "n": 10, "sigma": 0.1}
-                # },
-                # periodic=False,
-            # )
+        # Invalid geometry function
+        with self.assertRaises(ValueError):
+            MBTR(
+                species=[1],
+                k1={"geometry": {"function": "none"},
+                    "grid": {"min": 0, "max": 1, "n": 10, "sigma": 0.1}
+                },
+                periodic=False,
+            )
+        with self.assertRaises(ValueError):
+            MBTR(
+                species=[1],
+                k2={"geometry": {"function": "none"},
+                    "grid": {"min": 0, "max": 1, "n": 10, "sigma": 0.1}
+                },
+                periodic=False,
+            )
+        with self.assertRaises(ValueError):
+            MBTR(
+                species=[1],
+                k3={"geometry": {"function": "none"},
+                    "grid": {"min": 0, "max": 1, "n": 10, "sigma": 0.1}
+                },
+                periodic=False,
+            )
 
-        # # Missing cutoff
-        # with self.assertRaises(ValueError):
-            # setup = copy.deepcopy(default_k2)
-            # del setup["weighting"]["cutoff"]
-            # MBTR(
-                # species=[1],
-                # k2=setup,
-                # periodic=True,
-            # )
+        # Missing cutoff
+        with self.assertRaises(ValueError):
+            setup = copy.deepcopy(default_k2)
+            del setup["weighting"]["cutoff"]
+            MBTR(
+                species=[1],
+                k2=setup,
+                periodic=True,
+            )
 
-        # # Missing scale
-        # with self.assertRaises(ValueError):
-            # setup = copy.deepcopy(default_k2)
-            # del setup["weighting"]["scale"]
-            # MBTR(
-                # species=[1],
-                # k2=setup,
-                # periodic=True,
-            # )
+        # Missing scale
+        with self.assertRaises(ValueError):
+            setup = copy.deepcopy(default_k2)
+            del setup["weighting"]["scale"]
+            MBTR(
+                species=[1],
+                k2=setup,
+                periodic=True,
+            )
 
-    # def test_number_of_features(self):
-        # """Tests that the reported number of features is correct.
-        # """
-        # # K=1
-        # n = 100
-        # atomic_numbers = [1, 8]
-        # n_elem = len(atomic_numbers)
-        # mbtr = MBTR(
-            # species=atomic_numbers,
-            # k1={
-                # "geometry": {"function": "atomic_number"},
-                # "grid": {"min": 1, "max": 8, "sigma": 0.1, "n": 100}
-            # },
-            # periodic=False,
-            # flatten=True
-        # )
-        # n_features = mbtr.get_number_of_features()
-        # expected = n_elem*n
-        # self.assertEqual(n_features, expected)
+    def test_number_of_features(self):
+        """Tests that the reported number of features is correct.
+        """
+        # K=1
+        n = 100
+        atomic_numbers = [1, 8]
+        n_elem = len(atomic_numbers)
+        mbtr = MBTR(
+            species=atomic_numbers,
+            k1={
+                "geometry": {"function": "atomic_number"},
+                "grid": {"min": 1, "max": 8, "sigma": 0.1, "n": 100}
+            },
+            periodic=False,
+            flatten=True
+        )
+        n_features = mbtr.get_number_of_features()
+        expected = n_elem*n
+        self.assertEqual(n_features, expected)
 
-        # # K=2
-        # mbtr = MBTR(
-            # species=atomic_numbers,
-            # k1={
-                # "geometry": {"function": "atomic_number"},
-                # "grid": {"min": 1, "max": 8, "sigma": 0.1, "n": 100},
-            # },
-            # k2={
-                # "geometry": {"function": "inverse_distance"},
-                # "grid": {"min": 0, "max": 1/0.7, "sigma": 0.1, "n": n},
-                # "weighting": {"function": "exponential", "scale": 0.5, "cutoff": 1e-2},
-            # },
-            # periodic=False,
-            # flatten=True
-        # )
-        # n_features = mbtr.get_number_of_features()
-        # expected = n_elem*n + 1/2*(n_elem)*(n_elem+1)*n
-        # self.assertEqual(n_features, expected)
+        # K=2
+        mbtr = MBTR(
+            species=atomic_numbers,
+            k1={
+                "geometry": {"function": "atomic_number"},
+                "grid": {"min": 1, "max": 8, "sigma": 0.1, "n": 100},
+            },
+            k2={
+                "geometry": {"function": "inverse_distance"},
+                "grid": {"min": 0, "max": 1/0.7, "sigma": 0.1, "n": n},
+                "weighting": {"function": "exponential", "scale": 0.5, "cutoff": 1e-2},
+            },
+            periodic=False,
+            flatten=True
+        )
+        n_features = mbtr.get_number_of_features()
+        expected = n_elem*n + 1/2*(n_elem)*(n_elem+1)*n
+        self.assertEqual(n_features, expected)
 
-        # # K=3
-        # mbtr = MBTR(
-            # species=atomic_numbers,
-            # k1={
-                # "geometry": {"function": "atomic_number"},
-                # "grid": {"min": 1, "max": 8, "sigma": 0.1, "n": 100},
-            # },
-            # k2={
-                # "geometry": {"function": "inverse_distance"},
-                # "grid": {"min": 0, "max": 1/0.7, "sigma": 0.1, "n": n},
-                # "weighting": {"function": "exponential", "scale": 0.5, "cutoff": 1e-2},
-            # },
-            # k3={
-                # "geometry": {"function": "cosine"},
-                # "grid": {"min": -1, "max": 1, "sigma": 0.1, "n": n},
-                # "weighting": {"function": "exponential", "scale": 0.5, "cutoff": 1e-2},
-            # },
-            # periodic=False,
-            # flatten=True
-        # )
-        # n_features = mbtr.get_number_of_features()
-        # expected = n_elem*n + 1/2*(n_elem)*(n_elem+1)*n + n_elem*1/2*(n_elem)*(n_elem+1)*n
-        # self.assertEqual(n_features, expected)
+        # K=3
+        mbtr = MBTR(
+            species=atomic_numbers,
+            k1={
+                "geometry": {"function": "atomic_number"},
+                "grid": {"min": 1, "max": 8, "sigma": 0.1, "n": 100},
+            },
+            k2={
+                "geometry": {"function": "inverse_distance"},
+                "grid": {"min": 0, "max": 1/0.7, "sigma": 0.1, "n": n},
+                "weighting": {"function": "exponential", "scale": 0.5, "cutoff": 1e-2},
+            },
+            k3={
+                "geometry": {"function": "cosine"},
+                "grid": {"min": -1, "max": 1, "sigma": 0.1, "n": n},
+                "weighting": {"function": "exponential", "scale": 0.5, "cutoff": 1e-2},
+            },
+            periodic=False,
+            flatten=True
+        )
+        n_features = mbtr.get_number_of_features()
+        expected = n_elem*n + 1/2*(n_elem)*(n_elem+1)*n + n_elem*1/2*(n_elem)*(n_elem+1)*n
+        self.assertEqual(n_features, expected)
 
-    # def test_locations_k1(self):
-        # """Tests that the function used to query combination locations for k=1
-        # in the output works.
-        # """
-        # CO2 = molecule("CO2")
-        # H2O = molecule("H2O")
-        # descriptors = [
-            # copy.deepcopy(default_desc_k1),
-            # copy.deepcopy(default_desc_k1_k2_k3)
-        # ]
+    def test_locations_k1(self):
+        """Tests that the function used to query combination locations for k=1
+        in the output works.
+        """
+        CO2 = molecule("CO2")
+        H2O = molecule("H2O")
+        descriptors = [
+            copy.deepcopy(default_desc_k1),
+            copy.deepcopy(default_desc_k1_k2_k3)
+        ]
 
-        # for desc in descriptors:
-            # desc.periodic = False
-            # desc.species = ["H", "O", "C"]
+        for desc in descriptors:
+            desc.periodic = False
+            desc.species = ["H", "O", "C"]
 
-            # co2_out = desc.create(CO2)[0, :]
-            # h2o_out = desc.create(H2O)[0, :]
+            co2_out = desc.create(CO2)[0, :]
+            h2o_out = desc.create(H2O)[0, :]
 
-            # loc_h = desc.get_location(("H"))
-            # loc_c = desc.get_location(("C"))
-            # loc_o = desc.get_location(("O"))
+            loc_h = desc.get_location(("H"))
+            loc_c = desc.get_location(("C"))
+            loc_o = desc.get_location(("O"))
 
-            # # H
-            # self.assertTrue(co2_out[loc_h].sum() == 0)
-            # self.assertTrue(h2o_out[loc_h].sum() != 0)
+            # H
+            self.assertTrue(co2_out[loc_h].sum() == 0)
+            self.assertTrue(h2o_out[loc_h].sum() != 0)
 
-            # # C
-            # self.assertTrue(co2_out[loc_c].sum() != 0)
-            # self.assertTrue(h2o_out[loc_c].sum() == 0)
+            # C
+            self.assertTrue(co2_out[loc_c].sum() != 0)
+            self.assertTrue(h2o_out[loc_c].sum() == 0)
 
-            # # O
-            # self.assertTrue(co2_out[loc_o].sum() != 0)
-            # self.assertTrue(h2o_out[loc_o].sum() != 0)
+            # O
+            self.assertTrue(co2_out[loc_o].sum() != 0)
+            self.assertTrue(h2o_out[loc_o].sum() != 0)
 
-    # def test_locations_k2(self):
-        # """Tests that the function used to query combination locations for k=2
-        # in the output works.
-        # """
+    def test_locations_k2(self):
+        """Tests that the function used to query combination locations for k=2
+        in the output works.
+        """
 
-        # CO2 = molecule("CO2")
-        # H2O = molecule("H2O")
-        # descriptors = [
-            # copy.deepcopy(default_desc_k2),
-            # copy.deepcopy(default_desc_k1_k2_k3)
-        # ]
+        CO2 = molecule("CO2")
+        H2O = molecule("H2O")
+        descriptors = [
+            copy.deepcopy(default_desc_k2),
+            copy.deepcopy(default_desc_k1_k2_k3)
+        ]
 
-        # for desc in descriptors:
-            # desc.periodic = False
-            # desc.species = ["H", "O", "C"]
+        for desc in descriptors:
+            desc.periodic = False
+            desc.species = ["H", "O", "C"]
 
-            # CO2 = molecule("CO2")
-            # H2O = molecule("H2O")
+            CO2 = molecule("CO2")
+            H2O = molecule("H2O")
 
-            # co2_out = desc.create(CO2)[0, :]
-            # h2o_out = desc.create(H2O)[0, :]
+            co2_out = desc.create(CO2)[0, :]
+            h2o_out = desc.create(H2O)[0, :]
 
-            # loc_hh = desc.get_location(("H", "H"))
-            # loc_hc = desc.get_location(("H", "C"))
-            # loc_ho = desc.get_location(("H", "O"))
-            # loc_co = desc.get_location(("C", "O"))
-            # loc_cc = desc.get_location(("C", "C"))
-            # loc_oo = desc.get_location(("O", "O"))
+            loc_hh = desc.get_location(("H", "H"))
+            loc_hc = desc.get_location(("H", "C"))
+            loc_ho = desc.get_location(("H", "O"))
+            loc_co = desc.get_location(("C", "O"))
+            loc_cc = desc.get_location(("C", "C"))
+            loc_oo = desc.get_location(("O", "O"))
 
-            # # H-H
-            # self.assertTrue(co2_out[loc_hh].sum() == 0)
-            # self.assertTrue(h2o_out[loc_hh].sum() != 0)
+            # H-H
+            self.assertTrue(co2_out[loc_hh].sum() == 0)
+            self.assertTrue(h2o_out[loc_hh].sum() != 0)
 
-            # # H-C
-            # self.assertTrue(co2_out[loc_hc].sum() == 0)
-            # self.assertTrue(h2o_out[loc_hc].sum() == 0)
+            # H-C
+            self.assertTrue(co2_out[loc_hc].sum() == 0)
+            self.assertTrue(h2o_out[loc_hc].sum() == 0)
 
-            # # H-O
-            # self.assertTrue(co2_out[loc_ho].sum() == 0)
-            # self.assertTrue(h2o_out[loc_ho].sum() != 0)
+            # H-O
+            self.assertTrue(co2_out[loc_ho].sum() == 0)
+            self.assertTrue(h2o_out[loc_ho].sum() != 0)
 
-            # # C-O
-            # self.assertTrue(co2_out[loc_co].sum() != 0)
-            # self.assertTrue(h2o_out[loc_co].sum() == 0)
+            # C-O
+            self.assertTrue(co2_out[loc_co].sum() != 0)
+            self.assertTrue(h2o_out[loc_co].sum() == 0)
 
-            # # C-C
-            # self.assertTrue(co2_out[loc_cc].sum() == 0)
-            # self.assertTrue(h2o_out[loc_cc].sum() == 0)
+            # C-C
+            self.assertTrue(co2_out[loc_cc].sum() == 0)
+            self.assertTrue(h2o_out[loc_cc].sum() == 0)
 
-            # # O-O
-            # self.assertTrue(co2_out[loc_oo].sum() != 0)
-            # self.assertTrue(h2o_out[loc_oo].sum() == 0)
+            # O-O
+            self.assertTrue(co2_out[loc_oo].sum() != 0)
+            self.assertTrue(h2o_out[loc_oo].sum() == 0)
 
-    # def test_locations_k3(self):
-        # """Tests that the function used to query combination locations for k=2
-        # in the output works.
-        # """
-        # CO2 = molecule("CO2")
-        # H2O = molecule("H2O")
-        # descriptors = [
-            # copy.deepcopy(default_desc_k3),
-            # copy.deepcopy(default_desc_k1_k2_k3)
-        # ]
+    def test_locations_k3(self):
+        """Tests that the function used to query combination locations for k=2
+        in the output works.
+        """
+        CO2 = molecule("CO2")
+        H2O = molecule("H2O")
+        descriptors = [
+            copy.deepcopy(default_desc_k3),
+            copy.deepcopy(default_desc_k1_k2_k3)
+        ]
 
-        # for desc in descriptors:
-            # desc.periodic = False
-            # desc.species = ["H", "O", "C"]
-            # co2_out = desc.create(CO2)[0, :]
-            # h2o_out = desc.create(H2O)[0, :]
+        for desc in descriptors:
+            desc.periodic = False
+            desc.species = ["H", "O", "C"]
+            co2_out = desc.create(CO2)[0, :]
+            h2o_out = desc.create(H2O)[0, :]
 
-            # loc_hhh = desc.get_location(("H", "H", "H"))
-            # loc_hho = desc.get_location(("H", "H", "O"))
-            # loc_hoo = desc.get_location(("H", "O", "O"))
-            # loc_hoh = desc.get_location(("H", "O", "H"))
-            # loc_ooo = desc.get_location(("O", "O", "O"))
-            # loc_ooh = desc.get_location(("O", "O", "H"))
-            # loc_oho = desc.get_location(("O", "H", "O"))
-            # loc_ohh = desc.get_location(("O", "H", "H"))
+            loc_hhh = desc.get_location(("H", "H", "H"))
+            loc_hho = desc.get_location(("H", "H", "O"))
+            loc_hoo = desc.get_location(("H", "O", "O"))
+            loc_hoh = desc.get_location(("H", "O", "H"))
+            loc_ooo = desc.get_location(("O", "O", "O"))
+            loc_ooh = desc.get_location(("O", "O", "H"))
+            loc_oho = desc.get_location(("O", "H", "O"))
+            loc_ohh = desc.get_location(("O", "H", "H"))
 
-            # # H-H-H
-            # self.assertTrue(co2_out[loc_hhh].sum() == 0)
-            # self.assertTrue(h2o_out[loc_hhh].sum() == 0)
+            # H-H-H
+            self.assertTrue(co2_out[loc_hhh].sum() == 0)
+            self.assertTrue(h2o_out[loc_hhh].sum() == 0)
 
-            # # H-H-O
-            # self.assertTrue(co2_out[loc_hho].sum() == 0)
-            # self.assertTrue(h2o_out[loc_hho].sum() != 0)
+            # H-H-O
+            self.assertTrue(co2_out[loc_hho].sum() == 0)
+            self.assertTrue(h2o_out[loc_hho].sum() != 0)
 
-            # # H-O-O
-            # self.assertTrue(co2_out[loc_hoo].sum() == 0)
-            # self.assertTrue(h2o_out[loc_hoo].sum() == 0)
+            # H-O-O
+            self.assertTrue(co2_out[loc_hoo].sum() == 0)
+            self.assertTrue(h2o_out[loc_hoo].sum() == 0)
 
-            # # H-O-H
-            # self.assertTrue(co2_out[loc_hoh].sum() == 0)
-            # self.assertTrue(h2o_out[loc_hoh].sum() != 0)
+            # H-O-H
+            self.assertTrue(co2_out[loc_hoh].sum() == 0)
+            self.assertTrue(h2o_out[loc_hoh].sum() != 0)
 
-            # # O-O-O
-            # self.assertTrue(co2_out[loc_ooo].sum() == 0)
-            # self.assertTrue(h2o_out[loc_ooo].sum() == 0)
+            # O-O-O
+            self.assertTrue(co2_out[loc_ooo].sum() == 0)
+            self.assertTrue(h2o_out[loc_ooo].sum() == 0)
 
-            # # O-O-H
-            # self.assertTrue(co2_out[loc_ooh].sum() == 0)
-            # self.assertTrue(h2o_out[loc_ooh].sum() == 0)
+            # O-O-H
+            self.assertTrue(co2_out[loc_ooh].sum() == 0)
+            self.assertTrue(h2o_out[loc_ooh].sum() == 0)
 
-            # # O-H-O
-            # self.assertTrue(co2_out[loc_oho].sum() == 0)
-            # self.assertTrue(h2o_out[loc_oho].sum() == 0)
+            # O-H-O
+            self.assertTrue(co2_out[loc_oho].sum() == 0)
+            self.assertTrue(h2o_out[loc_oho].sum() == 0)
 
-            # # O-H-H
-            # self.assertTrue(co2_out[loc_ohh].sum() == 0)
-            # self.assertTrue(h2o_out[loc_ohh].sum() != 0)
+            # O-H-H
+            self.assertTrue(co2_out[loc_ohh].sum() == 0)
+            self.assertTrue(h2o_out[loc_ohh].sum() != 0)
 
-    # def test_sparse(self):
-        # """Tests the sparse matrix creation.
-        # """
-        # # Dense
-        # desc = copy.deepcopy(default_desc_k1)
-        # desc.sparse = False
-        # vec = desc.create(H2O)
-        # self.assertTrue(type(vec) == np.ndarray)
+    def test_sparse(self):
+        """Tests the sparse matrix creation.
+        """
+        # Dense
+        desc = copy.deepcopy(default_desc_k1)
+        desc.sparse = False
+        vec = desc.create(H2O)
+        self.assertTrue(type(vec) == np.ndarray)
 
-        # # Sparse
-        # desc = copy.deepcopy(default_desc_k1)
-        # desc.sparse = True
-        # vec = desc.create(H2O)
-        # self.assertTrue(type(vec) == scipy.sparse.coo_matrix)
+        # Sparse
+        desc = copy.deepcopy(default_desc_k1)
+        desc.sparse = True
+        vec = desc.create(H2O)
+        self.assertTrue(type(vec) == scipy.sparse.coo_matrix)
 
-    # def test_properties(self):
-        # """Used to test that changing the setup through properties works as
-        # intended.
-        # """
-        # # Test changing species
-        # a = MBTR(
-            # k1=default_k1,
-            # k2=default_k2,
-            # k3=default_k3,
-            # periodic=False,
-            # species=[1, 8],
-            # sparse=False,
-            # flatten=True,
-        # )
-        # nfeat1 = a.get_number_of_features()
-        # vec1 = a.create(H2O)
-        # a.species = ["C", "H", "O"]
-        # nfeat2 = a.get_number_of_features()
-        # vec2 = a.create(molecule("CH3OH"))
-        # self.assertTrue(nfeat1 != nfeat2)
-        # self.assertTrue(vec1.shape[1] != vec2.shape[1])
+    def test_properties(self):
+        """Used to test that changing the setup through properties works as
+        intended.
+        """
+        # Test changing species
+        a = MBTR(
+            k1=default_k1,
+            k2=default_k2,
+            k3=default_k3,
+            periodic=False,
+            species=[1, 8],
+            sparse=False,
+            flatten=True,
+        )
+        nfeat1 = a.get_number_of_features()
+        vec1 = a.create(H2O)
+        a.species = ["C", "H", "O"]
+        nfeat2 = a.get_number_of_features()
+        vec2 = a.create(molecule("CH3OH"))
+        self.assertTrue(nfeat1 != nfeat2)
+        self.assertTrue(vec1.shape[1] != vec2.shape[1])
 
-        # # Test changing geometry function and grid setup
-        # a.k1 = {
-            # "geometry": {"function": "atomic_number"},
-            # "grid": {"min": 5, "max": 6, "sigma": 0.1, "n": 50},
-        # }
-        # vec3 = a.create(H2O)
-        # self.assertTrue(not np.allclose(vec2, vec3))
+        # Test changing geometry function and grid setup
+        a.k1 = {
+            "geometry": {"function": "atomic_number"},
+            "grid": {"min": 5, "max": 6, "sigma": 0.1, "n": 50},
+        }
+        vec3 = a.create(H2O)
+        self.assertTrue(not np.allclose(vec2, vec3))
 
-        # a.k2 = {
-            # "geometry": {"function": "distance"},
-            # "grid": {"min": 0, "max": 10, "sigma": 0.1, "n": 50},
-            # "weighting": {"function": "exponential", "scale": 0.6, "cutoff": 1e-2},
-        # }
-        # vec4 = a.create(H2O)
-        # self.assertTrue(not np.allclose(vec3, vec4))
+        a.k2 = {
+            "geometry": {"function": "distance"},
+            "grid": {"min": 0, "max": 10, "sigma": 0.1, "n": 50},
+            "weighting": {"function": "exponential", "scale": 0.6, "cutoff": 1e-2},
+        }
+        vec4 = a.create(H2O)
+        self.assertTrue(not np.allclose(vec3, vec4))
 
-        # a.k3 = {
-            # "geometry": {"function": "angle"},
-            # "grid": {"min": 0, "max": 180, "sigma": 5, "n": 50},
-            # "weighting": {"function": "exponential", "scale": 0.6, "cutoff": 1e-2},
-        # }
-        # vec5 = a.create(H2O)
-        # self.assertTrue(not np.allclose(vec4, vec5))
+        a.k3 = {
+            "geometry": {"function": "angle"},
+            "grid": {"min": 0, "max": 180, "sigma": 5, "n": 50},
+            "weighting": {"function": "exponential", "scale": 0.6, "cutoff": 1e-2},
+        }
+        vec5 = a.create(H2O)
+        self.assertTrue(not np.allclose(vec4, vec5))
 
-    # def test_flatten(self):
-        # """Tests that flattened, and non-flattened output works correctly.
-        # """
-        # system = H2O
-        # n = 10
-        # n_species = len(set(system.get_atomic_numbers()))
+    def test_flatten(self):
+        """Tests that flattened, and non-flattened output works correctly.
+        """
+        system = H2O
+        n = 10
+        n_species = len(set(system.get_atomic_numbers()))
 
-        # # K1 unflattened
-        # desc = MBTR(
-            # species=[1, 8],
-            # k1={
-                # "grid": {"n": n, "min": 1, "max": 8, "sigma": 0.1},
-                # "geometry": {"function": "atomic_number"}
-            # },
-            # periodic=False,
-            # flatten=False,
-            # sparse=False
-        # )
-        # feat = desc.create(system)["k1"]
-        # self.assertEqual(feat.shape, (n_species, n))
+        # K1 unflattened
+        desc = MBTR(
+            species=[1, 8],
+            k1={
+                "grid": {"n": n, "min": 1, "max": 8, "sigma": 0.1},
+                "geometry": {"function": "atomic_number"}
+            },
+            periodic=False,
+            flatten=False,
+            sparse=False
+        )
+        feat = desc.create(system)["k1"]
+        self.assertEqual(feat.shape, (n_species, n))
 
-        # # K1 flattened. The sparse matrix only supports 2D matrices, so the first
-        # # dimension is always present, even if it is of length 1.
-        # desc.flatten = True
-        # feat = desc.create(system)
-        # self.assertEqual(feat.shape, (1, n_species*n))
+        # K1 flattened. The sparse matrix only supports 2D matrices, so the first
+        # dimension is always present, even if it is of length 1.
+        desc.flatten = True
+        feat = desc.create(system)
+        self.assertEqual(feat.shape, (1, n_species*n))
 
-    # def test_parallel_dense(self):
-        # """Tests creating dense output parallelly.
-        # """
-        # samples = [molecule("CO"), molecule("N2O")]
-        # desc = copy.deepcopy(default_desc_k2)
-        # desc.species = ["C", "O", "N"]
-        # n_features = desc.get_number_of_features()
+    def test_parallel_dense(self):
+        """Tests creating dense output parallelly.
+        """
+        samples = [molecule("CO"), molecule("N2O")]
+        desc = copy.deepcopy(default_desc_k2)
+        desc.species = ["C", "O", "N"]
+        n_features = desc.get_number_of_features()
 
-        # # Multiple systems, serial job
-        # output = desc.create(
-            # system=samples,
-            # n_jobs=1,
-        # )
-        # assumed = np.empty((2, n_features))
-        # assumed[0, :] = desc.create(samples[0])
-        # assumed[1, :] = desc.create(samples[1])
-        # self.assertTrue(np.allclose(output, assumed))
+        # Multiple systems, serial job
+        output = desc.create(
+            system=samples,
+            n_jobs=1,
+        )
+        assumed = np.empty((2, n_features))
+        assumed[0, :] = desc.create(samples[0])
+        assumed[1, :] = desc.create(samples[1])
+        self.assertTrue(np.allclose(output, assumed))
 
-        # # Multiple systems, parallel job
-        # output = desc.create(
-            # system=samples,
-            # n_jobs=2,
-        # )
-        # assumed = np.empty((2, n_features))
-        # assumed[0, :] = desc.create(samples[0])
-        # assumed[1, :] = desc.create(samples[1])
-        # self.assertTrue(np.allclose(output, assumed))
+        # Multiple systems, parallel job
+        output = desc.create(
+            system=samples,
+            n_jobs=2,
+        )
+        assumed = np.empty((2, n_features))
+        assumed[0, :] = desc.create(samples[0])
+        assumed[1, :] = desc.create(samples[1])
+        self.assertTrue(np.allclose(output, assumed))
 
-        # # Non-flattened output
-        # desc._flatten = False
-        # output = desc.create(
-            # system=samples,
-            # n_jobs=2,
-        # )
-        # assumed = []
-        # assumed.append(desc.create(samples[0]))
-        # assumed.append(desc.create(samples[1]))
-        # for i, val in enumerate(output):
-            # for key in val.keys():
-                # i_tensor = val[key]
-                # j_tensor = assumed[i][key]
-                # self.assertTrue(np.allclose(i_tensor, j_tensor))
+        # Non-flattened output
+        desc._flatten = False
+        output = desc.create(
+            system=samples,
+            n_jobs=2,
+        )
+        assumed = []
+        assumed.append(desc.create(samples[0]))
+        assumed.append(desc.create(samples[1]))
+        for i, val in enumerate(output):
+            for key in val.keys():
+                i_tensor = val[key]
+                j_tensor = assumed[i][key]
+                self.assertTrue(np.allclose(i_tensor, j_tensor))
 
-    # def test_parallel_sparse(self):
-        # """Tests creating sparse output parallelly.
-        # """
-        # # Test indices
-        # samples = [molecule("CO"), molecule("N2O")]
-        # desc = copy.deepcopy(default_desc_k2)
-        # desc.species = ["C", "O", "N"]
-        # desc.sparse = True
-        # n_features = desc.get_number_of_features()
+    def test_parallel_sparse(self):
+        """Tests creating sparse output parallelly.
+        """
+        # Test indices
+        samples = [molecule("CO"), molecule("N2O")]
+        desc = copy.deepcopy(default_desc_k2)
+        desc.species = ["C", "O", "N"]
+        desc.sparse = True
+        n_features = desc.get_number_of_features()
 
-        # # Multiple systems, serial job
-        # output = desc.create(
-            # system=samples,
-            # n_jobs=1,
-        # ).toarray()
-        # assumed = np.empty((2, n_features))
-        # assumed[0, :] = desc.create(samples[0]).toarray()
-        # assumed[1, :] = desc.create(samples[1]).toarray()
-        # self.assertTrue(np.allclose(output, assumed))
+        # Multiple systems, serial job
+        output = desc.create(
+            system=samples,
+            n_jobs=1,
+        ).toarray()
+        assumed = np.empty((2, n_features))
+        assumed[0, :] = desc.create(samples[0]).toarray()
+        assumed[1, :] = desc.create(samples[1]).toarray()
+        self.assertTrue(np.allclose(output, assumed))
 
-        # # Multiple systems, parallel job
-        # output = desc.create(
-            # system=samples,
-            # n_jobs=2,
-        # ).toarray()
-        # assumed = np.empty((2, n_features))
-        # assumed[0, :] = desc.create(samples[0]).toarray()
-        # assumed[1, :] = desc.create(samples[1]).toarray()
-        # self.assertTrue(np.allclose(output, assumed))
+        # Multiple systems, parallel job
+        output = desc.create(
+            system=samples,
+            n_jobs=2,
+        ).toarray()
+        assumed = np.empty((2, n_features))
+        assumed[0, :] = desc.create(samples[0]).toarray()
+        assumed[1, :] = desc.create(samples[1]).toarray()
+        self.assertTrue(np.allclose(output, assumed))
 
     def test_periodic_supercell_similarity(self):
         """Tests that the output spectrum of various supercells of the same
@@ -658,14 +658,11 @@ class MBTRTests(unittest.TestCase):
 
         output = desc.create([a1, a2, a3, a4])
 
-        mpl.plot(output.T)
-        mpl.show()
-
         # Test for equality
-        self.assertTrue(np.allclose(output[0, :], output[0, :]))
-        self.assertTrue(np.allclose(output[0, :], output[1, :]))
-        self.assertTrue(np.allclose(output[0, :], output[2, :]))
-        self.assertTrue(np.allclose(output[0, :], output[3, :]))
+        self.assertTrue(np.allclose(output[0, :], output[0, :], atol=1e-5, rtol=0))
+        self.assertTrue(np.allclose(output[0, :], output[1, :], atol=1e-5, rtol=0))
+        self.assertTrue(np.allclose(output[0, :], output[2, :], atol=1e-5, rtol=0))
+        self.assertTrue(np.allclose(output[0, :], output[3, :], atol=1e-5, rtol=0))
 
     # def test_normalization(self):
         # """Tests that each normalization method works correctly.
@@ -799,16 +796,16 @@ class MBTRTests(unittest.TestCase):
         # self.dict_comparison(geoms, geoms2)
         # self.dict_comparison(weights, weights2)
 
-    def test_k2_weights_and_geoms_finite(self):
-        """Tests that the values of the weight and geometry functions are
-        correct for the k=2 term.
-        """
-        # mbtr = MBTR(species=[1, 8], k=[2], grid=default_grid, periodic=False)
-        desc = copy.deepcopy(default_desc_k2)
-        desc.k2["weighting"] = {"function": "unity"}
-        features = desc.create(H2O)
-        grid = desc.k2["grid"]
-        x = np.linspace(grid["min"], grid["max"], grid["n"])
+    # def test_k2_weights_and_geoms_finite(self):
+        # """Tests that the values of the weight and geometry functions are
+        # correct for the k=2 term.
+        # """
+        # # mbtr = MBTR(species=[1, 8], k=[2], grid=default_grid, periodic=False)
+        # desc = copy.deepcopy(default_desc_k2)
+        # desc.k2["weighting"] = {"function": "unity"}
+        # features = desc.create(H2O)
+        # grid = desc.k2["grid"]
+        # x = np.linspace(grid["min"], grid["max"], grid["n"])
         # mpl.plot(x, features[0, desc.get_location(("H", "H"))])
         # mpl.plot(x, features[0, desc.get_location(("H", "O"))])
         # mpl.show()

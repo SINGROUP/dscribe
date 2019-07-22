@@ -954,9 +954,6 @@ class MBTR(Descriptor):
         # Determine the geometry function
         geom_func_name = self.k2["geometry"]["function"]
 
-        #=======================================================================
-        # Calculate with new version
-
         # If radial cutoff is finite, use it to calculate the sparse
         # distance matrix to reduce computational complexity from O(n^2) to
         # O(n log(n))
@@ -1011,9 +1008,6 @@ class MBTR(Descriptor):
                 k2[0, start:end] = gaussian_sum
             else:
                 k2[i, j, :] = gaussian_sum
-
-        #=======================================================================
-        # Calculate with old version
 
         return k2
 

@@ -33,21 +33,10 @@ class MBTR {
          * @param local Whether a local or a global MBTR is calculated.
          */
         MBTR(vector<vector<float> > positions, vector<int> atomicNumbers, map<int,int> atomicNumberToIndexMap, int interactionLimit,  vector<vector<int>> cellIndices, bool local=false);
-
-        map<string, vector<double> > getK1(string geomFunc, string weightFunc, map<string, float> parameters, float min, float max, float sigma, float n);
-        map<string, vector<double> > getK2(const vector<vector<double> > &distances, const vector<vector<int> > &neighbours, string geomFunc, string weightFunc, map<string, float> parameters, float min, float max, float sigma, float n);
-        map<string, vector<double> > getK3(const vector<vector<double> > &distances, const vector<vector<int> > &neighbours, string geomFunc, string weightFunc, map<string, float> parameters, float min, float max, float sigma, float n);
-        float k1GeomAtomicNumber(int &i);
-        float k1WeightUnity(int &i);
-        float k2GeomInverseDistance(int &i, const int &j, const vector<vector<double> > &distances);
-        float k2GeomDistance(int &i, const int &j, const vector<vector<double> > &distances);
-        float k2WeightUnity(int &i, const int &j, const vector<vector<double> > &distances);
-        float k2WeightExponential(int &i, const int &j, const vector<vector<double> > &distances, float &scale, float &cutoff);
-        float k3GeomCosine(int &i, const int &j, const int &k, const vector<vector<double> > &distances);
-        float k3GeomAngle(int &i, const int &j, const int &k, const vector<vector<double> > &distances);
-        float k3WeightUnity(int &i, const int &j, const int &k, const vector<vector<double> > &distances);
-        float k3WeightExponential(int &i, const int &j, const int &k, const vector<vector<double> > &distances, float &scale, float &cutoff);
-        vector<double> gaussian(const double &center, const double &sigma, const double &weight, const double &min, const double &max, const int &n);
+        map<string, vector<float> > getK1(string geomFunc, string weightFunc, map<string, float> parameters, float min, float max, float sigma, float n);
+        map<string, vector<float> > getK2(const vector<vector<float> > &distances, const vector<vector<int> > &neighbours, string geomFunc, string weightFunc, map<string, float> parameters, float min, float max, float sigma, float n);
+        map<string, vector<float> > getK3(const vector<vector<float> > &distances, const vector<vector<int> > &neighbours, string geomFunc, string weightFunc, map<string, float> parameters, float min, float max, float sigma, float n);
+        vector<float> gaussian(const float &center, const float &weight, const float &start, const float &dx, const float &sigmasqrt2, const int &n);
 
         /**
          * Returns a list of 1D indices for the atom combinations that need to
@@ -250,6 +239,17 @@ class MBTR {
         bool k2MapInitialized;
         pair<map<index3d, vector<float> >, map<index3d, vector<float> > > k3Map;
         bool k3MapInitialized;
+
+        float k1GeomAtomicNumber(const int &i);
+        float k1WeightUnity(const int &i);
+        float k2GeomInverseDistance(const int &i, const int &j, const vector<vector<float> > &distances);
+        float k2GeomDistance(const int &i, const int &j, const vector<vector<float> > &distances);
+        float k2WeightUnity(const int &i, const int &j, const vector<vector<float> > &distances);
+        float k2WeightExponential(const int &i, const int &j, const vector<vector<float> > &distances, const float &scale);
+        float k3GeomCosine(const int &i, const int &j, const int &k, const vector<vector<float> > &distances);
+        float k3GeomAngle(const int &i, const int &j, const int &k, const vector<vector<float> > &distances);
+        float k3WeightUnity(const int &i, const int &j, const int &k, const vector<vector<float> > &distances);
+        float k3WeightExponential(const int &i, const int &j, const int &k, const vector<vector<float> > &distances, const float &scale);
 };
 
 #endif

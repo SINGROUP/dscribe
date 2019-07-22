@@ -16,6 +16,10 @@ cdef class MBTRWrapper:
     def __dealloc__(self):
         del self.thisptr
 
+    def get_gaussian(self, center, weight, start, dx, sigmasqrt2, n):
+        gauss = self.thisptr.gaussian(center, weight, start, dx, sigmasqrt2, n)
+        return gauss
+
     def get_k1(self, geom_func, weight_func, parameters, start, stop, sigma, n):
         """Cython cannot directly provide the keys as tuples, so we have to do
         the conversion here on the python side.

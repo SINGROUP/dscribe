@@ -31,10 +31,13 @@ MBTR::MBTR(vector<vector<float> > positions, vector<int> atomicNumbers, map<int,
 {
 }
 
-map<string, vector<double> > MBTR::getK1(string geomFunc, string weightFunc, map<string, float> parameters, float min, float max, float sigma, float n)
+map<string, vector<float> > MBTR::getK1(string geomFunc, string weightFunc, map<string, float> parameters, float min, float max, float sigma, float n)
 {
-    map<string, vector<double> > k1Map;
+    map<string, vector<float> > k1Map;
     int nAtoms = this->atomicNumbers.size();
+    float dx = (max-min)/(n-1);
+    float sigmasqrt2 = sigma*sqrt(2.0);
+    float start = min-dx/2;
 
     for (int i=0; i < nAtoms; ++i) {
         // Only consider atoms within the original cell
@@ -57,7 +60,7 @@ map<string, vector<double> > MBTR::getK1(string geomFunc, string weightFunc, map
             }
 
             // Calculate gaussian
-            vector<double> gauss = gaussian(geom, sigma, weight, min, max, n);
+            vector<float> gauss = gaussian(geom, weight, start, dx, sigmasqrt2, n);
 
             // Get the index of the present elements in the final vector
             int i_elem = this->atomicNumbers[i];
@@ -67,21 +70,25 @@ map<string, vector<double> > MBTR::getK1(string geomFunc, string weightFunc, map
             string stringKey = to_string(i_index);
 
             // Sum gaussian into output
-            try {
-                vector<double> &old = k1Map.at(stringKey);
-                transform(old.begin(), old.end(), gauss.begin(), old.begin(), plus<double>());
-            } catch(const out_of_range& oor) {
+            auto it = k1Map.find(stringKey);
+            if ( it == k1Map.end() ) {
                 k1Map[stringKey] = gauss;
+            } else {
+                vector<float> &old = it->second;
+                transform(old.begin(), old.end(), gauss.begin(), old.begin(), plus<float>());
             }
         }
     }
     return k1Map;
 }
 
-map<string, vector<double> > MBTR::getK2(const vector<vector<double> > &distances, const vector<vector<int> > &neighbours, string geomFunc, string weightFunc, map<string, float> parameters, float min, float max, float sigma, float n)
+map<string, vector<float> > MBTR::getK2(const vector<vector<float> > &distances, const vector<vector<int> > &neighbours, string geomFunc, string weightFunc, map<string, float> parameters, float min, float max, float sigma, float n)
 {
-    map<string, vector<double> > k2Map;
+    map<string, vector<float> > k2Map;
     int nAtoms = this->atomicNumbers.size();
+    float dx = (max-min)/(n-1);
+    float sigmasqrt2 = sigma*sqrt(2.0);
+    float start = min-dx/2;
 
     // We have to loop over all atoms in the system
     for (int i=0; i < nAtoms; ++i) {
@@ -110,20 +117,15 @@ map<string, vector<double> > MBTR::getK2(const vector<vector<double> > &distance
                     if (weightFunc == "exponential" || weightFunc == "exp") {
                         float scale = parameters["scale"];
                         float cutoff = parameters["cutoff"];
-                        weight = k2WeightExponential(i, j, distances, scale, cutoff);
+                        weight = k2WeightExponential(i, j, distances, scale);
+                        if (weight < cutoff) {
+                            continue;
+                        }
                     } else if (weightFunc == "unity") {
                         weight = k2WeightUnity(i, j, distances);
                     } else {
                         throw invalid_argument("Invalid weighting function.");
                     }
-
-                    // Ignore stuff with no weight
-                    if (weight == 0.0) {
-                        continue;
-                    }
-
-                    // Calculate gaussian
-                    vector<double> gauss = gaussian(geom, sigma, weight, min, max, n);
 
                     // Find position in output
                     // When the pair of atoms are in different copies of the cell, the
@@ -141,6 +143,9 @@ map<string, vector<double> > MBTR::getK2(const vector<vector<double> > &distance
                             weight /= 2;
                         }
                     }
+
+                    // Calculate gaussian
+                    vector<float> gauss = gaussian(geom, weight, start, dx, sigmasqrt2, n);
 
                     // Get the index of the present elements in the final vector
                     int i_elem = this->atomicNumbers[i];
@@ -163,23 +168,28 @@ map<string, vector<double> > MBTR::getK2(const vector<vector<double> > &distance
                     string stringKey = ss.str();
 
                     // Sum gaussian into output
-                    try {
-                        vector<double> &old = k2Map.at(stringKey);
-                        transform(old.begin(), old.end(), gauss.begin(), old.begin(), plus<double>());
-                    } catch(const out_of_range& oor) {
+                    auto it = k2Map.find(stringKey);
+                    if ( it == k2Map.end() ) {
                         k2Map[stringKey] = gauss;
+                    } else {
+                        vector<float> &old = it->second;
+                        transform(old.begin(), old.end(), gauss.begin(), old.begin(), plus<float>());
                     }
                 }
             }
         }
     }
+
     return k2Map;
 }
 
-map<string, vector<double> > MBTR::getK3(const vector<vector<double> > &distances, const vector<vector<int> > &neighbours, string geomFunc, string weightFunc, map<string, float> parameters, float min, float max, float sigma, float n)
+map<string, vector<float> > MBTR::getK3(const vector<vector<float> > &distances, const vector<vector<int> > &neighbours, string geomFunc, string weightFunc, map<string, float> parameters, float min, float max, float sigma, float n)
 {
-    map<string, vector<double> > k3Map;
+    map<string, vector<float> > k3Map;
     int nAtoms = this->atomicNumbers.size();
+    float dx = (max-min)/(n-1);
+    float sigmasqrt2 = sigma*sqrt(2.0);
+    float start = min-dx/2;
 
     for (int i=0; i < nAtoms; ++i) {
 
@@ -214,20 +224,15 @@ map<string, vector<double> > MBTR::getK3(const vector<vector<double> > &distance
                             if (weightFunc == "exponential" || weightFunc == "exp") {
                                 float scale = parameters["scale"];
                                 float cutoff = parameters["cutoff"];
-                                weight = k3WeightExponential(i, j, k, distances, scale, cutoff);
+                                weight = k3WeightExponential(i, j, k, distances, scale);
+                                if (weight < cutoff) {
+                                    continue;
+                                }
                             } else if (weightFunc == "unity") {
                                 weight = k3WeightUnity(i, j, k, distances);
                             } else {
                                 throw invalid_argument("Invalid weighting function.");
                             }
-
-                            // Ignore stuff with no weight
-                            if (weight == 0.0) {
-                                continue;
-                            }
-
-                            // Calculate gaussian
-                            vector<double> gauss = gaussian(geom, sigma, weight, min, max, n);
 
                             // The contributions are weighted by their multiplicity arising from
                             // the translational symmetry. Each triple of atoms is repeated N
@@ -256,6 +261,9 @@ map<string, vector<double> > MBTR::getK3(const vector<vector<double> > &distance
                                 }
                             }
 
+                            // Calculate gaussian
+                            vector<float> gauss = gaussian(geom, weight, start, dx, sigmasqrt2, n);
+
                             // Get the index of the present elements in the final vector
                             int i_elem = this->atomicNumbers[i];
                             int j_elem = this->atomicNumbers[j];
@@ -281,11 +289,12 @@ map<string, vector<double> > MBTR::getK3(const vector<vector<double> > &distance
                             string stringKey = ss.str();
 
                             // Sum gaussian into output
-                            try {
-                                vector<double> &old = k3Map.at(stringKey);
-                                transform(old.begin(), old.end(), gauss.begin(), old.begin(), plus<double>());
-                            } catch(const out_of_range& oor) {
+                            auto it = k3Map.find(stringKey);
+                            if ( it == k3Map.end() ) {
                                 k3Map[stringKey] = gauss;
+                            } else {
+                                vector<float> &old = it->second;
+                                transform(old.begin(), old.end(), gauss.begin(), old.begin(), plus<float>());
                             }
                         }
                     }
@@ -296,20 +305,21 @@ map<string, vector<double> > MBTR::getK3(const vector<vector<double> > &distance
     return k3Map;
 }
 
-inline vector<double> MBTR::gaussian(const double &center, const double &sigma, const double &weight, const double &min, const double &max, const int &n) {
+inline vector<float> MBTR::gaussian(const float &center, const float &weight, const float &start, const float &dx, const float &sigmasqrt2, const int &n) {
 
-    // Calculate CDF
-    double dx = (max-min)/(n-1);
-    vector<double> cdf(n+1);
-    double sigmasqrt2 = sigma*sqrt(2.0);
-    double x = min-dx/2;
+    // We first calculate the cumulative distibution function for a normal
+    // distribution.
+    vector<float> cdf(n+1);
+    float x = start;
     for (auto &it : cdf) {
         it = weight*1.0/2.0*(1.0 + erf((x-center)/sigmasqrt2));
         x += dx;
     }
 
-    // Calculate PDF
-    vector<double> pdf(n);
+    // The normal distribution is calculated as a derivative of the cumulative
+    // distribution, as with coarse discretization this methods preserves the
+    // norm better.
+    vector<float> pdf(n);
     int i = 0;
     for (auto &it : pdf) {
         it = (cdf[i+1]-cdf[i])/dx;
@@ -416,46 +426,43 @@ vector<index3d> MBTR::getk3Indices(const vector<vector<int> > &neighbours)
     return this->k3Indices;
 }
 
-inline float MBTR::k1GeomAtomicNumber(int &i)
+inline float MBTR::k1GeomAtomicNumber(const int &i)
 {
     int atomicNumber = this->atomicNumbers[i];
     return atomicNumber;
 }
 
-inline float MBTR::k1WeightUnity(int &i)
+inline float MBTR::k1WeightUnity(const int &i)
 {
     return 1;
 }
 
-inline float MBTR::k2GeomInverseDistance(int &i, const int &j, const vector<vector<double> > &distances)
+inline float MBTR::k2GeomInverseDistance(const int &i, const int &j, const vector<vector<float> > &distances)
 {
     float dist = k2GeomDistance(i, j, distances);
     float invDist = 1/dist;
     return invDist;
 }
 
-inline float MBTR::k2GeomDistance(int &i, const int &j, const vector<vector<double> > &distances)
+inline float MBTR::k2GeomDistance(const int &i, const int &j, const vector<vector<float> > &distances)
 {
     float dist = distances[i][j];
     return dist;
 }
 
-inline float MBTR::k2WeightUnity(int &i, const int &j, const vector<vector<double> > &distances)
+inline float MBTR::k2WeightUnity(const int &i, const int &j, const vector<vector<float> > &distances)
 {
     return 1;
 }
 
-inline float MBTR::k2WeightExponential(int &i, const int &j, const vector<vector<double> > &distances, float &scale, float &cutoff)
+inline float MBTR::k2WeightExponential(const int &i, const int &j, const vector<vector<float> > &distances, const float &scale)
 {
     float dist = distances[i][j];
     float expValue = exp(-scale*dist);
-    if (expValue < cutoff) {
-        expValue = 0;
-    }
     return expValue;
 }
 
-inline float MBTR::k3GeomCosine(int &i, const int &j, const int &k, const vector<vector<double> > &distances)
+inline float MBTR::k3GeomCosine(const int &i, const int &j, const int &k, const vector<vector<float> > &distances)
 {
     float r_ji = distances[j][i];
     float r_ik = distances[i][k];
@@ -473,7 +480,7 @@ inline float MBTR::k3GeomCosine(int &i, const int &j, const int &k, const vector
     return cosine;
 }
 
-inline float MBTR::k3GeomAngle(int &i, const int &j, const int &k, const vector<vector<double> > &distances)
+inline float MBTR::k3GeomAngle(const int &i, const int &j, const int &k, const vector<vector<float> > &distances)
 {
     float cosine = this->k3GeomCosine(i, j, k, distances);
     float angle = acos(cosine)*180.0/PI;
@@ -481,21 +488,18 @@ inline float MBTR::k3GeomAngle(int &i, const int &j, const int &k, const vector<
     return angle;
 }
 
-inline float MBTR::k3WeightExponential(int &i, const int &j, const int &k, const vector<vector<double> > &distances, float &scale, float &cutoff)
+inline float MBTR::k3WeightExponential(const int &i, const int &j, const int &k, const vector<vector<float> > &distances, const float &scale)
 {
     float dist1 = distances[i][j];
     float dist2 = distances[j][k];
     float dist3 = distances[k][i];
     float distTotal = dist1 + dist2 + dist3;
     float expValue = exp(-scale*distTotal);
-    if (expValue < cutoff) {
-        expValue = 0;
-    }
 
     return expValue;
 }
 
-inline float MBTR::k3WeightUnity(int &i, const int &j, const int &k, const vector<vector<double> > &distances)
+inline float MBTR::k3WeightUnity(const int &i, const int &j, const int &k, const vector<vector<float> > &distances)
 {
     return 1;
 }
@@ -789,6 +793,7 @@ pair<map<index2d, vector<float> >, map<index2d,vector<float> > > MBTR::getK2Geom
         this->k2Map = make_pair(geomMap, weightMap);
         this->k2MapInitialized = true;
     }
+
     return this->k2Map;
 }
 
