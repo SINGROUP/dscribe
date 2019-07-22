@@ -98,7 +98,7 @@ class TestBaseClass(ABC):
             i_system = finite_system[permutation]
             i_features = create(i_system)
             deviation = np.max(np.abs(features - i_features))
-            if deviation > 1e-8:
+            if deviation > 1e-7:
                 is_perm_sym = False
 
         return is_perm_sym

@@ -129,8 +129,8 @@ H = Atoms(
 )
 
 
-# class MBTRTests(TestBaseClass, unittest.TestCase):
-class MBTRTests(unittest.TestCase):
+class MBTRTests(TestBaseClass, unittest.TestCase):
+# class MBTRTests(unittest.TestCase):
 
     def test_constructor(self):
         """Tests different valid and invalid constructor values.
@@ -664,73 +664,73 @@ class MBTRTests(unittest.TestCase):
         self.assertTrue(np.allclose(output[0, :], output[2, :], atol=1e-5, rtol=0))
         self.assertTrue(np.allclose(output[0, :], output[3, :], atol=1e-5, rtol=0))
 
-    # def test_normalization(self):
-        # """Tests that each normalization method works correctly.
-        # """
-        # n = 100
-        # desc = copy.deepcopy(default_desc_k1_k2_k3)
-        # desc.species = ("H", "O")
-        # desc.normalization = "none"
-        # desc.flatten = False
-        # desc.sparse = False
+    def test_normalization(self):
+        """Tests that each normalization method works correctly.
+        """
+        n = 100
+        desc = copy.deepcopy(default_desc_k1_k2_k3)
+        desc.species = ("H", "O")
+        desc.normalization = "none"
+        desc.flatten = False
+        desc.sparse = False
 
-        # # Calculate the norms
-        # feat1 = desc.create(H2O)
-        # k1 = feat1["k1"]
-        # k2 = feat1["k2"]
-        # k3 = feat1["k3"]
-        # k1_norm = np.linalg.norm(k1.ravel())
-        # k2_norm = np.linalg.norm(k2.ravel())
-        # k3_norm = np.linalg.norm(k3.ravel())
+        # Calculate the norms
+        feat1 = desc.create(H2O)
+        k1 = feat1["k1"]
+        k2 = feat1["k2"]
+        k3 = feat1["k3"]
+        k1_norm = np.linalg.norm(k1.ravel())
+        k2_norm = np.linalg.norm(k2.ravel())
+        k3_norm = np.linalg.norm(k3.ravel())
 
-        # # Test normalization of non-flat dense output with l2_each
-        # desc.normalization = "l2_each"
-        # feat2 = desc.create(H2O)
-        # k1_each = feat2["k1"]
-        # k2_each = feat2["k2"]
-        # k3_each = feat2["k3"]
-        # self.assertTrue(np.array_equal(k1/k1_norm, k1_each))
-        # self.assertTrue(np.array_equal(k2/k2_norm, k2_each))
-        # self.assertTrue(np.array_equal(k3/k3_norm, k3_each))
+        # Test normalization of non-flat dense output with l2_each
+        desc.normalization = "l2_each"
+        feat2 = desc.create(H2O)
+        k1_each = feat2["k1"]
+        k2_each = feat2["k2"]
+        k3_each = feat2["k3"]
+        self.assertTrue(np.array_equal(k1/k1_norm, k1_each))
+        self.assertTrue(np.array_equal(k2/k2_norm, k2_each))
+        self.assertTrue(np.array_equal(k3/k3_norm, k3_each))
 
-        # # Flattened dense output
-        # desc.flatten = True
-        # desc.normalization = "none"
-        # feat_flat = desc.create(H2O)
+        # Flattened dense output
+        desc.flatten = True
+        desc.normalization = "none"
+        feat_flat = desc.create(H2O)
 
-        # # Test normalization of flat dense output with l2_each
-        # desc.sparse = False
-        # desc.normalization = "l2_each"
-        # n_elem = len(desc.species)
-        # feat = desc.create(H2O)
-        # n1 = int(n*n_elem)
-        # n2 = int((n_elem*(n_elem+1)/2)*n)
-        # a1 = feat_flat[0, 0:n1]/k1_norm
-        # a2 = feat_flat[0, n1:n1+n2]/k2_norm
-        # a3 = feat_flat[0, n1+n2:]/k3_norm
-        # feat_flat_manual_norm_each = np.hstack((a1, a2, a3))
+        # Test normalization of flat dense output with l2_each
+        desc.sparse = False
+        desc.normalization = "l2_each"
+        n_elem = len(desc.species)
+        feat = desc.create(H2O)
+        n1 = int(n*n_elem)
+        n2 = int((n_elem*(n_elem+1)/2)*n)
+        a1 = feat_flat[0, 0:n1]/k1_norm
+        a2 = feat_flat[0, n1:n1+n2]/k2_norm
+        a3 = feat_flat[0, n1+n2:]/k3_norm
+        feat_flat_manual_norm_each = np.hstack((a1, a2, a3))
 
-        # self.assertTrue(np.allclose(feat[0, :], feat_flat_manual_norm_each, atol=1e-7, rtol=0))
+        self.assertTrue(np.allclose(feat[0, :], feat_flat_manual_norm_each, atol=1e-7, rtol=0))
 
-        # # Test normalization of flat sparse output with l2_each
-        # desc.sparse = True
-        # desc.normalization = "l2_each"
-        # feat = desc.create(H2O).toarray()
-        # self.assertTrue(np.allclose(feat[0, :], feat_flat_manual_norm_each, atol=1e-7, rtol=0))
+        # Test normalization of flat sparse output with l2_each
+        desc.sparse = True
+        desc.normalization = "l2_each"
+        feat = desc.create(H2O).toarray()
+        self.assertTrue(np.allclose(feat[0, :], feat_flat_manual_norm_each, atol=1e-7, rtol=0))
 
-        # # Test normalization of flat dense output with n_atoms
-        # desc.sparse = False
-        # desc.normalization = "n_atoms"
-        # n_atoms = len(H2O)
-        # n_elem = len(desc.species)
-        # feat = desc.create(H2O)
-        # self.assertTrue(np.allclose(feat[0, :], feat_flat/n_atoms, atol=1e-7, rtol=0))
+        # Test normalization of flat dense output with n_atoms
+        desc.sparse = False
+        desc.normalization = "n_atoms"
+        n_atoms = len(H2O)
+        n_elem = len(desc.species)
+        feat = desc.create(H2O)
+        self.assertTrue(np.allclose(feat[0, :], feat_flat/n_atoms, atol=1e-7, rtol=0))
 
-        # # Test normalization of flat sparse output with n_atoms
-        # desc.sparse = True
-        # desc.normalization = "n_atoms"
-        # feat = desc.create(H2O).toarray()
-        # self.assertTrue(np.allclose(feat[0, :], feat_flat/n_atoms, atol=1e-7, rtol=0))
+        # Test normalization of flat sparse output with n_atoms
+        desc.sparse = True
+        desc.normalization = "n_atoms"
+        feat = desc.create(H2O).toarray()
+        self.assertTrue(np.allclose(feat[0, :], feat_flat/n_atoms, atol=1e-7, rtol=0))
 
     # def test_k1_weights_and_geoms_finite(self):
         # """Tests that the values of the weight and geometry functions are
@@ -883,42 +883,42 @@ class MBTRTests(unittest.TestCase):
 
         # self.dict_comparison(weights, assumed_weights)
 
-    # def test_k2_periodic_cell_translation(self):
-        # """Tests that the final spectra does not change when translating atoms
-        # in a periodic cell. This is not trivially true unless the weight of
-        # distances between periodic neighbours are not halfed. Notice that the
-        # values of the geometry and weight functions are not equal before
-        # summing them up in the final graph.
-        # """
-        # # Original system with atoms separated by a cell wall
-        # atoms = Atoms(
-            # cell=[
-                # [10, 0, 0],
-                # [10, 10, 0],
-                # [10, 0, 10],
-            # ],
-            # symbols=["H", "C"],
-            # scaled_positions=[
-                # [0.1, 0.5, 0.5],
-                # [0.9, 0.5, 0.5],
-            # ],
-            # pbc=True
-        # )
+    def test_k2_periodic_cell_translation(self):
+        """Tests that the final spectra does not change when translating atoms
+        in a periodic cell. This is not trivially true unless the weight of
+        distances between periodic neighbours are not halfed. Notice that the
+        values of the geometry and weight functions are not equal before
+        summing them up in the final graph.
+        """
+        # Original system with atoms separated by a cell wall
+        atoms = Atoms(
+            cell=[
+                [10, 0, 0],
+                [10, 10, 0],
+                [10, 0, 10],
+            ],
+            symbols=["H", "C"],
+            scaled_positions=[
+                [0.1, 0.5, 0.5],
+                [0.9, 0.5, 0.5],
+            ],
+            pbc=True
+        )
 
-        # # Translated system with atoms next to each other
-        # atoms2 = atoms.copy()
-        # atoms2.translate([5, 0, 0])
-        # atoms2.wrap()
+        # Translated system with atoms next to each other
+        atoms2 = atoms.copy()
+        atoms2.translate([5, 0, 0])
+        atoms2.wrap()
 
-        # desc = copy.deepcopy(default_desc_k2)
-        # desc.species = ["H", "C"]
-        # desc.periodic = True
-        # desc.k2["weighting"] = {"function": "exp", "scale": 0.8, "cutoff": 1e-3}
+        desc = copy.deepcopy(default_desc_k2)
+        desc.species = ["H", "C"]
+        desc.periodic = True
+        desc.k2["weighting"] = {"function": "exp", "scale": 0.8, "cutoff": 1e-3}
 
-        # # The resulting spectra should be indentical
-        # spectra1 = desc.create(atoms)[0, :]
-        # spectra2 = desc.create(atoms2)[0, :]
-        # self.assertTrue(np.allclose(spectra1, spectra2, rtol=0, atol=1e-8))
+        # The resulting spectra should be indentical
+        spectra1 = desc.create(atoms)[0, :]
+        spectra2 = desc.create(atoms2)[0, :]
+        self.assertTrue(np.allclose(spectra1, spectra2, rtol=0, atol=1e-7))
 
     # def test_k3_weights_and_geoms_finite(self):
         # """Tests that all the correct angles are present in finite systems.
@@ -1036,367 +1036,340 @@ class MBTRTests(unittest.TestCase):
 
         # self.dict_comparison(weights, assumed_weights)
 
-    # def test_k3_periodic_cell_translation(self):
-        # """Tests that the final spectra does not change when translating atoms
-        # in a periodic cell. This is not trivially true unless the weight of
-        # distances between periodic neighbours are not halfed. Notice that the
-        # values of the geometry and weight functions are not equal before
-        # summing them up in the final graph.
-        # """
-        # # Original system with atoms separated by a cell wall
-        # atoms = Atoms(
-            # cell=[
-                # [10, 0, 0],
-                # [0, 10, 0],
-                # [0, 0, 10],
-            # ],
-            # symbols=["H", "H", "H", "H"],
-            # scaled_positions=[
-                # [0.1, 0.50, 0.5],
-                # [0.1, 0.60, 0.5],
-                # [0.9, 0.50, 0.5],
-                # [0.9, 0.60, 0.5],
-            # ],
-            # pbc=True
-        # )
+    def test_k3_periodic_cell_translation(self):
+        """Tests that the final spectra does not change when translating atoms
+        in a periodic cell. This is not trivially true unless the weight of
+        distances between periodic neighbours are not halfed. Notice that the
+        values of the geometry and weight functions are not equal before
+        summing them up in the final graph.
+        """
+        # Original system with atoms separated by a cell wall
+        atoms = Atoms(
+            cell=[
+                [10, 0, 0],
+                [0, 10, 0],
+                [0, 0, 10],
+            ],
+            symbols=["H", "H", "H", "H"],
+            scaled_positions=[
+                [0.1, 0.50, 0.5],
+                [0.1, 0.60, 0.5],
+                [0.9, 0.50, 0.5],
+                [0.9, 0.60, 0.5],
+            ],
+            pbc=True
+        )
 
-        # # Translated system with atoms next to each other
-        # atoms2 = atoms.copy()
-        # atoms2.translate([5, 0, 0])
-        # atoms2.wrap()
+        # Translated system with atoms next to each other
+        atoms2 = atoms.copy()
+        atoms2.translate([5, 0, 0])
+        atoms2.wrap()
 
-        # desc = copy.deepcopy(default_desc_k3)
-        # desc.k3["weighting"] = {"function": "exp", "scale": 1, "cutoff": 1e-3}
-        # desc.periodic = True
+        desc = copy.deepcopy(default_desc_k3)
+        desc.k3["weighting"] = {"function": "exp", "scale": 1, "cutoff": 1e-3}
+        desc.periodic = True
 
-        # # The resulting spectra should be indentical
-        # spectra1 = desc.create(atoms)[0, :]
-        # spectra2 = desc.create(atoms2)[0, :]
-        # self.assertTrue(np.allclose(spectra1, spectra2, rtol=0, atol=1e-8))
+        # The resulting spectra should be indentical
+        spectra1 = desc.create(atoms)[0, :]
+        spectra2 = desc.create(atoms2)[0, :]
+        self.assertTrue(np.allclose(spectra1, spectra2, rtol=0, atol=1e-8))
 
-    # def test_gaussian_distribution(self):
-        # """Check that the broadening follows gaussian distribution.
-        # """
-        # # Check with normalization
-        # std = 1
-        # start = -3
-        # stop = 11
-        # n = 500
-        # desc = copy.deepcopy(default_desc_k1)
-        # desc.flatten = False
-        # desc.normalize_gaussians = True
-        # desc.k1["grid"] = {"min": start, "max": stop, "sigma": std, "n": n}
-        # y = desc.create(H2O)["k1"]
-        # k1_axis = desc._axis_k1
+    def test_gaussian_distribution(self):
+        """Check that the broadening follows gaussian distribution.
+        """
+        # Check with normalization
+        std = 1
+        start = -3
+        stop = 11
+        n = 500
+        desc = copy.deepcopy(default_desc_k1)
+        desc.flatten = False
+        desc.normalize_gaussians = True
+        desc.k1["grid"] = {"min": start, "max": stop, "sigma": std, "n": n}
+        y = desc.create(H2O)["k1"]
+        k1_axis = desc.get_k1_axis()
 
-        # # Find the location of the peaks
-        # peak1_x = np.searchsorted(k1_axis, 1)
-        # peak1_y = y[0, peak1_x]
-        # peak2_x = np.searchsorted(k1_axis, 8)
-        # peak2_y = y[1, peak2_x]
+        # Find the location of the peaks
+        peak1_x = np.searchsorted(k1_axis, 1)
+        peak1_y = y[0, peak1_x]
+        peak2_x = np.searchsorted(k1_axis, 8)
+        peak2_y = y[1, peak2_x]
 
-        # # Check against the analytical value
-        # gaussian = lambda x, mean, sigma: 1/(sigma*np.sqrt(2*np.pi))*np.exp(-(x-mean)**2/(2*sigma**2))
-        # self.assertTrue(np.allclose(peak1_y, 2*gaussian(1, 1, std), rtol=0, atol=0.001))
-        # self.assertTrue(np.allclose(peak2_y, gaussian(8, 8, std), rtol=0, atol=0.001))
+        # Check against the analytical value
+        gaussian = lambda x, mean, sigma: 1/(sigma*np.sqrt(2*np.pi))*np.exp(-(x-mean)**2/(2*sigma**2))
+        self.assertTrue(np.allclose(peak1_y, 2*gaussian(1, 1, std), rtol=0, atol=0.001))
+        self.assertTrue(np.allclose(peak2_y, gaussian(8, 8, std), rtol=0, atol=0.001))
 
-        # # Check the integral
-        # pdf = y[0, :]
-        # dx = (stop-start)/(n-1)
-        # sum_cum = np.sum(0.5*dx*(pdf[:-1]+pdf[1:]))
-        # exp = 2
-        # self.assertTrue(np.allclose(sum_cum, exp, rtol=0, atol=0.001))
+        # Check the integral
+        pdf = y[0, :]
+        dx = (stop-start)/(n-1)
+        sum_cum = np.sum(0.5*dx*(pdf[:-1]+pdf[1:]))
+        exp = 2
+        self.assertTrue(np.allclose(sum_cum, exp, rtol=0, atol=0.001))
 
-        # # Check without normalization
-        # std = 1
-        # start = -3
-        # stop = 11
-        # n = 500
-        # desc.normalize_gaussians = False
-        # desc.k1["grid"] = {"min": start, "max": stop, "sigma": std, "n": n}
-        # y = desc.create(H2O)["k1"]
-        # k1_axis = desc._axis_k1
+        # Check without normalization
+        std = 1
+        start = -3
+        stop = 11
+        n = 500
+        desc.normalize_gaussians = False
+        desc.k1["grid"] = {"min": start, "max": stop, "sigma": std, "n": n}
+        y = desc.create(H2O)["k1"]
+        k1_axis = desc.get_k1_axis()
 
-        # # Find the location of the peaks
-        # peak1_x = np.searchsorted(k1_axis, 1)
-        # peak1_y = y[0, peak1_x]
-        # peak2_x = np.searchsorted(k1_axis, 8)
-        # peak2_y = y[1, peak2_x]
+        # Find the location of the peaks
+        peak1_x = np.searchsorted(k1_axis, 1)
+        peak1_y = y[0, peak1_x]
+        peak2_x = np.searchsorted(k1_axis, 8)
+        peak2_y = y[1, peak2_x]
 
-        # # Check against the analytical value
-        # gaussian = lambda x, mean, sigma: np.exp(-(x-mean)**2/(2*sigma**2))
-        # self.assertTrue(np.allclose(peak1_y, 2*gaussian(1, 1, std), rtol=0, atol=0.001))
-        # self.assertTrue(np.allclose(peak2_y, gaussian(8, 8, std), rtol=0, atol=0.001))
+        # Check against the analytical value
+        gaussian = lambda x, mean, sigma: np.exp(-(x-mean)**2/(2*sigma**2))
+        self.assertTrue(np.allclose(peak1_y, 2*gaussian(1, 1, std), rtol=0, atol=0.001))
+        self.assertTrue(np.allclose(peak2_y, gaussian(8, 8, std), rtol=0, atol=0.001))
 
-        # # Check the integral
-        # pdf = y[0, :]
-        # dx = (stop-start)/(n-1)
-        # sum_cum = np.sum(0.5*dx*(pdf[:-1]+pdf[1:]))
-        # exp = 2/(1/math.sqrt(2*math.pi*std**2))
-        # self.assertTrue(np.allclose(sum_cum, exp, rtol=0, atol=0.001))
+        # Check the integral
+        pdf = y[0, :]
+        dx = (stop-start)/(n-1)
+        sum_cum = np.sum(0.5*dx*(pdf[:-1]+pdf[1:]))
+        exp = 2/(1/math.sqrt(2*math.pi*std**2))
+        self.assertTrue(np.allclose(sum_cum, exp, rtol=0, atol=0.001))
 
-    # def test_symmetries(self):
+    def test_symmetries(self):
 
-        # def create(system):
-            # desc = copy.deepcopy(default_desc_k1_k2_k3)
-            # desc.species = ["H", "O"]
-            # return desc.create(system)
+        def create(system):
+            desc = copy.deepcopy(default_desc_k1_k2_k3)
+            desc.species = ["H", "O"]
+            return desc.create(system)
 
-        # # Rotational check
-        # self.assertTrue(self.is_rotationally_symmetric(create))
+        # Rotational check
+        self.assertTrue(self.is_rotationally_symmetric(create))
 
-        # # Translational
-        # self.assertTrue(self.is_translationally_symmetric(create))
+        # Translational
+        self.assertTrue(self.is_translationally_symmetric(create))
 
-        # # Permutational
-        # self.assertTrue(self.is_permutation_symmetric(create))
+        # Permutational
+        self.assertTrue(self.is_permutation_symmetric(create))
 
-    # def test_unit_cells(self):
-        # """Tests that arbitrary unit cells are accepted.
-        # """
-        # desc = copy.deepcopy(default_desc_k1_k2_k3)
-        # desc.periodic = False
-        # desc.species = ["H", "O"]
-        # molecule = H2O.copy()
+    def test_unit_cells(self):
+        """Tests that arbitrary unit cells are accepted.
+        """
+        desc = copy.deepcopy(default_desc_k1_k2_k3)
+        desc.periodic = False
+        desc.species = ["H", "O"]
+        molecule = H2O.copy()
 
-        # # No cell needed for finite systems
-        # molecule.set_cell([
-            # [0.0, 0.0, 0.0],
-            # [0.0, 0.0, 0.0],
-            # [0.0, 0.0, 0.0]
-        # ])
-        # nocell = desc.create(molecule)
+        # No cell needed for finite systems
+        molecule.set_cell([
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0]
+        ])
+        nocell = desc.create(molecule)
 
-        # # Different periodic cells
-        # desc.periodic = True
-        # molecule.set_cell([
-            # [2.0, 0.0, 0.0],
-            # [0.0, 2.0, 0.0],
-            # [0.0, 0.0, 2.0]
-        # ])
-        # cubic_cell = desc.create(molecule)
+        # Different periodic cells
+        desc.periodic = True
+        molecule.set_cell([
+            [2.0, 0.0, 0.0],
+            [0.0, 2.0, 0.0],
+            [0.0, 0.0, 2.0]
+        ])
+        cubic_cell = desc.create(molecule)
 
-        # molecule.set_cell([
-            # [0.0, 2.0, 2.0],
-            # [2.0, 0.0, 2.0],
-            # [2.0, 2.0, 0.0]
-        # ])
-        # triclinic_smallcell = desc.create(molecule)
+        molecule.set_cell([
+            [0.0, 2.0, 2.0],
+            [2.0, 0.0, 2.0],
+            [2.0, 2.0, 0.0]
+        ])
+        triclinic_smallcell = desc.create(molecule)
 
-    # def test_periodic_images(self):
-        # """Tests that periodic images are handled correctly.
-        # """
-        # decay = 1
-        # desc = MBTR(
-            # species=[1],
-            # periodic=True,
-            # k1={
-                # "geometry": {"function": "atomic_number"},
-                # "grid": {"min": 0, "max": 2, "sigma": 0.1, "n": 21}
-            # },
-            # k2={
-                # "geometry": {"function": "inverse_distance"},
-                # "grid": {"min": 0, "max": 1.0, "sigma": 0.02, "n": 21},
-                # "weighting": {"function": "exp", "scale": decay, "cutoff": 1e-4}
-            # },
-            # k3={
-                # "geometry": {"function": "cosine"},
-                # "grid": {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 21},
-                # "weighting": {"function": "exp", "scale": decay, "cutoff": 1e-4},
-            # },
-            # normalization="l2_each",  # This normalizes the spectrum
-            # flatten=True
-        # )
+    def test_periodic_images(self):
+        """Tests that periodic images are handled correctly.
+        """
+        decay = 1
+        desc = MBTR(
+            species=[1],
+            periodic=True,
+            k1={
+                "geometry": {"function": "atomic_number"},
+                "grid": {"min": 0, "max": 2, "sigma": 0.1, "n": 21}
+            },
+            k2={
+                "geometry": {"function": "inverse_distance"},
+                "grid": {"min": 0, "max": 1.0, "sigma": 0.02, "n": 21},
+                "weighting": {"function": "exp", "scale": decay, "cutoff": 1e-4}
+            },
+            k3={
+                "geometry": {"function": "cosine"},
+                "grid": {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 21},
+                "weighting": {"function": "exp", "scale": decay, "cutoff": 1e-4},
+            },
+            normalization="l2_each",  # This normalizes the spectrum
+            flatten=True
+        )
 
-        # # Tests that a system has the same spectrum as the supercell of
-        # # the same system.
-        # molecule = H.copy()
-        # a = 1.5
-        # molecule.set_cell([
-            # [a, 0.0, 0.0],
-            # [0.0, a, 0.0],
-            # [0.0, 0.0, a]
-        # ])
-        # cubic_cell = desc.create(molecule)
-        # suce = molecule * (2, 1, 1)
-        # cubic_suce = desc.create(suce)
+        # Tests that a system has the same spectrum as the supercell of
+        # the same system.
+        molecule = H.copy()
+        a = 1.5
+        molecule.set_cell([
+            [a, 0.0, 0.0],
+            [0.0, a, 0.0],
+            [0.0, 0.0, a]
+        ])
+        cubic_cell = desc.create(molecule)
+        suce = molecule * (2, 1, 1)
+        cubic_suce = desc.create(suce)
 
-        # diff = abs(np.sum(cubic_cell[0, :] - cubic_suce[0, :]))
-        # cubic_sum = abs(np.sum(cubic_cell[0, :]))
-        # self.assertTrue(diff/cubic_sum < 0.05)  # A 5% error is tolerated
+        diff = abs(np.sum(cubic_cell[0, :] - cubic_suce[0, :]))
+        cubic_sum = abs(np.sum(cubic_cell[0, :]))
+        self.assertTrue(diff/cubic_sum < 0.05)  # A 5% error is tolerated
 
-        # # Same test but for triclinic cell
-        # molecule.set_cell([
-            # [0.0, 2.0, 1.0],
-            # [1.0, 0.0, 1.0],
-            # [1.0, 2.0, 0.0]
-        # ])
+        # Same test but for triclinic cell
+        molecule.set_cell([
+            [0.0, 2.0, 1.0],
+            [1.0, 0.0, 1.0],
+            [1.0, 2.0, 0.0]
+        ])
 
-        # triclinic_cell = desc.create(molecule)
-        # suce = molecule * (2, 1, 1)
-        # triclinic_suce = desc.create(suce)
+        triclinic_cell = desc.create(molecule)
+        suce = molecule * (2, 1, 1)
+        triclinic_suce = desc.create(suce)
 
-        # diff = abs(np.sum(triclinic_cell[0, :] - triclinic_suce[0, :]))
-        # tricl_sum = abs(np.sum(triclinic_cell[0, :]))
-        # self.assertTrue(diff/tricl_sum < 0.05)
+        diff = abs(np.sum(triclinic_cell[0, :] - triclinic_suce[0, :]))
+        tricl_sum = abs(np.sum(triclinic_cell[0, :]))
+        self.assertTrue(diff/tricl_sum < 0.05)
 
-        # # Testing that the same crystal, but different unit cells will have a
-        # # similar spectrum when they are normalized. There will be small
-        # # differences in the shape (due to not double counting distances)
-        # a1 = bulk('H', 'fcc', a=2.0)
-        # a2 = bulk('H', 'fcc', a=2.0, orthorhombic=True)
-        # a3 = bulk('H', 'fcc', a=2.0, cubic=True)
+        # Testing that the same crystal, but different unit cells will have a
+        # similar spectrum when they are normalized. There will be small
+        # differences in the shape (due to not double counting distances)
+        a1 = bulk('H', 'fcc', a=2.0)
+        a2 = bulk('H', 'fcc', a=2.0, orthorhombic=True)
+        a3 = bulk('H', 'fcc', a=2.0, cubic=True)
 
-        # triclinic_cell = desc.create(a1)
-        # orthorhombic_cell = desc.create(a2)
-        # cubic_cell = desc.create(a3)
+        triclinic_cell = desc.create(a1)
+        orthorhombic_cell = desc.create(a2)
+        cubic_cell = desc.create(a3)
 
-        # diff1 = abs(np.sum(triclinic_cell[0, :] - orthorhombic_cell[0, :]))
-        # diff2 = abs(np.sum(triclinic_cell[0, :] - cubic_cell[0, :]))
-        # tricl_sum = abs(np.sum(triclinic_cell[0, :]))
-        # self.assertTrue(diff1/tricl_sum < 0.05)
-        # self.assertTrue(diff2/tricl_sum < 0.05)
+        diff1 = abs(np.sum(triclinic_cell[0, :] - orthorhombic_cell[0, :]))
+        diff2 = abs(np.sum(triclinic_cell[0, :] - cubic_cell[0, :]))
+        tricl_sum = abs(np.sum(triclinic_cell[0, :]))
+        self.assertTrue(diff1/tricl_sum < 0.05)
+        self.assertTrue(diff2/tricl_sum < 0.05)
 
-        # # Tests that the correct peak locations are present in a cubic periodic
-        # desc = MBTR(
-            # species=["H"],
-            # periodic=True,
-            # k3={
-                # "geometry": {"function": "cosine"},
-                # "grid": {"min": -1.1, "max": 1.1, "sigma": 0.010, "n": 600},
-                # "weighting": {"function": "exp", "scale": decay, "cutoff": 1e-4}
-            # },
-            # normalization="l2_each",  # This normalizes the spectrum
-            # flatten=True
-        # )
-        # a = 2.2
-        # system = Atoms(
-            # cell=[
-                # [a, 0.0, 0.0],
-                # [0.0, a, 0.0],
-                # [0.0, 0.0, a]
-            # ],
-            # positions=[
-                # [0, 0, 0],
-            # ],
-            # symbols=["H"],
-        # )
-        # cubic_spectrum = desc.create(system)[0, :]
-        # x3 = desc._axis_k3
+        # Tests that the correct peak locations are present in a cubic periodic
+        desc = MBTR(
+            species=["H"],
+            periodic=True,
+            k3={
+                "geometry": {"function": "cosine"},
+                "grid": {"min": -1.1, "max": 1.1, "sigma": 0.010, "n": 600},
+                "weighting": {"function": "exp", "scale": decay, "cutoff": 1e-4}
+            },
+            normalization="l2_each",  # This normalizes the spectrum
+            flatten=True
+        )
+        a = 2.2
+        system = Atoms(
+            cell=[
+                [a, 0.0, 0.0],
+                [0.0, a, 0.0],
+                [0.0, 0.0, a]
+            ],
+            positions=[
+                [0, 0, 0],
+            ],
+            symbols=["H"],
+        )
+        cubic_spectrum = desc.create(system)[0, :]
+        x3 = desc.get_k3_axis()
 
-        # peak_ids = find_peaks_cwt(cubic_spectrum, [2])
-        # peak_locs = x3[peak_ids]
+        peak_ids = find_peaks_cwt(cubic_spectrum, [2])
+        peak_locs = x3[peak_ids]
 
-        # assumed_peaks = np.cos(np.array(
-            # [
-                # 180,
-                # 90,
-                # np.arctan(np.sqrt(2))*180/np.pi,
-                # 45,
-                # np.arctan(np.sqrt(2)/2)*180/np.pi,
-                # 0
-            # ])*np.pi/180
-        # )
-        # self.assertTrue(np.allclose(peak_locs, assumed_peaks, rtol=0, atol=5*np.pi/180))
+        assumed_peaks = np.cos(np.array(
+            [
+                180,
+                90,
+                np.arctan(np.sqrt(2))*180/np.pi,
+                45,
+                np.arctan(np.sqrt(2)/2)*180/np.pi,
+                0
+            ])*np.pi/180
+        )
+        self.assertTrue(np.allclose(peak_locs, assumed_peaks, rtol=0, atol=5*np.pi/180))
 
-        # # Tests that the correct peak locations are present in a system with a
-        # # non-cubic basis
-        # desc = MBTR(
-            # species=["H"],
-            # periodic=True,
-            # k3={
-                # "geometry": {"function": "cosine"},
-                # "grid": {"min": -1.0, "max": 1.0, "sigma": 0.030, "n": 200},
-                # "weighting": {"function": "exp", "scale": 1.5, "cutoff": 1e-4}
-            # },
-            # normalization="l2_each",  # This normalizes the spectrum
-            # flatten=True,
-            # sparse=False
-        # )
-        # a = 2.2
-        # system = Atoms(
-            # cell=[
-                # [a, 0.0, 0.0],
-                # [0.0, a, 0.0],
-                # [0.0, 0.0, a]
-            # ],
-            # positions=[
-                # [0, 0, 0],
-            # ],
-            # symbols=["H"],
-        # )
-        # angle = 30
-        # system = Atoms(
-            # cell=ase.geometry.cellpar_to_cell([3*a, a, a, angle, 90, 90]),
-            # positions=[
-                # [0, 0, 0],
-            # ],
-            # symbols=["H"],
-        # )
-        # tricl_spectrum = desc.create(system)
-        # x3 = desc._axis_k3
+        # Tests that the correct peak locations are present in a system with a
+        # non-cubic basis
+        desc = MBTR(
+            species=["H"],
+            periodic=True,
+            k3={
+                "geometry": {"function": "cosine"},
+                "grid": {"min": -1.0, "max": 1.0, "sigma": 0.030, "n": 200},
+                "weighting": {"function": "exp", "scale": 1.5, "cutoff": 1e-4}
+            },
+            normalization="l2_each",  # This normalizes the spectrum
+            flatten=True,
+            sparse=False
+        )
+        a = 2.2
+        system = Atoms(
+            cell=[
+                [a, 0.0, 0.0],
+                [0.0, a, 0.0],
+                [0.0, 0.0, a]
+            ],
+            positions=[
+                [0, 0, 0],
+            ],
+            symbols=["H"],
+        )
+        angle = 30
+        system = Atoms(
+            cell=ase.geometry.cellpar_to_cell([3*a, a, a, angle, 90, 90]),
+            positions=[
+                [0, 0, 0],
+            ],
+            symbols=["H"],
+        )
+        tricl_spectrum = desc.create(system)
+        x3 = desc.get_k3_axis()
 
-        # peak_ids = find_peaks_cwt(tricl_spectrum[0, :], [3])
-        # peak_locs = x3[peak_ids]
+        peak_ids = find_peaks_cwt(tricl_spectrum[0, :], [3])
+        peak_locs = x3[peak_ids]
 
-        # angle = (6)/(np.sqrt(5)*np.sqrt(8))
-        # assumed_peaks = np.cos(np.array([180, 105, 75, 51.2, 30, 0])*np.pi/180)
-        # self.assertTrue(np.allclose(peak_locs, assumed_peaks, rtol=0, atol=5*np.pi/180))
+        angle = (6)/(np.sqrt(5)*np.sqrt(8))
+        assumed_peaks = np.cos(np.array([180, 105, 75, 51.2, 30, 0])*np.pi/180)
+        self.assertTrue(np.allclose(peak_locs, assumed_peaks, rtol=0, atol=5*np.pi/180))
 
-    # def test_grid_change(self):
-        # """Tests that the calculation of MBTR with new grid settings works.
-        # """
-        # desc = copy.deepcopy(default_desc_k1_k2_k3)
-        # desc.periodic = False
+    def test_basis(self):
+        """Tests that the output vectors behave correctly as a basis.
+        """
+        sys1 = Atoms(symbols=["H"], positions=[[0, 0, 0]], cell=[2, 2, 2], pbc=True)
+        sys2 = Atoms(symbols=["O"], positions=[[0, 0, 0]], cell=[2, 2, 2], pbc=True)
+        sys3 = sys2*[2, 2, 2]
 
-        # # Initialize scalars with a given system
-        # desc.initialize_scalars(H2O)
+        desc = copy.deepcopy(default_desc_k1_k2_k3)
+        desc.sparse = False
 
-        # # Request spectrum with different grid settings
-        # spectrum1 = desc.create_with_grid({
-            # "k1": {"min": 0, "max": 9, "sigma": 0.05, "n": 200},
-            # "k2": {"min": 0, "max": 4, "sigma": 0.05, "n": 200},
-            # "k3": {"min": -1.5, "max": 1.5, "sigma": 0.05, "n": 200}
-        # })[0, :]
-        # spectrum2 = desc.create_with_grid({
-            # "k1": {"min": 0, "max": 9, "sigma": 0.1, "n": 200},
-            # "k2": {"min": 0, "max": 4, "sigma": 0.1, "n": 200},
-            # "k3": {"min": -1.5, "max": 1.5, "sigma": 0.1, "n": 200}
-        # })[0, :]
+        # Create normalized vectors for each system
+        vec1 = desc.create(sys1)[0, :]
+        vec1 /= np.linalg.norm(vec1)
 
-        # # Check that contents are not equal, but have same peaks
-        # self.assertFalse(np.allclose(spectrum1, spectrum2))
-        # peak_ids1 = find_peaks_cwt(spectrum1, np.arange(1, 6))
-        # peak_ids2 = find_peaks_cwt(spectrum2, np.arange(1, 6))
-        # self.assertTrue(np.array_equal(peak_ids1, peak_ids2))
+        vec2 = desc.create(sys2)[0, :]
+        vec2 /= np.linalg.norm(vec2)
 
-    # def test_basis(self):
-        # """Tests that the output vectors behave correctly as a basis.
-        # """
-        # sys1 = Atoms(symbols=["H"], positions=[[0, 0, 0]], cell=[2, 2, 2], pbc=True)
-        # sys2 = Atoms(symbols=["O"], positions=[[0, 0, 0]], cell=[2, 2, 2], pbc=True)
-        # sys3 = sys2*[2, 2, 2]
+        vec3 = desc.create(sys3)[0, :]
+        vec3 /= np.linalg.norm(vec3)
 
-        # desc = copy.deepcopy(default_desc_k1_k2_k3)
-        # desc.sparse = False
+        # The dot-product should be zero when there are no overlapping elements
+        dot = np.dot(vec1, vec2)
+        self.assertEqual(dot, 0)
 
-        # # Create normalized vectors for each system
-        # vec1 = desc.create(sys1)[0, :]
-        # vec1 /= np.linalg.norm(vec1)
-
-        # vec2 = desc.create(sys2)[0, :]
-        # vec2 /= np.linalg.norm(vec2)
-
-        # vec3 = desc.create(sys3)[0, :]
-        # vec3 /= np.linalg.norm(vec3)
-
-        # # The dot-product should be zero when there are no overlapping elements
-        # dot = np.dot(vec1, vec2)
-        # self.assertEqual(dot, 0)
-
-        # # The dot-product should be rougly one for a primitive cell and a supercell
-        # dot = np.dot(vec2, vec3)
-        # self.assertTrue(abs(dot-1) < 1e-3)
+        # The dot-product should be rougly one for a primitive cell and a supercell
+        dot = np.dot(vec2, vec3)
+        self.assertTrue(abs(dot-1) < 1e-3)
 
 
 if __name__ == '__main__':

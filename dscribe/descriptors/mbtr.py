@@ -202,15 +202,6 @@ class MBTR(Descriptor):
         # Initializing .create() level variables
         self._interaction_limit = None
         self._is_local = False
-        self._k1_geoms = None
-        self._k1_weights = None
-        self._k2_geoms = None
-        self._k2_weights = None
-        self._k3_geoms = None
-        self._k3_weights = None
-        self._axis_k1 = None
-        self._axis_k2 = None
-        self._axis_k3 = None
 
         # Check that weighting function is specified for periodic systems
         if self.periodic:
@@ -443,6 +434,45 @@ class MBTR(Descriptor):
             )
         self._normalization = value
 
+    def get_k1_axis(self):
+        """Used to get the discretized axis for geometry function of the k=1
+        term.
+
+        Returns:
+            np.ndarray: The discretized axis for the k=1 term.
+        """
+        start = self.k1["grid"]["min"]
+        stop = self.k1["grid"]["max"]
+        n = self.k1["grid"]["n"]
+
+        return np.linspace(start, stop, n)
+
+    def get_k2_axis(self):
+        """Used to get the discretized axis for geometry function of the k=2
+        term.
+
+        Returns:
+            np.ndarray: The discretized axis for the k=2 term.
+        """
+        start = self.k2["grid"]["min"]
+        stop = self.k2["grid"]["max"]
+        n = self.k2["grid"]["n"]
+
+        return np.linspace(start, stop, n)
+
+    def get_k3_axis(self):
+        """Used to get the discretized axis for geometry function of the k=3
+        term.
+
+        Returns:
+            np.ndarray: The discretized axis for the k=3 term.
+        """
+        start = self.k3["grid"]["min"]
+        stop = self.k3["grid"]["max"]
+        n = self.k3["grid"]["n"]
+
+        return np.linspace(start, stop, n)
+
     def create(self, system, n_jobs=1, verbose=False):
         """Return MBTR output for the given systems.
 
@@ -504,15 +534,6 @@ class MBTR(Descriptor):
         # Ensuring variables are re-initialized when a new system is introduced
         self._interaction_limit = None
         self.system = system
-        self._k1_geoms = None
-        self._k1_weights = None
-        self._k2_geoms = None
-        self._k2_weights = None
-        self._k3_geoms = None
-        self._k3_weights = None
-        self._axis_k1 = None
-        self._axis_k2 = None
-        self._axis_k3 = None
 
         if self._is_local:
             self._interaction_limit = 1
@@ -1108,519 +1129,3 @@ class MBTR(Descriptor):
                 k3[i, j, k, :] = gaussian_sum
 
         return k3
-
-    # def get_k1_convolution(self, grid):
-        # """Calculates the first order terms where the scalar mapping is the
-        # number of atoms of a certain type.
-
-        # Args:
-            # grid (dict): Grid settings.
-
-        # Returns:
-            # ndarray | scipy.sparse.lil_matrix: K1 values.
-        # """
-        # start = grid["min"]
-        # stop = grid["max"]
-        # n = grid["n"]
-        # self._axis_k1 = np.linspace(start, stop, n)
-
-        # n_elem = self.n_elements
-        # k1_geoms, k1_weights = self._k1_geoms, self._k1_weights
-
-        # # Depending of flattening, use either a sparse matrix or a dense one.
-        # if self.flatten:
-            # k1 = lil_matrix((1, n_elem*n), dtype=np.float32)
-        # else:
-            # k1 = np.zeros((n_elem, n), dtype=np.float32)
-
-        # for key in k1_geoms.keys():
-            # i = key[0]
-
-            # geoms = np.array(k1_geoms[key])
-            # weights = np.array(k1_weights[key])
-
-            # # Broaden with a gaussian
-            # gaussian_sum = self.gaussian_sum(geoms, weights, grid)
-
-            # if self.flatten:
-                # start = i*n
-                # end = (i+1)*n
-                # k1[0, start:end] = gaussian_sum
-            # else:
-                # k1[i, :] = gaussian_sum
-
-        # return k1
-
-    def get_k2_convolution(self, grid):
-        """Calculates the second order terms where the scalar mapping is the
-        inverse distance between atoms.
-
-        Args:
-            grid (dict): The grid settings
-
-        Returns:
-            1D ndarray: flattened K2 values.
-        """
-        start = grid["min"]
-        stop = grid["max"]
-        n = grid["n"]
-        self._axis_k2 = np.linspace(start, stop, n)
-
-        k2_geoms, k2_weights = self._k2_geoms, self._k2_weights
-        n_elem = self.n_elements
-
-        # Depending of flattening, use either a sparse matrix or a dense one.
-        if self.flatten:
-            k2 = lil_matrix(
-                (1, int(n_elem*(n_elem+1)/2*n)), dtype=np.float32)
-        else:
-            k2 = np.zeros((self.n_elements, self.n_elements, n), dtype=np.float32)
-
-        for key in k2_geoms.keys():
-            i = key[0]
-            j = key[1]
-
-            # This is the index of the spectrum. It is given by enumerating the
-            # elements of an upper triangular matrix from left to right and top
-            # to bottom.
-            m = int(j + i*n_elem - i*(i+1)/2)
-
-            geoms = np.array(k2_geoms[key])
-            weights = np.array(k2_weights[key])
-
-            # Broaden with a gaussian
-            gaussian_sum = self.gaussian_sum(geoms, weights, grid)
-
-            if self.flatten:
-                start = m*n
-                end = (m + 1)*n
-                k2[0, start:end] = gaussian_sum
-            else:
-                k2[i, j, :] = gaussian_sum
-
-        return k2
-
-    # def get_k3_convolution(self, grid):
-        # """Calculates the third order terms where the scalar mapping is the
-        # angle between 3 atoms.
-
-        # Args:
-            # grid (dict): The grid settings
-
-        # Returns:
-            # 1D ndarray: flattened K3 values.
-        # """
-        # start = grid["min"]
-        # stop = grid["max"]
-        # n = grid["n"]
-        # self._axis_k3 = np.linspace(start, stop, n)
-
-        # k3_geoms, k3_weights = self._k3_geoms, self._k3_weights
-        # n_elem = self.n_elements
-
-        # # Depending of flattening, use either a sparse matrix or a dense one.
-        # if self.flatten:
-            # k3 = lil_matrix(
-                # (1, int(n_elem*n_elem*(n_elem+1)/2*n)), dtype=np.float32
-            # )
-        # else:
-            # k3 = np.zeros((n_elem, n_elem, n_elem, n), dtype=np.float32)
-
-        # for key in k3_geoms.keys():
-            # i = key[0]
-            # j = key[1]
-            # k = key[2]
-
-            # # This is the index of the spectrum. It is given by enumerating the
-            # # elements of a three-dimensional array where for valid elements
-            # # k>=i. The enumeration begins from [0, 0, 0], and ends at [n_elem,
-            # # n_elem, n_elem], looping the elements in the order j, i, k.
-            # m = int(j*n_elem*(n_elem+1)/2 + k + i*n_elem - i*(i+1)/2)
-
-            # geoms = np.array(k3_geoms[key])
-            # weights = np.array(k3_weights[key])
-
-            # # Broaden with a gaussian
-            # gaussian_sum = self.gaussian_sum(geoms, weights, grid)
-
-            # if self.flatten:
-                # start = m*n
-                # end = (m+1)*n
-                # k3[0, start:end] = gaussian_sum
-            # else:
-                # k3[i, j, k, :] = gaussian_sum
-
-        # return k3
-
-    def gaussian_sum(self, centers, weights, settings):
-        """Calculates a discrete version of a sum of Gaussian distributions.
-
-        The calculation is done through the cumulative distribution function
-        that is better at keeping the integral of the probability function
-        constant with coarser grids.
-
-        The values are normalized by dividing with the maximum value of a
-        gaussian with the given standard deviation.
-
-        Args:
-            centers (1D np.ndarray): The means of the gaussians.
-            weights (1D np.ndarray): The weights for the gaussians.
-            settings (dict): The grid settings
-
-        Returns:
-            Value of the gaussian sums on the given grid.
-        """
-        start = settings["min"]
-        stop = settings["max"]
-        sigma = settings["sigma"]
-        n = settings["n"]
-
-        dx = (stop - start)/(n-1)
-        x = np.linspace(start-dx/2, stop+dx/2, n+1)
-
-        # One could calculate the full gaussian value with numpy using a single
-        # call. The intermediate step before summing up may however be too big
-        # to fit into memory. This is why the summation is done in a loop.
-        f = np.zeros(n+1)
-        pos = x[np.newaxis, :] - centers[:, np.newaxis]
-        y = weights[:, np.newaxis]*1/2*(1 + erf(pos/(sigma*np.sqrt(2))))
-        f = np.sum(y, axis=0)
-
-        if not self.normalize_gaussians:
-            max_val = 1/(sigma*math.sqrt(2*math.pi))
-            f /= max_val
-
-        f_rolled = np.roll(f, -1)
-        pdf = (f_rolled - f)[0:-1]/dx  # PDF is the derivative of CDF
-
-        return pdf
-
-    # def k1_geoms_and_weights(self, system, cell_indices):
-        # """Calculate the atom count for each element.
-
-        # Args:
-            # system (System): The atomic system.
-            # cell_indices (np.ndarray): The cell indices for each atom.
-
-        # Returns:
-            # 1D ndarray: The counts for each element in a list where the index
-            # of atomic number x is self.atomic_number_to_index[x]
-        # """
-        # if self._k1_geoms is None or self._k1_weights is None:
-
-            # cmbtr = MBTRWrapper(
-                # system.get_positions(),
-                # system.get_atomic_numbers(),
-                # self.atomic_number_to_index,
-                # interaction_limit=self._interaction_limit,
-                # indices=cell_indices,
-                # is_local=self._is_local
-            # )
-
-            # # For k=1, the geometry function is given by the atomic number, and
-            # # the weighting function is unity by default.
-            # parameters = {}
-
-            # geom_func_name = self.k1["geometry"]["function"]
-            # if geom_func_name is None:
-                # geom_func_name = "atomic_numbers"
-
-            # self._k1_geoms, self._k1_weights = cmbtr.get_k1_geoms_and_weights(
-                # geom_func=geom_func_name.encode(),
-                # weight_func=b"unity",
-                # parameters=parameters
-            # )
-        # return self._k1_geoms, self._k1_weights
-
-    # def k2_geoms_and_weights(self, system, cell_indices):
-        # """Calculates the value of the geometry function and corresponding
-        # weights for unique two-body combinations.
-
-        # Args:
-            # system (System): The atomic system.
-
-        # Returns:
-            # dict: Inverse distances in the form: {(i, j): [list of angles] }.
-            # The dictionaries are filled so that the entry for pair i and j is
-            # in the entry where j>=i.
-        # """
-        # if self._k2_geoms is None or self._k2_weights is None:
-
-            # cmbtr = MBTRWrapper(
-                # system.get_positions(),
-                # system.get_atomic_numbers(),
-                # self.atomic_number_to_index,
-                # interaction_limit=self._interaction_limit,
-                # indices=cell_indices,
-                # is_local=self._is_local
-            # )
-
-            # # Determine the weighting function and possible radial cutoff
-            # radial_cutoff = None
-            # weighting = self.k2.get("weighting")
-            # parameters = {}
-            # if weighting is not None:
-                # weighting_function = weighting["function"]
-                # if weighting_function == "exponential" or weighting_function == "exp":
-                    # radial_cutoff = -math.log(weighting["cutoff"])/weighting["scale"]
-                    # parameters = {
-                        # b"scale": weighting["scale"],
-                        # b"cutoff": weighting["cutoff"]
-                    # }
-            # else:
-                # weighting_function = "unity"
-
-            # # Determine the geometry function
-            # geom_func_name = self.k2["geometry"]["function"]
-
-            # # If radial cutoff is finite, use it to calculate the sparse
-            # # distance matrix to reduce computational complexity from O(n^2) to
-            # # O(n log(n))
-            # n_atoms = len(system)
-            # if radial_cutoff is not None:
-                # dmat = system.get_distance_matrix_within_radius(radial_cutoff, "coo_matrix")
-                # adj_list = dscribe.utils.geometry.get_adjacency_list(dmat)
-                # dmat_dense = np.full((n_atoms, n_atoms), sys.float_info.max)  # The non-neighbor values are treated as "infinitely far".
-                # dmat_dense[dmat.col, dmat.row] = dmat.data
-            # # If no weighting is used, the full distance matrix is calculated
-            # else:
-                # dmat_dense = system.get_distance_matrix()
-                # adj_list = np.tile(np.arange(n_atoms), (n_atoms, 1))
-
-            # self._k2_geoms, self._k2_weights = cmbtr.get_k2_geoms_and_weights(
-                # distances=dmat_dense,
-                # neighbours=adj_list,
-                # geom_func=geom_func_name.encode(),
-                # weight_func=weighting_function.encode(),
-                # parameters=parameters
-            # )
-        # return self._k2_geoms, self._k2_weights
-
-    # def k3_geoms_and_weights(self, system, cell_indices):
-        # """Calculates the value of the geometry function and corresponding
-        # weights for unique three-body combinations.
-
-        # Args:
-            # system (System): The atomic system.
-
-        # Returns:
-            # tuple: (geoms, weights) Cosines of the angles (values between -1
-            # and 1) in the form {(i,j,k): [list of angles] }. The weights
-            # corresponding to the angles are stored in a similar dictionary.
-        # """
-        # if self._k3_geoms is None or self._k2_weights is None:
-
-            # # Calculate the angles with the C++ implementation
-            # cmbtr = MBTRWrapper(
-                # system.get_positions(),
-                # system.get_atomic_numbers(),
-                # self.atomic_number_to_index,
-                # interaction_limit=self._interaction_limit,
-                # indices=cell_indices,
-                # is_local=self._is_local
-            # )
-
-            # # Determine the weighting function and possible radial cutoff
-            # radial_cutoff = None
-            # weighting = self.k3.get("weighting")
-            # parameters = {}
-            # if weighting is not None:
-                # weighting_function = weighting["function"]
-                # if weighting_function == "exponential" or weighting_function == "exp":
-                    # radial_cutoff = -0.5*math.log(weighting["cutoff"])/weighting["scale"]
-                    # parameters = {
-                        # b"scale": weighting["scale"],
-                        # b"cutoff": weighting["cutoff"]
-                    # }
-            # else:
-                # weighting_function = "unity"
-
-            # # Determine the geometry function
-            # geom_func_name = self.k3["geometry"]["function"]
-
-            # # If radial cutoff is finite, use it to calculate the sparse
-            # # distance matrix to reduce computational complexity from O(n^2) to
-            # # O(n log(n))
-            # n_atoms = len(system)
-            # if radial_cutoff is not None:
-                # dmat = system.get_distance_matrix_within_radius(radial_cutoff, "coo_matrix")
-                # adj_list = dscribe.utils.geometry.get_adjacency_list(dmat)
-                # dmat_dense = np.full((n_atoms, n_atoms), sys.float_info.max)  # The non-neighbor values are treated as "infinitely far".
-                # dmat_dense[dmat.col, dmat.row] = dmat.data
-            # # If no weighting is used, the full distance matrix is calculated
-            # else:
-                # dmat_dense = system.get_distance_matrix()
-                # adj_list = np.tile(np.arange(n_atoms), (n_atoms, 1))
-
-            # self._k3_geoms, self._k3_weights = cmbtr.get_k3_geoms_and_weights(
-                # distances=dmat_dense,
-                # neighbours=adj_list,
-                # geom_func=geom_func_name.encode(),
-                # weight_func=weighting_function.encode(),
-                # parameters=parameters
-            # )
-
-        # return self._k3_geoms, self._k3_weights
-
-    # def create_single(self, system):
-        # """Return the many-body tensor representation for the given system.
-
-        # Args:
-            # system (:class:`ase.Atoms` | :class:`.System`): Input system.
-
-        # Returns:
-            # dict | np.ndarray | scipy.sparse.coo_matrix: The return type is
-            # specified by the 'flatten' and 'sparse'-parameters. If the output
-            # is not flattened, a dictionary containing of MBTR outputs as numpy
-            # arrays is created. Each output is under a "kX" key. If the output
-            # is flattened, a single concatenated output vector is returned,
-            # either as a sparse or a dense vector.
-       # """
-        # # Transform the input system into the internal System-object
-        # system = self.get_system(system)
-
-        # # Initializes the scalar numbers that depend no the system
-        # self.initialize_scalars(system)
-
-        # # Create output with the currently set grid
-        # grid = {}
-        # if self.k1 is not None:
-            # grid["k1"] = self.k1["grid"]
-        # if self.k2 is not None:
-            # grid["k2"] = self.k2["grid"]
-        # if self.k3 is not None:
-            # grid["k3"] = self.k3["grid"]
-        # output = self.create_with_grid(grid)
-
-        # return output
-
-    # def create_with_grid(self, grid):
-        # """Used to recalculate MBTR for an already seen system but with
-        # different grid setttings. This function can be used after the scalar
-        # values have been initialized with "initialize_scalars".
-        # """
-        # for value in grid.values():
-            # self.check_grid(value)
-
-        # mbtr = {}
-        # if self.k1 is not None:
-            # k1 = self.get_k1_convolution(grid["k1"])
-            # mbtr["k1"] = k1
-
-        # if self.k2 is not None:
-            # # k2 = self.get_k2_convolution(grid["k2"])
-            # k2 = self._k2_values
-            # mbtr["k2"] = k2
-
-        # if self.k3 is not None:
-            # # k3 = self.get_k3_convolution(grid["k3"])
-            # k3 = self._k3_values
-            # mbtr["k3"] = k3
-
-        # # Handle normalization
-        # if self.normalization == "l2_each":
-            # if self.flatten is True:
-                # for key, value in mbtr.items():
-                    # i_data = np.array(value.tocsr().data)
-                    # i_norm = np.linalg.norm(i_data)
-                    # mbtr[key] = value/i_norm
-            # else:
-                # for key, value in mbtr.items():
-                    # i_data = value.ravel()
-                    # i_norm = np.linalg.norm(i_data)
-                    # mbtr[key] = value/i_norm
-        # elif self.normalization == "n_atoms":
-            # n_atoms = len(self.system)
-            # if self.flatten is True:
-                # for key, value in mbtr.items():
-                    # mbtr[key] = value/n_atoms
-            # else:
-                # for key, value in mbtr.items():
-                    # mbtr[key] = value/n_atoms
-
-        # # Flatten output if requested
-        # if self.flatten:
-            # length = 0
-
-            # datas = []
-            # rows = []
-            # cols = []
-            # for key in sorted(mbtr.keys()):
-                # tensor = mbtr[key]
-                # size = tensor.shape[1]
-                # coo = tensor.tocoo()
-                # datas.append(coo.data)
-                # rows.append(coo.row)
-                # cols.append(coo.col + length)
-                # length += size
-
-            # datas = np.concatenate(datas)
-            # rows = np.concatenate(rows)
-            # cols = np.concatenate(cols)
-            # mbtr = coo_matrix((datas, (rows, cols)), shape=[1, length], dtype=np.float32)
-
-            # # Make into a dense array if requested
-            # if not self.sparse:
-                # mbtr = mbtr.toarray()
-
-        # return mbtr
-
-    # def initialize_scalars(self, system):
-        # """Used to initialize the scalar values for each k-term.
-        # """
-        # # Transform the input system into the internal System-object
-        # system = self.get_system(system)
-
-        # # Ensuring variables are re-initialized when a new system is introduced
-        # self._interaction_limit = None
-        # self.system = system
-        # self._k1_geoms = None
-        # self._k1_weights = None
-        # self._k2_values = None
-        # self._k3_values = None
-        # self._k2_geoms = None
-        # self._k2_weights = None
-        # self._k3_geoms = None
-        # self._k3_weights = None
-        # self._axis_k1 = None
-        # self._axis_k2 = None
-        # self._axis_k3 = None
-
-        # if self._is_local:
-            # self._interaction_limit = 1
-        # else:
-            # self._interaction_limit = len(system)
-
-        # # Check that the system does not have elements that are not in the list
-        # # of atomic numbers
-        # self.check_atomic_numbers(system.get_atomic_numbers())
-
-        # if self.k1 is not None:
-            # cell_indices = np.zeros((len(system), 3), dtype=int)
-            # # self.k1_geoms_and_weights(system, cell_indices)
-            # self.get_k1(system, cell_indices)
-        # if self.k2 is not None:
-            # # If needed, create the extended system
-            # system_k2 = system
-            # if self.periodic:
-                # system_k2, cell_indices = self.create_extended_system(system, 2)
-            # else:
-                # cell_indices = np.zeros((len(system), 3), dtype=int)
-            # # self.k2_geoms_and_weights(system_k2, cell_indices)
-            # self.get_k2(system_k2, cell_indices)
-
-            # # Free memory
-            # system_k2 = None
-
-        # if self.k3 is not None:
-            # # If needed, create the extended system
-            # system_k3 = system
-            # if self.periodic:
-                # system_k3, cell_indices = self.create_extended_system(system, 3)
-            # else:
-                # cell_indices = np.zeros((len(system), 3), dtype=int)
-            # # self.k3_geoms_and_weights(system_k3, cell_indices)
-            # self.get_k3(system_k3, cell_indices)
-
-            # # Free memory
-            # system_k3 = None
