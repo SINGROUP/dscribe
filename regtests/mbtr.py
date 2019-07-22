@@ -7,7 +7,7 @@ import numpy as np
 import unittest
 
 import scipy.sparse
-from scipy.signal import find_peaks_cwt
+from scipy.signal import find_peaks_cwt, find_peaks
 
 from dscribe.descriptors import MBTR
 
@@ -22,7 +22,7 @@ import matplotlib.pyplot as mpl
 
 default_k1 = {
     "geometry": {"function": "atomic_number"},
-    "grid": {"min": 1, "max": 90, "sigma": 0.1, "n": 50}
+    "grid": {"min": 1, "max": 8, "sigma": 0.1, "n": 50}
 }
 
 default_k2 = {
@@ -130,7 +130,6 @@ H = Atoms(
 
 
 class MBTRTests(TestBaseClass, unittest.TestCase):
-# class MBTRTests(unittest.TestCase):
 
     def test_constructor(self):
         """Tests different valid and invalid constructor values.
@@ -732,156 +731,135 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         feat = desc.create(H2O).toarray()
         self.assertTrue(np.allclose(feat[0, :], feat_flat/n_atoms, atol=1e-7, rtol=0))
 
-    # def test_k1_weights_and_geoms_finite(self):
-        # """Tests that the values of the weight and geometry functions are
-        # correct for the k=1 term.
-        # """
-        # desc = copy.deepcopy(default_desc_k1)  # MBTR(species=[1, 8], k=[1], grid=default_grid, periodic=False)
-        # desc.create(H2O)
-        # weights = desc._k1_weights
-        # geoms = desc._k1_geoms
+    def test_k1_peaks_finite(self):
+        """Tests the correct peak locations and intensities are found for the
+        k=1 term.
+        """
+        desc = MBTR(
+            species=[1, 8],
+            k1={
+                "geometry": {"function": "atomic_number"},
+                "grid": {"min": 0, "max": 9, "sigma": 0.5, "n": 1000}
+            },
+            normalize_gaussians=False,
+            periodic=False,
+            flatten=True,
+            sparse=False
+        )
+        features = desc.create(H2O)[0, :]
+        x = desc.get_k1_axis()
 
-        # # Test against the assumed weights
-        # assumed_weights = {
-            # (0,): [1, 1],
-            # (1,): [1]
-        # }
-        # self.dict_comparison(weights, assumed_weights)
+        # Check the H peaks
+        h_feat = features[desc.get_location(("H"))]
+        h_peak_indices = find_peaks(h_feat, prominence=1)[0]
+        h_peak_locs = x[h_peak_indices]
+        h_peak_ints = h_feat[h_peak_indices]
+        self.assertTrue(np.allclose(h_peak_locs, [1], rtol=0, atol=1e-2))
+        self.assertTrue(np.allclose(h_peak_ints, [2], rtol=0, atol=1e-2))
 
-        # # Test against the assumed geometry values
-        # assumed_geoms = {
-            # (0,): [1, 1],
-            # (1,): [8]
-        # }
-        # self.dict_comparison(geoms, assumed_geoms)
+        # Check the O peaks
+        o_feat = features[desc.get_location(("O"))]
+        o_peak_indices = find_peaks(o_feat, prominence=1)[0]
+        o_peak_locs = x[o_peak_indices]
+        o_peak_ints = o_feat[o_peak_indices]
+        self.assertTrue(np.allclose(o_peak_locs, [8], rtol=0, atol=1e-2))
+        self.assertTrue(np.allclose(o_peak_ints, [1], rtol=0, atol=1e-2))
 
-        # # Test against system with different indexing
-        # desc.create(H2O_2)
-        # weights2 = desc._k1_weights
-        # geoms2 = desc._k1_geoms
-        # self.dict_comparison(weights, weights2)
-        # self.dict_comparison(geoms, geoms2)
+        # Check that everything else is zero
+        features[desc.get_location(("H"))] = 0
+        features[desc.get_location(("O"))] = 0
+        self.assertEqual(features.sum(), 0)
 
-    # def test_k2_weights_and_geoms_finite(self):
-        # """Tests that the values of the weight and geometry functions are
-        # correct for the k=2 term.
-        # """
-        # # mbtr = MBTR(species=[1, 8], k=[2], grid=default_grid, periodic=False)
-        # desc = copy.deepcopy(default_desc_k2)
-        # desc.k2["weighting"] = {"function": "unity"}
-        # desc.create(H2O)
-        # weights = desc._k2_weights
-        # geoms = desc._k2_geoms
+    def test_k2_peaks_finite(self):
+        """Tests the correct peak locations and intensities are found for the
+        k=2 term in finite systems.
+        """
+        desc = MBTR(
+            species=[1, 8],
+            k2={
+                "geometry": {"function": "distance"},
+                "grid": {"min": -1, "max": 3, "sigma": 0.5, "n": 1000},
+                "weighting": {"function": "unity"},
+            },
+            normalize_gaussians=False,
+            periodic=False,
+            flatten=True,
+            sparse=False
+        )
+        features = desc.create(H2O)[0, :]
+        pos = H2O.get_positions()
+        x = desc.get_k2_axis()
 
-        # # Test against the assumed weights
-        # pos = H2O.get_positions()
-        # assumed_weights = {
-            # (0, 0): [1],
-            # (0, 1): [1, 1]
-        # }
-        # self.dict_comparison(weights, assumed_weights)
+        # Check the H-H peaks
+        hh_feat = features[desc.get_location(("H", "H"))]
+        hh_peak_indices = np.array(find_peaks_cwt(hh_feat, [20]))
+        hh_peak_locs = x[hh_peak_indices]
+        hh_peak_ints = hh_feat[hh_peak_indices]
+        self.assertTrue(np.allclose(hh_peak_locs, [np.linalg.norm(pos[0] - pos[2])], rtol=0, atol=1e-2))
+        self.assertTrue(np.allclose(hh_peak_ints, [1], rtol=0, atol=1e-2))
 
-        # # Test against the assumed geometry values
-        # pos = H2O.get_positions()
-        # assumed_geoms = {
-            # (0, 0): [1/np.linalg.norm(pos[0] - pos[2])],
-            # (0, 1): 2*[1/np.linalg.norm(pos[0] - pos[1])]
-        # }
-        # self.dict_comparison(geoms, assumed_geoms)
+        # Check the O-H peaks
+        ho_feat = features[desc.get_location(("H", "O"))]
+        ho_peak_indices = find_peaks(ho_feat, prominence=1)[0]
+        ho_peak_locs = x[ho_peak_indices]
+        ho_peak_ints = ho_feat[ho_peak_indices]
+        self.assertTrue(np.allclose(ho_peak_locs, 2*[np.linalg.norm(pos[0] - pos[1])], rtol=0, atol=1e-2))
+        self.assertTrue(np.allclose(ho_peak_ints, [2], rtol=0, atol=1e-2))
 
-        # # Test against system with different indexing
-        # desc.create(H2O_2)
-        # weights2 = desc._k2_weights
-        # geoms2 = desc._k2_geoms
-        # self.dict_comparison(geoms, geoms2)
-        # self.dict_comparison(weights, weights2)
+        # Check that everything else is zero
+        features[desc.get_location(("H", "H"))] = 0
+        features[desc.get_location(("H", "O"))] = 0
+        self.assertEqual(features.sum(), 0)
 
-    # def test_k2_weights_and_geoms_finite(self):
-        # """Tests that the values of the weight and geometry functions are
-        # correct for the k=2 term.
-        # """
-        # # mbtr = MBTR(species=[1, 8], k=[2], grid=default_grid, periodic=False)
-        # desc = copy.deepcopy(default_desc_k2)
-        # desc.k2["weighting"] = {"function": "unity"}
-        # features = desc.create(H2O)
-        # grid = desc.k2["grid"]
-        # x = np.linspace(grid["min"], grid["max"], grid["n"])
-        # mpl.plot(x, features[0, desc.get_location(("H", "H"))])
-        # mpl.plot(x, features[0, desc.get_location(("H", "O"))])
-        # mpl.show()
-        # weights = desc._k2_weights
-        # geoms = desc._k2_geoms
+    def test_k2_peaks_periodic(self):
+        """Tests the correct peak locations and intensities are found for the
+        k=2 term in periodic systems.
+        """
+        atoms = Atoms(
+            cell=[
+                [10, 0, 0],
+                [10, 10, 0],
+                [10, 0, 10],
+            ],
+            symbols=["H", "C"],
+            scaled_positions=[
+                [0.1, 0.5, 0.5],
+                [0.9, 0.5, 0.5],
+            ]
+        )
 
-        # # Test against the assumed weights
-        # pos = H2O.get_positions()
-        # assumed_weights = {
-            # (0, 0): [1],
-            # (0, 1): [1, 1]
-        # }
-        # self.dict_comparison(weights, assumed_weights)
+        desc = MBTR(
+            species=["H", "C"],
+            k2={
+                "geometry": {"function": "distance"},
+                "grid": {"min": 0, "max": 10, "sigma": 0.5, "n": 1000},
+                "weighting": {"function": "exp", "scale": 0.8, "cutoff": 1e-3},
+            },
+            normalize_gaussians=False,
+            periodic=True,
+            flatten=True,
+            sparse=False
+        )
+        features = desc.create(atoms)[0, :]
+        x = desc.get_k2_axis()
 
-        # # Test against the assumed geometry values
-        # pos = H2O.get_positions()
-        # assumed_geoms = {
-            # (0, 0): [1/np.linalg.norm(pos[0] - pos[2])],
-            # (0, 1): 2*[1/np.linalg.norm(pos[0] - pos[1])]
-        # }
-        # self.dict_comparison(geoms, assumed_geoms)
+        # Calculate assumed locations and intensities.
+        assumed_locs = np.array([2, 8])
+        assumed_ints = np.exp(-0.8*np.array([2, 8]))
+        assumed_ints[0] *= 2  # There are two periodic distances at 2Å
+        assumed_ints[0] /= 2  # The periodic distances ar halved because they belong to different cells
 
-        # # Test against system with different indexing
-        # desc.create(H2O_2)
-        # weights2 = desc._k2_weights
-        # geoms2 = desc._k2_geoms
-        # self.dict_comparison(geoms, geoms2)
-        # self.dict_comparison(weights, weights2)
+        # Check the H-C peaks
+        hc_feat = features[desc.get_location(("H", "C"))]
+        hc_peak_indices = find_peaks(hc_feat, prominence=0.001)[0]
+        hc_peak_locs = x[hc_peak_indices]
+        hc_peak_ints = hc_feat[hc_peak_indices]
+        self.assertTrue(np.allclose(hc_peak_locs, assumed_locs, rtol=0, atol=1e-2))
+        self.assertTrue(np.allclose(hc_peak_ints, assumed_ints, rtol=0, atol=1e-2))
 
-    # def test_k2_weights_and_geoms_periodic(self):
-        # """Tests that the values of the weight and geometry functions are
-        # correct for the k=2 term in periodic systems.
-        # """
-        # atoms = Atoms(
-            # cell=[
-                # [10, 0, 0],
-                # [10, 10, 0],
-                # [10, 0, 10],
-            # ],
-            # symbols=["H", "C"],
-            # scaled_positions=[
-                # [0.1, 0.5, 0.5],
-                # [0.9, 0.5, 0.5],
-            # ]
-        # )
-
-        # desc = copy.deepcopy(default_desc_k2)
-        # desc.species = ["H", "C"]
-        # desc.k2["weighting"] = {"function": "exp", "scale": 0.8, "cutoff": 1e-3}
-        # desc.periodic = True
-        # desc.create(atoms)
-        # weights = desc._k2_weights
-        # geoms = desc._k2_geoms
-
-        # # Test against the assumed geometry values
-        # pos = atoms.get_positions()
-        # distances = np.array([
-            # np.linalg.norm(pos[0] - pos[1]),
-            # np.linalg.norm(pos[0] - pos[1] + atoms.get_cell()[0, :]),
-            # np.linalg.norm(pos[1] - pos[0] - atoms.get_cell()[0, :])
-        # ])
-        # assumed_geoms = {
-            # (0, 1): 1/distances
-        # }
-        # self.dict_comparison(geoms, assumed_geoms)
-
-        # # Test against the assumed weights
-        # weight_list = np.exp(-0.8*distances)
-
-        # # The periodic distances are halved
-        # weight_list[1:3] /= 2
-        # assumed_weights = {
-            # (0, 1): weight_list
-        # }
-
-        # self.dict_comparison(weights, assumed_weights)
+        # Check that everything else is zero
+        features[desc.get_location(("H", "C"))] = 0
+        self.assertEqual(features.sum(), 0)
 
     def test_k2_periodic_cell_translation(self):
         """Tests that the final spectra does not change when translating atoms
@@ -920,121 +898,108 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         spectra2 = desc.create(atoms2)[0, :]
         self.assertTrue(np.allclose(spectra1, spectra2, rtol=0, atol=1e-7))
 
-    # def test_k3_weights_and_geoms_finite(self):
-        # """Tests that all the correct angles are present in finite systems.
-        # There should be n*(n-1)*(n-2)/2 unique angles where the division by two
-        # gets rid of duplicate angles.
-        # """
-        # # Test with water molecule
-        # # mbtr = MBTR(species=[1, 8], k=[3], grid=default_grid, periodic=False)
-        # desc = copy.deepcopy(default_desc_k3)
-        # desc.k3["weighting"] = {"function": "unity"}
-        # desc.create(H2O)
-        # geoms = desc._k3_geoms
-        # weights = desc._k3_weights
+    def test_k3_weights_and_geoms_finite(self):
+        """Tests that all the correct angles are present in finite systems.
+        There should be n*(n-1)*(n-2)/2 unique angles where the division by two
+        gets rid of duplicate angles.
+        """
+        desc = MBTR(
+            species=["H", "O"],
+            k3={
+                "geometry": {"function": "angle"},
+                "grid": {"min": -10, "max": 180, "sigma": 5, "n": 2000},
+                "weighting": {"function": "unity"},
+            },
+            normalize_gaussians=False,
+            periodic=False,
+            flatten=True,
+            sparse=False
+        )
+        features = desc.create(H2O)[0, :]
+        x = desc.get_k3_axis()
 
-        # assumed_geoms = {
-            # (0, 1, 0): 1*[104],
-            # (0, 0, 1): 2*[38],
-        # }
-        # self.dict_comparison(geoms, assumed_geoms)
+        # Check the H-H-O peaks
+        hho_assumed_locs = np.array([38])
+        hho_assumed_ints = np.array([2])
+        hho_feat = features[desc.get_location(("H", "H", "O"))]
+        hho_peak_indices = find_peaks(hho_feat, prominence=1)[0]
+        hho_peak_locs = x[hho_peak_indices]
+        hho_peak_ints = hho_feat[hho_peak_indices]
+        self.assertTrue(np.allclose(hho_peak_locs, hho_assumed_locs, rtol=0, atol=1e-2))
+        self.assertTrue(np.allclose(hho_peak_ints, hho_assumed_ints, rtol=0, atol=1e-2))
 
-        # assumed_weights = {
-            # (0, 1, 0): [1],
-            # (0, 0, 1): [1, 1],
-        # }
-        # self.dict_comparison(weights, assumed_weights)
+        # Check the H-O-H peaks
+        hoh_assumed_locs = np.array([104])
+        hoh_assumed_ints = np.array([1])
+        hoh_feat = features[desc.get_location(("H", "O", "H"))]
+        hoh_peak_indices = find_peaks(hoh_feat, prominence=1)[0]
+        hoh_peak_locs = x[hoh_peak_indices]
+        hoh_peak_ints = hoh_feat[hoh_peak_indices]
+        self.assertTrue(np.allclose(hoh_peak_locs, hoh_assumed_locs, rtol=0, atol=1e-2))
+        self.assertTrue(np.allclose(hoh_peak_ints, hoh_assumed_ints, rtol=0, atol=1e-2))
 
-        # # Test against system with different indexing
-        # desc.create(H2O_2)
-        # weights2 = desc._k3_weights
-        # geoms2 = desc._k3_geoms
-        # self.dict_comparison(weights, weights2)
-        # self.dict_comparison(geoms, geoms2)
+        # Check that everything else is zero
+        features[desc.get_location(("H", "H", "O"))] = 0
+        features[desc.get_location(("H", "O", "H"))] = 0
+        self.assertEqual(features.sum(), 0)
 
-    # def test_k3_geoms_finite_concave(self):
-        # """Test with four atoms in a "dart"-like arrangement. This arrangement
-        # has both concave and convex angles.
-        # """
-        # atoms = Atoms(
-            # positions=[
-                # [0, 0, 0],
-                # [np.sqrt(2), np.sqrt(2), 0],
-                # [2*np.sqrt(2), 0, 0],
-                # [np.sqrt(2), np.tan(np.pi/180*15)*np.sqrt(2), 0],
-            # ],
-            # symbols=["H", "H", "H", "He"]
-        # )
-        # # view(atoms)
+    def test_k3_geoms_and_weights_periodic(self):
+        """Tests that the final spectra does not change when translating atoms
+        in a periodic cell. This is not trivially true unless the weight of
+        angles is weighted according to the cell indices of the involved three
+        atoms. Notice that the values of the geometry and weight functions are
+        not equal before summing them up in the final graph.
+        """
+        scale = 0.85
+        desc = MBTR(
+            species=["H"],
+            k3={
+                "geometry": {"function": "angle"},
+                "grid": {"min": 0, "max": 180, "sigma": 5, "n": 2000},
+                "weighting": {"function": "exp", "scale": scale, "cutoff": 1e-3},
+            },
+            normalize_gaussians=False,
+            periodic=True,
+            flatten=True,
+            sparse=False
+        )
 
-        # desc = copy.deepcopy(default_desc_k3)
-        # desc.species = ["H", "He"]
-        # desc.create(atoms)
-        # angles = desc._k3_geoms
+        atoms = Atoms(
+            cell=[
+                [10, 0, 0],
+                [0, 10, 0],
+                [0, 0, 10],
+            ],
+            symbols=3*["H"],
+            scaled_positions=[
+                [0.05, 0.40, 0.5],
+                [0.05, 0.60, 0.5],
+                [0.95, 0.5, 0.5],
+            ],
+            pbc=True
+        )
+        features = desc.create(atoms)[0, :]
+        x = desc.get_k3_axis()
 
-        # # In finite systems there are n*(n-1)*(n-2)/2 unique angles.
-        # n_atoms = len(atoms)
-        # n_angles = sum([len(x) for x in angles.values()])
-        # self.assertEqual(n_atoms*(n_atoms-1)*(n_atoms-2)/2, n_angles)
+        # Calculate assumed locations and intensities.
+        assumed_locs = np.array([45, 90])
+        dist = 2+2*np.sqrt(2)  # The total distance around the three atoms
+        assumed_ints = np.exp(-scale*np.array([dist, dist]))
+        weight = np.exp(-scale*dist)
+        assumed_ints = np.array([4*weight, 2*weight])
+        assumed_ints /= 2  # The periodic distances ar halved because they belong to different cells
 
-        # assumed = {
-            # (0, 1, 0): [105, 150, 105],
-            # (0, 0, 0): [90, 45, 45],
-            # (0, 0, 1): [45, 30, 45, 30, 15, 15]
-        # }
-        # self.dict_comparison(angles, assumed)
+        # Check the H-H-H peaks
+        hhh_feat = features[desc.get_location(("H", "H", "H"))]
+        hhh_peak_indices = find_peaks(hhh_feat, prominence=0.01)[0]
+        hhh_peak_locs = x[hhh_peak_indices]
+        hhh_peak_ints = hhh_feat[hhh_peak_indices]
+        self.assertTrue(np.allclose(hhh_peak_locs, assumed_locs, rtol=0, atol=1e-1))
+        self.assertTrue(np.allclose(hhh_peak_ints, assumed_ints, rtol=0, atol=1e-1))
 
-    # def test_k3_geoms_and_weights_periodic(self):
-        # """Tests that the final spectra does not change when translating atoms
-        # in a periodic cell. This is not trivially true unless the weight of
-        # angles is weighted according to the cell indices of the involved three
-        # atoms. Notice that the values of the geometry and weight functions are
-        # not equal before summing them up in the final graph.
-        # """
-        # # Original system with atoms separated by a cell wall
-        # atoms = Atoms(
-            # cell=[
-                # [10, 0, 0],
-                # [0, 10, 0],
-                # [0, 0, 10],
-            # ],
-            # symbols=3*["H"],
-            # scaled_positions=[
-                # [0.05, 0.40, 0.5],
-                # [0.05, 0.60, 0.5],
-                # [0.95, 0.5, 0.5],
-            # ],
-            # pbc=True
-        # )
-        # # view(atoms)
-
-        # scale = 0.85
-        # desc = copy.deepcopy(default_desc_k3)
-        # desc.k3["weighting"] = {"function": "exp", "scale": scale, "cutoff": 1e-3}
-        # desc.periodic = True
-        # desc.create(atoms)
-        # weights = desc._k3_weights
-        # geoms = desc._k3_geoms
-
-        # # Test against the assumed geometry values
-        # angle_list = np.array([45, 45, 90, 90, 45, 45])
-        # assumed_geoms = {
-            # (0, 0, 0): angle_list
-        # }
-        # self.dict_comparison(geoms, assumed_geoms)
-
-        # # Test against the assumed weights
-        # distance = 2+2*np.sqrt(2)  # The total distance around the three atoms
-        # distances = np.array(6*[distance])
-        # weight_list = np.exp(-scale*distances)
-
-        # # The periodic distances are halved
-        # weight_list /= 2
-        # assumed_weights = {
-            # (0, 0, 0): weight_list
-        # }
-
-        # self.dict_comparison(weights, assumed_weights)
+        # Check that everything else is zero
+        features[desc.get_location(("H", "H", "H"))] = 0
+        self.assertEqual(features.sum(), 0)
 
     def test_k3_periodic_cell_translation(self):
         """Tests that the final spectra does not change when translating atoms

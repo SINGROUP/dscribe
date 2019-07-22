@@ -547,7 +547,7 @@ class MBTR(Descriptor):
         mbtr = {}
         if self.k1 is not None:
             cell_indices = np.zeros((len(system), 3), dtype=int)
-            mbtr["k1"] = self.get_k1(system, cell_indices)
+            mbtr["k1"] = self._get_k1(system, cell_indices)
         if self.k2 is not None:
             # If needed, create the extended system
             system_k2 = system
@@ -555,7 +555,7 @@ class MBTR(Descriptor):
                 system_k2, cell_indices = self.create_extended_system(system, 2)
             else:
                 cell_indices = np.zeros((len(system), 3), dtype=int)
-            mbtr["k2"] = self.get_k2(system_k2, cell_indices)
+            mbtr["k2"] = self._get_k2(system_k2, cell_indices)
 
             # Free memory
             system_k2 = None
@@ -567,7 +567,7 @@ class MBTR(Descriptor):
                 system_k3, cell_indices = self.create_extended_system(system, 3)
             else:
                 cell_indices = np.zeros((len(system), 3), dtype=int)
-            mbtr["k3"] = self.get_k3(system_k3, cell_indices)
+            mbtr["k3"] = self._get_k3(system_k3, cell_indices)
 
             # Free memory
             system_k3 = None
@@ -878,7 +878,7 @@ class MBTR(Descriptor):
 
         return extended_system, cell_indices
 
-    def get_k1(self, system, cell_indices):
+    def _get_k1(self, system, cell_indices):
         """Calculates the second order terms where the scalar mapping is the
         inverse distance between atoms.
 
@@ -936,7 +936,7 @@ class MBTR(Descriptor):
 
         return k1
 
-    def get_k2(self, system, cell_indices):
+    def _get_k2(self, system, cell_indices):
         """Calculates the second order terms where the scalar mapping is the
         inverse distance between atoms.
 
@@ -1032,7 +1032,7 @@ class MBTR(Descriptor):
 
         return k2
 
-    def get_k3(self, system, cell_indices):
+    def _get_k3(self, system, cell_indices):
         """Calculates the third order terms.
 
         Returns:
