@@ -525,22 +525,23 @@ class LMBTRTests(unittest.TestCase):
             # species=["H", "O"],
             # k2={
                 # "geometry": {"function": "distance"},
-                # "grid": {"min": 0, "max": 15, "sigma": 0.1, "n": 100},
-                # # "weighting": {"function": "unity"},
-                # "weighting": {"function": "exp", "scale": 0.3, "cutoff": 1e-2},
+                # "grid": {"min": 0, "max": 3, "sigma": 0.1, "n": 100},
+                # "weighting": {"function": "unity"},
+                # # "weighting": {"function": "exp", "scale": 0.3, "cutoff": 1e-2},
             # },
-            # periodic=True,
+            # periodic=False,
             # flatten=True,
             # sparse=False,
-            # normalization="l2_each"
+            # # normalization="l2_each"
         # )
 
-        # system = Atoms(
-            # symbols=["H", "H"],
-            # positions=[[1, 5, 5], [9, 5, 5]],
-            # cell=[10, 10, 10],
-        # )
-        # features = desc.create(system, positions=[0, 1])
+        # # system = Atoms(
+            # # symbols=["H", "H"],
+            # # positions=[[1, 5, 5], [9, 5, 5]],
+            # # cell=[10, 10, 10],
+        # # )
+
+        # features = desc.create(H2O, positions=[0, 1, 2])
         # x = desc.get_k2_axis()
         # mpl.plot(x, features[0, desc.get_location(("X", "X"))], label="X")
         # mpl.plot(x, features[0, desc.get_location(("X", "H"))], label="H")
@@ -548,11 +549,11 @@ class LMBTRTests(unittest.TestCase):
         # mpl.legend()
         # mpl.show()
 
-        # mpl.plot(x, features[1, desc.get_location(("X", "X"))], label="X")
-        # mpl.plot(x, features[1, desc.get_location(("X", "H"))], label="H")
-        # mpl.plot(x, features[1, desc.get_location(("X", "O"))], label="O")
-        # mpl.legend()
-        # mpl.show()
+        # # mpl.plot(x, features[1, desc.get_location(("X", "X"))], label="X")
+        # # mpl.plot(x, features[1, desc.get_location(("X", "H"))], label="H")
+        # # mpl.plot(x, features[1, desc.get_location(("X", "O"))], label="O")
+        # # mpl.legend()
+        # # mpl.show()
 
         # mpl.plot(x, features[2, desc.get_location(("X", "X"))], label="X")
         # mpl.plot(x, features[2, desc.get_location(("X", "H"))], label="H")
@@ -569,8 +570,8 @@ class LMBTRTests(unittest.TestCase):
             k3={
                 "geometry": {"function": "angle"},
                 "grid": {"min": 0, "max": 180, "sigma": 5, "n": 100},
-                "weighting": {"function": "unity"},
-                # "weighting": {"function": "exp", "scale": 0.3, "cutoff": 1e-2},
+                # "weighting": {"function": "unity"},
+                "weighting": {"function": "exp", "scale": 0.0, "cutoff": 1e-2},
             },
             periodic=False,
             flatten=True,
@@ -584,22 +585,21 @@ class LMBTRTests(unittest.TestCase):
             # cell=[10, 10, 10],
         # )
 
-        features = desc.create(H2O, positions=[0, 1, 2])
+        features = desc.create(H2O, positions=[0])
         x = desc.get_k3_axis()
-        # mpl.plot(x, features[0, desc.get_location(("X", "H", "H"))], label="X-H-H")
-        # mpl.plot(x, features[0, desc.get_location(("X", "H", "O"))], label="X-H-O")
-        # mpl.plot(x, features[0, desc.get_location(("H", "X", "H"))], label="H-X-H")
-        # mpl.plot(x, features[0, desc.get_location(("H", "X", "O"))], label="H-X-O")
-        # mpl.legend()
-        # mpl.show()
-
-        mpl.plot(x, features[1, desc.get_location(("X", "H", "H"))], label="X-H-H")
-        mpl.plot(x, features[1, desc.get_location(("X", "H", "O"))], label="X-H-O")
-        mpl.plot(x, features[1, desc.get_location(("X", "O", "H"))], label="X-O-H")
-        mpl.plot(x, features[1, desc.get_location(("H", "X", "H"))], label="H-X-H")
-        mpl.plot(x, features[1, desc.get_location(("H", "X", "O"))], label="H-X-O")
+        mpl.plot(x, features[0, desc.get_location(("X", "H", "O"))], label="X-H-O")
+        mpl.plot(x, features[0, desc.get_location(("X", "O", "H"))], label="X-O-H")
+        mpl.plot(x, features[0, desc.get_location(("H", "X", "O"))], label="H-X-O")
         mpl.legend()
         mpl.show()
+
+        # mpl.plot(x, features[1, desc.get_location(("X", "H", "H"))], label="X-H-H")
+        # mpl.plot(x, features[1, desc.get_location(("X", "H", "O"))], label="X-H-O")
+        # mpl.plot(x, features[1, desc.get_location(("X", "O", "H"))], label="X-O-H")
+        # mpl.plot(x, features[1, desc.get_location(("H", "X", "H"))], label="H-X-H")
+        # mpl.plot(x, features[1, desc.get_location(("H", "X", "O"))], label="H-X-O")
+        # mpl.legend()
+        # mpl.show()
 
         # mpl.plot(x, features[2, desc.get_location(("X", "H", "H"))], label="X-H-H")
         # mpl.plot(x, features[2, desc.get_location(("X", "H", "O"))], label="X-H-O")

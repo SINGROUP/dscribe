@@ -28,18 +28,16 @@ class MBTR {
          * which each atom is in the system
          * @param local Whether a local or a global MBTR is calculated.
          */
-        MBTR(vector<vector<float> > positions, vector<int> atomicNumbers, map<int,int> atomicNumberToIndexMap, int interactionLimit,  vector<vector<int>> cellIndices, bool local=false);
-        map<string, vector<float> > getK1(const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n);
-        map<string, vector<float> > getK2(const vector<vector<float> > &distances, const vector<vector<int> > &neighbours, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n);
-        map<string, vector<float> > getK3(const vector<vector<float> > &distances, const vector<vector<int> > &neighbours, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n);
-        vector<map<string, vector<float> > > getK2Local(const vector<vector<float> > &distances, const vector<vector<int> > &neighbours, const vector<int> &indices, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n);
-        vector<map<string, vector<float> > > getK3Local(const vector<vector<float> > &distances, const vector<vector<int> > &neighbours, const vector<int> &indices, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n);
+        MBTR(map<int,int> atomicNumberToIndexMap, int interactionLimit,  vector<vector<int>> cellIndices, bool local=false);
+        map<string, vector<float>> getK1(const vector<int> &Z, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n);
+        map<string, vector<float>> getK2(const vector<int> &Z, const vector<vector<float>> &distances, const vector<vector<int>> &neighbours, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n);
+        map<string, vector<float>> getK3(const vector<int> &Z, const vector<vector<float>> &distances, const vector<vector<int>> &neighbours, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n);
+        vector<map<string, vector<float>>> getK2Local(const vector<int> &indices, const vector<int> &Z, const vector<vector<float>> &distances, const vector<vector<int>> &neighbours, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n);
+        vector<map<string, vector<float>>> getK3Local(const vector<int> &indices, const vector<int> &Z, const vector<vector<float>> &distances, const vector<vector<int>> &neighbours, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n);
         vector<float> gaussian(float center, float weight, float start, float dx, float sigmasqrt2, int n);
 
 
     private:
-        const vector<vector<float> > positions;
-        const vector<int> atomicNumbers;
         const map<int,int> atomicNumberToIndexMap;
         const int interactionLimit;
         const vector<vector<int> > cellIndices;
@@ -53,7 +51,7 @@ class MBTR {
          *
          * @return Atomic number for the given index.
          */
-        float k1GeomAtomicNumber(const int &i);
+        float k1GeomAtomicNumber(const int &i, const vector<int> &Z);
 
         /**
          * Weighting of 1. Usually used for finite small
@@ -124,7 +122,7 @@ class MBTR {
          * @return The cosine value for the angle defined between the given
          * three atomic indices.
          */
-        float k3GeomCosine(const int &i, const int &j, const int &k, const vector<vector<float> > &distances);
+        float k3GeomCosine(const int &i, const int &j, const int &k, const vector<vector<float>> &distances);
         /**
          * Calculates the angle (degrees) geometry function defined for k3.
          *
@@ -136,7 +134,7 @@ class MBTR {
          * @return The angle defined between the given three atomic indices.
          * Between 0 and 180 degrees.
          */
-        float k3GeomAngle(const int &i, const int &j, const int &k, const vector<vector<float> > &distances);
+        float k3GeomAngle(const int &i, const int &j, const int &k, const vector<vector<float>> &distances);
         /**
          * Weighting of 1. Usually used for finite small
          * systems.
@@ -148,7 +146,7 @@ class MBTR {
          *
          * @return Weight of 1.
          */
-        float k3WeightUnity(const int &i, const int &j, const int &k, const vector<vector<float> > &distances);
+        float k3WeightUnity(const int &i, const int &j, const int &k, const vector<vector<float>> &distances);
         /**
          * Weighting defined as e^(-sx), where x is the distance from
          * A->B->C->A and s is the scaling factor.
@@ -161,7 +159,7 @@ class MBTR {
          *
          * @return Exponential weight.
          */
-        float k3WeightExponential(const int &i, const int &j, const int &k, const vector<vector<float> > &distances, float scale);
+        float k3WeightExponential(const int &i, const int &j, const int &k, const vector<vector<float>> &distances, float scale);
 };
 
 #endif

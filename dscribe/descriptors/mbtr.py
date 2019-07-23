@@ -815,20 +815,8 @@ class MBTR(Descriptor):
                     # Calculate the positions of the copied atoms and filter
                     # out the atoms that are farther away than the given
                     # cutoff.
-
-                    # If the given position is virtual and does not correspond
-                    # to a physical atom, the position is not repeated in the
-                    # copies.
-                    if not self.is_center_periodic and self._interaction_limit == 1:
-                        num_copy = np.array(numbers)[1:]
-                        pos_copy = np.array(relative_pos)[1:]
-
-                    # If the given position is not virtual and corresponds to
-                    # an actual physical atom, the ghost atom is repeated in
-                    # the extended system.
-                    else:
-                        num_copy = np.array(numbers)
-                        pos_copy = np.array(relative_pos)
+                    num_copy = np.array(numbers)
+                    pos_copy = np.array(relative_pos)
 
                     pos_shifted = pos_copy-i*a-j*b-k*c
                     pos_copy_cartesian = np.dot(pos_shifted, cell)
@@ -885,8 +873,6 @@ class MBTR(Descriptor):
         n = grid["n"]
         sigma = grid["sigma"]
         cmbtr = MBTRWrapper(
-            system.get_positions(),
-            system.get_atomic_numbers(),
             self.atomic_number_to_index,
             interaction_limit=self._interaction_limit,
             indices=cell_indices,
@@ -897,6 +883,7 @@ class MBTR(Descriptor):
         geom_func_name = self.k1["geometry"]["function"]
 
         k1_map = cmbtr.get_k1(
+            system.get_atomic_numbers(),
             geom_func=geom_func_name.encode(),
             weight_func=b"unity",
             parameters={},
@@ -943,8 +930,6 @@ class MBTR(Descriptor):
         n = grid["n"]
         sigma = grid["sigma"]
         cmbtr = MBTRWrapper(
-            system.get_positions(),
-            system.get_atomic_numbers(),
             self.atomic_number_to_index,
             interaction_limit=self._interaction_limit,
             indices=cell_indices,
@@ -958,10 +943,13 @@ class MBTR(Descriptor):
         if weighting is not None:
             weighting_function = weighting["function"]
             if weighting_function == "exponential" or weighting_function == "exp":
-                radial_cutoff = -math.log(weighting["cutoff"])/weighting["scale"]
+                scale = weighting["scale"]
+                cutoff = weighting["cutoff"]
+                if scale != 0:
+                    radial_cutoff = -math.log(cutoff)/scale
                 parameters = {
-                    b"scale": weighting["scale"],
-                    b"cutoff": weighting["cutoff"]
+                    b"scale": scale,
+                    b"cutoff": cutoff
                 }
         else:
             weighting_function = "unity"
@@ -974,7 +962,7 @@ class MBTR(Descriptor):
         # O(n log(n))
         n_atoms = len(system)
         if radial_cutoff is not None:
-            dmat = system.get_distance_matrix_within_radius(radial_cutoff, "coo_matrix")
+            dmat = system.get_distance_matrix_within_radius(radial_cutoff, output_type="coo_matrix")
             adj_list = dscribe.utils.geometry.get_adjacency_list(dmat)
             dmat_dense = np.full((n_atoms, n_atoms), sys.float_info.max)  # The non-neighbor values are treated as "infinitely far".
             dmat_dense[dmat.row, dmat.col] = dmat.data
@@ -984,6 +972,7 @@ class MBTR(Descriptor):
             adj_list = np.tile(np.arange(n_atoms), (n_atoms, 1))
 
         k2_map = cmbtr.get_k2(
+            system.get_atomic_numbers(),
             distances=dmat_dense,
             neighbours=adj_list,
             geom_func=geom_func_name.encode(),
@@ -1038,8 +1027,6 @@ class MBTR(Descriptor):
         n = grid["n"]
         sigma = grid["sigma"]
         cmbtr = MBTRWrapper(
-            system.get_positions(),
-            system.get_atomic_numbers(),
             self.atomic_number_to_index,
             interaction_limit=self._interaction_limit,
             indices=cell_indices,
@@ -1053,10 +1040,13 @@ class MBTR(Descriptor):
         if weighting is not None:
             weighting_function = weighting["function"]
             if weighting_function == "exponential" or weighting_function == "exp":
-                radial_cutoff = -0.5*math.log(weighting["cutoff"])/weighting["scale"]
+                scale = weighting["scale"]
+                cutoff = weighting["cutoff"]
+                if scale != 0:
+                    radial_cutoff = -0.5*math.log(cutoff)/scale
                 parameters = {
-                    b"scale": weighting["scale"],
-                    b"cutoff": weighting["cutoff"]
+                    b"scale": scale,
+                    b"cutoff": cutoff
                 }
         else:
             weighting_function = "unity"
@@ -1069,7 +1059,7 @@ class MBTR(Descriptor):
         # O(n log(n))
         n_atoms = len(system)
         if radial_cutoff is not None:
-            dmat = system.get_distance_matrix_within_radius(radial_cutoff, "coo_matrix")
+            dmat = system.get_distance_matrix_within_radius(radial_cutoff, output_type="coo_matrix")
             adj_list = dscribe.utils.geometry.get_adjacency_list(dmat)
             dmat_dense = np.full((n_atoms, n_atoms), sys.float_info.max)  # The non-neighbor values are treated as "infinitely far".
             dmat_dense[dmat.col, dmat.row] = dmat.data
@@ -1079,6 +1069,7 @@ class MBTR(Descriptor):
             adj_list = np.tile(np.arange(n_atoms), (n_atoms, 1))
 
         k3_map = cmbtr.get_k3(
+            system.get_atomic_numbers(),
             distances=dmat_dense,
             neighbours=adj_list,
             geom_func=geom_func_name.encode(),

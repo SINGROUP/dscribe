@@ -10,17 +10,17 @@ from mbtr cimport MBTR
 cdef class MBTRWrapper:
     cdef MBTR *thisptr      # hold a C++ instance which we're wrapping
 
-    def __cinit__(self, vector[vector[float]] positions, vector[int] atomic_numbers, map[int,int] atomic_number_to_index_map, int interaction_limit, vector[vector[int]] indices, bool is_local):
-        self.thisptr = new MBTR(positions, atomic_numbers, atomic_number_to_index_map, interaction_limit, indices, is_local)
+    def __cinit__(self, map[int,int] atomic_number_to_index_map, int interaction_limit, vector[vector[int]] indices, bool is_local):
+        self.thisptr = new MBTR(atomic_number_to_index_map, interaction_limit, indices, is_local)
 
     def __dealloc__(self):
         del self.thisptr
 
-    def get_k1(self, geom_func, weight_func, parameters, start, stop, sigma, n):
+    def get_k1(self, Z, geom_func, weight_func, parameters, start, stop, sigma, n):
         """Cython cannot directly provide the keys as tuples, so we have to do
         the conversion here on the python side.
         """
-        k1_map = self.thisptr.getK1(geom_func, weight_func, parameters, start, stop, sigma, n)
+        k1_map = self.thisptr.getK1(Z, geom_func, weight_func, parameters, start, stop, sigma, n)
         k1_map = dict(k1_map)
         new_k1_map = {}
 
@@ -30,11 +30,11 @@ cdef class MBTRWrapper:
 
         return new_k1_map
 
-    def get_k2(self, distances, neighbours, geom_func, weight_func, parameters, start, stop, sigma, n):
+    def get_k2(self, Z, distances, neighbours, geom_func, weight_func, parameters, start, stop, sigma, n):
         """Cython cannot directly provide the keys as tuples, so we have to do
         the conversion here on the python side.
         """
-        k2_map = self.thisptr.getK2(distances, neighbours, geom_func, weight_func, parameters, start, stop, sigma, n)
+        k2_map = self.thisptr.getK2(Z, distances, neighbours, geom_func, weight_func, parameters, start, stop, sigma, n)
         k2_map = dict(k2_map)
         new_k2_map = {}
 
@@ -44,11 +44,11 @@ cdef class MBTRWrapper:
 
         return new_k2_map
 
-    def get_k3(self, distances, neighbours, geom_func, weight_func, parameters, start, stop, sigma, n):
+    def get_k3(self, Z, distances, neighbours, geom_func, weight_func, parameters, start, stop, sigma, n):
         """Cython cannot directly provide the keys as tuples, so we have to do
         the conversion here on the python side.
         """
-        k3_map = self.thisptr.getK3(distances, neighbours, geom_func, weight_func, parameters, start, stop, sigma, n)
+        k3_map = self.thisptr.getK3(Z, distances, neighbours, geom_func, weight_func, parameters, start, stop, sigma, n)
         k3_map = dict(k3_map)
         new_k3_map = {}
 
@@ -58,11 +58,11 @@ cdef class MBTRWrapper:
 
         return new_k3_map
 
-    def get_k2_local(self, distances, neighbours, indices, geom_func, weight_func, parameters, start, stop, sigma, n):
+    def get_k2_local(self, indices, Z, distances, neighbours, geom_func, weight_func, parameters, start, stop, sigma, n):
         """Cython cannot directly provide the keys as tuples, so we have to do
         the conversion here on the python side.
         """
-        k2_list = self.thisptr.getK2Local(distances, neighbours, indices, geom_func, weight_func, parameters, start, stop, sigma, n)
+        k2_list = self.thisptr.getK2Local(indices, Z, distances, neighbours, geom_func, weight_func, parameters, start, stop, sigma, n)
         new_k2_list = []
 
         for item in k2_list:
@@ -75,11 +75,11 @@ cdef class MBTRWrapper:
 
         return new_k2_list
 
-    def get_k3_local(self, distances, neighbours, indices, geom_func, weight_func, parameters, start, stop, sigma, n):
+    def get_k3_local(self, indices, Z, distances, neighbours, geom_func, weight_func, parameters, start, stop, sigma, n):
         """Cython cannot directly provide the keys as tuples, so we have to do
         the conversion here on the python side.
         """
-        k3_list = self.thisptr.getK3Local(distances, neighbours, indices, geom_func, weight_func, parameters, start, stop, sigma, n)
+        k3_list = self.thisptr.getK3Local(indices, Z, distances, neighbours, geom_func, weight_func, parameters, start, stop, sigma, n)
         new_k3_list = []
 
         for item in k3_list:

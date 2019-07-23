@@ -315,7 +315,8 @@ class LMBTR(MBTR):
         atomic_number_set = set(system.get_atomic_numbers())
         self.check_atomic_numbers(atomic_number_set)
         self._interaction_limit = len(system)
-        pos =
+        system_positions = system.get_positions()
+        system_atomic_numbers = system.get_atomic_numbers()
 
         # Ensure that the atomic number 0 is not present in the system
         if 0 in atomic_number_set:
@@ -328,8 +329,13 @@ class LMBTR(MBTR):
         # Form a list of indices for each requested local position. If a
         # cartesian position is requested, a new atom is added to the system.
         # new_i = len(system)
-        indices = []
-        new_pos = []
+        indices_k2 = []
+        indices_k3 = []
+        new_pos_k2 = []
+        new_pos_k3 = []
+        new_atomic_numbers_k2 = []
+        new_atomic_numbers_k3 = []
+        i_new = len(system)
         if positions is not None:
 
             # Check validity of position definitions and create final cartesian
@@ -348,8 +354,10 @@ class LMBTR(MBTR):
                             "The provided index {} is not valid for the system "
                             "with {} atoms.".format(i, i_len)
                         )
-                    indices.append(i)
-                    new_pos.append(i)
+                    indices_k2.append(i)
+                    indices_k3.append(i)
+                    new_pos_k2.append(system_positions[i])
+                    new_atomic_numbers_k2.append(system_atomic_numbers[i])
                 elif isinstance(i, (list, tuple, np.ndarray)):
                     if len(i) != 3:
                         raise ValueError(
@@ -357,7 +365,12 @@ class LMBTR(MBTR):
                             "non-empty set of atomic indices or cartesian "
                             "coordinates with x, y and z components."
                         )
-                    new_pos.append(np.array([i]))
+                    new_pos_k2.append(np.array(i))
+                    new_pos_k3.append(np.array(i))
+                    new_atomic_numbers_k2.append(0)
+                    new_atomic_numbers_k3.append(0)
+                    indices_k2.append(i_new)
+                    i_new += 1
                 else:
                     raise ValueError(
                         "Create method requires the argument 'positions', a "
@@ -374,7 +387,11 @@ class LMBTR(MBTR):
             else:
                 ext_system = system
                 cell_indices = np.zeros((len(system), 3), dtype=int)
-            mbtr["k2"] = self._get_k2(ext_system, new_pos, indices, cell_indices)
+            new_system_k2 = System(
+                symbols=new_atomic_numbers_k2,
+                positions=new_pos_k2,
+            )
+            mbtr["k2"] = self._get_k2(ext_system, new_system_k2, indices_k2, cell_indices)
 
             # Free memory
             ext_system = None
@@ -386,7 +403,11 @@ class LMBTR(MBTR):
             else:
                 ext_system = system
                 cell_indices = np.zeros((len(system), 3), dtype=int)
-            mbtr["k3"] = self._get_k3(ext_system, new_pos, indices, cell_indices)
+            new_system_k3 = System(
+                symbols=new_atomic_numbers_k3,
+                positions=new_pos_k3,
+            )
+            mbtr["k3"] = self._get_k3(ext_system, new_system_k3, indices_k3, cell_indices)
 
             # Free memory
             ext_system = None
@@ -405,7 +426,7 @@ class LMBTR(MBTR):
                         array /= i_norm
 
         # Flatten output if requested
-        n_loc = len(indices)
+        n_loc = len(positions)
         if self.flatten:
             length = 0
 
@@ -470,7 +491,7 @@ class LMBTR(MBTR):
 
         return int(n_features)
 
-    def _get_k2(self, ext_system, loc_pos, indices, cell_indices):
+    def _get_k2(self, ext_system, new_system, indices, cell_indices):
         """Calculates the second order terms where the scalar mapping is the
         inverse distance between atoms.
 
@@ -483,8 +504,6 @@ class LMBTR(MBTR):
         n = grid["n"]
         sigma = grid["sigma"]
         cmbtr = MBTRWrapper(
-            ext_system.get_positions(),
-            ext_system.get_atomic_numbers(),
             self.atomic_number_to_index,
             interaction_limit=self._interaction_limit,
             indices=cell_indices,
@@ -498,7 +517,10 @@ class LMBTR(MBTR):
         if weighting is not None:
             weighting_function = weighting["function"]
             if weighting_function == "exponential" or weighting_function == "exp":
-                radial_cutoff = -math.log(weighting["cutoff"])/weighting["scale"]
+                scale = weighting["scale"]
+                cutoff = weighting["cutoff"]
+                if scale != 0:
+                    radial_cutoff = -math.log(cutoff)/scale
                 parameters = {
                     b"scale": weighting["scale"],
                     b"cutoff": weighting["cutoff"]
@@ -509,25 +531,25 @@ class LMBTR(MBTR):
         # Determine the geometry function
         geom_func_name = self.k2["geometry"]["function"]
 
-        # If radial cutoff is finite, use it to calculate the sparse
-        # distance matrix to reduce computational complexity from O(n^2) to
-        # O(n log(n))
+        # If radial cutoff is finite, use it to calculate the sparse distance
+        # matrix to reduce computational complexity from O(n^2) to O(n log(n)).
+        # If radial cutoff is not available, calculate full matrix.
         n_atoms_ext = len(ext_system)
-        n_atoms_loc = len(loc_pos)
+        n_atoms_new = len(new_system)
+        ext_pos = ext_system.get_positions()
+        new_pos = new_system.get_positions()
         if radial_cutoff is not None:
-
-            # Calculate the distances from the local positions to other atoms
-            # in the system using the cutoff
-            dmat = ext_system.get_distance_matrix_within_radius(radial_cutoff, pos=loc_pos, output_type="coo_matrix")
+            dmat = new_system.get_distance_matrix_within_radius(radial_cutoff, pos=ext_pos, output_type="coo_matrix")
             adj_list = dscribe.utils.geometry.get_adjacency_list(dmat)
-            dmat_dense = np.full((n_atoms_loc, n_atoms_ext), sys.float_info.max)  # The non-neighbor values are treated as "infinitely far".
+            dmat_dense = np.full((n_atoms_new, n_atoms_ext), sys.float_info.max)  # The non-neighbor values are treated as "infinitely far".
             dmat_dense[dmat.row, dmat.col] = dmat.data
-        # If no weighting is used, the full distance matrix is calculated
         else:
-            dmat_dense = scipy.spatial.distance.cdist(loc_pos, ext_system.get_positions())
-            adj_list = np.tile(np.arange(n_atoms_loc), (n_atoms_ext, 1))
+            dmat_dense = scipy.spatial.distance.cdist(new_pos, ext_pos)
+            adj_list = np.tile(np.arange(n_atoms_ext), (n_atoms_new, 1))
 
         k2_list = cmbtr.get_k2_local(
+            indices=indices,
+            Z=ext_system.get_atomic_numbers(),
             distances=dmat_dense,
             neighbours=adj_list,
             geom_func=geom_func_name.encode(),
@@ -562,7 +584,7 @@ class LMBTR(MBTR):
 
         return k2
 
-    def _get_k3(self, old_system, new_system, indices, cell_indices):
+    def _get_k3(self, ext_system, new_system, indices, cell_indices):
         """Calculates the second order terms where the scalar mapping is the
         inverse distance between atoms.
 
@@ -575,8 +597,6 @@ class LMBTR(MBTR):
         n = grid["n"]
         sigma = grid["sigma"]
         cmbtr = MBTRWrapper(
-            old_system.get_positions(),
-            old_system.get_atomic_numbers(),
             self.atomic_number_to_index,
             interaction_limit=self._interaction_limit,
             indices=cell_indices,
@@ -590,10 +610,13 @@ class LMBTR(MBTR):
         if weighting is not None:
             weighting_function = weighting["function"]
             if weighting_function == "exponential" or weighting_function == "exp":
-                radial_cutoff = -0.5*math.log(weighting["cutoff"])/weighting["scale"]
+                scale = weighting["scale"]
+                cutoff = weighting["cutoff"]
+                if scale != 0:
+                    radial_cutoff = -0.5*math.log(cutoff)/scale
                 parameters = {
-                    b"scale": weighting["scale"],
-                    b"cutoff": weighting["cutoff"]
+                    b"scale": scale,
+                    b"cutoff": cutoff
                 }
         else:
             weighting_function = "unity"
@@ -604,34 +627,67 @@ class LMBTR(MBTR):
         # If radial cutoff is finite, use it to calculate the sparse
         # distance matrix to reduce computational complexity from O(n^2) to
         # O(n log(n))
-        n_atoms_old = len(old_system)
+        fin_system = ext_system + new_system
+        n_atoms_ext = len(ext_system)
+        n_atoms_fin = len(fin_system)
         n_atoms_new = len(new_system)
+        ext_pos = ext_system.get_positions()
+        new_pos = new_system.get_positions()
         if radial_cutoff is not None:
 
-            # First calculate the distances from the local positions to other
-            # atoms in the system using the cutoff
-            dmat_ext = new_system.get_distance_matrix_within_radius(radial_cutoff, pos=old_system.get_positions(), output_type="coo_matrix")
-            neighbours = []
+            # Calculate distance within the extended system
+            dmat_ext_to_ext = ext_system.get_distance_matrix_within_radius(radial_cutoff, pos=ext_pos, output_type="coo_matrix")
+            col = dmat_ext_to_ext.col
+            row = dmat_ext_to_ext.row
+            data = dmat_ext_to_ext.data
+            dmat = scipy.sparse.coo_matrix((data, (row, col)), shape=(n_atoms_fin, n_atoms_fin))
 
-            # Now calculate and addd only the distances from the identified
-            # neighbours to other atoms in the system
-            dmat_int = new_system.get_distance_matrix_within_radius(radial_cutoff, pos=neighbours, output_type="coo_matrix")
-
-            # Combine the distance information
-            dmat = dmat_ext+dmat_int
+            # Calculate the distances from the new positions to atoms in the
+            # extended system using the cutoff
+            if len(new_pos) != 0:
+                dmat_ext_to_new = ext_system.get_distance_matrix_within_radius(radial_cutoff, pos=new_pos, output_type="coo_matrix")
+                col = dmat_ext_to_new.col
+                row = dmat_ext_to_new.row
+                data = dmat_ext_to_new.data
+                dmat.col = np.append(dmat.col, col+n_atoms_ext)
+                dmat.row = np.append(dmat.row, row)
+                dmat.data = np.append(dmat.data, data)
+                dmat.col = np.append(dmat.col, row)
+                dmat.row = np.append(dmat.row, col+n_atoms_ext)
+                dmat.data = np.append(dmat.data, data)
 
             # Calculate adjacencies and transform to the dense matrix for
             # sending information to C++
             adj_list = dscribe.utils.geometry.get_adjacency_list(dmat)
-            dmat_dense = np.full((n_atoms_new, n_atoms_old), sys.float_info.max)  # The non-neighbor values are treated as "infinitely far".
+            dmat_dense = np.full((n_atoms_fin, n_atoms_fin), sys.float_info.max)  # The non-neighbor values are treated as "infinitely far".
             dmat_dense[dmat.row, dmat.col] = dmat.data
 
         # If no weighting is used, the full distance matrix is calculated
         else:
-            dmat_dense = new_system.get_distance_matrix()
-            adj_list = np.tile(np.arange(n_atoms_new), (n_atoms_new, 1))
+            dmat = scipy.sparse.lil_matrix((n_atoms_fin, n_atoms_fin))
+
+            # Fill in block for extended system
+            dmat_ext_to_ext = ext_system.get_distance_matrix()
+            dmat[0:n_atoms_ext, 0:n_atoms_ext] = dmat_ext_to_ext
+
+            # Fill in block for extended system to new system
+            dmat_ext_to_new = scipy.spatial.distance.cdist(ext_pos, new_pos)
+            dmat[0:n_atoms_ext, n_atoms_ext:n_atoms_ext+n_atoms_new] = dmat_ext_to_new
+            dmat[n_atoms_ext:n_atoms_ext+n_atoms_new, 0:n_atoms_ext] = dmat_ext_to_new.T
+
+            # Calculate adjacencies and the dense version
+            dmat = dmat.tocoo()
+            adj_list = dscribe.utils.geometry.get_adjacency_list(dmat)
+            dmat_dense = np.full((n_atoms_fin, n_atoms_fin), sys.float_info.max)  # The non-neighbor values are treated as "infinitely far".
+            dmat_dense[dmat.row, dmat.col] = dmat.data
+
+        # Form new indices that include the existing atoms and the newly added
+        # ones
+        indices = indices
+        indices.extend([n_atoms_ext+i for i in range(n_atoms_new)])
 
         k3_list = cmbtr.get_k3_local(
+            Z=fin_system.get_atomic_numbers(),
             distances=dmat_dense,
             neighbours=adj_list,
             indices=indices,
