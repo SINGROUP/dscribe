@@ -209,7 +209,7 @@ class System(Atoms):
             self.get_displacement_tensor()
         return self._distance_matrix
 
-    def get_distance_matrix_within_radius(self, radius, output_type="dict"):
+    def get_distance_matrix_within_radius(self, radius, pos=None, output_type="dict"):
         """Calculates a sparse distance matrix by only considering distances
         within a certain cutoff. Uses a k-d tree to reach O(n log(N)) time
         complexity.
@@ -225,15 +225,17 @@ class System(Atoms):
             dok_matrix | np.array | coo_matrix | dict: Symmetric sparse 2D
             matrix containing the pairwise distances.
         """
-        pos = self.get_positions()
+        pos1 = self.get_positions()
         tree1 = scipy.spatial.cKDTree(
-            pos,
+            pos1,
             leafsize=16,
             compact_nodes=True,
             copy_data=False,
             balanced_tree=True,
             boxsize=None
         )
+        if pos is None:
+            pos = pos1
         tree2 = scipy.spatial.cKDTree(
             pos,
             leafsize=16,

@@ -21,7 +21,6 @@ import numpy as np
 
 from scipy.spatial.distance import cdist
 from scipy.sparse import lil_matrix, coo_matrix
-from scipy.special import erf
 
 from ase import Atoms
 import ase.data
@@ -532,13 +531,8 @@ class MBTR(Descriptor):
         system = self.get_system(system)
 
         # Ensuring variables are re-initialized when a new system is introduced
-        self._interaction_limit = None
         self.system = system
-
-        if self._is_local:
-            self._interaction_limit = 1
-        else:
-            self._interaction_limit = len(system)
+        self._interaction_limit = len(system)
 
         # Check that the system does not have elements that are not in the list
         # of atomic numbers
@@ -912,7 +906,7 @@ class MBTR(Descriptor):
             n=n,
         )
 
-        # Depending of flattening, use either a sparse matrix or a dense one.
+        # Depending on flattening, use either a sparse matrix or a dense one.
         n_elem = self.n_elements
         if self.flatten:
             k1 = lil_matrix((1, n_elem*n), dtype=np.float32)
@@ -983,7 +977,7 @@ class MBTR(Descriptor):
             dmat = system.get_distance_matrix_within_radius(radial_cutoff, "coo_matrix")
             adj_list = dscribe.utils.geometry.get_adjacency_list(dmat)
             dmat_dense = np.full((n_atoms, n_atoms), sys.float_info.max)  # The non-neighbor values are treated as "infinitely far".
-            dmat_dense[dmat.col, dmat.row] = dmat.data
+            dmat_dense[dmat.row, dmat.col] = dmat.data
         # If no weighting is used, the full distance matrix is calculated
         else:
             dmat_dense = system.get_distance_matrix()

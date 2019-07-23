@@ -14,3 +14,4 @@ cdef extern from "mbtr.h":
         map[string,vector[float]] getK2(vector[vector[float]], vector[vector[int]], string, string, map[string, float], float, float, float, float) except +
         map[string,vector[float]] getK3(vector[vector[float]], vector[vector[int]], string, string, map[string, float], float, float, float, float) except +
         vector[map[string,vector[float]]] getK2Local(vector[vector[float]], vector[vector[int]], vector[int], string, string, map[string, float], float, float, float, float) except +
+        vector[map[string,vector[float]]] getK3Local(vector[vector[float]], vector[vector[int]], vector[int], string, string, map[string, float], float, float, float, float) except +

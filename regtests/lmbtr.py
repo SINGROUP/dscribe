@@ -30,6 +30,7 @@ from ase import Atoms
 from ase.build import molecule, bulk
 
 from testbaseclass import TestBaseClass
+import matplotlib.pyplot as mpl
 
 
 H2O = Atoms(
@@ -177,27 +178,27 @@ class LMBTRTests(unittest.TestCase):
         # with self.assertRaises(ValueError):
             # desc.normalization = "n_atoms"
 
-    def test_number_of_features(self):
-        """LMBTR: Tests that the reported number of features is correct.
-        """
-        # k=2
-        n = 50
-        species = [1, 8]
-        n_elem = len(species) + 1  # Including ghost atom
-        lmbtr = copy.deepcopy(default_desc_k2)
-        n_features = lmbtr.get_number_of_features()
-        expected = n_elem*n
-        real = lmbtr.create(H2O, positions=[0]).shape[1]
-        self.assertEqual(n_features, expected)
-        self.assertEqual(n_features, real)
+    # def test_number_of_features(self):
+        # """LMBTR: Tests that the reported number of features is correct.
+        # """
+        # # k=2
+        # n = 50
+        # species = [1, 8]
+        # n_elem = len(species) + 1  # Including ghost atom
+        # lmbtr = copy.deepcopy(default_desc_k2)
+        # n_features = lmbtr.get_number_of_features()
+        # expected = n_elem*n
+        # real = lmbtr.create(H2O, positions=[0]).shape[1]
+        # self.assertEqual(n_features, expected)
+        # self.assertEqual(n_features, real)
 
         # k=3
-        lmbtr = copy.deepcopy(default_desc_k3)
-        n_features = lmbtr.get_number_of_features()
-        expected = (n_elem*n_elem+(n_elem-1)*(n_elem)/2)*n
-        real = lmbtr.create(H2O, positions=[0]).shape[1]
-        self.assertEqual(n_features, expected)
-        self.assertEqual(n_features, real)
+        # lmbtr = copy.deepcopy(default_desc_k3)
+        # n_features = lmbtr.get_number_of_features()
+        # expected = (n_elem*n_elem+(n_elem-1)*(n_elem)/2)*n
+        # real = lmbtr.create(H2O, positions=[0]).shape[1]
+        # self.assertEqual(n_features, expected)
+        # self.assertEqual(n_features, real)
 
     # def test_locations_k2(self):
         # """Tests that the function used to query combination locations for k=2
@@ -515,6 +516,98 @@ class LMBTRTests(unittest.TestCase):
         # desc.periodic = False
         # out_finite = desc.create(test_sys, positions=[0])[0, :]
         # self.assertTrue(np.linalg.norm(out - out_finite) > 1)
+
+    # def test_k2(self):
+        # """Tests that the values of the weight and geometry functions are
+        # correct for the k=2 term.
+        # """
+        # desc = LMBTR(
+            # species=["H", "O"],
+            # k2={
+                # "geometry": {"function": "distance"},
+                # "grid": {"min": 0, "max": 15, "sigma": 0.1, "n": 100},
+                # # "weighting": {"function": "unity"},
+                # "weighting": {"function": "exp", "scale": 0.3, "cutoff": 1e-2},
+            # },
+            # periodic=True,
+            # flatten=True,
+            # sparse=False,
+            # normalization="l2_each"
+        # )
+
+        # system = Atoms(
+            # symbols=["H", "H"],
+            # positions=[[1, 5, 5], [9, 5, 5]],
+            # cell=[10, 10, 10],
+        # )
+        # features = desc.create(system, positions=[0, 1])
+        # x = desc.get_k2_axis()
+        # mpl.plot(x, features[0, desc.get_location(("X", "X"))], label="X")
+        # mpl.plot(x, features[0, desc.get_location(("X", "H"))], label="H")
+        # mpl.plot(x, features[0, desc.get_location(("X", "O"))], label="O")
+        # mpl.legend()
+        # mpl.show()
+
+        # mpl.plot(x, features[1, desc.get_location(("X", "X"))], label="X")
+        # mpl.plot(x, features[1, desc.get_location(("X", "H"))], label="H")
+        # mpl.plot(x, features[1, desc.get_location(("X", "O"))], label="O")
+        # mpl.legend()
+        # mpl.show()
+
+        # mpl.plot(x, features[2, desc.get_location(("X", "X"))], label="X")
+        # mpl.plot(x, features[2, desc.get_location(("X", "H"))], label="H")
+        # mpl.plot(x, features[2, desc.get_location(("X", "O"))], label="O")
+        # mpl.legend()
+        # mpl.show()
+
+    def test_k3(self):
+        """Tests that the values of the weight and geometry functions are
+        correct for the k=2 term.
+        """
+        desc = LMBTR(
+            species=["H", "O"],
+            k3={
+                "geometry": {"function": "angle"},
+                "grid": {"min": 0, "max": 180, "sigma": 5, "n": 100},
+                "weighting": {"function": "unity"},
+                # "weighting": {"function": "exp", "scale": 0.3, "cutoff": 1e-2},
+            },
+            periodic=False,
+            flatten=True,
+            sparse=False,
+            normalization="l2_each"
+        )
+
+        # system = Atoms(
+            # symbols=["H", "H"],
+            # positions=[[1, 5, 5], [9, 5, 5]],
+            # cell=[10, 10, 10],
+        # )
+
+        features = desc.create(H2O, positions=[0, 1, 2])
+        x = desc.get_k3_axis()
+        # mpl.plot(x, features[0, desc.get_location(("X", "H", "H"))], label="X-H-H")
+        # mpl.plot(x, features[0, desc.get_location(("X", "H", "O"))], label="X-H-O")
+        # mpl.plot(x, features[0, desc.get_location(("H", "X", "H"))], label="H-X-H")
+        # mpl.plot(x, features[0, desc.get_location(("H", "X", "O"))], label="H-X-O")
+        # mpl.legend()
+        # mpl.show()
+
+        mpl.plot(x, features[1, desc.get_location(("X", "H", "H"))], label="X-H-H")
+        mpl.plot(x, features[1, desc.get_location(("X", "H", "O"))], label="X-H-O")
+        mpl.plot(x, features[1, desc.get_location(("X", "O", "H"))], label="X-O-H")
+        mpl.plot(x, features[1, desc.get_location(("H", "X", "H"))], label="H-X-H")
+        mpl.plot(x, features[1, desc.get_location(("H", "X", "O"))], label="H-X-O")
+        mpl.legend()
+        mpl.show()
+
+        # mpl.plot(x, features[2, desc.get_location(("X", "H", "H"))], label="X-H-H")
+        # mpl.plot(x, features[2, desc.get_location(("X", "H", "O"))], label="X-H-O")
+        # mpl.plot(x, features[2, desc.get_location(("X", "O", "H"))], label="X-O-H")
+        # mpl.plot(x, features[2, desc.get_location(("H", "X", "H"))], label="H-X-H")
+        # mpl.plot(x, features[2, desc.get_location(("H", "X", "O"))], label="H-X-O")
+        # mpl.legend()
+        # mpl.show()
 
     # def test_k2_weights_and_geoms_finite(self):
         # """Tests that the values of the weight and geometry functions are

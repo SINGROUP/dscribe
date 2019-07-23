@@ -33,6 +33,7 @@ class MBTR {
         map<string, vector<float> > getK2(const vector<vector<float> > &distances, const vector<vector<int> > &neighbours, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n);
         map<string, vector<float> > getK3(const vector<vector<float> > &distances, const vector<vector<int> > &neighbours, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n);
         vector<map<string, vector<float> > > getK2Local(const vector<vector<float> > &distances, const vector<vector<int> > &neighbours, const vector<int> &indices, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n);
+        vector<map<string, vector<float> > > getK3Local(const vector<vector<float> > &distances, const vector<vector<int> > &neighbours, const vector<int> &indices, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n);
         vector<float> gaussian(float center, float weight, float start, float dx, float sigmasqrt2, int n);
 
 

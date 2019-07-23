@@ -186,7 +186,7 @@ map<string, vector<float> > MBTR::getK3(const vector<vector<float> > &distances,
 
     for (int i=0; i < nAtoms; ++i) {
 
-        // For each atom we loop only over the atoms triplest that are
+        // For each atom we loop only over the atoms triplets that are
         // within the neighbourhood
         const vector<int> &i_neighbours = neighbours[i];
         for (const int &j : i_neighbours) {
@@ -417,85 +417,69 @@ vector<map<string, vector<float> > > MBTR::getK2Local(const vector<vector<float>
         // For each atom we loop only over the neighbours
         const vector<int> &i_neighbours = neighbours[i];
         for (const int &j : i_neighbours) {
-            if (j > i) {
 
-                // Only consider pairs that have one atom in the original
-                // cell
-                if (i < this->interactionLimit || j < this->interactionLimit) {
+            if (i == j) {
+                continue;
+            }
+            // Only consider pairs that have one atom in the original
+            // cell
+            if (i < this->interactionLimit || j < this->interactionLimit) {
 
-                    // Calculate geometry value
-                    float geom;
-                    if (geomFunc == "inverse_distance") {
-                        geom = k2GeomInverseDistance(i, j, distances);
-                    } else if (geomFunc == "distance") {
-                        geom = k2GeomDistance(i, j, distances);
-                    } else {
-                        throw invalid_argument("Invalid geometry function.");
+                // Calculate geometry value
+                float geom;
+                if (geomFunc == "inverse_distance") {
+                    geom = k2GeomInverseDistance(i, j, distances);
+                } else if (geomFunc == "distance") {
+                    geom = k2GeomDistance(i, j, distances);
+                } else {
+                    throw invalid_argument("Invalid geometry function.");
+                }
+
+                // Calculate weight value
+                float weight;
+                if (weightFunc == "exponential" || weightFunc == "exp") {
+                    float scale = parameters.at("scale");
+                    float cutoff = parameters.at("cutoff");
+                    weight = k2WeightExponential(i, j, distances, scale);
+                    if (weight < cutoff) {
+                        continue;
                     }
+                } else if (weightFunc == "unity") {
+                    weight = k2WeightUnity(i, j, distances);
+                } else {
+                    throw invalid_argument("Invalid weighting function.");
+                }
 
-                    // Calculate weight value
-                    float weight;
-                    if (weightFunc == "exponential" || weightFunc == "exp") {
-                        float scale = parameters.at("scale");
-                        float cutoff = parameters.at("cutoff");
-                        weight = k2WeightExponential(i, j, distances, scale);
-                        if (weight < cutoff) {
-                            continue;
-                        }
-                    } else if (weightFunc == "unity") {
-                        weight = k2WeightUnity(i, j, distances);
-                    } else {
-                        throw invalid_argument("Invalid weighting function.");
-                    }
+                // Calculate gaussian
+                vector<float> gauss = gaussian(geom, weight, start, dx, sigmasqrt2, n);
 
-                    // Find position in output
-                    // When the pair of atoms are in different copies of the cell, the
-                    // weight is halved. This is done in order to avoid double counting
-                    // the same distance in the opposite direction. This correction
-                    // makes periodic cells with different translations equal and also
-                    // supercells equal to the primitive cell within a constant that is
-                    // given by the number of repetitions of the primitive cell in the
-                    // supercell.
-                    if (!this->isLocal) {
-                        vector<int> i_copy = this->cellIndices[i];
-                        vector<int> j_copy = this->cellIndices[j];
+                // Get the index of the present elements in the final vector
+                int i_elem = 0;
+                int j_elem = this->atomicNumbers.at(j);
+                int i_index = this->atomicNumberToIndexMap.at(i_elem);
+                int j_index = this->atomicNumberToIndexMap.at(j_elem);
 
-                        if (i_copy != j_copy) {
-                            weight /= 2;
-                        }
-                    }
+                // Save information in the part where j_index >= i_index
+                if (j_index < i_index) {
+                    int temp = j_index;
+                    j_index = i_index;
+                    i_index = temp;
+                }
 
-                    // Calculate gaussian
-                    vector<float> gauss = gaussian(geom, weight, start, dx, sigmasqrt2, n);
+                // Form the key as string to enable passing it through cython
+                stringstream ss;
+                ss << i_index;
+                ss << ",";
+                ss << j_index;
+                string stringKey = ss.str();
 
-                    // Get the index of the present elements in the final vector
-                    int i_elem = 0;
-                    int j_elem = this->atomicNumbers.at(j);
-                    int i_index = this->atomicNumberToIndexMap.at(i_elem);
-                    int j_index = this->atomicNumberToIndexMap.at(j_elem);
-
-                    // Save information in the part where j_index >= i_index
-                    if (j_index < i_index) {
-                        int temp = j_index;
-                        j_index = i_index;
-                        i_index = temp;
-                    }
-
-                    // Form the key as string to enable passing it through cython
-                    stringstream ss;
-                    ss << i_index;
-                    ss << ",";
-                    ss << j_index;
-                    string stringKey = ss.str();
-
-                    // Sum gaussian into output
-                    auto it = k2Map.find(stringKey);
-                    if ( it == k2Map.end() ) {
-                        k2Map[stringKey] = gauss;
-                    } else {
-                        vector<float> &old = it->second;
-                        transform(old.begin(), old.end(), gauss.begin(), old.begin(), plus<float>());
-                    }
+                // Sum gaussian into output
+                auto it = k2Map.find(stringKey);
+                if ( it == k2Map.end() ) {
+                    k2Map[stringKey] = gauss;
+                } else {
+                    vector<float> &old = it->second;
+                    transform(old.begin(), old.end(), gauss.begin(), old.begin(), plus<float>());
                 }
             }
         }
@@ -504,4 +488,166 @@ vector<map<string, vector<float> > > MBTR::getK2Local(const vector<vector<float>
     }
 
     return k2Maps;
+}
+
+vector<map<string, vector<float> > > MBTR::getK3Local(const vector<vector<float> > &distances, const vector<vector<int> > &neighbours, const vector<int> &indices, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n)
+{
+    // Initialize some variables outside the loop
+    vector<map<string, vector<float> > > k3Maps(indices.size());
+    int nAtoms = this->atomicNumbers.size();
+    float dx = (max-min)/(n-1);
+    float sigmasqrt2 = sigma*sqrt(2.0);
+    float start = min-dx/2;
+
+    // We loop over the specified indices
+    int iLoc = 0;
+    for (const int &i : indices) {
+        map<string, vector<float> > k3Map;
+
+        // For each atom we loop only over the atoms triplets that are
+        // within the neighbourhood
+        const vector<int> &i_neighbours = neighbours[i];
+        for (const int &j : i_neighbours) {
+            for (const int &k : i_neighbours) {
+                // Only consider triplets that have one atom in the original
+                // cell
+                if (i < this->interactionLimit || j < this->interactionLimit || k < this->interactionLimit) {
+                    // Calculate angle for all index permutations from choosing
+                    // three out of nAtoms. The same atom cannot be present twice
+                    // in the permutation.
+                    if (j != i && k != j && k != i) {
+
+                        // Calculate geometry value
+                        float geom;
+                        if (geomFunc == "cosine") {
+                            geom = k3GeomCosine(i, j, k, distances);
+                        } else if (geomFunc == "angle") {
+                            geom = k3GeomAngle(i, j, k, distances);
+                        } else {
+                            throw invalid_argument("Invalid geometry function.");
+                        }
+
+                        // Calculate weight value
+                        float weight;
+                        if (weightFunc == "exponential" || weightFunc == "exp") {
+                            float scale = parameters.at("scale");
+                            float cutoff = parameters.at("cutoff");
+                            weight = k3WeightExponential(i, j, k, distances, scale);
+                            if (weight < cutoff) {
+                                continue;
+                            }
+                        } else if (weightFunc == "unity") {
+                            weight = k3WeightUnity(i, j, k, distances);
+                        } else {
+                            throw invalid_argument("Invalid weighting function.");
+                        }
+
+                        // Calculate gaussian
+                        vector<float> gauss = gaussian(geom, weight, start, dx, sigmasqrt2, n);
+
+                        // Get the index of the present elements in the final vector
+                        int i_elem = 0;
+                        int j_elem = this->atomicNumbers.at(j);
+                        int k_elem = this->atomicNumbers.at(k);
+                        int i_index = this->atomicNumberToIndexMap.at(i_elem);
+                        int j_index = this->atomicNumberToIndexMap.at(j_elem);
+                        int k_index = this->atomicNumberToIndexMap.at(k_elem);
+
+                        // Save information in the part where k_index >= i_index
+                        if (k_index < i_index) {
+                            int temp = k_index;
+                            k_index = i_index;
+                            i_index = temp;
+                        }
+
+                        // Form the key as string to enable passing it through cython
+                        stringstream ss;
+                        ss << i_index;
+                        ss << ",";
+                        ss << j_index;
+                        ss << ",";
+                        ss << k_index;
+                        string stringKey = ss.str();
+
+                        // Sum gaussian into output
+                        auto it = k3Map.find(stringKey);
+                        if ( it == k3Map.end() ) {
+                            k3Map[stringKey] = gauss;
+                        } else {
+                            vector<float> &old = it->second;
+                            transform(old.begin(), old.end(), gauss.begin(), old.begin(), plus<float>());
+                        }
+
+                        // Also include the angle where the local center is in
+                        // the middle. Include it only once.
+                        if (k > j) {
+                            // Calculate geometry value
+                            float geom;
+                            if (geomFunc == "cosine") {
+                                geom = k3GeomCosine(j, i, k, distances);
+                            } else if (geomFunc == "angle") {
+                                geom = k3GeomAngle(j, i, k, distances);
+                            } else {
+                                throw invalid_argument("Invalid geometry function.");
+                            }
+
+                            // Calculate weight value
+                            float weight;
+                            if (weightFunc == "exponential" || weightFunc == "exp") {
+                                float scale = parameters.at("scale");
+                                float cutoff = parameters.at("cutoff");
+                                weight = k3WeightExponential(j, i, k, distances, scale);
+                                if (weight < cutoff) {
+                                    continue;
+                                }
+                            } else if (weightFunc == "unity") {
+                                weight = k3WeightUnity(j, i, k, distances);
+                            } else {
+                                throw invalid_argument("Invalid weighting function.");
+                            }
+
+                            // Calculate gaussian
+                            vector<float> gauss = gaussian(geom, weight, start, dx, sigmasqrt2, n);
+
+                            // Get the index of the present elements in the final vector
+                            int i_elem = 0;
+                            int j_elem = this->atomicNumbers.at(j);
+                            int k_elem = this->atomicNumbers.at(k);
+                            int i_index = this->atomicNumberToIndexMap.at(i_elem);
+                            int j_index = this->atomicNumberToIndexMap.at(j_elem);
+                            int k_index = this->atomicNumberToIndexMap.at(k_elem);
+
+                            // Save information in the part where k_index >= j_index
+                            if (k_index < j_index) {
+                                int temp = j_index;
+                                k_index = j_index;
+                                j_index = temp;
+                            }
+
+                            // Form the key as string to enable passing it through cython
+                            stringstream ss;
+                            ss << j_index;
+                            ss << ",";
+                            ss << i_index;
+                            ss << ",";
+                            ss << k_index;
+                            string stringKey = ss.str();
+
+                            // Sum gaussian into output
+                            auto it = k3Map.find(stringKey);
+                            if ( it == k3Map.end() ) {
+                                k3Map[stringKey] = gauss;
+                            } else {
+                                vector<float> &old = it->second;
+                                transform(old.begin(), old.end(), gauss.begin(), old.begin(), plus<float>());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        k3Maps[iLoc] = k3Map;
+        ++iLoc;
+    }
+    return k3Maps;
 }

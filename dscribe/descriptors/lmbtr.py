@@ -15,16 +15,23 @@ limitations under the License.
 """
 from __future__ import absolute_import, division, print_function
 from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
+import sys
+import math
 import numpy as np
+
+from sklearn.preprocessing import normalize
 
 from scipy.sparse import coo_matrix
 from scipy.sparse import lil_matrix
+import scipy.spatial.distance
 
 from ase import Atoms
 import ase.data
 
 from dscribe.core import System
 from dscribe.descriptors import MBTR
+from dscribe.libmbtr.mbtrwrapper import MBTRWrapper
+import dscribe.utils.geometry
 
 
 class LMBTR(MBTR):
@@ -187,7 +194,6 @@ class LMBTR(MBTR):
         # These attributes have to be set after the MBTR constructor to
         # override the defaults.
         self._is_local = True
-        self._interaction_limit = 1
 
         # These attributes can be set whenever
         self.is_center_periodic = periodic if is_center_periodic is None else is_center_periodic
@@ -308,6 +314,8 @@ class LMBTR(MBTR):
         # of atomic numbers
         atomic_number_set = set(system.get_atomic_numbers())
         self.check_atomic_numbers(atomic_number_set)
+        self._interaction_limit = len(system)
+        pos =
 
         # Ensure that the atomic number 0 is not present in the system
         if 0 in atomic_number_set:
@@ -317,15 +325,15 @@ class LMBTR(MBTR):
                 "implementation."
             )
 
-        # Figure out the atom index or atom location from the given positions
-        systems = []
-
-        # Positions specified, use them
+        # Form a list of indices for each requested local position. If a
+        # cartesian position is requested, a new atom is added to the system.
+        # new_i = len(system)
+        indices = []
+        new_pos = []
         if positions is not None:
 
             # Check validity of position definitions and create final cartesian
             # position list
-            list_positions = []
             if len(positions) == 0:
                 raise ValueError(
                     "The argument 'positions' should contain a non-empty set of"
@@ -340,7 +348,8 @@ class LMBTR(MBTR):
                             "The provided index {} is not valid for the system "
                             "with {} atoms.".format(i, i_len)
                         )
-                    list_positions.append(system.get_positions()[i])
+                    indices.append(i)
+                    new_pos.append(i)
                 elif isinstance(i, (list, tuple, np.ndarray)):
                     if len(i) != 3:
                         raise ValueError(
@@ -348,90 +357,80 @@ class LMBTR(MBTR):
                             "non-empty set of atomic indices or cartesian "
                             "coordinates with x, y and z components."
                         )
-                    list_positions.append(i)
+                    new_pos.append(np.array([i]))
                 else:
                     raise ValueError(
                         "Create method requires the argument 'positions', a "
                         "list of atom indices and/or positions."
                     )
 
-        for i_pos in positions:
-            # Position designated as cartesian position, add a new atom at that
-            # location with the chemical element X and place is as the first
-            # atom in the system. The interaction limit makes sure that only
-            # interactions of this first atom to every other atom are
-            # considered.
-            if isinstance(i_pos, (list, tuple, np.ndarray)):
-                if len(i_pos) != 3:
-                    raise ValueError(
-                        "The argument 'positions' should contain a "
-                        "non-empty set of atomic indices or cartesian "
-                        "coordinates with x, y and z components."
-                    )
-                i_pos = np.array(i_pos)
-                i_pos = np.expand_dims(i_pos, axis=0)
-                new_system = System('X', positions=i_pos)
-                new_system += system
-            # Position designated as integer, use the atom at that index as
-            # center. For the calculation this central atoms is shifted to be
-            # the first atom in the system, and the interaction limit makes
-            # sure that only interactions of this first atom to every other
-            # atom are considered.
-            elif np.issubdtype(type(i_pos), np.integer):
-                new_system = Atoms()
-                center_atom = system[i_pos]
-                new_system += center_atom
-                new_system.set_atomic_numbers([0])
-                system_copy = system.copy()
-                del system_copy[i_pos]
-                new_system += system_copy
-            else:
-                raise ValueError(
-                    "Create method requires the argument 'positions', a "
-                    "list of atom indices and/or positions."
-                )
-
-            # Set the periodicity and cell to match the original system, as
-            # they are lost in the system concatenation
-            new_system.set_cell(system.get_cell())
-            new_system.set_pbc(system.get_pbc())
-
-            systems.append(new_system)
-
         # Request MBTR for each position. Return type depends on flattening and
-        # whether a spares of dense result is requested.
-        n_pos = len(positions)
-        n_features = self.get_number_of_features()
-        if self._flatten and self._sparse:
-            data = []
-            cols = []
+        # whether a sparse or dense result is requested.
+        mbtr = {}
+        if self.k2 is not None:
+            # If needed, create the extended system
+            if self.periodic:
+                ext_system, cell_indices = self.create_extended_system(system, 2)
+            else:
+                ext_system = system
+                cell_indices = np.zeros((len(system), 3), dtype=int)
+            mbtr["k2"] = self._get_k2(ext_system, new_pos, indices, cell_indices)
+
+            # Free memory
+            ext_system = None
+
+        if self.k3 is not None:
+            # If needed, create the extended system
+            if self.periodic:
+                ext_system, cell_indices = self.create_extended_system(system, 3)
+            else:
+                ext_system = system
+                cell_indices = np.zeros((len(system), 3), dtype=int)
+            mbtr["k3"] = self._get_k3(ext_system, new_pos, indices, cell_indices)
+
+            # Free memory
+            ext_system = None
+
+        # Handle normalization
+        if self.normalization == "l2_each":
+            if self.flatten is True:
+                for key, value in mbtr.items():
+                    value_normalized = normalize(value, norm='l2', axis=1)
+                    mbtr[key] = value_normalized
+            else:
+                for key, value in mbtr.items():
+                    for array in value:
+                        i_data = array.ravel()
+                        i_norm = np.linalg.norm(i_data)
+                        array /= i_norm
+
+        # Flatten output if requested
+        n_loc = len(indices)
+        if self.flatten:
+            length = 0
+
+            datas = []
             rows = []
-            row_offset = 0
-            for i, i_system in enumerate(systems):
-                i_res = super().create_single(i_system)
-                data.append(i_res.data)
-                rows.append(i_res.row + row_offset)
-                cols.append(i_res.col)
+            cols = []
+            for key in sorted(mbtr.keys()):
+                tensor = mbtr[key]
+                size = tensor.shape[1]
+                coo = tensor.tocoo()
+                datas.append(coo.data)
+                rows.append(coo.row)
+                cols.append(coo.col + length)
+                length += size
 
-                # Increase the row offset
-                row_offset += 1
-
-            # Saves the descriptors as a sparse matrix
-            data = np.concatenate(data)
+            datas = np.concatenate(datas)
             rows = np.concatenate(rows)
             cols = np.concatenate(cols)
-            desc = coo_matrix((data, (rows, cols)), shape=(n_pos, n_features), dtype=np.float32)
-        else:
-            if self._flatten and not self._sparse:
-                desc = np.empty((n_pos, n_features), dtype=np.float32)
-            else:
-                desc = np.empty((n_pos), dtype='object')
-            for i, i_system in enumerate(systems):
-                i_desc = super().create_single(i_system)
-                print(i_desc.shape)
-                desc[i] = i_desc
+            mbtr = coo_matrix((datas, (rows, cols)), shape=[n_loc, length], dtype=np.float32)
 
-        return desc
+            # Make into a dense array if requested
+            if not self.sparse:
+                mbtr = mbtr.toarray()
+
+        return mbtr
 
     def get_number_of_features(self):
         """Used to inquire the final number of features that this descriptor
@@ -471,119 +470,215 @@ class LMBTR(MBTR):
 
         return int(n_features)
 
-    def get_k2_convolution(self, grid):
+    def _get_k2(self, ext_system, loc_pos, indices, cell_indices):
         """Calculates the second order terms where the scalar mapping is the
         inverse distance between atoms.
-
-        Args:
-            grid (dict): The grid settings
 
         Returns:
             1D ndarray: flattened K2 values.
         """
+        grid = self.k2["grid"]
         start = grid["min"]
         stop = grid["max"]
         n = grid["n"]
-        self._axis_k2 = np.linspace(start, stop, n)
+        sigma = grid["sigma"]
+        cmbtr = MBTRWrapper(
+            ext_system.get_positions(),
+            ext_system.get_atomic_numbers(),
+            self.atomic_number_to_index,
+            interaction_limit=self._interaction_limit,
+            indices=cell_indices,
+            is_local=self._is_local
+        )
 
-        k2_geoms, k2_weights = self._k2_geoms, self._k2_weights
+        # Determine the weighting function and possible radial cutoff
+        radial_cutoff = None
+        weighting = self.k2.get("weighting")
+        parameters = {}
+        if weighting is not None:
+            weighting_function = weighting["function"]
+            if weighting_function == "exponential" or weighting_function == "exp":
+                radial_cutoff = -math.log(weighting["cutoff"])/weighting["scale"]
+                parameters = {
+                    b"scale": weighting["scale"],
+                    b"cutoff": weighting["cutoff"]
+                }
+        else:
+            weighting_function = "unity"
+
+        # Determine the geometry function
+        geom_func_name = self.k2["geometry"]["function"]
+
+        # If radial cutoff is finite, use it to calculate the sparse
+        # distance matrix to reduce computational complexity from O(n^2) to
+        # O(n log(n))
+        n_atoms_ext = len(ext_system)
+        n_atoms_loc = len(loc_pos)
+        if radial_cutoff is not None:
+
+            # Calculate the distances from the local positions to other atoms
+            # in the system using the cutoff
+            dmat = ext_system.get_distance_matrix_within_radius(radial_cutoff, pos=loc_pos, output_type="coo_matrix")
+            adj_list = dscribe.utils.geometry.get_adjacency_list(dmat)
+            dmat_dense = np.full((n_atoms_loc, n_atoms_ext), sys.float_info.max)  # The non-neighbor values are treated as "infinitely far".
+            dmat_dense[dmat.row, dmat.col] = dmat.data
+        # If no weighting is used, the full distance matrix is calculated
+        else:
+            dmat_dense = scipy.spatial.distance.cdist(loc_pos, ext_system.get_positions())
+            adj_list = np.tile(np.arange(n_atoms_loc), (n_atoms_ext, 1))
+
+        k2_list = cmbtr.get_k2_local(
+            distances=dmat_dense,
+            neighbours=adj_list,
+            geom_func=geom_func_name.encode(),
+            weight_func=weighting_function.encode(),
+            parameters=parameters,
+            start=start,
+            stop=stop,
+            sigma=sigma,
+            n=n,
+        )
+
+        # Depending on flattening, use either a sparse matrix or a dense one.
         n_elem = self.n_elements
-
-        # Depending of flattening, use either a sparse matrix or a dense one.
+        n_loc = len(indices)
         if self.flatten:
             k2 = lil_matrix(
-                (1, n_elem*n), dtype=np.float32)
+                (n_loc, n_elem*n), dtype=np.float32)
 
-            for key in k2_geoms.keys():
-                i = key[1]
-
-                geoms = np.array(k2_geoms[key])
-                weights = np.array(k2_weights[key])
-
-                # Broaden with a gaussian
-                gaussian_sum = self.gaussian_sum(geoms, weights, grid)
-
-                m = i
-                start = int(m*n)
-                end = int((m+1)*n)
-                k2[0, start:end] = gaussian_sum
+            for i_loc, k2_map in enumerate(k2_list):
+                for key, gaussian_sum in k2_map.items():
+                    i = key[1]
+                    m = i
+                    start = int(m*n)
+                    end = int((m+1)*n)
+                    k2[i_loc, start:end] = gaussian_sum
         else:
-            k2 = np.zeros((n_elem, n), dtype=np.float32)
-            for key in k2_geoms.keys():
-                i = key[0]
-
-                geoms = np.array(k2_geoms[key])
-                weights = np.array(k2_weights[key])
-
-                # Broaden with a gaussian
-                gaussian_sum = self.gaussian_sum(geoms, weights, grid)
-
-                k2[i, :] = gaussian_sum
+            k2 = np.zeros((n_loc, n_elem, n), dtype=np.float32)
+            for i_loc, k2_map in enumerate(k2_list):
+                for key, gaussian_sum in k2_map.items():
+                    i = key[0]
+                    k2[i_loc, i, :] = gaussian_sum
 
         return k2
 
-    def get_k3_convolution(self, grid):
-        """Calculates the third order terms where the scalar mapping is the
-        angle between 3 atoms.
-
-        Args:
-            grid (dict): The grid settings
+    def _get_k3(self, old_system, new_system, indices, cell_indices):
+        """Calculates the second order terms where the scalar mapping is the
+        inverse distance between atoms.
 
         Returns:
-            1D ndarray: flattened K3 values.
+            1D ndarray: flattened K2 values.
         """
+        grid = self.k3["grid"]
         start = grid["min"]
         stop = grid["max"]
         n = grid["n"]
-        self._axis_k3 = np.linspace(start, stop, n)
+        sigma = grid["sigma"]
+        cmbtr = MBTRWrapper(
+            old_system.get_positions(),
+            old_system.get_atomic_numbers(),
+            self.atomic_number_to_index,
+            interaction_limit=self._interaction_limit,
+            indices=cell_indices,
+            is_local=self._is_local
+        )
 
-        k3_geoms, k3_weights = self._k3_geoms, self._k3_weights
+        # Determine the weighting function and possible radial cutoff
+        radial_cutoff = None
+        weighting = self.k3.get("weighting")
+        parameters = {}
+        if weighting is not None:
+            weighting_function = weighting["function"]
+            if weighting_function == "exponential" or weighting_function == "exp":
+                radial_cutoff = -0.5*math.log(weighting["cutoff"])/weighting["scale"]
+                parameters = {
+                    b"scale": weighting["scale"],
+                    b"cutoff": weighting["cutoff"]
+                }
+        else:
+            weighting_function = "unity"
+
+        # Determine the geometry function
+        geom_func_name = self.k3["geometry"]["function"]
+
+        # If radial cutoff is finite, use it to calculate the sparse
+        # distance matrix to reduce computational complexity from O(n^2) to
+        # O(n log(n))
+        n_atoms_old = len(old_system)
+        n_atoms_new = len(new_system)
+        if radial_cutoff is not None:
+
+            # First calculate the distances from the local positions to other
+            # atoms in the system using the cutoff
+            dmat_ext = new_system.get_distance_matrix_within_radius(radial_cutoff, pos=old_system.get_positions(), output_type="coo_matrix")
+            neighbours = []
+
+            # Now calculate and addd only the distances from the identified
+            # neighbours to other atoms in the system
+            dmat_int = new_system.get_distance_matrix_within_radius(radial_cutoff, pos=neighbours, output_type="coo_matrix")
+
+            # Combine the distance information
+            dmat = dmat_ext+dmat_int
+
+            # Calculate adjacencies and transform to the dense matrix for
+            # sending information to C++
+            adj_list = dscribe.utils.geometry.get_adjacency_list(dmat)
+            dmat_dense = np.full((n_atoms_new, n_atoms_old), sys.float_info.max)  # The non-neighbor values are treated as "infinitely far".
+            dmat_dense[dmat.row, dmat.col] = dmat.data
+
+        # If no weighting is used, the full distance matrix is calculated
+        else:
+            dmat_dense = new_system.get_distance_matrix()
+            adj_list = np.tile(np.arange(n_atoms_new), (n_atoms_new, 1))
+
+        k3_list = cmbtr.get_k3_local(
+            distances=dmat_dense,
+            neighbours=adj_list,
+            indices=indices,
+            geom_func=geom_func_name.encode(),
+            weight_func=weighting_function.encode(),
+            parameters=parameters,
+            start=start,
+            stop=stop,
+            sigma=sigma,
+            n=n,
+        )
+
+        # Depending on flattening, use either a sparse matrix or a dense one.
         n_elem = self.n_elements
-
-        # Depending of flattening, use either a sparse matrix or a dense one.
+        n_loc = len(indices)
         if self.flatten:
             k3 = lil_matrix(
-                (1, int((n_elem*(3*n_elem-1)*n/2))), dtype=np.float32
+                (n_loc, int((n_elem*(3*n_elem-1)*n/2))), dtype=np.float32
             )
-            for key in k3_geoms.keys():
-                i = key[0]
-                j = key[1]
-                k = key[2]
 
-                geoms = np.array(k3_geoms[key])
-                weights = np.array(k3_weights[key])
+            for i_loc, k3_map in enumerate(k3_list):
+                for key, gaussian_sum in k3_map.items():
+                    i = key[0]
+                    j = key[1]
+                    k = key[2]
 
-                # Broaden with a gaussian
-                gaussian_sum = self.gaussian_sum(geoms, weights, grid)
+                    # This is the index of the spectrum. It is given by enumerating the
+                    # elements of a three-dimensional array and only considering
+                    # elements for which k>=i and i || j == 0. The enumeration begins
+                    # from [0, 0, 0], and ends at [n_elem, n_elem, n_elem], looping the
+                    # elements in the order k, i, j.
+                    if j == 0:
+                        m = k + i*n_elem - i*(i+1)/2
+                    else:
+                        m = n_elem*(n_elem+1)/2+(j-1)*n_elem + k
+                    start = int(m*n)
+                    end = int((m+1)*n)
 
-                # This is the index of the spectrum. It is given by enumerating the
-                # elements of a three-dimensional array and only considering
-                # elements for which k>=i and i || j == 0. The enumeration begins
-                # from [0, 0, 0], and ends at [n_elem, n_elem, n_elem], looping the
-                # elements in the order k, i, j.
-                if j == 0:
-                    m = k + i*n_elem - i*(i+1)/2
-                else:
-                    m = n_elem*(n_elem+1)/2+(j-1)*n_elem + k
-                start = int(m*n)
-                end = int((m+1)*n)
-
-                k3[0, start:end] = gaussian_sum
+                    k3[i_loc, start:end] = gaussian_sum
         else:
-            k3 = np.zeros((n_elem, n_elem, n_elem, n), dtype=np.float32)
-            for key in k3_geoms.keys():
-                i = key[0]
-                j = key[1]
-                k = key[2]
-
-                geoms = np.array(k3_geoms[key])
-                weights = np.array(k3_weights[key])
-
-                # Broaden with a gaussian
-                gaussian_sum = self.gaussian_sum(geoms, weights, grid)
-
-                k3[i, j, k, :] = gaussian_sum
-
+            k3 = np.zeros((n_loc, n_elem, n_elem, n_elem, n), dtype=np.float32)
+            for i_loc, k3_map in enumerate(k3_list):
+                for key, gaussian_sum in k3_map.items():
+                    i = key[0]
+                    j = key[1]
+                    k = key[2]
+                    k3[n_loc, i, j, k, :] = gaussian_sum
         return k3
 
     def get_location(self, species):
@@ -708,3 +803,269 @@ class LMBTR(MBTR):
 
         # Recalculate locations
         self.updated = True
+
+    def get_k3_convolution(self, grid):
+        """Calculates the third order terms where the scalar mapping is the
+        angle between 3 atoms.
+
+        Args:
+            grid (dict): The grid settings
+
+        Returns:
+            1D ndarray: flattened K3 values.
+        """
+        start = grid["min"]
+        stop = grid["max"]
+        n = grid["n"]
+        self._axis_k3 = np.linspace(start, stop, n)
+
+        k3_geoms, k3_weights = self._k3_geoms, self._k3_weights
+        n_elem = self.n_elements
+
+        # Depending of flattening, use either a sparse matrix or a dense one.
+        if self.flatten:
+            k3 = lil_matrix(
+                (1, int((n_elem*(3*n_elem-1)*n/2))), dtype=np.float32
+            )
+            for key in k3_geoms.keys():
+                i = key[0]
+                j = key[1]
+                k = key[2]
+
+                geoms = np.array(k3_geoms[key])
+                weights = np.array(k3_weights[key])
+
+                # Broaden with a gaussian
+                gaussian_sum = self.gaussian_sum(geoms, weights, grid)
+
+                # This is the index of the spectrum. It is given by enumerating the
+                # elements of a three-dimensional array and only considering
+                # elements for which k>=i and i || j == 0. The enumeration begins
+                # from [0, 0, 0], and ends at [n_elem, n_elem, n_elem], looping the
+                # elements in the order k, i, j.
+                if j == 0:
+                    m = k + i*n_elem - i*(i+1)/2
+                else:
+                    m = n_elem*(n_elem+1)/2+(j-1)*n_elem + k
+                start = int(m*n)
+                end = int((m+1)*n)
+
+                k3[0, start:end] = gaussian_sum
+        else:
+            k3 = np.zeros((n_elem, n_elem, n_elem, n), dtype=np.float32)
+            for key in k3_geoms.keys():
+                i = key[0]
+                j = key[1]
+                k = key[2]
+
+                geoms = np.array(k3_geoms[key])
+                weights = np.array(k3_weights[key])
+
+                # Broaden with a gaussian
+                gaussian_sum = self.gaussian_sum(geoms, weights, grid)
+
+                k3[i, j, k, :] = gaussian_sum
+
+        return k3
+
+    # def create_single(
+            # self,
+            # system,
+            # positions,
+            # ):
+        # """Return the local many-body tensor representation for the given
+        # system and positions.
+
+        # Args:
+            # system (:class:`ase.Atoms` | :class:`.System`): Input system.
+            # positions (iterable): Positions or atom index of points, from
+                # which local_mbtr is created. Can be a list of integer numbers
+                # or a list of xyz-coordinates.
+
+        # Returns:
+            # 1D ndarray: The local many-body tensor representations of given
+            # positions, for k terms, as an array. These are ordered as given in
+            # positions.
+        # """
+        # # Transform the input system into the internal System-object
+        # system = self.get_system(system)
+
+        # # Check that the system does not have elements that are not in the list
+        # # of atomic numbers
+        # atomic_number_set = set(system.get_atomic_numbers())
+        # self.check_atomic_numbers(atomic_number_set)
+
+        # # Ensure that the atomic number 0 is not present in the system
+        # if 0 in atomic_number_set:
+            # raise ValueError(
+                # "Please do not use the atomic number 0 in local MBTR"
+                # ", as it is reserved for the ghost atom used by the "
+                # "implementation."
+            # )
+
+        # # Figure out the atom index or atom location from the given positions
+        # systems = []
+
+        # # Positions specified, use them
+        # if positions is not None:
+
+            # # Check validity of position definitions and create final cartesian
+            # # position list
+            # list_positions = []
+            # if len(positions) == 0:
+                # raise ValueError(
+                    # "The argument 'positions' should contain a non-empty set of"
+                    # " atomic indices or cartesian coordinates with x, y and z "
+                    # "components."
+                # )
+            # for i in positions:
+                # if np.issubdtype(type(i), np.integer):
+                    # i_len = len(system)
+                    # if i >= i_len or i < 0:
+                        # raise ValueError(
+                            # "The provided index {} is not valid for the system "
+                            # "with {} atoms.".format(i, i_len)
+                        # )
+                    # list_positions.append(system.get_positions()[i])
+                # elif isinstance(i, (list, tuple, np.ndarray)):
+                    # if len(i) != 3:
+                        # raise ValueError(
+                            # "The argument 'positions' should contain a "
+                            # "non-empty set of atomic indices or cartesian "
+                            # "coordinates with x, y and z components."
+                        # )
+                    # list_positions.append(i)
+                # else:
+                    # raise ValueError(
+                        # "Create method requires the argument 'positions', a "
+                        # "list of atom indices and/or positions."
+                    # )
+
+        # for i_pos in positions:
+            # # Position designated as cartesian position, add a new atom at that
+            # # location with the chemical element X and place is as the first
+            # # atom in the system. The interaction limit makes sure that only
+            # # interactions of this first atom to every other atom are
+            # # considered.
+            # if isinstance(i_pos, (list, tuple, np.ndarray)):
+                # if len(i_pos) != 3:
+                    # raise ValueError(
+                        # "The argument 'positions' should contain a "
+                        # "non-empty set of atomic indices or cartesian "
+                        # "coordinates with x, y and z components."
+                    # )
+                # i_pos = np.array(i_pos)
+                # i_pos = np.expand_dims(i_pos, axis=0)
+                # new_system = System('X', positions=i_pos)
+                # new_system += system
+            # # Position designated as integer, use the atom at that index as
+            # # center. For the calculation this central atoms is shifted to be
+            # # the first atom in the system, and the interaction limit makes
+            # # sure that only interactions of this first atom to every other
+            # # atom are considered.
+            # elif np.issubdtype(type(i_pos), np.integer):
+                # new_system = Atoms()
+                # center_atom = system[i_pos]
+                # new_system += center_atom
+                # new_system.set_atomic_numbers([0])
+                # system_copy = system.copy()
+                # del system_copy[i_pos]
+                # new_system += system_copy
+            # else:
+                # raise ValueError(
+                    # "Create method requires the argument 'positions', a "
+                    # "list of atom indices and/or positions."
+                # )
+
+            # # Set the periodicity and cell to match the original system, as
+            # # they are lost in the system concatenation
+            # new_system.set_cell(system.get_cell())
+            # new_system.set_pbc(system.get_pbc())
+
+            # systems.append(new_system)
+
+        # # Request MBTR for each position. Return type depends on flattening and
+        # # whether a spares of dense result is requested.
+        # n_pos = len(positions)
+        # n_features = self.get_number_of_features()
+        # if self._flatten and self._sparse:
+            # data = []
+            # cols = []
+            # rows = []
+            # row_offset = 0
+            # for i, i_system in enumerate(systems):
+                # i_res = super().create_single(i_system)
+                # data.append(i_res.data)
+                # rows.append(i_res.row + row_offset)
+                # cols.append(i_res.col)
+
+                # # Increase the row offset
+                # row_offset += 1
+
+            # # Saves the descriptors as a sparse matrix
+            # data = np.concatenate(data)
+            # rows = np.concatenate(rows)
+            # cols = np.concatenate(cols)
+            # desc = coo_matrix((data, (rows, cols)), shape=(n_pos, n_features), dtype=np.float32)
+        # else:
+            # if self._flatten and not self._sparse:
+                # desc = np.empty((n_pos, n_features), dtype=np.float32)
+            # else:
+                # desc = np.empty((n_pos), dtype='object')
+            # for i, i_system in enumerate(systems):
+                # i_desc = super().create_single(i_system)
+                # print(i_desc.shape)
+                # desc[i] = i_desc
+
+        # return desc
+
+    # def get_k2_convolution(self, grid):
+        # """Calculates the second order terms where the scalar mapping is the
+        # inverse distance between atoms.
+
+        # Args:
+            # grid (dict): The grid settings
+
+        # Returns:
+            # 1D ndarray: flattened K2 values.
+        # """
+        # start = grid["min"]
+        # stop = grid["max"]
+        # n = grid["n"]
+        # self._axis_k2 = np.linspace(start, stop, n)
+
+        # k2_geoms, k2_weights = self._k2_geoms, self._k2_weights
+        # n_elem = self.n_elements
+
+        # # Depending of flattening, use either a sparse matrix or a dense one.
+        # if self.flatten:
+            # k2 = lil_matrix(
+                # (1, n_elem*n), dtype=np.float32)
+
+            # for key in k2_geoms.keys():
+                # i = key[1]
+
+                # geoms = np.array(k2_geoms[key])
+                # weights = np.array(k2_weights[key])
+
+                # # Broaden with a gaussian
+                # gaussian_sum = self.gaussian_sum(geoms, weights, grid)
+
+                # m = i
+                # start = int(m*n)
+                # end = int((m+1)*n)
+                # k2[0, start:end] = gaussian_sum
+        # else:
+            # k2 = np.zeros((n_elem, n), dtype=np.float32)
+            # for key in k2_geoms.keys():
+                # i = key[0]
+
+                # geoms = np.array(k2_geoms[key])
+                # weights = np.array(k2_weights[key])
+
+                # # Broaden with a gaussian
+                # gaussian_sum = self.gaussian_sum(geoms, weights, grid)
+
+                # k2[i, :] = gaussian_sum
+
+        # return k2

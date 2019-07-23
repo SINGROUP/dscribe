@@ -74,3 +74,20 @@ cdef class MBTRWrapper:
             new_k2_list.append(new_k2_map)
 
         return new_k2_list
+
+    def get_k3_local(self, distances, neighbours, indices, geom_func, weight_func, parameters, start, stop, sigma, n):
+        """Cython cannot directly provide the keys as tuples, so we have to do
+        the conversion here on the python side.
+        """
+        k3_list = self.thisptr.getK3Local(distances, neighbours, indices, geom_func, weight_func, parameters, start, stop, sigma, n)
+        new_k3_list = []
+
+        for item in k3_list:
+            new_k3_map = {}
+            item = dict(item)
+            for key, value in item.items():
+                new_key = tuple(int(x) for x in key.decode("utf-8").split(","))
+                new_k3_map[new_key] = np.array(value, dtype=np.float32)
+            new_k3_list.append(new_k3_map)
+
+        return new_k3_list
