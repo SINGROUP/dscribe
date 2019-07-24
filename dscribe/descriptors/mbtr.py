@@ -802,7 +802,7 @@ class MBTR(Descriptor):
 
         # return extended_system, cell_indices
 
-    def create_extended_system(self, primitive_system, term_number):
+    def create_extended_system(self, primitive_system, radial_cutoff):
         """Used to create a periodically extended system, that is as small as
         possible by rejecting atoms for which the given weighting will be below
         the given threshold.
@@ -813,8 +813,8 @@ class MBTR(Descriptor):
         Args:
             primitive_system (System): The original primitive system to
                 duplicate.
-            term_number (int): The term number of the tensor. For k=2, the max
-                distance is x, for k>2, the distance is given by 2*x.
+            radial_cutoff (float): The radial cutoff to use in constructing the
+                extended system.
 
         Returns:
             tuple: Tuple containing the new extended system as the first entry
@@ -835,30 +835,8 @@ class MBTR(Descriptor):
         # exponential weight to come down to the given threshold.
         cell_vector_lengths = np.linalg.norm(cell, axis=1)
         n_copies_axis = np.zeros(3, dtype=int)
-        weighting = getattr(self, "k{}".format(term_number))["weighting"]
-        weighting_function = weighting["function"]
-        cutoff = weighting["cutoff"]
-
-        if weighting_function == "exponential" or weighting_function == "exp":
-            scale = weighting["scale"]
-            function = lambda x: np.exp(-scale*x)
-
-        for i_axis, axis_length in enumerate(cell_vector_lengths):
-            limit_found = False
-            n_copies = -1
-            while (not limit_found):
-                n_copies += 1
-                distance = n_copies*cell_vector_lengths[i_axis]
-
-                # For terms k>2 we double the distances to take into
-                # account the "loop" that is required.
-                if term_number > 2:
-                    distance = 2*distance
-
-                weight = function(distance)
-                if weight < cutoff:
-                    n_copies_axis[i_axis] = n_copies
-                    limit_found = True
+        cell_cuts = radial_cutoff/cell_vector_lengths
+        n_copies_axis = np.ceil(cell_cuts).astype(np.int)
 
         # Create copies of the cell but keep track of the atoms in the
         # original cell
@@ -893,11 +871,11 @@ class MBTR(Descriptor):
 
                     # For terms above k==2 we double the distances to take into
                     # account the "loop" that is required.
-                    if term_number > 2:
-                        distances *= 2
-
-                    weights = function(distances)
-                    weight_mask = weights >= cutoff
+                    # if term_number > 2:
+                        # distances *= 2
+                    # weights = function(distances)
+                    # weight_mask = weights >= cutoff
+                    weight_mask = distances < radial_cutoff
 
                     # Create a boolean mask that says if the atom is within the
                     # range from at least one atom in the original cell
@@ -1017,7 +995,7 @@ class MBTR(Descriptor):
 
         # If needed, create the extended system
         if self.periodic:
-            ext_system, cell_indices = self.create_extended_system(system, 2)
+            ext_system, cell_indices = self.create_extended_system(system, radial_cutoff)
         else:
             ext_system = system
             cell_indices = np.zeros((len(system), 3), dtype=int)
@@ -1121,7 +1099,7 @@ class MBTR(Descriptor):
 
         # If needed, create the extended system
         if self.periodic:
-            ext_system, cell_indices = self.create_extended_system(system, 3)
+            ext_system, cell_indices = self.create_extended_system(system, radial_cutoff)
         else:
             ext_system = system
             cell_indices = np.zeros((len(system), 3), dtype=int)
