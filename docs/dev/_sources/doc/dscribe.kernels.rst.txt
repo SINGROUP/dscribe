@@ -11,6 +11,7 @@ dscribe.kernels.average module
    :members:
    :undoc-members:
    :show-inheritance:
+
 dscribe.kernels.localsimilaritykernel module
 --------------------------------------------
 
@@ -18,6 +19,7 @@ dscribe.kernels.localsimilaritykernel module
    :members:
    :undoc-members:
    :show-inheritance:
+
 dscribe.kernels.rematch module
 ------------------------------
 

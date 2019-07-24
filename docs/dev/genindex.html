@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Index &mdash; DScribe 0.2.8a documentation</title>
+  <title>Index &mdash; DScribe 0.2.9a0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                0.2.8a
+                0.2.9a0
               </div>
             
           
@@ -287,8 +287,6 @@
         <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.create_single">(dscribe.descriptors.soap.SOAP method)</a>
 </li>
       </ul></li>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.create_with_grid">create_with_grid() (dscribe.descriptors.mbtr.MBTR method)</a>
-</li>
   </ul></td>
 </tr></table>
 
@@ -321,10 +319,10 @@
 </li>
       <li><a href="doc/dscribe.descriptors.html#module-dscribe.descriptors.matrixdescriptor">dscribe.descriptors.matrixdescriptor (module)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="doc/dscribe.descriptors.html#module-dscribe.descriptors.mbtr">dscribe.descriptors.mbtr (module)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="doc/dscribe.descriptors.html#module-dscribe.descriptors.sinematrix">dscribe.descriptors.sinematrix (module)</a>
 </li>
       <li><a href="doc/dscribe.descriptors.html#module-dscribe.descriptors.soap">dscribe.descriptors.soap (module)</a>
@@ -346,6 +344,8 @@
       <li><a href="doc/dscribe.libmbtr.html#module-dscribe.libmbtr.mbtrwrapper">dscribe.libmbtr.mbtrwrapper (module)</a>
 </li>
       <li><a href="doc/dscribe.utils.html#module-dscribe.utils">dscribe.utils (module)</a>
+</li>
+      <li><a href="doc/dscribe.utils.html#module-dscribe.utils.geometry">dscribe.utils.geometry (module)</a>
 </li>
       <li><a href="doc/dscribe.utils.html#module-dscribe.utils.species">dscribe.utils.species (module)</a>
 </li>
@@ -400,11 +400,11 @@
       <li><a href="doc/dscribe.core.html#dscribe.core.lattice.Lattice.gamma">gamma() (dscribe.core.lattice.Lattice property)</a>
 </li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.elementaldistribution.ElementalDistribution.gaussian_sum">gaussian_sum() (dscribe.descriptors.elementaldistribution.ElementalDistribution method)</a>
-
-      <ul>
-        <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.gaussian_sum">(dscribe.descriptors.mbtr.MBTR method)</a>
 </li>
-      </ul></li>
+      <li><a href="doc/dscribe.utils.html#dscribe.utils.geometry.get_adjacency_list">get_adjacency_list() (in module dscribe.utils.geometry)</a>
+</li>
+      <li><a href="doc/dscribe.utils.html#dscribe.utils.geometry.get_adjacency_matrix">get_adjacency_matrix() (in module dscribe.utils.geometry)</a>
+</li>
       <li><a href="doc/dscribe.utils.html#dscribe.utils.species.get_atomic_numbers">get_atomic_numbers() (in module dscribe.utils.species)</a>
 </li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.elementaldistribution.ElementalDistribution.get_axis">get_axis() (dscribe.descriptors.elementaldistribution.ElementalDistribution method)</a>
@@ -414,17 +414,11 @@
       <li><a href="doc/dscribe.core.html#dscribe.core.system.System.get_cell_inverse">get_cell_inverse() (dscribe.core.system.System method)</a>
 </li>
       <li><a href="doc/dscribe.core.html#dscribe.core.system.System.get_displacement_tensor">get_displacement_tensor() (dscribe.core.system.System method)</a>
-
-      <ul>
-        <li><a href="doc/dscribe.libmbtr.html#dscribe.libmbtr.mbtrwrapper.MBTRWrapper.get_displacement_tensor">(dscribe.libmbtr.mbtrwrapper.MBTRWrapper method)</a>
 </li>
-      </ul></li>
       <li><a href="doc/dscribe.core.html#dscribe.core.system.System.get_distance_matrix">get_distance_matrix() (dscribe.core.system.System method)</a>
-
-      <ul>
-        <li><a href="doc/dscribe.libmbtr.html#dscribe.libmbtr.mbtrwrapper.MBTRWrapper.get_distance_matrix">(dscribe.libmbtr.mbtrwrapper.MBTRWrapper method)</a>
 </li>
-      </ul></li>
+      <li><a href="doc/dscribe.core.html#dscribe.core.system.System.get_distance_matrix_within_radius">get_distance_matrix_within_radius() (dscribe.core.system.System method)</a>
+</li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.get_eigenspectrum">get_eigenspectrum() (dscribe.descriptors.matrixdescriptor.MatrixDescriptor method)</a>
 </li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.elementaldistribution.ElementalDistribution.get_element_occurrence">get_element_occurrence() (dscribe.descriptors.elementaldistribution.ElementalDistribution method)</a>
@@ -447,25 +441,21 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="doc/dscribe.core.html#dscribe.core.system.System.get_inverse_distance_matrix">get_inverse_distance_matrix() (dscribe.core.system.System method)</a>
 </li>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.get_k1_convolution">get_k1_convolution() (dscribe.descriptors.mbtr.MBTR method)</a>
+      <li><a href="doc/dscribe.libmbtr.html#dscribe.libmbtr.mbtrwrapper.MBTRWrapper.get_k1">get_k1() (dscribe.libmbtr.mbtrwrapper.MBTRWrapper method)</a>
 </li>
-      <li><a href="doc/dscribe.libmbtr.html#dscribe.libmbtr.mbtrwrapper.MBTRWrapper.get_k1_geoms_and_weights">get_k1_geoms_and_weights() (dscribe.libmbtr.mbtrwrapper.MBTRWrapper method)</a>
+      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.get_k1_axis">get_k1_axis() (dscribe.descriptors.mbtr.MBTR method)</a>
 </li>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.lmbtr.LMBTR.get_k2_convolution">get_k2_convolution() (dscribe.descriptors.lmbtr.LMBTR method)</a>
-
-      <ul>
-        <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.get_k2_convolution">(dscribe.descriptors.mbtr.MBTR method)</a>
+      <li><a href="doc/dscribe.libmbtr.html#dscribe.libmbtr.mbtrwrapper.MBTRWrapper.get_k2">get_k2() (dscribe.libmbtr.mbtrwrapper.MBTRWrapper method)</a>
 </li>
-      </ul></li>
-      <li><a href="doc/dscribe.libmbtr.html#dscribe.libmbtr.mbtrwrapper.MBTRWrapper.get_k2_geoms_and_weights">get_k2_geoms_and_weights() (dscribe.libmbtr.mbtrwrapper.MBTRWrapper method)</a>
+      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.get_k2_axis">get_k2_axis() (dscribe.descriptors.mbtr.MBTR method)</a>
 </li>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.lmbtr.LMBTR.get_k3_convolution">get_k3_convolution() (dscribe.descriptors.lmbtr.LMBTR method)</a>
-
-      <ul>
-        <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.get_k3_convolution">(dscribe.descriptors.mbtr.MBTR method)</a>
+      <li><a href="doc/dscribe.libmbtr.html#dscribe.libmbtr.mbtrwrapper.MBTRWrapper.get_k2_local">get_k2_local() (dscribe.libmbtr.mbtrwrapper.MBTRWrapper method)</a>
 </li>
-      </ul></li>
-      <li><a href="doc/dscribe.libmbtr.html#dscribe.libmbtr.mbtrwrapper.MBTRWrapper.get_k3_geoms_and_weights">get_k3_geoms_and_weights() (dscribe.libmbtr.mbtrwrapper.MBTRWrapper method)</a>
+      <li><a href="doc/dscribe.libmbtr.html#dscribe.libmbtr.mbtrwrapper.MBTRWrapper.get_k3">get_k3() (dscribe.libmbtr.mbtrwrapper.MBTRWrapper method)</a>
+</li>
+      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.get_k3_axis">get_k3_axis() (dscribe.descriptors.mbtr.MBTR method)</a>
+</li>
+      <li><a href="doc/dscribe.libmbtr.html#dscribe.libmbtr.mbtrwrapper.MBTRWrapper.get_k3_local">get_k3_local() (dscribe.libmbtr.mbtrwrapper.MBTRWrapper method)</a>
 </li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.lmbtr.LMBTR.get_location">get_location() (dscribe.descriptors.lmbtr.LMBTR method)</a>
 
@@ -515,10 +505,6 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.initialize_scalars">initialize_scalars() (dscribe.descriptors.mbtr.MBTR method)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="doc/dscribe.core.html#dscribe.core.lattice.Lattice.inv_matrix">inv_matrix() (dscribe.core.lattice.Lattice property)</a>
 </li>
   </ul></td>
@@ -529,17 +515,11 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.k1">k1() (dscribe.descriptors.mbtr.MBTR property)</a>
 </li>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.k1_geoms_and_weights">k1_geoms_and_weights() (dscribe.descriptors.mbtr.MBTR method)</a>
-</li>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.k2">k2() (dscribe.descriptors.mbtr.MBTR property)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.k2_geoms_and_weights">k2_geoms_and_weights() (dscribe.descriptors.mbtr.MBTR method)</a>
+      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.k2">k2() (dscribe.descriptors.mbtr.MBTR property)</a>
 </li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.k3">k3() (dscribe.descriptors.mbtr.MBTR property)</a>
-</li>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.k3_geoms_and_weights">k3_geoms_and_weights() (dscribe.descriptors.mbtr.MBTR method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -724,16 +704,16 @@
   <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="fa fa-book"> Versions</span>
-      v: 0.2.8a
+      v: 0.2.9a0
       <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
       <dl>
         <dt>Versions</dt>
         
-          <dd><a href="https://singroup.github.io/dscribe/dev">0.2.8a (development)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe/dev">0.2.9a0 (development)</a></dd>
         
-          <dd><a href="https://singroup.github.io/dscribe">0.2.7 (latest stable)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe">0.2.8 (latest stable)</a></dd>
         
       </dl>
     </div>

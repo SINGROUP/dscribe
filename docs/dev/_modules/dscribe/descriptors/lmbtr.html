@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dscribe.descriptors.lmbtr &mdash; DScribe 0.2.8a documentation</title>
+  <title>dscribe.descriptors.lmbtr &mdash; DScribe 0.2.9a0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                0.2.8a
+                0.2.9a0
               </div>
             
           
@@ -175,16 +175,23 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span>
 <span class="kn">from</span> <span class="nn">builtins</span> <span class="k">import</span> <span class="p">(</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">open</span><span class="p">,</span> <span class="nb">super</span><span class="p">,</span> <span class="nb">range</span><span class="p">,</span> <span class="nb">zip</span><span class="p">,</span> <span class="nb">round</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">pow</span><span class="p">,</span> <span class="nb">object</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="k">import</span> <span class="n">normalize</span>
 
 <span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="k">import</span> <span class="n">coo_matrix</span>
 <span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="k">import</span> <span class="n">lil_matrix</span>
+<span class="kn">import</span> <span class="nn">scipy.spatial.distance</span>
 
 <span class="kn">from</span> <span class="nn">ase</span> <span class="k">import</span> <span class="n">Atoms</span>
 <span class="kn">import</span> <span class="nn">ase.data</span>
 
 <span class="kn">from</span> <span class="nn">dscribe.core</span> <span class="k">import</span> <span class="n">System</span>
 <span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="k">import</span> <span class="n">MBTR</span>
+<span class="kn">from</span> <span class="nn">dscribe.libmbtr.mbtrwrapper</span> <span class="k">import</span> <span class="n">MBTRWrapper</span>
+<span class="kn">import</span> <span class="nn">dscribe.utils.geometry</span>
 
 
 <div class="viewcode-block" id="LMBTR"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.lmbtr.LMBTR">[docs]</a><span class="k">class</span> <span class="nc">LMBTR</span><span class="p">(</span><span class="n">MBTR</span><span class="p">):</span>
@@ -270,7 +277,6 @@
             <span class="n">periodic</span><span class="p">,</span>
             <span class="n">k2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">k3</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">is_center_periodic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">normalize_gaussians</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">normalization</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
             <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -306,15 +312,6 @@
 <span class="sd">                        &quot;grid&quot;: {&quot;min&quot;: 0, &quot;max&quot;: 180, &quot;sigma&quot;: 5, &quot;n&quot;: 50},</span>
 <span class="sd">                        &quot;weighting&quot; = {&quot;function&quot;: &quot;exp&quot;, &quot;scale&quot;: 0.5, &quot;cutoff&quot;: 1e-3}</span>
 <span class="sd">                    }</span>
-
-<span class="sd">            is_center_periodic (bool): Determines whether the central positions</span>
-<span class="sd">                are periodically repeated or not. If not specified, defaults to</span>
-<span class="sd">                the value of the &quot;periodic&quot;-parameter. If False, the central</span>
-<span class="sd">                position is not repeated in periodic systems. If set to True,</span>
-<span class="sd">                the position will be repeated in periodic systems and may</span>
-<span class="sd">                interact with periodic copies of itself. Typically set to False</span>
-<span class="sd">                when studying non-physical positions in periodic systems,</span>
-<span class="sd">                otherwise set to False.</span>
 <span class="sd">            normalize_gaussians (bool): Determines whether the gaussians are</span>
 <span class="sd">                normalized to an area of 1. Defaults to True. If False, the</span>
 <span class="sd">                normalization factor is dropped and the gaussians have the form.</span>
@@ -343,23 +340,7 @@
             <span class="n">normalize_gaussians</span><span class="o">=</span><span class="n">normalize_gaussians</span><span class="p">,</span>
             <span class="n">flatten</span><span class="o">=</span><span class="n">flatten</span><span class="p">,</span>
             <span class="n">sparse</span><span class="o">=</span><span class="n">sparse</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="c1"># These attributes have to be set after the MBTR constructor to</span>
-        <span class="c1"># override the defaults.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_is_local</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_limit</span> <span class="o">=</span> <span class="mi">1</span>
-
-        <span class="c1"># These attributes can be set whenever</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">is_center_periodic</span> <span class="o">=</span> <span class="n">periodic</span> <span class="k">if</span> <span class="n">is_center_periodic</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">is_center_periodic</span>
-
-        <span class="c1"># Check that center is not defined as periodic if the system is not</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span> <span class="ow">is</span> <span class="kc">False</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_center_periodic</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Cannot make the central atom periodic if the whole system is &quot;</span>
-                <span class="s2">&quot;not periodic.&quot;</span>
-            <span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">updated</span> <span class="o">=</span> <span class="kc">True</span></div>
+        <span class="p">)</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">normalization</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -454,7 +435,9 @@
 <span class="sd">            system (:class:`ase.Atoms` | :class:`.System`): Input system.</span>
 <span class="sd">            positions (iterable): Positions or atom index of points, from</span>
 <span class="sd">                which local_mbtr is created. Can be a list of integer numbers</span>
-<span class="sd">                or a list of xyz-coordinates.</span>
+<span class="sd">                or a list of xyz-coordinates. If integers provided, the atoms</span>
+<span class="sd">                at that index are used as centers. If positions provided, new</span>
+<span class="sd">                atoms are added at that position.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            1D ndarray: The local many-body tensor representations of given</span>
@@ -468,24 +451,33 @@
         <span class="c1"># of atomic numbers</span>
         <span class="n">atomic_number_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_atomic_numbers</span><span class="p">(</span><span class="n">atomic_number_set</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_limit</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+        <span class="n">system_positions</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
+        <span class="n">system_atomic_numbers</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">()</span>
 
         <span class="c1"># Ensure that the atomic number 0 is not present in the system</span>
         <span class="k">if</span> <span class="mi">0</span> <span class="ow">in</span> <span class="n">atomic_number_set</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Please do not use the atomic number 0 in local MBTR&quot;</span>
-                <span class="s2">&quot;, as it is reserved for the ghost atom used by the &quot;</span>
-                <span class="s2">&quot;implementation.&quot;</span>
+                <span class="s2">&quot;Please do not use the atomic number 0 in local MBTR as it &quot;</span>
+                <span class="s2">&quot;is reserved to mark the atoms use as analysis centers.&quot;</span>
             <span class="p">)</span>
 
-        <span class="c1"># Figure out the atom index or atom location from the given positions</span>
-        <span class="n">systems</span> <span class="o">=</span> <span class="p">[]</span>
-
-        <span class="c1"># Positions specified, use them</span>
+        <span class="c1"># Form a list of indices, positions and atomic numbers for the local</span>
+        <span class="c1"># centers. k=3 and k=2 use a slightly different approach, so two</span>
+        <span class="c1"># versions are built</span>
+        <span class="n">i_new</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+        <span class="n">indices_k2</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">new_pos_k2</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">new_atomic_numbers_k2</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">indices_k3</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">new_pos_k3</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">new_atomic_numbers_k3</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">n_atoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">positions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">n_loc</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">positions</span><span class="p">)</span>
 
             <span class="c1"># Check validity of position definitions and create final cartesian</span>
             <span class="c1"># position list</span>
-            <span class="n">list_positions</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">positions</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="s2">&quot;The argument &#39;positions&#39; should contain a non-empty set of&quot;</span>
@@ -500,7 +492,10 @@
                             <span class="s2">&quot;The provided index </span><span class="si">{}</span><span class="s2"> is not valid for the system &quot;</span>
                             <span class="s2">&quot;with </span><span class="si">{}</span><span class="s2"> atoms.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">i_len</span><span class="p">)</span>
                         <span class="p">)</span>
-                    <span class="n">list_positions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()[</span><span class="n">i</span><span class="p">])</span>
+                    <span class="n">indices_k2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                    <span class="n">indices_k3</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                    <span class="n">new_pos_k2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">system_positions</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                    <span class="n">new_atomic_numbers_k2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">system_atomic_numbers</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
                 <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
                     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
                         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -508,89 +503,90 @@
                             <span class="s2">&quot;non-empty set of atomic indices or cartesian &quot;</span>
                             <span class="s2">&quot;coordinates with x, y and z components.&quot;</span>
                         <span class="p">)</span>
-                    <span class="n">list_positions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                    <span class="n">new_pos_k2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+                    <span class="n">new_pos_k3</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+                    <span class="n">new_atomic_numbers_k2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="n">new_atomic_numbers_k3</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="n">i_new</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                         <span class="s2">&quot;Create method requires the argument &#39;positions&#39;, a &quot;</span>
                         <span class="s2">&quot;list of atom indices and/or positions.&quot;</span>
                     <span class="p">)</span>
+        <span class="c1"># If positions are not supplied, it is assumed that each atom is used</span>
+        <span class="c1"># as a center</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">n_loc</span> <span class="o">=</span> <span class="n">n_atoms</span>
+            <span class="n">indices_k2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_atoms</span><span class="p">)</span>
+            <span class="n">indices_k3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_atoms</span><span class="p">)</span>
+            <span class="n">new_pos_k2</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
+            <span class="n">new_atomic_numbers_k2</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">()</span>
 
-        <span class="k">for</span> <span class="n">i_pos</span> <span class="ow">in</span> <span class="n">positions</span><span class="p">:</span>
-            <span class="c1"># Position designated as cartesian position, add a new atom at that</span>
-            <span class="c1"># location with the chemical element X and place is as the first</span>
-            <span class="c1"># atom in the system. The interaction limit makes sure that only</span>
-            <span class="c1"># interactions of this first atom to every other atom are</span>
-            <span class="c1"># considered.</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i_pos</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">i_pos</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="s2">&quot;The argument &#39;positions&#39; should contain a &quot;</span>
-                        <span class="s2">&quot;non-empty set of atomic indices or cartesian &quot;</span>
-                        <span class="s2">&quot;coordinates with x, y and z components.&quot;</span>
-                    <span class="p">)</span>
-                <span class="n">i_pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">i_pos</span><span class="p">)</span>
-                <span class="n">i_pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">i_pos</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-                <span class="n">new_system</span> <span class="o">=</span> <span class="n">System</span><span class="p">(</span><span class="s1">&#39;X&#39;</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="n">i_pos</span><span class="p">)</span>
-                <span class="n">new_system</span> <span class="o">+=</span> <span class="n">system</span>
-            <span class="c1"># Position designated as integer, use the atom at that index as</span>
-            <span class="c1"># center. For the calculation this central atoms is shifted to be</span>
-            <span class="c1"># the first atom in the system, and the interaction limit makes</span>
-            <span class="c1"># sure that only interactions of this first atom to every other</span>
-            <span class="c1"># atom are considered.</span>
-            <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">i_pos</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
-                <span class="n">new_system</span> <span class="o">=</span> <span class="n">Atoms</span><span class="p">()</span>
-                <span class="n">center_atom</span> <span class="o">=</span> <span class="n">system</span><span class="p">[</span><span class="n">i_pos</span><span class="p">]</span>
-                <span class="n">new_system</span> <span class="o">+=</span> <span class="n">center_atom</span>
-                <span class="n">new_system</span><span class="o">.</span><span class="n">set_atomic_numbers</span><span class="p">([</span><span class="mi">0</span><span class="p">])</span>
-                <span class="n">system_copy</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-                <span class="k">del</span> <span class="n">system_copy</span><span class="p">[</span><span class="n">i_pos</span><span class="p">]</span>
-                <span class="n">new_system</span> <span class="o">+=</span> <span class="n">system_copy</span>
+        <span class="c1"># Calculate the &quot;raw&quot; outputs for each term.</span>
+        <span class="n">mbtr</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">k2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">new_system_k2</span> <span class="o">=</span> <span class="n">System</span><span class="p">(</span>
+                <span class="n">symbols</span><span class="o">=</span><span class="n">new_atomic_numbers_k2</span><span class="p">,</span>
+                <span class="n">positions</span><span class="o">=</span><span class="n">new_pos_k2</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">mbtr</span><span class="p">[</span><span class="s2">&quot;k2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_k2</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">new_system_k2</span><span class="p">,</span> <span class="n">indices_k2</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">k3</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">new_system_k3</span> <span class="o">=</span> <span class="n">System</span><span class="p">(</span>
+                <span class="n">symbols</span><span class="o">=</span><span class="n">new_atomic_numbers_k3</span><span class="p">,</span>
+                <span class="n">positions</span><span class="o">=</span><span class="n">new_pos_k3</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">mbtr</span><span class="p">[</span><span class="s2">&quot;k3&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_k3</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">new_system_k3</span><span class="p">,</span> <span class="n">indices_k3</span><span class="p">)</span>
+
+        <span class="c1"># Handle normalization</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalization</span> <span class="o">==</span> <span class="s2">&quot;l2_each&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">mbtr</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">value_normalized</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="s1">&#39;l2&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="n">mbtr</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value_normalized</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;Create method requires the argument &#39;positions&#39;, a &quot;</span>
-                    <span class="s2">&quot;list of atom indices and/or positions.&quot;</span>
-                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">mbtr</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">for</span> <span class="n">array</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+                        <span class="n">i_data</span> <span class="o">=</span> <span class="n">array</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+                        <span class="n">i_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">i_data</span><span class="p">)</span>
+                        <span class="n">array</span> <span class="o">/=</span> <span class="n">i_norm</span>
 
-            <span class="c1"># Set the periodicity and cell to match the original system, as</span>
-            <span class="c1"># they are lost in the system concatenation</span>
-            <span class="n">new_system</span><span class="o">.</span><span class="n">set_cell</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_cell</span><span class="p">())</span>
-            <span class="n">new_system</span><span class="o">.</span><span class="n">set_pbc</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_pbc</span><span class="p">())</span>
+        <span class="c1"># Flatten output if requested</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">:</span>
+            <span class="n">length</span> <span class="o">=</span> <span class="mi">0</span>
 
-            <span class="n">systems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_system</span><span class="p">)</span>
-
-        <span class="c1"># Request MBTR for each position. Return type depends on flattening and</span>
-        <span class="c1"># whether a spares of dense result is requested.</span>
-        <span class="n">n_pos</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">positions</span><span class="p">)</span>
-        <span class="n">n_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_number_of_features</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flatten</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">cols</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">datas</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">row_offset</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">i_system</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">systems</span><span class="p">):</span>
-                <span class="n">i_res</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">create_single</span><span class="p">(</span><span class="n">i_system</span><span class="p">)</span>
-                <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i_res</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
-                <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i_res</span><span class="o">.</span><span class="n">row</span> <span class="o">+</span> <span class="n">row_offset</span><span class="p">)</span>
-                <span class="n">cols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i_res</span><span class="o">.</span><span class="n">col</span><span class="p">)</span>
+            <span class="n">cols</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">mbtr</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="n">tensor</span> <span class="o">=</span> <span class="n">mbtr</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                <span class="n">size</span> <span class="o">=</span> <span class="n">tensor</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">coo</span> <span class="o">=</span> <span class="n">tensor</span><span class="o">.</span><span class="n">tocoo</span><span class="p">()</span>
+                <span class="n">datas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coo</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+                <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coo</span><span class="o">.</span><span class="n">row</span><span class="p">)</span>
+                <span class="n">cols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coo</span><span class="o">.</span><span class="n">col</span> <span class="o">+</span> <span class="n">length</span><span class="p">)</span>
+                <span class="n">length</span> <span class="o">+=</span> <span class="n">size</span>
 
-                <span class="c1"># Increase the row offset</span>
-                <span class="n">row_offset</span> <span class="o">+=</span> <span class="mi">1</span>
-
-            <span class="c1"># Saves the descriptors as a sparse matrix</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">datas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">datas</span><span class="p">)</span>
             <span class="n">rows</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
             <span class="n">cols</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">cols</span><span class="p">)</span>
-            <span class="n">desc</span> <span class="o">=</span> <span class="n">coo_matrix</span><span class="p">((</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">)),</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_pos</span><span class="p">,</span> <span class="n">n_features</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flatten</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span><span class="p">:</span>
-                <span class="n">desc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">n_pos</span><span class="p">,</span> <span class="n">n_features</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">desc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">n_pos</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;object&#39;</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">i_system</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">systems</span><span class="p">):</span>
-                <span class="n">i_desc</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">create_single</span><span class="p">(</span><span class="n">i_system</span><span class="p">)</span>
-                <span class="n">desc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">i_desc</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">coo_matrix</span><span class="p">((</span><span class="n">datas</span><span class="p">,</span> <span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">)),</span> <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="n">n_loc</span><span class="p">,</span> <span class="n">length</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">desc</span></div>
+            <span class="c1"># Make into a dense array if requested</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">sparse</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
+        <span class="c1"># Otherwise return a list of dictionaries, each dictionary containing</span>
+        <span class="c1"># the requested unflattened tensors</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">n_loc</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;object&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i_loc</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_loc</span><span class="p">):</span>
+                <span class="n">i_dict</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">mbtr</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">tensor</span> <span class="o">=</span> <span class="n">mbtr</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                    <span class="n">i_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">[</span><span class="n">i_loc</span><span class="p">]</span>
+                <span class="n">result</span><span class="p">[</span><span class="n">i_loc</span><span class="p">]</span> <span class="o">=</span> <span class="n">i_dict</span>
+
+        <span class="k">return</span> <span class="n">result</span></div>
 
 <div class="viewcode-block" id="LMBTR.get_number_of_features"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.lmbtr.LMBTR.get_number_of_features">[docs]</a>    <span class="k">def</span> <span class="nf">get_number_of_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Used to inquire the final number of features that this descriptor</span>
@@ -630,120 +626,295 @@
 
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_features</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="LMBTR.get_k2_convolution"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.lmbtr.LMBTR.get_k2_convolution">[docs]</a>    <span class="k">def</span> <span class="nf">get_k2_convolution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_get_k2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">new_system</span><span class="p">,</span> <span class="n">indices</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculates the second order terms where the scalar mapping is the</span>
 <span class="sd">        inverse distance between atoms.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            grid (dict): The grid settings</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            1D ndarray: flattened K2 values.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">k2</span><span class="p">[</span><span class="s2">&quot;grid&quot;</span><span class="p">]</span>
         <span class="n">start</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[</span><span class="s2">&quot;min&quot;</span><span class="p">]</span>
         <span class="n">stop</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[</span><span class="s2">&quot;max&quot;</span><span class="p">]</span>
         <span class="n">n</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_axis_k2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+        <span class="n">sigma</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[</span><span class="s2">&quot;sigma&quot;</span><span class="p">]</span>
 
-        <span class="n">k2_geoms</span><span class="p">,</span> <span class="n">k2_weights</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_k2_geoms</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_k2_weights</span>
+        <span class="c1"># Determine the weighting function and possible radial cutoff</span>
+        <span class="n">radial_cutoff</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">weighting</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">k2</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;weighting&quot;</span><span class="p">)</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">weighting</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">weighting_function</span> <span class="o">=</span> <span class="n">weighting</span><span class="p">[</span><span class="s2">&quot;function&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">weighting_function</span> <span class="o">==</span> <span class="s2">&quot;exponential&quot;</span> <span class="ow">or</span> <span class="n">weighting_function</span> <span class="o">==</span> <span class="s2">&quot;exp&quot;</span><span class="p">:</span>
+                <span class="n">scale</span> <span class="o">=</span> <span class="n">weighting</span><span class="p">[</span><span class="s2">&quot;scale&quot;</span><span class="p">]</span>
+                <span class="n">cutoff</span> <span class="o">=</span> <span class="n">weighting</span><span class="p">[</span><span class="s2">&quot;cutoff&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">scale</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">radial_cutoff</span> <span class="o">=</span> <span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">cutoff</span><span class="p">)</span><span class="o">/</span><span class="n">scale</span>
+                <span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="sa">b</span><span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="n">weighting</span><span class="p">[</span><span class="s2">&quot;scale&quot;</span><span class="p">],</span>
+                    <span class="sa">b</span><span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="n">weighting</span><span class="p">[</span><span class="s2">&quot;cutoff&quot;</span><span class="p">]</span>
+                <span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">weighting_function</span> <span class="o">=</span> <span class="s2">&quot;unity&quot;</span>
+
+        <span class="c1"># Determine the geometry function</span>
+        <span class="n">geom_func_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">k2</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">][</span><span class="s2">&quot;function&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Calculate extended system</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">:</span>
+            <span class="n">centers</span> <span class="o">=</span> <span class="n">new_system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
+            <span class="n">ext_system</span><span class="p">,</span> <span class="n">cell_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_extended_system</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">centers</span><span class="p">,</span> <span class="n">radial_cutoff</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ext_system</span> <span class="o">=</span> <span class="n">system</span>
+            <span class="n">cell_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">),</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="n">cmbtr</span> <span class="o">=</span> <span class="n">MBTRWrapper</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_to_index</span><span class="p">,</span>
+            <span class="n">interaction_limit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_limit</span><span class="p">,</span>
+            <span class="n">indices</span><span class="o">=</span><span class="n">cell_indices</span>
+        <span class="p">)</span>
+
+        <span class="c1"># If radial cutoff is finite, use it to calculate the sparse distance</span>
+        <span class="c1"># matrix to reduce computational complexity from O(n^2) to O(n log(n)).</span>
+        <span class="c1"># If radial cutoff is not available, calculate full matrix.</span>
+        <span class="n">n_atoms_ext</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ext_system</span><span class="p">)</span>
+        <span class="n">n_atoms_new</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_system</span><span class="p">)</span>
+        <span class="n">ext_pos</span> <span class="o">=</span> <span class="n">ext_system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
+        <span class="n">new_pos</span> <span class="o">=</span> <span class="n">new_system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">radial_cutoff</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dmat</span> <span class="o">=</span> <span class="n">new_system</span><span class="o">.</span><span class="n">get_distance_matrix_within_radius</span><span class="p">(</span><span class="n">radial_cutoff</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="n">ext_pos</span><span class="p">)</span>
+            <span class="n">adj_list</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_adjacency_list</span><span class="p">(</span><span class="n">dmat</span><span class="p">)</span>
+            <span class="n">dmat_dense</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n_atoms_new</span><span class="p">,</span> <span class="n">n_atoms_ext</span><span class="p">),</span> <span class="n">sys</span><span class="o">.</span><span class="n">float_info</span><span class="o">.</span><span class="n">max</span><span class="p">)</span>  <span class="c1"># The non-neighbor values are treated as &quot;infinitely far&quot;.</span>
+            <span class="n">dmat_dense</span><span class="p">[</span><span class="n">dmat</span><span class="o">.</span><span class="n">row</span><span class="p">,</span> <span class="n">dmat</span><span class="o">.</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">dmat</span><span class="o">.</span><span class="n">data</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dmat_dense</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">spatial</span><span class="o">.</span><span class="n">distance</span><span class="o">.</span><span class="n">cdist</span><span class="p">(</span><span class="n">new_pos</span><span class="p">,</span> <span class="n">ext_pos</span><span class="p">)</span>
+            <span class="n">adj_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_atoms_ext</span><span class="p">),</span> <span class="p">(</span><span class="n">n_atoms_new</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="c1"># Form new indices that include the existing atoms and the newly added</span>
+        <span class="c1"># ones</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="p">[</span><span class="n">n_atoms_ext</span><span class="o">+</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_atoms_new</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">))])</span>
+
+        <span class="n">k2_list</span> <span class="o">=</span> <span class="n">cmbtr</span><span class="o">.</span><span class="n">get_k2_local</span><span class="p">(</span>
+            <span class="n">indices</span><span class="o">=</span><span class="n">indices</span><span class="p">,</span>
+            <span class="n">Z</span><span class="o">=</span><span class="n">ext_system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">(),</span>
+            <span class="n">distances</span><span class="o">=</span><span class="n">dmat_dense</span><span class="p">,</span>
+            <span class="n">neighbours</span><span class="o">=</span><span class="n">adj_list</span><span class="p">,</span>
+            <span class="n">geom_func</span><span class="o">=</span><span class="n">geom_func_name</span><span class="o">.</span><span class="n">encode</span><span class="p">(),</span>
+            <span class="n">weight_func</span><span class="o">=</span><span class="n">weighting_function</span><span class="o">.</span><span class="n">encode</span><span class="p">(),</span>
+            <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">,</span>
+            <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span>
+            <span class="n">stop</span><span class="o">=</span><span class="n">stop</span><span class="p">,</span>
+            <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span>
+            <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Depending on flattening, use either a sparse matrix or a dense one.</span>
         <span class="n">n_elem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_elements</span>
-
-        <span class="c1"># Depending of flattening, use either a sparse matrix or a dense one.</span>
+        <span class="n">n_loc</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">:</span>
             <span class="n">k2</span> <span class="o">=</span> <span class="n">lil_matrix</span><span class="p">(</span>
-                <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_elem</span><span class="o">*</span><span class="n">n</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+                <span class="p">(</span><span class="n">n_loc</span><span class="p">,</span> <span class="n">n_elem</span><span class="o">*</span><span class="n">n</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
-            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">k2_geoms</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="n">i</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">i_loc</span><span class="p">,</span> <span class="n">k2_map</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">k2_list</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">gaussian_sum</span> <span class="ow">in</span> <span class="n">k2_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">i</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">m</span> <span class="o">=</span> <span class="n">i</span>
+                    <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">*</span><span class="n">n</span><span class="p">)</span>
+                    <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n</span><span class="p">)</span>
 
-                <span class="n">geoms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">k2_geoms</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
-                <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">k2_weights</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+                    <span class="c1"># Denormalize if requested</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_gaussians</span><span class="p">:</span>
+                        <span class="n">max_val</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="n">sigma</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+                        <span class="n">gaussian_sum</span> <span class="o">/=</span> <span class="n">max_val</span>
 
-                <span class="c1"># Broaden with a gaussian</span>
-                <span class="n">gaussian_sum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gaussian_sum</span><span class="p">(</span><span class="n">geoms</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
-
-                <span class="n">m</span> <span class="o">=</span> <span class="n">i</span>
-                <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">*</span><span class="n">n</span><span class="p">)</span>
-                <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n</span><span class="p">)</span>
-                <span class="n">k2</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span> <span class="o">=</span> <span class="n">gaussian_sum</span>
+                    <span class="n">k2</span><span class="p">[</span><span class="n">i_loc</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span> <span class="o">=</span> <span class="n">gaussian_sum</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">k2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_elem</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">k2_geoms</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="n">i</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">k2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_loc</span><span class="p">,</span> <span class="n">n_elem</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i_loc</span><span class="p">,</span> <span class="n">k2_map</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">k2_list</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">gaussian_sum</span> <span class="ow">in</span> <span class="n">k2_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">i</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-                <span class="n">geoms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">k2_geoms</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
-                <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">k2_weights</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+                    <span class="c1"># Denormalize if requested</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_gaussians</span><span class="p">:</span>
+                        <span class="n">max_val</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="n">sigma</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+                        <span class="n">gaussian_sum</span> <span class="o">/=</span> <span class="n">max_val</span>
 
-                <span class="c1"># Broaden with a gaussian</span>
-                <span class="n">gaussian_sum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gaussian_sum</span><span class="p">(</span><span class="n">geoms</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
+                    <span class="n">k2</span><span class="p">[</span><span class="n">i_loc</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">gaussian_sum</span>
 
-                <span class="n">k2</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">gaussian_sum</span>
+        <span class="k">return</span> <span class="n">k2</span>
 
-        <span class="k">return</span> <span class="n">k2</span></div>
-
-<div class="viewcode-block" id="LMBTR.get_k3_convolution"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.lmbtr.LMBTR.get_k3_convolution">[docs]</a>    <span class="k">def</span> <span class="nf">get_k3_convolution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Calculates the third order terms where the scalar mapping is the</span>
-<span class="sd">        angle between 3 atoms.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            grid (dict): The grid settings</span>
+    <span class="k">def</span> <span class="nf">_get_k3</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">new_system</span><span class="p">,</span> <span class="n">indices</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculates the second order terms where the scalar mapping is the</span>
+<span class="sd">        inverse distance between atoms.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            1D ndarray: flattened K3 values.</span>
+<span class="sd">            1D ndarray: flattened K2 values.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">k3</span><span class="p">[</span><span class="s2">&quot;grid&quot;</span><span class="p">]</span>
         <span class="n">start</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[</span><span class="s2">&quot;min&quot;</span><span class="p">]</span>
         <span class="n">stop</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[</span><span class="s2">&quot;max&quot;</span><span class="p">]</span>
         <span class="n">n</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_axis_k3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+        <span class="n">sigma</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[</span><span class="s2">&quot;sigma&quot;</span><span class="p">]</span>
 
-        <span class="n">k3_geoms</span><span class="p">,</span> <span class="n">k3_weights</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_k3_geoms</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_k3_weights</span>
+        <span class="c1"># Determine the weighting function and possible radial cutoff</span>
+        <span class="n">radial_cutoff</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">weighting</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">k3</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;weighting&quot;</span><span class="p">)</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">weighting</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">weighting_function</span> <span class="o">=</span> <span class="n">weighting</span><span class="p">[</span><span class="s2">&quot;function&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">weighting_function</span> <span class="o">==</span> <span class="s2">&quot;exponential&quot;</span> <span class="ow">or</span> <span class="n">weighting_function</span> <span class="o">==</span> <span class="s2">&quot;exp&quot;</span><span class="p">:</span>
+                <span class="n">scale</span> <span class="o">=</span> <span class="n">weighting</span><span class="p">[</span><span class="s2">&quot;scale&quot;</span><span class="p">]</span>
+                <span class="n">cutoff</span> <span class="o">=</span> <span class="n">weighting</span><span class="p">[</span><span class="s2">&quot;cutoff&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">scale</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">radial_cutoff</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.5</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">cutoff</span><span class="p">)</span><span class="o">/</span><span class="n">scale</span>
+                <span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="sa">b</span><span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="n">scale</span><span class="p">,</span>
+                    <span class="sa">b</span><span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="n">cutoff</span>
+                <span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">weighting_function</span> <span class="o">=</span> <span class="s2">&quot;unity&quot;</span>
+
+        <span class="c1"># Determine the geometry function</span>
+        <span class="n">geom_func_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">k3</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">][</span><span class="s2">&quot;function&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Calculate extended system</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">:</span>
+            <span class="n">centers_new</span> <span class="o">=</span> <span class="n">new_system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
+            <span class="n">centers_existing</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()[</span><span class="n">indices</span><span class="p">]</span>
+            <span class="n">centers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">centers_new</span><span class="p">,</span> <span class="n">centers_existing</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">ext_system</span><span class="p">,</span> <span class="n">cell_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_extended_system</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">centers</span><span class="p">,</span> <span class="n">radial_cutoff</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ext_system</span> <span class="o">=</span> <span class="n">system</span>
+            <span class="n">cell_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">),</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="n">cmbtr</span> <span class="o">=</span> <span class="n">MBTRWrapper</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_to_index</span><span class="p">,</span>
+            <span class="n">interaction_limit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_limit</span><span class="p">,</span>
+            <span class="n">indices</span><span class="o">=</span><span class="n">cell_indices</span>
+        <span class="p">)</span>
+
+        <span class="c1"># If radial cutoff is finite, use it to calculate the sparse</span>
+        <span class="c1"># distance matrix to reduce computational complexity from O(n^2) to</span>
+        <span class="c1"># O(n log(n))</span>
+        <span class="n">fin_system</span> <span class="o">=</span> <span class="n">ext_system</span> <span class="o">+</span> <span class="n">new_system</span>
+        <span class="n">n_atoms_ext</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ext_system</span><span class="p">)</span>
+        <span class="n">n_atoms_fin</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">fin_system</span><span class="p">)</span>
+        <span class="n">n_atoms_new</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_system</span><span class="p">)</span>
+        <span class="n">ext_pos</span> <span class="o">=</span> <span class="n">ext_system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
+        <span class="n">new_pos</span> <span class="o">=</span> <span class="n">new_system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">radial_cutoff</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+            <span class="c1"># Calculate distance within the extended system</span>
+            <span class="n">dmat_ext_to_ext</span> <span class="o">=</span> <span class="n">ext_system</span><span class="o">.</span><span class="n">get_distance_matrix_within_radius</span><span class="p">(</span><span class="n">radial_cutoff</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="n">ext_pos</span><span class="p">)</span>
+            <span class="n">col</span> <span class="o">=</span> <span class="n">dmat_ext_to_ext</span><span class="o">.</span><span class="n">col</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="n">dmat_ext_to_ext</span><span class="o">.</span><span class="n">row</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">dmat_ext_to_ext</span><span class="o">.</span><span class="n">data</span>
+            <span class="n">dmat</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">coo_matrix</span><span class="p">((</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">)),</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_atoms_fin</span><span class="p">,</span> <span class="n">n_atoms_fin</span><span class="p">))</span>
+
+            <span class="c1"># Calculate the distances from the new positions to atoms in the</span>
+            <span class="c1"># extended system using the cutoff</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_pos</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">dmat_ext_to_new</span> <span class="o">=</span> <span class="n">ext_system</span><span class="o">.</span><span class="n">get_distance_matrix_within_radius</span><span class="p">(</span><span class="n">radial_cutoff</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="n">new_pos</span><span class="p">)</span>
+                <span class="n">col</span> <span class="o">=</span> <span class="n">dmat_ext_to_new</span><span class="o">.</span><span class="n">col</span>
+                <span class="n">row</span> <span class="o">=</span> <span class="n">dmat_ext_to_new</span><span class="o">.</span><span class="n">row</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">dmat_ext_to_new</span><span class="o">.</span><span class="n">data</span>
+                <span class="n">dmat</span><span class="o">.</span><span class="n">col</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dmat</span><span class="o">.</span><span class="n">col</span><span class="p">,</span> <span class="n">col</span><span class="o">+</span><span class="n">n_atoms_ext</span><span class="p">)</span>
+                <span class="n">dmat</span><span class="o">.</span><span class="n">row</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dmat</span><span class="o">.</span><span class="n">row</span><span class="p">,</span> <span class="n">row</span><span class="p">)</span>
+                <span class="n">dmat</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dmat</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+                <span class="n">dmat</span><span class="o">.</span><span class="n">col</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dmat</span><span class="o">.</span><span class="n">col</span><span class="p">,</span> <span class="n">row</span><span class="p">)</span>
+                <span class="n">dmat</span><span class="o">.</span><span class="n">row</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dmat</span><span class="o">.</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="o">+</span><span class="n">n_atoms_ext</span><span class="p">)</span>
+                <span class="n">dmat</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dmat</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+            <span class="c1"># Calculate adjacencies and transform to the dense matrix for</span>
+            <span class="c1"># sending information to C++</span>
+            <span class="n">adj_list</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_adjacency_list</span><span class="p">(</span><span class="n">dmat</span><span class="p">)</span>
+            <span class="n">dmat_dense</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n_atoms_fin</span><span class="p">,</span> <span class="n">n_atoms_fin</span><span class="p">),</span> <span class="n">sys</span><span class="o">.</span><span class="n">float_info</span><span class="o">.</span><span class="n">max</span><span class="p">)</span>  <span class="c1"># The non-neighbor values are treated as &quot;infinitely far&quot;.</span>
+            <span class="n">dmat_dense</span><span class="p">[</span><span class="n">dmat</span><span class="o">.</span><span class="n">row</span><span class="p">,</span> <span class="n">dmat</span><span class="o">.</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">dmat</span><span class="o">.</span><span class="n">data</span>
+
+        <span class="c1"># If no weighting is used, the full distance matrix is calculated</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dmat</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">lil_matrix</span><span class="p">((</span><span class="n">n_atoms_fin</span><span class="p">,</span> <span class="n">n_atoms_fin</span><span class="p">))</span>
+
+            <span class="c1"># Fill in block for extended system</span>
+            <span class="n">dmat_ext_to_ext</span> <span class="o">=</span> <span class="n">ext_system</span><span class="o">.</span><span class="n">get_distance_matrix</span><span class="p">()</span>
+            <span class="n">dmat</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">n_atoms_ext</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span><span class="n">n_atoms_ext</span><span class="p">]</span> <span class="o">=</span> <span class="n">dmat_ext_to_ext</span>
+
+            <span class="c1"># Fill in block for extended system to new system</span>
+            <span class="n">dmat_ext_to_new</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">spatial</span><span class="o">.</span><span class="n">distance</span><span class="o">.</span><span class="n">cdist</span><span class="p">(</span><span class="n">ext_pos</span><span class="p">,</span> <span class="n">new_pos</span><span class="p">)</span>
+            <span class="n">dmat</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">n_atoms_ext</span><span class="p">,</span> <span class="n">n_atoms_ext</span><span class="p">:</span><span class="n">n_atoms_ext</span><span class="o">+</span><span class="n">n_atoms_new</span><span class="p">]</span> <span class="o">=</span> <span class="n">dmat_ext_to_new</span>
+            <span class="n">dmat</span><span class="p">[</span><span class="n">n_atoms_ext</span><span class="p">:</span><span class="n">n_atoms_ext</span><span class="o">+</span><span class="n">n_atoms_new</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span><span class="n">n_atoms_ext</span><span class="p">]</span> <span class="o">=</span> <span class="n">dmat_ext_to_new</span><span class="o">.</span><span class="n">T</span>
+
+            <span class="c1"># Calculate adjacencies and the dense version</span>
+            <span class="n">dmat</span> <span class="o">=</span> <span class="n">dmat</span><span class="o">.</span><span class="n">tocoo</span><span class="p">()</span>
+            <span class="n">adj_list</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_adjacency_list</span><span class="p">(</span><span class="n">dmat</span><span class="p">)</span>
+            <span class="n">dmat_dense</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n_atoms_fin</span><span class="p">,</span> <span class="n">n_atoms_fin</span><span class="p">),</span> <span class="n">sys</span><span class="o">.</span><span class="n">float_info</span><span class="o">.</span><span class="n">max</span><span class="p">)</span>  <span class="c1"># The non-neighbor values are treated as &quot;infinitely far&quot;.</span>
+            <span class="n">dmat_dense</span><span class="p">[</span><span class="n">dmat</span><span class="o">.</span><span class="n">row</span><span class="p">,</span> <span class="n">dmat</span><span class="o">.</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">dmat</span><span class="o">.</span><span class="n">data</span>
+
+        <span class="c1"># Form new indices that include the existing atoms and the newly added</span>
+        <span class="c1"># ones</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="p">[</span><span class="n">n_atoms_ext</span><span class="o">+</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_atoms_new</span><span class="p">)])</span>
+
+        <span class="n">k3_list</span> <span class="o">=</span> <span class="n">cmbtr</span><span class="o">.</span><span class="n">get_k3_local</span><span class="p">(</span>
+            <span class="n">Z</span><span class="o">=</span><span class="n">fin_system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">(),</span>
+            <span class="n">distances</span><span class="o">=</span><span class="n">dmat_dense</span><span class="p">,</span>
+            <span class="n">neighbours</span><span class="o">=</span><span class="n">adj_list</span><span class="p">,</span>
+            <span class="n">indices</span><span class="o">=</span><span class="n">indices</span><span class="p">,</span>
+            <span class="n">geom_func</span><span class="o">=</span><span class="n">geom_func_name</span><span class="o">.</span><span class="n">encode</span><span class="p">(),</span>
+            <span class="n">weight_func</span><span class="o">=</span><span class="n">weighting_function</span><span class="o">.</span><span class="n">encode</span><span class="p">(),</span>
+            <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">,</span>
+            <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span>
+            <span class="n">stop</span><span class="o">=</span><span class="n">stop</span><span class="p">,</span>
+            <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span>
+            <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Depending on flattening, use either a sparse matrix or a dense one.</span>
         <span class="n">n_elem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_elements</span>
-
-        <span class="c1"># Depending of flattening, use either a sparse matrix or a dense one.</span>
+        <span class="n">n_loc</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">:</span>
             <span class="n">k3</span> <span class="o">=</span> <span class="n">lil_matrix</span><span class="p">(</span>
-                <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">((</span><span class="n">n_elem</span><span class="o">*</span><span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="n">n_elem</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n</span><span class="o">/</span><span class="mi">2</span><span class="p">))),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span>
+                <span class="p">(</span><span class="n">n_loc</span><span class="p">,</span> <span class="nb">int</span><span class="p">((</span><span class="n">n_elem</span><span class="o">*</span><span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="n">n_elem</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n</span><span class="o">/</span><span class="mi">2</span><span class="p">))),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span>
             <span class="p">)</span>
-            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">k3_geoms</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="n">i</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">j</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-                <span class="n">k</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 
-                <span class="n">geoms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">k3_geoms</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
-                <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">k3_weights</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">i_loc</span><span class="p">,</span> <span class="n">k3_map</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">k3_list</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">gaussian_sum</span> <span class="ow">in</span> <span class="n">k3_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">i</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">j</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">k</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 
-                <span class="c1"># Broaden with a gaussian</span>
-                <span class="n">gaussian_sum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gaussian_sum</span><span class="p">(</span><span class="n">geoms</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
+                    <span class="c1"># This is the index of the spectrum. It is given by enumerating the</span>
+                    <span class="c1"># elements of a three-dimensional array and only considering</span>
+                    <span class="c1"># elements for which k&gt;=i and i || j == 0. The enumeration begins</span>
+                    <span class="c1"># from [0, 0, 0], and ends at [n_elem, n_elem, n_elem], looping the</span>
+                    <span class="c1"># elements in the order k, i, j.</span>
+                    <span class="k">if</span> <span class="n">j</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">m</span> <span class="o">=</span> <span class="n">k</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="n">n_elem</span> <span class="o">-</span> <span class="n">i</span><span class="o">*</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">m</span> <span class="o">=</span> <span class="n">n_elem</span><span class="o">*</span><span class="p">(</span><span class="n">n_elem</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="o">+</span><span class="p">(</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n_elem</span> <span class="o">+</span> <span class="n">k</span>
+                    <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">*</span><span class="n">n</span><span class="p">)</span>
+                    <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n</span><span class="p">)</span>
 
-                <span class="c1"># This is the index of the spectrum. It is given by enumerating the</span>
-                <span class="c1"># elements of a three-dimensional array and only considering</span>
-                <span class="c1"># elements for which k&gt;=i and i || j == 0. The enumeration begins</span>
-                <span class="c1"># from [0, 0, 0], and ends at [n_elem, n_elem, n_elem], looping the</span>
-                <span class="c1"># elements in the order k, i, j.</span>
-                <span class="k">if</span> <span class="n">j</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">m</span> <span class="o">=</span> <span class="n">k</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="n">n_elem</span> <span class="o">-</span> <span class="n">i</span><span class="o">*</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">m</span> <span class="o">=</span> <span class="n">n_elem</span><span class="o">*</span><span class="p">(</span><span class="n">n_elem</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="o">+</span><span class="p">(</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n_elem</span> <span class="o">+</span> <span class="n">k</span>
-                <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">*</span><span class="n">n</span><span class="p">)</span>
-                <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n</span><span class="p">)</span>
+                    <span class="c1"># Denormalize if requested</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_gaussians</span><span class="p">:</span>
+                        <span class="n">max_val</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="n">sigma</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+                        <span class="n">gaussian_sum</span> <span class="o">/=</span> <span class="n">max_val</span>
 
-                <span class="n">k3</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span> <span class="o">=</span> <span class="n">gaussian_sum</span>
+                    <span class="n">k3</span><span class="p">[</span><span class="n">i_loc</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span> <span class="o">=</span> <span class="n">gaussian_sum</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">k3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_elem</span><span class="p">,</span> <span class="n">n_elem</span><span class="p">,</span> <span class="n">n_elem</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">k3_geoms</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="n">i</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">j</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-                <span class="n">k</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">k3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_loc</span><span class="p">,</span> <span class="n">n_elem</span><span class="p">,</span> <span class="n">n_elem</span><span class="p">,</span> <span class="n">n_elem</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i_loc</span><span class="p">,</span> <span class="n">k3_map</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">k3_list</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">gaussian_sum</span> <span class="ow">in</span> <span class="n">k3_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">i</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">j</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">k</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 
-                <span class="n">geoms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">k3_geoms</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
-                <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">k3_weights</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+                    <span class="c1"># Denormalize if requested</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_gaussians</span><span class="p">:</span>
+                        <span class="n">max_val</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="n">sigma</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+                        <span class="n">gaussian_sum</span> <span class="o">/=</span> <span class="n">max_val</span>
 
-                <span class="c1"># Broaden with a gaussian</span>
-                <span class="n">gaussian_sum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gaussian_sum</span><span class="p">(</span><span class="n">geoms</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
-
-                <span class="n">k3</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">gaussian_sum</span>
-
-        <span class="k">return</span> <span class="n">k3</span></div>
+                    <span class="n">k3</span><span class="p">[</span><span class="n">i_loc</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">gaussian_sum</span>
+        <span class="k">return</span> <span class="n">k3</span>
 
 <div class="viewcode-block" id="LMBTR.get_location"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.lmbtr.LMBTR.get_location">[docs]</a>    <span class="k">def</span> <span class="nf">get_location</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Can be used to query the location of a species combination in the</span>
@@ -794,11 +965,6 @@
 
             <span class="n">n2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">k2</span><span class="p">[</span><span class="s2">&quot;grid&quot;</span><span class="p">][</span><span class="s2">&quot;n&quot;</span><span class="p">]</span>
             <span class="n">j</span> <span class="o">=</span> <span class="n">numbers</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-            <span class="c1"># if i != &quot;X&quot;:</span>
-                <span class="c1"># raise ValueError(</span>
-                    <span class="c1"># &quot;Local MBTR does not contain k=2 terms without the central &quot;</span>
-                    <span class="c1"># &quot;species X.&quot;</span>
-                <span class="c1"># )</span>
             <span class="n">m</span> <span class="o">=</span> <span class="n">j</span>
             <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">*</span><span class="n">n2</span><span class="p">)</span>
             <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n2</span><span class="p">)</span>
@@ -812,11 +978,6 @@
             <span class="n">i</span> <span class="o">=</span> <span class="n">numbers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">j</span> <span class="o">=</span> <span class="n">numbers</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
             <span class="n">k</span> <span class="o">=</span> <span class="n">numbers</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-            <span class="c1"># if i != &quot;X&quot; or j != &quot;X&quot;:</span>
-                <span class="c1"># raise ValueError(</span>
-                    <span class="c1"># &quot;Local MBTR does not contain k=3 terms without the central &quot;</span>
-                    <span class="c1"># &quot;species X.&quot;</span>
-                <span class="c1"># )</span>
 
             <span class="c1"># This is the index of the spectrum. It is given by enumerating the</span>
             <span class="c1"># elements of a three-dimensional array and only considering</span>
@@ -836,70 +997,6 @@
             <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">offset</span><span class="o">+</span><span class="p">(</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n3</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="nb">slice</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span></div>
-
-        <span class="c1"># Fix ordering</span>
-        <span class="c1"># if len(numbers) == 2:</span>
-            <span class="c1"># if numbers[0] &gt; numbers[1]:</span>
-                <span class="c1"># numbers = reversed(numbers)</span>
-        <span class="c1"># if len(numbers) == 3:</span>
-            <span class="c1"># if numbers[0] &gt; numbers[2]:</span>
-                <span class="c1"># numbers = reversed(numbers)</span>
-
-        <span class="c1"># loc = self._locations</span>
-        <span class="c1"># start, end = loc[tuple(numbers)]</span>
-
-        <span class="c1"># return slice(start, end)</span>
-
-    <span class="c1"># def calculate_locations(self):</span>
-        <span class="c1"># &quot;&quot;&quot;Used to calculate the locations of species combinations in the</span>
-        <span class="c1"># flattened output.</span>
-        <span class="c1"># &quot;&quot;&quot;</span>
-        <span class="c1"># k2updated = False</span>
-        <span class="c1"># k3updated = False</span>
-        <span class="c1"># if self.k2 is not None:</span>
-            <span class="c1"># k2updated = self.k2[&quot;grid&quot;].nupdated</span>
-        <span class="c1"># if self.k3 is not None:</span>
-            <span class="c1"># k3updated = self.k3[&quot;grid&quot;].nupdated</span>
-
-        <span class="c1"># if self.updated or k2updated or k3updated:</span>
-            <span class="c1"># n_elem = self.n_elements</span>
-            <span class="c1"># locations = {}</span>
-            <span class="c1"># locations_each = {}</span>
-
-            <span class="c1"># # k=2</span>
-            <span class="c1"># offset = 0</span>
-            <span class="c1"># if self.k2 is not None:</span>
-                <span class="c1"># n2 = self.k2[&quot;grid&quot;][&quot;n&quot;]</span>
-                <span class="c1"># m = 0</span>
-                <span class="c1"># for i in range(n_elem):</span>
-                    <span class="c1"># start = m*n2</span>
-                    <span class="c1"># end = (m+1)*n2</span>
-                    <span class="c1"># locations_each[(0, i)] = start, end</span>
-                    <span class="c1"># locations[(0, i)] = start, end</span>
-                    <span class="c1"># m += 1</span>
-                <span class="c1"># offset = m*n2</span>
-
-            <span class="c1"># # k=3</span>
-            <span class="c1"># if self.k3 is not None:</span>
-                <span class="c1"># n3 = self.k3[&quot;grid&quot;][&quot;n&quot;]</span>
-                <span class="c1"># m = 0</span>
-                <span class="c1"># for i in range(n_elem):</span>
-                    <span class="c1"># for j in range(n_elem):</span>
-                        <span class="c1"># for k in range(n_elem):</span>
-                            <span class="c1"># if k &gt;= i and (i == 0 or j == 0 or k == 0):</span>
-                                <span class="c1"># start = m*n3</span>
-                                <span class="c1"># end = (m+1)*n3</span>
-                                <span class="c1"># locations_each[(i, j, k)] = start, end</span>
-                                <span class="c1"># locations[(i, j, k)] = offset+start, offset+end</span>
-                                <span class="c1"># m += 1</span>
-
-            <span class="c1"># self._locations = locations</span>
-            <span class="c1"># self._locations_each = locations_each</span>
-            <span class="c1"># self.updated = False</span>
-            <span class="c1"># if self.k2 is not None:</span>
-                <span class="c1"># self.k2[&quot;grid&quot;].nupdated = False</span>
-            <span class="c1"># if self.k3 is not None:</span>
-                <span class="c1"># self.k3[&quot;grid&quot;].nupdated = False</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">species</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -937,10 +1034,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">index_to_atomic_number</span><span class="p">[</span><span class="n">i_atom</span><span class="p">]</span> <span class="o">=</span> <span class="n">atomic_number</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_elements</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_atomic_number</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">min_atomic_number</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">)</span>
-
-        <span class="c1"># Recalculate locations</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">updated</span> <span class="o">=</span> <span class="kc">True</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_atomic_number</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">)</span></div>
 </pre></div>
 
            </div>
@@ -971,16 +1065,16 @@
   <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="fa fa-book"> Versions</span>
-      v: 0.2.8a
+      v: 0.2.9a0
       <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
       <dl>
         <dt>Versions</dt>
         
-          <dd><a href="https://singroup.github.io/dscribe/dev">0.2.8a (development)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe/dev">0.2.9a0 (development)</a></dd>
         
-          <dd><a href="https://singroup.github.io/dscribe">0.2.7 (latest stable)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe">0.2.8 (latest stable)</a></dd>
         
       </dl>
     </div>
