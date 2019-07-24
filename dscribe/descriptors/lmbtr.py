@@ -117,7 +117,6 @@ class LMBTR(MBTR):
             periodic,
             k2=None,
             k3=None,
-            is_center_periodic=None,
             normalize_gaussians=True,
             normalization="none",
             flatten=True,
@@ -153,15 +152,6 @@ class LMBTR(MBTR):
                         "grid": {"min": 0, "max": 180, "sigma": 5, "n": 50},
                         "weighting" = {"function": "exp", "scale": 0.5, "cutoff": 1e-3}
                     }
-
-            is_center_periodic (bool): Determines whether the central positions
-                are periodically repeated or not. If not specified, defaults to
-                the value of the "periodic"-parameter. If False, the central
-                position is not repeated in periodic systems. If set to True,
-                the position will be repeated in periodic systems and may
-                interact with periodic copies of itself. Typically set to False
-                when studying non-physical positions in periodic systems,
-                otherwise set to False.
             normalize_gaussians (bool): Determines whether the gaussians are
                 normalized to an area of 1. Defaults to True. If False, the
                 normalization factor is dropped and the gaussians have the form.
@@ -196,15 +186,6 @@ class LMBTR(MBTR):
         self._is_local = True
 
         # These attributes can be set whenever
-        self.is_center_periodic = periodic if is_center_periodic is None else is_center_periodic
-
-        # Check that center is not defined as periodic if the system is not
-        if self.periodic is False and self.is_center_periodic is True:
-            raise ValueError(
-                "Cannot make the central atom periodic if the whole system is "
-                "not periodic."
-            )
-
         self.updated = True
 
     @property
@@ -580,12 +561,24 @@ class LMBTR(MBTR):
                     m = i
                     start = int(m*n)
                     end = int((m+1)*n)
+
+                    # Denormalize if requested
+                    if not self.normalize_gaussians:
+                        max_val = 1/(sigma*math.sqrt(2*math.pi))
+                        gaussian_sum /= max_val
+
                     k2[i_loc, start:end] = gaussian_sum
         else:
             k2 = np.zeros((n_loc, n_elem, n), dtype=np.float32)
             for i_loc, k2_map in enumerate(k2_list):
                 for key, gaussian_sum in k2_map.items():
                     i = key[0]
+
+                    # Denormalize if requested
+                    if not self.normalize_gaussians:
+                        max_val = 1/(sigma*math.sqrt(2*math.pi))
+                        gaussian_sum /= max_val
+
                     k2[i_loc, i, :] = gaussian_sum
 
         return k2
@@ -731,6 +724,11 @@ class LMBTR(MBTR):
                     start = int(m*n)
                     end = int((m+1)*n)
 
+                    # Denormalize if requested
+                    if not self.normalize_gaussians:
+                        max_val = 1/(sigma*math.sqrt(2*math.pi))
+                        gaussian_sum /= max_val
+
                     k3[i_loc, start:end] = gaussian_sum
         else:
             k3 = np.zeros((n_loc, n_elem, n_elem, n_elem, n), dtype=np.float32)
@@ -739,6 +737,12 @@ class LMBTR(MBTR):
                     i = key[0]
                     j = key[1]
                     k = key[2]
+
+                    # Denormalize if requested
+                    if not self.normalize_gaussians:
+                        max_val = 1/(sigma*math.sqrt(2*math.pi))
+                        gaussian_sum /= max_val
+
                     k3[i_loc, i, j, k, :] = gaussian_sum
         return k3
 

@@ -792,7 +792,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
 
         # Check the H-H peaks
         hh_feat = features[desc.get_location(("H", "H"))]
-        hh_peak_indices = np.array(find_peaks_cwt(hh_feat, [20]))
+        hh_peak_indices = find_peaks(hh_feat, prominence=0.5)[0]
         hh_peak_locs = x[hh_peak_indices]
         hh_peak_ints = hh_feat[hh_peak_indices]
         self.assertTrue(np.allclose(hh_peak_locs, [np.linalg.norm(pos[0] - pos[2])], rtol=0, atol=1e-2))
@@ -800,10 +800,10 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
 
         # Check the O-H peaks
         ho_feat = features[desc.get_location(("H", "O"))]
-        ho_peak_indices = find_peaks(ho_feat, prominence=1)[0]
+        ho_peak_indices = find_peaks(ho_feat, prominence=0.5)[0]
         ho_peak_locs = x[ho_peak_indices]
         ho_peak_ints = ho_feat[ho_peak_indices]
-        self.assertTrue(np.allclose(ho_peak_locs, 2*[np.linalg.norm(pos[0] - pos[1])], rtol=0, atol=1e-2))
+        self.assertTrue(np.allclose(ho_peak_locs, np.linalg.norm(pos[0] - pos[1]), rtol=0, atol=1e-2))
         self.assertTrue(np.allclose(ho_peak_ints, [2], rtol=0, atol=1e-2))
 
         # Check that everything else is zero
@@ -898,7 +898,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         spectra2 = desc.create(atoms2)[0, :]
         self.assertTrue(np.allclose(spectra1, spectra2, rtol=0, atol=1e-7))
 
-    def test_k3_weights_and_geoms_finite(self):
+    def test_k3_peaks_finite(self):
         """Tests that all the correct angles are present in finite systems.
         There should be n*(n-1)*(n-2)/2 unique angles where the division by two
         gets rid of duplicate angles.
@@ -922,28 +922,28 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         hho_assumed_locs = np.array([38])
         hho_assumed_ints = np.array([2])
         hho_feat = features[desc.get_location(("H", "H", "O"))]
-        hho_peak_indices = find_peaks(hho_feat, prominence=1)[0]
+        hho_peak_indices = find_peaks(hho_feat, prominence=0.5)[0]
         hho_peak_locs = x[hho_peak_indices]
         hho_peak_ints = hho_feat[hho_peak_indices]
-        self.assertTrue(np.allclose(hho_peak_locs, hho_assumed_locs, rtol=0, atol=1e-2))
-        self.assertTrue(np.allclose(hho_peak_ints, hho_assumed_ints, rtol=0, atol=1e-2))
+        self.assertTrue(np.allclose(hho_peak_locs, hho_assumed_locs, rtol=0, atol=5e-2))
+        self.assertTrue(np.allclose(hho_peak_ints, hho_assumed_ints, rtol=0, atol=5e-2))
 
         # Check the H-O-H peaks
         hoh_assumed_locs = np.array([104])
         hoh_assumed_ints = np.array([1])
         hoh_feat = features[desc.get_location(("H", "O", "H"))]
-        hoh_peak_indices = find_peaks(hoh_feat, prominence=1)[0]
+        hoh_peak_indices = find_peaks(hoh_feat, prominence=0.5)[0]
         hoh_peak_locs = x[hoh_peak_indices]
         hoh_peak_ints = hoh_feat[hoh_peak_indices]
-        self.assertTrue(np.allclose(hoh_peak_locs, hoh_assumed_locs, rtol=0, atol=1e-2))
-        self.assertTrue(np.allclose(hoh_peak_ints, hoh_assumed_ints, rtol=0, atol=1e-2))
+        self.assertTrue(np.allclose(hoh_peak_locs, hoh_assumed_locs, rtol=0, atol=5e-2))
+        self.assertTrue(np.allclose(hoh_peak_ints, hoh_assumed_ints, rtol=0, atol=5e-2))
 
         # Check that everything else is zero
         features[desc.get_location(("H", "H", "O"))] = 0
         features[desc.get_location(("H", "O", "H"))] = 0
         self.assertEqual(features.sum(), 0)
 
-    def test_k3_geoms_and_weights_periodic(self):
+    def test_k3_peaks_periodic(self):
         """Tests that the final spectra does not change when translating atoms
         in a periodic cell. This is not trivially true unless the weight of
         angles is weighted according to the cell indices of the involved three
@@ -984,7 +984,6 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         # Calculate assumed locations and intensities.
         assumed_locs = np.array([45, 90])
         dist = 2+2*np.sqrt(2)  # The total distance around the three atoms
-        assumed_ints = np.exp(-scale*np.array([dist, dist]))
         weight = np.exp(-scale*dist)
         assumed_ints = np.array([4*weight, 2*weight])
         assumed_ints /= 2  # The periodic distances ar halved because they belong to different cells

@@ -196,7 +196,6 @@ class MBTR(Descriptor):
 
         self.normalization = normalization
         self.normalize_gaussians = normalize_gaussians
-        self.is_center_periodic = periodic
 
         # Initializing .create() level variables
         self._interaction_limit = None
