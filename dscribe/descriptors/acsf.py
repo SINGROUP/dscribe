@@ -184,7 +184,7 @@ class ACSF(Descriptor):
         # Calculate the sparse distance matrix using the radial cutoff to
         # reduce computational complexity from O(n^2) to O(n log(n))
         n_atoms = len(system)
-        dmat = system.get_distance_matrix_within_radius(self.rcut, output_type="coo_matrix")
+        dmat = system.get_distance_matrix_within_radius(self.rcut)
         neighbours = dscribe.utils.geometry.get_adjacency_list(dmat)
         dmat_dense = np.full((n_atoms, n_atoms), sys.float_info.max)  # The non-neighbor values are treated as "infinitely far".
         dmat_dense[dmat.col, dmat.row] = dmat.data

@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from ase import Atoms
-from dscribe.core import System
+from dscribe.core.system import System
 import numpy as np
 
 

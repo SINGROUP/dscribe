@@ -868,13 +868,6 @@ class MBTR(Descriptor):
                     # are considered.
                     positions_to_consider = cartesian_pos[0:self._interaction_limit]
                     distances = cdist(pos_copy_cartesian, positions_to_consider)
-
-                    # For terms above k==2 we double the distances to take into
-                    # account the "loop" that is required.
-                    # if term_number > 2:
-                        # distances *= 2
-                    # weights = function(distances)
-                    # weight_mask = weights >= cutoff
                     weight_mask = distances < radial_cutoff
 
                     # Create a boolean mask that says if the atom is within the
@@ -1011,7 +1004,7 @@ class MBTR(Descriptor):
         # O(n log(n))
         n_atoms = len(ext_system)
         if radial_cutoff is not None:
-            dmat = ext_system.get_distance_matrix_within_radius(radial_cutoff, output_type="coo_matrix")
+            dmat = ext_system.get_distance_matrix_within_radius(radial_cutoff)
             adj_list = dscribe.utils.geometry.get_adjacency_list(dmat)
             dmat_dense = np.full((n_atoms, n_atoms), sys.float_info.max)  # The non-neighbor values are treated as "infinitely far".
             dmat_dense[dmat.row, dmat.col] = dmat.data
@@ -1115,7 +1108,7 @@ class MBTR(Descriptor):
         # O(n log(n))
         n_atoms = len(ext_system)
         if radial_cutoff is not None:
-            dmat = ext_system.get_distance_matrix_within_radius(radial_cutoff, output_type="coo_matrix")
+            dmat = ext_system.get_distance_matrix_within_radius(radial_cutoff)
             adj_list = dscribe.utils.geometry.get_adjacency_list(dmat)
             dmat_dense = np.full((n_atoms, n_atoms), sys.float_info.max)  # The non-neighbor values are treated as "infinitely far".
             dmat_dense[dmat.col, dmat.row] = dmat.data
