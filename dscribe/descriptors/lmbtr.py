@@ -316,7 +316,9 @@ class LMBTR(MBTR):
         indices_k3 = []
         new_pos_k3 = []
         new_atomic_numbers_k3 = []
+        n_atoms = len(system)
         if positions is not None:
+            n_loc = len(positions)
 
             # Check validity of position definitions and create final cartesian
             # position list
@@ -356,6 +358,14 @@ class LMBTR(MBTR):
                         "Create method requires the argument 'positions', a "
                         "list of atom indices and/or positions."
                     )
+        # If positions are not supplied, it is assumed that each atom is used
+        # as a center
+        else:
+            n_loc = n_atoms
+            indices_k2 = np.arange(n_atoms)
+            indices_k3 = np.arange(n_atoms)
+            new_pos_k2 = system.get_positions()
+            new_atomic_numbers_k2 = system.get_atomic_numbers()
 
         # Calculate the "raw" outputs for each term.
         mbtr = {}
@@ -403,7 +413,6 @@ class LMBTR(MBTR):
                         array /= i_norm
 
         # Flatten output if requested
-        n_loc = len(positions)
         if self.flatten:
             length = 0
 
@@ -682,7 +691,7 @@ class LMBTR(MBTR):
 
         # Form new indices that include the existing atoms and the newly added
         # ones
-        indices.extend([n_atoms_ext+i for i in range(n_atoms_new)])
+        indices = np.append(indices, [n_atoms_ext+i for i in range(n_atoms_new)])
 
         k3_list = cmbtr.get_k3_local(
             Z=fin_system.get_atomic_numbers(),
