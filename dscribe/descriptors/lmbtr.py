@@ -321,21 +321,20 @@ class LMBTR(MBTR):
         # Ensure that the atomic number 0 is not present in the system
         if 0 in atomic_number_set:
             raise ValueError(
-                "Please do not use the atomic number 0 in local MBTR"
-                ", as it is reserved for the ghost atom used by the "
-                "implementation."
+                "Please do not use the atomic number 0 in local MBTR as it "
+                "is reserved to mark the atoms use as analysis centers."
             )
 
-        # Form a list of indices for each requested local position. If a
-        # cartesian position is requested, a new atom is added to the system.
-        # new_i = len(system)
-        indices_k2 = []
-        indices_k3 = []
-        new_pos_k2 = []
-        new_pos_k3 = []
-        new_atomic_numbers_k2 = []
-        new_atomic_numbers_k3 = []
+        # Form a list of indices, positions and atomic numbers for the local
+        # centers. k=3 and k=2 use a slightly different approach, so two
+        # versions are built
         i_new = len(system)
+        indices_k2 = []
+        new_pos_k2 = []
+        new_atomic_numbers_k2 = []
+        indices_k3 = []
+        new_pos_k3 = []
+        new_atomic_numbers_k3 = []
         if positions is not None:
 
             # Check validity of position definitions and create final cartesian
@@ -377,40 +376,37 @@ class LMBTR(MBTR):
                         "list of atom indices and/or positions."
                     )
 
-        # Request MBTR for each position. Return type depends on flattening and
-        # whether a sparse or dense result is requested.
+        # Calculate the "raw" outputs for each term.
         mbtr = {}
         if self.k2 is not None:
+            new_system_k2 = System(
+                symbols=new_atomic_numbers_k2,
+                positions=new_pos_k2,
+            )
+
             # If needed, create the extended system
             if self.periodic:
                 ext_system, cell_indices = self.create_extended_system(system, 2)
             else:
                 ext_system = system
                 cell_indices = np.zeros((len(system), 3), dtype=int)
-            new_system_k2 = System(
-                symbols=new_atomic_numbers_k2,
-                positions=new_pos_k2,
-            )
             mbtr["k2"] = self._get_k2(ext_system, new_system_k2, indices_k2, cell_indices)
-
-            # Free memory
-            ext_system = None
+            ext_system = None  # Free memory explicitly
 
         if self.k3 is not None:
+            new_system_k3 = System(
+                symbols=new_atomic_numbers_k3,
+                positions=new_pos_k3,
+            )
+
             # If needed, create the extended system
             if self.periodic:
                 ext_system, cell_indices = self.create_extended_system(system, 3)
             else:
                 ext_system = system
                 cell_indices = np.zeros((len(system), 3), dtype=int)
-            new_system_k3 = System(
-                symbols=new_atomic_numbers_k3,
-                positions=new_pos_k3,
-            )
             mbtr["k3"] = self._get_k3(ext_system, new_system_k3, indices_k3, cell_indices)
-
-            # Free memory
-            ext_system = None
+            ext_system = None  # Free memory explicitly
 
         # Handle normalization
         if self.normalization == "l2_each":
@@ -445,13 +441,23 @@ class LMBTR(MBTR):
             datas = np.concatenate(datas)
             rows = np.concatenate(rows)
             cols = np.concatenate(cols)
-            mbtr = coo_matrix((datas, (rows, cols)), shape=[n_loc, length], dtype=np.float32)
+            result = coo_matrix((datas, (rows, cols)), shape=[n_loc, length], dtype=np.float32)
 
             # Make into a dense array if requested
             if not self.sparse:
-                mbtr = mbtr.toarray()
+                result = result.toarray()
+        # Otherwise return a list of dictionaries, each dictionary containing
+        # the requested unflattened tensors
+        else:
+            result = np.empty((n_loc), dtype='object')
+            for i_loc in range(n_loc):
+                i_dict = {}
+                for key in mbtr.keys():
+                    tensor = mbtr[key]
+                    i_dict[key] = tensor[i_loc]
+                result[i_loc] = i_dict
 
-        return mbtr
+        return result
 
     def get_number_of_features(self):
         """Used to inquire the final number of features that this descriptor
@@ -683,7 +689,6 @@ class LMBTR(MBTR):
 
         # Form new indices that include the existing atoms and the newly added
         # ones
-        indices = indices
         indices.extend([n_atoms_ext+i for i in range(n_atoms_new)])
 
         k3_list = cmbtr.get_k3_local(
@@ -734,7 +739,7 @@ class LMBTR(MBTR):
                     i = key[0]
                     j = key[1]
                     k = key[2]
-                    k3[n_loc, i, j, k, :] = gaussian_sum
+                    k3[i_loc, i, j, k, :] = gaussian_sum
         return k3
 
     def get_location(self, species):
