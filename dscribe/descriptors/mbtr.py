@@ -900,7 +900,8 @@ class MBTR(Descriptor):
 
         # If needed, create the extended system
         if self.periodic:
-            ext_system, cell_indices = self.create_extended_system(system, radial_cutoff)
+            centers = system.get_positions()
+            ext_system, cell_indices = self.create_extended_system(system, centers, radial_cutoff)
         else:
             ext_system = system
             cell_indices = np.zeros((len(system), 3), dtype=int)
@@ -1004,7 +1005,8 @@ class MBTR(Descriptor):
 
         # If needed, create the extended system
         if self.periodic:
-            ext_system, cell_indices = self.create_extended_system(system, radial_cutoff)
+            centers = system.get_positions()
+            ext_system, cell_indices = self.create_extended_system(system, centers, radial_cutoff)
         else:
             ext_system = system
             cell_indices = np.zeros((len(system), 3), dtype=int)
