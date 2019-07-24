@@ -715,7 +715,7 @@ class MBTR(Descriptor):
 
         return slice(start, end)
 
-    def create_extended_system(self, primitive_system, radial_cutoff):
+    def create_extended_system(self, primitive_system, centers, radial_cutoff):
         """Used to create a periodically extended system, that is as small as
         possible by rejecting atoms for which the given weighting will be below
         the given threshold.
@@ -744,8 +744,8 @@ class MBTR(Descriptor):
         cell = np.array(primitive_system.get_cell())
 
         # Determine the upper limit of how many copies we need in each cell
-        # vector direction. We take as many copies as needed for the
-        # exponential weight to come down to the given threshold.
+        # vector direction. We take as many copies as needed to reach the
+        # radial cutoff.
         cell_vector_lengths = np.linalg.norm(cell, axis=1)
         n_copies_axis = np.zeros(3, dtype=int)
         cell_cuts = radial_cutoff/cell_vector_lengths
@@ -779,8 +779,7 @@ class MBTR(Descriptor):
 
                     # Only distances to the atoms within the interaction limit
                     # are considered.
-                    positions_to_consider = cartesian_pos[0:self._interaction_limit]
-                    distances = cdist(pos_copy_cartesian, positions_to_consider)
+                    distances = cdist(pos_copy_cartesian, centers)
                     weight_mask = distances < radial_cutoff
 
                     # Create a boolean mask that says if the atom is within the

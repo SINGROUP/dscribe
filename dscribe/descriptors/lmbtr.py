@@ -347,7 +347,6 @@ class LMBTR(MBTR):
                     new_pos_k3.append(np.array(i))
                     new_atomic_numbers_k2.append(0)
                     new_atomic_numbers_k3.append(0)
-                    indices_k2.append(i_new)
                     i_new += 1
                 else:
                     raise ValueError(
@@ -503,7 +502,8 @@ class LMBTR(MBTR):
 
         # Calculate extended system
         if self.periodic:
-            ext_system, cell_indices = self.create_extended_system(system, radial_cutoff)
+            centers = new_system.get_positions()
+            ext_system, cell_indices = self.create_extended_system(system, centers, radial_cutoff)
         else:
             ext_system = system
             cell_indices = np.zeros((len(system), 3), dtype=int)
@@ -529,6 +529,10 @@ class LMBTR(MBTR):
         else:
             dmat_dense = scipy.spatial.distance.cdist(new_pos, ext_pos)
             adj_list = np.tile(np.arange(n_atoms_ext), (n_atoms_new, 1))
+
+        # Form new indices that include the existing atoms and the newly added
+        # ones
+        indices = np.append(indices, [n_atoms_ext+i for i in range(n_atoms_new-len(indices))])
 
         k2_list = cmbtr.get_k2_local(
             indices=indices,
@@ -615,7 +619,10 @@ class LMBTR(MBTR):
 
         # Calculate extended system
         if self.periodic:
-            ext_system, cell_indices = self.create_extended_system(system, radial_cutoff)
+            centers_new = new_system.get_positions()
+            centers_existing = system.get_positions()[indices]
+            centers = np.concatenate((centers_new, centers_existing), axis=0)
+            ext_system, cell_indices = self.create_extended_system(system, centers, radial_cutoff)
         else:
             ext_system = system
             cell_indices = np.zeros((len(system), 3), dtype=int)
