@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dscribe.core.system &mdash; DScribe 0.2.7 documentation</title>
+  <title>dscribe.core.system &mdash; DScribe 0.2.8 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                0.2.7
+                0.2.8
               </div>
             
           
@@ -178,6 +178,7 @@
 <span class="kn">from</span> <span class="nn">ase</span> <span class="k">import</span> <span class="n">Atoms</span>
 <span class="kn">import</span> <span class="nn">ase.geometry</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">dscribe.utils.geometry</span>
 
 
 <div class="viewcode-block" id="System"><a class="viewcode-back" href="../../../doc/dscribe.core.html#dscribe.core.system.System">[docs]</a><span class="k">class</span> <span class="nc">System</span><span class="p">(</span><span class="n">Atoms</span><span class="p">):</span>
@@ -368,6 +369,25 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">get_displacement_tensor</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distance_matrix</span></div>
 
+<div class="viewcode-block" id="System.get_distance_matrix_within_radius"><a class="viewcode-back" href="../../../doc/dscribe.core.html#dscribe.core.system.System.get_distance_matrix_within_radius">[docs]</a>    <span class="k">def</span> <span class="nf">get_distance_matrix_within_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_type</span><span class="o">=</span><span class="s2">&quot;coo_matrix&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculates a sparse distance matrix by only considering distances</span>
+<span class="sd">        within a certain cutoff. Uses a k-d tree to reach O(n log(N)) time</span>
+<span class="sd">        complexity.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            radius(float): The cutoff radius within which distances are</span>
+<span class="sd">                calculated. Distances outside this radius are not included.</span>
+<span class="sd">            output_type(str): Which container to use for output data. Options:</span>
+<span class="sd">                &quot;dok_matrix&quot;, &quot;coo_matrix&quot;, &quot;dict&quot;, or &quot;ndarray&quot;. Default:</span>
+<span class="sd">                &quot;dok_matrix&quot;.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dok_matrix | np.array | coo_matrix | dict: Symmetric sparse 2D</span>
+<span class="sd">            matrix containing the pairwise distances.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dmat</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_adjacency_matrix</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_positions</span><span class="p">(),</span> <span class="n">pos2</span><span class="o">=</span><span class="n">pos</span><span class="p">,</span> <span class="n">output_type</span><span class="o">=</span><span class="n">output_type</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">dmat</span></div>
+
 <div class="viewcode-block" id="System.get_inverse_distance_matrix"><a class="viewcode-back" href="../../../doc/dscribe.core.html#dscribe.core.system.System.get_inverse_distance_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">get_inverse_distance_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculates the inverse distance matrix A defined as:</span>
 
@@ -446,16 +466,16 @@
   <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="fa fa-book"> Versions</span>
-      v: 0.2.7
+      v: 0.2.8
       <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
       <dl>
         <dt>Versions</dt>
         
-          <dd><a href="https://singroup.github.io/dscribe/dev">0.2.8a (development)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe/dev">0.2.9a0 (development)</a></dd>
         
-          <dd><a href="https://singroup.github.io/dscribe">0.2.7 (latest stable)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe">0.2.8 (latest stable)</a></dd>
         
       </dl>
     </div>

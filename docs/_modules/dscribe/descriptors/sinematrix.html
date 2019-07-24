@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dscribe.descriptors.sinematrix &mdash; DScribe 0.2.7 documentation</title>
+  <title>dscribe.descriptors.sinematrix &mdash; DScribe 0.2.8 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                0.2.7
+                0.2.8
               </div>
             
           
@@ -207,7 +207,7 @@
 <span class="sd">        Chemistry, (2015),</span>
 <span class="sd">        https://doi.org/10.1002/qua.24917</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="SineMatrix.create"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.sinematrix.SineMatrix.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="SineMatrix.create"><a class="viewcode-back" href="../../../tutorials/sine_matrix.html#dscribe.descriptors.sinematrix.SineMatrix.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the Sine matrix for the given systems.</span>
 
 <span class="sd">        Args:</span>
@@ -220,12 +220,11 @@
 <span class="sd">                into to the console.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            np.ndarray | scipy.sparse.csr_matrix | list: Sine matrix for the</span>
-<span class="sd">            given systems. The return type depends on the &#39;sparse&#39; and</span>
+<span class="sd">            np.ndarray | scipy.sparse.csr_matrix: Sine matrix for the given</span>
+<span class="sd">            systems. The return type depends on the &#39;sparse&#39; and</span>
 <span class="sd">            &#39;flatten&#39;-attributes. For flattened output a single numpy array or</span>
 <span class="sd">            sparse scipy.csr_matrix is returned. The first dimension is</span>
-<span class="sd">            determined by the amount of systems. If the output is not</span>
-<span class="sd">            flattened, a simple python list is returned.</span>
+<span class="sd">            determined by the amount of systems.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># If single system given, skip the parallelization</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="p">(</span><span class="n">Atoms</span><span class="p">,</span> <span class="n">System</span><span class="p">)):</span>
@@ -321,16 +320,16 @@
   <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="fa fa-book"> Versions</span>
-      v: 0.2.7
+      v: 0.2.8
       <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
       <dl>
         <dt>Versions</dt>
         
-          <dd><a href="https://singroup.github.io/dscribe/dev">0.2.8a (development)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe/dev">0.2.9a0 (development)</a></dd>
         
-          <dd><a href="https://singroup.github.io/dscribe">0.2.7 (latest stable)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe">0.2.8 (latest stable)</a></dd>
         
       </dl>
     </div>

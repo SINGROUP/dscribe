@@ -33,18 +33,6 @@ mbtr_water = mbtr.create(water)
 print(mbtr_water)
 print(mbtr_water.shape)
 
-# Setup
-mbtr = MBTR(
-    species=["H", "O"],
-    k2={
-        "geometry": {"function": "inverse_distance"},
-        "grid": {"min": 0, "max": 1, "n": 100, "sigma": 0.1},
-        "weighting": {"function": "exponential", "scale": 0.5, "cutoff": 1e-3},
-    },
-    periodic=False,
-    normalization="l2_each",
-)
-
 # Locations
 # The locations of specific element combinations can be retrieved like this.
 h_loc = mbtr.get_location(("H"))

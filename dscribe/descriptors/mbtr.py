@@ -640,8 +640,8 @@ class MBTR(Descriptor):
         term = getattr(self, "k{}".format(k))
         if term is None:
             raise ValueError(
-                "Cannot retrieve the location for {}, as the term {} has not "
-                "been specied.".format(species, term)
+                "Cannot retrieve the location for {}, as the term k{} has not "
+                "been specied.".format(species, k)
             )
 
         # Change chemical elements into atomic numbers

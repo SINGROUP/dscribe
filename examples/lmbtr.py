@@ -56,7 +56,6 @@ lmbtr = LMBTR(
         "weighting": {"function": "exponential", "scale": 1, "cutoff": 1e-2},
     },
     periodic=True,
-    is_center_periodic=False,
     normalization="none",
 )
 
@@ -68,7 +67,7 @@ sites = lmbtr.create(
 
 # Plot the site-aluminum distributions for each site
 al_slice = lmbtr.get_location(("X", "Al"))
-x = lmbtr._axis_k2
+x = lmbtr.get_k2_axis()
 mpl.plot(x, sites[0, al_slice], label="top")
 mpl.plot(x, sites[1, al_slice], label="bridge")
 mpl.plot(x, sites[2, al_slice], label="hcp")

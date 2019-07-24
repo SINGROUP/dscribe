@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dscribe.descriptors package &mdash; DScribe 0.2.7 documentation</title>
+  <title>dscribe.descriptors package &mdash; DScribe 0.2.8 documentation</title>
   
 
   
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                0.2.7
+                0.2.8
               </div>
             
           
@@ -383,15 +383,14 @@ into to the console.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Coulomb matrix for the
-given systems. The return type depends on the ‘sparse’ and
+<dd class="field-even"><p>Coulomb matrix for the given
+systems. The return type depends on the ‘sparse’ and
 ‘flatten’-attributes. For flattened output a single numpy array or
 sparse scipy.csr_matrix is returned. The first dimension is
-determined by the amount of systems. If the output is not
-flattened, a simple python list is returned.</p>
+determined by the amount of systems.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>np.ndarray | scipy.sparse.csr_matrix | list</p>
+<dd class="field-odd"><p>np.ndarray | scipy.sparse.csr_matrix</p>
 </dd>
 </dl>
 </dd></dl>
@@ -800,11 +799,10 @@ into to the console.</p></li>
 given systems. The return type depends on the ‘sparse’ and
 ‘flatten’-attributes. For flattened output a single numpy array or
 sparse scipy.csr_matrix is returned. The first dimension is
-determined by the amount of systems. If the output is not
-flattened, a simple python list is returned.</p>
+determined by the amount of systems.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>np.ndarray | scipy.sparse.csr_matrix | list</p>
+<dd class="field-odd"><p>np.ndarray | scipy.sparse.csr_matrix</p>
 </dd>
 </dl>
 </dd></dl>
@@ -875,7 +873,7 @@ See the License for the specific language governing permissions and
 limitations under the License.</p>
 <dl class="class">
 <dt id="dscribe.descriptors.lmbtr.LMBTR">
-<em class="property">class </em><code class="sig-prename descclassname">dscribe.descriptors.lmbtr.</code><code class="sig-name descname">LMBTR</code><span class="sig-paren">(</span><em class="sig-param">species</em>, <em class="sig-param">periodic</em>, <em class="sig-param">k2=None</em>, <em class="sig-param">k3=None</em>, <em class="sig-param">is_center_periodic=None</em>, <em class="sig-param">normalize_gaussians=True</em>, <em class="sig-param">normalization='none'</em>, <em class="sig-param">flatten=True</em>, <em class="sig-param">sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/lmbtr.html#LMBTR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.descriptors.lmbtr.</code><code class="sig-name descname">LMBTR</code><span class="sig-paren">(</span><em class="sig-param">species</em>, <em class="sig-param">periodic</em>, <em class="sig-param">k2=None</em>, <em class="sig-param">k3=None</em>, <em class="sig-param">normalize_gaussians=True</em>, <em class="sig-param">normalization='none'</em>, <em class="sig-param">flatten=True</em>, <em class="sig-param">sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/lmbtr.html#LMBTR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dscribe.descriptors.mbtr.MBTR" title="dscribe.descriptors.mbtr.MBTR"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.descriptors.mbtr.MBTR</span></code></a></p>
 <p>Implementation of local – per chosen atom – kind of the Many-body
 tensor representation up to k=3.</p>
@@ -1004,49 +1002,15 @@ system and positions.</p>
 <li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> | <a class="reference internal" href="dscribe.core.html#dscribe.core.system.System" title="dscribe.core.system.System"><code class="xref py py-class docutils literal notranslate"><span class="pre">System</span></code></a>) – Input system.</p></li>
 <li><p><strong>positions</strong> (<em>iterable</em>) – Positions or atom index of points, from
 which local_mbtr is created. Can be a list of integer numbers
-or a list of xyz-coordinates.</p></li>
+or a list of xyz-coordinates. If integers provided, the atoms
+at that index are used as centers. If positions provided, new
+atoms are added at that position.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>The local many-body tensor representations of given
 positions, for k terms, as an array. These are ordered as given in
 positions.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>1D ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="dscribe.descriptors.lmbtr.LMBTR.get_k2_convolution">
-<code class="sig-name descname">get_k2_convolution</code><span class="sig-paren">(</span><em class="sig-param">grid</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/lmbtr.html#LMBTR.get_k2_convolution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.get_k2_convolution" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates the second order terms where the scalar mapping is the
-inverse distance between atoms.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>grid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – The grid settings</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>flattened K2 values.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>1D ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="dscribe.descriptors.lmbtr.LMBTR.get_k3_convolution">
-<code class="sig-name descname">get_k3_convolution</code><span class="sig-paren">(</span><em class="sig-param">grid</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/lmbtr.html#LMBTR.get_k3_convolution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.get_k3_convolution" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates the third order terms where the scalar mapping is the
-angle between 3 atoms.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>grid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – The grid settings</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>flattened K3 values.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>1D ndarray</p>
@@ -1113,6 +1077,11 @@ combinations is the multiplied by the discretization of the k=3 grid.</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="method">
+<dt id="dscribe.descriptors.lmbtr.LMBTR.normalization">
+<em class="property">property </em><code class="sig-name descname">normalization</code><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.normalization" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="dscribe.descriptors.lmbtr.LMBTR.species">
@@ -1424,7 +1393,7 @@ are returned.</p>
 
 <dl class="method">
 <dt id="dscribe.descriptors.mbtr.MBTR.create_extended_system">
-<code class="sig-name descname">create_extended_system</code><span class="sig-paren">(</span><em class="sig-param">primitive_system</em>, <em class="sig-param">term_number</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.create_extended_system"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.create_extended_system" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create_extended_system</code><span class="sig-paren">(</span><em class="sig-param">primitive_system</em>, <em class="sig-param">centers</em>, <em class="sig-param">radial_cutoff</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.create_extended_system"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.create_extended_system" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to create a periodically extended system, that is as small as
 possible by rejecting atoms for which the given weighting will be below
 the given threshold.</p>
@@ -1435,8 +1404,8 @@ atom and to enable taking the virtual sites into account.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>primitive_system</strong> (<a class="reference internal" href="dscribe.core.html#dscribe.core.system.System" title="dscribe.core.system.System"><em>System</em></a>) – The original primitive system to
 duplicate.</p></li>
-<li><p><strong>term_number</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The term number of the tensor. For k=2, the max
-distance is x, for k&gt;2, the distance is given by 2*x.</p></li>
+<li><p><strong>radial_cutoff</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The radial cutoff to use in constructing the
+extended system.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1474,86 +1443,46 @@ either as a sparse or a dense vector.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dscribe.descriptors.mbtr.MBTR.create_with_grid">
-<code class="sig-name descname">create_with_grid</code><span class="sig-paren">(</span><em class="sig-param">grid</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.create_with_grid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.create_with_grid" title="Permalink to this definition">¶</a></dt>
-<dd><p>Used to recalculate MBTR for an already seen system but with
-different grid setttings. This function can be used after the scalar
-values have been initialized with “initialize_scalars”.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="dscribe.descriptors.mbtr.MBTR.gaussian_sum">
-<code class="sig-name descname">gaussian_sum</code><span class="sig-paren">(</span><em class="sig-param">centers</em>, <em class="sig-param">weights</em>, <em class="sig-param">settings</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.gaussian_sum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.gaussian_sum" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates a discrete version of a sum of Gaussian distributions.</p>
-<p>The calculation is done through the cumulative distribution function
-that is better at keeping the integral of the probability function
-constant with coarser grids.</p>
-<p>The values are normalized by dividing with the maximum value of a
-gaussian with the given standard deviation.</p>
+<dt id="dscribe.descriptors.mbtr.MBTR.get_k1_axis">
+<code class="sig-name descname">get_k1_axis</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.get_k1_axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.get_k1_axis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to get the discretized axis for geometry function of the k=1
+term.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>centers</strong> (<em>1D np.ndarray</em>) – The means of the gaussians.</p></li>
-<li><p><strong>weights</strong> (<em>1D np.ndarray</em>) – The weights for the gaussians.</p></li>
-<li><p><strong>settings</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – The grid settings</p></li>
-</ul>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The discretized axis for the k=1 term.</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Value of the gaussian sums on the given grid.</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.ndarray</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
-<dt id="dscribe.descriptors.mbtr.MBTR.get_k1_convolution">
-<code class="sig-name descname">get_k1_convolution</code><span class="sig-paren">(</span><em class="sig-param">grid</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.get_k1_convolution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.get_k1_convolution" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates the first order terms where the scalar mapping is the
-number of atoms of a certain type.</p>
+<dt id="dscribe.descriptors.mbtr.MBTR.get_k2_axis">
+<code class="sig-name descname">get_k2_axis</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.get_k2_axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.get_k2_axis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to get the discretized axis for geometry function of the k=2
+term.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>grid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Grid settings.</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The discretized axis for the k=2 term.</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>K1 values.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarray | scipy.sparse.lil_matrix</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.ndarray</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
-<dt id="dscribe.descriptors.mbtr.MBTR.get_k2_convolution">
-<code class="sig-name descname">get_k2_convolution</code><span class="sig-paren">(</span><em class="sig-param">grid</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.get_k2_convolution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.get_k2_convolution" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates the second order terms where the scalar mapping is the
-inverse distance between atoms.</p>
+<dt id="dscribe.descriptors.mbtr.MBTR.get_k3_axis">
+<code class="sig-name descname">get_k3_axis</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.get_k3_axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.get_k3_axis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to get the discretized axis for geometry function of the k=3
+term.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>grid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – The grid settings</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The discretized axis for the k=3 term.</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>flattened K2 values.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>1D ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="dscribe.descriptors.mbtr.MBTR.get_k3_convolution">
-<code class="sig-name descname">get_k3_convolution</code><span class="sig-paren">(</span><em class="sig-param">grid</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.get_k3_convolution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.get_k3_convolution" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates the third order terms where the scalar mapping is the
-angle between 3 atoms.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>grid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – The grid settings</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>flattened K3 values.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>1D ndarray</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.ndarray</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1604,36 +1533,9 @@ will have.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dscribe.descriptors.mbtr.MBTR.initialize_scalars">
-<code class="sig-name descname">initialize_scalars</code><span class="sig-paren">(</span><em class="sig-param">system</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.initialize_scalars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.initialize_scalars" title="Permalink to this definition">¶</a></dt>
-<dd><p>Used to initialize the scalar values for each k-term.</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="dscribe.descriptors.mbtr.MBTR.k1">
 <em class="property">property </em><code class="sig-name descname">k1</code><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.k1" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="method">
-<dt id="dscribe.descriptors.mbtr.MBTR.k1_geoms_and_weights">
-<code class="sig-name descname">k1_geoms_and_weights</code><span class="sig-paren">(</span><em class="sig-param">system</em>, <em class="sig-param">cell_indices</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.k1_geoms_and_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.k1_geoms_and_weights" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the atom count for each element.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>system</strong> (<a class="reference internal" href="dscribe.core.html#dscribe.core.system.System" title="dscribe.core.system.System"><em>System</em></a>) – The atomic system.</p></li>
-<li><p><strong>cell_indices</strong> (<em>np.ndarray</em>) – The cell indices for each atom.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The counts for each element in a list where the index
-of atomic number x is self.atomic_number_to_index[x]</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>1D ndarray</p>
-</dd>
-</dl>
-</dd></dl>
 
 <dl class="method">
 <dt id="dscribe.descriptors.mbtr.MBTR.k2">
@@ -1641,49 +1543,9 @@ of atomic number x is self.atomic_number_to_index[x]</p>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="dscribe.descriptors.mbtr.MBTR.k2_geoms_and_weights">
-<code class="sig-name descname">k2_geoms_and_weights</code><span class="sig-paren">(</span><em class="sig-param">system</em>, <em class="sig-param">cell_indices</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.k2_geoms_and_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.k2_geoms_and_weights" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates the value of the geometry function and corresponding
-weights for unique two-body combinations.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>system</strong> (<a class="reference internal" href="dscribe.core.html#dscribe.core.system.System" title="dscribe.core.system.System"><em>System</em></a>) – The atomic system.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Inverse distances in the form: {(i, j): [list of angles] }.
-The dictionaries are filled so that the entry for pair i and j is
-in the entry where j&gt;=i.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
 <dt id="dscribe.descriptors.mbtr.MBTR.k3">
 <em class="property">property </em><code class="sig-name descname">k3</code><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.k3" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="method">
-<dt id="dscribe.descriptors.mbtr.MBTR.k3_geoms_and_weights">
-<code class="sig-name descname">k3_geoms_and_weights</code><span class="sig-paren">(</span><em class="sig-param">system</em>, <em class="sig-param">cell_indices</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.k3_geoms_and_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.k3_geoms_and_weights" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates the value of the geometry function and corresponding
-weights for unique three-body combinations.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>system</strong> (<a class="reference internal" href="dscribe.core.html#dscribe.core.system.System" title="dscribe.core.system.System"><em>System</em></a>) – The atomic system.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>(geoms, weights) Cosines of the angles (values between -1
-and 1) in the form {(i,j,k): [list of angles] }. The weights
-corresponding to the angles are stored in a similar dictionary.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)">tuple</a></p>
-</dd>
-</dl>
-</dd></dl>
 
 <dl class="method">
 <dt id="dscribe.descriptors.mbtr.MBTR.normalization">
@@ -1755,15 +1617,14 @@ into to the console.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Sine matrix for the
-given systems. The return type depends on the ‘sparse’ and
+<dd class="field-even"><p>Sine matrix for the given
+systems. The return type depends on the ‘sparse’ and
 ‘flatten’-attributes. For flattened output a single numpy array or
 sparse scipy.csr_matrix is returned. The first dimension is
-determined by the amount of systems. If the output is not
-flattened, a simple python list is returned.</p>
+determined by the amount of systems.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>np.ndarray | scipy.sparse.csr_matrix | list</p>
+<dd class="field-odd"><p>np.ndarray | scipy.sparse.csr_matrix</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2018,16 +1879,16 @@ limitations under the License.</p>
   <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="fa fa-book"> Versions</span>
-      v: 0.2.7
+      v: 0.2.8
       <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
       <dl>
         <dt>Versions</dt>
         
-          <dd><a href="https://singroup.github.io/dscribe/dev">0.2.8a (development)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe/dev">0.2.9a0 (development)</a></dd>
         
-          <dd><a href="https://singroup.github.io/dscribe">0.2.7 (latest stable)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe">0.2.8 (latest stable)</a></dd>
         
       </dl>
     </div>

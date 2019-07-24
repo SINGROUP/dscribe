@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Local Many-body Tensor Representation &mdash; DScribe 0.2.7 documentation</title>
+  <title>Local Many-body Tensor Representation &mdash; DScribe 0.2.8 documentation</title>
   
 
   
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                0.2.7
+                0.2.8
               </div>
             
           
@@ -94,7 +94,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="tutorials.html">Tutorials</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="coulomb_matrix.html">Coulomb Matrix</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sine_matrix.html">Sine Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sine_matrix.html">Sine matrix</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ewald_sum_matrix.html">Ewald sum matrix</a></li>
 <li class="toctree-l2"><a class="reference internal" href="acsf.html">Atom-centered Symmetry Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="soap.html">Smooth Overlap of Atomic Positions</a></li>
@@ -234,7 +234,7 @@ also possible.</p></li>
 <p>The arguments have the following effect:</p>
 <dl class="method">
 <dt id="dscribe.descriptors.lmbtr.LMBTR.__init__">
-<code class="sig-prename descclassname">LMBTR.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">species</em>, <em class="sig-param">periodic</em>, <em class="sig-param">k2=None</em>, <em class="sig-param">k3=None</em>, <em class="sig-param">is_center_periodic=None</em>, <em class="sig-param">normalize_gaussians=True</em>, <em class="sig-param">normalization='none'</em>, <em class="sig-param">flatten=True</em>, <em class="sig-param">sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/lmbtr.html#LMBTR.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">LMBTR.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">species</em>, <em class="sig-param">periodic</em>, <em class="sig-param">k2=None</em>, <em class="sig-param">k3=None</em>, <em class="sig-param">normalize_gaussians=True</em>, <em class="sig-param">normalization='none'</em>, <em class="sig-param">flatten=True</em>, <em class="sig-param">sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/lmbtr.html#LMBTR.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -269,14 +269,6 @@ weighting function. For example:</p>
 </pre></div>
 </div>
 </p></li>
-<li><p><strong>is_center_periodic</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Determines whether the central positions
-are periodically repeated or not. If not specified, defaults to
-the value of the “periodic”-parameter. If False, the central
-position is not repeated in periodic systems. If set to True,
-the position will be repeated in periodic systems and may
-interact with periodic copies of itself. Typically set to False
-when studying non-physical positions in periodic systems,
-otherwise set to False.</p></li>
 <li><p><strong>normalize_gaussians</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Determines whether the gaussians are
 normalized to an area of 1. Defaults to True. If False, the
 normalization factor is dropped and the gaussians have the form.
@@ -388,7 +380,6 @@ sites on this surface: top, bridge, hcp and fcc.</p>
         <span class="s2">&quot;weighting&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exponential&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="mf">1e-2</span><span class="p">},</span>
     <span class="p">},</span>
     <span class="n">periodic</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-    <span class="n">is_center_periodic</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
     <span class="n">normalization</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -397,13 +388,13 @@ sites on this surface: top, bridge, hcp and fcc.</p>
     <span class="n">slab_pure</span><span class="p">,</span>
     <span class="n">positions</span><span class="o">=</span><span class="p">[</span><span class="n">ontop_pos</span><span class="p">,</span> <span class="n">bridge_pos</span><span class="p">,</span> <span class="n">hcp_pos</span><span class="p">,</span> <span class="n">fcc_pos</span><span class="p">],</span>
 <span class="p">)</span>
+
 </pre></div>
 </div>
 <p>Plotting the output from these sites reveals the different patterns in these
 sites.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Plot the site-aluminum distributions for each site</span>
-<span class="n">al_slice</span> <span class="o">=</span> <span class="n">lmbtr</span><span class="o">.</span><span class="n">get_location</span><span class="p">((</span><span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot;Al&quot;</span><span class="p">))</span>
-<span class="n">x</span> <span class="o">=</span> <span class="n">lmbtr</span><span class="o">.</span><span class="n">_axis_k2</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">al_slice</span> <span class="o">=</span> <span class="n">lmbtr</span><span class="o">.</span><span class="n">get_location</span><span class="p">((</span><span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot;Al&quot;</span><span class="p">))</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">lmbtr</span><span class="o">.</span><span class="n">get_k2_axis</span><span class="p">()</span>
 <span class="n">mpl</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">al_slice</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;top&quot;</span><span class="p">)</span>
 <span class="n">mpl</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">sites</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">al_slice</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;bridge&quot;</span><span class="p">)</span>
 <span class="n">mpl</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">sites</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="n">al_slice</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;hcp&quot;</span><span class="p">)</span>
@@ -463,16 +454,16 @@ automatic adsorption site classifier with machine learning.</p>
   <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="fa fa-book"> Versions</span>
-      v: 0.2.7
+      v: 0.2.8
       <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
       <dl>
         <dt>Versions</dt>
         
-          <dd><a href="https://singroup.github.io/dscribe/dev">0.2.8a (development)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe/dev">0.2.9a0 (development)</a></dd>
         
-          <dd><a href="https://singroup.github.io/dscribe">0.2.7 (latest stable)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe">0.2.8 (latest stable)</a></dd>
         
       </dl>
     </div>

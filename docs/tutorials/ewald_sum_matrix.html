@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Ewald sum matrix &mdash; DScribe 0.2.7 documentation</title>
+  <title>Ewald sum matrix &mdash; DScribe 0.2.8 documentation</title>
   
 
   
@@ -39,7 +39,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Atom-centered Symmetry Functions" href="acsf.html" />
-    <link rel="prev" title="Sine Matrix" href="sine_matrix.html" /> 
+    <link rel="prev" title="Sine matrix" href="sine_matrix.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                0.2.7
+                0.2.8
               </div>
             
           
@@ -94,7 +94,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="tutorials.html">Tutorials</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="coulomb_matrix.html">Coulomb Matrix</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sine_matrix.html">Sine Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sine_matrix.html">Sine matrix</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Ewald sum matrix</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#setup">Setup</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#creation">Creation</a></li>
@@ -184,7 +184,7 @@
             
   <div class="section" id="ewald-sum-matrix">
 <h1>Ewald sum matrix<a class="headerlink" href="#ewald-sum-matrix" title="Permalink to this headline">¶</a></h1>
-<p>Ewald sum matrix <a class="reference internal" href="#sm" id="id1">[1]</a> can be viewed as a logical extension of the Coulomb
+<p>Ewald sum matrix <a class="reference internal" href="sine_matrix.html#sm" id="id1">[1]</a> can be viewed as a logical extension of the Coulomb
 matrix for periodic systems, as it models the interaction between atoms in a
 periodic crystal through electrostatic interaction. However, in order to
 calculate the Coulomb interaction between the atomic cores in a periodic
@@ -192,7 +192,7 @@ crystal, the Ewald summation technique has to be used together with a uniform
 neutralizing background charge.</p>
 <p>Notice that the terms of the Ewald sum matrix in DScribe differ slightly from
 the original article. We correct an issue in the energy term related to the
-self-energy and the charged-cell correction. In the original article <a class="reference internal" href="#sm" id="id2">[1]</a>
+self-energy and the charged-cell correction. In the original article <a class="reference internal" href="sine_matrix.html#sm" id="id2">[1]</a>
 (equation 20) this correction for the off-diagonal elements was defined as:</p>
 <div class="math notranslate nohighlight">
 \[\phi^{\text{self}}_{ij} + \phi^{\text{bg}}_{ij} = -\frac{\alpha}{\sqrt{\pi}}(Z_i^2 + Z_j^2) -\frac{\pi}{2V\alpha^2}(Z_i + Z_j)^2~\forall~i \neq j\]</div>
@@ -327,11 +327,10 @@ into to the console.</p></li>
 given systems. The return type depends on the ‘sparse’ and
 ‘flatten’-attributes. For flattened output a single numpy array or
 sparse scipy.csr_matrix is returned. The first dimension is
-determined by the amount of systems. If the output is not
-flattened, a simple python list is returned.</p>
+determined by the amount of systems.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>np.ndarray | scipy.sparse.csr_matrix | list</p>
+<dd class="field-odd"><p>np.ndarray | scipy.sparse.csr_matrix</p>
 </dd>
 </dl>
 </dd></dl>
@@ -423,7 +422,7 @@ pymatgen:</p>
         <a href="acsf.html" class="btn btn-neutral float-right" title="Atom-centered Symmetry Functions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="sine_matrix.html" class="btn btn-neutral float-left" title="Sine Matrix" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="sine_matrix.html" class="btn btn-neutral float-left" title="Sine matrix" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -450,16 +449,16 @@ pymatgen:</p>
   <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="fa fa-book"> Versions</span>
-      v: 0.2.7
+      v: 0.2.8
       <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
       <dl>
         <dt>Versions</dt>
         
-          <dd><a href="https://singroup.github.io/dscribe/dev">0.2.8a (development)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe/dev">0.2.9a0 (development)</a></dd>
         
-          <dd><a href="https://singroup.github.io/dscribe">0.2.7 (latest stable)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe">0.2.8 (latest stable)</a></dd>
         
       </dl>
     </div>

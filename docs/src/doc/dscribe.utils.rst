@@ -4,6 +4,14 @@ dscribe.utils package
 Submodules
 ----------
 
+dscribe.utils.geometry module
+-----------------------------
+
+.. automodule:: dscribe.utils.geometry
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 dscribe.utils.species module
 ----------------------------
 
@@ -11,6 +19,7 @@ dscribe.utils.species module
    :members:
    :undoc-members:
    :show-inheritance:
+
 dscribe.utils.stats module
 --------------------------
 

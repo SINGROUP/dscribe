@@ -11,6 +11,7 @@ dscribe.core.lattice module
    :members:
    :undoc-members:
    :show-inheritance:
+
 dscribe.core.system module
 --------------------------
 
