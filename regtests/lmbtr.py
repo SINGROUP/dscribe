@@ -28,10 +28,9 @@ from scipy.signal import find_peaks
 from dscribe.descriptors import LMBTR
 
 from ase import Atoms
-from ase.build import molecule, bulk
+from ase.build import molecule
 
 from testbaseclass import TestBaseClass
-import matplotlib.pyplot as mpl
 
 
 H2O = Atoms(

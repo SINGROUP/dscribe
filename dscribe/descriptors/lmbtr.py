@@ -275,7 +275,9 @@ class LMBTR(MBTR):
             system (:class:`ase.Atoms` | :class:`.System`): Input system.
             positions (iterable): Positions or atom index of points, from
                 which local_mbtr is created. Can be a list of integer numbers
-                or a list of xyz-coordinates.
+                or a list of xyz-coordinates. If integers provided, the atoms
+                at that index are used as centers. If positions provided, new
+                atoms are added at that position.
 
         Returns:
             1D ndarray: The local many-body tensor representations of given

@@ -18,8 +18,6 @@ import ase.geometry
 
 from testbaseclass import TestBaseClass
 
-import matplotlib.pyplot as mpl
-
 default_k1 = {
     "geometry": {"function": "atomic_number"},
     "grid": {"min": 1, "max": 8, "sigma": 0.1, "n": 50}
