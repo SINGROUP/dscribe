@@ -381,15 +381,7 @@ class LMBTR(MBTR):
                 symbols=new_atomic_numbers_k3,
                 positions=new_pos_k3,
             )
-
-            # If needed, create the extended system
-            if self.periodic:
-                ext_system, cell_indices = self.create_extended_system(system, 3)
-            else:
-                ext_system = system
-                cell_indices = np.zeros((len(system), 3), dtype=int)
-            mbtr["k3"] = self._get_k3(ext_system, new_system_k3, indices_k3, cell_indices)
-            ext_system = None  # Free memory explicitly
+            mbtr["k3"] = self._get_k3(system, new_system_k3, indices_k3)
 
         # Handle normalization
         if self.normalization == "l2_each":
@@ -681,7 +673,7 @@ class LMBTR(MBTR):
 
         return k2
 
-    def _get_k3(self, ext_system, new_system, indices, cell_indices):
+    def _get_k3(self, system, new_system, indices):
         """Calculates the second order terms where the scalar mapping is the
         inverse distance between atoms.
 
@@ -693,12 +685,6 @@ class LMBTR(MBTR):
         stop = grid["max"]
         n = grid["n"]
         sigma = grid["sigma"]
-        cmbtr = MBTRWrapper(
-            self.atomic_number_to_index,
-            interaction_limit=self._interaction_limit,
-            indices=cell_indices,
-            is_local=self._is_local
-        )
 
         # Determine the weighting function and possible radial cutoff
         radial_cutoff = None
@@ -720,6 +706,20 @@ class LMBTR(MBTR):
 
         # Determine the geometry function
         geom_func_name = self.k3["geometry"]["function"]
+
+        # Calculate extended system
+        if self.periodic:
+            ext_system, cell_indices = self.create_extended_system(system, radial_cutoff)
+        else:
+            ext_system = system
+            cell_indices = np.zeros((len(system), 3), dtype=int)
+
+        cmbtr = MBTRWrapper(
+            self.atomic_number_to_index,
+            interaction_limit=self._interaction_limit,
+            indices=cell_indices,
+            is_local=self._is_local
+        )
 
         # If radial cutoff is finite, use it to calculate the sparse
         # distance matrix to reduce computational complexity from O(n^2) to
