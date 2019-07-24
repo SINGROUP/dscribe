@@ -181,12 +181,6 @@ class LMBTR(MBTR):
             flatten=flatten,
             sparse=sparse,
         )
-        # These attributes have to be set after the MBTR constructor to
-        # override the defaults.
-        self._is_local = True
-
-        # These attributes can be set whenever
-        self.updated = True
 
     @property
     def normalization(self):
@@ -433,94 +427,6 @@ class LMBTR(MBTR):
 
         return result
 
-    def create_extended_system(self, primitive_system, radial_cutoff):
-        """Used to create a periodically extended system, that is as small as
-        possible by rejecting atoms for which the given weighting will be below
-        the given threshold.
-
-        Modified for the local MBTR to only consider distances from the central
-        atom and to enable taking the virtual sites into account.
-
-        Args:
-            primitive_system (System): The original primitive system to
-                duplicate.
-            radial_cutoff(float): A distance cutoff to use while building the
-                extended system.
-
-        Returns:
-            tuple: Tuple containing the new extended system as the first entry
-            and the index of the periodically repeated cell for each atom as
-            the second entry. The extended system is determined is extended so
-            that each atom can be at most at the radial cutoff from the cell
-            edges.
-        """
-        # We need to specify that the relative positions should not be wrapped.
-        # Otherwise the repeated systems may overlap with the positions taken
-        # with get_positions()
-        relative_pos = np.array(primitive_system.get_scaled_positions(wrap=False))
-        numbers = np.array(primitive_system.numbers)
-        cartesian_pos = np.array(primitive_system.get_positions())
-        cell = np.array(primitive_system.get_cell())
-
-        # Determine the upper limit of how many copies we need in each cell
-        # vector direction. We take as many copies as needed for to reach the
-        # radial cutoff.
-        cell_vector_lengths = np.linalg.norm(cell, axis=1)
-        cell_cuts = radial_cutoff/cell_vector_lengths
-        n_copies_axis = np.ceil(cell_cuts).astype(np.int)
-
-        # Create copies of the cell but keep track of the atoms in the
-        # original cell
-        num_extended = []
-        pos_extended = []
-        num_extended.append(numbers)
-        pos_extended.append(cartesian_pos)
-        a = np.array([1, 0, 0])
-        b = np.array([0, 1, 0])
-        c = np.array([0, 0, 1])
-        cell_indices = [np.zeros((len(primitive_system), 3), dtype=int)]
-
-        for i in range(-n_copies_axis[0], n_copies_axis[0]+1):
-            for j in range(-n_copies_axis[1], n_copies_axis[1]+1):
-                for k in range(-n_copies_axis[2], n_copies_axis[2]+1):
-                    if i == 0 and j == 0 and k == 0:
-                        continue
-
-                    # Calculate the positions of the copied atoms
-                    num_copy = np.array(numbers)
-                    pos_copy = np.array(relative_pos)
-                    pos_shifted = pos_copy+i*a+j*b+k*c
-                    pos_copy_cartesian = np.dot(pos_shifted, cell)
-                    add = (np.array([i, j, k]) >= 0).astype(np.int8)
-
-                    # Filter out atoms that are farther than the radial cutoff
-                    # from the cell borders, as measure by manhattan length
-                    manhattan_mask = abs(pos_shifted) < cell_cuts+add
-                    valids_mask = np.all(manhattan_mask, axis=1)
-
-                    if np.any(valids_mask):
-                        valid_pos = pos_copy_cartesian[valids_mask]
-                        valid_num = num_copy[valids_mask]
-                        valid_ind = np.tile(np.array([i, j, k], dtype=int), (len(valid_num), 1))
-
-                        pos_extended.append(valid_pos)
-                        num_extended.append(valid_num)
-                        cell_indices.append(valid_ind)
-
-        pos_extended = np.concatenate(pos_extended)
-        num_extended = np.concatenate(num_extended)
-        cell_indices = np.vstack(cell_indices)
-
-        extended_system = System(
-            positions=pos_extended,
-            numbers=num_extended,
-            cell=cell,
-            pbc=False
-        )
-        # from ase.visualize import view
-        # view(extended_system)
-
-        return extended_system, cell_indices
 
     def get_number_of_features(self):
         """Used to inquire the final number of features that this descriptor
@@ -604,8 +510,7 @@ class LMBTR(MBTR):
         cmbtr = MBTRWrapper(
             self.atomic_number_to_index,
             interaction_limit=self._interaction_limit,
-            indices=cell_indices,
-            is_local=self._is_local
+            indices=cell_indices
         )
 
         # If radial cutoff is finite, use it to calculate the sparse distance
@@ -717,8 +622,7 @@ class LMBTR(MBTR):
         cmbtr = MBTRWrapper(
             self.atomic_number_to_index,
             interaction_limit=self._interaction_limit,
-            indices=cell_indices,
-            is_local=self._is_local
+            indices=cell_indices
         )
 
         # If radial cutoff is finite, use it to calculate the sparse
@@ -963,9 +867,6 @@ class LMBTR(MBTR):
         self.n_elements = len(self._atomic_numbers)
         self.max_atomic_number = max(self._atomic_numbers)
         self.min_atomic_number = min(self._atomic_numbers)
-
-        # Recalculate locations
-        self.updated = True
 
     def get_k3_convolution(self, grid):
         """Calculates the third order terms where the scalar mapping is the

@@ -199,7 +199,6 @@ class MBTR(Descriptor):
 
         # Initializing .create() level variables
         self._interaction_limit = None
-        self._is_local = False
 
         # Check that weighting function is specified for periodic systems
         if self.periodic:
@@ -539,31 +538,11 @@ class MBTR(Descriptor):
 
         mbtr = {}
         if self.k1 is not None:
-            cell_indices = np.zeros((len(system), 3), dtype=int)
-            mbtr["k1"] = self._get_k1(system, cell_indices)
+            mbtr["k1"] = self._get_k1(system)
         if self.k2 is not None:
-            # If needed, create the extended system
-            system_k2 = system
-            if self.periodic:
-                system_k2, cell_indices = self.create_extended_system(system, 2)
-            else:
-                cell_indices = np.zeros((len(system), 3), dtype=int)
-            mbtr["k2"] = self._get_k2(system_k2, cell_indices)
-
-            # Free memory
-            system_k2 = None
-
+            mbtr["k2"] = self._get_k2(system)
         if self.k3 is not None:
-            # If needed, create the extended system
-            system_k3 = system
-            if self.periodic:
-                system_k3, cell_indices = self.create_extended_system(system, 3)
-            else:
-                cell_indices = np.zeros((len(system), 3), dtype=int)
-            mbtr["k3"] = self._get_k3(system_k3, cell_indices)
-
-            # Free memory
-            system_k3 = None
+            mbtr["k3"] = self._get_k3(system)
 
         # Handle normalization
         if self.normalization == "l2_each":
@@ -736,6 +715,93 @@ class MBTR(Descriptor):
 
         return slice(start, end)
 
+    # def create_extended_system(self, primitive_system, radial_cutoff):
+        # """Used to create a periodically extended system, that is as small as
+        # possible by rejecting atoms for which the given weighting will be below
+        # the given threshold.
+
+        # Modified for the local MBTR to only consider distances from the central
+        # atom and to enable taking the virtual sites into account.
+
+        # Args:
+            # primitive_system (System): The original primitive system to
+                # duplicate.
+            # radial_cutoff(float): A distance cutoff to use while building the
+                # extended system.
+
+        # Returns:
+            # tuple: Tuple containing the new extended system as the first entry
+            # and the index of the periodically repeated cell for each atom as
+            # the second entry. The extended system is determined is extended so
+            # that each atom can be at most at the radial cutoff from the cell
+            # edges.
+        # """
+        # # We need to specify that the relative positions should not be wrapped.
+        # # Otherwise the repeated systems may overlap with the positions taken
+        # # with get_positions()
+        # relative_pos = np.array(primitive_system.get_scaled_positions(wrap=False))
+        # numbers = np.array(primitive_system.numbers)
+        # cartesian_pos = np.array(primitive_system.get_positions())
+        # cell = np.array(primitive_system.get_cell())
+
+        # # Determine the upper limit of how many copies we need in each cell
+        # # vector direction. We take as many copies as needed for to reach the
+        # # radial cutoff.
+        # cell_vector_lengths = np.linalg.norm(cell, axis=1)
+        # cell_cuts = radial_cutoff/cell_vector_lengths
+        # n_copies_axis = np.ceil(cell_cuts).astype(np.int)
+
+        # # Create copies of the cell but keep track of the atoms in the
+        # # original cell
+        # num_extended = []
+        # pos_extended = []
+        # num_extended.append(numbers)
+        # pos_extended.append(cartesian_pos)
+        # a = np.array([1, 0, 0])
+        # b = np.array([0, 1, 0])
+        # c = np.array([0, 0, 1])
+        # cell_indices = [np.zeros((len(primitive_system), 3), dtype=int)]
+
+        # for i in range(-n_copies_axis[0], n_copies_axis[0]+1):
+            # for j in range(-n_copies_axis[1], n_copies_axis[1]+1):
+                # for k in range(-n_copies_axis[2], n_copies_axis[2]+1):
+                    # if i == 0 and j == 0 and k == 0:
+                        # continue
+
+                    # # Calculate the positions of the copied atoms
+                    # num_copy = np.array(numbers)
+                    # pos_copy = np.array(relative_pos)
+                    # pos_shifted = pos_copy+i*a+j*b+k*c
+                    # pos_copy_cartesian = np.dot(pos_shifted, cell)
+                    # add = (np.array([i, j, k]) >= 0).astype(np.int8)
+
+                    # # Filter out atoms that are farther than the radial cutoff
+                    # # from the cell borders, as measure by manhattan length
+                    # manhattan_mask = abs(pos_shifted) < cell_cuts+add
+                    # valids_mask = np.all(manhattan_mask, axis=1)
+
+                    # if np.any(valids_mask):
+                        # valid_pos = pos_copy_cartesian[valids_mask]
+                        # valid_num = num_copy[valids_mask]
+                        # valid_ind = np.tile(np.array([i, j, k], dtype=int), (len(valid_num), 1))
+
+                        # pos_extended.append(valid_pos)
+                        # num_extended.append(valid_num)
+                        # cell_indices.append(valid_ind)
+
+        # pos_extended = np.concatenate(pos_extended)
+        # num_extended = np.concatenate(num_extended)
+        # cell_indices = np.vstack(cell_indices)
+
+        # extended_system = System(
+            # positions=pos_extended,
+            # numbers=num_extended,
+            # cell=cell,
+            # pbc=False
+        # )
+
+        # return extended_system, cell_indices
+
     def create_extended_system(self, primitive_system, term_number):
         """Used to create a periodically extended system, that is as small as
         possible by rejecting atoms for which the given weighting will be below
@@ -859,7 +925,7 @@ class MBTR(Descriptor):
 
         return extended_system, cell_indices
 
-    def _get_k1(self, system, cell_indices):
+    def _get_k1(self, system):
         """Calculates the second order terms where the scalar mapping is the
         inverse distance between atoms.
 
@@ -871,15 +937,15 @@ class MBTR(Descriptor):
         stop = grid["max"]
         n = grid["n"]
         sigma = grid["sigma"]
-        cmbtr = MBTRWrapper(
-            self.atomic_number_to_index,
-            interaction_limit=self._interaction_limit,
-            indices=cell_indices,
-            is_local=self._is_local
-        )
 
         # Determine the geometry function
         geom_func_name = self.k1["geometry"]["function"]
+
+        cmbtr = MBTRWrapper(
+            self.atomic_number_to_index,
+            interaction_limit=self._interaction_limit,
+            indices=np.zeros((len(system), 3), dtype=int)
+        )
 
         k1_map = cmbtr.get_k1(
             system.get_atomic_numbers(),
@@ -916,7 +982,7 @@ class MBTR(Descriptor):
 
         return k1
 
-    def _get_k2(self, system, cell_indices):
+    def _get_k2(self, system):
         """Calculates the second order terms where the scalar mapping is the
         inverse distance between atoms.
 
@@ -928,13 +994,6 @@ class MBTR(Descriptor):
         stop = grid["max"]
         n = grid["n"]
         sigma = grid["sigma"]
-        cmbtr = MBTRWrapper(
-            self.atomic_number_to_index,
-            interaction_limit=self._interaction_limit,
-            indices=cell_indices,
-            is_local=self._is_local
-        )
-
         # Determine the weighting function and possible radial cutoff
         radial_cutoff = None
         weighting = self.k2.get("weighting")
@@ -956,22 +1015,35 @@ class MBTR(Descriptor):
         # Determine the geometry function
         geom_func_name = self.k2["geometry"]["function"]
 
+        # If needed, create the extended system
+        if self.periodic:
+            ext_system, cell_indices = self.create_extended_system(system, 2)
+        else:
+            ext_system = system
+            cell_indices = np.zeros((len(system), 3), dtype=int)
+
+        cmbtr = MBTRWrapper(
+            self.atomic_number_to_index,
+            interaction_limit=self._interaction_limit,
+            indices=cell_indices
+        )
+
         # If radial cutoff is finite, use it to calculate the sparse
         # distance matrix to reduce computational complexity from O(n^2) to
         # O(n log(n))
-        n_atoms = len(system)
+        n_atoms = len(ext_system)
         if radial_cutoff is not None:
-            dmat = system.get_distance_matrix_within_radius(radial_cutoff, output_type="coo_matrix")
+            dmat = ext_system.get_distance_matrix_within_radius(radial_cutoff, output_type="coo_matrix")
             adj_list = dscribe.utils.geometry.get_adjacency_list(dmat)
             dmat_dense = np.full((n_atoms, n_atoms), sys.float_info.max)  # The non-neighbor values are treated as "infinitely far".
             dmat_dense[dmat.row, dmat.col] = dmat.data
         # If no weighting is used, the full distance matrix is calculated
         else:
-            dmat_dense = system.get_distance_matrix()
+            dmat_dense = ext_system.get_distance_matrix()
             adj_list = np.tile(np.arange(n_atoms), (n_atoms, 1))
 
         k2_map = cmbtr.get_k2(
-            system.get_atomic_numbers(),
+            ext_system.get_atomic_numbers(),
             distances=dmat_dense,
             neighbours=adj_list,
             geom_func=geom_func_name.encode(),
@@ -1014,7 +1086,7 @@ class MBTR(Descriptor):
 
         return k2
 
-    def _get_k3(self, system, cell_indices):
+    def _get_k3(self, system):
         """Calculates the third order terms.
 
         Returns:
@@ -1025,12 +1097,6 @@ class MBTR(Descriptor):
         stop = grid["max"]
         n = grid["n"]
         sigma = grid["sigma"]
-        cmbtr = MBTRWrapper(
-            self.atomic_number_to_index,
-            interaction_limit=self._interaction_limit,
-            indices=cell_indices,
-            is_local=self._is_local
-        )
 
         # Determine the weighting function and possible radial cutoff
         radial_cutoff = None
@@ -1053,22 +1119,35 @@ class MBTR(Descriptor):
         # Determine the geometry function
         geom_func_name = self.k3["geometry"]["function"]
 
+        # If needed, create the extended system
+        if self.periodic:
+            ext_system, cell_indices = self.create_extended_system(system, 3)
+        else:
+            ext_system = system
+            cell_indices = np.zeros((len(system), 3), dtype=int)
+
+        cmbtr = MBTRWrapper(
+            self.atomic_number_to_index,
+            interaction_limit=self._interaction_limit,
+            indices=cell_indices
+        )
+
         # If radial cutoff is finite, use it to calculate the sparse
         # distance matrix to reduce computational complexity from O(n^2) to
         # O(n log(n))
-        n_atoms = len(system)
+        n_atoms = len(ext_system)
         if radial_cutoff is not None:
-            dmat = system.get_distance_matrix_within_radius(radial_cutoff, output_type="coo_matrix")
+            dmat = ext_system.get_distance_matrix_within_radius(radial_cutoff, output_type="coo_matrix")
             adj_list = dscribe.utils.geometry.get_adjacency_list(dmat)
             dmat_dense = np.full((n_atoms, n_atoms), sys.float_info.max)  # The non-neighbor values are treated as "infinitely far".
             dmat_dense[dmat.col, dmat.row] = dmat.data
         # If no weighting is used, the full distance matrix is calculated
         else:
-            dmat_dense = system.get_distance_matrix()
+            dmat_dense = ext_system.get_distance_matrix()
             adj_list = np.tile(np.arange(n_atoms), (n_atoms, 1))
 
         k3_map = cmbtr.get_k3(
-            system.get_atomic_numbers(),
+            ext_system.get_atomic_numbers(),
             distances=dmat_dense,
             neighbours=adj_list,
             geom_func=geom_func_name.encode(),

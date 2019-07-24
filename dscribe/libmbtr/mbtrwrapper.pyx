@@ -10,8 +10,8 @@ from mbtr cimport MBTR
 cdef class MBTRWrapper:
     cdef MBTR *thisptr      # hold a C++ instance which we're wrapping
 
-    def __cinit__(self, map[int,int] atomic_number_to_index_map, int interaction_limit, vector[vector[int]] indices, bool is_local):
-        self.thisptr = new MBTR(atomic_number_to_index_map, interaction_limit, indices, is_local)
+    def __cinit__(self, map[int,int] atomic_number_to_index_map, int interaction_limit, vector[vector[int]] indices):
+        self.thisptr = new MBTR(atomic_number_to_index_map, interaction_limit, indices)
 
     def __dealloc__(self):
         del self.thisptr

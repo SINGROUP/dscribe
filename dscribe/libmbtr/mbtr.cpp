@@ -13,11 +13,10 @@
 #include <stdexcept>
 using namespace std;
 
-MBTR::MBTR(map<int,int> atomicNumberToIndexMap, int interactionLimit, vector<vector<int>> cellIndices, bool isLocal)
+MBTR::MBTR(map<int,int> atomicNumberToIndexMap, int interactionLimit, vector<vector<int>> cellIndices)
     : atomicNumberToIndexMap(atomicNumberToIndexMap)
     , interactionLimit(interactionLimit)
     , cellIndices(cellIndices)
-    , isLocal(isLocal)
 {
 }
 
@@ -126,13 +125,11 @@ map<string, vector<float>> MBTR::getK2(const vector<int> &Z, const vector<vector
                     // supercells equal to the primitive cell within a constant that is
                     // given by the number of repetitions of the primitive cell in the
                     // supercell.
-                    if (!this->isLocal) {
-                        vector<int> i_copy = this->cellIndices[i];
-                        vector<int> j_copy = this->cellIndices[j];
+                    vector<int> i_copy = this->cellIndices[i];
+                    vector<int> j_copy = this->cellIndices[j];
 
-                        if (i_copy != j_copy) {
-                            weight /= 2;
-                        }
+                    if (i_copy != j_copy) {
+                        weight /= 2;
                     }
 
                     // Calculate gaussian
@@ -235,21 +232,19 @@ map<string, vector<float> > MBTR::getK3(const vector<int> &Z, const vector<vecto
                             // many unique cell indices (the index of the repeated cell with
                             // respect to the original cell at index [0, 0, 0]) are present for
                             // the atoms in the triple.
-                            if (!this->isLocal) {
-                                vector<int> i_copy = this->cellIndices[i];
-                                vector<int> j_copy = this->cellIndices[j];
-                                vector<int> k_copy = this->cellIndices[k];
+                            vector<int> i_copy = this->cellIndices[i];
+                            vector<int> j_copy = this->cellIndices[j];
+                            vector<int> k_copy = this->cellIndices[k];
 
-                                bool ij_equal = i_copy == j_copy;
-                                bool ik_equal = i_copy == k_copy;
-                                bool jk_equal = j_copy == k_copy;
-                                int equal_sum = (int)ij_equal + (int)ik_equal + (int)jk_equal;
+                            bool ij_equal = i_copy == j_copy;
+                            bool ik_equal = i_copy == k_copy;
+                            bool jk_equal = j_copy == k_copy;
+                            int equal_sum = (int)ij_equal + (int)ik_equal + (int)jk_equal;
 
-                                if (equal_sum == 1) {
-                                    weight /= 2;
-                                } else if (equal_sum == 0) {
-                                    weight /= 3;
-                                }
+                            if (equal_sum == 1) {
+                                weight /= 2;
+                            } else if (equal_sum == 0) {
+                                weight /= 3;
                             }
 
                             // Calculate gaussian
