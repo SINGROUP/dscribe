@@ -11,6 +11,12 @@ DScribe is a Python package for transforming atomic structures into descriptors
 that can be used in various machine learning tasks related to materials
 science.
 
+.. note::
+   The performance of ACSF and (L)MBTR have been greatly improved for larger
+   systems starting in version **0.2.8**. Updating is recommended if working
+   with larger systems.
+
+
 Capabilities at a Glance
 ========================
 
