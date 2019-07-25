@@ -104,7 +104,7 @@
 <li class="toctree-l4"><a class="reference internal" href="dscribe.utils.html">dscribe.utils package</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="dscribe.html#module-dscribe">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dscribe.html#module-contents">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -185,211 +185,17 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-dscribe.kernels.average">
-<span id="dscribe-kernels-average-module"></span><h2>dscribe.kernels.average module<a class="headerlink" href="#module-dscribe.kernels.average" title="Permalink to this headline">¶</a></h2>
-<p>Copyright 2019 DScribe developers</p>
-<p>Licensed under the Apache License, Version 2.0 (the “License”);
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at</p>
-<blockquote>
-<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
-</div></blockquote>
-<p>Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an “AS IS” BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.</p>
-<dl class="class">
-<dt id="dscribe.kernels.average.AverageKernel">
-<em class="property">class </em><code class="sig-prename descclassname">dscribe.kernels.average.</code><code class="sig-name descname">AverageKernel</code><span class="sig-paren">(</span><em class="sig-param">metric</em>, <em class="sig-param">gamma=None</em>, <em class="sig-param">degree=3</em>, <em class="sig-param">coef0=1</em>, <em class="sig-param">kernel_params=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/kernels/average.html#AverageKernel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.kernels.average.AverageKernel" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel" title="dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel</span></code></a></p>
-<p>Used to compute a global similarity of structures based on the average
-similarity of local atomic environments in the structure. More precisely,
-returns the similarity kernel K as:</p>
-<div class="math notranslate nohighlight">
-\[K(A, B) = \frac{1}{N M}\sum_{ij} C_{ij}(A, B)\]</div>
-<p>where <span class="math notranslate nohighlight">\(N\)</span> is the number of atoms in structure <span class="math notranslate nohighlight">\(A\)</span>, <span class="math notranslate nohighlight">\(M\)</span> is
-the number of atoms in structure <span class="math notranslate nohighlight">\(B\)</span> and the similarity between local
-atomic environments <span class="math notranslate nohighlight">\(C_{ij}\)</span> has been calculated with the pairwise
-metric (e.g. linear, gaussian) defined by the parameters given in the
-constructor.</p>
-<dl class="method">
-<dt id="dscribe.kernels.average.AverageKernel.get_global_similarity">
-<code class="sig-name descname">get_global_similarity</code><span class="sig-paren">(</span><em class="sig-param">localkernel</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/kernels/average.html#AverageKernel.get_global_similarity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.kernels.average.AverageKernel.get_global_similarity" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes the average global similarity between two structures A and B.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>localkernel</strong> (<em>np.ndarray</em>) – NxM matrix of local similarities between
-structures A and B, with N and M atoms respectively.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Average similarity between the structures A and B.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+<div class="section" id="dscribe-kernels-average-module">
+<h2>dscribe.kernels.average module<a class="headerlink" href="#dscribe-kernels-average-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-dscribe.kernels.localsimilaritykernel">
-<span id="dscribe-kernels-localsimilaritykernel-module"></span><h2>dscribe.kernels.localsimilaritykernel module<a class="headerlink" href="#module-dscribe.kernels.localsimilaritykernel" title="Permalink to this headline">¶</a></h2>
-<p>Copyright 2019 DScribe developers</p>
-<p>Licensed under the Apache License, Version 2.0 (the “License”);
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at</p>
-<blockquote>
-<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
-</div></blockquote>
-<p>Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an “AS IS” BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.</p>
-<dl class="class">
-<dt id="dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel">
-<em class="property">class </em><code class="sig-prename descclassname">dscribe.kernels.localsimilaritykernel.</code><code class="sig-name descname">LocalSimilarityKernel</code><span class="sig-paren">(</span><em class="sig-param">metric</em>, <em class="sig-param">gamma=None</em>, <em class="sig-param">degree=3</em>, <em class="sig-param">coef0=1</em>, <em class="sig-param">kernel_params=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/kernels/localsimilaritykernel.html#LocalSimilarityKernel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>An abstract base class for all kernels that use the similarity of local
-atomic environments to compute a global similarity measure.</p>
-<dl class="method">
-<dt id="dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel.create">
-<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/kernels/localsimilaritykernel.html#LocalSimilarityKernel.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel.create" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates the kernel matrix based on the given lists of local
-features x and y.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>iterable</em>) – A list of local feature arrays for each structure.</p></li>
-<li><p><strong>y</strong> (<em>iterable</em>) – An optional second list of features. If not specified
-it is assumed that y=x.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The pairwise global similarity kernel K[i,j] between the given
-structures, in the same order as given in the input, i.e. the
-similarity of structures i and j is given by K[i,j], where features
-for structure i and j were in features[i] and features[j]
-respectively.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel.get_global_similarity">
-<em class="property">abstract </em><code class="sig-name descname">get_global_similarity</code><span class="sig-paren">(</span><em class="sig-param">localkernel</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/kernels/localsimilaritykernel.html#LocalSimilarityKernel.get_global_similarity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel.get_global_similarity" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes the global similarity between two structures A and B.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>localkernel</strong> (<em>np.ndarray</em>) – NxM matrix of local similarities between
-structures A and B, with N and M atoms respectively.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Global similarity between the structures A and B.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel.get_pairwise_matrix">
-<code class="sig-name descname">get_pairwise_matrix</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/kernels/localsimilaritykernel.html#LocalSimilarityKernel.get_pairwise_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel.get_pairwise_matrix" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates the pairwise similarity of atomic environments with
-scikit-learn, and the pairwise metric configured in the constructor.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>X</strong> (<em>np.ndarray</em>) – Feature vector for the atoms in structure A</p></li>
-<li><p><strong>Y</strong> (<em>np.ndarray</em>) – Feature vector for the atoms in structure B</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>NxM matrix of local similarities between structures A</dt><dd><p>and B, with N and M atoms respectively.</p>
-</dd>
-</dl>
-</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>np.ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+<div class="section" id="dscribe-kernels-localsimilaritykernel-module">
+<h2>dscribe.kernels.localsimilaritykernel module<a class="headerlink" href="#dscribe-kernels-localsimilaritykernel-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-dscribe.kernels.rematch">
-<span id="dscribe-kernels-rematch-module"></span><h2>dscribe.kernels.rematch module<a class="headerlink" href="#module-dscribe.kernels.rematch" title="Permalink to this headline">¶</a></h2>
-<p>Copyright 2019 DScribe developers</p>
-<p>Licensed under the Apache License, Version 2.0 (the “License”);
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at</p>
-<blockquote>
-<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
-</div></blockquote>
-<p>Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an “AS IS” BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.</p>
-<dl class="class">
-<dt id="dscribe.kernels.rematch.REMatchKernel">
-<em class="property">class </em><code class="sig-prename descclassname">dscribe.kernels.rematch.</code><code class="sig-name descname">REMatchKernel</code><span class="sig-paren">(</span><em class="sig-param">alpha=0.1</em>, <em class="sig-param">threshold=1e-06</em>, <em class="sig-param">metric='linear'</em>, <em class="sig-param">gamma=None</em>, <em class="sig-param">degree=3</em>, <em class="sig-param">coef0=1</em>, <em class="sig-param">kernel_params=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/kernels/rematch.html#REMatchKernel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.kernels.rematch.REMatchKernel" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel" title="dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel</span></code></a></p>
-<p>Used to compute a global similarity of structures based on the
-regularized-entropy match (REMatch) kernel of local atomic environments in
-the structure. More precisely, returns the similarity kernel K as:</p>
-<div class="math notranslate nohighlight">
-\[ \begin{align}\begin{aligned}\DeclareMathOperator*{\argmax}{argmax}
-K(A, B) &amp;= \mathrm{Tr} \mathbf{P}^\alpha \mathbf{C}(A, B)\\\mathbf{P}^\alpha &amp;= \argmax_{\mathbf{P} \in \mathcal{U}(N, N)} \sum_{ij} P_{ij} (1-C_{ij} +\alpha \ln P_{ij})\end{aligned}\end{align} \]</div>
-<p>where the similarity between local atomic environments <span class="math notranslate nohighlight">\(C_{ij}\)</span> has
-been calculated with the pairwise metric (e.g. linear, gaussian) defined by
-the parameters given in the constructor.</p>
-<p>For reference, see:</p>
-<p>“Comparing molecules and solids across structural and alchemical
-space”, Sandip De, Albert P. Bartók, Gábor Csányi and Michele Ceriotti,
-Phys.  Chem. Chem. Phys. 18, 13754 (2016),
-<a class="reference external" href="https://doi.org/10.1039/c6cp00415f">https://doi.org/10.1039/c6cp00415f</a></p>
-<dl class="method">
-<dt id="dscribe.kernels.rematch.REMatchKernel.get_global_similarity">
-<code class="sig-name descname">get_global_similarity</code><span class="sig-paren">(</span><em class="sig-param">localkernel</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/kernels/rematch.html#REMatchKernel.get_global_similarity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.kernels.rematch.REMatchKernel.get_global_similarity" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes the REMatch similarity between two structures A and B.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>localkernel</strong> (<em>np.ndarray</em>) – NxM matrix of local similarities between
-structures A and B, with N and M atoms respectively.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>REMatch similarity between the structures A and B.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+<div class="section" id="dscribe-kernels-rematch-module">
+<h2>dscribe.kernels.rematch module<a class="headerlink" href="#dscribe-kernels-rematch-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-dscribe.kernels">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-dscribe.kernels" title="Permalink to this headline">¶</a></h2>
-<p>Copyright 2019 DScribe developers</p>
-<p>Licensed under the Apache License, Version 2.0 (the “License”);
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at</p>
-<blockquote>
-<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
-</div></blockquote>
-<p>Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an “AS IS” BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.</p>
+<div class="section" id="module-contents">
+<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 

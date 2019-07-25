@@ -200,7 +200,7 @@ global similarity measure. This average kernel <span class="math notranslate noh
 number of atoms in structure <span class="math notranslate nohighlight">\(B\)</span> and the similarity between local atomic
 environments <span class="math notranslate nohighlight">\(C_{ij}\)</span> can in general be calculated with any pairwise
 metric (e.g.  linear, gaussian).</p>
-<p>The class <a class="reference internal" href="../doc/dscribe.kernels.html#dscribe.kernels.average.AverageKernel" title="dscribe.kernels.average.AverageKernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">AverageKernel</span></code></a> can be used to calculate
+<p>The class <code class="xref py py-class docutils literal notranslate"><span class="pre">AverageKernel</span></code> can be used to calculate
 this similarity.  Here is an example of calculating an average kernel for two
 relatively similar molecules by using SOAP and a linear and Gaussian similarity
 metric:</p>
@@ -247,7 +247,7 @@ the best matching local environments is taken into account and <span class="math
 K(A, B) &amp;= \mathrm{Tr} \mathbf{P}^\alpha \mathbf{C}(A, B)\\\mathbf{P}^\alpha &amp;= \argmax_{\mathbf{P} \in \mathcal{U}(N, N)} \sum_{ij} P_{ij} (1-C_{ij} +\alpha \ln P_{ij})\end{aligned}\end{align} \]</div>
 <p>where the similarity between local atomic environments <span class="math notranslate nohighlight">\(C_{ij}\)</span> can once
 again be calculated with any pairwise metric (e.g. linear, gaussian).</p>
-<p>The class <a class="reference internal" href="../doc/dscribe.kernels.html#dscribe.kernels.rematch.REMatchKernel" title="dscribe.kernels.rematch.REMatchKernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">REMatchKernel</span></code></a> can be used to calculate this similarity:</p>
+<p>The class <code class="xref py py-class docutils literal notranslate"><span class="pre">REMatchKernel</span></code> can be used to calculate this similarity:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">SOAP</span>
 <span class="kn">from</span> <span class="nn">dscribe.kernels</span> <span class="kn">import</span> <span class="n">REMatchKernel</span>
 
