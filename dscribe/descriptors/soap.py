@@ -24,7 +24,7 @@ from ase import Atoms
 from dscribe.descriptors import Descriptor
 from dscribe.core import System
 
-import soaplite
+from dscribe.descriptors.soaplite import get_basis_gto, get_periodic_soap_locals_gto, get_soap_locals_gto, get_periodic_soap_locals_poly, get_soap_locals_poly, get_periodic_soap_structure_gto, get_soap_structure_gto, get_periodic_soap_structure_poly, get_soap_structure_poly
 
 
 class SOAP(Descriptor):
@@ -137,8 +137,9 @@ class SOAP(Descriptor):
         self._crossover = crossover
         self._average = average
 
+        # Precalculate the alpha and beta constants for the GTO basis
         if self._rbf == "gto":
-            self._alphas, self._betas = soaplite.genBasis.getBasisFunc(self._rcut, self._nmax)
+            self._alphas, self._betas = get_basis_gto(self._rcut, self._nmax)
 
     def create(self, system, positions=None, n_jobs=1, verbose=False):
         """Return the SOAP output for the given systems and given positions.
@@ -277,9 +278,9 @@ class SOAP(Descriptor):
             # rbf
             if self._rbf == "gto":
                 if self._periodic:
-                    soap_func = soaplite.get_periodic_soap_locals
+                    soap_func = get_periodic_soap_locals_gto
                 else:
-                    soap_func = soaplite.get_soap_locals
+                    soap_func = get_soap_locals_gto
                 soap_mat = soap_func(
                     system,
                     list_positions,
@@ -294,9 +295,9 @@ class SOAP(Descriptor):
                 )
             elif self._rbf == "polynomial":
                 if self._periodic:
-                    soap_func = soaplite.get_periodic_soap_locals_poly
+                    soap_func = get_periodic_soap_locals_poly
                 else:
-                    soap_func = soaplite.get_soap_locals_poly
+                    soap_func = get_soap_locals_poly
                 soap_mat = soap_func(
                     system,
                     list_positions,
@@ -313,9 +314,9 @@ class SOAP(Descriptor):
             # rbf
             if self._rbf == "gto":
                 if self._periodic:
-                    soap_func = soaplite.get_periodic_soap_structure
+                    soap_func = get_periodic_soap_structure_gto
                 else:
-                    soap_func = soaplite.get_soap_structure
+                    soap_func = get_soap_structure_gto
                 soap_mat = soap_func(
                     system,
                     self._alphas,
@@ -329,9 +330,9 @@ class SOAP(Descriptor):
                 )
             elif self._rbf == "polynomial":
                 if self._periodic:
-                    soap_func = soaplite.get_periodic_soap_structure_poly
+                    soap_func = get_periodic_soap_structure_poly
                 else:
-                    soap_func = soaplite.get_soap_structure_poly
+                    soap_func = get_soap_structure_poly
                 soap_mat = soap_func(
                     system,
                     rCut=self._rcut,
