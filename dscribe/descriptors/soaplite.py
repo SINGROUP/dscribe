@@ -415,6 +415,27 @@ def get_basis_poly(rCut, nMax):
         rCut(float): Radial cutoff
         nMax(int): Number of polynomial radial functions
     """
+    # Calculate the overlap of the different polynomial functions in a
+    # matrix S. These overlaps defined through the dot product over the
+    # radial coordinate are analytically calculable: Integrate[(rc - r)^(a
+    # + 2) (rc - r)^(b + 2) r^2, {r, 0, rc}]. Then the weights B that make
+    # the basis orthonormal are given by B=S^{-1/2}
+    S = np.zeros((nMax, nMax))
+    for i in range(1, nMax+1):
+        for j in range(1, nMax+1):
+            S[i-1, j-1] = (2*(rCut)**(7+i+j))/((5+i+j)*(6+i+j)*(7+i+j))
+    betas = sqrtm(np.linalg.inv(S))
+
+    # If the result is complex, the calculation is currently halted.
+    if (betas.dtype == np.complex128):
+        raise ValueError(
+            "Could not calculate normalization factors for the polynomial basis"
+            " in the domain of real numbers. Lowering the number of radial "
+            "basis functions is advised."
+        )
+
+    # This give the sine(phi) function from roughly -pi/2 to pi/2 on a very
+    # specific grid.
     x = np.zeros(100)
     x[0] = -0.999713726773441234;
     x[1] = -0.998491950639595818;
@@ -517,32 +538,8 @@ def get_basis_poly(rCut, nMax):
     x[98] = 0.998491950639595818;
     x[99] = 0.99971372677344123;
 
-    delta = 0.020
-    x = np.sin(np.linspace(-np.pi/2+delta, np.pi/2-delta, 100))
-    # mpl.plot(np.sin(axis))
-    # mpl.show()
-
     rCutVeryHard = rCut+5.0
-    rx = 0.5*rCutVeryHard*(x + 1)
-
-    # Calculate the overlap of the different polynomial functions in a
-    # matrix S. These overlaps defined through the dot product over the
-    # radial coordinate are analytically calculable: Integrate[(rc - r)^(a
-    # + 2) (rc - r)^(b + 2) r^2, {r, 0, rc}]. Then the weights B that make
-    # the basis orthonormal are given by B=S^{-1/2}
-    S = np.zeros((nMax, nMax))
-    for i in range(1, nMax+1):
-        for j in range(1, nMax+1):
-            S[i-1, j-1] = (2*(rCut)**(7+i+j))/((5+i+j)*(6+i+j)*(7+i+j))
-    betas = sqrtm(np.linalg.inv(S))
-
-    # If the result is complex, the calculation is currently halted.
-    if (betas.dtype == np.complex128):
-        raise ValueError(
-            "Could not calculate normalization factors for the polynomial basis"
-            " in the domain of real numbers. Lowering the number of radial "
-            "basis functions is advised."
-        )
+    rx = rCutVeryHard*0.5*(x + 1)
 
     fs = np.zeros([nMax, len(x)])
     for n in range(1, nMax+1):
@@ -551,5 +548,3 @@ def get_basis_poly(rCut, nMax):
     gss = np.dot(betas, fs)
 
     return nMax, rx, gss
-
-get_basis_poly(3,3)
