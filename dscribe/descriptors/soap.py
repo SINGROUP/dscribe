@@ -421,7 +421,6 @@ class SOAP(Descriptor):
                         start_sub = m*n_elem_features
                         end_sub = (m+1)*n_elem_features
                         sub_out = sub_output[:, start_sub:end_sub]
-                        # print(sub_out.shape)
 
                         # Figure out position in the full element space
                         i_full = space_map[i_sub]

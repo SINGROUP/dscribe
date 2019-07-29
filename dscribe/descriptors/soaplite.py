@@ -3,11 +3,12 @@ import glob
 
 import numpy as np
 
-from scipy.special import gamma, gammaincc
+from scipy.special import gamma
 from scipy.linalg import sqrtm, inv
-from scipy.optimize import fmin
 
 from ctypes import *
+
+import matplotlib.pyplot as mpl
 
 
 def _format_ase2clusgeo(obj, all_atomtypes=None):
@@ -516,12 +517,13 @@ def get_basis_poly(rCut, nMax):
     x[98] = 0.998491950639595818;
     x[99] = 0.99971372677344123;
 
+    delta = 0.020
+    x = np.sin(np.linspace(-np.pi/2+delta, np.pi/2-delta, 100))
+    # mpl.plot(np.sin(axis))
+    # mpl.show()
+
     rCutVeryHard = rCut+5.0
     rx = 0.5*rCutVeryHard*(x + 1)
-
-    basisFunctions = []
-    for i in range(1, nMax + 1):
-        basisFunctions.append(lambda rr, i=i, rCut=rCut: (rCut - np.clip(rr, 0, rCut))**(i+2))
 
     # Calculate the overlap of the different polynomial functions in a
     # matrix S. These overlaps defined through the dot product over the
@@ -549,3 +551,5 @@ def get_basis_poly(rCut, nMax):
     gss = np.dot(betas, fs)
 
     return nMax, rx, gss
+
+get_basis_poly(3,3)

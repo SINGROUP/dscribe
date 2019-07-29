@@ -21,6 +21,7 @@ def using_clang():
 
 cpp_extra_link_args = []
 cpp_extra_compile_args = ['-std=c++11', "-O3"]
+c_extra_compile_args = ['-std=c99', "-O3"]
 
 # Needed to specify X++ runtime library on OSX. This solution is replicated
 # from the setup.py of mdanalysis
@@ -72,8 +73,7 @@ for soname, source in zip(
         [source],
         language='c',
         include_dirs=["dscribe/libsoap"],
-        extra_compile_args=cpp_extra_compile_args,
-        extra_link_args=cpp_extra_link_args,
+        extra_compile_args=c_extra_compile_args,
     ))
 
 if __name__ == "__main__":
@@ -90,7 +90,6 @@ if __name__ == "__main__":
             'future',
             'scikit-learn',
             'joblib',
-            'soaplite==1.0.3',
         ],
         include_package_data=True,  # This ensures that files defined in MANIFEST.in are included
         ext_modules=extensions,
