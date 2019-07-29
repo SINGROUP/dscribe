@@ -127,7 +127,6 @@ map<string, vector<float>> MBTR::getK2(const vector<int> &Z, const vector<vector
                     // supercell.
                     vector<int> i_copy = this->cellIndices[i];
                     vector<int> j_copy = this->cellIndices[j];
-
                     if (i_copy != j_copy) {
                         weight /= 2;
                     }
@@ -235,16 +234,12 @@ map<string, vector<float> > MBTR::getK3(const vector<int> &Z, const vector<vecto
                             vector<int> i_copy = this->cellIndices[i];
                             vector<int> j_copy = this->cellIndices[j];
                             vector<int> k_copy = this->cellIndices[k];
-
-                            bool ij_equal = i_copy == j_copy;
-                            bool ik_equal = i_copy == k_copy;
-                            bool jk_equal = j_copy == k_copy;
-                            int equal_sum = (int)ij_equal + (int)ik_equal + (int)jk_equal;
-
-                            if (equal_sum == 1) {
-                                weight /= 2;
-                            } else if (equal_sum == 0) {
-                                weight /= 3;
+                            bool ij_diff = i_copy != j_copy;
+                            bool ik_diff = i_copy != k_copy;
+                            bool jk_diff = j_copy != k_copy;
+                            int diff_sum = (int)ij_diff + (int)ik_diff + (int)jk_diff;
+                            if (diff_sum > 1) {
+                                weight /= diff_sum;
                             }
 
                             // Calculate gaussian

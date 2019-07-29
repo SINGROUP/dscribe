@@ -142,7 +142,6 @@ def get_soap_locals_gto(obj, Hpos, alp, bet, rCut=5.0, nMax=5, Lmax=5, crossOver
     #Hpos
     hxyz = (c_double * len(Hpos))(*Hpos.tolist())
     ### START SOAP###
-    #path_to_so = os.path.dirname(os.path.abspath(__file__))
     _PATH_TO_SOAPLITE_SO = os.path.dirname(os.path.abspath(__file__))
     _SOAPLITE_SOFILES = glob.glob( "".join([ _PATH_TO_SOAPLITE_SO, "/../libsoap/libsoap*.*so"]) ) ## NOT SURE ABOUT THIS
 
