@@ -49,10 +49,12 @@ class REMatchKernel(LocalSimilarityKernel):
                 towards infinity approach the average kernel.
             threshold(float): Convergence threshold used in the
                 Sinkhorn-algorithm.
-            kernel(string or callable): Kernel mapping used internally. A
-                callable should accept two arguments and the keyword arguments
-                passed to this object as kernel_params, and should return a
-                floating point number.
+            metric(string or callable): The pairwise metric used for
+                calculating the local similarity. Accepts any of the sklearn
+                pairwise metric strings (e.g. "linear", "rbf", "laplacian",
+                "polynomial") or a custom callable. A callable should accept
+                two arguments and the keyword arguments passed to this object
+                as kernel_params, and should return a floating point number.
             gamma(float): Gamma parameter for the RBF, laplacian, polynomial,
                 exponential chi2 and sigmoid kernels. Interpretation of the
                 default value is left to the kernel; see the documentation for

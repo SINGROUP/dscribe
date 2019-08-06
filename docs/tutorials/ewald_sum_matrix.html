@@ -221,11 +221,52 @@ follows:</p>
 </pre></div>
 </div>
 <p>The constructor takes the following parameters:</p>
+<dl class="method">
+<dt id="dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.__init__">
+<code class="sig-prename descclassname">EwaldSumMatrix.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">n_atoms_max</em>, <em class="sig-param">permutation='sorted_l2'</em>, <em class="sig-param">sigma=None</em>, <em class="sig-param">seed=None</em>, <em class="sig-param">flatten=True</em>, <em class="sig-param">sparse=False</em><span class="sig-paren">)</span><a class="headerlink" href="#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_atoms_max</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The maximum nuber of atoms that any of the
+samples can have. This controls how much zeros need to be
+padded to the final result.</p></li>
+<li><p><strong>permutation</strong> (<em>string</em>) – <p>Defines the method for handling permutational
+invariance. Can be one of the following:</p>
+<blockquote>
+<div><ul>
+<li><p>none: The matrix is returned in the order defined by the
+Atoms.</p></li>
+<li><p>sorted_l2: The rows and columns are sorted by the L2 norm.</p></li>
+<li><p>eigenspectrum: Only the eigenvalues are returned sorted
+by their absolute value in descending order.</p></li>
+<li><p>random: The rows and columns are sorted by their L2 norm
+after applying Gaussian noise to the norms. The standard
+deviation of the noise is determined by the
+sigma-parameter.</p></li>
+</ul>
+</div></blockquote>
+</p></li>
+<li><p><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Provide only when using the <em>random</em>-permutation
+option. Standard deviation of the gaussian distributed noise
+determining how much the rows and columns of the randomly
+sorted matrix are scrambled.</p></li>
+<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Provide only when using the <em>random</em>-permutation
+option. A seed to use for drawing samples from a normal
+distribution.</p></li>
+<li><p><strong>flatten</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Whether the output of create() should be flattened
+to a 1D array.</p></li>
+<li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
+dense numpy array.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 <div class="section" id="creation">
 <h2>Creation<a class="headerlink" href="#creation" title="Permalink to this headline">¶</a></h2>
 <p>After the Ewald sum matrix has been set up, it may be used on periodic atomic
-structures with the <code class="xref py py-meth docutils literal notranslate"><span class="pre">create()</span></code>-method.</p>
+structures with the <a class="reference internal" href="#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create" title="dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create()</span></code></a>-method.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">bulk</span>
 
 <span class="c1"># NaCl crystal created as an ASE.Atoms</span>
@@ -243,11 +284,62 @@ structures with the <code class="xref py py-meth docutils literal notranslate"><
 </pre></div>
 </div>
 <p>The call syntax for the create-function is as follows:</p>
+<dl class="method">
+<dt id="dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create">
+<code class="sig-prename descclassname">EwaldSumMatrix.</code><code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param">system</em>, <em class="sig-param">accuracy=1e-05</em>, <em class="sig-param">w=1</em>, <em class="sig-param">rcut=None</em>, <em class="sig-param">gcut=None</em>, <em class="sig-param">a=None</em>, <em class="sig-param">n_jobs=1</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/ewaldsummatrix.html#EwaldSumMatrix.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Coulomb matrix for the given systems.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> or list of <code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code>) – One or
+many atomic structures.</p></li>
+<li><p><strong>accuracy</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The accuracy to which the sum is converged to.
+Corresponds to the variable <span class="math notranslate nohighlight">\(A\)</span> in
+<a class="reference external" href="https://doi.org/10.1080/08927022.2013.840898">https://doi.org/10.1080/08927022.2013.840898</a>. Used only if
+gcut, rcut and a have not been specified. Provide either one
+value or a list of values for each system.</p></li>
+<li><p><strong>w</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Weight parameter that represents the relative
+computational expense of calculating a term in real and
+reciprocal space. This has little effect on the total energy,
+but may influence speed of computation in large systems. Note
+that this parameter is used only when the cutoffs and a are set
+to None. Provide either one value or a list of values for each
+system.</p></li>
+<li><p><strong>rcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Real space cutoff radius dictating how many terms are
+used in the real space sum. Provide either one value or a list
+of values for each system.</p></li>
+<li><p><strong>gcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Reciprocal space cutoff radius. Provide either one
+value or a list of values for each system.</p></li>
+<li><p><strong>a</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The screening parameter that controls the width of the
+Gaussians. If not provided, a default value of <span class="math notranslate nohighlight">\(\alpha =
+\sqrt{\pi}\left(\frac{N}{V^2}\right)^{1/6}\)</span> is used.
+Corresponds to the standard deviation of the Gaussians. Provide
+either one value or a list of values for each system.</p></li>
+<li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
+the calculation across samples. Defaults to serial calculation
+with n_jobs=1.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Controls whether to print the progress of each job
+into to the console.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Ewald sum matrix for the
+given systems. The return type depends on the ‘sparse’ and
+‘flatten’-attributes. For flattened output a single numpy array or
+sparse scipy.csr_matrix is returned. The first dimension is
+determined by the amount of systems.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray | scipy.sparse.csr_matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
 <p>Note that if you specify in <em>n_atoms_max</em> a lower number than atoms in your
 structure it will cause an error. The output will in this case be a flattened
 matrix, specifically a numpy array with size #atoms * #atoms. The number of
 features may be requested beforehand with the
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">get_number_of_features()</span></code>-method.</p>
+<a class="reference internal" href="../doc/dscribe.descriptors.html#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.get_number_of_features" title="dscribe.descriptors.matrixdescriptor.MatrixDescriptor.get_number_of_features"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_number_of_features()</span></code></a>-method.</p>
 <p>In the case of multiple samples, the creation can also be parallellized by using the
 <em>n_jobs</em>-parameter. This splits the list of structures into equally sized parts
 and spaws a separate process to handle each part.</p>

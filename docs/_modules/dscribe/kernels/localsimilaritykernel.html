@@ -188,10 +188,12 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">coef0</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">kernel_params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
-<span class="sd">            kernel(string or callable): Kernel mapping used internally. A</span>
-<span class="sd">                callable should accept two arguments and the keyword arguments</span>
-<span class="sd">                passed to this object as kernel_params, and should return a</span>
-<span class="sd">                floating point number.</span>
+<span class="sd">            metric(string or callable): The pairwise metric used for</span>
+<span class="sd">                calculating the local similarity. Accepts any of the sklearn</span>
+<span class="sd">                pairwise metric strings (e.g. &quot;linear&quot;, &quot;rbf&quot;, &quot;laplacian&quot;,</span>
+<span class="sd">                &quot;polynomial&quot;) or a custom callable. A callable should accept</span>
+<span class="sd">                two arguments and the keyword arguments passed to this object</span>
+<span class="sd">                as kernel_params, and should return a floating point number.</span>
 <span class="sd">            gamma(float): Gamma parameter for the RBF, laplacian, polynomial,</span>
 <span class="sd">                exponential chi2 and sigmoid kernels. Interpretation of the</span>
 <span class="sd">                default value is left to the kernel; see the documentation for</span>

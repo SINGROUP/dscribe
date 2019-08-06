@@ -63,6 +63,9 @@ extensions = [
     'sphinxcontrib.bibtex',
 ]
 
+# Makes sure that __init__ is documented
+autoclass_content = 'both'
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 

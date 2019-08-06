@@ -1,13 +1,12 @@
 """Demostrates how global similarity kernels can be built from local atomic
 environments.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
-
 from dscribe.descriptors import SOAP
 from dscribe.kernels import REMatchKernel
 
 from ase.build import molecule
+
+from sklearn.preprocessing import normalize
 
 # We will compare two similar molecules
 a = molecule("H2O")
@@ -19,11 +18,17 @@ desc = SOAP(species=[1, 6, 7, 8], rcut=5.0, nmax=2, lmax=2, sigma=0.2, periodic=
 a_features = desc.create(a)
 b_features = desc.create(b)
 
-# Calculates the similarity with an average kernel, and a linear metric. The
+# Before passing the features we normalize them. Depending on the metric, the
+# REMatch kernel can become numerically unstable if some kind of normalization
+# is not done.
+a_features = normalize(a_features)
+b_features = normalize(b_features)
+
+# Calculates the similarity with the REMatch kernel and a linear metric. The
 # result will be a full similarity matrix.
 re = REMatchKernel(metric="linear", alpha=1, threshold=1e-6)
 re_kernel = re.create([a_features, b_features])
 
-# Any metric supported by scikit-learn will work: e.g. a Gaussian:
+# Any metric supported by scikit-learn will work: e.g. a Gaussian.
 re = REMatchKernel(metric="rbf", gamma=1, alpha=1, threshold=1e-6)
 re_kernel = re.create([a_features, b_features])
