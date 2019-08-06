@@ -61,7 +61,6 @@ The class :class:`.REMatchKernel` can be used to calculate this similarity:
 
 .. literalinclude:: ../../../examples/kernels/rematchkernel.py
    :language: python
-   :lines: 7-29
 
 .. bibliography:: ../references.bib
    :style: unsrt

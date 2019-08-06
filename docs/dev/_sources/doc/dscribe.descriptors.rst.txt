@@ -11,6 +11,7 @@ dscribe.descriptors.acsf module
    :members:
    :undoc-members:
    :show-inheritance:
+
 dscribe.descriptors.coulombmatrix module
 ----------------------------------------
 
@@ -18,6 +19,7 @@ dscribe.descriptors.coulombmatrix module
    :members:
    :undoc-members:
    :show-inheritance:
+
 dscribe.descriptors.descriptor module
 -------------------------------------
 
@@ -25,6 +27,7 @@ dscribe.descriptors.descriptor module
    :members:
    :undoc-members:
    :show-inheritance:
+
 dscribe.descriptors.elementaldistribution module
 ------------------------------------------------
 
@@ -32,6 +35,7 @@ dscribe.descriptors.elementaldistribution module
    :members:
    :undoc-members:
    :show-inheritance:
+
 dscribe.descriptors.ewaldsummatrix module
 -----------------------------------------
 
@@ -39,6 +43,7 @@ dscribe.descriptors.ewaldsummatrix module
    :members:
    :undoc-members:
    :show-inheritance:
+
 dscribe.descriptors.lmbtr module
 --------------------------------
 
@@ -46,6 +51,7 @@ dscribe.descriptors.lmbtr module
    :members:
    :undoc-members:
    :show-inheritance:
+
 dscribe.descriptors.matrixdescriptor module
 -------------------------------------------
 
@@ -53,6 +59,7 @@ dscribe.descriptors.matrixdescriptor module
    :members:
    :undoc-members:
    :show-inheritance:
+
 dscribe.descriptors.mbtr module
 -------------------------------
 
@@ -60,6 +67,7 @@ dscribe.descriptors.mbtr module
    :members:
    :undoc-members:
    :show-inheritance:
+
 dscribe.descriptors.sinematrix module
 -------------------------------------
 
@@ -67,6 +75,7 @@ dscribe.descriptors.sinematrix module
    :members:
    :undoc-members:
    :show-inheritance:
+
 dscribe.descriptors.soap module
 -------------------------------
 

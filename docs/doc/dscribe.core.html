@@ -206,6 +206,22 @@ limitations under the License.</p>
 <p>A lattice object.  Essentially a matrix with conversion matrices. In
 general, it is assumed that length units are in Angstroms and angles are in
 degrees unless otherwise stated.</p>
+<p>Create a lattice from any sequence of 9 numbers. Note that the sequence
+is assumed to be read one row at a time. Each row represents one
+lattice vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>matrix</strong> – Sequence of numbers in any form. Examples of acceptable
+input.
+i) An actual numpy array.
+ii) [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+iii) [1, 0, 0 , 0, 1, 0, 0, 0, 1]
+iv) (1, 0, 0, 0, 1, 0, 0, 0, 1)
+Each row should correspond to a lattice vector.
+E.g., [[10, 0, 0], [20, 10, 0], [0, 0, 30]] specifies a lattice
+with lattice vectors [10, 0, 0], [20, 10, 0] and [0, 0, 30].</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="dscribe.core.lattice.Lattice.abc">
 <em class="property">property </em><code class="sig-name descname">abc</code><a class="headerlink" href="#dscribe.core.lattice.Lattice.abc" title="Permalink to this definition">¶</a></dt>

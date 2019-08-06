@@ -26,10 +26,12 @@ class LocalSimilarityKernel(with_metaclass(ABCMeta)):
     def __init__(self, metric, gamma=None, degree=3, coef0=1, kernel_params=None, normalize_kernel=True):
         """
         Args:
-            kernel(string or callable): Kernel mapping used internally. A
-                callable should accept two arguments and the keyword arguments
-                passed to this object as kernel_params, and should return a
-                floating point number.
+            metric(string or callable): The pairwise metric used for
+                calculating the local similarity. Accepts any of the sklearn
+                pairwise metric strings (e.g. "linear", "rbf", "laplacian",
+                "polynomial") or a custom callable. A callable should accept
+                two arguments and the keyword arguments passed to this object
+                as kernel_params, and should return a floating point number.
             gamma(float): Gamma parameter for the RBF, laplacian, polynomial,
                 exponential chi2 and sigmoid kernels. Interpretation of the
                 default value is left to the kernel; see the documentation for

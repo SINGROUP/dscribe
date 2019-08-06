@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dscribe.core package &mdash; DScribe 0.2.8a documentation</title>
+  <title>dscribe.core package &mdash; DScribe 0.2.9a0 documentation</title>
   
 
   
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                0.2.8a
+                0.2.9a0
               </div>
             
           
@@ -429,6 +429,32 @@ copies.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="dscribe.core.system.System.get_distance_matrix_within_radius">
+<code class="sig-name descname">get_distance_matrix_within_radius</code><span class="sig-paren">(</span><em class="sig-param">radius</em>, <em class="sig-param">pos=None</em>, <em class="sig-param">output_type='coo_matrix'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.get_distance_matrix_within_radius"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.get_distance_matrix_within_radius" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates a sparse distance matrix by only considering distances
+within a certain cutoff. Uses a k-d tree to reach O(n log(N)) time
+complexity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>radius</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The cutoff radius within which distances are
+calculated. Distances outside this radius are not included.</p></li>
+<li><p><strong>output_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Which container to use for output data. Options:
+“dok_matrix”, “coo_matrix”, “dict”, or “ndarray”. Default:
+“dok_matrix”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Symmetric sparse 2D
+matrix containing the pairwise distances.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dok_matrix | np.array | coo_matrix | dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="dscribe.core.system.System.get_inverse_distance_matrix">
 <code class="sig-name descname">get_inverse_distance_matrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.get_inverse_distance_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.get_inverse_distance_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the inverse distance matrix A defined as:</p>
@@ -611,16 +637,16 @@ limitations under the License.</p>
   <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="fa fa-book"> Versions</span>
-      v: 0.2.8a
+      v: 0.2.9a0
       <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
       <dl>
         <dt>Versions</dt>
         
-          <dd><a href="https://singroup.github.io/dscribe/dev">0.2.8a (development)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe/dev">0.2.9a0 (development)</a></dd>
         
-          <dd><a href="https://singroup.github.io/dscribe">0.2.7 (latest stable)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe">0.2.8 (latest stable)</a></dd>
         
       </dl>
     </div>
