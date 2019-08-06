@@ -14,5 +14,5 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
-from dscribe.kernels.average import AverageKernel
-from dscribe.kernels.rematch import REMatchKernel
+from dscribe.kernels.averagekernel import AverageKernel
+from dscribe.kernels.rematchkernel import REMatchKernel
