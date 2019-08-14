@@ -248,10 +248,15 @@ K(A, B) &amp;= \mathrm{Tr} \mathbf{P}^\alpha \mathbf{C}(A, B)\\\mathbf{P}^\alpha
 <p>where the similarity between local atomic environments <span class="math notranslate nohighlight">\(C_{ij}\)</span> can once
 again be calculated with any pairwise metric (e.g. linear, gaussian).</p>
 <p>The class <a class="reference internal" href="../doc/dscribe.kernels.html#dscribe.kernels.rematch.REMatchKernel" title="dscribe.kernels.rematch.REMatchKernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">REMatchKernel</span></code></a> can be used to calculate this similarity:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">SOAP</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Demostrates how global similarity kernels can be built from local atomic</span>
+<span class="sd">environments.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">SOAP</span>
 <span class="kn">from</span> <span class="nn">dscribe.kernels</span> <span class="kn">import</span> <span class="n">REMatchKernel</span>
 
 <span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">molecule</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">normalize</span>
 
 <span class="c1"># We will compare two similar molecules</span>
 <span class="n">a</span> <span class="o">=</span> <span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;H2O&quot;</span><span class="p">)</span>
@@ -263,12 +268,18 @@ again be calculated with any pairwise metric (e.g. linear, gaussian).</p>
 <span class="n">a_features</span> <span class="o">=</span> <span class="n">desc</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
 <span class="n">b_features</span> <span class="o">=</span> <span class="n">desc</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
 
-<span class="c1"># Calculates the similarity with an average kernel, and a linear metric. The</span>
+<span class="c1"># Before passing the features we normalize them. Depending on the metric, the</span>
+<span class="c1"># REMatch kernel can become numerically unstable if some kind of normalization</span>
+<span class="c1"># is not done.</span>
+<span class="n">a_features</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">a_features</span><span class="p">)</span>
+<span class="n">b_features</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">b_features</span><span class="p">)</span>
+
+<span class="c1"># Calculates the similarity with the REMatch kernel and a linear metric. The</span>
 <span class="c1"># result will be a full similarity matrix.</span>
 <span class="n">re</span> <span class="o">=</span> <span class="n">REMatchKernel</span><span class="p">(</span><span class="n">metric</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">)</span>
 <span class="n">re_kernel</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">create</span><span class="p">([</span><span class="n">a_features</span><span class="p">,</span> <span class="n">b_features</span><span class="p">])</span>
 
-<span class="c1"># Any metric supported by scikit-learn will work: e.g. a Gaussian:</span>
+<span class="c1"># Any metric supported by scikit-learn will work: e.g. a Gaussian.</span>
 <span class="n">re</span> <span class="o">=</span> <span class="n">REMatchKernel</span><span class="p">(</span><span class="n">metric</span><span class="o">=</span><span class="s2">&quot;rbf&quot;</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">)</span>
 <span class="n">re_kernel</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">create</span><span class="p">([</span><span class="n">a_features</span><span class="p">,</span> <span class="n">b_features</span><span class="p">])</span>
 </pre></div>
