@@ -13,8 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from __future__ import absolute_import, division, print_function
-from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
 import sys
 import math
 import numpy as np
@@ -503,7 +501,13 @@ class LMBTR(MBTR):
         # Calculate extended system
         if self.periodic:
             centers = new_system.get_positions()
-            ext_system, cell_indices = self.create_extended_system(system, centers, radial_cutoff)
+            ext_system, cell_indices = dscribe.utils.geometry.get_extended_system(
+                system,
+                radial_cutoff,
+                centers,
+                return_cell_indices=True,
+            )
+            ext_system = System.from_atoms(ext_system)
         else:
             ext_system = system
             cell_indices = np.zeros((len(system), 3), dtype=int)
@@ -622,7 +626,13 @@ class LMBTR(MBTR):
             centers_new = new_system.get_positions()
             centers_existing = system.get_positions()[indices]
             centers = np.concatenate((centers_new, centers_existing), axis=0)
-            ext_system, cell_indices = self.create_extended_system(system, centers, radial_cutoff)
+            ext_system, cell_indices = dscribe.utils.geometry.get_extended_system(
+                system,
+                radial_cutoff,
+                centers,
+                return_cell_indices=True,
+            )
+            ext_system = System.from_atoms(ext_system)
         else:
             ext_system = system
             cell_indices = np.zeros((len(system), 3), dtype=int)

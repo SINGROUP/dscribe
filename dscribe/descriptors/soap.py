@@ -286,7 +286,7 @@ class SOAP(Descriptor):
                     list_positions,
                     self._alphas,
                     self._betas,
-                    rCut=self._rcut,
+                    rcut=self._rcut,
                     nMax=self._nmax,
                     Lmax=self._lmax,
                     crossOver=self._crossover,
@@ -301,7 +301,7 @@ class SOAP(Descriptor):
                 soap_mat = soap_func(
                     system,
                     list_positions,
-                    rCut=self._rcut,
+                    rcut=self._rcut,
                     nMax=self._nmax,
                     Lmax=self._lmax,
                     all_atomtypes=None,
@@ -321,7 +321,7 @@ class SOAP(Descriptor):
                     system,
                     self._alphas,
                     self._betas,
-                    rCut=self._rcut,
+                    rcut=self._rcut,
                     nMax=self._nmax,
                     Lmax=self._lmax,
                     crossOver=self._crossover,
@@ -335,7 +335,7 @@ class SOAP(Descriptor):
                     soap_func = get_soap_structure_poly
                 soap_mat = soap_func(
                     system,
-                    rCut=self._rcut,
+                    rcut=self._rcut,
                     nMax=self._nmax,
                     Lmax=self._lmax,
                     all_atomtypes=None,

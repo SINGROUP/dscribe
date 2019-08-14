@@ -1,5 +1,6 @@
 import os
 import glob
+import math
 
 import numpy as np
 
@@ -8,7 +9,7 @@ from scipy.linalg import sqrtm, inv
 
 from ctypes import *
 
-import matplotlib.pyplot as mpl
+from dscribe.utils.geometry import get_extended_system
 
 
 def _format_ase2clusgeo(obj, all_atomtypes=None):
@@ -21,7 +22,7 @@ def _format_ase2clusgeo(obj, all_atomtypes=None):
         all_atomtypes():
         sort():
     """
-    #atoms metadata
+    # Atoms metadata
     totalAN = len(obj)
     if all_atomtypes is not None:
         atomtype_set = set(all_atomtypes)
@@ -36,7 +37,7 @@ def _format_ase2clusgeo(obj, all_atomtypes=None):
         pos_onetype = obj.get_positions()[condition]
         n_onetype = pos_onetype.shape[0]
 
-        # store data in lists
+        # Store data in lists
         pos_lst.append(pos_onetype)
         n_atoms_per_type_lst.append(n_onetype)
 
@@ -47,42 +48,7 @@ def _format_ase2clusgeo(obj, all_atomtypes=None):
     return Apos, typeNs, Ntypes, atomtype_lst, totalAN
 
 
-def _get_supercell(obj, rCut=5.0):
-    rCutHard = rCut + 5  # Giving extra space for hard cutOff
-    """ Takes atoms object (with a defined cell) and a radial cutoff.
-    Returns a supercell centered around the original cell
-    generously extended to contain all spheres with the given radial
-    cutoff centered around the original atoms.
-    """
-
-    cell_vectors = obj.get_cell()
-    a1, a2, a3 = cell_vectors[0], cell_vectors[1], cell_vectors[2]
-
-    # vectors perpendicular to two cell vectors
-    b1 = np.cross(a2, a3, axis=0)
-    b2 = np.cross(a3, a1, axis=0)
-    b3 = np.cross(a1, a2, axis=0)
-    # projections onto perpendicular vectors
-    p1 = np.dot(a1, b1) / np.dot(b1, b1) * b1
-    p2 = np.dot(a2, b2) / np.dot(b2, b2) * b2
-    p3 = np.dot(a3, b3) / np.dot(b3, b3) * b3
-    xyz_arr = np.linalg.norm(np.array([p1, p2, p3]), axis=1)
-    cell_images = np.ceil(rCutHard/xyz_arr)
-    nx = int(cell_images[0])
-    ny = int(cell_images[1])
-    nz = int(cell_images[2])
-    suce = obj * (1+2*nx, 1+2*ny, 1+2*nz)
-    shift = obj.get_cell()
-
-    shifted_suce = suce.copy()
-    shifted_suce.translate(-shift[0]*nx - shift[1]*ny - shift[2]*nz)
-
-    return shifted_suce
-
-#=================================================================
-# GTO FROM HERE
-#=================================================================
-def get_soap_locals_gto(obj, Hpos, alp, bet, rCut=5.0, nMax=5, Lmax=5, crossOver=True, all_atomtypes=None, eta=1.0):
+def get_soap_locals_gto(obj, Hpos, alp, bet, rcut=5.0, nMax=5, Lmax=5, crossOver=True, all_atomtypes=None, eta=1.0):
     """Get the RBF basis SOAP output for the given positions in a finite system.
 
     Args:
@@ -103,7 +69,7 @@ def get_soap_locals_gto(obj, Hpos, alp, bet, rCut=5.0, nMax=5, Lmax=5, crossOver
     Returns:
         np.ndarray: SOAP output for the given positions.
     """
-    rCutHard = rCut + 5
+    rCutHard = rcut + 5
     assert Lmax <= 9, "l cannot exceed 9. Lmax={}".format(Lmax)
     assert Lmax >= 0, "l cannot be negative.Lmax={}".format(Lmax)
     assert rCutHard < 17.0001, "hard radius cuttof cannot be larger than 17 Angs. rCut={}".format(rCutHard)
@@ -173,7 +139,7 @@ def get_soap_locals_gto(obj, Hpos, alp, bet, rCut=5.0, nMax=5, Lmax=5, crossOver
     return a
 
 
-def get_soap_structure_gto(obj, alp, bet, rCut=5.0, nMax=5, Lmax=5, crossOver=True, all_atomtypes=None, eta=1.0):
+def get_soap_structure_gto(obj, alp, bet, rcut=5.0, nMax=5, Lmax=5, crossOver=True, all_atomtypes=None, eta=1.0):
     """Get the RBF basis SOAP output for atoms in a finite structure.
 
     Args:
@@ -194,12 +160,12 @@ def get_soap_structure_gto(obj, alp, bet, rCut=5.0, nMax=5, Lmax=5, crossOver=Tr
         np.ndarray: SOAP output for the given structure.
     """
     Hpos = obj.get_positions()
-    arrsoap = get_soap_locals_gto(obj, Hpos, alp, bet, rCut, nMax, Lmax, crossOver, all_atomtypes=all_atomtypes, eta=eta)
+    arrsoap = get_soap_locals_gto(obj, Hpos, alp, bet, rcut, nMax, Lmax, crossOver, all_atomtypes=all_atomtypes, eta=eta)
 
     return arrsoap
 
 
-def get_periodic_soap_locals_gto(obj, Hpos, alp, bet, rCut=5.0, nMax=5, Lmax=5, crossOver=True, all_atomtypes=None, eta=1.0):
+def get_periodic_soap_locals_gto(system, positions, alp, bet, rcut=5.0, nMax=5, Lmax=5, crossOver=True, all_atomtypes=None, eta=1.0):
     """Get the RBF basis SOAP output for the given position in a periodic system.
 
     Args:
@@ -207,7 +173,7 @@ def get_periodic_soap_locals_gto(obj, Hpos, alp, bet, rCut=5.0, nMax=5, Lmax=5, 
             calculated.
         alp: Alphas
         bet: Betas
-        rCut: Radial cutoff.
+        rcut: Radial cutoff.
         nMax: Maximum nmber of radial basis functions
         Lmax: Maximum spherical harmonics degree
         crossOver:
@@ -219,13 +185,18 @@ def get_periodic_soap_locals_gto(obj, Hpos, alp, bet, rCut=5.0, nMax=5, Lmax=5, 
     Returns:
         np.ndarray: SOAP output for the given position.
     """
-    suce = _get_supercell(obj, rCut)
-    arrsoap = get_soap_locals_gto(suce, Hpos, alp, bet, rCut, nMax=nMax, Lmax=Lmax, crossOver=crossOver, all_atomtypes=all_atomtypes, eta=eta)
+    # The radial cutoff is determined by the rcut + the gaussian width that
+    # extends the influence of atoms. We consider that three sigmas is
+    # enough to make the gaussian decay.
+    sigma = math.sqrt(1.0/(2*eta))
+    radial_cutoff = rcut+3*sigma
+    extended_system = get_extended_system(system, radial_cutoff, return_cell_indices=False)
+    arrsoap = get_soap_locals_gto(extended_system, positions, alp, bet, rcut, nMax=nMax, Lmax=Lmax, crossOver=crossOver, all_atomtypes=all_atomtypes, eta=eta)
 
     return arrsoap
 
 
-def get_periodic_soap_structure_gto(obj, alp, bet, rCut=5.0, nMax=5, Lmax=5, crossOver=True, all_atomtypes=None, eta=1.0):
+def get_periodic_soap_structure_gto(system, alp, bet, rcut=5.0, nMax=5, Lmax=5, crossOver=True, all_atomtypes=None, eta=1.0):
     """Get the RBF basis SOAP output for atoms in the given periodic system.
 
     Args:
@@ -233,7 +204,7 @@ def get_periodic_soap_structure_gto(obj, alp, bet, rCut=5.0, nMax=5, Lmax=5, cro
             calculated.
         alp: Alphas
         bet: Betas
-        rCut: Radial cutoff.
+        rcut: Radial cutoff.
         nMax: Maximum nmber of radial basis functions
         Lmax: Maximum spherical harmonics degree
         crossOver:
@@ -245,23 +216,27 @@ def get_periodic_soap_structure_gto(obj, alp, bet, rCut=5.0, nMax=5, Lmax=5, cro
     Returns:
         np.ndarray: SOAP output for the given system.
     """
-    Hpos = obj.get_positions()
-    suce = _get_supercell(obj, rCut)
-    arrsoap = get_soap_locals_gto(suce, Hpos, alp, bet, rCut, nMax, Lmax, crossOver, all_atomtypes=all_atomtypes, eta=eta)
+    positions = system.get_positions()
+
+    # The radial cutoff is determined by the rcut + the gaussian width that
+    # extends the influence of atoms. We consider that three sigmas is
+    # enough to make the gaussian decay.
+    sigma = math.sqrt(1.0/(2*eta))
+    radial_cutoff = rcut+3*sigma
+    extended_system = get_extended_system(system, radial_cutoff, return_cell_indices=False)
+    arrsoap = get_soap_locals_gto(extended_system, positions, alp, bet, rcut, nMax, Lmax, crossOver, all_atomtypes=all_atomtypes, eta=eta)
 
     return arrsoap
 
-#=================================================================
-# POLYNOMIAL FROM HERE, NOT GTOs
-#=================================================================
-def get_soap_locals_poly(obj, Hpos, rCut=5.0, nMax=5, Lmax=5, all_atomtypes=None, eta=1.0):
-    rCutHard = rCut + 5
-    nMax, rx, gss = get_basis_poly(rCut, nMax)
+
+def get_soap_locals_poly(obj, Hpos, rcut=5.0, nMax=5, Lmax=5, all_atomtypes=None, eta=1.0):
+    rCutHard = rcut + 5
+    nMax, rx, gss = get_basis_poly(rcut, nMax)
 
     assert Lmax <= 20, "l cannot exceed 20. Lmax={}".format(Lmax)
-    assert Lmax >= 0, "l cannot be negative.Lmax={}".format(Lmax)
-    assert rCutHard < 17.0001, "hard radius cuttof cannot be larger than 17 Angs. rCut={}".format(rCutHard)
-    assert rCutHard > 1.9999, "hard radius cuttof cannot be lower than 1 Ang. rCut={}".format(rCutHard)
+    assert Lmax >= 0, "l cannot be negative. Lmax={}".format(Lmax)
+    assert rCutHard < 17.0001, "hard radius cuttof cannot be larger than 17 Angs. rcut={}".format(rCutHard)
+    assert rCutHard > 1.9999, "hard radius cuttof cannot be lower than 1 Ang. rcut={}".format(rCutHard)
     # get clusgeo internal format for c-code
     Apos, typeNs, py_Ntypes, atomtype_lst, totalAN = _format_ase2clusgeo(obj, all_atomtypes)
     Hpos = np.array(Hpos)
@@ -314,24 +289,35 @@ def get_soap_locals_poly(obj, Hpos, rCut=5.0, nMax=5, Lmax=5, all_atomtypes=None
     return a
 
 
-def get_soap_structure_poly(obj, rCut=5.0, nMax=5, Lmax=5, all_atomtypes=None, eta=1.0):
+def get_soap_structure_poly(obj, rcut=5.0, nMax=5, Lmax=5, all_atomtypes=None, eta=1.0):
     Hpos = obj.get_positions()
-    arrsoap = get_soap_locals_poly(obj, Hpos, rCut, nMax, Lmax, all_atomtypes=all_atomtypes, eta=eta)
+    arrsoap = get_soap_locals_poly(obj, Hpos, rcut, nMax, Lmax, all_atomtypes=all_atomtypes, eta=eta)
 
     return arrsoap
 
 
-def get_periodic_soap_locals_poly(obj, Hpos, rCut=5.0, nMax=5, Lmax=5, all_atomtypes=None, eta=1.0):
-    suce = _get_supercell(obj, rCut)
-    arrsoap = get_soap_locals_poly(suce, Hpos, rCut, nMax, Lmax, all_atomtypes=all_atomtypes, eta=eta)
+def get_periodic_soap_locals_poly(system, positions, rcut=5.0, nMax=5, Lmax=5, all_atomtypes=None, eta=1.0):
+    # The radial cutoff is determined by the rcut + the gaussian width that
+    # extends the influence of atoms. We consider that three sigmas is
+    # enough to make the gaussian decay.
+    sigma = math.sqrt(1.0/(2*eta))
+    radial_cutoff = rcut+3*sigma
+    extended_system = get_extended_system(system, radial_cutoff, return_cell_indices=False)
+    arrsoap = get_soap_locals_poly(extended_system, positions, rcut, nMax, Lmax, all_atomtypes=all_atomtypes, eta=eta)
 
     return arrsoap
 
 
-def get_periodic_soap_structure_poly(obj, rCut=5.0, nMax=5, Lmax=5, all_atomtypes=None, eta=1.0):
-    Hpos = obj.get_positions()
-    suce = _get_supercell(obj, rCut)
-    arrsoap = get_soap_locals_poly(suce, Hpos, rCut, nMax, Lmax, all_atomtypes=all_atomtypes, eta=eta)
+def get_periodic_soap_structure_poly(system, rcut=5.0, nMax=5, Lmax=5, all_atomtypes=None, eta=1.0):
+    positions = system.get_positions()
+
+    # The radial cutoff is determined by the rcut + the gaussian width that
+    # extends the influence of atoms. We consider that three sigmas is
+    # enough to make the gaussian decay.
+    sigma = math.sqrt(1.0/(2*eta))
+    radial_cutoff = rcut+3*sigma
+    extended_system = get_extended_system(system, radial_cutoff, return_cell_indices=False)
+    arrsoap = get_soap_locals_poly(extended_system, positions, rcut, nMax, Lmax, all_atomtypes=all_atomtypes, eta=eta)
 
     return arrsoap
 
