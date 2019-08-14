@@ -6,6 +6,32 @@ the local environment near an atom by using a fingerprint composed of the
 output of multiple two- and three-body functions that can be customized to
 detect specific structural features.
 
+Notice that the DScribe output for ACSF does not include the species of the
+central atom in any way. If the chemical identify of the central species is
+important, you may want to consider a custom output stratification scheme based
+on the chemical identity of the central species, or the inclusion of the
+species identify in an additional feature. Training a separate model for each
+central species is also possible.
+
+The ACSF output is stratified by the species of the neighbouring atoms. In
+pseudo-code the ordering of the output vector is as follows:
+
+.. code-block:: none
+
+   for Z in atomic numbers in increasing order:
+       append value for G1 to output
+       for G2 in g2_params:
+           append value for G2 to output
+       for G3 in g3_params:
+           append value for G3 to output
+   for Z in atomic numbers in increasing order:
+      for Z' in atomic numbers in increasing order:
+          if and Z' >= Z:
+              for G4 in g4_params:
+                  append value for G4 to output
+              for G5 in g5_params:
+                  append value for G5 to output
+
 Setup
 -----
 
