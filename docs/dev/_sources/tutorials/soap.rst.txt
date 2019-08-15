@@ -65,7 +65,7 @@ ordering of the output vector is as follows:
             for n in range(n_max):
                for n' in range(n_max):
                   if n' >= n and Z' >= Z:
-                     append p(\chi)^{Z Z'}_{n n' l}` to output vector
+                     append p(\chi)^{Z Z'}_{n n' l}` to output
 
 
 Setup
