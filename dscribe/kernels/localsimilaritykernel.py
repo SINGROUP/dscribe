@@ -13,8 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
 from abc import ABCMeta, abstractmethod
 import numpy as np
 from future.utils import with_metaclass
@@ -25,7 +23,7 @@ class LocalSimilarityKernel(with_metaclass(ABCMeta)):
     """An abstract base class for all kernels that use the similarity of local
     atomic environments to compute a global similarity measure.
     """
-    def __init__(self, metric, gamma=None, degree=3, coef0=1, kernel_params=None):
+    def __init__(self, metric, gamma=None, degree=3, coef0=1, kernel_params=None, normalize_kernel=True):
         """
         Args:
             metric(string or callable): The pairwise metric used for
@@ -45,12 +43,17 @@ class LocalSimilarityKernel(with_metaclass(ABCMeta)):
             kernel_params(mapping of string to any): Additional parameters
                 (keyword arguments) for kernel function passed as callable
                 object.
+            normalize_kernel(boolean): Whether to normalize the final global
+                similarity kernel. The normalization is achieved by dividing each
+                kernel element :math:`K_{ij}` with the factor
+                :math:`\sqrt{K_{ii}K_{jj}}`
         """
         self.metric = metric
         self.gamma = gamma
         self.degree = degree
         self.coef0 = coef0
         self.kernel_params = kernel_params
+        self.normalize_kernel = normalize_kernel
 
     def create(self, x, y=None):
         """Creates the kernel matrix based on the given lists of local
@@ -68,10 +71,10 @@ class LocalSimilarityKernel(with_metaclass(ABCMeta)):
             for structure i and j were in features[i] and features[j]
             respectively.
         """
-        self_sim = False
+        symmetric = False
         if y is None:
             y = x
-            self_sim = True
+            symmetric = True
 
         # First calculate the "raw" pairwise similarity of atomic environments
         n_x = len(x)
@@ -82,17 +85,17 @@ class LocalSimilarityKernel(with_metaclass(ABCMeta)):
             for j in range(n_y):
 
                 # Skip lower triangular part for symmetric matrices
-                if self_sim and j < i:
+                if symmetric and j < i:
                     continue
 
                 x_i = x[i]
 
                 # Save time on symmetry
-                if self_sim and j == i:
-                    C_ij = self.get_pairwise_matrix(x_i)
+                if symmetric and j == i:
+                    y_j = None
                 else:
                     y_j = y[j]
-                    C_ij = self.get_pairwise_matrix(x_i, y_j)
+                C_ij = self.get_pairwise_matrix(x_i, y_j)
                 C_ij_dict[i, j] = C_ij
 
         # Calculate the global pairwise similarity between the entire
@@ -102,7 +105,7 @@ class LocalSimilarityKernel(with_metaclass(ABCMeta)):
             for j in range(n_y):
 
                 # Skip lower triangular part for symmetric matrices
-                if self_sim and j < i:
+                if symmetric and j < i:
                     continue
 
                 C_ij = C_ij_dict[i, j]
@@ -110,34 +113,35 @@ class LocalSimilarityKernel(with_metaclass(ABCMeta)):
                 K_ij[i, j] = k_ij
 
                 # Save data also on lower triangular part for symmetric matrices
-                if self_sim and j != i:
+                if symmetric and j != i:
                     K_ij[j, i] = k_ij
 
-        # Normalize the values.
-        if self_sim:
-            k_ii = np.diagonal(K_ij)
-            x_k_ii_sqrt = np.sqrt(k_ii)
-            y_k_ii_sqrt = x_k_ii_sqrt
-        else:
-            # Calculate self-similarity for X
-            x_k_ii = np.empty(n_x)
-            for i in range(n_x):
-                x_i = x[i]
-                C_ii = self.get_pairwise_matrix(x_i)
-                k_ii = self.get_global_similarity(C_ii)
-                x_k_ii[i] = k_ii
-            x_k_ii_sqrt = np.sqrt(x_k_ii)
+        # Enforce kernel normalization if requested.
+        if self.normalize_kernel:
+            if symmetric:
+                k_ii = np.diagonal(K_ij)
+                x_k_ii_sqrt = np.sqrt(k_ii)
+                y_k_ii_sqrt = x_k_ii_sqrt
+            else:
+                # Calculate self-similarity for X
+                x_k_ii = np.empty(n_x)
+                for i in range(n_x):
+                    x_i = x[i]
+                    C_ii = self.get_pairwise_matrix(x_i)
+                    k_ii = self.get_global_similarity(C_ii)
+                    x_k_ii[i] = k_ii
+                x_k_ii_sqrt = np.sqrt(x_k_ii)
 
-            # Calculate self-similarity for Y
-            y_k_ii = np.empty(n_y)
-            for i in range(n_y):
-                y_i = y[i]
-                C_ii = self.get_pairwise_matrix(y_i)
-                k_ii = self.get_global_similarity(C_ii)
-                y_k_ii[i] = k_ii
-            y_k_ii_sqrt = np.sqrt(y_k_ii)
+                # Calculate self-similarity for Y
+                y_k_ii = np.empty(n_y)
+                for i in range(n_y):
+                    y_i = y[i]
+                    C_ii = self.get_pairwise_matrix(y_i)
+                    k_ii = self.get_global_similarity(C_ii)
+                    y_k_ii[i] = k_ii
+                y_k_ii_sqrt = np.sqrt(y_k_ii)
 
-        K_ij /= np.outer(x_k_ii_sqrt, y_k_ii_sqrt)
+            K_ij /= np.outer(x_k_ii_sqrt, y_k_ii_sqrt)
 
         return K_ij
 

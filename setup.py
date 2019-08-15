@@ -20,7 +20,8 @@ def using_clang():
     return 'clang' in compiler_ver
 
 cpp_extra_link_args = []
-cpp_extra_compile_args = ['-std=c++11']
+cpp_extra_compile_args = ['-std=c++11', "-O3"]
+c_extra_compile_args = ['-std=c99', "-O3"]
 
 # Needed to specify X++ runtime library on OSX. This solution is replicated
 # from the setup.py of mdanalysis
@@ -52,8 +53,28 @@ extensions = [
         include_dirs=["dscribe/libmbtr"],
         extra_compile_args=cpp_extra_compile_args,
         extra_link_args=cpp_extra_link_args,
-    ),
+    )
 ]
+
+# The SOAP C extension, wrapped with ctypes
+for soname, source in zip(
+    [
+        "dscribe.libsoap.libsoapPySig",
+        "dscribe.libsoap.libsoapGTO",
+        "dscribe.libsoap.libsoapGeneral",
+    ],
+    [
+        "dscribe/libsoap/soapAnalFullPySigma.c",
+        "dscribe/libsoap/soapGTO.c",
+        "dscribe/libsoap/soapGeneral.c",
+    ]):
+    extensions.append(Extension(
+        soname,
+        [source],
+        language='c',
+        include_dirs=["dscribe/libsoap"],
+        extra_compile_args=c_extra_compile_args,
+    ))
 
 if __name__ == "__main__":
     setup(name='dscribe',
@@ -69,7 +90,6 @@ if __name__ == "__main__":
             'future',
             'scikit-learn',
             'joblib',
-            'soaplite==1.0.3',
         ],
         include_package_data=True,  # This ensures that files defined in MANIFEST.in are included
         ext_modules=extensions,

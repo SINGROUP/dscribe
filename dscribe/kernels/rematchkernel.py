@@ -13,8 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
 import numpy as np
 from dscribe.kernels.localsimilaritykernel import LocalSimilarityKernel
 
@@ -41,7 +39,7 @@ class REMatchKernel(LocalSimilarityKernel):
     Phys.  Chem. Chem. Phys. 18, 13754 (2016),
     https://doi.org/10.1039/c6cp00415f
     """
-    def __init__(self, alpha=0.1, threshold=1e-6, metric="linear", gamma=None, degree=3, coef0=1, kernel_params=None):
+    def __init__(self, alpha=0.1, threshold=1e-6, metric="linear", gamma=None, degree=3, coef0=1, kernel_params=None, normalize_kernel=True):
         """
         Args:
             alpha(float): Parameter controlling the entropic penalty. Values
@@ -66,10 +64,14 @@ class REMatchKernel(LocalSimilarityKernel):
             kernel_params(mapping of string to any): Additional parameters
                 (keyword arguments) for kernel function passed as callable
                 object.
+            normalize_kernel(boolean): Whether to normalize the final global
+                similarity kernel. The normalization is achieved by dividing each
+                kernel element :math:`K_{ij}` with the factor
+                :math:`\sqrt{K_{ii}K_{jj}}`
         """
         self.alpha = alpha
         self.threshold = threshold
-        super().__init__(metric, gamma, degree, coef0, kernel_params)
+        super().__init__(metric, gamma, degree, coef0, kernel_params, normalize_kernel)
 
     def get_global_similarity(self, localkernel):
         """

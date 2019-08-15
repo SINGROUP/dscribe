@@ -13,13 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
 import sys
 import math
 import numpy as np
 
-from scipy.spatial.distance import cdist
 from scipy.sparse import lil_matrix, coo_matrix
 
 from ase import Atoms
@@ -715,99 +712,6 @@ class MBTR(Descriptor):
 
         return slice(start, end)
 
-    def create_extended_system(self, primitive_system, centers, radial_cutoff):
-        """Used to create a periodically extended system, that is as small as
-        possible by rejecting atoms for which the given weighting will be below
-        the given threshold.
-
-        Modified for the local MBTR to only consider distances from the central
-        atom and to enable taking the virtual sites into account.
-
-        Args:
-            primitive_system (System): The original primitive system to
-                duplicate.
-            radial_cutoff (float): The radial cutoff to use in constructing the
-                extended system.
-
-        Returns:
-            tuple: Tuple containing the new extended system as the first entry
-            and the index of the periodically repeated cell for each atom as
-            the second entry. The extended system is determined is extended so that each atom can at most
-            have a weight that is larger or equivalent to the given threshold.
-        """
-        # We need to specify that the relative positions should not be wrapped.
-        # Otherwise the repeated systems may overlap with the positions taken
-        # with get_positions()
-        relative_pos = np.array(primitive_system.get_scaled_positions(wrap=False))
-        numbers = np.array(primitive_system.numbers)
-        cartesian_pos = np.array(primitive_system.get_positions())
-        cell = np.array(primitive_system.get_cell())
-
-        # Determine the upper limit of how many copies we need in each cell
-        # vector direction. We take as many copies as needed to reach the
-        # radial cutoff.
-        cell_vector_lengths = np.linalg.norm(cell, axis=1)
-        n_copies_axis = np.zeros(3, dtype=int)
-        cell_cuts = radial_cutoff/cell_vector_lengths
-        n_copies_axis = np.ceil(cell_cuts).astype(np.int)
-
-        # Create copies of the cell but keep track of the atoms in the
-        # original cell
-        num_extended = []
-        pos_extended = []
-        num_extended.append(numbers)
-        pos_extended.append(cartesian_pos)
-        a = np.array([1, 0, 0])
-        b = np.array([0, 1, 0])
-        c = np.array([0, 0, 1])
-        cell_indices = [np.zeros((len(primitive_system), 3), dtype=int)]
-
-        for i in range(-n_copies_axis[0], n_copies_axis[0]+1):
-            for j in range(-n_copies_axis[1], n_copies_axis[1]+1):
-                for k in range(-n_copies_axis[2], n_copies_axis[2]+1):
-                    if i == 0 and j == 0 and k == 0:
-                        continue
-
-                    # Calculate the positions of the copied atoms and filter
-                    # out the atoms that are farther away than the given
-                    # cutoff.
-                    num_copy = np.array(numbers)
-                    pos_copy = np.array(relative_pos)
-
-                    pos_shifted = pos_copy-i*a-j*b-k*c
-                    pos_copy_cartesian = np.dot(pos_shifted, cell)
-
-                    # Only distances to the atoms within the interaction limit
-                    # are considered.
-                    distances = cdist(pos_copy_cartesian, centers)
-                    weight_mask = distances < radial_cutoff
-
-                    # Create a boolean mask that says if the atom is within the
-                    # range from at least one atom in the original cell
-                    valids_mask = np.any(weight_mask, axis=1)
-
-                    if np.any(valids_mask):
-                        valid_pos = pos_copy_cartesian[valids_mask]
-                        valid_num = num_copy[valids_mask]
-                        valid_ind = np.tile(np.array([i, j, k], dtype=int), (len(valid_num), 1))
-
-                        pos_extended.append(valid_pos)
-                        num_extended.append(valid_num)
-                        cell_indices.append(valid_ind)
-
-        pos_extended = np.concatenate(pos_extended)
-        num_extended = np.concatenate(num_extended)
-        cell_indices = np.vstack(cell_indices)
-
-        extended_system = System(
-            positions=pos_extended,
-            numbers=num_extended,
-            cell=cell,
-            pbc=False
-        )
-
-        return extended_system, cell_indices
-
     def _get_k1(self, system):
         """Calculates the second order terms where the scalar mapping is the
         inverse distance between atoms.
@@ -901,7 +805,13 @@ class MBTR(Descriptor):
         # If needed, create the extended system
         if self.periodic:
             centers = system.get_positions()
-            ext_system, cell_indices = self.create_extended_system(system, centers, radial_cutoff)
+            ext_system, cell_indices = dscribe.utils.geometry.get_extended_system(
+                system,
+                radial_cutoff,
+                centers,
+                return_cell_indices=True
+            )
+            ext_system = System.from_atoms(ext_system)
         else:
             ext_system = system
             cell_indices = np.zeros((len(system), 3), dtype=int)
@@ -1006,7 +916,13 @@ class MBTR(Descriptor):
         # If needed, create the extended system
         if self.periodic:
             centers = system.get_positions()
-            ext_system, cell_indices = self.create_extended_system(system, centers, radial_cutoff)
+            ext_system, cell_indices = dscribe.utils.geometry.get_extended_system(
+                system,
+                radial_cutoff,
+                centers,
+                return_cell_indices=True
+            )
+            ext_system = System.from_atoms(ext_system)
         else:
             ext_system = system
             cell_indices = np.zeros((len(system), 3), dtype=int)
