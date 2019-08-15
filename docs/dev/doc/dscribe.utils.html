@@ -237,6 +237,40 @@ matrix containing the pairwise distances.</p>
 </dl>
 </dd></dl>
 
+<dl class="function">
+<dt id="dscribe.utils.geometry.get_extended_system">
+<code class="sig-prename descclassname">dscribe.utils.geometry.</code><code class="sig-name descname">get_extended_system</code><span class="sig-paren">(</span><em class="sig-param">system</em>, <em class="sig-param">radial_cutoff</em>, <em class="sig-param">centers=None</em>, <em class="sig-param">return_cell_indices=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/utils/geometry.html#get_extended_system"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.utils.geometry.get_extended_system" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to create a periodically extended system. If centers are not
+specified, simply takes returns the original system multiplied by an
+integer amount of times in each direction to cover the radial cutoff. If
+centers are provided, returns the exact atoms that are within the given
+radial cutoff from the given centers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>original_system</strong> (<em>ase.Atoms</em>) – The original periodic system to duplicate.</p></li>
+<li><p><strong>radial_cutoff</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The radial cutoff to use in constructing the
+extended system.</p></li>
+<li><p><strong>centers</strong> (<em>np.ndarray</em>) – Array of xyz-coordinates from which the distance
+is calculated. If provided, these centers are used to calculate the
+exact distance and only atoms within the radial cutoff from these
+centers are returned.</p></li>
+<li><p><strong>return_cell_indices</strong> (<em>boolean</em>) – Whether to return an array of cell
+indices for each atom in the extended system.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>If return_cell_indices is False, returns the new
+extended system. Else returns a tuple containing the new extended
+system as the first entry and the index of the periodically repeated
+cell for each atom as the second entry.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ase.Atoms | tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 <div class="section" id="module-dscribe.utils.species">
 <span id="dscribe-utils-species-module"></span><h2>dscribe.utils.species module<a class="headerlink" href="#module-dscribe.utils.species" title="Permalink to this headline">¶</a></h2>
