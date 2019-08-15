@@ -680,8 +680,8 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         """
         sigma = 0.55
         rcut = 2.0
-        nmax = 2
-        lmax = 2
+        nmax = 3
+        lmax = 3
 
         # Limits for radius
         r1 = 0.
@@ -801,8 +801,8 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         """
         sigma = 0.55
         rcut = 2.0
-        nmax = 2
-        lmax = 2
+        nmax = 3
+        lmax = 3
 
         # Limits for radius
         r1 = 0.
