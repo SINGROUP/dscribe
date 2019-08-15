@@ -13,9 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
-
 import math
 import unittest
 
@@ -75,6 +72,14 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         # Invalid rcut
         with self.assertRaises(ValueError):
             SOAP(species=[-1, 2], rcut=0.5, sigma=0, nmax=5, lmax=5, periodic=True)
+
+        # Invalid lmax
+        with self.assertRaises(ValueError):
+            SOAP(species=[-1, 2], rcut=0.5, sigma=0, nmax=5, lmax=10, rbf="gto", periodic=True)
+
+        # Invalid nmax
+        with self.assertRaises(ValueError):
+            SOAP(species=["H", "O"], rcut=4, sigma=1, nmax=0, lmax=8, rbf="gto", periodic=True)
 
     def test_properties(self):
         """Used to test that changing the setup through properties works as

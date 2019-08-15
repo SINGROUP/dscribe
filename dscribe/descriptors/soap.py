@@ -13,18 +13,21 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
+import os
+import glob
 import numpy as np
 
+from ctypes import POINTER, c_double, c_int, CDLL
+
 from scipy.sparse import coo_matrix
+from scipy.special import gamma
+from scipy.linalg import sqrtm, inv
 
 from ase import Atoms
 
 from dscribe.descriptors import Descriptor
 from dscribe.core import System
-
-from dscribe.descriptors.soaplite import get_basis_gto, get_periodic_soap_locals_gto, get_soap_locals_gto, get_periodic_soap_locals_poly, get_soap_locals_poly, get_periodic_soap_structure_gto, get_soap_structure_gto, get_periodic_soap_structure_poly, get_soap_structure_poly
+from dscribe.utils.geometry import get_extended_system
 
 
 class SOAP(Descriptor):
@@ -101,33 +104,56 @@ class SOAP(Descriptor):
         # Setup the involved chemical species
         self.species = species
 
-        # Check that sigma is valid
+        # Test that general settings are valid
         if (sigma <= 0):
             raise ValueError(
                 "Only positive gaussian width parameters 'sigma' are allowed."
             )
         self._eta = 1/(2*sigma**2)
+        self._sigma = sigma
 
-        # Check that rcut is valid
-        if rbf == "gto" and rcut <= 1:
+        if lmax < 0:
             raise ValueError(
-                "When using the gaussian radial basis set (gto), the radial "
-                "cutoff should be bigger than 1 angstrom."
+                "lmax cannot be negative. lmax={}".format(lmax)
             )
-
         supported_rbf = set(("gto", "polynomial"))
         if rbf not in supported_rbf:
             raise ValueError(
                 "Invalid radial basis function of type '{}' given. Please use "
                 "one of the following: {}".format(rbf, supported_rbf)
             )
-
-        # Crossover cannot be disabled on poly rbf
-        if not crossover and rbf == "polynomial":
+        if nmax < 1:
             raise ValueError(
-                "Disabling crossover is not currently supported when using "
-                "polynomial radial basis function".format(rbf, supported_rbf)
+                "Must have at least one radial basis function."
+                "nmax={}".format(nmax)
             )
+
+        # Test that radial basis set specific settings are valid
+        if rbf == "gto":
+            if rcut <= 1:
+                raise ValueError(
+                    "When using the gaussian radial basis set (gto), the radial "
+                    "cutoff should be bigger than 1 angstrom."
+                )
+            if lmax > 9:
+                raise ValueError(
+                    "When using the gaussian radial basis set (gto), lmax "
+                    "cannot currently exceed 9. lmax={}".format(lmax)
+                )
+            # Precalculate the alpha and beta constants for the GTO basis
+            self._alphas, self._betas = self.get_basis_gto(rcut, nmax)
+
+        elif rbf == "polynomial":
+            if not crossover:
+                raise ValueError(
+                    "Disabling crossover is not currently supported when using "
+                    "polynomial radial basis function".format(rbf, supported_rbf)
+                )
+            if lmax > 20:
+                raise ValueError(
+                    "When using the polynomial radial basis set, lmax "
+                    "cannot currently exceed 20. lmax={}".format(lmax)
+                )
 
         self._rcut = rcut
         self._nmax = nmax
@@ -136,10 +162,6 @@ class SOAP(Descriptor):
         self._periodic = periodic
         self._crossover = crossover
         self._average = average
-
-        # Precalculate the alpha and beta constants for the GTO basis
-        if self._rbf == "gto":
-            self._alphas, self._betas = get_basis_gto(self._rcut, self._nmax)
 
     def create(self, system, positions=None, n_jobs=1, verbose=False):
         """Return the SOAP output for the given systems and given positions.
@@ -245,9 +267,10 @@ class SOAP(Descriptor):
                     "System doesn't have cell to justify periodicity."
                 )
 
-        # Positions specified, use them
-        if positions is not None:
-
+        # Setup the local positions
+        if positions is None:
+            list_positions = system.get_positions()
+        else:
             # Check validity of position definitions and create final cartesian
             # position list
             list_positions = []
@@ -274,73 +297,39 @@ class SOAP(Descriptor):
                         "list of atom indices and/or positions."
                     )
 
-            # Determine the SOAPLite function to call based on periodicity and
-            # rbf
-            if self._rbf == "gto":
-                if self._periodic:
-                    soap_func = get_periodic_soap_locals_gto
-                else:
-                    soap_func = get_soap_locals_gto
-                soap_mat = soap_func(
-                    system,
-                    list_positions,
-                    self._alphas,
-                    self._betas,
-                    rcut=self._rcut,
-                    nMax=self._nmax,
-                    Lmax=self._lmax,
-                    crossOver=self._crossover,
-                    all_atomtypes=None,
-                    eta=self._eta
-                )
-            elif self._rbf == "polynomial":
-                if self._periodic:
-                    soap_func = get_periodic_soap_locals_poly
-                else:
-                    soap_func = get_soap_locals_poly
-                soap_mat = soap_func(
-                    system,
-                    list_positions,
-                    rcut=self._rcut,
-                    nMax=self._nmax,
-                    Lmax=self._lmax,
-                    all_atomtypes=None,
-                    eta=self._eta
-                )
+        # Create the extended system if periodicity is requested
+        if self._periodic:
+            # The radial cutoff is determined by the rcut + the gaussian width that
+            # extends the influence of atoms. We consider that three sigmas is
+            # enough to make the gaussian decay.
+            radial_cutoff = self._rcut+3*self._sigma
+            system = get_extended_system(system, radial_cutoff, return_cell_indices=False)
 
-        # No positions given, calculate SOAP for all atoms in the structure
-        else:
-            # Determine the SOAPLite function to call based on periodicity and
-            # rbf
-            if self._rbf == "gto":
-                if self._periodic:
-                    soap_func = get_periodic_soap_structure_gto
-                else:
-                    soap_func = get_soap_structure_gto
-                soap_mat = soap_func(
-                    system,
-                    self._alphas,
-                    self._betas,
-                    rcut=self._rcut,
-                    nMax=self._nmax,
-                    Lmax=self._lmax,
-                    crossOver=self._crossover,
-                    all_atomtypes=None,
-                    eta=self._eta
-                )
-            elif self._rbf == "polynomial":
-                if self._periodic:
-                    soap_func = get_periodic_soap_structure_poly
-                else:
-                    soap_func = get_soap_structure_poly
-                soap_mat = soap_func(
-                    system,
-                    rcut=self._rcut,
-                    nMax=self._nmax,
-                    Lmax=self._lmax,
-                    all_atomtypes=None,
-                    eta=self._eta
-                )
+        # Determine the SOAPLite function to call based on periodicity and
+        # rbf
+        if self._rbf == "gto":
+            soap_mat = self.get_soap_locals_gto(
+                system,
+                list_positions,
+                self._alphas,
+                self._betas,
+                rcut=self._rcut,
+                nmax=self._nmax,
+                lmax=self._lmax,
+                eta=self._eta,
+                crossover=self._crossover,
+                atomic_numbers=None,
+            )
+        elif self._rbf == "polynomial":
+            soap_mat = self.get_soap_locals_poly(
+                system,
+                list_positions,
+                rcut=self._rcut,
+                nmax=self._nmax,
+                lmax=self._lmax,
+                eta=self._eta,
+                atomic_numbers=None,
+            )
 
         # Map the output from subspace of elements to the full space of
         # elements
@@ -502,3 +491,382 @@ class SOAP(Descriptor):
         n_element_features = self.get_number_of_element_features()
 
         return int(n_element_features * n_blocks)
+
+    def flatten_positions(self, system, atomic_numbers=None):
+        """ Takes an ase Atoms object and returns numpy arrays and integers
+        which are read by the internal clusgeo. Apos is currently a flattened
+        out numpy array
+
+        Args:
+            system (ase.atoms): The system to convert.
+            atomic_numbers(): The atomic numbers to consider. Atoms that do not
+                have these atomic numbers are ignored.
+
+        Returns:
+            (np.ndarray, list, int, np.ndarray): Returns the positions flattened
+            and sorted by atomic number, numer of atoms per type, number of
+            different species and the sorted atomic numbers.
+        """
+        Z = system.get_atomic_numbers()
+        pos = system.get_positions()
+
+        # Get a sorted list of atom types
+        if atomic_numbers is not None:
+            atomtype_set = set(atomic_numbers)
+        else:
+            atomtype_set = set(Z)
+        atomic_numbers_sorted = np.sort(list(atomtype_set))
+
+        # Form a flattened list of atomic positions, sorted by atomic type
+        n_atoms_per_type = []
+        pos_lst = []
+        for atomtype in atomic_numbers_sorted:
+            condition = Z == atomtype
+            pos_onetype = pos[condition]
+            n_onetype = pos_onetype.shape[0]
+            pos_lst.append(pos_onetype)
+            n_atoms_per_type.append(n_onetype)
+        n_species = len(atomic_numbers_sorted)
+        positions_sorted = np.concatenate(pos_lst).ravel()
+
+        return positions_sorted, n_atoms_per_type, n_species, atomic_numbers_sorted
+
+    def get_soap_locals_gto(self, system, positions, alphas, betas, rcut, nmax, lmax, eta, crossover, atomic_numbers=None):
+        """Get the SOAP output for the given positions using the gto radial
+        basis.
+
+        Args:
+            system(ase.Atoms): Atomic structure for which the SOAP output is
+                calculated.
+            positions(np.ndarray): Positions at which to calculate SOAP.
+            alphas (np.ndarray): The alpha coeffients for the gto-basis.
+            betas (np.ndarray): The beta coeffients for the gto-basis.
+            rCut (float): Radial cutoff.
+            nmax (int): Maximum number of radial basis functions.
+            lmax (int): Maximum spherical harmonics degree.
+            eta (float): The gaussian smearing width.
+            crossover (bool): Whether to include species crossover in output.
+            atomic_numbers (np.ndarray): Can be used to specify the species for
+                which to calculate the output. If None, all species are included.
+                If given the output is calculated only for the given species and is
+                ordered by atomic number.
+
+        Returns:
+            np.ndarray: SOAP output with the gto radial basis for the given positions.
+        """
+        rCutHard = rcut + 5
+
+        n_atoms = len(system)
+        Apos, typeNs, py_Ntypes, atomtype_lst = self.flatten_positions(system, atomic_numbers)
+        positions = np.array(positions)
+        py_Hsize = positions.shape[0]
+
+        # Flatten arrays
+        positions = positions.flatten()
+        alphas = alphas.flatten()
+        betas = betas.flatten()
+
+        # Convert types
+        lMax = c_int(lmax)
+        Hsize = c_int(py_Hsize)
+        Ntypes = c_int(py_Ntypes)
+        n_atoms = c_int(n_atoms)
+        rCutHard = c_double(rCutHard)
+        Nsize = c_int(nmax)
+        c_eta = c_double(eta)
+        typeNs = (c_int * len(typeNs))(*typeNs)
+        alphas = (c_double * len(alphas))(*alphas.tolist())
+        betas = (c_double * len(betas))(*betas.tolist())
+        axyz = (c_double * len(Apos))(*Apos.tolist())
+        hxyz = (c_double * len(positions))(*positions.tolist())
+
+        # Calculate with C-extension
+        _PATH_TO_SOAPLITE_SO = os.path.dirname(os.path.abspath(__file__))
+        _SOAPLITE_SOFILES = glob.glob("".join([_PATH_TO_SOAPLITE_SO, "/../libsoap/libsoap*.*so"]))
+        if py_Ntypes == 1 or (not crossover):
+            substring = "libsoap/libsoapPySig."
+            libsoap = CDLL(next((s for s in _SOAPLITE_SOFILES if substring in s), None))
+            libsoap.soap.argtypes = [POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_int), c_double, c_int, c_int, c_int, c_int, c_int, c_double]
+            libsoap.soap.restype = POINTER(c_double)
+            c = (c_double*(int((nmax*(nmax+1))/2)*(lmax+1)*py_Ntypes*py_Hsize))()
+            libsoap.soap(c, axyz, hxyz, alphas, betas, typeNs, rCutHard, n_atoms, Ntypes, Nsize, lMax, Hsize, c_eta)
+        else:
+            substring = "libsoap/libsoapGTO."
+            libsoapGTO = CDLL(next((s for s in _SOAPLITE_SOFILES if substring in s), None))
+            libsoapGTO.soap.argtypes = [POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_int), c_double, c_int, c_int, c_int, c_int, c_int, c_double]
+            libsoapGTO.soap.restype = POINTER(c_double)
+            c = (c_double*(int((nmax*(nmax+1))/2)*(lmax+1)*int((py_Ntypes*(py_Ntypes + 1))/2)*py_Hsize))()
+            libsoapGTO.soap(c, axyz, hxyz, alphas, betas, typeNs, rCutHard, n_atoms, Ntypes, Nsize, lMax, Hsize, c_eta)
+
+        if crossover:
+            crosTypes = int((py_Ntypes*(py_Ntypes+1))/2)
+            shape = (py_Hsize, int((nmax*(nmax+1))/2)*(lmax+1)*crosTypes)
+        else:
+            shape = (py_Hsize, int((nmax*(nmax+1))/2)*(lmax+1)*py_Ntypes)
+
+        a = np.ctypeslib.as_array(c)
+        a = a.reshape(shape)
+
+        return a
+
+    def get_soap_locals_poly(self, system, positions, rcut, nmax, lmax, eta, atomic_numbers=None):
+        """Get the SOAP output using polynomial radial basis for the given
+        positions.
+
+        Args:
+            system(ase.Atoms): Atomic structure for which the SOAP output is
+                calculated.
+            positions(np.ndarray): Positions at which to calculate SOAP.
+            alphas (np.ndarray): The alpha coeffients for the gto-basis.
+            betas (np.ndarray): The beta coeffients for the gto-basis.
+            rCut (float): Radial cutoff.
+            nmax (int): Maximum number of radial basis functions.
+            lmax (int): Maximum spherical harmonics degree.
+            eta (float): The gaussian smearing width.
+            crossover (bool): Whether to include species crossover in output.
+            atomic_numbers (np.ndarray): Can be used to specify the species for
+                which to calculate the output. If None, all species are included.
+                If given the output is calculated only for the given species and is
+                ordered by atomic number.
+
+        Returns:
+            np.ndarray: SOAP output with the polynomial radial basis for the
+            given positions.
+        """
+        rCutHard = rcut + 5
+        rx, gss = self.get_basis_poly(rcut, nmax)
+
+        n_atoms = len(system)
+        Apos, typeNs, py_Ntypes, atomtype_lst = self.flatten_positions(system, atomic_numbers)
+        positions = np.array(positions)
+        py_Hsize = positions.shape[0]
+
+        # Flatten arrays
+        positions = positions.flatten()
+        gss = gss.flatten()
+
+        # Convert types
+        lMax = c_int(lmax)
+        Hsize = c_int(py_Hsize)
+        Ntypes = c_int(py_Ntypes)
+        n_atoms = c_int(n_atoms)
+        rCutHard = c_double(rCutHard)
+        Nsize = c_int(nmax)
+        c_eta = c_double(eta)
+        typeNs = (c_int * len(typeNs))(*typeNs)
+        axyz = (c_double * len(Apos))(*Apos.tolist())
+        hxyz = (c_double * len(positions))(*positions.tolist())
+        rx = (c_double * 100)(*rx.tolist())
+        gss = (c_double * (100 * nmax))(*gss.tolist())
+
+        # Calculate with C-extension
+        _PATH_TO_SOAPLITE_SO = os.path.dirname(os.path.abspath(__file__))
+        _SOAPLITE_SOFILES = glob.glob("".join([_PATH_TO_SOAPLITE_SO, "/../libsoap/libsoapG*.*so"]))
+        substring = "libsoap/libsoapGeneral."
+        libsoap = CDLL(next((s for s in _SOAPLITE_SOFILES if substring in s), None))
+        libsoap.soap.argtypes = [POINTER(c_double), POINTER(c_double), POINTER(c_double),
+                POINTER(c_int), c_double,
+                c_int, c_int, c_int, c_int, c_int,
+                c_double, POINTER(c_double), POINTER(c_double)]
+        libsoap.soap.restype = POINTER(c_double)
+
+        c = (c_double*(int((nmax*(nmax+1))/2)*(lmax+1)*int((py_Ntypes*(py_Ntypes+1))/2)*py_Hsize))()
+        libsoap.soap(c, axyz, hxyz, typeNs, rCutHard, n_atoms, Ntypes, Nsize, lMax, Hsize, c_eta, rx, gss)
+
+        shape = (py_Hsize, int((nmax*(nmax+1))/2)*(lmax+1)*int((py_Ntypes*(py_Ntypes+1))/2))
+        crosTypes = int((py_Ntypes*(py_Ntypes+1))/2)
+        shape = (py_Hsize, int((nmax*(nmax+1))/2)*(lmax+1)*crosTypes)
+        a = np.ctypeslib.as_array(c)
+        a = a.reshape(shape)
+        return a
+
+    def get_basis_gto(self, rcut, nmax):
+        """Used to calculate the alpha and beta prefactors for the gto-radial
+        basis.
+
+        Args:
+            rcut(float): Radial cutoff.
+            nmax(int): Number of gto radial bases.
+
+        Returns:
+            (np.ndarray, np.ndarray): The alpha and beta prefactors for all bases
+            up to a fixed size of l=10.
+        """
+        # These are the values for where the different basis functions should decay
+        # to: evenly space between 1 angstrom and rcut.
+        a = np.linspace(1, rcut, nmax)
+        threshold = 1e-3  # This is the fixed gaussian decay threshold
+
+        alphas_full = np.zeros((10, nmax))
+        betas_full = np.zeros((10, nmax, nmax))
+
+        for l in range(0, 10):
+            # The alphas are calculated so that the GTOs will decay to the set
+            # threshold value at their respective cutoffs
+            alphas = -np.log(threshold/np.power(a, l))/a**2
+
+            # Calculate the overlap matrix
+            m = np.zeros((alphas.shape[0], alphas.shape[0]))
+            m[:, :] = alphas
+            m = m + m.transpose()
+            S = 0.5*gamma(l + 3.0/2.0)*m**(-l-3.0/2.0)
+
+            # Get the beta factors that orthonormalize the set with Löwdin
+            # orthonormalization
+            betas = sqrtm(inv(S))
+
+            alphas_full[l, :] = alphas
+            betas_full[l, :, :] = betas
+
+        return alphas_full, betas_full
+
+    def get_basis_poly(self, rcut, nmax):
+        """Used to calculate discrete vectors for the polynomial basis functions.
+
+        Args:
+            rcut(float): Radial cutoff.
+            nmax(int): Number of polynomial radial bases.
+
+        Returns:
+            (np.ndarray, np.ndarray): Tuple containing the evaluation points in
+            radial direction as the first item, and the corresponding
+            orthonormalized polynomial radial basis set as the second item.
+        """
+        # Calculate the overlap of the different polynomial functions in a
+        # matrix S. These overlaps defined through the dot product over the
+        # radial coordinate are analytically calculable: Integrate[(rc - r)^(a
+        # + 2) (rc - r)^(b + 2) r^2, {r, 0, rc}]. Then the weights B that make
+        # the basis orthonormal are given by B=S^{-1/2}
+        S = np.zeros((nmax, nmax))
+        for i in range(1, nmax+1):
+            for j in range(1, nmax+1):
+                S[i-1, j-1] = (2*(rcut)**(7+i+j))/((5+i+j)*(6+i+j)*(7+i+j))
+
+        # Get the beta factors that orthonormalize the set with Löwdin
+        # orthonormalization
+        betas = sqrtm(np.linalg.inv(S))
+
+        # If the result is complex, the calculation is currently halted.
+        if (betas.dtype == np.complex128):
+            raise ValueError(
+                "Could not calculate normalization factors for the polynomial basis"
+                " in the domain of real numbers. Lowering the number of radial "
+                "basis functions is advised."
+            )
+
+        # The radial basis is integrated in a very specific nonlinearly spaced
+        # grid given by rx
+        x = np.zeros(100)
+        x[0] = -0.999713726773441234
+        x[1] = -0.998491950639595818
+        x[2] = -0.996295134733125149
+        x[3] = -0.99312493703744346
+        x[4] = -0.98898439524299175
+        x[5] = -0.98387754070605702
+        x[6] = -0.97780935848691829
+        x[7] = -0.97078577576370633
+        x[8] = -0.962813654255815527
+        x[9] = -0.95390078292549174
+        x[10] = -0.94405587013625598
+        x[11] = -0.933288535043079546
+        x[12] = -0.921609298145333953
+        x[13] = -0.90902957098252969
+        x[14] = -0.895561644970726987
+        x[15] = -0.881218679385018416
+        x[16] = -0.86601468849716462
+        x[17] = -0.849964527879591284
+        x[18] = -0.833083879888400824
+        x[19] = -0.815389238339176254
+        x[20] = -0.79689789239031448
+        x[21] = -0.77762790964949548
+        x[22] = -0.757598118519707176
+        x[23] = -0.736828089802020706
+        x[24] = -0.715338117573056447
+        x[25] = -0.69314919935580197
+        x[26] = -0.670283015603141016
+        x[27] = -0.64676190851412928
+        x[28] = -0.622608860203707772
+        x[29] = -0.59784747024717872
+        x[30] = -0.57250193262138119
+        x[31] = -0.546597012065094168
+        x[32] = -0.520158019881763057
+        x[33] = -0.493210789208190934
+        x[34] = -0.465781649773358042
+        x[35] = -0.437897402172031513
+        x[36] = -0.409585291678301543
+        x[37] = -0.380872981624629957
+        x[38] = -0.351788526372421721
+        x[39] = -0.322360343900529152
+        x[40] = -0.292617188038471965
+        x[41] = -0.26258812037150348
+        x[42] = -0.23230248184497397
+        x[43] = -0.201789864095735997
+        x[44] = -0.171080080538603275
+        x[45] = -0.140203137236113973
+        x[46] = -0.109189203580061115
+        x[47] = -0.0780685828134366367
+        x[48] = -0.046871682421591632
+        x[49] = -0.015628984421543083
+        x[50] = 0.0156289844215430829
+        x[51] = 0.046871682421591632
+        x[52] = 0.078068582813436637
+        x[53] = 0.109189203580061115
+        x[54] = 0.140203137236113973
+        x[55] = 0.171080080538603275
+        x[56] = 0.201789864095735997
+        x[57] = 0.23230248184497397
+        x[58] = 0.262588120371503479
+        x[59] = 0.292617188038471965
+        x[60] = 0.322360343900529152
+        x[61] = 0.351788526372421721
+        x[62] = 0.380872981624629957
+        x[63] = 0.409585291678301543
+        x[64] = 0.437897402172031513
+        x[65] = 0.465781649773358042
+        x[66] = 0.49321078920819093
+        x[67] = 0.520158019881763057
+        x[68] = 0.546597012065094168
+        x[69] = 0.572501932621381191
+        x[70] = 0.59784747024717872
+        x[71] = 0.622608860203707772
+        x[72] = 0.64676190851412928
+        x[73] = 0.670283015603141016
+        x[74] = 0.693149199355801966
+        x[75] = 0.715338117573056447
+        x[76] = 0.736828089802020706
+        x[77] = 0.75759811851970718
+        x[78] = 0.77762790964949548
+        x[79] = 0.79689789239031448
+        x[80] = 0.81538923833917625
+        x[81] = 0.833083879888400824
+        x[82] = 0.849964527879591284
+        x[83] = 0.866014688497164623
+        x[84] = 0.881218679385018416
+        x[85] = 0.89556164497072699
+        x[86] = 0.90902957098252969
+        x[87] = 0.921609298145333953
+        x[88] = 0.933288535043079546
+        x[89] = 0.94405587013625598
+        x[90] = 0.953900782925491743
+        x[91] = 0.96281365425581553
+        x[92] = 0.970785775763706332
+        x[93] = 0.977809358486918289
+        x[94] = 0.983877540706057016
+        x[95] = 0.98898439524299175
+        x[96] = 0.99312493703744346
+        x[97] = 0.99629513473312515
+        x[98] = 0.998491950639595818
+        x[99] = 0.99971372677344123
+
+        rCutVeryHard = rcut+5.0
+        rx = rCutVeryHard*0.5*(x + 1)
+
+        # Calculate the value of the orthonormalized polynomial basis at the rx
+        # values
+        fs = np.zeros([nmax, len(x)])
+        for n in range(1, nmax+1):
+            fs[n-1, :] = (rcut-np.clip(rx, 0, rcut))**(n+2)
+
+        gss = np.dot(betas, fs)
+
+        return rx, gss
