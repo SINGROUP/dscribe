@@ -875,6 +875,15 @@
             <span class="c1"># orthonormalization</span>
             <span class="n">betas</span> <span class="o">=</span> <span class="n">sqrtm</span><span class="p">(</span><span class="n">inv</span><span class="p">(</span><span class="n">S</span><span class="p">))</span>
 
+            <span class="c1"># If the result is complex, the calculation is currently halted.</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">betas</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Could not calculate normalization factors for the radial &quot;</span>
+                    <span class="s2">&quot;basis in the domain of real numbers. Lowering the number of &quot;</span>
+                    <span class="s2">&quot;radial basis functions (nmax) or increasing the radial &quot;</span>
+                    <span class="s2">&quot;cutoff (rcut) is advised.&quot;</span>
+                <span class="p">)</span>
+
             <span class="n">alphas_full</span><span class="p">[</span><span class="n">l</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">alphas</span>
             <span class="n">betas_full</span><span class="p">[</span><span class="n">l</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">betas</span>
 
@@ -897,7 +906,7 @@
         <span class="c1"># radial coordinate are analytically calculable: Integrate[(rc - r)^(a</span>
         <span class="c1"># + 2) (rc - r)^(b + 2) r^2, {r, 0, rc}]. Then the weights B that make</span>
         <span class="c1"># the basis orthonormal are given by B=S^{-1/2}</span>
-        <span class="n">S</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nmax</span><span class="p">,</span> <span class="n">nmax</span><span class="p">))</span>
+        <span class="n">S</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nmax</span><span class="p">,</span> <span class="n">nmax</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nmax</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nmax</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
                 <span class="n">S</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">rcut</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mi">7</span><span class="o">+</span><span class="n">i</span><span class="o">+</span><span class="n">j</span><span class="p">))</span><span class="o">/</span><span class="p">((</span><span class="mi">5</span><span class="o">+</span><span class="n">i</span><span class="o">+</span><span class="n">j</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mi">6</span><span class="o">+</span><span class="n">i</span><span class="o">+</span><span class="n">j</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mi">7</span><span class="o">+</span><span class="n">i</span><span class="o">+</span><span class="n">j</span><span class="p">))</span>
@@ -909,9 +918,10 @@
         <span class="c1"># If the result is complex, the calculation is currently halted.</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">betas</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Could not calculate normalization factors for the polynomial basis&quot;</span>
-                <span class="s2">&quot; in the domain of real numbers. Lowering the number of radial &quot;</span>
-                <span class="s2">&quot;basis functions is advised.&quot;</span>
+                <span class="s2">&quot;Could not calculate normalization factors for the radial &quot;</span>
+                <span class="s2">&quot;basis in the domain of real numbers. Lowering the number of &quot;</span>
+                <span class="s2">&quot;radial basis functions (nmax) or increasing the radial &quot;</span>
+                <span class="s2">&quot;cutoff (rcut) is advised.&quot;</span>
             <span class="p">)</span>
 
         <span class="c1"># The radial basis is integrated in a very specific nonlinearly spaced</span>
