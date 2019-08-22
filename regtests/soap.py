@@ -81,6 +81,16 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         with self.assertRaises(ValueError):
             SOAP(species=["H", "O"], rcut=4, sigma=1, nmax=0, lmax=8, rbf="gto", periodic=True)
 
+        # Too high radial basis set density: poly
+        with self.assertRaises(ValueError):
+            a = SOAP(species=["H", "O"], rcut=10, sigma=0.5, nmax=12, lmax=8, rbf="polynomial", periodic=False)
+            a.create(H2O)
+
+        # Too high radial basis set density: gto
+        with self.assertRaises(ValueError):
+            a = SOAP(species=["H", "O"], rcut=10, sigma=0.5, nmax=20, lmax=8, rbf="gto", periodic=False)
+            a.create(H2O)
+
     def test_properties(self):
         """Used to test that changing the setup through properties works as
         intended.
