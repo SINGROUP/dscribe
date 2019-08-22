@@ -183,6 +183,29 @@
 the local environment near an atom by using a fingerprint composed of the
 output of multiple two- and three-body functions that can be customized to
 detect specific structural features.</p>
+<p>Notice that the DScribe output for ACSF does not include the species of the
+central atom in any way. If the chemical identify of the central species is
+important, you may want to consider a custom output stratification scheme based
+on the chemical identity of the central species, or the inclusion of the
+species identify in an additional feature. Training a separate model for each
+central species is also possible.</p>
+<p>The ACSF output is stratified by the species of the neighbouring atoms. In
+pseudo-code the ordering of the output vector is as follows:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>for Z in atomic numbers in increasing order:
+    append value for G1 to output
+    for G2 in g2_params:
+        append value for G2 to output
+    for G3 in g3_params:
+        append value for G3 to output
+for Z in atomic numbers in increasing order:
+   for Z&#39; in atomic numbers in increasing order:
+       if and Z&#39; &gt;= Z:
+           for G4 in g4_params:
+               append value for G4 to output
+           for G5 in g5_params:
+               append value for G5 to output
+</pre></div>
+</div>
 <div class="section" id="setup">
 <h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h2>
 <p>Instantiating an ACSF descriptor can be done as follows:</p>
@@ -284,7 +307,7 @@ their positions.</p>
 
 <p>The output will in this case be a numpy array with shape [#positions,
 #features]. The number of features may be requested beforehand with the
-<a class="reference internal" href="../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.get_number_of_features" title="dscribe.descriptors.acsf.ACSF.get_number_of_features"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_number_of_features()</span></code></a>-method.</p>
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">get_number_of_features()</span></code>-method.</p>
 <p id="bibtex-bibliography-tutorials/acsf-0"><dl class="citation">
 <dt class="label" id="acsf"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
 <dd><p>Jörg Behler. Atom-centered symmetry functions for constructing high-dimensional neural network potentials. <em>J. Chem. Phys.</em>, 134(7):074106, 2011.</p>

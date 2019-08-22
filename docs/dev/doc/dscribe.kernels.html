@@ -213,6 +213,29 @@ the number of atoms in structure <span class="math notranslate nohighlight">\(B\
 atomic environments <span class="math notranslate nohighlight">\(C_{ij}\)</span> has been calculated with the pairwise
 metric (e.g. linear, gaussian) defined by the parameters given in the
 constructor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>metric</strong> (<em>string</em><em> or </em><em>callable</em>) – The pairwise metric used for
+calculating the local similarity. Accepts any of the sklearn
+pairwise metric strings (e.g. “linear”, “rbf”, “laplacian”,
+“polynomial”) or a custom callable. A callable should accept
+two arguments and the keyword arguments passed to this object
+as kernel_params, and should return a floating point number.</p></li>
+<li><p><strong>gamma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Gamma parameter for the RBF, laplacian, polynomial,
+exponential chi2 and sigmoid kernels. Interpretation of the
+default value is left to the kernel; see the documentation for
+sklearn.metrics.pairwise. Ignored by other kernels.</p></li>
+<li><p><strong>degree</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Degree of the polynomial kernel. Ignored by other
+kernels.</p></li>
+<li><p><strong>coef0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Zero coefficient for polynomial and sigmoid kernels.
+Ignored by other kernels.</p></li>
+<li><p><strong>kernel_params</strong> (<em>mapping of string to any</em>) – Additional parameters
+(keyword arguments) for kernel function passed as callable
+object.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="dscribe.kernels.average.AverageKernel.get_global_similarity">
 <code class="sig-name descname">get_global_similarity</code><span class="sig-paren">(</span><em class="sig-param">localkernel</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/kernels/average.html#AverageKernel.get_global_similarity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.kernels.average.AverageKernel.get_global_similarity" title="Permalink to this definition">¶</a></dt>
@@ -254,6 +277,29 @@ limitations under the License.</p>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>An abstract base class for all kernels that use the similarity of local
 atomic environments to compute a global similarity measure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>metric</strong> (<em>string</em><em> or </em><em>callable</em>) – The pairwise metric used for
+calculating the local similarity. Accepts any of the sklearn
+pairwise metric strings (e.g. “linear”, “rbf”, “laplacian”,
+“polynomial”) or a custom callable. A callable should accept
+two arguments and the keyword arguments passed to this object
+as kernel_params, and should return a floating point number.</p></li>
+<li><p><strong>gamma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Gamma parameter for the RBF, laplacian, polynomial,
+exponential chi2 and sigmoid kernels. Interpretation of the
+default value is left to the kernel; see the documentation for
+sklearn.metrics.pairwise. Ignored by other kernels.</p></li>
+<li><p><strong>degree</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Degree of the polynomial kernel. Ignored by other
+kernels.</p></li>
+<li><p><strong>coef0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Zero coefficient for polynomial and sigmoid kernels.
+Ignored by other kernels.</p></li>
+<li><p><strong>kernel_params</strong> (<em>mapping of string to any</em>) – Additional parameters
+(keyword arguments) for kernel function passed as callable
+object.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel.create">
 <code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/kernels/localsimilaritykernel.html#LocalSimilarityKernel.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel.create" title="Permalink to this definition">¶</a></dt>
@@ -355,6 +401,34 @@ the parameters given in the constructor.</p>
 space”, Sandip De, Albert P. Bartók, Gábor Csányi and Michele Ceriotti,
 Phys.  Chem. Chem. Phys. 18, 13754 (2016),
 <a class="reference external" href="https://doi.org/10.1039/c6cp00415f">https://doi.org/10.1039/c6cp00415f</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>alpha</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Parameter controlling the entropic penalty. Values
+close to zero approach the best-match solution and values
+towards infinity approach the average kernel.</p></li>
+<li><p><strong>threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Convergence threshold used in the
+Sinkhorn-algorithm.</p></li>
+<li><p><strong>metric</strong> (<em>string</em><em> or </em><em>callable</em>) – The pairwise metric used for
+calculating the local similarity. Accepts any of the sklearn
+pairwise metric strings (e.g. “linear”, “rbf”, “laplacian”,
+“polynomial”) or a custom callable. A callable should accept
+two arguments and the keyword arguments passed to this object
+as kernel_params, and should return a floating point number.</p></li>
+<li><p><strong>gamma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Gamma parameter for the RBF, laplacian, polynomial,
+exponential chi2 and sigmoid kernels. Interpretation of the
+default value is left to the kernel; see the documentation for
+sklearn.metrics.pairwise. Ignored by other kernels.</p></li>
+<li><p><strong>degree</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Degree of the polynomial kernel. Ignored by other
+kernels.</p></li>
+<li><p><strong>coef0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Zero coefficient for polynomial and sigmoid kernels.
+Ignored by other kernels.</p></li>
+<li><p><strong>kernel_params</strong> (<em>mapping of string to any</em>) – Additional parameters
+(keyword arguments) for kernel function passed as callable
+object.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="dscribe.kernels.rematch.REMatchKernel.get_global_similarity">
 <code class="sig-name descname">get_global_similarity</code><span class="sig-paren">(</span><em class="sig-param">localkernel</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/kernels/rematch.html#REMatchKernel.get_global_similarity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.kernels.rematch.REMatchKernel.get_global_similarity" title="Permalink to this definition">¶</a></dt>
