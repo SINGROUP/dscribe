@@ -715,6 +715,15 @@ class SOAP(Descriptor):
             # orthonormalization
             betas = sqrtm(inv(S))
 
+            # If the result is complex, the calculation is currently halted.
+            if (betas.dtype == np.complex128):
+                raise ValueError(
+                    "Could not calculate normalization factors for the radial "
+                    "basis in the domain of real numbers. Lowering the number of "
+                    "radial basis functions (nmax) or increasing the radial "
+                    "cutoff (rcut) is advised."
+                )
+
             alphas_full[l, :] = alphas
             betas_full[l, :, :] = betas
 
@@ -737,7 +746,7 @@ class SOAP(Descriptor):
         # radial coordinate are analytically calculable: Integrate[(rc - r)^(a
         # + 2) (rc - r)^(b + 2) r^2, {r, 0, rc}]. Then the weights B that make
         # the basis orthonormal are given by B=S^{-1/2}
-        S = np.zeros((nmax, nmax))
+        S = np.zeros((nmax, nmax), dtype=np.float64)
         for i in range(1, nmax+1):
             for j in range(1, nmax+1):
                 S[i-1, j-1] = (2*(rcut)**(7+i+j))/((5+i+j)*(6+i+j)*(7+i+j))
@@ -749,9 +758,10 @@ class SOAP(Descriptor):
         # If the result is complex, the calculation is currently halted.
         if (betas.dtype == np.complex128):
             raise ValueError(
-                "Could not calculate normalization factors for the polynomial basis"
-                " in the domain of real numbers. Lowering the number of radial "
-                "basis functions is advised."
+                "Could not calculate normalization factors for the radial "
+                "basis in the domain of real numbers. Lowering the number of "
+                "radial basis functions (nmax) or increasing the radial "
+                "cutoff (rcut) is advised."
             )
 
         # The radial basis is integrated in a very specific nonlinearly spaced
