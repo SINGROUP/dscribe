@@ -4,10 +4,10 @@ dscribe.kernels package
 Submodules
 ----------
 
-dscribe.kernels.average module
-------------------------------
+dscribe.kernels.averagekernel module
+------------------------------------
 
-.. automodule:: dscribe.kernels.average
+.. automodule:: dscribe.kernels.averagekernel
    :members:
    :undoc-members:
    :show-inheritance:
@@ -20,10 +20,10 @@ dscribe.kernels.localsimilaritykernel module
    :undoc-members:
    :show-inheritance:
 
-dscribe.kernels.rematch module
-------------------------------
+dscribe.kernels.rematchkernel module
+------------------------------------
 
-.. automodule:: dscribe.kernels.rematch
+.. automodule:: dscribe.kernels.rematchkernel
    :members:
    :undoc-members:
    :show-inheritance:

@@ -26,9 +26,7 @@ implementation to DScribe:
 
 Code style guideline
 --------------------
-  - The code is designed to run on both Python 2 and Python 3. This can quite
-    easily be achieved by using the future-package. More information can be
-    found from `here <https://python-future.org/>`_
+  - The code is designed to run on Python 3 only from version 0.2.8 onwards.
   - The code style is guided by PEP 8, but ignoring the following:
 
      - E123: Closing bracket does not match indentation of opening bracket’s line

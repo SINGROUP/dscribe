@@ -58,16 +58,17 @@ extensions = [
 
 # The SOAP C extension, wrapped with ctypes
 for soname, source in zip(
-    [
-        "dscribe.libsoap.libsoapPySig",
-        "dscribe.libsoap.libsoapGTO",
-        "dscribe.libsoap.libsoapGeneral",
-    ],
-    [
-        "dscribe/libsoap/soapAnalFullPySigma.c",
-        "dscribe/libsoap/soapGTO.c",
-        "dscribe/libsoap/soapGeneral.c",
-    ]):
+        [
+            "dscribe.libsoap.libsoapPySig",
+            "dscribe.libsoap.libsoapGTO",
+            "dscribe.libsoap.libsoapGeneral",
+        ],
+        [
+            "dscribe/libsoap/soapAnalFullPySigma.c",
+            "dscribe/libsoap/soapGTO.c",
+            "dscribe/libsoap/soapGeneral.c",
+        ]
+        ):
     extensions.append(Extension(
         soname,
         [source],
@@ -87,7 +88,6 @@ if __name__ == "__main__":
             'numpy',
             'scipy',
             'ase',
-            'future',
             'scikit-learn',
             'joblib',
         ],
@@ -96,15 +96,17 @@ if __name__ == "__main__":
         license="Apache License 2.0",
         classifiers=[
             'Development Status :: 5 - Production/Stable',
+            'Intended Audience :: Science/Research',
             'Intended Audience :: Developers',
+            'Topic :: Scientific/Engineering',
             'Topic :: Scientific/Engineering :: Physics',
             'License :: OSI Approved :: Apache Software License',
+            'Operating System :: MacOS',
+            'Operating System :: Unix',
+            'Programming Language :: C',
+            'Programming Language :: C++',
+            'Programming Language :: Python',
             'Programming Language :: Python :: 3',
-            'Programming Language :: Python :: 3.0',
-            'Programming Language :: Python :: 3.1',
-            'Programming Language :: Python :: 3.2',
-            'Programming Language :: Python :: 3.3',
-            'Programming Language :: Python :: 3.4',
             'Programming Language :: Python :: 3.5',
             'Programming Language :: Python :: 3.6',
             'Programming Language :: Python :: 3.7',
@@ -112,5 +114,5 @@ if __name__ == "__main__":
             'Programming Language :: Python :: 3 :: Only',
         ],
         keywords='descriptor machine learning atomistic structure materials science',
-        python_requires='>=3, <4',
+        python_requires='>=3.5',
     )

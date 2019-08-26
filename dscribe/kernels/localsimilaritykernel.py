@@ -13,13 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 import numpy as np
-from future.utils import with_metaclass
 from sklearn.metrics.pairwise import pairwise_kernels
 
 
-class LocalSimilarityKernel(with_metaclass(ABCMeta)):
+class LocalSimilarityKernel(ABC):
     """An abstract base class for all kernels that use the similarity of local
     atomic environments to compute a global similarity measure.
     """

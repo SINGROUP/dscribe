@@ -1,9 +1,6 @@
 """Demostrates how global similarity kernels can be built from local atomic
 environments.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-from builtins import (bytes, str, open, super, range, zip, round, input, int, pow, object)
-
 from dscribe.descriptors import SOAP
 from dscribe.kernels import AverageKernel
 

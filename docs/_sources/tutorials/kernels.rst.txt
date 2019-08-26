@@ -33,7 +33,7 @@ metric:
 
 .. literalinclude:: ../../../examples/kernels/averagekernel.py
    :language: python
-   :lines: 7-29
+   :lines: 4-26
 
 Best-match kernel
 -----------------
