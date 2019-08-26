@@ -79,7 +79,7 @@ for soname, source in zip(
 
 if __name__ == "__main__":
     setup(name='dscribe',
-        version="0.2.9a0",
+        version="0.2.9",
         url="https://singroup.github.io/dscribe/",
         description='A Python package for creating feature transformations in applications of machine learning to materials science.',
         long_description='A Python package for creating feature transformations in applications of machine learning to materials science.',
