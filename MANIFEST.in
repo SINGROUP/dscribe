@@ -1,5 +1,5 @@
 # Include the license file
-include LICENSE.txt
+include LICENSE
 
 # Include the ACSF header file
 include dscribe/libacsf/acsf.h
