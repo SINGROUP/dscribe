@@ -301,7 +301,7 @@ dense numpy array.</p></li>
 </dl>
 </dd></dl>
 
-<p>For each k-body term the MBTR class takes in a setup as a a dictionary. This
+<p>For each k-body term the MBTR class takes in a setup as a dictionary. This
 dictionary should contain three parts: the geometry function, the grid and the
 weighting function. The geometry function specifies how the k-body information
 is encoded. The grid specifies the expected range of the geometry values
@@ -313,7 +313,7 @@ functions are available:</p>
 <table class="colwidths-given docutils align-default" id="id3">
 <caption><span class="caption-text">The geometry and weighting functions</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
 <colgroup>
-<col style="width: 9%" />
+<col style="width: 10%" />
 <col style="width: 45%" />
 <col style="width: 45%" />
 </colgroup>
@@ -333,7 +333,8 @@ functions are available:</p>
 <p>“inverse_distance”: Pairwise inverse distance in 1/angstrom.</p>
 </td>
 <td><p>“unity”: No weighting.</p>
-<p>“exp” or “exponential”: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span></p>
+<p>“exp” or “exponential”: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span>,
+where <cite>x</cite> is the distance between the two atoms.</p>
 </td>
 </tr>
 <tr class="row-even"><td><p><span class="math notranslate nohighlight">\(k=3\)</span></p></td>
@@ -341,7 +342,8 @@ functions are available:</p>
 <p>“cosine”: Cosine of the angle.</p>
 </td>
 <td><p>“unity”: No weighting.</p>
-<p>“exp” or “exponential”: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span></p>
+<p>“exp” or “exponential”: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span>,
+where <cite>x</cite> is the perimeter of the triangle formed by the tree atoms.</p>
 </td>
 </tr>
 </tbody>
