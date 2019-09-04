@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dscribe.utils.geometry &mdash; DScribe 0.2.9a0 documentation</title>
+  <title>dscribe.utils.geometry &mdash; DScribe 0.3.0a0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                0.2.9a0
+                0.3.0a0
               </div>
             
           
@@ -158,15 +158,27 @@
            <div itemprop="articleBody">
             
   <h1>Source code for dscribe.utils.geometry</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;Copyright 2019 DScribe developers</span>
+
+<span class="sd">Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="sd">you may not use this file except in compliance with the License.</span>
+<span class="sd">You may obtain a copy of the License at</span>
+
+<span class="sd">    http://www.apache.org/licenses/LICENSE-2.0</span>
+
+<span class="sd">Unless required by applicable law or agreed to in writing, software</span>
+<span class="sd">distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="sd">WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="sd">See the License for the specific language governing permissions and</span>
+<span class="sd">limitations under the License.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">import</span> <span class="nn">scipy.sparse</span>
 <span class="kn">from</span> <span class="nn">scipy.spatial.distance</span> <span class="k">import</span> <span class="n">cdist</span>
 
 <span class="kn">from</span> <span class="nn">ase</span> <span class="k">import</span> <span class="n">Atoms</span>
-
-<span class="kn">from</span> <span class="nn">ase.visualize</span> <span class="k">import</span> <span class="n">view</span>
-<span class="kn">import</span> <span class="nn">sys</span>
 
 
 <div class="viewcode-block" id="get_adjacency_matrix"><a class="viewcode-back" href="../../../doc/dscribe.utils.html#dscribe.utils.geometry.get_adjacency_matrix">[docs]</a><span class="k">def</span> <span class="nf">get_adjacency_matrix</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_type</span><span class="o">=</span><span class="s2">&quot;coo_matrix&quot;</span><span class="p">):</span>
@@ -384,16 +396,16 @@
   <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="fa fa-book"> Versions</span>
-      v: 0.2.9a0
+      v: 0.3.0a0
       <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
       <dl>
         <dt>Versions</dt>
         
-          <dd><a href="https://singroup.github.io/dscribe/dev">0.2.9a0 (development)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe/dev">0.3.0a0 (development)</a></dd>
         
-          <dd><a href="https://singroup.github.io/dscribe">0.2.8 (latest stable)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe">0.2.9 (latest stable)</a></dd>
         
       </dl>
     </div>

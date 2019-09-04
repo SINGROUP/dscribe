@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Index &mdash; DScribe 0.2.9a0 documentation</title>
+  <title>Index &mdash; DScribe 0.3.0a0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                0.2.9a0
+                0.3.0a0
               </div>
             
           
@@ -221,6 +221,8 @@
 </li>
       <li><a href="doc/dscribe.libacsf.html#dscribe.libacsf.acsfwrapper.ACSFWrapper.atomic_numbers">atomic_numbers (dscribe.libacsf.acsfwrapper.ACSFWrapper attribute)</a>
 </li>
+      <li><a href="doc/dscribe.kernels.html#dscribe.kernels.averagekernel.AverageKernel">AverageKernel (class in dscribe.kernels.averagekernel)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -315,17 +317,21 @@
 </li>
       <li><a href="doc/dscribe.descriptors.html#module-dscribe.descriptors.matrixdescriptor">dscribe.descriptors.matrixdescriptor (module)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="doc/dscribe.descriptors.html#module-dscribe.descriptors.mbtr">dscribe.descriptors.mbtr (module)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="doc/dscribe.descriptors.html#module-dscribe.descriptors.sinematrix">dscribe.descriptors.sinematrix (module)</a>
 </li>
       <li><a href="doc/dscribe.descriptors.html#module-dscribe.descriptors.soap">dscribe.descriptors.soap (module)</a>
 </li>
       <li><a href="doc/dscribe.kernels.html#module-dscribe.kernels">dscribe.kernels (module)</a>
 </li>
+      <li><a href="doc/dscribe.kernels.html#module-dscribe.kernels.averagekernel">dscribe.kernels.averagekernel (module)</a>
+</li>
       <li><a href="doc/dscribe.kernels.html#module-dscribe.kernels.localsimilaritykernel">dscribe.kernels.localsimilaritykernel (module)</a>
+</li>
+      <li><a href="doc/dscribe.kernels.html#module-dscribe.kernels.rematchkernel">dscribe.kernels.rematchkernel (module)</a>
 </li>
       <li><a href="doc/dscribe.libacsf.html#module-dscribe.libacsf">dscribe.libacsf (module)</a>
 </li>
@@ -429,8 +435,14 @@
 </li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_full_space_output">get_full_space_output() (dscribe.descriptors.soap.SOAP method)</a>
 </li>
-      <li><a href="doc/dscribe.kernels.html#dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel.get_global_similarity">get_global_similarity() (dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel method)</a>
+      <li><a href="doc/dscribe.kernels.html#dscribe.kernels.averagekernel.AverageKernel.get_global_similarity">get_global_similarity() (dscribe.kernels.averagekernel.AverageKernel method)</a>
+
+      <ul>
+        <li><a href="doc/dscribe.kernels.html#dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel.get_global_similarity">(dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel method)</a>
 </li>
+        <li><a href="doc/dscribe.kernels.html#dscribe.kernels.rematchkernel.REMatchKernel.get_global_similarity">(dscribe.kernels.rematchkernel.REMatchKernel method)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="doc/dscribe.core.html#dscribe.core.system.System.get_inverse_distance_matrix">get_inverse_distance_matrix() (dscribe.core.system.System method)</a>
@@ -589,13 +601,15 @@
 </li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.rcut">rcut() (dscribe.descriptors.acsf.ACSF property)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="doc/dscribe.libacsf.html#dscribe.libacsf.acsfwrapper.rebuild">rebuild() (in module dscribe.libacsf.acsfwrapper)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="doc/dscribe.core.html#dscribe.core.lattice.Lattice.reciprocal_lattice">reciprocal_lattice() (dscribe.core.lattice.Lattice property)</a>
 </li>
       <li><a href="doc/dscribe.core.html#dscribe.core.lattice.Lattice.reciprocal_lattice_crystallographic">reciprocal_lattice_crystallographic() (dscribe.core.lattice.Lattice property)</a>
+</li>
+      <li><a href="doc/dscribe.kernels.html#dscribe.kernels.rematchkernel.REMatchKernel">REMatchKernel (class in dscribe.kernels.rematchkernel)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -700,16 +714,16 @@
   <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="fa fa-book"> Versions</span>
-      v: 0.2.9a0
+      v: 0.3.0a0
       <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
       <dl>
         <dt>Versions</dt>
         
-          <dd><a href="https://singroup.github.io/dscribe/dev">0.2.9a0 (development)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe/dev">0.3.0a0 (development)</a></dd>
         
-          <dd><a href="https://singroup.github.io/dscribe">0.2.8 (latest stable)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe">0.2.9 (latest stable)</a></dd>
         
       </dl>
     </div>
