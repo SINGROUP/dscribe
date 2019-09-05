@@ -54,7 +54,7 @@ class MatrixDescriptor(Descriptor):
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
         """
-        super().__init__(flatten, sparse)
+        super().__init__(periodic=False, flatten=flatten, sparse=sparse)
 
         # Check parameter validity
         if n_atoms_max <= 0:

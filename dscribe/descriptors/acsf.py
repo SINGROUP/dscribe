@@ -49,6 +49,7 @@ class ACSF(Descriptor):
         g4_params=None,
         g5_params=None,
         species=None,
+        periodic=False,
         sparse=False
     ):
         """
@@ -71,10 +72,12 @@ class ACSF(Descriptor):
                 encountered when creating the descriptors for a set of systems.
                 Keeping the number of chemical species as low as possible is
                 preferable.
+            periodic (bool): Determines whether the system is considered to be
+                periodic.
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
         """
-        super().__init__(flatten=True, sparse=sparse)
+        super().__init__(periodic=periodic, flatten=True, sparse=sparse)
 
         self.acsf_wrapper = ACSFWrapper()
 
@@ -168,9 +171,6 @@ class ACSF(Descriptor):
         # Transform the input system into the internal System-object
         system = self.get_system(system)
 
-        # Make sure that periodicity is not taken into account
-        system.set_pbc(False)
-
         # Create C-compatible list of atomic indices for which the ACSF is
         # calculated
         if positions is None:
@@ -178,13 +178,29 @@ class ACSF(Descriptor):
         else:
             indices = positions
 
+        # Create the extended system if periodicity is requested
+        if self.periodic:
+            system = dscribe.utils.geometry.get_extended_system(system, self.rcut, return_cell_indices=False)
+        from ase.visualize import view
+        view(system)
+
         # Calculate the sparse distance matrix using the radial cutoff to
-        # reduce computational complexity from O(n^2) to O(n log(n))
+        # reduce computational complexity from O(n^2) to O(n log(n)).
+
         n_atoms = len(system)
-        dmat = system.get_distance_matrix_within_radius(self.rcut)
+        pos2 = system.get_positions()
+        pos1 = pos2[indices]
+        dmat = dscribe.utils.geometry.get_adjacency_matrix(self.rcut, pos1, pos2)
+
+        # If G4 terms are requested, calculate also secondary neighbour distances
+        # if len(self.g4_params) != 0:
+        # dmat = system.get_distance_matrix_within_radius(self.rcut)
+
         neighbours = dscribe.utils.geometry.get_adjacency_list(dmat)
+        print(neighbours)
         dmat_dense = np.full((n_atoms, n_atoms), sys.float_info.max)  # The non-neighbor values are treated as "infinitely far".
         dmat_dense[dmat.col, dmat.row] = dmat.data
+        print(dmat_dense)
 
         # Calculate ACSF with C++
         output = self.acsf_wrapper.create(

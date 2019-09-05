@@ -135,9 +135,43 @@ def get_extended_system(system, radial_cutoff, centers=None, return_cell_indices
     # If no centers are given, and the cell indices are not requested, simply
     # return the multiplied system. This is much faster.
     if centers is None and not return_cell_indices:
-        extended_system = system * (1+2*nx, 1+2*ny, 1+2*nz)
-        shift = system.get_cell()
-        extended_system.translate(-shift[0]*nx - shift[1]*ny - shift[2]*nz)
+
+        n_atoms = len(system)
+        n_rep = np.product(2*n_copies_axis+1)
+        old_pos = system.get_positions()
+        ext_pos = np.tile(old_pos, (n_rep,) + (1,) * (len(old_pos.shape) - 1))
+        i_curr = 0
+        for m0 in np.append(np.arange(0, nx+1), np.arange(-nx, 0)):
+            for m1 in np.append(np.arange(0, ny+1), np.arange(-ny, 0)):
+                for m2 in np.append(np.arange(0, nz+1), np.arange(-nz, 0)):
+                    print(m0, m1, m2)
+                    ext_pos[i_curr:i_curr+n_atoms] += np.dot((m0, m1, m2), cell)
+                    i_curr += n_atoms
+        Z = system.get_atomic_numbers()
+        ext_symbols = np.tile(system.get_atomic_numbers(), (n_rep,) + (1,) * (len(Z.shape) - 1))
+        extended_system = Atoms(
+            positions=ext_pos,
+            symbols=ext_symbols,
+        )
+
+        # Shifts
+        # factors_x = np.arange(-nx, nx+1)
+        # factors_y = np.arange(-ny, ny+1)
+        # factors_z = np.arange(-nz, nz+1)
+        # factors = cartesian([factors_x, factors_y, factors_z])
+        # translations = np.dot(factors, cell)
+        # print(translations.shape)
+
+        # # Calculate positions
+        # pos = system.get_positions()
+        # print(pos.shape)
+        # pos = pos + translations
+        # print(pos.shape)
+
+        # extended_system = system * (1+2*nx, 1+2*ny, 1+2*nz)
+        # shift = system.get_cell()
+        # extended_system.translate(-shift[0]*nx - shift[1]*ny - shift[2]*nz)
+
         return extended_system
     # If centers are given and/or cell indices are needed, the process is done
     # one cell at a time to keep track of the cell inded and the distances.
@@ -206,3 +240,49 @@ def get_extended_system(system, radial_cutoff, centers=None, return_cell_indices
         )
 
         return extended_system, cell_indices
+
+
+def cartesian(arrays, out=None):
+    """
+    Generate a cartesian product of input arrays.
+
+    Args:
+        arrays(sequence of arrays): The arrays from which the product is
+            created.
+        out(ndarray): Array to place the cartesian product in.
+
+    Returns:
+        ndarray: 2-D array of shape (M, len(arrays)) containing cartesian
+        products formed of input arrays.
+
+    Example:
+    --------
+    >>> cartesian(([1, 2, 3], [4, 5], [6, 7]))
+    array([[1, 4, 6],
+           [1, 4, 7],
+           [1, 5, 6],
+           [1, 5, 7],
+           [2, 4, 6],
+           [2, 4, 7],
+           [2, 5, 6],
+           [2, 5, 7],
+           [3, 4, 6],
+           [3, 4, 7],
+           [3, 5, 6],
+           [3, 5, 7]])
+    """
+
+    arrays = [np.asarray(x) for x in arrays]
+    dtype = arrays[0].dtype
+
+    n = np.prod([x.size for x in arrays])
+    if out is None:
+        out = np.zeros([n, len(arrays)], dtype=dtype)
+
+    m = int(n / arrays[0].size)
+    out[:, 0] = np.repeat(arrays[0], m)
+    if arrays[1:]:
+        cartesian(arrays[1:], out=out[0:m, 1:])
+        for j in range(1, arrays[0].size):
+            out[j*m:(j+1)*m, 1:] = out[0:m, 1:]
+    return out

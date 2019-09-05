@@ -99,7 +99,7 @@ class SOAP(Descriptor):
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
         """
-        super().__init__(flatten=True, sparse=sparse)
+        super().__init__(periodic=periodic, flatten=True, sparse=sparse)
 
         # Setup the involved chemical species
         self.species = species
@@ -159,7 +159,6 @@ class SOAP(Descriptor):
         self._nmax = nmax
         self._lmax = lmax
         self._rbf = rbf
-        self._periodic = periodic
         self._crossover = crossover
         self._average = average
 
@@ -260,7 +259,7 @@ class SOAP(Descriptor):
         sub_elements = np.array(list(set(system.get_atomic_numbers())))
 
         # Check if periodic is valid
-        if self._periodic:
+        if self.periodic:
             cell = system.get_cell()
             if np.cross(cell[0], cell[1]).dot(cell[2]) == 0:
                 raise ValueError(
@@ -298,7 +297,7 @@ class SOAP(Descriptor):
                     )
 
         # Create the extended system if periodicity is requested
-        if self._periodic:
+        if self.periodic:
             # The radial cutoff is determined by the rcut + the gaussian width that
             # extends the influence of atoms. We consider that three sigmas is
             # enough to make the gaussian decay.
