@@ -206,8 +206,7 @@ class ACSF(Descriptor):
             dmat_secondary = dscribe.utils.geometry.get_adjacency_matrix(self.rcut, neigh_pos, neigh_pos)
             col = [neighbour_indices[x] for x in dmat_secondary.col]  # Fix col numbering to refer to original system
             row = [neighbour_indices[x] for x in dmat_secondary.row]  # Fix row numbering to refer to original system
-            data = dmat_secondary.data
-            dmat_lil[row, col] = data
+            dmat_lil[row, col] = np.array(dmat_secondary.data)
 
         # Get adjancency list and full dense adjancency matrix
         dmat = dmat_lil.tocoo()
