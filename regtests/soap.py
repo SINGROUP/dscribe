@@ -462,7 +462,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             [0.0, 2.0, 0.0],
             [0.0, 0.0, 2.0]
         ])
-        desc = SOAP(species=[1, 6, 8], rcut=10.0, nmax=2, lmax=0, periodic=True, crossover=True,)
+        desc = SOAP(species=[1, 6, 8], rcut=10.0, nmax=2, lmax=0, periodic=True, crossover=True)
 
         cubic_cell = desc.create(H2O, positions=[[0, 0, 0]])
 
@@ -471,7 +471,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
     def test_periodic_images(self):
         """Tests the periodic images seen by the descriptor
         """
-        desc = SOAP(species=[1, 6, 8], rcut=10.0, nmax=2, lmax=0, periodic=False, crossover=True,)
+        desc = SOAP(species=[1, 6, 8], rcut=10.0, nmax=2, lmax=0, periodic=False, crossover=True)
 
         molecule = H2O.copy()
 
@@ -484,7 +484,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         nocell = desc.create(molecule, positions=[[0, 0, 0]])
 
         # Make periodic
-        desc = SOAP(species=[1, 6, 8], rcut=10.0, nmax=2, lmax=0, periodic=True, crossover=True,)
+        desc = SOAP(species=[1, 6, 8], rcut=10.0, nmax=2, lmax=0, periodic=True, crossover=True)
         molecule.set_pbc(True)
 
         # Cubic

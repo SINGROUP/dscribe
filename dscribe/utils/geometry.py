@@ -121,8 +121,7 @@ def get_extended_system(system, radial_cutoff, centers=None, return_cell_indices
     b1 = np.cross(a2, a3, axis=0)
     b2 = np.cross(a3, a1, axis=0)
     b3 = np.cross(a1, a2, axis=0)
-    # Projections onto perpendicular vectors
-    p1 = np.dot(a1, b1) / np.dot(b1, b1) * b1
+    p1 = np.dot(a1, b1) / np.dot(b1, b1) * b1  # Projections onto perpendicular vectors
     p2 = np.dot(a2, b2) / np.dot(b2, b2) * b2
     p3 = np.dot(a3, b3) / np.dot(b3, b3) * b3
     xyz_arr = np.linalg.norm(np.array([p1, p2, p3]), axis=1)
@@ -137,42 +136,26 @@ def get_extended_system(system, radial_cutoff, centers=None, return_cell_indices
     if centers is None and not return_cell_indices:
 
         n_atoms = len(system)
-        n_rep = np.product(2*n_copies_axis+1)
-        old_pos = system.get_positions()
-        ext_pos = np.tile(old_pos, (n_rep,) + (1,) * (len(old_pos.shape) - 1))
+        n_rep = np.product(2*n_copies_axis+1)  # Number of repeated copies
+        ext_pos = np.tile(system.get_positions(), (n_rep, 1))
+
+        # Calculate the extended system positions so that the original cell
+        # stays in place: both in space and in index
         i_curr = 0
         for m0 in np.append(np.arange(0, nx+1), np.arange(-nx, 0)):
             for m1 in np.append(np.arange(0, ny+1), np.arange(-ny, 0)):
                 for m2 in np.append(np.arange(0, nz+1), np.arange(-nz, 0)):
-                    print(m0, m1, m2)
                     ext_pos[i_curr:i_curr+n_atoms] += np.dot((m0, m1, m2), cell)
                     i_curr += n_atoms
-        Z = system.get_atomic_numbers()
-        ext_symbols = np.tile(system.get_atomic_numbers(), (n_rep,) + (1,) * (len(Z.shape) - 1))
+
+        ext_symbols = np.tile(system.get_atomic_numbers(), n_rep)
         extended_system = Atoms(
             positions=ext_pos,
             symbols=ext_symbols,
         )
 
-        # Shifts
-        # factors_x = np.arange(-nx, nx+1)
-        # factors_y = np.arange(-ny, ny+1)
-        # factors_z = np.arange(-nz, nz+1)
-        # factors = cartesian([factors_x, factors_y, factors_z])
-        # translations = np.dot(factors, cell)
-        # print(translations.shape)
-
-        # # Calculate positions
-        # pos = system.get_positions()
-        # print(pos.shape)
-        # pos = pos + translations
-        # print(pos.shape)
-
-        # extended_system = system * (1+2*nx, 1+2*ny, 1+2*nz)
-        # shift = system.get_cell()
-        # extended_system.translate(-shift[0]*nx - shift[1]*ny - shift[2]*nz)
-
         return extended_system
+
     # If centers are given and/or cell indices are needed, the process is done
     # one cell at a time to keep track of the cell inded and the distances.
     # This is a bit slower.
