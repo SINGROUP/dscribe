@@ -25,6 +25,7 @@ from testbaseclass import TestBaseClass
 
 from ase import Atoms
 from ase.build import molecule
+from ase.build import bulk
 
 
 H2O = Atoms(
@@ -62,6 +63,10 @@ default_desc = ACSF(
     g4_params=[[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]],
     g5_params=[[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]],
 )
+
+
+def cutoff(R, rcut):
+    return 0.5 * (np.cos(np.pi*R / rcut) + 1)
 
 
 class ACSFTests(TestBaseClass, unittest.TestCase):
@@ -138,10 +143,6 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
             g4_params=[[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]])
         n_features = desc.get_number_of_features()
         self.assertEqual(n_features, n_elem * (1 + 2 + 4) + 4 * 3)
-
-    def test_flatten(self):
-        """Tests the flattening.
-        """
 
     def test_sparse(self):
         """Tests the sparse matrix creation.
@@ -281,11 +282,11 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
         rc = 6.0
 
         # G1
-        desc = ACSF(rcut=6.0, species=[1, 8])
+        desc = ACSF(rcut=rc, species=[1, 8])
         acsfg1 = desc.create(H2O)
-        g1_ho = 0.5 * (np.cos(np.pi*dist_oh / rc) + 1)
-        g1_hh = 0.5 * (np.cos(np.pi*dist_hh / rc) + 1)
-        g1_oh = 2 * 0.5 * (np.cos(np.pi*dist_oh / rc) + 1)
+        g1_ho = cutoff(dist_oh, rc)
+        g1_hh = cutoff(dist_hh, rc)
+        g1_oh = 2 * cutoff(dist_oh, rc)
         self.assertAlmostEqual(acsfg1[0, 0], g1_hh, places=6)
         self.assertAlmostEqual(acsfg1[0, 1], g1_ho, places=6)
         self.assertAlmostEqual(acsfg1[1, 0], g1_oh, places=6)
@@ -331,6 +332,61 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
         self.assertAlmostEqual(acsfg5[0, 3], g5_h_ho, places=6)
         self.assertAlmostEqual(acsfg5[2, 3], g5_h_oh, places=6)
         self.assertAlmostEqual(acsfg5[1, 2], g5_o_hh, places=6)
+
+    def test_periodicity(self):
+        """Test that periodic copies are correctly repeated and included in the
+        output.
+        """
+        system = Atoms(
+            symbols=["H"],
+            positions=[[0, 0, 0]],
+            cell=[2, 2, 2],
+            pbc=False
+        )
+        rcut = 2.5
+
+        # Non-periodic
+        desc = ACSF(rcut=rcut, species=[1], periodic=False)
+        feat = desc.create(system)
+        self.assertTrue(feat.sum() == 0)
+
+        # Periodic cubic: 6 neighbours at distance 2 Å
+        desc = ACSF(rcut=rcut, species=[1], periodic=True)
+        feat = desc.create(system)
+        self.assertTrue(feat.sum() != 0)
+        self.assertAlmostEqual(feat[0, 0], 6 * cutoff(2, rcut), places=6)
+
+        # Periodic cubic: 6 neighbours at distance 2 Å
+        # from ase.visualize import view
+        rcut = 3
+        system_nacl = bulk("NaCl", "rocksalt", a=4)
+        eta, zeta, lambd = 0.01, 0.1, 1
+        desc = ACSF(rcut=rcut, g4_params=[(eta, zeta, lambd)], species=["Na", "Cl"], periodic=True)
+        feat = desc.create(system_nacl)
+
+        # Cl-Cl: 12 triplets with 90 degree angle at 2 angstrom distance
+        R_ij = 2
+        R_ik = 2
+        R_jk = np.sqrt(2)*2
+        theta = np.pi/2
+        g4_cl_cl = 2**(1-zeta)*12*(1+lambd*np.cos(theta))**zeta*np.e**(-eta*(R_ij**2+R_ik**2+R_jk**2))*cutoff(R_ij, rcut)*cutoff(R_ik, rcut)*cutoff(R_jk, rcut)
+        self.assertTrue(np.allclose(feat[0, 4], g4_cl_cl, rtol=1e-6, atol=0))
+
+        # Na-Cl: 24 triplets with 45 degree angle at sqrt(2)*2 angstrom distance
+        R_ij = np.sqrt(2)*2
+        R_ik = 2
+        R_jk = 2
+        theta = np.pi/4
+        g4_na_cl = 2**(1-zeta)*24*(1+lambd*np.cos(theta))**zeta*np.e**(-eta*(R_ij**2+R_ik**2+R_jk**2))*cutoff(R_ij, rcut)*cutoff(R_ik, rcut)*cutoff(R_jk, rcut)
+        self.assertTrue(np.allclose(feat[0, 3], g4_na_cl, rtol=1e-6, atol=0))
+
+        # Periodic primitive FCC: 12 neighbours at distance sqrt(2)/2*5
+        rcut = 4
+        system_fcc = bulk("H", "fcc", a=5)
+        desc = ACSF(rcut=rcut, species=[1], periodic=True)
+        feat = desc.create(system_fcc)
+        self.assertTrue(feat.sum() != 0)
+        self.assertAlmostEqual(feat[0, 0], 12 * 0.5 * (np.cos(np.pi*np.sqrt(2)/2*5 / rcut) + 1), places=6)
 
     def test_symmetries(self):
         """Tests translational and rotational symmetries

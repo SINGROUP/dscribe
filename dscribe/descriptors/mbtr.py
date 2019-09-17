@@ -181,12 +181,11 @@ class MBTR(Descriptor):
                 "non-flattened output, please specify sparse=False in the MBTR"
                 "constructor."
             )
-        super().__init__(flatten, sparse)
+        super().__init__(periodic=periodic, flatten=flatten, sparse=sparse)
         self.system = None
         self.k1 = k1
         self.k2 = k2
         self.k3 = k3
-        self.periodic = periodic
 
         # Setup the involved chemical species
         self.species = species

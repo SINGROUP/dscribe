@@ -49,6 +49,7 @@ class ACSF(Descriptor):
         g4_params=None,
         g5_params=None,
         species=None,
+        periodic=False,
         sparse=False
     ):
         """
@@ -71,10 +72,12 @@ class ACSF(Descriptor):
                 encountered when creating the descriptors for a set of systems.
                 Keeping the number of chemical species as low as possible is
                 preferable.
+            periodic (bool): Determines whether the system is considered to be
+                periodic.
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
         """
-        super().__init__(flatten=True, sparse=sparse)
+        super().__init__(periodic=periodic, flatten=True, sparse=sparse)
 
         self.acsf_wrapper = ACSFWrapper()
 
@@ -168,20 +171,59 @@ class ACSF(Descriptor):
         # Transform the input system into the internal System-object
         system = self.get_system(system)
 
-        # Make sure that periodicity is not taken into account
-        system.set_pbc(False)
-
         # Create C-compatible list of atomic indices for which the ACSF is
         # calculated
+        calculate_all = False
         if positions is None:
+            calculate_all = True
             indices = np.arange(len(system))
         else:
             indices = positions
 
-        # Calculate the sparse distance matrix using the radial cutoff to
-        # reduce computational complexity from O(n^2) to O(n log(n))
-        n_atoms = len(system)
-        dmat = system.get_distance_matrix_within_radius(self.rcut)
+        # If periodicity is not requested, and the output is requested for all
+        # atoms, we skip all the intricate optimizations that will make things
+        # actually slower for this case.
+        if calculate_all and not self.periodic:
+            n_atoms = len(system)
+            all_pos = system.get_positions()
+            dmat = dscribe.utils.geometry.get_adjacency_matrix(self.rcut, all_pos, all_pos)
+        # Otherwise the amount of pairwise distances that are calculated is
+        # kept at minimum. Only distances for the given indices (and possibly
+        # the secondary neighbours if G4 is specified) are calculated.
+        else:
+            # Create the extended system if periodicity is requested. For ACSF only
+            # the distance from central atom needs to be considered in extending
+            # the system.
+            if self.periodic:
+                system = dscribe.utils.geometry.get_extended_system(system, self.rcut, return_cell_indices=False)
+
+            # First calculate distances from specified centers to all other
+            # atoms. This is already enough for everything else except G4.
+            n_atoms = len(system)
+            all_pos = system.get_positions()
+            central_pos = all_pos[indices]
+            dmat_primary = dscribe.utils.geometry.get_adjacency_matrix(self.rcut, central_pos, all_pos)
+
+            # Create symmetric full matrix
+            col = dmat_primary.col
+            row = [indices[x] for x in dmat_primary.row]  # Fix row numbering to refer to original system
+            data = dmat_primary.data
+            dmat = coo_matrix((data, (row, col)), shape=(n_atoms, n_atoms))
+            dmat_lil = dmat.tolil()
+            dmat_lil[col, row] = dmat_lil[row, col]
+
+            # If G4 terms are requested, calculate also secondary neighbour distances
+            if len(self.g4_params) != 0:
+                neighbour_indices = np.unique(col)
+                neigh_pos = all_pos[neighbour_indices]
+                dmat_secondary = dscribe.utils.geometry.get_adjacency_matrix(self.rcut, neigh_pos, neigh_pos)
+                col = [neighbour_indices[x] for x in dmat_secondary.col]  # Fix col numbering to refer to original system
+                row = [neighbour_indices[x] for x in dmat_secondary.row]  # Fix row numbering to refer to original system
+                dmat_lil[row, col] = np.array(dmat_secondary.data)
+
+            dmat = dmat_lil.tocoo()
+
+        # Get adjancency list and full dense adjancency matrix
         neighbours = dscribe.utils.geometry.get_adjacency_list(dmat)
         dmat_dense = np.full((n_atoms, n_atoms), sys.float_info.max)  # The non-neighbor values are treated as "infinitely far".
         dmat_dense[dmat.col, dmat.row] = dmat.data

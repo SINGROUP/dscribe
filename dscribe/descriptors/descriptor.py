@@ -30,14 +30,15 @@ class Descriptor(ABC):
     """An abstract base class for all descriptors.
     """
 
-    def __init__(self, flatten, sparse):
+    def __init__(self, periodic, flatten, sparse):
         """
         Args:
             flatten (bool): Whether the output of create() should be flattened
                 to a 1D array.
         """
         self.sparse = sparse
-        self._flatten = flatten
+        self.flatten = flatten
+        self.periodic = periodic
         self._atomic_numbers = None
         self._atomic_number_set = None
         self._species = None
@@ -99,6 +100,19 @@ class Descriptor(ABC):
             value(float): Should the output be in sparse format.
         """
         self._sparse = value
+
+    @property
+    def periodic(self):
+        return self._periodic
+
+    @periodic.setter
+    def periodic(self, value):
+        """Sets whether the inputs should be considered periodic or not.
+
+        Args:
+            value(float): Are the systems periodic.
+        """
+        self._periodic = value
 
     @property
     def flatten(self):
