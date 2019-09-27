@@ -201,7 +201,7 @@ See the License for the specific language governing permissions and
 limitations under the License.</p>
 <dl class="class">
 <dt id="dscribe.descriptors.acsf.ACSF">
-<em class="property">class </em><code class="sig-prename descclassname">dscribe.descriptors.acsf.</code><code class="sig-name descname">ACSF</code><span class="sig-paren">(</span><em class="sig-param">rcut</em>, <em class="sig-param">g2_params=None</em>, <em class="sig-param">g3_params=None</em>, <em class="sig-param">g4_params=None</em>, <em class="sig-param">g5_params=None</em>, <em class="sig-param">species=None</em>, <em class="sig-param">sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/acsf.html#ACSF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.descriptors.acsf.</code><code class="sig-name descname">ACSF</code><span class="sig-paren">(</span><em class="sig-param">rcut</em>, <em class="sig-param">g2_params=None</em>, <em class="sig-param">g3_params=None</em>, <em class="sig-param">g4_params=None</em>, <em class="sig-param">g5_params=None</em>, <em class="sig-param">species=None</em>, <em class="sig-param">periodic=False</em>, <em class="sig-param">sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/acsf.html#ACSF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dscribe.descriptors.descriptor.Descriptor" title="dscribe.descriptors.descriptor.Descriptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.descriptors.descriptor.Descriptor</span></code></a></p>
 <p>Implementation of Atom-Centered Symmetry Functions. Currently valid for
 finite systems only.</p>
@@ -235,6 +235,8 @@ should contain all the elements that are ever going to be
 encountered when creating the descriptors for a set of systems.
 Keeping the number of chemical species as low as possible is
 preferable.</p></li>
+<li><p><strong>periodic</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Determines whether the system is considered to be
+periodic.</p></li>
 <li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
 dense numpy array.</p></li>
 </ul>
@@ -493,7 +495,7 @@ See the License for the specific language governing permissions and
 limitations under the License.</p>
 <dl class="class">
 <dt id="dscribe.descriptors.descriptor.Descriptor">
-<em class="property">class </em><code class="sig-prename descclassname">dscribe.descriptors.descriptor.</code><code class="sig-name descname">Descriptor</code><span class="sig-paren">(</span><em class="sig-param">flatten</em>, <em class="sig-param">sparse</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/descriptor.html#Descriptor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.descriptors.descriptor.</code><code class="sig-name descname">Descriptor</code><span class="sig-paren">(</span><em class="sig-param">periodic</em>, <em class="sig-param">flatten</em>, <em class="sig-param">sparse</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/descriptor.html#Descriptor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
 <p>An abstract base class for all descriptors.</p>
 <dl class="field-list simple">
@@ -633,6 +635,11 @@ by the descriptors.</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="method">
+<dt id="dscribe.descriptors.descriptor.Descriptor.periodic">
+<em class="property">property </em><code class="sig-name descname">periodic</code><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor.periodic" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="dscribe.descriptors.descriptor.Descriptor.sparse">
