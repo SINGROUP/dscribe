@@ -1,4 +1,5 @@
 <img src="https://raw.githubusercontent.com/SINGROUP/dscribe/master/logo/dscribe_logo.png" width="400">
+
 [![Build Status](https://travis-ci.org/SINGROUP/dscribe.svg?branch=master)](https://travis-ci.org/SINGROUP/dscribe)
 [![Coverage Status](https://coveralls.io/repos/github/SINGROUP/dscribe/badge.svg?branch=master)](https://coveralls.io/github/SINGROUP/dscribe?branch=master)
 
