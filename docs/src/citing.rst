@@ -1,10 +1,8 @@
 Citing DScribe
 ==============
 
-A pre-proof of the article is currently published online. The final open access
-version will be available soon.
-
-For now, cite with:
+If you find DScribe useful in you research, please consider citing the
+following article:
 
 .. code-block:: bib
 
