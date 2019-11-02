@@ -222,13 +222,13 @@ pairwise metric strings (e.g. “linear”, “rbf”, “laplacian”,
 “polynomial”) or a custom callable. A callable should accept
 two arguments and the keyword arguments passed to this object
 as kernel_params, and should return a floating point number.</p></li>
-<li><p><strong>gamma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Gamma parameter for the RBF, laplacian, polynomial,
+<li><p><strong>gamma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Gamma parameter for the RBF, laplacian, polynomial,
 exponential chi2 and sigmoid kernels. Interpretation of the
 default value is left to the kernel; see the documentation for
 sklearn.metrics.pairwise. Ignored by other kernels.</p></li>
-<li><p><strong>degree</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Degree of the polynomial kernel. Ignored by other
+<li><p><strong>degree</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Degree of the polynomial kernel. Ignored by other
 kernels.</p></li>
-<li><p><strong>coef0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Zero coefficient for polynomial and sigmoid kernels.
+<li><p><strong>coef0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Zero coefficient for polynomial and sigmoid kernels.
 Ignored by other kernels.</p></li>
 <li><p><strong>kernel_params</strong> (<em>mapping of string to any</em>) – Additional parameters
 (keyword arguments) for kernel function passed as callable
@@ -253,7 +253,7 @@ structures A and B, with N and M atoms respectively.</p>
 <dd class="field-even"><p>Average similarity between the structures A and B.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -278,7 +278,7 @@ limitations under the License.</p>
 <dl class="class">
 <dt id="dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel">
 <em class="property">class </em><code class="sig-prename descclassname">dscribe.kernels.localsimilaritykernel.</code><code class="sig-name descname">LocalSimilarityKernel</code><span class="sig-paren">(</span><em class="sig-param">metric</em>, <em class="sig-param">gamma=None</em>, <em class="sig-param">degree=3</em>, <em class="sig-param">coef0=1</em>, <em class="sig-param">kernel_params=None</em>, <em class="sig-param">normalize_kernel=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/kernels/localsimilaritykernel.html#LocalSimilarityKernel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
 <p>An abstract base class for all kernels that use the similarity of local
 atomic environments to compute a global similarity measure.</p>
 <dl class="field-list simple">
@@ -290,13 +290,13 @@ pairwise metric strings (e.g. “linear”, “rbf”, “laplacian”,
 “polynomial”) or a custom callable. A callable should accept
 two arguments and the keyword arguments passed to this object
 as kernel_params, and should return a floating point number.</p></li>
-<li><p><strong>gamma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Gamma parameter for the RBF, laplacian, polynomial,
+<li><p><strong>gamma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Gamma parameter for the RBF, laplacian, polynomial,
 exponential chi2 and sigmoid kernels. Interpretation of the
 default value is left to the kernel; see the documentation for
 sklearn.metrics.pairwise. Ignored by other kernels.</p></li>
-<li><p><strong>degree</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Degree of the polynomial kernel. Ignored by other
+<li><p><strong>degree</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Degree of the polynomial kernel. Ignored by other
 kernels.</p></li>
-<li><p><strong>coef0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Zero coefficient for polynomial and sigmoid kernels.
+<li><p><strong>coef0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Zero coefficient for polynomial and sigmoid kernels.
 Ignored by other kernels.</p></li>
 <li><p><strong>kernel_params</strong> (<em>mapping of string to any</em>) – Additional parameters
 (keyword arguments) for kernel function passed as callable
@@ -344,7 +344,7 @@ structures A and B, with N and M atoms respectively.</p>
 <dd class="field-even"><p>Global similarity between the structures A and B.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -412,10 +412,10 @@ Phys.  Chem. Chem. Phys. 18, 13754 (2016),
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>alpha</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Parameter controlling the entropic penalty. Values
+<li><p><strong>alpha</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Parameter controlling the entropic penalty. Values
 close to zero approach the best-match solution and values
 towards infinity approach the average kernel.</p></li>
-<li><p><strong>threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Convergence threshold used in the
+<li><p><strong>threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Convergence threshold used in the
 Sinkhorn-algorithm.</p></li>
 <li><p><strong>metric</strong> (<em>string</em><em> or </em><em>callable</em>) – The pairwise metric used for
 calculating the local similarity. Accepts any of the sklearn
@@ -423,13 +423,13 @@ pairwise metric strings (e.g. “linear”, “rbf”, “laplacian”,
 “polynomial”) or a custom callable. A callable should accept
 two arguments and the keyword arguments passed to this object
 as kernel_params, and should return a floating point number.</p></li>
-<li><p><strong>gamma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Gamma parameter for the RBF, laplacian, polynomial,
+<li><p><strong>gamma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Gamma parameter for the RBF, laplacian, polynomial,
 exponential chi2 and sigmoid kernels. Interpretation of the
 default value is left to the kernel; see the documentation for
 sklearn.metrics.pairwise. Ignored by other kernels.</p></li>
-<li><p><strong>degree</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Degree of the polynomial kernel. Ignored by other
+<li><p><strong>degree</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Degree of the polynomial kernel. Ignored by other
 kernels.</p></li>
-<li><p><strong>coef0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Zero coefficient for polynomial and sigmoid kernels.
+<li><p><strong>coef0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Zero coefficient for polynomial and sigmoid kernels.
 Ignored by other kernels.</p></li>
 <li><p><strong>kernel_params</strong> (<em>mapping of string to any</em>) – Additional parameters
 (keyword arguments) for kernel function passed as callable
@@ -454,7 +454,7 @@ structures A and B, with N and M atoms respectively.</p>
 <dd class="field-even"><p>REMatch similarity between the structures A and B.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a></p>
 </dd>
 </dl>
 </dd></dl>

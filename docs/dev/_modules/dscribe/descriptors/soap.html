@@ -458,10 +458,13 @@
 
         <span class="c1"># Create the extended system if periodicity is requested</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">:</span>
-            <span class="c1"># The radial cutoff is determined by the rcut + the gaussian width that</span>
-            <span class="c1"># extends the influence of atoms. We consider that three sigmas is</span>
-            <span class="c1"># enough to make the gaussian decay.</span>
-            <span class="n">radial_cutoff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rcut</span><span class="o">+</span><span class="mi">3</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_sigma</span>
+            <span class="c1"># The radial cutoff is extended by adding a padding that depends on</span>
+            <span class="c1"># the used used sigma value. The padding is chosen so that the</span>
+            <span class="c1"># gaussians decay to the specified threshold value at the cutoff</span>
+            <span class="c1"># distance.</span>
+            <span class="n">threshold</span> <span class="o">=</span> <span class="mf">0.000001</span>
+            <span class="n">pad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sigma</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">threshold</span><span class="p">))</span>
+            <span class="n">radial_cutoff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rcut</span><span class="o">+</span><span class="n">pad</span>
             <span class="n">system</span> <span class="o">=</span> <span class="n">get_extended_system</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">radial_cutoff</span><span class="p">,</span> <span class="n">return_cell_indices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
         <span class="c1"># Determine the SOAPLite function to call based on periodicity and</span>
