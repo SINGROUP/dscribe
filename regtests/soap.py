@@ -945,8 +945,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             for rcut in np.linspace(2, 10, 11):
 
                 # Loop over different sigmas
-                # for sigma in np.linspace(0.5, 2, 4):
-                for sigma in [1]:
+                for sigma in np.linspace(0.5, 2, 4):
 
                     # Create descriptor generators
                     soap_generator = SOAP(
@@ -985,7 +984,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                     non_orthogonal_soaps = soap_generator.create(niti)
 
                     # Check that the relative or absolute error is small enough
-                    self.assertTrue(np.allclose(orthogonal_soaps, non_orthogonal_soaps, atol=1e-7, rtol=1e-4))
+                    self.assertTrue(np.allclose(orthogonal_soaps, non_orthogonal_soaps, atol=1e-8, rtol=1e-2))
 
 if __name__ == '__main__':
     suites = []

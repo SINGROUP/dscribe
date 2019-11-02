@@ -975,7 +975,7 @@ int soap(double* c, double* Apos,double* Hpos, double* alphas,double* betas, int
   //printf("xzx\n");
 
   double* cnnd = (double*) malloc(100*Nt*Ns*Hs*sizeof(double));
-  double threshold = 0.0000001;
+  double threshold = 0.000001;
   double sigma = sqrt(1.0/(2*eta));
   double pad = sigma*sqrt(-2*log(threshold));
   double cutSqr = (rCut+pad)*(rCut+pad);

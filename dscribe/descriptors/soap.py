@@ -298,13 +298,11 @@ class SOAP(Descriptor):
 
         # Create the extended system if periodicity is requested
         if self.periodic:
-            # The radial cutoff is extended by a fixed 5 angstroms. This seems
-            # to be suitable for many system sizes. A more intelligent scheme
-            # could be implemented by estimating how many atoms are at the
-            # system boundary, and how much will their density affect
-            # calculations in the system. It seems that using the decay of a
-            # single gaussian is too optimistic.
-            threshold = 0.0000001
+            # The radial cutoff is extended by adding a padding that depends on
+            # the used used sigma value. The padding is chosen so that the
+            # gaussians decay to the specified threshold value at the cutoff
+            # distance.
+            threshold = 0.000001
             pad = self._sigma*np.sqrt(-2*np.log(threshold))
             radial_cutoff = self._rcut+pad
             system = get_extended_system(system, radial_cutoff, return_cell_indices=False)
