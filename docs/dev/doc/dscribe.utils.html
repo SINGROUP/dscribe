@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dscribe.utils package &mdash; DScribe 0.2.9a0 documentation</title>
+  <title>dscribe.utils package &mdash; DScribe 0.3.0a0 documentation</title>
   
 
   
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                0.2.9a0
+                0.3.0a0
               </div>
             
           
@@ -187,6 +187,55 @@
 </div>
 <div class="section" id="module-dscribe.utils.geometry">
 <span id="dscribe-utils-geometry-module"></span><h2>dscribe.utils.geometry module<a class="headerlink" href="#module-dscribe.utils.geometry" title="Permalink to this headline">¶</a></h2>
+<p>Copyright 2019 DScribe developers</p>
+<p>Licensed under the Apache License, Version 2.0 (the “License”);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<blockquote>
+<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+</div></blockquote>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</p>
+<dl class="function">
+<dt id="dscribe.utils.geometry.cartesian">
+<code class="sig-prename descclassname">dscribe.utils.geometry.</code><code class="sig-name descname">cartesian</code><span class="sig-paren">(</span><em class="sig-param">arrays</em>, <em class="sig-param">out=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/utils/geometry.html#cartesian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.utils.geometry.cartesian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a cartesian product of input arrays.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>arrays</strong> (<em>sequence of arrays</em>) – The arrays from which the product is
+created.</p></li>
+<li><p><strong>out</strong> (<em>ndarray</em>) – Array to place the cartesian product in.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>2-D array of shape (M, len(arrays)) containing cartesian
+products formed of input arrays.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cartesian</span><span class="p">(([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">]))</span>
+<span class="go">array([[1, 4, 6],</span>
+<span class="go">       [1, 4, 7],</span>
+<span class="go">       [1, 5, 6],</span>
+<span class="go">       [1, 5, 7],</span>
+<span class="go">       [2, 4, 6],</span>
+<span class="go">       [2, 4, 7],</span>
+<span class="go">       [2, 5, 6],</span>
+<span class="go">       [2, 5, 7],</span>
+<span class="go">       [3, 4, 6],</span>
+<span class="go">       [3, 4, 7],</span>
+<span class="go">       [3, 5, 6],</span>
+<span class="go">       [3, 5, 7]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
 <dl class="function">
 <dt id="dscribe.utils.geometry.get_adjacency_list">
 <code class="sig-prename descclassname">dscribe.utils.geometry.</code><code class="sig-name descname">get_adjacency_list</code><span class="sig-paren">(</span><em class="sig-param">adjacency_matrix</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/utils/geometry.html#get_adjacency_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.utils.geometry.get_adjacency_list" title="Permalink to this definition">¶</a></dt>
@@ -233,6 +282,40 @@ matrix containing the pairwise distances.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>dok_matrix | np.array | coo_matrix | dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="dscribe.utils.geometry.get_extended_system">
+<code class="sig-prename descclassname">dscribe.utils.geometry.</code><code class="sig-name descname">get_extended_system</code><span class="sig-paren">(</span><em class="sig-param">system</em>, <em class="sig-param">radial_cutoff</em>, <em class="sig-param">centers=None</em>, <em class="sig-param">return_cell_indices=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/utils/geometry.html#get_extended_system"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.utils.geometry.get_extended_system" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to create a periodically extended system. If centers are not
+specified, simply takes returns the original system multiplied by an
+integer amount of times in each direction to cover the radial cutoff. If
+centers are provided, returns the exact atoms that are within the given
+radial cutoff from the given centers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>original_system</strong> (<em>ase.Atoms</em>) – The original periodic system to duplicate.</p></li>
+<li><p><strong>radial_cutoff</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The radial cutoff to use in constructing the
+extended system.</p></li>
+<li><p><strong>centers</strong> (<em>np.ndarray</em>) – Array of xyz-coordinates from which the distance
+is calculated. If provided, these centers are used to calculate the
+exact distance and only atoms within the radial cutoff from these
+centers are returned.</p></li>
+<li><p><strong>return_cell_indices</strong> (<em>boolean</em>) – Whether to return an array of cell
+indices for each atom in the extended system.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>If return_cell_indices is False, returns the new
+extended system. Else returns a tuple containing the new extended
+system as the first entry and the index of the periodically repeated
+cell for each atom as the second entry.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ase.Atoms | tuple</p>
 </dd>
 </dl>
 </dd></dl>
@@ -387,16 +470,16 @@ limitations under the License.</p>
   <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="fa fa-book"> Versions</span>
-      v: 0.2.9a0
+      v: 0.3.0a0
       <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
       <dl>
         <dt>Versions</dt>
         
-          <dd><a href="https://singroup.github.io/dscribe/dev">0.2.9a0 (development)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe/dev">0.3.0a0 (development)</a></dd>
         
-          <dd><a href="https://singroup.github.io/dscribe">0.2.8 (latest stable)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe">0.2.9 (latest stable)</a></dd>
         
       </dl>
     </div>

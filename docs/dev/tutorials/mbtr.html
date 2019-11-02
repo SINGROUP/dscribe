@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Many-body Tensor Representation &mdash; DScribe 0.2.9a0 documentation</title>
+  <title>Many-body Tensor Representation &mdash; DScribe 0.3.0a0 documentation</title>
   
 
   
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                0.2.9a0
+                0.3.0a0
               </div>
             
           
@@ -187,7 +187,7 @@
             
   <div class="section" id="many-body-tensor-representation">
 <h1>Many-body Tensor Representation<a class="headerlink" href="#many-body-tensor-representation" title="Permalink to this headline">¶</a></h1>
-<p>The many-body tensor representation (MBTR) <a class="reference internal" href="#mbtr" id="id1">[1]</a> encodes a structure by
+<p>The many-body tensor representation (MBTR) <a class="bibtex reference internal" href="#mbtr" id="id1">[1]</a> encodes a structure by
 using a distribution of different structural motifs. It can be used directly
 for both finite and periodic systems. MBTR is especially suitable for
 applications where interpretability of the input is important because the
@@ -301,7 +301,7 @@ dense numpy array.</p></li>
 </dl>
 </dd></dl>
 
-<p>For each k-body term the MBTR class takes in a setup as a a dictionary. This
+<p>For each k-body term the MBTR class takes in a setup as a dictionary. This
 dictionary should contain three parts: the geometry function, the grid and the
 weighting function. The geometry function specifies how the k-body information
 is encoded. The grid specifies the expected range of the geometry values
@@ -313,7 +313,7 @@ functions are available:</p>
 <table class="colwidths-given docutils align-default" id="id3">
 <caption><span class="caption-text">The geometry and weighting functions</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
 <colgroup>
-<col style="width: 9%" />
+<col style="width: 10%" />
 <col style="width: 45%" />
 <col style="width: 45%" />
 </colgroup>
@@ -333,7 +333,8 @@ functions are available:</p>
 <p>“inverse_distance”: Pairwise inverse distance in 1/angstrom.</p>
 </td>
 <td><p>“unity”: No weighting.</p>
-<p>“exp” or “exponential”: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span></p>
+<p>“exp” or “exponential”: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span>,
+where <cite>x</cite> is the distance between the two atoms.</p>
 </td>
 </tr>
 <tr class="row-even"><td><p><span class="math notranslate nohighlight">\(k=3\)</span></p></td>
@@ -341,7 +342,8 @@ functions are available:</p>
 <p>“cosine”: Cosine of the angle.</p>
 </td>
 <td><p>“unity”: No weighting.</p>
-<p>“exp” or “exponential”: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span></p>
+<p>“exp” or “exponential”: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span>,
+where <cite>x</cite> is the perimeter of the triangle formed by the tree atoms.</p>
 </td>
 </tr>
 </tbody>
@@ -634,7 +636,7 @@ pairs and triples in the system. This is done in practice by weighting the
 contribution of the pair and triples by how many different periodic repetitions
 of the original cell are involved in forming the pair or triple.</p>
 <p id="bibtex-bibliography-tutorials/mbtr-0"><dl class="citation">
-<dt class="label" id="mbtr"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dt class="bibtex label" id="mbtr"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
 <dd><p>Haoyan Huo and Matthias Rupp. Unified representation of molecules and crystals for machine learning. <em>arXiv e-prints</em>, pages arXiv:1704.06439, Apr 2017. <a class="reference external" href="https://arxiv.org/abs/1704.06439">arXiv:1704.06439</a>.</p>
 </dd>
 </dl>
@@ -681,16 +683,16 @@ of the original cell are involved in forming the pair or triple.</p>
   <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="fa fa-book"> Versions</span>
-      v: 0.2.9a0
+      v: 0.3.0a0
       <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
       <dl>
         <dt>Versions</dt>
         
-          <dd><a href="https://singroup.github.io/dscribe/dev">0.2.9a0 (development)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe/dev">0.3.0a0 (development)</a></dd>
         
-          <dd><a href="https://singroup.github.io/dscribe">0.2.8 (latest stable)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe">0.2.9 (latest stable)</a></dd>
         
       </dl>
     </div>

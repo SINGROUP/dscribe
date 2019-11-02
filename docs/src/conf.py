@@ -22,8 +22,8 @@
 project = 'DScribe'
 author = 'Lauri Himanen, Eiaki Morooka, F. Federici Canova, Marc Jäger, Y. Ranawat'
 
-version = '0.2.9'
-release = '0.2.9'
+version = '0.3.0a0'
+release = '0.3.0a0'
 stable_version = "0.2.9"
 dev_version = "0.3.0a0"
 
