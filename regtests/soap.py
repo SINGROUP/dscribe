@@ -930,6 +930,63 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
         self.assertTrue(np.allclose(numerical_power_spectrum, analytical_power_spectrum, atol=1e-15, rtol=0.01))
 
+    def test_padding(self):
+        """Tests that the padding used in constructing extended systems is
+        sufficient.
+        """
+        # Fix random seed for tests
+        np.random.seed(7)
+
+        # Loop over different cell sizes
+        for ncells in range(1, 6):
+            ncells = int(ncells)
+
+            # Loop over different radial cutoffs
+            for rcut in np.linspace(2, 10, 11):
+
+                # Loop over different sigmas
+                # for sigma in np.linspace(0.5, 2, 4):
+                for sigma in [1]:
+
+                    # Create descriptor generators
+                    soap_generator = SOAP(
+                        rcut=rcut, nmax=4, lmax=4, sigma=sigma, species=["Ni", "Ti"], periodic=True
+                    )
+
+                    # Define unit cell
+                    a = 2.993
+                    niti = Atoms(
+                        "NiTi",
+                        positions=[[0.0, 0.0, 0.0], [a / 2, a / 2, a / 2]],
+                        cell=[a, a, a],
+                        pbc=[1, 1, 1],
+                    )
+
+                    # Replicate system
+                    niti = niti * ncells
+                    a *= ncells
+
+                    # Add some noise to positions
+                    positions = niti.get_positions()
+                    noise = np.random.normal(scale=0.5, size=positions.shape)
+                    niti.set_positions(positions + noise)
+                    niti.wrap()
+
+                    # Evaluate descriptors for orthogonal unit cell
+                    orthogonal_soaps = soap_generator.create(niti)
+
+                    # Redefine the cubic unit cell as monoclinic
+                    # with a 45-degree angle,
+                    # this should not affect the descriptors
+                    niti.set_cell([[a, 0, 0], [0, a, 0], [a, 0, a]])
+                    niti.wrap()
+
+                    # Evaluate descriptors for new, monoclinic unit cell
+                    non_orthogonal_soaps = soap_generator.create(niti)
+
+                    # Check that the relative or absolute error is small enough
+                    self.assertTrue(np.allclose(orthogonal_soaps, non_orthogonal_soaps, atol=1e-7, rtol=1e-4))
+
 if __name__ == '__main__':
     suites = []
     suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapTests))

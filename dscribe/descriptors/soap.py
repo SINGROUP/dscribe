@@ -304,7 +304,9 @@ class SOAP(Descriptor):
             # system boundary, and how much will their density affect
             # calculations in the system. It seems that using the decay of a
             # single gaussian is too optimistic.
-            radial_cutoff = self._rcut+5
+            threshold = 0.0000001
+            pad = self._sigma*np.sqrt(-2*np.log(threshold))
+            radial_cutoff = self._rcut+pad
             system = get_extended_system(system, radial_cutoff, return_cell_indices=False)
 
         # Determine the SOAPLite function to call based on periodicity and

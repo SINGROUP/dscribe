@@ -36,7 +36,7 @@ void getMulDouble(double* c1, double* c3, int Asize){
   }
 }
 //================================================================
-int getFilteredPos(double* x, double* y, double* z, double* Apos, double* Hpos, int* typeNs, double rCutSqr, int Ihpos, int Itype){
+int getFilteredPos(double* x, double* y, double* z, double* Apos, double* Hpos, int* typeNs, double cutSqr, int Ihpos, int Itype){
 
   int shiftType = 0; int count = 0;
   double X = 0; double Y = 0; double Z = 0;
@@ -49,7 +49,7 @@ int getFilteredPos(double* x, double* y, double* z, double* Apos, double* Hpos, 
       X = Apos[3*shiftType + 3*i    ] - Hpos[3*Ihpos    ];
       Y = Apos[3*shiftType + 3*i + 1] - Hpos[3*Ihpos + 1];
       Z = Apos[3*shiftType + 3*i + 2] - Hpos[3*Ihpos + 2];
-      if( X*X + Y*Y + Z*Z < rCutSqr ){
+      if( X*X + Y*Y + Z*Z < cutSqr){
         x[count] = X;
         y[count] = Y;
         z[count] = Z;
@@ -67,7 +67,7 @@ double* getRsZs(double* x, double* y, double* z,double* r2,double* r4,double* r6
   }
 }
 //================================================================
-void getAlphaBeta(double* aOa, double* bOa, double* alphas, double* betas, int Ns,int lMax, double oOsigma, double oOsigma3O2){
+void getAlphaBeta(double* aOa, double* bOa, double* alphas, double* betas, int Ns,int lMax, double oOeta, double oOeta3O2){
 
   int  NsNs = Ns*Ns;
   double  oneO1alpha;      double  oneO1alpha2; double  oneO1alpha3;
@@ -79,82 +79,82 @@ void getAlphaBeta(double* aOa, double* bOa, double* alphas, double* betas, int N
   // MY POEWR MISSING (see beggning functions);
 
   for(int k = 0; k < Ns; k++){
-    oneO1alpha = 1.0/(1.0 + oOsigma*alphas[k]);
+    oneO1alpha = 1.0/(1.0 + oOeta*alphas[k]);
     oneO1alphaSqrt = sqrt(oneO1alpha);
     aOa[k] = -alphas[k]*oneO1alpha; //got alpha_0k
     oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha;
-    for(int n = 0; n < Ns; n++){ bOa[n*Ns + k] = oOsigma3O2*betas[n*Ns + k]*oneO1alphaSqrtX;} // got beta_0nk
+    for(int n = 0; n < Ns; n++){ bOa[n*Ns + k] = oOeta3O2*betas[n*Ns + k]*oneO1alphaSqrtX;} // got beta_0nk
   }
   if(lMax > 0){
     for(int k = 0; k < Ns; k++){
-      oneO1alpha = 1.0/(1.0 + oOsigma*alphas[Ns + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
+      oneO1alpha = 1.0/(1.0 + oOeta*alphas[Ns + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
       aOa[Ns + k] = -alphas[Ns + k]*oneO1alpha; //got alpha_1k
       oneO1alpha2 = oneO1alpha*oneO1alpha; oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha2;
-      for(int n = 0; n < Ns; n++){ bOa[NsNs + n*Ns + k] = oOsigma3O2*betas[NsNs + n*Ns + k]*oneO1alphaSqrtX;} // got beta_1nk
+      for(int n = 0; n < Ns; n++){ bOa[NsNs + n*Ns + k] = oOeta3O2*betas[NsNs + n*Ns + k]*oneO1alphaSqrtX;} // got beta_1nk
     }
   } if(lMax > 1){
     int shift1 = 2*Ns; int shift2 = 2*NsNs;
     for(int k = 0; k < Ns; k++){
-      oneO1alpha = 1.0/(1.0 + oOsigma*alphas[shift1 + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
+      oneO1alpha = 1.0/(1.0 + oOeta*alphas[shift1 + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
       aOa[shift1 + k] = -alphas[shift1 + k]*oneO1alpha; //got alpha_2k
       oneO1alpha3 = oneO1alpha*oneO1alpha*oneO1alpha; oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha3;
-      for(int n = 0; n < Ns; n++){bOa[shift2 + n*Ns + k] = oOsigma3O2*betas[shift2 + n*Ns + k]*oneO1alphaSqrtX;} // got beta_2nk
+      for(int n = 0; n < Ns; n++){bOa[shift2 + n*Ns + k] = oOeta3O2*betas[shift2 + n*Ns + k]*oneO1alphaSqrtX;} // got beta_2nk
     }
   } if(lMax > 2){
     int shift1 = 3*Ns; int shift2 = 3*NsNs;
     for(int k = 0; k < Ns; k++){
-      oneO1alpha = 1.0/(1.0 + oOsigma*alphas[shift1 + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
+      oneO1alpha = 1.0/(1.0 + oOeta*alphas[shift1 + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
       aOa[shift1 + k] = -alphas[shift1 + k]*oneO1alpha; //got alpha_3k
       oneO1alpha4 = oneO1alpha*oneO1alpha*oneO1alpha*oneO1alpha; oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha4;
-      for(int n = 0; n < Ns; n++){bOa[shift2 + n*Ns + k] = oOsigma3O2*betas[shift2 + n*Ns + k]*oneO1alphaSqrtX;} // got beta_3nk
+      for(int n = 0; n < Ns; n++){bOa[shift2 + n*Ns + k] = oOeta3O2*betas[shift2 + n*Ns + k]*oneO1alphaSqrtX;} // got beta_3nk
     }
   } if(lMax > 3){
     int shift1 = 4*Ns; int shift2 = 4*NsNs;
     for(int k = 0; k < Ns; k++){
-      oneO1alpha = 1.0/(1.0 + oOsigma*alphas[shift1 + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
+      oneO1alpha = 1.0/(1.0 + oOeta*alphas[shift1 + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
       aOa[shift1 + k] = -alphas[shift1 + k]*oneO1alpha; //got alpha_4k
       oneO1alpha5 = pow(oneO1alpha,5); oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha5;
-      for(int n = 0; n < Ns; n++){ bOa[shift2 + n*Ns + k] = oOsigma3O2*betas[shift2 + n*Ns + k]*oneO1alphaSqrtX;} // got beta_4nk
+      for(int n = 0; n < Ns; n++){ bOa[shift2 + n*Ns + k] = oOeta3O2*betas[shift2 + n*Ns + k]*oneO1alphaSqrtX;} // got beta_4nk
     }
   } if(lMax > 4){
     int shift1 = 5*Ns; int shift2 = 5*NsNs;
     for(int k = 0; k < Ns; k++){
-      oneO1alpha = 1.0/(1.0 + oOsigma*alphas[shift1 + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
+      oneO1alpha = 1.0/(1.0 + oOeta*alphas[shift1 + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
       aOa[shift1 + k] = -alphas[shift1 + k]*oneO1alpha; //got alpha_5k
       oneO1alpha6 = pow(oneO1alpha,6); oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha6;
-      for(int n = 0; n < Ns; n++){ bOa[shift2 + n*Ns + k] = oOsigma3O2*betas[shift2 + n*Ns + k]*oneO1alphaSqrtX;} // got beta_5nk
+      for(int n = 0; n < Ns; n++){ bOa[shift2 + n*Ns + k] = oOeta3O2*betas[shift2 + n*Ns + k]*oneO1alphaSqrtX;} // got beta_5nk
     }
   } if(lMax > 5){
     int shift1 = 6*Ns; int shift2 = 6*NsNs;
     for(int k = 0; k < Ns; k++){
-      oneO1alpha = 1.0/(1.0 + oOsigma*alphas[shift1 + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
+      oneO1alpha = 1.0/(1.0 + oOeta*alphas[shift1 + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
       aOa[shift1 + k] = -alphas[shift1 + k]*oneO1alpha; //got alpha_6k
       oneO1alpha7 = pow(oneO1alpha,7); oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha7;
-      for(int n = 0; n < Ns; n++){bOa[shift2 + n*Ns + k] = oOsigma3O2*betas[shift2 + n*Ns + k]*oneO1alphaSqrtX;} // got beta_6nk
+      for(int n = 0; n < Ns; n++){bOa[shift2 + n*Ns + k] = oOeta3O2*betas[shift2 + n*Ns + k]*oneO1alphaSqrtX;} // got beta_6nk
     }
   } if(lMax > 6){
     int shift1 = 7*Ns; int shift2 = 7*NsNs;
     for(int k = 0; k < Ns; k++){
-      oneO1alpha = 1.0/(1.0 + oOsigma*alphas[shift1 + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
+      oneO1alpha = 1.0/(1.0 + oOeta*alphas[shift1 + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
       aOa[shift1 + k] = -alphas[shift1 + k]*oneO1alpha; //got alpha_7k
       oneO1alpha8 = pow(oneO1alpha,8); oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha8;
-      for(int n = 0; n < Ns; n++){bOa[shift2 + n*Ns + k] = oOsigma3O2*betas[shift2 + n*Ns + k]*oneO1alphaSqrtX;} // got beta_7nk
+      for(int n = 0; n < Ns; n++){bOa[shift2 + n*Ns + k] = oOeta3O2*betas[shift2 + n*Ns + k]*oneO1alphaSqrtX;} // got beta_7nk
     }
   } if(lMax > 7){
     int shift1 = 8*Ns; int shift2 = 8*NsNs;
     for(int k = 0; k < Ns; k++){
-      oneO1alpha = 1.0/(1.0 + oOsigma*alphas[shift1 + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
+      oneO1alpha = 1.0/(1.0 + oOeta*alphas[shift1 + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
       aOa[shift1 + k] = -alphas[shift1 + k]*oneO1alpha; //got alpha_8k
       oneO1alpha9 = pow(oneO1alpha,9); oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha9;
-      for(int n = 0; n < Ns; n++){bOa[shift2 + n*Ns + k] = oOsigma3O2*betas[shift2 + n*Ns + k]*oneO1alphaSqrtX;} // got beta_8nk
+      for(int n = 0; n < Ns; n++){bOa[shift2 + n*Ns + k] = oOeta3O2*betas[shift2 + n*Ns + k]*oneO1alphaSqrtX;} // got beta_8nk
     }
   }if(lMax > 8){
     int shift1 = 9*Ns; int shift2 = 9*NsNs;
     for(int k = 0; k < Ns; k++){
-      oneO1alpha = 1.0/(1.0 + oOsigma*alphas[shift1 + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
+      oneO1alpha = 1.0/(1.0 + oOeta*alphas[shift1 + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
       aOa[shift1 + k] = -alphas[shift1 + k]*oneO1alpha; //got alpha_9k
       oneO1alpha10 = pow(oneO1alpha,10); oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha10;
-      for(int n = 0; n < Ns; n++){bOa[shift2 + n*Ns + k] = oOsigma3O2*betas[shift2 + n*Ns + k]*oneO1alphaSqrtX;} // got beta_9nk
+      for(int n = 0; n < Ns; n++){bOa[shift2 + n*Ns + k] = oOeta3O2*betas[shift2 + n*Ns + k]*oneO1alphaSqrtX;} // got beta_9nk
     }
   }
 }
@@ -880,11 +880,11 @@ double cs54=17.3899519988;
 }
 //===========================================================================================
 //===========================================================================================
-int soap(double* c, double* Apos,double* Hpos,double* alphas,double* betas, int* typeNs, double rCut, int totalAN,int Nt,int Ns, int lMax, int Hs, double sigma);
-int soap(double* c, double* Apos,double* Hpos, double* alphas,double* betas, int* typeNs, double rCut, int totalAN,int Nt,int Ns, int lMax, int Hs, double sigma){
+int soap(double* c, double* Apos,double* Hpos,double* alphas,double* betas, int* typeNs, double rCut, int totalAN,int Nt,int Ns, int lMax, int Hs, double eta);
+int soap(double* c, double* Apos,double* Hpos, double* alphas,double* betas, int* typeNs, double rCut, int totalAN,int Nt,int Ns, int lMax, int Hs, double eta){
 
-  double oOsigma = 1.0/sigma;
-  double oOsigma3O2 = sqrt(oOsigma*oOsigma*oOsigma);
+  double oOeta = 1.0/eta;
+  double oOeta3O2 = sqrt(oOeta*oOeta*oOeta);
 
   //printf("xxx\n");
   double NsNs = Ns*Ns;
@@ -975,20 +975,20 @@ int soap(double* c, double* Apos,double* Hpos, double* alphas,double* betas, int
   //printf("xzx\n");
 
   double* cnnd = (double*) malloc(100*Nt*Ns*Hs*sizeof(double));
+  double threshold = 0.0000001;
+  double sigma = sqrt(1.0/(2*eta));
+  double pad = sigma*sqrt(-2*log(threshold));
+  double cutSqr = (rCut+pad)*(rCut+pad);
   for(int i = 0; i < 100*Nt*Ns*Hs; i++){cnnd[i] = 0.0;}
 
   //MAKESURE TO NULLIFY THE CNs!!!!!!!
   //Triple Check the implementation, Triple times. Then Triple that again.
-  getAlphaBeta(aOa,bOa,alphas,betas,Ns,lMax,oOsigma, oOsigma3O2);
+  getAlphaBeta(aOa,bOa,alphas,betas,Ns,lMax,oOeta, oOeta3O2);
   for(int i = 0; i < Hs; i++){
     for(int j = 0; j < Nt; j++){
-  //printf("zzz\n");
-      Asize = getFilteredPos(x, y, z, Apos, Hpos,typeNs, rCut*rCut, i, j);
-  //printf("zyz\n");
+      Asize = getFilteredPos(x, y, z, Apos, Hpos, typeNs, cutSqr, i, j);
       getRsZs(x, y, z, r2,r4,r6,r8,z2,z4,z6,z8, Asize);
-  //printf("yyy\n");
       getCfactors(preCoef,Asize,x,y,z,z2,z4,z6,z8,r2,r4,r6,r8,ReIm2,ReIm3,ReIm4,ReIm5,ReIm6,ReIm7,ReIm8,ReIm9, totalAN, lMax, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20, t21, t22, t23, t24, t25, t26, t27, t28, t29, t30, t31, t32, t33, t34, t35, t36, t37, t38, t39, t40, t41, t42, t43, t44, t45, t46, t47, t48, t49, t50, t51, t52, t53, t54, t55, t56, t57, t58, t59, t60, t61, t62, t63, t64, t65, t66, t67, t68, t69, t70, t71, t72, t73, t74, t75, t76, t77, t78, t79, t80, t81, t82, t83, t84, t85, t86, t87, t88, t89, t90, t91, t92, t93, t94, t95, t96, t97, t98, t99);
-  //printf("ZoZ\n");
       getC(cnnd,preCoef,x,y,z,r2,bOa,aOa,exes,totalAN,Asize,Ns,Nt, lMax, i, j, Nx2, Nx3, Nx4, Nx5, Nx6, Nx7, Nx8, Nx9, Nx10, Nx11, Nx12, Nx13, Nx14, Nx15, Nx16, Nx17, Nx18, Nx19, Nx20, Nx21, Nx22, Nx23, Nx24, Nx25, Nx26, Nx27, Nx28, Nx29, Nx30, Nx31, Nx32, Nx33, Nx34, Nx35, Nx36, Nx37, Nx38, Nx39, Nx40, Nx41, Nx42, Nx43, Nx44, Nx45, Nx46, Nx47, Nx48, Nx49, Nx50, Nx51, Nx52, Nx53, Nx54, Nx55, Nx56, Nx57, Nx58, Nx59, Nx60, Nx61, Nx62, Nx63, Nx64, Nx65, Nx66, Nx67, Nx68, Nx69, Nx70, Nx71, Nx72, Nx73, Nx74, Nx75, Nx76, Nx77, Nx78, Nx79, Nx80, Nx81, Nx82, Nx83, Nx84, Nx85, Nx86, Nx87, Nx88, Nx89, Nx90, Nx91, Nx92, Nx93, Nx94, Nx95, Nx96, Nx97, Nx98, Nx99, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20, t21, t22, t23, t24, t25, t26, t27, t28, t29, t30, t31, t32, t33, t34, t35, t36, t37, t38, t39, t40, t41, t42, t43, t44, t45, t46, t47, t48, t49, t50, t51, t52, t53, t54, t55, t56, t57, t58, t59, t60, t61, t62, t63, t64, t65, t66, t67, t68, t69, t70, t71, t72, t73, t74, t75, t76, t77, t78, t79, t80, t81, t82, t83, t84, t85, t86, t87, t88, t89, t90, t91, t92, t93, t94, t95, t96, t97, t98, t99);
     }
   }
