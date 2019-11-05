@@ -1,8 +1,6 @@
 #ifndef BINNING_H
 #define BINNING_H
 
-#include <stdio.h>
-
 struct pos {
   double x, y, z;
 };

@@ -64,7 +64,7 @@ int getFilteredPos(double* x, double* y, double* z, double r[3], struct binning 
           X = atoms->atoms[idx][a].x - r[0];
           Y = atoms->atoms[idx][a].y - r[1];
           Z = atoms->atoms[idx][a].z - r[2];
-          if( X*X + Y*Y + Z*Z < cutSqr){
+          if(X*X + Y*Y + Z*Z < cutSqr){
             x[count] = X;
             y[count] = Y;
             z[count] = Z;
