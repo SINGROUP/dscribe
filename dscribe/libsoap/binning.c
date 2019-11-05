@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 #include "binning.h"
 
 void free_binning(struct binning *self){
@@ -16,25 +15,30 @@ void init_binning(struct binning *self, double xmin, double xmax, double ymin, d
   self->ymin = ymin; self->ymax = ymax;
   self->zmin = zmin; self->zmax = zmax;
 
-  int nx = self->nx = (int) floor((xmax - xmin)/rcut);
-  int ny = self->ny = (int) floor((ymax - ymin)/rcut);
-  int nz = self->nz = (int) floor((zmax - zmin)/rcut);
+  int nx = (xmax - xmin)/rcut;
+  int ny = (ymax - ymin)/rcut;
+  int nz = (zmax - zmin)/rcut;
+
+  // If rcut > system size
+  if (nx==0) nx++; if (ny==0) ny++; if (nz==0) nz++;
+  self->nx = nx; self->ny = ny; self->nz = nz;
+
   int ntot = self->ntot = nx*ny*nz;
 
   self->dx = (xmax - xmin)/nx;
   self->dy = (ymax - ymin)/ny;
   self->dz = (zmax - zmin)/nz;
 
-  self->counts = (int*) malloc(ntot*sizeof(int));
-  self->sizes = (int*) malloc(ntot*sizeof(int));
-  self->atoms = (struct pos**) malloc(ntot*sizeof(struct pos*));
+  self->counts = (int*) malloc(ntot * sizeof(int));
+  self->sizes = (int*) malloc(ntot * sizeof(int));
+  self->atoms = (struct pos**) malloc(ntot * sizeof(struct pos*));
 
   int initial_size = 10;
 
   for(int i = 0; i < ntot; i++){
     self->counts[i] = 0;
     self->sizes[i] = initial_size;
-    self->atoms[i] = (struct pos*) malloc(initial_size*sizeof(struct pos));
+    self->atoms[i] = (struct pos*) malloc(initial_size * sizeof(struct pos));
   }
 }
 
@@ -47,7 +51,7 @@ void insert_atom(struct binning *self, double x, double y, double z){
 
   // Grow array if necessary
   if (self->counts[idx] == self->sizes[idx]){
-    self->sizes[idx] *= 2.0;
+    self->sizes[idx] *= 2;
     self->atoms[idx] = realloc(self->atoms[idx], self->sizes[idx]*sizeof(struct pos));
   }
 

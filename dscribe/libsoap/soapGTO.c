@@ -50,9 +50,9 @@ int getFilteredPos(double* x, double* y, double* z, double r[3], struct binning 
   int k0 = (r[2] - atoms->zmin)/atoms->dz;
 
   // Find neighbouring bins, check whether current bin is on boundary
-  int istart = i0 <= 0 ? 0 : i0-1, iend = i0>=atoms->nx-1 ? atoms->nx : i0+2;
-  int jstart = j0 <= 0 ? 0 : j0-1, jend = j0>=atoms->ny-1 ? atoms->ny : j0+2;
-  int kstart = k0 <= 0 ? 0 : k0-1, kend = k0>=atoms->nz-1 ? atoms->nz : k0+2;
+  int istart = i0 > 0 ? i0-1 : 0, iend = i0 < atoms->nx-1 ? i0+2 : atoms->nx;
+  int jstart = j0 > 0 ? j0-1 : 0, jend = j0 < atoms->ny-1 ? j0+2 : atoms->ny;
+  int kstart = k0 > 0 ? k0-1 : 0, kend = k0 < atoms->nz-1 ? k0+2 : atoms->nz;
 
   // Loop over neighbouring bins
   for(int i = istart; i < iend; i++){
@@ -1057,8 +1057,6 @@ int soap(double* c, double* Apos, double* Hpos, double* alphas, double* betas, i
     start += 3*typeNs[i];
   }
 
-  printf("HELLO from GTO\n");
-
   //MAKESURE TO NULLIFY THE CNs!!!!!!!
   //Triple Check the implementation, Triple times. Then Triple that again.
   getAlphaBeta(aOa,bOa,alphas,betas,Ns,lMax,oOeta,oOeta3O2);
@@ -1069,9 +1067,6 @@ int soap(double* c, double* Apos, double* Hpos, double* alphas, double* betas, i
       getCfactors(preCoef,Asize,x,y,z,z2,z4,z6,z8,r2,r4,r6,r8,ReIm2,ReIm3,ReIm4,ReIm5,ReIm6,ReIm7,ReIm8,ReIm9, totalAN, lMax, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20, t21, t22, t23, t24, t25, t26, t27, t28, t29, t30, t31, t32, t33, t34, t35, t36, t37, t38, t39, t40, t41, t42, t43, t44, t45, t46, t47, t48, t49, t50, t51, t52, t53, t54, t55, t56, t57, t58, t59, t60, t61, t62, t63, t64, t65, t66, t67, t68, t69, t70, t71, t72, t73, t74, t75, t76, t77, t78, t79, t80, t81, t82, t83, t84, t85, t86, t87, t88, t89, t90, t91, t92, t93, t94, t95, t96, t97, t98, t99);
       getC(cnnd,preCoef,x,y,z,r2,bOa,aOa,exes,totalAN,Asize,Ns,Nt, lMax, i, j, Nx2, Nx3, Nx4, Nx5, Nx6, Nx7, Nx8, Nx9, Nx10, Nx11, Nx12, Nx13, Nx14, Nx15, Nx16, Nx17, Nx18, Nx19, Nx20, Nx21, Nx22, Nx23, Nx24, Nx25, Nx26, Nx27, Nx28, Nx29, Nx30, Nx31, Nx32, Nx33, Nx34, Nx35, Nx36, Nx37, Nx38, Nx39, Nx40, Nx41, Nx42, Nx43, Nx44, Nx45, Nx46, Nx47, Nx48, Nx49, Nx50, Nx51, Nx52, Nx53, Nx54, Nx55, Nx56, Nx57, Nx58, Nx59, Nx60, Nx61, Nx62, Nx63, Nx64, Nx65, Nx66, Nx67, Nx68, Nx69, Nx70, Nx71, Nx72, Nx73, Nx74, Nx75, Nx76, Nx77, Nx78, Nx79, Nx80, Nx81, Nx82, Nx83, Nx84, Nx85, Nx86, Nx87, Nx88, Nx89, Nx90, Nx91, Nx92, Nx93, Nx94, Nx95, Nx96, Nx97, Nx98, Nx99, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20, t21, t22, t23, t24, t25, t26, t27, t28, t29, t30, t31, t32, t33, t34, t35, t36, t37, t38, t39, t40, t41, t42, t43, t44, t45, t46, t47, t48, t49, t50, t51, t52, t53, t54, t55, t56, t57, t58, t59, t60, t61, t62, t63, t64, t65, t66, t67, t68, t69, t70, t71, t72, t73, t74, t75, t76, t77, t78, t79, t80, t81, t82, t83, t84, t85, t86, t87, t88, t89, t90, t91, t92, t93, t94, t95, t96, t97, t98, t99);
     }
-  }
-  for(int i = 0; i < Nt; i++){
-    free_binning(&binnings[i]);
   }
   free(x);
   free(y);
@@ -1100,5 +1095,10 @@ int soap(double* c, double* Apos, double* Hpos, double* alphas, double* betas, i
   //  double* soapMat = (double*) malloc(Hs*3*(Ns*(Ns+1))/2*(lMax+1)*sizeof(double));// 3 -> aa, ab, bb
   getP(c, cnnd, Ns, Nt, Hs, lMax);
   free(cnnd);
+
+  for(int i = 0; i < Nt; i++){
+    free_binning(&binnings[i]);
+  }
+
   return 0;
 }
