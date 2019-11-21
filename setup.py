@@ -20,6 +20,20 @@ def using_clang():
     return "clang" in compiler_ver
 
 
+class get_pybind_include(object):
+    """Helper class to determine the pybind11 include path
+    The purpose of this class is to postpone importing pybind11
+    until it is actually installed, so that the ``get_include()``
+    method can be invoked. """
+
+    def __init__(self, user=False):
+        self.user = user
+
+    def __str__(self):
+        import pybind11
+        return pybind11.get_include(self.user)
+
+
 cpp_extra_link_args = []
 cpp_extra_compile_args = ["-std=c++11", "-O3"]
 c_extra_compile_args = ["-std=c99", "-O3"]
@@ -50,6 +64,20 @@ extensions = [
         include_dirs=["dscribe/libmbtr"],
         extra_compile_args=cpp_extra_compile_args,
         extra_link_args=cpp_extra_link_args,
+    ),
+    # The utils C++ extension, wrapped with pybind11
+    Extension(
+        'dscribe.libutils',
+        ["dscribe/libutils/libutils.cpp"],
+        include_dirs=[
+            # Path to pybind11 headers
+            "dscribe/libutils",
+            get_pybind_include(),
+            get_pybind_include(user=True)
+        ],
+        language='c++',
+        extra_compile_args=cpp_extra_compile_args,
+        extra_link_args=cpp_extra_link_args,
     )
 ]
 
@@ -61,15 +89,15 @@ for soname, source in zip(
         "dscribe.libsoap.libsoapGeneral",
     ],
     [
-        "dscribe/libsoap/soapAnalFullPySigma.c",
-        "dscribe/libsoap/soapGTO.c",
-        "dscribe/libsoap/soapGeneral.c",
+        ["dscribe/libsoap/soapAnalFullPySigma.c"],
+        ["dscribe/libsoap/soapGTO.c", "dscribe/libutils/binning.c"],
+        ["dscribe/libsoap/soapGeneral.c"],
     ],
 ):
     extensions.append(
         Extension(
             soname,
-            [source],
+            source,
             language="c",
             include_dirs=["dscribe/libsoap", "dscribe/libutils"],
             extra_compile_args=c_extra_compile_args,
@@ -84,7 +112,8 @@ if __name__ == "__main__":
         description="A Python package for creating feature transformations in applications of machine learning to materials science.",
         long_description="A Python package for creating feature transformations in applications of machine learning to materials science.",
         packages=find_packages(),
-        install_requires=["numpy", "scipy", "ase", "scikit-learn", "joblib"],
+        setup_requires=['pybind11>=2.4'],
+        install_requires=['pybind11>=2.4', "numpy", "scipy", "ase", "scikit-learn", "joblib"],
         include_package_data=True,  # This ensures that files defined in MANIFEST.in are included
         ext_modules=extensions,
         license="Apache License 2.0",
