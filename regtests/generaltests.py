@@ -95,6 +95,14 @@ class GeometryTests(unittest.TestCase):
         self.assertTrue(np.allclose(orig, cart))
 
 
+class DistanceTests(unittest.TestCase):
+
+    def test_cell_list(self):
+        """Tests that the cell list implementation returns identical results
+        with the naive calculation
+        """
+
+
 class GaussianTests(unittest.TestCase):
 
     def test_cdf(self):

@@ -63,7 +63,8 @@ class SOAP(Descriptor):
             periodic=False,
             crossover=True,
             average=False,
-            sparse=False
+            sparse=False,
+            distance_method="cell_list",
             ):
         """
         Args:
@@ -98,6 +99,15 @@ class SOAP(Descriptor):
                 positions.
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
+            distance_method (string): The method used for calculating distances
+                between atoms. Defaults to the linearly scaling "cell_list" option.
+                The available options are:
+
+                * "naive": Brute-force calculation of all pairwise distances. Time-complexity: O[n^2]
+                * "cell_list": Uses spatial binning: the atoms are partitioned
+                    into equally sized volumes based on the cutoff distance. Time-complexity: O[n]
+                * "kd_tree": Uses a hierarhical tree structure for speeding up
+                    distance calculations. Time-complexity: O[n log(n)]
         """
         super().__init__(periodic=periodic, flatten=True, sparse=sparse)
 

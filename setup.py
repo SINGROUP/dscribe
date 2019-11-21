@@ -50,7 +50,7 @@ extensions = [
         include_dirs=["dscribe/libmbtr"],
         extra_compile_args=cpp_extra_compile_args,
         extra_link_args=cpp_extra_link_args,
-    ),
+    )
 ]
 
 # The SOAP C extension, wrapped with ctypes
@@ -69,9 +69,9 @@ for soname, source in zip(
     extensions.append(
         Extension(
             soname,
-            [source, "dscribe/libsoap/binning.c"],
+            [source],
             language="c",
-            include_dirs=["dscribe/libsoap"],
+            include_dirs=["dscribe/libsoap", "dscribe/libutils"],
             extra_compile_args=c_extra_compile_args,
         )
     )
