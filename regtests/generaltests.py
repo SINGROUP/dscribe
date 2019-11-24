@@ -6,8 +6,7 @@ import unittest
 from dscribe.core import System
 from dscribe.descriptors import ACSF
 from dscribe.utils.species import symbols_to_numbers
-# from dscribe.libutils.libutils import CellList
-import dscribe.libutils as ut
+from dscribe.libutils import CellList
 
 from ase.lattice.cubic import SimpleCubicFactory
 from ase.build import bulk
@@ -104,10 +103,12 @@ class DistanceTests(unittest.TestCase):
         """Tests that the cell list implementation returns identical results
         with the naive calculation
         """
-        system = bulk("NaCl", spacegroup="rocksalt", a=5.64)
+        system = bulk("NaCl", crystalstructure="rocksalt", a=5.64)
         pos = system.get_positions()
         num = system.get_atomic_numbers()
-        cutoff = 3
+        cutoff = 0.5
+        cell_list = CellList(pos.astype(np.float32), num.astype(np.int32), cutoff)
+        # print(p.getName())
         # celllist = CellList(pos, num, cutoff)
 
 
@@ -245,10 +246,11 @@ class DistanceTests(unittest.TestCase):
 
 if __name__ == '__main__':
     suites = []
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(ASETests))
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(GeometryTests))
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(GaussianTests))
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(SpeciesTests))
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(ASETests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(DistanceTests))
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(GeometryTests))
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(GaussianTests))
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SpeciesTests))
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)
 

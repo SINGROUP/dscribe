@@ -68,7 +68,7 @@ extensions = [
     # The utils C++ extension, wrapped with pybind11
     Extension(
         'dscribe.libutils',
-        ["dscribe/libutils/libutils.cpp"],
+        ["dscribe/libutils/libutils.cpp", "dscribe/libutils/celllist.cpp"],
         include_dirs=[
             # Path to pybind11 headers
             "dscribe/libutils",
