@@ -259,7 +259,7 @@
 <span class="sd">            sparse (bool): Whether the output should be a sparse matrix or a</span>
 <span class="sd">                dense numpy array.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="n">sparse</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">periodic</span><span class="o">=</span><span class="n">periodic</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="n">sparse</span><span class="p">)</span>
 
         <span class="c1"># Setup the involved chemical species</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">species</span>
@@ -319,7 +319,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_nmax</span> <span class="o">=</span> <span class="n">nmax</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lmax</span> <span class="o">=</span> <span class="n">lmax</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rbf</span> <span class="o">=</span> <span class="n">rbf</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_periodic</span> <span class="o">=</span> <span class="n">periodic</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_crossover</span> <span class="o">=</span> <span class="n">crossover</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_average</span> <span class="o">=</span> <span class="n">average</span></div>
 
@@ -420,7 +419,7 @@
         <span class="n">sub_elements</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">())))</span>
 
         <span class="c1"># Check if periodic is valid</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_periodic</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">:</span>
             <span class="n">cell</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_cell</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">cell</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cell</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">cell</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -458,11 +457,14 @@
                     <span class="p">)</span>
 
         <span class="c1"># Create the extended system if periodicity is requested</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_periodic</span><span class="p">:</span>
-            <span class="c1"># The radial cutoff is determined by the rcut + the gaussian width that</span>
-            <span class="c1"># extends the influence of atoms. We consider that three sigmas is</span>
-            <span class="c1"># enough to make the gaussian decay.</span>
-            <span class="n">radial_cutoff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rcut</span><span class="o">+</span><span class="mi">3</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_sigma</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">:</span>
+            <span class="c1"># The radial cutoff is extended by adding a padding that depends on</span>
+            <span class="c1"># the used used sigma value. The padding is chosen so that the</span>
+            <span class="c1"># gaussians decay to the specified threshold value at the cutoff</span>
+            <span class="c1"># distance.</span>
+            <span class="n">threshold</span> <span class="o">=</span> <span class="mf">0.000001</span>
+            <span class="n">pad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sigma</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">threshold</span><span class="p">))</span>
+            <span class="n">radial_cutoff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rcut</span><span class="o">+</span><span class="n">pad</span>
             <span class="n">system</span> <span class="o">=</span> <span class="n">get_extended_system</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">radial_cutoff</span><span class="p">,</span> <span class="n">return_cell_indices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
         <span class="c1"># Determine the SOAPLite function to call based on periodicity and</span>

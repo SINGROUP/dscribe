@@ -200,6 +200,43 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.</p>
 <dl class="function">
+<dt id="dscribe.utils.geometry.cartesian">
+<code class="sig-prename descclassname">dscribe.utils.geometry.</code><code class="sig-name descname">cartesian</code><span class="sig-paren">(</span><em class="sig-param">arrays</em>, <em class="sig-param">out=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/utils/geometry.html#cartesian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.utils.geometry.cartesian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a cartesian product of input arrays.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>arrays</strong> (<em>sequence of arrays</em>) – The arrays from which the product is
+created.</p></li>
+<li><p><strong>out</strong> (<em>ndarray</em>) – Array to place the cartesian product in.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>2-D array of shape (M, len(arrays)) containing cartesian
+products formed of input arrays.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cartesian</span><span class="p">(([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">]))</span>
+<span class="go">array([[1, 4, 6],</span>
+<span class="go">       [1, 4, 7],</span>
+<span class="go">       [1, 5, 6],</span>
+<span class="go">       [1, 5, 7],</span>
+<span class="go">       [2, 4, 6],</span>
+<span class="go">       [2, 4, 7],</span>
+<span class="go">       [2, 5, 6],</span>
+<span class="go">       [2, 5, 7],</span>
+<span class="go">       [3, 4, 6],</span>
+<span class="go">       [3, 4, 7],</span>
+<span class="go">       [3, 5, 6],</span>
+<span class="go">       [3, 5, 7]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
 <dt id="dscribe.utils.geometry.get_adjacency_list">
 <code class="sig-prename descclassname">dscribe.utils.geometry.</code><code class="sig-name descname">get_adjacency_list</code><span class="sig-paren">(</span><em class="sig-param">adjacency_matrix</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/utils/geometry.html#get_adjacency_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.utils.geometry.get_adjacency_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to transform an adjacency matrix into an adjacency list. The
@@ -215,7 +252,7 @@ sparse matrix classes.</p>
 for atom at index i is given by accessing the ith element of this list.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)">list</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)">list</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -229,12 +266,12 @@ complexity.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>radius</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The cutoff radius within which distances are
+<li><p><strong>radius</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – The cutoff radius within which distances are
 calculated. Distances outside this radius are not included.</p></li>
 <li><p><strong>pos1</strong> (<em>np.ndarray</em>) – A list of N-dimensional positions.</p></li>
 <li><p><strong>pos2</strong> (<em>np.ndarray</em>) – A list of N-dimensional positions. If not provided,
 is assumed to be the same as pos1.</p></li>
-<li><p><strong>output_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Which container to use for output data. Options:
+<li><p><strong>output_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Which container to use for output data. Options:
 “dok_matrix”, “coo_matrix”, “dict”, or “ndarray”. Default:
 “dok_matrix”.</p></li>
 </ul>
@@ -261,7 +298,7 @@ radial cutoff from the given centers.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>original_system</strong> (<em>ase.Atoms</em>) – The original periodic system to duplicate.</p></li>
-<li><p><strong>radial_cutoff</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The radial cutoff to use in constructing the
+<li><p><strong>radial_cutoff</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – The radial cutoff to use in constructing the
 extended system.</p></li>
 <li><p><strong>centers</strong> (<em>np.ndarray</em>) – Array of xyz-coordinates from which the distance
 is calculated. If provided, these centers are used to calculate the

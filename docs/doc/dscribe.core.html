@@ -202,7 +202,7 @@ limitations under the License.</p>
 <dl class="class">
 <dt id="dscribe.core.lattice.Lattice">
 <em class="property">class </em><code class="sig-prename descclassname">dscribe.core.lattice.</code><code class="sig-name descname">Lattice</code><span class="sig-paren">(</span><em class="sig-param">matrix</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/lattice.html#Lattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.lattice.Lattice" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A lattice object.  Essentially a matrix with conversion matrices. In
 general, it is assumed that length units are in Angstroms and angles are in
 degrees unless otherwise stated.</p>
@@ -303,7 +303,7 @@ determine how many a_1”s it will take to contain the sphere.</p>
 <li><p><strong>frac_points</strong> – All points in the lattice in fractional coordinates.</p></li>
 <li><p><strong>center</strong> – Cartesian coordinates of center of sphere.</p></li>
 <li><p><strong>r</strong> – radius of sphere.</p></li>
-<li><p><strong>zip_results</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Whether to zip the results together to group by
+<li><p><strong>zip_results</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Whether to zip the results together to group by
 point, or return the raw fcoord, dist, index arrays</p></li>
 </ul>
 </dd>
@@ -453,9 +453,9 @@ complexity.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>radius</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The cutoff radius within which distances are
+<li><p><strong>radius</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – The cutoff radius within which distances are
 calculated. Distances outside this radius are not included.</p></li>
-<li><p><strong>output_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Which container to use for output data. Options:
+<li><p><strong>output_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Which container to use for output data. Options:
 “dok_matrix”, “coo_matrix”, “dict”, or “ndarray”. Default:
 “dok_matrix”.</p></li>
 </ul>

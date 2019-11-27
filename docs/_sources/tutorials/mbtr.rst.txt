@@ -33,7 +33,7 @@ The arguments have the following effect:
 
 .. automethod:: dscribe.descriptors.mbtr.MBTR.__init__
 
-For each k-body term the MBTR class takes in a setup as a a dictionary. This
+For each k-body term the MBTR class takes in a setup as a dictionary. This
 dictionary should contain three parts: the geometry function, the grid and the
 weighting function. The geometry function specifies how the k-body information
 is encoded. The grid specifies the expected range of the geometry values
@@ -44,7 +44,7 @@ terms should be weighted. Currently the following geometry and weighting
 functions are available:
 
 .. list-table:: The geometry and weighting functions
-   :widths: 5 25 25
+   :widths: 10 45 45
    :header-rows: 1
 
    * -
@@ -59,14 +59,16 @@ functions are available:
        "inverse_distance": Pairwise inverse distance in 1/angstrom.
      - "unity": No weighting.
 
-       "exp" or "exponential": Weighting of the form :math:`e^{-sx}`
+       "exp" or "exponential": Weighting of the form :math:`e^{-sx}`,
+       where `x` is the distance between the two atoms.
    * - :math:`k=3`
      - "angle": Angle in degrees.
 
        "cosine": Cosine of the angle.
      - "unity": No weighting.
 
-       "exp" or "exponential": Weighting of the form :math:`e^{-sx}`
+       "exp" or "exponential": Weighting of the form :math:`e^{-sx}`,
+       where `x` is the perimeter of the triangle formed by the tree atoms.
 
 Creation
 --------

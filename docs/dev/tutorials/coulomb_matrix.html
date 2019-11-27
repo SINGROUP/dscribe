@@ -188,7 +188,7 @@
             
   <div class="section" id="coulomb-matrix">
 <h1>Coulomb Matrix<a class="headerlink" href="#coulomb-matrix" title="Permalink to this headline">¶</a></h1>
-<p>Coulomb Matrix (CM) <a class="bibtex reference internal" href="#cm" id="id1">[1]</a> is a simple global descriptor which mimics the
+<p>Coulomb Matrix (CM) <a class="reference internal" href="#cm" id="id1">[1]</a> is a simple global descriptor which mimics the
 electrostatic interaction between nuclei.</p>
 <p>Coulomb matrix is calculated with the equation below.</p>
 <div class="math notranslate nohighlight">
@@ -451,7 +451,7 @@ following lines confirm that this is true for CM.</p>
 <div class="section" id="options-for-permutation">
 <h2>Options for permutation<a class="headerlink" href="#options-for-permutation" title="Permalink to this headline">¶</a></h2>
 <p>The following snippet introduces the different options for handling permutation
-invariance. See <a class="bibtex reference internal" href="#cm-versions" id="id2">[2]</a> for more information on these methods.</p>
+invariance. See <a class="reference internal" href="#cm-versions" id="id2">[2]</a> for more information on these methods.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cm</span> <span class="o">=</span> <span class="n">CoulombMatrix</span><span class="p">(</span>
     <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
     <span class="n">permutation</span><span class="o">=</span><span class="s1">&#39;none&#39;</span>
@@ -517,10 +517,10 @@ descriptor, but on the other hand, it potentially loses information encoded
 in the CM interactions.</p></li>
 </ul>
 <p id="bibtex-bibliography-tutorials/coulomb_matrix-0"><dl class="citation">
-<dt class="bibtex label" id="cm"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dt class="label" id="cm"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
 <dd><p>Matthias Rupp, Alexandre Tkatchenko, Klaus-Robert Müller, and O. Anatole von Lilienfeld. Fast and accurate modeling of molecular atomization energies with machine learning. <em>Phys. Rev. Lett.</em>, 108:058301, Jan 2012. <a class="reference external" href="https://doi.org/10.1103/PhysRevLett.108.058301">doi:10.1103/PhysRevLett.108.058301</a>.</p>
 </dd>
-<dt class="bibtex label" id="cm-versions"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
+<dt class="label" id="cm-versions"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
 <dd><p>Grégoire Montavon, Katja Hansen, Siamac Fazli, Matthias Rupp, Franziska Biegler, Andreas Ziehe, Alexandre Tkatchenko, Anatole V. Lilienfeld, and Klaus-Robert Müller. Learning invariant representations of molecules for atomization energy prediction. In F. Pereira, C. J. C. Burges, L. Bottou, and K. Q. Weinberger, editors, <em>Advances in Neural Information Processing Systems 25</em>, pages 440–448. Curran Associates, Inc., 2012. URL: <a class="reference external" href="http://papers.nips.cc/paper/4830-learning-invariant-representations-of-molecules-for-atomization-energy-prediction.pdf">http://papers.nips.cc/paper/4830-learning-invariant-representations-of-molecules-for-atomization-energy-prediction.pdf</a>.</p>
 </dd>
 </dl>
