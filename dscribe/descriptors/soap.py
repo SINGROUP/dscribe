@@ -505,9 +505,8 @@ class SOAP(Descriptor):
         return int(n_element_features * n_blocks)
 
     def flatten_positions(self, system, atomic_numbers=None):
-        """ Takes an ase Atoms object and returns numpy arrays and integers
-        which are read by the internal clusgeo. Apos is currently a flattened
-        out numpy array
+        """Takes an ase Atoms object and returns flattened numpy arrays for the
+        C-extension to use.
 
         Args:
             system (ase.atoms): The system to convert.
@@ -516,7 +515,7 @@ class SOAP(Descriptor):
 
         Returns:
             (np.ndarray, list, int, np.ndarray): Returns the positions flattened
-            and sorted by atomic number, numer of atoms per type, number of
+            and sorted by atomic number, number of atoms per type, number of
             different species and the sorted atomic numbers.
         """
         Z = system.get_atomic_numbers()

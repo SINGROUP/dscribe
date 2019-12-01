@@ -103,11 +103,12 @@ class DistanceTests(unittest.TestCase):
         """Tests that the cell list implementation returns identical results
         with the naive calculation
         """
-        system = bulk("NaCl", crystalstructure="rocksalt", a=5.64)
+        system = bulk("NaCl", crystalstructure="rocksalt", a=5.64, cubic=True)
         pos = system.get_positions()
-        num = system.get_atomic_numbers()
-        cutoff = 0.5
-        cell_list = CellList(pos.astype(np.float32), num.astype(np.int32), cutoff)
+        cutoff = 5
+        cell_list = CellList(pos, cutoff)
+        indices = cell_list.get_neighbours_for_index(1)
+        print(indices)
         # print(p.getName())
         # celllist = CellList(pos, num, cutoff)
 
