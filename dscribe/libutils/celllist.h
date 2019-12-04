@@ -28,14 +28,14 @@ class CellList {
          * @param y Cartesian y-coordinate.
          * @param z Cartesian z-coordinate.
          */
-        vector<int> getNeighboursForPosition(const double x, const double y, const double z) const;
+        pair<vector<int>,vector<double>> getNeighboursForPosition(const double x, const double y, const double z) const;
         /**
          * Get the indices of atoms within the radial cutoff distance from the
          * given atomic index.
          *
          * @param i Index of the atom for which neighbours are queried for.
          */
-        vector<int> getNeighboursForIndex(const int i) const;
+        pair<vector<int>,vector<double>> getNeighboursForIndex(const int i) const;
 
     private:
         /**

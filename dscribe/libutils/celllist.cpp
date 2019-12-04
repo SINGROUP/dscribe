@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <utility>
 #include <map>
+#include <utility>
 #include <iostream>
 #include <math.h>
 
@@ -78,10 +79,11 @@ void CellList::init() {
     };
 }
 
-vector<int> CellList::getNeighboursForPosition(const double x, const double y, const double z) const
+pair<vector<int>, vector<double>> CellList::getNeighboursForPosition(const double x, const double y, const double z) const
 {
     // The indices of the neighbouring atoms
     vector<int> neighbours;
+    vector<double> distances;
 
     // Find bin for the given position
     int i0 = (x - this->xmin)/this->dx;
@@ -110,20 +112,32 @@ vector<int> CellList::getNeighboursForPosition(const double x, const double y, c
                     double deltax = x - ix;
                     double deltay = y - iy;
                     double deltaz = z - iz;
-                    if (deltax*deltax + deltay*deltay + deltaz*deltaz < this->cutoffSquared) {
+                    double distanceSquared = deltax*deltax + deltay*deltay + deltaz*deltaz;
+                    if (distanceSquared <= this->cutoffSquared) {
                         neighbours.push_back(idx);
+                        distances.push_back(sqrt(distanceSquared));
                     }
                 }
             }
         }
     }
-    return neighbours;
+    return make_pair(neighbours, distances);
 }
 
-vector<int> CellList::getNeighboursForIndex(const int idx) const
+pair<vector<int>, vector<double>> CellList::getNeighboursForIndex(const int idx) const
 {
     double x = this->positions(idx, 0);
     double y = this->positions(idx, 1);
     double z = this->positions(idx, 2);
-    return this->getNeighboursForPosition(x, y, z);
+    pair<vector<int>, vector<double>> result = this->getNeighboursForPosition(x, y, z);
+
+    // Remove self from neighbours
+    for (int i=0; i < result.first.size(); ++i) {
+        if (result.first[i] == idx) {
+            result.first.erase(result.first.begin() + i);
+            result.second.erase(result.second.begin() + i);
+            break;
+        }
+    }
+    return result;
 }

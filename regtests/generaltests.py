@@ -101,14 +101,24 @@ class DistanceTests(unittest.TestCase):
 
     def test_cell_list(self):
         """Tests that the cell list implementation returns identical results
-        with the naive calculation
+        with the naive calculation.
         """
+        # Periodic system: cell > cutoff
+        # print("Moi")
         system = bulk("NaCl", crystalstructure="rocksalt", a=5.64, cubic=True)
+        system *= (3, 3, 3)
         pos = system.get_positions()
-        cutoff = 5
+        cutoff = 5.64
         cell_list = CellList(pos, cutoff)
-        indices = cell_list.get_neighbours_for_index(1)
+        idx = 0
+        indices, distances = cell_list.get_neighbours_for_index(idx)
+        indices = np.array(indices)
+        distances = np.array(distances)
+        indices_naive = np.where(np.linalg.norm(pos-pos[idx], axis=1) <= cutoff)[0]
         print(indices)
+        print(indices_naive)
+        # self.assertTrue(np.array_equal(indices, indices_naive))
+
         # print(p.getName())
         # celllist = CellList(pos, num, cutoff)
 
