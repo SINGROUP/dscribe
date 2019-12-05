@@ -9,8 +9,11 @@ from dscribe.utils.species import symbols_to_numbers
 from dscribe.libutils import CellList
 
 from ase.lattice.cubic import SimpleCubicFactory
-from ase.build import bulk
+from ase.build import bulk, molecule
 import ase.data
+from ase import Atoms
+from ase.visualize import view
+
 
 
 # class GeometryTests(unittest.TestCase):
@@ -103,24 +106,55 @@ class DistanceTests(unittest.TestCase):
         """Tests that the cell list implementation returns identical results
         with the naive calculation.
         """
-        # Periodic system: cell > cutoff
-        # print("Moi")
-        system = bulk("NaCl", crystalstructure="rocksalt", a=5.64, cubic=True)
+        # Cubic system: different cutoffs, smaller and larger than the system.
+        a = 5.64
+        n_copies = 3
+        system = bulk("NaCl", crystalstructure="rocksalt", a=a, cubic=True)
+        system *= (n_copies, n_copies, n_copies)
+        pos = system.get_positions()
+        all_distances_naive = system.get_all_distances()
+        for cutoff in np.array([0.5, 1, 1.5, 2])*a*n_copies:
+            cell_list = CellList(pos, cutoff)
+            for idx in range(len(system)):
+                indices, distances = cell_list.get_neighbours_for_index(idx)
+                sort_order = np.argsort(indices)
+                indices = np.array(indices)[sort_order]
+                distances = np.array(distances)[sort_order]
+                indices_naive = np.where(np.linalg.norm(pos-pos[idx], axis=1) <= cutoff)[0]
+                indices_naive = indices_naive[indices_naive != idx]
+                distances_naive = all_distances_naive[idx, indices_naive]
+                self.assertTrue(np.array_equal(indices, indices_naive))
+                self.assertTrue(np.allclose(distances, distances_naive, atol=1e-16, rtol=1e-16))
+
+        # Triclinic finite system: cell > cutoff
+        system = Atoms(
+            cell=[
+                [0.0, 2.0, 2.0],
+                [2.0, 0.0, 2.0],
+                [2.0, 2.0, 0.0]
+            ],
+            positions=[
+                [0, 0, 0],
+                [0.95, 0, 0],
+                [0.95*(1+math.cos(76/180*math.pi)), 0.95*math.sin(76/180*math.pi), 0.0]
+            ],
+            symbols=["H", "O", "H"],
+        )
         system *= (3, 3, 3)
         pos = system.get_positions()
-        cutoff = 5.64
-        cell_list = CellList(pos, cutoff)
-        idx = 0
-        indices, distances = cell_list.get_neighbours_for_index(idx)
-        indices = np.array(indices)
-        distances = np.array(distances)
-        indices_naive = np.where(np.linalg.norm(pos-pos[idx], axis=1) <= cutoff)[0]
-        print(indices)
-        print(indices_naive)
-        # self.assertTrue(np.array_equal(indices, indices_naive))
-
-        # print(p.getName())
-        # celllist = CellList(pos, num, cutoff)
+        all_distances_naive = system.get_all_distances()
+        for cutoff in np.arange(1, 5):
+            cell_list = CellList(pos, cutoff)
+            for idx in range(len(system)):
+                indices, distances = cell_list.get_neighbours_for_index(idx)
+                sort_order = np.argsort(indices)
+                indices = np.array(indices)[sort_order]
+                distances = np.array(distances)[sort_order]
+                indices_naive = np.where(np.linalg.norm(pos-pos[idx], axis=1) <= cutoff)[0]
+                indices_naive = indices_naive[indices_naive != idx]
+                distances_naive = all_distances_naive[idx, indices_naive]
+                self.assertTrue(np.array_equal(indices, indices_naive))
+                self.assertTrue(np.allclose(distances, distances_naive, atol=1e-16, rtol=1e-16))
 
 
 # class GaussianTests(unittest.TestCase):

@@ -44,7 +44,10 @@ void CellList::init() {
             this->zmax = z;
         };
     };
-    double padding = 0.001;
+
+    // Add small padding to avoid floating piont precision problems at the
+    // boundary
+    double padding = 0.0001;
     this->xmin -= padding;
     this->xmax += padding;
     this->ymin -= padding;
@@ -52,10 +55,10 @@ void CellList::init() {
     this->zmin -= padding;
     this->zmax += padding;
 
-    // Determine amount and size of bins
-    this->nx = ceil((this->xmax - this->xmin)/this->cutoff);
-    this->ny = ceil((this->ymax - this->ymin)/this->cutoff);
-    this->nz = ceil((this->zmax - this->zmin)/this->cutoff);
+    // Determine amount and size of bins. The bins are made to be always of equal size.
+    this->nx = max(1, int((this->xmax - this->xmin)/this->cutoff));
+    this->ny = max(1, int((this->ymax - this->ymin)/this->cutoff));
+    this->nz = max(1, int((this->zmax - this->zmin)/this->cutoff));
     this->dx = (this->xmax - this->xmin)/this->nx;
     this->dy = (this->ymax - this->ymin)/this->ny;
     this->dz = (this->zmax - this->zmin)/this->nz;
@@ -64,10 +67,10 @@ void CellList::init() {
     this->bins = vector<vector<vector<vector<int>>>>(this->nx, vector<vector<vector<int>>>(this->ny, vector<vector<int>>(this->nz, vector<int>())));
 
     // Fill the bins with atom indices
-    for (ssize_t index = 0; index < this->positions.shape(0); index++) {
-        double x = this->positions(index, 0);
-        double y = this->positions(index, 1);
-        double z = this->positions(index, 2);
+    for (ssize_t idx = 0; idx < this->positions.shape(0); idx++) {
+        double x = this->positions(idx, 0);
+        double y = this->positions(idx, 1);
+        double z = this->positions(idx, 2);
 
         // Get bin index
         int i = (x - this->xmin)/this->dx;
@@ -75,7 +78,7 @@ void CellList::init() {
         int k = (z - this->zmin)/this->dz;
 
         // Add atom index to the bin
-        this->bins[i][j][k].push_back(index);
+        this->bins[i][j][k].push_back(idx);
     };
 }
 
