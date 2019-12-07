@@ -1650,10 +1650,10 @@ double* getIntegrand(double* Flir, double* Ylmi,int rsize, int icount, int lMax)
   double realY;
   double imagY;
 
+  // Initialize with zeros
   for(int i = 0; i < 2*(lMax+1)*rsize*(lMax+1); i++){summed[i] = 0.0;}
 
   for(int l = 0; l < lMax+1; l++){
-    double summe = 0;
     for(int m = 0; m < l+1; m++){//l+1
      for(int i = 0; i < icount; i++){
       realY = Ylmi[2*(lMax+1)*icount*l + 2*icount*m + 2*i    ];
@@ -1672,7 +1672,6 @@ double* getIntegrand(double* Flir, double* Ylmi,int rsize, int icount, int lMax)
 void getC(double* Cs, double* ws, double* rw2, double * gns, double* summed, double rCut,int lMax, int rsize, int gnsize,int* isCenter, double alpha){
 
   for(int i = 0; i < 2*(lMax+1)*(lMax+1)*gnsize; i++){ Cs[i] = 0.0;}
-  double  theSummedValue = 0;
 
   for(int n = 0; n < gnsize; n++){
     //for i0 case
@@ -1778,12 +1777,12 @@ void accumP(double* Phs, double* Ps, int Nt, int lMax, int gnsize, double rCut2,
 //=========================================================
 //=========================================================
 //=========================================================
-double* soap(double* c, double* Apos,double* Hpos, int* typeNs, double rCut, int totalAN,int Nt,int gnsize, int lMax, int Hs, double alpha, double* rw, double* gss);
-double* soap(double* c, double* Apos,double* Hpos, int* typeNs, double rCut, int totalAN,int Nt,int gnsize, int lMax, int Hs, double alpha, double* rw, double* gss){
+void soap(double* c, double* Apos,double* Hpos, int* typeNs, double rCut, int totalAN,int Nt,int gnsize, int lMax, int Hs, double alpha, double* rw, double* gss);
+void soap(double* c, double* Apos,double* Hpos, int* typeNs, double rCut, int totalAN,int Nt,int gnsize, int lMax, int Hs, double alpha, double* rw, double* gss){
 // everything same except last three
 
   double* cf = factorListSet();
-  int* isCenter = malloc( sizeof(int) );
+  int* isCenter = (int*) malloc( sizeof(int) );
   isCenter[0] = 0;
 
   int rsize = 100; // constant
@@ -1797,7 +1796,6 @@ double* soap(double* c, double* Apos,double* Hpos, int* typeNs, double rCut, int
 
   double* oO4arri = totrs  double* minExp = totrs double* pluExp = totrs
 
-  int Asize = 0;
   double* Cs = (double*) malloc(2*sd*(lMax+1)*(lMax+1)*gnsize);
   double* Cts = (double*) malloc(2*sd*(lMax+1)*(lMax+1)*gnsize*Nt);
   double* Ps = (double*) malloc((Nt*(Nt+1))/2*sd*(lMax+1)*((gnsize+1)*gnsize)/2);
@@ -1838,7 +1836,6 @@ double* soap(double* c, double* Apos,double* Hpos, int* typeNs, double rCut, int
   free(Cs) ;
   free(Cts) ;
   free(Ps) ;
-//  return Phs;
 }
 //=========================================================
 //=========================================================

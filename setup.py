@@ -89,18 +89,26 @@ for soname, source in zip(
         "dscribe.libsoap.libsoapGeneral",
     ],
     [
-        ["dscribe/libsoap/soapAnalFullPySigma.c"],
-        ["dscribe/libsoap/soapGTO.c", "dscribe/libutils/binning.c"],
-        ["dscribe/libsoap/soapGeneral.c"],
+        ["dscribe/libsoap/soapAnalFullPySigma.cpp"],
+        ["dscribe/libsoap/soapGTO.cpp", "dscribe/libutils/celllist.cpp"],
+        ["dscribe/libsoap/soapGeneral.cpp"],
     ],
 ):
     extensions.append(
         Extension(
             soname,
             source,
-            language="c",
-            include_dirs=["dscribe/libsoap", "dscribe/libutils"],
-            extra_compile_args=c_extra_compile_args,
+            language="c++",
+            include_dirs=[
+                "dscribe/libsoap",
+                "dscribe/libutils",
+                get_pybind_include(),
+                get_pybind_include(user=True)
+            ],
+            # include_dirs=["dscribe/libsoap", "dscribe/libutils"],
+            # extra_compile_args=c_extra_compile_args,
+            extra_compile_args=cpp_extra_compile_args + ["-fvisibility=hidden"],  # the -fvisibility flag is needed by pybind11
+            extra_link_args=cpp_extra_link_args,
         )
     )
 

@@ -103,11 +103,11 @@ class SOAP(Descriptor):
                 between atoms. Defaults to the linearly scaling "cell_list" option.
                 The available options are:
 
-                * "naive": Brute-force calculation of all pairwise distances. Time-complexity: O[n^2]
-                * "cell_list": Uses spatial binning: the atoms are partitioned
-                    into equally sized volumes based on the cutoff distance. Time-complexity: O[n]
+                * "naive": Brute-force calculation of all pairwise distances. Time-complexity: O(n^2)
                 * "kd_tree": Uses a hierarhical tree structure for speeding up
-                    distance calculations. Time-complexity: O[n log(n)]
+                    distance calculations. Time-complexity: O(n log(n))
+                * "cell_list": Uses spatial binning: the atoms are partitioned
+                    into equally sized volumes based on the cutoff distance. Time-complexity: O(n)
         """
         super().__init__(periodic=periodic, flatten=True, sparse=sparse)
 
@@ -514,9 +514,10 @@ class SOAP(Descriptor):
                 have these atomic numbers are ignored.
 
         Returns:
-            (np.ndarray, list, int, np.ndarray): Returns the positions flattened
-            and sorted by atomic number, number of atoms per type, number of
-            different species and the sorted atomic numbers.
+            (np.ndarray, list, int, np.ndarray): Returns the positions
+            flattened and sorted by atomic number, atomic numbers flattened and
+            sorted by atomic number, number of different species and the sorted
+            set of atomic numbers.
         """
         Z = system.get_atomic_numbers()
         pos = system.get_positions()
@@ -529,18 +530,19 @@ class SOAP(Descriptor):
         atomic_numbers_sorted = np.sort(list(atomtype_set))
 
         # Form a flattened list of atomic positions, sorted by atomic type
-        n_atoms_per_type = []
         pos_lst = []
+        z_lst = []
         for atomtype in atomic_numbers_sorted:
             condition = Z == atomtype
             pos_onetype = pos[condition]
-            n_onetype = pos_onetype.shape[0]
+            z_onetype = Z[condition]
             pos_lst.append(pos_onetype)
-            n_atoms_per_type.append(n_onetype)
+            z_lst.append(z_onetype)
         n_species = len(atomic_numbers_sorted)
         positions_sorted = np.concatenate(pos_lst).ravel()
+        atomic_numbers_sorted = np.concatenate(z_lst).ravel()
 
-        return positions_sorted, n_atoms_per_type, n_species, atomic_numbers_sorted
+        return positions_sorted, atomic_numbers_sorted, n_species, atomic_numbers_sorted
 
     def get_soap_locals_gto(self, system, positions, alphas, betas, rcut, nmax, lmax, eta, crossover, atomic_numbers=None):
         """Get the SOAP output for the given positions using the gto radial
@@ -568,7 +570,7 @@ class SOAP(Descriptor):
         rCutHard = rcut + 5
 
         n_atoms = len(system)
-        Apos, typeNs, py_Ntypes, atomtype_lst = self.flatten_positions(system, atomic_numbers)
+        Apos, Z_sorted, py_Ntypes, atomtype_lst = self.flatten_positions(system, atomic_numbers)
         positions = np.array(positions)
         py_Hsize = positions.shape[0]
 
@@ -585,7 +587,7 @@ class SOAP(Descriptor):
         rCutHard = c_double(rCutHard)
         Nsize = c_int(nmax)
         c_eta = c_double(eta)
-        typeNs = (c_int * len(typeNs))(*typeNs)
+        Z_sorted = (c_int * len(Z_sorted))(*Z_sorted)
         alphas = (c_double * len(alphas))(*alphas.tolist())
         betas = (c_double * len(betas))(*betas.tolist())
         axyz = (c_double * len(Apos))(*Apos.tolist())
@@ -600,14 +602,14 @@ class SOAP(Descriptor):
             libsoap.soap.argtypes = [POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_int), c_double, c_int, c_int, c_int, c_int, c_int, c_double]
             libsoap.soap.restype = POINTER(c_double)
             c = (c_double*(int((nmax*(nmax+1))/2)*(lmax+1)*py_Ntypes*py_Hsize))()
-            libsoap.soap(c, axyz, hxyz, alphas, betas, typeNs, rCutHard, n_atoms, Ntypes, Nsize, lMax, Hsize, c_eta)
+            libsoap.soap(c, axyz, hxyz, alphas, betas, Z_sorted, rCutHard, n_atoms, Ntypes, Nsize, lMax, Hsize, c_eta)
         else:
             substring = "libsoap/libsoapGTO."
             libsoapGTO = CDLL(next((s for s in _SOAPLITE_SOFILES if substring in s), None))
             libsoapGTO.soap.argtypes = [POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_int), c_double, c_int, c_int, c_int, c_int, c_int, c_double]
             libsoapGTO.soap.restype = POINTER(c_double)
             c = (c_double*(int((nmax*(nmax+1))/2)*(lmax+1)*int((py_Ntypes*(py_Ntypes + 1))/2)*py_Hsize))()
-            libsoapGTO.soap(c, axyz, hxyz, alphas, betas, typeNs, rCutHard, n_atoms, Ntypes, Nsize, lMax, Hsize, c_eta)
+            libsoapGTO.soap(c, axyz, hxyz, alphas, betas, Z_sorted, rCutHard, n_atoms, Ntypes, Nsize, lMax, Hsize, c_eta)
 
         if crossover:
             crosTypes = int((py_Ntypes*(py_Ntypes+1))/2)
@@ -648,7 +650,7 @@ class SOAP(Descriptor):
         rx, gss = self.get_basis_poly(rcut, nmax)
 
         n_atoms = len(system)
-        Apos, typeNs, py_Ntypes, atomtype_lst = self.flatten_positions(system, atomic_numbers)
+        Apos, ZSorted, py_Ntypes, atomtype_lst = self.flatten_positions(system, atomic_numbers)
         positions = np.array(positions)
         py_Hsize = positions.shape[0]
 
@@ -664,7 +666,7 @@ class SOAP(Descriptor):
         rCutHard = c_double(rCutHard)
         Nsize = c_int(nmax)
         c_eta = c_double(eta)
-        typeNs = (c_int * len(typeNs))(*typeNs)
+        Z_sorted = (c_int * len(Z_sorted))(*Z_sorted)
         axyz = (c_double * len(Apos))(*Apos.tolist())
         hxyz = (c_double * len(positions))(*positions.tolist())
         rx = (c_double * 100)(*rx.tolist())
@@ -682,7 +684,7 @@ class SOAP(Descriptor):
         libsoap.soap.restype = POINTER(c_double)
 
         c = (c_double*(int((nmax*(nmax+1))/2)*(lmax+1)*int((py_Ntypes*(py_Ntypes+1))/2)*py_Hsize))()
-        libsoap.soap(c, axyz, hxyz, typeNs, rCutHard, n_atoms, Ntypes, Nsize, lMax, Hsize, c_eta, rx, gss)
+        libsoap.soap(c, axyz, hxyz, Z_sorted, rCutHard, n_atoms, Ntypes, Nsize, lMax, Hsize, c_eta, rx, gss)
 
         shape = (py_Hsize, int((nmax*(nmax+1))/2)*(lmax+1)*int((py_Ntypes*(py_Ntypes+1))/2))
         crosTypes = int((py_Ntypes*(py_Ntypes+1))/2)
