@@ -17,7 +17,8 @@ import os
 import glob
 import numpy as np
 
-from ctypes import POINTER, c_double, c_int, CDLL
+# from ctypes import POINTER, c_double, c_int, CDLL
+from dscribe import libsoap
 
 from scipy.sparse import coo_matrix
 from scipy.special import gamma
@@ -170,6 +171,7 @@ class SOAP(Descriptor):
         self._lmax = lmax
         self._rbf = rbf
         self._crossover = crossover
+        self._distance_method = distance_method
         self._average = average
 
     def create(self, system, positions=None, n_jobs=1, verbose=False):
@@ -539,19 +541,19 @@ class SOAP(Descriptor):
             pos_lst.append(pos_onetype)
             z_lst.append(z_onetype)
         n_species = len(atomic_numbers_sorted)
-        positions_sorted = np.concatenate(pos_lst).ravel()
+        positions_sorted = np.concatenate(pos_lst, axis=0)
         atomic_numbers_sorted = np.concatenate(z_lst).ravel()
 
         return positions_sorted, atomic_numbers_sorted, n_species, atomic_numbers_sorted
 
-    def get_soap_locals_gto(self, system, positions, alphas, betas, rcut, nmax, lmax, eta, crossover, atomic_numbers=None):
+    def get_soap_locals_gto(self, system, centers, alphas, betas, rcut, nmax, lmax, eta, crossover, atomic_numbers=None):
         """Get the SOAP output for the given positions using the gto radial
         basis.
 
         Args:
             system(ase.Atoms): Atomic structure for which the SOAP output is
                 calculated.
-            positions(np.ndarray): Positions at which to calculate SOAP.
+            centers(np.ndarray): Positions at which to calculate SOAP.
             alphas (np.ndarray): The alpha coeffients for the gto-basis.
             betas (np.ndarray): The beta coeffients for the gto-basis.
             rCut (float): Radial cutoff.
@@ -567,60 +569,83 @@ class SOAP(Descriptor):
         Returns:
             np.ndarray: SOAP output with the gto radial basis for the given positions.
         """
-        rCutHard = rcut + 5
+        # rCutHard = rcut + 5 # ??? This should not be needed
 
         n_atoms = len(system)
-        Apos, Z_sorted, py_Ntypes, atomtype_lst = self.flatten_positions(system, atomic_numbers)
-        positions = np.array(positions)
-        py_Hsize = positions.shape[0]
+        positions, Z_sorted, n_species, atomtype_lst = self.flatten_positions(system, atomic_numbers)
+        centers = np.array(centers)
+        n_centers = centers.shape[0]
 
         # Flatten arrays
-        positions = positions.flatten()
+        centers = centers.flatten()
         alphas = alphas.flatten()
         betas = betas.flatten()
 
         # Convert types
-        lMax = c_int(lmax)
-        Hsize = c_int(py_Hsize)
-        Ntypes = c_int(py_Ntypes)
-        n_atoms = c_int(n_atoms)
-        rCutHard = c_double(rCutHard)
-        Nsize = c_int(nmax)
-        c_eta = c_double(eta)
-        Z_sorted = (c_int * len(Z_sorted))(*Z_sorted)
-        alphas = (c_double * len(alphas))(*alphas.tolist())
-        betas = (c_double * len(betas))(*betas.tolist())
-        axyz = (c_double * len(Apos))(*Apos.tolist())
-        hxyz = (c_double * len(positions))(*positions.tolist())
+        # lMax = c_int(lmax)
+        # Hsize = c_int(py_Hsize)
+        # Ntypes = c_int(py_Ntypes)
+        # n_atoms = c_int(n_atoms)
+        # rCutHard = c_double(rCutHard)
+        # Nsize = c_int(nmax)
+        # c_eta = c_double(eta)
+        # Z_sorted = (c_int * len(Z_sorted))(*Z_sorted)
+        # alphas = (c_double * len(alphas))(*alphas.tolist())
+        # betas = (c_double * len(betas))(*betas.tolist())
+        # axyz = (c_double * len(Apos))(*Apos.tolist())
+        # hxyz = (c_double * len(positions))(*positions.tolist())
+        # lMax = c_int(lmax)
+        # Hsize = c_int(py_Hsize)
+        # Ntypes = c_int(py_Ntypes)
+        # n_atoms = c_int(n_atoms)
+        # rCutHard = c_double(rCutHard)
+        # Nsize = c_int(nmax)
+        # c_eta = c_double(eta)
+        # Z_sorted = (c_int * len(Z_sorted))(*Z_sorted)
+        # alphas = (c_double * len(alphas))(*alphas.tolist())
+        # betas = (c_double * len(betas))(*betas.tolist())
+        # axyz = (c_double * len(Apos))(*Apos.tolist())
+        # hxyz = (c_double * len(positions))(*positions.tolist())
 
         # Calculate with C-extension
-        _PATH_TO_SOAPLITE_SO = os.path.dirname(os.path.abspath(__file__))
-        _SOAPLITE_SOFILES = glob.glob("".join([_PATH_TO_SOAPLITE_SO, "/../libsoap/libsoap*.*so"]))
-        if py_Ntypes == 1 or (not crossover):
-            substring = "libsoap/libsoapPySig."
-            libsoap = CDLL(next((s for s in _SOAPLITE_SOFILES if substring in s), None))
-            libsoap.soap.argtypes = [POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_int), c_double, c_int, c_int, c_int, c_int, c_int, c_double]
-            libsoap.soap.restype = POINTER(c_double)
-            c = (c_double*(int((nmax*(nmax+1))/2)*(lmax+1)*py_Ntypes*py_Hsize))()
-            libsoap.soap(c, axyz, hxyz, alphas, betas, Z_sorted, rCutHard, n_atoms, Ntypes, Nsize, lMax, Hsize, c_eta)
+        # _PATH_TO_SOAPLITE_SO = os.path.dirname(os.path.abspath(__file__))
+        # _SOAPLITE_SOFILES = glob.glob("".join([_PATH_TO_SOAPLITE_SO, "/../libsoap/libsoap*.*so"]))
+        if n_species == 1 or (not crossover):
+            # substring = "libsoap/libsoapPySig."
+            # libsoap = CDLL(next((s for s in _SOAPLITE_SOFILES if substring in s), None))
+            # libsoap.soap.argtypes = [POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_int), c_double, c_int, c_int, c_int, c_int, c_int, c_double]
+            # libsoap.soap.restype = POINTER(c_double)
+            # c = (c_double*(int((nmax*(nmax+1))/2)*(lmax+1)*py_Ntypes*py_Hsize))()
+            c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*n_species*n_centers, dtype=np.float64)
+            # libsoap.soap(c, axyz, hxyz, alphas, betas, Z_sorted, rCutHard, n_atoms, Ntypes, Nsize, lMax, Hsize, c_eta)
+            pass
         else:
-            substring = "libsoap/libsoapGTO."
-            libsoapGTO = CDLL(next((s for s in _SOAPLITE_SOFILES if substring in s), None))
-            libsoapGTO.soap.argtypes = [POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_int), c_double, c_int, c_int, c_int, c_int, c_int, c_double]
-            libsoapGTO.soap.restype = POINTER(c_double)
-            c = (c_double*(int((nmax*(nmax+1))/2)*(lmax+1)*int((py_Ntypes*(py_Ntypes + 1))/2)*py_Hsize))()
-            libsoapGTO.soap(c, axyz, hxyz, alphas, betas, Z_sorted, rCutHard, n_atoms, Ntypes, Nsize, lMax, Hsize, c_eta)
+            # substring = "libsoap/libsoapGTO."
+            # libsoapGTO = CDLL(next((s for s in _SOAPLITE_SOFILES if substring in s), None))
+            # libsoapGTO.soap.argtypes = [POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_int), c_double, c_int, c_int, c_int, c_int, c_int, c_double]
+            # libsoapGTO.soap.restype = POINTER(c_double)
+            # c = (c_double*(int((nmax*(nmax+1))/2)*(lmax+1)*int((py_Ntypes*(py_Ntypes + 1))/2)*py_Hsize))()
+            c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int((n_species*(n_species + 1))/2)*n_centers, dtype=np.float64)
+            print(c.shape)
+            # libsoapGTO.soap(c, axyz, hxyz, alphas, betas, Z_sorted, rCutHard, n_atoms, Ntypes, Nsize, lMax, Hsize, c_eta)
+            # print(c.shape, c.dtype)
+            # print(system_pos.shape, system_pos.dtype)
+            # print(positions.shape, positions.dtype)
+            libsoap.soap_gto(c, positions, centers, alphas, betas, Z_sorted, rcut, n_atoms, n_species, nmax, lmax, n_centers, eta)
+            print(c.shape)
 
+        # Reshape
         if crossover:
-            crosTypes = int((py_Ntypes*(py_Ntypes+1))/2)
-            shape = (py_Hsize, int((nmax*(nmax+1))/2)*(lmax+1)*crosTypes)
+            crosTypes = int((n_species*(n_species+1))/2)
+            shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*crosTypes)
         else:
-            shape = (py_Hsize, int((nmax*(nmax+1))/2)*(lmax+1)*py_Ntypes)
+            shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*n_species)
+        c = c.reshape(shape)
 
-        a = np.ctypeslib.as_array(c)
-        a = a.reshape(shape)
+        # a = np.ctypeslib.as_array(c)
+        # a = a.reshape(shape)
 
-        return a
+        return c
 
     def get_soap_locals_poly(self, system, positions, rcut, nmax, lmax, eta, atomic_numbers=None):
         """Get the SOAP output using polynomial radial basis for the given

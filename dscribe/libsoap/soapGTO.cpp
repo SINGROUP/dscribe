@@ -6,37 +6,38 @@
 #include <string>
 #include <map>
 #include <set>
+#include <iostream>
+#include "soapGTO.h"
 #include "celllist.h"
-#include <pybind11/numpy.h>
 
 #define PI2 9.86960440108936
 #define PI 3.14159265359
 #define PIHalf 1.57079632679490
 //===========================================================
-int getCrosNum(int n){return n*(n+1)/2;}
+inline int getCrosNum(int n){return n*(n+1)/2;}
 //===========================================================
-void getReIm2(double* x, double* y, double* c3, int Asize){
+inline void getReIm2(double* x, double* y, double* c3, int Asize){
   for(int i = 0; i < Asize; i++){
     c3[2*i  ] = x[i]*x[i]-y[i]*y[i];
     c3[2*i+1] = 2*y[i]*x[i];
   }
 }
 //===========================================================
-void getReIm3(double* x, double* y, double* c2, double* c3, int Asize){
+inline void getReIm3(double* x, double* y, double* c2, double* c3, int Asize){
   for(int i = 0; i < Asize; i++){
     c3[2*i  ] = x[i]*c2[2*i] - y[i]*c2[2*i + 1];
     c3[2*i+1] = x[i]*c2[2*i+1] + y[i]*c2[2*i  ];
   }
 }
 //===========================================================
-void getMulReIm(double* c1, double* c2, double* c3, int Asize){
+inline void getMulReIm(double* c1, double* c2, double* c3, int Asize){
   for(int i = 0; i < Asize; i++){
     c3[2*i  ] = c1[2*i  ]*c2[2*i  ] - c1[2*i+1]*c2[2*i+1];
     c3[2*i+1] = c1[2*i  ]*c2[2*i+1] + c1[2*i+1]*c2[2*i  ];
   }
 }
 //===========================================================
-void getMulDouble(double* c1, double* c3, int Asize){
+inline void getMulDouble(double* c1, double* c3, int Asize){
   for(int i = 0; i < Asize; i++){
     c3[2*i  ] = c1[2*i]*c1[2*i] - c1[2*i+1]*c1[2*i+1];
     c3[2*i+1] = 2*c1[2*i]*c1[2*i+1];
@@ -81,21 +82,20 @@ void getMulDouble(double* c1, double* c3, int Asize){
   //return count;
 //}
 
-inline int getDeltas(double* x, double* y, double* z, double *positions, double r[3], const vector<int> &indices){
+inline void getDeltas(double* x, double* y, double* z, const py::array_t<double> &positions, const double ix, const double iy, const double iz, const vector<int> &indices){
 
     int count = 0;
+    auto pos = positions.unchecked<2>();
     for (const int &idx : indices) {
-        x[count] = positions[3*idx] - r[0];
-        y[count] = positions[3*idx+1] - r[1];
-        z[count] = positions[3*idx+2] - r[2];
+        x[count] = pos(idx, 0) - ix;
+        y[count] = pos(idx, 1) - iy;
+        z[count] = pos(idx, 2) - iz;
         count++;
     };
-
-    return count;
 }
 
 //================================================================
-void getRsZs(double* x, double* y, double* z,double* r2,double* r4,double* r6,double* r8,double* z2,double* z4,double* z6,double* z8, int size){
+inline void getRsZs(double* x, double* y, double* z,double* r2,double* r4,double* r6,double* r8,double* z2,double* z4,double* z6,double* z8, int size){
   for(int i = 0; i < size; i++){
     r2[i] = x[i]*x[i] + y[i]*y[i] + z[i]*z[i];
     r4[i] = r2[i]*r2[i]; r6[i] = r2[i]*r4[i]; r8[i] = r4[i]*r4[i];
@@ -636,7 +636,9 @@ void getP(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax){
   int shiftN = 0;
   int shiftT = 0;
 
-  for(int i = 0; i < Hs*NsNs*(lMax+1)*3; i++){soapMat[i] = 0.0;}
+  for (int i = 0; i < Hs*NsNs*(lMax+1)*3; i++) {
+      soapMat[i] = 0.0;
+  };
 
   //  double   cs0  = pow(PIHalf,2);
   //  double   cs1  = pow(2.7206990464,2);
@@ -957,9 +959,13 @@ void getP(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax){
   }
 }
 //===========================================================================================
-//===========================================================================================
-int soap(double* c, double* Apos, double* Hpos, double* alphas, double* betas, int* atomicNumbers, double rCut, int totalAN, int Nt, int Ns, int lMax, int Hs, double eta);
-int soap(double* c, double* Apos, double* Hpos, double* alphas, double* betas, int* atomicNumbers, double rCut, int totalAN, int Nt, int Ns, int lMax, int Hs, double eta, string distance_method) {
+void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<double> alphasArr, py::array_t<double> betasArr, py::array_t<int> atomicNumbersArr, double rCut, int totalAN, int Nt, int Ns, int lMax, int Hs, double eta) {
+
+  auto atomicNumbers = atomicNumbersArr.unchecked<1>();
+  double* c = (double*)cArr.ptr();
+  double* Hpos = (double*)HposArr.ptr();
+  double* alphas = (double*)alphasArr.ptr();
+  double* betas = (double*)betasArr.ptr();
 
   double oOeta = 1/eta;
   double oOeta3O2 = sqrt(oOeta*oOeta*oOeta);
@@ -1052,60 +1058,43 @@ int soap(double* c, double* Apos, double* Hpos, double* alphas, double* betas, i
   double* cnnd = (double*) malloc(100*Nt*Ns*Hs*sizeof(double));
   for(int i = 0; i < 100*Nt*Ns*Hs; i++){cnnd[i] = 0.0;}
 
+  // Calculate the extended radial cutoff that takes into account the decay of
+  // the gaussians
   double threshold = 0.000001;
   double sigma = sqrt(1.0/(2*eta));
   double pad = sigma*sqrt(-2*log(threshold));
 
-  // Initialize binning. Temporarily a pybind11 object is created for the atom
-  // positions.
-  py::array_t<double> positionsNumpy(
-    {3*totalAN},        // shape
-    {8},                // stride for double
-    Apos                // the data pointer
-  );
-  CellList cellList(positionsNumpy, rCut+pad);
+  // Initialize binning
+  CellList cellList(positions, rCut+pad);
 
   // Create a mapping between an atomic index and its internal index in the
   // output
   map<int, int> ZIndexMap;
   set<int> atomicNumberSet;
   for (int i = 0; i < totalAN; ++i) {
-      atomicNumberSet.insert(atomicNumbers[i]);
+      atomicNumberSet.insert(atomicNumbers(i));
   };
-  for (int i = 0; i < atomicNumberSet.size(); ++i) {
-      ZIndexMap[i] = *next(atomicNumberSet.begin(), i);
-  }
+  int i = 0;
+  for (auto it=atomicNumberSet.begin(); it!=atomicNumberSet.end(); ++it) {
+      ZIndexMap[*it] = i;
+      ++i;
+  };
 
-  // Sort
-  /*double xmin = min(Apos, 3*totalAN, 3)-0.001, xmax = max(Apos, 3*totalAN, 3)+0.001;*/
-  /*double ymin = min(Apos+1, 3*totalAN, 3)-0.001, ymax = max(Apos+1, 3*totalAN, 3)+0.001;*/
-  /*double zmin = min(Apos+2, 3*totalAN, 3)-0.001, zmax = max(Apos+2, 3*totalAN, 3)+0.001;*/
-  /*struct binning binnings[Nt];*/
-  /*int start = 0;*/
-  /*for(int i = 0; i < Nt; i++){*/
-    /*init_binning(&binnings[i], xmin, xmax, ymin, ymax, zmin, zmax, rCut+pad);*/
-    /*for(int j = start; j < start + 3*typeNs[i]; j+=3){*/
-      /*insert_atom(&binnings[i], Apos[j], Apos[j+1], Apos[j+2]);*/
-    /*}*/
-    /*start += 3*typeNs[i];*/
-  /*}*/
-
-  // MAKE SURE TO NULLIFY THE CNs!!!!!!!
   getAlphaBeta(aOa,bOa,alphas,betas,Ns,lMax,oOeta,oOeta3O2);
+
+  // Loop through the centers
   for (int i = 0; i < Hs; i++) {
 
     // Get all neighbours for the central atom i
     double ix = Hpos[3*i];
     double iy = Hpos[3*i+1];
     double iz = Hpos[3*i+2];
-    pair<vector<int>, vector<double>> neighbours = cellList.getNeighboursForPosition(ix, iy, iz);
-    vector<int> indices = neighbours.first;
+    vector<int> indices = cellList.getNeighboursForPosition(ix, iy, iz).first;
 
     // Sort the neighbours by type
     map<int, vector<int>> atomicTypeMap;
-    vector<int> atomicNumbers(indices.size());
     for (const int &idx : indices) {
-        int Z = atomicNumbers[idx];
+        int Z = atomicNumbers(idx);
         atomicTypeMap[Z].push_back(idx);
     };
 
@@ -1114,14 +1103,14 @@ int soap(double* c, double* Apos, double* Hpos, double* alphas, double* betas, i
 
       // j is the internal index for this atomic number
       int j = ZIndexMap[ZIndexPair.first];
+      int n_neighbours = ZIndexPair.second.size();
 
-      // Save the neighbour distances into the arrays x, y and z, also save the number of neighbours to Asize
-      Asize = getDeltas(dx, dy, dz, Apos, &Hpos[3*i], ZIndexPair.second);
-      /*Asize = getFilteredPos(dxSquared, dySquared, dzSquared, &Hpos[3*i], &binnings[j], cutSqr);*/
+      // Save the neighbour distances into the arrays dx, dy and dz
+      getDeltas(dx, dy, dz, positions, ix, iy, iz, ZIndexPair.second);
 
-      getRsZs(dx, dy, dz, r2,r4,r6,r8,z2,z4,z6,z8, Asize);
-      getCfactors(preCoef,Asize, dx, dy, dz, z2,z4,z6,z8,r2,r4,r6,r8,ReIm2,ReIm3,ReIm4,ReIm5,ReIm6,ReIm7,ReIm8,ReIm9, totalAN, lMax, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20, t21, t22, t23, t24, t25, t26, t27, t28, t29, t30, t31, t32, t33, t34, t35, t36, t37, t38, t39, t40, t41, t42, t43, t44, t45, t46, t47, t48, t49, t50, t51, t52, t53, t54, t55, t56, t57, t58, t59, t60, t61, t62, t63, t64, t65, t66, t67, t68, t69, t70, t71, t72, t73, t74, t75, t76, t77, t78, t79, t80, t81, t82, t83, t84, t85, t86, t87, t88, t89, t90, t91, t92, t93, t94, t95, t96, t97, t98, t99);
-      getC(cnnd,preCoef, dx, dy, dz, r2,bOa,aOa,exes,totalAN,Asize,Ns,Nt, lMax, i, j, Nx2, Nx3, Nx4, Nx5, Nx6, Nx7, Nx8, Nx9, Nx10, Nx11, Nx12, Nx13, Nx14, Nx15, Nx16, Nx17, Nx18, Nx19, Nx20, Nx21, Nx22, Nx23, Nx24, Nx25, Nx26, Nx27, Nx28, Nx29, Nx30, Nx31, Nx32, Nx33, Nx34, Nx35, Nx36, Nx37, Nx38, Nx39, Nx40, Nx41, Nx42, Nx43, Nx44, Nx45, Nx46, Nx47, Nx48, Nx49, Nx50, Nx51, Nx52, Nx53, Nx54, Nx55, Nx56, Nx57, Nx58, Nx59, Nx60, Nx61, Nx62, Nx63, Nx64, Nx65, Nx66, Nx67, Nx68, Nx69, Nx70, Nx71, Nx72, Nx73, Nx74, Nx75, Nx76, Nx77, Nx78, Nx79, Nx80, Nx81, Nx82, Nx83, Nx84, Nx85, Nx86, Nx87, Nx88, Nx89, Nx90, Nx91, Nx92, Nx93, Nx94, Nx95, Nx96, Nx97, Nx98, Nx99, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20, t21, t22, t23, t24, t25, t26, t27, t28, t29, t30, t31, t32, t33, t34, t35, t36, t37, t38, t39, t40, t41, t42, t43, t44, t45, t46, t47, t48, t49, t50, t51, t52, t53, t54, t55, t56, t57, t58, t59, t60, t61, t62, t63, t64, t65, t66, t67, t68, t69, t70, t71, t72, t73, t74, t75, t76, t77, t78, t79, t80, t81, t82, t83, t84, t85, t86, t87, t88, t89, t90, t91, t92, t93, t94, t95, t96, t97, t98, t99);
+      getRsZs(dx, dy, dz, r2, r4, r6, r8, z2, z4, z6, z8, n_neighbours);
+      getCfactors(preCoef,n_neighbours, dx, dy, dz, z2, z4, z6, z8, r2, r4, r6, r8, ReIm2, ReIm3, ReIm4, ReIm5, ReIm6, ReIm7, ReIm8, ReIm9, totalAN, lMax, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20, t21, t22, t23, t24, t25, t26, t27, t28, t29, t30, t31, t32, t33, t34, t35, t36, t37, t38, t39, t40, t41, t42, t43, t44, t45, t46, t47, t48, t49, t50, t51, t52, t53, t54, t55, t56, t57, t58, t59, t60, t61, t62, t63, t64, t65, t66, t67, t68, t69, t70, t71, t72, t73, t74, t75, t76, t77, t78, t79, t80, t81, t82, t83, t84, t85, t86, t87, t88, t89, t90, t91, t92, t93, t94, t95, t96, t97, t98, t99);
+      getC(cnnd, preCoef, dx, dy, dz, r2, bOa, aOa, exes, totalAN, n_neighbours, Ns, Nt, lMax, i, j, Nx2, Nx3, Nx4, Nx5, Nx6, Nx7, Nx8, Nx9, Nx10, Nx11, Nx12, Nx13, Nx14, Nx15, Nx16, Nx17, Nx18, Nx19, Nx20, Nx21, Nx22, Nx23, Nx24, Nx25, Nx26, Nx27, Nx28, Nx29, Nx30, Nx31, Nx32, Nx33, Nx34, Nx35, Nx36, Nx37, Nx38, Nx39, Nx40, Nx41, Nx42, Nx43, Nx44, Nx45, Nx46, Nx47, Nx48, Nx49, Nx50, Nx51, Nx52, Nx53, Nx54, Nx55, Nx56, Nx57, Nx58, Nx59, Nx60, Nx61, Nx62, Nx63, Nx64, Nx65, Nx66, Nx67, Nx68, Nx69, Nx70, Nx71, Nx72, Nx73, Nx74, Nx75, Nx76, Nx77, Nx78, Nx79, Nx80, Nx81, Nx82, Nx83, Nx84, Nx85, Nx86, Nx87, Nx88, Nx89, Nx90, Nx91, Nx92, Nx93, Nx94, Nx95, Nx96, Nx97, Nx98, Nx99, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20, t21, t22, t23, t24, t25, t26, t27, t28, t29, t30, t31, t32, t33, t34, t35, t36, t37, t38, t39, t40, t41, t42, t43, t44, t45, t46, t47, t48, t49, t50, t51, t52, t53, t54, t55, t56, t57, t58, t59, t60, t61, t62, t63, t64, t65, t66, t67, t68, t69, t70, t71, t72, t73, t74, t75, t76, t77, t78, t79, t80, t81, t82, t83, t84, t85, t86, t87, t88, t89, t90, t91, t92, t93, t94, t95, t96, t97, t98, t99);
     }
   }
 
@@ -1152,5 +1141,5 @@ int soap(double* c, double* Apos, double* Hpos, double* alphas, double* betas, i
   getP(c, cnnd, Ns, Nt, Hs, lMax);
   free(cnnd);
 
-  return 0;
+  return;
 }
