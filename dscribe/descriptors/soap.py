@@ -569,81 +569,28 @@ class SOAP(Descriptor):
         Returns:
             np.ndarray: SOAP output with the gto radial basis for the given positions.
         """
-        # rCutHard = rcut + 5 # ??? This should not be needed
-
         n_atoms = len(system)
         positions, Z_sorted, n_species, atomtype_lst = self.flatten_positions(system, atomic_numbers)
         centers = np.array(centers)
         n_centers = centers.shape[0]
-
-        # Flatten arrays
         centers = centers.flatten()
         alphas = alphas.flatten()
         betas = betas.flatten()
 
-        # Convert types
-        # lMax = c_int(lmax)
-        # Hsize = c_int(py_Hsize)
-        # Ntypes = c_int(py_Ntypes)
-        # n_atoms = c_int(n_atoms)
-        # rCutHard = c_double(rCutHard)
-        # Nsize = c_int(nmax)
-        # c_eta = c_double(eta)
-        # Z_sorted = (c_int * len(Z_sorted))(*Z_sorted)
-        # alphas = (c_double * len(alphas))(*alphas.tolist())
-        # betas = (c_double * len(betas))(*betas.tolist())
-        # axyz = (c_double * len(Apos))(*Apos.tolist())
-        # hxyz = (c_double * len(positions))(*positions.tolist())
-        # lMax = c_int(lmax)
-        # Hsize = c_int(py_Hsize)
-        # Ntypes = c_int(py_Ntypes)
-        # n_atoms = c_int(n_atoms)
-        # rCutHard = c_double(rCutHard)
-        # Nsize = c_int(nmax)
-        # c_eta = c_double(eta)
-        # Z_sorted = (c_int * len(Z_sorted))(*Z_sorted)
-        # alphas = (c_double * len(alphas))(*alphas.tolist())
-        # betas = (c_double * len(betas))(*betas.tolist())
-        # axyz = (c_double * len(Apos))(*Apos.tolist())
-        # hxyz = (c_double * len(positions))(*positions.tolist())
-
-        # Calculate with C-extension
-        # _PATH_TO_SOAPLITE_SO = os.path.dirname(os.path.abspath(__file__))
-        # _SOAPLITE_SOFILES = glob.glob("".join([_PATH_TO_SOAPLITE_SO, "/../libsoap/libsoap*.*so"]))
-        if n_species == 1 or (not crossover):
-            print("Hei")
-            # substring = "libsoap/libsoapPySig."
-            # libsoap = CDLL(next((s for s in _SOAPLITE_SOFILES if substring in s), None))
-            # libsoap.soap.argtypes = [POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_int), c_double, c_int, c_int, c_int, c_int, c_int, c_double]
-            # libsoap.soap.restype = POINTER(c_double)
-            # c = (c_double*(int((nmax*(nmax+1))/2)*(lmax+1)*py_Ntypes*py_Hsize))()
-            c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*n_species*n_centers, dtype=np.float64)
-            # libsoap.soap(c, axyz, hxyz, alphas, betas, Z_sorted, rCutHard, n_atoms, Ntypes, Nsize, lMax, Hsize, c_eta)
-            pass
-        else:
-            # substring = "libsoap/libsoapGTO."
-            # libsoapGTO = CDLL(next((s for s in _SOAPLITE_SOFILES if substring in s), None))
-            # libsoapGTO.soap.argtypes = [POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_int), c_double, c_int, c_int, c_int, c_int, c_int, c_double]
-            # libsoapGTO.soap.restype = POINTER(c_double)
-            # c = (c_double*(int((nmax*(nmax+1))/2)*(lmax+1)*int((py_Ntypes*(py_Ntypes + 1))/2)*py_Hsize))()
-            c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int((n_species*(n_species + 1))/2)*n_centers, dtype=np.float64)
-            print("Moi")
-            # libsoapGTO.soap(c, axyz, hxyz, alphas, betas, Z_sorted, rCutHard, n_atoms, Ntypes, Nsize, lMax, Hsize, c_eta)
-            # print(c.shape, c.dtype)
-            # print(system_pos.shape, system_pos.dtype)
-            # print(positions.shape, positions.dtype)
-            libsoap.soap_gto(c, positions, centers, alphas, betas, Z_sorted, rcut, n_atoms, n_species, nmax, lmax, n_centers, eta)
-
-        # Reshape
+        # Determine shape
         if crossover:
+            c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int((n_species*(n_species + 1))/2)*n_centers, dtype=np.float64)
             crosTypes = int((n_species*(n_species+1))/2)
             shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*crosTypes)
         else:
+            c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int(n_species)*n_centers, dtype=np.float64)
             shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*n_species)
-        c = c.reshape(shape)
 
-        # a = np.ctypeslib.as_array(c)
-        # a = a.reshape(shape)
+        # Calculate with extension
+        libsoap.soap_gto(c, positions, centers, alphas, betas, Z_sorted, rcut, n_atoms, n_species, nmax, lmax, n_centers, eta, crossover)
+
+        # Reshape from linear to 2D
+        c = c.reshape(shape)
 
         return c
 
