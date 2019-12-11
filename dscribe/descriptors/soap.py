@@ -611,6 +611,7 @@ class SOAP(Descriptor):
         # _PATH_TO_SOAPLITE_SO = os.path.dirname(os.path.abspath(__file__))
         # _SOAPLITE_SOFILES = glob.glob("".join([_PATH_TO_SOAPLITE_SO, "/../libsoap/libsoap*.*so"]))
         if n_species == 1 or (not crossover):
+            print("Hei")
             # substring = "libsoap/libsoapPySig."
             # libsoap = CDLL(next((s for s in _SOAPLITE_SOFILES if substring in s), None))
             # libsoap.soap.argtypes = [POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_int), c_double, c_int, c_int, c_int, c_int, c_int, c_double]
@@ -626,13 +627,12 @@ class SOAP(Descriptor):
             # libsoapGTO.soap.restype = POINTER(c_double)
             # c = (c_double*(int((nmax*(nmax+1))/2)*(lmax+1)*int((py_Ntypes*(py_Ntypes + 1))/2)*py_Hsize))()
             c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int((n_species*(n_species + 1))/2)*n_centers, dtype=np.float64)
-            print(c.shape)
+            print("Moi")
             # libsoapGTO.soap(c, axyz, hxyz, alphas, betas, Z_sorted, rCutHard, n_atoms, Ntypes, Nsize, lMax, Hsize, c_eta)
             # print(c.shape, c.dtype)
             # print(system_pos.shape, system_pos.dtype)
             # print(positions.shape, positions.dtype)
             libsoap.soap_gto(c, positions, centers, alphas, betas, Z_sorted, rcut, n_atoms, n_species, nmax, lmax, n_centers, eta)
-            print(c.shape)
 
         # Reshape
         if crossover:

@@ -112,24 +112,24 @@ class SoapTests(unittest.TestCase):
         # self.assertTrue(nfeat1 != nfeat2)
         # self.assertTrue(vec1.shape[1] != vec2.shape[1])
 
-    def test_number_of_features(self):
-        """Tests that the reported number of features is correct.
-        """
-        lmax = 5
-        nmax = 5
-        n_elems = 2
-        desc = SOAP(species=[1, 8], rcut=3, nmax=nmax, lmax=lmax, periodic=True)
+    # def test_number_of_features(self):
+        # """Tests that the reported number of features is correct.
+        # """
+        # lmax = 5
+        # nmax = 5
+        # n_elems = 2
+        # desc = SOAP(species=[1, 8], rcut=3, nmax=nmax, lmax=lmax, periodic=True)
 
-        # Test that the reported number of features matches the expected
-        n_features = desc.get_number_of_features()
-        n_blocks = n_elems*(n_elems+1)/2
-        expected = int((lmax + 1) * nmax * (nmax + 1) / 2 * n_blocks)
-        self.assertEqual(n_features, expected)
+        # # Test that the reported number of features matches the expected
+        # n_features = desc.get_number_of_features()
+        # n_blocks = n_elems*(n_elems+1)/2
+        # expected = int((lmax + 1) * nmax * (nmax + 1) / 2 * n_blocks)
+        # self.assertEqual(n_features, expected)
 
-        # Test that the outputted number of features matches the reported
-        n_features = desc.get_number_of_features()
-        vec = desc.create(H2O)
-        self.assertEqual(n_features, vec.shape[1])
+        # # Test that the outputted number of features matches the reported
+        # n_features = desc.get_number_of_features()
+        # vec = desc.create(H2O)
+        # self.assertEqual(n_features, vec.shape[1])
 
     # def test_multiple_species(self):
         # """Tests multiple species are handled correctly.
@@ -533,23 +533,23 @@ class SoapTests(unittest.TestCase):
         # # Translational
         # self.assertTrue(self.is_translationally_symmetric(create_gto))
 
-        # def create_poly(system):
-            # desc = SOAP(
-                # species=system.get_atomic_numbers(),
-                # rcut=8.0,
-                # lmax=2,
-                # nmax=1,
-                # rbf="polynomial",
-                # periodic=False,
-                # crossover=True
-            # )
-            # return desc.create(system)
+        # # def create_poly(system):
+            # # desc = SOAP(
+                # # species=system.get_atomic_numbers(),
+                # # rcut=8.0,
+                # # lmax=2,
+                # # nmax=1,
+                # # rbf="polynomial",
+                # # periodic=False,
+                # # crossover=True
+            # # )
+            # # return desc.create(system)
 
-        # # Rotational check
-        # self.assertTrue(self.is_rotationally_symmetric(create_poly))
+        # # # Rotational check
+        # # self.assertTrue(self.is_rotationally_symmetric(create_poly))
 
-        # # Translational
-        # self.assertTrue(self.is_translationally_symmetric(create_poly))
+        # # # Translational
+        # # self.assertTrue(self.is_translationally_symmetric(create_poly))
 
     # def test_average(self):
         # """Tests that the average output is created correctly.
@@ -587,29 +587,30 @@ class SoapTests(unittest.TestCase):
         # assumed_average = (first+second)/2
         # self.assertTrue(np.array_equal(average, assumed_average))
 
-    # def test_basis(self):
-        # """Tests that the output vectors behave correctly as a basis.
-        # """
-        # sys1 = Atoms(symbols=["H", "H"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
-        # sys2 = Atoms(symbols=["O", "O"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
-        # sys3 = Atoms(symbols=["C", "C"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
-        # sys4 = Atoms(symbols=["H", "C"], positions=[[-1, 0, 0], [1, 0, 0]], cell=[2, 2, 2], pbc=True)
-        # sys5 = Atoms(symbols=["H", "C"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
-        # sys6 = Atoms(symbols=["H", "O"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
-        # sys7 = Atoms(symbols=["C", "O"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
+    def test_basis(self):
+        """Tests that the output vectors behave correctly as a basis.
+        """
+        sys1 = Atoms(symbols=["H", "H"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
+        sys2 = Atoms(symbols=["O", "O"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
+        sys3 = Atoms(symbols=["C", "C"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
+        sys4 = Atoms(symbols=["H", "C"], positions=[[-1, 0, 0], [1, 0, 0]], cell=[2, 2, 2], pbc=True)
+        sys5 = Atoms(symbols=["H", "C"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
+        sys6 = Atoms(symbols=["H", "O"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
+        sys7 = Atoms(symbols=["C", "O"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
 
-        # desc = SOAP(
-            # species=[1, 6, 8],
-            # rcut=5,
-            # nmax=3,
-            # lmax=5,
-            # periodic=False,
-            # crossover=True,
-            # sparse=False
-        # )
+        desc = SOAP(
+            species=[1, 6, 8],
+            rcut=5,
+            nmax=3,
+            lmax=5,
+            periodic=False,
+            crossover=True,
+            sparse=False
+        )
 
-        # # Create vectors for each system
-        # vec1 = desc.create(sys1, positions=[[0, 0, 0]])[0, :]
+        # Create vectors for each system
+        vec1 = desc.create(sys1, positions=[[0, 0, 0]])[0, :]
+        print(desc.create(sys1, positions=[0]))
         # vec2 = desc.create(sys2, positions=[[0, 0, 0]])[0, :]
         # vec3 = desc.create(sys3, positions=[[0, 0, 0]])[0, :]
         # vec4 = desc.create(sys4, positions=[[0, 0, 0]])[0, :]
