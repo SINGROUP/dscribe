@@ -623,7 +623,6 @@ class SOAP(Descriptor):
         # Precalculates the radial basis function on a fixed grid of size 100
         rx, gss = self.get_basis_poly(rcut, nmax)
 
-        rCutHard = rcut + 5
         centers = np.array(centers)
         n_centers = centers.shape[0]
         centers = centers.flatten()
@@ -636,7 +635,7 @@ class SOAP(Descriptor):
         shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*crosTypes)
 
         # Calculate with extension
-        dscribe.lib.soap_general(c, positions, centers, Z_sorted, rCutHard, cutoff_padding, n_atoms, n_species, nmax, lmax, n_centers, eta, rx, gss)
+        dscribe.lib.soap_general(c, positions, centers, Z_sorted, rcut, cutoff_padding, n_atoms, n_species, nmax, lmax, n_centers, eta, rx, gss)
 
         # Reshape from linear to 2D
         c = c.reshape(shape)
@@ -831,7 +830,7 @@ class SOAP(Descriptor):
         x[98] = 0.998491950639595818
         x[99] = 0.99971372677344123
 
-        rCutVeryHard = rcut+5.0
+        rCutVeryHard = rcut
         rx = rCutVeryHard*0.5*(x + 1)
 
         # Calculate the value of the orthonormalized polynomial basis at the rx
