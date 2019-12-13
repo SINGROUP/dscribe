@@ -13,12 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-import os
-import glob
 import numpy as np
-
-# from ctypes import POINTER, c_double, c_int, CDLL
-from dscribe import libsoap
 
 from scipy.sparse import coo_matrix
 from scipy.special import gamma
@@ -29,6 +24,7 @@ from ase import Atoms
 from dscribe.descriptors import Descriptor
 from dscribe.core import System
 from dscribe.utils.geometry import get_extended_system
+import dscribe.lib
 
 
 class SOAP(Descriptor):
@@ -308,16 +304,16 @@ class SOAP(Descriptor):
                         "list of atom indices and/or positions."
                     )
 
+        # The radial cutoff is extended by adding a padding that depends on
+        # the used used sigma value. The padding is chosen so that the
+        # gaussians decay to the specified threshold value at the cutoff
+        # distance.
+        threshold = 0.001
+        cutoff_padding = self._sigma*np.sqrt(-2*np.log(threshold))
+
         # Create the extended system if periodicity is requested
         if self.periodic:
-            # The radial cutoff is extended by adding a padding that depends on
-            # the used used sigma value. The padding is chosen so that the
-            # gaussians decay to the specified threshold value at the cutoff
-            # distance.
-            threshold = 0.000001
-            pad = self._sigma*np.sqrt(-2*np.log(threshold))
-            radial_cutoff = self._rcut+pad
-            system = get_extended_system(system, radial_cutoff, return_cell_indices=False)
+            system = get_extended_system(system, self._rcut+cutoff_padding, return_cell_indices=False)
 
         # Determine the SOAPLite function to call based on periodicity and
         # rbf
@@ -328,6 +324,7 @@ class SOAP(Descriptor):
                 self._alphas,
                 self._betas,
                 rcut=self._rcut,
+                cutoff_padding=cutoff_padding,
                 nmax=self._nmax,
                 lmax=self._lmax,
                 eta=self._eta,
@@ -339,6 +336,7 @@ class SOAP(Descriptor):
                 system,
                 list_positions,
                 rcut=self._rcut,
+                cutoff_padding=cutoff_padding,
                 nmax=self._nmax,
                 lmax=self._lmax,
                 eta=self._eta,
@@ -546,17 +544,19 @@ class SOAP(Descriptor):
 
         return positions_sorted, atomic_numbers_sorted, n_species, atomic_numbers_sorted
 
-    def get_soap_locals_gto(self, system, centers, alphas, betas, rcut, nmax, lmax, eta, crossover, atomic_numbers=None):
+    def get_soap_locals_gto(self, system, centers, alphas, betas, rcut, cutoff_padding, nmax, lmax, eta, crossover, atomic_numbers=None):
         """Get the SOAP output for the given positions using the gto radial
         basis.
 
         Args:
-            system(ase.Atoms): Atomic structure for which the SOAP output is
+            system (ase.Atoms): Atomic structure for which the SOAP output is
                 calculated.
-            centers(np.ndarray): Positions at which to calculate SOAP.
+            centers (np.ndarray): Positions at which to calculate SOAP.
             alphas (np.ndarray): The alpha coeffients for the gto-basis.
             betas (np.ndarray): The beta coeffients for the gto-basis.
-            rCut (float): Radial cutoff.
+            rcut (float): Radial cutoff.
+            cutoff_padding (float): The padding that is added for including
+                atoms beyond the cutoff.
             nmax (int): Maximum number of radial basis functions.
             lmax (int): Maximum spherical harmonics degree.
             eta (float): The gaussian smearing width.
@@ -587,24 +587,26 @@ class SOAP(Descriptor):
             shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*n_species)
 
         # Calculate with extension
-        libsoap.soap_gto(c, positions, centers, alphas, betas, Z_sorted, rcut, n_atoms, n_species, nmax, lmax, n_centers, eta, crossover)
+        dscribe.lib.soap_gto(c, positions, centers, alphas, betas, Z_sorted, rcut, cutoff_padding, n_atoms, n_species, nmax, lmax, n_centers, eta, crossover)
 
         # Reshape from linear to 2D
         c = c.reshape(shape)
 
         return c
 
-    def get_soap_locals_poly(self, system, positions, rcut, nmax, lmax, eta, atomic_numbers=None):
+    def get_soap_locals_poly(self, system, centers, rcut, cutoff_padding, nmax, lmax, eta, atomic_numbers=None):
         """Get the SOAP output using polynomial radial basis for the given
         positions.
 
         Args:
-            system(ase.Atoms): Atomic structure for which the SOAP output is
+            system (ase.Atoms): Atomic structure for which the SOAP output is
                 calculated.
-            positions(np.ndarray): Positions at which to calculate SOAP.
+            centers (np.ndarray): Positions at which to calculate SOAP.
             alphas (np.ndarray): The alpha coeffients for the gto-basis.
             betas (np.ndarray): The beta coeffients for the gto-basis.
-            rCut (float): Radial cutoff.
+            rcut (float): Radial cutoff.
+            cutoff_padding (float): The padding that is added for including
+                atoms beyond the cutoff.
             nmax (int): Maximum number of radial basis functions.
             lmax (int): Maximum spherical harmonics degree.
             eta (float): The gaussian smearing width.
@@ -618,52 +620,28 @@ class SOAP(Descriptor):
             np.ndarray: SOAP output with the polynomial radial basis for the
             given positions.
         """
-        rCutHard = rcut + 5
+        # Precalculates the radial basis function on a fixed grid of size 100
         rx, gss = self.get_basis_poly(rcut, nmax)
 
+        rCutHard = rcut + 5
+        centers = np.array(centers)
+        n_centers = centers.shape[0]
+        centers = centers.flatten()
         n_atoms = len(system)
-        Apos, ZSorted, py_Ntypes, atomtype_lst = self.flatten_positions(system, atomic_numbers)
-        positions = np.array(positions)
-        py_Hsize = positions.shape[0]
+        positions, Z_sorted, n_species, atomtype_lst = self.flatten_positions(system, atomic_numbers)
 
-        # Flatten arrays
-        positions = positions.flatten()
-        gss = gss.flatten()
+        # Determine shape
+        c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int((n_species*(n_species + 1))/2)*n_centers, dtype=np.float64)
+        crosTypes = int((n_species*(n_species+1))/2)
+        shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*crosTypes)
 
-        # Convert types
-        lMax = c_int(lmax)
-        Hsize = c_int(py_Hsize)
-        Ntypes = c_int(py_Ntypes)
-        n_atoms = c_int(n_atoms)
-        rCutHard = c_double(rCutHard)
-        Nsize = c_int(nmax)
-        c_eta = c_double(eta)
-        Z_sorted = (c_int * len(Z_sorted))(*Z_sorted)
-        axyz = (c_double * len(Apos))(*Apos.tolist())
-        hxyz = (c_double * len(positions))(*positions.tolist())
-        rx = (c_double * 100)(*rx.tolist())
-        gss = (c_double * (100 * nmax))(*gss.tolist())
+        # Calculate with extension
+        dscribe.lib.soap_general(c, positions, centers, Z_sorted, rCutHard, cutoff_padding, n_atoms, n_species, nmax, lmax, n_centers, eta, rx, gss)
 
-        # Calculate with C-extension
-        _PATH_TO_SOAPLITE_SO = os.path.dirname(os.path.abspath(__file__))
-        _SOAPLITE_SOFILES = glob.glob("".join([_PATH_TO_SOAPLITE_SO, "/../libsoap/libsoapG*.*so"]))
-        substring = "libsoap/libsoapGeneral."
-        libsoap = CDLL(next((s for s in _SOAPLITE_SOFILES if substring in s), None))
-        libsoap.soap.argtypes = [POINTER(c_double), POINTER(c_double), POINTER(c_double),
-                POINTER(c_int), c_double,
-                c_int, c_int, c_int, c_int, c_int,
-                c_double, POINTER(c_double), POINTER(c_double)]
-        libsoap.soap.restype = POINTER(c_double)
+        # Reshape from linear to 2D
+        c = c.reshape(shape)
 
-        c = (c_double*(int((nmax*(nmax+1))/2)*(lmax+1)*int((py_Ntypes*(py_Ntypes+1))/2)*py_Hsize))()
-        libsoap.soap(c, axyz, hxyz, Z_sorted, rCutHard, n_atoms, Ntypes, Nsize, lMax, Hsize, c_eta, rx, gss)
-
-        shape = (py_Hsize, int((nmax*(nmax+1))/2)*(lmax+1)*int((py_Ntypes*(py_Ntypes+1))/2))
-        crosTypes = int((py_Ntypes*(py_Ntypes+1))/2)
-        shape = (py_Hsize, int((nmax*(nmax+1))/2)*(lmax+1)*crosTypes)
-        a = np.ctypeslib.as_array(c)
-        a = a.reshape(shape)
-        return a
+        return c
 
     def get_basis_gto(self, rcut, nmax):
         """Used to calculate the alpha and beta prefactors for the gto-radial
