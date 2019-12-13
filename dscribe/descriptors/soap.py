@@ -24,7 +24,7 @@ from ase import Atoms
 from dscribe.descriptors import Descriptor
 from dscribe.core import System
 from dscribe.utils.geometry import get_extended_system
-import dscribe.lib
+import dscribe.ext
 
 
 class SOAP(Descriptor):
@@ -587,7 +587,7 @@ class SOAP(Descriptor):
             shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*n_species)
 
         # Calculate with extension
-        dscribe.lib.soap_gto(c, positions, centers, alphas, betas, Z_sorted, rcut, cutoff_padding, n_atoms, n_species, nmax, lmax, n_centers, eta, crossover)
+        dscribe.ext.soap_gto(c, positions, centers, alphas, betas, Z_sorted, rcut, cutoff_padding, n_atoms, n_species, nmax, lmax, n_centers, eta, crossover)
 
         # Reshape from linear to 2D
         c = c.reshape(shape)
@@ -635,7 +635,7 @@ class SOAP(Descriptor):
         shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*crosTypes)
 
         # Calculate with extension
-        dscribe.lib.soap_general(c, positions, centers, Z_sorted, rcut, cutoff_padding, n_atoms, n_species, nmax, lmax, n_centers, eta, rx, gss)
+        dscribe.ext.soap_general(c, positions, centers, Z_sorted, rcut, cutoff_padding, n_atoms, n_species, nmax, lmax, n_centers, eta, rx, gss)
 
         # Reshape from linear to 2D
         c = c.reshape(shape)

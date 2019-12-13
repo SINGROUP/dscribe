@@ -6,13 +6,12 @@ import unittest
 from dscribe.core import System
 from dscribe.descriptors import ACSF
 from dscribe.utils.species import symbols_to_numbers
-from dscribe.lib import CellList
+from dscribe.ext import CellList
 
 from ase.lattice.cubic import SimpleCubicFactory
-from ase.build import bulk, molecule
+from ase.build import bulk
 import ase.data
 from ase import Atoms
-from ase.visualize import view
 
 
 class GeometryTests(unittest.TestCase):

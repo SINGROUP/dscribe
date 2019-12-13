@@ -67,11 +67,11 @@ extensions = [
     ),
     # The SOAP and utils C++ extensions, wrapped with pybind11
     Extension(
-        'dscribe.lib',
-        ["dscribe/lib/lib.cpp", "dscribe/lib/celllist.cpp", "dscribe/lib/soapGTO.cpp", "dscribe/lib/soapGeneral.cpp"],
+        'dscribe.ext',
+        ["dscribe/ext/ext.cpp", "dscribe/ext/celllist.cpp", "dscribe/ext/soapGTO.cpp", "dscribe/ext/soapGeneral.cpp"],
         include_dirs=[
             # Path to pybind11 headers
-            "dscribe/lib",
+            "dscribe/ext",
             get_pybind_include(),
             get_pybind_include(user=True)
         ],
