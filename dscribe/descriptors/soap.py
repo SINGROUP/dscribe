@@ -151,11 +151,6 @@ class SOAP(Descriptor):
             self._alphas, self._betas = self.get_basis_gto(rcut, nmax)
 
         elif rbf == "polynomial":
-            if not crossover:
-                raise ValueError(
-                    "Disabling crossover is not currently supported when using "
-                    "polynomial radial basis function".format(rbf, supported_rbf)
-                )
             if lmax > 20:
                 raise ValueError(
                     "When using the polynomial radial basis set, lmax "
@@ -166,7 +161,7 @@ class SOAP(Descriptor):
         self._nmax = nmax
         self._lmax = lmax
         self._rbf = rbf
-        self._crossover = crossover
+        self.crossover = crossover
         self._distance_method = distance_method
         self._average = average
 
@@ -328,7 +323,7 @@ class SOAP(Descriptor):
                 nmax=self._nmax,
                 lmax=self._lmax,
                 eta=self._eta,
-                crossover=self._crossover,
+                crossover=self.crossover,
                 atomic_numbers=None,
             )
         elif self._rbf == "polynomial":
@@ -340,6 +335,7 @@ class SOAP(Descriptor):
                 nmax=self._nmax,
                 lmax=self._lmax,
                 eta=self._eta,
+                crossover=self.crossover,
                 atomic_numbers=None,
             )
 
@@ -408,7 +404,7 @@ class SOAP(Descriptor):
 
         # When crossover is enabled, we need to store the contents for all
         # unique species combinations
-        if self._crossover:
+        if self.crossover:
             n_elem_sub = len(sub_elements)
             n_elem_full = len(full_elements_sorted)
             for i_sub in range(n_elem_sub):
@@ -495,7 +491,7 @@ class SOAP(Descriptor):
             int: Number of features for this descriptor.
         """
         n_elems = len(self._atomic_numbers)
-        if self._crossover:
+        if self.crossover:
             n_blocks = n_elems * (n_elems + 1)/2
         else:
             n_blocks = n_elems
@@ -580,8 +576,7 @@ class SOAP(Descriptor):
         # Determine shape
         if crossover:
             c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int((n_species*(n_species + 1))/2)*n_centers, dtype=np.float64)
-            crosTypes = int((n_species*(n_species+1))/2)
-            shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*crosTypes)
+            shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*int((n_species*(n_species+1))/2))
         else:
             c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int(n_species)*n_centers, dtype=np.float64)
             shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*n_species)
@@ -594,7 +589,7 @@ class SOAP(Descriptor):
 
         return c
 
-    def get_soap_locals_poly(self, system, centers, rcut, cutoff_padding, nmax, lmax, eta, atomic_numbers=None):
+    def get_soap_locals_poly(self, system, centers, rcut, cutoff_padding, nmax, lmax, eta, crossover, atomic_numbers=None):
         """Get the SOAP output using polynomial radial basis for the given
         positions.
 
@@ -630,12 +625,15 @@ class SOAP(Descriptor):
         positions, Z_sorted, n_species, atomtype_lst = self.flatten_positions(system, atomic_numbers)
 
         # Determine shape
-        c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int((n_species*(n_species + 1))/2)*n_centers, dtype=np.float64)
-        crosTypes = int((n_species*(n_species+1))/2)
-        shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*crosTypes)
+        if crossover:
+            c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int((n_species*(n_species + 1))/2)*n_centers, dtype=np.float64)
+            shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*int((n_species*(n_species+1))/2))
+        else:
+            c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int(n_species)*n_centers, dtype=np.float64)
+            shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*n_species)
 
         # Calculate with extension
-        dscribe.ext.soap_general(c, positions, centers, Z_sorted, rcut, cutoff_padding, n_atoms, n_species, nmax, lmax, n_centers, eta, rx, gss)
+        dscribe.ext.soap_general(c, positions, centers, Z_sorted, rcut, cutoff_padding, n_atoms, n_species, nmax, lmax, n_centers, eta, rx, gss, crossover)
 
         # Reshape from linear to 2D
         c = c.reshape(shape)

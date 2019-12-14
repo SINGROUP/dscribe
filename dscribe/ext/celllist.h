@@ -36,7 +36,8 @@ class CellList {
         CellListResult getNeighboursForPosition(const double x, const double y, const double z) const;
         /**
          * Get the indices of atoms within the radial cutoff distance from the
-         * given atomic index.
+         * given atomic index. The given index is not included in the returned
+         * values.
          *
          * @param i Index of the atom for which neighbours are queried for.
          */
