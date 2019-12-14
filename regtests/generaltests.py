@@ -114,7 +114,9 @@ class DistanceTests(unittest.TestCase):
         for cutoff in np.array([0.5, 1, 1.5, 2])*a*n_copies:
             cell_list = CellList(pos, cutoff)
             for idx in range(len(system)):
-                indices, distances = cell_list.get_neighbours_for_index(idx)
+                result = cell_list.get_neighbours_for_index(idx)
+                indices = result.indices
+                distances = result.distances
                 sort_order = np.argsort(indices)
                 indices = np.array(indices)[sort_order]
                 distances = np.array(distances)[sort_order]
@@ -144,7 +146,9 @@ class DistanceTests(unittest.TestCase):
         for cutoff in np.arange(1, 5):
             cell_list = CellList(pos, cutoff)
             for idx in range(len(system)):
-                indices, distances = cell_list.get_neighbours_for_index(idx)
+                result = cell_list.get_neighbours_for_index(idx)
+                indices = result.indices
+                distances = result.distances
                 sort_order = np.argsort(indices)
                 indices = np.array(indices)[sort_order]
                 distances = np.array(distances)[sort_order]
