@@ -78,8 +78,6 @@ void getAlphaBeta(double* aOa, double* bOa, double* alphas, double* betas, int N
   double  oneO1alphaSqrt;// = (double*) malloc(Ns*sizeof(double));
   double  oneO1alphaSqrtX;
 
-  // MY POEWR MISSING (see beggning functions);
-
   for(int k = 0; k < Ns; k++){
     oneO1alpha = 1.0/(1.0 + oOeta*alphas[k]);
     oneO1alphaSqrt = sqrt(oneO1alpha);
@@ -178,35 +176,33 @@ void getCfactors(double* preCoef, int Asize, double* x, double* y, double* z, do
   getMulDouble(ReIm4, ReIm8, Asize);
   getMulReIm(ReIm4, ReIm5, ReIm9, Asize);
   int i2;
-  //printf("AAA\n");
 
-  for(int i = 0; i < Asize; i++) {
+  for (int i = 0; i < Asize; i++) {
     i2 = 2*i;
     c20c=3*z2[i]-r2[i];
-    if(lMax > 2){
+    if (lMax > 2){
       c30c=5*z2[i]-3*r2[i];
       c31c=5*z2[i]-r2[i];
     }
-    if(lMax > 3){
+    if (lMax > 3){
       c40c=35*z4[i]-30*z2[i]*r2[i]+3*r4[i];
       c41c=7*z2[i]-3*r2[i];
       c42c=7*z2[i]-r2[i];
     }
-    if(lMax > 4){
+    if (lMax > 4){
       c50c=63*z4[i]-70*z2[i]*r2[i]+15*r4[i];
       c51c=21*z4[i]-14*z2[i]*r2[i]+r4[i];
       c52c=3*z2[i]-r2[i];
       c53c=9*z2[i]-r2[i];
     }
-    //printf("BBB\n");
-    if(lMax > 5){
+    if (lMax > 5){
       c60c=231*z6[i] - 315*z4[i]*r2[i] + 105*z2[i]*r4[i] - 5*r6[i];
       c61c=33*z4[i] - 30*z2[i]*r2[i] + 5*r4[i];
       c62c=33*z4[i] - 18*z2[i]*r2[i] + r4[i];
       c63c=11*z2[i] - 3*r2[i];
       c64c=11*z2[i] - r2[i];
     }
-    if(lMax > 6){
+    if (lMax > 6){
       c70c=429*z6[i]-693*z4[i]*r2[i]+315*z2[i]*r4[i]-35*r6[i];
       c71c=429*z6[i]-495*z4[i]*r2[i]+135*z2[i]*r4[i]-5*r6[i];
       c72c=143*z4[i]-110*z2[i]*r2[i]+15*r4[i];
@@ -214,7 +210,7 @@ void getCfactors(double* preCoef, int Asize, double* x, double* y, double* z, do
       c74c=13*z2[i]-3*r2[i];
       c75c=13*z2[i]-r2[i];
     }
-    if(lMax > 7){
+    if (lMax > 7){
       c80c=6435*z8[i]-12012*z6[i]*r2[i]+6930*z4[i]*r4[i]-1260*z2[i]*r6[i]+35*r8[i];
       c81c=715*z6[i]-1001*z4[i]*r2[i]+385*z2[i]*r4[i]-35*r6[i];
       c82c=143*z6[i]-143*z4[i]*r2[i]+33*z2[i]*r4[i]-r6[i];
@@ -223,7 +219,7 @@ void getCfactors(double* preCoef, int Asize, double* x, double* y, double* z, do
       c85c=5*z2[i]-r2[i];
       c86c=15*z2[i]-r2[i];
     }
-    if(lMax > 8){
+    if (lMax > 8){
       c90c=12155*z8[i]-25740*z6[i]*r2[i]+18018*z4[i]*r4[i] -4620*z2[i]*r6[i]+315*r8[i];
       c91c=2431*z8[i]-4004*z6[i]*r2[i]+2002*z4[i]*r4[i]-308*z2[i]*r6[i] + 7*r8[i];
       c92c=221*z6[i]-273*z4[i]*r2[i]+91*z2[i]*r4[i]-7*r6[i];
@@ -233,14 +229,12 @@ void getCfactors(double* preCoef, int Asize, double* x, double* y, double* z, do
       c96c=17*z2[i]-3*r2[i];
       c97c=17*z2[i]-r2[i];
     }
-    //printf("CCC\n");
     /*c20  */  preCoef[        +i] = c20c;
     /*c21Re*/  preCoef[totalAN+i] = z[i]*x[i];
-    //printf("DCC\n");
     /*c21Im*/  preCoef[t2+i] = z[i]*y[i];
     /*c22Re*/  preCoef[t3+i] =      ReIm2[2*i];
     /*c22Im*/  preCoef[t4+i] =      ReIm2[i2+1];
-    if(lMax > 2){
+    if (lMax > 2){
       /*c30  */  preCoef[t5+i] = c30c*z[i];
       /*c31Re*/  preCoef[t6+i] =       x[i]*c31c;
       /*c31Im*/  preCoef[t7+i] =       y[i]*c31c;
@@ -249,8 +243,7 @@ void getCfactors(double* preCoef, int Asize, double* x, double* y, double* z, do
       /*c33Re*/  preCoef[t10+i] =      ReIm3[i2  ];
       /*c33Im*/  preCoef[t11+i] =      ReIm3[i2+1];
     }
-    //printf("DDD\n");
-    if(lMax > 3){
+    if (lMax > 3){
       /*c40  */  preCoef[t12+i] = c40c;
       /*c41Re*/  preCoef[t13+i] = z[i]*x[i]*c41c;
       /*c41Im*/  preCoef[t14+i] = z[i]*y[i]*c41c;
@@ -261,7 +254,7 @@ void getCfactors(double* preCoef, int Asize, double* x, double* y, double* z, do
       /*c44Re*/  preCoef[t19+i] =      ReIm4[i2  ];
       /*c44Im*/  preCoef[t20+i] =      ReIm4[i2+1];
     }
-    if(lMax > 4){
+    if (lMax > 4){
       /*c50  */  preCoef[t21+i] = c50c*z[i];
       /*c51Re*/  preCoef[t22+i] =      x[i]*c51c;
       /*c51Im*/  preCoef[t23+i] =      y[i]*c51c;
@@ -274,7 +267,7 @@ void getCfactors(double* preCoef, int Asize, double* x, double* y, double* z, do
       /*c55Re*/  preCoef[t30+i] =      ReIm5[i2  ];
       /*c55Im*/  preCoef[t31+i] =      ReIm5[i2+1];
     }
-    if(lMax > 5){
+    if (lMax > 5){
       /*c60  */  preCoef[t32+i] = c60c;
       /*c61Re*/  preCoef[t33+i] = z[i]*x[i]*c61c;
       /*c61Im*/  preCoef[t34+i] = z[i]*y[i]*c61c;
@@ -289,8 +282,7 @@ void getCfactors(double* preCoef, int Asize, double* x, double* y, double* z, do
       /*c66Re*/  preCoef[t43+i] =      ReIm6[i2  ];
       /*c66Im*/  preCoef[t44+i] =      ReIm6[i2+1];
     }
-    //printf("DDD\n");
-    if(lMax > 6){
+    if (lMax > 6){
       /*c70  */  preCoef[t45+i] = c70c*z[i];
       /*c71Re*/  preCoef[t46+i] = x[i]*c71c;
       /*c71Im*/  preCoef[t47+i] = y[i]*c71c;
@@ -307,7 +299,7 @@ void getCfactors(double* preCoef, int Asize, double* x, double* y, double* z, do
       /*c77Re*/  preCoef[t58+i] =      ReIm7[i2  ];
       /*c77Im*/  preCoef[t59+i] =      ReIm7[i2+1];
     }
-    if(lMax > 7){
+    if (lMax > 7){
       /*c80  */  preCoef[t60+i] = c80c;
       /*c81Re*/  preCoef[t61+i] = z[i]*x[i]*c81c;
       /*c81Im*/  preCoef[t62+i] = z[i]*y[i]*c81c;
@@ -326,7 +318,7 @@ void getCfactors(double* preCoef, int Asize, double* x, double* y, double* z, do
       /*c88Re*/  preCoef[t75+i] =      ReIm8[i2  ];
       /*c88Im*/  preCoef[t76+i] =      ReIm8[i2+1];
     }
-    if(lMax > 8){
+    if (lMax > 8){
       /*c90  */  preCoef[t77+i] = c90c*z[i];
       /*c91Re*/  preCoef[t78+i] = x[i]*c91c;
       /*c91Im*/  preCoef[t79+i] = y[i]*c91c;
@@ -348,7 +340,6 @@ void getCfactors(double* preCoef, int Asize, double* x, double* y, double* z, do
       /*c99Im*/  preCoef[t95+i] =      ReIm9[i2+1];
     }
   }
-  //printf("EEE\n");
 }
 //================================================================
 void getC(double* C, double* preCoef, double* x, double* y, double* z,double* r2, double* bOa, double* aOa, double* exes,  int totalAN, int Asize, int Ns, int Ntypes, int lMax, int posI, int typeJ, int Nx2, int Nx3, int Nx4, int Nx5, int Nx6, int Nx7, int Nx8, int Nx9, int Nx10, int Nx11, int Nx12, int Nx13, int Nx14, int Nx15, int Nx16, int Nx17, int Nx18, int Nx19, int Nx20, int Nx21, int Nx22, int Nx23, int Nx24, int Nx25, int Nx26, int Nx27, int Nx28, int Nx29, int Nx30, int Nx31, int Nx32, int Nx33, int Nx34, int Nx35, int Nx36, int Nx37, int Nx38, int Nx39, int Nx40, int Nx41, int Nx42, int Nx43, int Nx44, int Nx45, int Nx46, int Nx47, int Nx48, int Nx49, int Nx50, int Nx51, int Nx52, int Nx53, int Nx54, int Nx55, int Nx56, int Nx57, int Nx58, int Nx59, int Nx60, int Nx61, int Nx62, int Nx63, int Nx64, int Nx65, int Nx66, int Nx67, int Nx68, int Nx69, int Nx70, int Nx71, int Nx72, int Nx73, int Nx74, int Nx75, int Nx76, int Nx77, int Nx78, int Nx79, int Nx80, int Nx81, int Nx82, int Nx83, int Nx84, int Nx85, int Nx86, int Nx87, int Nx88, int Nx89, int Nx90, int Nx91, int Nx92, int Nx93, int Nx94, int Nx95, int Nx96, int Nx97, int Nx98, int Nx99, int t2, int t3, int t4, int t5, int t6, int t7, int t8, int t9, int t10, int t11, int t12, int t13, int t14, int t15, int t16, int t17, int t18, int t19, int t20, int t21, int t22, int t23, int t24, int t25, int t26, int t27, int t28, int t29, int t30, int t31, int t32, int t33, int t34, int t35, int t36, int t37, int t38, int t39, int t40, int t41, int t42, int t43, int t44, int t45, int t46, int t47, int t48, int t49, int t50, int t51, int t52, int t53, int t54, int t55, int t56, int t57, int t58, int t59, int t60, int t61, int t62, int t63, int t64, int t65, int t66, int t67, int t68, int t69, int t70, int t71, int t72, int t73, int t74, int t75, int t76, int t77, int t78, int t79, int t80, int t81, int t82, int t83, int t84, int t85, int t86, int t87, int t88, int t89, int t90, int t91, int t92, int t93, int t94, int t95, int t96, int t97, int t98, int t99){
@@ -659,7 +650,7 @@ void getPNoCross(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax
         }
       }
     }
-  }  if(lMax > 0){
+  } if (lMax > 0) {
     double prel1 = PI*sqrt(8.0/(2.0*1.0+1.0));
     for(int i = 0; i < Hs; i++){
       for(int j = 0; j < Ts; j++){
@@ -675,7 +666,7 @@ void getPNoCross(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax
         }
       }
     }
-  }  if(lMax > 1){
+  } if (lMax > 1) {
     double prel2 = PI*sqrt(8.0/(2.0*2.0+1.0));
     for(int i = 0; i < Hs; i++){
       for(int j = 0; j < Ts; j++){
@@ -693,7 +684,7 @@ void getPNoCross(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax
         }
       }
     }
-  }  if(lMax > 2){
+  } if (lMax > 2) {
     double prel3 = PI*sqrt(8.0/(2.0*3.0+1.0));
     for(int i = 0; i < Hs; i++){
       for(int j = 0; j < Ts; j++){
@@ -713,7 +704,7 @@ void getPNoCross(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax
         }
       }
     }
-  }  if(lMax > 3){
+  } if (lMax > 3) {
     double prel4 = PI*sqrt(8.0/(2.0*4.0+1.0));
     for(int i = 0; i < Hs; i++){
       for(int j = 0; j < Ts; j++){
@@ -735,7 +726,7 @@ void getPNoCross(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax
         }
       }
     }
-  }  if(lMax > 4){
+  } if(lMax > 4) {
     double prel5 = PI*sqrt(8.0/(2.0*5.0+1.0));
     for(int i = 0; i < Hs; i++){
       for(int j = 0; j < Ts; j++){
@@ -759,7 +750,7 @@ void getPNoCross(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax
         }
       }
     }
-  }  if(lMax > 5){
+  } if (lMax > 5) {
     double prel6 = PI*sqrt(8.0/(2.0*6.0+1.0));
     for(int i = 0; i < Hs; i++){
       for(int j = 0; j < Ts; j++){
@@ -785,7 +776,7 @@ void getPNoCross(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax
         }
       }
     }
-  }  if(lMax > 6){
+  } if (lMax > 6) {
     double prel7 = PI*sqrt(8.0/(2.0*7.0+1.0));
     for(int i = 0; i < Hs; i++){
       for(int j = 0; j < Ts; j++){
@@ -813,7 +804,7 @@ void getPNoCross(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax
         }
       }
     }
-  }  if(lMax > 7){
+  } if (lMax > 7) {
     double prel8 = PI*sqrt(8.0/(2.0*8.0+1.0));
     for(int i = 0; i < Hs; i++){
       for(int j = 0; j < Ts; j++){
@@ -843,7 +834,7 @@ void getPNoCross(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax
         }
       }
     }
-  }  if(lMax > 8){
+  } if (lMax > 8) {
     double prel9 = PI*sqrt(8.0/(2.0*9.0+1.0));
     for(int i = 0; i < Hs; i++){
       for(int j = 0; j < Ts; j++){

@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <map>
 #include <set>
+#include <iostream>
 #include "soapGeneral.h"
 #include "celllist.h"
 
@@ -1700,9 +1701,9 @@ void getC(double* Cs, double* ws, double* rw2, double * gns, double* summed, dou
 //=========================================================
 void accumC(double* Cts, double* Cs, int lMax, int nmax, int typeI)
 {
-    for (int n = 0; n < nmax; n++){
-        for (int l = 0; l < lMax+1; l++){
-            for (int m = 0; m < l+1; m++){//l+1
+    for (int n = 0; n < nmax; n++) {
+        for (int l = 0; l < lMax+1; l++) {
+            for (int m = 0; m < l+1; m++) {
                 Cts[2*typeI*(lMax+1)*(lMax+1)*nmax +2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m    ] = Cs[2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m    ];
                 Cts[2*typeI*(lMax+1)*(lMax+1)*nmax +2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m + 1] = Cs[2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m + 1];
             }
@@ -1713,44 +1714,46 @@ void accumC(double* Cts, double* Cs, int lMax, int nmax, int typeI)
 void getPs(double* Ps, double* Cts, int Nt, int lMax, int nmax, bool crossover)
 {
     int NN = ((nmax+1)*nmax)/2;
-    int TT;
+    int nZCombos;
     int tshift = 0;
     int nshift = 0;
     int typeLimit;
 
+    // Determine how
     if (crossover) {
-        TT = ((Nt+1)*Nt)/2;
+        nZCombos = ((Nt+1)*Nt)/2;
     } else {
-        TT = Nt;
+        nZCombos = Nt;
     }
 
     // Initialize with zeros
-    for (int i = 0; i < TT*(lMax+1)*NN; i++) {
+    for (int i = 0; i < nZCombos*(lMax+1)*NN; i++) {
         Ps[i] = 0.0;
     }
 
-    for (int t1 = 0; t1 < Nt; t1++) {
+    // Here we build the partial power spectrum
+    for (int Zi = 0; Zi < Nt; Zi++) {
         if (crossover) {
             typeLimit = Nt;
         } else {
-            typeLimit = t1+1;
+            typeLimit = Zi+1;
         }
-        for (int t2 = t1; t2 < typeLimit; t2++) {
+        for (int Zj = Zi; Zj < typeLimit; Zj++) {
             for (int l = 0; l < lMax+1; l++) {
                 nshift = 0;
                 for (int n = 0; n < nmax; n++) {
                     for (int nd = n; nd < nmax; nd++) {
-                        for (int m = 0; m < l+1; m++) {//l+1
-                            if (m==0){
-                                Ps[tshift*(lMax+1)*NN + l*NN + nshift ]
-                                    +=  Cts[2*t1*(lMax+1)*(lMax+1)*nmax + 2*(lMax+1)*(lMax+1)*n  + l*2*(lMax+1)] // m=0
-                                    *Cts[2*t2*(lMax+1)*(lMax+1)*nmax + 2*(lMax+1)*(lMax+1)*nd + l*2*(lMax+1)]; // m=0
+                        for (int m = 0; m < l+1; m++) {
+                            if (m == 0) {
+                                Ps[tshift*(lMax+1)*NN + l*NN + nshift]
+                                    += Cts[2*Zi*(lMax+1)*(lMax+1)*nmax + 2*(lMax+1)*(lMax+1)*n  + l*2*(lMax+1)]
+                                      *Cts[2*Zj*(lMax+1)*(lMax+1)*nmax + 2*(lMax+1)*(lMax+1)*nd + l*2*(lMax+1)];
                             } else {
                                 Ps[tshift*(lMax+1)*NN + l*NN + nshift]
-                                    +=  2*(Cts[2*t1*(lMax+1)*(lMax+1)*nmax + 2*(lMax+1)*(lMax+1)*n  + l*2*(lMax+1) + 2*m]
-                                            *Cts[2*t2*(lMax+1)*(lMax+1)*nmax + 2*(lMax+1)*(lMax+1)*nd + l*2*(lMax+1) + 2*m]
-                                            + Cts[2*t1*(lMax+1)*(lMax+1)*nmax + 2*(lMax+1)*(lMax+1)*n  + l*2*(lMax+1) + 2*m + 1]
-                                            *Cts[2*t2*(lMax+1)*(lMax+1)*nmax + 2*(lMax+1)*(lMax+1)*nd + l*2*(lMax+1) + 2*m + 1]);
+                                    += 2*(Cts[2*Zi*(lMax+1)*(lMax+1)*nmax + 2*(lMax+1)*(lMax+1)*n  + l*2*(lMax+1) + 2*m]
+                                         *Cts[2*Zj*(lMax+1)*(lMax+1)*nmax + 2*(lMax+1)*(lMax+1)*nd + l*2*(lMax+1) + 2*m]
+                                         +Cts[2*Zi*(lMax+1)*(lMax+1)*nmax + 2*(lMax+1)*(lMax+1)*n  + l*2*(lMax+1) + 2*m + 1]
+                                         *Cts[2*Zj*(lMax+1)*(lMax+1)*nmax + 2*(lMax+1)*(lMax+1)*nd + l*2*(lMax+1) + 2*m + 1]);
                             }
                         }
                         nshift++;
@@ -1766,22 +1769,22 @@ void accumP(double* Phs, double* Ps, int Nt, int lMax, int nmax, double rCut2, i
 {
     int tshift=0;
     int NN = ((nmax+1)*nmax)/2;
-    int TT;
+    int nZCombos;
     if (crossover) {
-        TT = ((Nt+1)*Nt)/2;
+        nZCombos = ((Nt+1)*Nt)/2;
     } else {
-        TT = Nt;
+        nZCombos = Nt;
     }
     int typeLimit;
 
-    for (int t1 = 0; t1 < Nt; t1++){
+    for (int Zi = 0; Zi < Nt; Zi++) {
         if (crossover) {
             typeLimit = Nt;
         } else {
-            typeLimit = t1+1;
+            typeLimit = Zi+1;
         }
-        for (int t2 = t1; t2 < typeLimit; t2++){
-            for (int l = 0; l < lMax+1; l++){
+        for (int Zj = Zi; Zj < typeLimit; Zj++) {
+            for (int l = 0; l < lMax+1; l++) {
                 int nshift=0;
 
                 // The power spectrum is multiplied by an l-dependent prefactor that comes
@@ -1792,9 +1795,9 @@ void accumP(double* Phs, double* Ps, int Nt, int lMax, int nmax, double rCut2, i
                 // possible dot-product the full prefactor is recovered.
                 double prefactor = PI*sqrt(8.0/(2.0*l+1.0));
 
-                for (int n = 0; n < nmax; n++){
-                    for (int nd = n; nd < nmax; nd++){
-                        Phs[Ihpos*TT*(lMax+1)*NN + tshift*(lMax+1)*NN + l*NN + nshift] = prefactor*39.478417604*rCut2*Ps[tshift*(lMax+1)*NN + l*NN + nshift];// 16*9.869604401089358*Ps[tshift*(lMax+1)*NN + l*NN + nshift];
+                for (int n = 0; n < nmax; n++) {
+                    for (int nd = n; nd < nmax; nd++) {
+                        Phs[Ihpos*nZCombos*(lMax+1)*NN + tshift*(lMax+1)*NN + l*NN + nshift] = prefactor*39.478417604*rCut2*Ps[tshift*(lMax+1)*NN + l*NN + nshift];// 16*9.869604401089358*Ps[tshift*(lMax+1)*NN + l*NN + nshift];
                         nshift++;
                     }
                 }
@@ -1816,7 +1819,7 @@ void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::ar
   int* isCenter = (int*) malloc( sizeof(int) );
   isCenter[0] = 0;
 
-  int rsize = 100; // constant
+  const int rsize = 100; // constant
   double rCut2 = rCut*rCut;
 
   double* dx = tot;
@@ -1826,9 +1829,12 @@ void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::ar
   double* oOri = tot
 
   double* ws  = getws();
-  double* oOr = getoOr(rw, rsize);  double* rw2 = getrw2(rw, rsize);
+  double* oOr = getoOr(rw, rsize);
+  double* rw2 = getrw2(rw, rsize);
 
-  double* oO4arri = totrs  double* minExp = totrs double* pluExp = totrs
+  double* oO4arri = totrs
+  double* minExp = totrs
+  double* pluExp = totrs
 
   double* Cs = (double*) malloc(2*sd*(lMax+1)*(lMax+1)*nmax);
   double* Cts = (double*) malloc(2*sd*(lMax+1)*(lMax+1)*nmax*Nt);
@@ -1855,6 +1861,7 @@ void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::ar
   // Initialize binning
   CellList cellList(positions, rCut+cutoffPadding);
 
+  // Loop through central points
   for (int i = 0; i < Hs; i++) {
 
       // Get all neighbours for the central atom i

@@ -162,7 +162,7 @@ class SOAP(Descriptor):
         self._lmax = lmax
         self._rbf = rbf
         self.crossover = crossover
-        self._distance_method = distance_method
+        self.distance_method = distance_method
         self._average = average
 
     def create(self, system, positions=None, n_jobs=1, verbose=False):
