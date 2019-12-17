@@ -81,6 +81,23 @@ extensions = [
     )
 ]
 
+# The SOAP C extension, wrapped with ctypes
+for soname, source in zip(
+        [
+            "dscribe.libsoap.libsoapGeneral",
+        ],
+        [
+            "dscribe/libsoap/soapGeneral.c",
+        ]
+        ):
+    extensions.append(Extension(
+        soname,
+        [source],
+        language='c',
+        include_dirs=["dscribe/libsoap"],
+        extra_compile_args=c_extra_compile_args,
+    ))
+
 if __name__ == "__main__":
     setup(
         name="dscribe",
