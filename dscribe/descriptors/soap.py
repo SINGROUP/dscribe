@@ -13,15 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-import os
-import glob
 import numpy as np
 
 from scipy.sparse import coo_matrix
 from scipy.special import gamma
 from scipy.linalg import sqrtm, inv
-
-from ctypes import POINTER, c_double, c_int, CDLL
 
 from ase import Atoms
 
@@ -504,43 +500,6 @@ class SOAP(Descriptor):
 
         return int(n_element_features * n_blocks)
 
-    def flatten_positions_old(self, system, atomic_numbers=None):
-        """ Takes an ase Atoms object and returns numpy arrays and integers
-        which are read by the internal clusgeo. Apos is currently a flattened
-        out numpy array
-        Args:
-            system (ase.atoms): The system to convert.
-            atomic_numbers(): The atomic numbers to consider. Atoms that do not
-                have these atomic numbers are ignored.
-        Returns:
-            (np.ndarray, list, int, np.ndarray): Returns the positions flattened
-            and sorted by atomic number, numer of atoms per type, number of
-            different species and the sorted atomic numbers.
-        """
-        Z = system.get_atomic_numbers()
-        pos = system.get_positions()
-
-        # Get a sorted list of atom types
-        if atomic_numbers is not None:
-            atomtype_set = set(atomic_numbers)
-        else:
-            atomtype_set = set(Z)
-        atomic_numbers_sorted = np.sort(list(atomtype_set))
-
-        # Form a flattened list of atomic positions, sorted by atomic type
-        n_atoms_per_type = []
-        pos_lst = []
-        for atomtype in atomic_numbers_sorted:
-            condition = Z == atomtype
-            pos_onetype = pos[condition]
-            n_onetype = pos_onetype.shape[0]
-            pos_lst.append(pos_onetype)
-            n_atoms_per_type.append(n_onetype)
-        n_species = len(atomic_numbers_sorted)
-        positions_sorted = np.concatenate(pos_lst).ravel()
-
-        return positions_sorted, n_atoms_per_type, n_species, atomic_numbers_sorted
-
     def flatten_positions(self, system, atomic_numbers=None):
         """Takes an ase Atoms object and returns flattened numpy arrays for the
         C-extension to use.
@@ -580,6 +539,45 @@ class SOAP(Descriptor):
         atomic_numbers_sorted = np.concatenate(z_lst).ravel()
 
         return positions_sorted, atomic_numbers_sorted, n_species, atomic_numbers_sorted
+
+    def flatten_positions_old(self, system, atomic_numbers=None):
+        """ Takes an ase Atoms object and returns numpy arrays and integers
+        which are read by the internal clusgeo. Apos is currently a flattened
+        out numpy array
+
+        Args:
+            system (ase.atoms): The system to convert.
+            atomic_numbers(): The atomic numbers to consider. Atoms that do not
+                have these atomic numbers are ignored.
+
+        Returns:
+            (np.ndarray, list, int, np.ndarray): Returns the positions flattened
+            and sorted by atomic number, numer of atoms per type, number of
+            different species and the sorted atomic numbers.
+        """
+        Z = system.get_atomic_numbers()
+        pos = system.get_positions()
+
+        # Get a sorted list of atom types
+        if atomic_numbers is not None:
+            atomtype_set = set(atomic_numbers)
+        else:
+            atomtype_set = set(Z)
+        atomic_numbers_sorted = np.sort(list(atomtype_set))
+
+        # Form a flattened list of atomic positions, sorted by atomic type
+        n_atoms_per_type = []
+        pos_lst = []
+        for atomtype in atomic_numbers_sorted:
+            condition = Z == atomtype
+            pos_onetype = pos[condition]
+            n_onetype = pos_onetype.shape[0]
+            pos_lst.append(pos_onetype)
+            n_atoms_per_type.append(n_onetype)
+        n_species = len(atomic_numbers_sorted)
+        positions_sorted = np.concatenate(pos_lst).ravel()
+
+        return positions_sorted, n_atoms_per_type, n_species, atomic_numbers_sorted
 
     def get_soap_locals_gto(self, system, centers, alphas, betas, rcut, cutoff_padding, nmax, lmax, eta, crossover, atomic_numbers=None):
         """Get the SOAP output for the given positions using the gto radial
@@ -633,6 +631,7 @@ class SOAP(Descriptor):
     def get_soap_locals_poly(self, system, positions, rcut, nmax, lmax, eta, atomic_numbers=None):
         """Get the SOAP output using polynomial radial basis for the given
         positions.
+
         Args:
             system(ase.Atoms): Atomic structure for which the SOAP output is
                 calculated.
@@ -648,6 +647,7 @@ class SOAP(Descriptor):
                 which to calculate the output. If None, all species are included.
                 If given the output is calculated only for the given species and is
                 ordered by atomic number.
+
         Returns:
             np.ndarray: SOAP output with the polynomial radial basis for the
             given positions.
@@ -664,91 +664,11 @@ class SOAP(Descriptor):
         positions = positions.flatten()
         gss = gss.flatten()
 
-        # Convert types
-        lMax = c_int(lmax)
-        Hsize = c_int(py_Hsize)
-        Ntypes = c_int(py_Ntypes)
-        n_atoms = c_int(n_atoms)
-        rCutHard = c_double(rCutHard)
-        Nsize = c_int(nmax)
-        c_eta = c_double(eta)
-        typeNs = (c_int * len(typeNs))(*typeNs)
-        axyz = (c_double * len(Apos))(*Apos.tolist())
-        hxyz = (c_double * len(positions))(*positions.tolist())
-        rx = (c_double * 100)(*rx.tolist())
-        gss = (c_double * (100 * nmax))(*gss.tolist())
-
-        # Calculate with C-extension
-        _PATH_TO_SOAPLITE_SO = os.path.dirname(os.path.abspath(__file__))
-        _SOAPLITE_SOFILES = glob.glob("".join([_PATH_TO_SOAPLITE_SO, "/../libsoap/libsoapG*.*so"]))
-        substring = "libsoap/libsoapGeneral."
-        libsoap = CDLL(next((s for s in _SOAPLITE_SOFILES if substring in s), None))
-        libsoap.soap.argtypes = [POINTER(c_double), POINTER(c_double), POINTER(c_double),
-                POINTER(c_int), c_double,
-                c_int, c_int, c_int, c_int, c_int,
-                c_double, POINTER(c_double), POINTER(c_double)]
-        libsoap.soap.restype = POINTER(c_double)
-
-        c = (c_double*(int((nmax*(nmax+1))/2)*(lmax+1)*int((py_Ntypes*(py_Ntypes+1))/2)*py_Hsize))()
-        libsoap.soap(c, axyz, hxyz, typeNs, rCutHard, n_atoms, Ntypes, Nsize, lMax, Hsize, c_eta, rx, gss)
-
+        c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int((py_Ntypes*(py_Ntypes + 1))/2)*py_Hsize, dtype=np.float64)
         shape = (py_Hsize, int((nmax*(nmax+1))/2)*(lmax+1)*int((py_Ntypes*(py_Ntypes+1))/2))
-        crosTypes = int((py_Ntypes*(py_Ntypes+1))/2)
-        shape = (py_Hsize, int((nmax*(nmax+1))/2)*(lmax+1)*crosTypes)
-        a = np.ctypeslib.as_array(c)
-        a = a.reshape(shape)
-        return a
-
-    # def get_soap_locals_poly(self, system, centers, rcut, cutoff_padding, nmax, lmax, eta, crossover, atomic_numbers=None):
-        # """Get the SOAP output using polynomial radial basis for the given
-        # positions.
-
-        # Args:
-            # system (ase.Atoms): Atomic structure for which the SOAP output is
-                # calculated.
-            # centers (np.ndarray): Positions at which to calculate SOAP.
-            # alphas (np.ndarray): The alpha coeffients for the gto-basis.
-            # betas (np.ndarray): The beta coeffients for the gto-basis.
-            # rcut (float): Radial cutoff.
-            # cutoff_padding (float): The padding that is added for including
-                # atoms beyond the cutoff.
-            # nmax (int): Maximum number of radial basis functions.
-            # lmax (int): Maximum spherical harmonics degree.
-            # eta (float): The gaussian smearing width.
-            # crossover (bool): Whether to include species crossover in output.
-            # atomic_numbers (np.ndarray): Can be used to specify the species for
-                # which to calculate the output. If None, all species are included.
-                # If given the output is calculated only for the given species and is
-                # ordered by atomic number.
-
-        # Returns:
-            # np.ndarray: SOAP output with the polynomial radial basis for the
-            # given positions.
-        # """
-        # # Precalculates the radial basis function on a fixed grid of size 100
-        # rx, gss = self.get_basis_poly(rcut, nmax)
-
-        # centers = np.array(centers)
-        # n_centers = centers.shape[0]
-        # centers = centers.flatten()
-        # n_atoms = len(system)
-        # positions, Z_sorted, n_species, atomtype_lst = self.flatten_positions(system, atomic_numbers)
-
-        # # Determine shape
-        # if crossover:
-            # c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int((n_species*(n_species + 1))/2)*n_centers, dtype=np.float64)
-            # shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*int((n_species*(n_species+1))/2))
-        # else:
-            # c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int(n_species)*n_centers, dtype=np.float64)
-            # shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*n_species)
-
-        # # Calculate with extension
-        # dscribe.ext.soap_general(c, positions, centers, Z_sorted, rcut, cutoff_padding, n_atoms, n_species, nmax, lmax, n_centers, eta, rx, gss, crossover)
-
-        # # Reshape from linear to 2D
-        # c = c.reshape(shape)
-
-        # return c
+        dscribe.ext.soap(c, Apos, positions, typeNs, rCutHard, n_atoms, py_Ntypes, nmax, lmax, py_Hsize, eta, rx, gss)
+        c = c.reshape(shape)
+        return c
 
     def get_basis_gto(self, rcut, nmax):
         """Used to calculate the alpha and beta prefactors for the gto-radial
@@ -938,7 +858,7 @@ class SOAP(Descriptor):
         x[98] = 0.998491950639595818
         x[99] = 0.99971372677344123
 
-        rCutVeryHard = rcut
+        rCutVeryHard = rcut+5.0
         rx = rCutVeryHard*0.5*(x + 1)
 
         # Calculate the value of the orthonormalized polynomial basis at the rx
