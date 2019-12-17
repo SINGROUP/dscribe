@@ -335,7 +335,7 @@ class SOAP(Descriptor):
                 nmax=self._nmax,
                 lmax=self._lmax,
                 eta=self._eta,
-                # crossover=self.crossover,
+                crossover=self.crossover,
                 atomic_numbers=None,
             )
 
@@ -628,7 +628,7 @@ class SOAP(Descriptor):
 
         return c
 
-    def get_soap_locals_poly(self, system, positions, rcut, nmax, lmax, eta, atomic_numbers=None):
+    def get_soap_locals_poly(self, system, positions, rcut, nmax, lmax, eta, crossover, atomic_numbers=None):
         """Get the SOAP output using polynomial radial basis for the given
         positions.
 
@@ -656,18 +656,31 @@ class SOAP(Descriptor):
         rx, gss = self.get_basis_poly(rcut, nmax)
 
         n_atoms = len(system)
-        Apos, typeNs, py_Ntypes, atomtype_lst = self.flatten_positions_old(system, atomic_numbers)
+        Apos, typeNs, n_species, atomtype_lst = self.flatten_positions_old(system, atomic_numbers)
         positions = np.array(positions)
-        py_Hsize = positions.shape[0]
+        n_centers = positions.shape[0]
 
         # Flatten arrays
         positions = positions.flatten()
         gss = gss.flatten()
 
-        c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int((py_Ntypes*(py_Ntypes + 1))/2)*py_Hsize, dtype=np.float64)
-        shape = (py_Hsize, int((nmax*(nmax+1))/2)*(lmax+1)*int((py_Ntypes*(py_Ntypes+1))/2))
-        dscribe.ext.soap(c, Apos, positions, typeNs, rCutHard, n_atoms, py_Ntypes, nmax, lmax, py_Hsize, eta, rx, gss)
+        # Determine shape
+        # if crossover:
+            # c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int((n_species*(n_species + 1))/2)*n_centers, dtype=np.float64)
+            # shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*int((n_species*(n_species+1))/2))
+        # else:
+            # c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int(n_species)*n_centers, dtype=np.float64)
+            # shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*n_species)
+
+        c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int((n_species*(n_species + 1))/2)*n_centers, dtype=np.float64)
+        shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*int((n_species*(n_species+1))/2))
+
+        # Calculate with extension
+        dscribe.ext.soap_general(c, Apos, positions, typeNs, rCutHard, n_atoms, n_species, nmax, lmax, n_centers, eta, rx, gss)
+
+        # Reshape from linear to 2D
         c = c.reshape(shape)
+
         return c
 
     def get_basis_gto(self, rcut, nmax):

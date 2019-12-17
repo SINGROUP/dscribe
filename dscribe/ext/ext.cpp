@@ -13,7 +13,7 @@ using namespace std;
 PYBIND11_MODULE(ext, m) {
     // SOAP
     m.def("soap_gto", &soapGTO, "SOAP with gaussian type orbital radial basis set.");
-    m.def("soap", &soap, "SOAP with a general radial basis set.");
+    m.def("soap_general", &soapGeneral, "SOAP with a general radial basis set.");
 
     // CellList
     py::class_<CellList>(m, "CellList")

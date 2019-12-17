@@ -1,14 +1,17 @@
-#include<stdio.h>
-#include <stdlib.h>
+#include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+#include <map>
+#include <set>
 #include "soapGeneral.h"
+#include "celllist.h"
 
 #define tot (double*) malloc(sizeof(double)*totalAN);
 #define totrs (double*) malloc(sizeof(double)*totalAN*rsize);
 #define sd sizeof(double)
 #define PI 3.14159265359
-double* factorListSet(){ // OK
+
+double* factorListSet() {
  double* c = (double* ) malloc(sd*1326);
  c[0]=0.2820947917738781;
  c[1]=0.4886025119029199;
@@ -1338,7 +1341,8 @@ double* factorListSet(){ // OK
  c[1325]=0.0;
   return c;
 }
-double* getws(){ // OK
+
+double* getws() {
  double* c = (double* ) malloc(sd*100);
 c[0] = 7.34634490505672E-4;
 c[1] = 0.001709392653518105;
@@ -1444,11 +1448,13 @@ return c;
 }
 
 //=========================================================
-double factorY(int l, int m, double* c){ // OK
+double factorY(int l, int m, double* c)
+{
   return  c[(l*(l+1))/2 + m];//l+1
 }
 //=========================================================
-double* getoOr(double* r, int rsize){
+double* getoOr(double* r, int rsize)
+{
   double* oOr = (double*) malloc(sd*rsize);
   for(int w = 0; w < rsize; w++){
     oOr[w] = 1/r[w];
@@ -1456,7 +1462,8 @@ double* getoOr(double* r, int rsize){
   return oOr;
 }
 //=========================================================
-double* getrw2(double* r, int rsize){
+double* getrw2(double* r, int rsize)
+{
   double* rw2 = (double*) malloc(sd*rsize);
   for(int w = 0; w < rsize; w++){
     rw2[w] = r[w]*r[w];
@@ -1464,7 +1471,8 @@ double* getrw2(double* r, int rsize){
   return rw2;
 }
 //=========================================================
-void expMs(double* rExpDiff, double alpha, double* r, double* ri, int isize, int rsize){
+void expMs(double* rExpDiff, double alpha, double* r, double* ri, int isize, int rsize)
+{
   double rDiff;
   for(int i = 0; i < isize; i++){
     for(int w = 0; w < rsize; w++){
@@ -1475,7 +1483,8 @@ void expMs(double* rExpDiff, double alpha, double* r, double* ri, int isize, int
   }
 }
 //=========================================================
-void expPs(double* rExpSum, double alpha, double* r, double* ri, int isize, int rsize){
+void expPs(double* rExpSum, double alpha, double* r, double* ri, int isize, int rsize)
+{
   double rSum;
   for(int i = 0; i < isize; i++){
     for(int w = 0; w < rsize; w++){
@@ -1529,184 +1538,177 @@ int getFilteredPos(double* x, double* y, double* z,double* xNow, double* yNow, d
   return icount;
 }
 //=========================================================
-double* getFlir(double* oO4arri,double* ri, double* minExp, double* pluExp, int icount, int rsize, int lMax){//OK
-  double* Flir = (double*) malloc(sd*(lMax+1)*icount*rsize);
-//  double* rw =   getrw(100, 6);
-//  int count = 0;
-  //l=0
-  for(int i = 0; i < icount; i++){
-///    if(ri[i] < 0.01){}
-    for(int w = 0; w < rsize; w++){
-      Flir[rsize*i + w] = oO4arri[rsize*i + w]*(minExp[rsize*i + w] - pluExp[rsize*i + w]);
- //    exit(1);
-    }
-  }
-  //l=1
-  if(lMax>0)
-  for(int i = 0; i < icount; i++){
-///    if(ri[i] < 0.01){}
-    for(int w = 0; w < rsize; w++){
-      Flir[rsize*icount + rsize*i + w] = oO4arri[rsize*i + w]*(minExp[rsize*i + w] + pluExp[rsize*i + w] - 2*Flir[rsize*i + w]);
-    }
-  }
-  //l>1
-  if(lMax>1)
-  for(int l = 2; l < lMax+1; l++){
+double* getFlir(double* oO4arri,double* ri, double* minExp, double* pluExp, int icount, int rsize, int lMax)
+{
+    double* Flir = (double*) malloc(sd*(lMax+1)*icount*rsize);
+    //l=0
     for(int i = 0; i < icount; i++){
- ///   if(ri[i] < 0.01){}
-      for(int w = 0; w < rsize; w++){
-        Flir[l*rsize*icount+rsize*i+w] = Flir[(l-2)*rsize*icount+rsize*i+w] - oO4arri[rsize*i+w]*(4*l-2)*Flir[(l-1)*rsize*icount+rsize*i+w] ;
-   if(Flir[l*rsize*icount+rsize*i+w] < 0) Flir[l*rsize*icount+rsize*i+w]=0.0; // Very Important!!!
-
-//    }
-      }
+        for(int w = 0; w < rsize; w++){
+            Flir[rsize*i + w] = oO4arri[rsize*i + w]*(minExp[rsize*i + w] - pluExp[rsize*i + w]);
+        }
     }
-  }
+    //l=1
+    if(lMax>0)
+        for(int i = 0; i < icount; i++){
+            for(int w = 0; w < rsize; w++){
+                Flir[rsize*icount + rsize*i + w] = oO4arri[rsize*i + w]*(minExp[rsize*i + w] + pluExp[rsize*i + w] - 2*Flir[rsize*i + w]);
+            }
+        }
+    //l>1
+    if(lMax>1)
+        for(int l = 2; l < lMax+1; l++){
+            for(int i = 0; i < icount; i++){
+                for(int w = 0; w < rsize; w++){
+                    Flir[l*rsize*icount+rsize*i+w] = Flir[(l-2)*rsize*icount+rsize*i+w] - oO4arri[rsize*i+w]*(4*l-2)*Flir[(l-1)*rsize*icount+rsize*i+w] ;
+                    if(Flir[l*rsize*icount+rsize*i+w] < 0) Flir[l*rsize*icount+rsize*i+w]=0.0; // Very Important!!!
+                }
+            }
+        }
 
+    return Flir;
+}
+//=========================================================
+double legendre_poly(int l, int m, double x)
+{
+    double fact,pll,pmm,pmmp1,somx2;
+    int ll;
 
-  return Flir;
+    if (m < 0 || m > l || fabs(x) > 1.0){ printf("ERROR: Bad arguments in routine legendre_poly"); exit(1);}
+
+    pmm = 1.0;
+
+    if (m > 0) {
+        somx2=sqrt((1.0 - x)*(1.0 + x));
+        fact=1.0;
+        for (int i=1; i <= m; i++) {
+            pmm *= -fact*somx2;
+            fact += 2.0;
+        }
+    }
+
+    if (l == m) return pmm;
+
+    else {
+        pmmp1 = x*(2*m+1)*pmm;
+        if (l==(m+1)) return pmmp1;
+        else {
+            for (ll=m+2; ll<=l; ll++) {
+                pll=(x*(2*ll-1)*pmmp1 - (ll+m-1)*pmm)/ (double) (ll-m);
+                pmm = pmmp1;
+                pmmp1= pll;
+
+            }
+            return pll;
+        }
+    }
 
 }
 //=========================================================
-double legendre_poly(int l, int m, double x){ // OK
+double* getYlmi(double* x, double* y, double* z, double* oOri, double* cf, int icount, int lMax)
+{
+    double* Ylmi = (double*) malloc(2*sd*(lMax+1)*(lMax+1)*icount);
+    double* legPol = (double*) malloc(sd*(lMax+1)*(lMax+1)*icount);
+    double* ChiCos= (double*) malloc(sd*(lMax+1)*icount);
+    double* ChiSin= (double*) malloc(sd*(lMax+1)*icount);
+    double myAtan2;
 
-  double fact,pll,pmm,pmmp1,somx2;
-  int ll;
+    for(int i = 0; i < icount; i++){
+        for(int l = 0; l < lMax + 1; l++){
+            for(int m = 0; m < l+1; m++){
+                legPol[icount*(lMax+1)*l + icount*m + i] = legendre_poly(l,m,z[i]*oOri[i]);
+            }
+        }
 
-  if (m < 0 || m > l || fabs(x) > 1.0){ printf("ERROR: Bad arguments in routine legendre_poly"); exit(1);}
-
-  pmm = 1.0;
-
-  if(m > 0) {
-    somx2=sqrt((1.0 - x)*(1.0 + x));
-    fact=1.0;
-    for(int i=1; i <= m; i++)
-        {
-          pmm *= -fact*somx2;
-          fact += 2.0;
-           }
-   }
-
-  if(l == m) return pmm;
-
-  else{
-    pmmp1 = x*(2*m+1)*pmm;
-    if(l==(m+1)) return pmmp1;
-    else{
-      for(ll=m+2; ll<=l; ll++){
-        pll=(x*(2*ll-1)*pmmp1 - (ll+m-1)*pmm)/ (double) (ll-m);
-        pmm = pmmp1;
-        pmmp1= pll;
-
-      }
-      return pll;
-    }
-  }
-
-}
-//=========================================================
-double* getYlmi(double* x, double* y, double* z, double* oOri, double* cf, int icount, int lMax){ // OK
-  double* Ylmi = (double*) malloc(2*sd*(lMax+1)*(lMax+1)*icount);
-  double* legPol = (double*) malloc(sd*(lMax+1)*(lMax+1)*icount);
-  double* ChiCos= (double*) malloc(sd*(lMax+1)*icount);
-  double* ChiSin= (double*) malloc(sd*(lMax+1)*icount);
-  double myAtan2;
-
-  for(int i = 0; i < icount; i++){
-    for(int l = 0; l < lMax + 1; l++){
-      for(int m = 0; m < l+1; m++){
-        legPol[icount*(lMax+1)*l + icount*m + i] = legendre_poly(l,m,z[i]*oOri[i]);
-      }
+        for(int m = 0; m < lMax+1; m++){
+            myAtan2 = m*atan2(y[i],x[i]);
+            ChiCos[m*icount + i] = cos(myAtan2);
+            ChiSin[m*icount + i] = sin(myAtan2);
+        }
     }
 
-    for(int m = 0; m < lMax+1; m++){
-      myAtan2 = m*atan2(y[i],x[i]);
-      ChiCos[m*icount + i] = cos(myAtan2);
-      ChiSin[m*icount + i] = sin(myAtan2);
-//if(y<=0){ ChiSin[m*icount + i] = -sqrt(1 - ChiCos[m*icount + i]*ChiCos[m*icount + i]);}
-//else{ChiSin[m*icount + i] = sqrt(1 - ChiCos[m*icount + i]*ChiCos[m*icount + i]);}
-    }
-  }
-
-  for(int l = 0; l < lMax+1; l++){
-    for(int m = 0; m < l+1; m++){//l+1
-      for(int i = 0; i < icount; i++){
-
-        Ylmi[2*(lMax+1)*icount*l + 2*icount*m + 2*i]
-          =  factorY(l,m,cf)*legPol[icount*(lMax+1)*l + icount*m + i]*ChiCos[m*icount + i];
-        Ylmi[2*(lMax+1)*icount*l + 2*icount*m + 2*i + 1]
-          = factorY(l,m,cf)*legPol[icount*(lMax+1)*l + icount*m + i]*ChiSin[m*icount + i];
-
-      }
-    }
-  }
-  free(legPol); free(ChiCos); free(ChiSin);
-
-  return Ylmi;
-}
-//=========================================================
-double* getIntegrand(double* Flir, double* Ylmi,int rsize, int icount, int lMax){
-
-  double* summed = (double*) malloc(2*sd*(lMax+1)*rsize*(lMax+1));
-  double realY;
-  double imagY;
-
-  for(int i = 0; i < 2*(lMax+1)*rsize*(lMax+1); i++){summed[i] = 0.0;}
-
-  for(int l = 0; l < lMax+1; l++){
-    double summe = 0;
-    for(int m = 0; m < l+1; m++){//l+1
-     for(int i = 0; i < icount; i++){
-      realY = Ylmi[2*(lMax+1)*icount*l + 2*icount*m + 2*i    ];
-      imagY = Ylmi[2*(lMax+1)*icount*l + 2*icount*m + 2*i  + 1 ];
-      for(int rw = 0; rw < rsize; rw++){
-         summed[2*(lMax+1)*l*rsize + 2*m*rsize + 2*rw    ] += Flir[l*rsize*icount + rsize*i + rw] * realY;
-         summed[2*(lMax+1)*l*rsize + 2*m*rsize + 2*rw + 1] += Flir[l*rsize*icount + rsize*i + rw] * imagY;
-      }
-
-    }
-  }
-  }
-  return summed;
-}
-//=========================================================
-void getC(double* Cs, double* ws, double* rw2, double * gns, double* summed, double rCut,int lMax, int rsize, int gnsize,int* isCenter, double alpha){
-
-  for(int i = 0; i < 2*(lMax+1)*(lMax+1)*gnsize; i++){ Cs[i] = 0.0;}
-  double  theSummedValue = 0;
-
-  for(int n = 0; n < gnsize; n++){
-    //for i0 case
-    if(isCenter[0]==1){
-      for(int rw = 0; rw < rsize; rw++){
-        Cs[2*(lMax+1)*(lMax+1)*n] += 0.5*0.564189583547756*rw2[rw]*ws[rw]*gns[rsize*n + rw]*exp(-alpha*rw2[rw]);
-      }
-    }
     for(int l = 0; l < lMax+1; l++){
-      for(int m = 0; m < l+1; m++){ // l+1
-        for(int rw = 0; rw < rsize; rw++){
+        for(int m = 0; m < l+1; m++){//l+1
+            for(int i = 0; i < icount; i++){
 
-          Cs[2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m    ] += rw2[rw]*ws[rw]*gns[rsize*n + rw]*summed[2*(lMax+1)*l*rsize + 2*m*rsize + 2*rw    ]; // Re
-          Cs[2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m + 1] += rw2[rw]*ws[rw]*gns[rsize*n + rw]*summed[2*(lMax+1)*l*rsize + 2*m*rsize + 2*rw + 1]; //Im
+                Ylmi[2*(lMax+1)*icount*l + 2*icount*m + 2*i]
+                    =  factorY(l,m,cf)*legPol[icount*(lMax+1)*l + icount*m + i]*ChiCos[m*icount + i];
+                Ylmi[2*(lMax+1)*icount*l + 2*icount*m + 2*i + 1]
+                    = factorY(l,m,cf)*legPol[icount*(lMax+1)*l + icount*m + i]*ChiSin[m*icount + i];
 
+            }
         }
-     }
-      }
     }
-  isCenter[0] = 0;
+    free(legPol);
+    free(ChiCos);
+    free(ChiSin);
+
+    return Ylmi;
 }
 //=========================================================
-void accumC(double* Cts, double* Cs, int lMax, int gnsize, int typeI){
+double* getIntegrand(double* Flir, double* Ylmi,int rsize, int icount, int lMax)
+{
+    double* summed = (double*) malloc(2*sd*(lMax+1)*rsize*(lMax+1));
+    double realY;
+    double imagY;
 
-    for(int n = 0; n < gnsize; n++){
-      for(int l = 0; l < lMax+1; l++){
-        for(int m = 0; m < l+1; m++){//l+1
+    // Initialize with zeros
+    for (int i = 0; i < 2*(lMax+1)*rsize*(lMax+1); i++) {
+        summed[i] = 0.0;
+    }
 
-          Cts[2*typeI*(lMax+1)*(lMax+1)*gnsize +2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m    ] = Cs[2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m    ];
-          Cts[2*typeI*(lMax+1)*(lMax+1)*gnsize +2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m + 1] = Cs[2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m + 1];
+    for (int l = 0; l < lMax+1; l++){
+        for (int m = 0; m < l+1; m++){//l+1
+            for (int i = 0; i < icount; i++){
+                realY = Ylmi[2*(lMax+1)*icount*l + 2*icount*m + 2*i    ];
+                imagY = Ylmi[2*(lMax+1)*icount*l + 2*icount*m + 2*i  + 1 ];
+                for (int rw = 0; rw < rsize; rw++){
+                    summed[2*(lMax+1)*l*rsize + 2*m*rsize + 2*rw    ] += Flir[l*rsize*icount + rsize*i + rw] * realY;
+                    summed[2*(lMax+1)*l*rsize + 2*m*rsize + 2*rw + 1] += Flir[l*rsize*icount + rsize*i + rw] * imagY;
+                }
 
+            }
         }
-      }
+    }
+    return summed;
+}
+//=========================================================
+void getC(double* Cs, double* ws, double* rw2, double * gns, double* summed, double rCut,int lMax, int rsize, int nmax,int* isCenter, double alpha)
+{
+    // Initialize with zeros
+    for (int i = 0; i < 2*(lMax+1)*(lMax+1)*nmax; i++) {
+        Cs[i] = 0.0;
+    }
+
+    for(int n = 0; n < nmax; n++){
+        //for i0 case
+        if (isCenter[0]==1){
+            for(int rw = 0; rw < rsize; rw++){
+                Cs[2*(lMax+1)*(lMax+1)*n] += 0.5*0.564189583547756*rw2[rw]*ws[rw]*gns[rsize*n + rw]*exp(-alpha*rw2[rw]);
+            }
+        }
+        for (int l = 0; l < lMax+1; l++){
+            for (int m = 0; m < l+1; m++){ // l+1
+                for (int rw = 0; rw < rsize; rw++){
+
+                    Cs[2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m    ] += rw2[rw]*ws[rw]*gns[rsize*n + rw]*summed[2*(lMax+1)*l*rsize + 2*m*rsize + 2*rw    ]; // Re
+                    Cs[2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m + 1] += rw2[rw]*ws[rw]*gns[rsize*n + rw]*summed[2*(lMax+1)*l*rsize + 2*m*rsize + 2*rw + 1]; //Im
+
+                }
+            }
+        }
+    }
+    isCenter[0] = 0;
+}
+//=========================================================
+void accumC(double* Cts, double* Cs, int lMax, int nmax, int typeI)
+{
+    for (int n = 0; n < nmax; n++) {
+        for (int l = 0; l < lMax+1; l++) {
+            for (int m = 0; m < l+1; m++) {
+                Cts[2*typeI*(lMax+1)*(lMax+1)*nmax +2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m    ] = Cs[2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m    ];
+                Cts[2*typeI*(lMax+1)*(lMax+1)*nmax +2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m + 1] = Cs[2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m + 1];
+            }
+        }
     }
 }
 //=========================================================
@@ -1779,7 +1781,7 @@ void accumP(double* Phs, double* Ps, int Nt, int lMax, int gnsize, double rCut2,
 //=========================================================
 //=========================================================
 //=========================================================
-double* soap(py::array_t<double> cArr, py::array_t<double> AposArr, py::array_t<double> HposArr, py::array_t<int> typeNsArr, double rCut, int totalAN,int Nt,int gnsize, int lMax, int Hs, double alpha, py::array_t<double> rwArr, py::array_t<double> gssArr) {
+double* soapGeneral(py::array_t<double> cArr, py::array_t<double> AposArr, py::array_t<double> HposArr, py::array_t<int> typeNsArr, double rCut, int totalAN,int Nt,int gnsize, int lMax, int Hs, double alpha, py::array_t<double> rwArr, py::array_t<double> gssArr) {
 // everything same except last three
   double *c = (double*)cArr.request().ptr;
   double *Apos = (double*)AposArr.request().ptr;
