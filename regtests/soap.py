@@ -144,9 +144,11 @@ class SoapTests(unittest.TestCase):
         # self.assertTrue(np.array_equal(full_output[:, 2*n_elem_feat:], partial_output[:, n_elem_feat:]))
 
         # Poly
-        desc = SOAP(species=[1, 8], rbf="gto", crossover=True, rcut=3, nmax=5, lmax=5, periodic=False)
-        n_elem_feat = desc.get_number_of_element_features()
-        full_output = desc.create(H2O)
+        desc = SOAP(species=[1, 8], rbf="polynomial", crossover=True, rcut=3.0, nmax=1, lmax=0, periodic=False)
+        # n_elem_feat = desc.get_number_of_element_features()
+        v1 = desc.create(H2O)
+        print(v1)
+        # v2 = desc.create(H2O)
 
     # def test_multiple_species(self):
         # """Tests multiple species are handled correctly.
