@@ -107,7 +107,7 @@ if __name__ == "__main__":
         long_description="A Python package for creating feature transformations in applications of machine learning to materials science.",
         packages=find_packages(),
         setup_requires=['pybind11>=2.4'],
-        install_requires=['pybind11>=2.4', "numpy", "scipy", "ase", "scikit-learn", "joblib"],
+        install_requires=['pybind11>=2.4', "numpy", "scipy", "ase>=3.19.0", "scikit-learn", "joblib"],
         include_package_data=True,  # This ensures that files defined in MANIFEST.in are included
         ext_modules=extensions,
         license="Apache License 2.0",

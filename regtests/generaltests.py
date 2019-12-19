@@ -46,10 +46,8 @@ class GeometryTests(unittest.TestCase):
         system.set_pbc([True, True, True])
         disp = system.get_displacement_tensor()
         assumed = np.array([
-            [[5.0, 5.0, 0.0], [-5, 0, 0]],
-            [[5, 0, 0], [5.0, 5.0, 0.0]]])
-        print(disp)
-        print(assumed)
+            [[5.0, 5.0, 0.0], [5, 0, 0]],
+            [[-5, 0, 0], [5.0, 5.0, 0.0]]])
         self.assertTrue(np.allclose(assumed, disp))
 
         # Tests that the displacement tensor is found correctly even for highly
