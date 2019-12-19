@@ -39,17 +39,17 @@ class GeometryTests(unittest.TestCase):
             [pos[0] - pos[0], pos[1] - pos[0]],
             [pos[0] - pos[1], pos[1] - pos[1]],
         ])
-        # print(disp)
         self.assertTrue(np.allclose(assumed, disp))
 
         # For a periodic system, the nearest copy should be considered when
         # comparing distances to neighbors or to self
         system.set_pbc([True, True, True])
         disp = system.get_displacement_tensor()
-        # print(disp)
         assumed = np.array([
             [[5.0, 5.0, 0.0], [-5, 0, 0]],
             [[5, 0, 0], [5.0, 5.0, 0.0]]])
+        print(disp)
+        print(assumed)
         self.assertTrue(np.allclose(assumed, disp))
 
         # Tests that the displacement tensor is found correctly even for highly
@@ -293,11 +293,11 @@ class SpeciesTests(unittest.TestCase):
 
 if __name__ == '__main__':
     suites = []
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(ASETests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(ASETests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(DistanceTests))
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(GeometryTests))
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(GaussianTests))
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SpeciesTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(GeometryTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(GaussianTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(SpeciesTests))
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)
 

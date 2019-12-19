@@ -945,8 +945,8 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                                 value *= prefactor
                                 numerical_power_spectrum.append(value)
 
-        print("Numerical: {}".format(numerical_power_spectrum))
-        print("Analytical: {}".format(analytical_power_spectrum))
+        # print("Numerical: {}".format(numerical_power_spectrum))
+        # print("Analytical: {}".format(analytical_power_spectrum))
 
         self.assertTrue(np.allclose(numerical_power_spectrum, analytical_power_spectrum, atol=1e-15, rtol=0.01))
 
