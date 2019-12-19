@@ -66,7 +66,6 @@ class SOAP(Descriptor):
             crossover=True,
             average=False,
             sparse=False,
-            distance_method="cell_list",
             ):
         """
         Args:
@@ -101,15 +100,6 @@ class SOAP(Descriptor):
                 positions.
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
-            distance_method (string): The method used for calculating distances
-                between atoms. Defaults to the linearly scaling "cell_list" option.
-                The available options are:
-
-                * "naive": Brute-force calculation of all pairwise distances. Time-complexity: O(n^2)
-                * "kd_tree": Uses a hierarhical tree structure for speeding up
-                    distance calculations. Time-complexity: O(n log(n))
-                * "cell_list": Uses spatial binning: the atoms are partitioned
-                    into equally sized volumes based on the cutoff distance. Time-complexity: O(n)
         """
         super().__init__(periodic=periodic, flatten=True, sparse=sparse)
 
@@ -156,6 +146,11 @@ class SOAP(Descriptor):
             self._alphas, self._betas = self.get_basis_gto(rcut, nmax)
 
         elif rbf == "polynomial":
+            if not crossover:
+                raise ValueError(
+                    "Disabling crossover is not currently supported when using "
+                    "polynomial radial basis function".format(rbf, supported_rbf)
+                )
             if lmax > 20:
                 raise ValueError(
                     "When using the polynomial radial basis set, lmax "
@@ -167,7 +162,6 @@ class SOAP(Descriptor):
         self._lmax = lmax
         self._rbf = rbf
         self.crossover = crossover
-        self.distance_method = distance_method
         self._average = average
 
     def create(self, system, positions=None, n_jobs=1, verbose=False):
@@ -656,54 +650,6 @@ class SOAP(Descriptor):
             given positions.
         """
         # OLD WAY ==============================================================
-        # rCutHard = rcut + 5
-        # rx, gss = self.get_basis_poly(rcut, nmax)
-
-        # n_atoms = len(system)
-        # Apos, typeNs, py_Ntypes, atomtype_lst = self.flatten_positions_old(system, atomic_numbers)
-        # positions = np.array(positions)
-        # py_Hsize = positions.shape[0]
-
-        # # Flatten arrays
-        # positions = positions.flatten()
-        # gss = gss.flatten()
-
-        # # Convert types
-        # lMax = c_int(lmax)
-        # Hsize = c_int(py_Hsize)
-        # Ntypes = c_int(py_Ntypes)
-        # n_atoms = c_int(n_atoms)
-        # rCutHard = c_double(rCutHard)
-        # Nsize = c_int(nmax)
-        # c_eta = c_double(eta)
-        # typeNs = (c_int * len(typeNs))(*typeNs)
-        # axyz = (c_double * len(Apos))(*Apos.tolist())
-        # hxyz = (c_double * len(positions))(*positions.tolist())
-        # rx = (c_double * 100)(*rx.tolist())
-        # gss = (c_double * (100 * nmax))(*gss.tolist())
-
-        # # Calculate with C-extension
-        # _PATH_TO_SOAPLITE_SO = os.path.dirname(os.path.abspath(__file__))
-        # _SOAPLITE_SOFILES = glob.glob("".join([_PATH_TO_SOAPLITE_SO, "/../libsoap/libsoapG*.*so"]))
-        # substring = "libsoap/libsoapGeneral."
-        # libsoap = CDLL(next((s for s in _SOAPLITE_SOFILES if substring in s), None))
-        # libsoap.soap.argtypes = [POINTER(c_double), POINTER(c_double), POINTER(c_double),
-                # POINTER(c_int), c_double,
-                # c_int, c_int, c_int, c_int, c_int,
-                # c_double, POINTER(c_double), POINTER(c_double)]
-        # libsoap.soap.restype = POINTER(c_double)
-        # c = (c_double*(int((nmax*(nmax+1))/2)*(lmax+1)*int((py_Ntypes*(py_Ntypes+1))/2)*py_Hsize))()
-        # libsoap.soap(c, axyz, hxyz, typeNs, rCutHard, n_atoms, Ntypes, Nsize, lMax, Hsize, c_eta, rx, gss)
-
-        # shape = (py_Hsize, int((nmax*(nmax+1))/2)*(lmax+1)*int((py_Ntypes*(py_Ntypes+1))/2))
-        # crosTypes = int((py_Ntypes*(py_Ntypes+1))/2)
-        # shape = (py_Hsize, int((nmax*(nmax+1))/2)*(lmax+1)*crosTypes)
-        # a = np.ctypeslib.as_array(c)
-        # a = a.reshape(shape)
-        # return a
-
-        # NEW WAY ==============================================================
-        # Precalculates the radial basis function on a fixed grid of size 100
         rCutHard = rcut + 5
         rx, gss = self.get_basis_poly(rcut, nmax)
 
@@ -717,23 +663,71 @@ class SOAP(Descriptor):
         gss = gss.flatten()
 
         # Convert types
-        lMax = lmax
-        Hsize = py_Hsize
-        Ntypes = py_Ntypes
-        Nsize = nmax
-        c_eta = eta
-        axyz = Apos
-        hxyz = positions
+        lMax = c_int(lmax)
+        Hsize = c_int(py_Hsize)
+        Ntypes = c_int(py_Ntypes)
+        n_atoms = c_int(n_atoms)
+        rCutHard = c_double(rCutHard)
+        Nsize = c_int(nmax)
+        c_eta = c_double(eta)
+        typeNs = (c_int * len(typeNs))(*typeNs)
+        axyz = (c_double * len(Apos))(*Apos.tolist())
+        hxyz = (c_double * len(positions))(*positions.tolist())
+        rx = (c_double * 100)(*rx.tolist())
+        gss = (c_double * (100 * nmax))(*gss.tolist())
 
-        # Determine shape
-        c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int((Ntypes*(Ntypes + 1))/2)*Hsize, dtype=np.float64)
-        dscribe.ext.soap_general(c, axyz, hxyz, typeNs, rCutHard, n_atoms, Ntypes, Nsize, lMax, Hsize, c_eta, rx, gss)
+        # Calculate with C-extension
+        _PATH_TO_SOAPLITE_SO = os.path.dirname(os.path.abspath(__file__))
+        _SOAPLITE_SOFILES = glob.glob("".join([_PATH_TO_SOAPLITE_SO, "/../libsoap/libsoapG*.*so"]))
+        substring = "libsoap/libsoapGeneral."
+        libsoap = CDLL(next((s for s in _SOAPLITE_SOFILES if substring in s), None))
+        libsoap.soap.argtypes = [POINTER(c_double), POINTER(c_double), POINTER(c_double),
+                POINTER(c_int), c_double,
+                c_int, c_int, c_int, c_int, c_int,
+                c_double, POINTER(c_double), POINTER(c_double)]
+        libsoap.soap.restype = POINTER(c_double)
+        c = (c_double*(int((nmax*(nmax+1))/2)*(lmax+1)*int((py_Ntypes*(py_Ntypes+1))/2)*py_Hsize))()
+        libsoap.soap(c, axyz, hxyz, typeNs, rCutHard, n_atoms, Ntypes, Nsize, lMax, Hsize, c_eta, rx, gss)
 
-        # Reshape from linear to 2D
-        shape = (Hsize, int((nmax*(nmax+1))/2)*(lmax+1)*int((Ntypes*(Ntypes+1))/2))
-        c = c.reshape(shape)
+        shape = (py_Hsize, int((nmax*(nmax+1))/2)*(lmax+1)*int((py_Ntypes*(py_Ntypes+1))/2))
+        crosTypes = int((py_Ntypes*(py_Ntypes+1))/2)
+        shape = (py_Hsize, int((nmax*(nmax+1))/2)*(lmax+1)*crosTypes)
+        a = np.ctypeslib.as_array(c)
+        a = a.reshape(shape)
+        return a
 
-        return c
+        # NEW WAY ==============================================================
+        # Precalculates the radial basis function on a fixed grid of size 100
+        # rCutHard = rcut + 5
+        # rx, gss = self.get_basis_poly(rcut, nmax)
+
+        # n_atoms = len(system)
+        # Apos, typeNs, py_Ntypes, atomtype_lst = self.flatten_positions_old(system, atomic_numbers)
+        # positions = np.array(positions)
+        # py_Hsize = positions.shape[0]
+
+        # # Flatten arrays
+        # positions = positions.flatten()
+        # gss = gss.flatten()
+
+        # # Convert types
+        # lMax = lmax
+        # Hsize = py_Hsize
+        # Ntypes = py_Ntypes
+        # Nsize = nmax
+        # c_eta = eta
+        # axyz = Apos
+        # hxyz = positions
+
+        # # Determine shape
+        # c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int((Ntypes*(Ntypes + 1))/2)*Hsize, dtype=np.float64)
+        # dscribe.ext.soap_general(c, axyz, hxyz, typeNs, rCutHard, n_atoms, Ntypes, Nsize, lMax, Hsize, c_eta, rx, gss)
+
+        # # Reshape from linear to 2D
+        # shape = (Hsize, int((nmax*(nmax+1))/2)*(lmax+1)*int((Ntypes*(Ntypes+1))/2))
+        # c = c.reshape(shape)
+
+        # return c
 
     # def get_soap_locals_poly(self, system, centers, rcut, nmax, lmax, eta, crossover, atomic_numbers=None):
         # """Get the SOAP output using polynomial radial basis for the given

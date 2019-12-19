@@ -1781,16 +1781,17 @@ void accumP(double* Phs, double* Ps, int Nt, int lMax, int gnsize, double rCut2,
 double* soap(double* c, double* Apos,double* Hpos, int* typeNs, double rCut, int totalAN,int Nt,int gnsize, int lMax, int Hs, double alpha, double* rw, double* gss){
 // everything same except last three
 //
-  int index = 1;
-  printf("C:  %lf\n", c[index] );
-  printf("Apos:  %lf\n", Apos[index] );
-  printf("Hpos:  %lf\n", Hpos[index] );
-  printf("typeNs:  %d\n", typeNs[index] );
-  printf("rw:  %lf\n", rw[index] );
-  printf("gss:  %lf\n", gss[index] );
+  /*int index = 99;*/
+  /*printf("C:  %lf\n", c[index] );*/
+  /*printf("Apos:  %lf\n", Apos[index] );*/
+  /*printf("Hpos:  %lf\n", Hpos[index] );*/
+  /*printf("typeNs:  %d\n", typeNs[0] );*/
+  /*printf("typeNs:  %d\n", typeNs[1] );*/
+  /*printf("rw:  %lf\n", rw[index] );*/
+  /*printf("gss:  %lf\n", gss[index] );*/
 
   double* cf = factorListSet();
-  int* isCenter = malloc( sizeof(int) );
+  int* isCenter = (int*)malloc( sizeof(int) );
   isCenter[0] = 0;
 
   int rsize = 100; // constant
