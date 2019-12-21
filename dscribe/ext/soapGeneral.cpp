@@ -1817,8 +1817,6 @@ double* soapGeneral(py::array_t<double, py::array::c_style | py::array::forcecas
   double* Ps = (double*) malloc((Nt*(Nt+1))/2*sd*(lMax+1)*((gnsize+1)*gnsize)/2);
   int icount;
 
-  //cout << "Here" << endl;
-
   for(int Ihpos = 0; Ihpos < Hs; Ihpos++){
     for(int Itype = 0; Itype < Nt; Itype++){
 
@@ -1841,6 +1839,7 @@ double* soapGeneral(py::array_t<double, py::array::c_style | py::array::forcecas
     accumP(c, Ps, Nt, lMax, gnsize,rCut2, Ihpos);
   }
 
+
   free(cf);
 
   free(x);  free(y);    free(z);    free(xNow);    free(yNow);    free(zNow);
@@ -1853,5 +1852,6 @@ double* soapGeneral(py::array_t<double, py::array::c_style | py::array::forcecas
   free(Cs) ;
   free(Cts) ;
   free(Ps) ;
+  cout << "There" << endl;
 //  return Phs;
 }
