@@ -147,11 +147,6 @@ class SOAP(Descriptor):
             self._alphas, self._betas = self.get_basis_gto(rcut, nmax)
 
         elif rbf == "polynomial":
-            if not crossover:
-                raise ValueError(
-                    "Disabling crossover is not currently supported when using "
-                    "polynomial radial basis function".format(rbf, supported_rbf)
-                )
             if lmax > 20:
                 raise ValueError(
                     "When using the polynomial radial basis set, lmax "
@@ -382,6 +377,25 @@ class SOAP(Descriptor):
             self.index_to_atomic_number[i_atom] = atomic_number
         self.n_elements = len(self._atomic_numbers)
 
+    @property
+    def crossover(self):
+        return self._crossover
+
+    @crossover.setter
+    def crossover(self, value):
+        """Used to check the validity of given crossover settings
+
+        Args:
+            value(bool): Whether to enable species crossover in the output.
+        """
+        if not value:
+            if self._rbf == "polynomial":
+                raise ValueError(
+                    "Disabling crossover is not currently supported when using "
+                    "polynomial radial basis function."
+                )
+        self._crossover = value
+
     def get_full_space_output(self, sub_output, sub_elements, full_elements_sorted):
         """Used to partition the SOAP output to different locations depending
         on the interacting elements. SOAPLite return the output partitioned by
@@ -538,6 +552,12 @@ class SOAP(Descriptor):
 
         # Check that the given atomic numbers are supported
         self.check_atomic_numbers(numbers)
+        if not self.crossover and numbers[0] != numbers[1]:
+            raise ValueError(
+                "The output does not have pairwise terms as you have not "
+                "enabled species crossover for SOAP. See the 'crossover' "
+                "attribute."
+            )
 
         # Change into internal indexing
         indices = [self.atomic_number_to_index[x] for x in numbers]
