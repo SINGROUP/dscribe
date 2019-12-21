@@ -158,7 +158,7 @@ class Descriptor(ABC):
         zs = set(atomic_numbers)
         if not zs.issubset(self._atomic_number_set):
             raise ValueError(
-                "The given system has the following atomic numbers not defined "
+                "The following atomic numbers are not defined "
                 "for this descriptor: {}"
                 .format(zs.difference(self._atomic_number_set))
             )

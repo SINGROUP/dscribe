@@ -163,7 +163,6 @@ class System(Atoms):
                 cell=self.get_cell(),
                 pbc=self.get_pbc()
             )
-            print(D)
 
             # Figure out the smallest basis vector and set it as
             # displacement for diagonal

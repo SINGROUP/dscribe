@@ -65,7 +65,7 @@ extensions = [
         extra_compile_args=cpp_extra_compile_args,
         extra_link_args=cpp_extra_link_args,
     ),
-    # The SOAP and utils C++ extensions, wrapped with pybind11
+    # The SOAP (gto) and utils C++ extensions, wrapped with pybind11
     Extension(
         'dscribe.ext',
         ["dscribe/ext/ext.cpp", "dscribe/ext/celllist.cpp", "dscribe/ext/soapGTO.cpp", "dscribe/ext/soapGeneral.cpp"],
@@ -81,7 +81,7 @@ extensions = [
     )
 ]
 
-# The SOAP C extension, wrapped with ctypes
+# The SOAP (general) extension, wrapped with ctypes
 for soname, source in zip(
         [
             "dscribe.libsoap.libsoapGeneral",
