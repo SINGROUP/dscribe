@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdlib.h>
+#include <iostream>
+#include "soapGeneral.h"
 
 #define tot (double*) malloc(sizeof(double)*totalAN);
 #define totrs (double*) malloc(sizeof(double)*totalAN*rsize);
@@ -1775,20 +1777,24 @@ void accumP(double* Phs, double* Ps, int Nt, int lMax, int gnsize, double rCut2,
     }
   }
 }
-//=========================================================
-//=========================================================
-//=========================================================
-double* soap(double* c, double* Apos,double* Hpos, int* typeNs, double rCut, int totalAN,int Nt,int gnsize, int lMax, int Hs, double alpha, double* rw, double* gss){
+double* soapGeneral(py::array_t<double, py::array::c_style | py::array::forcecast> cArr, py::array_t<double, py::array::c_style | py::array::forcecast> AposArr, py::array_t<double, py::array::c_style | py::array::forcecast> HposArr, py::array_t<int, py::array::c_style | py::array::forcecast> typeNsArr, double rCut, int totalAN, int Nt,int gnsize, int lMax, int Hs, double alpha, py::array_t<double, py::array::c_style | py::array::forcecast> rwArr, py::array_t<double, py::array::c_style | py::array::forcecast> gssArr) {
 // everything same except last three
 //
-  /*int index = 99;*/
-  /*printf("C:  %lf\n", c[index] );*/
-  /*printf("Apos:  %lf\n", Apos[index] );*/
-  /*printf("Hpos:  %lf\n", Hpos[index] );*/
-  /*printf("typeNs:  %d\n", typeNs[0] );*/
-  /*printf("typeNs:  %d\n", typeNs[1] );*/
-  /*printf("rw:  %lf\n", rw[index] );*/
-  /*printf("gss:  %lf\n", gss[index] );*/
+  double *c = (double*)cArr.request().ptr;
+  double *Hpos = (double*)HposArr.request().ptr;
+  double *Apos = (double*)AposArr.request().ptr;
+  int *typeNs = (int*)typeNsArr.request().ptr;
+  double *rw = (double*)rwArr.request().ptr;
+  double *gss = (double*)gssArr.request().ptr;
+
+  //int index = 99;
+  //printf("C:  %lf\n", c[index] );
+  //printf("Apos:  %lf\n", Apos[index] );
+  //printf("Hpos:  %lf\n", Hpos[index] );
+  //printf("typeNs:  %d\n", typeNs[0] );
+  //printf("typeNs:  %d\n", typeNs[1] );
+  //printf("rw:  %lf\n", rw[index] );
+  //printf("gss:  %lf\n", gss[index] );
 
   double* cf = factorListSet();
   int* isCenter = (int*)malloc( sizeof(int) );
@@ -1811,6 +1817,8 @@ double* soap(double* c, double* Apos,double* Hpos, int* typeNs, double rCut, int
   double* Ps = (double*) malloc((Nt*(Nt+1))/2*sd*(lMax+1)*((gnsize+1)*gnsize)/2);
   int icount;
 
+  //cout << "Here" << endl;
+
   for(int Ihpos = 0; Ihpos < Hs; Ihpos++){
     for(int Itype = 0; Itype < Nt; Itype++){
 
@@ -1829,7 +1837,6 @@ double* soap(double* c, double* Apos,double* Hpos, int* typeNs, double rCut, int
         free(Flir); free(Ylmi); free(summed);
 
     }
-
     getPs(Ps, Cts,  Nt, lMax, gnsize);
     accumP(c, Ps, Nt, lMax, gnsize,rCut2, Ihpos);
   }
@@ -1848,6 +1855,3 @@ double* soap(double* c, double* Apos,double* Hpos, int* typeNs, double rCut, int
   free(Ps) ;
 //  return Phs;
 }
-//=========================================================
-//=========================================================
-//=========================================================

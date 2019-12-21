@@ -117,7 +117,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         lmax = 5
         nmax = 5
         n_elems = 2
-        desc = SOAP(species=[1, 8], rcut=5, nmax=nmax, lmax=lmax, periodic=True)
+        desc = SOAP(species=[1, 8], rcut=3, nmax=nmax, lmax=lmax, periodic=True)
 
         # Test that the reported number of features matches the expected
         n_features = desc.get_number_of_features()
@@ -129,6 +129,115 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         n_features = desc.get_number_of_features()
         vec = desc.create(H2O)
         self.assertEqual(n_features, vec.shape[1])
+
+    def test_crossover(self):
+        """Tests that disabling/enabling crossover works as expected.
+        """
+        # GTO
+        desc = SOAP(species=[1, 8], rbf="gto", crossover=True, rcut=3, nmax=5, lmax=5, periodic=False)
+        n_elem_feat = desc.get_number_of_element_features()
+        full_output = desc.create(H2O)
+        desc.crossover = False
+        partial_output = desc.create(H2O)
+        self.assertTrue(np.array_equal(full_output[:, 0:n_elem_feat], partial_output[:, 0:n_elem_feat]))
+        self.assertTrue(np.array_equal(full_output[:, 2*n_elem_feat:], partial_output[:, n_elem_feat:]))
+
+    def test_get_location_w_crossover(self):
+        """Tests that disabling/enabling crossover works as expected.
+        """
+        # With crossover
+        species = ["H", "O", "C"]
+        desc = SOAP(species=species, rbf="gto", crossover=True, rcut=3, nmax=5, lmax=5, periodic=False)
+
+        # Symbols
+        loc_hh = desc.get_location(("H", "H"))
+        loc_ho = desc.get_location(("H", "O"))
+        loc_oh = desc.get_location(("O", "H"))
+        loc_oo = desc.get_location(("O", "O"))
+        loc_cc = desc.get_location(("C", "C"))
+        loc_co = desc.get_location(("C", "O"))
+        loc_ch = desc.get_location(("C", "H"))
+
+        # Undefined elements
+        with self.assertRaises(ValueError):
+            desc.get_location((2, 1))
+        with self.assertRaises(ValueError):
+            desc.get_location(("He", "H"))
+
+        # Check that slices in the output are correctly empty or filled
+        CO2 = molecule("CO2")
+        H2O = molecule("H2O")
+        co2_out = desc.create(CO2)
+        h2o_out = desc.create(H2O)
+
+        # Check that slices with reversed atomic numbers are identical
+        self.assertTrue(loc_ho == loc_oh)
+
+        # H-H
+        self.assertTrue(co2_out[:, loc_hh].sum() == 0)
+        self.assertTrue(h2o_out[:, loc_hh].sum() != 0)
+
+        # H-C
+        self.assertTrue(co2_out[:, loc_ch].sum() == 0)
+        self.assertTrue(h2o_out[:, loc_ch].sum() == 0)
+
+        # H-O
+        self.assertTrue(co2_out[:, loc_ho].sum() == 0)
+        self.assertTrue(h2o_out[:, loc_ho].sum() != 0)
+
+        # C-O
+        self.assertTrue(co2_out[:, loc_co].sum() != 0)
+        self.assertTrue(h2o_out[:, loc_co].sum() == 0)
+
+        # C-C
+        self.assertTrue(co2_out[:, loc_cc].sum() != 0)
+        self.assertTrue(h2o_out[:, loc_cc].sum() == 0)
+
+        # O-O
+        self.assertTrue(co2_out[:, loc_oo].sum() != 0)
+        self.assertTrue(h2o_out[:, loc_oo].sum() != 0)
+
+    def test_get_location_wo_crossover(self):
+        """Tests that disabling/enabling crossover works as expected.
+        """
+        # With crossover
+        species = ["H", "O", "C"]
+        desc = SOAP(species=species, rbf="gto", crossover=False, rcut=3, nmax=5, lmax=5, periodic=False)
+
+        # Symbols
+        loc_hh = desc.get_location(("H", "H"))
+        loc_oo = desc.get_location(("O", "O"))
+        loc_cc = desc.get_location(("C", "C"))
+
+        # Undefined elements
+        with self.assertRaises(ValueError):
+            desc.get_location((2, 1))
+        with self.assertRaises(ValueError):
+            desc.get_location(("He", "H"))
+
+        # Check that pairwise distances are not supported
+        with self.assertRaises(ValueError):
+            loc_oo = desc.get_location(("H", "O"))
+            loc_oo = desc.get_location(("H", "C"))
+            loc_oo = desc.get_location(("C", "H"))
+
+        # Check that slices in the output are correctly empty or filled
+        CO2 = molecule("CO2")
+        H2O = molecule("H2O")
+        co2_out = desc.create(CO2)
+        h2o_out = desc.create(H2O)
+
+        # H-H
+        self.assertTrue(co2_out[:, loc_hh].sum() == 0)
+        self.assertTrue(h2o_out[:, loc_hh].sum() != 0)
+
+        # C-C
+        self.assertTrue(co2_out[:, loc_cc].sum() != 0)
+        self.assertTrue(h2o_out[:, loc_cc].sum() == 0)
+
+        # O-O
+        self.assertTrue(co2_out[:, loc_oo].sum() != 0)
+        self.assertTrue(h2o_out[:, loc_oo].sum() != 0)
 
     def test_multiple_species(self):
         """Tests multiple species are handled correctly.
@@ -984,7 +1093,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                     non_orthogonal_soaps = soap_generator.create(niti)
 
                     # Check that the relative or absolute error is small enough
-                    self.assertTrue(np.allclose(orthogonal_soaps, non_orthogonal_soaps, atol=1e-8, rtol=1e-2))
+                    self.assertTrue(np.allclose(orthogonal_soaps, non_orthogonal_soaps, atol=1e-8, rtol=1e-6))
 
 if __name__ == '__main__':
     suites = []

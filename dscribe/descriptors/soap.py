@@ -13,21 +13,24 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-import os
-import glob
 import numpy as np
-
-from ctypes import POINTER, c_double, c_int, CDLL
 
 from scipy.sparse import coo_matrix
 from scipy.special import gamma
 from scipy.linalg import sqrtm, inv
 
 from ase import Atoms
+import ase.data
+
+import os
+import glob
+
+from ctypes import POINTER, c_double, c_int, CDLL
 
 from dscribe.descriptors import Descriptor
 from dscribe.core import System
 from dscribe.utils.geometry import get_extended_system
+import dscribe.ext
 
 
 class SOAP(Descriptor):
@@ -63,7 +66,7 @@ class SOAP(Descriptor):
             periodic=False,
             crossover=True,
             average=False,
-            sparse=False
+            sparse=False,
             ):
         """
         Args:
@@ -144,11 +147,6 @@ class SOAP(Descriptor):
             self._alphas, self._betas = self.get_basis_gto(rcut, nmax)
 
         elif rbf == "polynomial":
-            if not crossover:
-                raise ValueError(
-                    "Disabling crossover is not currently supported when using "
-                    "polynomial radial basis function".format(rbf, supported_rbf)
-                )
             if lmax > 20:
                 raise ValueError(
                     "When using the polynomial radial basis set, lmax "
@@ -159,7 +157,7 @@ class SOAP(Descriptor):
         self._nmax = nmax
         self._lmax = lmax
         self._rbf = rbf
-        self._crossover = crossover
+        self.crossover = crossover
         self._average = average
 
     def create(self, system, positions=None, n_jobs=1, verbose=False):
@@ -296,16 +294,16 @@ class SOAP(Descriptor):
                         "list of atom indices and/or positions."
                     )
 
+        # The radial cutoff is extended by adding a padding that depends on
+        # the used used sigma value. The padding is chosen so that the
+        # gaussians decay to the specified threshold value at the cutoff
+        # distance.
+        threshold = 0.001
+        cutoff_padding = self._sigma*np.sqrt(-2*np.log(threshold))
+
         # Create the extended system if periodicity is requested
         if self.periodic:
-            # The radial cutoff is extended by adding a padding that depends on
-            # the used used sigma value. The padding is chosen so that the
-            # gaussians decay to the specified threshold value at the cutoff
-            # distance.
-            threshold = 0.000001
-            pad = self._sigma*np.sqrt(-2*np.log(threshold))
-            radial_cutoff = self._rcut+pad
-            system = get_extended_system(system, radial_cutoff, return_cell_indices=False)
+            system = get_extended_system(system, self._rcut+cutoff_padding, return_cell_indices=False)
 
         # Determine the SOAPLite function to call based on periodicity and
         # rbf
@@ -316,10 +314,11 @@ class SOAP(Descriptor):
                 self._alphas,
                 self._betas,
                 rcut=self._rcut,
+                cutoff_padding=cutoff_padding,
                 nmax=self._nmax,
                 lmax=self._lmax,
                 eta=self._eta,
-                crossover=self._crossover,
+                crossover=self.crossover,
                 atomic_numbers=None,
             )
         elif self._rbf == "polynomial":
@@ -327,9 +326,11 @@ class SOAP(Descriptor):
                 system,
                 list_positions,
                 rcut=self._rcut,
+                # cutoff_padding=cutoff_padding,
                 nmax=self._nmax,
                 lmax=self._lmax,
                 eta=self._eta,
+                # crossover=self.crossover,
                 atomic_numbers=None,
             )
 
@@ -368,6 +369,33 @@ class SOAP(Descriptor):
         # The species are stored as atomic numbers for internal use.
         self._set_species(value)
 
+        # Setup mappings between atom indices and types
+        self.atomic_number_to_index = {}
+        self.index_to_atomic_number = {}
+        for i_atom, atomic_number in enumerate(self._atomic_numbers):
+            self.atomic_number_to_index[atomic_number] = i_atom
+            self.index_to_atomic_number[i_atom] = atomic_number
+        self.n_elements = len(self._atomic_numbers)
+
+    @property
+    def crossover(self):
+        return self._crossover
+
+    @crossover.setter
+    def crossover(self, value):
+        """Used to check the validity of given crossover settings
+
+        Args:
+            value(bool): Whether to enable species crossover in the output.
+        """
+        if not value:
+            if self._rbf == "polynomial":
+                raise ValueError(
+                    "Disabling crossover is not currently supported when using "
+                    "polynomial radial basis function."
+                )
+        self._crossover = value
+
     def get_full_space_output(self, sub_output, sub_elements, full_elements_sorted):
         """Used to partition the SOAP output to different locations depending
         on the interacting elements. SOAPLite return the output partitioned by
@@ -398,7 +426,7 @@ class SOAP(Descriptor):
 
         # When crossover is enabled, we need to store the contents for all
         # unique species combinations
-        if self._crossover:
+        if self.crossover:
             n_elem_sub = len(sub_elements)
             n_elem_full = len(full_elements_sorted)
             for i_sub in range(n_elem_sub):
@@ -485,7 +513,7 @@ class SOAP(Descriptor):
             int: Number of features for this descriptor.
         """
         n_elems = len(self._atomic_numbers)
-        if self._crossover:
+        if self.crossover:
             n_blocks = n_elems * (n_elems + 1)/2
         else:
             n_blocks = n_elems
@@ -494,7 +522,107 @@ class SOAP(Descriptor):
 
         return int(n_element_features * n_blocks)
 
+    def get_location(self, species):
+        """Can be used to query the location of a species combination in the
+        the flattened output.
+
+        Args:
+            species(tuple): A tuple containing a species combination as
+                chemical symbols or atomic numbers. The tuple can be for
+                example: ("H", "O") or (1, 6)
+
+        Returns:
+            slice: slice containing the location of the specified species
+            combination. The location is given as a python slice-object, that
+            can be directly used to target ranges in the output.
+
+        Raises:
+            ValueError: If the requested species combination is not in the
+            output or if invalid species defined.
+        """
+        # Change chemical elements into atomic numbers
+        numbers = []
+        for specie in species:
+            if isinstance(specie, str):
+                try:
+                    specie = ase.data.atomic_numbers[specie]
+                except KeyError:
+                    raise ValueError("Invalid chemical species: {}".format(specie))
+            numbers.append(specie)
+
+        # Check that the given atomic numbers are supported
+        self.check_atomic_numbers(numbers)
+        if not self.crossover and numbers[0] != numbers[1]:
+            raise ValueError(
+                "The output does not have pairwise terms as you have not "
+                "enabled species crossover for SOAP. See the 'crossover' "
+                "attribute."
+            )
+
+        # Change into internal indexing
+        indices = [self.atomic_number_to_index[x] for x in numbers]
+        n_elem = self.n_elements
+        n_elem_features = self.get_number_of_element_features()
+
+        # Makes sure that the upper diagonal part is accessed (idx2 >= idx1)
+        idx1 = indices[0]
+        idx2 = indices[1]
+        if idx1 > idx2:
+            idx1, idx2 = idx2, idx1
+
+        # With crossover
+        if self.crossover:
+            shift = self.get_flattened_index(idx1, idx2, n_elem)
+            start = shift*n_elem_features
+            end = (shift+1)*n_elem_features
+        # Without crossover
+        else:
+            start = idx1*n_elem_features
+            end = (idx1+1)*n_elem_features
+
+        return slice(start, end)
+
     def flatten_positions(self, system, atomic_numbers=None):
+        """Takes an ase Atoms object and returns flattened numpy arrays for the
+        C-extension to use.
+
+        Args:
+            system (ase.atoms): The system to convert.
+            atomic_numbers(): The atomic numbers to consider. Atoms that do not
+                have these atomic numbers are ignored.
+
+        Returns:
+            (np.ndarray, list, int, np.ndarray): Returns the positions
+            flattened and sorted by atomic number, atomic numbers flattened and
+            sorted by atomic number, number of different species and the sorted
+            set of atomic numbers.
+        """
+        Z = system.get_atomic_numbers()
+        pos = system.get_positions()
+
+        # Get a sorted list of atom types
+        if atomic_numbers is not None:
+            atomtype_set = set(atomic_numbers)
+        else:
+            atomtype_set = set(Z)
+        atomic_numbers_sorted = np.sort(list(atomtype_set))
+
+        # Form a flattened list of atomic positions, sorted by atomic type
+        pos_lst = []
+        z_lst = []
+        for atomtype in atomic_numbers_sorted:
+            condition = Z == atomtype
+            pos_onetype = pos[condition]
+            z_onetype = Z[condition]
+            pos_lst.append(pos_onetype)
+            z_lst.append(z_onetype)
+        n_species = len(atomic_numbers_sorted)
+        positions_sorted = np.concatenate(pos_lst, axis=0)
+        atomic_numbers_sorted = np.concatenate(z_lst).ravel()
+
+        return positions_sorted, atomic_numbers_sorted, n_species, atomic_numbers_sorted
+
+    def flatten_positions_old(self, system, atomic_numbers=None):
         """ Takes an ase Atoms object and returns numpy arrays and integers
         which are read by the internal clusgeo. Apos is currently a flattened
         out numpy array
@@ -533,17 +661,19 @@ class SOAP(Descriptor):
 
         return positions_sorted, n_atoms_per_type, n_species, atomic_numbers_sorted
 
-    def get_soap_locals_gto(self, system, positions, alphas, betas, rcut, nmax, lmax, eta, crossover, atomic_numbers=None):
+    def get_soap_locals_gto(self, system, centers, alphas, betas, rcut, cutoff_padding, nmax, lmax, eta, crossover, atomic_numbers=None):
         """Get the SOAP output for the given positions using the gto radial
         basis.
 
         Args:
-            system(ase.Atoms): Atomic structure for which the SOAP output is
+            system (ase.Atoms): Atomic structure for which the SOAP output is
                 calculated.
-            positions(np.ndarray): Positions at which to calculate SOAP.
+            centers (np.ndarray): Positions at which to calculate SOAP.
             alphas (np.ndarray): The alpha coeffients for the gto-basis.
             betas (np.ndarray): The beta coeffients for the gto-basis.
-            rCut (float): Radial cutoff.
+            rcut (float): Radial cutoff.
+            cutoff_padding (float): The padding that is added for including
+                atoms beyond the cutoff.
             nmax (int): Maximum number of radial basis functions.
             lmax (int): Maximum spherical harmonics degree.
             eta (float): The gaussian smearing width.
@@ -556,65 +686,33 @@ class SOAP(Descriptor):
         Returns:
             np.ndarray: SOAP output with the gto radial basis for the given positions.
         """
-        rCutHard = rcut + 5
-
         n_atoms = len(system)
-        Apos, typeNs, py_Ntypes, atomtype_lst = self.flatten_positions(system, atomic_numbers)
-        positions = np.array(positions)
-        py_Hsize = positions.shape[0]
-
-        # Flatten arrays
-        positions = positions.flatten()
+        positions, Z_sorted, n_species, atomtype_lst = self.flatten_positions(system, atomic_numbers)
+        centers = np.array(centers)
+        n_centers = centers.shape[0]
+        centers = centers.flatten()
         alphas = alphas.flatten()
         betas = betas.flatten()
 
-        # Convert types
-        lMax = c_int(lmax)
-        Hsize = c_int(py_Hsize)
-        Ntypes = c_int(py_Ntypes)
-        n_atoms = c_int(n_atoms)
-        rCutHard = c_double(rCutHard)
-        Nsize = c_int(nmax)
-        c_eta = c_double(eta)
-        typeNs = (c_int * len(typeNs))(*typeNs)
-        alphas = (c_double * len(alphas))(*alphas.tolist())
-        betas = (c_double * len(betas))(*betas.tolist())
-        axyz = (c_double * len(Apos))(*Apos.tolist())
-        hxyz = (c_double * len(positions))(*positions.tolist())
-
-        # Calculate with C-extension
-        _PATH_TO_SOAPLITE_SO = os.path.dirname(os.path.abspath(__file__))
-        _SOAPLITE_SOFILES = glob.glob("".join([_PATH_TO_SOAPLITE_SO, "/../libsoap/libsoap*.*so"]))
-        if py_Ntypes == 1 or (not crossover):
-            substring = "libsoap/libsoapPySig."
-            libsoap = CDLL(next((s for s in _SOAPLITE_SOFILES if substring in s), None))
-            libsoap.soap.argtypes = [POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_int), c_double, c_int, c_int, c_int, c_int, c_int, c_double]
-            libsoap.soap.restype = POINTER(c_double)
-            c = (c_double*(int((nmax*(nmax+1))/2)*(lmax+1)*py_Ntypes*py_Hsize))()
-            libsoap.soap(c, axyz, hxyz, alphas, betas, typeNs, rCutHard, n_atoms, Ntypes, Nsize, lMax, Hsize, c_eta)
-        else:
-            substring = "libsoap/libsoapGTO."
-            libsoapGTO = CDLL(next((s for s in _SOAPLITE_SOFILES if substring in s), None))
-            libsoapGTO.soap.argtypes = [POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_double), POINTER(c_int), c_double, c_int, c_int, c_int, c_int, c_int, c_double]
-            libsoapGTO.soap.restype = POINTER(c_double)
-            c = (c_double*(int((nmax*(nmax+1))/2)*(lmax+1)*int((py_Ntypes*(py_Ntypes + 1))/2)*py_Hsize))()
-            libsoapGTO.soap(c, axyz, hxyz, alphas, betas, typeNs, rCutHard, n_atoms, Ntypes, Nsize, lMax, Hsize, c_eta)
-
+        # Determine shape
         if crossover:
-            crosTypes = int((py_Ntypes*(py_Ntypes+1))/2)
-            shape = (py_Hsize, int((nmax*(nmax+1))/2)*(lmax+1)*crosTypes)
+            c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int((n_species*(n_species + 1))/2)*n_centers, dtype=np.float64)
+            shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*int((n_species*(n_species+1))/2))
         else:
-            shape = (py_Hsize, int((nmax*(nmax+1))/2)*(lmax+1)*py_Ntypes)
+            c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int(n_species)*n_centers, dtype=np.float64)
+            shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*n_species)
 
-        a = np.ctypeslib.as_array(c)
-        a = a.reshape(shape)
+        # Calculate with extension
+        dscribe.ext.soap_gto(c, positions, centers, alphas, betas, Z_sorted, rcut, cutoff_padding, n_atoms, n_species, nmax, lmax, n_centers, eta, crossover)
 
-        return a
+        # Reshape from linear to 2D
+        c = c.reshape(shape)
+
+        return c
 
     def get_soap_locals_poly(self, system, positions, rcut, nmax, lmax, eta, atomic_numbers=None):
         """Get the SOAP output using polynomial radial basis for the given
         positions.
-
         Args:
             system(ase.Atoms): Atomic structure for which the SOAP output is
                 calculated.
@@ -630,7 +728,6 @@ class SOAP(Descriptor):
                 which to calculate the output. If None, all species are included.
                 If given the output is calculated only for the given species and is
                 ordered by atomic number.
-
         Returns:
             np.ndarray: SOAP output with the polynomial radial basis for the
             given positions.
@@ -639,7 +736,7 @@ class SOAP(Descriptor):
         rx, gss = self.get_basis_poly(rcut, nmax)
 
         n_atoms = len(system)
-        Apos, typeNs, py_Ntypes, atomtype_lst = self.flatten_positions(system, atomic_numbers)
+        Apos, typeNs, py_Ntypes, atomtype_lst = self.flatten_positions_old(system, atomic_numbers)
         positions = np.array(positions)
         py_Hsize = positions.shape[0]
 
@@ -671,7 +768,6 @@ class SOAP(Descriptor):
                 c_int, c_int, c_int, c_int, c_int,
                 c_double, POINTER(c_double), POINTER(c_double)]
         libsoap.soap.restype = POINTER(c_double)
-
         c = (c_double*(int((nmax*(nmax+1))/2)*(lmax+1)*int((py_Ntypes*(py_Ntypes+1))/2)*py_Hsize))()
         libsoap.soap(c, axyz, hxyz, typeNs, rCutHard, n_atoms, Ntypes, Nsize, lMax, Hsize, c_eta, rx, gss)
 
@@ -681,6 +777,39 @@ class SOAP(Descriptor):
         a = np.ctypeslib.as_array(c)
         a = a.reshape(shape)
         return a
+
+        # This commented section uses pybind11 to use the
+        # soapGeneral-extension. Under development.
+        # rCutHard = rcut + 5
+        # rx, gss = self.get_basis_poly(rcut, nmax)
+
+        # n_atoms = len(system)
+        # Apos, typeNs, py_Ntypes, atomtype_lst = self.flatten_positions_old(system, atomic_numbers)
+        # positions = np.array(positions)
+        # py_Hsize = positions.shape[0]
+
+        # # Flatten arrays
+        # positions = positions.flatten()
+        # gss = gss.flatten()
+
+        # # Convert types
+        # lMax = lmax
+        # Hsize = py_Hsize
+        # Ntypes = py_Ntypes
+        # Nsize = nmax
+        # c_eta = eta
+        # axyz = Apos
+        # hxyz = positions
+
+        # # Determine shape
+        # c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int((Ntypes*(Ntypes + 1))/2)*Hsize, dtype=np.float64)
+        # dscribe.ext.soap_general(c, axyz, hxyz, typeNs, rCutHard, n_atoms, Ntypes, Nsize, lMax, Hsize, c_eta, rx, gss)
+
+        # # Reshape from linear to 2D
+        # shape = (Hsize, int((nmax*(nmax+1))/2)*(lmax+1)*int((Ntypes*(Ntypes+1))/2))
+        # c = c.reshape(shape)
+
+        # return c
 
     def get_basis_gto(self, rcut, nmax):
         """Used to calculate the alpha and beta prefactors for the gto-radial

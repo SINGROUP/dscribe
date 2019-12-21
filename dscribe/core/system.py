@@ -146,7 +146,7 @@ class System(Atoms):
 
     def get_displacement_tensor(self):
         """A matrix where the entry A[i, j, :] is the vector
-        self.cartesian_pos[i] - self.cartesian_pos[j].
+        self.cartesian_pos[j] - self.cartesian_pos[i].
 
         For periodic systems the distance of an atom from itself is the
         smallest displacement of an atom from one of it's periodic copies, and
@@ -163,13 +163,6 @@ class System(Atoms):
                 cell=self.get_cell(),
                 pbc=self.get_pbc()
             )
-
-            # Make sure that the lower triangular part is just the upper
-            # triangular part but negated. The find_mic function in ASE seems
-            # to not return this directly.
-            n_atoms = len(self)
-            i_down = np.tril_indices(n_atoms, -1)
-            D[i_down] = -np.transpose(D, axes=(1, 0, 2))[i_down]
 
             # Figure out the smallest basis vector and set it as
             # displacement for diagonal

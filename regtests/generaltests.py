@@ -6,9 +6,12 @@ import unittest
 from dscribe.core import System
 from dscribe.descriptors import ACSF
 from dscribe.utils.species import symbols_to_numbers
+from dscribe.ext import CellList
 
 from ase.lattice.cubic import SimpleCubicFactory
+from ase.build import bulk
 import ase.data
+from ase import Atoms
 
 
 class GeometryTests(unittest.TestCase):
@@ -36,17 +39,15 @@ class GeometryTests(unittest.TestCase):
             [pos[0] - pos[0], pos[1] - pos[0]],
             [pos[0] - pos[1], pos[1] - pos[1]],
         ])
-        # print(disp)
         self.assertTrue(np.allclose(assumed, disp))
 
         # For a periodic system, the nearest copy should be considered when
         # comparing distances to neighbors or to self
         system.set_pbc([True, True, True])
         disp = system.get_displacement_tensor()
-        # print(disp)
         assumed = np.array([
-            [[5.0, 5.0, 0.0], [-5, 0, 0]],
-            [[5, 0, 0], [5.0, 5.0, 0.0]]])
+            [[5.0, 5.0, 0.0], [5, 0, 0]],
+            [[-5, 0, 0], [5.0, 5.0, 0.0]]])
         self.assertTrue(np.allclose(assumed, disp))
 
         # Tests that the displacement tensor is found correctly even for highly
@@ -93,6 +94,67 @@ class GeometryTests(unittest.TestCase):
         scal = system.to_scaled(orig)
         cart = system.to_cartesian(scal)
         self.assertTrue(np.allclose(orig, cart))
+
+
+class DistanceTests(unittest.TestCase):
+
+    def test_cell_list(self):
+        """Tests that the cell list implementation returns identical results
+        with the naive calculation.
+        """
+        # Cubic system: different cutoffs, smaller and larger than the system.
+        a = 5.64
+        n_copies = 3
+        system = bulk("NaCl", crystalstructure="rocksalt", a=a, cubic=True)
+        system *= (n_copies, n_copies, n_copies)
+        pos = system.get_positions()
+        all_distances_naive = system.get_all_distances()
+        for cutoff in np.array([0.5, 1, 1.5, 2])*a*n_copies:
+            cell_list = CellList(pos, cutoff)
+            for idx in range(len(system)):
+                result = cell_list.get_neighbours_for_index(idx)
+                indices = result.indices
+                distances = result.distances
+                sort_order = np.argsort(indices)
+                indices = np.array(indices)[sort_order]
+                distances = np.array(distances)[sort_order]
+                indices_naive = np.where(np.linalg.norm(pos-pos[idx], axis=1) <= cutoff)[0]
+                indices_naive = indices_naive[indices_naive != idx]
+                distances_naive = all_distances_naive[idx, indices_naive]
+                self.assertTrue(np.array_equal(indices, indices_naive))
+                self.assertTrue(np.allclose(distances, distances_naive, atol=1e-16, rtol=1e-16))
+
+        # Triclinic finite system: cell > cutoff
+        system = Atoms(
+            cell=[
+                [0.0, 2.0, 2.0],
+                [2.0, 0.0, 2.0],
+                [2.0, 2.0, 0.0]
+            ],
+            positions=[
+                [0, 0, 0],
+                [0.95, 0, 0],
+                [0.95*(1+math.cos(76/180*math.pi)), 0.95*math.sin(76/180*math.pi), 0.0]
+            ],
+            symbols=["H", "O", "H"],
+        )
+        system *= (3, 3, 3)
+        pos = system.get_positions()
+        all_distances_naive = system.get_all_distances()
+        for cutoff in np.arange(1, 5):
+            cell_list = CellList(pos, cutoff)
+            for idx in range(len(system)):
+                result = cell_list.get_neighbours_for_index(idx)
+                indices = result.indices
+                distances = result.distances
+                sort_order = np.argsort(indices)
+                indices = np.array(indices)[sort_order]
+                distances = np.array(distances)[sort_order]
+                indices_naive = np.where(np.linalg.norm(pos-pos[idx], axis=1) <= cutoff)[0]
+                indices_naive = indices_naive[indices_naive != idx]
+                distances_naive = all_distances_naive[idx, indices_naive]
+                self.assertTrue(np.array_equal(indices, indices_naive))
+                self.assertTrue(np.allclose(distances, distances_naive, atol=1e-16, rtol=1e-16))
 
 
 class GaussianTests(unittest.TestCase):
@@ -230,6 +292,7 @@ class SpeciesTests(unittest.TestCase):
 if __name__ == '__main__':
     suites = []
     suites.append(unittest.TestLoader().loadTestsFromTestCase(ASETests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(DistanceTests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(GeometryTests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(GaussianTests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(SpeciesTests))
