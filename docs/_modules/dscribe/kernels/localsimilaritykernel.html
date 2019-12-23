@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dscribe.kernels.localsimilaritykernel &mdash; DScribe 0.2.9 documentation</title>
+  <title>dscribe.kernels.localsimilaritykernel &mdash; DScribe 0.3.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                0.2.9
+                0.3.0
               </div>
             
           
@@ -173,24 +173,25 @@
 <span class="sd">See the License for the specific language governing permissions and</span>
 <span class="sd">limitations under the License.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
+<span class="kn">from</span> <span class="nn">builtins</span> <span class="k">import</span> <span class="p">(</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">open</span><span class="p">,</span> <span class="nb">super</span><span class="p">,</span> <span class="nb">range</span><span class="p">,</span> <span class="nb">zip</span><span class="p">,</span> <span class="nb">round</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">pow</span><span class="p">,</span> <span class="nb">object</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">future.utils</span> <span class="k">import</span> <span class="n">with_metaclass</span>
 <span class="kn">from</span> <span class="nn">sklearn.metrics.pairwise</span> <span class="k">import</span> <span class="n">pairwise_kernels</span>
 
 
-<div class="viewcode-block" id="LocalSimilarityKernel"><a class="viewcode-back" href="../../../doc/dscribe.kernels.html#dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel">[docs]</a><span class="k">class</span> <span class="nc">LocalSimilarityKernel</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<div class="viewcode-block" id="LocalSimilarityKernel"><a class="viewcode-back" href="../../../doc/dscribe.kernels.html#dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel">[docs]</a><span class="k">class</span> <span class="nc">LocalSimilarityKernel</span><span class="p">(</span><span class="n">with_metaclass</span><span class="p">(</span><span class="n">ABCMeta</span><span class="p">)):</span>
     <span class="sd">&quot;&quot;&quot;An abstract base class for all kernels that use the similarity of local</span>
 <span class="sd">    atomic environments to compute a global similarity measure.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">coef0</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">kernel_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">normalize_kernel</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">coef0</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">kernel_params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
-<span class="sd">            metric(string or callable): The pairwise metric used for</span>
-<span class="sd">                calculating the local similarity. Accepts any of the sklearn</span>
-<span class="sd">                pairwise metric strings (e.g. &quot;linear&quot;, &quot;rbf&quot;, &quot;laplacian&quot;,</span>
-<span class="sd">                &quot;polynomial&quot;) or a custom callable. A callable should accept</span>
-<span class="sd">                two arguments and the keyword arguments passed to this object</span>
-<span class="sd">                as kernel_params, and should return a floating point number.</span>
+<span class="sd">            kernel(string or callable): Kernel mapping used internally. A</span>
+<span class="sd">                callable should accept two arguments and the keyword arguments</span>
+<span class="sd">                passed to this object as kernel_params, and should return a</span>
+<span class="sd">                floating point number.</span>
 <span class="sd">            gamma(float): Gamma parameter for the RBF, laplacian, polynomial,</span>
 <span class="sd">                exponential chi2 and sigmoid kernels. Interpretation of the</span>
 <span class="sd">                default value is left to the kernel; see the documentation for</span>
@@ -202,17 +203,12 @@
 <span class="sd">            kernel_params(mapping of string to any): Additional parameters</span>
 <span class="sd">                (keyword arguments) for kernel function passed as callable</span>
 <span class="sd">                object.</span>
-<span class="sd">            normalize_kernel(boolean): Whether to normalize the final global</span>
-<span class="sd">                similarity kernel. The normalization is achieved by dividing each</span>
-<span class="sd">                kernel element :math:`K_{ij}` with the factor</span>
-<span class="sd">                :math:`\sqrt{K_{ii}K_{jj}}`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">metric</span> <span class="o">=</span> <span class="n">metric</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">=</span> <span class="n">gamma</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">degree</span> <span class="o">=</span> <span class="n">degree</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">coef0</span> <span class="o">=</span> <span class="n">coef0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kernel_params</span> <span class="o">=</span> <span class="n">kernel_params</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">normalize_kernel</span> <span class="o">=</span> <span class="n">normalize_kernel</span>
 
 <div class="viewcode-block" id="LocalSimilarityKernel.create"><a class="viewcode-back" href="../../../doc/dscribe.kernels.html#dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Creates the kernel matrix based on the given lists of local</span>
@@ -230,10 +226,10 @@
 <span class="sd">            for structure i and j were in features[i] and features[j]</span>
 <span class="sd">            respectively.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">symmetric</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">self_sim</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="n">y</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">y</span> <span class="o">=</span> <span class="n">x</span>
-            <span class="n">symmetric</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">self_sim</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="c1"># First calculate the &quot;raw&quot; pairwise similarity of atomic environments</span>
         <span class="n">n_x</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -244,17 +240,17 @@
             <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_y</span><span class="p">):</span>
 
                 <span class="c1"># Skip lower triangular part for symmetric matrices</span>
-                <span class="k">if</span> <span class="n">symmetric</span> <span class="ow">and</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">i</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">self_sim</span> <span class="ow">and</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">i</span><span class="p">:</span>
                     <span class="k">continue</span>
 
                 <span class="n">x_i</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
 
                 <span class="c1"># Save time on symmetry</span>
-                <span class="k">if</span> <span class="n">symmetric</span> <span class="ow">and</span> <span class="n">j</span> <span class="o">==</span> <span class="n">i</span><span class="p">:</span>
-                    <span class="n">y_j</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">if</span> <span class="n">self_sim</span> <span class="ow">and</span> <span class="n">j</span> <span class="o">==</span> <span class="n">i</span><span class="p">:</span>
+                    <span class="n">C_ij</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pairwise_matrix</span><span class="p">(</span><span class="n">x_i</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">y_j</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
-                <span class="n">C_ij</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pairwise_matrix</span><span class="p">(</span><span class="n">x_i</span><span class="p">,</span> <span class="n">y_j</span><span class="p">)</span>
+                    <span class="n">C_ij</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pairwise_matrix</span><span class="p">(</span><span class="n">x_i</span><span class="p">,</span> <span class="n">y_j</span><span class="p">)</span>
                 <span class="n">C_ij_dict</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">C_ij</span>
 
         <span class="c1"># Calculate the global pairwise similarity between the entire</span>
@@ -264,7 +260,7 @@
             <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_y</span><span class="p">):</span>
 
                 <span class="c1"># Skip lower triangular part for symmetric matrices</span>
-                <span class="k">if</span> <span class="n">symmetric</span> <span class="ow">and</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">i</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">self_sim</span> <span class="ow">and</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">i</span><span class="p">:</span>
                     <span class="k">continue</span>
 
                 <span class="n">C_ij</span> <span class="o">=</span> <span class="n">C_ij_dict</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
@@ -272,35 +268,34 @@
                 <span class="n">K_ij</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">k_ij</span>
 
                 <span class="c1"># Save data also on lower triangular part for symmetric matrices</span>
-                <span class="k">if</span> <span class="n">symmetric</span> <span class="ow">and</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">i</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">self_sim</span> <span class="ow">and</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">i</span><span class="p">:</span>
                     <span class="n">K_ij</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">k_ij</span>
 
-        <span class="c1"># Enforce kernel normalization if requested.</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_kernel</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">symmetric</span><span class="p">:</span>
-                <span class="n">k_ii</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diagonal</span><span class="p">(</span><span class="n">K_ij</span><span class="p">)</span>
-                <span class="n">x_k_ii_sqrt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">k_ii</span><span class="p">)</span>
-                <span class="n">y_k_ii_sqrt</span> <span class="o">=</span> <span class="n">x_k_ii_sqrt</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># Calculate self-similarity for X</span>
-                <span class="n">x_k_ii</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n_x</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_x</span><span class="p">):</span>
-                    <span class="n">x_i</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-                    <span class="n">C_ii</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pairwise_matrix</span><span class="p">(</span><span class="n">x_i</span><span class="p">)</span>
-                    <span class="n">k_ii</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_global_similarity</span><span class="p">(</span><span class="n">C_ii</span><span class="p">)</span>
-                    <span class="n">x_k_ii</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">k_ii</span>
-                <span class="n">x_k_ii_sqrt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x_k_ii</span><span class="p">)</span>
+        <span class="c1"># Normalize the values.</span>
+        <span class="k">if</span> <span class="n">self_sim</span><span class="p">:</span>
+            <span class="n">k_ii</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diagonal</span><span class="p">(</span><span class="n">K_ij</span><span class="p">)</span>
+            <span class="n">x_k_ii_sqrt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">k_ii</span><span class="p">)</span>
+            <span class="n">y_k_ii_sqrt</span> <span class="o">=</span> <span class="n">x_k_ii_sqrt</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Calculate self-similarity for X</span>
+            <span class="n">x_k_ii</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n_x</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_x</span><span class="p">):</span>
+                <span class="n">x_i</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">C_ii</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pairwise_matrix</span><span class="p">(</span><span class="n">x_i</span><span class="p">)</span>
+                <span class="n">k_ii</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_global_similarity</span><span class="p">(</span><span class="n">C_ii</span><span class="p">)</span>
+                <span class="n">x_k_ii</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">k_ii</span>
+            <span class="n">x_k_ii_sqrt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x_k_ii</span><span class="p">)</span>
 
-                <span class="c1"># Calculate self-similarity for Y</span>
-                <span class="n">y_k_ii</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n_y</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_y</span><span class="p">):</span>
-                    <span class="n">y_i</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-                    <span class="n">C_ii</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pairwise_matrix</span><span class="p">(</span><span class="n">y_i</span><span class="p">)</span>
-                    <span class="n">k_ii</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_global_similarity</span><span class="p">(</span><span class="n">C_ii</span><span class="p">)</span>
-                    <span class="n">y_k_ii</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">k_ii</span>
-                <span class="n">y_k_ii_sqrt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">y_k_ii</span><span class="p">)</span>
+            <span class="c1"># Calculate self-similarity for Y</span>
+            <span class="n">y_k_ii</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n_y</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_y</span><span class="p">):</span>
+                <span class="n">y_i</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">C_ii</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pairwise_matrix</span><span class="p">(</span><span class="n">y_i</span><span class="p">)</span>
+                <span class="n">k_ii</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_global_similarity</span><span class="p">(</span><span class="n">C_ii</span><span class="p">)</span>
+                <span class="n">y_k_ii</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">k_ii</span>
+            <span class="n">y_k_ii_sqrt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">y_k_ii</span><span class="p">)</span>
 
-            <span class="n">K_ij</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">x_k_ii_sqrt</span><span class="p">,</span> <span class="n">y_k_ii_sqrt</span><span class="p">)</span>
+        <span class="n">K_ij</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">x_k_ii_sqrt</span><span class="p">,</span> <span class="n">y_k_ii_sqrt</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">K_ij</span></div>
 
@@ -367,16 +362,16 @@
   <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="fa fa-book"> Versions</span>
-      v: 0.2.9
+      v: 0.3.0
       <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
       <dl>
         <dt>Versions</dt>
         
-          <dd><a href="https://singroup.github.io/dscribe/dev">0.3.0a0 (development)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe/dev">0.3.1a0 (development)</a></dd>
         
-          <dd><a href="https://singroup.github.io/dscribe">0.2.9 (latest stable)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe">0.3.0 (latest stable)</a></dd>
         
       </dl>
     </div>
