@@ -176,10 +176,10 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             desc.get_location(("He", "H"))
 
         # Check that slices in the output are correctly empty or filled
-        CO2 = molecule("CO2")
-        H2O = molecule("H2O")
-        co2_out = desc.create(CO2)
-        h2o_out = desc.create(H2O)
+        co2 = molecule("CO2")
+        h2o = molecule("H2O")
+        co2_out = desc.create(co2)
+        h2o_out = desc.create(h2o)
 
         # Check that slices with reversed atomic numbers are identical
         self.assertTrue(loc_ho == loc_oh)
