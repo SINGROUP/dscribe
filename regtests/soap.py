@@ -138,11 +138,11 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         # GTO
         desc = SOAP(species=[1, 8], rbf="gto", crossover=True, rcut=3, nmax=5, lmax=5, periodic=False)
         n_elem_feat = desc.get_number_of_element_features()
-        full_output = desc.create(H2O, pos)
+        full_output = desc.create(H2O, positions=pos)
         desc.crossover = False
-        partial_output = desc.create(H2O, pos)
-        self.assertTrue(np.allclose(full_output[:, 0:n_elem_feat], partial_output[:, 0:n_elem_feat]))
-        self.assertTrue(np.allclose(full_output[:, 2*n_elem_feat:], partial_output[:, n_elem_feat:]))
+        partial_output = desc.create(H2O, positions=pos)
+        self.assertTrue(np.array_equal(full_output[:, 0:n_elem_feat], partial_output[:, 0:n_elem_feat]))
+        self.assertTrue(np.array_equal(full_output[:, 2*n_elem_feat:], partial_output[:, n_elem_feat:]))
 
         # Polynomial
         desc = SOAP(species=[1, 8], rbf="polynomial", crossover=True, rcut=3, nmax=5, lmax=5, periodic=False)
@@ -150,8 +150,8 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         full_output = desc.create(H2O, pos)
         desc.crossover = False
         partial_output = desc.create(H2O, pos)
-        self.assertTrue(np.allclose(full_output[:, 0:n_elem_feat], partial_output[:, 0:n_elem_feat]))
-        self.assertTrue(np.allclose(full_output[:, 2*n_elem_feat:], partial_output[:, n_elem_feat:]))
+        self.assertTrue(np.array_equal(full_output[:, 0:n_elem_feat], partial_output[:, 0:n_elem_feat]))
+        self.assertTrue(np.array_equal(full_output[:, 2*n_elem_feat:], partial_output[:, n_elem_feat:]))
 
     def test_get_location_w_crossover(self):
         """Tests that disabling/enabling crossover works as expected.
@@ -233,10 +233,10 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             loc_oo = desc.get_location(("C", "H"))
 
         # Check that slices in the output are correctly empty or filled
-        CO2 = molecule("CO2")
-        H2O = molecule("H2O")
-        co2_out = desc.create(CO2)
-        h2o_out = desc.create(H2O)
+        co2 = molecule("CO2")
+        h2o = molecule("H2O")
+        co2_out = desc.create(co2)
+        h2o_out = desc.create(h2o)
 
         # H-H
         self.assertTrue(co2_out[:, loc_hh].sum() == 0)
@@ -571,20 +571,22 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
     def test_is_periodic(self):
         """Tests whether periodic images are seen by the descriptor"""
+        system = H2O.copy()
+
         desc = SOAP(species=[1, 6, 8], rcut=10.0, nmax=2, lmax=0, periodic=False, crossover=True,)
 
-        H2O.set_pbc(False)
-        nocell = desc.create(H2O, positions=[[0, 0, 0]])
+        system.set_pbc(False)
+        nocell = desc.create(system, positions=[[0, 0, 0]])
 
-        H2O.set_pbc(True)
-        H2O.set_cell([
+        system.set_pbc(True)
+        system.set_cell([
             [2.0, 0.0, 0.0],
             [0.0, 2.0, 0.0],
             [0.0, 0.0, 2.0]
         ])
         desc = SOAP(species=[1, 6, 8], rcut=10.0, nmax=2, lmax=0, periodic=True, crossover=True)
 
-        cubic_cell = desc.create(H2O, positions=[[0, 0, 0]])
+        cubic_cell = desc.create(system, positions=[[0, 0, 0]])
 
         self.assertTrue(np.sum(cubic_cell) > 0)
 

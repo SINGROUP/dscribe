@@ -156,6 +156,63 @@ class DistanceTests(unittest.TestCase):
                 self.assertTrue(np.array_equal(indices, indices_naive))
                 self.assertTrue(np.allclose(distances, distances_naive, atol=1e-16, rtol=1e-16))
 
+        # System smaller than cutoff
+        system = Atoms(
+            positions=[[0, 0, 0]],
+            symbols=["H"],
+        )
+        pos = system.get_positions()
+        cutoff = 5
+        cell_list = CellList(pos, cutoff)
+        result = cell_list.get_neighbours_for_position(4, 3, 0)
+        indices = result.indices
+        distances = result.distances
+        self.assertEqual(indices, [0])
+        self.assertAlmostEqual(distances[0], 5.0, places=7)
+        result = cell_list.get_neighbours_for_position(4, 3, 0.001)
+        indices = result.indices
+        distances = result.distances
+        self.assertEqual(indices, [])
+        self.assertEqual(distances, [])
+
+        # Position way outside bins
+        system = Atoms(
+            positions=[[0, 0, 0], [1, 1, 1]],
+            symbols=["H", "H"],
+        )
+        pos = system.get_positions()
+        cutoff = 0.2
+        cell_list = CellList(pos, cutoff)
+        result = cell_list.get_neighbours_for_position(500, 500, 500)
+        indices = result.indices
+        distances = result.distances
+        self.assertEqual(indices, [])
+        self.assertEqual(distances, [])
+        result = cell_list.get_neighbours_for_position(-500, -500, -500)
+        indices = result.indices
+        distances = result.distances
+        self.assertEqual(indices, [])
+        self.assertEqual(distances, [])
+
+        # Position at the brink of bins
+        system = Atoms(
+            positions=[[0, 0, 0], [1, 1, 1]],
+            symbols=["H", "H"],
+        )
+        pos = system.get_positions()
+        cutoff = 0.2
+        cell_list = CellList(pos, cutoff)
+        result = cell_list.get_neighbours_for_position(-0.2, 0, 0)
+        indices = result.indices
+        distances = result.distances
+        self.assertEqual(indices, [0])
+        self.assertAlmostEqual(distances[0], 0.2, places=7)
+        result = cell_list.get_neighbours_for_position(1, 1.2, 1)
+        indices = result.indices
+        distances = result.distances
+        self.assertEqual(indices, [1])
+        self.assertAlmostEqual(distances[0], 0.2, places=7)
+
 
 class GaussianTests(unittest.TestCase):
 

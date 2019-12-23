@@ -17,7 +17,6 @@ limitations under the License.
 #include <utility>
 #include <map>
 #include <utility>
-#include <iostream>
 #include <math.h>
 
 using namespace std;
@@ -59,7 +58,7 @@ void CellList::init() {
         };
     };
 
-    // Add small padding to avoid floating piont precision problems at the
+    // Add small padding to avoid floating point precision problems at the
     // boundary
     double padding = 0.0001;
     this->xmin -= padding;
@@ -73,9 +72,9 @@ void CellList::init() {
     this->nx = max(1, int((this->xmax - this->xmin)/this->cutoff));
     this->ny = max(1, int((this->ymax - this->ymin)/this->cutoff));
     this->nz = max(1, int((this->zmax - this->zmin)/this->cutoff));
-    this->dx = (this->xmax - this->xmin)/this->nx;
-    this->dy = (this->ymax - this->ymin)/this->ny;
-    this->dz = (this->zmax - this->zmin)/this->nz;
+    this->dx = max(this->cutoff, (this->xmax - this->xmin)/this->nx);
+    this->dy = max(this->cutoff, (this->ymax - this->ymin)/this->ny);
+    this->dz = max(this->cutoff, (this->zmax - this->zmin)/this->nz);
 
     // Initialize the bin data structure. It is a 4D vector.
     this->bins = vector<vector<vector<vector<int>>>>(this->nx, vector<vector<vector<int>>>(this->ny, vector<vector<int>>(this->nz, vector<int>())));
@@ -108,18 +107,18 @@ CellListResult CellList::getNeighboursForPosition(const double x, const double y
     int j0 = (y - this->ymin)/this->dy;
     int k0 = (z - this->zmin)/this->dz;
 
-    // Find neighbouring bins, check whether current bin is on boundary
-    int istart = i0 > 0 ? i0-1 : 0;
-    int iend = i0 < this->nx-1 ? i0+2 : this->nx;
-    int jstart = j0 > 0 ? j0-1 : 0;
-    int jend = j0 < this->ny-1 ? j0+2 : this->ny;
-    int kstart = k0 > 0 ? k0-1 : 0;
-    int kend = k0 < this->nz-1 ? k0+2 : this->nz;
+    // Get the bin ranges to check for each dimension.
+    int istart = max(i0-1, 0);
+    int iend = min(i0+1, this->nx-1);
+    int jstart = max(j0-1, 0);
+    int jend = min(j0+1, this->ny-1);
+    int kstart = max(k0-1, 0);
+    int kend = min(k0+1, this->nz-1);
 
     // Loop over neighbouring bins
-    for (int i = istart; i < iend; i++){
-        for (int j = jstart; j < jend; j++){
-            for (int k = kstart; k < kend; k++){
+    for (int i = istart; i <= iend; i++){
+        for (int j = jstart; j <= jend; j++){
+            for (int k = kstart; k <= kend; k++){
 
                 // For each atom in the current bin, calculate the actual distance
                 vector<int> binIndices = this->bins[i][j][k];
