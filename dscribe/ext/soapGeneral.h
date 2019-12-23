@@ -21,8 +21,8 @@ double* getYlmi(double* x, double* y, double* z, double* oOri, double* cf, int i
 double* getIntegrand(double* Flir, double* Ylmi,int rsize, int icount, int lMax);
 void getC(double* Cs, double* ws, double* rw2, double * gns, double* summed, double rCut,int lMax, int rsize, int gnsize,int* isCenter, double alpha);
 void accumC(double* Cts, double* Cs, int lMax, int gnsize, int typeI);
-void getPs(double* Ps, double* Cts,  int Nt, int lMax, int gnsize);
-void accumP(double* Phs, double* Ps, int Nt, int lMax, int gnsize, double rCut2, int Ihpos);
-void soapGeneral(py::array_t<double> cArr, py::array_t<double> AposArr, py::array_t<double> HposArr, py::array_t<int> typeNsArr, double rCut, int totalAN, int Nt, int gnsize, int lMax, int Hs, double alpha, py::array_t<double> rwArr, py::array_t<double> gssArr);
+void getPs(double* Ps, double* Cts,  int Nt, int lMax, int gnsize, bool crossover);
+void accumP(double* Phs, double* Ps, int Nt, int lMax, int gnsize, double rCut2, int Ihpos, bool crossover);
+void soapGeneral(py::array_t<double> cArr, py::array_t<double> AposArr, py::array_t<double> HposArr, py::array_t<int> typeNsArr, double rCut, int totalAN, int Nt, int gnsize, int lMax, int Hs, double alpha, py::array_t<double> rwArr, py::array_t<double> gssArr, bool crossover);
 
 #endif

@@ -1699,72 +1699,76 @@ void accumC(double* Cts, double* Cs, int lMax, int gnsize, int typeI)
         }
     }
 }
-void getPs(double* Ps, double* Cts,  int Nt, int lMax, int gnsize){
-  int NN = ((gnsize+1)*gnsize)/2;  int TT = ((Nt+1)*Nt)/2;
-  int nshift = 0;
-  for(int i = 0; i <TT*(lMax+1)*NN; i++){Ps[i] = 0.0;}
-  int tshift = 0;
+void getPs(double* Ps, double* Cts,  int Nt, int lMax, int gnsize, bool crossover)
+{
+    int NN = ((gnsize+1)*gnsize)/2;
+    int nTypeComb = crossover ? ((Nt+1)*Nt)/2 : Nt;
+    int nshift = 0;
+    int tshift = 0;
+    for (int i = 0; i < nTypeComb*(lMax+1)*NN; i++) {
+        Ps[i] = 0.0;
+    }
 
-  for(int t1 = 0; t1 < Nt; t1++){
-    for(int t2 = t1; t2 < Nt; t2++){
-      for(int l = 0; l < lMax+1; l++){
-
-      nshift = 0;
-      for(int n = 0; n < gnsize; n++){
-        for(int nd = n; nd < gnsize; nd++){
-           for(int m = 0; m < l+1; m++){//l+1
-              if(m==0){
-                Ps[tshift*(lMax+1)*NN + l*NN + nshift ]
-                 +=  Cts[2*t1*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*n  + l*2*(lMax+1)] // m=0
-                     *Cts[2*t2*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*nd + l*2*(lMax+1)]; // m=0
-              }else{
-
-                Ps[tshift*(lMax+1)*NN + l*NN + nshift]
-                 +=  2*(Cts[2*t1*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*n  + l*2*(lMax+1) + 2*m]
-                      *Cts[2*t2*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*nd + l*2*(lMax+1) + 2*m]
-		   + Cts[2*t1*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*n  + l*2*(lMax+1) + 2*m + 1]
-                      *Cts[2*t2*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*nd + l*2*(lMax+1) + 2*m + 1]);
-              }
+    for (int t1 = 0; t1 < Nt; t1++) {
+        int t2Limit = crossover ? Nt : t1+1;
+        for (int t2 = t1; t2 < t2Limit; t2++) {
+            for (int l = 0; l < lMax+1; l++) {
+                nshift = 0;
+                for (int n = 0; n < gnsize; n++) {
+                    for (int nd = n; nd < gnsize; nd++) {
+                        for (int m = 0; m < l+1; m++) {
+                            if (m==0) {
+                                Ps[tshift*(lMax+1)*NN + l*NN + nshift ]
+                                    +=  Cts[2*t1*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*n  + l*2*(lMax+1)] // m=0
+                                    *Cts[2*t2*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*nd + l*2*(lMax+1)]; // m=0
+                            } else {
+                                Ps[tshift*(lMax+1)*NN + l*NN + nshift]
+                                    +=  2*(Cts[2*t1*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*n  + l*2*(lMax+1) + 2*m]
+                                            *Cts[2*t2*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*nd + l*2*(lMax+1) + 2*m]
+                                            + Cts[2*t1*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*n  + l*2*(lMax+1) + 2*m + 1]
+                                            *Cts[2*t2*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*nd + l*2*(lMax+1) + 2*m + 1]);
+                            }
+                        }
+                        nshift++;
+                    }
+                }
             }
-
-            nshift++;
-          }
+            tshift++;
         }
-      }
-              tshift++;
     }
-  }
-
 }
-void accumP(double* Phs, double* Ps, int Nt, int lMax, int gnsize, double rCut2, int Ihpos){
-  int tshift=0;
-  int NN = ((gnsize+1)*gnsize)/2;
-  int TT = ((Nt+1)*Nt)/2;
-  for(int t1 = 0; t1 < Nt; t1++){
-    for(int t2 = t1; t2 < Nt; t2++){
-      for(int l = 0; l < lMax+1; l++){
-       int nshift=0;
+void accumP(double* Phs, double* Ps, int Nt, int lMax, int gnsize, double rCut2, int Ihpos, bool crossover)
+{
+    int tshift=0;
+    int NN = ((gnsize+1)*gnsize)/2;
+    int nTypeComb = crossover ? ((Nt+1)*Nt)/2 : Nt;
+    for (int t1 = 0; t1 < Nt; t1++) {
+        int t2Limit = crossover ? Nt : t1+1;
+        for (int t2 = t1; t2 < t2Limit; t2++) {
+            for (int l = 0; l < lMax+1; l++) {
+                int nshift=0;
 
-        // The power spectrum is multiplied by an l-dependent prefactor that comes
-        // from the normalization of the Wigner D matrices. This prefactor is
-        // mentioned in the errata of the original SOAP paper: On representing
-        // chemical environments, Phys. Rev. B 87, 184115 (2013). Here the square
-        // root of the prefactor in the dot-product kernel is used, so that after a
-        // possible dot-product the full prefactor is recovered.
-        double prefactor = PI*sqrt(8.0/(2.0*l+1.0));
+                // The power spectrum is multiplied by an l-dependent prefactor that comes
+                // from the normalization of the Wigner D matrices. This prefactor is
+                // mentioned in the errata of the original SOAP paper: On representing
+                // chemical environments, Phys. Rev. B 87, 184115 (2013). Here the square
+                // root of the prefactor in the dot-product kernel is used, so that after a
+                // possible dot-product the full prefactor is recovered.
+                double prefactor = PI*sqrt(8.0/(2.0*l+1.0));
 
-        for(int n = 0; n < gnsize; n++){
-          for(int nd = n; nd < gnsize; nd++){
-            Phs[Ihpos*TT*(lMax+1)*NN + tshift*(lMax+1)*NN + l*NN + nshift] = prefactor*39.478417604*rCut2*Ps[tshift*(lMax+1)*NN + l*NN + nshift];// 16*9.869604401089358*Ps[tshift*(lMax+1)*NN + l*NN + nshift];
-            nshift++;
-          }
+                for (int n = 0; n < gnsize; n++) {
+                    for (int nd = n; nd < gnsize; nd++) {
+                        Phs[Ihpos*nTypeComb*(lMax+1)*NN + tshift*(lMax+1)*NN + l*NN + nshift] = prefactor*39.478417604*rCut2*Ps[tshift*(lMax+1)*NN + l*NN + nshift];// 16*9.869604401089358*Ps[tshift*(lMax+1)*NN + l*NN + nshift];
+                        nshift++;
+                    }
+                }
+            }
+            tshift++;
         }
-      }
-      tshift++;
     }
-  }
 }
-void soapGeneral(py::array_t<double> cArr, py::array_t<double> AposArr, py::array_t<double> HposArr, py::array_t<int> typeNsArr, double rCut, int totalAN, int Nt,int gnsize, int lMax, int Hs, double alpha, py::array_t<double> rwArr, py::array_t<double> gssArr) {
+void soapGeneral(py::array_t<double> cArr, py::array_t<double> AposArr, py::array_t<double> HposArr, py::array_t<int> typeNsArr, double rCut, int totalAN, int Nt,int gnsize, int lMax, int Hs, double alpha, py::array_t<double> rwArr, py::array_t<double> gssArr, bool crossover)
+{
   double *c = (double*)cArr.request().ptr;
   double *Hpos = (double*)HposArr.request().ptr;
   double *Apos = (double*)AposArr.request().ptr;
@@ -1811,8 +1815,8 @@ void soapGeneral(py::array_t<double> cArr, py::array_t<double> AposArr, py::arra
         free(Flir); free(Ylmi); free(summed);
 
     }
-    getPs(Ps, Cts,  Nt, lMax, gnsize);
-    accumP(c, Ps, Nt, lMax, gnsize,rCut2, Ihpos);
+    getPs(Ps, Cts,  Nt, lMax, gnsize, crossover);
+    accumP(c, Ps, Nt, lMax, gnsize, rCut2, Ihpos, crossover);
   }
 
   free(cf);

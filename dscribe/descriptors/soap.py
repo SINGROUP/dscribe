@@ -330,7 +330,7 @@ class SOAP(Descriptor):
                 nmax=self._nmax,
                 lmax=self._lmax,
                 eta=self._eta,
-                # crossover=self.crossover,
+                crossover=self.crossover,
                 atomic_numbers=None,
             )
 
@@ -388,12 +388,12 @@ class SOAP(Descriptor):
         Args:
             value(bool): Whether to enable species crossover in the output.
         """
-        if not value:
-            if self._rbf == "polynomial":
-                raise ValueError(
-                    "Disabling crossover is not currently supported when using "
-                    "polynomial radial basis function."
-                )
+        # if not value:
+            # if self._rbf == "polynomial":
+                # raise ValueError(
+                    # "Disabling crossover is not currently supported when using "
+                    # "polynomial radial basis function."
+                # )
         self._crossover = value
 
     def get_full_space_output(self, sub_output, sub_elements, full_elements_sorted):
@@ -710,7 +710,7 @@ class SOAP(Descriptor):
 
         return c
 
-    def get_soap_locals_poly(self, system, positions, rcut, nmax, lmax, eta, atomic_numbers=None):
+    def get_soap_locals_poly(self, system, positions, rcut, nmax, lmax, eta, crossover, atomic_numbers=None):
         """Get the SOAP output using polynomial radial basis for the given
         positions.
         Args:
@@ -754,11 +754,17 @@ class SOAP(Descriptor):
         hxyz = positions
 
         # Determine shape
-        c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int((Ntypes*(Ntypes + 1))/2)*Hsize, dtype=np.float64)
-        dscribe.ext.soap_general(c, axyz, hxyz, typeNs, rCutHard, n_atoms, Ntypes, Nsize, lMax, Hsize, c_eta, rx, gss)
+        if crossover:
+            c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int((Ntypes*(Ntypes + 1))/2)*Hsize, dtype=np.float64)
+            shape = (Hsize, int((nmax*(nmax+1))/2)*(lmax+1)*int((Ntypes*(Ntypes+1))/2))
+        else:
+            c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int(Ntypes)*Hsize, dtype=np.float64)
+            shape = (Hsize, int((nmax*(nmax+1))/2)*(lmax+1)*Ntypes)
+
+        # Calculate with extension
+        dscribe.ext.soap_general(c, axyz, hxyz, typeNs, rCutHard, n_atoms, Ntypes, Nsize, lMax, Hsize, c_eta, rx, gss, crossover)
 
         # Reshape from linear to 2D
-        shape = (Hsize, int((nmax*(nmax+1))/2)*(lmax+1)*int((Ntypes*(Ntypes+1))/2))
         c = c.reshape(shape)
 
         return c
