@@ -22,11 +22,6 @@ from scipy.linalg import sqrtm, inv
 from ase import Atoms
 import ase.data
 
-import os
-import glob
-
-from ctypes import POINTER, c_double, c_int, CDLL
-
 from dscribe.descriptors import Descriptor
 from dscribe.core import System
 from dscribe.utils.geometry import get_extended_system
@@ -326,7 +321,7 @@ class SOAP(Descriptor):
                 system,
                 list_positions,
                 rcut=self._rcut,
-                # cutoff_padding=cutoff_padding,
+                cutoff_padding=cutoff_padding,
                 nmax=self._nmax,
                 lmax=self._lmax,
                 eta=self._eta,
@@ -376,25 +371,6 @@ class SOAP(Descriptor):
             self.atomic_number_to_index[atomic_number] = i_atom
             self.index_to_atomic_number[i_atom] = atomic_number
         self.n_elements = len(self._atomic_numbers)
-
-    @property
-    def crossover(self):
-        return self._crossover
-
-    @crossover.setter
-    def crossover(self, value):
-        """Used to check the validity of given crossover settings
-
-        Args:
-            value(bool): Whether to enable species crossover in the output.
-        """
-        # if not value:
-            # if self._rbf == "polynomial":
-                # raise ValueError(
-                    # "Disabling crossover is not currently supported when using "
-                    # "polynomial radial basis function."
-                # )
-        self._crossover = value
 
     def get_full_space_output(self, sub_output, sub_elements, full_elements_sorted):
         """Used to partition the SOAP output to different locations depending
@@ -710,7 +686,7 @@ class SOAP(Descriptor):
 
         return c
 
-    def get_soap_locals_poly(self, system, positions, rcut, nmax, lmax, eta, crossover, atomic_numbers=None):
+    def get_soap_locals_poly(self, system, positions, rcut, cutoff_padding, nmax, lmax, eta, crossover, atomic_numbers=None):
         """Get the SOAP output using polynomial radial basis for the given
         positions.
         Args:
@@ -720,6 +696,8 @@ class SOAP(Descriptor):
             alphas (np.ndarray): The alpha coeffients for the gto-basis.
             betas (np.ndarray): The beta coeffients for the gto-basis.
             rCut (float): Radial cutoff.
+            cutoff_padding (float): The padding that is added for including
+                atoms beyond the cutoff.
             nmax (int): Maximum number of radial basis functions.
             lmax (int): Maximum spherical harmonics degree.
             eta (float): The gaussian smearing width.
@@ -732,7 +710,6 @@ class SOAP(Descriptor):
             np.ndarray: SOAP output with the polynomial radial basis for the
             given positions.
         """
-        rCutHard = rcut + 5
         rx, gss = self.get_basis_poly(rcut, nmax)
 
         n_atoms = len(system)
@@ -762,12 +739,38 @@ class SOAP(Descriptor):
             shape = (Hsize, int((nmax*(nmax+1))/2)*(lmax+1)*Ntypes)
 
         # Calculate with extension
-        dscribe.ext.soap_general(c, axyz, hxyz, typeNs, rCutHard, n_atoms, Ntypes, Nsize, lMax, Hsize, c_eta, rx, gss, crossover)
+        dscribe.ext.soap_general(c, axyz, hxyz, typeNs, rcut, cutoff_padding, n_atoms, Ntypes, Nsize, lMax, Hsize, c_eta, rx, gss, crossover)
 
         # Reshape from linear to 2D
         c = c.reshape(shape)
 
         return c
+
+        # rx, gss = self.get_basis_poly(rcut, nmax)
+
+        # n_atoms = len(system)
+        # positions, Z_sorted, n_species, atomtype_lst = self.flatten_positions(system, atomic_numbers)
+        # centers = np.array(centers)
+        # n_centers = centers.shape[0]
+
+        # # Flatten arrays
+        # gss = gss.flatten()
+
+        # # Determine shape
+        # if crossover:
+            # c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int((n_species*(n_species + 1))/2)*n_centers, dtype=np.float64)
+            # shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*int((n_species*(n_species+1))/2))
+        # else:
+            # c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int(n_species)*n_centers, dtype=np.float64)
+            # shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*n_species)
+
+        # # Calculate with extension
+        # dscribe.ext.soap_general(c, positions, centers, Z_sorted, rcut, cutoff_padding, n_atoms, n_species, nmax, lmax, n_centers, eta, rx, gss, crossover)
+
+        # # Reshape from linear to 2D
+        # c = c.reshape(shape)
+
+        # return c
 
     def get_basis_gto(self, rcut, nmax):
         """Used to calculate the alpha and beta prefactors for the gto-radial
@@ -957,8 +960,7 @@ class SOAP(Descriptor):
         x[98] = 0.998491950639595818
         x[99] = 0.99971372677344123
 
-        rCutVeryHard = rcut+5.0
-        rx = rCutVeryHard*0.5*(x + 1)
+        rx = rcut*0.5*(x + 1)
 
         # Calculate the value of the orthonormalized polynomial basis at the rx
         # values
