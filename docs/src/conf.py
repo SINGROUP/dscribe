@@ -22,10 +22,10 @@
 project = 'DScribe'
 author = 'Lauri Himanen, Eiaki Morooka, F. Federici Canova, Marc Jäger, Y. Ranawat'
 
-version = '0.3.1a0'
-release = '0.3.1a0'
-stable_version = "0.3.0"
-dev_version = "0.3.1a0"
+version = '0.3.2a0'
+release = '0.3.2a0'
+stable_version = "0.3.1"
+dev_version = "0.3.2a0"
 
 # -- General configuration ---------------------------------------------------
 
@@ -41,8 +41,8 @@ html_context = {
     'css_files': ['_static/css/style.css'],
     'current_version': version,
     'versions': [
-        ('{} (development)'.format(dev_version), 'https://singroup.github.io/dscribe/dev'),
-        ('{} (latest stable)'.format(stable_version), 'https://singroup.github.io/dscribe')
+        ('{} (latest stable)'.format(stable_version), 'https://singroup.github.io/dscribe'),
+        ('{} (development)'.format(dev_version), 'https://singroup.github.io/dscribe/dev')
     ]
 }
 

@@ -12,8 +12,8 @@ that can be used in various machine learning tasks related to materials
 science.
 
 .. note::
-   The performance of SOAP has been greatly improved for larger
-   systems starting in version **0.3.0**. Updating is recommended if working
+   The performance of creating the SOAP has been greatly improved for larger
+   systems starting in version **0.3.1**. Updating is recommended if working
    with larger systems.
 
 
