@@ -141,8 +141,8 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         full_output = desc.create(H2O, pos)
         desc.crossover = False
         partial_output = desc.create(H2O, pos)
-        self.assertTrue(np.array_equal(full_output[:, 0:n_elem_feat], partial_output[:, 0:n_elem_feat]))
-        self.assertTrue(np.array_equal(full_output[:, 2*n_elem_feat:], partial_output[:, n_elem_feat:]))
+        self.assertTrue(np.allclose(full_output[:, 0:n_elem_feat], partial_output[:, 0:n_elem_feat]))
+        self.assertTrue(np.allclose(full_output[:, 2*n_elem_feat:], partial_output[:, n_elem_feat:]))
 
         # Polynomial
         desc = SOAP(species=[1, 8], rbf="polynomial", crossover=True, rcut=3, nmax=5, lmax=5, periodic=False)
@@ -150,8 +150,8 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         full_output = desc.create(H2O, pos)
         desc.crossover = False
         partial_output = desc.create(H2O, pos)
-        self.assertTrue(np.array_equal(full_output[:, 0:n_elem_feat], partial_output[:, 0:n_elem_feat]))
-        self.assertTrue(np.array_equal(full_output[:, 2*n_elem_feat:], partial_output[:, n_elem_feat:]))
+        self.assertTrue(np.allclose(full_output[:, 0:n_elem_feat], partial_output[:, 0:n_elem_feat]))
+        self.assertTrue(np.allclose(full_output[:, 2*n_elem_feat:], partial_output[:, n_elem_feat:]))
 
     def test_get_location_w_crossover(self):
         """Tests that disabling/enabling crossover works as expected.
