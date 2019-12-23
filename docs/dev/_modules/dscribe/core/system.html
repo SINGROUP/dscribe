@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dscribe.core.system &mdash; DScribe 0.3.0a0 documentation</title>
+  <title>dscribe.core.system &mdash; DScribe 0.3.1a0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                0.3.0a0
+                0.3.1a0
               </div>
             
           
@@ -306,7 +306,7 @@
 
 <div class="viewcode-block" id="System.get_displacement_tensor"><a class="viewcode-back" href="../../../doc/dscribe.core.html#dscribe.core.system.System.get_displacement_tensor">[docs]</a>    <span class="k">def</span> <span class="nf">get_displacement_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;A matrix where the entry A[i, j, :] is the vector</span>
-<span class="sd">        self.cartesian_pos[i] - self.cartesian_pos[j].</span>
+<span class="sd">        self.cartesian_pos[j] - self.cartesian_pos[i].</span>
 
 <span class="sd">        For periodic systems the distance of an atom from itself is the</span>
 <span class="sd">        smallest displacement of an atom from one of it&#39;s periodic copies, and</span>
@@ -323,13 +323,6 @@
                 <span class="n">cell</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_cell</span><span class="p">(),</span>
                 <span class="n">pbc</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_pbc</span><span class="p">()</span>
             <span class="p">)</span>
-
-            <span class="c1"># Make sure that the lower triangular part is just the upper</span>
-            <span class="c1"># triangular part but negated. The find_mic function in ASE seems</span>
-            <span class="c1"># to not return this directly.</span>
-            <span class="n">n_atoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-            <span class="n">i_down</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tril_indices</span><span class="p">(</span><span class="n">n_atoms</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-            <span class="n">D</span><span class="p">[</span><span class="n">i_down</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">))[</span><span class="n">i_down</span><span class="p">]</span>
 
             <span class="c1"># Figure out the smallest basis vector and set it as</span>
             <span class="c1"># displacement for diagonal</span>
@@ -464,16 +457,16 @@
   <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="fa fa-book"> Versions</span>
-      v: 0.3.0a0
+      v: 0.3.1a0
       <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
       <dl>
         <dt>Versions</dt>
         
-          <dd><a href="https://singroup.github.io/dscribe/dev">0.3.0a0 (development)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe/dev">0.3.1a0 (development)</a></dd>
         
-          <dd><a href="https://singroup.github.io/dscribe">0.2.9 (latest stable)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe">0.3.0 (latest stable)</a></dd>
         
       </dl>
     </div>

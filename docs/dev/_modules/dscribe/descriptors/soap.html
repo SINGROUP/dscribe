@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dscribe.descriptors.soap &mdash; DScribe 0.3.0a0 documentation</title>
+  <title>dscribe.descriptors.soap &mdash; DScribe 0.3.1a0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                0.3.0a0
+                0.3.1a0
               </div>
             
           
@@ -173,21 +173,19 @@
 <span class="sd">See the License for the specific language governing permissions and</span>
 <span class="sd">limitations under the License.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">glob</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-
-<span class="kn">from</span> <span class="nn">ctypes</span> <span class="k">import</span> <span class="n">POINTER</span><span class="p">,</span> <span class="n">c_double</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">CDLL</span>
 
 <span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="k">import</span> <span class="n">coo_matrix</span>
 <span class="kn">from</span> <span class="nn">scipy.special</span> <span class="k">import</span> <span class="n">gamma</span>
 <span class="kn">from</span> <span class="nn">scipy.linalg</span> <span class="k">import</span> <span class="n">sqrtm</span><span class="p">,</span> <span class="n">inv</span>
 
 <span class="kn">from</span> <span class="nn">ase</span> <span class="k">import</span> <span class="n">Atoms</span>
+<span class="kn">import</span> <span class="nn">ase.data</span>
 
 <span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="k">import</span> <span class="n">Descriptor</span>
 <span class="kn">from</span> <span class="nn">dscribe.core</span> <span class="k">import</span> <span class="n">System</span>
 <span class="kn">from</span> <span class="nn">dscribe.utils.geometry</span> <span class="k">import</span> <span class="n">get_extended_system</span>
+<span class="kn">import</span> <span class="nn">dscribe.ext</span>
 
 
 <div class="viewcode-block" id="SOAP"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP">[docs]</a><span class="k">class</span> <span class="nc">SOAP</span><span class="p">(</span><span class="n">Descriptor</span><span class="p">):</span>
@@ -223,7 +221,7 @@
             <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">crossover</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">average</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span>
+            <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
@@ -304,11 +302,6 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_alphas</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_betas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_basis_gto</span><span class="p">(</span><span class="n">rcut</span><span class="p">,</span> <span class="n">nmax</span><span class="p">)</span>
 
         <span class="k">elif</span> <span class="n">rbf</span> <span class="o">==</span> <span class="s2">&quot;polynomial&quot;</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">crossover</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;Disabling crossover is not currently supported when using &quot;</span>
-                    <span class="s2">&quot;polynomial radial basis function&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rbf</span><span class="p">,</span> <span class="n">supported_rbf</span><span class="p">)</span>
-                <span class="p">)</span>
             <span class="k">if</span> <span class="n">lmax</span> <span class="o">&gt;</span> <span class="mi">20</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="s2">&quot;When using the polynomial radial basis set, lmax &quot;</span>
@@ -319,7 +312,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_nmax</span> <span class="o">=</span> <span class="n">nmax</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lmax</span> <span class="o">=</span> <span class="n">lmax</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rbf</span> <span class="o">=</span> <span class="n">rbf</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_crossover</span> <span class="o">=</span> <span class="n">crossover</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">crossover</span> <span class="o">=</span> <span class="n">crossover</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_average</span> <span class="o">=</span> <span class="n">average</span></div>
 
 <div class="viewcode-block" id="SOAP.create"><a class="viewcode-back" href="../../../tutorials/soap.html#dscribe.descriptors.soap.SOAP.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -456,16 +449,16 @@
                         <span class="s2">&quot;list of atom indices and/or positions.&quot;</span>
                     <span class="p">)</span>
 
+        <span class="c1"># The radial cutoff is extended by adding a padding that depends on</span>
+        <span class="c1"># the used used sigma value. The padding is chosen so that the</span>
+        <span class="c1"># gaussians decay to the specified threshold value at the cutoff</span>
+        <span class="c1"># distance.</span>
+        <span class="n">threshold</span> <span class="o">=</span> <span class="mf">0.001</span>
+        <span class="n">cutoff_padding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sigma</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">threshold</span><span class="p">))</span>
+
         <span class="c1"># Create the extended system if periodicity is requested</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">:</span>
-            <span class="c1"># The radial cutoff is extended by adding a padding that depends on</span>
-            <span class="c1"># the used used sigma value. The padding is chosen so that the</span>
-            <span class="c1"># gaussians decay to the specified threshold value at the cutoff</span>
-            <span class="c1"># distance.</span>
-            <span class="n">threshold</span> <span class="o">=</span> <span class="mf">0.000001</span>
-            <span class="n">pad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sigma</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">threshold</span><span class="p">))</span>
-            <span class="n">radial_cutoff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rcut</span><span class="o">+</span><span class="n">pad</span>
-            <span class="n">system</span> <span class="o">=</span> <span class="n">get_extended_system</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">radial_cutoff</span><span class="p">,</span> <span class="n">return_cell_indices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">system</span> <span class="o">=</span> <span class="n">get_extended_system</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rcut</span><span class="o">+</span><span class="n">cutoff_padding</span><span class="p">,</span> <span class="n">return_cell_indices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
         <span class="c1"># Determine the SOAPLite function to call based on periodicity and</span>
         <span class="c1"># rbf</span>
@@ -476,10 +469,11 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_alphas</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_betas</span><span class="p">,</span>
                 <span class="n">rcut</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_rcut</span><span class="p">,</span>
+                <span class="n">cutoff_padding</span><span class="o">=</span><span class="n">cutoff_padding</span><span class="p">,</span>
                 <span class="n">nmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_nmax</span><span class="p">,</span>
                 <span class="n">lmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_lmax</span><span class="p">,</span>
                 <span class="n">eta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_eta</span><span class="p">,</span>
-                <span class="n">crossover</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_crossover</span><span class="p">,</span>
+                <span class="n">crossover</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">crossover</span><span class="p">,</span>
                 <span class="n">atomic_numbers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rbf</span> <span class="o">==</span> <span class="s2">&quot;polynomial&quot;</span><span class="p">:</span>
@@ -487,9 +481,11 @@
                 <span class="n">system</span><span class="p">,</span>
                 <span class="n">list_positions</span><span class="p">,</span>
                 <span class="n">rcut</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_rcut</span><span class="p">,</span>
+                <span class="n">cutoff_padding</span><span class="o">=</span><span class="n">cutoff_padding</span><span class="p">,</span>
                 <span class="n">nmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_nmax</span><span class="p">,</span>
                 <span class="n">lmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_lmax</span><span class="p">,</span>
                 <span class="n">eta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_eta</span><span class="p">,</span>
+                <span class="n">crossover</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">crossover</span><span class="p">,</span>
                 <span class="n">atomic_numbers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="p">)</span>
 
@@ -528,6 +524,14 @@
         <span class="c1"># The species are stored as atomic numbers for internal use.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_species</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
+        <span class="c1"># Setup mappings between atom indices and types</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_to_index</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index_to_atomic_number</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">i_atom</span><span class="p">,</span> <span class="n">atomic_number</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_to_index</span><span class="p">[</span><span class="n">atomic_number</span><span class="p">]</span> <span class="o">=</span> <span class="n">i_atom</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">index_to_atomic_number</span><span class="p">[</span><span class="n">i_atom</span><span class="p">]</span> <span class="o">=</span> <span class="n">atomic_number</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_elements</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">)</span>
+
 <div class="viewcode-block" id="SOAP.get_full_space_output"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_full_space_output">[docs]</a>    <span class="k">def</span> <span class="nf">get_full_space_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sub_output</span><span class="p">,</span> <span class="n">sub_elements</span><span class="p">,</span> <span class="n">full_elements_sorted</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Used to partition the SOAP output to different locations depending</span>
 <span class="sd">        on the interacting elements. SOAPLite return the output partitioned by</span>
@@ -558,7 +562,7 @@
 
         <span class="c1"># When crossover is enabled, we need to store the contents for all</span>
         <span class="c1"># unique species combinations</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_crossover</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crossover</span><span class="p">:</span>
             <span class="n">n_elem_sub</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sub_elements</span><span class="p">)</span>
             <span class="n">n_elem_full</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">full_elements_sorted</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">i_sub</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_elem_sub</span><span class="p">):</span>
@@ -645,7 +649,7 @@
 <span class="sd">            int: Number of features for this descriptor.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">n_elems</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_crossover</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crossover</span><span class="p">:</span>
             <span class="n">n_blocks</span> <span class="o">=</span> <span class="n">n_elems</span> <span class="o">*</span> <span class="p">(</span><span class="n">n_elems</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">n_blocks</span> <span class="o">=</span> <span class="n">n_elems</span>
@@ -654,7 +658,107 @@
 
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_element_features</span> <span class="o">*</span> <span class="n">n_blocks</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="SOAP.get_location"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_location">[docs]</a>    <span class="k">def</span> <span class="nf">get_location</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Can be used to query the location of a species combination in the</span>
+<span class="sd">        the flattened output.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            species(tuple): A tuple containing a species combination as</span>
+<span class="sd">                chemical symbols or atomic numbers. The tuple can be for</span>
+<span class="sd">                example: (&quot;H&quot;, &quot;O&quot;) or (1, 6)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            slice: slice containing the location of the specified species</span>
+<span class="sd">            combination. The location is given as a python slice-object, that</span>
+<span class="sd">            can be directly used to target ranges in the output.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If the requested species combination is not in the</span>
+<span class="sd">            output or if invalid species defined.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Change chemical elements into atomic numbers</span>
+        <span class="n">numbers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">specie</span> <span class="ow">in</span> <span class="n">species</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">specie</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">specie</span> <span class="o">=</span> <span class="n">ase</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">atomic_numbers</span><span class="p">[</span><span class="n">specie</span><span class="p">]</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid chemical species: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">specie</span><span class="p">))</span>
+            <span class="n">numbers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">specie</span><span class="p">)</span>
+
+        <span class="c1"># Check that the given atomic numbers are supported</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_atomic_numbers</span><span class="p">(</span><span class="n">numbers</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">crossover</span> <span class="ow">and</span> <span class="n">numbers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">numbers</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;The output does not have pairwise terms as you have not &quot;</span>
+                <span class="s2">&quot;enabled species crossover for SOAP. See the &#39;crossover&#39; &quot;</span>
+                <span class="s2">&quot;attribute.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Change into internal indexing</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_to_index</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">numbers</span><span class="p">]</span>
+        <span class="n">n_elem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_elements</span>
+        <span class="n">n_elem_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_number_of_element_features</span><span class="p">()</span>
+
+        <span class="c1"># Makes sure that the upper diagonal part is accessed (idx2 &gt;= idx1)</span>
+        <span class="n">idx1</span> <span class="o">=</span> <span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">idx2</span> <span class="o">=</span> <span class="n">indices</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">idx1</span> <span class="o">&gt;</span> <span class="n">idx2</span><span class="p">:</span>
+            <span class="n">idx1</span><span class="p">,</span> <span class="n">idx2</span> <span class="o">=</span> <span class="n">idx2</span><span class="p">,</span> <span class="n">idx1</span>
+
+        <span class="c1"># With crossover</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crossover</span><span class="p">:</span>
+            <span class="n">shift</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_flattened_index</span><span class="p">(</span><span class="n">idx1</span><span class="p">,</span> <span class="n">idx2</span><span class="p">,</span> <span class="n">n_elem</span><span class="p">)</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">shift</span><span class="o">*</span><span class="n">n_elem_features</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="p">(</span><span class="n">shift</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n_elem_features</span>
+        <span class="c1"># Without crossover</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">idx1</span><span class="o">*</span><span class="n">n_elem_features</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="p">(</span><span class="n">idx1</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n_elem_features</span>
+
+        <span class="k">return</span> <span class="nb">slice</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="SOAP.flatten_positions"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.flatten_positions">[docs]</a>    <span class="k">def</span> <span class="nf">flatten_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">atomic_numbers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Takes an ase Atoms object and returns flattened numpy arrays for the</span>
+<span class="sd">        C-extension to use.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            system (ase.atoms): The system to convert.</span>
+<span class="sd">            atomic_numbers(): The atomic numbers to consider. Atoms that do not</span>
+<span class="sd">                have these atomic numbers are ignored.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (np.ndarray, list, int, np.ndarray): Returns the positions</span>
+<span class="sd">            flattened and sorted by atomic number, atomic numbers flattened and</span>
+<span class="sd">            sorted by atomic number, number of different species and the sorted</span>
+<span class="sd">            set of atomic numbers.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">Z</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">()</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
+
+        <span class="c1"># Get a sorted list of atom types</span>
+        <span class="k">if</span> <span class="n">atomic_numbers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">atomtype_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">atomic_numbers</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">atomtype_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">Z</span><span class="p">)</span>
+        <span class="n">atomic_numbers_sorted</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">atomtype_set</span><span class="p">))</span>
+
+        <span class="c1"># Form a flattened list of atomic positions, sorted by atomic type</span>
+        <span class="n">pos_lst</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">z_lst</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">atomtype</span> <span class="ow">in</span> <span class="n">atomic_numbers_sorted</span><span class="p">:</span>
+            <span class="n">condition</span> <span class="o">=</span> <span class="n">Z</span> <span class="o">==</span> <span class="n">atomtype</span>
+            <span class="n">pos_onetype</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="n">condition</span><span class="p">]</span>
+            <span class="n">z_onetype</span> <span class="o">=</span> <span class="n">Z</span><span class="p">[</span><span class="n">condition</span><span class="p">]</span>
+            <span class="n">pos_lst</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pos_onetype</span><span class="p">)</span>
+            <span class="n">z_lst</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">z_onetype</span><span class="p">)</span>
+        <span class="n">n_species</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">atomic_numbers_sorted</span><span class="p">)</span>
+        <span class="n">positions_sorted</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">pos_lst</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">atomic_numbers_sorted</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">z_lst</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">positions_sorted</span><span class="p">,</span> <span class="n">atomic_numbers_sorted</span><span class="p">,</span> <span class="n">n_species</span><span class="p">,</span> <span class="n">atomic_numbers_sorted</span></div>
+
+<div class="viewcode-block" id="SOAP.flatten_positions_old"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.flatten_positions_old">[docs]</a>    <span class="k">def</span> <span class="nf">flatten_positions_old</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">atomic_numbers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Takes an ase Atoms object and returns numpy arrays and integers</span>
 <span class="sd">        which are read by the internal clusgeo. Apos is currently a flattened</span>
 <span class="sd">        out numpy array</span>
@@ -693,17 +797,19 @@
 
         <span class="k">return</span> <span class="n">positions_sorted</span><span class="p">,</span> <span class="n">n_atoms_per_type</span><span class="p">,</span> <span class="n">n_species</span><span class="p">,</span> <span class="n">atomic_numbers_sorted</span></div>
 
-<div class="viewcode-block" id="SOAP.get_soap_locals_gto"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_soap_locals_gto">[docs]</a>    <span class="k">def</span> <span class="nf">get_soap_locals_gto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="p">,</span> <span class="n">alphas</span><span class="p">,</span> <span class="n">betas</span><span class="p">,</span> <span class="n">rcut</span><span class="p">,</span> <span class="n">nmax</span><span class="p">,</span> <span class="n">lmax</span><span class="p">,</span> <span class="n">eta</span><span class="p">,</span> <span class="n">crossover</span><span class="p">,</span> <span class="n">atomic_numbers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="SOAP.get_soap_locals_gto"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_soap_locals_gto">[docs]</a>    <span class="k">def</span> <span class="nf">get_soap_locals_gto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">centers</span><span class="p">,</span> <span class="n">alphas</span><span class="p">,</span> <span class="n">betas</span><span class="p">,</span> <span class="n">rcut</span><span class="p">,</span> <span class="n">cutoff_padding</span><span class="p">,</span> <span class="n">nmax</span><span class="p">,</span> <span class="n">lmax</span><span class="p">,</span> <span class="n">eta</span><span class="p">,</span> <span class="n">crossover</span><span class="p">,</span> <span class="n">atomic_numbers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get the SOAP output for the given positions using the gto radial</span>
 <span class="sd">        basis.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            system(ase.Atoms): Atomic structure for which the SOAP output is</span>
+<span class="sd">            system (ase.Atoms): Atomic structure for which the SOAP output is</span>
 <span class="sd">                calculated.</span>
-<span class="sd">            positions(np.ndarray): Positions at which to calculate SOAP.</span>
+<span class="sd">            centers (np.ndarray): Positions at which to calculate SOAP.</span>
 <span class="sd">            alphas (np.ndarray): The alpha coeffients for the gto-basis.</span>
 <span class="sd">            betas (np.ndarray): The beta coeffients for the gto-basis.</span>
-<span class="sd">            rCut (float): Radial cutoff.</span>
+<span class="sd">            rcut (float): Radial cutoff.</span>
+<span class="sd">            cutoff_padding (float): The padding that is added for including</span>
+<span class="sd">                atoms beyond the cutoff.</span>
 <span class="sd">            nmax (int): Maximum number of radial basis functions.</span>
 <span class="sd">            lmax (int): Maximum spherical harmonics degree.</span>
 <span class="sd">            eta (float): The gaussian smearing width.</span>
@@ -716,72 +822,42 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            np.ndarray: SOAP output with the gto radial basis for the given positions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">rCutHard</span> <span class="o">=</span> <span class="n">rcut</span> <span class="o">+</span> <span class="mi">5</span>
-
         <span class="n">n_atoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
-        <span class="n">Apos</span><span class="p">,</span> <span class="n">typeNs</span><span class="p">,</span> <span class="n">py_Ntypes</span><span class="p">,</span> <span class="n">atomtype_lst</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten_positions</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">atomic_numbers</span><span class="p">)</span>
-        <span class="n">positions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">positions</span><span class="p">)</span>
-        <span class="n">py_Hsize</span> <span class="o">=</span> <span class="n">positions</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-
-        <span class="c1"># Flatten arrays</span>
-        <span class="n">positions</span> <span class="o">=</span> <span class="n">positions</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="n">positions</span><span class="p">,</span> <span class="n">Z_sorted</span><span class="p">,</span> <span class="n">n_species</span><span class="p">,</span> <span class="n">atomtype_lst</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten_positions</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">atomic_numbers</span><span class="p">)</span>
+        <span class="n">centers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">centers</span><span class="p">)</span>
+        <span class="n">n_centers</span> <span class="o">=</span> <span class="n">centers</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">centers</span> <span class="o">=</span> <span class="n">centers</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
         <span class="n">alphas</span> <span class="o">=</span> <span class="n">alphas</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
         <span class="n">betas</span> <span class="o">=</span> <span class="n">betas</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
 
-        <span class="c1"># Convert types</span>
-        <span class="n">lMax</span> <span class="o">=</span> <span class="n">c_int</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
-        <span class="n">Hsize</span> <span class="o">=</span> <span class="n">c_int</span><span class="p">(</span><span class="n">py_Hsize</span><span class="p">)</span>
-        <span class="n">Ntypes</span> <span class="o">=</span> <span class="n">c_int</span><span class="p">(</span><span class="n">py_Ntypes</span><span class="p">)</span>
-        <span class="n">n_atoms</span> <span class="o">=</span> <span class="n">c_int</span><span class="p">(</span><span class="n">n_atoms</span><span class="p">)</span>
-        <span class="n">rCutHard</span> <span class="o">=</span> <span class="n">c_double</span><span class="p">(</span><span class="n">rCutHard</span><span class="p">)</span>
-        <span class="n">Nsize</span> <span class="o">=</span> <span class="n">c_int</span><span class="p">(</span><span class="n">nmax</span><span class="p">)</span>
-        <span class="n">c_eta</span> <span class="o">=</span> <span class="n">c_double</span><span class="p">(</span><span class="n">eta</span><span class="p">)</span>
-        <span class="n">typeNs</span> <span class="o">=</span> <span class="p">(</span><span class="n">c_int</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">typeNs</span><span class="p">))(</span><span class="o">*</span><span class="n">typeNs</span><span class="p">)</span>
-        <span class="n">alphas</span> <span class="o">=</span> <span class="p">(</span><span class="n">c_double</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">alphas</span><span class="p">))(</span><span class="o">*</span><span class="n">alphas</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
-        <span class="n">betas</span> <span class="o">=</span> <span class="p">(</span><span class="n">c_double</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">betas</span><span class="p">))(</span><span class="o">*</span><span class="n">betas</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
-        <span class="n">axyz</span> <span class="o">=</span> <span class="p">(</span><span class="n">c_double</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">Apos</span><span class="p">))(</span><span class="o">*</span><span class="n">Apos</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
-        <span class="n">hxyz</span> <span class="o">=</span> <span class="p">(</span><span class="n">c_double</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">positions</span><span class="p">))(</span><span class="o">*</span><span class="n">positions</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
-
-        <span class="c1"># Calculate with C-extension</span>
-        <span class="n">_PATH_TO_SOAPLITE_SO</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
-        <span class="n">_SOAPLITE_SOFILES</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">_PATH_TO_SOAPLITE_SO</span><span class="p">,</span> <span class="s2">&quot;/../libsoap/libsoap*.*so&quot;</span><span class="p">]))</span>
-        <span class="k">if</span> <span class="n">py_Ntypes</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">crossover</span><span class="p">):</span>
-            <span class="n">substring</span> <span class="o">=</span> <span class="s2">&quot;libsoap/libsoapPySig.&quot;</span>
-            <span class="n">libsoap</span> <span class="o">=</span> <span class="n">CDLL</span><span class="p">(</span><span class="nb">next</span><span class="p">((</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">_SOAPLITE_SOFILES</span> <span class="k">if</span> <span class="n">substring</span> <span class="ow">in</span> <span class="n">s</span><span class="p">),</span> <span class="kc">None</span><span class="p">))</span>
-            <span class="n">libsoap</span><span class="o">.</span><span class="n">soap</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">c_double</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_double</span><span class="p">]</span>
-            <span class="n">libsoap</span><span class="o">.</span><span class="n">soap</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">)</span>
-            <span class="n">c</span> <span class="o">=</span> <span class="p">(</span><span class="n">c_double</span><span class="o">*</span><span class="p">(</span><span class="nb">int</span><span class="p">((</span><span class="n">nmax</span><span class="o">*</span><span class="p">(</span><span class="n">nmax</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">lmax</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">py_Ntypes</span><span class="o">*</span><span class="n">py_Hsize</span><span class="p">))()</span>
-            <span class="n">libsoap</span><span class="o">.</span><span class="n">soap</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">axyz</span><span class="p">,</span> <span class="n">hxyz</span><span class="p">,</span> <span class="n">alphas</span><span class="p">,</span> <span class="n">betas</span><span class="p">,</span> <span class="n">typeNs</span><span class="p">,</span> <span class="n">rCutHard</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">,</span> <span class="n">Ntypes</span><span class="p">,</span> <span class="n">Nsize</span><span class="p">,</span> <span class="n">lMax</span><span class="p">,</span> <span class="n">Hsize</span><span class="p">,</span> <span class="n">c_eta</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">substring</span> <span class="o">=</span> <span class="s2">&quot;libsoap/libsoapGTO.&quot;</span>
-            <span class="n">libsoapGTO</span> <span class="o">=</span> <span class="n">CDLL</span><span class="p">(</span><span class="nb">next</span><span class="p">((</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">_SOAPLITE_SOFILES</span> <span class="k">if</span> <span class="n">substring</span> <span class="ow">in</span> <span class="n">s</span><span class="p">),</span> <span class="kc">None</span><span class="p">))</span>
-            <span class="n">libsoapGTO</span><span class="o">.</span><span class="n">soap</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">c_double</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_double</span><span class="p">]</span>
-            <span class="n">libsoapGTO</span><span class="o">.</span><span class="n">soap</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">)</span>
-            <span class="n">c</span> <span class="o">=</span> <span class="p">(</span><span class="n">c_double</span><span class="o">*</span><span class="p">(</span><span class="nb">int</span><span class="p">((</span><span class="n">nmax</span><span class="o">*</span><span class="p">(</span><span class="n">nmax</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">lmax</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="nb">int</span><span class="p">((</span><span class="n">py_Ntypes</span><span class="o">*</span><span class="p">(</span><span class="n">py_Ntypes</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">py_Hsize</span><span class="p">))()</span>
-            <span class="n">libsoapGTO</span><span class="o">.</span><span class="n">soap</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">axyz</span><span class="p">,</span> <span class="n">hxyz</span><span class="p">,</span> <span class="n">alphas</span><span class="p">,</span> <span class="n">betas</span><span class="p">,</span> <span class="n">typeNs</span><span class="p">,</span> <span class="n">rCutHard</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">,</span> <span class="n">Ntypes</span><span class="p">,</span> <span class="n">Nsize</span><span class="p">,</span> <span class="n">lMax</span><span class="p">,</span> <span class="n">Hsize</span><span class="p">,</span> <span class="n">c_eta</span><span class="p">)</span>
-
+        <span class="c1"># Determine shape</span>
         <span class="k">if</span> <span class="n">crossover</span><span class="p">:</span>
-            <span class="n">crosTypes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">py_Ntypes</span><span class="o">*</span><span class="p">(</span><span class="n">py_Ntypes</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
-            <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">py_Hsize</span><span class="p">,</span> <span class="nb">int</span><span class="p">((</span><span class="n">nmax</span><span class="o">*</span><span class="p">(</span><span class="n">nmax</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">lmax</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">crosTypes</span><span class="p">)</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">int</span><span class="p">((</span><span class="n">nmax</span><span class="o">*</span><span class="p">(</span><span class="n">nmax</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">lmax</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="nb">int</span><span class="p">((</span><span class="n">n_species</span><span class="o">*</span><span class="p">(</span><span class="n">n_species</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">n_centers</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_centers</span><span class="p">,</span> <span class="nb">int</span><span class="p">((</span><span class="n">nmax</span><span class="o">*</span><span class="p">(</span><span class="n">nmax</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">lmax</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="nb">int</span><span class="p">((</span><span class="n">n_species</span><span class="o">*</span><span class="p">(</span><span class="n">n_species</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">py_Hsize</span><span class="p">,</span> <span class="nb">int</span><span class="p">((</span><span class="n">nmax</span><span class="o">*</span><span class="p">(</span><span class="n">nmax</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">lmax</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">py_Ntypes</span><span class="p">)</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">int</span><span class="p">((</span><span class="n">nmax</span><span class="o">*</span><span class="p">(</span><span class="n">nmax</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">lmax</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="nb">int</span><span class="p">(</span><span class="n">n_species</span><span class="p">)</span><span class="o">*</span><span class="n">n_centers</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_centers</span><span class="p">,</span> <span class="nb">int</span><span class="p">((</span><span class="n">nmax</span><span class="o">*</span><span class="p">(</span><span class="n">nmax</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">lmax</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n_species</span><span class="p">)</span>
 
-        <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ctypeslib</span><span class="o">.</span><span class="n">as_array</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
-        <span class="n">a</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+        <span class="c1"># Calculate with extension</span>
+        <span class="n">dscribe</span><span class="o">.</span><span class="n">ext</span><span class="o">.</span><span class="n">soap_gto</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">positions</span><span class="p">,</span> <span class="n">centers</span><span class="p">,</span> <span class="n">alphas</span><span class="p">,</span> <span class="n">betas</span><span class="p">,</span> <span class="n">Z_sorted</span><span class="p">,</span> <span class="n">rcut</span><span class="p">,</span> <span class="n">cutoff_padding</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">,</span> <span class="n">n_species</span><span class="p">,</span> <span class="n">nmax</span><span class="p">,</span> <span class="n">lmax</span><span class="p">,</span> <span class="n">n_centers</span><span class="p">,</span> <span class="n">eta</span><span class="p">,</span> <span class="n">crossover</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">a</span></div>
+        <span class="c1"># Reshape from linear to 2D</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
 
-<div class="viewcode-block" id="SOAP.get_soap_locals_poly"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_soap_locals_poly">[docs]</a>    <span class="k">def</span> <span class="nf">get_soap_locals_poly</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="p">,</span> <span class="n">rcut</span><span class="p">,</span> <span class="n">nmax</span><span class="p">,</span> <span class="n">lmax</span><span class="p">,</span> <span class="n">eta</span><span class="p">,</span> <span class="n">atomic_numbers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">c</span></div>
+
+<div class="viewcode-block" id="SOAP.get_soap_locals_poly"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_soap_locals_poly">[docs]</a>    <span class="k">def</span> <span class="nf">get_soap_locals_poly</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">centers</span><span class="p">,</span> <span class="n">rcut</span><span class="p">,</span> <span class="n">cutoff_padding</span><span class="p">,</span> <span class="n">nmax</span><span class="p">,</span> <span class="n">lmax</span><span class="p">,</span> <span class="n">eta</span><span class="p">,</span> <span class="n">crossover</span><span class="p">,</span> <span class="n">atomic_numbers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get the SOAP output using polynomial radial basis for the given</span>
 <span class="sd">        positions.</span>
-
 <span class="sd">        Args:</span>
 <span class="sd">            system(ase.Atoms): Atomic structure for which the SOAP output is</span>
 <span class="sd">                calculated.</span>
-<span class="sd">            positions(np.ndarray): Positions at which to calculate SOAP.</span>
+<span class="sd">            centers(np.ndarray): Positions at which to calculate SOAP.</span>
 <span class="sd">            alphas (np.ndarray): The alpha coeffients for the gto-basis.</span>
 <span class="sd">            betas (np.ndarray): The beta coeffients for the gto-basis.</span>
 <span class="sd">            rCut (float): Radial cutoff.</span>
+<span class="sd">            cutoff_padding (float): The padding that is added for including</span>
+<span class="sd">                atoms beyond the cutoff.</span>
 <span class="sd">            nmax (int): Maximum number of radial basis functions.</span>
 <span class="sd">            lmax (int): Maximum spherical harmonics degree.</span>
 <span class="sd">            eta (float): The gaussian smearing width.</span>
@@ -790,57 +866,35 @@
 <span class="sd">                which to calculate the output. If None, all species are included.</span>
 <span class="sd">                If given the output is calculated only for the given species and is</span>
 <span class="sd">                ordered by atomic number.</span>
-
 <span class="sd">        Returns:</span>
 <span class="sd">            np.ndarray: SOAP output with the polynomial radial basis for the</span>
 <span class="sd">            given positions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">rCutHard</span> <span class="o">=</span> <span class="n">rcut</span> <span class="o">+</span> <span class="mi">5</span>
         <span class="n">rx</span><span class="p">,</span> <span class="n">gss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_basis_poly</span><span class="p">(</span><span class="n">rcut</span><span class="p">,</span> <span class="n">nmax</span><span class="p">)</span>
 
         <span class="n">n_atoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
-        <span class="n">Apos</span><span class="p">,</span> <span class="n">typeNs</span><span class="p">,</span> <span class="n">py_Ntypes</span><span class="p">,</span> <span class="n">atomtype_lst</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten_positions</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">atomic_numbers</span><span class="p">)</span>
-        <span class="n">positions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">positions</span><span class="p">)</span>
-        <span class="n">py_Hsize</span> <span class="o">=</span> <span class="n">positions</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">positions</span><span class="p">,</span> <span class="n">Z_sorted</span><span class="p">,</span> <span class="n">n_species</span><span class="p">,</span> <span class="n">atomtype_lst</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten_positions</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">atomic_numbers</span><span class="p">)</span>
+        <span class="n">centers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">centers</span><span class="p">)</span>
+        <span class="n">n_centers</span> <span class="o">=</span> <span class="n">centers</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="c1"># Flatten arrays</span>
-        <span class="n">positions</span> <span class="o">=</span> <span class="n">positions</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
         <span class="n">gss</span> <span class="o">=</span> <span class="n">gss</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
 
-        <span class="c1"># Convert types</span>
-        <span class="n">lMax</span> <span class="o">=</span> <span class="n">c_int</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
-        <span class="n">Hsize</span> <span class="o">=</span> <span class="n">c_int</span><span class="p">(</span><span class="n">py_Hsize</span><span class="p">)</span>
-        <span class="n">Ntypes</span> <span class="o">=</span> <span class="n">c_int</span><span class="p">(</span><span class="n">py_Ntypes</span><span class="p">)</span>
-        <span class="n">n_atoms</span> <span class="o">=</span> <span class="n">c_int</span><span class="p">(</span><span class="n">n_atoms</span><span class="p">)</span>
-        <span class="n">rCutHard</span> <span class="o">=</span> <span class="n">c_double</span><span class="p">(</span><span class="n">rCutHard</span><span class="p">)</span>
-        <span class="n">Nsize</span> <span class="o">=</span> <span class="n">c_int</span><span class="p">(</span><span class="n">nmax</span><span class="p">)</span>
-        <span class="n">c_eta</span> <span class="o">=</span> <span class="n">c_double</span><span class="p">(</span><span class="n">eta</span><span class="p">)</span>
-        <span class="n">typeNs</span> <span class="o">=</span> <span class="p">(</span><span class="n">c_int</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">typeNs</span><span class="p">))(</span><span class="o">*</span><span class="n">typeNs</span><span class="p">)</span>
-        <span class="n">axyz</span> <span class="o">=</span> <span class="p">(</span><span class="n">c_double</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">Apos</span><span class="p">))(</span><span class="o">*</span><span class="n">Apos</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
-        <span class="n">hxyz</span> <span class="o">=</span> <span class="p">(</span><span class="n">c_double</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">positions</span><span class="p">))(</span><span class="o">*</span><span class="n">positions</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
-        <span class="n">rx</span> <span class="o">=</span> <span class="p">(</span><span class="n">c_double</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)(</span><span class="o">*</span><span class="n">rx</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
-        <span class="n">gss</span> <span class="o">=</span> <span class="p">(</span><span class="n">c_double</span> <span class="o">*</span> <span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">nmax</span><span class="p">))(</span><span class="o">*</span><span class="n">gss</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+        <span class="c1"># Determine shape</span>
+        <span class="k">if</span> <span class="n">crossover</span><span class="p">:</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">int</span><span class="p">((</span><span class="n">nmax</span><span class="o">*</span><span class="p">(</span><span class="n">nmax</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">lmax</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="nb">int</span><span class="p">((</span><span class="n">n_species</span><span class="o">*</span><span class="p">(</span><span class="n">n_species</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">n_centers</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_centers</span><span class="p">,</span> <span class="nb">int</span><span class="p">((</span><span class="n">nmax</span><span class="o">*</span><span class="p">(</span><span class="n">nmax</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">lmax</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="nb">int</span><span class="p">((</span><span class="n">n_species</span><span class="o">*</span><span class="p">(</span><span class="n">n_species</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">int</span><span class="p">((</span><span class="n">nmax</span><span class="o">*</span><span class="p">(</span><span class="n">nmax</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">lmax</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="nb">int</span><span class="p">(</span><span class="n">n_species</span><span class="p">)</span><span class="o">*</span><span class="n">n_centers</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_centers</span><span class="p">,</span> <span class="nb">int</span><span class="p">((</span><span class="n">nmax</span><span class="o">*</span><span class="p">(</span><span class="n">nmax</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">lmax</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n_species</span><span class="p">)</span>
 
-        <span class="c1"># Calculate with C-extension</span>
-        <span class="n">_PATH_TO_SOAPLITE_SO</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
-        <span class="n">_SOAPLITE_SOFILES</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">_PATH_TO_SOAPLITE_SO</span><span class="p">,</span> <span class="s2">&quot;/../libsoap/libsoapG*.*so&quot;</span><span class="p">]))</span>
-        <span class="n">substring</span> <span class="o">=</span> <span class="s2">&quot;libsoap/libsoapGeneral.&quot;</span>
-        <span class="n">libsoap</span> <span class="o">=</span> <span class="n">CDLL</span><span class="p">(</span><span class="nb">next</span><span class="p">((</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">_SOAPLITE_SOFILES</span> <span class="k">if</span> <span class="n">substring</span> <span class="ow">in</span> <span class="n">s</span><span class="p">),</span> <span class="kc">None</span><span class="p">))</span>
-        <span class="n">libsoap</span><span class="o">.</span><span class="n">soap</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span>
-                <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">c_double</span><span class="p">,</span>
-                <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span>
-                <span class="n">c_double</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">)]</span>
-        <span class="n">libsoap</span><span class="o">.</span><span class="n">soap</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">)</span>
+        <span class="c1"># Calculate with extension</span>
+        <span class="n">dscribe</span><span class="o">.</span><span class="n">ext</span><span class="o">.</span><span class="n">soap_general</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">positions</span><span class="p">,</span> <span class="n">centers</span><span class="p">,</span> <span class="n">Z_sorted</span><span class="p">,</span> <span class="n">rcut</span><span class="p">,</span> <span class="n">cutoff_padding</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">,</span> <span class="n">n_species</span><span class="p">,</span> <span class="n">nmax</span><span class="p">,</span> <span class="n">lmax</span><span class="p">,</span> <span class="n">n_centers</span><span class="p">,</span> <span class="n">eta</span><span class="p">,</span> <span class="n">rx</span><span class="p">,</span> <span class="n">gss</span><span class="p">,</span> <span class="n">crossover</span><span class="p">)</span>
 
-        <span class="n">c</span> <span class="o">=</span> <span class="p">(</span><span class="n">c_double</span><span class="o">*</span><span class="p">(</span><span class="nb">int</span><span class="p">((</span><span class="n">nmax</span><span class="o">*</span><span class="p">(</span><span class="n">nmax</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">lmax</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="nb">int</span><span class="p">((</span><span class="n">py_Ntypes</span><span class="o">*</span><span class="p">(</span><span class="n">py_Ntypes</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">py_Hsize</span><span class="p">))()</span>
-        <span class="n">libsoap</span><span class="o">.</span><span class="n">soap</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">axyz</span><span class="p">,</span> <span class="n">hxyz</span><span class="p">,</span> <span class="n">typeNs</span><span class="p">,</span> <span class="n">rCutHard</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">,</span> <span class="n">Ntypes</span><span class="p">,</span> <span class="n">Nsize</span><span class="p">,</span> <span class="n">lMax</span><span class="p">,</span> <span class="n">Hsize</span><span class="p">,</span> <span class="n">c_eta</span><span class="p">,</span> <span class="n">rx</span><span class="p">,</span> <span class="n">gss</span><span class="p">)</span>
+        <span class="c1"># Reshape from linear to 2D</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
 
-        <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">py_Hsize</span><span class="p">,</span> <span class="nb">int</span><span class="p">((</span><span class="n">nmax</span><span class="o">*</span><span class="p">(</span><span class="n">nmax</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">lmax</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="nb">int</span><span class="p">((</span><span class="n">py_Ntypes</span><span class="o">*</span><span class="p">(</span><span class="n">py_Ntypes</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span>
-        <span class="n">crosTypes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">py_Ntypes</span><span class="o">*</span><span class="p">(</span><span class="n">py_Ntypes</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
-        <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">py_Hsize</span><span class="p">,</span> <span class="nb">int</span><span class="p">((</span><span class="n">nmax</span><span class="o">*</span><span class="p">(</span><span class="n">nmax</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">lmax</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">crosTypes</span><span class="p">)</span>
-        <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ctypeslib</span><span class="o">.</span><span class="n">as_array</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
-        <span class="n">a</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">a</span></div>
+        <span class="k">return</span> <span class="n">c</span></div>
 
 <div class="viewcode-block" id="SOAP.get_basis_gto"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_basis_gto">[docs]</a>    <span class="k">def</span> <span class="nf">get_basis_gto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rcut</span><span class="p">,</span> <span class="n">nmax</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Used to calculate the alpha and beta prefactors for the gto-radial</span>
@@ -1030,8 +1084,7 @@
         <span class="n">x</span><span class="p">[</span><span class="mi">98</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.998491950639595818</span>
         <span class="n">x</span><span class="p">[</span><span class="mi">99</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.99971372677344123</span>
 
-        <span class="n">rCutVeryHard</span> <span class="o">=</span> <span class="n">rcut</span><span class="o">+</span><span class="mf">5.0</span>
-        <span class="n">rx</span> <span class="o">=</span> <span class="n">rCutVeryHard</span><span class="o">*</span><span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">rx</span> <span class="o">=</span> <span class="n">rcut</span><span class="o">*</span><span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
 
         <span class="c1"># Calculate the value of the orthonormalized polynomial basis at the rx</span>
         <span class="c1"># values</span>
@@ -1072,16 +1125,16 @@
   <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="fa fa-book"> Versions</span>
-      v: 0.3.0a0
+      v: 0.3.1a0
       <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
       <dl>
         <dt>Versions</dt>
         
-          <dd><a href="https://singroup.github.io/dscribe/dev">0.3.0a0 (development)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe/dev">0.3.1a0 (development)</a></dd>
         
-          <dd><a href="https://singroup.github.io/dscribe">0.2.9 (latest stable)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe">0.3.0 (latest stable)</a></dd>
         
       </dl>
     </div>

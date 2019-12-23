@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dscribe.descriptors package &mdash; DScribe 0.3.0a0 documentation</title>
+  <title>dscribe.descriptors package &mdash; DScribe 0.3.1a0 documentation</title>
   
 
   
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                0.3.0a0
+                0.3.1a0
               </div>
             
           
@@ -2101,6 +2101,31 @@ get_number_of_features()-function.</p>
 <dl class="method">
 <dt id="dscribe.descriptors.soap.SOAP.flatten_positions">
 <code class="sig-name descname">flatten_positions</code><span class="sig-paren">(</span><em class="sig-param">system</em>, <em class="sig-param">atomic_numbers=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.flatten_positions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.flatten_positions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes an ase Atoms object and returns flattened numpy arrays for the
+C-extension to use.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>system</strong> (<em>ase.atoms</em>) – The system to convert.</p></li>
+<li><p><strong>atomic_numbers</strong><strong>(</strong><strong>)</strong> – The atomic numbers to consider. Atoms that do not
+have these atomic numbers are ignored.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns the positions
+flattened and sorted by atomic number, atomic numbers flattened and
+sorted by atomic number, number of different species and the sorted
+set of atomic numbers.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(np.ndarray, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)">list</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a>, np.ndarray)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dscribe.descriptors.soap.SOAP.flatten_positions_old">
+<code class="sig-name descname">flatten_positions_old</code><span class="sig-paren">(</span><em class="sig-param">system</em>, <em class="sig-param">atomic_numbers=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.flatten_positions_old"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.flatten_positions_old" title="Permalink to this definition">¶</a></dt>
 <dd><p>Takes an ase Atoms object and returns numpy arrays and integers
 which are read by the internal clusgeo. Apos is currently a flattened
 out numpy array</p>
@@ -2201,6 +2226,34 @@ space, sorted.</p></li>
 </dd></dl>
 
 <dl class="method">
+<dt id="dscribe.descriptors.soap.SOAP.get_location">
+<code class="sig-name descname">get_location</code><span class="sig-paren">(</span><em class="sig-param">species</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.get_location"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.get_location" title="Permalink to this definition">¶</a></dt>
+<dd><p>Can be used to query the location of a species combination in the
+the flattened output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>species</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.8)"><em>tuple</em></a>) – A tuple containing a species combination as
+chemical symbols or atomic numbers. The tuple can be for
+example: (“H”, “O”) or (1, 6)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>slice containing the location of the specified species
+combination. The location is given as a python slice-object, that
+can be directly used to target ranges in the output.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#slice" title="(in Python v3.8)">slice</a></p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.8)"><strong>ValueError</strong></a> – If the requested species combination is not in the</p></li>
+<li><p><strong>output</strong><strong> or </strong><strong>if invalid species defined.</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="dscribe.descriptors.soap.SOAP.get_number_of_element_features">
 <code class="sig-name descname">get_number_of_element_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.get_number_of_element_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.get_number_of_element_features" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to query the number of elements in the SOAP feature space for
@@ -2232,7 +2285,7 @@ will have.</p>
 
 <dl class="method">
 <dt id="dscribe.descriptors.soap.SOAP.get_soap_locals_gto">
-<code class="sig-name descname">get_soap_locals_gto</code><span class="sig-paren">(</span><em class="sig-param">system</em>, <em class="sig-param">positions</em>, <em class="sig-param">alphas</em>, <em class="sig-param">betas</em>, <em class="sig-param">rcut</em>, <em class="sig-param">nmax</em>, <em class="sig-param">lmax</em>, <em class="sig-param">eta</em>, <em class="sig-param">crossover</em>, <em class="sig-param">atomic_numbers=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.get_soap_locals_gto"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.get_soap_locals_gto" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_soap_locals_gto</code><span class="sig-paren">(</span><em class="sig-param">system</em>, <em class="sig-param">centers</em>, <em class="sig-param">alphas</em>, <em class="sig-param">betas</em>, <em class="sig-param">rcut</em>, <em class="sig-param">cutoff_padding</em>, <em class="sig-param">nmax</em>, <em class="sig-param">lmax</em>, <em class="sig-param">eta</em>, <em class="sig-param">crossover</em>, <em class="sig-param">atomic_numbers=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.get_soap_locals_gto"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.get_soap_locals_gto" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the SOAP output for the given positions using the gto radial
 basis.</p>
 <dl class="field-list simple">
@@ -2240,10 +2293,12 @@ basis.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>system</strong> (<em>ase.Atoms</em>) – Atomic structure for which the SOAP output is
 calculated.</p></li>
-<li><p><strong>positions</strong> (<em>np.ndarray</em>) – Positions at which to calculate SOAP.</p></li>
+<li><p><strong>centers</strong> (<em>np.ndarray</em>) – Positions at which to calculate SOAP.</p></li>
 <li><p><strong>alphas</strong> (<em>np.ndarray</em>) – The alpha coeffients for the gto-basis.</p></li>
 <li><p><strong>betas</strong> (<em>np.ndarray</em>) – The beta coeffients for the gto-basis.</p></li>
-<li><p><strong>rCut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Radial cutoff.</p></li>
+<li><p><strong>rcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Radial cutoff.</p></li>
+<li><p><strong>cutoff_padding</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – The padding that is added for including
+atoms beyond the cutoff.</p></li>
 <li><p><strong>nmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Maximum number of radial basis functions.</p></li>
 <li><p><strong>lmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Maximum spherical harmonics degree.</p></li>
 <li><p><strong>eta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – The gaussian smearing width.</p></li>
@@ -2265,18 +2320,22 @@ ordered by atomic number.</p></li>
 
 <dl class="method">
 <dt id="dscribe.descriptors.soap.SOAP.get_soap_locals_poly">
-<code class="sig-name descname">get_soap_locals_poly</code><span class="sig-paren">(</span><em class="sig-param">system</em>, <em class="sig-param">positions</em>, <em class="sig-param">rcut</em>, <em class="sig-param">nmax</em>, <em class="sig-param">lmax</em>, <em class="sig-param">eta</em>, <em class="sig-param">atomic_numbers=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.get_soap_locals_poly"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.get_soap_locals_poly" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_soap_locals_poly</code><span class="sig-paren">(</span><em class="sig-param">system</em>, <em class="sig-param">centers</em>, <em class="sig-param">rcut</em>, <em class="sig-param">cutoff_padding</em>, <em class="sig-param">nmax</em>, <em class="sig-param">lmax</em>, <em class="sig-param">eta</em>, <em class="sig-param">crossover</em>, <em class="sig-param">atomic_numbers=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.get_soap_locals_poly"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.get_soap_locals_poly" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the SOAP output using polynomial radial basis for the given
-positions.</p>
+positions.
+:param system: Atomic structure for which the SOAP output is</p>
+<blockquote>
+<div><p>calculated.</p>
+</div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>system</strong> (<em>ase.Atoms</em>) – Atomic structure for which the SOAP output is
-calculated.</p></li>
-<li><p><strong>positions</strong> (<em>np.ndarray</em>) – Positions at which to calculate SOAP.</p></li>
+<li><p><strong>centers</strong> (<em>np.ndarray</em>) – Positions at which to calculate SOAP.</p></li>
 <li><p><strong>alphas</strong> (<em>np.ndarray</em>) – The alpha coeffients for the gto-basis.</p></li>
 <li><p><strong>betas</strong> (<em>np.ndarray</em>) – The beta coeffients for the gto-basis.</p></li>
 <li><p><strong>rCut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – Radial cutoff.</p></li>
+<li><p><strong>cutoff_padding</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – The padding that is added for including
+atoms beyond the cutoff.</p></li>
 <li><p><strong>nmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Maximum number of radial basis functions.</p></li>
 <li><p><strong>lmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Maximum spherical harmonics degree.</p></li>
 <li><p><strong>eta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – The gaussian smearing width.</p></li>
@@ -2367,16 +2426,16 @@ limitations under the License.</p>
   <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="fa fa-book"> Versions</span>
-      v: 0.3.0a0
+      v: 0.3.1a0
       <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
       <dl>
         <dt>Versions</dt>
         
-          <dd><a href="https://singroup.github.io/dscribe/dev">0.3.0a0 (development)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe/dev">0.3.1a0 (development)</a></dd>
         
-          <dd><a href="https://singroup.github.io/dscribe">0.2.9 (latest stable)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe">0.3.0 (latest stable)</a></dd>
         
       </dl>
     </div>
