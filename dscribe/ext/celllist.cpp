@@ -107,14 +107,6 @@ CellListResult CellList::getNeighboursForPosition(const double x, const double y
     int j0 = (y - this->ymin)/this->dy;
     int k0 = (z - this->zmin)/this->dz;
 
-    // Find neighbouring bins, check whether current bin is on boundary
-    //int istart = i0 > 0 ? i0-1 : 0;
-    //int iend = i0 < this->nx-1 ? i0+2 : this->nx;
-    //int jstart = j0 > 0 ? j0-1 : 0;
-    //int jend = j0 < this->ny-1 ? j0+2 : this->ny;
-    //int kstart = k0 > 0 ? k0-1 : 0;
-    //int kend = k0 < this->nz-1 ? k0+2 : this->nz;
-
     // Get the bin ranges to check for each dimension.
     int istart = max(i0-1, 0);
     int iend = min(i0+1, this->nx-1);
