@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dscribe.descriptors.mbtr &mdash; DScribe 0.2.9 documentation</title>
+  <title>dscribe.descriptors.mbtr &mdash; DScribe 0.3.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                0.2.9
+                0.3.0
               </div>
             
           
@@ -173,10 +173,13 @@
 <span class="sd">See the License for the specific language governing permissions and</span>
 <span class="sd">limitations under the License.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
+<span class="kn">from</span> <span class="nn">builtins</span> <span class="k">import</span> <span class="p">(</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">open</span><span class="p">,</span> <span class="nb">super</span><span class="p">,</span> <span class="nb">range</span><span class="p">,</span> <span class="nb">zip</span><span class="p">,</span> <span class="nb">round</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">pow</span><span class="p">,</span> <span class="nb">object</span><span class="p">)</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
+<span class="kn">from</span> <span class="nn">scipy.spatial.distance</span> <span class="k">import</span> <span class="n">cdist</span>
 <span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="k">import</span> <span class="n">lil_matrix</span><span class="p">,</span> <span class="n">coo_matrix</span>
 
 <span class="kn">from</span> <span class="nn">ase</span> <span class="k">import</span> <span class="n">Atoms</span>
@@ -871,6 +874,99 @@
 
         <span class="k">return</span> <span class="nb">slice</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="MBTR.create_extended_system"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.create_extended_system">[docs]</a>    <span class="k">def</span> <span class="nf">create_extended_system</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive_system</span><span class="p">,</span> <span class="n">centers</span><span class="p">,</span> <span class="n">radial_cutoff</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Used to create a periodically extended system, that is as small as</span>
+<span class="sd">        possible by rejecting atoms for which the given weighting will be below</span>
+<span class="sd">        the given threshold.</span>
+
+<span class="sd">        Modified for the local MBTR to only consider distances from the central</span>
+<span class="sd">        atom and to enable taking the virtual sites into account.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            primitive_system (System): The original primitive system to</span>
+<span class="sd">                duplicate.</span>
+<span class="sd">            radial_cutoff (float): The radial cutoff to use in constructing the</span>
+<span class="sd">                extended system.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple: Tuple containing the new extended system as the first entry</span>
+<span class="sd">            and the index of the periodically repeated cell for each atom as</span>
+<span class="sd">            the second entry. The extended system is determined is extended so that each atom can at most</span>
+<span class="sd">            have a weight that is larger or equivalent to the given threshold.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># We need to specify that the relative positions should not be wrapped.</span>
+        <span class="c1"># Otherwise the repeated systems may overlap with the positions taken</span>
+        <span class="c1"># with get_positions()</span>
+        <span class="n">relative_pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">primitive_system</span><span class="o">.</span><span class="n">get_scaled_positions</span><span class="p">(</span><span class="n">wrap</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+        <span class="n">numbers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">primitive_system</span><span class="o">.</span><span class="n">numbers</span><span class="p">)</span>
+        <span class="n">cartesian_pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">primitive_system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">())</span>
+        <span class="n">cell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">primitive_system</span><span class="o">.</span><span class="n">get_cell</span><span class="p">())</span>
+
+        <span class="c1"># Determine the upper limit of how many copies we need in each cell</span>
+        <span class="c1"># vector direction. We take as many copies as needed to reach the</span>
+        <span class="c1"># radial cutoff.</span>
+        <span class="n">cell_vector_lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">n_copies_axis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">cell_cuts</span> <span class="o">=</span> <span class="n">radial_cutoff</span><span class="o">/</span><span class="n">cell_vector_lengths</span>
+        <span class="n">n_copies_axis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">cell_cuts</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+
+        <span class="c1"># Create copies of the cell but keep track of the atoms in the</span>
+        <span class="c1"># original cell</span>
+        <span class="n">num_extended</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">pos_extended</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">num_extended</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">numbers</span><span class="p">)</span>
+        <span class="n">pos_extended</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cartesian_pos</span><span class="p">)</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">cell_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">primitive_system</span><span class="p">),</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)]</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">n_copies_axis</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">n_copies_axis</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">n_copies_axis</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">n_copies_axis</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">n_copies_axis</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">n_copies_axis</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">j</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="k">continue</span>
+
+                    <span class="c1"># Calculate the positions of the copied atoms and filter</span>
+                    <span class="c1"># out the atoms that are farther away than the given</span>
+                    <span class="c1"># cutoff.</span>
+                    <span class="n">num_copy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">numbers</span><span class="p">)</span>
+                    <span class="n">pos_copy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">relative_pos</span><span class="p">)</span>
+
+                    <span class="n">pos_shifted</span> <span class="o">=</span> <span class="n">pos_copy</span><span class="o">-</span><span class="n">i</span><span class="o">*</span><span class="n">a</span><span class="o">-</span><span class="n">j</span><span class="o">*</span><span class="n">b</span><span class="o">-</span><span class="n">k</span><span class="o">*</span><span class="n">c</span>
+                    <span class="n">pos_copy_cartesian</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">pos_shifted</span><span class="p">,</span> <span class="n">cell</span><span class="p">)</span>
+
+                    <span class="c1"># Only distances to the atoms within the interaction limit</span>
+                    <span class="c1"># are considered.</span>
+                    <span class="n">distances</span> <span class="o">=</span> <span class="n">cdist</span><span class="p">(</span><span class="n">pos_copy_cartesian</span><span class="p">,</span> <span class="n">centers</span><span class="p">)</span>
+                    <span class="n">weight_mask</span> <span class="o">=</span> <span class="n">distances</span> <span class="o">&lt;</span> <span class="n">radial_cutoff</span>
+
+                    <span class="c1"># Create a boolean mask that says if the atom is within the</span>
+                    <span class="c1"># range from at least one atom in the original cell</span>
+                    <span class="n">valids_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">weight_mask</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">valids_mask</span><span class="p">):</span>
+                        <span class="n">valid_pos</span> <span class="o">=</span> <span class="n">pos_copy_cartesian</span><span class="p">[</span><span class="n">valids_mask</span><span class="p">]</span>
+                        <span class="n">valid_num</span> <span class="o">=</span> <span class="n">num_copy</span><span class="p">[</span><span class="n">valids_mask</span><span class="p">]</span>
+                        <span class="n">valid_ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">valid_num</span><span class="p">),</span> <span class="mi">1</span><span class="p">))</span>
+
+                        <span class="n">pos_extended</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">valid_pos</span><span class="p">)</span>
+                        <span class="n">num_extended</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">valid_num</span><span class="p">)</span>
+                        <span class="n">cell_indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">valid_ind</span><span class="p">)</span>
+
+        <span class="n">pos_extended</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">pos_extended</span><span class="p">)</span>
+        <span class="n">num_extended</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">num_extended</span><span class="p">)</span>
+        <span class="n">cell_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">cell_indices</span><span class="p">)</span>
+
+        <span class="n">extended_system</span> <span class="o">=</span> <span class="n">System</span><span class="p">(</span>
+            <span class="n">positions</span><span class="o">=</span><span class="n">pos_extended</span><span class="p">,</span>
+            <span class="n">numbers</span><span class="o">=</span><span class="n">num_extended</span><span class="p">,</span>
+            <span class="n">cell</span><span class="o">=</span><span class="n">cell</span><span class="p">,</span>
+            <span class="n">pbc</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">extended_system</span><span class="p">,</span> <span class="n">cell_indices</span></div>
+
     <span class="k">def</span> <span class="nf">_get_k1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculates the second order terms where the scalar mapping is the</span>
 <span class="sd">        inverse distance between atoms.</span>
@@ -964,13 +1060,7 @@
         <span class="c1"># If needed, create the extended system</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">:</span>
             <span class="n">centers</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
-            <span class="n">ext_system</span><span class="p">,</span> <span class="n">cell_indices</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_extended_system</span><span class="p">(</span>
-                <span class="n">system</span><span class="p">,</span>
-                <span class="n">radial_cutoff</span><span class="p">,</span>
-                <span class="n">centers</span><span class="p">,</span>
-                <span class="n">return_cell_indices</span><span class="o">=</span><span class="kc">True</span>
-            <span class="p">)</span>
-            <span class="n">ext_system</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="n">from_atoms</span><span class="p">(</span><span class="n">ext_system</span><span class="p">)</span>
+            <span class="n">ext_system</span><span class="p">,</span> <span class="n">cell_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_extended_system</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">centers</span><span class="p">,</span> <span class="n">radial_cutoff</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">ext_system</span> <span class="o">=</span> <span class="n">system</span>
             <span class="n">cell_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">),</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
@@ -1075,13 +1165,7 @@
         <span class="c1"># If needed, create the extended system</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">:</span>
             <span class="n">centers</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
-            <span class="n">ext_system</span><span class="p">,</span> <span class="n">cell_indices</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_extended_system</span><span class="p">(</span>
-                <span class="n">system</span><span class="p">,</span>
-                <span class="n">radial_cutoff</span><span class="p">,</span>
-                <span class="n">centers</span><span class="p">,</span>
-                <span class="n">return_cell_indices</span><span class="o">=</span><span class="kc">True</span>
-            <span class="p">)</span>
-            <span class="n">ext_system</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="n">from_atoms</span><span class="p">(</span><span class="n">ext_system</span><span class="p">)</span>
+            <span class="n">ext_system</span><span class="p">,</span> <span class="n">cell_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_extended_system</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">centers</span><span class="p">,</span> <span class="n">radial_cutoff</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">ext_system</span> <span class="o">=</span> <span class="n">system</span>
             <span class="n">cell_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">),</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
@@ -1182,16 +1266,16 @@
   <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="fa fa-book"> Versions</span>
-      v: 0.2.9
+      v: 0.3.0
       <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
       <dl>
         <dt>Versions</dt>
         
-          <dd><a href="https://singroup.github.io/dscribe/dev">0.3.0a0 (development)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe/dev">0.3.1a0 (development)</a></dd>
         
-          <dd><a href="https://singroup.github.io/dscribe">0.2.9 (latest stable)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe">0.3.0 (latest stable)</a></dd>
         
       </dl>
     </div>

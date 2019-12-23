@@ -81,27 +81,10 @@ extensions = [
     )
 ]
 
-# The SOAP (general) extension, wrapped with ctypes
-for soname, source in zip(
-        [
-            "dscribe.libsoap.libsoapGeneral",
-        ],
-        [
-            "dscribe/libsoap/soapGeneral.c",
-        ]
-        ):
-    extensions.append(Extension(
-        soname,
-        [source],
-        language='c',
-        include_dirs=["dscribe/libsoap"],
-        extra_compile_args=cpp_extra_compile_args,
-    ))
-
 if __name__ == "__main__":
     setup(
         name="dscribe",
-        version="0.3.0a0",
+        version="0.3.1a0",
         url="https://singroup.github.io/dscribe/",
         description="A Python package for creating feature transformations in applications of machine learning to materials science.",
         long_description="A Python package for creating feature transformations in applications of machine learning to materials science.",

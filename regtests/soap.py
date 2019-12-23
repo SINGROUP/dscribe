@@ -133,12 +133,23 @@ class SoapTests(TestBaseClass, unittest.TestCase):
     def test_crossover(self):
         """Tests that disabling/enabling crossover works as expected.
         """
+        pos = [[0.1, 0.1, 0.1]]
+
         # GTO
         desc = SOAP(species=[1, 8], rbf="gto", crossover=True, rcut=3, nmax=5, lmax=5, periodic=False)
         n_elem_feat = desc.get_number_of_element_features()
-        full_output = desc.create(H2O)
+        full_output = desc.create(H2O, pos)
         desc.crossover = False
-        partial_output = desc.create(H2O)
+        partial_output = desc.create(H2O, pos)
+        self.assertTrue(np.array_equal(full_output[:, 0:n_elem_feat], partial_output[:, 0:n_elem_feat]))
+        self.assertTrue(np.array_equal(full_output[:, 2*n_elem_feat:], partial_output[:, n_elem_feat:]))
+
+        # Polynomial
+        desc = SOAP(species=[1, 8], rbf="polynomial", crossover=True, rcut=3, nmax=5, lmax=5, periodic=False)
+        n_elem_feat = desc.get_number_of_element_features()
+        full_output = desc.create(H2O, pos)
+        desc.crossover = False
+        partial_output = desc.create(H2O, pos)
         self.assertTrue(np.array_equal(full_output[:, 0:n_elem_feat], partial_output[:, 0:n_elem_feat]))
         self.assertTrue(np.array_equal(full_output[:, 2*n_elem_feat:], partial_output[:, n_elem_feat:]))
 
