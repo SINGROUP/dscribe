@@ -686,13 +686,13 @@ class SOAP(Descriptor):
 
         return c
 
-    def get_soap_locals_poly(self, system, positions, rcut, cutoff_padding, nmax, lmax, eta, crossover, atomic_numbers=None):
+    def get_soap_locals_poly(self, system, centers, rcut, cutoff_padding, nmax, lmax, eta, crossover, atomic_numbers=None):
         """Get the SOAP output using polynomial radial basis for the given
         positions.
         Args:
             system(ase.Atoms): Atomic structure for which the SOAP output is
                 calculated.
-            positions(np.ndarray): Positions at which to calculate SOAP.
+            centers(np.ndarray): Positions at which to calculate SOAP.
             alphas (np.ndarray): The alpha coeffients for the gto-basis.
             betas (np.ndarray): The beta coeffients for the gto-basis.
             rCut (float): Radial cutoff.
@@ -713,64 +713,28 @@ class SOAP(Descriptor):
         rx, gss = self.get_basis_poly(rcut, nmax)
 
         n_atoms = len(system)
-        Apos, typeNs, py_Ntypes, atomtype_lst = self.flatten_positions_old(system, atomic_numbers)
-        positions = np.array(positions)
-        py_Hsize = positions.shape[0]
+        positions, Z_sorted, n_species, atomtype_lst = self.flatten_positions(system, atomic_numbers)
+        centers = np.array(centers)
+        n_centers = centers.shape[0]
 
         # Flatten arrays
-        positions = positions.flatten()
         gss = gss.flatten()
-
-        # Convert types
-        lMax = lmax
-        Hsize = py_Hsize
-        Ntypes = py_Ntypes
-        Nsize = nmax
-        c_eta = eta
-        axyz = Apos
-        hxyz = positions
 
         # Determine shape
         if crossover:
-            c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int((Ntypes*(Ntypes + 1))/2)*Hsize, dtype=np.float64)
-            shape = (Hsize, int((nmax*(nmax+1))/2)*(lmax+1)*int((Ntypes*(Ntypes+1))/2))
+            c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int((n_species*(n_species + 1))/2)*n_centers, dtype=np.float64)
+            shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*int((n_species*(n_species+1))/2))
         else:
-            c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int(Ntypes)*Hsize, dtype=np.float64)
-            shape = (Hsize, int((nmax*(nmax+1))/2)*(lmax+1)*Ntypes)
+            c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int(n_species)*n_centers, dtype=np.float64)
+            shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*n_species)
 
         # Calculate with extension
-        dscribe.ext.soap_general(c, axyz, hxyz, typeNs, rcut, cutoff_padding, n_atoms, Ntypes, Nsize, lMax, Hsize, c_eta, rx, gss, crossover)
+        dscribe.ext.soap_general(c, positions, centers, Z_sorted, rcut, cutoff_padding, n_atoms, n_species, nmax, lmax, n_centers, eta, rx, gss, crossover)
 
         # Reshape from linear to 2D
         c = c.reshape(shape)
 
         return c
-
-        # rx, gss = self.get_basis_poly(rcut, nmax)
-
-        # n_atoms = len(system)
-        # positions, Z_sorted, n_species, atomtype_lst = self.flatten_positions(system, atomic_numbers)
-        # centers = np.array(centers)
-        # n_centers = centers.shape[0]
-
-        # # Flatten arrays
-        # gss = gss.flatten()
-
-        # # Determine shape
-        # if crossover:
-            # c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int((n_species*(n_species + 1))/2)*n_centers, dtype=np.float64)
-            # shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*int((n_species*(n_species+1))/2))
-        # else:
-            # c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int(n_species)*n_centers, dtype=np.float64)
-            # shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*n_species)
-
-        # # Calculate with extension
-        # dscribe.ext.soap_general(c, positions, centers, Z_sorted, rcut, cutoff_padding, n_atoms, n_species, nmax, lmax, n_centers, eta, rx, gss, crossover)
-
-        # # Reshape from linear to 2D
-        # c = c.reshape(shape)
-
-        # return c
 
     def get_basis_gto(self, rcut, nmax):
         """Used to calculate the alpha and beta prefactors for the gto-radial

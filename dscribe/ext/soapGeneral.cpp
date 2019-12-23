@@ -3,6 +3,7 @@
 #include <math.h>
 #include <map>
 #include <set>
+#include <iostream>
 #include "soapGeneral.h"
 #include "celllist.h"
 
@@ -1495,7 +1496,7 @@ inline void expPs(double* rExpSum, double alpha, double* r, double* ri, int isiz
         }
     }
 }
-void getDeltas(double* dx, double* dy, double* dz, double* ri, double* rw, double rCut, double* oOri, double* oO4arri, double* minExp, double* pluExp, int* isCenter, double alpha, const py::array_t<double> &positions, const double ix, const double iy, const double iz, const vector<int> &indices, int rsize, int Ihpos, int Itype)
+int getDeltas(double* dx, double* dy, double* dz, double* ri, double* rw, double rCut, double* oOri, double* oO4arri, double* minExp, double* pluExp, int* isCenter, double alpha, const py::array_t<double> &positions, const double ix, const double iy, const double iz, const vector<int> &indices, int rsize, int Ihpos, int Itype)
 {
     int icount = 0;
     double ri2;
@@ -1534,8 +1535,9 @@ void getDeltas(double* dx, double* dy, double* dz, double* ri, double* rw, doubl
     expPs(pluExp, alpha, rw, ri, icount, rsize);
 
     free(oO4ari);
+    return icount;
 }
-int getFilteredPos(double* x, double* y, double* z,double* xNow, double* yNow, double* zNow, double* ri, double* rw, double rCut, double* oOri, double* oO4arri, double* minExp, double* pluExp,int* isCenter, double alpha, double* Apos, double* Hpos,int* typeNs, int rsize, int Ihpos, int Itype)
+int getFilteredPos(double* xNow, double* yNow, double* zNow, double* ri, double* rw, double rCut, double* oOri, double* oO4arri, double* minExp, double* pluExp,int* isCenter, double alpha, double* Apos, double* Hpos,int* typeNs, int rsize, int Ihpos, int Itype)
 {
   int shiftType = 0;
   int icount = 0;
@@ -1812,141 +1814,110 @@ void accumP(double* Phs, double* Ps, int Nt, int lMax, int gnsize, double rCut2,
         }
     }
 }
-//void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<int> atomicNumbersArr, double rCut, double cutoffPadding, int totalAN, int Nt, int nMax, int lMax, int Hs, double alpha, py::array_t<double> rwArr, py::array_t<double> gssArr, bool crossover)
-void soapGeneral(py::array_t<double> cArr, py::array_t<double> AposArr, py::array_t<double> HposArr, py::array_t<int> typeNsArr, double rCut, double cutoffPadding, int totalAN, int Nt, int nMax, int lMax, int Hs, double alpha, py::array_t<double> rwArr, py::array_t<double> gssArr, bool crossover)
+void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<int> atomicNumbersArr, double rCut, double cutoffPadding, int totalAN, int Nt, int nMax, int lMax, int Hs, double alpha, py::array_t<double> rwArr, py::array_t<double> gssArr, bool crossover)
 {
-  //auto atomicNumbers = atomicNumbersArr.unchecked<1>();
-  double *c = (double*)cArr.request().ptr;
-  double *Apos = (double*)AposArr.request().ptr;
-  int *typeNs = (int*)typeNsArr.request().ptr;
-  double *Hpos = (double*)HposArr.request().ptr;
-  double *rw = (double*)rwArr.request().ptr;
-  double *gss = (double*)gssArr.request().ptr;
-  double* cf = factorListSet();
-  int* isCenter = (int*)malloc( sizeof(int) );
-  isCenter[0] = 0;
-  const int rsize = 100; // The number of points in the radial integration grid
-  double rCut2 = rCut*rCut;
-  //double* dx = tot;
-  //double* dy = tot;
-  //double* dz = tot;
-  double* x = tot;
-  double* y = tot;
-  double* z = tot;
-  double* xNow = tot;
-  double* yNow = tot;
-  double* zNow = tot;
-  double* ris = tot;
-  double* oOri = tot;
-  double* ws  = getws();
-  double* oOr = getoOr(rw, rsize);
-  double* rw2 = getrw2(rw, rsize);
-  double* oO4arri = totrs;
-  double* minExp = totrs;
-  double* pluExp = totrs;
-  int Asize = 0;
-  double* Cs = (double*) malloc(2*sd*(lMax+1)*(lMax+1)*nMax);
-  double* Cts = (double*) malloc(2*sd*(lMax+1)*(lMax+1)*nMax*Nt);
-  double* Ps = crossover ? (double*) malloc((Nt*(Nt+1))/2*sd*(lMax+1)*((nMax+1)*nMax)/2) : (double*) malloc(Nt*sd*(lMax+1)*((nMax+1)*nMax)/2);
-  int icount;
+    auto atomicNumbers = atomicNumbersArr.unchecked<1>();
+    double *c = (double*)cArr.request().ptr;
+    double *Hpos = (double*)HposArr.request().ptr;
+    double *rw = (double*)rwArr.request().ptr;
+    double *gss = (double*)gssArr.request().ptr;
+    double* cf = factorListSet();
+    int* isCenter = (int*)malloc( sizeof(int) );
+    isCenter[0] = 0;
+    const int rsize = 100; // The number of points in the radial integration grid
+    double rCut2 = rCut*rCut;
+    double* dx = tot;
+    double* dy = tot;
+    double* dz = tot;
+    double* ris = tot;
+    double* oOri = tot;
+    double* ws  = getws();
+    double* oOr = getoOr(rw, rsize);
+    double* rw2 = getrw2(rw, rsize);
+    double* oO4arri = totrs;
+    double* minExp = totrs;
+    double* pluExp = totrs;
+    int Asize = 0;
+    double* Cs = (double*) malloc(2*sd*(lMax+1)*(lMax+1)*nMax);
+    double* Cts = (double*) malloc(2*sd*(lMax+1)*(lMax+1)*nMax*Nt);
+    double* Ps = crossover ? (double*) malloc((Nt*(Nt+1))/2*sd*(lMax+1)*((nMax+1)*nMax)/2) : (double*) malloc(Nt*sd*(lMax+1)*((nMax+1)*nMax)/2);
+    int n_neighbours;
 
-  // Create a mapping between an atomic index and its internal index in the
-  // output
-  //map<int, int> ZIndexMap;
-  //set<int> atomicNumberSet;
-  //for (int i = 0; i < totalAN; ++i) {
-      //atomicNumberSet.insert(atomicNumbers(i));
-  //};
-  //int i = 0;
-  //for (auto it=atomicNumberSet.begin(); it!=atomicNumberSet.end(); ++it) {
-      //ZIndexMap[*it] = i;
-      //++i;
-  //};
+    // Create a mapping between an atomic index and its internal index in the
+    // output
+    map<int, int> ZIndexMap;
+    set<int> atomicNumberSet;
+    for (int i = 0; i < totalAN; ++i) {
+        atomicNumberSet.insert(atomicNumbers(i));
+    };
+    int i = 0;
+    for (auto it=atomicNumberSet.begin(); it!=atomicNumberSet.end(); ++it) {
+        ZIndexMap[*it] = i;
+        ++i;
+    };
 
-  //// Initialize binning
-  //CellList cellList(positions, rCut+cutoffPadding);
+    // Initialize binning
+    CellList cellList(positions, rCut+cutoffPadding);
 
-  //// Loop through central points
-  //for (int i = 0; i < Hs; i++) {
+    // Loop through central points
+    for (int i = 0; i < Hs; i++) {
 
-      //// Get all neighbours for the central atom i
-      //double ix = Hpos[3*i];
-      //double iy = Hpos[3*i+1];
-      //double iz = Hpos[3*i+2];
-      //CellListResult result = cellList.getNeighboursForPosition(ix, iy, iz);
+        // Get all neighbours for the central atom i
+        double ix = Hpos[3*i];
+        double iy = Hpos[3*i+1];
+        double iz = Hpos[3*i+2];
+        CellListResult result = cellList.getNeighboursForPosition(ix, iy, iz);
 
-      //// Sort the neighbours by type
-      //map<int, vector<int>> atomicTypeMap;
-      //for (const int &idx : result.indices) {
-          //int Z = atomicNumbers(idx);
-          //atomicTypeMap[Z].push_back(idx);
-      //};
+        // Sort the neighbours by type
+        map<int, vector<int>> atomicTypeMap;
+        for (const int &idx : result.indices) {
+            int Z = atomicNumbers(idx);
+            atomicTypeMap[Z].push_back(idx);
+        };
 
-      //// Loop through neighbours sorted by type
-      //for (const auto &ZIndexPair : atomicTypeMap) {
+        // Loop through neighbours sorted by type
+        for (const auto &ZIndexPair : atomicTypeMap) {
 
-          //// j is the internal index for this atomic number
-          //int j = ZIndexMap[ZIndexPair.first];
-          //int n_neighbours = ZIndexPair.second.size();
+            // j is the internal index for this atomic number
+            int j = ZIndexMap[ZIndexPair.first];
+            int n_neighbours = ZIndexPair.second.size();
 
-          //double* Ylmi; double* Flir; double* summed;
-          //isCenter[0] = 0;
+            double* Ylmi; double* Flir; double* summed;
+            isCenter[0] = 0;
 
-          //getDeltas(dx, dy, dz, ris, rw, rCut, oOri, oO4arri, minExp, pluExp, isCenter, alpha, positions, ix, iy, iz, ZIndexPair.second, rsize, i, j);
+            // Notice that due to the numerical integration the the getDeltas
+            // function here has special functionality for positions that are
+            // centered on an atom.
+            n_neighbours = getDeltas(dx, dy, dz, ris, rw, rCut, oOri, oO4arri, minExp, pluExp, isCenter, alpha, positions, ix, iy, iz, ZIndexPair.second, rsize, i, j);
 
-          //Flir = getFlir(oO4arri, ris, minExp, pluExp, n_neighbours, rsize, lMax);
-          //Ylmi = getYlmi(dx, dy, dz, oOri,cf,n_neighbours, lMax);
-          //summed = getIntegrand(Flir, Ylmi, rsize, n_neighbours, lMax);
+            Flir = getFlir(oO4arri, ris, minExp, pluExp, n_neighbours, rsize, lMax);
+            Ylmi = getYlmi(dx, dy, dz, oOri, cf, n_neighbours, lMax);
+            summed = getIntegrand(Flir, Ylmi, rsize, n_neighbours, lMax);
 
-          //getC(Cs, ws, rw2, gss, summed, rCut, lMax, rsize, nMax, isCenter, alpha);
-          //accumC(Cts, Cs, lMax, nMax, j);
+            getC(Cs, ws, rw2, gss, summed, rCut, lMax, rsize, nMax, isCenter, alpha);
+            accumC(Cts, Cs, lMax, nMax, j);
 
-          //free(Flir);
-          //free(Ylmi);
-          //free(summed);
-      //}
-      //getPs(Ps, Cts,  Nt, lMax, nMax, crossover);
-      //accumP(c, Ps, Nt, lMax, nMax, rCut2, i, crossover);
-  //}
-
-  for(int Ihpos = 0; Ihpos < Hs; Ihpos++){
-    for(int Itype = 0; Itype < Nt; Itype++){
-
-        double* Ylmi; double* Flir; double* summed;
-        isCenter[0] = 0;
-
-        icount = getFilteredPos(x, y, z,xNow,yNow,zNow,ris,rw,rCut, oOri, oO4arri, minExp, pluExp,isCenter, alpha, Apos, Hpos,typeNs, rsize, Ihpos, Itype);
-
-        Flir   = getFlir(oO4arri, ris, minExp, pluExp, icount, rsize, lMax);
-        Ylmi   = getYlmi(xNow, yNow, zNow, oOri,cf,icount, lMax);
-        summed = getIntegrand(Flir, Ylmi, rsize, icount, lMax);
-
-        getC(Cs, ws, rw2, gss, summed, rCut,lMax, rsize, nMax, isCenter,alpha);
-        accumC(Cts, Cs, lMax, nMax, Itype);
-
-        free(Flir); free(Ylmi); free(summed);
-
+            free(Flir);
+            free(Ylmi);
+            free(summed);
+        }
+        getPs(Ps, Cts,  Nt, lMax, nMax, crossover);
+        accumP(c, Ps, Nt, lMax, nMax, rCut2, i, crossover);
     }
-    getPs(Ps, Cts,  Nt, lMax, nMax, crossover);
-    accumP(c, Ps, Nt, lMax, nMax, rCut2, Ihpos, crossover);
-  }
 
-  free(cf);
-  free(x);
-  free(y);
-  free(z);
-  free(xNow);
-  free(yNow);
-  free(zNow);
-  free(ris);
-  free(oOri);
-  free(ws);
-  free(oOr);
-  free(rw2) ;
-  free(oO4arri);
-  free(minExp);
-  free(pluExp);
-  free(Cs);
-  free(Cts);
-  free(Ps);
+    free(cf);
+    free(dx);
+    free(dy);
+    free(dz);
+    free(ris);
+    free(oOri);
+    free(ws);
+    free(oOr);
+    free(rw2) ;
+    free(oO4arri);
+    free(minExp);
+    free(pluExp);
+    free(Cs);
+    free(Cts);
+    free(Ps);
 }
