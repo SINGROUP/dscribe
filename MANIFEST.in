@@ -1,2 +1,3 @@
 # Include the license file
 include LICENSE
+recursive-include dscribe/ext *.h
