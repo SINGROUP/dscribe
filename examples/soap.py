@@ -58,6 +58,16 @@ soap_copper = periodic_soap.create(copper)
 print(soap_copper)
 print(soap_copper.sum(axis=1))
 
+# Locations
+# The locations of specific element combinations can be retrieved like this.
+hh_loc = soap.get_location(("H", "H"))
+ho_loc = soap.get_location(("H", "O"))
+
+# These locations can be directly used to slice the corresponding part from an
+# SOAP output for e.g. plotting.
+soap_water[0, hh_loc]
+soap_water[0, ho_loc]
+
 # Sparse output
 soap = SOAP(
     species=species,

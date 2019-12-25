@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Smooth Overlap of Atomic Positions &mdash; DScribe 0.3.1a0 documentation</title>
+  <title>Smooth Overlap of Atomic Positions &mdash; DScribe 0.3.2a0 documentation</title>
   
 
   
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                0.3.1a0
+                0.3.2a0
               </div>
             
           
@@ -103,6 +103,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#finite-systems">Finite systems</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#periodic-systems">Periodic systems</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#locating-information">Locating information</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#sparse-output">Sparse output</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#average-output">Average output</a></li>
 </ul>
@@ -226,7 +227,9 @@ as a normalized polynomial kernel of the partial powers spectrums:</p>
 prevents the usage of the output in non-kernel based methods or with other
 kernel definitions.</p>
 <p>The partial SOAP spectrum ensures stratification of the output by species and
-also provides information about cross-species interaction. In pseudo-code the
+also provides information about cross-species interaction. See the
+<a class="reference internal" href="../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_location" title="dscribe.descriptors.soap.SOAP.get_location"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_location()</span></code></a> method for a way of easily accessing parts of the
+output that correspond to a particular species combination. In pseudo-code the
 ordering of the output vector is as follows:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>for Z in atomic numbers in increasing order:
    for Z&#39; in atomic numbers in increasing order:
@@ -427,6 +430,22 @@ In this case a cell needs to be defined for the ase object.</p>
 <p>Since the SOAP feature vectors of each of the four copper atoms in the cubic
 unit cell match, they turn out to be equivalent.</p>
 </div>
+<div class="section" id="locating-information">
+<h3>Locating information<a class="headerlink" href="#locating-information" title="Permalink to this headline">¶</a></h3>
+<p>The SOAP class provides the <a class="reference internal" href="../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_location" title="dscribe.descriptors.soap.SOAP.get_location"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_location()</span></code></a>-method. This method can
+be used to query for the slice that contains a specific element combination.
+The following example demonstrates its usage.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># The locations of specific element combinations can be retrieved like this.</span>
+<span class="n">hh_loc</span> <span class="o">=</span> <span class="n">soap</span><span class="o">.</span><span class="n">get_location</span><span class="p">((</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">))</span>
+<span class="n">ho_loc</span> <span class="o">=</span> <span class="n">soap</span><span class="o">.</span><span class="n">get_location</span><span class="p">((</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">))</span>
+
+<span class="c1"># These locations can be directly used to slice the corresponding part from an</span>
+<span class="c1"># SOAP output for e.g. plotting.</span>
+<span class="n">soap_water</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">hh_loc</span><span class="p">]</span>
+<span class="n">soap_water</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">ho_loc</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="sparse-output">
 <h3>Sparse output<a class="headerlink" href="#sparse-output" title="Permalink to this headline">¶</a></h3>
 <p>If the descriptor size is large (this can be the case for instance with a
@@ -556,16 +575,16 @@ for non-linear kernels the order of kernel calculation and averaging matters.</p
   <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="fa fa-book"> Versions</span>
-      v: 0.3.1a0
+      v: 0.3.2a0
       <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
       <dl>
         <dt>Versions</dt>
         
-          <dd><a href="https://singroup.github.io/dscribe/dev">0.3.1a0 (development)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe">0.3.1 (latest stable)</a></dd>
         
-          <dd><a href="https://singroup.github.io/dscribe">0.3.0 (latest stable)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe/dev">0.3.2a0 (development)</a></dd>
         
       </dl>
     </div>

@@ -54,7 +54,9 @@ prevents the usage of the output in non-kernel based methods or with other
 kernel definitions.
 
 The partial SOAP spectrum ensures stratification of the output by species and
-also provides information about cross-species interaction. In pseudo-code the
+also provides information about cross-species interaction. See the
+:meth:`~.SOAP.get_location` method for a way of easily accessing parts of the
+output that correspond to a particular species combination. In pseudo-code the
 ordering of the output vector is as follows:
 
 .. code-block:: none
@@ -139,6 +141,17 @@ In this case a cell needs to be defined for the ase object.
 
 Since the SOAP feature vectors of each of the four copper atoms in the cubic
 unit cell match, they turn out to be equivalent.
+
+Locating information
+~~~~~~~~~~~~~~~~~~~~
+The SOAP class provides the :meth:`~.SOAP.get_location`-method. This method can
+be used to query for the slice that contains a specific element combination.
+The following example demonstrates its usage.
+
+.. literalinclude:: ../../../examples/soap.py
+   :start-after: Locations
+   :language: python
+   :lines: 1-8
 
 Sparse output
 ~~~~~~~~~~~~~

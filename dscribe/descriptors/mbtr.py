@@ -629,7 +629,7 @@ class MBTR(Descriptor):
 
         Raises:
             ValueError: If the requested species combination is not in the
-            output or if invalid species defined.
+                output or if invalid species defined.
         """
         # Check that the corresponding part is calculated
         k = len(species)

@@ -514,7 +514,7 @@ class SOAP(Descriptor):
 
         Raises:
             ValueError: If the requested species combination is not in the
-            output or if invalid species defined.
+                output or if invalid species defined.
         """
         # Change chemical elements into atomic numbers
         numbers = []
