@@ -21,11 +21,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -189,7 +189,7 @@ individual local atomic environments, but additional tools are needed to make
 comparison of entire structures based on local environments.
 This tutorial goes through two different strategies for building such global
 similarity measures by comparing local atomic environments between structures.
-For more insight, see <a class="reference internal" href="#kernels" id="id1">[1]</a>.</p>
+For more insight, see <a class="bibtex reference internal" href="#kernels" id="id1">[1]</a>.</p>
 <div class="section" id="average-kernel">
 <h2>Average kernel<a class="headerlink" href="#average-kernel" title="Permalink to this headline">¶</a></h2>
 <p>The simplest approach is to average over the local contributions to create a
@@ -215,7 +215,7 @@ metric:</p>
 
 <span class="c1"># First we will have to create the features for atomic environments. Lets</span>
 <span class="c1"># use SOAP.</span>
-<span class="n">desc</span> <span class="o">=</span> <span class="n">SOAP</span><span class="p">(</span><span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="n">rcut</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">nmax</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">lmax</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">periodic</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">crossover</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">desc</span> <span class="o">=</span> <span class="n">SOAP</span><span class="p">(</span><span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="n">rcut</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">nmax</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">lmax</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">crossover</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="n">a_features</span> <span class="o">=</span> <span class="n">desc</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
 <span class="n">b_features</span> <span class="o">=</span> <span class="n">desc</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
 
@@ -264,7 +264,7 @@ again be calculated with any pairwise metric (e.g. linear, gaussian).</p>
 
 <span class="c1"># First we will have to create the features for atomic environments. Lets</span>
 <span class="c1"># use SOAP.</span>
-<span class="n">desc</span> <span class="o">=</span> <span class="n">SOAP</span><span class="p">(</span><span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="n">rcut</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">nmax</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">lmax</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">periodic</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">crossover</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">desc</span> <span class="o">=</span> <span class="n">SOAP</span><span class="p">(</span><span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="n">rcut</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">nmax</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">lmax</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">crossover</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="n">a_features</span> <span class="o">=</span> <span class="n">desc</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
 <span class="n">b_features</span> <span class="o">=</span> <span class="n">desc</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
 
@@ -285,7 +285,7 @@ again be calculated with any pairwise metric (e.g. linear, gaussian).</p>
 </pre></div>
 </div>
 <p id="bibtex-bibliography-tutorials/kernels-0"><dl class="citation">
-<dt class="label" id="kernels"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dt class="bibtex label" id="kernels"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
 <dd><p>Sandip De, Albert P. Bartók, Gábor Csányi, and Michele Ceriotti. Comparing molecules and solids across structural and alchemical space. <em>Phys. Chem. Chem. Phys.</em>, 18(20):13754–13769, 2016. <a class="reference external" href="https://arxiv.org/abs/1601.04077">arXiv:1601.04077</a>.</p>
 </dd>
 </dl>

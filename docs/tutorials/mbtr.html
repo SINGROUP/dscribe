@@ -21,11 +21,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -187,7 +187,7 @@
             
   <div class="section" id="many-body-tensor-representation">
 <h1>Many-body Tensor Representation<a class="headerlink" href="#many-body-tensor-representation" title="Permalink to this headline">¶</a></h1>
-<p>The many-body tensor representation (MBTR) <a class="reference internal" href="#mbtr" id="id1">[1]</a> encodes a structure by
+<p>The many-body tensor representation (MBTR) <a class="bibtex reference internal" href="#mbtr" id="id1">[1]</a> encodes a structure by
 using a distribution of different structural motifs. It can be used directly
 for both finite and periodic systems. MBTR is especially suitable for
 applications where interpretability of the input is important because the
@@ -204,7 +204,7 @@ structure.</p>
 <div class="section" id="setup">
 <h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h2>
 <p>Instantiating an MBTR descriptor can be done as follows:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">MBTR</span>
 
 <span class="c1"># Setup</span>
@@ -224,7 +224,7 @@ structure.</p>
         <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">},</span>
         <span class="s2">&quot;weighting&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exponential&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">},</span>
     <span class="p">},</span>
-    <span class="n">periodic</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">normalization</span><span class="o">=</span><span class="s2">&quot;l2_each&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
@@ -360,8 +360,8 @@ where <cite>x</cite> is the perimeter of the triangle formed by the tree atoms.<
 <span class="c1"># Create MBTR output for the system</span>
 <span class="n">mbtr_water</span> <span class="o">=</span> <span class="n">mbtr</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">water</span><span class="p">)</span>
 
-<span class="k">print</span><span class="p">(</span><span class="n">mbtr_water</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">mbtr_water</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">mbtr_water</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">mbtr_water</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The call syntax for the create-function is as follows:</p>
@@ -430,7 +430,7 @@ example demonstrates its usage.</p>
 demonstrates how the output for <span class="math notranslate nohighlight">\(k=2\)</span> can be visualized with matplotlib.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ase.data</span>
 <span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">bulk</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">mpl</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">mpl</span>
 
 <span class="c1"># The MBTR-object is configured with flatten=False so that we can easily</span>
 <span class="c1"># visualize the different terms.</span>
@@ -443,9 +443,9 @@ demonstrates how the output for <span class="math notranslate nohighlight">\(k=2
         <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">},</span>
         <span class="s2">&quot;weighting&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exponential&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="n">decay</span><span class="p">,</span> <span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">},</span>
     <span class="p">},</span>
-    <span class="n">periodic</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-    <span class="n">flatten</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-    <span class="n">sparse</span><span class="o">=</span><span class="bp">False</span>
+    <span class="n">periodic</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">flatten</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span>
 <span class="p">)</span>
 <span class="n">mbtr_output</span> <span class="o">=</span> <span class="n">mbtr</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">nacl</span><span class="p">)</span>
 
@@ -461,7 +461,7 @@ demonstrates how the output for <span class="math notranslate nohighlight">\(k=2
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_elements</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_elements</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">j</span> <span class="o">&gt;=</span> <span class="n">i</span><span class="p">:</span>
-            <span class="n">mpl</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mbtr_output</span><span class="p">[</span><span class="s2">&quot;k2&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;{}-{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">smap</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">smap</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span>
+            <span class="n">mpl</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mbtr_output</span><span class="p">[</span><span class="s2">&quot;k2&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">smap</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">smap</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Inverse distance (1/angstrom)&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -488,9 +488,9 @@ demonstrates both approaches.</p>
         <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;distance&quot;</span><span class="p">},</span>
         <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">},</span>
     <span class="p">},</span>
-    <span class="n">periodic</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-    <span class="n">flatten</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-    <span class="n">sparse</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">normalization</span><span class="o">=</span><span class="s2">&quot;l2_each&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -562,7 +562,7 @@ it we would not know when to stop the periodic repetition. The following code
 demonstrates how to apply MBTR on a periodic crystal:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">desc</span> <span class="o">=</span> <span class="n">MBTR</span><span class="p">(</span>
     <span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">],</span>
-    <span class="n">periodic</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+    <span class="n">periodic</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">k1</span><span class="o">=</span><span class="p">{</span>
         <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;atomic_number&quot;</span><span class="p">},</span>
         <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">},</span>
@@ -577,8 +577,8 @@ demonstrates how to apply MBTR on a periodic crystal:</p>
         <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">},</span>
         <span class="s2">&quot;weighting&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exponential&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">},</span>
     <span class="p">},</span>
-    <span class="n">flatten</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-    <span class="n">sparse</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 </pre></div>
 </div>
 <p>A problem with periodic crystals that is not directly solved by the MBTR
@@ -590,8 +590,8 @@ e.g. band gap or formation energy per atom. The following code and plot
 demonstrates this for different cells representing the same crystal:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">a1</span> <span class="o">=</span> <span class="n">bulk</span><span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="s1">&#39;fcc&#39;</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>                     <span class="c1"># Primitive</span>
 <span class="n">a2</span> <span class="o">=</span> <span class="n">a1</span><span class="o">*</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>                                <span class="c1"># Supercell</span>
-<span class="n">a3</span> <span class="o">=</span> <span class="n">bulk</span><span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="s1">&#39;fcc&#39;</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">orthorhombic</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>  <span class="c1"># Orthorhombic</span>
-<span class="n">a4</span> <span class="o">=</span> <span class="n">bulk</span><span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="s1">&#39;fcc&#39;</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">cubic</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>         <span class="c1"># Conventional cubic</span>
+<span class="n">a3</span> <span class="o">=</span> <span class="n">bulk</span><span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="s1">&#39;fcc&#39;</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">orthorhombic</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># Orthorhombic</span>
+<span class="n">a4</span> <span class="o">=</span> <span class="n">bulk</span><span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="s1">&#39;fcc&#39;</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">cubic</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>         <span class="c1"># Conventional cubic</span>
 
 <span class="c1"># Without normalization the shape of the output is the same, but the intensity</span>
 <span class="c1"># is not</span>
@@ -636,7 +636,7 @@ pairs and triples in the system. This is done in practice by weighting the
 contribution of the pair and triples by how many different periodic repetitions
 of the original cell are involved in forming the pair or triple.</p>
 <p id="bibtex-bibliography-tutorials/mbtr-0"><dl class="citation">
-<dt class="label" id="mbtr"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dt class="bibtex label" id="mbtr"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
 <dd><p>Haoyan Huo and Matthias Rupp. Unified representation of molecules and crystals for machine learning. <em>arXiv e-prints</em>, pages arXiv:1704.06439, Apr 2017. <a class="reference external" href="https://arxiv.org/abs/1704.06439">arXiv:1704.06439</a>.</p>
 </dd>
 </dl>
