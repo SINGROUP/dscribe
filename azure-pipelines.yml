@@ -23,7 +23,7 @@ steps:
     versionSpec: '$(python.version)'
   displayName: 'Use Python $(python.version)'
 
-  - script: |
+- script: |
     .travis-install-dependencies.sh
   displayName: 'Install development dependencies'
 
