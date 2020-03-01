@@ -24,7 +24,7 @@ steps:
   displayName: 'Use Python $(python.version)'
 
 - script: |
-    .travis-install-dependencies.sh
+    ./.travis-install-dependencies.sh
   displayName: 'Install development dependencies'
 
 - script: |
