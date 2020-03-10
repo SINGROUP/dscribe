@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Sine matrix &mdash; DScribe 0.3.3a0 documentation</title>
+  <title>Sine matrix &mdash; DScribe 0.3.5a0 documentation</title>
   
 
   
@@ -21,11 +21,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                0.3.3a0
+                0.3.5a0
               </div>
             
           
@@ -183,7 +183,7 @@
             
   <div class="section" id="sine-matrix">
 <h1>Sine matrix<a class="headerlink" href="#sine-matrix" title="Permalink to this headline">¶</a></h1>
-<p>The sine matrix <a class="reference internal" href="#sm" id="id1">[1]</a> captures features of interacting atoms in a periodic
+<p>The sine matrix <a class="bibtex reference internal" href="#sm" id="id1">[1]</a> captures features of interacting atoms in a periodic
 system with a very low computational cost. The matrix elements are defined by</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{equation}
@@ -209,8 +209,8 @@ follows:</p>
 <span class="n">sm</span> <span class="o">=</span> <span class="n">SineMatrix</span><span class="p">(</span>
     <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
     <span class="n">permutation</span><span class="o">=</span><span class="s2">&quot;sorted_l2&quot;</span><span class="p">,</span>
-    <span class="n">sparse</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-    <span class="n">flatten</span><span class="o">=</span><span class="bp">True</span>
+    <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -325,20 +325,20 @@ examples are also available in dscribe/examples/sinematrix.py.</p>
 <p>The following code calculates the interaction value, as defined by the sine
 matrix, between two aluminum atoms in an FCC-lattice. The values are calculated
 in the xy-plane.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">ase</span> <span class="kn">import</span> <span class="n">Atoms</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">mpl</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">mpl</span>
 <span class="kn">from</span> <span class="nn">mpl_toolkits.axes_grid1</span> <span class="kn">import</span> <span class="n">make_axes_locatable</span>
 
 <span class="c1"># FCC aluminum crystal</span>
-<span class="n">system</span> <span class="o">=</span> <span class="n">bulk</span><span class="p">(</span><span class="s2">&quot;Al&quot;</span><span class="p">,</span> <span class="s2">&quot;fcc&quot;</span><span class="p">,</span> <span class="n">cubic</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">system</span> <span class="o">=</span> <span class="n">bulk</span><span class="p">(</span><span class="s2">&quot;Al&quot;</span><span class="p">,</span> <span class="s2">&quot;fcc&quot;</span><span class="p">,</span> <span class="n">cubic</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 <span class="c1"># Calculate the sine matrix entries for a 2D slice at z=0</span>
 <span class="n">sm</span> <span class="o">=</span> <span class="n">SineMatrix</span><span class="p">(</span>
     <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
     <span class="n">permutation</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
-    <span class="n">sparse</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-    <span class="n">flatten</span><span class="o">=</span><span class="bp">False</span>
+    <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">flatten</span><span class="o">=</span><span class="kc">False</span>
 <span class="p">)</span>
 <span class="n">n</span> <span class="o">=</span> <span class="mi">100</span>
 <span class="n">d</span> <span class="o">=</span> <span class="mi">10</span>
@@ -355,7 +355,7 @@ in the xy-plane.</p>
 <span class="c1"># Plot the resulting sine matrix values</span>
 <span class="n">maxval</span> <span class="o">=</span> <span class="mi">150</span>
 <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
-<span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">a_min</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">a_max</span><span class="o">=</span><span class="n">maxval</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">grid</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">a_min</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">a_max</span><span class="o">=</span><span class="n">maxval</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">grid</span><span class="p">)</span>
 <span class="n">c1</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">linewidths</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 <span class="n">the_divider</span> <span class="o">=</span> <span class="n">make_axes_locatable</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
@@ -377,7 +377,7 @@ in the xy-plane.</p>
 periodicity of the lattice. Notice that the shape of the interaction is however
 not perfectly spherical.</p>
 <p id="bibtex-bibliography-tutorials/sine_matrix-0"><dl class="citation">
-<dt class="label" id="sm"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dt class="bibtex label" id="sm"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
 <dd><p>Felix Faber, Alexander Lindmaa, O. Anatole von Lilienfeld, and Rickard Armiento. Crystal structure representations for machine learning models of formation energies. <em>International Journal of Quantum Chemistry</em>, 115(16):1094–1101, 8 2015. <a class="reference external" href="https://doi.org/10.1002/qua.24917">doi:10.1002/qua.24917</a>.</p>
 </dd>
 </dl>
@@ -424,16 +424,16 @@ not perfectly spherical.</p>
   <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="fa fa-book"> Versions</span>
-      v: 0.3.3a0
+      v: 0.3.5a0
       <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
       <dl>
         <dt>Versions</dt>
         
-          <dd><a href="https://singroup.github.io/dscribe">0.3.2 (latest stable)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe">0.3.4 (latest stable)</a></dd>
         
-          <dd><a href="https://singroup.github.io/dscribe/dev">0.3.3a0 (development)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe/dev">0.3.5a0 (development)</a></dd>
         
       </dl>
     </div>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Installation &mdash; DScribe 0.3.3a0 documentation</title>
+  <title>Installation &mdash; DScribe 0.3.5a0 documentation</title>
   
 
   
@@ -21,11 +21,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                0.3.3a0
+                0.3.5a0
               </div>
             
           
@@ -188,6 +188,16 @@ pip install .
 <h2>Common issues<a class="headerlink" href="#common-issues" title="Permalink to this headline">¶</a></h2>
 <blockquote>
 <div><ul>
+<li><p><strong>fatal error: pybind11/pybind11.h: No such file or directory</strong>: The package
+depends on pybind11 which is used for communication between python and the
+C++ extensions. Although pybind11 is specified as a requirement in setup.py,
+you may experience issues in pip correctly finding it. In this case you will
+need to install pybind11 before attempting to install dscribe by using the
+following command:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip install pybind11
+</pre></div>
+</div>
+</li>
 <li><p><strong>fatal error: Python.h: No such file or directory</strong>: The package depends on
 C/C++ extensions that are compiled during the setup. For the compilation to
 work you will need to install the <em>pythonX.X-dev</em>-package, where X.X is the
@@ -240,16 +250,16 @@ package could be installed with:</p>
   <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="fa fa-book"> Versions</span>
-      v: 0.3.3a0
+      v: 0.3.5a0
       <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
       <dl>
         <dt>Versions</dt>
         
-          <dd><a href="https://singroup.github.io/dscribe">0.3.2 (latest stable)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe">0.3.4 (latest stable)</a></dd>
         
-          <dd><a href="https://singroup.github.io/dscribe/dev">0.3.3a0 (development)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe/dev">0.3.5a0 (development)</a></dd>
         
       </dl>
     </div>

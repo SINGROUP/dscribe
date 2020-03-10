@@ -184,7 +184,7 @@ this essentially means averaging over atoms of the same type.
 .. literalinclude:: ../../../examples/soap.py
    :language: python
    :start-after: Average output
-   :lines: 1-17
+   :lines: 1-19
 
 The result will be a feature vector and not a matrix, so it no longer depends
 on the system size. This is necessary to compare two or more structures with
