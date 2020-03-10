@@ -50,7 +50,9 @@ extensions = [
     # The ACSF C++ extension, wrapped with cython
     Extension(
         "dscribe.libacsf.acsfwrapper",
-        ["dscribe/libacsf/acsfwrapper.cpp"],
+        [
+            "dscribe/libacsf/acsfwrapper.cpp",
+        ],
         language="c++",
         include_dirs=["dscribe/libacsf"],
         extra_compile_args=cpp_extra_compile_args,
@@ -59,16 +61,23 @@ extensions = [
     # The MBTR C++ extension, wrapped with cython
     Extension(
         "dscribe.libmbtr.mbtrwrapper",
-        ["dscribe/libmbtr/mbtrwrapper.cpp"],
+        [
+            "dscribe/libmbtr/mbtrwrapper.cpp",
+        ],
         language="c++",
         include_dirs=["dscribe/libmbtr"],
         extra_compile_args=cpp_extra_compile_args,
         extra_link_args=cpp_extra_link_args,
     ),
-    # The SOAP (gto) and utils C++ extensions, wrapped with pybind11
+    # The SOAP and utils C++ extensions, wrapped with pybind11
     Extension(
         'dscribe.ext',
-        ["dscribe/ext/ext.cpp", "dscribe/ext/celllist.cpp", "dscribe/ext/soapGTO.cpp", "dscribe/ext/soapGeneral.cpp"],
+        [
+            "dscribe/ext/ext.cpp",
+            "dscribe/ext/celllist.cpp",
+            "dscribe/ext/soapGTO.cpp",
+            "dscribe/ext/soapGeneral.cpp",
+        ],
         include_dirs=[
             # Path to pybind11 headers
             "dscribe/ext",
@@ -84,7 +93,7 @@ extensions = [
 if __name__ == "__main__":
     setup(
         name="dscribe",
-        version="0.3.4a0",
+        version="0.3.5a0",
         url="https://singroup.github.io/dscribe/",
         description="A Python package for creating feature transformations in applications of machine learning to materials science.",
         long_description="A Python package for creating feature transformations in applications of machine learning to materials science.",

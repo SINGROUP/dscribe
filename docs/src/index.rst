@@ -13,7 +13,7 @@ science.
 
 .. note::
    Creating SOAP output for large systems has has been greatly improved
-   starting in version **0.3.1**. Updating is recommended if working with
+   starting in version **0.3.2**. Updating is recommended if working with
    larger systems.
 
 
