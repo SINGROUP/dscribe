@@ -28,7 +28,7 @@ stages:
       displayName: 'Use Python $(python.version)'
     - script: |
         ./.build.sh
-      displayName: 'Install development dependencies'
+      displayName: 'Build package'
 
 
 - stage: test
