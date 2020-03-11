@@ -1,32 +1,43 @@
-# Python package
-# Create and test a Python package on multiple Python versions.
-# Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/python
-
+# Defines when the pipeline is triggered
 trigger:
 - master
 
-pool:
-  vmImage: 'ubuntu-latest'
+# Defines a parallel set of environments to run the pipeline on
 strategy:
   matrix:
-    Python35:
+    linux_python35:
+      image.name: 'ubuntu-latest'
       python.version: '3.5'
-    Python36:
+    linux_python36:
+      image.name: 'ubuntu-latest'
       python.version: '3.6'
-    Python37:
+    linux_python37:
+      image.name: 'ubuntu-latest'
       python.version: '3.7'
 
-steps:
-- task: UsePythonVersion@0
-  inputs:
-    versionSpec: '$(python.version)'
-  displayName: 'Use Python $(python.version)'
+# Define the OS
+pool:
+  vmImage: $(image.name)
 
-- script: |
-    ./.travis-install-dependencies.sh
-  displayName: 'Install development dependencies'
+# Stages
+stages:
+- stage: build
+  jobs:
+  - job:
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '$(python.version)'
+      displayName: 'Use Python $(python.version)'
+    - script: |
+        ./.travis-install-dependencies.sh
+      displayName: 'Install development dependencies'
 
-- script: |
-    regtests/runtests.sh
-  displayName: 'Run regression tests'
+
+- stage: test
+  jobs:
+  - job:
+    steps:
+    - script: |
+        regtests/runtests.sh
+      displayName: 'Run regression tests'
