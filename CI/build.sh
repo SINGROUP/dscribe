@@ -5,6 +5,7 @@ pip install pip --upgrade
 pip install cython
 
 # Install development dependencies
+cd ..
 pip install -r devrequirements.txt
 
 # Compile CMBTR and ACSF extensions with cython. The .so files will be compiled
