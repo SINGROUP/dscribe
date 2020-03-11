@@ -27,7 +27,7 @@ stages:
         versionSpec: '$(python.version)'
       displayName: 'Use Python $(python.version)'
     - script: |
-        ./.build.sh
+        ./build.sh
       displayName: 'Build package'
 
 
