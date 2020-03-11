@@ -2,24 +2,21 @@
 trigger:
 - master
 
-# Defines a parallel set of environments to run the pipeline on
-strategy:
-  matrix:
-    python35:
-      python.version: '3.5'
-    python36:
-      python.version: '3.6'
-    python37:
-      python.version: '3.7'
-
 # Define the OS
 pool:
   vmImage: 'ubuntu-latest'
 
 # Jobs
 jobs:
-
 - job: build
+  strategy:
+    matrix:
+      python35:
+        python.version: '3.5'
+      python36:
+        python.version: '3.6'
+      python37:
+        python.version: '3.7'
   steps:
   - task: UsePythonVersion@0
     inputs:
