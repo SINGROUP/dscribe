@@ -11,7 +11,8 @@ stages:
 - stage: build
   jobs:
   - job:
-        # Defines a parallel set of environments to run the pipeline on
+    
+    # Defines a parallel set of environments to run the pipeline on
     strategy:
       matrix:
         python35:
@@ -27,9 +28,8 @@ stages:
         versionSpec: '$(python.version)'
       displayName: 'Use Python $(python.version)'
     - script: |
-        ./build.sh
+        ./CI/build.sh
       displayName: 'Build package'
-
 
 - stage: test
   dependsOn: build
@@ -37,5 +37,5 @@ stages:
   - job:
     steps:
     - script: |
-        regtests/runtests.sh
+        ./CI/test.sh
       displayName: 'Run regression tests'
