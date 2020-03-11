@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
-cd regtests
+cd ../regtests
 export COVERAGE_FILE="../.coverage"
 coverage run --source="dscribe" testrunner.py

@@ -1,4 +1,7 @@
-# Build the development docs
+# Generate coverage report
+coveralls
+
+# Build development docs
 ./builddevdocs.sh
 
 # Push changes to docs
