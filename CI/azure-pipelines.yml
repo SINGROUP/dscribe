@@ -2,40 +2,36 @@
 trigger:
 - master
 
+# Defines a parallel set of environments to run the pipeline on
+strategy:
+  matrix:
+    python35:
+      python.version: '3.5'
+    python36:
+      python.version: '3.6'
+    python37:
+      python.version: '3.7'
+
 # Define the OS
 pool:
   vmImage: 'ubuntu-latest'
 
-# Stages
-stages:
-- stage: build
-  jobs:
-  - job:
-    
-    # Defines a parallel set of environments to run the pipeline on
-    strategy:
-      matrix:
-        python35:
-          python.version: '3.5'
-        python36:
-          python.version: '3.6'
-        python37:
-          python.version: '3.7'
+# Jobs
+jobs:
 
-    steps:
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: '$(python.version)'
-      displayName: 'Use Python $(python.version)'
-    - script: |
-        ./CI/build.sh
-      displayName: 'Build package'
+- job: build
+  steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '$(python.version)'
+    displayName: 'Use Python $(python.version)'
+  - script: |
+      cd $(Build.Repository.LocalPath)/CI && ./build.sh
+    displayName: 'Build package'
 
-- stage: test
+- job: test
   dependsOn: build
-  jobs:
-  - job:
-    steps:
-    - script: |
-        ./CI/test.sh
-      displayName: 'Run regression tests'
+  steps:
+  - script: |
+      cd $(Build.Repository.LocalPath)/CI && ./test.sh
+    displayName: 'Run regression tests'
