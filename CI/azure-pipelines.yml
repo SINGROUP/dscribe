@@ -24,7 +24,7 @@ jobs:
     inputs:
       versionSpec: '$(python.version)'
     displayName: 'Use Python $(python.version)'
-    
+
   - script: |
       cd $(Build.Repository.LocalPath)/CI && ./build.sh
     displayName: 'Build package'
@@ -36,5 +36,10 @@ jobs:
   - script: |
       cd $(Build.Repository.LocalPath)/CI && ./updatecoverage.sh
     displayName: 'Update coverage'
+    condition: and(succeeded(), eq(variables['python.version'], '3.7'), eq(variables['Build.SourceBranch'], 'refs/heads/master')
+
+  - script: |
+      cd $(Build.Repository.LocalPath)/CI && ./updatedocs.sh
+    displayName: 'Update docs'
     condition: and(succeeded(), eq(variables['python.version'], '3.7'), eq(variables['Build.SourceBranch'], 'refs/heads/master')
 
