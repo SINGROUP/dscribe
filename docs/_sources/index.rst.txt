@@ -12,6 +12,9 @@ that can be used in various machine learning tasks related to materials
 science.
 
 .. note::
+   Python 3.8 is supported starting from version **0.3.5**.
+
+.. note::
    Creating SOAP output for large systems has has been greatly improved
    starting in version **0.3.2**. Updating is recommended if working with
    larger systems.
