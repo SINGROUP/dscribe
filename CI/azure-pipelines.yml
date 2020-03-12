@@ -17,19 +17,24 @@ jobs:
         python.version: '3.6'
       python37:
         python.version: '3.7'
+      python38:
+        python.version: '3.8'
   steps:
   - task: UsePythonVersion@0
     inputs:
       versionSpec: '$(python.version)'
     displayName: 'Use Python $(python.version)'
+    
   - script: |
       cd $(Build.Repository.LocalPath)/CI && ./build.sh
     displayName: 'Build package'
+
   - script: |
       cd $(Build.Repository.LocalPath)/CI && ./test.sh
     displayName: 'Run regression tests'
+
   - script: |
       cd $(Build.Repository.LocalPath)/CI && ./updatecoverage.sh
     displayName: 'Update coverage'
-    condition: and(succeeded(), eq(variables['python.version'], '3.7'))
+    condition: and(succeeded(), eq(variables['python.version'], '3.7'), eq(variables['Build.SourceBranch'], 'refs/heads/master')
 
