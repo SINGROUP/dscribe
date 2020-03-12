@@ -20,6 +20,11 @@ jobs:
       python38:
         python.version: '3.8'
   steps:
+  - checkout: self
+    displayName: 'Checking out git repository'
+    persistCredentials: true
+    clean: true
+    
   - task: UsePythonVersion@0
     inputs:
       versionSpec: '$(python.version)'
