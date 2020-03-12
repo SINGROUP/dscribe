@@ -1,5 +1,6 @@
-# Update pip
+# Update pip and setuptools
 pip install pip --upgrade
+pip install setuptools --upgrade
 
 # Install cython separately
 pip install cython
@@ -15,6 +16,14 @@ cythonize mbtrwrapper.pyx -X language_level=3
 cd ../libacsf/
 cythonize acsfwrapper.pyx -X language_level=3
 
-# Install the package itself
-cd ../../
+# Make a source distribution
+cd ../..
+python setup.py sdist
+
+# Install the package itself from the newly created source distribution (this
+# way the distribution validity is also checked)
+version=`python setup.py --version`
+cd dist
+tar xvzf dscribe-$version.tar.gz
+cd dscribe-$version
 pip install .
