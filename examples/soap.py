@@ -100,14 +100,15 @@ average_soap = SOAP(
 )
 
 soap_water = average_soap.create(water)
-print("average soap water", soap_water.shape)
+print("Average SOAP water: ", soap_water.shape)
 
 methanol = molecule('CH3OH')
 soap_methanol = average_soap.create(methanol)
-print("average soap methanol", soap_methanol.shape)
+print("Average SOAP methanol: ", soap_methanol.shape)
 
 h2o2 = molecule('H2O2')
 soap_peroxide = average_soap.create(h2o2)
+print("Average SOAP peroxide: ", soap_peroxide.shape)
 
 # Distance
 from scipy.spatial.distance import pdist, squareform
@@ -115,5 +116,5 @@ import numpy as np
 
 molecules = np.vstack([soap_water, soap_methanol, soap_peroxide])
 distance = squareform(pdist(molecules))
-print("distance matrix: water - methanol - H2O2")
+print("Distance matrix: water - methanol - peroxide: ")
 print(distance)

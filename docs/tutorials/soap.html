@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Smooth Overlap of Atomic Positions &mdash; DScribe 0.3.2 documentation</title>
+  <title>Smooth Overlap of Atomic Positions &mdash; DScribe 0.3.5 documentation</title>
   
 
   
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                0.3.2
+                0.3.5
               </div>
             
           
@@ -494,13 +494,15 @@ this essentially means averaging over atoms of the same type.</p>
 <span class="p">)</span>
 
 <span class="n">soap_water</span> <span class="o">=</span> <span class="n">average_soap</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">water</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;average soap water&quot;</span><span class="p">,</span> <span class="n">soap_water</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Average SOAP water: &quot;</span><span class="p">,</span> <span class="n">soap_water</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 
 <span class="n">methanol</span> <span class="o">=</span> <span class="n">molecule</span><span class="p">(</span><span class="s1">&#39;CH3OH&#39;</span><span class="p">)</span>
 <span class="n">soap_methanol</span> <span class="o">=</span> <span class="n">average_soap</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">methanol</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;average soap methanol&quot;</span><span class="p">,</span> <span class="n">soap_methanol</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Average SOAP methanol: &quot;</span><span class="p">,</span> <span class="n">soap_methanol</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 
 <span class="n">h2o2</span> <span class="o">=</span> <span class="n">molecule</span><span class="p">(</span><span class="s1">&#39;H2O2&#39;</span><span class="p">)</span>
+<span class="n">soap_peroxide</span> <span class="o">=</span> <span class="n">average_soap</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">h2o2</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Average SOAP peroxide: &quot;</span><span class="p">,</span> <span class="n">soap_peroxide</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The result will be a feature vector and not a matrix, so it no longer depends
@@ -512,7 +514,7 @@ of our choice.</p>
 
 <span class="n">molecules</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">soap_water</span><span class="p">,</span> <span class="n">soap_methanol</span><span class="p">,</span> <span class="n">soap_peroxide</span><span class="p">])</span>
 <span class="n">distance</span> <span class="o">=</span> <span class="n">squareform</span><span class="p">(</span><span class="n">pdist</span><span class="p">(</span><span class="n">molecules</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;distance matrix: water - methanol - H2O2&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Distance matrix: water - methanol - peroxide: &quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">distance</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -575,16 +577,16 @@ for non-linear kernels the order of kernel calculation and averaging matters.</p
   <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="fa fa-book"> Versions</span>
-      v: 0.3.2
+      v: 0.3.5
       <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
       <dl>
         <dt>Versions</dt>
         
-          <dd><a href="https://singroup.github.io/dscribe">0.3.2 (latest stable)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe">0.3.5 (latest stable)</a></dd>
         
-          <dd><a href="https://singroup.github.io/dscribe/dev">0.3.3a0 (development)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe/dev">0.3.6a0 (development)</a></dd>
         
       </dl>
     </div>

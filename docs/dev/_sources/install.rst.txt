@@ -26,6 +26,17 @@ github and install with pip from local file:
 
 Common issues
 -------------
+ - **fatal error: pybind11/pybind11.h: No such file or directory**: The package
+   depends on pybind11 which is used for communication between python and the
+   C++ extensions. Although pybind11 is specified as a requirement in setup.py,
+   you may experience issues in pip correctly finding it. In this case you will
+   need to install pybind11 before attempting to install dscribe by using the
+   following command:
+
+   .. code-block:: sh
+
+       pip install pybind11
+
  - **fatal error: Python.h: No such file or directory**: The package depends on
    C/C++ extensions that are compiled during the setup. For the compilation to
    work you will need to install the *pythonX.X-dev*-package, where X.X is the

@@ -576,7 +576,7 @@ class LMBTR(MBTR):
             k2 = np.zeros((n_loc, n_elem, n), dtype=np.float32)
             for i_loc, k2_map in enumerate(k2_list):
                 for key, gaussian_sum in k2_map.items():
-                    i = key[0]
+                    i = key[1]
 
                     # Denormalize if requested
                     if not self.normalize_gaussians:

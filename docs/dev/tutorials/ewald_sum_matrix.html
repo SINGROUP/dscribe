@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Ewald sum matrix &mdash; DScribe 0.3.3a0 documentation</title>
+  <title>Ewald sum matrix &mdash; DScribe 0.3.6a0 documentation</title>
   
 
   
@@ -21,11 +21,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                0.3.3a0
+                0.3.6a0
               </div>
             
           
@@ -184,7 +184,7 @@
             
   <div class="section" id="ewald-sum-matrix">
 <h1>Ewald sum matrix<a class="headerlink" href="#ewald-sum-matrix" title="Permalink to this headline">¶</a></h1>
-<p>Ewald sum matrix <a class="reference internal" href="sine_matrix.html#sm" id="id1">[1]</a> can be viewed as a logical extension of the Coulomb
+<p>Ewald sum matrix <a class="bibtex reference internal" href="sine_matrix.html#sm" id="id1">[1]</a> can be viewed as a logical extension of the Coulomb
 matrix for periodic systems, as it models the interaction between atoms in a
 periodic crystal through electrostatic interaction. However, in order to
 calculate the Coulomb interaction between the atomic cores in a periodic
@@ -192,7 +192,7 @@ crystal, the Ewald summation technique has to be used together with a uniform
 neutralizing background charge.</p>
 <p>Notice that the terms of the Ewald sum matrix in DScribe differ slightly from
 the original article. We correct an issue in the energy term related to the
-self-energy and the charged-cell correction. In the original article <a class="reference internal" href="sine_matrix.html#sm" id="id2">[1]</a>
+self-energy and the charged-cell correction. In the original article <a class="bibtex reference internal" href="sine_matrix.html#sm" id="id2">[1]</a>
 (equation 20) this correction for the off-diagonal elements was defined as:</p>
 <div class="math notranslate nohighlight">
 \[\phi^{\text{self}}_{ij} + \phi^{\text{bg}}_{ij} = -\frac{\alpha}{\sqrt{\pi}}(Z_i^2 + Z_j^2) -\frac{\pi}{2V\alpha^2}(Z_i + Z_j)^2~\forall~i \neq j\]</div>
@@ -375,7 +375,7 @@ contained in the Ewald sum matrix.</p>
 <span class="n">ems</span> <span class="o">=</span> <span class="n">EwaldSumMatrix</span><span class="p">(</span>
     <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
     <span class="n">permutation</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
-    <span class="n">flatten</span><span class="o">=</span><span class="bp">False</span>
+    <span class="n">flatten</span><span class="o">=</span><span class="kc">False</span>
 <span class="p">)</span>
 <span class="n">ems_out</span> <span class="o">=</span> <span class="n">ems</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">al</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="n">a</span><span class="p">,</span> <span class="n">rcut</span><span class="o">=</span><span class="n">rcut</span><span class="p">,</span> <span class="n">gcut</span><span class="o">=</span><span class="n">gcut</span><span class="p">)</span>
 
@@ -385,7 +385,7 @@ contained in the Ewald sum matrix.</p>
 <span class="c1"># Converts unit of q*q/r into eV</span>
 <span class="n">conversion</span> <span class="o">=</span> <span class="mf">1e10</span> <span class="o">*</span> <span class="n">scipy</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">e</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">scipy</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">epsilon_0</span><span class="p">)</span>
 <span class="n">total_energy</span> <span class="o">*=</span> <span class="n">conversion</span>
-<span class="k">print</span><span class="p">(</span><span class="n">total_energy</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">total_energy</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>We can compare the result against the Ewald summation implementation in
@@ -398,11 +398,11 @@ pymatgen:</p>
 <span class="n">structure</span><span class="o">.</span><span class="n">add_oxidation_state_by_site</span><span class="p">(</span><span class="n">al</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">())</span>
 <span class="n">ewald</span> <span class="o">=</span> <span class="n">EwaldSummation</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="n">a</span><span class="p">,</span> <span class="n">real_space_cut</span><span class="o">=</span><span class="n">rcut</span><span class="p">,</span> <span class="n">recip_space_cut</span><span class="o">=</span><span class="n">gcut</span><span class="p">)</span>
 <span class="n">energy</span> <span class="o">=</span> <span class="n">ewald</span><span class="o">.</span><span class="n">total_energy</span>
-<span class="k">print</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
 </pre></div>
 </div>
 <p id="bibtex-bibliography-tutorials/ewald_sum_matrix-0"><dl class="citation">
-<dt class="label" id="sm"><span class="brackets">1</span><span class="fn-backref">(<a href="#id1">1</a>,<a href="#id2">2</a>)</span></dt>
+<dt class="bibtex label" id="sm"><span class="brackets">1</span><span class="fn-backref">(<a href="#id1">1</a>,<a href="#id2">2</a>)</span></dt>
 <dd><p>Felix Faber, Alexander Lindmaa, O. Anatole von Lilienfeld, and Rickard Armiento. Crystal structure representations for machine learning models of formation energies. <em>International Journal of Quantum Chemistry</em>, 115(16):1094–1101, 8 2015. <a class="reference external" href="https://doi.org/10.1002/qua.24917">doi:10.1002/qua.24917</a>.</p>
 </dd>
 </dl>
@@ -449,16 +449,16 @@ pymatgen:</p>
   <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="fa fa-book"> Versions</span>
-      v: 0.3.3a0
+      v: 0.3.6a0
       <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
       <dl>
         <dt>Versions</dt>
         
-          <dd><a href="https://singroup.github.io/dscribe">0.3.2 (latest stable)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe">0.3.5 (latest stable)</a></dd>
         
-          <dd><a href="https://singroup.github.io/dscribe/dev">0.3.3a0 (development)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe/dev">0.3.6a0 (development)</a></dd>
         
       </dl>
     </div>

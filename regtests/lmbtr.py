@@ -331,15 +331,25 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         # K2 unflattened
         desc = copy.deepcopy(default_desc_k2)
         desc.flatten = False
-        feat = desc.create(system, positions=[0])[0]["k2"]
-        self.assertEqual(feat.shape, (n_elem, nk2))
+        feat = desc.create(system)
+        self.assertEqual(feat[0]["k2"].shape, (n_elem, nk2))
 
         # K2 flattened. The sparse matrix only supports 2D matrices, so the first
         # dimension is always present, even if it is of length 1.
         desc = copy.deepcopy(default_desc_k2)
         desc.flatten = True
-        feat = desc.create(system, positions=[0])
-        self.assertEqual(feat.shape, (1, n_elem*nk2))
+        feat_flat = desc.create(system)
+        self.assertEqual(feat_flat.shape, (3, n_elem*nk2))
+
+        # Check that the elements in flattened and unflattened match
+        sorted_species = sorted(desc._atomic_numbers+[0])
+        for i_pos in range(len(system)):
+            for i_species in range(len(sorted_species)):
+                i_z = sorted_species[i_species]
+                slc = desc.get_location((0, i_z))
+                i_flat = feat_flat[i_pos, slc]
+                i_unflat = feat[i_pos]["k2"][i_species]
+                self.assertTrue(np.array_equal(i_flat, i_unflat))
 
     def test_sparse(self):
         """Tests the sparse matrix creation.

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Atom-centered Symmetry Functions &mdash; DScribe 0.3.3a0 documentation</title>
+  <title>Atom-centered Symmetry Functions &mdash; DScribe 0.3.6a0 documentation</title>
   
 
   
@@ -21,11 +21,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                0.3.3a0
+                0.3.6a0
               </div>
             
           
@@ -179,7 +179,7 @@
             
   <div class="section" id="atom-centered-symmetry-functions">
 <h1>Atom-centered Symmetry Functions<a class="headerlink" href="#atom-centered-symmetry-functions" title="Permalink to this headline">¶</a></h1>
-<p>Atom-centered Symmetry Functions (ACSFs) <a class="reference internal" href="#acsf" id="id1">[1]</a> can be used to represent
+<p>Atom-centered Symmetry Functions (ACSFs) <a class="bibtex reference internal" href="#acsf" id="id1">[1]</a> can be used to represent
 the local environment near an atom by using a fingerprint composed of the
 output of multiple two- and three-body functions that can be customized to
 detect specific structural features.</p>
@@ -266,8 +266,8 @@ dense numpy array.</p></li>
 <span class="c1"># Create MBTR output for the hydrogen atom at index 1</span>
 <span class="n">acsf_water</span> <span class="o">=</span> <span class="n">acsf</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">water</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
-<span class="k">print</span><span class="p">(</span><span class="n">acsf_water</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">acsf_water</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">acsf_water</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">acsf_water</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The call syntax for the create-function is as follows:</p>
@@ -311,7 +311,7 @@ their positions.</p>
 #features]. The number of features may be requested beforehand with the
 <a class="reference internal" href="../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.get_number_of_features" title="dscribe.descriptors.acsf.ACSF.get_number_of_features"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_number_of_features()</span></code></a>-method.</p>
 <p id="bibtex-bibliography-tutorials/acsf-0"><dl class="citation">
-<dt class="label" id="acsf"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dt class="bibtex label" id="acsf"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
 <dd><p>Jörg Behler. Atom-centered symmetry functions for constructing high-dimensional neural network potentials. <em>J. Chem. Phys.</em>, 134(7):074106, 2011.</p>
 </dd>
 </dl>
@@ -357,16 +357,16 @@ their positions.</p>
   <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="fa fa-book"> Versions</span>
-      v: 0.3.3a0
+      v: 0.3.6a0
       <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
       <dl>
         <dt>Versions</dt>
         
-          <dd><a href="https://singroup.github.io/dscribe">0.3.2 (latest stable)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe">0.3.5 (latest stable)</a></dd>
         
-          <dd><a href="https://singroup.github.io/dscribe/dev">0.3.3a0 (development)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe/dev">0.3.6a0 (development)</a></dd>
         
       </dl>
     </div>

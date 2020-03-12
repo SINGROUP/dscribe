@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dscribe.descriptors.mbtr &mdash; DScribe 0.3.3a0 documentation</title>
+  <title>dscribe.descriptors.mbtr &mdash; DScribe 0.3.6a0 documentation</title>
   
 
   
@@ -21,11 +21,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                0.3.3a0
+                0.3.6a0
               </div>
             
           
@@ -177,14 +177,14 @@
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="k">import</span> <span class="n">lil_matrix</span><span class="p">,</span> <span class="n">coo_matrix</span>
+<span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="kn">import</span> <span class="n">lil_matrix</span><span class="p">,</span> <span class="n">coo_matrix</span>
 
-<span class="kn">from</span> <span class="nn">ase</span> <span class="k">import</span> <span class="n">Atoms</span>
+<span class="kn">from</span> <span class="nn">ase</span> <span class="kn">import</span> <span class="n">Atoms</span>
 <span class="kn">import</span> <span class="nn">ase.data</span>
 
-<span class="kn">from</span> <span class="nn">dscribe.core</span> <span class="k">import</span> <span class="n">System</span>
-<span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="k">import</span> <span class="n">Descriptor</span>
-<span class="kn">from</span> <span class="nn">dscribe.libmbtr.mbtrwrapper</span> <span class="k">import</span> <span class="n">MBTRWrapper</span>
+<span class="kn">from</span> <span class="nn">dscribe.core</span> <span class="kn">import</span> <span class="n">System</span>
+<span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">Descriptor</span>
+<span class="kn">from</span> <span class="nn">dscribe.libmbtr.mbtrwrapper</span> <span class="kn">import</span> <span class="n">MBTRWrapper</span>
 <span class="kn">import</span> <span class="nn">dscribe.utils.geometry</span>
 
 
@@ -263,7 +263,7 @@
 <span class="sd">    This implementation does not support the use of a non-identity correlation</span>
 <span class="sd">    matrix.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="MBTR.__init__"><a class="viewcode-back" href="../../../tutorials/mbtr.html#dscribe.descriptors.mbtr.MBTR.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+<div class="viewcode-block" id="MBTR.__init__"><a class="viewcode-back" href="../../../tutorials/mbtr.html#dscribe.descriptors.mbtr.MBTR.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">species</span><span class="p">,</span>
             <span class="n">periodic</span><span class="p">,</span>
@@ -1182,16 +1182,16 @@
   <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="fa fa-book"> Versions</span>
-      v: 0.3.3a0
+      v: 0.3.6a0
       <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
       <dl>
         <dt>Versions</dt>
         
-          <dd><a href="https://singroup.github.io/dscribe">0.3.2 (latest stable)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe">0.3.5 (latest stable)</a></dd>
         
-          <dd><a href="https://singroup.github.io/dscribe/dev">0.3.3a0 (development)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe/dev">0.3.6a0 (development)</a></dd>
         
       </dl>
     </div>

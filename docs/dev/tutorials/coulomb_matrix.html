@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Coulomb Matrix &mdash; DScribe 0.3.3a0 documentation</title>
+  <title>Coulomb Matrix &mdash; DScribe 0.3.6a0 documentation</title>
   
 
   
@@ -21,11 +21,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                0.3.3a0
+                0.3.6a0
               </div>
             
           
@@ -188,7 +188,7 @@
             
   <div class="section" id="coulomb-matrix">
 <h1>Coulomb Matrix<a class="headerlink" href="#coulomb-matrix" title="Permalink to this headline">¶</a></h1>
-<p>Coulomb Matrix (CM) <a class="reference internal" href="#cm" id="id1">[1]</a> is a simple global descriptor which mimics the
+<p>Coulomb Matrix (CM) <a class="bibtex reference internal" href="#cm" id="id1">[1]</a> is a simple global descriptor which mimics the
 electrostatic interaction between nuclei.</p>
 <p>Coulomb matrix is calculated with the equation below.</p>
 <div class="math notranslate nohighlight">
@@ -297,8 +297,8 @@ dense numpy array.</p></li>
 <span class="c1"># Create CM output for the system</span>
 <span class="n">cm_methanol</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">methanol</span><span class="p">)</span>
 
-<span class="k">print</span><span class="p">(</span><span class="n">cm_methanol</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="s2">&quot;flattened&quot;</span><span class="p">,</span> <span class="n">cm_methanol</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cm_methanol</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;flattened&quot;</span><span class="p">,</span> <span class="n">cm_methanol</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 
 <span class="c1"># Create output for multiple system</span>
 <span class="n">samples</span> <span class="o">=</span> <span class="p">[</span><span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;H2O&quot;</span><span class="p">),</span> <span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;NO2&quot;</span><span class="p">),</span> <span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;CO2&quot;</span><span class="p">)]</span>
@@ -354,12 +354,12 @@ examples are also available in dscribe/examples/coulombmatrix.py.</p>
 <p>You can control whether the returned array is two-dimensional or
 one-dimensional by using the <em>flatten</em>-parameter</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cm</span> <span class="o">=</span> <span class="n">CoulombMatrix</span><span class="p">(</span>
-    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="bp">False</span>
+    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">False</span>
 <span class="p">)</span>
 <span class="n">cm_methanol</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">methanol</span><span class="p">)</span>
 
-<span class="k">print</span><span class="p">(</span><span class="n">cm_methanol</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="s2">&quot;not flattened&quot;</span><span class="p">,</span> <span class="n">cm_methanol</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cm_methanol</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;not flattened&quot;</span><span class="p">,</span> <span class="n">cm_methanol</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -369,13 +369,13 @@ one-dimensional by using the <em>flatten</em>-parameter</p>
 the unsorted CM it is necessary to specify the keyword <em>permutation = “none”</em>
 when setting it up.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cm</span> <span class="o">=</span> <span class="n">CoulombMatrix</span><span class="p">(</span>
-    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">permutation</span><span class="o">=</span><span class="s1">&#39;none&#39;</span>
 <span class="p">)</span>
 
 <span class="n">cm_methanol</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">methanol</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">methanol</span><span class="o">.</span><span class="n">get_chemical_symbols</span><span class="p">())</span>
-<span class="k">print</span><span class="p">(</span><span class="s2">&quot;in order of appearance&quot;</span><span class="p">,</span> <span class="n">cm_methanol</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">methanol</span><span class="o">.</span><span class="n">get_chemical_symbols</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;in order of appearance&quot;</span><span class="p">,</span> <span class="n">cm_methanol</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -388,12 +388,12 @@ has fewer atoms, the rest of the CM will be zero-padded. One can imagine
 non-interacting ghost atoms as place-holders to ensure the same number of atoms
 in every system.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cm</span> <span class="o">=</span> <span class="n">CoulombMatrix</span><span class="p">(</span>
-    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="bp">False</span>
+    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">False</span>
 <span class="p">)</span>
 <span class="n">cm_methanol</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">methanol</span><span class="p">)</span>
 
-<span class="k">print</span><span class="p">(</span><span class="s2">&quot;zero-padded&quot;</span><span class="p">,</span> <span class="n">cm_methanol</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">cm_methanol</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;zero-padded&quot;</span><span class="p">,</span> <span class="n">cm_methanol</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cm_methanol</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -401,18 +401,18 @@ in every system.</p>
 <h3>Not meant for periodic systems<a class="headerlink" href="#not-meant-for-periodic-systems" title="Permalink to this headline">¶</a></h3>
 <p>The CM was not designed for periodic systems. If you do add periodic boundary
 conditions, you will see that it does not change the elements.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">methanol</span><span class="o">.</span><span class="n">set_pbc</span><span class="p">([</span><span class="bp">True</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">True</span><span class="p">])</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">methanol</span><span class="o">.</span><span class="n">set_pbc</span><span class="p">([</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">])</span>
 <span class="n">methanol</span><span class="o">.</span><span class="n">set_cell</span><span class="p">([[</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
     <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
     <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">],</span>
     <span class="p">])</span>
 
 <span class="n">cm</span> <span class="o">=</span> <span class="n">CoulombMatrix</span><span class="p">(</span>
-    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="bp">False</span>
+    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">False</span>
 <span class="p">)</span>
 
 <span class="n">cm_methanol</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">methanol</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="s2">&quot;with pbc&quot;</span><span class="p">,</span> <span class="n">cm_methanol</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;with pbc&quot;</span><span class="p">,</span> <span class="n">cm_methanol</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Instead, the <a class="reference internal" href="sine_matrix.html"><span class="doc">Sine Matrix</span></a> and the <cite>Ewald Matrix
@@ -427,68 +427,68 @@ the atoms (not the atom types!), it will still be the same molecule! The
 following lines confirm that this is true for CM.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cm</span> <span class="o">=</span> <span class="n">CoulombMatrix</span><span class="p">(</span>
     <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
-    <span class="n">flatten</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">flatten</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">permutation</span><span class="o">=</span><span class="s2">&quot;sorted_l2&quot;</span>
 <span class="p">)</span>
 
 <span class="c1"># Translation</span>
 <span class="n">methanol</span><span class="o">.</span><span class="n">translate</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
 <span class="n">cm_methanol</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">methanol</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">cm_methanol</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cm_methanol</span><span class="p">)</span>
 
 <span class="c1"># Rotation</span>
 <span class="n">methanol</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="mi">90</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
 <span class="n">cm_methanol</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">methanol</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">cm_methanol</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cm_methanol</span><span class="p">)</span>
 
 <span class="c1"># Permutation</span>
 <span class="n">upside_down_methanol</span> <span class="o">=</span> <span class="n">methanol</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 <span class="n">cm_methanol</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">upside_down_methanol</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">cm_methanol</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cm_methanol</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="options-for-permutation">
 <h2>Options for permutation<a class="headerlink" href="#options-for-permutation" title="Permalink to this headline">¶</a></h2>
 <p>The following snippet introduces the different options for handling permutation
-invariance. See <a class="reference internal" href="#cm-versions" id="id2">[2]</a> for more information on these methods.</p>
+invariance. See <a class="bibtex reference internal" href="#cm-versions" id="id2">[2]</a> for more information on these methods.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cm</span> <span class="o">=</span> <span class="n">CoulombMatrix</span><span class="p">(</span>
-    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">permutation</span><span class="o">=</span><span class="s1">&#39;none&#39;</span>
 <span class="p">)</span>
 
 <span class="n">cm_methanol</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">methanol</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">methanol</span><span class="o">.</span><span class="n">get_chemical_symbols</span><span class="p">())</span>
-<span class="k">print</span><span class="p">(</span><span class="s2">&quot;in order of appearance&quot;</span><span class="p">,</span> <span class="n">cm_methanol</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">methanol</span><span class="o">.</span><span class="n">get_chemical_symbols</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;in order of appearance&quot;</span><span class="p">,</span> <span class="n">cm_methanol</span><span class="p">)</span>
 
 <span class="c1"># Sort by Euclidean (L2) norm.</span>
 <span class="n">cm</span> <span class="o">=</span> <span class="n">CoulombMatrix</span><span class="p">(</span>
-    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">permutation</span><span class="o">=</span><span class="s1">&#39;sorted_l2&#39;</span>
 <span class="p">)</span>
 
 <span class="n">cm_methanol</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">methanol</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="s2">&quot;default: sorted by L2-norm&quot;</span><span class="p">,</span> <span class="n">cm_methanol</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;default: sorted by L2-norm&quot;</span><span class="p">,</span> <span class="n">cm_methanol</span><span class="p">)</span>
 
 <span class="c1"># Random</span>
 <span class="n">cm</span> <span class="o">=</span> <span class="n">CoulombMatrix</span><span class="p">(</span>
-    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">permutation</span><span class="o">=</span><span class="s1">&#39;random&#39;</span><span class="p">,</span>
     <span class="n">sigma</span><span class="o">=</span><span class="mi">70</span><span class="p">,</span>
-    <span class="n">seed</span><span class="o">=</span><span class="bp">None</span>
+    <span class="n">seed</span><span class="o">=</span><span class="kc">None</span>
 <span class="p">)</span>
 
 <span class="n">cm_methanol</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">methanol</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="s2">&quot;randomly sorted&quot;</span><span class="p">,</span> <span class="n">cm_methanol</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;randomly sorted&quot;</span><span class="p">,</span> <span class="n">cm_methanol</span><span class="p">)</span>
 
 <span class="c1"># Eigenspectrum</span>
 <span class="n">cm</span> <span class="o">=</span> <span class="n">CoulombMatrix</span><span class="p">(</span>
-    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">permutation</span><span class="o">=</span><span class="s1">&#39;eigenspectrum&#39;</span>
 <span class="p">)</span>
 
 <span class="n">cm_methanol</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">methanol</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="s2">&quot;eigenvalues&quot;</span><span class="p">,</span> <span class="n">cm_methanol</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;eigenvalues&quot;</span><span class="p">,</span> <span class="n">cm_methanol</span><span class="p">)</span>
 </pre></div>
 </div>
 <ul class="simple">
@@ -517,10 +517,10 @@ descriptor, but on the other hand, it potentially loses information encoded
 in the CM interactions.</p></li>
 </ul>
 <p id="bibtex-bibliography-tutorials/coulomb_matrix-0"><dl class="citation">
-<dt class="label" id="cm"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dt class="bibtex label" id="cm"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
 <dd><p>Matthias Rupp, Alexandre Tkatchenko, Klaus-Robert Müller, and O. Anatole von Lilienfeld. Fast and accurate modeling of molecular atomization energies with machine learning. <em>Phys. Rev. Lett.</em>, 108:058301, Jan 2012. <a class="reference external" href="https://doi.org/10.1103/PhysRevLett.108.058301">doi:10.1103/PhysRevLett.108.058301</a>.</p>
 </dd>
-<dt class="label" id="cm-versions"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
+<dt class="bibtex label" id="cm-versions"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
 <dd><p>Grégoire Montavon, Katja Hansen, Siamac Fazli, Matthias Rupp, Franziska Biegler, Andreas Ziehe, Alexandre Tkatchenko, Anatole V. Lilienfeld, and Klaus-Robert Müller. Learning invariant representations of molecules for atomization energy prediction. In F. Pereira, C. J. C. Burges, L. Bottou, and K. Q. Weinberger, editors, <em>Advances in Neural Information Processing Systems 25</em>, pages 440–448. Curran Associates, Inc., 2012. URL: <a class="reference external" href="http://papers.nips.cc/paper/4830-learning-invariant-representations-of-molecules-for-atomization-energy-prediction.pdf">http://papers.nips.cc/paper/4830-learning-invariant-representations-of-molecules-for-atomization-energy-prediction.pdf</a>.</p>
 </dd>
 </dl>
@@ -566,16 +566,16 @@ in the CM interactions.</p></li>
   <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="fa fa-book"> Versions</span>
-      v: 0.3.3a0
+      v: 0.3.6a0
       <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
       <dl>
         <dt>Versions</dt>
         
-          <dd><a href="https://singroup.github.io/dscribe">0.3.2 (latest stable)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe">0.3.5 (latest stable)</a></dd>
         
-          <dd><a href="https://singroup.github.io/dscribe/dev">0.3.3a0 (development)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe/dev">0.3.6a0 (development)</a></dd>
         
       </dl>
     </div>

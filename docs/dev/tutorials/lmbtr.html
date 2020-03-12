@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Local Many-body Tensor Representation &mdash; DScribe 0.3.3a0 documentation</title>
+  <title>Local Many-body Tensor Representation &mdash; DScribe 0.3.6a0 documentation</title>
   
 
   
@@ -21,11 +21,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                0.3.3a0
+                0.3.6a0
               </div>
             
           
@@ -207,11 +207,11 @@ also possible.</p></li>
 <div class="section" id="setup">
 <h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h2>
 <p>Instantiating an LMBTR descriptor can be done as follows:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">LMBTR</span>
 <span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">bulk</span>
 <span class="kn">from</span> <span class="nn">ase.visualize</span> <span class="kn">import</span> <span class="n">view</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">mpl</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">mpl</span>
 
 <span class="c1"># Setup</span>
 <span class="n">lmbtr</span> <span class="o">=</span> <span class="n">LMBTR</span><span class="p">(</span>
@@ -226,7 +226,7 @@ also possible.</p></li>
         <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">180</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">},</span>
         <span class="s2">&quot;weighting&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exponential&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">},</span>
     <span class="p">},</span>
-    <span class="n">periodic</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">normalization</span><span class="o">=</span><span class="s2">&quot;l2_each&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
@@ -304,8 +304,8 @@ dense numpy array.</p></li>
 <span class="c1"># Create MBTR output for the system</span>
 <span class="n">mbtr_water</span> <span class="o">=</span> <span class="n">lmbtr</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">water</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
-<span class="k">print</span><span class="p">(</span><span class="n">mbtr_water</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">mbtr_water</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">mbtr_water</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">mbtr_water</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The call syntax for the create-function is as follows:</p>
@@ -379,7 +379,7 @@ sites on this surface: top, bridge, hcp and fcc.</p>
         <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">},</span>
         <span class="s2">&quot;weighting&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exponential&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="mf">1e-2</span><span class="p">},</span>
     <span class="p">},</span>
-    <span class="n">periodic</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+    <span class="n">periodic</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">normalization</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -454,16 +454,16 @@ automatic adsorption site classifier with machine learning.</p>
   <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="fa fa-book"> Versions</span>
-      v: 0.3.3a0
+      v: 0.3.6a0
       <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
       <dl>
         <dt>Versions</dt>
         
-          <dd><a href="https://singroup.github.io/dscribe">0.3.2 (latest stable)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe">0.3.5 (latest stable)</a></dd>
         
-          <dd><a href="https://singroup.github.io/dscribe/dev">0.3.3a0 (development)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe/dev">0.3.6a0 (development)</a></dd>
         
       </dl>
     </div>

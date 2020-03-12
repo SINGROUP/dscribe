@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dscribe.core package &mdash; DScribe 0.3.3a0 documentation</title>
+  <title>dscribe.core package &mdash; DScribe 0.3.6a0 documentation</title>
   
 
   
@@ -21,11 +21,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                0.3.3a0
+                0.3.6a0
               </div>
             
           
@@ -511,22 +511,22 @@ Default behavior is to <em>not</em> move the atoms (scale_atoms=False).</p>
 </dl>
 <p>Examples:</p>
 <p>Two equivalent ways to define an orthorhombic cell:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">atoms</span> <span class="o">=</span> <span class="n">Atoms</span><span class="p">(</span><span class="s1">&#39;He&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">atoms</span> <span class="o">=</span> <span class="n">Atoms</span><span class="p">(</span><span class="s1">&#39;He&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="mi">7</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mi">8</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">atoms</span><span class="o">.</span><span class="n">set_cell</span><span class="p">([</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">atoms</span><span class="o">.</span><span class="n">set_cell</span><span class="p">([(</span><span class="n">a</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">c</span><span class="p">)])</span>
 </pre></div>
 </div>
 <p>FCC unit cell:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">atoms</span><span class="o">.</span><span class="n">set_cell</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span> <span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span> <span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="mi">0</span><span class="p">)])</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">atoms</span><span class="o">.</span><span class="n">set_cell</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span> <span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span> <span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="mi">0</span><span class="p">)])</span>
 </pre></div>
 </div>
 <p>Hexagonal unit cell:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">atoms</span><span class="o">.</span><span class="n">set_cell</span><span class="p">([</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">120</span><span class="p">])</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">atoms</span><span class="o">.</span><span class="n">set_cell</span><span class="p">([</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">120</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>Rhombohedral unit cell:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">alpha</span> <span class="o">=</span> <span class="mi">77</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">alpha</span> <span class="o">=</span> <span class="mi">77</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">atoms</span><span class="o">.</span><span class="n">set_cell</span><span class="p">([</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">alpha</span><span class="p">])</span>
 </pre></div>
 </div>
@@ -653,16 +653,16 @@ limitations under the License.</p>
   <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="fa fa-book"> Versions</span>
-      v: 0.3.3a0
+      v: 0.3.6a0
       <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
       <dl>
         <dt>Versions</dt>
         
-          <dd><a href="https://singroup.github.io/dscribe">0.3.2 (latest stable)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe">0.3.5 (latest stable)</a></dd>
         
-          <dd><a href="https://singroup.github.io/dscribe/dev">0.3.3a0 (development)</a></dd>
+          <dd><a href="https://singroup.github.io/dscribe/dev">0.3.6a0 (development)</a></dd>
         
       </dl>
     </div>
