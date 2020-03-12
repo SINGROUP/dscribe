@@ -30,3 +30,6 @@ jobs:
       sudo: true
       after_success:
        - test $TRAVIS_BRANCH = "master" && coveralls && cd docs && ./buildtravisdocs.sh
+    - stage: test
+      python: 3.8
+      os: linux

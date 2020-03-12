@@ -11,4 +11,5 @@ cythonize mbtrwrapper.pyx -X language_level=3
 cd ../libacsf/
 cythonize acsfwrapper.pyx -X language_level=3
 
+cd ../../
 pip install .
