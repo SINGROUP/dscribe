@@ -37,6 +37,9 @@ Check the tutorials for more information.
 
 Go Deeper
 =========
+You can find more details in our open-access article: `DScribe: Library of
+descriptors for machine learning in materials science
+<https://doi.org/10.1016/j.cpc.2019.106949>`_
 
 Documentation for the source code :doc:`can be found here <doc/modules>`. The
 full source code with examples and regression tests can be explored at `github
@@ -47,7 +50,7 @@ full source code with examples and regression tests can be explored at `github
 
     install
     tutorials/tutorials
-    Documentation <doc/modules>
+    API <doc/modules>
     contributing
     citing
     about
