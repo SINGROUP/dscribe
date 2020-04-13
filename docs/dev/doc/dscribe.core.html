@@ -199,9 +199,9 @@ distributed under the License is distributed on an “AS IS” BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.</p>
-<dl class="class">
+<dl class="py class">
 <dt id="dscribe.core.lattice.Lattice">
-<em class="property">class </em><code class="sig-prename descclassname">dscribe.core.lattice.</code><code class="sig-name descname">Lattice</code><span class="sig-paren">(</span><em class="sig-param">matrix</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/lattice.html#Lattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.lattice.Lattice" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.core.lattice.</code><code class="sig-name descname">Lattice</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">matrix</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/lattice.html#Lattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.lattice.Lattice" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A lattice object.  Essentially a matrix with conversion matrices. In
 general, it is assumed that length units are in Angstroms and angles are in
@@ -222,39 +222,39 @@ E.g., [[10, 0, 0], [20, 10, 0], [0, 0, 30]] specifies a lattice
 with lattice vectors [10, 0, 0], [20, 10, 0] and [0, 0, 30].</p>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="dscribe.core.lattice.Lattice.abc">
 <em class="property">property </em><code class="sig-name descname">abc</code><a class="headerlink" href="#dscribe.core.lattice.Lattice.abc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Lengths of the lattice vectors, i.e. (a, b, c)</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="dscribe.core.lattice.Lattice.alpha">
 <em class="property">property </em><code class="sig-name descname">alpha</code><a class="headerlink" href="#dscribe.core.lattice.Lattice.alpha" title="Permalink to this definition">¶</a></dt>
 <dd><p>Angle alpha of lattice in degrees.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="dscribe.core.lattice.Lattice.angles">
 <em class="property">property </em><code class="sig-name descname">angles</code><a class="headerlink" href="#dscribe.core.lattice.Lattice.angles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the angles (alpha, beta, gamma) of the lattice.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="dscribe.core.lattice.Lattice.beta">
 <em class="property">property </em><code class="sig-name descname">beta</code><a class="headerlink" href="#dscribe.core.lattice.Lattice.beta" title="Permalink to this definition">¶</a></dt>
 <dd><p>Angle beta of lattice in degrees.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="dscribe.core.lattice.Lattice.gamma">
 <em class="property">property </em><code class="sig-name descname">gamma</code><a class="headerlink" href="#dscribe.core.lattice.Lattice.gamma" title="Permalink to this definition">¶</a></dt>
 <dd><p>Angle gamma of lattice in degrees.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="dscribe.core.lattice.Lattice.get_cartesian_coords">
-<code class="sig-name descname">get_cartesian_coords</code><span class="sig-paren">(</span><em class="sig-param">fractional_coords</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/lattice.html#Lattice.get_cartesian_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.lattice.Lattice.get_cartesian_coords" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_cartesian_coords</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fractional_coords</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/lattice.html#Lattice.get_cartesian_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.lattice.Lattice.get_cartesian_coords" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the cartesian coordinates given fractional coordinates.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -266,9 +266,9 @@ with lattice vectors [10, 0, 0], [20, 10, 0] and [0, 0, 30].</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="dscribe.core.lattice.Lattice.get_fractional_coords">
-<code class="sig-name descname">get_fractional_coords</code><span class="sig-paren">(</span><em class="sig-param">cart_coords</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/lattice.html#Lattice.get_fractional_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.lattice.Lattice.get_fractional_coords" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_fractional_coords</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cart_coords</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/lattice.html#Lattice.get_fractional_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.lattice.Lattice.get_fractional_coords" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the fractional coordinates given cartesian coordinates.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -280,9 +280,9 @@ with lattice vectors [10, 0, 0], [20, 10, 0] and [0, 0, 30].</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="dscribe.core.lattice.Lattice.get_points_in_sphere">
-<code class="sig-name descname">get_points_in_sphere</code><span class="sig-paren">(</span><em class="sig-param">frac_points</em>, <em class="sig-param">center</em>, <em class="sig-param">r</em>, <em class="sig-param">zip_results=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/lattice.html#Lattice.get_points_in_sphere"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.lattice.Lattice.get_points_in_sphere" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_points_in_sphere</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">frac_points</span></em>, <em class="sig-param"><span class="n">center</span></em>, <em class="sig-param"><span class="n">r</span></em>, <em class="sig-param"><span class="n">zip_results</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/lattice.html#Lattice.get_points_in_sphere"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.lattice.Lattice.get_points_in_sphere" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find all points within a sphere from the point taking into account
 periodic boundary conditions. This includes sites in other periodic
 images.</p>
@@ -322,30 +322,30 @@ point, or return the raw fcoord, dist, index arrays</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="dscribe.core.lattice.Lattice.inv_matrix">
 <em class="property">property </em><code class="sig-name descname">inv_matrix</code><a class="headerlink" href="#dscribe.core.lattice.Lattice.inv_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Inverse of lattice matrix.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="dscribe.core.lattice.Lattice.lengths">
 <em class="property">property </em><code class="sig-name descname">lengths</code><a class="headerlink" href="#dscribe.core.lattice.Lattice.lengths" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="dscribe.core.lattice.Lattice.lengths_and_angles">
 <em class="property">property </em><code class="sig-name descname">lengths_and_angles</code><a class="headerlink" href="#dscribe.core.lattice.Lattice.lengths_and_angles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns (lattice lengths, lattice angles).</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="dscribe.core.lattice.Lattice.matrix">
 <em class="property">property </em><code class="sig-name descname">matrix</code><a class="headerlink" href="#dscribe.core.lattice.Lattice.matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Copy of matrix representing the Lattice</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="dscribe.core.lattice.Lattice.reciprocal_lattice">
 <em class="property">property </em><code class="sig-name descname">reciprocal_lattice</code><a class="headerlink" href="#dscribe.core.lattice.Lattice.reciprocal_lattice" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the reciprocal lattice. Note that this is the standard
@@ -355,14 +355,14 @@ use the reciprocal_lattice_crystallographic property.
 The property is lazily generated for efficiency.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="dscribe.core.lattice.Lattice.reciprocal_lattice_crystallographic">
 <em class="property">property </em><code class="sig-name descname">reciprocal_lattice_crystallographic</code><a class="headerlink" href="#dscribe.core.lattice.Lattice.reciprocal_lattice_crystallographic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the <em>crystallographic</em> reciprocal lattice, i.e., no factor of
 2 * pi.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="dscribe.core.lattice.Lattice.volume">
 <em class="property">property </em><code class="sig-name descname">volume</code><a class="headerlink" href="#dscribe.core.lattice.Lattice.volume" title="Permalink to this definition">¶</a></dt>
 <dd><p>Volume of the unit cell.</p>
@@ -385,27 +385,27 @@ distributed under the License is distributed on an “AS IS” BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.</p>
-<dl class="class">
+<dl class="py class">
 <dt id="dscribe.core.system.System">
-<em class="property">class </em><code class="sig-prename descclassname">dscribe.core.system.</code><code class="sig-name descname">System</code><span class="sig-paren">(</span><em class="sig-param">symbols=None</em>, <em class="sig-param">positions=None</em>, <em class="sig-param">numbers=None</em>, <em class="sig-param">tags=None</em>, <em class="sig-param">momenta=None</em>, <em class="sig-param">masses=None</em>, <em class="sig-param">magmoms=None</em>, <em class="sig-param">charges=None</em>, <em class="sig-param">scaled_positions=None</em>, <em class="sig-param">cell=None</em>, <em class="sig-param">pbc=None</em>, <em class="sig-param">celldisp=None</em>, <em class="sig-param">constraint=None</em>, <em class="sig-param">calculator=None</em>, <em class="sig-param">info=None</em>, <em class="sig-param">wyckoff_positions=None</em>, <em class="sig-param">equivalent_atoms=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.core.system.</code><code class="sig-name descname">System</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">symbols</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">positions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">numbers</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">tags</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">momenta</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">masses</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">magmoms</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">charges</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">scaled_positions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cell</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">pbc</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">celldisp</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">constraint</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">calculator</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">info</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">wyckoff_positions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">equivalent_atoms</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ase.atoms.Atoms</span></code></p>
 <p>Represents atomic systems that are used internally by the package.
 Inherits from the ase.Atoms class, but adds the possibility to cache
 various time-consuming quantities that can be shared when creating multiple
 descriptors.</p>
-<dl class="method">
+<dl class="py method">
 <dt id="dscribe.core.system.System.from_atoms">
-<em class="property">static </em><code class="sig-name descname">from_atoms</code><span class="sig-paren">(</span><em class="sig-param">atoms</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.from_atoms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.from_atoms" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_atoms</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">atoms</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.from_atoms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.from_atoms" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a System object from ASE.Atoms object.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="dscribe.core.system.System.get_cell_inverse">
 <code class="sig-name descname">get_cell_inverse</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.get_cell_inverse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.get_cell_inverse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the matrix inverse of the lattice matrix.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="dscribe.core.system.System.get_displacement_tensor">
 <code class="sig-name descname">get_displacement_tensor</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.get_displacement_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.get_displacement_tensor" title="Permalink to this definition">¶</a></dt>
 <dd><p>A matrix where the entry A[i, j, :] is the vector
@@ -424,7 +424,7 @@ copies.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="dscribe.core.system.System.get_distance_matrix">
 <code class="sig-name descname">get_distance_matrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.get_distance_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.get_distance_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the distance matrix A defined as:</p>
@@ -444,9 +444,9 @@ copies.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="dscribe.core.system.System.get_distance_matrix_within_radius">
-<code class="sig-name descname">get_distance_matrix_within_radius</code><span class="sig-paren">(</span><em class="sig-param">radius</em>, <em class="sig-param">pos=None</em>, <em class="sig-param">output_type='coo_matrix'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.get_distance_matrix_within_radius"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.get_distance_matrix_within_radius" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_distance_matrix_within_radius</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">radius</span></em>, <em class="sig-param"><span class="n">pos</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">output_type</span><span class="o">=</span><span class="default_value">'coo_matrix'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.get_distance_matrix_within_radius"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.get_distance_matrix_within_radius" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates a sparse distance matrix by only considering distances
 within a certain cutoff. Uses a k-d tree to reach O(n log(N)) time
 complexity.</p>
@@ -470,7 +470,7 @@ matrix containing the pairwise distances.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="dscribe.core.system.System.get_inverse_distance_matrix">
 <code class="sig-name descname">get_inverse_distance_matrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.get_inverse_distance_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.get_inverse_distance_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the inverse distance matrix A defined as:</p>
@@ -491,9 +491,9 @@ distances.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="dscribe.core.system.System.set_cell">
-<code class="sig-name descname">set_cell</code><span class="sig-paren">(</span><em class="sig-param">cell</em>, <em class="sig-param">scale_atoms=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.set_cell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.set_cell" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_cell</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cell</span></em>, <em class="sig-param"><span class="n">scale_atoms</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.set_cell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.set_cell" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set unit cell vectors.</p>
 <p>Parameters:</p>
 <dl class="simple">
@@ -532,28 +532,28 @@ Default behavior is to <em>not</em> move the atoms (scale_atoms=False).</p>
 </div>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="dscribe.core.system.System.set_pbc">
-<code class="sig-name descname">set_pbc</code><span class="sig-paren">(</span><em class="sig-param">pbc</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.set_pbc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.set_pbc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_pbc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pbc</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.set_pbc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.set_pbc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set periodic boundary condition flags.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="dscribe.core.system.System.set_positions">
-<code class="sig-name descname">set_positions</code><span class="sig-paren">(</span><em class="sig-param">newpositions</em>, <em class="sig-param">apply_constraint=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.set_positions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.set_positions" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_positions</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">newpositions</span></em>, <em class="sig-param"><span class="n">apply_constraint</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.set_positions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.set_positions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set positions, honoring any constraints. To ignore constraints,
 use <em>apply_constraint=False</em>.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="dscribe.core.system.System.set_scaled_positions">
-<code class="sig-name descname">set_scaled_positions</code><span class="sig-paren">(</span><em class="sig-param">scaled</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.set_scaled_positions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.set_scaled_positions" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_scaled_positions</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">scaled</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.set_scaled_positions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.set_scaled_positions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set positions relative to unit cell.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="dscribe.core.system.System.to_cartesian">
-<code class="sig-name descname">to_cartesian</code><span class="sig-paren">(</span><em class="sig-param">scaled_positions</em>, <em class="sig-param">wrap=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.to_cartesian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.to_cartesian" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to_cartesian</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">scaled_positions</span></em>, <em class="sig-param"><span class="n">wrap</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.to_cartesian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.to_cartesian" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to transofrm a set of relative positions to the cartesian basis
 defined by the cell of this system.</p>
 <dl class="field-list simple">
@@ -573,9 +573,9 @@ inside the cell.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="dscribe.core.system.System.to_scaled">
-<code class="sig-name descname">to_scaled</code><span class="sig-paren">(</span><em class="sig-param">positions</em>, <em class="sig-param">wrap=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.to_scaled"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.to_scaled" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to_scaled</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">positions</span></em>, <em class="sig-param"><span class="n">wrap</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.to_scaled"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.to_scaled" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to transform a set of positions to the basis defined by the
 cell of this system.</p>
 <dl class="field-list simple">
