@@ -52,6 +52,7 @@ extensions = [
         "dscribe.libacsf.acsfwrapper",
         [
             "dscribe/libacsf/acsfwrapper.cpp",
+            "dscribe/libacsf/acsf.cpp",
         ],
         language="c++",
         include_dirs=["dscribe/libacsf"],
@@ -63,6 +64,7 @@ extensions = [
         "dscribe.libmbtr.mbtrwrapper",
         [
             "dscribe/libmbtr/mbtrwrapper.cpp",
+            "dscribe/libmbtr/mbtr.cpp",
         ],
         language="c++",
         include_dirs=["dscribe/libmbtr"],
