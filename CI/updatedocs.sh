@@ -7,7 +7,8 @@ rm -r build
 
 # Push changes to docs
 git config --global user.name "Azure Pipelines CI"
+git config --global user.email "lauri.himanen@gmail.com"
 cd ../..
 git add ./docs
 git commit -m "CI documentation build [skip ci]"
-git push origin HEAD:$(Build.SourceBranchName)
+git push origin HEAD:$BUILD_SOURCEBRANCHNAME
