@@ -93,6 +93,7 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="basics.html">Basic concepts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="coulomb_matrix.html">Coulomb Matrix</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sine_matrix.html">Sine matrix</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ewald_sum_matrix.html">Ewald sum matrix</a></li>
@@ -107,7 +108,7 @@
 <li class="toctree-l2"><a class="reference internal" href="kernels.html">Building similarity kernels from local environments</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../doc/modules.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../doc/modules.html">API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing DScribe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
@@ -221,9 +222,9 @@ for Z in atomic numbers in increasing order:
 </pre></div>
 </div>
 <p>The arguments have the following effect:</p>
-<dl class="method">
+<dl class="py method">
 <dt id="dscribe.descriptors.acsf.ACSF.__init__">
-<code class="sig-prename descclassname">ACSF.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">rcut</em>, <em class="sig-param">g2_params=None</em>, <em class="sig-param">g3_params=None</em>, <em class="sig-param">g4_params=None</em>, <em class="sig-param">g5_params=None</em>, <em class="sig-param">species=None</em>, <em class="sig-param">periodic=False</em>, <em class="sig-param">sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/acsf.html#ACSF.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">ACSF.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rcut</span></em>, <em class="sig-param"><span class="n">g2_params</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">g3_params</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">g4_params</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">g5_params</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">species</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">periodic</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">sparse</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/acsf.html#ACSF.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -271,9 +272,9 @@ dense numpy array.</p></li>
 </pre></div>
 </div>
 <p>The call syntax for the create-function is as follows:</p>
-<dl class="method">
+<dl class="py method">
 <dt id="dscribe.descriptors.acsf.ACSF.create">
-<code class="sig-prename descclassname">ACSF.</code><code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param">system</em>, <em class="sig-param">positions=None</em>, <em class="sig-param">n_jobs=1</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/acsf.html#ACSF.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.create" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">ACSF.</code><code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">positions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/acsf.html#ACSF.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the ACSF output for the given systems and given positions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
