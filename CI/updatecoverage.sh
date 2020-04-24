@@ -1,3 +1,3 @@
 # Generate coverage report
 cd ..
-coveralls
+coveralls --coveralls-python
