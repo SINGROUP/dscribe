@@ -35,9 +35,9 @@ jobs:
       cd $(Build.Repository.LocalPath)/CI && ./build.sh
     displayName: 'Build package'
 
-  - script: |
-      cd $(Build.Repository.LocalPath)/CI && ./test.sh
-    displayName: 'Run regression tests'
+  #- script: |
+      #cd $(Build.Repository.LocalPath)/CI && ./test.sh
+    #displayName: 'Run regression tests'
 
   - script: |
       cd $(Build.Repository.LocalPath)/CI && ./updatecoverage.sh
