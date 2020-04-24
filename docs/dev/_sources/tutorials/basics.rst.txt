@@ -25,17 +25,18 @@ Terminology
 -----------
  - *structure*: An atomic geometry containing the chemical species, atomic
    positions and optionally a unit cell for periodic structures.
- - *descriptor*: A particular method for transforming an atomic structure into a
+ - *descriptor*: A particular method for transforming a structure into a
    constant sized vector. There are various options which are suitable for
-   different used cases. DScribe currently provides the following descriptors: :doc:`Coulomb matrix <coulomb_matrix>`, :doc:`Sine matrix <sine_matrix>`, :doc:`Ewald sum matrix <ewald_sum_matrix>`, :doc:`Atom-centered Symmetry Functions (ACSF) <acsf>`, :doc:`Smooth Overlap of Atomic Positions (SOAP) <soap>`, :doc:`Many-body Tensor Representation (MBTR) <mbtr>` and :doc:`Local Many-body Tensor Representation (LMBTR) <lmbtr>`.
+   different use cases. DScribe currently provides the following descriptors: :doc:`Coulomb matrix <coulomb_matrix>`, :doc:`Sine matrix <sine_matrix>`, :doc:`Ewald sum matrix <ewald_sum_matrix>`, :doc:`Atom-centered Symmetry Functions (ACSF) <acsf>`, :doc:`Smooth Overlap of Atomic Positions (SOAP) <soap>`, :doc:`Many-body Tensor Representation (MBTR) <mbtr>` and :doc:`Local Many-body Tensor Representation (LMBTR) <lmbtr>`.
  - *descriptor object*: In DScribe there is a single python class for each
    descriptor. The object that is instantiated from this class is called a
    descriptor object.
  - *feature vector*: The descriptor objects produce a single one-dimensional
    vector for each input structure. This is called a feature vector.
- - *feature*: A single channel/dimension in the multi-dimensional vector produced
-   by a descriptor object for a structure. Each feature is a number that
-   represents a specific structural/chemical property in the structure.
+ - *feature*: A single channel/dimension in the multi-dimensional feature
+   vector produced by a descriptor object for a structure. Each feature is a
+   number that represents a specific structural/chemical property in the
+   structure.
 
 Typical workflow
 ----------------
@@ -55,7 +56,7 @@ Typical workflow
 2. Usually the descriptors require some knowledge about the dataset you are
    analyzing. This means that you wll need to gather information about the
    expected input space of all your analyzed structures. Often simply gathering
-   a list of the chemical species that present in your dataset is enough.
+   a list of the present chemical species is enough.
 
    For example:
 
