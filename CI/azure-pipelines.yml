@@ -40,6 +40,8 @@ jobs:
 
   - script: |
       cd $(Build.Repository.LocalPath)/CI && ./updatecoverage.sh
+    env:
+      COVERALLS_REPO_TOKEN: $(COVERALLS_REPO_TOKEN) # right way to map to an env variable
     displayName: 'Update coverage'
     condition: and(succeeded(), eq(variables['python.version'], '3.7'))
 
