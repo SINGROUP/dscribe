@@ -1,0 +1,53 @@
+# Defines when the pipeline is triggered
+trigger:
+- master
+- development
+
+# Jobs
+jobs:
+
+  # Linux job
+- job: linux
+  pool:
+    vmImage: 'ubuntu-latest'
+  strategy:
+    matrix:
+      python35:
+        python.version: '3.5'
+      python36:
+        python.version: '3.6'
+      python37:
+        python.version: '3.7'
+      python38:
+        python.version: '3.8'
+  steps:
+  - checkout: self
+    displayName: 'Checking out git repository'
+    persistCredentials: true
+    clean: true
+    
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '$(python.version)'
+    displayName: 'Use Python $(python.version)'
+
+  - script: |
+      cd $(Build.Repository.LocalPath)/CI && ./build.sh
+    displayName: 'Build package'
+
+  - script: |
+      cd $(Build.Repository.LocalPath)/CI && ./test.sh
+    displayName: 'Run regression tests'
+
+  - script: |
+      cd $(Build.Repository.LocalPath)/CI && ./updatecoverage.sh
+    env:
+      COVERALLS_REPO_TOKEN: $(COVERALLS_REPO_TOKEN) # right way to map to an env variable
+    displayName: 'Update coverage'
+    condition: and(succeeded(), eq(variables['python.version'], '3.7'))
+
+  - script: |
+      cd $(Build.Repository.LocalPath)/CI && ./updatedocs.sh
+    displayName: 'Update docs'
+    condition: and(succeeded(), eq(variables['python.version'], '3.7'))
+

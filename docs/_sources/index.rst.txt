@@ -7,9 +7,11 @@ DScribe
 .. image:: https://coveralls.io/repos/github/SINGROUP/dscribe/badge.svg?branch=master
     :target: https://coveralls.io/github/SINGROUP/dscribe?branch=master
 
-DScribe is a Python package for transforming atomic structures into descriptors
-that can be used in various machine learning tasks related to materials
-science.
+DScribe is a Python package for transforming atomic structures into fixed-size
+numerical fingerprints. These fingerprints are often called "descriptors" and
+they can be used in various tasks, including machine learning, visualization,
+similarity analysis, etc. To get started you can check the :doc:`basic tutorial
+<tutorials/basics>`.
 
 .. note::
    Python 3.8 is supported starting from version **0.3.5**.
