@@ -1769,24 +1769,24 @@ void getPs(double* Ps, double* Cts,  int Nt, int lMax, int gnsize, bool crossove
         Ps[i] = 0.0;
     }
 
-    for (int t1 = 0; t1 < Nt; t1++) {
-        int t2Limit = crossover ? Nt : t1+1;
-        for (int t2 = t1; t2 < t2Limit; t2++) {
+    for (int Z1 = 0; Z1 < Nt; Z1++) {
+        int Z2Limit = crossover ? Nt : Z1+1;
+        for (int Z2 = Z1; Z2 < Z2Limit; Z2++) {
             for (int l = 0; l < lMax+1; l++) {
                 nshift = 0;
-                for (int n = 0; n < gnsize; n++) {
-                    for (int nd = n; nd < gnsize; nd++) {
+                for (int N1 = 0; N1 < gnsize; N1++) {
+                    for (int N2 = N1; N2 < gnsize; N2++) {
                         for (int m = 0; m < l+1; m++) {
                             if (m==0) {
                                 Ps[tshift*(lMax+1)*NN + l*NN + nshift ]
-                                    +=  Cts[2*t1*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*n  + l*2*(lMax+1)] // m=0
-                                    *Cts[2*t2*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*nd + l*2*(lMax+1)]; // m=0
+                                    +=  Cts[2*Z1*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*N1  + l*2*(lMax+1)] // m=0
+                                    *Cts[2*Z2*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1)]; // m=0
                             } else {
                                 Ps[tshift*(lMax+1)*NN + l*NN + nshift]
-                                    +=  2*(Cts[2*t1*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*n  + l*2*(lMax+1) + 2*m]
-                                            *Cts[2*t2*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*nd + l*2*(lMax+1) + 2*m]
-                                            + Cts[2*t1*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*n  + l*2*(lMax+1) + 2*m + 1]
-                                            *Cts[2*t2*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*nd + l*2*(lMax+1) + 2*m + 1]);
+                                    +=  2*(Cts[2*Z1*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*N1  + l*2*(lMax+1) + 2*m]
+                                            *Cts[2*Z2*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1) + 2*m]
+                                            + Cts[2*Z1*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*N1  + l*2*(lMax+1) + 2*m + 1]
+                                            *Cts[2*Z2*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1) + 2*m + 1]);
                             }
                         }
                         nshift++;
@@ -1802,9 +1802,9 @@ void accumP(double* Phs, double* Ps, int Nt, int lMax, int gnsize, double rCut2,
     int tshift=0;
     int NN = ((gnsize+1)*gnsize)/2;
     int nTypeComb = crossover ? ((Nt+1)*Nt)/2 : Nt;
-    for (int t1 = 0; t1 < Nt; t1++) {
-        int t2Limit = crossover ? Nt : t1+1;
-        for (int t2 = t1; t2 < t2Limit; t2++) {
+    for (int Z1 = 0; Z1 < Nt; Z1++) {
+        int Z2Limit = crossover ? Nt : Z1+1;
+        for (int Z2 = Z1; Z2 < Z2Limit; Z2++) {
             for (int l = 0; l < lMax+1; l++) {
                 int nshift=0;
 
@@ -1818,7 +1818,7 @@ void accumP(double* Phs, double* Ps, int Nt, int lMax, int gnsize, double rCut2,
 
                 for (int n = 0; n < gnsize; n++) {
                     for (int nd = n; nd < gnsize; nd++) {
-                        Phs[Ihpos*nTypeComb*(lMax+1)*NN + tshift*(lMax+1)*NN + l*NN + nshift] = prefactor*39.478417604*rCut2*Ps[tshift*(lMax+1)*NN + l*NN + nshift];// 16*9.869604401089358*Ps[tshift*(lMax+1)*NN + l*NN + nshift];
+                        Phs[Ihpos*nTypeComb*(lMax+1)*NN + tshift*(lMax+1)*NN + l*NN + nshift] = prefactor*39.478417604*rCuZ2*Ps[tshift*(lMax+1)*NN + l*NN + nshift];// 16*9.869604401089358*Ps[tshift*(lMax+1)*NN + l*NN + nshift];
                         nshift++;
                     }
                 }
