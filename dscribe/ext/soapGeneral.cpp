@@ -1818,7 +1818,7 @@ void accumP(double* Phs, double* Ps, int Nt, int lMax, int gnsize, double rCut2,
 
                 for (int n = 0; n < gnsize; n++) {
                     for (int nd = n; nd < gnsize; nd++) {
-                        Phs[Ihpos*nTypeComb*(lMax+1)*NN + tshift*(lMax+1)*NN + l*NN + nshift] = prefactor*39.478417604*rCuZ2*Ps[tshift*(lMax+1)*NN + l*NN + nshift];// 16*9.869604401089358*Ps[tshift*(lMax+1)*NN + l*NN + nshift];
+                        Phs[Ihpos*nTypeComb*(lMax+1)*NN + tshift*(lMax+1)*NN + l*NN + nshift] = prefactor*39.478417604*rCut2*Ps[tshift*(lMax+1)*NN + l*NN + nshift];// 16*9.869604401089358*Ps[tshift*(lMax+1)*NN + l*NN + nshift];
                         nshift++;
                     }
                 }

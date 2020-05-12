@@ -62,7 +62,6 @@ class SOAP(Descriptor):
             crossover=True,
             average=False,
             sparse=False,
-            legacy=False,
             ):
         """
         Args:
@@ -97,9 +96,6 @@ class SOAP(Descriptor):
                 positions.
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
-            legacy (bool): Used to switch on/off old behaviour for collecting
-                SOAP spectrum terms. If set to True, the spectrum will consist
-                of terms... If set to False, the spectrum will contain terms...
         """
         super().__init__(periodic=periodic, flatten=True, sparse=sparse)
 
@@ -601,45 +597,6 @@ class SOAP(Descriptor):
         atomic_numbers_sorted = np.concatenate(z_lst).ravel()
 
         return positions_sorted, atomic_numbers_sorted, n_species, atomic_numbers_sorted
-
-    def flatten_positions_old(self, system, atomic_numbers=None):
-        """ Takes an ase Atoms object and returns numpy arrays and integers
-        which are read by the internal clusgeo. Apos is currently a flattened
-        out numpy array
-
-        Args:
-            system (ase.atoms): The system to convert.
-            atomic_numbers(): The atomic numbers to consider. Atoms that do not
-                have these atomic numbers are ignored.
-
-        Returns:
-            (np.ndarray, list, int, np.ndarray): Returns the positions flattened
-            and sorted by atomic number, numer of atoms per type, number of
-            different species and the sorted atomic numbers.
-        """
-        Z = system.get_atomic_numbers()
-        pos = system.get_positions()
-
-        # Get a sorted list of atom types
-        if atomic_numbers is not None:
-            atomtype_set = set(atomic_numbers)
-        else:
-            atomtype_set = set(Z)
-        atomic_numbers_sorted = np.sort(list(atomtype_set))
-
-        # Form a flattened list of atomic positions, sorted by atomic type
-        n_atoms_per_type = []
-        pos_lst = []
-        for atomtype in atomic_numbers_sorted:
-            condition = Z == atomtype
-            pos_onetype = pos[condition]
-            n_onetype = pos_onetype.shape[0]
-            pos_lst.append(pos_onetype)
-            n_atoms_per_type.append(n_onetype)
-        n_species = len(atomic_numbers_sorted)
-        positions_sorted = np.concatenate(pos_lst).ravel()
-
-        return positions_sorted, n_atoms_per_type, n_species, atomic_numbers_sorted
 
     def get_soap_locals_gto(self, system, centers, alphas, betas, rcut, cutoff_padding, nmax, lmax, eta, crossover, atomic_numbers=None):
         """Get the SOAP output for the given positions using the gto radial
