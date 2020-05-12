@@ -134,9 +134,12 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         """Tests that disabling/enabling crossover works as expected.
         """
         pos = [[0.1, 0.1, 0.1]]
+        species = [1, 8]
+        nmax = 5
+        lmax = 5
 
         # GTO
-        desc = SOAP(species=[1, 8], rbf="gto", crossover=True, rcut=3, nmax=5, lmax=5, periodic=False)
+        desc = SOAP(species=species, rbf="gto", crossover=True, rcut=3, nmax=nmax, lmax=lmax, periodic=False)
         n_elem_feat = desc.get_number_of_element_features()
         full_output = desc.create(H2O, positions=pos)
         desc.crossover = False
@@ -145,7 +148,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         self.assertTrue(np.array_equal(full_output[:, 2*n_elem_feat:], partial_output[:, n_elem_feat:]))
 
         # Polynomial
-        desc = SOAP(species=[1, 8], rbf="polynomial", crossover=True, rcut=3, nmax=5, lmax=5, periodic=False)
+        desc = SOAP(species=species, rbf="polynomial", crossover=True, rcut=3, nmax=lmax, lmax=lmax, periodic=False)
         n_elem_feat = desc.get_number_of_element_features()
         full_output = desc.create(H2O, pos)
         desc.crossover = False
@@ -1107,6 +1110,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
                     # Check that the relative or absolute error is small enough
                     self.assertTrue(np.allclose(orthogonal_soaps, non_orthogonal_soaps, atol=1e-8, rtol=1e-6))
+
 
 if __name__ == '__main__':
     suites = []

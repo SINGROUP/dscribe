@@ -62,6 +62,7 @@ class SOAP(Descriptor):
             crossover=True,
             average=False,
             sparse=False,
+            legacy=False,
             ):
         """
         Args:
@@ -96,6 +97,9 @@ class SOAP(Descriptor):
                 positions.
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
+            legacy (bool): Used to switch on/off old behaviour for collecting
+                SOAP spectrum terms. If set to True, the spectrum will consist
+                of terms... If set to False, the spectrum will contain terms...
         """
         super().__init__(periodic=periodic, flatten=True, sparse=sparse)
 
@@ -663,7 +667,7 @@ class SOAP(Descriptor):
             np.ndarray: SOAP output with the gto radial basis for the given positions.
         """
         n_atoms = len(system)
-        positions, Z_sorted, n_species, atomtype_lst = self.flatten_positions(system, atomic_numbers)
+        positions, Z_sorted, n_species, _ = self.flatten_positions(system, atomic_numbers)
         centers = np.array(centers)
         n_centers = centers.shape[0]
         centers = centers.flatten()
@@ -713,7 +717,7 @@ class SOAP(Descriptor):
         rx, gss = self.get_basis_poly(rcut, nmax)
 
         n_atoms = len(system)
-        positions, Z_sorted, n_species, atomtype_lst = self.flatten_positions(system, atomic_numbers)
+        positions, Z_sorted, n_species, _ = self.flatten_positions(system, atomic_numbers)
         centers = np.array(centers)
         n_centers = centers.shape[0]
 
