@@ -1816,8 +1816,8 @@ void accumP(double* Phs, double* Ps, int Nt, int lMax, int gnsize, double rCut2,
                 // possible dot-product the full prefactor is recovered.
                 double prefactor = PI*sqrt(8.0/(2.0*l+1.0));
 
-                for (int n = 0; n < gnsize; n++) {
-                    for (int nd = n; nd < gnsize; nd++) {
+                for (int N1 = 0; N1 < gnsize; N1++) {
+                    for (int N2 = N1; N2 < gnsize; N2++) {
                         Phs[Ihpos*nTypeComb*(lMax+1)*NN + tshift*(lMax+1)*NN + l*NN + nshift] = prefactor*39.478417604*rCut2*Ps[tshift*(lMax+1)*NN + l*NN + nshift];// 16*9.869604401089358*Ps[tshift*(lMax+1)*NN + l*NN + nshift];
                         nshift++;
                     }
