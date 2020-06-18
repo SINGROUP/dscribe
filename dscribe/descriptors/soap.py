@@ -331,11 +331,11 @@ class SOAP(Descriptor):
 
         # Map the output from subspace of elements to the full space of
         # elements
-        soap_mat = self.get_full_space_output(
-            soap_mat,
-            sub_elements,
-            self._atomic_numbers
-        )
+        # soap_mat = self.get_full_space_output(
+            # soap_mat,
+            # sub_elements,
+            # self._atomic_numbers
+        # )
 
         # Create the averaged SOAP output if requested.
         if self._average:
@@ -372,113 +372,104 @@ class SOAP(Descriptor):
             self.index_to_atomic_number[i_atom] = atomic_number
         self.n_elements = len(self._atomic_numbers)
 
-    def get_full_space_output(self, sub_output, sub_elements, full_elements_sorted):
-        """Used to partition the SOAP output to different locations depending
-        on the interacting elements. SOAPLite return the output partitioned by
-        the elements present in the given system. This function correctly
-        places those results within a bigger chemical space.
+    # def get_full_space_output(self, sub_output, sub_elements, full_elements_sorted):
+        # """Used to partition the SOAP output to different locations depending
+        # on the interacting elements. SOAPLite return the output partitioned by
+        # the elements present in the given system. This function correctly
+        # places those results within a bigger chemical space.
 
-        Args:
-            sub_output(np.ndarray): The output fron SOAPLite
-            sub_elements(list): The atomic numbers present in the subspace
-            full_elements_sorted(list): The atomic numbers present in the full
-                space, sorted.
+        # Args:
+            # sub_output(np.ndarray): The output fron SOAPLite
+            # sub_elements(list): The atomic numbers present in the subspace
+            # full_elements_sorted(list): The atomic numbers present in the full
+                # space, sorted.
 
-        Returns:
-            np.ndarray: The given SOAP output mapped to the full chemical space.
-        """
-        # print(sub_output.shape)
-        # Get mapping between elements in the subspace and alements in the full
-        # space
-        space_map = self.get_sub_to_full_map(sub_elements, full_elements_sorted)
+        # Returns:
+            # np.ndarray: The given SOAP output mapped to the full chemical space.
+        # """
+        # # print(sub_output.shape)
+        # # Get mapping between elements in the subspace and alements in the full
+        # # space
+        # space_map = self.get_sub_to_full_map(sub_elements, full_elements_sorted)
 
-        # Reserve space for a sparse matric containing the full output space
-        n_features = self.get_number_of_features()
-        n_elem_features = self.get_number_of_element_features()
-        n_points = sub_output.shape[0]
+        # # Reserve space for a sparse matric containing the full output space
+        # n_features = self.get_number_of_features()
+        # n_elem_features = self.get_number_of_element_features()
+        # n_points = sub_output.shape[0]
 
-        # Define the final output space as an array.
-        output = np.zeros((n_points, n_features), dtype=np.float32)
+        # # Define the final output space as an array.
+        # output = np.zeros((n_points, n_features), dtype=np.float32)
 
-        # When crossover is enabled, we need to store the contents for all
-        # unique species combinations
-        if self.crossover:
-            n_elem_sub = len(sub_elements)
-            n_elem_full = len(full_elements_sorted)
-            for i_sub in range(n_elem_sub):
-                for j_sub in range(n_elem_sub):
-                    if j_sub >= i_sub:
+        # # When crossover is enabled, we need to store the contents for all
+        # # unique species combinations
+        # if self.crossover:
+            # n_elem_sub = len(sub_elements)
+            # n_elem_full = len(full_elements_sorted)
+            # for i_sub in range(n_elem_sub):
+                # for j_sub in range(n_elem_sub):
+                    # if j_sub >= i_sub:
 
-                        # This is the index of the spectrum. It is given by enumerating the
-                        # elements of an upper triangular matrix from left to right and top
-                        # to bottom.
-                        m = self.get_flattened_index(i_sub, j_sub, n_elem_sub)
-                        start_sub = m*n_elem_features
-                        end_sub = (m+1)*n_elem_features
-                        sub_out = sub_output[:, start_sub:end_sub]
+                        # # This is the index of the spectrum. It is given by enumerating the
+                        # # elements of an upper triangular matrix from left to right and top
+                        # # to bottom.
+                        # m = self.get_flattened_index(i_sub, j_sub, n_elem_sub)
+                        # start_sub = m*n_elem_features
+                        # end_sub = (m+1)*n_elem_features
+                        # sub_out = sub_output[:, start_sub:end_sub]
 
-                        # Figure out position in the full element space
-                        i_full = space_map[i_sub]
-                        j_full = space_map[j_sub]
-                        m_full = self.get_flattened_index(i_full, j_full, n_elem_full)
+                        # # Figure out position in the full element space
+                        # i_full = space_map[i_sub]
+                        # j_full = space_map[j_sub]
+                        # m_full = self.get_flattened_index(i_full, j_full, n_elem_full)
 
-                        # Place output to full output vector
-                        start_full = m_full*n_elem_features
-                        end_full = (m_full+1)*n_elem_features
-                        output[:, start_full:end_full] = sub_out
-        # When crossover is disabled, we need to store only power spectrums
-        # that contain for each species
-        else:
-            n_elem_sub = len(sub_elements)
-            n_elem_full = len(full_elements_sorted)
-            for m in range(n_elem_sub):
-                # This is the index of the spectrum. It is given by enumerating the
-                # elements of an upper triangular matrix from left to right and top
-                # to bottom.
-                start_sub = m*n_elem_features
-                end_sub = (m+1)*n_elem_features
-                sub_out = sub_output[:, start_sub:end_sub]
+                        # # Place output to full output vector
+                        # start_full = m_full*n_elem_features
+                        # end_full = (m_full+1)*n_elem_features
+                        # output[:, start_full:end_full] = sub_out
+        # # When crossover is disabled, we need to store only power spectrums
+        # # that contain for each species
+        # else:
+            # n_elem_sub = len(sub_elements)
+            # n_elem_full = len(full_elements_sorted)
+            # for m in range(n_elem_sub):
+                # # This is the index of the spectrum. It is given by enumerating the
+                # # elements of an upper triangular matrix from left to right and top
+                # # to bottom.
+                # start_sub = m*n_elem_features
+                # end_sub = (m+1)*n_elem_features
+                # sub_out = sub_output[:, start_sub:end_sub]
 
-                # Figure out position in the full element space
-                m_full = space_map[m]
+                # # Figure out position in the full element space
+                # m_full = space_map[m]
 
-                # Place output to full output vector
-                start_full = m_full*n_elem_features
-                end_full = (m_full+1)*n_elem_features
-                output[:, start_full:end_full] = sub_out
+                # # Place output to full output vector
+                # start_full = m_full*n_elem_features
+                # end_full = (m_full+1)*n_elem_features
+                # output[:, start_full:end_full] = sub_out
 
-        return output
+        # return output
 
-    def get_sub_to_full_map(self, sub_elements, full_elements):
-        """Used to map an index in the sub-space of elements to the full
-        element-space.
-        """
-        # Sort the elements according to atomic number
-        sub_elements_sorted = np.sort(sub_elements)
-        full_elements_sorted = np.sort(full_elements)
+    # def get_sub_to_full_map(self, sub_elements, full_elements):
+        # """Used to map an index in the sub-space of elements to the full
+        # element-space.
+        # """
+        # # Sort the elements according to atomic number
+        # sub_elements_sorted = np.sort(sub_elements)
+        # full_elements_sorted = np.sort(full_elements)
 
-        mapping = {}
-        for i_sub, z in enumerate(sub_elements_sorted):
-            i_full = np.where(full_elements_sorted == z)[0][0]
-            mapping[i_sub] = i_full
+        # mapping = {}
+        # for i_sub, z in enumerate(sub_elements_sorted):
+            # i_full = np.where(full_elements_sorted == z)[0][0]
+            # mapping[i_sub] = i_full
 
-        return mapping
+        # return mapping
 
-    def get_number_of_element_features(self):
-        """Used to query the number of elements in the SOAP feature space for
-        a single element pair.
-
-        Returns:
-            int: The number of features per element pair.
-        """
-        return int((self._lmax + 1) * self._nmax * (self._nmax + 1)/2)
-
-    def get_flattened_index(self, i, j, n):
-        """Returns the 1D index of an element in an upper diagonal matrix that
-        has been flattened by iterating over the elements from left to right
-        and top to bottom.
-        """
-        return int(j + i*n - i*(i+1)/2)
+    # def get_flattened_index(self, i, j, n):
+        # """Returns the 1D index of an element in an upper diagonal matrix that
+        # has been flattened by iterating over the elements from left to right
+        # and top to bottom.
+        # """
+        # return int(j + i*n - i*(i+1)/2)
 
     def get_number_of_features(self):
         """Used to inquire the final number of features that this descriptor
@@ -487,15 +478,12 @@ class SOAP(Descriptor):
         Returns:
             int: Number of features for this descriptor.
         """
-        n_elems = len(self._atomic_numbers)
+        n_elem = len(self._atomic_numbers)
         if self.crossover:
-            n_blocks = n_elems * (n_elems + 1)/2
+            n_elem_radial = n_elem * self._nmax
+            return int((n_elem_radial) * (n_elem_radial + 1) / 2 * (self._lmax + 1))
         else:
-            n_blocks = n_elems
-
-        n_element_features = self.get_number_of_element_features()
-
-        return int(n_element_features * n_blocks)
+            return int(n_elem * self._nmax * (self._nmax + 1) / 2 * (self._lmax + 1))
 
     def get_location(self, species):
         """Can be used to query the location of a species combination in the
@@ -681,15 +669,31 @@ class SOAP(Descriptor):
         gss = gss.flatten()
 
         # Determine shape
-        if crossover:
-            c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int((n_species*(n_species + 1))/2)*n_centers, dtype=np.float64)
-            shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*int((n_species*(n_species+1))/2))
+        n_features = self.get_number_of_features()
+        if self.sparse:
+            raise
         else:
-            c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int(n_species)*n_centers, dtype=np.float64)
-            shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*n_species)
+            c = np.zeros(n_features * n_centers, dtype=np.float64)
+            shape = (n_centers, n_features)
 
         # Calculate with extension
-        dscribe.ext.soap_general(c, positions, centers, Z_sorted, rcut, cutoff_padding, n_atoms, n_species, nmax, lmax, n_centers, eta, rx, gss, crossover)
+        dscribe.ext.soap_general(
+            c,
+            positions,
+            centers,
+            Z_sorted,
+            rcut,
+            cutoff_padding,
+            n_atoms,
+            n_species,
+            nmax,
+            lmax,
+            n_centers,
+            eta,
+            rx,
+            gss,
+            crossover
+        )
 
         # Reshape from linear to 2D
         c = c.reshape(shape)

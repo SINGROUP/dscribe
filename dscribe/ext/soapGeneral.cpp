@@ -1759,37 +1759,40 @@ void accumC(double* Cts, double* Cs, int lMax, int gnsize, int typeI)
         }
     }
 }
-void getPs(double* Ps, double* Cts,  int Nt, int lMax, int gnsize, bool crossover)
+void getPs(double* Ps, double* Cts,  int Nt, int lMax, int gnsize, nFeatures, bool crossover)
 {
     int NN = ((gnsize+1)*gnsize)/2;
-    int nTypeComb = crossover ? ((Nt+1)*Nt)/2 : Nt;
     int nshift = 0;
     int tshift = 0;
-    for (int i = 0; i < nTypeComb*(lMax+1)*NN; i++) {
+
+    // The Ps array is reused so we need to clear it.
+    for (int i = 0; i < nFeatures; i++) {
         Ps[i] = 0.0;
     }
 
     for (int Z1 = 0; Z1 < Nt; Z1++) {
         int Z2Limit = crossover ? Nt : Z1+1;
-        for (int Z2 = Z1; Z2 < Z2Limit; Z2++) {
-            for (int l = 0; l < lMax+1; l++) {
-                nshift = 0;
-                for (int N1 = 0; N1 < gnsize; N1++) {
-                    for (int N2 = N1; N2 < gnsize; N2++) {
-                        for (int m = 0; m < l+1; m++) {
-                            if (m==0) {
-                                Ps[tshift*(lMax+1)*NN + l*NN + nshift ]
-                                    +=  Cts[2*Z1*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*N1  + l*2*(lMax+1)] // m=0
-                                    *Cts[2*Z2*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1)]; // m=0
-                            } else {
-                                Ps[tshift*(lMax+1)*NN + l*NN + nshift]
-                                    +=  2*(Cts[2*Z1*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*N1  + l*2*(lMax+1) + 2*m]
-                                            *Cts[2*Z2*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1) + 2*m]
-                                            + Cts[2*Z1*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*N1  + l*2*(lMax+1) + 2*m + 1]
-                                            *Cts[2*Z2*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1) + 2*m + 1]);
+        for (int Z2 = 0; Z2 < Z2Limit; Z2++) {
+            nshift = 0;
+            for (int N1 = 0; N1 < gnsize; N1++) {
+                for (int N2 = 0; N2 < gnsize; N2++) {
+                    if ((Z2 >= Z1) && (N2 >= N1)) {
+                        for (int l = 0; l < lMax+1; l++) {
+                            for (int m = 0; m < l+1; m++) {
+                                if (m==0) {
+                                    Ps[tshift*(lMax+1)*NN + l*NN + nshift]
+                                        += Cts[2*Z1*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*N1 + l*2*(lMax+1)] // m=0
+                                          *Cts[2*Z2*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1)]; // m=0
+                                } else {
+                                    Ps[tshift*(lMax+1)*NN + l*NN + nshift]
+                                        += 2*(Cts[2*Z1*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*N1 + l*2*(lMax+1) + 2*m]
+                                             *Cts[2*Z2*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1) + 2*m]
+                                             +Cts[2*Z1*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*N1 + l*2*(lMax+1) + 2*m + 1]
+                                             *Cts[2*Z2*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1) + 2*m + 1]);
+                                }
                             }
+                            nshift++;
                         }
-                        nshift++;
                     }
                 }
             }
@@ -1853,7 +1856,8 @@ void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::ar
     int Asize = 0;
     double* Cs = (double*) malloc(2*sd*(lMax+1)*(lMax+1)*nMax);
     double* Cts = (double*) malloc(2*sd*(lMax+1)*(lMax+1)*nMax*Nt);
-    double* Ps = crossover ? (double*) malloc((Nt*(Nt+1))/2*sd*(lMax+1)*((nMax+1)*nMax)/2) : (double*) malloc(Nt*sd*(lMax+1)*((nMax+1)*nMax)/2);
+    int nFeatures = crossover ? (Nt*nMax)*(Nt*nMax+1))/2*(lMax+1) : Nt*(lMax+1)*((nMax+1)*nMax)/2;
+    double* Ps = (double*) malloc(nFeatures*sd);
     int n_neighbours;
 
     // Create a mapping between an atomic index and its internal index in the
@@ -1914,7 +1918,7 @@ void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::ar
             free(Ylmi);
             free(summed);
         }
-        getPs(Ps, Cts,  Nt, lMax, nMax, crossover);
+        getPs(Ps, Cts,  Nt, lMax, nMax, nFeatures, crossover);
         accumP(c, Ps, Nt, lMax, nMax, rCut2, i, crossover);
     }
 
