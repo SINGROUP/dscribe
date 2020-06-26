@@ -1759,7 +1759,7 @@ void accumC(double* Cts, double* Cs, int lMax, int gnsize, int typeI)
         }
     }
 }
-void getPs(double* Ps, double* Cts,  int Nt, int lMax, int gnsize, nFeatures, bool crossover)
+void getPs(double* Ps, double* Cts,  int Nt, int lMax, int gnsize, int nFeatures, bool crossover)
 {
     int NN = ((gnsize+1)*gnsize)/2;
     int nshift = 0;
@@ -1800,7 +1800,7 @@ void getPs(double* Ps, double* Cts,  int Nt, int lMax, int gnsize, nFeatures, bo
         }
     }
 }
-void accumP(double* Phs, double* Ps, int Nt, int lMax, int gnsize, double rCut2, int Ihpos, bool crossover)
+void accumP(py::detail::unchecked_mutable_reference<double, 2> &cArr, double* Ps, int Nt, int lMax, int gnsize, double rCut2, int Ihpos, bool crossover)
 {
     int tshift=0;
     int NN = ((gnsize+1)*gnsize)/2;
@@ -1821,7 +1821,7 @@ void accumP(double* Phs, double* Ps, int Nt, int lMax, int gnsize, double rCut2,
 
                 for (int N1 = 0; N1 < gnsize; N1++) {
                     for (int N2 = N1; N2 < gnsize; N2++) {
-                        Phs[Ihpos*nTypeComb*(lMax+1)*NN + tshift*(lMax+1)*NN + l*NN + nshift] = prefactor*39.478417604*rCut2*Ps[tshift*(lMax+1)*NN + l*NN + nshift];// 16*9.869604401089358*Ps[tshift*(lMax+1)*NN + l*NN + nshift];
+                        cArr(Ihpos, tshift*(lMax+1)*NN + l*NN + nshift) = prefactor*39.478417604*rCut2*Ps[tshift*(lMax+1)*NN + l*NN + nshift];// 16*9.869604401089358*Ps[tshift*(lMax+1)*NN + l*NN + nshift];
                         nshift++;
                     }
                 }
@@ -1833,7 +1833,8 @@ void accumP(double* Phs, double* Ps, int Nt, int lMax, int gnsize, double rCut2,
 void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<int> atomicNumbersArr, double rCut, double cutoffPadding, int totalAN, int Nt, int nMax, int lMax, int Hs, double alpha, py::array_t<double> rwArr, py::array_t<double> gssArr, bool crossover)
 {
     auto atomicNumbers = atomicNumbersArr.unchecked<1>();
-    double *c = (double*)cArr.request().ptr;
+    auto c = cArr.mutable_unchecked<2>();
+    //double *c = (double*)cArr.request().ptr;
     double *Hpos = (double*)HposArr.request().ptr;
     double *rw = (double*)rwArr.request().ptr;
     double *gss = (double*)gssArr.request().ptr;
@@ -1856,7 +1857,7 @@ void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::ar
     int Asize = 0;
     double* Cs = (double*) malloc(2*sd*(lMax+1)*(lMax+1)*nMax);
     double* Cts = (double*) malloc(2*sd*(lMax+1)*(lMax+1)*nMax*Nt);
-    int nFeatures = crossover ? (Nt*nMax)*(Nt*nMax+1))/2*(lMax+1) : Nt*(lMax+1)*((nMax+1)*nMax)/2;
+    int nFeatures = crossover ? (Nt*nMax)*(Nt*nMax+1)/2*(lMax+1) : Nt*(lMax+1)*((nMax+1)*nMax)/2;
     double* Ps = (double*) malloc(nFeatures*sd);
     int n_neighbours;
 

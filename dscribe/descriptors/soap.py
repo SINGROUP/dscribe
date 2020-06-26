@@ -249,7 +249,7 @@ class SOAP(Descriptor):
         # Check that the system does not have elements that are not in the list
         # of atomic numbers
         self.check_atomic_numbers(system.get_atomic_numbers())
-        sub_elements = np.array(list(set(system.get_atomic_numbers())))
+        # sub_elements = np.array(list(set(system.get_atomic_numbers())))
 
         # Check if periodic is valid
         if self.periodic:
@@ -485,65 +485,65 @@ class SOAP(Descriptor):
         else:
             return int(n_elem * self._nmax * (self._nmax + 1) / 2 * (self._lmax + 1))
 
-    def get_location(self, species):
-        """Can be used to query the location of a species combination in the
-        the flattened output.
+    # def get_location(self, species):
+        # """Can be used to query the location of a species combination in the
+        # the flattened output.
 
-        Args:
-            species(tuple): A tuple containing a species combination as
-                chemical symbols or atomic numbers. The tuple can be for
-                example: ("H", "O") or (1, 6)
+        # Args:
+            # species(tuple): A tuple containing a species combination as
+                # chemical symbols or atomic numbers. The tuple can be for
+                # example: ("H", "O") or (1, 6)
 
-        Returns:
-            slice: slice containing the location of the specified species
-            combination. The location is given as a python slice-object, that
-            can be directly used to target ranges in the output.
+        # Returns:
+            # slice: slice containing the location of the specified species
+            # combination. The location is given as a python slice-object, that
+            # can be directly used to target ranges in the output.
 
-        Raises:
-            ValueError: If the requested species combination is not in the
-                output or if invalid species defined.
-        """
-        # Change chemical elements into atomic numbers
-        numbers = []
-        for specie in species:
-            if isinstance(specie, str):
-                try:
-                    specie = ase.data.atomic_numbers[specie]
-                except KeyError:
-                    raise ValueError("Invalid chemical species: {}".format(specie))
-            numbers.append(specie)
+        # Raises:
+            # ValueError: If the requested species combination is not in the
+                # output or if invalid species defined.
+        # """
+        # # Change chemical elements into atomic numbers
+        # numbers = []
+        # for specie in species:
+            # if isinstance(specie, str):
+                # try:
+                    # specie = ase.data.atomic_numbers[specie]
+                # except KeyError:
+                    # raise ValueError("Invalid chemical species: {}".format(specie))
+            # numbers.append(specie)
 
-        # Check that the given atomic numbers are supported
-        self.check_atomic_numbers(numbers)
-        if not self.crossover and numbers[0] != numbers[1]:
-            raise ValueError(
-                "The output does not have pairwise terms as you have not "
-                "enabled species crossover for SOAP. See the 'crossover' "
-                "attribute."
-            )
+        # # Check that the given atomic numbers are supported
+        # self.check_atomic_numbers(numbers)
+        # if not self.crossover and numbers[0] != numbers[1]:
+            # raise ValueError(
+                # "The output does not have pairwise terms as you have not "
+                # "enabled species crossover for SOAP. See the 'crossover' "
+                # "attribute."
+            # )
 
-        # Change into internal indexing
-        indices = [self.atomic_number_to_index[x] for x in numbers]
-        n_elem = self.n_elements
-        n_elem_features = self.get_number_of_element_features()
+        # # Change into internal indexing
+        # indices = [self.atomic_number_to_index[x] for x in numbers]
+        # n_elem = self.n_elements
+        # n_elem_features = self.get_number_of_element_features()
 
-        # Makes sure that the upper diagonal part is accessed (idx2 >= idx1)
-        idx1 = indices[0]
-        idx2 = indices[1]
-        if idx1 > idx2:
-            idx1, idx2 = idx2, idx1
+        # # Makes sure that the upper diagonal part is accessed (idx2 >= idx1)
+        # idx1 = indices[0]
+        # idx2 = indices[1]
+        # if idx1 > idx2:
+            # idx1, idx2 = idx2, idx1
 
-        # With crossover
-        if self.crossover:
-            shift = self.get_flattened_index(idx1, idx2, n_elem)
-            start = shift*n_elem_features
-            end = (shift+1)*n_elem_features
-        # Without crossover
-        else:
-            start = idx1*n_elem_features
-            end = (idx1+1)*n_elem_features
+        # # With crossover
+        # if self.crossover:
+            # shift = self.get_flattened_index(idx1, idx2, n_elem)
+            # start = shift*n_elem_features
+            # end = (shift+1)*n_elem_features
+        # # Without crossover
+        # else:
+            # start = idx1*n_elem_features
+            # end = (idx1+1)*n_elem_features
 
-        return slice(start, end)
+        # return slice(start, end)
 
     def flatten_positions(self, system, atomic_numbers=None):
         """Takes an ase Atoms object and returns flattened numpy arrays for the
@@ -670,11 +670,7 @@ class SOAP(Descriptor):
 
         # Determine shape
         n_features = self.get_number_of_features()
-        if self.sparse:
-            raise
-        else:
-            c = np.zeros(n_features * n_centers, dtype=np.float64)
-            shape = (n_centers, n_features)
+        c = np.zeros(n_features * n_centers, dtype=np.float64)
 
         # Calculate with extension
         dscribe.ext.soap_general(
@@ -694,9 +690,6 @@ class SOAP(Descriptor):
             gss,
             crossover
         )
-
-        # Reshape from linear to 2D
-        c = c.reshape(shape)
 
         return c
 
