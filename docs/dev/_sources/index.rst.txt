@@ -54,5 +54,6 @@ full source code with examples and regression tests can be explored at `github
     tutorials/tutorials
     API <doc/modules>
     contributing
+    publications
     citing
     about
