@@ -1,7 +1,7 @@
 # Defines when the pipeline is triggered
 trigger:
 - master
-- dev
+- development
 - predev
 
 # Jobs
