@@ -38,6 +38,6 @@ void getC(double* Cs, double* ws, double* rw2, double * gns, double* summed, dou
 void accumC(double* Cts, double* Cs, int lMax, int gnsize, int typeI);
 void getPs(double* Ps, double* Cts,  int Nt, int lMax, int gnsize, int nFeatures, bool crossover);
 void accumP(py::detail::unchecked_mutable_reference<double, 2> &cArr, double* Ps, int Nt, int lMax, int gnsize, double rCut2, int Ihpos, bool crossover);
-void soapGeneral(const py::array_t<double> & cArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<int> atomicNumbersArr, double rCut, double cutoffPadding, int totalAN, int Nt, int nMax, int lMax, int Hs, double alpha, py::array_t<double> rwArr, py::array_t<double> gssArr, bool crossover);
+void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<int> atomicNumbersArr, double rCut, double cutoffPadding, int totalAN, int Nt, int nMax, int lMax, int Hs, double alpha, py::array_t<double> rwArr, py::array_t<double> gssArr, bool crossover);
 
 #endif

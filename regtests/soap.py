@@ -15,6 +15,7 @@ limitations under the License.
 """
 import math
 import unittest
+import itertools
 
 import numpy as np
 
@@ -938,7 +939,7 @@ class SoapTests(unittest.TestCase):
         sigma = 0.55
         rcut = 2.0
         nmax = 2
-        lmax = 2
+        lmax = 0
 
         # Limits for radius
         r1 = 0.
@@ -973,87 +974,141 @@ class SoapTests(unittest.TestCase):
 
         # Calculate the analytical power spectrum and the weights and decays of
         # the radial basis functions.
-        soap = SOAP(species=species, lmax=lmax, nmax=nmax, sigma=sigma, rcut=rcut, rbf="polynomial", crossover=True, sparse=False)
+        # soap = SOAP(species=species, lmax=lmax, nmax=nmax, sigma=sigma, rcut=rcut, rbf="polynomial", crossover=True, sparse=False)
         # analytical_power_spectrum = soap.create(system, positions=[[0, 0, 0]])[0]
-        print(soap.get_number_of_features())
+        # print(soap.get_number_of_features())
 
-        coeffs = np.zeros((n_elems, nmax, lmax+1, 2*lmax+1))
-        for iZ, Z in enumerate(elements):
-            indices = np.argwhere(species == Z)[0]
-            elem_pos = positions[indices]
-            for n in range(nmax):
-                for l in range(lmax+1):
-                    for im, m in enumerate(range(-l, l+1)):
+        # coeffs = np.zeros((n_elems, nmax, lmax+1, 2*lmax+1))
+        # for iZ, Z in enumerate(elements):
+            # indices = np.argwhere(species == Z)[0]
+            # elem_pos = positions[indices]
+            # for n in range(nmax):
+                # for l in range(lmax+1):
+                    # for im, m in enumerate(range(-l, l+1)):
 
-                        # Calculate numerical coefficients
-                        def soap_coeff(phi, theta, r):
+                        # # Calculate numerical coefficients
+                        # def soap_coeff(phi, theta, r):
 
-                            # Regular spherical harmonic, notice the abs(m)
-                            # needed for constructing the real form
-                            ylm_comp = scipy.special.sph_harm(np.abs(m), l, phi, theta)  # NOTE: scipy swaps phi and theta
+                            # # Regular spherical harmonic, notice the abs(m)
+                            # # needed for constructing the real form
+                            # ylm_comp = scipy.special.sph_harm(np.abs(m), l, phi, theta)  # NOTE: scipy swaps phi and theta
 
-                            # Construct real (tesseral) spherical harmonics for
-                            # easier integration without having to worry about
-                            # the imaginary part. The real spherical harmonics
-                            # span the same space, but are just computationally
-                            # easier.
-                            ylm_real = np.real(ylm_comp)
-                            ylm_imag = np.imag(ylm_comp)
-                            if m < 0:
-                                ylm = np.sqrt(2)*(-1)**m*ylm_imag
-                            elif m == 0:
-                                ylm = ylm_comp
-                            else:
-                                ylm = np.sqrt(2)*(-1)**m*ylm_real
+                            # # Construct real (tesseral) spherical harmonics for
+                            # # easier integration without having to worry about
+                            # # the imaginary part. The real spherical harmonics
+                            # # span the same space, but are just computationally
+                            # # easier.
+                            # ylm_real = np.real(ylm_comp)
+                            # ylm_imag = np.imag(ylm_comp)
+                            # if m < 0:
+                                # ylm = np.sqrt(2)*(-1)**m*ylm_imag
+                            # elif m == 0:
+                                # ylm = ylm_comp
+                            # else:
+                                # ylm = np.sqrt(2)*(-1)**m*ylm_real
 
-                            # Polynomial basis
-                            poly = 0
-                            for k in range(1, nmax+1):
-                                poly += betas[n, k-1]*(rcut-np.clip(r, 0, rcut))**(k+2)
+                            # # Polynomial basis
+                            # poly = 0
+                            # for k in range(1, nmax+1):
+                                # poly += betas[n, k-1]*(rcut-np.clip(r, 0, rcut))**(k+2)
 
-                            # Atomic density
-                            rho = 0
-                            for i_pos in elem_pos:
-                                ix = i_pos[0]
-                                iy = i_pos[1]
-                                iz = i_pos[2]
-                                ri_squared = ix**2+iy**2+iz**2
-                                rho += np.exp(-1/(2*sigma**2)*(r**2 + ri_squared - 2*r*(np.sin(theta)*np.cos(phi)*ix + np.sin(theta)*np.sin(phi)*iy + np.cos(theta)*iz)))
+                            # # Atomic density
+                            # rho = 0
+                            # for i_pos in elem_pos:
+                                # ix = i_pos[0]
+                                # iy = i_pos[1]
+                                # iz = i_pos[2]
+                                # ri_squared = ix**2+iy**2+iz**2
+                                # rho += np.exp(-1/(2*sigma**2)*(r**2 + ri_squared - 2*r*(np.sin(theta)*np.cos(phi)*ix + np.sin(theta)*np.sin(phi)*iy + np.cos(theta)*iz)))
 
-                            # Jacobian
-                            jacobian = np.sin(theta)*r**2
+                            # # Jacobian
+                            # jacobian = np.sin(theta)*r**2
 
-                            return poly*ylm*rho*jacobian
+                            # return poly*ylm*rho*jacobian
 
-                        cnlm = tplquad(
-                            soap_coeff,
-                            r1,
-                            r2,
-                            lambda r: t1,
-                            lambda r: t2,
-                            lambda r, theta: p1,
-                            lambda r, theta: p2,
-                            epsabs=0.0001,
-                            epsrel=0.0001,
-                        )
-                        integral, error = cnlm
-                        coeffs[iZ, n, l, im] = integral
+                        # cnlm = tplquad(
+                            # soap_coeff,
+                            # r1,
+                            # r2,
+                            # lambda r: t1,
+                            # lambda r: t2,
+                            # lambda r, theta: p1,
+                            # lambda r, theta: p2,
+                            # epsabs=0.0001,
+                            # epsrel=0.0001,
+                        # )
+                        # integral, error = cnlm
+                        # coeffs[iZ, n, l, im] = integral
 
         # Calculate the partial power spectrum
-        numerical_power_spectrum = []
-        for (zi, ni) in itertools.product(range(n_elems), range(nmax)):
-            for (zj, nj) in intertools.product(range(n_elems), range(nmax)):
-                for l in range(lmax+1):
-                    if (nj, zj) >= (ni, zi):
-                        value = np.dot(coeffs[zi, ni, l, :], coeffs[zj, nj, l, :])
-                        prefactor = np.pi*np.sqrt(8/(2*l+1))
-                        value *= prefactor
-                        numerical_power_spectrum.append(value)
+        # numerical_power_spectrum = []
+        # for (zi, ni) in itertools.product(range(n_elems), range(nmax)):
+            # for (zj, nj) in itertools.product(range(n_elems), range(nmax)):
+                # for l in range(lmax+1):
+                    # if (nj, zj) >= (ni, zi):
+                        # value = np.dot(coeffs[zi, ni, l, :], coeffs[zj, nj, l, :])
+                        # prefactor = np.pi*np.sqrt(8/(2*l+1))
+                        # value *= prefactor
+                        # numerical_power_spectrum.append(value)
+                            
+        n_elem = 90
+        n_max = 10
 
-        print("Numerical: {}".format(numerical_power_spectrum))
-        print("Analytical: {}".format(analytical_power_spectrum))
+        # Most naive
+        n_iter = 0
+        combos = []
+        for zi in range(n_elem):
+            for zj in range(n_elem):
+                for ni in range(n_max):
+                    for nj in range(n_max):
+                        n_iter += 1
+                        if (nj, zj) >= (ni, zi):
+                            combos.append((zi, ni, zj, nj))
+        print(n_iter)
+        print(len(combos))
+        # print(combos)
 
-        self.assertTrue(np.allclose(numerical_power_spectrum, analytical_power_spectrum, atol=1e-15, rtol=0.01))
+        # Identical?
+        n_iter2 = 0
+        combos2 = []
+        for zi in range(n_elem):
+            for zj in range(n_elem):
+                for ni in range(n_max):
+                    for nj in range(n_max):
+                        n_iter2 += 1
+                        if zj > zi or (zj == zi and nj >= ni):
+                            combos2.append((zi, ni, zj, nj))
+        print(n_iter2)
+        print(len(combos2))
+        # print(combos2)
+
+        # Less naive?
+        n_iter3 = 0
+        combos3 = []
+        for zi in range(n_elem):
+            for zj in range(zi, n_elem):
+                if zi == zj:
+                    for ni in range(n_max):
+                        for nj in range(ni, n_max):
+                            n_iter3 += 1
+                            combos3.append((zi, ni, zj, nj))
+                else:
+                    for ni in range(n_max):
+                        for nj in range(n_max):
+                            n_iter3 += 1
+                            combos3.append((zi, ni, zj, nj))
+        print(n_iter3)
+        print(len(combos3))
+        # print(combos3)
+
+        # print(all_pairs)
+        # print(np.array(reduced_pairs))
+        # print(np.array(reduced_pairs2))
+
+        # print("Numerical: {}".format(numerical_power_spectrum))
+        # print("Analytical: {}".format(analytical_power_spectrum))
+
+        # self.assertTrue(np.allclose(numerical_power_spectrum, analytical_power_spectrum, atol=1e-15, rtol=0.01))
 
     # def test_padding(self):
         # """Tests that the padding used in constructing extended systems is

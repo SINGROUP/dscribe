@@ -658,19 +658,20 @@ class SOAP(Descriptor):
             np.ndarray: SOAP output with the polynomial radial basis for the
             given positions.
         """
+        # Get the discretized and orthogonalized polynomial radial basis
+        # function values
         rx, gss = self.get_basis_poly(rcut, nmax)
+        gss = gss.flatten()
 
+        # Get atoms positions and species in sorted and flattened format
         n_atoms = len(system)
         positions, Z_sorted, n_species, _ = self.flatten_positions(system, atomic_numbers)
         centers = np.array(centers)
         n_centers = centers.shape[0]
 
-        # Flatten arrays
-        gss = gss.flatten()
-
         # Determine shape
         n_features = self.get_number_of_features()
-        c = np.zeros(n_features * n_centers, dtype=np.float64)
+        c = np.zeros((n_centers, n_features), dtype=np.float64)
 
         # Calculate with extension
         dscribe.ext.soap_general(

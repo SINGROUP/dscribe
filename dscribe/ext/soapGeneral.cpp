@@ -1748,6 +1748,7 @@ void getC(double* Cs, double* ws, double* rw2, double * gns, double* summed, dou
     }
     isCenter[0] = 0;
 }
+
 void accumC(double* Cts, double* Cs, int lMax, int gnsize, int typeI)
 {
     for (int n = 0; n < gnsize; n++) {
@@ -1759,6 +1760,7 @@ void accumC(double* Cts, double* Cs, int lMax, int gnsize, int typeI)
         }
     }
 }
+
 void getPs(double* Ps, double* Cts,  int Nt, int lMax, int gnsize, int nFeatures, bool crossover)
 {
     int NN = ((gnsize+1)*gnsize)/2;
@@ -1800,6 +1802,7 @@ void getPs(double* Ps, double* Cts,  int Nt, int lMax, int gnsize, int nFeatures
         }
     }
 }
+
 void accumP(py::detail::unchecked_mutable_reference<double, 2> &cArr, double* Ps, int Nt, int lMax, int gnsize, double rCut2, int Ihpos, bool crossover)
 {
     int tshift=0;
@@ -1820,9 +1823,11 @@ void accumP(py::detail::unchecked_mutable_reference<double, 2> &cArr, double* Ps
                 double prefactor = PI*sqrt(8.0/(2.0*l+1.0));
 
                 for (int N1 = 0; N1 < gnsize; N1++) {
-                    for (int N2 = N1; N2 < gnsize; N2++) {
-                        cArr(Ihpos, tshift*(lMax+1)*NN + l*NN + nshift) = prefactor*39.478417604*rCut2*Ps[tshift*(lMax+1)*NN + l*NN + nshift];// 16*9.869604401089358*Ps[tshift*(lMax+1)*NN + l*NN + nshift];
-                        nshift++;
+                    for (int N2 = 0; N2 < gnsize; N2++) {
+                        if ((Z2 >= Z1) && (N2 >= N1)) {
+                            cArr(Ihpos, tshift*(lMax+1)*NN + l*NN + nshift) = prefactor*39.478417604*rCut2*Ps[tshift*(lMax+1)*NN + l*NN + nshift];// 16*9.869604401089358*Ps[tshift*(lMax+1)*NN + l*NN + nshift];
+                            nshift++;
+                        }
                     }
                 }
             }
