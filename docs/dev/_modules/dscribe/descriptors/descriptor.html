@@ -474,7 +474,23 @@
             <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">vec_lists</span><span class="p">:</span>
                 <span class="n">results</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">part</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">results</span></div></div>
+        <span class="k">return</span> <span class="n">results</span></div>
+
+    <span class="k">def</span> <span class="nf">_check_system_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lst</span><span class="p">):</span>
+
+        <span class="k">def</span> <span class="nf">iterable</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="nb">iter</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">iterable</span><span class="p">(</span><span class="n">lst</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_system</span><span class="p">(</span><span class="n">lst</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+           <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input is neither System, nor ase.Atoms object nor is it iterable&quot;</span><span class="p">)</span>
+        <span class="k">return</span></div>
+            
 </pre></div>
 
            </div>

@@ -204,43 +204,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.</p>
 <dl class="py function">
-<dt id="dscribe.utils.geometry.cartesian">
-<code class="sig-prename descclassname">dscribe.utils.geometry.</code><code class="sig-name descname">cartesian</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">arrays</span></em>, <em class="sig-param"><span class="n">out</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/utils/geometry.html#cartesian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.utils.geometry.cartesian" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate a cartesian product of input arrays.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>arrays</strong> (<em>sequence of arrays</em>) – The arrays from which the product is
-created.</p></li>
-<li><p><strong>out</strong> (<em>ndarray</em>) – Array to place the cartesian product in.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>2-D array of shape (M, len(arrays)) containing cartesian
-products formed of input arrays.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarray</p>
-</dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cartesian</span><span class="p">(([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">]))</span>
-<span class="go">array([[1, 4, 6],</span>
-<span class="go">       [1, 4, 7],</span>
-<span class="go">       [1, 5, 6],</span>
-<span class="go">       [1, 5, 7],</span>
-<span class="go">       [2, 4, 6],</span>
-<span class="go">       [2, 4, 7],</span>
-<span class="go">       [2, 5, 6],</span>
-<span class="go">       [2, 5, 7],</span>
-<span class="go">       [3, 4, 6],</span>
-<span class="go">       [3, 4, 7],</span>
-<span class="go">       [3, 5, 6],</span>
-<span class="go">       [3, 5, 7]])</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py function">
 <dt id="dscribe.utils.geometry.get_adjacency_list">
 <code class="sig-prename descclassname">dscribe.utils.geometry.</code><code class="sig-name descname">get_adjacency_list</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">adjacency_matrix</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/utils/geometry.html#get_adjacency_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.utils.geometry.get_adjacency_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to transform an adjacency matrix into an adjacency list. The

@@ -314,7 +314,7 @@
 <span class="sd">                    k3 = {</span>
 <span class="sd">                        &quot;geometry&quot;: {&quot;function&quot;: &quot;angle&quot;},</span>
 <span class="sd">                        &quot;grid&quot;: {&quot;min&quot;: 0, &quot;max&quot;: 180, &quot;sigma&quot;: 5, &quot;n&quot;: 50},</span>
-<span class="sd">                        &quot;weighting&quot; = {&quot;function&quot;: &quot;exp&quot;, &quot;scale&quot;: 0.5, &quot;cutoff&quot;: 1e-3}</span>
+<span class="sd">                        &quot;weighting&quot; : {&quot;function&quot;: &quot;exp&quot;, &quot;scale&quot;: 0.5, &quot;cutoff&quot;: 1e-3}</span>
 <span class="sd">                    }</span>
 
 <span class="sd">            normalize_gaussians (bool): Determines whether the gaussians are</span>
@@ -653,6 +653,8 @@
         <span class="c1"># If single system given, skip the parallelization</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="p">(</span><span class="n">Atoms</span><span class="p">,</span> <span class="n">System</span><span class="p">)):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_single</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_system_list</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
 
         <span class="c1"># Combine input arguments</span>
         <span class="n">inp</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i_sys</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i_sys</span> <span class="ow">in</span> <span class="n">system</span><span class="p">]</span>
