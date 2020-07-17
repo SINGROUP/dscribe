@@ -68,6 +68,8 @@ class CoulombMatrix(MatrixDescriptor):
         # If single system given, skip the parallelization
         if isinstance(system, (Atoms, System)):
             return self.create_single(system)
+        else:
+            self._check_system_list(system)
 
         # Combine input arguments
         inp = [(i_sys,) for i_sys in system]

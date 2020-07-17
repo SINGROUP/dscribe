@@ -184,6 +184,8 @@ class SOAP(Descriptor):
         # If single system given, skip the parallelization
         if isinstance(system, (Atoms, System)):
             return self.create_single(system, positions)
+        else:
+            self._check_system_list(system)
 
         # Combine input arguments
         n_samples = len(system)

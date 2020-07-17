@@ -311,3 +311,19 @@ class Descriptor(ABC):
                 results.extend(part)
 
         return results
+
+    def _check_system_list(self, lst):
+
+        def iterable(obj):
+            try:
+                iter(obj)
+            except Exception:
+                return False
+            else:
+                return True
+        if iterable(lst):
+            self.get_system(lst[0])
+        else:
+           raise ValueError("Input is neither System, nor ase.Atoms object nor is it iterable")
+        return
+            

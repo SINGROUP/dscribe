@@ -13,6 +13,37 @@ from ase.build import bulk
 import ase.data
 from ase import Atoms
 
+from dscribe.descriptors import SOAP
+
+
+H2O = Atoms(
+    cell=[
+        [1.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0],
+        [0.0, 0.0, 1.0]
+    ],
+    positions=[
+        [0, 0, 0],
+        [0.95, 0, 0],
+        [0.95*(1+math.cos(76/180*math.pi)), 0.95*math.sin(76/180*math.pi), 0.0]
+    ],
+    symbols=["H", "O", "H"],
+)
+
+H = Atoms(
+    cell=[
+        [15.0, 0.0, 0.0],
+        [0.0, 15.0, 0.0],
+        [0.0, 0.0, 15.0]
+    ],
+    positions=[
+        [0, 0, 0],
+
+    ],
+    symbols=["H"],
+)
+
+
 
 class GeometryTests(unittest.TestCase):
 
@@ -294,7 +325,6 @@ class ASETests(unittest.TestCase):
         """
         class NaClFactory(SimpleCubicFactory):
             "A factory for creating NaCl (B1, Rocksalt) lattices."
-
             bravais_basis = [[0, 0, 0], [0, 0, 0.5], [0, 0.5, 0], [0, 0.5, 0.5],
                             [0.5, 0, 0], [0.5, 0, 0.5], [0.5, 0.5, 0],
                             [0.5, 0.5, 0.5]]
@@ -346,6 +376,84 @@ class SpeciesTests(unittest.TestCase):
             true_atomic_number = ase.data.chemical_symbols.index(chemical_symbol)
             self.assertEqual(atomic_number, true_atomic_number)
 
+    def test_invalid_species(self):
+        """Tests that invalid species throw an appropriate error.
+        """
+        # As chemical symbol in the contructor
+        with self.assertRaises(ValueError):
+            d = ACSF(rcut=6.0, species=["Foo", "X"])
+
+        # Set through property
+        d = ACSF(rcut=6.0, species=["O", "H"])
+        with self.assertRaises(ValueError):
+            d.species = ["Foo", "X"]
+
+        # Set through property
+        d = ACSF(rcut=6.0, species=[5, 2])
+        with self.assertRaises(ValueError):
+            d.species = [0, -1]
+
+        # As atomic number in contructor
+        with self.assertRaises(ValueError):
+            d = ACSF(rcut=6.0, species=[0, -1])
+
+
+    def test_mixed_number_species(self):
+        """Tests that a mix of integers and strings throws an appropriate error.
+        """
+        # As chemical symbol in the contructor
+        with self.assertRaises(ValueError):
+            d = ACSF(rcut=6.0, species=["O", 4])
+
+        # Set through property
+        d = ACSF(rcut=6.0, species=["O", "H"])
+        with self.assertRaises(ValueError):
+            d.species = [4, "O"]
+        
+
+class DescriptorTests(unittest.TestCase):
+
+    def test_verbose_create(self):
+        """Tests the verbose flag in create.
+        """
+        lmax = 5
+        nmax = 5
+        n_elems = 2
+        desc = SOAP(species=[1, 8], rcut=3, nmax=nmax, lmax=lmax, periodic=True)
+
+        vec = desc.create(H2O, verbose = True)
+
+    def test_invalid_system(self):
+        """Tests that an invalid input type throws the appropriate error.
+        """
+        lmax = 5
+        nmax = 5
+        n_elems = 2
+        desc = SOAP(species=[1, 8], rcut=3, nmax=nmax, lmax=lmax, periodic=True)
+        with self.assertRaises(ValueError):
+            vec = desc.create("invalid input")
+        
+        with self.assertRaises(ValueError):
+            vec = desc.create([1,2,3])
+
+        with self.assertRaises(ValueError):
+            vec = desc.create([dict(foo = 1, bar = 2),set([5,4]), [1,2,3]])
+
+        with self.assertRaises(ValueError):
+            vec = desc.create(desc)
+
+    def test_system_input(self):
+        """Tests that create takes internal system object.
+        """
+        system = System.from_atoms(H2O)
+
+        lmax = 5
+        nmax = 5
+        n_elems = 2
+        desc = SOAP(species=[1, 8], rcut=3, nmax=nmax, lmax=lmax, periodic=True)
+
+        vec = desc.create(system)
+
 if __name__ == '__main__':
     suites = []
     suites.append(unittest.TestLoader().loadTestsFromTestCase(ASETests))
@@ -353,6 +461,7 @@ if __name__ == '__main__':
     suites.append(unittest.TestLoader().loadTestsFromTestCase(GeometryTests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(GaussianTests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(SpeciesTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(DescriptorTests))
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)
 

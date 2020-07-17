@@ -150,7 +150,7 @@ class MBTR(Descriptor):
                     k3 = {
                         "geometry": {"function": "angle"},
                         "grid": {"min": 0, "max": 180, "sigma": 5, "n": 50},
-                        "weighting" = {"function": "exp", "scale": 0.5, "cutoff": 1e-3}
+                        "weighting" : {"function": "exp", "scale": 0.5, "cutoff": 1e-3}
                     }
 
             normalize_gaussians (bool): Determines whether the gaussians are
@@ -489,6 +489,8 @@ class MBTR(Descriptor):
         # If single system given, skip the parallelization
         if isinstance(system, (Atoms, System)):
             return self.create_single(system)
+        else:
+            self._check_system_list(system)
 
         # Combine input arguments
         inp = [(i_sys,) for i_sys in system]

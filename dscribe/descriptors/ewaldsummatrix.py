@@ -106,6 +106,8 @@ class EwaldSumMatrix(MatrixDescriptor):
         # If single system given, skip the parallelization
         if isinstance(system, (Atoms, System)):
             return self.create_single(system, accuracy, w, rcut, gcut, a)
+        else:
+            self._check_system_list(system)
 
         # Combine input arguments
         n_samples = len(system)

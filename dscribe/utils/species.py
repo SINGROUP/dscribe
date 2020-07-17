@@ -62,6 +62,8 @@ def get_atomic_numbers(species):
 
     # Determine if the given species are atomic numbers or chemical symbols
     if all(isinstance(x, (int, np.integer)) for x in species):
+        if not np.all(np.array(species) >= 0):
+            raise ValueError("The given list of species contains negative integers. Please use only non-negative integers")
         atomic_numbers = species
     elif all(isinstance(x, (str, np.str)) for x in species):
         atomic_numbers = symbols_to_numbers(species)
