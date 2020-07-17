@@ -41,7 +41,7 @@ oxygen_soap = soap_desc.create(samples, oxygen_indices, n_jobs=3)
  * Sine matrix
  * Ewald matrix
  * Atom-centered Symmetry Functions (ACSF)
- * Smooth Overlap of Atomic Orbitals (SOAP)
+ * Smooth Overlap of Atomic Positions (SOAP)
  * Many-body Tensor Representation (MBTR)
  * Local Many-body Tensor Representation (LMBTR)
 

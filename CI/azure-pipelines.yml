@@ -2,6 +2,7 @@
 trigger:
 - master
 - development
+- predev
 
 # Jobs
 jobs:
