@@ -43,7 +43,6 @@ class Lattice(object):
         lengths = np.sqrt(np.sum(m ** 2, axis=1))
         self._lengths = lengths
         self._matrix = m
-        self._angles = None
         self._inv_matrix = None
 
     @property
@@ -92,65 +91,12 @@ class Lattice(object):
         return self._lengths
 
     @property
-    def angles(self):
-        """
-        Returns the angles (alpha, beta, gamma) of the lattice.
-        """
-        if self._angles is None:
-            # Angles
-            angles = np.zeros(3)
-            for i in range(3):
-                j = (i + 1) % 3
-                k = (i + 2) % 3
-                angles[i] = np.dot(
-                    self._matrix[j],
-                    self._matrix[k]) / (self.lengths[j] * self.lengths[k])
-            angles = np.clip(angles, -1.0, 1.0)
-            self._angles = np.arccos(angles) * 180. / np.pi
-        return self._angles
-
-    @property
     def abc(self):
         """
         Lengths of the lattice vectors, i.e. (a, b, c)
         """
         return tuple(self.lengths)
 
-    @property
-    def alpha(self):
-        """
-        Angle alpha of lattice in degrees.
-        """
-        return self._angles[0]
-
-    @property
-    def beta(self):
-        """
-        Angle beta of lattice in degrees.
-        """
-        return self._angles[1]
-
-    @property
-    def gamma(self):
-        """
-        Angle gamma of lattice in degrees.
-        """
-        return self._angles[2]
-
-    @property
-    def volume(self):
-        """
-        Volume of the unit cell.
-        """
-        m = self._matrix
-        return abs(np.dot(np.cross(m[0], m[1]), m[2]))
-
-    @property
-    def lengths_and_angles(self):
-        """
-        Returns (lattice lengths, lattice angles).
-        """
-        return tuple(self.lengths), tuple(self.angles)
 
     @property
     def reciprocal_lattice(self):
