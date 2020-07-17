@@ -126,6 +126,94 @@ class GeometryTests(unittest.TestCase):
         cart = system.to_cartesian(scal)
         self.assertTrue(np.allclose(orig, cart))
 
+    def test_cell_wrap(self):
+        """Test that coordinates are correctly wrapped inside the cell.
+        """
+        system = System(
+            scaled_positions=[[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]],
+            symbols=["H", "H"],
+            cell=[
+                [1, 0, 0],
+                [0, 1, 0],
+                [0, 0, 1]
+            ],
+            pbc = [True, True, True],
+        )
+
+        #orig = np.array([[2, 1.45, -4.8]])
+        orig = np.array([[0.5, 0.5, 1.5]])
+        scal = system.to_scaled(orig, wrap = True)
+        cart = system.to_cartesian(scal)
+        self.assertFalse(np.allclose(orig, cart))
+
+
+        scal2 = system.to_scaled(orig)
+        cart2 = system.to_cartesian(scal2, wrap = True)
+        self.assertFalse(np.allclose(orig, cart2))
+
+        
+        scal3 = system.to_scaled(orig, True)
+        cart3 = system.to_cartesian(scal3, wrap = True)
+        self.assertFalse(np.allclose(orig, cart3))
+
+        scal4 = system.to_scaled(orig)
+        cart4 = system.to_cartesian(scal4)
+        self.assertTrue(np.allclose(orig, cart4))
+       
+        self.assertTrue(np.allclose(cart2, cart3))
+
+
+    def test_set_positions(self):
+        """Test the method set_positions() of the System class
+        """
+        scaled_positions = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
+        system = System(
+            scaled_positions=scaled_positions,
+            symbols=["H", "H"],
+            cell=[
+                [5, 5, 0],
+                [0, -5, -5],
+                [5, 0, 5]
+            ],
+        )
+
+
+        pos = system.get_positions()
+
+        new_pos = pos * 2
+        system.set_positions(new_pos)
+
+        new_pos = system.get_positions()
+        
+        self.assertTrue(np.allclose(pos * 2, new_pos))
+        self.assertFalse(np.allclose(pos, new_pos))
+
+    def test_set_scaled_positions(self):
+        """Test the method set_scaled_positions() of the System class
+        """
+        scaled_positions = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
+        system = System(
+            scaled_positions=scaled_positions,
+            symbols=["H", "H"],
+            cell=[
+                [5, 5, 0],
+                [0, -5, -5],
+                [5, 0, 5]
+            ],
+        )
+
+
+        pos = system.get_scaled_positions()
+
+        new_pos = pos * 2
+        system.set_scaled_positions(new_pos)
+
+        new_pos = system.get_scaled_positions()
+        
+        self.assertTrue(np.allclose(pos * 2, new_pos))
+        self.assertFalse(np.allclose(pos, new_pos))
+
+
 
 class DistanceTests(unittest.TestCase):
 
@@ -421,7 +509,7 @@ class DescriptorTests(unittest.TestCase):
         n_elems = 2
         desc = SOAP(species=[1, 8], rcut=3, nmax=nmax, lmax=lmax, periodic=True)
 
-        vec = desc.create(H2O, verbose = True)
+        vec = desc.create([H2O, H2O], verbose = True)
 
     def test_invalid_system(self):
         """Tests that an invalid input type throws the appropriate error.
@@ -455,6 +543,7 @@ class DescriptorTests(unittest.TestCase):
         vec = desc.create(system)
 
 if __name__ == '__main__':
+
     suites = []
     suites.append(unittest.TestLoader().loadTestsFromTestCase(ASETests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(DistanceTests))

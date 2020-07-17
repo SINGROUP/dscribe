@@ -24,6 +24,8 @@ stats = system_stats([atoms])
 n_atoms_max = stats["n_atoms_max"]
 atomic_numbers = stats["atomic_numbers"]
 
+print(stats)
+
 # Create descriptors for this system directly from the ASE atoms
 cm = CoulombMatrix(n_atoms_max, permutation="sorted_l2").create(atoms)
 sm = SineMatrix(n_atoms_max, permutation="sorted_l2").create(atoms)

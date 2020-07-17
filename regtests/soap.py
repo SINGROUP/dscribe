@@ -515,7 +515,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         output = desc.create(
             system=samples,
             positions=[[0], [0, 1]],
-            n_jobs=3,
+            n_jobs=2,
         ).toarray()
         assumed = np.empty((2, n_features))
         assumed[0, :] = desc.create(samples[0], [0]).toarray()
