@@ -586,6 +586,8 @@ void getC(double* C, double* preCoef, double* x, double* y, double* z,double* r2
     for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Nx99 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
   }}
 }
+
+
 /**
  * Used to calculate the partial power spectrum.
  */
@@ -1036,6 +1038,8 @@ void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_
   int t98 = 98*totalAN;  int t99 = 99*totalAN;
 
   double* cnnd = (double*) malloc(100*Nt*Ns*Hs*sizeof(double));
+  double* cnndAve = (double*) malloc(100*Nt*Ns*Hs*sizeof(double));
+  int cnndSize = 100*Nt*Ns*Hs;
   for(int i = 0; i < 100*Nt*Ns*Hs; i++){cnnd[i] = 0.0;}
 
   // Initialize binning
@@ -1111,6 +1115,18 @@ void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_
   free(preCoef);
   free(bOa);
   free(aOa);
+
+
+    if (average == "inner") {
+        // average over axis 0 in cnnd matrix
+        for (int k = 0; k < Hs; k++) {100;}
+        //100*Nt*Ns*Hs        
+
+        //x + m_width * y
+        // change cnnd shape
+        // continue as normal
+        }
+
 
   getP(c, cnnd, Ns, Nt, Hs, lMax, crossover);
   free(cnnd);

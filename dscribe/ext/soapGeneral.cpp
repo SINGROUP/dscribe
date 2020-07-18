@@ -13,10 +13,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 #include <stdio.h>
+#include <iostream>
 #include <stdlib.h>
 #include <math.h>
 #include <map>
-#include <string>
 #include <set>
 #include "soapGeneral.h"
 #include "celllist.h"
@@ -1865,6 +1865,7 @@ void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::ar
     double* Ps = crossover ? (double*) malloc((Nt*(Nt+1))/2*sd*(lMax+1)*((nMax+1)*nMax)/2) : (double*) malloc(Nt*sd*(lMax+1)*((nMax+1)*nMax)/2);
     int n_neighbours;
 
+    cout << average << endl;
     // Create a mapping between an atomic index and its internal index in the
     // output
     map<int, int> ZIndexMap;
@@ -1876,6 +1877,10 @@ void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::ar
     for (auto it=atomicNumberSet.begin(); it!=atomicNumberSet.end(); ++it) {
         ZIndexMap[*it] = i;
         ++i;
+    };
+
+    for (int i = 0; i < Ctssize; ++i) {
+        CtsAve[i] = 0;
     };
 
     // Initialize binning
@@ -1919,8 +1924,8 @@ void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::ar
             getC(Cs, ws, rw2, gss, summed, rCut, lMax, rsize, nMax, isCenter, alpha);
             accumC(Cts, Cs, lMax, nMax, j);
             
-            if (average == "inner")
-            getSum(CtsAve, Cts, Ctssize);
+            if (average == "inner") {
+               getSum(CtsAve, Cts, Ctssize);};
 
             free(Flir);
             free(Ylmi);

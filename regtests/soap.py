@@ -689,8 +689,9 @@ class SoapTests(unittest.TestCase):
             nmax=3,
             lmax=5,
             periodic=False,
+            rbf="polynomial",
             crossover=True,
-            average=True,
+            average="outer",
             sparse=False
         )
         average = desc.create(sys)[0, :]
@@ -702,8 +703,9 @@ class SoapTests(unittest.TestCase):
             nmax=3,
             lmax=5,
             periodic=False,
+            rbf="polynomial",
             crossover=True,
-            average="outer",
+            average=False,
             sparse=False
         )
         first = desc.create(sys, positions=[0])[0, :]
@@ -851,8 +853,8 @@ class SoapTests(unittest.TestCase):
                                 value *= prefactor
                                 numerical_inner.append(value)
 
-        # print("Numerical: {}".format(numerical_inner))
-        # print("Analytical: {}".format(analytical_inner))
+        print("Numerical: {}".format(numerical_inner))
+        print("Analytical: {}".format(analytical_inner))
 
         self.assertTrue(np.allclose(numerical_inner, analytical_inner, atol=1e-15, rtol=0.01))
 
@@ -1258,6 +1260,9 @@ class SoapTests(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    SoapTests().test_average_inner()
+    #SoapTests().test_average_outer()
+    exit(1)
     suites = []
     suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapTests))
     alltests = unittest.TestSuite(suites)
