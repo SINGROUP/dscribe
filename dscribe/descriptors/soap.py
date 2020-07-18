@@ -92,8 +92,16 @@ class SOAP(Descriptor):
                 cross-species information and is only run over each unique
                 species Z. Turned on by default to correspond to the original
                 definition
-            average (bool or str): Whether to build an average output for all selected
-                positions. Accepted strings are "inner" and "outer"
+            average (str | bool): The averaging mode over the centers of
+                interest. Valid options are:
+
+                * False: No averaging.
+                * "inner": Averaging over atoms before summing up the magnetic quantum numbers.
+                * "outer": Averaging over the power spectrum of different atoms.
+
+            Defaults to
+                False which means no averaging is perfomed. strings are "inner" and
+                "outer"
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
         """
