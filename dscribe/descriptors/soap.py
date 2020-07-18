@@ -672,6 +672,7 @@ class SOAP(Descriptor):
         # Determine shape
         n_features = self.get_number_of_features()
         c = np.zeros((n_centers, n_features), dtype=np.float64)
+        print(c.shape)
 
         # Calculate with extension
         dscribe.ext.soap_general(

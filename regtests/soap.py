@@ -974,9 +974,9 @@ class SoapTests(unittest.TestCase):
 
         # Calculate the analytical power spectrum and the weights and decays of
         # the radial basis functions.
-        # soap = SOAP(species=species, lmax=lmax, nmax=nmax, sigma=sigma, rcut=rcut, rbf="polynomial", crossover=True, sparse=False)
-        # analytical_power_spectrum = soap.create(system, positions=[[0, 0, 0]])[0]
-        # print(soap.get_number_of_features())
+        soap = SOAP(species=species, lmax=lmax, nmax=nmax, sigma=sigma, rcut=rcut, rbf="polynomial", crossover=True, sparse=False)
+        analytical_power_spectrum = soap.create(system, positions=[[0, 0, 0]])[0]
+        print(analytical_power_spectrum)
 
         # coeffs = np.zeros((n_elems, nmax, lmax+1, 2*lmax+1))
         # for iZ, Z in enumerate(elements):
@@ -1040,71 +1040,27 @@ class SoapTests(unittest.TestCase):
                         # integral, error = cnlm
                         # coeffs[iZ, n, l, im] = integral
 
-        # Calculate the partial power spectrum
+        # # Calculate the partial power spectrum. This loop is the most efficient
+        # # at short-circuiting the loops.
         # numerical_power_spectrum = []
-        # for (zi, ni) in itertools.product(range(n_elems), range(nmax)):
-            # for (zj, nj) in itertools.product(range(n_elems), range(nmax)):
-                # for l in range(lmax+1):
-                    # if (nj, zj) >= (ni, zi):
-                        # value = np.dot(coeffs[zi, ni, l, :], coeffs[zj, nj, l, :])
-                        # prefactor = np.pi*np.sqrt(8/(2*l+1))
-                        # value *= prefactor
-                        # numerical_power_spectrum.append(value)
-                            
-        n_elem = 90
-        n_max = 10
+        # for zi in range(n_elems):
+            # for zj in range(zi, n_elems):
+                # if zi == zj:
+                    # for ni in range(nmax):
+                        # for nj in range(ni, nmax):
+                            # value = np.dot(coeffs[zi, ni, l, :], coeffs[zj, nj, l, :])
+                            # prefactor = np.pi*np.sqrt(8/(2*l+1))
+                            # value *= prefactor
+                            # numerical_power_spectrum.append(value)
+                # else:
+                    # for ni in range(nmax):
+                        # for nj in range(nmax):
+                            # value = np.dot(coeffs[zi, ni, l, :], coeffs[zj, nj, l, :])
+                            # prefactor = np.pi*np.sqrt(8/(2*l+1))
+                            # value *= prefactor
+                            # numerical_power_spectrum.append(value)
 
-        # Most naive
-        n_iter = 0
-        combos = []
-        for zi in range(n_elem):
-            for zj in range(n_elem):
-                for ni in range(n_max):
-                    for nj in range(n_max):
-                        n_iter += 1
-                        if (nj, zj) >= (ni, zi):
-                            combos.append((zi, ni, zj, nj))
-        print(n_iter)
-        print(len(combos))
-        # print(combos)
-
-        # Identical?
-        n_iter2 = 0
-        combos2 = []
-        for zi in range(n_elem):
-            for zj in range(n_elem):
-                for ni in range(n_max):
-                    for nj in range(n_max):
-                        n_iter2 += 1
-                        if zj > zi or (zj == zi and nj >= ni):
-                            combos2.append((zi, ni, zj, nj))
-        print(n_iter2)
-        print(len(combos2))
-        # print(combos2)
-
-        # Less naive?
-        n_iter3 = 0
-        combos3 = []
-        for zi in range(n_elem):
-            for zj in range(zi, n_elem):
-                if zi == zj:
-                    for ni in range(n_max):
-                        for nj in range(ni, n_max):
-                            n_iter3 += 1
-                            combos3.append((zi, ni, zj, nj))
-                else:
-                    for ni in range(n_max):
-                        for nj in range(n_max):
-                            n_iter3 += 1
-                            combos3.append((zi, ni, zj, nj))
-        print(n_iter3)
-        print(len(combos3))
-        # print(combos3)
-
-        # print(all_pairs)
-        # print(np.array(reduced_pairs))
-        # print(np.array(reduced_pairs2))
-
+        # print(len(numerical_power_spectrum), len(analytical_power_spectrum))
         # print("Numerical: {}".format(numerical_power_spectrum))
         # print("Analytical: {}".format(analytical_power_spectrum))
 
