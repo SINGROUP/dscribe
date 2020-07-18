@@ -715,7 +715,7 @@ class SOAP(Descriptor):
             n_centers = centers.shape[0]
 
         # Calculate with extension
-        dscribe.ext.soap_general(c, positions, centers, Z_sorted, rcut, cutoff_padding, n_atoms, n_species, nmax, lmax, n_centers, eta, rx, gss, crossover, average=str(average))
+        dscribe.ext.soap_general(c, positions, centers, Z_sorted, rcut, cutoff_padding, n_atoms, n_species, nmax, lmax, n_centers, eta, rx, gss, crossover, str(average))
 
         # Reshape from linear to 2D
         c = c.reshape(shape)

@@ -17,7 +17,6 @@ limitations under the License.
 #include <stdlib.h>
 #include <math.h>
 #include <map>
-#include <string>
 #include <set>
 #include "soapGeneral.h"
 #include "celllist.h"
@@ -1878,6 +1877,10 @@ void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::ar
     for (auto it=atomicNumberSet.begin(); it!=atomicNumberSet.end(); ++it) {
         ZIndexMap[*it] = i;
         ++i;
+    };
+
+    for (int i = 0; i < Ctssize; ++i) {
+        CtsAve[i] = 0;
     };
 
     // Initialize binning
