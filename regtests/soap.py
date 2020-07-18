@@ -742,6 +742,7 @@ class SoapTests(unittest.TestCase):
         soap_centers = [
             [0, 0, 0],
             [1/3, 1/3, 1/3],
+            [2/3, 2/3, 2/3],
         ]
 
         species = system.get_atomic_numbers()
@@ -772,7 +773,21 @@ class SoapTests(unittest.TestCase):
             average="inner",
             sparse=False
         )
-        analytical_inner = soap.create(system, positions=soap_centers)
+        analytical_inner_poly = soap.create(system, positions=soap_centers)
+        
+        soap = SOAP(
+            species=species,
+            lmax=lmax,
+            nmax=nmax,
+            sigma=sigma,
+            rcut=rcut,
+            rbf="gto",
+            crossover=True,
+            average="inner",
+            sparse=False
+        )
+        analytical_inner_gto = soap.create(system, positions=soap_centers)
+
 
         coeffs = np.zeros((len(soap_centers), n_elems, nmax, lmax+1, 2*lmax+1))
         for i, ipos in enumerate(soap_centers):
@@ -854,9 +869,10 @@ class SoapTests(unittest.TestCase):
                                 numerical_inner.append(value)
 
         print("Numerical: {}".format(numerical_inner))
-        print("Analytical: {}".format(analytical_inner))
+        print("Analytical gto: {}".format(analytical_inner_gto))
+        print("Analytical poly: {}".format(analytical_inner_poly))
 
-        self.assertTrue(np.allclose(numerical_inner, analytical_inner, atol=1e-15, rtol=0.01))
+        self.assertTrue(np.allclose(numerical_inner, analytical_inner_poly, atol=1e-15, rtol=0.01))
 
     def test_basis(self):
         """Tests that the output vectors behave correctly as a basis.

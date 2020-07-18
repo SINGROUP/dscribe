@@ -1125,9 +1125,9 @@ void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_
                 ;
             };
         };
-        //100*Nt*Ns*Hs        
-        // change cnnd shape
-        // continue as normal
+        for (int k1 = 0; k1 < 100*Nt*Ns; k1++) {
+            cnndAve[k1] = cnndAve[k1] / (double)Hs;
+        };
         getP(c, cnndAve, Ns, Nt, 1, lMax, crossover);
         }
      else {
