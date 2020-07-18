@@ -58,7 +58,8 @@ H = Atoms(
 )
 
 
-class SoapTests(TestBaseClass, unittest.TestCase):
+# class SoapTests(TestBaseClass, unittest.TestCase):
+class SoapTests(unittest.TestCase):
 
     def test_constructor(self):
         """Tests different valid and invalid constructor values.
@@ -675,8 +676,9 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         # Translational
         self.assertTrue(self.is_translationally_symmetric(create_poly))
 
-    def test_average(self):
-        """Tests that the average output is created correctly.
+    def test_average_outer(self):
+        """Tests the outer averaging (averaging done after calculating power
+        spectrum).
         """
         sys = Atoms(symbols=["H", "C"], positions=[[-1, 0, 0], [1, 0, 0]], cell=[2, 2, 2], pbc=True)
 
@@ -701,15 +703,158 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             lmax=5,
             periodic=False,
             crossover=True,
-            average=False,
+            average="outer",
             sparse=False
         )
         first = desc.create(sys, positions=[0])[0, :]
         second = desc.create(sys, positions=[1])[0, :]
 
-        # Check that the averaging is done correctlyl
+        # Check that the averaging is done correctly
         assumed_average = (first+second)/2
         self.assertTrue(np.array_equal(average, assumed_average))
+
+    def test_average_inner(self):
+        """Tests the inner averaging (averaging done before calculating power
+        spectrum).
+        """
+        sigma = 0.55
+        rcut = 2.0
+        nmax = 1
+        lmax = 0
+
+        # Limits for radius
+        r1 = 0.
+        r2 = rcut+5
+
+        # Limits for theta
+        t1 = 0
+        t2 = np.pi
+
+        # Limits for phi
+        p1 = 0
+        p2 = 2*np.pi
+
+        positions = np.array([[0.0, 0.0, 0.0], [-0.3, 0.5, 0.4]])
+        symbols = np.array(["H", "C"])
+        system = Atoms(positions=positions, symbols=symbols)
+        soap_centers = [
+            [0, 0, 0],
+            [1/3, 1/3, 1/3],
+        ]
+
+        species = system.get_atomic_numbers()
+        elements = set(system.get_atomic_numbers())
+        n_elems = len(elements)
+
+        # Calculate the overlap of the different polynomial functions in a
+        # matrix S. These overlaps defined through the dot product over the
+        # radial coordinate are analytically calculable: Integrate[(rc - r)^(a
+        # + 2) (rc - r)^(b + 2) r^2, {r, 0, rc}]. Then the weights B that make
+        # the basis orthonormal are given by B=S^{-1/2}
+        S = np.zeros((nmax, nmax))
+        for i in range(1, nmax+1):
+            for j in range(1, nmax+1):
+                S[i-1, j-1] = (2*(rcut)**(7+i+j))/((5+i+j)*(6+i+j)*(7+i+j))
+        betas = sqrtm(np.linalg.inv(S))
+
+        # Calculate the analytical power spectrum and the weights and decays of
+        # the radial basis functions.
+        soap = SOAP(
+            species=species,
+            lmax=lmax,
+            nmax=nmax,
+            sigma=sigma,
+            rcut=rcut,
+            rbf="polynomial",
+            crossover=True,
+            average="inner",
+            sparse=False
+        )
+        analytical_inner = soap.create(system, positions=soap_centers)
+
+        coeffs = np.zeros((len(soap_centers), n_elems, nmax, lmax+1, 2*lmax+1))
+        for i, ipos in enumerate(soap_centers):
+            for iZ, Z in enumerate(elements):
+                indices = np.argwhere(species == Z)[0]
+                elem_pos = positions[indices]
+                # This centers the coordinate system at the soap center
+                elem_pos -= ipos
+                for n in range(nmax):
+                    for l in range(lmax+1):
+                        for im, m in enumerate(range(-l, l+1)):
+
+                            # Calculate numerical coefficients
+                            def soap_coeff(phi, theta, r):
+
+                                # Regular spherical harmonic, notice the abs(m)
+                                # needed for constructing the real form
+                                ylm_comp = scipy.special.sph_harm(np.abs(m), l, phi, theta)  # NOTE: scipy swaps phi and theta
+
+                                # Construct real (tesseral) spherical harmonics for
+                                # easier integration without having to worry about
+                                # the imaginary part. The real spherical harmonics
+                                # span the same space, but are just computationally
+                                # easier.
+                                ylm_real = np.real(ylm_comp)
+                                ylm_imag = np.imag(ylm_comp)
+                                if m < 0:
+                                    ylm = np.sqrt(2)*(-1)**m*ylm_imag
+                                elif m == 0:
+                                    ylm = ylm_comp
+                                else:
+                                    ylm = np.sqrt(2)*(-1)**m*ylm_real
+
+                                # Polynomial basis
+                                poly = 0
+                                for k in range(1, nmax+1):
+                                    poly += betas[n, k-1]*(rcut-np.clip(r, 0, rcut))**(k+2)
+
+                                # Atomic density
+                                rho = 0
+                                for i_pos in elem_pos:
+                                    ix = i_pos[0]
+                                    iy = i_pos[1]
+                                    iz = i_pos[2]
+                                    ri_squared = ix**2+iy**2+iz**2
+                                    rho += np.exp(-1/(2*sigma**2)*(r**2 + ri_squared - 2*r*(np.sin(theta)*np.cos(phi)*ix + np.sin(theta)*np.sin(phi)*iy + np.cos(theta)*iz)))
+
+                                # Jacobian
+                                jacobian = np.sin(theta)*r**2
+
+                                return poly*ylm*rho*jacobian
+
+                            cnlm = tplquad(
+                                soap_coeff,
+                                r1,
+                                r2,
+                                lambda r: t1,
+                                lambda r: t2,
+                                lambda r, theta: p1,
+                                lambda r, theta: p2,
+                                epsabs=0.0001,
+                                epsrel=0.0001,
+                            )
+                            integral, error = cnlm
+                            coeffs[i, iZ, n, l, im] = integral
+
+        # Calculate the partial power spectrum
+        numerical_inner = []
+        for zi in range(n_elems):
+            for zj in range(n_elems):
+                for l in range(lmax+1):
+                    for ni in range(nmax):
+                        for nj in range(nmax):
+                            if nj >= ni and zj >= zi:
+                                # Average the m values over all atoms before doing the sum
+                                value = np.dot(coeffs[:, zi, ni, l, :].mean(axis=0), coeffs[:, zj, nj, l, :].mean(axis=0))
+                                prefactor = np.pi*np.sqrt(8/(2*l+1))
+                                value *= prefactor
+                                numerical_inner.append(value)
+
+        # print("Numerical: {}".format(numerical_inner))
+        # print("Analytical: {}".format(analytical_inner))
+
+        self.assertTrue(np.allclose(numerical_inner, analytical_inner, atol=1e-15, rtol=0.01))
 
     def test_basis(self):
         """Tests that the output vectors behave correctly as a basis.
