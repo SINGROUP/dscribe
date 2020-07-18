@@ -92,8 +92,8 @@ class SOAP(Descriptor):
                 cross-species information and is only run over each unique
                 species Z. Turned on by default to correspond to the original
                 definition
-            average (bool): Whether to build an average output for all selected
-                positions.
+            average (bool or str): Whether to build an average output for all selected
+                positions. Accepted strings are "inner" and "outer"
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
         """
@@ -153,7 +153,19 @@ class SOAP(Descriptor):
         self._lmax = lmax
         self._rbf = rbf
         self.crossover = crossover
-        self._average = average
+
+        # checks if the argument average is valid
+        if (average == False) or (average == "outer") or (average == "inner"):
+            self._average = average
+        elif average == True:
+            raise ValueError("""
+                You set average to True, but you need to specify the type 
+                of average. Please set it either to "inner" or "outer"
+                """)
+        else:
+            raise ValueError("""
+                Please set average either to False, "inner" or "outer"
+                """)
 
     def create(self, system, positions=None, n_jobs=1, verbose=False):
         """Return the SOAP output for the given systems and given positions.
@@ -208,7 +220,7 @@ class SOAP(Descriptor):
         output_sizes = []
         for i_job in jobs:
             n_desc = 0
-            if self._average:
+            if (self._average == "outer" or (self._average == "inner")):
                 n_desc = len(i_job)
             elif positions is None:
                 n_desc = 0
@@ -317,6 +329,7 @@ class SOAP(Descriptor):
                 eta=self._eta,
                 crossover=self.crossover,
                 atomic_numbers=None,
+                average = self._average,
             )
         elif self._rbf == "polynomial":
             soap_mat = self.get_soap_locals_poly(
@@ -329,6 +342,7 @@ class SOAP(Descriptor):
                 eta=self._eta,
                 crossover=self.crossover,
                 atomic_numbers=None,
+                average = self._average,
             )
 
         # Map the output from subspace of elements to the full space of
@@ -340,9 +354,11 @@ class SOAP(Descriptor):
         )
 
         # Create the averaged SOAP output if requested.
-        if self._average:
+        if self._average == "outer":
             soap_mat = soap_mat.mean(axis=0)
             soap_mat = np.expand_dims(soap_mat, 0)
+        elif self._average == "inner":
+            pass
 
         # Make into a sparse array if requested
         if self._sparse:
@@ -599,7 +615,7 @@ class SOAP(Descriptor):
 
         return positions_sorted, atomic_numbers_sorted, n_species, atomic_numbers_sorted
 
-    def get_soap_locals_gto(self, system, centers, alphas, betas, rcut, cutoff_padding, nmax, lmax, eta, crossover, atomic_numbers=None):
+    def get_soap_locals_gto(self, system, centers, alphas, betas, rcut, cutoff_padding, nmax, lmax, eta, crossover, atomic_numbers=None, average = False):
         """Get the SOAP output for the given positions using the gto radial
         basis.
 
@@ -641,14 +657,17 @@ class SOAP(Descriptor):
             shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*n_species)
 
         # Calculate with extension
-        dscribe.ext.soap_gto(c, positions, centers, alphas, betas, Z_sorted, rcut, cutoff_padding, n_atoms, n_species, nmax, lmax, n_centers, eta, crossover)
+        dscribe.ext.soap_gto(c, positions, centers, alphas, betas, Z_sorted, rcut, cutoff_padding, n_atoms, n_species, nmax, lmax, n_centers, eta, crossover, str(average))
 
         # Reshape from linear to 2D
         c = c.reshape(shape)
 
         return c
 
-    def get_soap_locals_poly(self, system, centers, rcut, cutoff_padding, nmax, lmax, eta, crossover, atomic_numbers=None):
+    def= c.reshape(shape)
+
+        return c
+get_soap_locals_poly(self, system, centers, rcut, cutoff_padding, nmax, lmax, eta, crossover, atomic_numbers=None, average = False):
         """Get the SOAP output using polynomial radial basis for the given
         positions.
         Args:
@@ -683,15 +702,19 @@ class SOAP(Descriptor):
         gss = gss.flatten()
 
         # Determine shape
+        if (average == "inner"):
+            n_centers = 1
         if crossover:
             c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int((n_species*(n_species + 1))/2)*n_centers, dtype=np.float64)
             shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*int((n_species*(n_species+1))/2))
         else:
             c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int(n_species)*n_centers, dtype=np.float64)
             shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*n_species)
+        if (average == "inner"):
+            n_centers = centers.shape[0]
 
         # Calculate with extension
-        dscribe.ext.soap_general(c, positions, centers, Z_sorted, rcut, cutoff_padding, n_atoms, n_species, nmax, lmax, n_centers, eta, rx, gss, crossover)
+        dscribe.ext.soap_general(c, positions, centers, Z_sorted, rcut, cutoff_padding, n_atoms, n_species, nmax, lmax, n_centers, eta, rx, gss, crossover, average = str(average))
 
         # Reshape from linear to 2D
         c = c.reshape(shape)

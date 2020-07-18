@@ -940,7 +940,7 @@ void getP(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax, bool 
 }
 
 //===========================================================================================
-void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<double> alphasArr, py::array_t<double> betasArr, py::array_t<int> atomicNumbersArr, double rCut, double cutoffPadding, int totalAN, int Nt, int Ns, int lMax, int Hs, double eta, bool crossover) {
+void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<double> alphasArr, py::array_t<double> betasArr, py::array_t<int> atomicNumbersArr, double rCut, double cutoffPadding, int totalAN, int Nt, int Ns, int lMax, int Hs, double eta, bool crossover, string average) {
 
   auto atomicNumbers = atomicNumbersArr.unchecked<1>();
   double *c = (double*)cArr.request().ptr;

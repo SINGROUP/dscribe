@@ -16,6 +16,7 @@ limitations under the License.
 #include <stdlib.h>
 #include <math.h>
 #include <map>
+#include <string>
 #include <set>
 #include "soapGeneral.h"
 #include "celllist.h"
@@ -1759,6 +1760,12 @@ void accumC(double* Cts, double* Cs, int lMax, int gnsize, int typeI)
         }
     }
 }
+
+void getSum(double* CtsAve, double* Cts, int Ctssize)
+{
+   for (int k = 0; k < Ctssize; k++) {CtsAve[k] = Cts[k] + CtsAve[k];}; 
+}
+
 void getPs(double* Ps, double* Cts,  int Nt, int lMax, int gnsize, bool crossover)
 {
     int NN = ((gnsize+1)*gnsize)/2;
@@ -1827,7 +1834,7 @@ void accumP(double* Phs, double* Ps, int Nt, int lMax, int gnsize, double rCut2,
         }
     }
 }
-void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<int> atomicNumbersArr, double rCut, double cutoffPadding, int totalAN, int Nt, int nMax, int lMax, int Hs, double alpha, py::array_t<double> rwArr, py::array_t<double> gssArr, bool crossover)
+void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<int> atomicNumbersArr, double rCut, double cutoffPadding, int totalAN, int Nt, int nMax, int lMax, int Hs, double alpha, py::array_t<double> rwArr, py::array_t<double> gssArr, bool crossover, string average)
 {
     auto atomicNumbers = atomicNumbersArr.unchecked<1>();
     double *c = (double*)cArr.request().ptr;
@@ -1853,6 +1860,8 @@ void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::ar
     int Asize = 0;
     double* Cs = (double*) malloc(2*sd*(lMax+1)*(lMax+1)*nMax);
     double* Cts = (double*) malloc(2*sd*(lMax+1)*(lMax+1)*nMax*Nt);
+    int Ctssize = 2*(lMax+1)*(lMax+1)*nMax*Nt;
+    double* CtsAve = (double*) malloc(2*sd*(lMax+1)*(lMax+1)*nMax*Nt);
     double* Ps = crossover ? (double*) malloc((Nt*(Nt+1))/2*sd*(lMax+1)*((nMax+1)*nMax)/2) : (double*) malloc(Nt*sd*(lMax+1)*((nMax+1)*nMax)/2);
     int n_neighbours;
 
@@ -1909,14 +1918,25 @@ void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::ar
 
             getC(Cs, ws, rw2, gss, summed, rCut, lMax, rsize, nMax, isCenter, alpha);
             accumC(Cts, Cs, lMax, nMax, j);
+            
+            if (average == "inner")
+            getSum(CtsAve, Cts, Ctssize);
 
             free(Flir);
             free(Ylmi);
             free(summed);
         }
-        getPs(Ps, Cts,  Nt, lMax, nMax, crossover);
-        accumP(c, Ps, Nt, lMax, nMax, rCut2, i, crossover);
+
+        if (average != "inner") {
+            getPs(Ps, Cts,  Nt, lMax, nMax, crossover);
+            accumP(c, Ps, Nt, lMax, nMax, rCut2, i, crossover);
+            }
     }
+    if (average == "inner") {
+        for (int k = 0; k < Ctssize; k++) {CtsAve[k] = CtsAve[k] / (double)Hs;};
+        getPs(Ps, CtsAve,  Nt, lMax, nMax, crossover);
+        accumP(c, Ps, Nt, lMax, nMax, rCut2, 0, crossover);
+        }
 
     free(cf);
     free(dx);
