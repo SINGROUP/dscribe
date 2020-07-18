@@ -1753,7 +1753,7 @@ void getC(double* Cs, double* ws, double* rw2, double * gns, double* summed, dou
 void accumC(double* Cts, double* Cs, int lMax, int nMax, int typeI)
 {
     for (int n = 0; n < nMax; n++) {
-        for (int l = 0; l < nMax+1; l++) {
+        for (int l = 0; l < lMax+1; l++) {
             for (int m = 0; m < l+1; m++) {
                 Cts[2*typeI*(lMax+1)*(lMax+1)*nMax +2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m    ] = Cs[2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m    ];
                 Cts[2*typeI*(lMax+1)*(lMax+1)*nMax +2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m + 1] = Cs[2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m + 1];
@@ -1782,7 +1782,6 @@ void getPs(double* Ps, double* Cts,  int Nt, int lMax, int nMax, int nFeatures, 
                     for (int N1 = 0; N1 < nMax; N1++) {
                         for (int N2 = N1; N2 < nMax; N2++) {
                             for (int m = 0; m < l+1; m++) {
-                                cout << pIdx << endl;
                                 if (m == 0) {
                                     Ps[pIdx]
                                         += Cts[2*Z1*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N1 + l*2*(lMax+1)] // m=0
@@ -1806,7 +1805,6 @@ void getPs(double* Ps, double* Cts,  int Nt, int lMax, int nMax, int nFeatures, 
                     for (int N1 = 0; N1 < nMax; N1++) {
                         for (int N2 = 0; N2 < nMax; N2++) {
                             for (int m = 0; m < l+1; m++) {
-                                cout << pIdx << endl;
                                 if (m == 0) {
                                     Ps[pIdx]
                                         += Cts[2*Z1*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N1 + l*2*(lMax+1)] // m=0
@@ -1894,7 +1892,6 @@ void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::ar
     double* Cs = (double*) malloc(2*sd*(lMax+1)*(lMax+1)*nMax);
     double* Cts = (double*) malloc(2*sd*(lMax+1)*(lMax+1)*nMax*Nt);
     int nFeatures = crossover ? (Nt*nMax)*(Nt*nMax+1)/2*(lMax+1) : Nt*(lMax+1)*((nMax+1)*nMax)/2;
-    cout << "Number of features in C: " << nFeatures << endl;
     double* Ps = (double*) malloc(nFeatures*sd);
     int n_neighbours;
 
@@ -1940,7 +1937,7 @@ void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::ar
             double* Ylmi; double* Flir; double* summed;
             isCenter[0] = 0;
 
-            // Notice that due to the numerical integration the the getDeltas
+            // Notice that due to the numerical integration the getDeltas
             // function here has special functionality for positions that are
             // centered on an atom.
             n_neighbours = getDeltas(dx, dy, dz, ris, rw, rCut, oOri, oO4arri, minExp, pluExp, isCenter, alpha, positions, ix, iy, iz, ZIndexPair.second, rsize, i, j);
@@ -1952,27 +1949,26 @@ void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::ar
             getC(Cs, ws, rw2, gss, summed, rCut, lMax, rsize, nMax, isCenter, alpha);
             accumC(Cts, Cs, lMax, nMax, j);
 
-            //free(Flir);
-            //free(Ylmi);
-            //free(summed);
+            free(Flir);
+            free(Ylmi);
+            free(summed);
         }
-        //getPs(Ps, Cts, Nt, lMax, nMax, nFeatures, crossover);
-        //accumP(c, Ps, Nt, lMax, nMax, rCut2, i, crossover);
+        getPs(Ps, Cts, Nt, lMax, nMax, nFeatures, crossover);
+        accumP(c, Ps, Nt, lMax, nMax, rCut2, i, crossover);
     }
-
-    //free(cf);
-    //free(dx);
-    //free(dy);
-    //free(dz);
-    //free(ris);
-    //free(oOri);
-    //free(ws);
-    //free(oOr);
-    //free(rw2) ;
-    //free(oO4arri);
-    //free(minExp);
-    //free(pluExp);
-    //free(Cs);
-    //free(Cts);
-    //free(Ps);
+    free(cf);
+    free(dx);
+    free(dy);
+    free(dz);
+    free(ris);
+    free(oOri);
+    free(ws);
+    free(oOr);
+    free(rw2) ;
+    free(oO4arri);
+    free(minExp);
+    free(pluExp);
+    free(Cs);
+    free(Cts);
+    free(Ps);
 }
