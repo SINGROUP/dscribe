@@ -619,18 +619,27 @@ class SOAP(Descriptor):
         betas = betas.flatten()
 
         # Determine shape
-        if crossover:
-            c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int((n_species*(n_species + 1))/2)*n_centers, dtype=np.float64)
-            shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*int((n_species*(n_species+1))/2))
-        else:
-            c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int(n_species)*n_centers, dtype=np.float64)
-            shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*n_species)
+        n_features = self.get_number_of_features()
+        c = np.zeros((n_centers, n_features), dtype=np.float64)
 
         # Calculate with extension
-        dscribe.ext.soap_gto(c, positions, centers, alphas, betas, Z_sorted, rcut, cutoff_padding, n_atoms, n_species, nmax, lmax, n_centers, eta, crossover)
-
-        # Reshape from linear to 2D
-        c = c.reshape(shape)
+        dscribe.ext.soap_gto(
+            c,
+            positions,
+            centers,
+            alphas,
+            betas,
+            Z_sorted,
+            rcut,
+            cutoff_padding,
+            n_atoms,
+            n_species,
+            nmax,
+            lmax,
+            n_centers,
+            eta,
+            crossover
+        )
 
         return c
 

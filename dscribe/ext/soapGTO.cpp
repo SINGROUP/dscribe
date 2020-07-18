@@ -589,7 +589,7 @@ void getC(double* C, double* preCoef, double* x, double* y, double* z,double* r2
 /**
  * Used to calculate the partial power spectrum.
  */
-void getP(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax, bool crossover){
+void getP(py::detail::unchecked_mutable_reference<double, 2> &cArr, double* Cnnd, int Ns, int Ts, int Hs, int lMax, bool crossover){
   int NsTs100 = Ns*Ts*100;
   int Ns100 = Ns*100;
   int NsNs = (Ns*(Ns+1))/2;
@@ -658,7 +658,7 @@ void getP(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax, bool 
               shiftN = 0;
               for (int N1 = 0; N1 < Ns; N1++){
                   for (int N2 = N1; N2 < Ns; N2++){
-                      soapMat[NsNsLmaxTs*i + NsNsLmax*shiftZ + 0 + shiftN] = prel0*(
+                      cArr(i, NsNsLmax*shiftZ + 0 + shiftN) = prel0*(
                               cs0*Cnnd[NsTs100*i + Ns100*Z1 + 0 + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 0 + N2]);
                       shiftN++;
                   }
@@ -677,7 +677,7 @@ void getP(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax, bool 
                   shiftN = 0;
                   for (int N1 = 0; N1 < Ns; N1++) {
                       for (int N2 = N1; N2 < Ns; N2++) {
-                          soapMat[NsNsLmaxTs*i+NsNsLmax*shiftZ+ NsNs + shiftN] = prel1*(
+                          cArr(i, NsNsLmax*shiftZ+ NsNs + shiftN) = prel1*(
                                   cs1*Cnnd[NsTs100*i + Ns100*Z1 + 1*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 1*Ns + N2]
                                   +cs2*Cnnd[NsTs100*i + Ns100*Z1 + 2*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 2*Ns + N2]
                                   +cs2*Cnnd[NsTs100*i + Ns100*Z1 + 3*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 3*Ns + N2]);
@@ -699,7 +699,7 @@ void getP(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax, bool 
                   shiftN = 0;
                   for (int N1 = 0; N1 < Ns; N1++) {
                       for (int N2 = N1; N2 < Ns; N2++) {
-                          soapMat[NsNsLmaxTs*i+NsNsLmax*shiftZ+ 2*NsNs + shiftN] = prel2*(
+                          cArr(i, NsNsLmax*shiftZ+ 2*NsNs + shiftN) = prel2*(
                                   cs3*Cnnd[NsTs100*i + Ns100*Z1 + 4*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 4*Ns + N2]
                                   +cs4*Cnnd[NsTs100*i + Ns100*Z1 + 5*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 5*Ns + N2]
                                   +cs4*Cnnd[NsTs100*i + Ns100*Z1 + 6*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 6*Ns + N2]
@@ -723,7 +723,7 @@ void getP(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax, bool 
                   shiftN = 0;
                   for (int N1 = 0; N1 < Ns; N1++) {
                       for (int N2 = N1; N2 < Ns; N2++) {
-                          soapMat[NsNsLmaxTs*i+NsNsLmax*shiftZ+ 3*NsNs + shiftN] = prel3*(
+                          cArr(i, NsNsLmax*shiftZ+ 3*NsNs + shiftN) = prel3*(
                               cs6*Cnnd[NsTs100*i + Ns100*Z1 + 9*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 9*Ns + N2]
                               +cs7*Cnnd[NsTs100*i + Ns100*Z1 + 10*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 10*Ns + N2]
                               +cs7*Cnnd[NsTs100*i + Ns100*Z1 + 11*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 11*Ns + N2]
@@ -749,7 +749,7 @@ void getP(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax, bool 
                   shiftN = 0;
                   for (int N1 = 0; N1 < Ns; N1++) {
                       for (int N2 = N1; N2 < Ns; N2++) {
-                          soapMat[NsNsLmaxTs*i+NsNsLmax*shiftZ+ 4*NsNs + shiftN] = prel4*(
+                          cArr(i, NsNsLmax*shiftZ+ 4*NsNs + shiftN) = prel4*(
                               cs10*Cnnd[NsTs100*i + Ns100*Z1 + 16*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 16*Ns + N2]
                               +cs11*Cnnd[NsTs100*i + Ns100*Z1 + 17*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 17*Ns + N2]
                               +cs11*Cnnd[NsTs100*i + Ns100*Z1 + 18*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 18*Ns + N2]
@@ -777,7 +777,7 @@ void getP(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax, bool 
                   shiftN = 0;
                   for (int N1 = 0; N1 < Ns; N1++) {
                       for (int N2 = N1; N2 < Ns; N2++) {
-                          soapMat[NsNsLmaxTs*i+NsNsLmax*shiftZ+ 5*NsNs + shiftN] = prel5*(
+                          cArr(i, NsNsLmax*shiftZ+ 5*NsNs + shiftN) = prel5*(
                               cs15*Cnnd[NsTs100*i + Ns100*Z1 + 25*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 25*Ns + N2]
                               +cs16*Cnnd[NsTs100*i + Ns100*Z1 + 26*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 26*Ns + N2]
                               +cs16*Cnnd[NsTs100*i + Ns100*Z1 + 27*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 27*Ns + N2]
@@ -807,7 +807,7 @@ void getP(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax, bool 
                   shiftN = 0;
                   for (int N1 = 0; N1 < Ns; N1++) {
                       for (int N2 = N1; N2 < Ns; N2++) {
-                          soapMat[NsNsLmaxTs*i+NsNsLmax*shiftZ+ 6*NsNs + shiftN] = prel6*(
+                          cArr(i, NsNsLmax*shiftZ+ 6*NsNs + shiftN) = prel6*(
                               cs21*Cnnd[NsTs100*i + Ns100*Z1 + 36*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 36*Ns + N2]
                               +cs22*Cnnd[NsTs100*i + Ns100*Z1 + 37*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 37*Ns + N2]
                               +cs22*Cnnd[NsTs100*i + Ns100*Z1 + 38*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 38*Ns + N2]
@@ -839,7 +839,7 @@ void getP(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax, bool 
                   shiftN = 0;
                   for (int N1 = 0; N1 < Ns; N1++) {
                       for (int N2 = N1; N2 < Ns; N2++) {
-                          soapMat[NsNsLmaxTs*i+NsNsLmax*shiftZ+ 7*NsNs + shiftN] = prel7*(
+                          cArr(i, NsNsLmax*shiftZ+ 7*NsNs + shiftN) = prel7*(
                               cs28*Cnnd[NsTs100*i + Ns100*Z1 + 49*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 49*Ns + N2]
                               +cs29*Cnnd[NsTs100*i + Ns100*Z1 + 50*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 50*Ns + N2]
                               +cs29*Cnnd[NsTs100*i + Ns100*Z1 + 51*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 51*Ns + N2]
@@ -873,7 +873,7 @@ void getP(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax, bool 
                   shiftN = 0;
                   for (int N1 = 0; N1 < Ns; N1++) {
                       for (int N2 = N1; N2 < Ns; N2++) {
-                          soapMat[NsNsLmaxTs*i+NsNsLmax*shiftZ+ 8*NsNs + shiftN] = prel8*(
+                          cArr(i, NsNsLmax*shiftZ+ 8*NsNs + shiftN) = prel8*(
                               cs36*Cnnd[NsTs100*i + Ns100*Z1 + 64*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 64*Ns + N2]
                               +cs37*Cnnd[NsTs100*i + Ns100*Z1 + 65*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 65*Ns + N2]
                               +cs37*Cnnd[NsTs100*i + Ns100*Z1 + 66*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 66*Ns + N2]
@@ -909,7 +909,7 @@ void getP(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax, bool 
                   shiftN = 0;
                   for (int N1 = 0; N1 < Ns; N1++) {
                       for (int N2 = N1; N2 < Ns; N2++) {
-                          soapMat[NsNsLmaxTs*i+NsNsLmax*shiftZ+ 9*NsNs + shiftN] = prel9*(
+                          cArr(i, NsNsLmax*shiftZ+ 9*NsNs + shiftN) = prel9*(
                               cs45*Cnnd[NsTs100*i + Ns100*Z1 + 81*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 81*Ns + N2]
                               +cs46*Cnnd[NsTs100*i + Ns100*Z1 + 82*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 82*Ns + N2]
                               +cs46*Cnnd[NsTs100*i + Ns100*Z1 + 83*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 83*Ns + N2]
@@ -943,7 +943,7 @@ void getP(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax, bool 
 void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<double> alphasArr, py::array_t<double> betasArr, py::array_t<int> atomicNumbersArr, double rCut, double cutoffPadding, int totalAN, int Nt, int Ns, int lMax, int Hs, double eta, bool crossover) {
 
   auto atomicNumbers = atomicNumbersArr.unchecked<1>();
-  double *c = (double*)cArr.request().ptr;
+  auto c = cArr.mutable_unchecked<2>();
   double *Hpos = (double*)HposArr.request().ptr;
   double *alphas = (double*)alphasArr.request().ptr;
   double *betas = (double*)betasArr.request().ptr;

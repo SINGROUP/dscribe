@@ -817,7 +817,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         sigma = 0.55
         rcut = 2.0
         nmax = 2
-        lmax = 2
+        lmax = 0
 
         # Limits for radius
         r1 = 0.
@@ -842,7 +842,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         # Calculate the analytical power spectrum and the weights and decays of
         # the radial basis functions.
         soap = SOAP(species=species, lmax=lmax, nmax=nmax, sigma=sigma, rcut=rcut, crossover=True, sparse=False)
-        analytical_power_spectrum = soap.create(system, positions=[[0, 0, 0]])[0]
+        analytical_power_spectrum = soap.create(system, positions=[[0, 0, 0]])
         alphagrid = np.reshape(soap._alphas, [10, nmax])
         betagrid = np.reshape(soap._betas, [10, nmax, nmax])
 
@@ -914,19 +914,26 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         # Calculate the partial power spectrum
         numerical_power_spectrum = []
         for zi in range(n_elems):
-            for zj in range(n_elems):
-                for l in range(lmax+1):
-                    for ni in range(nmax):
-                        for nj in range(nmax):
-                            if nj >= ni:
-                                if zj >= zi:
-                                    value = np.dot(coeffs[zi, ni, l, :], coeffs[zj, nj, l, :])
-                                    prefactor = np.pi*np.sqrt(8/(2*l+1))
-                                    value *= prefactor
-                                    numerical_power_spectrum.append(value)
+            for zj in range(zi, n_elems):
+                if zi == zj:
+                    for l in range(lmax+1):
+                        for ni in range(nmax):
+                            for nj in range(ni, nmax):
+                                value = np.dot(coeffs[zi, ni, l, :], coeffs[zj, nj, l, :])
+                                prefactor = np.pi*np.sqrt(8/(2*l+1))
+                                value *= prefactor
+                                numerical_power_spectrum.append(value)
+                else:
+                    for l in range(lmax+1):
+                        for ni in range(nmax):
+                            for nj in range(nmax):
+                                value = np.dot(coeffs[zi, ni, l, :], coeffs[zj, nj, l, :])
+                                prefactor = np.pi*np.sqrt(8/(2*l+1))
+                                value *= prefactor
+                                numerical_power_spectrum.append(value)
 
-        # print("Numerical: {}".format(numerical_power_spectrum))
-        # print("Analytical: {}".format(analytical_power_spectrum))
+        print("Numerical: {}".format(numerical_power_spectrum))
+        print("Analytical: {}".format(analytical_power_spectrum))
 
         self.assertTrue(np.allclose(numerical_power_spectrum, analytical_power_spectrum, atol=1e-15, rtol=0.01))
 
@@ -1041,7 +1048,6 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         # Calculate the partial power spectrum. This loop is the most efficient
         # at short-circuiting the loops.
         numerical_power_spectrum = []
-        counter = 0
         for zi in range(n_elems):
             for zj in range(zi, n_elems):
                 if zi == zj:
@@ -1124,7 +1130,8 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
 
 if __name__ == '__main__':
-    suites = []
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapTests))
-    alltests = unittest.TestSuite(suites)
-    result = unittest.TextTestRunner(verbosity=0).run(alltests)
+    # suites = []
+    a = SoapTests().test_gto_integration()
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapTests))
+    # alltests = unittest.TestSuite(suites)
+    # result = unittest.TextTestRunner(verbosity=0).run(alltests)
