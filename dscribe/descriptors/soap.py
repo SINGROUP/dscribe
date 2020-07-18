@@ -155,9 +155,9 @@ class SOAP(Descriptor):
         self.crossover = crossover
 
         # checks if the argument average is valid
-        if (average == False) or (average == "outer") or (average == "inner"):
+        if (average is False) or (average == "outer") or (average == "inner"):
             self._average = average
-        elif average == True:
+        elif average is True:
             raise ValueError("""
                 You set average to True, but you need to specify the type 
                 of average. Please set it either to "inner" or "outer"
@@ -615,7 +615,7 @@ class SOAP(Descriptor):
 
         return positions_sorted, atomic_numbers_sorted, n_species, atomic_numbers_sorted
 
-    def get_soap_locals_gto(self, system, centers, alphas, betas, rcut, cutoff_padding, nmax, lmax, eta, crossover, atomic_numbers=None, average = False):
+    def get_soap_locals_gto(self, system, centers, alphas, betas, rcut, cutoff_padding, nmax, lmax, eta, crossover, atomic_numbers=None, average=False):
         """Get the SOAP output for the given positions using the gto radial
         basis.
 
@@ -664,10 +664,7 @@ class SOAP(Descriptor):
 
         return c
 
-    def= c.reshape(shape)
-
-        return c
-get_soap_locals_poly(self, system, centers, rcut, cutoff_padding, nmax, lmax, eta, crossover, atomic_numbers=None, average = False):
+    def get_soap_locals_poly(self, system, centers, rcut, cutoff_padding, nmax, lmax, eta, crossover, atomic_numbers=None, average=False):
         """Get the SOAP output using polynomial radial basis for the given
         positions.
         Args:
@@ -714,7 +711,7 @@ get_soap_locals_poly(self, system, centers, rcut, cutoff_padding, nmax, lmax, et
             n_centers = centers.shape[0]
 
         # Calculate with extension
-        dscribe.ext.soap_general(c, positions, centers, Z_sorted, rcut, cutoff_padding, n_atoms, n_species, nmax, lmax, n_centers, eta, rx, gss, crossover, average = str(average))
+        dscribe.ext.soap_general(c, positions, centers, Z_sorted, rcut, cutoff_padding, n_atoms, n_species, nmax, lmax, n_centers, eta, rx, gss, crossover, average=str(average))
 
         # Reshape from linear to 2D
         c = c.reshape(shape)
