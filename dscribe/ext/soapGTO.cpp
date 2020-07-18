@@ -17,7 +17,6 @@ limitations under the License.
 #include <math.h>
 #include <stdlib.h>
 #include <time.h>
-#include <string>
 #include <map>
 #include <set>
 #include "soapGTO.h"
@@ -1038,9 +1037,10 @@ void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_
   int t98 = 98*totalAN;  int t99 = 99*totalAN;
 
   double* cnnd = (double*) malloc(100*Nt*Ns*Hs*sizeof(double));
-  double* cnndAve = (double*) malloc(100*Nt*Ns*Hs*sizeof(double));
+  double* cnndAve = (double*) malloc(100*Nt*Ns*sizeof(double));
   int cnndSize = 100*Nt*Ns*Hs;
   for(int i = 0; i < 100*Nt*Ns*Hs; i++){cnnd[i] = 0.0;}
+  for(int i = 0; i < 100*Nt*Ns; i++){cnndAve[i] = 0.0;}
 
   // Initialize binning
   CellList cellList(positions, rCut+cutoffPadding);
@@ -1116,19 +1116,24 @@ void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_
   free(bOa);
   free(aOa);
 
-
     if (average == "inner") {
         // average over axis 0 in cnnd matrix
-        for (int k = 0; k < Hs; k++) {100;}
+        for (int k = 0; k < Hs; k++) {
+            for (int k1 = 0; k1 < 100*Nt*Ns; k1++) {
+                cnndAve[k1] += cnnd[k1 + 100*Nt*Ns * k]
+                //x + m_width * y
+                ;
+            };
+        };
         //100*Nt*Ns*Hs        
-
-        //x + m_width * y
         // change cnnd shape
         // continue as normal
+        getP(c, cnndAve, Ns, Nt, 1, lMax, crossover);
         }
+     else {
+         getP(c, cnnd, Ns, Nt, Hs, lMax, crossover);
+     }
 
-
-  getP(c, cnnd, Ns, Nt, Hs, lMax, crossover);
   free(cnnd);
 
   return;

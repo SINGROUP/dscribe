@@ -17,6 +17,7 @@ limitations under the License.
 
 #include <vector>
 #include <pybind11/numpy.h>
+#include <string>
 
 namespace py = pybind11;
 using namespace std;
