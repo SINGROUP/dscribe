@@ -817,7 +817,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         sigma = 0.55
         rcut = 2.0
         nmax = 2
-        lmax = 0
+        lmax = 2
 
         # Limits for radius
         r1 = 0.
@@ -842,7 +842,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         # Calculate the analytical power spectrum and the weights and decays of
         # the radial basis functions.
         soap = SOAP(species=species, lmax=lmax, nmax=nmax, sigma=sigma, rcut=rcut, crossover=True, sparse=False)
-        analytical_power_spectrum = soap.create(system, positions=[[0, 0, 0]])
+        analytical_power_spectrum = soap.create(system, positions=[[0, 0, 0]])[0]
         alphagrid = np.reshape(soap._alphas, [10, nmax])
         betagrid = np.reshape(soap._betas, [10, nmax, nmax])
 
@@ -912,6 +912,20 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                         coeffs[iZ, n, l, im] = integral
 
         # Calculate the partial power spectrum
+        # numerical_power_spectrum = []
+        # for zi in range(n_elems):
+            # for zj in range(n_elems):
+                # for l in range(lmax+1):
+                    # for ni in range(nmax):
+                        # for nj in range(nmax):
+                            # if nj >= ni:
+                                # if zj >= zi:
+                                    # value = np.dot(coeffs[zi, ni, l, :], coeffs[zj, nj, l, :])
+                                    # prefactor = np.pi*np.sqrt(8/(2*l+1))
+                                    # value *= prefactor
+                                    # numerical_power_spectrum.append(value)
+
+        # Calculate the partial power spectrum
         numerical_power_spectrum = []
         for zi in range(n_elems):
             for zj in range(zi, n_elems):
@@ -934,6 +948,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
         print("Numerical: {}".format(numerical_power_spectrum))
         print("Analytical: {}".format(analytical_power_spectrum))
+        # print(analytical_power_spectrum[:-2]-numerical_power_spectrum)
 
         self.assertTrue(np.allclose(numerical_power_spectrum, analytical_power_spectrum, atol=1e-15, rtol=0.01))
 
