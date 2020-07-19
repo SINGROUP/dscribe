@@ -932,8 +932,8 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                                 value *= prefactor
                                 numerical_power_spectrum.append(value)
 
-        print("Numerical: {}".format(numerical_power_spectrum))
-        print("Analytical: {}".format(analytical_power_spectrum))
+        # print("Numerical: {}".format(numerical_power_spectrum))
+        # print("Analytical: {}".format(analytical_power_spectrum))
 
         self.assertTrue(np.allclose(numerical_power_spectrum, analytical_power_spectrum, atol=1e-15, rtol=0.01))
 
@@ -1067,8 +1067,8 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                                 value *= prefactor
                                 numerical_power_spectrum.append(value)
 
-        # print("Numerical: {}".format(numerical_power_spectrum))
-        # print("Analytical: {}".format(analytical_power_spectrum))
+        print("Numerical: {}".format(numerical_power_spectrum))
+        print("Analytical: {}".format(analytical_power_spectrum))
 
         self.assertTrue(np.allclose(numerical_power_spectrum, analytical_power_spectrum, atol=1e-15, rtol=0.01))
 
@@ -1130,8 +1130,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
 
 if __name__ == '__main__':
-    # suites = []
-    a = SoapTests().test_gto_integration()
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapTests))
-    # alltests = unittest.TestSuite(suites)
-    # result = unittest.TextTestRunner(verbosity=0).run(alltests)
+    suites = []
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapTests))
+    alltests = unittest.TestSuite(suites)
+    result = unittest.TextTestRunner(verbosity=0).run(alltests)

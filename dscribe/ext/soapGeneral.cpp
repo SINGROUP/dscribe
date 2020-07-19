@@ -1762,69 +1762,69 @@ void accumC(double* Cts, double* Cs, int lMax, int nMax, int typeI)
     }
 }
 
-void getPs(double* Ps, double* Cts,  int Nt, int lMax, int nMax, int nFeatures, bool crossover)
-{
-    // The current index in the final power spectrum array.
-    int pIdx = 0;
+//void getP(double* Ps, double* Cts,  int Nt, int lMax, int nMax, int nFeatures, bool crossover)
+//{
+    //// The current index in the final power spectrum array.
+    //int pIdx = 0;
 
-    // The Ps array is reused so we need to clear it.
-    for (int i = 0; i < nFeatures; i++) {
-        Ps[i] = 0.0;
-    }
+    //// The Ps array is reused so we need to clear it.
+    //for (int i = 0; i < nFeatures; i++) {
+        //Ps[i] = 0.0;
+    //}
 
-    for (int Z1 = 0; Z1 < Nt; Z1++) {
-        int Z2Limit = crossover ? Nt : Z1+1;
-        for (int Z2 = Z1; Z2 < Z2Limit; Z2++) {
-            // If the species are identical, then there is symmetry in the
-            // radial basis and we only loop N2 from N1 to nMax
-            if (Z1 == Z2) {
-                for (int l = 0; l < lMax+1; l++) {
-                    for (int N1 = 0; N1 < nMax; N1++) {
-                        for (int N2 = N1; N2 < nMax; N2++) {
-                            for (int m = 0; m < l+1; m++) {
-                                if (m == 0) {
-                                    Ps[pIdx]
-                                        += Cts[2*Z1*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N1 + l*2*(lMax+1)] // m=0
-                                          *Cts[2*Z2*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1)]; // m=0
-                                } else {
-                                    Ps[pIdx]
-                                        += 2*(Cts[2*Z1*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N1 + l*2*(lMax+1) + 2*m]
-                                             *Cts[2*Z2*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1) + 2*m]
-                                             +Cts[2*Z1*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N1 + l*2*(lMax+1) + 2*m + 1]
-                                             *Cts[2*Z2*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1) + 2*m + 1]);
-                                }
-                            }
-                            ++pIdx;
-                        }
-                    }
-                }
-            // If the species are different, then there is no symmetry in the
-            // radial basis and we have to loop over all pairwise combinations.
-            } else {
-                for (int l = 0; l < lMax+1; l++) {
-                    for (int N1 = 0; N1 < nMax; N1++) {
-                        for (int N2 = 0; N2 < nMax; N2++) {
-                            for (int m = 0; m < l+1; m++) {
-                                if (m == 0) {
-                                    Ps[pIdx]
-                                        += Cts[2*Z1*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N1 + l*2*(lMax+1)] // m=0
-                                          *Cts[2*Z2*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1)]; // m=0
-                                } else {
-                                    Ps[pIdx]
-                                        += 2*(Cts[2*Z1*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N1 + l*2*(lMax+1) + 2*m]
-                                             *Cts[2*Z2*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1) + 2*m]
-                                             +Cts[2*Z1*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N1 + l*2*(lMax+1) + 2*m + 1]
-                                             *Cts[2*Z2*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1) + 2*m + 1]);
-                                }
-                            }
-                            ++pIdx;
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
+    //for (int Z1 = 0; Z1 < Nt; Z1++) {
+        //int Z2Limit = crossover ? Nt : Z1+1;
+        //for (int Z2 = Z1; Z2 < Z2Limit; Z2++) {
+            //// If the species are identical, then there is symmetry in the
+            //// radial basis and we only loop N2 from N1 to nMax
+            //if (Z1 == Z2) {
+                //for (int l = 0; l < lMax+1; l++) {
+                    //for (int N1 = 0; N1 < nMax; N1++) {
+                        //for (int N2 = N1; N2 < nMax; N2++) {
+                            //for (int m = 0; m < l+1; m++) {
+                                //if (m == 0) {
+                                    //Ps[pIdx]
+                                        //+= Cts[2*Z1*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N1 + l*2*(lMax+1)] // m=0
+                                          //*Cts[2*Z2*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1)]; // m=0
+                                //} else {
+                                    //Ps[pIdx]
+                                        //+= 2*(Cts[2*Z1*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N1 + l*2*(lMax+1) + 2*m]
+                                             //*Cts[2*Z2*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1) + 2*m]
+                                             //+Cts[2*Z1*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N1 + l*2*(lMax+1) + 2*m + 1]
+                                             //*Cts[2*Z2*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1) + 2*m + 1]);
+                                //}
+                            //}
+                            //++pIdx;
+                        //}
+                    //}
+                //}
+            //// If the species are different, then there is no symmetry in the
+            //// radial basis and we have to loop over all pairwise combinations.
+            //} else {
+                //for (int l = 0; l < lMax+1; l++) {
+                    //for (int N1 = 0; N1 < nMax; N1++) {
+                        //for (int N2 = 0; N2 < nMax; N2++) {
+                            //for (int m = 0; m < l+1; m++) {
+                                //if (m == 0) {
+                                    //Ps[pIdx]
+                                        //+= Cts[2*Z1*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N1 + l*2*(lMax+1)] // m=0
+                                          //*Cts[2*Z2*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1)]; // m=0
+                                //} else {
+                                    //Ps[pIdx]
+                                        //+= 2*(Cts[2*Z1*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N1 + l*2*(lMax+1) + 2*m]
+                                             //*Cts[2*Z2*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1) + 2*m]
+                                             //+Cts[2*Z1*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N1 + l*2*(lMax+1) + 2*m + 1]
+                                             //*Cts[2*Z2*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1) + 2*m + 1]);
+                                //}
+                            //}
+                            //++pIdx;
+                        //}
+                    //}
+                //}
+            //}
+        //}
+    //}
+//}
 
 /**
  * Used to calculate the partial power spectrum.
@@ -1836,7 +1836,50 @@ void getPs(double* Ps, double* Cts,  int Nt, int lMax, int nMax, int nFeatures, 
  * (2013). Here the square root of the prefactor in the dot-product kernel is
  * used, so that after a possible dot-product the full prefactor is recovered.
  */
-void accumP(py::detail::unchecked_mutable_reference<double, 2> &cArr, double* Ps, int Nt, int lMax, int nMax, double rCut2, int Ihpos, bool crossover)
+//void accumP(py::detail::unchecked_mutable_reference<double, 2> &cArr, double* Ps, int Nt, int lMax, int nMax, double rCut2, int Ihpos, bool crossover)
+//{
+    //// The current index in the final power spectrum array.
+    //int pIdx = 0;
+
+    //for (int Z1 = 0; Z1 < Nt; Z1++) {
+        //int Z2Limit = crossover ? Nt : Z1+1;
+        //for (int Z2 = Z1; Z2 < Z2Limit; Z2++) {
+            //if (Z1 == Z2) {
+                //for (int l = 0; l < lMax+1; l++) {
+                    //double prefactor = PI*sqrt(8.0/(2.0*l+1.0));
+                    //for (int N1 = 0; N1 < nMax; N1++) {
+                        //for (int N2 = N1; N2 < nMax; N2++) {
+                            //cArr(Ihpos, pIdx) = prefactor*39.478417604*rCut2*Ps[pIdx];// 16*9.869604401089358*Ps[tshift*(lMax+1)*NN + l*NN + nshift];
+                            //++pIdx;
+                        //}
+                    //}
+                //}
+            //} else {
+                //for (int l = 0; l < lMax+1; l++) {
+                    //double prefactor = PI*sqrt(8.0/(2.0*l+1.0));
+                    //for (int N1 = 0; N1 < nMax; N1++) {
+                        //for (int N2 = 0; N2 < nMax; N2++) {
+                            //cArr(Ihpos, pIdx) = prefactor*39.478417604*rCut2*Ps[pIdx];// 16*9.869604401089358*Ps[tshift*(lMax+1)*NN + l*NN + nshift];
+                            //++pIdx;
+                        //}
+                    //}
+                //}
+            //}
+        //}
+    //}
+//}
+
+/**
+ * Used to calculate the partial power spectrum.
+ *
+ * The power spectrum is multiplied by an l-dependent prefactor
+ * PI*sqrt(8.0/(2.0*l+1.0)); that comes from the normalization of the Wigner D
+ * matrices. This prefactor is mentioned in the errata of the original SOAP
+ * paper: On representing chemical environments, Phys. Rev. B 87, 184115
+ * (2013). Here the square root of the prefactor in the dot-product kernel is
+ * used, so that after a possible dot-product the full prefactor is recovered.
+ */
+void getP(py::detail::unchecked_mutable_reference<double, 2> &cArr, double* Cts,  int Nt, int lMax, int nMax, double rCut2, int i, int nFeatures, bool crossover)
 {
     // The current index in the final power spectrum array.
     int pIdx = 0;
@@ -1844,22 +1887,48 @@ void accumP(py::detail::unchecked_mutable_reference<double, 2> &cArr, double* Ps
     for (int Z1 = 0; Z1 < Nt; Z1++) {
         int Z2Limit = crossover ? Nt : Z1+1;
         for (int Z2 = Z1; Z2 < Z2Limit; Z2++) {
+            // If the species are identical, then there is symmetry in the
+            // radial basis and we only loop N2 from N1 to nMax
             if (Z1 == Z2) {
                 for (int l = 0; l < lMax+1; l++) {
-                    double prefactor = PI*sqrt(8.0/(2.0*l+1.0));
                     for (int N1 = 0; N1 < nMax; N1++) {
                         for (int N2 = N1; N2 < nMax; N2++) {
-                            cArr(Ihpos, pIdx) = prefactor*39.478417604*rCut2*Ps[pIdx];// 16*9.869604401089358*Ps[tshift*(lMax+1)*NN + l*NN + nshift];
+                            double sum = 0;
+                            for (int m = 0; m < l+1; m++) {
+                                if (m == 0) {
+                                    sum += Cts[2*Z1*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N1 + l*2*(lMax+1)] // m=0
+                                          *Cts[2*Z2*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1)]; // m=0
+                                } else {
+                                    sum += 2*(Cts[2*Z1*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N1 + l*2*(lMax+1) + 2*m]
+                                             *Cts[2*Z2*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1) + 2*m]
+                                             +Cts[2*Z1*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N1 + l*2*(lMax+1) + 2*m + 1]
+                                             *Cts[2*Z2*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1) + 2*m + 1]);
+                                }
+                            }
+                            cArr(i, pIdx) = PI*sqrt(8.0/(2.0*l+1.0))*39.478417604*rCut2*sum;  // Normalization and other constants
                             ++pIdx;
                         }
                     }
                 }
+            // If the species are different, then there is no symmetry in the
+            // radial basis and we have to loop over all pairwise combinations.
             } else {
                 for (int l = 0; l < lMax+1; l++) {
-                    double prefactor = PI*sqrt(8.0/(2.0*l+1.0));
                     for (int N1 = 0; N1 < nMax; N1++) {
                         for (int N2 = 0; N2 < nMax; N2++) {
-                            cArr(Ihpos, pIdx) = prefactor*39.478417604*rCut2*Ps[pIdx];// 16*9.869604401089358*Ps[tshift*(lMax+1)*NN + l*NN + nshift];
+                            double sum = 0;
+                            for (int m = 0; m < l+1; m++) {
+                                if (m == 0) {
+                                    sum += Cts[2*Z1*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N1 + l*2*(lMax+1)] // m=0
+                                          *Cts[2*Z2*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1)]; // m=0
+                                } else {
+                                    sum += 2*(Cts[2*Z1*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N1 + l*2*(lMax+1) + 2*m]
+                                             *Cts[2*Z2*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1) + 2*m]
+                                             +Cts[2*Z1*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N1 + l*2*(lMax+1) + 2*m + 1]
+                                             *Cts[2*Z2*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1) + 2*m + 1]);
+                                }
+                            }
+                            cArr(i, pIdx) = PI*sqrt(8.0/(2.0*l+1.0))*39.478417604*rCut2*sum;  // Normalization and other constants
                             ++pIdx;
                         }
                     }
@@ -1877,7 +1946,7 @@ void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::ar
     double *rw = (double*)rwArr.request().ptr;
     double *gss = (double*)gssArr.request().ptr;
     double* cf = factorListSet();
-    int* isCenter = (int*)malloc( sizeof(int) );
+    int* isCenter = (int*)malloc(sizeof(int));
     isCenter[0] = 0;
     const int rsize = 100; // The number of points in the radial integration grid
     double rCut2 = rCut*rCut;
@@ -1896,7 +1965,6 @@ void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::ar
     double* Cs = (double*) malloc(2*sd*(lMax+1)*(lMax+1)*nMax);
     double* Cts = (double*) malloc(2*sd*(lMax+1)*(lMax+1)*nMax*Nt);
     int nFeatures = crossover ? (Nt*nMax)*(Nt*nMax+1)/2*(lMax+1) : Nt*(lMax+1)*((nMax+1)*nMax)/2;
-    double* Ps = (double*) malloc(nFeatures*sd);
     int n_neighbours;
 
     // Create a mapping between an atomic index and its internal index in the
@@ -1957,8 +2025,7 @@ void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::ar
             free(Ylmi);
             free(summed);
         }
-        getPs(Ps, Cts, Nt, lMax, nMax, nFeatures, crossover);
-        accumP(c, Ps, Nt, lMax, nMax, rCut2, i, crossover);
+        getP(c, Cts, Nt, lMax, nMax, rCut2, i, nFeatures, crossover);
     }
     free(cf);
     free(dx);
@@ -1974,5 +2041,4 @@ void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::ar
     free(pluExp);
     free(Cs);
     free(Cts);
-    free(Ps);
 }
