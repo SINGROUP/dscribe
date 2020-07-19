@@ -753,19 +753,21 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         self.assertNotEqual(dot, 0)
 
         # Check that self-terms are in correct location
-        n_elem_feat = desc.get_number_of_element_features()
-        h_part1 = vec1[0:n_elem_feat]
-        h_part2 = vec2[0:n_elem_feat]
-        h_part4 = vec4[0:n_elem_feat]
+        hh_loc = desc.get_location(("H", "H"))
+        h_part1 = vec1[hh_loc]
+        h_part2 = vec2[hh_loc]
+        h_part4 = vec4[hh_loc]
         self.assertNotEqual(np.sum(h_part1), 0)
         self.assertEqual(np.sum(h_part2), 0)
         self.assertNotEqual(np.sum(h_part4), 0)
 
         # Check that cross terms are in correct location
-        hc_part1 = vec1[1*n_elem_feat:2*n_elem_feat]
-        hc_part4 = vec4[1*n_elem_feat:2*n_elem_feat]
-        co_part6 = vec6[4*n_elem_feat:5*n_elem_feat]
-        co_part7 = vec7[4*n_elem_feat:5*n_elem_feat]
+        hc_loc = desc.get_location(("H", "C"))
+        co_loc = desc.get_location(("C", "O"))
+        hc_part1 = vec1[hc_loc]
+        hc_part4 = vec4[hc_loc]
+        co_part6 = vec6[co_loc]
+        co_part7 = vec7[co_loc]
         self.assertEqual(np.sum(hc_part1), 0)
         self.assertNotEqual(np.sum(hc_part4), 0)
         self.assertEqual(np.sum(co_part6), 0)
@@ -1130,7 +1132,9 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
 
 if __name__ == '__main__':
-    suites = []
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapTests))
-    alltests = unittest.TestSuite(suites)
-    result = unittest.TextTestRunner(verbosity=0).run(alltests)
+    # SoapTests().test_basis()
+    SoapTests().test_gto_integration()
+    # suites = []
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapTests))
+    # alltests = unittest.TestSuite(suites)
+    # result = unittest.TextTestRunner(verbosity=0).run(alltests)

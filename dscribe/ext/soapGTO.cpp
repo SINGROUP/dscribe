@@ -699,9 +699,11 @@ void getP(py::detail::unchecked_mutable_reference<double, 2> &cArr, double* Cnnd
 }
 
 //===========================================================================================
-void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<double> alphasArr, py::array_t<double> betasArr, py::array_t<int> atomicNumbersArr, double rCut, double cutoffPadding, int totalAN, int Nt, int Ns, int lMax, int Hs, double eta, bool crossover) {
+//void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<double> alphasArr, py::array_t<double> betasArr, py::array_t<int> atomicNumbersArr, double rCut, double cutoffPadding, int totalAN, int Nt, int Ns, int lMax, int Hs, double eta, bool crossover) {
+void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<double> alphasArr, py::array_t<double> betasArr, py::array_t<int> atomicNumbersArr, py::array_t<int> orderedSpeciesArr, double rCut, double cutoffPadding, int nAtoms, int Nt, int Ns, int lMax, int Hs, double eta, bool crossover) {
 
   auto atomicNumbers = atomicNumbersArr.unchecked<1>();
+  auto species = orderedSpeciesArr.unchecked<1>();
   auto c = cArr.mutable_unchecked<2>();
   double *Hpos = (double*)HposArr.request().ptr;
   double *alphas = (double*)alphasArr.request().ptr;
@@ -711,27 +713,27 @@ void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_
   double oOeta3O2 = sqrt(oOeta*oOeta*oOeta);
 
   double NsNs = Ns*Ns;
-  double* dx  = (double*) malloc(sizeof(double)*totalAN);
-  double* dy  = (double*) malloc(sizeof(double)*totalAN);
-  double* dz  = (double*) malloc(sizeof(double)*totalAN);
-  double* z2 = (double*) malloc(sizeof(double)*totalAN);
-  double* z4 = (double*) malloc(sizeof(double)*totalAN);
-  double* z6 = (double*) malloc(sizeof(double)*totalAN);
-  double* z8 = (double*) malloc(sizeof(double)*totalAN);
-  double* r2 = (double*) malloc(sizeof(double)*totalAN);
-  double* r4 = (double*) malloc(sizeof(double)*totalAN);
-  double* r6 = (double*) malloc(sizeof(double)*totalAN);
-  double* r8 = (double*) malloc(sizeof(double)*totalAN);
-  double* ReIm2 = (double*) malloc(2*sizeof(double)*totalAN);// 2 -> Re + ixIm
-  double* ReIm3 = (double*) malloc(2*sizeof(double)*totalAN);// 2 -> Re + ixIm
-  double* ReIm4 = (double*) malloc(2*sizeof(double)*totalAN);// 2 -> Re + ixIm
-  double* ReIm5 = (double*) malloc(2*sizeof(double)*totalAN);// 2 -> Re + ixIm
-  double* ReIm6 = (double*) malloc(2*sizeof(double)*totalAN);// 2 -> Re + ixIm
-  double* ReIm7 = (double*) malloc(2*sizeof(double)*totalAN);// 2 -> Re + ixIm
-  double* ReIm8 = (double*) malloc(2*sizeof(double)*totalAN);// 2 -> Re + ixIm
-  double* ReIm9 = (double*) malloc(2*sizeof(double)*totalAN);// 2 -> Re + ixIm
-  double* exes = (double*) malloc (sizeof(double)*totalAN);
-  double* preCoef = (double*) malloc(96*sizeof(double)*totalAN);
+  double* dx  = (double*) malloc(sizeof(double)*nAtoms);
+  double* dy  = (double*) malloc(sizeof(double)*nAtoms);
+  double* dz  = (double*) malloc(sizeof(double)*nAtoms);
+  double* z2 = (double*) malloc(sizeof(double)*nAtoms);
+  double* z4 = (double*) malloc(sizeof(double)*nAtoms);
+  double* z6 = (double*) malloc(sizeof(double)*nAtoms);
+  double* z8 = (double*) malloc(sizeof(double)*nAtoms);
+  double* r2 = (double*) malloc(sizeof(double)*nAtoms);
+  double* r4 = (double*) malloc(sizeof(double)*nAtoms);
+  double* r6 = (double*) malloc(sizeof(double)*nAtoms);
+  double* r8 = (double*) malloc(sizeof(double)*nAtoms);
+  double* ReIm2 = (double*) malloc(2*sizeof(double)*nAtoms);// 2 -> Re + ixIm
+  double* ReIm3 = (double*) malloc(2*sizeof(double)*nAtoms);// 2 -> Re + ixIm
+  double* ReIm4 = (double*) malloc(2*sizeof(double)*nAtoms);// 2 -> Re + ixIm
+  double* ReIm5 = (double*) malloc(2*sizeof(double)*nAtoms);// 2 -> Re + ixIm
+  double* ReIm6 = (double*) malloc(2*sizeof(double)*nAtoms);// 2 -> Re + ixIm
+  double* ReIm7 = (double*) malloc(2*sizeof(double)*nAtoms);// 2 -> Re + ixIm
+  double* ReIm8 = (double*) malloc(2*sizeof(double)*nAtoms);// 2 -> Re + ixIm
+  double* ReIm9 = (double*) malloc(2*sizeof(double)*nAtoms);// 2 -> Re + ixIm
+  double* exes = (double*) malloc (sizeof(double)*nAtoms);
+  double* preCoef = (double*) malloc(96*sizeof(double)*nAtoms);
   double* bOa = (double*) malloc((lMax+1)*NsNs*sizeof(double));
   double* aOa = (double*) malloc((lMax+1)*Ns*sizeof(double));
 
@@ -760,60 +762,58 @@ void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_
   int Nx90 = 90*Ns; int Nx91 = 91*Ns; int Nx92 = 92*Ns; int Nx93 = 93*Ns;
   int Nx94 = 94*Ns; int Nx95 = 95*Ns; int Nx96 = 96*Ns; int Nx97 = 97*Ns;
   int Nx98 = 98*Ns; int Nx99 = 99*Ns;
-  int t2 = 2*totalAN;  int t3 = 3*totalAN;  int t4 = 4*totalAN;
-  int t5 = 5*totalAN;  int t6 = 6*totalAN;  int t7 = 7*totalAN;
-  int t8 = 8*totalAN;  int t9 = 9*totalAN;  int t10 = 10*totalAN;
-  int t11 = 11*totalAN;  int t12 = 12*totalAN;  int t13 = 13*totalAN;
-  int t14 = 14*totalAN;  int t15 = 15*totalAN;  int t16 = 16*totalAN;
-  int t17 = 17*totalAN;  int t18 = 18*totalAN;  int t19 = 19*totalAN;
-  int t20 = 20*totalAN;  int t21 = 21*totalAN;  int t22 = 22*totalAN;
-  int t23 = 23*totalAN;  int t24 = 24*totalAN;  int t25 = 25*totalAN;
-  int t26 = 26*totalAN;  int t27 = 27*totalAN;  int t28 = 28*totalAN;
-  int t29 = 29*totalAN;  int t30 = 30*totalAN;  int t31 = 31*totalAN;
-  int t32 = 32*totalAN;  int t33 = 33*totalAN;  int t34 = 34*totalAN;
-  int t35 = 35*totalAN;  int t36 = 36*totalAN;  int t37 = 37*totalAN;
-  int t38 = 38*totalAN;  int t39 = 39*totalAN;  int t40 = 40*totalAN;
-  int t41 = 41*totalAN;  int t42 = 42*totalAN;  int t43 = 43*totalAN;
-  int t44 = 44*totalAN;  int t45 = 45*totalAN;  int t46 = 46*totalAN;
-  int t47 = 47*totalAN;  int t48 = 48*totalAN;  int t49 = 49*totalAN;
-  int t50 = 50*totalAN;  int t51 = 51*totalAN;  int t52 = 52*totalAN;
-  int t53 = 53*totalAN;  int t54 = 54*totalAN;  int t55 = 55*totalAN;
-  int t56 = 56*totalAN;  int t57 = 57*totalAN;  int t58 = 58*totalAN;
-  int t59 = 59*totalAN;  int t60 = 60*totalAN;  int t61 = 61*totalAN;
-  int t62 = 62*totalAN;  int t63 = 63*totalAN;  int t64 = 64*totalAN;
-  int t65 = 65*totalAN;  int t66 = 66*totalAN;  int t67 = 67*totalAN;
-  int t68 = 68*totalAN;  int t69 = 69*totalAN;  int t70 = 70*totalAN;
-  int t71 = 71*totalAN;  int t72 = 72*totalAN;  int t73 = 73*totalAN;
-  int t74 = 74*totalAN;  int t75 = 75*totalAN;  int t76 = 76*totalAN;
-  int t77 = 77*totalAN;  int t78 = 78*totalAN;  int t79 = 79*totalAN;
-  int t80 = 80*totalAN;  int t81 = 81*totalAN;  int t82 = 82*totalAN;
-  int t83 = 83*totalAN;  int t84 = 84*totalAN;  int t85 = 85*totalAN;
-  int t86 = 86*totalAN;  int t87 = 87*totalAN;  int t88 = 88*totalAN;
-  int t89 = 89*totalAN;  int t90 = 90*totalAN;  int t91 = 91*totalAN;
-  int t92 = 92*totalAN;  int t93 = 93*totalAN;  int t94 = 94*totalAN;
-  int t95 = 95*totalAN;  int t96 = 96*totalAN;  int t97 = 97*totalAN;
-  int t98 = 98*totalAN;  int t99 = 99*totalAN;
+  int t2 = 2*nAtoms;  int t3 = 3*nAtoms;  int t4 = 4*nAtoms;
+  int t5 = 5*nAtoms;  int t6 = 6*nAtoms;  int t7 = 7*nAtoms;
+  int t8 = 8*nAtoms;  int t9 = 9*nAtoms;  int t10 = 10*nAtoms;
+  int t11 = 11*nAtoms;  int t12 = 12*nAtoms;  int t13 = 13*nAtoms;
+  int t14 = 14*nAtoms;  int t15 = 15*nAtoms;  int t16 = 16*nAtoms;
+  int t17 = 17*nAtoms;  int t18 = 18*nAtoms;  int t19 = 19*nAtoms;
+  int t20 = 20*nAtoms;  int t21 = 21*nAtoms;  int t22 = 22*nAtoms;
+  int t23 = 23*nAtoms;  int t24 = 24*nAtoms;  int t25 = 25*nAtoms;
+  int t26 = 26*nAtoms;  int t27 = 27*nAtoms;  int t28 = 28*nAtoms;
+  int t29 = 29*nAtoms;  int t30 = 30*nAtoms;  int t31 = 31*nAtoms;
+  int t32 = 32*nAtoms;  int t33 = 33*nAtoms;  int t34 = 34*nAtoms;
+  int t35 = 35*nAtoms;  int t36 = 36*nAtoms;  int t37 = 37*nAtoms;
+  int t38 = 38*nAtoms;  int t39 = 39*nAtoms;  int t40 = 40*nAtoms;
+  int t41 = 41*nAtoms;  int t42 = 42*nAtoms;  int t43 = 43*nAtoms;
+  int t44 = 44*nAtoms;  int t45 = 45*nAtoms;  int t46 = 46*nAtoms;
+  int t47 = 47*nAtoms;  int t48 = 48*nAtoms;  int t49 = 49*nAtoms;
+  int t50 = 50*nAtoms;  int t51 = 51*nAtoms;  int t52 = 52*nAtoms;
+  int t53 = 53*nAtoms;  int t54 = 54*nAtoms;  int t55 = 55*nAtoms;
+  int t56 = 56*nAtoms;  int t57 = 57*nAtoms;  int t58 = 58*nAtoms;
+  int t59 = 59*nAtoms;  int t60 = 60*nAtoms;  int t61 = 61*nAtoms;
+  int t62 = 62*nAtoms;  int t63 = 63*nAtoms;  int t64 = 64*nAtoms;
+  int t65 = 65*nAtoms;  int t66 = 66*nAtoms;  int t67 = 67*nAtoms;
+  int t68 = 68*nAtoms;  int t69 = 69*nAtoms;  int t70 = 70*nAtoms;
+  int t71 = 71*nAtoms;  int t72 = 72*nAtoms;  int t73 = 73*nAtoms;
+  int t74 = 74*nAtoms;  int t75 = 75*nAtoms;  int t76 = 76*nAtoms;
+  int t77 = 77*nAtoms;  int t78 = 78*nAtoms;  int t79 = 79*nAtoms;
+  int t80 = 80*nAtoms;  int t81 = 81*nAtoms;  int t82 = 82*nAtoms;
+  int t83 = 83*nAtoms;  int t84 = 84*nAtoms;  int t85 = 85*nAtoms;
+  int t86 = 86*nAtoms;  int t87 = 87*nAtoms;  int t88 = 88*nAtoms;
+  int t89 = 89*nAtoms;  int t90 = 90*nAtoms;  int t91 = 91*nAtoms;
+  int t92 = 92*nAtoms;  int t93 = 93*nAtoms;  int t94 = 94*nAtoms;
+  int t95 = 95*nAtoms;  int t96 = 96*nAtoms;  int t97 = 97*nAtoms;
+  int t98 = 98*nAtoms;  int t99 = 99*nAtoms;
 
+  // Initialize array for storing the C coefficients. 100 is used as the buffer
+  // length.
   double* cnnd = (double*) malloc(100*Nt*Ns*Hs*sizeof(double));
-  for(int i = 0; i < 100*Nt*Ns*Hs; i++){cnnd[i] = 0.0;}
+  for(int i = 0; i < 100*Nt*Ns*Hs; i++) {
+      cnnd[i] = 0.0;
+  }
 
   // Initialize binning
   CellList cellList(positions, rCut+cutoffPadding);
 
   // Create a mapping between an atomic index and its internal index in the
-  // output
+  // output. The list of species is already ordered.
   map<int, int> ZIndexMap;
-  set<int> atomicNumberSet;
-  for (int i = 0; i < totalAN; ++i) {
-      atomicNumberSet.insert(atomicNumbers(i));
-  };
-  int i = 0;
-  for (auto it=atomicNumberSet.begin(); it!=atomicNumberSet.end(); ++it) {
-      ZIndexMap[*it] = i;
-      ++i;
-  };
+  for (int i = 0; i < species.size(); ++i) {
+      ZIndexMap[species(i)] = i;
+  }
 
-  getAlphaBeta(aOa,bOa,alphas,betas,Ns,lMax,oOeta, oOeta3O2);
+  getAlphaBeta(aOa, bOa, alphas, betas, Ns, lMax, oOeta, oOeta3O2);
 
   // Loop through the centers
   for (int i = 0; i < Hs; i++) {
@@ -842,8 +842,8 @@ void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_
       getDeltas(dx, dy, dz, positions, ix, iy, iz, ZIndexPair.second);
 
       getRsZs(dx, dy, dz, r2, r4, r6, r8, z2, z4, z6, z8, n_neighbours);
-      getCfactors(preCoef, n_neighbours, dx, dy, dz, z2, z4, z6, z8, r2, r4, r6, r8, ReIm2, ReIm3, ReIm4, ReIm5, ReIm6, ReIm7, ReIm8, ReIm9, totalAN, lMax, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20, t21, t22, t23, t24, t25, t26, t27, t28, t29, t30, t31, t32, t33, t34, t35, t36, t37, t38, t39, t40, t41, t42, t43, t44, t45, t46, t47, t48, t49, t50, t51, t52, t53, t54, t55, t56, t57, t58, t59, t60, t61, t62, t63, t64, t65, t66, t67, t68, t69, t70, t71, t72, t73, t74, t75, t76, t77, t78, t79, t80, t81, t82, t83, t84, t85, t86, t87, t88, t89, t90, t91, t92, t93, t94, t95, t96, t97, t98, t99);
-      getC(cnnd, preCoef, dx, dy, dz, r2, bOa, aOa, exes, totalAN, n_neighbours, Ns, Nt, lMax, i, j, Nx2, Nx3, Nx4, Nx5, Nx6, Nx7, Nx8, Nx9, Nx10, Nx11, Nx12, Nx13, Nx14, Nx15, Nx16, Nx17, Nx18, Nx19, Nx20, Nx21, Nx22, Nx23, Nx24, Nx25, Nx26, Nx27, Nx28, Nx29, Nx30, Nx31, Nx32, Nx33, Nx34, Nx35, Nx36, Nx37, Nx38, Nx39, Nx40, Nx41, Nx42, Nx43, Nx44, Nx45, Nx46, Nx47, Nx48, Nx49, Nx50, Nx51, Nx52, Nx53, Nx54, Nx55, Nx56, Nx57, Nx58, Nx59, Nx60, Nx61, Nx62, Nx63, Nx64, Nx65, Nx66, Nx67, Nx68, Nx69, Nx70, Nx71, Nx72, Nx73, Nx74, Nx75, Nx76, Nx77, Nx78, Nx79, Nx80, Nx81, Nx82, Nx83, Nx84, Nx85, Nx86, Nx87, Nx88, Nx89, Nx90, Nx91, Nx92, Nx93, Nx94, Nx95, Nx96, Nx97, Nx98, Nx99, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20, t21, t22, t23, t24, t25, t26, t27, t28, t29, t30, t31, t32, t33, t34, t35, t36, t37, t38, t39, t40, t41, t42, t43, t44, t45, t46, t47, t48, t49, t50, t51, t52, t53, t54, t55, t56, t57, t58, t59, t60, t61, t62, t63, t64, t65, t66, t67, t68, t69, t70, t71, t72, t73, t74, t75, t76, t77, t78, t79, t80, t81, t82, t83, t84, t85, t86, t87, t88, t89, t90, t91, t92, t93, t94, t95, t96, t97, t98, t99);
+      getCfactors(preCoef, n_neighbours, dx, dy, dz, z2, z4, z6, z8, r2, r4, r6, r8, ReIm2, ReIm3, ReIm4, ReIm5, ReIm6, ReIm7, ReIm8, ReIm9, nAtoms, lMax, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20, t21, t22, t23, t24, t25, t26, t27, t28, t29, t30, t31, t32, t33, t34, t35, t36, t37, t38, t39, t40, t41, t42, t43, t44, t45, t46, t47, t48, t49, t50, t51, t52, t53, t54, t55, t56, t57, t58, t59, t60, t61, t62, t63, t64, t65, t66, t67, t68, t69, t70, t71, t72, t73, t74, t75, t76, t77, t78, t79, t80, t81, t82, t83, t84, t85, t86, t87, t88, t89, t90, t91, t92, t93, t94, t95, t96, t97, t98, t99);
+      getC(cnnd, preCoef, dx, dy, dz, r2, bOa, aOa, exes, nAtoms, n_neighbours, Ns, Nt, lMax, i, j, Nx2, Nx3, Nx4, Nx5, Nx6, Nx7, Nx8, Nx9, Nx10, Nx11, Nx12, Nx13, Nx14, Nx15, Nx16, Nx17, Nx18, Nx19, Nx20, Nx21, Nx22, Nx23, Nx24, Nx25, Nx26, Nx27, Nx28, Nx29, Nx30, Nx31, Nx32, Nx33, Nx34, Nx35, Nx36, Nx37, Nx38, Nx39, Nx40, Nx41, Nx42, Nx43, Nx44, Nx45, Nx46, Nx47, Nx48, Nx49, Nx50, Nx51, Nx52, Nx53, Nx54, Nx55, Nx56, Nx57, Nx58, Nx59, Nx60, Nx61, Nx62, Nx63, Nx64, Nx65, Nx66, Nx67, Nx68, Nx69, Nx70, Nx71, Nx72, Nx73, Nx74, Nx75, Nx76, Nx77, Nx78, Nx79, Nx80, Nx81, Nx82, Nx83, Nx84, Nx85, Nx86, Nx87, Nx88, Nx89, Nx90, Nx91, Nx92, Nx93, Nx94, Nx95, Nx96, Nx97, Nx98, Nx99, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20, t21, t22, t23, t24, t25, t26, t27, t28, t29, t30, t31, t32, t33, t34, t35, t36, t37, t38, t39, t40, t41, t42, t43, t44, t45, t46, t47, t48, t49, t50, t51, t52, t53, t54, t55, t56, t57, t58, t59, t60, t61, t62, t63, t64, t65, t66, t67, t68, t69, t70, t71, t72, t73, t74, t75, t76, t77, t78, t79, t80, t81, t82, t83, t84, t85, t86, t87, t88, t89, t90, t91, t92, t93, t94, t95, t96, t97, t98, t99);
     }
   }
 
