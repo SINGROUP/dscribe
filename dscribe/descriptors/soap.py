@@ -564,7 +564,9 @@ class SOAP(Descriptor):
 
         # Get atoms positions and species in sorted and flattened format
         n_atoms = len(system)
-        positions, Z_sorted, n_species, _ = self.flatten_positions(system, atomic_numbers)
+        positions, Z_sorted = self.flatten_positions(system, atomic_numbers)
+        sorted_species = self._atomic_numbers
+        n_species = len(sorted_species)
         centers = np.array(centers)
         n_centers = centers.shape[0]
 
@@ -578,6 +580,7 @@ class SOAP(Descriptor):
             positions,
             centers,
             Z_sorted,
+            sorted_species,
             rcut,
             cutoff_padding,
             n_atoms,

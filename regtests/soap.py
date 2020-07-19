@@ -713,7 +713,8 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         self.assertTrue(np.array_equal(average, assumed_average))
 
     def test_basis(self):
-        """Tests that the output vectors behave correctly as a basis.
+        """Tests that the output vectors for both GTO and polynomial radial
+        basis behave correctly.
         """
         sys1 = Atoms(symbols=["H", "H"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
         sys2 = Atoms(symbols=["O", "O"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
@@ -723,55 +724,58 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         sys6 = Atoms(symbols=["H", "O"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
         sys7 = Atoms(symbols=["C", "O"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
 
-        desc = SOAP(
-            species=[1, 6, 8],
-            rcut=5,
-            nmax=3,
-            lmax=5,
-            periodic=False,
-            crossover=True,
-            sparse=False
-        )
+        for rbf in ["polynomial"]:
+        # for rbf in ["gto", "polynomial"]:
+            desc = SOAP(
+                species=[1, 6, 8],
+                rcut=5,
+                nmax=3,
+                lmax=5,
+                rbf=rbf,
+                periodic=False,
+                crossover=True,
+                sparse=False
+            )
 
-        # Create vectors for each system
-        vec1 = desc.create(sys1, positions=[[0, 0, 0]])[0, :]
-        vec2 = desc.create(sys2, positions=[[0, 0, 0]])[0, :]
-        vec3 = desc.create(sys3, positions=[[0, 0, 0]])[0, :]
-        vec4 = desc.create(sys4, positions=[[0, 0, 0]])[0, :]
-        vec5 = desc.create(sys5, positions=[[0, 0, 0]])[0, :]
-        vec6 = desc.create(sys6, positions=[[0, 0, 0]])[0, :]
-        vec7 = desc.create(sys7, positions=[[0, 0, 0]])[0, :]
+            # Create vectors for each system
+            vec1 = desc.create(sys1, positions=[[0, 0, 0]])[0, :]
+            vec2 = desc.create(sys2, positions=[[0, 0, 0]])[0, :]
+            vec3 = desc.create(sys3, positions=[[0, 0, 0]])[0, :]
+            vec4 = desc.create(sys4, positions=[[0, 0, 0]])[0, :]
+            vec5 = desc.create(sys5, positions=[[0, 0, 0]])[0, :]
+            vec6 = desc.create(sys6, positions=[[0, 0, 0]])[0, :]
+            vec7 = desc.create(sys7, positions=[[0, 0, 0]])[0, :]
 
-        # The dot-product should be zero when there are no overlapping elements
-        dot = np.dot(vec1, vec2)
-        self.assertEqual(dot, 0)
-        dot = np.dot(vec2, vec3)
-        self.assertEqual(dot, 0)
+            # The dot-product should be zero when there are no overlapping elements
+            dot = np.dot(vec1, vec2)
+            self.assertEqual(dot, 0)
+            dot = np.dot(vec2, vec3)
+            self.assertEqual(dot, 0)
 
-        # The dot-product should be non-zero when there are overlapping elements
-        dot = np.dot(vec4, vec5)
-        self.assertNotEqual(dot, 0)
+            # The dot-product should be non-zero when there are overlapping elements
+            dot = np.dot(vec4, vec5)
+            self.assertNotEqual(dot, 0)
 
-        # Check that self-terms are in correct location
-        hh_loc = desc.get_location(("H", "H"))
-        h_part1 = vec1[hh_loc]
-        h_part2 = vec2[hh_loc]
-        h_part4 = vec4[hh_loc]
-        self.assertNotEqual(np.sum(h_part1), 0)
-        self.assertEqual(np.sum(h_part2), 0)
-        self.assertNotEqual(np.sum(h_part4), 0)
+            # Check that self-terms are in correct location
+            hh_loc = desc.get_location(("H", "H"))
+            h_part1 = vec1[hh_loc]
+            h_part2 = vec2[hh_loc]
+            h_part4 = vec4[hh_loc]
+            self.assertNotEqual(np.sum(h_part1), 0)
+            self.assertEqual(np.sum(h_part2), 0)
+            self.assertNotEqual(np.sum(h_part4), 0)
 
-        # Check that cross terms are in correct location
-        hc_loc = desc.get_location(("H", "C"))
-        co_loc = desc.get_location(("C", "O"))
-        hc_part1 = vec1[hc_loc]
-        hc_part4 = vec4[hc_loc]
-        co_part6 = vec6[co_loc]
-        co_part7 = vec7[co_loc]
-        self.assertEqual(np.sum(hc_part1), 0)
-        self.assertNotEqual(np.sum(hc_part4), 0)
-        self.assertEqual(np.sum(co_part6), 0)
-        self.assertNotEqual(np.sum(co_part7), 0)
+            # Check that cross terms are in correct location
+            hc_loc = desc.get_location(("H", "C"))
+            co_loc = desc.get_location(("C", "O"))
+            hc_part1 = vec1[hc_loc]
+            hc_part4 = vec4[hc_loc]
+            co_part6 = vec6[co_loc]
+            co_part7 = vec7[co_loc]
+            self.assertEqual(np.sum(hc_part1), 0)
+            self.assertNotEqual(np.sum(hc_part4), 0)
+            self.assertEqual(np.sum(co_part6), 0)
+            self.assertNotEqual(np.sum(co_part7), 0)
 
     def test_rbf_orthonormality(self):
         """Tests that the gto radial basis functions are orthonormal.
@@ -1069,8 +1073,8 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                                 value *= prefactor
                                 numerical_power_spectrum.append(value)
 
-        print("Numerical: {}".format(numerical_power_spectrum))
-        print("Analytical: {}".format(analytical_power_spectrum))
+        # print("Numerical: {}".format(numerical_power_spectrum))
+        # print("Analytical: {}".format(analytical_power_spectrum))
 
         self.assertTrue(np.allclose(numerical_power_spectrum, analytical_power_spectrum, atol=1e-15, rtol=0.01))
 
@@ -1132,8 +1136,8 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
 
 if __name__ == '__main__':
-    # SoapTests().test_basis()
-    SoapTests().test_gto_integration()
+    SoapTests().test_basis()
+    # SoapTests().test_poly_integration()
     # suites = []
     # suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapTests))
     # alltests = unittest.TestSuite(suites)

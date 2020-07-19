@@ -37,6 +37,6 @@ double* getIntegrand(double* Flir, double* Ylmi,int rsize, int icount, int lMax)
 void getC(double* Cs, double* ws, double* rw2, double * gns, double* summed, double rCut,int lMax, int rsize, int gnsize,int* isCenter, double alpha);
 void accumC(double* Cts, double* Cs, int lMax, int gnsize, int typeI);
 void getP(py::detail::unchecked_mutable_reference<double, 2> &cArr, double* Cts,  int Nt, int lMax, int nMax, double rCut2, int i, int nFeatures, bool crossover);
-void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<int> atomicNumbersArr, double rCut, double cutoffPadding, int totalAN, int Nt, int nMax, int lMax, int Hs, double alpha, py::array_t<double> rwArr, py::array_t<double> gssArr, bool crossover);
+void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<int> atomicNumbersArr, py::array_t<int> orderedSpeciesArr, double rCut, double cutoffPadding, int nAtoms, int Nt, int nMax, int lMax, int Hs, double alpha, py::array_t<double> rwArr, py::array_t<double> gssArr, bool crossover);
 
 #endif

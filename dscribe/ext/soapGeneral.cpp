@@ -21,8 +21,8 @@ limitations under the License.
 #include "soapGeneral.h"
 #include "celllist.h"
 
-#define tot (double*) malloc(sizeof(double)*totalAN);
-#define totrs (double*) malloc(sizeof(double)*totalAN*rsize);
+#define tot (double*) malloc(sizeof(double)*nAtoms);
+#define totrs (double*) malloc(sizeof(double)*nAtoms*rsize);
 #define sd sizeof(double)
 #define PI 3.14159265359
 
@@ -1938,9 +1938,10 @@ void getP(py::detail::unchecked_mutable_reference<double, 2> &cArr, double* Cts,
     }
 }
 
-void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<int> atomicNumbersArr, double rCut, double cutoffPadding, int totalAN, int Nt, int nMax, int lMax, int Hs, double alpha, py::array_t<double> rwArr, py::array_t<double> gssArr, bool crossover)
+void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<int> atomicNumbersArr, py::array_t<int> orderedSpeciesArr, double rCut, double cutoffPadding, int nAtoms, int Nt, int nMax, int lMax, int Hs, double alpha, py::array_t<double> rwArr, py::array_t<double> gssArr, bool crossover)
 {
     auto atomicNumbers = atomicNumbersArr.unchecked<1>();
+    auto species = orderedSpeciesArr.unchecked<1>();
     auto c = cArr.mutable_unchecked<2>();
     double *Hpos = (double*)HposArr.request().ptr;
     double *rw = (double*)rwArr.request().ptr;
@@ -1961,24 +1962,17 @@ void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::ar
     double* oO4arri = totrs;
     double* minExp = totrs;
     double* pluExp = totrs;
-    int Asize = 0;
     double* Cs = (double*) malloc(2*sd*(lMax+1)*(lMax+1)*nMax);
     double* Cts = (double*) malloc(2*sd*(lMax+1)*(lMax+1)*nMax*Nt);
     int nFeatures = crossover ? (Nt*nMax)*(Nt*nMax+1)/2*(lMax+1) : Nt*(lMax+1)*((nMax+1)*nMax)/2;
     int n_neighbours;
 
     // Create a mapping between an atomic index and its internal index in the
-    // output
+    // output. The list of species is already ordered.
     map<int, int> ZIndexMap;
-    set<int> atomicNumberSet;
-    for (int i = 0; i < totalAN; ++i) {
-        atomicNumberSet.insert(atomicNumbers(i));
-    };
-    int i = 0;
-    for (auto it=atomicNumberSet.begin(); it!=atomicNumberSet.end(); ++it) {
-        ZIndexMap[*it] = i;
-        ++i;
-    };
+    for (int i = 0; i < species.size(); ++i) {
+        ZIndexMap[species(i)] = i;
+    }
 
     // Initialize binning
     CellList cellList(positions, rCut+cutoffPadding);

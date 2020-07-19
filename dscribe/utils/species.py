@@ -42,7 +42,7 @@ def symbols_to_numbers(symbols):
 
 
 def get_atomic_numbers(species):
-    """Given a list of chemical species either as a atomic numbers or chemcal
+    """Given a list of chemical species either as a atomic numbers or chemical
     symbols, return the correponding list of ordered atomic numbers with
     duplicates removed.
 
