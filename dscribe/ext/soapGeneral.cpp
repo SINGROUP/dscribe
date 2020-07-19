@@ -1775,7 +1775,7 @@ void getPs(double* Ps, double* Cts,  int Nt, int lMax, int nMax, int nFeatures, 
     for (int Z1 = 0; Z1 < Nt; Z1++) {
         int Z2Limit = crossover ? Nt : Z1+1;
         for (int Z2 = Z1; Z2 < Z2Limit; Z2++) {
-            // If the species are identical, then there is symmemtry in the
+            // If the species are identical, then there is symmetry in the
             // radial basis and we only loop N2 from N1 to nMax
             if (Z1 == Z2) {
                 for (int l = 0; l < lMax+1; l++) {
@@ -1798,7 +1798,7 @@ void getPs(double* Ps, double* Cts,  int Nt, int lMax, int nMax, int nFeatures, 
                         }
                     }
                 }
-            // If the species are different, then there is no symmemtry in the
+            // If the species are different, then there is no symmetry in the
             // radial basis and we have to loop over all pairwise combinations.
             } else {
                 for (int l = 0; l < lMax+1; l++) {
@@ -1826,17 +1826,21 @@ void getPs(double* Ps, double* Cts,  int Nt, int lMax, int nMax, int nFeatures, 
     }
 }
 
+/**
+ * Used to calculate the partial power spectrum.
+ *
+ * The power spectrum is multiplied by an l-dependent prefactor
+ * PI*sqrt(8.0/(2.0*l+1.0)); that comes from the normalization of the Wigner D
+ * matrices. This prefactor is mentioned in the errata of the original SOAP
+ * paper: On representing chemical environments, Phys. Rev. B 87, 184115
+ * (2013). Here the square root of the prefactor in the dot-product kernel is
+ * used, so that after a possible dot-product the full prefactor is recovered.
+ */
 void accumP(py::detail::unchecked_mutable_reference<double, 2> &cArr, double* Ps, int Nt, int lMax, int nMax, double rCut2, int Ihpos, bool crossover)
 {
     // The current index in the final power spectrum array.
     int pIdx = 0;
 
-    // The power spectrum is multiplied by an l-dependent prefactor that comes
-    // from the normalization of the Wigner D matrices. This prefactor is
-    // mentioned in the errata of the original SOAP paper: On representing
-    // chemical environments, Phys. Rev. B 87, 184115 (2013). Here the square
-    // root of the prefactor in the dot-product kernel is used, so that after a
-    // possible dot-product the full prefactor is recovered.
     for (int Z1 = 0; Z1 < Nt; Z1++) {
         int Z2Limit = crossover ? Nt : Z1+1;
         for (int Z2 = Z1; Z2 < Z2Limit; Z2++) {
