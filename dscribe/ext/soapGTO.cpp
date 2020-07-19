@@ -248,13 +248,13 @@ void getCfactors(double* preCoef, int Asize, double* x, double* y, double* z, do
     /*c22Re*/  preCoef[t3+i] =      ReIm2[2*i];
     /*c22Im*/  preCoef[t4+i] =      ReIm2[i2+1];
     if (lMax > 2){
-      /*c30  */  preCoef[t5+i] = c30c*z[i];
-      /*c31Re*/  preCoef[t6+i] =       x[i]*c31c;
-      /*c31Im*/  preCoef[t7+i] =       y[i]*c31c;
-      /*c32Re*/  preCoef[t8+i] = z[i]*ReIm2[i2];
-      /*c32Im*/  preCoef[t9+i] = z[i]*ReIm2[i2+1];
-      /*c33Re*/  preCoef[t10+i] =      ReIm3[i2  ];
-      /*c33Im*/  preCoef[t11+i] =      ReIm3[i2+1];
+      /*c30  */  preCoef[t5+i] = z[i]*(-3.0*x[i]*x[i] - 3.0*y[i]*y[i] + 2.0*z2[i]);// c30c*z[i];
+      /*c31Re*/  preCoef[t6+i] = x[i]*(x[i]*x[i] + y[i]*y[i] - 4.0*z2[i]);//      x[i]*c31c;
+      /*c31Im*/  preCoef[t7+i] = x[i]*(x[i]*x[i] - 3.0*y[i]*y[i]);//    y[i]*c31c;
+      /*c32Re*/  preCoef[t8+i] = z[i]*(x[i]*x[i] - y[i]*y[i]);// z[i]*ReIm2[i2];
+      /*c32Im*/  preCoef[t9+i] = y[i]*(x[i]*x[i] + y[i]*y[i] - 4.0*z2[i]);// z[i]*ReIm2[i2+1];
+      /*c33Re*/  preCoef[t10+i] = x[i]*y[i]*z[i]; //     ReIm3[i2  ];
+      /*c33Im*/  preCoef[t11+i] = y[i]*(3.0*x[i]*x[i] - y[i]*y[i]);//      ReIm3[i2+1];
     }
     if (lMax > 3){
       /*c40  */  preCoef[t12+i] = c40c;
