@@ -1,5 +1,4 @@
 #include "acsf.h"
-#include <vector>
 #include <tuple>
 #include <map>
 #include <math.h>
@@ -28,6 +27,10 @@ void ACSF::setRCut(float rCut)
 {
     this->rCut = rCut;
 }
+float ACSF::getRCut()
+{
+return this->rCut;
+}
 
 void ACSF::setG2Params(vector<vector<float> > g2Params)
 {
@@ -35,23 +38,44 @@ void ACSF::setG2Params(vector<vector<float> > g2Params)
     nG2 = g2Params.size();
 }
 
+vector<vector<float> > ACSF::getG2Params()
+{
+return this->g2Params;
+}
+
+
 void ACSF::setG3Params(vector<float> g3Params)
 {
     this->g3Params = g3Params;
     nG3 = g3Params.size();
 }
+vector<float> ACSF::getG3Params()
+{
+return this->g3Params;
+}
+
 
 void ACSF::setG4Params(vector<vector<float> > g4Params)
 {
     this->g4Params = g4Params;
     nG4 = g4Params.size();
 }
+vector<vector<float> > ACSF::getG4Params()
+{
+return this->g4Params;
+}
+
 
 void ACSF::setG5Params(vector<vector<float> > g5Params)
 {
     this->g5Params = g5Params;
     nG5 = g5Params.size();
 }
+vector<vector<float> > ACSF::getG5Params()
+{
+return this->g5Params;
+}
+
 
 void ACSF::setAtomicNumbers(vector<int> atomicNumbers)
 {
@@ -66,9 +90,15 @@ void ACSF::setAtomicNumbers(vector<int> atomicNumbers)
     }
     this->atomicNumberToIndexMap = atomicNumberToIndexMap;
 }
+vector<int> ACSF::getAtomicNumbers()
+{
+return this->atomicNumbers;
+}
+
 
 vector<vector<float> > ACSF::create(vector<vector<float> > &positions, vector<int> &atomicNumbers, const vector<vector<float> > &distances, const vector<vector<int> > &neighbours, vector<int> &indices)
 {
+
     // Allocate memory
     int nIndices = indices.size();
     vector<vector<float> > output(nIndices, vector<float>((1+nG2+nG3)*nTypes+(nG4+nG5)*nTypePairs, 0));
@@ -137,7 +167,6 @@ vector<vector<float> > ACSF::create(vector<vector<float> > &positions, vector<in
         }
         ++index;
     }
-
     return output;
 }
 

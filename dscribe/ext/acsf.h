@@ -2,6 +2,7 @@
 #define ACSF_H
 
 #include <unordered_map>
+#include <vector>
 
 #define PI 3.1415926535897932384626433832795028841971693993751058209749445923078164062
 
@@ -32,6 +33,12 @@ class ACSF {
         void setG5Params(vector<vector<float> > g5Params);
         void setAtomicNumbers(vector<int> atomicNumbers);
 
+        float getRCut();
+        vector<vector<float> > getG2Params();
+        vector<float> getG3Params();
+        vector<vector<float> > getG4Params();
+        vector<vector<float> > getG5Params();
+        vector<int> getAtomicNumbers();
         int nTypes;
         int nTypePairs;
         int nG2;

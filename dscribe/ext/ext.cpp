@@ -20,6 +20,7 @@ limitations under the License.
 #include "celllist.h"
 #include "soapGTO.h"
 #include "soapGeneral.h"
+#include "acsf.h"
 
 namespace py = pybind11;
 using namespace std;
@@ -30,6 +31,46 @@ PYBIND11_MODULE(ext, m) {
     // SOAP
     m.def("soap_gto", &soapGTO, "SOAP with gaussian type orbital radial basis set.");
     m.def("soap_general", &soapGeneral, "SOAP with a general radial basis set.");
+
+    // ACSF
+    py::class_<ACSF>(m, "ACSFWrapper")
+        .def(py::init<float , vector<vector<float> > , vector<float> , vector<vector<float> > , vector<vector<float> > , vector<int> >())
+        .def(py::init<>())
+        .def("create", &ACSF::create)
+        .def("set_g2_params", &ACSF::setG2Params)
+        .def("get_g2_params", &ACSF::getG2Params)
+        .def_readwrite("n_types", &ACSF::nTypes)
+        .def_readwrite("n_type_pairs", &ACSF::nTypePairs)
+        .def_readwrite("n_g2", &ACSF::nG2)
+        .def_readwrite("n_g3", &ACSF::nG3)
+        .def_readwrite("n_g4", &ACSF::nG4)
+        .def_readwrite("n_g5", &ACSF::nG5)
+
+
+        .def_property("rcut", &ACSF::getRCut, &ACSF::setRCut)
+        .def_property("g3_params", &ACSF::getG3Params, &ACSF::setG3Params)
+        .def_property("g4_params", &ACSF::getG4Params, &ACSF::setG4Params)
+        .def_property("g5_params", &ACSF::getG5Params, &ACSF::setG5Params)
+        .def_property("atomic_numbers", &ACSF::getAtomicNumbers, &ACSF::setAtomicNumbers)
+
+       .def(py::pickle(
+        [](const ACSF &p) { // __getstate__
+            /* Return a tuple that fully encodes the state of the object */
+            return py::make_tuple(p.rCut, p.g2Params, p.g3Params, p.g4Params, p.g5Params, p.atomicNumbers);
+        },
+        [](py::tuple t) { // __setstate__
+            if (t.size() != 6)
+                throw std::runtime_error("Invalid state!");
+
+            /* Create a new C++ instance */
+            ACSF p(t[0].cast<float>(), t[1].cast<vector<vector<float> >>(), t[2].cast<vector<float>>(), t[3].cast<vector<vector<float> >>(), t[4].cast<vector<vector<float> >>(), t[5].cast<vector<int>>());
+            /* Assign any additional state */
+            //p.setExtra(t[1].cast<int>());
+
+            return p;
+        }
+        ));
+
 
     // CellList
     py::class_<CellList>(m, "CellList")

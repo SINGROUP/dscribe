@@ -47,17 +47,6 @@ if platform.system() == "Darwin" and using_clang():
     cpp_extra_link_args.append("-mmacosx-version-min=10.7")
 
 extensions = [
-    # The ACSF C++ extension, wrapped with cython
-    Extension(
-        "dscribe.libacsf.acsfwrapper",
-        [
-            "dscribe/libacsf/acsfwrapper.cpp",
-        ],
-        language="c++",
-        include_dirs=["dscribe/libacsf"],
-        extra_compile_args=cpp_extra_compile_args,
-        extra_link_args=cpp_extra_link_args,
-    ),
     # The MBTR C++ extension, wrapped with cython
     Extension(
         "dscribe.libmbtr.mbtrwrapper",
@@ -77,6 +66,7 @@ extensions = [
             "dscribe/ext/celllist.cpp",
             "dscribe/ext/soapGTO.cpp",
             "dscribe/ext/soapGeneral.cpp",
+            "dscribe/ext/acsf.cpp",
         ],
         include_dirs=[
             # Path to pybind11 headers

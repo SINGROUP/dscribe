@@ -24,7 +24,8 @@ from dscribe.core import System
 
 from ase import Atoms
 
-from dscribe.libacsf.acsfwrapper import ACSFWrapper
+from dscribe.ext import ACSFWrapper
+
 import dscribe.utils.geometry
 
 
@@ -231,13 +232,14 @@ class ACSF(Descriptor):
         dmat_dense[dmat.col, dmat.row] = dmat.data
 
         # Calculate ACSF with C++
-        output = self.acsf_wrapper.create(
+        output = np.array(self.acsf_wrapper.create(
             system.get_positions(),
             system.get_atomic_numbers(),
             dmat_dense,
             neighbours,
             indices,
-        )
+        ), 
+        dtype = np.float32)
 
         # Check if there are types that have not been declared
         self.check_atomic_numbers(system.get_atomic_numbers())
@@ -276,7 +278,7 @@ class ACSF(Descriptor):
         """
         # The species are stored as atomic numbers for internal use.
         self._set_species(value)
-        self.acsf_wrapper.atomic_numbers = self._atomic_numbers
+        self.acsf_wrapper.atomic_numbers = self._atomic_numbers.tolist()
 
     @property
     def rcut(self):
@@ -295,7 +297,7 @@ class ACSF(Descriptor):
 
     @property
     def g2_params(self):
-        return self.acsf_wrapper.g2_params
+        return self.acsf_wrapper.get_g2_params()
 
     @g2_params.setter
     def g2_params(self, value):
@@ -306,7 +308,7 @@ class ACSF(Descriptor):
         """
         # Disable case
         if value is None:
-            value = []
+            value = np.array([])
         else:
             # Check dimensions
             value = np.array(value, dtype=np.float)
@@ -319,7 +321,7 @@ class ACSF(Descriptor):
             if np.any(value[:, 0] <= 0) is True:
                 raise ValueError("G2 eta parameters should be positive numbers.")
 
-        self.acsf_wrapper.g2_params = value
+        self.acsf_wrapper.set_g2_params(value.tolist())
 
     @property
     def g3_params(self):
@@ -335,14 +337,14 @@ class ACSF(Descriptor):
         """
         # Handle the disable case
         if value is None:
-            value = []
+            value = np.array([])
         else:
             # Check dimensions
             value = np.array(value, dtype=np.float)
             if value.ndim != 1:
                 raise ValueError("g3_params should be a vector.")
 
-        self.acsf_wrapper.g3_params = value
+        self.acsf_wrapper.g3_params = value.tolist()
 
     @property
     def g4_params(self):
@@ -358,7 +360,7 @@ class ACSF(Descriptor):
         """
         # Handle the disable case
         if value is None:
-            value = []
+            value = np.array([])
         else:
             # Check dimensions
             value = np.array(value, dtype=np.float)
@@ -371,7 +373,7 @@ class ACSF(Descriptor):
             if np.any(value[:, 2] <= 0) is True:
                 raise ValueError("3-body G4 eta parameters should be positive numbers.")
 
-        self.acsf_wrapper.g4_params = value
+        self.acsf_wrapper.g4_params = value.tolist()
 
     @property
     def g5_params(self):
@@ -387,7 +389,7 @@ class ACSF(Descriptor):
         """
         # Handle the disable case
         if value is None:
-            value = []
+            value = np.array([])
         else:
             # Check dimensions
             value = np.array(value, dtype=np.float)
@@ -400,4 +402,4 @@ class ACSF(Descriptor):
             if np.any(value[:, 2] <= 0) is True:
                 raise ValueError("3-body G5 eta parameters should be positive numbers.")
 
-        self.acsf_wrapper.g5_params = value
+        self.acsf_wrapper.g5_params = value.tolist()
