@@ -24,7 +24,8 @@ import ase.data
 
 from dscribe.core import System
 from dscribe.descriptors import Descriptor
-from dscribe.libmbtr.mbtrwrapper import MBTRWrapper
+#from dscribe.libmbtr.mbtrwrapper import MBTRWrapper
+from dscribe.ext import MBTRWrapper
 import dscribe.utils.geometry
 
 
@@ -713,6 +714,27 @@ class MBTR(Descriptor):
 
         return slice(start, end)
 
+    def _make_new_k1map(self, kx_map):
+        kx_map = dict(kx_map)
+        new_kx_map = {}
+
+        for key, value in kx_map.items():
+            new_key = tuple([int(key)])
+            new_kx_map[new_key] = np.array(value, dtype=np.float32)
+
+        return new_kx_map
+
+    def _make_new_kmap(self, kx_map):
+        kx_map = dict(kx_map)
+        new_kx_map = {}
+
+        for key, value in kx_map.items():
+            new_key = tuple(int(x) for x in key.split(","))
+            new_kx_map[new_key] = np.array(value, dtype=np.float32)
+
+        return new_kx_map
+
+
     def _get_k1(self, system):
         """Calculates the second order terms where the scalar mapping is the
         inverse distance between atoms.
@@ -731,20 +753,22 @@ class MBTR(Descriptor):
 
         cmbtr = MBTRWrapper(
             self.atomic_number_to_index,
-            interaction_limit=self._interaction_limit,
-            indices=np.zeros((len(system), 3), dtype=int)
+            self._interaction_limit,
+            np.zeros((len(system), 3), dtype=int)
         )
 
         k1_map = cmbtr.get_k1(
             system.get_atomic_numbers(),
-            geom_func=geom_func_name.encode(),
-            weight_func=b"unity",
-            parameters={},
-            start=start,
-            stop=stop,
-            sigma=sigma,
-            n=n,
+            geom_func_name.encode(),
+            b"unity",
+            {},
+            start,
+            stop,
+            sigma,
+            n,
         )
+
+        k1_map = self._make_new_k1map(k1_map)
 
         # Depending on flattening, use either a sparse matrix or a dense one.
         n_elem = self.n_elements
@@ -819,8 +843,8 @@ class MBTR(Descriptor):
 
         cmbtr = MBTRWrapper(
             self.atomic_number_to_index,
-            interaction_limit=self._interaction_limit,
-            indices=cell_indices
+            self._interaction_limit,
+            cell_indices
         )
 
         # If radial cutoff is finite, use it to calculate the sparse
@@ -839,16 +863,19 @@ class MBTR(Descriptor):
 
         k2_map = cmbtr.get_k2(
             ext_system.get_atomic_numbers(),
-            distances=dmat_dense,
-            neighbours=adj_list,
-            geom_func=geom_func_name.encode(),
-            weight_func=weighting_function.encode(),
-            parameters=parameters,
-            start=start,
-            stop=stop,
-            sigma=sigma,
-            n=n,
+            dmat_dense,
+            adj_list,
+            geom_func_name.encode(),
+            weighting_function.encode(),
+            parameters,
+            start,
+            stop,
+            sigma,
+            n,
         )
+
+        k2_map = self._make_new_kmap(k2_map)
+
 
         # Depending of flattening, use either a sparse matrix or a dense one.
         n_elem = self.n_elements
@@ -930,8 +957,8 @@ class MBTR(Descriptor):
 
         cmbtr = MBTRWrapper(
             self.atomic_number_to_index,
-            interaction_limit=self._interaction_limit,
-            indices=cell_indices
+            self._interaction_limit,
+            cell_indices
         )
 
         # If radial cutoff is finite, use it to calculate the sparse
@@ -950,17 +977,18 @@ class MBTR(Descriptor):
 
         k3_map = cmbtr.get_k3(
             ext_system.get_atomic_numbers(),
-            distances=dmat_dense,
-            neighbours=adj_list,
-            geom_func=geom_func_name.encode(),
-            weight_func=weighting_function.encode(),
-            parameters=parameters,
-            start=start,
-            stop=stop,
-            sigma=sigma,
-            n=n,
+            dmat_dense,
+            adj_list,
+            geom_func_name.encode(),
+            weighting_function.encode(),
+            parameters,
+            start,
+            stop,
+            sigma,
+            n,
         )
 
+        k3_map = self._make_new_kmap(k3_map)
         # Depending of flattening, use either a sparse matrix or a dense one.
         n_elem = self.n_elements
         if self.flatten:

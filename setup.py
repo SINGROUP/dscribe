@@ -48,17 +48,17 @@ if platform.system() == "Darwin" and using_clang():
 
 extensions = [
     # The MBTR C++ extension, wrapped with cython
-    Extension(
-        "dscribe.libmbtr.mbtrwrapper",
-        [
-            "dscribe/libmbtr/mbtrwrapper.cpp",
-        ],
-        language="c++",
-        include_dirs=["dscribe/libmbtr"],
-        extra_compile_args=cpp_extra_compile_args,
-        extra_link_args=cpp_extra_link_args,
-    ),
-    # The SOAP and utils C++ extensions, wrapped with pybind11
+    #Extension(
+    #    "dscribe.libmbtr.mbtrwrapper",
+    #    [
+    #        "dscribe/libmbtr/mbtrwrapper.cpp",
+    #    ],
+    #    language="c++",
+    #    include_dirs=["dscribe/libmbtr"],
+    #    extra_compile_args=cpp_extra_compile_args,
+    #    extra_link_args=cpp_extra_link_args,
+    #),
+    # The SOAP, MBTR, ACSF and utils C++ extensions, wrapped with pybind11
     Extension(
         'dscribe.ext',
         [
@@ -67,6 +67,7 @@ extensions = [
             "dscribe/ext/soapGTO.cpp",
             "dscribe/ext/soapGeneral.cpp",
             "dscribe/ext/acsf.cpp",
+            "dscribe/ext/mbtr.cpp",
         ],
         include_dirs=[
             # Path to pybind11 headers

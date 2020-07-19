@@ -28,7 +28,8 @@ import ase.data
 
 from dscribe.core import System
 from dscribe.descriptors import MBTR
-from dscribe.libmbtr.mbtrwrapper import MBTRWrapper
+#from dscribe.libmbtr.mbtrwrapper import MBTRWrapper
+from dscribe.ext import MBTRWrapper
 import dscribe.utils.geometry
 
 
@@ -466,6 +467,21 @@ class LMBTR(MBTR):
 
         return int(n_features)
 
+    def _make_new_klist_local(self, kx_list):
+        new_kx_list = []
+
+        for item in kx_list:
+            new_kx_map = {}
+            item = dict(item)
+            for key, value in item.items():
+                #new_key = tuple(int(x) for x in key.decode("utf-8").split(","))
+                new_key = tuple(int(x) for x in key.split(","))
+                new_kx_map[new_key] = np.array(value, dtype=np.float32)
+            new_kx_list.append(new_kx_map)
+
+        return new_kx_list
+
+
     def _get_k2(self, system, new_system, indices):
         """Calculates the second order terms where the scalar mapping is the
         inverse distance between atoms.
@@ -516,8 +532,8 @@ class LMBTR(MBTR):
 
         cmbtr = MBTRWrapper(
             self.atomic_number_to_index,
-            interaction_limit=self._interaction_limit,
-            indices=cell_indices
+            self._interaction_limit,
+            cell_indices
         )
 
         # If radial cutoff is finite, use it to calculate the sparse distance
@@ -538,21 +554,22 @@ class LMBTR(MBTR):
 
         # Form new indices that include the existing atoms and the newly added
         # ones
-        indices = np.append(indices, [n_atoms_ext+i for i in range(n_atoms_new-len(indices))])
+        indices = np.array(np.append(indices, [n_atoms_ext+i for i in range(n_atoms_new-len(indices))]), dtype = int)
 
         k2_list = cmbtr.get_k2_local(
-            indices=indices,
-            Z=ext_system.get_atomic_numbers(),
-            distances=dmat_dense,
-            neighbours=adj_list,
-            geom_func=geom_func_name.encode(),
-            weight_func=weighting_function.encode(),
-            parameters=parameters,
-            start=start,
-            stop=stop,
-            sigma=sigma,
-            n=n,
+            indices,
+            ext_system.get_atomic_numbers(),
+            dmat_dense,
+            adj_list,
+            geom_func_name.encode(),
+            weighting_function.encode(),
+            parameters,
+            start,
+            stop,
+            sigma,
+            n,
         )
+        k2_list = self._make_new_klist_local(k2_list)
 
         # Depending on flattening, use either a sparse matrix or a dense one.
         n_elem = self.n_elements
@@ -641,8 +658,8 @@ class LMBTR(MBTR):
 
         cmbtr = MBTRWrapper(
             self.atomic_number_to_index,
-            interaction_limit=self._interaction_limit,
-            indices=cell_indices
+            self._interaction_limit,
+            cell_indices
         )
 
         # If radial cutoff is finite, use it to calculate the sparse
@@ -704,22 +721,23 @@ class LMBTR(MBTR):
 
         # Form new indices that include the existing atoms and the newly added
         # ones
-        indices = np.append(indices, [n_atoms_ext+i for i in range(n_atoms_new)])
+        indices = np.array(np.append(indices, [n_atoms_ext+i for i in range(n_atoms_new)]), dtype = int)
 
         k3_list = cmbtr.get_k3_local(
-            Z=fin_system.get_atomic_numbers(),
-            distances=dmat_dense,
-            neighbours=adj_list,
-            indices=indices,
-            geom_func=geom_func_name.encode(),
-            weight_func=weighting_function.encode(),
-            parameters=parameters,
-            start=start,
-            stop=stop,
-            sigma=sigma,
-            n=n,
+            indices,
+            fin_system.get_atomic_numbers(),
+            dmat_dense,
+            adj_list,
+            geom_func_name.encode(),
+            weighting_function.encode(),
+            parameters,
+            start,
+            stop,
+            sigma,
+            n,
         )
 
+        k3_list = self._make_new_klist_local(k3_list)
         # Depending on flattening, use either a sparse matrix or a dense one.
         n_elem = self.n_elements
         n_loc = len(indices)

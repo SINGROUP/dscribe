@@ -21,6 +21,7 @@ limitations under the License.
 #include "soapGTO.h"
 #include "soapGeneral.h"
 #include "acsf.h"
+#include "mbtr.h"
 
 namespace py = pybind11;
 using namespace std;
@@ -70,6 +71,18 @@ PYBIND11_MODULE(ext, m) {
             return p;
         }
         ));
+ 
+    //MBTR
+    py::class_<MBTR>(m, "MBTRWrapper")
+        .def(py::init< map<int,int>, int , vector<vector<int>>  >())
+        //.def(py::init< map<int,int> atomicNumberToIndexMap, int interactionLimit, vector<vector<int>> cellIndices >())
+        .def("get_k1", &MBTR::getK1)
+        .def("get_k2", &MBTR::getK2)
+        .def("get_k3", &MBTR::getK3)
+        .def("get_k2_local", &MBTR::getK2Local)
+        .def("get_k3_local", &MBTR::getK3Local)
+
+        ;
 
 
     // CellList
