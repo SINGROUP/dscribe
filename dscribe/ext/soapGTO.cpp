@@ -796,11 +796,12 @@ void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_
 
   // Initialize array for storing the C coefficients. 100 is used as the buffer
   // length.
-  double* cnnd = (double*) malloc(100*Nt*Ns*Hs*sizeof(double));
-  double* cnndAve = (double*) malloc(100*Nt*Ns*sizeof(double));
-  int cnndSize = 100*Nt*Ns*Hs;
-  for(int i = 0; i < 100*Nt*Ns*Hs; i++){cnnd[i] = 0.0;}
-  for(int i = 0; i < 100*Nt*Ns; i++){cnndAve[i] = 0.0;}
+  int sizeCnnd = 100*Nt*Ns*Hs;
+  int sizeCnndAve = 100*Nt*Ns;
+  double* cnnd = (double*) malloc(sizeCnnd*sizeof(double));
+  double* cnndAve = (double*) malloc(sizeCnndAve*sizeof(double));
+  memset(cnnd, 0.0, sizeCnnd*sizeof(double));
+  memset(cnndAve, 0.0, sizeCnndAve*sizeof(double));
 
   // Initialize binning
   CellList cellList(positions, rCut+cutoffPadding);

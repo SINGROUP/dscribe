@@ -1861,11 +1861,15 @@ void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::ar
     double* minExp = totrs;
     double* pluExp = totrs;
     double* Cs = (double*) malloc(2*sd*(lMax+1)*(lMax+1)*nMax);
-    double* Cts = (double*) malloc(2*sd*(lMax+1)*(lMax+1)*nMax*Nt);
-    int Ctssize = 2*(lMax+1)*(lMax+1)*nMax*Nt;
-    double* CtsAve = (double*) malloc(2*sd*(lMax+1)*(lMax+1)*nMax*Nt);
     int nFeatures = crossover ? (Nt*nMax)*(Nt*nMax+1)/2*(lMax+1) : Nt*(lMax+1)*((nMax+1)*nMax)/2;
     int n_neighbours;
+
+    // Initialize arrays for storing the C coefficients.
+    int sizeCts = 2*(lMax+1)*(lMax+1)*nMax*Nt;
+    double* Cts = (double*) malloc(sd*sizeCts);
+    double* CtsAve = (double*) malloc(sd*sizeCts);
+    memset(Cts, 0.0, sizeCts*sizeof(double));
+    memset(CtsAve, 0.0, sizeCts*sizeof(double));
 
     // Create a mapping between an atomic index and its internal index in the
     // output. The list of species is already ordered.
@@ -1873,10 +1877,6 @@ void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::ar
     for (int i = 0; i < species.size(); ++i) {
         ZIndexMap[species(i)] = i;
     }
-
-    for (int i = 0; i < Ctssize; ++i) {
-        CtsAve[i] = 0;
-    };
 
     // Initialize binning
     CellList cellList(positions, rCut+cutoffPadding);
@@ -1925,14 +1925,14 @@ void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::ar
             free(summed);
         }
         if (average == "inner") {
-            getSum(CtsAve, Cts, Ctssize);
+            getSum(CtsAve, Cts, sizeCts);
         }
         else {
             getP(c, Cts, Nt, lMax, nMax, rCut2, i, nFeatures, crossover);
         }
     }
     if (average == "inner") {
-        for (int k = 0; k < Ctssize; k++) {
+        for (int k = 0; k < sizeCts; k++) {
             CtsAve[k] = CtsAve[k] / (double)Hs;
         };
         getP(c, CtsAve, Nt, lMax, nMax, rCut2, 0, nFeatures, crossover);

@@ -1026,12 +1026,12 @@ class SoapTests(unittest.TestCase):
         sys6 = Atoms(symbols=["H", "O"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
         sys7 = Atoms(symbols=["C", "O"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
 
-        for rbf in ["gto"]:
+        for rbf in ["gto", "polynomial"]:
             desc = SOAP(
                 species=[1, 6, 8],
                 rcut=5,
-                nmax=3,
-                lmax=5,
+                nmax=1,
+                lmax=1,
                 rbf=rbf,
                 periodic=False,
                 crossover=True,
