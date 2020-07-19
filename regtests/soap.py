@@ -724,8 +724,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         sys6 = Atoms(symbols=["H", "O"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
         sys7 = Atoms(symbols=["C", "O"], positions=[[1, 0, 0], [0, 1, 0]], cell=[2, 2, 2], pbc=True)
 
-        for rbf in ["polynomial"]:
-        # for rbf in ["gto", "polynomial"]:
+        for rbf in ["gto"]:
             desc = SOAP(
                 species=[1, 6, 8],
                 rcut=5,
@@ -1136,9 +1135,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
 
 if __name__ == '__main__':
-    SoapTests().test_basis()
-    # SoapTests().test_poly_integration()
-    # suites = []
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapTests))
-    # alltests = unittest.TestSuite(suites)
-    # result = unittest.TextTestRunner(verbosity=0).run(alltests)
+    suites = []
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapTests))
+    alltests = unittest.TestSuite(suites)
+    result = unittest.TextTestRunner(verbosity=0).run(alltests)
