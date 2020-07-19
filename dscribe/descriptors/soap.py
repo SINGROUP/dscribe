@@ -271,7 +271,6 @@ class SOAP(Descriptor):
         # Check that the system does not have elements that are not in the list
         # of atomic numbers
         self.check_atomic_numbers(system.get_atomic_numbers())
-        sub_elements = np.array(list(set(system.get_atomic_numbers())))
 
         # Check if periodic is valid
         if self.periodic:
@@ -353,14 +352,6 @@ class SOAP(Descriptor):
                 average = self._average,
             )
 
-        # Map the output from subspace of elements to the full space of
-        # elements
-        soap_mat = self.get_full_space_output(
-            soap_mat,
-            sub_elements,
-            self._atomic_numbers
-        )
-
         # Create the averaged SOAP output if requested.
         if self._average == "outer":
             soap_mat = soap_mat.mean(axis=0)
@@ -398,114 +389,6 @@ class SOAP(Descriptor):
             self.index_to_atomic_number[i_atom] = atomic_number
         self.n_elements = len(self._atomic_numbers)
 
-    def get_full_space_output(self, sub_output, sub_elements, full_elements_sorted):
-        """Used to partition the SOAP output to different locations depending
-        on the interacting elements. SOAPLite return the output partitioned by
-        the elements present in the given system. This function correctly
-        places those results within a bigger chemical space.
-
-        Args:
-            sub_output(np.ndarray): The output fron SOAPLite
-            sub_elements(list): The atomic numbers present in the subspace
-            full_elements_sorted(list): The atomic numbers present in the full
-                space, sorted.
-
-        Returns:
-            np.ndarray: The given SOAP output mapped to the full chemical space.
-        """
-        # print(sub_output.shape)
-        # Get mapping between elements in the subspace and alements in the full
-        # space
-        space_map = self.get_sub_to_full_map(sub_elements, full_elements_sorted)
-
-        # Reserve space for a sparse matric containing the full output space
-        n_features = self.get_number_of_features()
-        n_elem_features = self.get_number_of_element_features()
-        n_points = sub_output.shape[0]
-
-        # Define the final output space as an array.
-        output = np.zeros((n_points, n_features), dtype=np.float32)
-
-        # When crossover is enabled, we need to store the contents for all
-        # unique species combinations
-        if self.crossover:
-            n_elem_sub = len(sub_elements)
-            n_elem_full = len(full_elements_sorted)
-            for i_sub in range(n_elem_sub):
-                for j_sub in range(n_elem_sub):
-                    if j_sub >= i_sub:
-
-                        # This is the index of the spectrum. It is given by enumerating the
-                        # elements of an upper triangular matrix from left to right and top
-                        # to bottom.
-                        m = self.get_flattened_index(i_sub, j_sub, n_elem_sub)
-                        start_sub = m*n_elem_features
-                        end_sub = (m+1)*n_elem_features
-                        sub_out = sub_output[:, start_sub:end_sub]
-
-                        # Figure out position in the full element space
-                        i_full = space_map[i_sub]
-                        j_full = space_map[j_sub]
-                        m_full = self.get_flattened_index(i_full, j_full, n_elem_full)
-
-                        # Place output to full output vector
-                        start_full = m_full*n_elem_features
-                        end_full = (m_full+1)*n_elem_features
-                        output[:, start_full:end_full] = sub_out
-        # When crossover is disabled, we need to store only power spectrums
-        # that contain for each species
-        else:
-            n_elem_sub = len(sub_elements)
-            n_elem_full = len(full_elements_sorted)
-            for m in range(n_elem_sub):
-                # This is the index of the spectrum. It is given by enumerating the
-                # elements of an upper triangular matrix from left to right and top
-                # to bottom.
-                start_sub = m*n_elem_features
-                end_sub = (m+1)*n_elem_features
-                sub_out = sub_output[:, start_sub:end_sub]
-
-                # Figure out position in the full element space
-                m_full = space_map[m]
-
-                # Place output to full output vector
-                start_full = m_full*n_elem_features
-                end_full = (m_full+1)*n_elem_features
-                output[:, start_full:end_full] = sub_out
-
-        return output
-
-    def get_sub_to_full_map(self, sub_elements, full_elements):
-        """Used to map an index in the sub-space of elements to the full
-        element-space.
-        """
-        # Sort the elements according to atomic number
-        sub_elements_sorted = np.sort(sub_elements)
-        full_elements_sorted = np.sort(full_elements)
-
-        mapping = {}
-        for i_sub, z in enumerate(sub_elements_sorted):
-            i_full = np.where(full_elements_sorted == z)[0][0]
-            mapping[i_sub] = i_full
-
-        return mapping
-
-    def get_number_of_element_features(self):
-        """Used to query the number of elements in the SOAP feature space for
-        a single element pair.
-
-        Returns:
-            int: The number of features per element pair.
-        """
-        return int((self._lmax + 1) * self._nmax * (self._nmax + 1)/2)
-
-    def get_flattened_index(self, i, j, n):
-        """Returns the 1D index of an element in an upper diagonal matrix that
-        has been flattened by iterating over the elements from left to right
-        and top to bottom.
-        """
-        return int(j + i*n - i*(i+1)/2)
-
     def get_number_of_features(self):
         """Used to inquire the final number of features that this descriptor
         will have.
@@ -513,24 +396,20 @@ class SOAP(Descriptor):
         Returns:
             int: Number of features for this descriptor.
         """
-        n_elems = len(self._atomic_numbers)
+        n_elem = len(self._atomic_numbers)
         if self.crossover:
-            n_blocks = n_elems * (n_elems + 1)/2
+            n_elem_radial = n_elem * self._nmax
+            return int((n_elem_radial) * (n_elem_radial + 1) / 2 * (self._lmax + 1))
         else:
-            n_blocks = n_elems
-
-        n_element_features = self.get_number_of_element_features()
-
-        return int(n_element_features * n_blocks)
+            return int(n_elem * self._nmax * (self._nmax + 1) / 2 * (self._lmax + 1))
 
     def get_location(self, species):
         """Can be used to query the location of a species combination in the
         the flattened output.
 
         Args:
-            species(tuple): A tuple containing a species combination as
-                chemical symbols or atomic numbers. The tuple can be for
-                example: ("H", "O") or (1, 6)
+            species(tuple): A tuple containing a pair of species as chemical
+            symbols or atomic numbers. The tuple can be for example ("H", "O").
 
         Returns:
             slice: slice containing the location of the specified species
@@ -541,6 +420,12 @@ class SOAP(Descriptor):
             ValueError: If the requested species combination is not in the
                 output or if invalid species defined.
         """
+        # Check that the corresponding part is calculated
+        if len(species) != 2:
+            raise ValueError(
+                "Please use a pair of atomic numbers or chemical symbols."
+            )
+
         # Change chemical elements into atomic numbers
         numbers = []
         for specie in species:
@@ -551,35 +436,26 @@ class SOAP(Descriptor):
                     raise ValueError("Invalid chemical species: {}".format(specie))
             numbers.append(specie)
 
-        # Check that the given atomic numbers are supported
-        self.check_atomic_numbers(numbers)
-        if not self.crossover and numbers[0] != numbers[1]:
-            raise ValueError(
-                "The output does not have pairwise terms as you have not "
-                "enabled species crossover for SOAP. See the 'crossover' "
-                "attribute."
-            )
-
         # Change into internal indexing
-        indices = [self.atomic_number_to_index[x] for x in numbers]
+        numbers = [self.atomic_number_to_index[x] for x in numbers]
         n_elem = self.n_elements
-        n_elem_features = self.get_number_of_element_features()
 
-        # Makes sure that the upper diagonal part is accessed (idx2 >= idx1)
-        idx1 = indices[0]
-        idx2 = indices[1]
-        if idx1 > idx2:
-            idx1, idx2 = idx2, idx1
+        if numbers[0] > numbers[1]:
+            numbers = list(reversed(numbers))
 
-        # With crossover
-        if self.crossover:
-            shift = self.get_flattened_index(idx1, idx2, n_elem)
-            start = shift*n_elem_features
-            end = (shift+1)*n_elem_features
-        # Without crossover
-        else:
-            start = idx1*n_elem_features
-            end = (idx1+1)*n_elem_features
+        i = numbers[0]
+        j = numbers[1]
+        n_elem_feat_symm = self._nmax*(self._nmax+1)/2*(self._lmax + 1)
+        n_elem_feat_unsymm = self._nmax*self._nmax*(self._lmax + 1)
+        n_elem_feat = n_elem_feat_symm if i == j else n_elem_feat_unsymm
+
+        # The diagonal terms are symmetric and off-diagonal terms are
+        # unsymmetric
+        m_symm = i + int(j > i)
+        m_unsymm = j + i*n_elem - i*(i+1)/2 - m_symm
+
+        start = int(m_symm*n_elem_feat_symm+m_unsymm*n_elem_feat_unsymm)
+        end = int(start+n_elem_feat)
 
         return slice(start, end)
 
@@ -617,11 +493,10 @@ class SOAP(Descriptor):
             z_onetype = Z[condition]
             pos_lst.append(pos_onetype)
             z_lst.append(z_onetype)
-        n_species = len(atomic_numbers_sorted)
         positions_sorted = np.concatenate(pos_lst, axis=0)
         atomic_numbers_sorted = np.concatenate(z_lst).ravel()
 
-        return positions_sorted, atomic_numbers_sorted, n_species, atomic_numbers_sorted
+        return positions_sorted, atomic_numbers_sorted
 
     def get_soap_locals_gto(self, system, centers, alphas, betas, rcut, cutoff_padding, nmax, lmax, eta, crossover, atomic_numbers=None, average=False):
         """Get the SOAP output for the given positions using the gto radial
@@ -649,7 +524,9 @@ class SOAP(Descriptor):
             np.ndarray: SOAP output with the gto radial basis for the given positions.
         """
         n_atoms = len(system)
-        positions, Z_sorted, n_species, _ = self.flatten_positions(system, atomic_numbers)
+        positions, Z_sorted = self.flatten_positions(system, atomic_numbers)
+        sorted_species = self._atomic_numbers
+        n_species = len(sorted_species)
         centers = np.array(centers)
         n_centers = centers.shape[0]
         centers = centers.flatten()
@@ -657,22 +534,32 @@ class SOAP(Descriptor):
         betas = betas.flatten()
 
         # Determine shape
+        n_features = self.get_number_of_features()
         if (average == "inner"):
-            n_centers = 1
-        if crossover:
-            c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int((n_species*(n_species + 1))/2)*n_centers, dtype=np.float64)
-            shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*int((n_species*(n_species+1))/2))
+            c = np.zeros((1, n_features), dtype=np.float64)
         else:
-            c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int(n_species)*n_centers, dtype=np.float64)
-            shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*n_species)
-        if (average == "inner"):
-            n_centers = centers.shape[0]
+            c = np.zeros((n_centers, n_features), dtype=np.float64)
 
         # Calculate with extension
-        dscribe.ext.soap_gto(c, positions, centers, alphas, betas, Z_sorted, rcut, cutoff_padding, n_atoms, n_species, nmax, lmax, n_centers, eta, crossover, str(average))
-
-        # Reshape from linear to 2D
-        c = c.reshape(shape)
+        dscribe.ext.soap_gto(
+            c,
+            positions,
+            centers,
+            alphas,
+            betas,
+            Z_sorted,
+            sorted_species,
+            rcut,
+            cutoff_padding,
+            n_atoms,
+            n_species,
+            nmax,
+            lmax,
+            n_centers,
+            eta,
+            crossover,
+            str(average)
+        )
 
         return c
 
@@ -700,33 +587,46 @@ class SOAP(Descriptor):
             np.ndarray: SOAP output with the polynomial radial basis for the
             given positions.
         """
+        # Get the discretized and orthogonalized polynomial radial basis
+        # function values
         rx, gss = self.get_basis_poly(rcut, nmax)
+        gss = gss.flatten()
 
+        # Get atoms positions and species in sorted and flattened format
         n_atoms = len(system)
-        positions, Z_sorted, n_species, _ = self.flatten_positions(system, atomic_numbers)
+        positions, Z_sorted = self.flatten_positions(system, atomic_numbers)
+        sorted_species = self._atomic_numbers
+        n_species = len(sorted_species)
         centers = np.array(centers)
         n_centers = centers.shape[0]
 
-        # Flatten arrays
-        gss = gss.flatten()
-
         # Determine shape
+        n_features = self.get_number_of_features()
         if (average == "inner"):
-            n_centers = 1
-        if crossover:
-            c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int((n_species*(n_species + 1))/2)*n_centers, dtype=np.float64)
-            shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*int((n_species*(n_species+1))/2))
+            c = np.zeros((1, n_features), dtype=np.float64)
         else:
-            c = np.zeros(int((nmax*(nmax+1))/2)*(lmax+1)*int(n_species)*n_centers, dtype=np.float64)
-            shape = (n_centers, int((nmax*(nmax+1))/2)*(lmax+1)*n_species)
-        if (average == "inner"):
-            n_centers = centers.shape[0]
+            c = np.zeros((n_centers, n_features), dtype=np.float64)
 
         # Calculate with extension
-        dscribe.ext.soap_general(c, positions, centers, Z_sorted, rcut, cutoff_padding, n_atoms, n_species, nmax, lmax, n_centers, eta, rx, gss, crossover, str(average))
-
-        # Reshape from linear to 2D
-        c = c.reshape(shape)
+        dscribe.ext.soap_general(
+            c,
+            positions,
+            centers,
+            Z_sorted,
+            sorted_species,
+            rcut,
+            cutoff_padding,
+            n_atoms,
+            n_species,
+            nmax,
+            lmax,
+            n_centers,
+            eta,
+            rx,
+            gss,
+            crossover,
+            str(average)
+        )
 
         return c
 

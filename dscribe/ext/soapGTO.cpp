@@ -17,6 +17,8 @@ limitations under the License.
 #include <math.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string>
+#include <iostream>
 #include <map>
 #include <set>
 #include "soapGTO.h"
@@ -586,365 +588,121 @@ void getC(double* C, double* preCoef, double* x, double* y, double* z,double* r2
   }}
 }
 
-
 /**
  * Used to calculate the partial power spectrum.
+ *
+ * The power spectrum is multiplied by an l-dependent prefactor
+ * PI*sqrt(8.0/(2.0*l+1.0)); that comes from the normalization of the Wigner D
+ * matrices. This prefactor is mentioned in the errata of the original SOAP
+ * paper: On representing chemical environments, Phys. Rev. B 87, 184115
+ * (2013). Here the square root of the prefactor in the dot-product kernel is
+ * used, so that after a possible dot-product the full prefactor is recovered.
  */
-void getP(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax, bool crossover){
-  int NsTs100 = Ns*Ts*100;
-  int Ns100 = Ns*100;
-  int NsNs = (Ns*(Ns+1))/2;
-  int NsNsLmax = NsNs*(lMax+1) ;
-  int nTypeComb = crossover ? ((Ts+1)*Ts)/2 : Ts;
-  int NsNsLmaxTs = NsNsLmax*nTypeComb;
-  int shiftN = 0;
-  int shiftZ = 0;
+void getP(py::detail::unchecked_mutable_reference<double, 2> &cArr, double* Cnnd, int nMax, int Nt, int Hs, int lMax, bool crossover){
 
-  // These commented lines contain the original calculations that have been
-  // precalculated on the lines below.
-  //  double   cs0  = pow(PIHalf,2);
-  //  double   cs1  = pow(2.7206990464,2);
-  //  double cs2  = 2*pow(1.9238247452,2); double   cs3  = pow(1.7562036828,2); double cs4  = 2*pow(4.3018029072,2);
-  //  double cs5  = 2*pow(2.1509014536,2); double   cs6  = pow(2.0779682205,2); double cs7  = 2*pow(1.7995732672,2);
-  //  double cs8  = 2*pow(5.6907503408,2); double cs9  = 2*pow(2.3232390981,2); double   cs10 = pow(0.5890486225,2);
-  //  double cs11 = 2*pow(2.6343055241,2); double cs12 = 2*pow(1.8627352998,2); double cs13 = 2*pow(6.9697172942,2);
-  //  double cs14 = 2*pow(2.4641671809,2); double   cs15 = pow(0.6512177548,2); double cs16 = 2*pow(1.7834332706,2);
-  //  double cs17 = 2*pow(9.4370418280,2); double cs18 = 2*pow(1.9263280966,2); double cs19 = 2*pow(8.1727179596,2);
-  //  double cs20 = 2*pow(2.5844403427,2); double   cs21 = pow(0.3539741687,2); double cs22 = 2*pow(2.2940148014,2);
-  //  double cs23 = 2*pow(1.8135779397,2); double cs24 = 2*pow(3.6271558793,2); double cs25 = 2*pow(1.9866750947,2);
-  //  double cs26 = 2*pow(9.3183321738,2); double cs27 = 2*pow(2.6899707945,2); double   cs28 = pow(0.3802292509,2);
-  //  double cs29 = 2*pow(0.3556718963,2); double cs30 = 2*pow(0.8712146618,2); double cs31 = 2*pow(0.6160417952,2);
-  //  double cs32 = 2*pow(4.0863589798,2); double cs33 = 2*pow(2.0431794899,2); double cs34 = 2*pow(10.418212089,2);
-  //  double cs35 = 2*pow(2.7843843014,2); double   cs36 = pow(0.0505981185,2); double cs37 = 2*pow(0.4293392727,2);
-  //  double cs38 = 2*pow(1.7960550366,2); double cs39 = 2*pow(4.8637400313,2); double cs40 = 2*pow(1.8837184141,2);
-  //  double cs41 = 2*pow(13.583686661,2); double cs42 = 2*pow(2.0960083567,2); double cs43 = 2*pow(11.480310577,2);
-  //  double cs44 = 2*pow(2.8700776442,2); double   cs45 = pow(0.0534917379,2); double cs46 = 2*pow(0.2537335916,2);
-  //  double cs47 = 2*pow(2.3802320735,2); double cs48 = 2*pow(1.8179322747,2); double cs49 = 2*pow(16.055543121,2);
-  //  double cs50 = 2*pow(1.9190044477,2); double cs51 = 2*pow(4.9548481782,2); double cs52 = 2*pow(2.1455121971,2);
-  //  double cs53 = 2*pow(12.510378411,2); double cs54 = 2*pow(2.9487244699,2);
-  double cs0=2.4674011003; double cs1=7.4022033011; double cs2=7.4022033005;
-  double cs3=3.0842513755; double cs4=37.0110165048; double cs5=9.2527541262;
-  double cs6=4.3179519254; double cs7=6.4769278880; double cs8=64.7692788826;
-  double cs9=10.7948798139; double cs10=0.3469782797; double cs11=13.8791311886;
-  double cs12=6.9395655942; double cs13=97.1539183221; double cs14=12.1442397908;
-  double cs15=0.4240845642; double cs16=6.3612684614; double cs17=178.1155169268;
-  double cs18=7.4214798715; double cs19=133.5866376943; double cs20=13.3586637700;
-  double cs21=0.1252977121; double cs22=10.5250078181; double cs23=6.5781298867;
-  double cs24=26.3125195455; double cs25=7.8937558638; double cs26=173.6626290026;
-  double cs27=14.4718857505; double cs28=0.1445742832; double cs29=0.2530049956;
-  double cs30=1.5180299739; double cs31=0.7590149869; double cs32=33.3966594236;
-  double cs33=8.3491648559; double cs34=217.0782862628; double cs35=15.5055918758;
-  double cs36=0.0025601696; double cs37=0.3686644222; double cs38=6.4516273890;
-  double cs39=47.3119341841; double cs40=7.0967901272; double cs41=369.0330866085;
-  double cs42=8.7865020627; double cs43=263.5950618888; double cs44=16.4746913675;
-  double cs45=0.0028613660; double cs46=0.1287614710; double cs47=11.3310094474;
-  double cs48=6.6097555108; double cs49=515.5609298206; double cs50=7.3651561406;
-  double cs51=49.1010409380; double cs52=9.2064451758; double cs53=313.0191359728;
-  double cs54=17.3899519988;
+    // These commented lines contain the original coefficients that have been
+    // precalculated on the lines below.
+    //  double   cs0  = pow(PIHalf,2);
+    //  double   cs1  = pow(2.7206990464,2);
+    //  double cs2  = 2*pow(1.9238247452,2); double   cs3  = pow(1.7562036828,2); double cs4  = 2*pow(4.3018029072,2);
+    //  double cs5  = 2*pow(2.1509014536,2); double   cs6  = pow(2.0779682205,2); double cs7  = 2*pow(1.7995732672,2);
+    //  double cs8  = 2*pow(5.6907503408,2); double cs9  = 2*pow(2.3232390981,2); double   cs10 = pow(0.5890486225,2);
+    //  double cs11 = 2*pow(2.6343055241,2); double cs12 = 2*pow(1.8627352998,2); double cs13 = 2*pow(6.9697172942,2);
+    //  double cs14 = 2*pow(2.4641671809,2); double   cs15 = pow(0.6512177548,2); double cs16 = 2*pow(1.7834332706,2);
+    //  double cs17 = 2*pow(9.4370418280,2); double cs18 = 2*pow(1.9263280966,2); double cs19 = 2*pow(8.1727179596,2);
+    //  double cs20 = 2*pow(2.5844403427,2); double   cs21 = pow(0.3539741687,2); double cs22 = 2*pow(2.2940148014,2);
+    //  double cs23 = 2*pow(1.8135779397,2); double cs24 = 2*pow(3.6271558793,2); double cs25 = 2*pow(1.9866750947,2);
+    //  double cs26 = 2*pow(9.3183321738,2); double cs27 = 2*pow(2.6899707945,2); double   cs28 = pow(0.3802292509,2);
+    //  double cs29 = 2*pow(0.3556718963,2); double cs30 = 2*pow(0.8712146618,2); double cs31 = 2*pow(0.6160417952,2);
+    //  double cs32 = 2*pow(4.0863589798,2); double cs33 = 2*pow(2.0431794899,2); double cs34 = 2*pow(10.418212089,2);
+    //  double cs35 = 2*pow(2.7843843014,2); double   cs36 = pow(0.0505981185,2); double cs37 = 2*pow(0.4293392727,2);
+    //  double cs38 = 2*pow(1.7960550366,2); double cs39 = 2*pow(4.8637400313,2); double cs40 = 2*pow(1.8837184141,2);
+    //  double cs41 = 2*pow(13.583686661,2); double cs42 = 2*pow(2.0960083567,2); double cs43 = 2*pow(11.480310577,2);
+    //  double cs44 = 2*pow(2.8700776442,2); double   cs45 = pow(0.0534917379,2); double cs46 = 2*pow(0.2537335916,2);
+    //  double cs47 = 2*pow(2.3802320735,2); double cs48 = 2*pow(1.8179322747,2); double cs49 = 2*pow(16.055543121,2);
+    //  double cs50 = 2*pow(1.9190044477,2); double cs51 = 2*pow(4.9548481782,2); double cs52 = 2*pow(2.1455121971,2);
+    //  double cs53 = 2*pow(12.510378411,2); double cs54 = 2*pow(2.9487244699,2);
+    static double coeffs[] = {
+        2.4674011003, 7.4022033011, 7.4022033005,
+        3.0842513755, 37.0110165048, 9.2527541262,
+        4.3179519254, 6.4769278880, 64.7692788826,
+        10.7948798139, 0.3469782797, 13.8791311886,
+        6.9395655942, 97.1539183221, 12.1442397908,
+        0.4240845642, 6.3612684614, 178.1155169268,
+        7.4214798715, 133.5866376943, 13.3586637700,
+        0.1252977121, 10.5250078181, 6.5781298867,
+        26.3125195455, 7.8937558638, 173.6626290026,
+        14.4718857505, 0.1445742832, 0.2530049956,
+        1.5180299739, 0.7590149869, 33.3966594236,
+        8.3491648559, 217.0782862628, 15.5055918758,
+        0.0025601696, 0.3686644222, 6.4516273890,
+        47.3119341841, 7.0967901272, 369.0330866085,
+        8.7865020627, 263.5950618888, 16.4746913675,
+        0.0028613660, 0.1287614710, 11.3310094474,
+        6.6097555108, 515.5609298206, 7.3651561406,
+        49.1010409380, 9.2064451758, 313.0191359728,
+        17.3899519988
+    };
 
-  // The power spectrum is multiplied by an l-dependent prefactor that comes
-  // from the normalization of the Wigner D matrices. This prefactor is
-  // mentioned in the arrata of the original SOAP paper: On representing
-  // chemical environments, Phys. Rev. B 87, 184115 (2013). Here the square
-  // root of the prefactor in the dot-product kernel is used, so that after a
-  // possible dot-product the full prefactor is recovered.
+    // The current index in the final power spectrum array.
+    int pIdx = 0;
+    int NsTs100 = nMax*Nt*100;
+    int Ns100 = nMax*100;
 
-  // SUM M's UP!
-  double prel0 = PI*sqrt(8.0/(1.0));
-  for (int i = 0; i < Hs; i++) {
-      shiftZ = 0;
-      for (int Z1 = 0; Z1 < Ts; Z1++){
-          int Z2Limit = crossover ? Ts : Z1+1;
-          for (int Z2 = Z1; Z2 < Z2Limit; Z2++){
-              shiftN = 0;
-              for (int N1 = 0; N1 < Ns; N1++){
-                  for (int N2 = N1; N2 < Ns; N2++){
-                      soapMat[NsNsLmaxTs*i + NsNsLmax*shiftZ + 0 + shiftN] = prel0*(
-                              cs0*Cnnd[NsTs100*i + Ns100*Z1 + 0 + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 0 + N2]);
-                      shiftN++;
-                  }
-              }
-              shiftZ++;
-          }
-      }
-  }
-  if (lMax > 0) {
-      double prel1 = PI*sqrt(8.0/(2.0*1.0+1.0));
-      for (int i = 0; i < Hs; i++) {
-          shiftZ = 0;
-          for (int Z1 = 0; Z1 < Ts; Z1++) {
-              int Z2Limit = crossover ? Ts : Z1+1;
-              for (int Z2 = Z1; Z2 < Z2Limit; Z2++) {
-                  shiftN = 0;
-                  for (int N1 = 0; N1 < Ns; N1++) {
-                      for (int N2 = N1; N2 < Ns; N2++) {
-                          soapMat[NsNsLmaxTs*i+NsNsLmax*shiftZ+ NsNs + shiftN] = prel1*(
-                                  cs1*Cnnd[NsTs100*i + Ns100*Z1 + 1*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 1*Ns + N2]
-                                  +cs2*Cnnd[NsTs100*i + Ns100*Z1 + 2*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 2*Ns + N2]
-                                  +cs2*Cnnd[NsTs100*i + Ns100*Z1 + 3*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 3*Ns + N2]);
-                          shiftN++;
-                      }
-                  }
-                  shiftZ++;
-              }
-          }
-      }
-  } 
-  if (lMax > 1) {
-      double prel2 = PI*sqrt(8.0/(2.0*2.0+1.0));
-      for (int i = 0; i < Hs; i++) {
-          shiftZ = 0;
-          for (int Z1 = 0; Z1 < Ts; Z1++) {
-              int Z2Limit = crossover ? Ts : Z1+1;
-              for (int Z2 = Z1; Z2 < Z2Limit; Z2++) {
-                  shiftN = 0;
-                  for (int N1 = 0; N1 < Ns; N1++) {
-                      for (int N2 = N1; N2 < Ns; N2++) {
-                          soapMat[NsNsLmaxTs*i+NsNsLmax*shiftZ+ 2*NsNs + shiftN] = prel2*(
-                                  cs3*Cnnd[NsTs100*i + Ns100*Z1 + 4*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 4*Ns + N2]
-                                  +cs4*Cnnd[NsTs100*i + Ns100*Z1 + 5*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 5*Ns + N2]
-                                  +cs4*Cnnd[NsTs100*i + Ns100*Z1 + 6*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 6*Ns + N2]
-                                  +cs5*Cnnd[NsTs100*i + Ns100*Z1 + 7*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 7*Ns + N2]
-                                  +cs5*Cnnd[NsTs100*i + Ns100*Z1 + 8*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 8*Ns + N2]);
-                          shiftN++;
-                      }
-                  }
-                  shiftZ++;
-              }
-          }
-      }
-  }
-  if (lMax > 2) {
-      double prel3 = PI*sqrt(8.0/(2.0*3.0+1.0));
-      for (int i = 0; i < Hs; i++) {
-          shiftZ = 0;
-          for (int Z1 = 0; Z1 < Ts; Z1++) {
-              int Z2Limit = crossover ? Ts : Z1+1;
-              for (int Z2 = Z1; Z2 < Z2Limit; Z2++) {
-                  shiftN = 0;
-                  for (int N1 = 0; N1 < Ns; N1++) {
-                      for (int N2 = N1; N2 < Ns; N2++) {
-                          soapMat[NsNsLmaxTs*i+NsNsLmax*shiftZ+ 3*NsNs + shiftN] = prel3*(
-                              cs6*Cnnd[NsTs100*i + Ns100*Z1 + 9*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 9*Ns + N2]
-                              +cs7*Cnnd[NsTs100*i + Ns100*Z1 + 10*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 10*Ns + N2]
-                              +cs7*Cnnd[NsTs100*i + Ns100*Z1 + 11*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 11*Ns + N2]
-                              +cs8*Cnnd[NsTs100*i + Ns100*Z1 + 12*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 12*Ns + N2]
-                              +cs8*Cnnd[NsTs100*i + Ns100*Z1 + 13*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 13*Ns + N2]
-                              +cs9*Cnnd[NsTs100*i + Ns100*Z1 + 14*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 14*Ns + N2]
-                              +cs9*Cnnd[NsTs100*i + Ns100*Z1 + 15*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 15*Ns + N2]);
-                          shiftN++;
-                      }
-                  }
-                  shiftZ++;
-              }
-          }
-      }
-  }
-  if (lMax > 3) {
-      double prel4 = PI*sqrt(8.0/(2.0*4.0+1.0));
-      for (int i = 0; i < Hs; i++) {
-          shiftZ = 0;
-          for (int Z1 = 0; Z1 < Ts; Z1++) {
-              int Z2Limit = crossover ? Ts : Z1+1;
-              for (int Z2 = Z1; Z2 < Z2Limit; Z2++) {
-                  shiftN = 0;
-                  for (int N1 = 0; N1 < Ns; N1++) {
-                      for (int N2 = N1; N2 < Ns; N2++) {
-                          soapMat[NsNsLmaxTs*i+NsNsLmax*shiftZ+ 4*NsNs + shiftN] = prel4*(
-                              cs10*Cnnd[NsTs100*i + Ns100*Z1 + 16*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 16*Ns + N2]
-                              +cs11*Cnnd[NsTs100*i + Ns100*Z1 + 17*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 17*Ns + N2]
-                              +cs11*Cnnd[NsTs100*i + Ns100*Z1 + 18*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 18*Ns + N2]
-                              +cs12*Cnnd[NsTs100*i + Ns100*Z1 + 19*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 19*Ns + N2]
-                              +cs12*Cnnd[NsTs100*i + Ns100*Z1 + 20*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 20*Ns + N2]
-                              +cs13*Cnnd[NsTs100*i + Ns100*Z1 + 21*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 21*Ns + N2]
-                              +cs13*Cnnd[NsTs100*i + Ns100*Z1 + 22*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 22*Ns + N2]
-                              +cs14*Cnnd[NsTs100*i + Ns100*Z1 + 23*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 23*Ns + N2]
-                              +cs14*Cnnd[NsTs100*i + Ns100*Z1 + 24*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 24*Ns + N2]);
-                          shiftN++;
-                      }
-                  }
-                  shiftZ++;
-              }
-          }
-      }
-  }
-  if (lMax > 4) {
-      double prel5 = PI*sqrt(8.0/(2.0*5.0+1.0));
-      for (int i = 0; i < Hs; i++) {
-          shiftZ = 0;
-          for (int Z1 = 0; Z1 < Ts; Z1++) {
-              int Z2Limit = crossover ? Ts : Z1+1;
-              for (int Z2 = Z1; Z2 < Z2Limit; Z2++) {
-                  shiftN = 0;
-                  for (int N1 = 0; N1 < Ns; N1++) {
-                      for (int N2 = N1; N2 < Ns; N2++) {
-                          soapMat[NsNsLmaxTs*i+NsNsLmax*shiftZ+ 5*NsNs + shiftN] = prel5*(
-                              cs15*Cnnd[NsTs100*i + Ns100*Z1 + 25*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 25*Ns + N2]
-                              +cs16*Cnnd[NsTs100*i + Ns100*Z1 + 26*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 26*Ns + N2]
-                              +cs16*Cnnd[NsTs100*i + Ns100*Z1 + 27*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 27*Ns + N2]
-                              +cs17*Cnnd[NsTs100*i + Ns100*Z1 + 28*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 28*Ns + N2]
-                              +cs17*Cnnd[NsTs100*i + Ns100*Z1 + 29*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 29*Ns + N2]
-                              +cs18*Cnnd[NsTs100*i + Ns100*Z1 + 30*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 30*Ns + N2]
-                              +cs18*Cnnd[NsTs100*i + Ns100*Z1 + 31*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 31*Ns + N2]
-                              +cs19*Cnnd[NsTs100*i + Ns100*Z1 + 32*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 32*Ns + N2]
-                              +cs19*Cnnd[NsTs100*i + Ns100*Z1 + 33*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 33*Ns + N2]
-                              +cs20*Cnnd[NsTs100*i + Ns100*Z1 + 34*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 34*Ns + N2]
-                              +cs20*Cnnd[NsTs100*i + Ns100*Z1 + 35*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 35*Ns + N2]);
-                          shiftN++;
-                      }
-                  }
-                  shiftZ++;
-              }
-          }
-      }
-  }
-  if (lMax > 5) {
-      double prel6 = PI*sqrt(8.0/(2.0*6.0+1.0));
-      for (int i = 0; i < Hs; i++) {
-          shiftZ = 0;
-          for (int Z1 = 0; Z1 < Ts; Z1++) {
-              int Z2Limit = crossover ? Ts : Z1+1;
-              for (int Z2 = Z1; Z2 < Z2Limit; Z2++) {
-                  shiftN = 0;
-                  for (int N1 = 0; N1 < Ns; N1++) {
-                      for (int N2 = N1; N2 < Ns; N2++) {
-                          soapMat[NsNsLmaxTs*i+NsNsLmax*shiftZ+ 6*NsNs + shiftN] = prel6*(
-                              cs21*Cnnd[NsTs100*i + Ns100*Z1 + 36*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 36*Ns + N2]
-                              +cs22*Cnnd[NsTs100*i + Ns100*Z1 + 37*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 37*Ns + N2]
-                              +cs22*Cnnd[NsTs100*i + Ns100*Z1 + 38*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 38*Ns + N2]
-                              +cs23*Cnnd[NsTs100*i + Ns100*Z1 + 39*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 39*Ns + N2]
-                              +cs23*Cnnd[NsTs100*i + Ns100*Z1 + 40*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 40*Ns + N2]
-                              +cs24*Cnnd[NsTs100*i + Ns100*Z1 + 41*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 41*Ns + N2]
-                              +cs24*Cnnd[NsTs100*i + Ns100*Z1 + 42*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 42*Ns + N2]
-                              +cs25*Cnnd[NsTs100*i + Ns100*Z1 + 43*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 43*Ns + N2]
-                              +cs25*Cnnd[NsTs100*i + Ns100*Z1 + 44*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 44*Ns + N2]
-                              +cs26*Cnnd[NsTs100*i + Ns100*Z1 + 45*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 45*Ns + N2]
-                              +cs26*Cnnd[NsTs100*i + Ns100*Z1 + 46*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 46*Ns + N2]
-                              +cs27*Cnnd[NsTs100*i + Ns100*Z1 + 47*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 47*Ns + N2]
-                              +cs27*Cnnd[NsTs100*i + Ns100*Z1 + 48*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 48*Ns + N2]);
-                          shiftN++;
-                      }
-                  }
-                  shiftZ++;
-              }
-          }
-      }
-  }
-  if (lMax > 6) {
-      double prel7 = PI*sqrt(8.0/(2.0*7.0+1.0));
-      for (int i = 0; i < Hs; i++) {
-          shiftZ = 0;
-          for (int Z1 = 0; Z1 < Ts; Z1++) {
-              int Z2Limit = crossover ? Ts : Z1+1;
-              for (int Z2 = Z1; Z2 < Z2Limit; Z2++) {
-                  shiftN = 0;
-                  for (int N1 = 0; N1 < Ns; N1++) {
-                      for (int N2 = N1; N2 < Ns; N2++) {
-                          soapMat[NsNsLmaxTs*i+NsNsLmax*shiftZ+ 7*NsNs + shiftN] = prel7*(
-                              cs28*Cnnd[NsTs100*i + Ns100*Z1 + 49*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 49*Ns + N2]
-                              +cs29*Cnnd[NsTs100*i + Ns100*Z1 + 50*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 50*Ns + N2]
-                              +cs29*Cnnd[NsTs100*i + Ns100*Z1 + 51*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 51*Ns + N2]
-                              +cs30*Cnnd[NsTs100*i + Ns100*Z1 + 52*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 52*Ns + N2]
-                              +cs30*Cnnd[NsTs100*i + Ns100*Z1 + 53*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 53*Ns + N2]
-                              +cs31*Cnnd[NsTs100*i + Ns100*Z1 + 54*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 54*Ns + N2]
-                              +cs31*Cnnd[NsTs100*i + Ns100*Z1 + 55*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 55*Ns + N2]
-                              +cs32*Cnnd[NsTs100*i + Ns100*Z1 + 56*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 56*Ns + N2]
-                              +cs32*Cnnd[NsTs100*i + Ns100*Z1 + 57*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 57*Ns + N2]
-                              +cs33*Cnnd[NsTs100*i + Ns100*Z1 + 58*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 58*Ns + N2]
-                              +cs33*Cnnd[NsTs100*i + Ns100*Z1 + 59*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 59*Ns + N2]
-                              +cs34*Cnnd[NsTs100*i + Ns100*Z1 + 60*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 60*Ns + N2]
-                              +cs34*Cnnd[NsTs100*i + Ns100*Z1 + 61*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 61*Ns + N2]
-                              +cs35*Cnnd[NsTs100*i + Ns100*Z1 + 62*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 62*Ns + N2]
-                              +cs35*Cnnd[NsTs100*i + Ns100*Z1 + 63*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 63*Ns + N2]);
-                          shiftN++;
-                      }
-                  }
-                  shiftZ++;
-              }
-          }
-      }
-  }
-  if (lMax > 7) {
-      double prel8 = PI*sqrt(8.0/(2.0*8.0+1.0));
-      for (int i = 0; i < Hs; i++) {
-          shiftZ = 0;
-          for (int Z1 = 0; Z1 < Ts; Z1++) {
-              int Z2Limit = crossover ? Ts : Z1+1;
-              for (int Z2 = Z1; Z2 < Z2Limit; Z2++) {
-                  shiftN = 0;
-                  for (int N1 = 0; N1 < Ns; N1++) {
-                      for (int N2 = N1; N2 < Ns; N2++) {
-                          soapMat[NsNsLmaxTs*i+NsNsLmax*shiftZ+ 8*NsNs + shiftN] = prel8*(
-                              cs36*Cnnd[NsTs100*i + Ns100*Z1 + 64*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 64*Ns + N2]
-                              +cs37*Cnnd[NsTs100*i + Ns100*Z1 + 65*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 65*Ns + N2]
-                              +cs37*Cnnd[NsTs100*i + Ns100*Z1 + 66*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 66*Ns + N2]
-                              +cs38*Cnnd[NsTs100*i + Ns100*Z1 + 67*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 67*Ns + N2]
-                              +cs38*Cnnd[NsTs100*i + Ns100*Z1 + 68*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 68*Ns + N2]
-                              +cs39*Cnnd[NsTs100*i + Ns100*Z1 + 69*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 69*Ns + N2]
-                              +cs39*Cnnd[NsTs100*i + Ns100*Z1 + 70*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 70*Ns + N2]
-                              +cs40*Cnnd[NsTs100*i + Ns100*Z1 + 71*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 71*Ns + N2]
-                              +cs40*Cnnd[NsTs100*i + Ns100*Z1 + 72*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 72*Ns + N2]
-                              +cs41*Cnnd[NsTs100*i + Ns100*Z1 + 73*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 73*Ns + N2]
-                              +cs41*Cnnd[NsTs100*i + Ns100*Z1 + 74*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 74*Ns + N2]
-                              +cs42*Cnnd[NsTs100*i + Ns100*Z1 + 75*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 75*Ns + N2]
-                              +cs42*Cnnd[NsTs100*i + Ns100*Z1 + 76*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 76*Ns + N2]
-                              +cs43*Cnnd[NsTs100*i + Ns100*Z1 + 77*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 77*Ns + N2]
-                              +cs43*Cnnd[NsTs100*i + Ns100*Z1 + 78*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 78*Ns + N2]
-                              +cs44*Cnnd[NsTs100*i + Ns100*Z1 + 79*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 79*Ns + N2]
-                              +cs44*Cnnd[NsTs100*i + Ns100*Z1 + 80*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 80*Ns + N2]);
-                          shiftN++;
-                      }
-                  }
-                  shiftZ++;
-              }
-          }
-      }
-  }
-  if (lMax > 8) {
-      double prel9 = PI*sqrt(8.0/(2.0*9.0+1.0));
-      for (int i = 0; i < Hs; i++) {
-          shiftZ = 0;
-          for (int Z1 = 0; Z1 < Ts; Z1++) {
-              int Z2Limit = crossover ? Ts : Z1+1;
-              for (int Z2 = Z1; Z2 < Z2Limit; Z2++) {
-                  shiftN = 0;
-                  for (int N1 = 0; N1 < Ns; N1++) {
-                      for (int N2 = N1; N2 < Ns; N2++) {
-                          soapMat[NsNsLmaxTs*i+NsNsLmax*shiftZ+ 9*NsNs + shiftN] = prel9*(
-                              cs45*Cnnd[NsTs100*i + Ns100*Z1 + 81*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 81*Ns + N2]
-                              +cs46*Cnnd[NsTs100*i + Ns100*Z1 + 82*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 82*Ns + N2]
-                              +cs46*Cnnd[NsTs100*i + Ns100*Z1 + 83*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 83*Ns + N2]
-                              +cs47*Cnnd[NsTs100*i + Ns100*Z1 + 84*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 84*Ns + N2]
-                              +cs47*Cnnd[NsTs100*i + Ns100*Z1 + 85*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 85*Ns + N2]
-                              +cs48*Cnnd[NsTs100*i + Ns100*Z1 + 86*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 86*Ns + N2]
-                              +cs48*Cnnd[NsTs100*i + Ns100*Z1 + 87*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 87*Ns + N2]
-                              +cs49*Cnnd[NsTs100*i + Ns100*Z1 + 88*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 88*Ns + N2]
-                              +cs49*Cnnd[NsTs100*i + Ns100*Z1 + 89*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 89*Ns + N2]
-                              +cs50*Cnnd[NsTs100*i + Ns100*Z1 + 90*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 90*Ns + N2]
-                              +cs50*Cnnd[NsTs100*i + Ns100*Z1 + 91*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 91*Ns + N2]
-                              +cs51*Cnnd[NsTs100*i + Ns100*Z1 + 92*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 92*Ns + N2]
-                              +cs51*Cnnd[NsTs100*i + Ns100*Z1 + 93*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 93*Ns + N2]
-                              +cs52*Cnnd[NsTs100*i + Ns100*Z1 + 94*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 94*Ns + N2]
-                              +cs52*Cnnd[NsTs100*i + Ns100*Z1 + 95*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 95*Ns + N2]
-                              +cs53*Cnnd[NsTs100*i + Ns100*Z1 + 96*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 96*Ns + N2]
-                              +cs53*Cnnd[NsTs100*i + Ns100*Z1 + 97*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 97*Ns + N2]
-                              +cs54*Cnnd[NsTs100*i + Ns100*Z1 + 98*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 98*Ns + N2]
-                              +cs54*Cnnd[NsTs100*i + Ns100*Z1 + 99*Ns + N1]*Cnnd[NsTs100*i + Ns100*Z2 + 99*Ns + N2]);
-                          shiftN++;
-                      }
-                  }
-                  shiftZ++;
-              }
-          }
-      }
-  }
+    for (int i = 0; i < Hs; i++) {
+        for (int Z1 = 0; Z1 < Nt; Z1++) {
+            int Z2Limit = crossover ? Nt : Z1+1;
+            for (int Z2 = Z1; Z2 < Z2Limit; Z2++) {
+                // If the species are identical, then there is symmetry in the
+                // radial basis and we only loop N2 from N1 to nMax
+                if (Z1 == Z2) {
+                    for (int l = 0; l < lMax+1; l++) {
+                        for (int N1 = 0; N1 < nMax; N1++) {
+                            for (int N2 = N1; N2 < nMax; N2++) {
+                                double sum = 0;
+                                for (int m = 0; m < 2*l+1; ++m) {
+                                    int offset = l*l + m;
+                                    int coeffIdx = l*(l+1)/2 + int((m+1)/2);
+                                    double coefficient = coeffs[coeffIdx];
+                                    sum += coefficient*Cnnd[NsTs100*i + Ns100*Z1 + offset*nMax + N1]*Cnnd[NsTs100*i + Ns100*Z2 + offset*nMax + N2];
+                                }
+                                double prefactor = PI*sqrt(8.0/(2.0*l+1.0));  // Normalization factor
+                                cArr(i, pIdx) = prefactor*sum;
+                                ++pIdx;
+                            }
+                        }
+                    }
+                // If the species are different, then there is no symmetry in
+                // the radial basis and we have to loop over all pairwise
+                // combinations.
+                } else {
+                    for (int l = 0; l < lMax+1; l++) {
+                        for (int N1 = 0; N1 < nMax; N1++) {
+                            for (int N2 = 0; N2 < nMax; N2++) {
+                                double sum = 0;
+                                for (int m = 0; m < 2*l+1; ++m) {
+                                    int offset = l*l + m;
+                                    int coeffIdx = l*(l+1)/2 + int((m+1)/2);
+                                    double coefficient = coeffs[coeffIdx];
+                                    sum += coefficient*Cnnd[NsTs100*i + Ns100*Z1 + offset*nMax + N1]*Cnnd[NsTs100*i + Ns100*Z2 + offset*nMax + N2];
+                                }
+                                double prefactor = PI*sqrt(8.0/(2.0*l+1.0));  // Normalization factor
+                                cArr(i, pIdx) = prefactor*sum;
+                                ++pIdx;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
-//===========================================================================================
-void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<double> alphasArr, py::array_t<double> betasArr, py::array_t<int> atomicNumbersArr, double rCut, double cutoffPadding, int totalAN, int Nt, int Ns, int lMax, int Hs, double eta, bool crossover, string average) {
-
+void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<double> alphasArr, py::array_t<double> betasArr, py::array_t<int> atomicNumbersArr, py::array_t<int> orderedSpeciesArr, double rCut, double cutoffPadding, int nAtoms, int Nt, int Ns, int lMax, int Hs, double eta, bool crossover, string average)
+{
   auto atomicNumbers = atomicNumbersArr.unchecked<1>();
-  double *c = (double*)cArr.request().ptr;
+  auto species = orderedSpeciesArr.unchecked<1>();
+  auto c = cArr.mutable_unchecked<2>();
   double *Hpos = (double*)HposArr.request().ptr;
   double *alphas = (double*)alphasArr.request().ptr;
   double *betas = (double*)betasArr.request().ptr;
@@ -953,27 +711,27 @@ void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_
   double oOeta3O2 = sqrt(oOeta*oOeta*oOeta);
 
   double NsNs = Ns*Ns;
-  double* dx  = (double*) malloc(sizeof(double)*totalAN);
-  double* dy  = (double*) malloc(sizeof(double)*totalAN);
-  double* dz  = (double*) malloc(sizeof(double)*totalAN);
-  double* z2 = (double*) malloc(sizeof(double)*totalAN);
-  double* z4 = (double*) malloc(sizeof(double)*totalAN);
-  double* z6 = (double*) malloc(sizeof(double)*totalAN);
-  double* z8 = (double*) malloc(sizeof(double)*totalAN);
-  double* r2 = (double*) malloc(sizeof(double)*totalAN);
-  double* r4 = (double*) malloc(sizeof(double)*totalAN);
-  double* r6 = (double*) malloc(sizeof(double)*totalAN);
-  double* r8 = (double*) malloc(sizeof(double)*totalAN);
-  double* ReIm2 = (double*) malloc(2*sizeof(double)*totalAN);// 2 -> Re + ixIm
-  double* ReIm3 = (double*) malloc(2*sizeof(double)*totalAN);// 2 -> Re + ixIm
-  double* ReIm4 = (double*) malloc(2*sizeof(double)*totalAN);// 2 -> Re + ixIm
-  double* ReIm5 = (double*) malloc(2*sizeof(double)*totalAN);// 2 -> Re + ixIm
-  double* ReIm6 = (double*) malloc(2*sizeof(double)*totalAN);// 2 -> Re + ixIm
-  double* ReIm7 = (double*) malloc(2*sizeof(double)*totalAN);// 2 -> Re + ixIm
-  double* ReIm8 = (double*) malloc(2*sizeof(double)*totalAN);// 2 -> Re + ixIm
-  double* ReIm9 = (double*) malloc(2*sizeof(double)*totalAN);// 2 -> Re + ixIm
-  double* exes = (double*) malloc (sizeof(double)*totalAN);
-  double* preCoef = (double*) malloc(96*sizeof(double)*totalAN);
+  double* dx  = (double*) malloc(sizeof(double)*nAtoms);
+  double* dy  = (double*) malloc(sizeof(double)*nAtoms);
+  double* dz  = (double*) malloc(sizeof(double)*nAtoms);
+  double* z2 = (double*) malloc(sizeof(double)*nAtoms);
+  double* z4 = (double*) malloc(sizeof(double)*nAtoms);
+  double* z6 = (double*) malloc(sizeof(double)*nAtoms);
+  double* z8 = (double*) malloc(sizeof(double)*nAtoms);
+  double* r2 = (double*) malloc(sizeof(double)*nAtoms);
+  double* r4 = (double*) malloc(sizeof(double)*nAtoms);
+  double* r6 = (double*) malloc(sizeof(double)*nAtoms);
+  double* r8 = (double*) malloc(sizeof(double)*nAtoms);
+  double* ReIm2 = (double*) malloc(2*sizeof(double)*nAtoms);// 2 -> Re + ixIm
+  double* ReIm3 = (double*) malloc(2*sizeof(double)*nAtoms);// 2 -> Re + ixIm
+  double* ReIm4 = (double*) malloc(2*sizeof(double)*nAtoms);// 2 -> Re + ixIm
+  double* ReIm5 = (double*) malloc(2*sizeof(double)*nAtoms);// 2 -> Re + ixIm
+  double* ReIm6 = (double*) malloc(2*sizeof(double)*nAtoms);// 2 -> Re + ixIm
+  double* ReIm7 = (double*) malloc(2*sizeof(double)*nAtoms);// 2 -> Re + ixIm
+  double* ReIm8 = (double*) malloc(2*sizeof(double)*nAtoms);// 2 -> Re + ixIm
+  double* ReIm9 = (double*) malloc(2*sizeof(double)*nAtoms);// 2 -> Re + ixIm
+  double* exes = (double*) malloc (sizeof(double)*nAtoms);
+  double* preCoef = (double*) malloc(96*sizeof(double)*nAtoms);
   double* bOa = (double*) malloc((lMax+1)*NsNs*sizeof(double));
   double* aOa = (double*) malloc((lMax+1)*Ns*sizeof(double));
 
@@ -1002,40 +760,42 @@ void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_
   int Nx90 = 90*Ns; int Nx91 = 91*Ns; int Nx92 = 92*Ns; int Nx93 = 93*Ns;
   int Nx94 = 94*Ns; int Nx95 = 95*Ns; int Nx96 = 96*Ns; int Nx97 = 97*Ns;
   int Nx98 = 98*Ns; int Nx99 = 99*Ns;
-  int t2 = 2*totalAN;  int t3 = 3*totalAN;  int t4 = 4*totalAN;
-  int t5 = 5*totalAN;  int t6 = 6*totalAN;  int t7 = 7*totalAN;
-  int t8 = 8*totalAN;  int t9 = 9*totalAN;  int t10 = 10*totalAN;
-  int t11 = 11*totalAN;  int t12 = 12*totalAN;  int t13 = 13*totalAN;
-  int t14 = 14*totalAN;  int t15 = 15*totalAN;  int t16 = 16*totalAN;
-  int t17 = 17*totalAN;  int t18 = 18*totalAN;  int t19 = 19*totalAN;
-  int t20 = 20*totalAN;  int t21 = 21*totalAN;  int t22 = 22*totalAN;
-  int t23 = 23*totalAN;  int t24 = 24*totalAN;  int t25 = 25*totalAN;
-  int t26 = 26*totalAN;  int t27 = 27*totalAN;  int t28 = 28*totalAN;
-  int t29 = 29*totalAN;  int t30 = 30*totalAN;  int t31 = 31*totalAN;
-  int t32 = 32*totalAN;  int t33 = 33*totalAN;  int t34 = 34*totalAN;
-  int t35 = 35*totalAN;  int t36 = 36*totalAN;  int t37 = 37*totalAN;
-  int t38 = 38*totalAN;  int t39 = 39*totalAN;  int t40 = 40*totalAN;
-  int t41 = 41*totalAN;  int t42 = 42*totalAN;  int t43 = 43*totalAN;
-  int t44 = 44*totalAN;  int t45 = 45*totalAN;  int t46 = 46*totalAN;
-  int t47 = 47*totalAN;  int t48 = 48*totalAN;  int t49 = 49*totalAN;
-  int t50 = 50*totalAN;  int t51 = 51*totalAN;  int t52 = 52*totalAN;
-  int t53 = 53*totalAN;  int t54 = 54*totalAN;  int t55 = 55*totalAN;
-  int t56 = 56*totalAN;  int t57 = 57*totalAN;  int t58 = 58*totalAN;
-  int t59 = 59*totalAN;  int t60 = 60*totalAN;  int t61 = 61*totalAN;
-  int t62 = 62*totalAN;  int t63 = 63*totalAN;  int t64 = 64*totalAN;
-  int t65 = 65*totalAN;  int t66 = 66*totalAN;  int t67 = 67*totalAN;
-  int t68 = 68*totalAN;  int t69 = 69*totalAN;  int t70 = 70*totalAN;
-  int t71 = 71*totalAN;  int t72 = 72*totalAN;  int t73 = 73*totalAN;
-  int t74 = 74*totalAN;  int t75 = 75*totalAN;  int t76 = 76*totalAN;
-  int t77 = 77*totalAN;  int t78 = 78*totalAN;  int t79 = 79*totalAN;
-  int t80 = 80*totalAN;  int t81 = 81*totalAN;  int t82 = 82*totalAN;
-  int t83 = 83*totalAN;  int t84 = 84*totalAN;  int t85 = 85*totalAN;
-  int t86 = 86*totalAN;  int t87 = 87*totalAN;  int t88 = 88*totalAN;
-  int t89 = 89*totalAN;  int t90 = 90*totalAN;  int t91 = 91*totalAN;
-  int t92 = 92*totalAN;  int t93 = 93*totalAN;  int t94 = 94*totalAN;
-  int t95 = 95*totalAN;  int t96 = 96*totalAN;  int t97 = 97*totalAN;
-  int t98 = 98*totalAN;  int t99 = 99*totalAN;
+  int t2 = 2*nAtoms;  int t3 = 3*nAtoms;  int t4 = 4*nAtoms;
+  int t5 = 5*nAtoms;  int t6 = 6*nAtoms;  int t7 = 7*nAtoms;
+  int t8 = 8*nAtoms;  int t9 = 9*nAtoms;  int t10 = 10*nAtoms;
+  int t11 = 11*nAtoms;  int t12 = 12*nAtoms;  int t13 = 13*nAtoms;
+  int t14 = 14*nAtoms;  int t15 = 15*nAtoms;  int t16 = 16*nAtoms;
+  int t17 = 17*nAtoms;  int t18 = 18*nAtoms;  int t19 = 19*nAtoms;
+  int t20 = 20*nAtoms;  int t21 = 21*nAtoms;  int t22 = 22*nAtoms;
+  int t23 = 23*nAtoms;  int t24 = 24*nAtoms;  int t25 = 25*nAtoms;
+  int t26 = 26*nAtoms;  int t27 = 27*nAtoms;  int t28 = 28*nAtoms;
+  int t29 = 29*nAtoms;  int t30 = 30*nAtoms;  int t31 = 31*nAtoms;
+  int t32 = 32*nAtoms;  int t33 = 33*nAtoms;  int t34 = 34*nAtoms;
+  int t35 = 35*nAtoms;  int t36 = 36*nAtoms;  int t37 = 37*nAtoms;
+  int t38 = 38*nAtoms;  int t39 = 39*nAtoms;  int t40 = 40*nAtoms;
+  int t41 = 41*nAtoms;  int t42 = 42*nAtoms;  int t43 = 43*nAtoms;
+  int t44 = 44*nAtoms;  int t45 = 45*nAtoms;  int t46 = 46*nAtoms;
+  int t47 = 47*nAtoms;  int t48 = 48*nAtoms;  int t49 = 49*nAtoms;
+  int t50 = 50*nAtoms;  int t51 = 51*nAtoms;  int t52 = 52*nAtoms;
+  int t53 = 53*nAtoms;  int t54 = 54*nAtoms;  int t55 = 55*nAtoms;
+  int t56 = 56*nAtoms;  int t57 = 57*nAtoms;  int t58 = 58*nAtoms;
+  int t59 = 59*nAtoms;  int t60 = 60*nAtoms;  int t61 = 61*nAtoms;
+  int t62 = 62*nAtoms;  int t63 = 63*nAtoms;  int t64 = 64*nAtoms;
+  int t65 = 65*nAtoms;  int t66 = 66*nAtoms;  int t67 = 67*nAtoms;
+  int t68 = 68*nAtoms;  int t69 = 69*nAtoms;  int t70 = 70*nAtoms;
+  int t71 = 71*nAtoms;  int t72 = 72*nAtoms;  int t73 = 73*nAtoms;
+  int t74 = 74*nAtoms;  int t75 = 75*nAtoms;  int t76 = 76*nAtoms;
+  int t77 = 77*nAtoms;  int t78 = 78*nAtoms;  int t79 = 79*nAtoms;
+  int t80 = 80*nAtoms;  int t81 = 81*nAtoms;  int t82 = 82*nAtoms;
+  int t83 = 83*nAtoms;  int t84 = 84*nAtoms;  int t85 = 85*nAtoms;
+  int t86 = 86*nAtoms;  int t87 = 87*nAtoms;  int t88 = 88*nAtoms;
+  int t89 = 89*nAtoms;  int t90 = 90*nAtoms;  int t91 = 91*nAtoms;
+  int t92 = 92*nAtoms;  int t93 = 93*nAtoms;  int t94 = 94*nAtoms;
+  int t95 = 95*nAtoms;  int t96 = 96*nAtoms;  int t97 = 97*nAtoms;
+  int t98 = 98*nAtoms;  int t99 = 99*nAtoms;
 
+  // Initialize array for storing the C coefficients. 100 is used as the buffer
+  // length.
   double* cnnd = (double*) malloc(100*Nt*Ns*Hs*sizeof(double));
   double* cnndAve = (double*) malloc(100*Nt*Ns*sizeof(double));
   int cnndSize = 100*Nt*Ns*Hs;
@@ -1046,19 +806,13 @@ void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_
   CellList cellList(positions, rCut+cutoffPadding);
 
   // Create a mapping between an atomic index and its internal index in the
-  // output
+  // output. The list of species is already ordered.
   map<int, int> ZIndexMap;
-  set<int> atomicNumberSet;
-  for (int i = 0; i < totalAN; ++i) {
-      atomicNumberSet.insert(atomicNumbers(i));
-  };
-  int i = 0;
-  for (auto it=atomicNumberSet.begin(); it!=atomicNumberSet.end(); ++it) {
-      ZIndexMap[*it] = i;
-      ++i;
-  };
+  for (int i = 0; i < species.size(); ++i) {
+      ZIndexMap[species(i)] = i;
+  }
 
-  getAlphaBeta(aOa,bOa,alphas,betas,Ns,lMax,oOeta, oOeta3O2);
+  getAlphaBeta(aOa, bOa, alphas, betas, Ns, lMax, oOeta, oOeta3O2);
 
   // Loop through the centers
   for (int i = 0; i < Hs; i++) {
@@ -1087,8 +841,8 @@ void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_
       getDeltas(dx, dy, dz, positions, ix, iy, iz, ZIndexPair.second);
 
       getRsZs(dx, dy, dz, r2, r4, r6, r8, z2, z4, z6, z8, n_neighbours);
-      getCfactors(preCoef, n_neighbours, dx, dy, dz, z2, z4, z6, z8, r2, r4, r6, r8, ReIm2, ReIm3, ReIm4, ReIm5, ReIm6, ReIm7, ReIm8, ReIm9, totalAN, lMax, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20, t21, t22, t23, t24, t25, t26, t27, t28, t29, t30, t31, t32, t33, t34, t35, t36, t37, t38, t39, t40, t41, t42, t43, t44, t45, t46, t47, t48, t49, t50, t51, t52, t53, t54, t55, t56, t57, t58, t59, t60, t61, t62, t63, t64, t65, t66, t67, t68, t69, t70, t71, t72, t73, t74, t75, t76, t77, t78, t79, t80, t81, t82, t83, t84, t85, t86, t87, t88, t89, t90, t91, t92, t93, t94, t95, t96, t97, t98, t99);
-      getC(cnnd, preCoef, dx, dy, dz, r2, bOa, aOa, exes, totalAN, n_neighbours, Ns, Nt, lMax, i, j, Nx2, Nx3, Nx4, Nx5, Nx6, Nx7, Nx8, Nx9, Nx10, Nx11, Nx12, Nx13, Nx14, Nx15, Nx16, Nx17, Nx18, Nx19, Nx20, Nx21, Nx22, Nx23, Nx24, Nx25, Nx26, Nx27, Nx28, Nx29, Nx30, Nx31, Nx32, Nx33, Nx34, Nx35, Nx36, Nx37, Nx38, Nx39, Nx40, Nx41, Nx42, Nx43, Nx44, Nx45, Nx46, Nx47, Nx48, Nx49, Nx50, Nx51, Nx52, Nx53, Nx54, Nx55, Nx56, Nx57, Nx58, Nx59, Nx60, Nx61, Nx62, Nx63, Nx64, Nx65, Nx66, Nx67, Nx68, Nx69, Nx70, Nx71, Nx72, Nx73, Nx74, Nx75, Nx76, Nx77, Nx78, Nx79, Nx80, Nx81, Nx82, Nx83, Nx84, Nx85, Nx86, Nx87, Nx88, Nx89, Nx90, Nx91, Nx92, Nx93, Nx94, Nx95, Nx96, Nx97, Nx98, Nx99, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20, t21, t22, t23, t24, t25, t26, t27, t28, t29, t30, t31, t32, t33, t34, t35, t36, t37, t38, t39, t40, t41, t42, t43, t44, t45, t46, t47, t48, t49, t50, t51, t52, t53, t54, t55, t56, t57, t58, t59, t60, t61, t62, t63, t64, t65, t66, t67, t68, t69, t70, t71, t72, t73, t74, t75, t76, t77, t78, t79, t80, t81, t82, t83, t84, t85, t86, t87, t88, t89, t90, t91, t92, t93, t94, t95, t96, t97, t98, t99);
+      getCfactors(preCoef, n_neighbours, dx, dy, dz, z2, z4, z6, z8, r2, r4, r6, r8, ReIm2, ReIm3, ReIm4, ReIm5, ReIm6, ReIm7, ReIm8, ReIm9, nAtoms, lMax, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20, t21, t22, t23, t24, t25, t26, t27, t28, t29, t30, t31, t32, t33, t34, t35, t36, t37, t38, t39, t40, t41, t42, t43, t44, t45, t46, t47, t48, t49, t50, t51, t52, t53, t54, t55, t56, t57, t58, t59, t60, t61, t62, t63, t64, t65, t66, t67, t68, t69, t70, t71, t72, t73, t74, t75, t76, t77, t78, t79, t80, t81, t82, t83, t84, t85, t86, t87, t88, t89, t90, t91, t92, t93, t94, t95, t96, t97, t98, t99);
+      getC(cnnd, preCoef, dx, dy, dz, r2, bOa, aOa, exes, nAtoms, n_neighbours, Ns, Nt, lMax, i, j, Nx2, Nx3, Nx4, Nx5, Nx6, Nx7, Nx8, Nx9, Nx10, Nx11, Nx12, Nx13, Nx14, Nx15, Nx16, Nx17, Nx18, Nx19, Nx20, Nx21, Nx22, Nx23, Nx24, Nx25, Nx26, Nx27, Nx28, Nx29, Nx30, Nx31, Nx32, Nx33, Nx34, Nx35, Nx36, Nx37, Nx38, Nx39, Nx40, Nx41, Nx42, Nx43, Nx44, Nx45, Nx46, Nx47, Nx48, Nx49, Nx50, Nx51, Nx52, Nx53, Nx54, Nx55, Nx56, Nx57, Nx58, Nx59, Nx60, Nx61, Nx62, Nx63, Nx64, Nx65, Nx66, Nx67, Nx68, Nx69, Nx70, Nx71, Nx72, Nx73, Nx74, Nx75, Nx76, Nx77, Nx78, Nx79, Nx80, Nx81, Nx82, Nx83, Nx84, Nx85, Nx86, Nx87, Nx88, Nx89, Nx90, Nx91, Nx92, Nx93, Nx94, Nx95, Nx96, Nx97, Nx98, Nx99, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20, t21, t22, t23, t24, t25, t26, t27, t28, t29, t30, t31, t32, t33, t34, t35, t36, t37, t38, t39, t40, t41, t42, t43, t44, t45, t46, t47, t48, t49, t50, t51, t52, t53, t54, t55, t56, t57, t58, t59, t60, t61, t62, t63, t64, t65, t66, t67, t68, t69, t70, t71, t72, t73, t74, t75, t76, t77, t78, t79, t80, t81, t82, t83, t84, t85, t86, t87, t88, t89, t90, t91, t92, t93, t94, t95, t96, t97, t98, t99);
     }
   }
 
