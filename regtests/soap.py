@@ -376,7 +376,7 @@ class SoapTests(unittest.TestCase):
             sigma=1,
             periodic=False,
             crossover=True,
-            average=False,
+            average="off",
             sparse=False,
         )
         n_features = desc.get_number_of_features()
@@ -432,7 +432,7 @@ class SoapTests(unittest.TestCase):
         self.assertTrue(np.allclose(output, assumed))
 
         # Test averaged output
-        desc._average = True
+        desc._average = "outer"
         output = desc.create(
             system=samples,
             positions=[[0], [0, 1]],
@@ -456,7 +456,7 @@ class SoapTests(unittest.TestCase):
             sigma=1,
             periodic=False,
             crossover=True,
-            average=False,
+            average="off",
             sparse=True,
         )
         n_features = desc.get_number_of_features()
@@ -513,7 +513,7 @@ class SoapTests(unittest.TestCase):
         self.assertTrue(np.allclose(output, assumed))
 
         # Test averaged output
-        desc._average = True
+        desc._average = "outer"
         output = desc.create(
             system=samples,
             positions=[[0], [0, 1]],
@@ -706,7 +706,7 @@ class SoapTests(unittest.TestCase):
             periodic=False,
             rbf="polynomial",
             crossover=True,
-            average=False,
+            average="off",
             sparse=False
         )
         first = desc.create(sys, positions=[0])[0, :]
