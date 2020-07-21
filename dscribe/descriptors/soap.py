@@ -60,7 +60,7 @@ class SOAP(Descriptor):
             species=None,
             periodic=False,
             crossover=True,
-            average=False,
+            average="off",
             sparse=False,
             ):
         """
@@ -92,16 +92,13 @@ class SOAP(Descriptor):
                 cross-species information and is only run over each unique
                 species Z. Turned on by default to correspond to the original
                 definition
-            average (str | bool): The averaging mode over the centers of
-                interest. Valid options are:
+            average (str): The averaging mode over the centers of interest.
+                Valid options are:
 
-                * False: No averaging.
-                * "inner": Averaging over atoms before summing up the magnetic quantum numbers.
-                * "outer": Averaging over the power spectrum of different atoms.
+                    * "off": No averaging.
+                    * "inner": Averaging over atoms before summing up the magnetic quantum numbers.
+                    * "outer": Averaging over the power spectrum of different atoms.
 
-            Defaults to
-                False which means no averaging is perfomed. strings are "inner" and
-                "outer"
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
         """
@@ -133,6 +130,12 @@ class SOAP(Descriptor):
                 "Must have at least one radial basis function."
                 "nmax={}".format(nmax)
             )
+        supported_average = set(("off", "inner", "outer"))
+        if average not in supported_average:
+            raise ValueError(
+                "Invalid average mode '{}' given. Please use "
+                "one of the following: {}".format(average, supported_average)
+            )
 
         # Test that radial basis set specific settings are valid
         if rbf == "gto":
@@ -160,20 +163,8 @@ class SOAP(Descriptor):
         self._nmax = nmax
         self._lmax = lmax
         self._rbf = rbf
+        self._average = average
         self.crossover = crossover
-
-        # checks if the argument average is valid
-        if (average is False) or (average == "outer") or (average == "inner"):
-            self._average = average
-        elif average is True:
-            raise ValueError("""
-                You set average to True, but you need to specify the type 
-                of average. Please set it either to "inner" or "outer"
-                """)
-        else:
-            raise ValueError("""
-                Please set average either to False, "inner" or "outer"
-                """)
 
     def create(self, system, positions=None, n_jobs=1, verbose=False):
         """Return the SOAP output for the given systems and given positions.
@@ -228,7 +219,7 @@ class SOAP(Descriptor):
         output_sizes = []
         for i_job in jobs:
             n_desc = 0
-            if (self._average == "outer" or (self._average == "inner")):
+            if self._average == "outer" or self._average == "inner":
                 n_desc = len(i_job)
             elif positions is None:
                 n_desc = 0
@@ -335,8 +326,8 @@ class SOAP(Descriptor):
                 lmax=self._lmax,
                 eta=self._eta,
                 crossover=self.crossover,
+                average=self._average,
                 atomic_numbers=None,
-                average = self._average,
             )
         elif self._rbf == "polynomial":
             soap_mat = self.get_soap_locals_poly(
@@ -348,16 +339,14 @@ class SOAP(Descriptor):
                 lmax=self._lmax,
                 eta=self._eta,
                 crossover=self.crossover,
+                average=self._average,
                 atomic_numbers=None,
-                average = self._average,
             )
 
         # Create the averaged SOAP output if requested.
         if self._average == "outer":
             soap_mat = soap_mat.mean(axis=0)
             soap_mat = np.expand_dims(soap_mat, 0)
-        elif self._average == "inner":
-            pass
 
         # Make into a sparse array if requested
         if self._sparse:
@@ -498,7 +487,7 @@ class SOAP(Descriptor):
 
         return positions_sorted, atomic_numbers_sorted
 
-    def get_soap_locals_gto(self, system, centers, alphas, betas, rcut, cutoff_padding, nmax, lmax, eta, crossover, atomic_numbers=None, average=False):
+    def get_soap_locals_gto(self, system, centers, alphas, betas, rcut, cutoff_padding, nmax, lmax, eta, crossover, average, atomic_numbers=None):
         """Get the SOAP output for the given positions using the gto radial
         basis.
 
@@ -535,7 +524,7 @@ class SOAP(Descriptor):
 
         # Determine shape
         n_features = self.get_number_of_features()
-        if (average == "inner"):
+        if average == "inner":
             c = np.zeros((1, n_features), dtype=np.float64)
         else:
             c = np.zeros((n_centers, n_features), dtype=np.float64)
@@ -558,12 +547,12 @@ class SOAP(Descriptor):
             n_centers,
             eta,
             crossover,
-            str(average)
+            average,
         )
 
         return c
 
-    def get_soap_locals_poly(self, system, centers, rcut, cutoff_padding, nmax, lmax, eta, crossover, atomic_numbers=None, average=False):
+    def get_soap_locals_poly(self, system, centers, rcut, cutoff_padding, nmax, lmax, eta, crossover, average, atomic_numbers=None):
         """Get the SOAP output using polynomial radial basis for the given
         positions.
         Args:
@@ -602,7 +591,7 @@ class SOAP(Descriptor):
 
         # Determine shape
         n_features = self.get_number_of_features()
-        if (average == "inner"):
+        if average == "inner":
             c = np.zeros((1, n_features), dtype=np.float64)
         else:
             c = np.zeros((n_centers, n_features), dtype=np.float64)
@@ -625,7 +614,7 @@ class SOAP(Descriptor):
             rx,
             gss,
             crossover,
-            str(average)
+            average
         )
 
         return c

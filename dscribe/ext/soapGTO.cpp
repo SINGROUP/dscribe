@@ -700,196 +700,194 @@ void getP(py::detail::unchecked_mutable_reference<double, 2> &cArr, double* Cnnd
 
 void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<double> alphasArr, py::array_t<double> betasArr, py::array_t<int> atomicNumbersArr, py::array_t<int> orderedSpeciesArr, double rCut, double cutoffPadding, int nAtoms, int Nt, int Ns, int lMax, int Hs, double eta, bool crossover, string average)
 {
-  auto atomicNumbers = atomicNumbersArr.unchecked<1>();
-  auto species = orderedSpeciesArr.unchecked<1>();
-  auto c = cArr.mutable_unchecked<2>();
-  double *Hpos = (double*)HposArr.request().ptr;
-  double *alphas = (double*)alphasArr.request().ptr;
-  double *betas = (double*)betasArr.request().ptr;
+    auto atomicNumbers = atomicNumbersArr.unchecked<1>();
+    auto species = orderedSpeciesArr.unchecked<1>();
+    auto c = cArr.mutable_unchecked<2>();
+    double *Hpos = (double*)HposArr.request().ptr;
+    double *alphas = (double*)alphasArr.request().ptr;
+    double *betas = (double*)betasArr.request().ptr;
 
-  double oOeta = 1.0/eta;
-  double oOeta3O2 = sqrt(oOeta*oOeta*oOeta);
+    double oOeta = 1.0/eta;
+    double oOeta3O2 = sqrt(oOeta*oOeta*oOeta);
 
-  double NsNs = Ns*Ns;
-  double* dx  = (double*) malloc(sizeof(double)*nAtoms);
-  double* dy  = (double*) malloc(sizeof(double)*nAtoms);
-  double* dz  = (double*) malloc(sizeof(double)*nAtoms);
-  double* z2 = (double*) malloc(sizeof(double)*nAtoms);
-  double* z4 = (double*) malloc(sizeof(double)*nAtoms);
-  double* z6 = (double*) malloc(sizeof(double)*nAtoms);
-  double* z8 = (double*) malloc(sizeof(double)*nAtoms);
-  double* r2 = (double*) malloc(sizeof(double)*nAtoms);
-  double* r4 = (double*) malloc(sizeof(double)*nAtoms);
-  double* r6 = (double*) malloc(sizeof(double)*nAtoms);
-  double* r8 = (double*) malloc(sizeof(double)*nAtoms);
-  double* ReIm2 = (double*) malloc(2*sizeof(double)*nAtoms);// 2 -> Re + ixIm
-  double* ReIm3 = (double*) malloc(2*sizeof(double)*nAtoms);// 2 -> Re + ixIm
-  double* ReIm4 = (double*) malloc(2*sizeof(double)*nAtoms);// 2 -> Re + ixIm
-  double* ReIm5 = (double*) malloc(2*sizeof(double)*nAtoms);// 2 -> Re + ixIm
-  double* ReIm6 = (double*) malloc(2*sizeof(double)*nAtoms);// 2 -> Re + ixIm
-  double* ReIm7 = (double*) malloc(2*sizeof(double)*nAtoms);// 2 -> Re + ixIm
-  double* ReIm8 = (double*) malloc(2*sizeof(double)*nAtoms);// 2 -> Re + ixIm
-  double* ReIm9 = (double*) malloc(2*sizeof(double)*nAtoms);// 2 -> Re + ixIm
-  double* exes = (double*) malloc (sizeof(double)*nAtoms);
-  double* preCoef = (double*) malloc(96*sizeof(double)*nAtoms);
-  double* bOa = (double*) malloc((lMax+1)*NsNs*sizeof(double));
-  double* aOa = (double*) malloc((lMax+1)*Ns*sizeof(double));
+    double NsNs = Ns*Ns;
+    double* dx  = (double*) malloc(sizeof(double)*nAtoms);
+    double* dy  = (double*) malloc(sizeof(double)*nAtoms);
+    double* dz  = (double*) malloc(sizeof(double)*nAtoms);
+    double* z2 = (double*) malloc(sizeof(double)*nAtoms);
+    double* z4 = (double*) malloc(sizeof(double)*nAtoms);
+    double* z6 = (double*) malloc(sizeof(double)*nAtoms);
+    double* z8 = (double*) malloc(sizeof(double)*nAtoms);
+    double* r2 = (double*) malloc(sizeof(double)*nAtoms);
+    double* r4 = (double*) malloc(sizeof(double)*nAtoms);
+    double* r6 = (double*) malloc(sizeof(double)*nAtoms);
+    double* r8 = (double*) malloc(sizeof(double)*nAtoms);
+    double* ReIm2 = (double*) malloc(2*sizeof(double)*nAtoms);// 2 -> Re + ixIm
+    double* ReIm3 = (double*) malloc(2*sizeof(double)*nAtoms);// 2 -> Re + ixIm
+    double* ReIm4 = (double*) malloc(2*sizeof(double)*nAtoms);// 2 -> Re + ixIm
+    double* ReIm5 = (double*) malloc(2*sizeof(double)*nAtoms);// 2 -> Re + ixIm
+    double* ReIm6 = (double*) malloc(2*sizeof(double)*nAtoms);// 2 -> Re + ixIm
+    double* ReIm7 = (double*) malloc(2*sizeof(double)*nAtoms);// 2 -> Re + ixIm
+    double* ReIm8 = (double*) malloc(2*sizeof(double)*nAtoms);// 2 -> Re + ixIm
+    double* ReIm9 = (double*) malloc(2*sizeof(double)*nAtoms);// 2 -> Re + ixIm
+    double* exes = (double*) malloc (sizeof(double)*nAtoms);
+    double* preCoef = (double*) malloc(96*sizeof(double)*nAtoms);
+    double* bOa = (double*) malloc((lMax+1)*NsNs*sizeof(double));
+    double* aOa = (double*) malloc((lMax+1)*Ns*sizeof(double));
 
-  int Nx2 = 2*Ns; int Nx3 = 3*Ns; int Nx4 = 4*Ns; int Nx5 = 5*Ns;
-  int Nx6 = 6*Ns; int Nx7 = 7*Ns; int Nx8 = 8*Ns; int Nx9 = 9*Ns;
-  int Nx10 = 10*Ns; int Nx11 = 11*Ns; int Nx12 = 12*Ns; int Nx13 = 13*Ns;
-  int Nx14 = 14*Ns; int Nx15 = 15*Ns; int Nx16 = 16*Ns; int Nx17 = 17*Ns;
-  int Nx18 = 18*Ns; int Nx19 = 19*Ns; int Nx20 = 20*Ns; int Nx21 = 21*Ns;
-  int Nx22 = 22*Ns; int Nx23 = 23*Ns; int Nx24 = 24*Ns; int Nx25 = 25*Ns;
-  int Nx26 = 26*Ns; int Nx27 = 27*Ns; int Nx28 = 28*Ns; int Nx29 = 29*Ns;
-  int Nx30 = 30*Ns; int Nx31 = 31*Ns; int Nx32 = 32*Ns; int Nx33 = 33*Ns;
-  int Nx34 = 34*Ns; int Nx35 = 35*Ns; int Nx36 = 36*Ns; int Nx37 = 37*Ns;
-  int Nx38 = 38*Ns; int Nx39 = 39*Ns; int Nx40 = 40*Ns; int Nx41 = 41*Ns;
-  int Nx42 = 42*Ns; int Nx43 = 43*Ns; int Nx44 = 44*Ns; int Nx45 = 45*Ns;
-  int Nx46 = 46*Ns; int Nx47 = 47*Ns; int Nx48 = 48*Ns; int Nx49 = 49*Ns;
-  int Nx50 = 50*Ns; int Nx51 = 51*Ns; int Nx52 = 52*Ns; int Nx53 = 53*Ns;
-  int Nx54 = 54*Ns; int Nx55 = 55*Ns; int Nx56 = 56*Ns; int Nx57 = 57*Ns;
-  int Nx58 = 58*Ns; int Nx59 = 59*Ns; int Nx60 = 60*Ns; int Nx61 = 61*Ns;
-  int Nx62 = 62*Ns; int Nx63 = 63*Ns; int Nx64 = 64*Ns; int Nx65 = 65*Ns;
-  int Nx66 = 66*Ns; int Nx67 = 67*Ns; int Nx68 = 68*Ns; int Nx69 = 69*Ns;
-  int Nx70 = 70*Ns; int Nx71 = 71*Ns; int Nx72 = 72*Ns; int Nx73 = 73*Ns;
-  int Nx74 = 74*Ns; int Nx75 = 75*Ns; int Nx76 = 76*Ns; int Nx77 = 77*Ns;
-  int Nx78 = 78*Ns; int Nx79 = 79*Ns; int Nx80 = 80*Ns; int Nx81 = 81*Ns;
-  int Nx82 = 82*Ns; int Nx83 = 83*Ns; int Nx84 = 84*Ns; int Nx85 = 85*Ns;
-  int Nx86 = 86*Ns; int Nx87 = 87*Ns; int Nx88 = 88*Ns; int Nx89 = 89*Ns;
-  int Nx90 = 90*Ns; int Nx91 = 91*Ns; int Nx92 = 92*Ns; int Nx93 = 93*Ns;
-  int Nx94 = 94*Ns; int Nx95 = 95*Ns; int Nx96 = 96*Ns; int Nx97 = 97*Ns;
-  int Nx98 = 98*Ns; int Nx99 = 99*Ns;
-  int t2 = 2*nAtoms;  int t3 = 3*nAtoms;  int t4 = 4*nAtoms;
-  int t5 = 5*nAtoms;  int t6 = 6*nAtoms;  int t7 = 7*nAtoms;
-  int t8 = 8*nAtoms;  int t9 = 9*nAtoms;  int t10 = 10*nAtoms;
-  int t11 = 11*nAtoms;  int t12 = 12*nAtoms;  int t13 = 13*nAtoms;
-  int t14 = 14*nAtoms;  int t15 = 15*nAtoms;  int t16 = 16*nAtoms;
-  int t17 = 17*nAtoms;  int t18 = 18*nAtoms;  int t19 = 19*nAtoms;
-  int t20 = 20*nAtoms;  int t21 = 21*nAtoms;  int t22 = 22*nAtoms;
-  int t23 = 23*nAtoms;  int t24 = 24*nAtoms;  int t25 = 25*nAtoms;
-  int t26 = 26*nAtoms;  int t27 = 27*nAtoms;  int t28 = 28*nAtoms;
-  int t29 = 29*nAtoms;  int t30 = 30*nAtoms;  int t31 = 31*nAtoms;
-  int t32 = 32*nAtoms;  int t33 = 33*nAtoms;  int t34 = 34*nAtoms;
-  int t35 = 35*nAtoms;  int t36 = 36*nAtoms;  int t37 = 37*nAtoms;
-  int t38 = 38*nAtoms;  int t39 = 39*nAtoms;  int t40 = 40*nAtoms;
-  int t41 = 41*nAtoms;  int t42 = 42*nAtoms;  int t43 = 43*nAtoms;
-  int t44 = 44*nAtoms;  int t45 = 45*nAtoms;  int t46 = 46*nAtoms;
-  int t47 = 47*nAtoms;  int t48 = 48*nAtoms;  int t49 = 49*nAtoms;
-  int t50 = 50*nAtoms;  int t51 = 51*nAtoms;  int t52 = 52*nAtoms;
-  int t53 = 53*nAtoms;  int t54 = 54*nAtoms;  int t55 = 55*nAtoms;
-  int t56 = 56*nAtoms;  int t57 = 57*nAtoms;  int t58 = 58*nAtoms;
-  int t59 = 59*nAtoms;  int t60 = 60*nAtoms;  int t61 = 61*nAtoms;
-  int t62 = 62*nAtoms;  int t63 = 63*nAtoms;  int t64 = 64*nAtoms;
-  int t65 = 65*nAtoms;  int t66 = 66*nAtoms;  int t67 = 67*nAtoms;
-  int t68 = 68*nAtoms;  int t69 = 69*nAtoms;  int t70 = 70*nAtoms;
-  int t71 = 71*nAtoms;  int t72 = 72*nAtoms;  int t73 = 73*nAtoms;
-  int t74 = 74*nAtoms;  int t75 = 75*nAtoms;  int t76 = 76*nAtoms;
-  int t77 = 77*nAtoms;  int t78 = 78*nAtoms;  int t79 = 79*nAtoms;
-  int t80 = 80*nAtoms;  int t81 = 81*nAtoms;  int t82 = 82*nAtoms;
-  int t83 = 83*nAtoms;  int t84 = 84*nAtoms;  int t85 = 85*nAtoms;
-  int t86 = 86*nAtoms;  int t87 = 87*nAtoms;  int t88 = 88*nAtoms;
-  int t89 = 89*nAtoms;  int t90 = 90*nAtoms;  int t91 = 91*nAtoms;
-  int t92 = 92*nAtoms;  int t93 = 93*nAtoms;  int t94 = 94*nAtoms;
-  int t95 = 95*nAtoms;  int t96 = 96*nAtoms;  int t97 = 97*nAtoms;
-  int t98 = 98*nAtoms;  int t99 = 99*nAtoms;
+    int Nx2 = 2*Ns; int Nx3 = 3*Ns; int Nx4 = 4*Ns; int Nx5 = 5*Ns;
+    int Nx6 = 6*Ns; int Nx7 = 7*Ns; int Nx8 = 8*Ns; int Nx9 = 9*Ns;
+    int Nx10 = 10*Ns; int Nx11 = 11*Ns; int Nx12 = 12*Ns; int Nx13 = 13*Ns;
+    int Nx14 = 14*Ns; int Nx15 = 15*Ns; int Nx16 = 16*Ns; int Nx17 = 17*Ns;
+    int Nx18 = 18*Ns; int Nx19 = 19*Ns; int Nx20 = 20*Ns; int Nx21 = 21*Ns;
+    int Nx22 = 22*Ns; int Nx23 = 23*Ns; int Nx24 = 24*Ns; int Nx25 = 25*Ns;
+    int Nx26 = 26*Ns; int Nx27 = 27*Ns; int Nx28 = 28*Ns; int Nx29 = 29*Ns;
+    int Nx30 = 30*Ns; int Nx31 = 31*Ns; int Nx32 = 32*Ns; int Nx33 = 33*Ns;
+    int Nx34 = 34*Ns; int Nx35 = 35*Ns; int Nx36 = 36*Ns; int Nx37 = 37*Ns;
+    int Nx38 = 38*Ns; int Nx39 = 39*Ns; int Nx40 = 40*Ns; int Nx41 = 41*Ns;
+    int Nx42 = 42*Ns; int Nx43 = 43*Ns; int Nx44 = 44*Ns; int Nx45 = 45*Ns;
+    int Nx46 = 46*Ns; int Nx47 = 47*Ns; int Nx48 = 48*Ns; int Nx49 = 49*Ns;
+    int Nx50 = 50*Ns; int Nx51 = 51*Ns; int Nx52 = 52*Ns; int Nx53 = 53*Ns;
+    int Nx54 = 54*Ns; int Nx55 = 55*Ns; int Nx56 = 56*Ns; int Nx57 = 57*Ns;
+    int Nx58 = 58*Ns; int Nx59 = 59*Ns; int Nx60 = 60*Ns; int Nx61 = 61*Ns;
+    int Nx62 = 62*Ns; int Nx63 = 63*Ns; int Nx64 = 64*Ns; int Nx65 = 65*Ns;
+    int Nx66 = 66*Ns; int Nx67 = 67*Ns; int Nx68 = 68*Ns; int Nx69 = 69*Ns;
+    int Nx70 = 70*Ns; int Nx71 = 71*Ns; int Nx72 = 72*Ns; int Nx73 = 73*Ns;
+    int Nx74 = 74*Ns; int Nx75 = 75*Ns; int Nx76 = 76*Ns; int Nx77 = 77*Ns;
+    int Nx78 = 78*Ns; int Nx79 = 79*Ns; int Nx80 = 80*Ns; int Nx81 = 81*Ns;
+    int Nx82 = 82*Ns; int Nx83 = 83*Ns; int Nx84 = 84*Ns; int Nx85 = 85*Ns;
+    int Nx86 = 86*Ns; int Nx87 = 87*Ns; int Nx88 = 88*Ns; int Nx89 = 89*Ns;
+    int Nx90 = 90*Ns; int Nx91 = 91*Ns; int Nx92 = 92*Ns; int Nx93 = 93*Ns;
+    int Nx94 = 94*Ns; int Nx95 = 95*Ns; int Nx96 = 96*Ns; int Nx97 = 97*Ns;
+    int Nx98 = 98*Ns; int Nx99 = 99*Ns;
+    int t2 = 2*nAtoms;  int t3 = 3*nAtoms;  int t4 = 4*nAtoms;
+    int t5 = 5*nAtoms;  int t6 = 6*nAtoms;  int t7 = 7*nAtoms;
+    int t8 = 8*nAtoms;  int t9 = 9*nAtoms;  int t10 = 10*nAtoms;
+    int t11 = 11*nAtoms;  int t12 = 12*nAtoms;  int t13 = 13*nAtoms;
+    int t14 = 14*nAtoms;  int t15 = 15*nAtoms;  int t16 = 16*nAtoms;
+    int t17 = 17*nAtoms;  int t18 = 18*nAtoms;  int t19 = 19*nAtoms;
+    int t20 = 20*nAtoms;  int t21 = 21*nAtoms;  int t22 = 22*nAtoms;
+    int t23 = 23*nAtoms;  int t24 = 24*nAtoms;  int t25 = 25*nAtoms;
+    int t26 = 26*nAtoms;  int t27 = 27*nAtoms;  int t28 = 28*nAtoms;
+    int t29 = 29*nAtoms;  int t30 = 30*nAtoms;  int t31 = 31*nAtoms;
+    int t32 = 32*nAtoms;  int t33 = 33*nAtoms;  int t34 = 34*nAtoms;
+    int t35 = 35*nAtoms;  int t36 = 36*nAtoms;  int t37 = 37*nAtoms;
+    int t38 = 38*nAtoms;  int t39 = 39*nAtoms;  int t40 = 40*nAtoms;
+    int t41 = 41*nAtoms;  int t42 = 42*nAtoms;  int t43 = 43*nAtoms;
+    int t44 = 44*nAtoms;  int t45 = 45*nAtoms;  int t46 = 46*nAtoms;
+    int t47 = 47*nAtoms;  int t48 = 48*nAtoms;  int t49 = 49*nAtoms;
+    int t50 = 50*nAtoms;  int t51 = 51*nAtoms;  int t52 = 52*nAtoms;
+    int t53 = 53*nAtoms;  int t54 = 54*nAtoms;  int t55 = 55*nAtoms;
+    int t56 = 56*nAtoms;  int t57 = 57*nAtoms;  int t58 = 58*nAtoms;
+    int t59 = 59*nAtoms;  int t60 = 60*nAtoms;  int t61 = 61*nAtoms;
+    int t62 = 62*nAtoms;  int t63 = 63*nAtoms;  int t64 = 64*nAtoms;
+    int t65 = 65*nAtoms;  int t66 = 66*nAtoms;  int t67 = 67*nAtoms;
+    int t68 = 68*nAtoms;  int t69 = 69*nAtoms;  int t70 = 70*nAtoms;
+    int t71 = 71*nAtoms;  int t72 = 72*nAtoms;  int t73 = 73*nAtoms;
+    int t74 = 74*nAtoms;  int t75 = 75*nAtoms;  int t76 = 76*nAtoms;
+    int t77 = 77*nAtoms;  int t78 = 78*nAtoms;  int t79 = 79*nAtoms;
+    int t80 = 80*nAtoms;  int t81 = 81*nAtoms;  int t82 = 82*nAtoms;
+    int t83 = 83*nAtoms;  int t84 = 84*nAtoms;  int t85 = 85*nAtoms;
+    int t86 = 86*nAtoms;  int t87 = 87*nAtoms;  int t88 = 88*nAtoms;
+    int t89 = 89*nAtoms;  int t90 = 90*nAtoms;  int t91 = 91*nAtoms;
+    int t92 = 92*nAtoms;  int t93 = 93*nAtoms;  int t94 = 94*nAtoms;
+    int t95 = 95*nAtoms;  int t96 = 96*nAtoms;  int t97 = 97*nAtoms;
+    int t98 = 98*nAtoms;  int t99 = 99*nAtoms;
 
-  // Initialize array for storing the C coefficients. 100 is used as the buffer
-  // length.
-  int sizeCnnd = 100*Nt*Ns*Hs;
-  int sizeCnndAve = 100*Nt*Ns;
-  double* cnnd = (double*) malloc(sizeCnnd*sizeof(double));
-  double* cnndAve = (double*) malloc(sizeCnndAve*sizeof(double));
-  memset(cnnd, 0.0, sizeCnnd*sizeof(double));
-  memset(cnndAve, 0.0, sizeCnndAve*sizeof(double));
+    // Initialize array for storing the C coefficients. 100 is used as the buffer
+    // length.
+    int sizeCnnd = 100*Nt*Ns*Hs;
+    int sizeCnndAve = 100*Nt*Ns;
+    double* cnnd = (double*) malloc(sizeCnnd*sizeof(double));
+    double* cnndAve = (double*) malloc(sizeCnndAve*sizeof(double));
+    memset(cnnd, 0.0, sizeCnnd*sizeof(double));
+    memset(cnndAve, 0.0, sizeCnndAve*sizeof(double));
 
-  // Initialize binning
-  CellList cellList(positions, rCut+cutoffPadding);
+    // Initialize binning
+    CellList cellList(positions, rCut+cutoffPadding);
 
-  // Create a mapping between an atomic index and its internal index in the
-  // output. The list of species is already ordered.
-  map<int, int> ZIndexMap;
-  for (int i = 0; i < species.size(); ++i) {
-      ZIndexMap[species(i)] = i;
-  }
-
-  getAlphaBeta(aOa, bOa, alphas, betas, Ns, lMax, oOeta, oOeta3O2);
-
-  // Loop through the centers
-  for (int i = 0; i < Hs; i++) {
-
-    // Get all neighbours for the central atom i
-    double ix = Hpos[3*i];
-    double iy = Hpos[3*i+1];
-    double iz = Hpos[3*i+2];
-    CellListResult result = cellList.getNeighboursForPosition(ix, iy, iz);
-
-    // Sort the neighbours by type
-    map<int, vector<int>> atomicTypeMap;
-    for (const int &idx : result.indices) {
-        int Z = atomicNumbers(idx);
-        atomicTypeMap[Z].push_back(idx);
-    };
-
-    // Loop through neighbours sorted by type
-    for (const auto &ZIndexPair : atomicTypeMap) {
-
-      // j is the internal index for this atomic number
-      int j = ZIndexMap[ZIndexPair.first];
-      int n_neighbours = ZIndexPair.second.size();
-
-      // Save the neighbour distances into the arrays dx, dy and dz
-      getDeltas(dx, dy, dz, positions, ix, iy, iz, ZIndexPair.second);
-
-      getRsZs(dx, dy, dz, r2, r4, r6, r8, z2, z4, z6, z8, n_neighbours);
-      getCfactors(preCoef, n_neighbours, dx, dy, dz, z2, z4, z6, z8, r2, r4, r6, r8, ReIm2, ReIm3, ReIm4, ReIm5, ReIm6, ReIm7, ReIm8, ReIm9, nAtoms, lMax, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20, t21, t22, t23, t24, t25, t26, t27, t28, t29, t30, t31, t32, t33, t34, t35, t36, t37, t38, t39, t40, t41, t42, t43, t44, t45, t46, t47, t48, t49, t50, t51, t52, t53, t54, t55, t56, t57, t58, t59, t60, t61, t62, t63, t64, t65, t66, t67, t68, t69, t70, t71, t72, t73, t74, t75, t76, t77, t78, t79, t80, t81, t82, t83, t84, t85, t86, t87, t88, t89, t90, t91, t92, t93, t94, t95, t96, t97, t98, t99);
-      getC(cnnd, preCoef, dx, dy, dz, r2, bOa, aOa, exes, nAtoms, n_neighbours, Ns, Nt, lMax, i, j, Nx2, Nx3, Nx4, Nx5, Nx6, Nx7, Nx8, Nx9, Nx10, Nx11, Nx12, Nx13, Nx14, Nx15, Nx16, Nx17, Nx18, Nx19, Nx20, Nx21, Nx22, Nx23, Nx24, Nx25, Nx26, Nx27, Nx28, Nx29, Nx30, Nx31, Nx32, Nx33, Nx34, Nx35, Nx36, Nx37, Nx38, Nx39, Nx40, Nx41, Nx42, Nx43, Nx44, Nx45, Nx46, Nx47, Nx48, Nx49, Nx50, Nx51, Nx52, Nx53, Nx54, Nx55, Nx56, Nx57, Nx58, Nx59, Nx60, Nx61, Nx62, Nx63, Nx64, Nx65, Nx66, Nx67, Nx68, Nx69, Nx70, Nx71, Nx72, Nx73, Nx74, Nx75, Nx76, Nx77, Nx78, Nx79, Nx80, Nx81, Nx82, Nx83, Nx84, Nx85, Nx86, Nx87, Nx88, Nx89, Nx90, Nx91, Nx92, Nx93, Nx94, Nx95, Nx96, Nx97, Nx98, Nx99, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20, t21, t22, t23, t24, t25, t26, t27, t28, t29, t30, t31, t32, t33, t34, t35, t36, t37, t38, t39, t40, t41, t42, t43, t44, t45, t46, t47, t48, t49, t50, t51, t52, t53, t54, t55, t56, t57, t58, t59, t60, t61, t62, t63, t64, t65, t66, t67, t68, t69, t70, t71, t72, t73, t74, t75, t76, t77, t78, t79, t80, t81, t82, t83, t84, t85, t86, t87, t88, t89, t90, t91, t92, t93, t94, t95, t96, t97, t98, t99);
+    // Create a mapping between an atomic index and its internal index in the
+    // output. The list of species is already ordered.
+    map<int, int> ZIndexMap;
+    for (int i = 0; i < species.size(); ++i) {
+        ZIndexMap[species(i)] = i;
     }
-  }
 
-  free(dx);
-  free(dy);
-  free(dz);
-  free(z2);
-  free(z4);
-  free(z6);
-  free(z8);
-  free(r2);
-  free(r4);
-  free(r6);
-  free(r8);
-  free(ReIm2);
-  free(ReIm3);
-  free(ReIm4);
-  free(ReIm5);
-  free(ReIm6);
-  free(ReIm7);
-  free(ReIm8);
-  free(ReIm9);
-  free(exes);
-  free(preCoef);
-  free(bOa);
-  free(aOa);
+    getAlphaBeta(aOa, bOa, alphas, betas, Ns, lMax, oOeta, oOeta3O2);
+
+    // Loop through the centers
+    for (int i = 0; i < Hs; i++) {
+
+        // Get all neighbours for the central atom i
+        double ix = Hpos[3*i];
+        double iy = Hpos[3*i+1];
+        double iz = Hpos[3*i+2];
+        CellListResult result = cellList.getNeighboursForPosition(ix, iy, iz);
+
+        // Sort the neighbours by type
+        map<int, vector<int>> atomicTypeMap;
+        for (const int &idx : result.indices) {
+            int Z = atomicNumbers(idx);
+            atomicTypeMap[Z].push_back(idx);
+        };
+
+        // Loop through neighbours sorted by type
+        for (const auto &ZIndexPair : atomicTypeMap) {
+
+            // j is the internal index for this atomic number
+            int j = ZIndexMap[ZIndexPair.first];
+            int n_neighbours = ZIndexPair.second.size();
+
+            // Save the neighbour distances into the arrays dx, dy and dz
+            getDeltas(dx, dy, dz, positions, ix, iy, iz, ZIndexPair.second);
+
+            getRsZs(dx, dy, dz, r2, r4, r6, r8, z2, z4, z6, z8, n_neighbours);
+            getCfactors(preCoef, n_neighbours, dx, dy, dz, z2, z4, z6, z8, r2, r4, r6, r8, ReIm2, ReIm3, ReIm4, ReIm5, ReIm6, ReIm7, ReIm8, ReIm9, nAtoms, lMax, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20, t21, t22, t23, t24, t25, t26, t27, t28, t29, t30, t31, t32, t33, t34, t35, t36, t37, t38, t39, t40, t41, t42, t43, t44, t45, t46, t47, t48, t49, t50, t51, t52, t53, t54, t55, t56, t57, t58, t59, t60, t61, t62, t63, t64, t65, t66, t67, t68, t69, t70, t71, t72, t73, t74, t75, t76, t77, t78, t79, t80, t81, t82, t83, t84, t85, t86, t87, t88, t89, t90, t91, t92, t93, t94, t95, t96, t97, t98, t99);
+            getC(cnnd, preCoef, dx, dy, dz, r2, bOa, aOa, exes, nAtoms, n_neighbours, Ns, Nt, lMax, i, j, Nx2, Nx3, Nx4, Nx5, Nx6, Nx7, Nx8, Nx9, Nx10, Nx11, Nx12, Nx13, Nx14, Nx15, Nx16, Nx17, Nx18, Nx19, Nx20, Nx21, Nx22, Nx23, Nx24, Nx25, Nx26, Nx27, Nx28, Nx29, Nx30, Nx31, Nx32, Nx33, Nx34, Nx35, Nx36, Nx37, Nx38, Nx39, Nx40, Nx41, Nx42, Nx43, Nx44, Nx45, Nx46, Nx47, Nx48, Nx49, Nx50, Nx51, Nx52, Nx53, Nx54, Nx55, Nx56, Nx57, Nx58, Nx59, Nx60, Nx61, Nx62, Nx63, Nx64, Nx65, Nx66, Nx67, Nx68, Nx69, Nx70, Nx71, Nx72, Nx73, Nx74, Nx75, Nx76, Nx77, Nx78, Nx79, Nx80, Nx81, Nx82, Nx83, Nx84, Nx85, Nx86, Nx87, Nx88, Nx89, Nx90, Nx91, Nx92, Nx93, Nx94, Nx95, Nx96, Nx97, Nx98, Nx99, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20, t21, t22, t23, t24, t25, t26, t27, t28, t29, t30, t31, t32, t33, t34, t35, t36, t37, t38, t39, t40, t41, t42, t43, t44, t45, t46, t47, t48, t49, t50, t51, t52, t53, t54, t55, t56, t57, t58, t59, t60, t61, t62, t63, t64, t65, t66, t67, t68, t69, t70, t71, t72, t73, t74, t75, t76, t77, t78, t79, t80, t81, t82, t83, t84, t85, t86, t87, t88, t89, t90, t91, t92, t93, t94, t95, t96, t97, t98, t99);
+        }
+    }
+
+    //free(dx);
+    //free(dy);
+    //free(dz);
+    //free(z2);
+    //free(z4);
+    //free(z6);
+    //free(z8);
+    //free(r2);
+    //free(r4);
+    //free(r6);
+    //free(r8);
+    //free(ReIm2);
+    //free(ReIm3);
+    //free(ReIm4);
+    //free(ReIm5);
+    //free(ReIm6);
+    //free(ReIm7);
+    //free(ReIm8);
+    //free(ReIm9);
+    //free(exes);
+    //free(preCoef);
+    //free(bOa);
+    //free(aOa);
 
     if (average == "inner") {
         // average over axis 0 in cnnd matrix
         for (int k = 0; k < Hs; k++) {
             for (int k1 = 0; k1 < 100*Nt*Ns; k1++) {
-                cnndAve[k1] += cnnd[k1 + 100*Nt*Ns * k]
-                //x + m_width * y
-                ;
-            };
-        };
+                cnndAve[k1] += cnnd[k1 + 100*Nt*Ns * k];
+            }
+        }
         for (int k1 = 0; k1 < 100*Nt*Ns; k1++) {
             cnndAve[k1] = cnndAve[k1] / (double)Hs;
-        };
-        getP(c, cnndAve, Ns, Nt, 1, lMax, crossover);
         }
-     else {
-         getP(c, cnnd, Ns, Nt, Hs, lMax, crossover);
-     }
+        getP(c, cnndAve, Ns, Nt, 1, lMax, crossover);
+    } else {
+        getP(c, cnnd, Ns, Nt, Hs, lMax, crossover);
+    }
 
-  free(cnnd);
+    //free(cnnd);
+    //free(cnndAve);
 
-  return;
+    return;
 }

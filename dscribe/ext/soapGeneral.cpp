@@ -1919,7 +1919,6 @@ void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::ar
             getC(Cs, ws, rw2, gss, summed, rCut, lMax, rsize, nMax, isCenter, alpha);
             accumC(Cts, Cs, lMax, nMax, j);
             
-
             free(Flir);
             free(Ylmi);
             free(summed);
@@ -1951,4 +1950,5 @@ void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::ar
     free(pluExp);
     free(Cs);
     free(Cts);
+    free(CtsAve);
 }
