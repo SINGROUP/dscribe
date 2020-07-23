@@ -798,11 +798,15 @@ void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_
     // Initialize array for storing the C coefficients. 100 is used as the buffer
     // length.
     int sizeCnnd = 100*Nt*Ns*Hs;
-    int sizeCnndAve = 100*Nt*Ns;
+    int sizeCnndAve;
     double* cnnd = (double*) malloc(sizeCnnd*sizeof(double));
-    double* cnndAve = (double*) malloc(sizeCnndAve*sizeof(double));
+    double* cnndAve;
     memset(cnnd, 0.0, sizeCnnd*sizeof(double));
-    memset(cnndAve, 0.0, sizeCnndAve*sizeof(double));
+    if (average == "inner") {
+        int sizeCnndAve = 100*Nt*Ns;
+        cnndAve = (double*) malloc(sizeCnndAve*sizeof(double));
+        memset(cnndAve, 0.0, sizeCnndAve*sizeof(double));
+    }
 
     // Initialize binning
     CellList cellList(positions, rCut+cutoffPadding);
@@ -872,23 +876,25 @@ void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_
     free(bOa);
     free(aOa);
 
-    //if (average == "inner") {
-        //// average over axis 0 in cnnd matrix
-        //for (int k = 0; k < Hs; k++) {
-            //for (int k1 = 0; k1 < 100*Nt*Ns; k1++) {
-                //cnndAve[k1] += cnnd[k1 + 100*Nt*Ns * k];
-            //}
-        //}
-        //for (int k1 = 0; k1 < 100*Nt*Ns; k1++) {
-            //cnndAve[k1] = cnndAve[k1] / (double)Hs;
-        //}
-        //getP(c, cnndAve, Ns, Nt, 1, lMax, crossover);
-    //} else {
-    getP(c, cnnd, Ns, Nt, Hs, lMax, crossover);
-    //}
+    // If inner averaging is requested, average the coefficients over the
+    // positions (axis 0 in cnnd matrix) before calculating the power spectrum.
+    if (average == "inner") {
+        for (int i = 0; i < Hs; i++) {
+            for (int j = 0; j < 100*Nt*Ns; j++) {
+                cnndAve[j] += cnnd[j + 100*Nt*Ns * i];
+            }
+        }
+        for (int j = 0; j < 100*Nt*Ns; j++) {
+            cnndAve[j] = cnndAve[j] / (double)Hs;
+        }
+        getP(c, cnndAve, Ns, Nt, 1, lMax, crossover);
+        free(cnndAve);
+    // Regular power spectrum without averaging
+    } else {
+        getP(c, cnnd, Ns, Nt, Hs, lMax, crossover);
+    }
 
     free(cnnd);
-    free(cnndAve);
 
     return;
 }
