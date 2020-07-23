@@ -1,0 +1,89 @@
+
+/* ****************************************************** 
+   *        Created with wxMaxima version 19.07.0       * 
+   ****************************************************** */
+body {
+  background-color: rgb(255,255,255);
+}
+.input {
+  color: 
+rgb(0,0,255);
+}
+.comment {
+  color: rgb(0,0,0);
+  background-color: rgb(255,255,255);
+  padding: 2mm;
+}
+.code_variable {
+  color: 
+rgb(0,128,0);
+}
+p {
+  margin-top: 0em;
+  margin-bottom: 0em;
+}
+.code_function {
+
+  color: rgb(128,0,0);
+}
+.code_comment {
+  color: rgb(64,64,64);
+}
+.code_number {
+  color: rgb(128,64,0);
+}
+.code_string {
+  color: rgb(0,0,128);
+}
+.code_operator {
+  color: rgb(0,0,128);
+}
+.code_endofline {
+  color: rgb(192,192,192);}
+img {
+  -ms-interpolation-mode: bicubic;
+}
+.image {
+  color: rgb(0,0,0);
+  padding: 2mm;
+}
+.section {
+  color: rgb(0,0,0);
+  font-size: 1.5em;
+  padding: 2mm;
+}
+.subsect {
+  color: rgb(0,0,0);
+  font-size: 1.2em;
+  padding: 2mm;
+}
+.subsubsect {
+  color: rgb(0,0,0);
+  font-size: 1.2em;
+  padding: 2mm;
+}
+.heading5 {
+  color: rgb(0,0,0);
+  font-size: 1.2em;
+  padding: 2mm;
+}
+.heading6 {
+  color: rgb(0,0,0);
+  font-size: 1.2em;
+  padding: 2mm;
+}
+.title {
+  color: rgb(0,0,0);
+  font-size: 2em;
+  padding: 2mm;
+}
+.prompt {
+  color: rgb(255,0,0);
+}
+table {
+  border: 0px;
+}
+td {
+  vertical-align: top;
+  padding: 1mm;
+}

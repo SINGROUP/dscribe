@@ -1,0 +1,87 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage[dvipsnames]{xcolor}
+
+
+\begin{document}
+
+\title{Soap by Tesseral Spherical Harmonis}
+\author{Aki Morooka}
+
+\maketitle
+
+\begin{abstract}
+This is a documentation on the derivatives of the SOAP spectrum.
+\end{abstract}
+
+\section*{Steps}
+In short: 
+
+\textcolor{orange}{step 1)} Open real\_spherical\_harmonics.wxmx, and run the function definitions.
+
+\textcolor{orange}{step 2)} run the cell with
+\begin{verbatim}
+              h[i,j] := rlY(i-1,-(i-j),x,y,z);
+              genmatrix(h,5,5*2-1);
+\end{verbatim}
+
+where "5" is the l in spherical harmonics, and can be replaced to an arbitrary number.
+
+\textcolor{orange}{step 3)} Copy the matrix as Matlab/Octave, paste it into a plane text file.
+
+\textcolor{orange}{step 4)} Delete char "[" and "]". And replace char ";" to ","
+
+\textcolor{orange}{step 5)} In mat2c.py change the "test.txt" to the file name you used to copy paste the matrix, in line
+
+\begin{verbatim}
+        mat = np.loadtxt("test.txt", dtype = "U16384") # Change me
+\end{verbatim}
+
+\textcolor{orange}{step 6)} Run python3 mat2c.py, this will produce files tesseral\_mat\_nopow.txt and tesseral\_mat\_nopow.txt.
+
+\textcolor{orange}{step 7)} Finally, run  python3 printMat.py. This will produce the file
+\begin{verbatim}
+               "finalSoapFunctionsWithoutSqrtPi3.txt"
+\end{verbatim}
+
+\textcolor{red} {CAUTION: This will erase the file first.}
+
+\textcolor{orange}{step 8)} Copy paste the list of soap functions to a c or cpp source file. And multiplty them by
+\begin{equation}
+    %\label{simple_equation}
+     \sqrt(\pi)^3
+\end{equation}
+The only thing missing now is the radial basis, but you only need to multiply the $\alpha$ and $\beta$ terms, and the exponent term.
+
+\textcolor{red} {CAUTION: Do not forget to multiply $\pi^{3/2}$ to the functions.}
+
+
+\newpage
+
+\section*{Structure of the Final File}
+\begin{itemize}
+\item the first line is the l=0 term, then the next 3 lines are the l=1 tern, then the next 5 are l=2 terms and so on.
+
+\item the $m$'s run from $m_\text{min}$ to $m_\text{max}$ by 1 step every line startin with new $l$.
+
+\item The $rr=r^2$ and "to the power of" are just numbers after a variable, for example $x2 = x^2$, $rr^2 = r^4$ and so on. The reason for this is to precalculate the powers so it is not done in real time, which would significantly slow down the code if done.
+
+\item There are obvious, and not so obvoius patterns, where you can reuse the computations from before, but in general, just precalculating the power terms would be fast enough.
+
+\item In c or cpp, the $x,y,z$ and ``$rr$ will be the distance from the soap-point to the atoms, which would be looped over i, so it would be x[i], rr[i], x2[i], rr3[i] and so on. You can run 
+\begin{verbatim}
+                      python3 putIs.py 
+\end{verbatim}
+to get the file with the [i]'s,
+\begin{verbatim}
+          "finalSoapFunctionsWithoutSqrtPi3Is.txt"
+\end{verbatim}
+\end{itemize}
+
+\section*{Final notes}
+
+For the dericvatie forms, there are slight modifications that need to be made, but the basic idea is the same. Please read SoapDerivaties.pdf for the implementation.
+
+
+\end{document}

@@ -44,7 +44,8 @@ def remove_power_in_matrix(mat):
 
 if __name__ == "__main__":
     # dtype large so that string isn't cut off
-    mat = np.loadtxt("tesseralMat.mat", dtype = "U16384")
+#    mat = np.loadtxt("tesseralMat.mat", dtype = "U16384")
+    mat = np.loadtxt("test.txt", dtype = "U16384") # Change me
     print(mat.shape)
     evalf_mat = evaluate_matrix(mat)
     no_pow_mat = remove_power_in_matrix(evalf_mat)

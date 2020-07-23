@@ -25,6 +25,7 @@ limitations under the License.
 
 #define PI2 9.86960440108936
 #define PI 3.14159265359
+#define sqrtPI3 5.568327996831707
 #define PIHalf 1.57079632679490
 //===========================================================
 inline int getCrosNum(int n)
@@ -248,13 +249,14 @@ void getCfactors(double* preCoef, int Asize, double* x, double* y, double* z, do
     /*c22Re*/  preCoef[t3+i] =      ReIm2[2*i];
     /*c22Im*/  preCoef[t4+i] =      ReIm2[i2+1];
     if (lMax > 2){
-      /*c30  */  preCoef[t5+i] = z[i]*(-3.0*x[i]*x[i] - 3.0*y[i]*y[i] + 2.0*z2[i]);// c30c*z[i];
-      /*c31Re*/  preCoef[t6+i] = x[i]*(x[i]*x[i] + y[i]*y[i] - 4.0*z2[i]);//      x[i]*c31c;
-      /*c31Im*/  preCoef[t7+i] = x[i]*(x[i]*x[i] - 3.0*y[i]*y[i]);//    y[i]*c31c;
-      /*c32Re*/  preCoef[t8+i] = z[i]*(x[i]*x[i] - y[i]*y[i]);// z[i]*ReIm2[i2];
-      /*c32Im*/  preCoef[t9+i] = y[i]*(x[i]*x[i] + y[i]*y[i] - 4.0*z2[i]);// z[i]*ReIm2[i2+1];
-      /*c33Re*/  preCoef[t10+i] = x[i]*y[i]*z[i]; //     ReIm3[i2  ];
-      /*c33Im*/  preCoef[t11+i] = y[i]*(3.0*x[i]*x[i] - y[i]*y[i]);//      ReIm3[i2+1];
+      /*c30  */  preCoef[t5+i] = 0.373176332590115*sqrtPI3*z[i]*(-3.0*x[i]*x[i] - 3.0*y[i]*y[i] + 2.0*z2[i]);// c30c*z[i];
+
+      /*c31Re*/  preCoef[t6+i] = -0.457045799464466*sqrtPI3*x[i]*(x[i]*x[i] + y[i]*y[i] - 4.0*z2[i]);//      x[i]*c31c;
+      /*c31Im*/  preCoef[t7+i] = 0.590043589926644*sqrtPI3*x[i]*(x[i]*x[i] - 3.0*y[i]*y[i]);//    y[i]*c31c;
+      /*c32Re*/  preCoef[t8+i] = 1.44530572132028*sqrtPI3*z[i]*(x[i]*x[i] - y[i]*y[i]);// z[i]*ReIm2[i2];
+      /*c32Im*/  preCoef[t9+i] = -0.457045799464466*sqrtPI3*y[i]*(x[i]*x[i] + y[i]*y[i] - 4.0*z2[i]);// z[i]*ReIm2[i2+1];
+      /*c33Re*/  preCoef[t10+i] = 2.89061144264055*sqrtPI3*x[i]*y[i]*z[i]; //     ReIm3[i2  ];
+      /*c33Im*/  preCoef[t11+i] = 0.590043589926644*sqrtPI3*y[i]*(3.0*x[i]*x[i] - y[i]*y[i]);//      ReIm3[i2+1];
     }
     if (lMax > 3){
       /*c40  */  preCoef[t12+i] = c40c;
@@ -705,13 +707,20 @@ void getPNoCross(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax
         for(int k = 0; k < Ns; k++){
           for(int kd = k; kd < Ns; kd++){
             soapMat[NsNsLmaxTs*i+NsNsLmax*j+ 3*NsNs + shiftN] = prel3*(
-              cs6*Cnnd[NsTs100*i + Ns100*j + 9*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 9*Ns + kd]
-             +cs7*Cnnd[NsTs100*i + Ns100*j + 10*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 10*Ns + kd]
-             +cs7*Cnnd[NsTs100*i + Ns100*j + 11*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 11*Ns + kd]
-             +cs8*Cnnd[NsTs100*i + Ns100*j + 12*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 12*Ns + kd]
-             +cs8*Cnnd[NsTs100*i + Ns100*j + 13*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 13*Ns + kd]
-             +cs9*Cnnd[NsTs100*i + Ns100*j + 14*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 14*Ns + kd]
-             +cs9*Cnnd[NsTs100*i + Ns100*j + 15*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 15*Ns + kd]);
+//              cs6*Cnnd[NsTs100*i + Ns100*j + 9*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 9*Ns + kd]
+//             +cs7*Cnnd[NsTs100*i + Ns100*j + 10*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 10*Ns + kd]
+//             +cs7*Cnnd[NsTs100*i + Ns100*j + 11*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 11*Ns + kd]
+//             +cs8*Cnnd[NsTs100*i + Ns100*j + 12*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 12*Ns + kd]
+//             +cs8*Cnnd[NsTs100*i + Ns100*j + 13*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 13*Ns + kd]
+//             +cs9*Cnnd[NsTs100*i + Ns100*j + 14*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 14*Ns + kd]
+//             +cs9*Cnnd[NsTs100*i + Ns100*j + 15*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 15*Ns + kd]);
+              Cnnd[NsTs100*i + Ns100*j + 9*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 9*Ns + kd]
+             +Cnnd[NsTs100*i + Ns100*j + 10*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 10*Ns + kd]
+             +Cnnd[NsTs100*i + Ns100*j + 11*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 11*Ns + kd]
+             +Cnnd[NsTs100*i + Ns100*j + 12*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 12*Ns + kd]
+             +Cnnd[NsTs100*i + Ns100*j + 13*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 13*Ns + kd]
+             +Cnnd[NsTs100*i + Ns100*j + 14*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 14*Ns + kd]
+             +Cnnd[NsTs100*i + Ns100*j + 15*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 15*Ns + kd]);
             shiftN++;
           }
         }
@@ -1010,13 +1019,20 @@ void getPCrossOver(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lM
           for(int k = 0; k < Ns; k++){
             for(int kd = k; kd < Ns; kd++){
               soapMat[NsNsLmaxTs*i+NsNsLmax*shiftT+ 3*NsNs + shiftN] = prel3*(
-                  cs6*Cnnd[NsTs100*i + Ns100*j + 9*Ns + k]*Cnnd[NsTs100*i + Ns100*jd + 9*Ns + kd]
-                  +cs7*Cnnd[NsTs100*i + Ns100*j + 10*Ns + k]*Cnnd[NsTs100*i + Ns100*jd + 10*Ns + kd]
-                  +cs7*Cnnd[NsTs100*i + Ns100*j + 11*Ns + k]*Cnnd[NsTs100*i + Ns100*jd + 11*Ns + kd]
-                  +cs8*Cnnd[NsTs100*i + Ns100*j + 12*Ns + k]*Cnnd[NsTs100*i + Ns100*jd + 12*Ns + kd]
-                  +cs8*Cnnd[NsTs100*i + Ns100*j + 13*Ns + k]*Cnnd[NsTs100*i + Ns100*jd + 13*Ns + kd]
-                  +cs9*Cnnd[NsTs100*i + Ns100*j + 14*Ns + k]*Cnnd[NsTs100*i + Ns100*jd + 14*Ns + kd]
-                  +cs9*Cnnd[NsTs100*i + Ns100*j + 15*Ns + k]*Cnnd[NsTs100*i + Ns100*jd + 15*Ns + kd]);
+//                  cs6*Cnnd[NsTs100*i + Ns100*j + 9*Ns + k]*Cnnd[NsTs100*i + Ns100*jd + 9*Ns + kd]
+//                  +cs7*Cnnd[NsTs100*i + Ns100*j + 10*Ns + k]*Cnnd[NsTs100*i + Ns100*jd + 10*Ns + kd]
+//                  +cs7*Cnnd[NsTs100*i + Ns100*j + 11*Ns + k]*Cnnd[NsTs100*i + Ns100*jd + 11*Ns + kd]
+//                  +cs8*Cnnd[NsTs100*i + Ns100*j + 12*Ns + k]*Cnnd[NsTs100*i + Ns100*jd + 12*Ns + kd]
+//                  +cs8*Cnnd[NsTs100*i + Ns100*j + 13*Ns + k]*Cnnd[NsTs100*i + Ns100*jd + 13*Ns + kd]
+//                  +cs9*Cnnd[NsTs100*i + Ns100*j + 14*Ns + k]*Cnnd[NsTs100*i + Ns100*jd + 14*Ns + kd]
+//                  +cs9*Cnnd[NsTs100*i + Ns100*j + 15*Ns + k]*Cnnd[NsTs100*i + Ns100*jd + 15*Ns + kd]);
+                  Cnnd[NsTs100*i + Ns100*j + 9*Ns + k]*Cnnd[NsTs100*i + Ns100*jd + 9*Ns + kd]
+                  +Cnnd[NsTs100*i + Ns100*j + 10*Ns + k]*Cnnd[NsTs100*i + Ns100*jd + 10*Ns + kd]
+                  +Cnnd[NsTs100*i + Ns100*j + 11*Ns + k]*Cnnd[NsTs100*i + Ns100*jd + 11*Ns + kd]
+                  +Cnnd[NsTs100*i + Ns100*j + 12*Ns + k]*Cnnd[NsTs100*i + Ns100*jd + 12*Ns + kd]
+                  +Cnnd[NsTs100*i + Ns100*j + 13*Ns + k]*Cnnd[NsTs100*i + Ns100*jd + 13*Ns + kd]
+                  +Cnnd[NsTs100*i + Ns100*j + 14*Ns + k]*Cnnd[NsTs100*i + Ns100*jd + 14*Ns + kd]
+                  +Cnnd[NsTs100*i + Ns100*j + 15*Ns + k]*Cnnd[NsTs100*i + Ns100*jd + 15*Ns + kd]);
               shiftN++;
             }
           }
