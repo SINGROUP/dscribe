@@ -1707,9 +1707,8 @@ double* getIntegrand(double* Flir, double* Ylmi,int rsize, int icount, int lMax)
     double realY;
     double imagY;
 
-    for (int i = 0; i < 2*(lMax+1)*rsize*(lMax+1); i++){
-        summed[i] = 0.0;
-    }
+    // Initialize to zero
+    memset(summed, 0.0, 2*(lMax+1)*rsize*(lMax+1)*sizeof(double));
 
     for (int l = 0; l < lMax+1; l++) {
         double summe = 0;
@@ -1726,11 +1725,10 @@ double* getIntegrand(double* Flir, double* Ylmi,int rsize, int icount, int lMax)
     }
     return summed;
 }
-void getC(double* Cs, double* ws, double* rw2, double * gns, double* summed, double rCut,int lMax, int rsize, int gnsize,int* isCenter, double alpha)
+void getC(double* Cs, double* ws, double* rw2, double * gns, double* summed, double rCut, int lMax, int rsize, int gnsize, int* isCenter, double alpha)
 {
-    for (int i = 0; i < 2*(lMax+1)*(lMax+1)*gnsize; i++) {
-        Cs[i] = 0.0;
-    }
+    // Initialize to zero
+    memset(Cs, 0.0, 2*(lMax+1)*(lMax+1)*gnsize*sizeof(double));
 
     for (int n = 0; n < gnsize; n++) {
         //for i0 case
@@ -1765,7 +1763,9 @@ void accumC(double* Cts, double* Cs, int lMax, int nMax, int typeI)
 
 void getSum(double* CtsAve, double* Cts, int Ctssize)
 {
-   for (int k = 0; k < Ctssize; k++) {CtsAve[k] = Cts[k] + CtsAve[k];}; 
+   for (int k = 0; k < Ctssize; k++) {
+       CtsAve[k] = Cts[k] + CtsAve[k];
+   }
 }
 
 /**
