@@ -1765,7 +1765,7 @@ void getSum(double* CtsAve, double* Cts, int Ctssize)
 {
    for (int k = 0; k < Ctssize; k++) {
        CtsAve[k] = Cts[k] + CtsAve[k];
-   }
+   }; 
 }
 
 /**

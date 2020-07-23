@@ -351,7 +351,7 @@ void getCfactors(double* preCoef, int Asize, double* x, double* y, double* z, do
   }
 }
 //================================================================
-void getC(double* C, double* preCoef, double* x, double* y, double* z,double* r2, double* bOa, double* aOa, double* exes,  int totalAN, int Asize, int Ns, int Ntypes, int lMax, int posI, int typeJ, int Nx2, int Nx3, int Nx4, int Nx5, int Nx6, int Nx7, int Nx8, int Nx9, int Nx10, int Nx11, int Nx12, int Nx13, int Nx14, int Nx15, int Nx16, int Nx17, int Nx18, int Nx19, int Nx20, int Nx21, int Nx22, int Nx23, int Nx24, int Nx25, int Nx26, int Nx27, int Nx28, int Nx29, int Nx30, int Nx31, int Nx32, int Nx33, int Nx34, int Nx35, int Nx36, int Nx37, int Nx38, int Nx39, int Nx40, int Nx41, int Nx42, int Nx43, int Nx44, int Nx45, int Nx46, int Nx47, int Nx48, int Nx49, int Nx50, int Nx51, int Nx52, int Nx53, int Nx54, int Nx55, int Nx56, int Nx57, int Nx58, int Nx59, int Nx60, int Nx61, int Nx62, int Nx63, int Nx64, int Nx65, int Nx66, int Nx67, int Nx68, int Nx69, int Nx70, int Nx71, int Nx72, int Nx73, int Nx74, int Nx75, int Nx76, int Nx77, int Nx78, int Nx79, int Nx80, int Nx81, int Nx82, int Nx83, int Nx84, int Nx85, int Nx86, int Nx87, int Nx88, int Nx89, int Nx90, int Nx91, int Nx92, int Nx93, int Nx94, int Nx95, int Nx96, int Nx97, int Nx98, int Nx99, int t2, int t3, int t4, int t5, int t6, int t7, int t8, int t9, int t10, int t11, int t12, int t13, int t14, int t15, int t16, int t17, int t18, int t19, int t20, int t21, int t22, int t23, int t24, int t25, int t26, int t27, int t28, int t29, int t30, int t31, int t32, int t33, int t34, int t35, int t36, int t37, int t38, int t39, int t40, int t41, int t42, int t43, int t44, int t45, int t46, int t47, int t48, int t49, int t50, int t51, int t52, int t53, int t54, int t55, int t56, int t57, int t58, int t59, int t60, int t61, int t62, int t63, int t64, int t65, int t66, int t67, int t68, int t69, int t70, int t71, int t72, int t73, int t74, int t75, int t76, int t77, int t78, int t79, int t80, int t81, int t82, int t83, int t84, int t85, int t86, int t87, int t88, int t89, int t90, int t91, int t92, int t93, int t94, int t95, int t96, int t97, int t98, int t99)
+void getC(double* C, double* preCoef, double* x, double* y, double* z, double* r2, double* bOa, double* aOa, double* exes,  int totalAN, int Asize, int Ns, int Ntypes, int lMax, int posI, int typeJ, int Nx2, int Nx3, int Nx4, int Nx5, int Nx6, int Nx7, int Nx8, int Nx9, int Nx10, int Nx11, int Nx12, int Nx13, int Nx14, int Nx15, int Nx16, int Nx17, int Nx18, int Nx19, int Nx20, int Nx21, int Nx22, int Nx23, int Nx24, int Nx25, int Nx26, int Nx27, int Nx28, int Nx29, int Nx30, int Nx31, int Nx32, int Nx33, int Nx34, int Nx35, int Nx36, int Nx37, int Nx38, int Nx39, int Nx40, int Nx41, int Nx42, int Nx43, int Nx44, int Nx45, int Nx46, int Nx47, int Nx48, int Nx49, int Nx50, int Nx51, int Nx52, int Nx53, int Nx54, int Nx55, int Nx56, int Nx57, int Nx58, int Nx59, int Nx60, int Nx61, int Nx62, int Nx63, int Nx64, int Nx65, int Nx66, int Nx67, int Nx68, int Nx69, int Nx70, int Nx71, int Nx72, int Nx73, int Nx74, int Nx75, int Nx76, int Nx77, int Nx78, int Nx79, int Nx80, int Nx81, int Nx82, int Nx83, int Nx84, int Nx85, int Nx86, int Nx87, int Nx88, int Nx89, int Nx90, int Nx91, int Nx92, int Nx93, int Nx94, int Nx95, int Nx96, int Nx97, int Nx98, int Nx99, int t2, int t3, int t4, int t5, int t6, int t7, int t8, int t9, int t10, int t11, int t12, int t13, int t14, int t15, int t16, int t17, int t18, int t19, int t20, int t21, int t22, int t23, int t24, int t25, int t26, int t27, int t28, int t29, int t30, int t31, int t32, int t33, int t34, int t35, int t36, int t37, int t38, int t39, int t40, int t41, int t42, int t43, int t44, int t45, int t46, int t47, int t48, int t49, int t50, int t51, int t52, int t53, int t54, int t55, int t56, int t57, int t58, int t59, int t60, int t61, int t62, int t63, int t64, int t65, int t66, int t67, int t68, int t69, int t70, int t71, int t72, int t73, int t74, int t75, int t76, int t77, int t78, int t79, int t80, int t81, int t82, int t83, int t84, int t85, int t86, int t87, int t88, int t89, int t90, int t91, int t92, int t93, int t94, int t95, int t96, int t97, int t98, int t99)
 {
   if(Asize == 0){return;}
   double sumMe = 0; int NsNs = Ns*Ns;  int NsJ = 100*Ns*typeJ; int LNsNs;
@@ -699,7 +699,7 @@ void getP(py::detail::unchecked_mutable_reference<double, 2> &cArr, double* Cnnd
     }
 }
 
-void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<double> alphasArr, py::array_t<double> betasArr, py::array_t<int> atomicNumbersArr, py::array_t<int> orderedSpeciesArr, double rCut, double cutoffPadding, int nAtoms, int Nt, int Ns, int lMax, int Hs, double eta, bool crossover, string average)
+void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<double> alphasArr, py::array_t<double> betasArr, py::array_t<int> atomicNumbersArr, py::array_t<int> orderedSpeciesArr, double rCut, double cutoffPadding, int nAtoms, int Nt, int nMax, int lMax, int Hs, double eta, bool crossover, string average)
 {
     auto atomicNumbers = atomicNumbersArr.unchecked<1>();
     auto species = orderedSpeciesArr.unchecked<1>();
@@ -711,7 +711,7 @@ void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_
     double oOeta = 1.0/eta;
     double oOeta3O2 = sqrt(oOeta*oOeta*oOeta);
 
-    double NsNs = Ns*Ns;
+    double NsNs = nMax*nMax;
     double* dx  = (double*) malloc(sizeof(double)*nAtoms);
     double* dy  = (double*) malloc(sizeof(double)*nAtoms);
     double* dz  = (double*) malloc(sizeof(double)*nAtoms);
@@ -734,33 +734,33 @@ void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_
     double* exes = (double*) malloc (sizeof(double)*nAtoms);
     double* preCoef = (double*) malloc(96*sizeof(double)*nAtoms);
     double* bOa = (double*) malloc((lMax+1)*NsNs*sizeof(double));
-    double* aOa = (double*) malloc((lMax+1)*Ns*sizeof(double));
+    double* aOa = (double*) malloc((lMax+1)*nMax*sizeof(double));
 
-    int Nx2 = 2*Ns; int Nx3 = 3*Ns; int Nx4 = 4*Ns; int Nx5 = 5*Ns;
-    int Nx6 = 6*Ns; int Nx7 = 7*Ns; int Nx8 = 8*Ns; int Nx9 = 9*Ns;
-    int Nx10 = 10*Ns; int Nx11 = 11*Ns; int Nx12 = 12*Ns; int Nx13 = 13*Ns;
-    int Nx14 = 14*Ns; int Nx15 = 15*Ns; int Nx16 = 16*Ns; int Nx17 = 17*Ns;
-    int Nx18 = 18*Ns; int Nx19 = 19*Ns; int Nx20 = 20*Ns; int Nx21 = 21*Ns;
-    int Nx22 = 22*Ns; int Nx23 = 23*Ns; int Nx24 = 24*Ns; int Nx25 = 25*Ns;
-    int Nx26 = 26*Ns; int Nx27 = 27*Ns; int Nx28 = 28*Ns; int Nx29 = 29*Ns;
-    int Nx30 = 30*Ns; int Nx31 = 31*Ns; int Nx32 = 32*Ns; int Nx33 = 33*Ns;
-    int Nx34 = 34*Ns; int Nx35 = 35*Ns; int Nx36 = 36*Ns; int Nx37 = 37*Ns;
-    int Nx38 = 38*Ns; int Nx39 = 39*Ns; int Nx40 = 40*Ns; int Nx41 = 41*Ns;
-    int Nx42 = 42*Ns; int Nx43 = 43*Ns; int Nx44 = 44*Ns; int Nx45 = 45*Ns;
-    int Nx46 = 46*Ns; int Nx47 = 47*Ns; int Nx48 = 48*Ns; int Nx49 = 49*Ns;
-    int Nx50 = 50*Ns; int Nx51 = 51*Ns; int Nx52 = 52*Ns; int Nx53 = 53*Ns;
-    int Nx54 = 54*Ns; int Nx55 = 55*Ns; int Nx56 = 56*Ns; int Nx57 = 57*Ns;
-    int Nx58 = 58*Ns; int Nx59 = 59*Ns; int Nx60 = 60*Ns; int Nx61 = 61*Ns;
-    int Nx62 = 62*Ns; int Nx63 = 63*Ns; int Nx64 = 64*Ns; int Nx65 = 65*Ns;
-    int Nx66 = 66*Ns; int Nx67 = 67*Ns; int Nx68 = 68*Ns; int Nx69 = 69*Ns;
-    int Nx70 = 70*Ns; int Nx71 = 71*Ns; int Nx72 = 72*Ns; int Nx73 = 73*Ns;
-    int Nx74 = 74*Ns; int Nx75 = 75*Ns; int Nx76 = 76*Ns; int Nx77 = 77*Ns;
-    int Nx78 = 78*Ns; int Nx79 = 79*Ns; int Nx80 = 80*Ns; int Nx81 = 81*Ns;
-    int Nx82 = 82*Ns; int Nx83 = 83*Ns; int Nx84 = 84*Ns; int Nx85 = 85*Ns;
-    int Nx86 = 86*Ns; int Nx87 = 87*Ns; int Nx88 = 88*Ns; int Nx89 = 89*Ns;
-    int Nx90 = 90*Ns; int Nx91 = 91*Ns; int Nx92 = 92*Ns; int Nx93 = 93*Ns;
-    int Nx94 = 94*Ns; int Nx95 = 95*Ns; int Nx96 = 96*Ns; int Nx97 = 97*Ns;
-    int Nx98 = 98*Ns; int Nx99 = 99*Ns;
+    int Nx2 = 2*nMax; int Nx3 = 3*nMax; int Nx4 = 4*nMax; int Nx5 = 5*nMax;
+    int Nx6 = 6*nMax; int Nx7 = 7*nMax; int Nx8 = 8*nMax; int Nx9 = 9*nMax;
+    int Nx10 = 10*nMax; int Nx11 = 11*nMax; int Nx12 = 12*nMax; int Nx13 = 13*nMax;
+    int Nx14 = 14*nMax; int Nx15 = 15*nMax; int Nx16 = 16*nMax; int Nx17 = 17*nMax;
+    int Nx18 = 18*nMax; int Nx19 = 19*nMax; int Nx20 = 20*nMax; int Nx21 = 21*nMax;
+    int Nx22 = 22*nMax; int Nx23 = 23*nMax; int Nx24 = 24*nMax; int Nx25 = 25*nMax;
+    int Nx26 = 26*nMax; int Nx27 = 27*nMax; int Nx28 = 28*nMax; int Nx29 = 29*nMax;
+    int Nx30 = 30*nMax; int Nx31 = 31*nMax; int Nx32 = 32*nMax; int Nx33 = 33*nMax;
+    int Nx34 = 34*nMax; int Nx35 = 35*nMax; int Nx36 = 36*nMax; int Nx37 = 37*nMax;
+    int Nx38 = 38*nMax; int Nx39 = 39*nMax; int Nx40 = 40*nMax; int Nx41 = 41*nMax;
+    int Nx42 = 42*nMax; int Nx43 = 43*nMax; int Nx44 = 44*nMax; int Nx45 = 45*nMax;
+    int Nx46 = 46*nMax; int Nx47 = 47*nMax; int Nx48 = 48*nMax; int Nx49 = 49*nMax;
+    int Nx50 = 50*nMax; int Nx51 = 51*nMax; int Nx52 = 52*nMax; int Nx53 = 53*nMax;
+    int Nx54 = 54*nMax; int Nx55 = 55*nMax; int Nx56 = 56*nMax; int Nx57 = 57*nMax;
+    int Nx58 = 58*nMax; int Nx59 = 59*nMax; int Nx60 = 60*nMax; int Nx61 = 61*nMax;
+    int Nx62 = 62*nMax; int Nx63 = 63*nMax; int Nx64 = 64*nMax; int Nx65 = 65*nMax;
+    int Nx66 = 66*nMax; int Nx67 = 67*nMax; int Nx68 = 68*nMax; int Nx69 = 69*nMax;
+    int Nx70 = 70*nMax; int Nx71 = 71*nMax; int Nx72 = 72*nMax; int Nx73 = 73*nMax;
+    int Nx74 = 74*nMax; int Nx75 = 75*nMax; int Nx76 = 76*nMax; int Nx77 = 77*nMax;
+    int Nx78 = 78*nMax; int Nx79 = 79*nMax; int Nx80 = 80*nMax; int Nx81 = 81*nMax;
+    int Nx82 = 82*nMax; int Nx83 = 83*nMax; int Nx84 = 84*nMax; int Nx85 = 85*nMax;
+    int Nx86 = 86*nMax; int Nx87 = 87*nMax; int Nx88 = 88*nMax; int Nx89 = 89*nMax;
+    int Nx90 = 90*nMax; int Nx91 = 91*nMax; int Nx92 = 92*nMax; int Nx93 = 93*nMax;
+    int Nx94 = 94*nMax; int Nx95 = 95*nMax; int Nx96 = 96*nMax; int Nx97 = 97*nMax;
+    int Nx98 = 98*nMax; int Nx99 = 99*nMax;
     int t2 = 2*nAtoms;  int t3 = 3*nAtoms;  int t4 = 4*nAtoms;
     int t5 = 5*nAtoms;  int t6 = 6*nAtoms;  int t7 = 7*nAtoms;
     int t8 = 8*nAtoms;  int t9 = 9*nAtoms;  int t10 = 10*nAtoms;
@@ -797,13 +797,13 @@ void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_
 
     // Initialize array for storing the C coefficients. 100 is used as the buffer
     // length.
-    int sizeCnnd = 100*Nt*Ns*Hs;
+    int sizeCnnd = 100*Nt*nMax*Hs;
     int sizeCnndAve;
     double* cnnd = (double*) malloc(sizeCnnd*sizeof(double));
     double* cnndAve;
     memset(cnnd, 0.0, sizeCnnd*sizeof(double));
     if (average == "inner") {
-        int sizeCnndAve = 100*Nt*Ns;
+        int sizeCnndAve = 100*Nt*nMax;
         cnndAve = (double*) malloc(sizeCnndAve*sizeof(double));
         memset(cnndAve, 0.0, sizeCnndAve*sizeof(double));
     }
@@ -818,7 +818,7 @@ void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_
         ZIndexMap[species(i)] = i;
     }
 
-    getAlphaBeta(aOa, bOa, alphas, betas, Ns, lMax, oOeta, oOeta3O2);
+    getAlphaBeta(aOa, bOa, alphas, betas, nMax, lMax, oOeta, oOeta3O2);
 
     // Loop through the centers
     for (int i = 0; i < Hs; i++) {
@@ -848,7 +848,7 @@ void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_
 
             getRsZs(dx, dy, dz, r2, r4, r6, r8, z2, z4, z6, z8, n_neighbours);
             getCfactors(preCoef, n_neighbours, dx, dy, dz, z2, z4, z6, z8, r2, r4, r6, r8, ReIm2, ReIm3, ReIm4, ReIm5, ReIm6, ReIm7, ReIm8, ReIm9, nAtoms, lMax, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20, t21, t22, t23, t24, t25, t26, t27, t28, t29, t30, t31, t32, t33, t34, t35, t36, t37, t38, t39, t40, t41, t42, t43, t44, t45, t46, t47, t48, t49, t50, t51, t52, t53, t54, t55, t56, t57, t58, t59, t60, t61, t62, t63, t64, t65, t66, t67, t68, t69, t70, t71, t72, t73, t74, t75, t76, t77, t78, t79, t80, t81, t82, t83, t84, t85, t86, t87, t88, t89, t90, t91, t92, t93, t94, t95, t96, t97, t98, t99);
-            getC(cnnd, preCoef, dx, dy, dz, r2, bOa, aOa, exes, nAtoms, n_neighbours, Ns, Nt, lMax, i, j, Nx2, Nx3, Nx4, Nx5, Nx6, Nx7, Nx8, Nx9, Nx10, Nx11, Nx12, Nx13, Nx14, Nx15, Nx16, Nx17, Nx18, Nx19, Nx20, Nx21, Nx22, Nx23, Nx24, Nx25, Nx26, Nx27, Nx28, Nx29, Nx30, Nx31, Nx32, Nx33, Nx34, Nx35, Nx36, Nx37, Nx38, Nx39, Nx40, Nx41, Nx42, Nx43, Nx44, Nx45, Nx46, Nx47, Nx48, Nx49, Nx50, Nx51, Nx52, Nx53, Nx54, Nx55, Nx56, Nx57, Nx58, Nx59, Nx60, Nx61, Nx62, Nx63, Nx64, Nx65, Nx66, Nx67, Nx68, Nx69, Nx70, Nx71, Nx72, Nx73, Nx74, Nx75, Nx76, Nx77, Nx78, Nx79, Nx80, Nx81, Nx82, Nx83, Nx84, Nx85, Nx86, Nx87, Nx88, Nx89, Nx90, Nx91, Nx92, Nx93, Nx94, Nx95, Nx96, Nx97, Nx98, Nx99, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20, t21, t22, t23, t24, t25, t26, t27, t28, t29, t30, t31, t32, t33, t34, t35, t36, t37, t38, t39, t40, t41, t42, t43, t44, t45, t46, t47, t48, t49, t50, t51, t52, t53, t54, t55, t56, t57, t58, t59, t60, t61, t62, t63, t64, t65, t66, t67, t68, t69, t70, t71, t72, t73, t74, t75, t76, t77, t78, t79, t80, t81, t82, t83, t84, t85, t86, t87, t88, t89, t90, t91, t92, t93, t94, t95, t96, t97, t98, t99);
+            getC(cnnd, preCoef, dx, dy, dz, r2, bOa, aOa, exes, nAtoms, n_neighbours, nMax, Nt, lMax, i, j, Nx2, Nx3, Nx4, Nx5, Nx6, Nx7, Nx8, Nx9, Nx10, Nx11, Nx12, Nx13, Nx14, Nx15, Nx16, Nx17, Nx18, Nx19, Nx20, Nx21, Nx22, Nx23, Nx24, Nx25, Nx26, Nx27, Nx28, Nx29, Nx30, Nx31, Nx32, Nx33, Nx34, Nx35, Nx36, Nx37, Nx38, Nx39, Nx40, Nx41, Nx42, Nx43, Nx44, Nx45, Nx46, Nx47, Nx48, Nx49, Nx50, Nx51, Nx52, Nx53, Nx54, Nx55, Nx56, Nx57, Nx58, Nx59, Nx60, Nx61, Nx62, Nx63, Nx64, Nx65, Nx66, Nx67, Nx68, Nx69, Nx70, Nx71, Nx72, Nx73, Nx74, Nx75, Nx76, Nx77, Nx78, Nx79, Nx80, Nx81, Nx82, Nx83, Nx84, Nx85, Nx86, Nx87, Nx88, Nx89, Nx90, Nx91, Nx92, Nx93, Nx94, Nx95, Nx96, Nx97, Nx98, Nx99, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20, t21, t22, t23, t24, t25, t26, t27, t28, t29, t30, t31, t32, t33, t34, t35, t36, t37, t38, t39, t40, t41, t42, t43, t44, t45, t46, t47, t48, t49, t50, t51, t52, t53, t54, t55, t56, t57, t58, t59, t60, t61, t62, t63, t64, t65, t66, t67, t68, t69, t70, t71, t72, t73, t74, t75, t76, t77, t78, t79, t80, t81, t82, t83, t84, t85, t86, t87, t88, t89, t90, t91, t92, t93, t94, t95, t96, t97, t98, t99);
         }
     }
 
@@ -880,18 +880,18 @@ void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_
     // positions (axis 0 in cnnd matrix) before calculating the power spectrum.
     if (average == "inner") {
         for (int i = 0; i < Hs; i++) {
-            for (int j = 0; j < 100*Nt*Ns; j++) {
-                cnndAve[j] += cnnd[j + 100*Nt*Ns * i];
+            for (int j = 0; j < 100*Nt*nMax; j++) {
+                cnndAve[j] += cnnd[j + 100*Nt*nMax * i];
             }
         }
-        for (int j = 0; j < 100*Nt*Ns; j++) {
+        for (int j = 0; j < 100*Nt*nMax; j++) {
             cnndAve[j] = cnndAve[j] / (double)Hs;
         }
-        getP(c, cnndAve, Ns, Nt, 1, lMax, crossover);
+        getP(c, cnndAve, nMax, Nt, 1, lMax, crossover);
         free(cnndAve);
     // Regular power spectrum without averaging
     } else {
-        getP(c, cnnd, Ns, Nt, Hs, lMax, crossover);
+        getP(c, cnnd, nMax, Nt, Hs, lMax, crossover);
     }
 
     free(cnnd);

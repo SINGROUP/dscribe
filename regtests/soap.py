@@ -59,8 +59,7 @@ H = Atoms(
 )
 
 
-# class SoapTests(TestBaseClass, unittest.TestCase):
-class SoapTests(unittest.TestCase):
+class SoapTests(TestBaseClass, unittest.TestCase):
 
     def test_constructor(self):
         """Tests different valid and invalid constructor values.
@@ -123,8 +122,7 @@ class SoapTests(unittest.TestCase):
 
         # Test that the reported number of features matches the expected
         n_features = desc.get_number_of_features()
-        n_blocks = n_elems*(n_elems+1)/2
-        expected = int((lmax + 1) * nmax * (nmax + 1) / 2 * n_blocks)
+        expected = int((lmax + 1) * (nmax*n_elems) * (nmax*n_elems + 1) / 2)
         self.assertEqual(n_features, expected)
 
         # Test that the outputted number of features matches the reported
@@ -142,21 +140,29 @@ class SoapTests(unittest.TestCase):
 
         # GTO
         desc = SOAP(species=species, rbf="gto", crossover=True, rcut=3, nmax=nmax, lmax=lmax, periodic=False)
-        n_elem_feat = desc.get_number_of_element_features()
+        hh_loc_full = desc.get_location(("H", "H"))
+        oo_loc_full = desc.get_location(("O", "O"))
         full_output = desc.create(H2O, positions=pos)
         desc.crossover = False
+        hh_loc = desc.get_location(("H", "H"))
+        oo_loc = desc.get_location(("O", "O"))
         partial_output = desc.create(H2O, positions=pos)
-        self.assertTrue(np.array_equal(full_output[:, 0:n_elem_feat], partial_output[:, 0:n_elem_feat]))
-        self.assertTrue(np.array_equal(full_output[:, 2*n_elem_feat:], partial_output[:, n_elem_feat:]))
+        self.assertTrue(oo_loc_full != oo_loc)
+        self.assertTrue(np.array_equal(full_output[:, hh_loc_full], partial_output[:, hh_loc]))
+        self.assertTrue(np.array_equal(full_output[:, oo_loc_full], partial_output[:, oo_loc]))
 
         # Polynomial
         desc = SOAP(species=species, rbf="polynomial", crossover=True, rcut=3, nmax=lmax, lmax=lmax, periodic=False)
-        n_elem_feat = desc.get_number_of_element_features()
+        hh_loc_full = desc.get_location(("H", "H"))
+        oo_loc_full = desc.get_location(("O", "O"))
         full_output = desc.create(H2O, pos)
         desc.crossover = False
+        hh_loc = desc.get_location(("H", "H"))
+        oo_loc = desc.get_location(("O", "O"))
         partial_output = desc.create(H2O, pos)
-        self.assertTrue(np.array_equal(full_output[:, 0:n_elem_feat], partial_output[:, 0:n_elem_feat]))
-        self.assertTrue(np.array_equal(full_output[:, 2*n_elem_feat:], partial_output[:, n_elem_feat:]))
+        self.assertTrue(oo_loc_full != oo_loc)
+        self.assertTrue(np.array_equal(full_output[:, hh_loc_full], partial_output[:, hh_loc]))
+        self.assertTrue(np.array_equal(full_output[:, oo_loc_full], partial_output[:, oo_loc]))
 
     def test_get_location_w_crossover(self):
         """Tests that disabling/enabling crossover works as expected.
@@ -261,7 +267,7 @@ class SoapTests(unittest.TestCase):
         lmax = 5
         nmax = 5
         species = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
-        desc = SOAP(species=species, rcut=5, rbf="gto", nmax=nmax, lmax=lmax, periodic=False, sparse=False)
+        desc = SOAP(species=species, rcut=5, rbf="polynomial", nmax=nmax, lmax=lmax, periodic=False, sparse=False)
 
         pos = np.expand_dims(np.linspace(0, 8, 8), 1)
         pos = np.hstack((pos, pos, pos))
@@ -1119,7 +1125,7 @@ class SoapTests(unittest.TestCase):
                     non_orthogonal_soaps = soap_generator.create(niti)
 
                     # Check that the relative or absolute error is small enough
-                    self.asserttrue(np.allclose(orthogonal_soaps, non_orthogonal_soaps, atol=1e-8, rtol=1e-6))
+                    self.assertTrue(np.allclose(orthogonal_soaps, non_orthogonal_soaps, atol=1e-8, rtol=1e-6))
 
     def coefficients_poly(self, system, soap_centers, nmax, lmax, rcut, sigma):
         """Used to numerically calculate the inner product coeffientes of SOAP

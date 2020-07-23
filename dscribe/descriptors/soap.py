@@ -425,26 +425,43 @@ class SOAP(Descriptor):
                     raise ValueError("Invalid chemical species: {}".format(specie))
             numbers.append(specie)
 
+        # See if species defined
+        for number in numbers:
+            if number not in self._atomic_number_set:
+                raise ValueError(
+                    "Atomic number {} was not specified in the species."
+                    .format(number)
+                )
+
         # Change into internal indexing
         numbers = [self.atomic_number_to_index[x] for x in numbers]
         n_elem = self.n_elements
 
         if numbers[0] > numbers[1]:
             numbers = list(reversed(numbers))
-
         i = numbers[0]
         j = numbers[1]
         n_elem_feat_symm = self._nmax*(self._nmax+1)/2*(self._lmax + 1)
-        n_elem_feat_unsymm = self._nmax*self._nmax*(self._lmax + 1)
-        n_elem_feat = n_elem_feat_symm if i == j else n_elem_feat_unsymm
 
-        # The diagonal terms are symmetric and off-diagonal terms are
-        # unsymmetric
-        m_symm = i + int(j > i)
-        m_unsymm = j + i*n_elem - i*(i+1)/2 - m_symm
+        if self.crossover:
+            n_elem_feat_unsymm = self._nmax*self._nmax*(self._lmax + 1)
+            n_elem_feat = n_elem_feat_symm if i == j else n_elem_feat_unsymm
 
-        start = int(m_symm*n_elem_feat_symm+m_unsymm*n_elem_feat_unsymm)
-        end = int(start+n_elem_feat)
+            # The diagonal terms are symmetric and off-diagonal terms are
+            # unsymmetric
+            m_symm = i + int(j > i)
+            m_unsymm = j + i*n_elem - i*(i+1)/2 - m_symm
+
+            start = int(m_symm*n_elem_feat_symm+m_unsymm*n_elem_feat_unsymm)
+            end = int(start+n_elem_feat)
+        else:
+            if i != j:
+                raise ValueError(
+                    "Crossover is set to False. No cross-species output "
+                    "available"
+                )
+            start = int(i*n_elem_feat_symm)
+            end = int(start+n_elem_feat_symm)
 
         return slice(start, end)
 
