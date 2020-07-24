@@ -1981,7 +1981,7 @@ See the License for the specific language governing permissions and
 limitations under the License.</p>
 <dl class="py class">
 <dt id="dscribe.descriptors.soap.SOAP">
-<em class="property">class </em><code class="sig-prename descclassname">dscribe.descriptors.soap.</code><code class="sig-name descname">SOAP</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rcut</span></em>, <em class="sig-param"><span class="n">nmax</span></em>, <em class="sig-param"><span class="n">lmax</span></em>, <em class="sig-param"><span class="n">sigma</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">rbf</span><span class="o">=</span><span class="default_value">'gto'</span></em>, <em class="sig-param"><span class="n">species</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">periodic</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">crossover</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">average</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">sparse</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.descriptors.soap.</code><code class="sig-name descname">SOAP</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rcut</span></em>, <em class="sig-param"><span class="n">nmax</span></em>, <em class="sig-param"><span class="n">lmax</span></em>, <em class="sig-param"><span class="n">sigma</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">rbf</span><span class="o">=</span><span class="default_value">'gto'</span></em>, <em class="sig-param"><span class="n">species</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">periodic</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">crossover</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">average</span><span class="o">=</span><span class="default_value">'off'</span></em>, <em class="sig-param"><span class="n">sparse</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dscribe.descriptors.descriptor.Descriptor" title="dscribe.descriptors.descriptor.Descriptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.descriptors.descriptor.Descriptor</span></code></a></p>
 <p>Class for generating a partial power spectrum from Smooth Overlap of
 Atomic Orbitals (SOAP). This implementation uses real (tesseral) spherical
@@ -2030,8 +2030,16 @@ and Z’. If disabled, the power spectrum does not contain
 cross-species information and is only run over each unique
 species Z. Turned on by default to correspond to the original
 definition</p></li>
-<li><p><strong>average</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Whether to build an average output for all selected
-positions.</p></li>
+<li><p><strong>average</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – <p>The averaging mode over the centers of interest.
+Valid options are:</p>
+<blockquote>
+<div><ul>
+<li><p>”off”: No averaging.</p></li>
+<li><p>”inner”: Averaging over atoms before summing up the magnetic quantum numbers.</p></li>
+<li><p>”outer”: Averaging over the power spectrum of different atoms.</p></li>
+</ul>
+</div></blockquote>
+</p></li>
 <li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
 dense numpy array.</p></li>
 </ul>
@@ -2170,48 +2178,16 @@ orthonormalized polynomial radial basis set as the second item.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="dscribe.descriptors.soap.SOAP.get_flattened_index">
-<code class="sig-name descname">get_flattened_index</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">i</span></em>, <em class="sig-param"><span class="n">j</span></em>, <em class="sig-param"><span class="n">n</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.get_flattened_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.get_flattened_index" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the 1D index of an element in an upper diagonal matrix that
-has been flattened by iterating over the elements from left to right
-and top to bottom.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="dscribe.descriptors.soap.SOAP.get_full_space_output">
-<code class="sig-name descname">get_full_space_output</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sub_output</span></em>, <em class="sig-param"><span class="n">sub_elements</span></em>, <em class="sig-param"><span class="n">full_elements_sorted</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.get_full_space_output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.get_full_space_output" title="Permalink to this definition">¶</a></dt>
-<dd><p>Used to partition the SOAP output to different locations depending
-on the interacting elements. SOAPLite return the output partitioned by
-the elements present in the given system. This function correctly
-places those results within a bigger chemical space.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sub_output</strong> (<em>np.ndarray</em>) – The output fron SOAPLite</p></li>
-<li><p><strong>sub_elements</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a>) – The atomic numbers present in the subspace</p></li>
-<li><p><strong>full_elements_sorted</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a>) – The atomic numbers present in the full
-space, sorted.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The given SOAP output mapped to the full chemical space.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>np.ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt id="dscribe.descriptors.soap.SOAP.get_location">
 <code class="sig-name descname">get_location</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">species</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.get_location"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.get_location" title="Permalink to this definition">¶</a></dt>
 <dd><p>Can be used to query the location of a species combination in the
 the flattened output.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>species</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.8)"><em>tuple</em></a>) – A tuple containing a species combination as
-chemical symbols or atomic numbers. The tuple can be for
-example: (“H”, “O”) or (1, 6)</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>species</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.8)"><em>tuple</em></a>) – A tuple containing a pair of species as chemical</p></li>
+<li><p><strong>or atomic numbers. The tuple can be for example</strong> (<em>symbols</em>) – </p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>slice containing the location of the specified species
@@ -2224,21 +2200,6 @@ can be directly used to target ranges in the output.</p>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.8)"><strong>ValueError</strong></a> – If the requested species combination is not in the
     output or if invalid species defined.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="dscribe.descriptors.soap.SOAP.get_number_of_element_features">
-<code class="sig-name descname">get_number_of_element_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.get_number_of_element_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.get_number_of_element_features" title="Permalink to this definition">¶</a></dt>
-<dd><p>Used to query the number of elements in the SOAP feature space for
-a single element pair.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>The number of features per element pair.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -2260,7 +2221,7 @@ will have.</p>
 
 <dl class="py method">
 <dt id="dscribe.descriptors.soap.SOAP.get_soap_locals_gto">
-<code class="sig-name descname">get_soap_locals_gto</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">centers</span></em>, <em class="sig-param"><span class="n">alphas</span></em>, <em class="sig-param"><span class="n">betas</span></em>, <em class="sig-param"><span class="n">rcut</span></em>, <em class="sig-param"><span class="n">cutoff_padding</span></em>, <em class="sig-param"><span class="n">nmax</span></em>, <em class="sig-param"><span class="n">lmax</span></em>, <em class="sig-param"><span class="n">eta</span></em>, <em class="sig-param"><span class="n">crossover</span></em>, <em class="sig-param"><span class="n">atomic_numbers</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.get_soap_locals_gto"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.get_soap_locals_gto" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_soap_locals_gto</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">centers</span></em>, <em class="sig-param"><span class="n">alphas</span></em>, <em class="sig-param"><span class="n">betas</span></em>, <em class="sig-param"><span class="n">rcut</span></em>, <em class="sig-param"><span class="n">cutoff_padding</span></em>, <em class="sig-param"><span class="n">nmax</span></em>, <em class="sig-param"><span class="n">lmax</span></em>, <em class="sig-param"><span class="n">eta</span></em>, <em class="sig-param"><span class="n">crossover</span></em>, <em class="sig-param"><span class="n">average</span></em>, <em class="sig-param"><span class="n">atomic_numbers</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.get_soap_locals_gto"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.get_soap_locals_gto" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the SOAP output for the given positions using the gto radial
 basis.</p>
 <dl class="field-list simple">
@@ -2295,7 +2256,7 @@ ordered by atomic number.</p></li>
 
 <dl class="py method">
 <dt id="dscribe.descriptors.soap.SOAP.get_soap_locals_poly">
-<code class="sig-name descname">get_soap_locals_poly</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">centers</span></em>, <em class="sig-param"><span class="n">rcut</span></em>, <em class="sig-param"><span class="n">cutoff_padding</span></em>, <em class="sig-param"><span class="n">nmax</span></em>, <em class="sig-param"><span class="n">lmax</span></em>, <em class="sig-param"><span class="n">eta</span></em>, <em class="sig-param"><span class="n">crossover</span></em>, <em class="sig-param"><span class="n">atomic_numbers</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.get_soap_locals_poly"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.get_soap_locals_poly" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_soap_locals_poly</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">centers</span></em>, <em class="sig-param"><span class="n">rcut</span></em>, <em class="sig-param"><span class="n">cutoff_padding</span></em>, <em class="sig-param"><span class="n">nmax</span></em>, <em class="sig-param"><span class="n">lmax</span></em>, <em class="sig-param"><span class="n">eta</span></em>, <em class="sig-param"><span class="n">crossover</span></em>, <em class="sig-param"><span class="n">average</span></em>, <em class="sig-param"><span class="n">atomic_numbers</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.get_soap_locals_poly"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.get_soap_locals_poly" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the SOAP output using polynomial radial basis for the given
 positions.
 :param system: Atomic structure for which the SOAP output is</p>
@@ -2329,13 +2290,6 @@ given positions.</p>
 <dd class="field-odd"><p>np.ndarray</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="dscribe.descriptors.soap.SOAP.get_sub_to_full_map">
-<code class="sig-name descname">get_sub_to_full_map</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sub_elements</span></em>, <em class="sig-param"><span class="n">full_elements</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.get_sub_to_full_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.get_sub_to_full_map" title="Permalink to this definition">¶</a></dt>
-<dd><p>Used to map an index in the sub-space of elements to the full
-element-space.</p>
 </dd></dl>
 
 <dl class="py method">
