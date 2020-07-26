@@ -1,7 +1,6 @@
 import numpy as np
 from dscribe.descriptors import LMBTR
 from ase.build import bulk
-from ase.visualize import view
 import matplotlib.pyplot as mpl
 
 # Setup
@@ -45,7 +44,6 @@ add_adsorbate(slab_ads, 'H', 1.5, 'hcp')
 hcp_pos = slab_ads.get_positions()[-1]
 add_adsorbate(slab_ads, 'H', 1.5, 'fcc')
 fcc_pos = slab_ads.get_positions()[-1]
-view(slab_ads)
 
 # LMBTR Setup
 lmbtr = LMBTR(

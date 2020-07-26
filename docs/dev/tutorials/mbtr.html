@@ -485,9 +485,7 @@ such as clusters and bigger molecules, adding weighting will help in removing
 “noise” coming from atom combinations that are physically very far apart and do
 not have any meaningful direct interaction in the system. The following code
 demonstrates both approaches.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ase.visualize</span> <span class="kn">import</span> <span class="n">view</span>
-
-<span class="n">desc</span> <span class="o">=</span> <span class="n">MBTR</span><span class="p">(</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">desc</span> <span class="o">=</span> <span class="n">MBTR</span><span class="p">(</span>
     <span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">],</span>
     <span class="n">k2</span><span class="o">=</span><span class="p">{</span>
         <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;distance&quot;</span><span class="p">},</span>
@@ -500,7 +498,6 @@ demonstrates both approaches.</p>
 <span class="p">)</span>
 
 <span class="n">system</span> <span class="o">=</span> <span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;C60&quot;</span><span class="p">)</span>
-<span class="n">view</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
 
 <span class="c1"># No weighting</span>
 <span class="n">output_no_weight</span> <span class="o">=</span> <span class="n">desc</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
@@ -516,6 +513,9 @@ demonstrates both approaches.</p>
 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">output_weight</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Exponential weighting&quot;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
 <span class="n">mpl</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># Geometry functions</span>
+
 </pre></div>
 </div>
 <div class="figure align-center" id="id5">

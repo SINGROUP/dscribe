@@ -85,8 +85,6 @@ ax.legend()
 mpl.show()
 
 # Finite
-from ase.visualize import view
-
 desc = MBTR(
     species=["C"],
     k2={
@@ -100,7 +98,6 @@ desc = MBTR(
 )
 
 system = molecule("C60")
-view(system)
 
 # No weighting
 output_no_weight = desc.create(system)

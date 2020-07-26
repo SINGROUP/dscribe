@@ -23,7 +23,7 @@ soap = SOAP(
     rcut=5,
     nmax=8,
     lmax=8,
-    average=True,
+    average="outer",
     sparse=False
 )
 

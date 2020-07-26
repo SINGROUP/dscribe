@@ -18,11 +18,12 @@ limitations under the License.
 #include <math.h>
 #include <map>
 #include <set>
+#include <iostream>
 #include "soapGeneral.h"
 #include "celllist.h"
 
-#define tot (double*) malloc(sizeof(double)*totalAN);
-#define totrs (double*) malloc(sizeof(double)*totalAN*rsize);
+#define tot (double*) malloc(sizeof(double)*nAtoms);
+#define totrs (double*) malloc(sizeof(double)*nAtoms*rsize);
 #define sd sizeof(double)
 #define PI 3.14159265359
 
@@ -1706,12 +1707,10 @@ double* getIntegrand(double* Flir, double* Ylmi,int rsize, int icount, int lMax)
     double realY;
     double imagY;
 
-    for (int i = 0; i < 2*(lMax+1)*rsize*(lMax+1); i++){
-        summed[i] = 0.0;
-    }
+    // Initialize to zero
+    memset(summed, 0.0, 2*(lMax+1)*rsize*(lMax+1)*sizeof(double));
 
     for (int l = 0; l < lMax+1; l++) {
-        double summe = 0;
         for (int m = 0; m < l+1; m++) {
             for (int i = 0; i < icount; i++) {
                 realY = Ylmi[2*(lMax+1)*icount*l + 2*icount*m + 2*i    ];
@@ -1725,124 +1724,123 @@ double* getIntegrand(double* Flir, double* Ylmi,int rsize, int icount, int lMax)
     }
     return summed;
 }
-void getC(double* Cs, double* ws, double* rw2, double * gns, double* summed, double rCut,int lMax, int rsize, int gnsize,int* isCenter, double alpha)
+void getC(double* C, double* ws, double* rw2, double * gns, double* summed, double rCut, int lMax, int rsize, int gnsize, int* isCenter, double alpha)
 {
-    for (int i = 0; i < 2*(lMax+1)*(lMax+1)*gnsize; i++) {
-        Cs[i] = 0.0;
-    }
+    // Initialize to zero
+    memset(C, 0.0, 2*(lMax+1)*(lMax+1)*gnsize*sizeof(double));
 
     for (int n = 0; n < gnsize; n++) {
         //for i0 case
         if (isCenter[0]==1) {
             for (int rw = 0; rw < rsize; rw++) {
-                Cs[2*(lMax+1)*(lMax+1)*n] += 0.5*0.564189583547756*rw2[rw]*ws[rw]*gns[rsize*n + rw]*exp(-alpha*rw2[rw]);
+                C[2*(lMax+1)*(lMax+1)*n] += 0.5*0.564189583547756*rw2[rw]*ws[rw]*gns[rsize*n + rw]*exp(-alpha*rw2[rw]);
             }
         }
         for (int l = 0; l < lMax+1; l++) {
             for (int m = 0; m < l+1; m++) {
                 for (int rw = 0; rw < rsize; rw++) {
-                    Cs[2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m    ] += rw2[rw]*ws[rw]*gns[rsize*n + rw]*summed[2*(lMax+1)*l*rsize + 2*m*rsize + 2*rw    ]; // Re
-                    Cs[2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m + 1] += rw2[rw]*ws[rw]*gns[rsize*n + rw]*summed[2*(lMax+1)*l*rsize + 2*m*rsize + 2*rw + 1]; //Im
+                    C[2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m    ] += rw2[rw]*ws[rw]*gns[rsize*n + rw]*summed[2*(lMax+1)*l*rsize + 2*m*rsize + 2*rw    ]; // Re
+                    C[2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m + 1] += rw2[rw]*ws[rw]*gns[rsize*n + rw]*summed[2*(lMax+1)*l*rsize + 2*m*rsize + 2*rw + 1]; //Im
                 }
             }
         }
     }
     isCenter[0] = 0;
 }
-void accumC(double* Cts, double* Cs, int lMax, int gnsize, int typeI)
+
+void accumC(double* Cs, double* C, int lMax, int nMax, int typeI, int i, int nCoeffs)
 {
-    for (int n = 0; n < gnsize; n++) {
+    for (int n = 0; n < nMax; n++) {
         for (int l = 0; l < lMax+1; l++) {
             for (int m = 0; m < l+1; m++) {
-                Cts[2*typeI*(lMax+1)*(lMax+1)*gnsize +2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m    ] = Cs[2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m    ];
-                Cts[2*typeI*(lMax+1)*(lMax+1)*gnsize +2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m + 1] = Cs[2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m + 1];
+                Cs[i*nCoeffs+2*typeI*(lMax+1)*(lMax+1)*nMax +2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m    ] = C[2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m    ];
+                Cs[i*nCoeffs+2*typeI*(lMax+1)*(lMax+1)*nMax +2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m + 1] = C[2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m + 1];
             }
         }
     }
 }
 
-void getSum(double* CtsAve, double* Cts, int Ctssize)
+/**
+ * Used to calculate the partial power spectrum.
+ *
+ * The power spectrum is multiplied by an l-dependent prefactor
+ * PI*sqrt(8.0/(2.0*l+1.0)); that comes from the normalization of the Wigner D
+ * matrices. This prefactor is mentioned in the errata of the original SOAP
+ * paper: On representing chemical environments, Phys. Rev. B 87, 184115
+ * (2013). Here the square root of the prefactor in the dot-product kernel is
+ * used, so that after a possible dot-product the full prefactor is recovered.
+ */
+void getP(py::detail::unchecked_mutable_reference<double, 2> &Ps, double* Cs, int Nt, int lMax, int nMax, int Hs, double rCut2, int nFeatures, bool crossover, int nCoeffs)
 {
-   for (int k = 0; k < Ctssize; k++) {CtsAve[k] = Cts[k] + CtsAve[k];}; 
-}
+    // The current index in the final power spectrum array.
+    int pIdx = 0;
 
-void getPs(double* Ps, double* Cts,  int Nt, int lMax, int gnsize, bool crossover)
-{
-    int NN = ((gnsize+1)*gnsize)/2;
-    int nTypeComb = crossover ? ((Nt+1)*Nt)/2 : Nt;
-    int nshift = 0;
-    int tshift = 0;
-    for (int i = 0; i < nTypeComb*(lMax+1)*NN; i++) {
-        Ps[i] = 0.0;
-    }
-
-    for (int Z1 = 0; Z1 < Nt; Z1++) {
-        int Z2Limit = crossover ? Nt : Z1+1;
-        for (int Z2 = Z1; Z2 < Z2Limit; Z2++) {
-            for (int l = 0; l < lMax+1; l++) {
-                nshift = 0;
-                for (int N1 = 0; N1 < gnsize; N1++) {
-                    for (int N2 = N1; N2 < gnsize; N2++) {
-                        for (int m = 0; m < l+1; m++) {
-                            if (m==0) {
-                                Ps[tshift*(lMax+1)*NN + l*NN + nshift ]
-                                    +=  Cts[2*Z1*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*N1  + l*2*(lMax+1)] // m=0
-                                    *Cts[2*Z2*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1)]; // m=0
-                            } else {
-                                Ps[tshift*(lMax+1)*NN + l*NN + nshift]
-                                    +=  2*(Cts[2*Z1*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*N1  + l*2*(lMax+1) + 2*m]
-                                            *Cts[2*Z2*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1) + 2*m]
-                                            + Cts[2*Z1*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*N1  + l*2*(lMax+1) + 2*m + 1]
-                                            *Cts[2*Z2*(lMax+1)*(lMax+1)*gnsize + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1) + 2*m + 1]);
+    for (int i = 0; i < Hs; i++) {
+        pIdx = 0;
+        for (int Z1 = 0; Z1 < Nt; Z1++) {
+            int Z2Limit = crossover ? Nt : Z1+1;
+            for (int Z2 = Z1; Z2 < Z2Limit; Z2++) {
+                // If the species are identical, then there is symmetry in the
+                // radial basis and we only loop N2 from N1 to nMax
+                if (Z1 == Z2) {
+                    for (int l = 0; l < lMax+1; l++) {
+                        for (int N1 = 0; N1 < nMax; N1++) {
+                            for (int N2 = N1; N2 < nMax; N2++) {
+                                double sum = 0;
+                                for (int m = 0; m < l+1; m++) {
+                                    if (m == 0) {
+                                        sum += Cs[i*nCoeffs+2*Z1*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N1 + l*2*(lMax+1)] // m=0
+                                            *Cs[i*nCoeffs+2*Z2*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1)]; // m=0
+                                    } else {
+                                        sum += 2*(Cs[i*nCoeffs+2*Z1*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N1 + l*2*(lMax+1) + 2*m]
+                                                *Cs[i*nCoeffs+2*Z2*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1) + 2*m]
+                                                +Cs[i*nCoeffs+2*Z1*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N1 + l*2*(lMax+1) + 2*m + 1]
+                                                *Cs[i*nCoeffs+2*Z2*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1) + 2*m + 1]);
+                                    }
+                                }
+                                Ps(i, pIdx) = PI*sqrt(8.0/(2.0*l+1.0))*39.478417604*rCut2*sum;  // Normalization and other constants
+                                ++pIdx;
                             }
                         }
-                        nshift++;
+                    }
+                // If the species are different, then there is no symmetry in the
+                // radial basis and we have to loop over all pairwise combinations.
+                } else {
+                    for (int l = 0; l < lMax+1; l++) {
+                        for (int N1 = 0; N1 < nMax; N1++) {
+                            for (int N2 = 0; N2 < nMax; N2++) {
+                                double sum = 0;
+                                for (int m = 0; m < l+1; m++) {
+                                    if (m == 0) {
+                                        sum += Cs[i*nCoeffs+2*Z1*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N1 + l*2*(lMax+1)] // m=0
+                                            *Cs[i*nCoeffs+2*Z2*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1)]; // m=0
+                                    } else {
+                                        sum += 2*(Cs[i*nCoeffs+2*Z1*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N1 + l*2*(lMax+1) + 2*m]
+                                                *Cs[i*nCoeffs+2*Z2*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1) + 2*m]
+                                                +Cs[i*nCoeffs+2*Z1*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N1 + l*2*(lMax+1) + 2*m + 1]
+                                                *Cs[i*nCoeffs+2*Z2*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1) + 2*m + 1]);
+                                    }
+                                }
+                                Ps(i, pIdx) = PI*sqrt(8.0/(2.0*l+1.0))*39.478417604*rCut2*sum;  // Normalization and other constants
+                                ++pIdx;
+                            }
+                        }
                     }
                 }
             }
-            tshift++;
         }
     }
 }
-void accumP(double* Phs, double* Ps, int Nt, int lMax, int gnsize, double rCut2, int Ihpos, bool crossover)
-{
-    int tshift=0;
-    int NN = ((gnsize+1)*gnsize)/2;
-    int nTypeComb = crossover ? ((Nt+1)*Nt)/2 : Nt;
-    for (int Z1 = 0; Z1 < Nt; Z1++) {
-        int Z2Limit = crossover ? Nt : Z1+1;
-        for (int Z2 = Z1; Z2 < Z2Limit; Z2++) {
-            for (int l = 0; l < lMax+1; l++) {
-                int nshift=0;
-
-                // The power spectrum is multiplied by an l-dependent prefactor that comes
-                // from the normalization of the Wigner D matrices. This prefactor is
-                // mentioned in the errata of the original SOAP paper: On representing
-                // chemical environments, Phys. Rev. B 87, 184115 (2013). Here the square
-                // root of the prefactor in the dot-product kernel is used, so that after a
-                // possible dot-product the full prefactor is recovered.
-                double prefactor = PI*sqrt(8.0/(2.0*l+1.0));
-
-                for (int N1 = 0; N1 < gnsize; N1++) {
-                    for (int N2 = N1; N2 < gnsize; N2++) {
-                        Phs[Ihpos*nTypeComb*(lMax+1)*NN + tshift*(lMax+1)*NN + l*NN + nshift] = prefactor*39.478417604*rCut2*Ps[tshift*(lMax+1)*NN + l*NN + nshift];// 16*9.869604401089358*Ps[tshift*(lMax+1)*NN + l*NN + nshift];
-                        nshift++;
-                    }
-                }
-            }
-            tshift++;
-        }
-    }
-}
-void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<int> atomicNumbersArr, double rCut, double cutoffPadding, int totalAN, int Nt, int nMax, int lMax, int Hs, double alpha, py::array_t<double> rwArr, py::array_t<double> gssArr, bool crossover, string average)
+void soapGeneral(py::array_t<double> PsArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<int> atomicNumbersArr, py::array_t<int> orderedSpeciesArr, double rCut, double cutoffPadding, int nAtoms, int Nt, int nMax, int lMax, int Hs, double alpha, py::array_t<double> rwArr, py::array_t<double> gssArr, bool crossover, string average)
 {
     auto atomicNumbers = atomicNumbersArr.unchecked<1>();
-    double *c = (double*)cArr.request().ptr;
+    auto species = orderedSpeciesArr.unchecked<1>();
+    auto Ps = PsArr.mutable_unchecked<2>();
     double *Hpos = (double*)HposArr.request().ptr;
     double *rw = (double*)rwArr.request().ptr;
     double *gss = (double*)gssArr.request().ptr;
     double* cf = factorListSet();
-    int* isCenter = (int*)malloc( sizeof(int) );
+    int* isCenter = (int*)malloc(sizeof(int));
     isCenter[0] = 0;
     const int rsize = 100; // The number of points in the radial integration grid
     double rCut2 = rCut*rCut;
@@ -1857,30 +1855,26 @@ void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::ar
     double* oO4arri = totrs;
     double* minExp = totrs;
     double* pluExp = totrs;
-    int Asize = 0;
-    double* Cs = (double*) malloc(2*sd*(lMax+1)*(lMax+1)*nMax);
-    double* Cts = (double*) malloc(2*sd*(lMax+1)*(lMax+1)*nMax*Nt);
-    int Ctssize = 2*(lMax+1)*(lMax+1)*nMax*Nt;
-    double* CtsAve = (double*) malloc(2*sd*(lMax+1)*(lMax+1)*nMax*Nt);
-    double* Ps = crossover ? (double*) malloc((Nt*(Nt+1))/2*sd*(lMax+1)*((nMax+1)*nMax)/2) : (double*) malloc(Nt*sd*(lMax+1)*((nMax+1)*nMax)/2);
-    int n_neighbours;
+    double* C = (double*) malloc(2*sd*(lMax+1)*(lMax+1)*nMax);
+    int nFeatures = crossover ? (Nt*nMax)*(Nt*nMax+1)/2*(lMax+1) : Nt*(lMax+1)*((nMax+1)*nMax)/2;
+
+    // Initialize arrays for storing the C coefficients.
+    int nCoeffs = 2*(lMax+1)*(lMax+1)*nMax*Nt;
+    int nCoeffsAll = nCoeffs*Hs;
+    double* Cs = (double*) malloc(sizeof(double)*nCoeffsAll);
+    double* CsAve;
+    memset(Cs, 0.0, nCoeffsAll*sizeof(double));
+    if (average == "inner") {
+        CsAve = (double*) malloc(nCoeffs*sizeof(double));
+        memset(CsAve, 0.0, nCoeffs*sizeof(double));
+    }
 
     // Create a mapping between an atomic index and its internal index in the
-    // output
+    // output. The list of species is already ordered.
     map<int, int> ZIndexMap;
-    set<int> atomicNumberSet;
-    for (int i = 0; i < totalAN; ++i) {
-        atomicNumberSet.insert(atomicNumbers(i));
-    };
-    int i = 0;
-    for (auto it=atomicNumberSet.begin(); it!=atomicNumberSet.end(); ++it) {
-        ZIndexMap[*it] = i;
-        ++i;
-    };
-
-    for (int i = 0; i < Ctssize; ++i) {
-        CtsAve[i] = 0;
-    };
+    for (int i = 0; i < species.size(); ++i) {
+        ZIndexMap[species(i)] = i;
+    }
 
     // Initialize binning
     CellList cellList(positions, rCut+cutoffPadding);
@@ -1911,7 +1905,7 @@ void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::ar
             double* Ylmi; double* Flir; double* summed;
             isCenter[0] = 0;
 
-            // Notice that due to the numerical integration the the getDeltas
+            // Notice that due to the numerical integration the getDeltas
             // function here has special functionality for positions that are
             // centered on an atom.
             n_neighbours = getDeltas(dx, dy, dz, ris, rw, rCut, oOri, oO4arri, minExp, pluExp, isCenter, alpha, positions, ix, iy, iz, ZIndexPair.second, rsize, i, j);
@@ -1920,28 +1914,34 @@ void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::ar
             Ylmi = getYlmi(dx, dy, dz, oOri, cf, n_neighbours, lMax);
             summed = getIntegrand(Flir, Ylmi, rsize, n_neighbours, lMax);
 
-            getC(Cs, ws, rw2, gss, summed, rCut, lMax, rsize, nMax, isCenter, alpha);
-            accumC(Cts, Cs, lMax, nMax, j);
+            getC(C, ws, rw2, gss, summed, rCut, lMax, rsize, nMax, isCenter, alpha);
+            accumC(Cs, C, lMax, nMax, j, i, nCoeffs);
             
-
             free(Flir);
             free(Ylmi);
             free(summed);
         }
-        if (average == "inner") {
-            getSum(CtsAve, Cts, Ctssize);
-        }
-        else {
-            getPs(Ps, Cts,  Nt, lMax, nMax, crossover);
-            accumP(c, Ps, Nt, lMax, nMax, rCut2, i, crossover);
-        }
     }
-    if (average == "inner") {
-        for (int k = 0; k < Ctssize; k++) {CtsAve[k] = CtsAve[k] / (double)Hs;};
-        getPs(Ps, CtsAve,  Nt, lMax, nMax, crossover);
-        accumP(c, Ps, Nt, lMax, nMax, rCut2, 0, crossover);
-        }
 
+    // If inner averaging is requested, average the coefficients over the
+    // positions (axis 0 in cnnd matrix) before calculating the power spectrum.
+    if (average == "inner") {
+        for (int i = 0; i < Hs; i++) {
+            for (int j = 0; j < nCoeffs; j++) {
+                CsAve[j] += Cs[i*nCoeffs + j];
+            }
+        }
+        for (int j = 0; j < nCoeffs; j++) {
+            CsAve[j] = CsAve[j] / (double)Hs;
+        }
+        getP(Ps, CsAve, Nt, lMax, nMax, 1, rCut2, nFeatures, crossover, nCoeffs);
+        free(CsAve);
+    // Regular power spectrum without averaging
+    } else {
+        getP(Ps, Cs, Nt, lMax, nMax, Hs, rCut2, nFeatures, crossover, nCoeffs);
+    }
+
+    free(Cs);
     free(cf);
     free(dx);
     free(dy);
@@ -1954,7 +1954,5 @@ void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::ar
     free(oO4arri);
     free(minExp);
     free(pluExp);
-    free(Cs);
-    free(Cts);
-    free(Ps);
+    free(C);
 }

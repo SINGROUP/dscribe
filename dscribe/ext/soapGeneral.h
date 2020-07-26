@@ -36,10 +36,8 @@ double legendre_poly(int l, int m, double x);
 double* getYlmi(double* x, double* y, double* z, double* oOri, double* cf, int icount, int lMax);
 double* getIntegrand(double* Flir, double* Ylmi,int rsize, int icount, int lMax);
 void getC(double* Cs, double* ws, double* rw2, double * gns, double* summed, double rCut,int lMax, int rsize, int gnsize,int* isCenter, double alpha);
-void accumC(double* Cts, double* Cs, int lMax, int gnsize, int typeI);
-void getSum(double* CtsAve, double* Cts, int Ctssize);
-void getPs(double* Ps, double* Cts,  int Nt, int lMax, int gnsize, bool crossover);
-void accumP(double* Phs, double* Ps, int Nt, int lMax, int gnsize, double rCut2, int Ihpos, bool crossover);
-void soapGeneral(py::array_t<double> cArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<int> atomicNumbersArr, double rCut, double cutoffPadding, int totalAN, int Nt, int nMax, int lMax, int Hs, double alpha, py::array_t<double> rwArr, py::array_t<double> gssArr, bool crossover, string average);
+void accumC(double* Cs, double* C, int lMax, int gnsize, int typeI, int i, int nCoeffs);
+void getP(py::detail::unchecked_mutable_reference<double, 2> &Ps, double* Cts, int Nt, int lMax, int nMax, int Hs, double rCut2, int nFeatures, bool crossover, int nCoeffs);
+void soapGeneral(py::array_t<double> PsArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<int> atomicNumbersArr, py::array_t<int> orderedSpeciesArr, double rCut, double cutoffPadding, int nAtoms, int Nt, int nMax, int lMax, int Hs, double alpha, py::array_t<double> rwArr, py::array_t<double> gssArr, bool crossover, string average);
 
 #endif

@@ -95,7 +95,7 @@ average_soap = SOAP(
     rcut=rcut,
     nmax=nmax,
     lmax=lmax,
-    average=True,
+    average="outer",
     sparse=False
 )
 
