@@ -598,7 +598,7 @@ void getC(double* C, double* preCoef, double* x, double* y, double* z, double* r
  * (2013). Here the square root of the prefactor in the dot-product kernel is
  * used, so that after a possible dot-product the full prefactor is recovered.
  */
-void getP(py::detail::unchecked_mutable_reference<double, 2> &cArr, double* Cnnd, int nMax, int Nt, int Hs, int lMax, bool crossover){
+void getP(py::detail::unchecked_mutable_reference<double, 2> &Ps, double* Cs, int nMax, int Nt, int Hs, int lMax, bool crossover){
 
     // These commented lines contain the original coefficients that have been
     // precalculated on the lines below.
@@ -665,10 +665,10 @@ void getP(py::detail::unchecked_mutable_reference<double, 2> &cArr, double* Cnnd
                                     int offset = l*l + m;
                                     int coeffIdx = l*(l+1)/2 + int((m+1)/2);
                                     double coefficient = coeffs[coeffIdx];
-                                    sum += coefficient*Cnnd[NsTs100*i + Ns100*Z1 + offset*nMax + N1]*Cnnd[NsTs100*i + Ns100*Z2 + offset*nMax + N2];
+                                    sum += coefficient*Cs[NsTs100*i + Ns100*Z1 + offset*nMax + N1]*Cs[NsTs100*i + Ns100*Z2 + offset*nMax + N2];
                                 }
                                 double prefactor = PI*sqrt(8.0/(2.0*l+1.0));  // Normalization factor
-                                cArr(i, pIdx) = prefactor*sum;
+                                Ps(i, pIdx) = prefactor*sum;
                                 ++pIdx;
                             }
                         }
@@ -685,10 +685,10 @@ void getP(py::detail::unchecked_mutable_reference<double, 2> &cArr, double* Cnnd
                                     int offset = l*l + m;
                                     int coeffIdx = l*(l+1)/2 + int((m+1)/2);
                                     double coefficient = coeffs[coeffIdx];
-                                    sum += coefficient*Cnnd[NsTs100*i + Ns100*Z1 + offset*nMax + N1]*Cnnd[NsTs100*i + Ns100*Z2 + offset*nMax + N2];
+                                    sum += coefficient*Cs[NsTs100*i + Ns100*Z1 + offset*nMax + N1]*Cs[NsTs100*i + Ns100*Z2 + offset*nMax + N2];
                                 }
                                 double prefactor = PI*sqrt(8.0/(2.0*l+1.0));  // Normalization factor
-                                cArr(i, pIdx) = prefactor*sum;
+                                Ps(i, pIdx) = prefactor*sum;
                                 ++pIdx;
                             }
                         }
@@ -699,11 +699,11 @@ void getP(py::detail::unchecked_mutable_reference<double, 2> &cArr, double* Cnnd
     }
 }
 
-void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<double> alphasArr, py::array_t<double> betasArr, py::array_t<int> atomicNumbersArr, py::array_t<int> orderedSpeciesArr, double rCut, double cutoffPadding, int nAtoms, int Nt, int nMax, int lMax, int Hs, double eta, bool crossover, string average)
+void soapGTO(py::array_t<double> PsArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<double> alphasArr, py::array_t<double> betasArr, py::array_t<int> atomicNumbersArr, py::array_t<int> orderedSpeciesArr, double rCut, double cutoffPadding, int nAtoms, int Nt, int nMax, int lMax, int Hs, double eta, bool crossover, string average)
 {
     auto atomicNumbers = atomicNumbersArr.unchecked<1>();
     auto species = orderedSpeciesArr.unchecked<1>();
-    auto c = cArr.mutable_unchecked<2>();
+    auto Ps = PsArr.mutable_unchecked<2>();
     double *Hpos = (double*)HposArr.request().ptr;
     double *alphas = (double*)alphasArr.request().ptr;
     double *betas = (double*)betasArr.request().ptr;
@@ -797,15 +797,14 @@ void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_
 
     // Initialize array for storing the C coefficients. 100 is used as the buffer
     // length.
-    int sizeCnnd = 100*Nt*nMax*Hs;
-    int sizeCnndAve;
-    double* cnnd = (double*) malloc(sizeCnnd*sizeof(double));
-    double* cnndAve;
-    memset(cnnd, 0.0, sizeCnnd*sizeof(double));
+    int nCoeffs = 100*Nt*nMax;
+    int nCoeffsAll = nCoeffs*Hs;
+    double* Cs = (double*) malloc(nCoeffsAll*sizeof(double));
+    double* CsAve;
+    memset(Cs, 0.0, nCoeffsAll*sizeof(double));
     if (average == "inner") {
-        int sizeCnndAve = 100*Nt*nMax;
-        cnndAve = (double*) malloc(sizeCnndAve*sizeof(double));
-        memset(cnndAve, 0.0, sizeCnndAve*sizeof(double));
+        CsAve = (double*) malloc(nCoeffs*sizeof(double));
+        memset(CsAve, 0.0, nCoeffs*sizeof(double));
     }
 
     // Initialize binning
@@ -848,7 +847,7 @@ void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_
 
             getRsZs(dx, dy, dz, r2, r4, r6, r8, z2, z4, z6, z8, n_neighbours);
             getCfactors(preCoef, n_neighbours, dx, dy, dz, z2, z4, z6, z8, r2, r4, r6, r8, ReIm2, ReIm3, ReIm4, ReIm5, ReIm6, ReIm7, ReIm8, ReIm9, nAtoms, lMax, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20, t21, t22, t23, t24, t25, t26, t27, t28, t29, t30, t31, t32, t33, t34, t35, t36, t37, t38, t39, t40, t41, t42, t43, t44, t45, t46, t47, t48, t49, t50, t51, t52, t53, t54, t55, t56, t57, t58, t59, t60, t61, t62, t63, t64, t65, t66, t67, t68, t69, t70, t71, t72, t73, t74, t75, t76, t77, t78, t79, t80, t81, t82, t83, t84, t85, t86, t87, t88, t89, t90, t91, t92, t93, t94, t95, t96, t97, t98, t99);
-            getC(cnnd, preCoef, dx, dy, dz, r2, bOa, aOa, exes, nAtoms, n_neighbours, nMax, Nt, lMax, i, j, Nx2, Nx3, Nx4, Nx5, Nx6, Nx7, Nx8, Nx9, Nx10, Nx11, Nx12, Nx13, Nx14, Nx15, Nx16, Nx17, Nx18, Nx19, Nx20, Nx21, Nx22, Nx23, Nx24, Nx25, Nx26, Nx27, Nx28, Nx29, Nx30, Nx31, Nx32, Nx33, Nx34, Nx35, Nx36, Nx37, Nx38, Nx39, Nx40, Nx41, Nx42, Nx43, Nx44, Nx45, Nx46, Nx47, Nx48, Nx49, Nx50, Nx51, Nx52, Nx53, Nx54, Nx55, Nx56, Nx57, Nx58, Nx59, Nx60, Nx61, Nx62, Nx63, Nx64, Nx65, Nx66, Nx67, Nx68, Nx69, Nx70, Nx71, Nx72, Nx73, Nx74, Nx75, Nx76, Nx77, Nx78, Nx79, Nx80, Nx81, Nx82, Nx83, Nx84, Nx85, Nx86, Nx87, Nx88, Nx89, Nx90, Nx91, Nx92, Nx93, Nx94, Nx95, Nx96, Nx97, Nx98, Nx99, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20, t21, t22, t23, t24, t25, t26, t27, t28, t29, t30, t31, t32, t33, t34, t35, t36, t37, t38, t39, t40, t41, t42, t43, t44, t45, t46, t47, t48, t49, t50, t51, t52, t53, t54, t55, t56, t57, t58, t59, t60, t61, t62, t63, t64, t65, t66, t67, t68, t69, t70, t71, t72, t73, t74, t75, t76, t77, t78, t79, t80, t81, t82, t83, t84, t85, t86, t87, t88, t89, t90, t91, t92, t93, t94, t95, t96, t97, t98, t99);
+            getC(Cs, preCoef, dx, dy, dz, r2, bOa, aOa, exes, nAtoms, n_neighbours, nMax, Nt, lMax, i, j, Nx2, Nx3, Nx4, Nx5, Nx6, Nx7, Nx8, Nx9, Nx10, Nx11, Nx12, Nx13, Nx14, Nx15, Nx16, Nx17, Nx18, Nx19, Nx20, Nx21, Nx22, Nx23, Nx24, Nx25, Nx26, Nx27, Nx28, Nx29, Nx30, Nx31, Nx32, Nx33, Nx34, Nx35, Nx36, Nx37, Nx38, Nx39, Nx40, Nx41, Nx42, Nx43, Nx44, Nx45, Nx46, Nx47, Nx48, Nx49, Nx50, Nx51, Nx52, Nx53, Nx54, Nx55, Nx56, Nx57, Nx58, Nx59, Nx60, Nx61, Nx62, Nx63, Nx64, Nx65, Nx66, Nx67, Nx68, Nx69, Nx70, Nx71, Nx72, Nx73, Nx74, Nx75, Nx76, Nx77, Nx78, Nx79, Nx80, Nx81, Nx82, Nx83, Nx84, Nx85, Nx86, Nx87, Nx88, Nx89, Nx90, Nx91, Nx92, Nx93, Nx94, Nx95, Nx96, Nx97, Nx98, Nx99, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20, t21, t22, t23, t24, t25, t26, t27, t28, t29, t30, t31, t32, t33, t34, t35, t36, t37, t38, t39, t40, t41, t42, t43, t44, t45, t46, t47, t48, t49, t50, t51, t52, t53, t54, t55, t56, t57, t58, t59, t60, t61, t62, t63, t64, t65, t66, t67, t68, t69, t70, t71, t72, t73, t74, t75, t76, t77, t78, t79, t80, t81, t82, t83, t84, t85, t86, t87, t88, t89, t90, t91, t92, t93, t94, t95, t96, t97, t98, t99);
         }
     }
 
@@ -877,24 +876,24 @@ void soapGTO(py::array_t<double> cArr, py::array_t<double> positions, py::array_
     free(aOa);
 
     // If inner averaging is requested, average the coefficients over the
-    // positions (axis 0 in cnnd matrix) before calculating the power spectrum.
+    // positions (axis 0 in Cs matrix) before calculating the power spectrum.
     if (average == "inner") {
         for (int i = 0; i < Hs; i++) {
-            for (int j = 0; j < 100*Nt*nMax; j++) {
-                cnndAve[j] += cnnd[j + 100*Nt*nMax * i];
+            for (int j = 0; j < nCoeffs; j++) {
+                CsAve[j] += Cs[i*nCoeffs + j];
             }
         }
-        for (int j = 0; j < 100*Nt*nMax; j++) {
-            cnndAve[j] = cnndAve[j] / (double)Hs;
+        for (int j = 0; j < nCoeffs; j++) {
+            CsAve[j] = CsAve[j] / (double)Hs;
         }
-        getP(c, cnndAve, nMax, Nt, 1, lMax, crossover);
-        free(cnndAve);
+        getP(Ps, CsAve, nMax, Nt, 1, lMax, crossover);
+        free(CsAve);
     // Regular power spectrum without averaging
     } else {
-        getP(c, cnnd, nMax, Nt, Hs, lMax, crossover);
+        getP(Ps, Cs, nMax, Nt, Hs, lMax, crossover);
     }
 
-    free(cnnd);
+    free(Cs);
 
     return;
 }
