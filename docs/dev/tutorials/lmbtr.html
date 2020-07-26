@@ -215,7 +215,6 @@ also possible.</p></li>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">LMBTR</span>
 <span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">bulk</span>
-<span class="kn">from</span> <span class="nn">ase.visualize</span> <span class="kn">import</span> <span class="n">view</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">mpl</span>
 
 <span class="c1"># Setup</span>
@@ -234,6 +233,7 @@ also possible.</p></li>
     <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">normalization</span><span class="o">=</span><span class="s2">&quot;l2_each&quot;</span><span class="p">,</span>
 <span class="p">)</span>
+
 </pre></div>
 </div>
 <p>The arguments have the following effect:</p>
@@ -373,12 +373,11 @@ sites on this surface: top, bridge, hcp and fcc.</p>
 <span class="n">hcp_pos</span> <span class="o">=</span> <span class="n">slab_ads</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 <span class="n">add_adsorbate</span><span class="p">(</span><span class="n">slab_ads</span><span class="p">,</span> <span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="s1">&#39;fcc&#39;</span><span class="p">)</span>
 <span class="n">fcc_pos</span> <span class="o">=</span> <span class="n">slab_ads</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-<span class="n">view</span><span class="p">(</span><span class="n">slab_ads</span><span class="p">)</span>
+
 </pre></div>
 </div>
 <p>These four sites are described by LMBTR with pairwise <span class="math notranslate nohighlight">\(k=2\)</span> term.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">lmbtr</span> <span class="o">=</span> <span class="n">LMBTR</span><span class="p">(</span>
-    <span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Al&quot;</span><span class="p">],</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Al&quot;</span><span class="p">],</span>
     <span class="n">k2</span><span class="o">=</span><span class="p">{</span>
         <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;distance&quot;</span><span class="p">},</span>
         <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">},</span>
@@ -394,12 +393,12 @@ sites on this surface: top, bridge, hcp and fcc.</p>
     <span class="n">positions</span><span class="o">=</span><span class="p">[</span><span class="n">ontop_pos</span><span class="p">,</span> <span class="n">bridge_pos</span><span class="p">,</span> <span class="n">hcp_pos</span><span class="p">,</span> <span class="n">fcc_pos</span><span class="p">],</span>
 <span class="p">)</span>
 
+<span class="c1"># Plot the site-aluminum distributions for each site</span>
 </pre></div>
 </div>
 <p>Plotting the output from these sites reveals the different patterns in these
 sites.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">al_slice</span> <span class="o">=</span> <span class="n">lmbtr</span><span class="o">.</span><span class="n">get_location</span><span class="p">((</span><span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot;Al&quot;</span><span class="p">))</span>
-<span class="n">x</span> <span class="o">=</span> <span class="n">lmbtr</span><span class="o">.</span><span class="n">get_k2_axis</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">x</span> <span class="o">=</span> <span class="n">lmbtr</span><span class="o">.</span><span class="n">get_k2_axis</span><span class="p">()</span>
 <span class="n">mpl</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">al_slice</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;top&quot;</span><span class="p">)</span>
 <span class="n">mpl</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">sites</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">al_slice</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;bridge&quot;</span><span class="p">)</span>
 <span class="n">mpl</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">sites</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="n">al_slice</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;hcp&quot;</span><span class="p">)</span>
