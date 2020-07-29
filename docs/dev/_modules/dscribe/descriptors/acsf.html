@@ -188,7 +188,8 @@
 
 <span class="kn">from</span> <span class="nn">ase</span> <span class="kn">import</span> <span class="n">Atoms</span>
 
-<span class="kn">from</span> <span class="nn">dscribe.libacsf.acsfwrapper</span> <span class="kn">import</span> <span class="n">ACSFWrapper</span>
+<span class="kn">from</span> <span class="nn">dscribe.ext</span> <span class="kn">import</span> <span class="n">ACSFWrapper</span>
+
 <span class="kn">import</span> <span class="nn">dscribe.utils.geometry</span>
 
 
@@ -395,13 +396,14 @@
         <span class="n">dmat_dense</span><span class="p">[</span><span class="n">dmat</span><span class="o">.</span><span class="n">col</span><span class="p">,</span> <span class="n">dmat</span><span class="o">.</span><span class="n">row</span><span class="p">]</span> <span class="o">=</span> <span class="n">dmat</span><span class="o">.</span><span class="n">data</span>
 
         <span class="c1"># Calculate ACSF with C++</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
             <span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">(),</span>
             <span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">(),</span>
             <span class="n">dmat_dense</span><span class="p">,</span>
             <span class="n">neighbours</span><span class="p">,</span>
             <span class="n">indices</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="p">),</span> 
+        <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
         <span class="c1"># Check if there are types that have not been declared</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_atomic_numbers</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">())</span>
@@ -440,7 +442,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># The species are stored as atomic numbers for internal use.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_species</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">atomic_numbers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">atomic_numbers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">rcut</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -459,7 +461,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">g2_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">g2_params</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">get_g2_params</span><span class="p">()</span>
 
     <span class="nd">@g2_params</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">g2_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
@@ -470,7 +472,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Disable case</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Check dimensions</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
@@ -483,7 +485,7 @@
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">value</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;G2 eta parameters should be positive numbers.&quot;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">g2_params</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">set_g2_params</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">g3_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -499,14 +501,14 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Handle the disable case</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Check dimensions</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;g3_params should be a vector.&quot;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">g3_params</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">g3_params</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">g4_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -522,7 +524,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Handle the disable case</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Check dimensions</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
@@ -535,7 +537,7 @@
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">value</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;3-body G4 eta parameters should be positive numbers.&quot;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">g4_params</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">g4_params</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">g5_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -551,7 +553,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Handle the disable case</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Check dimensions</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
@@ -564,7 +566,7 @@
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">value</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;3-body G5 eta parameters should be positive numbers.&quot;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">g5_params</span> <span class="o">=</span> <span class="n">value</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">g5_params</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
 </pre></div>
 
            </div>

@@ -192,7 +192,8 @@
 
 <span class="kn">from</span> <span class="nn">dscribe.core</span> <span class="kn">import</span> <span class="n">System</span>
 <span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">MBTR</span>
-<span class="kn">from</span> <span class="nn">dscribe.libmbtr.mbtrwrapper</span> <span class="kn">import</span> <span class="n">MBTRWrapper</span>
+<span class="c1">#from dscribe.libmbtr.mbtrwrapper import MBTRWrapper</span>
+<span class="kn">from</span> <span class="nn">dscribe.ext</span> <span class="kn">import</span> <span class="n">MBTRWrapper</span>
 <span class="kn">import</span> <span class="nn">dscribe.utils.geometry</span>
 
 
@@ -630,6 +631,21 @@
 
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_features</span><span class="p">)</span></div>
 
+    <span class="k">def</span> <span class="nf">_make_new_klist_local</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kx_list</span><span class="p">):</span>
+        <span class="n">new_kx_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">kx_list</span><span class="p">:</span>
+            <span class="n">new_kx_map</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="c1">#new_key = tuple(int(x) for x in key.decode(&quot;utf-8&quot;).split(&quot;,&quot;))</span>
+                <span class="n">new_key</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">))</span>
+                <span class="n">new_kx_map</span><span class="p">[</span><span class="n">new_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="n">new_kx_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_kx_map</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">new_kx_list</span>
+
+
     <span class="k">def</span> <span class="nf">_get_k2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">new_system</span><span class="p">,</span> <span class="n">indices</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculates the second order terms where the scalar mapping is the</span>
 <span class="sd">        inverse distance between atoms.</span>
@@ -680,8 +696,8 @@
 
         <span class="n">cmbtr</span> <span class="o">=</span> <span class="n">MBTRWrapper</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_to_index</span><span class="p">,</span>
-            <span class="n">interaction_limit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_limit</span><span class="p">,</span>
-            <span class="n">indices</span><span class="o">=</span><span class="n">cell_indices</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_limit</span><span class="p">,</span>
+            <span class="n">cell_indices</span>
         <span class="p">)</span>
 
         <span class="c1"># If radial cutoff is finite, use it to calculate the sparse distance</span>
@@ -702,21 +718,22 @@
 
         <span class="c1"># Form new indices that include the existing atoms and the newly added</span>
         <span class="c1"># ones</span>
-        <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="p">[</span><span class="n">n_atoms_ext</span><span class="o">+</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_atoms_new</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">))])</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="p">[</span><span class="n">n_atoms_ext</span><span class="o">+</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_atoms_new</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">))]),</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">int</span><span class="p">)</span>
 
         <span class="n">k2_list</span> <span class="o">=</span> <span class="n">cmbtr</span><span class="o">.</span><span class="n">get_k2_local</span><span class="p">(</span>
-            <span class="n">indices</span><span class="o">=</span><span class="n">indices</span><span class="p">,</span>
-            <span class="n">Z</span><span class="o">=</span><span class="n">ext_system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">(),</span>
-            <span class="n">distances</span><span class="o">=</span><span class="n">dmat_dense</span><span class="p">,</span>
-            <span class="n">neighbours</span><span class="o">=</span><span class="n">adj_list</span><span class="p">,</span>
-            <span class="n">geom_func</span><span class="o">=</span><span class="n">geom_func_name</span><span class="o">.</span><span class="n">encode</span><span class="p">(),</span>
-            <span class="n">weight_func</span><span class="o">=</span><span class="n">weighting_function</span><span class="o">.</span><span class="n">encode</span><span class="p">(),</span>
-            <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">,</span>
-            <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span>
-            <span class="n">stop</span><span class="o">=</span><span class="n">stop</span><span class="p">,</span>
-            <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span>
-            <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span>
+            <span class="n">indices</span><span class="p">,</span>
+            <span class="n">ext_system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">(),</span>
+            <span class="n">dmat_dense</span><span class="p">,</span>
+            <span class="n">adj_list</span><span class="p">,</span>
+            <span class="n">geom_func_name</span><span class="o">.</span><span class="n">encode</span><span class="p">(),</span>
+            <span class="n">weighting_function</span><span class="o">.</span><span class="n">encode</span><span class="p">(),</span>
+            <span class="n">parameters</span><span class="p">,</span>
+            <span class="n">start</span><span class="p">,</span>
+            <span class="n">stop</span><span class="p">,</span>
+            <span class="n">sigma</span><span class="p">,</span>
+            <span class="n">n</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="n">k2_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_new_klist_local</span><span class="p">(</span><span class="n">k2_list</span><span class="p">)</span>
 
         <span class="c1"># Depending on flattening, use either a sparse matrix or a dense one.</span>
         <span class="n">n_elem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_elements</span>
@@ -805,8 +822,8 @@
 
         <span class="n">cmbtr</span> <span class="o">=</span> <span class="n">MBTRWrapper</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_to_index</span><span class="p">,</span>
-            <span class="n">interaction_limit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_limit</span><span class="p">,</span>
-            <span class="n">indices</span><span class="o">=</span><span class="n">cell_indices</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_limit</span><span class="p">,</span>
+            <span class="n">cell_indices</span>
         <span class="p">)</span>
 
         <span class="c1"># If radial cutoff is finite, use it to calculate the sparse</span>
@@ -868,22 +885,23 @@
 
         <span class="c1"># Form new indices that include the existing atoms and the newly added</span>
         <span class="c1"># ones</span>
-        <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="p">[</span><span class="n">n_atoms_ext</span><span class="o">+</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_atoms_new</span><span class="p">)])</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="p">[</span><span class="n">n_atoms_ext</span><span class="o">+</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_atoms_new</span><span class="p">)]),</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">int</span><span class="p">)</span>
 
         <span class="n">k3_list</span> <span class="o">=</span> <span class="n">cmbtr</span><span class="o">.</span><span class="n">get_k3_local</span><span class="p">(</span>
-            <span class="n">Z</span><span class="o">=</span><span class="n">fin_system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">(),</span>
-            <span class="n">distances</span><span class="o">=</span><span class="n">dmat_dense</span><span class="p">,</span>
-            <span class="n">neighbours</span><span class="o">=</span><span class="n">adj_list</span><span class="p">,</span>
-            <span class="n">indices</span><span class="o">=</span><span class="n">indices</span><span class="p">,</span>
-            <span class="n">geom_func</span><span class="o">=</span><span class="n">geom_func_name</span><span class="o">.</span><span class="n">encode</span><span class="p">(),</span>
-            <span class="n">weight_func</span><span class="o">=</span><span class="n">weighting_function</span><span class="o">.</span><span class="n">encode</span><span class="p">(),</span>
-            <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">,</span>
-            <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span>
-            <span class="n">stop</span><span class="o">=</span><span class="n">stop</span><span class="p">,</span>
-            <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span>
-            <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span>
+            <span class="n">indices</span><span class="p">,</span>
+            <span class="n">fin_system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">(),</span>
+            <span class="n">dmat_dense</span><span class="p">,</span>
+            <span class="n">adj_list</span><span class="p">,</span>
+            <span class="n">geom_func_name</span><span class="o">.</span><span class="n">encode</span><span class="p">(),</span>
+            <span class="n">weighting_function</span><span class="o">.</span><span class="n">encode</span><span class="p">(),</span>
+            <span class="n">parameters</span><span class="p">,</span>
+            <span class="n">start</span><span class="p">,</span>
+            <span class="n">stop</span><span class="p">,</span>
+            <span class="n">sigma</span><span class="p">,</span>
+            <span class="n">n</span><span class="p">,</span>
         <span class="p">)</span>
 
+        <span class="n">k3_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_new_klist_local</span><span class="p">(</span><span class="n">k3_list</span><span class="p">)</span>
         <span class="c1"># Depending on flattening, use either a sparse matrix or a dense one.</span>
         <span class="n">n_elem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_elements</span>
         <span class="n">n_loc</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
