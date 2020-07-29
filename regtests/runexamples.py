@@ -1,6 +1,5 @@
 import sys, os
 import unittest
-import examples
 from importlib import import_module
 
 
