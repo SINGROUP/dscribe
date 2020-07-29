@@ -690,37 +690,38 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         sys = Atoms(symbols=["H", "C"], positions=[[-1, 0, 0], [1, 0, 0]], cell=[2, 2, 2], pbc=True)
 
         # Create the average output
-        desc = SOAP(
-            species=[1, 6, 8],
-            rcut=5,
-            nmax=3,
-            lmax=5,
-            periodic=False,
-            rbf="polynomial",
-            crossover=True,
-            average="outer",
-            sparse=False
-        )
-        average = desc.create(sys)[0, :]
+        for rbf in ["gto", "polynomial"]:
+            desc = SOAP(
+                species=[1, 6, 8],
+                rcut=5,
+                nmax=3,
+                lmax=5,
+                periodic=False,
+                rbf=rbf,
+                crossover=True,
+                average="outer",
+                sparse=False
+            )
+            average = desc.create(sys)[0, :]
 
-        # Create individual output for both atoms
-        desc = SOAP(
-            species=[1, 6, 8],
-            rcut=5,
-            nmax=3,
-            lmax=5,
-            periodic=False,
-            rbf="polynomial",
-            crossover=True,
-            average="off",
-            sparse=False
-        )
-        first = desc.create(sys, positions=[0])[0, :]
-        second = desc.create(sys, positions=[1])[0, :]
+            # Create individual output for both atoms
+            desc = SOAP(
+                species=[1, 6, 8],
+                rcut=5,
+                nmax=3,
+                lmax=5,
+                periodic=False,
+                rbf=rbf,
+                crossover=True,
+                average="off",
+                sparse=False
+            )
+            first = desc.create(sys, positions=[0])[0, :]
+            second = desc.create(sys, positions=[1])[0, :]
 
-        # Check that the averaging is done correctly
-        assumed_average = (first+second)/2
-        self.assertTrue(np.array_equal(average, assumed_average))
+            # Check that the averaging is done correctly
+            assumed_average = (first+second)/2
+            self.assertTrue(np.array_equal(average, assumed_average))
 
     def test_average_inner_gto(self):
         """Tests the inner averaging (averaging done before calculating power

@@ -343,11 +343,6 @@ class SOAP(Descriptor):
                 atomic_numbers=None,
             )
 
-        # Create the averaged SOAP output if requested.
-        if self._average == "outer":
-            soap_mat = soap_mat.mean(axis=0)
-            soap_mat = np.expand_dims(soap_mat, 0)
-
         # Make into a sparse array if requested
         if self._sparse:
             soap_mat = coo_matrix(soap_mat)
@@ -541,7 +536,7 @@ class SOAP(Descriptor):
 
         # Determine shape
         n_features = self.get_number_of_features()
-        if average == "inner":
+        if average == "inner" or average == "outer":
             c = np.zeros((1, n_features), dtype=np.float64)
         else:
             c = np.zeros((n_centers, n_features), dtype=np.float64)
@@ -608,7 +603,7 @@ class SOAP(Descriptor):
 
         # Determine shape
         n_features = self.get_number_of_features()
-        if average == "inner":
+        if average == "inner" or average == "outer":
             c = np.zeros((1, n_features), dtype=np.float64)
         else:
             c = np.zeros((n_centers, n_features), dtype=np.float64)

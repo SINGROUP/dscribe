@@ -19,6 +19,7 @@ limitations under the License.
 #include <time.h>
 #include <string>
 #include <iostream>
+#include <vector>
 #include <map>
 #include <set>
 #include "soapGTO.h"
@@ -701,6 +702,7 @@ void getP(py::detail::unchecked_mutable_reference<double, 2> &Ps, double* Cs, in
 
 void soapGTO(py::array_t<double> PsArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<double> alphasArr, py::array_t<double> betasArr, py::array_t<int> atomicNumbersArr, py::array_t<int> orderedSpeciesArr, double rCut, double cutoffPadding, int nAtoms, int Nt, int nMax, int lMax, int Hs, double eta, bool crossover, string average)
 {
+    int nFeatures = crossover ? (Nt*nMax)*(Nt*nMax+1)/2*(lMax+1) : Nt*(lMax+1)*((nMax+1)*nMax)/2;
     auto atomicNumbers = atomicNumbersArr.unchecked<1>();
     auto species = orderedSpeciesArr.unchecked<1>();
     auto Ps = PsArr.mutable_unchecked<2>();
@@ -888,6 +890,23 @@ void soapGTO(py::array_t<double> PsArr, py::array_t<double> positions, py::array
         }
         getP(Ps, CsAve, nMax, Nt, 1, lMax, crossover);
         free(CsAve);
+    // Average the power spectrum across atoms
+    } else if (average == "outer") {
+        // We allocate the memory and give array_t a pointer to it. This way
+        // the memory is owned and freed by C++.
+        double* PsTemp = new double[nFeatures*Hs];
+        py::array_t<double> PsTempArrChecked({Hs, nFeatures}, PsTemp);
+        auto PsTempArr = PsTempArrChecked.mutable_unchecked<2>();
+        getP(PsTempArr, Cs, nMax, Nt, Hs, lMax, crossover);
+        for (int i = 0; i < Hs; i++) {
+            for (int j = 0; j < nFeatures; j++) {
+                Ps(0, j) += PsTempArr(i, j);
+            }
+        }
+        for (int j = 0; j < nFeatures; j++) {
+            Ps(0, j) = Ps(0, j) / (double)Hs;
+        }
+        free(PsTemp);
     // Regular power spectrum without averaging
     } else {
         getP(Ps, Cs, nMax, Nt, Hs, lMax, crossover);

@@ -1833,6 +1833,7 @@ void getP(py::detail::unchecked_mutable_reference<double, 2> &Ps, double* Cs, in
 }
 void soapGeneral(py::array_t<double> PsArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<int> atomicNumbersArr, py::array_t<int> orderedSpeciesArr, double rCut, double cutoffPadding, int nAtoms, int Nt, int nMax, int lMax, int Hs, double alpha, py::array_t<double> rwArr, py::array_t<double> gssArr, bool crossover, string average)
 {
+    int nFeatures = crossover ? (Nt*nMax)*(Nt*nMax+1)/2*(lMax+1) : Nt*(lMax+1)*((nMax+1)*nMax)/2;
     auto atomicNumbers = atomicNumbersArr.unchecked<1>();
     auto species = orderedSpeciesArr.unchecked<1>();
     auto Ps = PsArr.mutable_unchecked<2>();
@@ -1856,7 +1857,6 @@ void soapGeneral(py::array_t<double> PsArr, py::array_t<double> positions, py::a
     double* minExp = totrs;
     double* pluExp = totrs;
     double* C = (double*) malloc(2*sd*(lMax+1)*(lMax+1)*nMax);
-    int nFeatures = crossover ? (Nt*nMax)*(Nt*nMax+1)/2*(lMax+1) : Nt*(lMax+1)*((nMax+1)*nMax)/2;
 
     // Initialize arrays for storing the C coefficients.
     int nCoeffs = 2*(lMax+1)*(lMax+1)*nMax*Nt;
@@ -1936,6 +1936,23 @@ void soapGeneral(py::array_t<double> PsArr, py::array_t<double> positions, py::a
         }
         getP(Ps, CsAve, Nt, lMax, nMax, 1, rCut2, nFeatures, crossover, nCoeffs);
         free(CsAve);
+    // Average the power spectrum across atoms
+    } else if (average == "outer") {
+        // We allocate the memory and give array_t a pointer to it. This way
+        // the memory is owned and freed by C++.
+        double* PsTemp = new double[nFeatures*Hs];
+        py::array_t<double> PsTempArrChecked({Hs, nFeatures}, PsTemp);
+        auto PsTempArr = PsTempArrChecked.mutable_unchecked<2>();
+        getP(PsTempArr, Cs, Nt, lMax, nMax, Hs, rCut2, nFeatures, crossover, nCoeffs);
+        for (int i = 0; i < Hs; i++) {
+            for (int j = 0; j < nFeatures; j++) {
+                Ps(0, j) += PsTempArr(i, j);
+            }
+        }
+        for (int j = 0; j < nFeatures; j++) {
+            Ps(0, j) = Ps(0, j) / (double)Hs;
+        }
+        free(PsTemp);
     // Regular power spectrum without averaging
     } else {
         getP(Ps, Cs, Nt, lMax, nMax, Hs, rCut2, nFeatures, crossover, nCoeffs);
