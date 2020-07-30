@@ -1,0 +1,14 @@
+{
+    "versions": [
+        {
+            "versionNumber": "0.4.x",
+            "description": "",
+            "url": "https://singroup.github.io/dscribe/0.4.x"
+        },
+        {
+            "versionNumber": "0.3.x",
+            "description": "",
+            "url": "https://singroup.github.io/dscribe/0.3.x"
+        }
+    ]
+}

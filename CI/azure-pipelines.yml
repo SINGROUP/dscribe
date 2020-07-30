@@ -47,8 +47,8 @@ jobs:
     displayName: 'Update coverage'
     condition: and(succeeded(), eq(variables['python.version'], '3.7'))
 
-  - script: |
-      cd $(Build.Repository.LocalPath)/CI && ./updatedocs.sh
-    displayName: 'Update docs'
-    condition: and(succeeded(), eq(variables['python.version'], '3.7'))
+#  - script: |
+#      cd $(Build.Repository.LocalPath)/CI && ./updatedocs.sh
+#    displayName: 'Update docs'
+#    condition: and(succeeded(), eq(variables['python.version'], '3.7'))
 

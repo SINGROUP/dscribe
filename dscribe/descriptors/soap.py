@@ -96,8 +96,8 @@ class SOAP(Descriptor):
                 Valid options are:
 
                     * "off": No averaging.
-                    * "inner": Averaging over atoms before summing up the magnetic quantum numbers.
-                    * "outer": Averaging over the power spectrum of different atoms.
+                    * "inner": Averaging over sites before summing up the magnetic quantum numbers: :math:`p_{nn'l}^{Z_1,Z_2} \sim \sum_m (\\frac{1}{n} \sum_i c_{nlm}^{i, Z_1})^{*} (\\frac{1}{n} \sum_i c_{n'lm}^{i, Z_2})`
+                    * "outer": Averaging over the power spectrum of different sites: :math:`p_{nn'l}^{Z_1,Z_2} \sim \\frac{1}{n} \sum_i \sum_m (c_{nlm}^{i, Z_1})^{*} (c_{n'lm}^{i, Z_2})`
 
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.

@@ -22,28 +22,25 @@
 project = 'DScribe'
 author = 'Lauri Himanen, Eiaki Morooka, F. Federici Canova, Marc Jäger, Y. Ranawat'
 
-version = '0.3.6a0'
-release = '0.3.6a0'
-stable_version = "0.3.5"
-dev_version = "0.3.6a0"
-
 # -- General configuration ---------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
 #
 # needs_sphinx = '1.0'
 
+
 def setup(app):
-    app.add_stylesheet('css/style.css')
+    app.add_css_file('css/style.css')
+    app.add_js_file('js/versions.js')
+    app.connect('config-inited', on_config_inited)
+
+
+def on_config_inited(app, config):
+    config.html_context["current_version"] = config.version
 
 
 html_context = {
     'css_files': ['_static/css/style.css'],
-    'current_version': version,
-    'versions': [
-        ('{} (latest stable)'.format(stable_version), 'https://singroup.github.io/dscribe'),
-        ('{} (development)'.format(dev_version), 'https://singroup.github.io/dscribe/dev')
-    ]
 }
 
 # Add any Sphinx extension module names here, as strings. They can be

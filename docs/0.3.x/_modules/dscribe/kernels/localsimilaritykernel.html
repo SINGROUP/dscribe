@@ -1,0 +1,406 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dscribe.kernels.localsimilaritykernel &mdash; DScribe 0.3.x documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/style.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+        <script src="../../../_static/js/versions.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html">
+          
+
+          
+            
+            <img src="../../../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../doc/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../citing.html">Citing DScribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about.html">About</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DScribe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>dscribe.kernels.localsimilaritykernel</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for dscribe.kernels.localsimilaritykernel</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;Copyright 2019 DScribe developers</span>
+
+<span class="sd">Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="sd">you may not use this file except in compliance with the License.</span>
+<span class="sd">You may obtain a copy of the License at</span>
+
+<span class="sd">    http://www.apache.org/licenses/LICENSE-2.0</span>
+
+<span class="sd">Unless required by applicable law or agreed to in writing, software</span>
+<span class="sd">distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="sd">WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="sd">See the License for the specific language governing permissions and</span>
+<span class="sd">limitations under the License.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics.pairwise</span> <span class="kn">import</span> <span class="n">pairwise_kernels</span>
+
+
+<div class="viewcode-block" id="LocalSimilarityKernel"><a class="viewcode-back" href="../../../doc/dscribe.kernels.html#dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel">[docs]</a><span class="k">class</span> <span class="nc">LocalSimilarityKernel</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An abstract base class for all kernels that use the similarity of local</span>
+<span class="sd">    atomic environments to compute a global similarity measure.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">coef0</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">kernel_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">normalize_kernel</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            metric(string or callable): The pairwise metric used for</span>
+<span class="sd">                calculating the local similarity. Accepts any of the sklearn</span>
+<span class="sd">                pairwise metric strings (e.g. &quot;linear&quot;, &quot;rbf&quot;, &quot;laplacian&quot;,</span>
+<span class="sd">                &quot;polynomial&quot;) or a custom callable. A callable should accept</span>
+<span class="sd">                two arguments and the keyword arguments passed to this object</span>
+<span class="sd">                as kernel_params, and should return a floating point number.</span>
+<span class="sd">            gamma(float): Gamma parameter for the RBF, laplacian, polynomial,</span>
+<span class="sd">                exponential chi2 and sigmoid kernels. Interpretation of the</span>
+<span class="sd">                default value is left to the kernel; see the documentation for</span>
+<span class="sd">                sklearn.metrics.pairwise. Ignored by other kernels.</span>
+<span class="sd">            degree(float): Degree of the polynomial kernel. Ignored by other</span>
+<span class="sd">                kernels.</span>
+<span class="sd">            coef0(float): Zero coefficient for polynomial and sigmoid kernels.</span>
+<span class="sd">                Ignored by other kernels.</span>
+<span class="sd">            kernel_params(mapping of string to any): Additional parameters</span>
+<span class="sd">                (keyword arguments) for kernel function passed as callable</span>
+<span class="sd">                object.</span>
+<span class="sd">            normalize_kernel(boolean): Whether to normalize the final global</span>
+<span class="sd">                similarity kernel. The normalization is achieved by dividing each</span>
+<span class="sd">                kernel element :math:`K_{ij}` with the factor</span>
+<span class="sd">                :math:`\sqrt{K_{ii}K_{jj}}`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metric</span> <span class="o">=</span> <span class="n">metric</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">=</span> <span class="n">gamma</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">degree</span> <span class="o">=</span> <span class="n">degree</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coef0</span> <span class="o">=</span> <span class="n">coef0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kernel_params</span> <span class="o">=</span> <span class="n">kernel_params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">normalize_kernel</span> <span class="o">=</span> <span class="n">normalize_kernel</span>
+
+<div class="viewcode-block" id="LocalSimilarityKernel.create"><a class="viewcode-back" href="../../../doc/dscribe.kernels.html#dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates the kernel matrix based on the given lists of local</span>
+<span class="sd">        features x and y.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x(iterable): A list of local feature arrays for each structure.</span>
+<span class="sd">            y(iterable): An optional second list of features. If not specified</span>
+<span class="sd">                it is assumed that y=x.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The pairwise global similarity kernel K[i,j] between the given</span>
+<span class="sd">            structures, in the same order as given in the input, i.e. the</span>
+<span class="sd">            similarity of structures i and j is given by K[i,j], where features</span>
+<span class="sd">            for structure i and j were in features[i] and features[j]</span>
+<span class="sd">            respectively.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">symmetric</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">y</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">x</span>
+            <span class="n">symmetric</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># First calculate the &quot;raw&quot; pairwise similarity of atomic environments</span>
+        <span class="n">n_x</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">n_y</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+        <span class="n">C_ij_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_x</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_y</span><span class="p">):</span>
+
+                <span class="c1"># Skip lower triangular part for symmetric matrices</span>
+                <span class="k">if</span> <span class="n">symmetric</span> <span class="ow">and</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">i</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="n">x_i</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+                <span class="c1"># Save time on symmetry</span>
+                <span class="k">if</span> <span class="n">symmetric</span> <span class="ow">and</span> <span class="n">j</span> <span class="o">==</span> <span class="n">i</span><span class="p">:</span>
+                    <span class="n">y_j</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">y_j</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                <span class="n">C_ij</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pairwise_matrix</span><span class="p">(</span><span class="n">x_i</span><span class="p">,</span> <span class="n">y_j</span><span class="p">)</span>
+                <span class="n">C_ij_dict</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">C_ij</span>
+
+        <span class="c1"># Calculate the global pairwise similarity between the entire</span>
+        <span class="c1"># structures</span>
+        <span class="n">K_ij</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_x</span><span class="p">,</span> <span class="n">n_y</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_x</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_y</span><span class="p">):</span>
+
+                <span class="c1"># Skip lower triangular part for symmetric matrices</span>
+                <span class="k">if</span> <span class="n">symmetric</span> <span class="ow">and</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">i</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="n">C_ij</span> <span class="o">=</span> <span class="n">C_ij_dict</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+                <span class="n">k_ij</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_global_similarity</span><span class="p">(</span><span class="n">C_ij</span><span class="p">)</span>
+                <span class="n">K_ij</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">k_ij</span>
+
+                <span class="c1"># Save data also on lower triangular part for symmetric matrices</span>
+                <span class="k">if</span> <span class="n">symmetric</span> <span class="ow">and</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">i</span><span class="p">:</span>
+                    <span class="n">K_ij</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">k_ij</span>
+
+        <span class="c1"># Enforce kernel normalization if requested.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_kernel</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">symmetric</span><span class="p">:</span>
+                <span class="n">k_ii</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diagonal</span><span class="p">(</span><span class="n">K_ij</span><span class="p">)</span>
+                <span class="n">x_k_ii_sqrt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">k_ii</span><span class="p">)</span>
+                <span class="n">y_k_ii_sqrt</span> <span class="o">=</span> <span class="n">x_k_ii_sqrt</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Calculate self-similarity for X</span>
+                <span class="n">x_k_ii</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n_x</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_x</span><span class="p">):</span>
+                    <span class="n">x_i</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="n">C_ii</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pairwise_matrix</span><span class="p">(</span><span class="n">x_i</span><span class="p">)</span>
+                    <span class="n">k_ii</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_global_similarity</span><span class="p">(</span><span class="n">C_ii</span><span class="p">)</span>
+                    <span class="n">x_k_ii</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">k_ii</span>
+                <span class="n">x_k_ii_sqrt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x_k_ii</span><span class="p">)</span>
+
+                <span class="c1"># Calculate self-similarity for Y</span>
+                <span class="n">y_k_ii</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n_y</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_y</span><span class="p">):</span>
+                    <span class="n">y_i</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="n">C_ii</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pairwise_matrix</span><span class="p">(</span><span class="n">y_i</span><span class="p">)</span>
+                    <span class="n">k_ii</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_global_similarity</span><span class="p">(</span><span class="n">C_ii</span><span class="p">)</span>
+                    <span class="n">y_k_ii</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">k_ii</span>
+                <span class="n">y_k_ii_sqrt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">y_k_ii</span><span class="p">)</span>
+
+            <span class="n">K_ij</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">x_k_ii_sqrt</span><span class="p">,</span> <span class="n">y_k_ii_sqrt</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">K_ij</span></div>
+
+<div class="viewcode-block" id="LocalSimilarityKernel.get_pairwise_matrix"><a class="viewcode-back" href="../../../doc/dscribe.kernels.html#dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel.get_pairwise_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">get_pairwise_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculates the pairwise similarity of atomic environments with</span>
+<span class="sd">        scikit-learn, and the pairwise metric configured in the constructor.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            X(np.ndarray): Feature vector for the atoms in structure A</span>
+<span class="sd">            Y(np.ndarray): Feature vector for the atoms in structure B</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: NxM matrix of local similarities between structures A</span>
+<span class="sd">                and B, with N and M atoms respectively.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="p">):</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel_params</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;gamma&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span><span class="p">,</span>
+                      <span class="s2">&quot;degree&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">degree</span><span class="p">,</span>
+                      <span class="s2">&quot;coef0&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">coef0</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">pairwise_kernels</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="p">,</span>
+                                <span class="n">filter_params</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LocalSimilarityKernel.get_global_similarity"><a class="viewcode-back" href="../../../doc/dscribe.kernels.html#dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel.get_global_similarity">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">get_global_similarity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">localkernel</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the global similarity between two structures A and B.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            localkernel(np.ndarray): NxM matrix of local similarities between</span>
+<span class="sd">                structures A and B, with N and M atoms respectively.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            float: Global similarity between the structures A and B.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Versions</span>
+      v: 0.3.x
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl id="version-table">
+        <dt>Versions</dt>
+      </dl>
+    </div>
+  </div>
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

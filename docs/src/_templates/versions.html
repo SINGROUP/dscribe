@@ -6,11 +6,8 @@
       <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
-      <dl>
+      <dl id="version-table">
         <dt>{{ _('Versions') }}</dt>
-        {% for slug, url in versions %}
-          <dd><a href="{{ url }}">{{ slug }}</a></dd>
-        {% endfor %}
       </dl>
     </div>
   </div>

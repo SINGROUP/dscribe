@@ -1,4 +1,0 @@
-Ewald Matrix
-============
-
-In progress!

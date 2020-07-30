@@ -1,0 +1,557 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Many-body Tensor Representation &mdash; DScribe 0.3.x documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/js/versions.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Local Many-body Tensor Representation" href="lmbtr.html" />
+    <link rel="prev" title="Smooth Overlap of Atomic Positions" href="soap.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.3.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="basics.html">Basic concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="coulomb_matrix.html">Coulomb Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sine_matrix.html">Sine matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ewald_sum_matrix.html">Ewald sum matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="acsf.html">Atom-centered Symmetry Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="soap.html">Smooth Overlap of Atomic Positions</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Many-body Tensor Representation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#setup">Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#creation">Creation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#locating-information">Locating information</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#visualization">Visualization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#finite-systems">Finite systems</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#normalization">Normalization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#periodic-systems">Periodic systems</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="lmbtr.html">Local Many-body Tensor Representation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kernels.html">Building similarity kernels from local environments</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../doc/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing DScribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DScribe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="tutorials.html">Tutorials</a> &raquo;</li>
+        
+      <li>Many-body Tensor Representation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/tutorials/mbtr.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="many-body-tensor-representation">
+<h1>Many-body Tensor Representation<a class="headerlink" href="#many-body-tensor-representation" title="Permalink to this headline">¶</a></h1>
+<p>The many-body tensor representation (MBTR) <a class="bibtex reference internal" href="#mbtr" id="id1">[1]</a> encodes a structure by
+using a distribution of different structural motifs. It can be used directly
+for both finite and periodic systems. MBTR is especially suitable for
+applications where interpretability of the input is important because the
+features can be easily visualized and they correspond to specific structural
+properties of the system.</p>
+<p>In MBTR a geometry function <span class="math notranslate nohighlight">\(g_k\)</span> is used to transform a chain of
+<span class="math notranslate nohighlight">\(k\)</span> atoms, into a single scalar value. The distribution of these scalar
+values is then constructed with kernel density estimation to represent the
+structure.</p>
+<div class="figure align-center" id="id2">
+<a class="reference internal image-reference" href="../_images/mbtr.jpg"><img alt="MBTR stratification" src="../_images/mbtr.jpg" style="width: 457.6px; height: 308.8px;" /></a>
+<p class="caption"><span class="caption-text">Illustration of the MBTR output for a water molecule.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</div>
+<div class="section" id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h2>
+<p>Instantiating an MBTR descriptor can be done as follows:</p>
+<p>The arguments have the following effect:</p>
+<dl class="py method">
+<dt id="dscribe.descriptors.mbtr.MBTR.__init__">
+<code class="sig-prename descclassname">MBTR.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">species</span></em>, <em class="sig-param"><span class="n">periodic</span></em>, <em class="sig-param"><span class="n">k1</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">k2</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">k3</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">normalize_gaussians</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">normalization</span><span class="o">=</span><span class="default_value">'none'</span></em>, <em class="sig-param"><span class="n">flatten</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">sparse</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>species</strong> (<em>iterable</em>) – The chemical species as a list of atomic
+numbers or as a list of chemical symbols. Notice that this is not
+the atomic numbers that are present for an individual system, but
+should contain all the elements that are ever going to be
+encountered when creating the descriptors for a set of systems.
+Keeping the number of chemical speices as low as possible is
+preferable.</p></li>
+<li><p><strong>periodic</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Determines whether the system is considered to be
+periodic.</p></li>
+<li><p><strong>k1</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – <p>Setup for the k=1 term. For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">k1</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;atomic_number&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</p></li>
+<li><p><strong>k2</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – <p>Dictionary containing the setup for the k=2 term.
+Contains setup for the used geometry function, discretization and
+weighting function. For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">k2</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;inverse_distance&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">},</span>
+    <span class="s2">&quot;weighting&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exp&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.75</span><span class="p">,</span> <span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="mf">1e-2</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</p></li>
+<li><p><strong>k3</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – <p>Dictionary containing the setup for the k=3 term.
+Contains setup for the used geometry function, discretization and
+weighting function. For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">k3</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;angle&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">180</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">},</span>
+    <span class="s2">&quot;weighting&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exp&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</p></li>
+<li><p><strong>normalize_gaussians</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Determines whether the gaussians are
+normalized to an area of 1. Defaults to True. If False, the
+normalization factor is dropped and the gaussians have the form.
+<span class="math notranslate nohighlight">\(e^{-(x-\mu)^2/2\sigma^2}\)</span></p></li>
+<li><p><strong>normalization</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – <p>Determines the method for normalizing the
+output. The available options are:</p>
+<ul>
+<li><p>”none”: No normalization.</p></li>
+<li><p>”l2_each”: Normalize the Euclidean length of each k-term
+individually to unity.</p></li>
+<li><p>”n_atoms”: Normalize the output by dividing it with the number
+of atoms in the system. If the system is periodic, the number
+of atoms is determined from the given unit cell.</p></li>
+</ul>
+</p></li>
+<li><p><strong>flatten</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Whether the output should be flattened to a 1D
+array. If False, a dictionary of the different tensors is
+provided, containing the values under keys: “k1”, “k2”, and
+“k3”:</p></li>
+<li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
+dense numpy array.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p>For each k-body term the MBTR class takes in a setup as a dictionary. This
+dictionary should contain three parts: the geometry function, the grid and the
+weighting function. The geometry function specifies how the k-body information
+is encoded. The grid specifies the expected range of the geometry values
+through the <em>min</em> and <em>max</em> keys. The amount of discretization points is
+specified with key <em>n</em> and the gaussian smoothing width is specified through
+the key <em>sigma</em>. The weighting function specifies if and how the different
+terms should be weighted. Currently the following geometry and weighting
+functions are available:</p>
+<table class="colwidths-given docutils align-default" id="id3">
+<caption><span class="caption-text">The geometry and weighting functions</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 45%" />
+<col style="width: 45%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Geometry functions</p></th>
+<th class="head"><p>Weighting functions</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(k=1\)</span></p></td>
+<td><p>“atomic_number”: The atomic numbers.</p></td>
+<td><p>“unity”: No weighting.</p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(k=2\)</span></p></td>
+<td><p>“distance”: Pairwise distance in angstroms.</p>
+<p>“inverse_distance”: Pairwise inverse distance in 1/angstrom.</p>
+</td>
+<td><p>“unity”: No weighting.</p>
+<p>“exp” or “exponential”: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span>,
+where <cite>x</cite> is the distance between the two atoms.</p>
+</td>
+</tr>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(k=3\)</span></p></td>
+<td><p>“angle”: Angle in degrees.</p>
+<p>“cosine”: Cosine of the angle.</p>
+</td>
+<td><p>“unity”: No weighting.</p>
+<p>“exp” or “exponential”: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span>,
+where <cite>x</cite> is the perimeter of the triangle formed by the tree atoms.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="creation">
+<h2>Creation<a class="headerlink" href="#creation" title="Permalink to this headline">¶</a></h2>
+<p>After MBTR has been set up, it may be used on atomic structures with the
+<a class="reference internal" href="#dscribe.descriptors.mbtr.MBTR.create" title="dscribe.descriptors.mbtr.MBTR.create"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create()</span></code></a>-method.</p>
+<p>The call syntax for the create-function is as follows:</p>
+<dl class="py method">
+<dt id="dscribe.descriptors.mbtr.MBTR.create">
+<code class="sig-prename descclassname">MBTR.</code><code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return MBTR output for the given systems.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> or list of <code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code>) – One or many atomic structures.</p></li>
+<li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
+the calculation across samples. Defaults to serial calculation
+with n_jobs=1.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Controls whether to print the progress of each job
+into to the console.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>MBTR for the
+given systems. The return type depends on the ‘sparse’ and
+‘flatten’-attributes. For flattened output a single numpy array or
+sparse scipy.csr_matrix is returned. The first dimension is
+determined by the amount of systems. If the output is not
+flattened, dictionaries containing the MBTR tensors for each k-term
+are returned.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray | scipy.sparse.csr_matrix | list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>The output will in this case be a numpy array with shape [#positions,
+#features]. The number of features may be requested beforehand with the
+<a class="reference internal" href="../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.get_number_of_features" title="dscribe.descriptors.mbtr.MBTR.get_number_of_features"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_number_of_features()</span></code></a>-method.</p>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>The following examples demonstrate common use cases for the descriptor. These
+examples are also available in dscribe/examples/mbtr.py.</p>
+<div class="section" id="locating-information">
+<h3>Locating information<a class="headerlink" href="#locating-information" title="Permalink to this headline">¶</a></h3>
+<p>If the MBTR setup has been specified with <em>flatten=True</em>, the output is
+flattened into a single vector and it can become difficult to identify which
+parts correspond to which element combinations. To overcome this, the MBTR class
+provides the <a class="reference internal" href="../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.get_location" title="dscribe.descriptors.mbtr.MBTR.get_location"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_location()</span></code></a>-method. This method can be used to
+query for the slice that contains a specific element combination. The following
+example demonstrates its usage.</p>
+</div>
+<div class="section" id="visualization">
+<h3>Visualization<a class="headerlink" href="#visualization" title="Permalink to this headline">¶</a></h3>
+<p>The MBTR output vector can be visualized easily. The following snippet
+demonstrates how the output for <span class="math notranslate nohighlight">\(k=2\)</span> can be visualized with matplotlib.</p>
+<div class="figure align-center" id="id4">
+<a class="reference internal image-reference" href="../_images/mbtr_k2.png"><img alt="MBTR k=2" src="../_images/mbtr_k2.png" style="width: 686.4px; height: 463.2px;" /></a>
+<p class="caption"><span class="caption-text">The MBTR output for k=2. The graphs for Na-Na and Cl-Cl overlap due to their
+identical arrangement in the crystal.</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+<div class="section" id="finite-systems">
+<h3>Finite systems<a class="headerlink" href="#finite-systems" title="Permalink to this headline">¶</a></h3>
+<p>For finite systems we have to specify <em>periodic=False</em> in the constructor. The
+need to apply weighting depends on the size of the system: for small systems,
+such as small molecules, the benefits are small. However for larger systems,
+such as clusters and bigger molecules, adding weighting will help in removing
+“noise” coming from atom combinations that are physically very far apart and do
+not have any meaningful direct interaction in the system. The following code
+demonstrates both approaches.</p>
+<div class="figure align-center" id="id5">
+<a class="reference internal image-reference" href="../_images/mbtr_weighting.png"><img alt="MBTR weighting" src="../_images/mbtr_weighting.png" style="width: 686.4px; height: 463.2px;" /></a>
+<p class="caption"><span class="caption-text">The MBTR output for C60 without weighting and with exponential weighting for
+<span class="math notranslate nohighlight">\(k=2\)</span>. Without the weighting the carbon pairs that are far away will
+have the highest intensity and dominate the output.</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+<div class="section" id="normalization">
+<h3>Normalization<a class="headerlink" href="#normalization" title="Permalink to this headline">¶</a></h3>
+<p>Depending on the application, the preprocessing of the MBTR vector before
+feeding it into a machine learing model may be beneficial. <em>Normalization</em> is
+one of the methods that can be used to preprocess the output. Here we go
+through some examples of what kind of normalization can be used together with
+MBTR, but ultimately the need for preprocessing depends on both the predicted
+property and the machine learning algorithm.</p>
+<p>The different normalization options provided in the MBTR constructor are:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>“none”</strong>: No normalization is applied. If the predicted quantity is
+<em>extensive</em> - scales with the system size - and there is no need to weight
+the importance of the different <span class="math notranslate nohighlight">\(k\)</span>-terms, then no normalization
+should be performed.</p></li>
+<li><p><strong>“l2_each”</strong>: Each <span class="math notranslate nohighlight">\(k\)</span>-term is individually scaled to unit Euclidean
+norm. As the amount of features in the <span class="math notranslate nohighlight">\(k=1\)</span> term scales linearly with
+number of species, <span class="math notranslate nohighlight">\(k=2\)</span> quadratically and <span class="math notranslate nohighlight">\(k=3\)</span> cubically, the
+norm can get dominated by the highest <span class="math notranslate nohighlight">\(k\)</span>-term. To equalize the
+importance of different terms, each <span class="math notranslate nohighlight">\(k\)</span>-term can be individually
+scaled to unit Euclidean norm. This option can be used if the predicted
+quantity is <em>intensive</em> - does not scale with the system size, and if the
+learning method uses the Euclidean norm to determine the similarity of
+inputs.</p></li>
+<li><p><strong>“n_atoms”</strong>: The whole output is divided by the number of atoms in the
+system. If the system is periodic, the number of atoms is determined from
+the given system cell. This form of normalization does also make the output
+for different crystal supercells equal, but does not equalize the norm of
+different k-terms.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="periodic-systems">
+<h3>Periodic systems<a class="headerlink" href="#periodic-systems" title="Permalink to this headline">¶</a></h3>
+<p>When applying MBTR to periodic systems, use <em>periodic=True</em> in the constructor.
+For periodic systems a weighting function needs to be defined, and an exception
+is raised if it is not given. The weighting essentially determines how many
+periodic copies of the cell we need to include in the calculation, and without
+it we would not know when to stop the periodic repetition. The following code
+demonstrates how to apply MBTR on a periodic crystal:</p>
+<p>A problem with periodic crystals that is not directly solved by the MBTR
+formalism is the fact that multiple different cells shapes and sizes can be
+used for the same crystal. This means that the descriptor is not unique: the
+same crystal can have multiple representations in the descriptor space. This
+can be an issue when predicting properties that do not scale with system size,
+e.g. band gap or formation energy per atom. The following code and plot
+demonstrates this for different cells representing the same crystal:</p>
+<div class="figure align-center" id="id6">
+<a class="reference internal image-reference" href="../_images/mbtr_periodic.png"><img alt="MBTR unnormalized" src="../_images/mbtr_periodic.png" style="width: 686.4px; height: 463.2px;" /></a>
+<p class="caption"><span class="caption-text">The raw MBTR output for different cells representing the same crystal. The
+shapes in the output are the same, but the intensities are different
+(intensities are integer multiples of the primitive system output)</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
+</div>
+<p>However, if the output is normalized (see the example about different
+normalization methods) we can recover truly identical output for the different
+cells representing the same material:</p>
+<div class="figure align-center" id="id7">
+<a class="reference internal image-reference" href="../_images/mbtr_periodic_normalized.png"><img alt="MBTR normalized" src="../_images/mbtr_periodic_normalized.png" style="width: 686.4px; height: 463.2px;" /></a>
+<p class="caption"><span class="caption-text">The normalized MBTR output for different cells representing the same
+crystal. After normalising the output with <em>normalization=’l2_each’</em>,
+the outputs become identical.</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
+</div>
+<p>DScribe achieves the completely identical MBTR output for different periodic
+supercells by taking into account the translational multiplicity of the atomic
+pairs and triples in the system. This is done in practice by weighting the
+contribution of the pair and triples by how many different periodic repetitions
+of the original cell are involved in forming the pair or triple.</p>
+<p id="bibtex-bibliography-tutorials/mbtr-0"><dl class="citation">
+<dt class="bibtex label" id="mbtr"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>Haoyan Huo and Matthias Rupp. Unified representation of molecules and crystals for machine learning. <em>arXiv e-prints</em>, pages arXiv:1704.06439, Apr 2017. <a class="reference external" href="https://arxiv.org/abs/1704.06439">arXiv:1704.06439</a>.</p>
+</dd>
+</dl>
+</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="lmbtr.html" class="btn btn-neutral float-right" title="Local Many-body Tensor Representation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="soap.html" class="btn btn-neutral float-left" title="Smooth Overlap of Atomic Positions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Versions</span>
+      v: 0.3.x
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl id="version-table">
+        <dt>Versions</dt>
+      </dl>
+    </div>
+  </div>
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
