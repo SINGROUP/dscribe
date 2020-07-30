@@ -15,5 +15,5 @@ xhr.onreadystatechange = () => {
     }
   }
 };
-xhr.open("GET", "https://singroup.github.io/dscribe/docs/versions.json", true);
+xhr.open("GET", "https://singroup.github.io/dscribe/versions.json", true);
 xhr.send();
