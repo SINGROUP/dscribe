@@ -393,7 +393,7 @@ class SOAP(Descriptor):
 
         Args:
             species(tuple): A tuple containing a pair of species as chemical
-            symbols or atomic numbers. The tuple can be for example ("H", "O").
+                symbols or atomic numbers. The tuple can be for example ("H", "O").
 
         Returns:
             slice: slice containing the location of the specified species
