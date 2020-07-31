@@ -14,7 +14,7 @@ class ExampleTests(unittest.TestCase):
                 filename = os.path.join(root, f)
                 if filename.endswith(".py"):
                     modulename = filename[2:-3].replace("/", ".")
-                    import_module("."+modulename, package="examples")
+                    import_module("examples."+modulename)
 
 if __name__ == '__main__':
     suites = []
