@@ -6,7 +6,7 @@
 
 \begin{document}
 
-\title{Soap by Tesseral Spherical Harmonis}
+\title{Soap by Tesseral Spherical Harmonis and Derivatives}
 \author{Aki Morooka}
 
 \maketitle
@@ -79,9 +79,14 @@ to get the file with the [i]'s,
 \end{verbatim}
 \end{itemize}
 
-\section*{Final notes}
+\section*{Derivatives}
 
-For the dericvatie forms, there are slight modifications that need to be made, but the basic idea is the same. Please read SoapDerivaties.pdf for the implementation.
+\begin{align}
+ \frac{\partial\vec{P(x,y,z)}}{\partial x_\delta} &= \sum_m \frac{c_m(x,y,z)c_m(x,y,z)}{\partial x_\delta} \nonumber \\ 
+ &= \sum_m 2c_m(x,y,z) \frac{c_m(x,y,z)}{\partial x_\delta}
+\end{align}
+where $\partial x_\delta$ is the derivative of $x$ at atom $\delta$. 
+
 
 
 \end{document}
