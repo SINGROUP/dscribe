@@ -98,7 +98,6 @@
 <li class="toctree-l1"><a class="reference internal" href="tutorials/tutorials.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="doc/modules.html">API</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Contributing</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#code-style-guideline">Code style guideline</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="publications.html">Publications</a></li>
@@ -171,54 +170,7 @@
             
   <div class="section" id="contributing">
 <h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h1>
-<p>Follow these general instructions if you wish to contribute a new descriptor
-implementation to DScribe:</p>
-<blockquote>
-<div><ol class="arabic simple">
-<li><p>Contact the authors to discuss your idea for a new descriptor
-implementation.</p></li>
-<li><p>Read the code style guideline (below).</p></li>
-<li><p>Fork the repository and do all modifications within it.</p></li>
-<li><p>Implement the descriptor as a class within a new module in
-<em>dsribe/descriptors/</em>. The descriptor class should inherit from the
-<a class="reference internal" href="doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor" title="dscribe.descriptors.descriptor.Descriptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Descriptor</span></code></a>-class.</p></li>
-<li><p>Create new test module for the descriptor with the same module name, but
-in <em>dscribe/regtests/</em>. The tests should be implemented within a new
-class that inherits from the <code class="xref py py-class docutils literal notranslate"><span class="pre">TestBaseClass</span></code>-class found in
-<em>dscribe/regtests/</em>. Add the new tests as part of
-<em>dscribe/regtests/testrunner.py</em>.</p></li>
-<li><p>Ensure that your new tests and the existing tests run succesfully. You
-can run the tests by first installing the developer dependencies by
-running <code class="code docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">dscribe/devrequirements.txt</span></code>, and then
-running <em>dscribe/regtests/testrunner.py</em>.</p></li>
-<li><p>Create tutorial for the descriptor in <em>dscribe/docs/src/tutorials</em>.
-Follow the structure of the existing tutorials.</p></li>
-<li><p>Create a pull request in GitHub.</p></li>
-</ol>
-</div></blockquote>
-<div class="section" id="code-style-guideline">
-<h2>Code style guideline<a class="headerlink" href="#code-style-guideline" title="Permalink to this headline">¶</a></h2>
-<blockquote>
-<div><ul>
-<li><p>The code is designed to run on Python 3 only from version 0.2.8 onwards.</p></li>
-<li><p>The code style is guided by PEP 8, but ignoring the following:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>E123: Closing bracket does not match indentation of opening bracket’s line</p></li>
-<li><p>E124: Closing bracket does not match visual indentation</p></li>
-<li><p>E126: Continuation line over-indented for hanging indent</p></li>
-<li><p>E128: Continuation line under-indented for visual indent</p></li>
-<li><p>E226: Missing whitespace around operator</p></li>
-<li><p>E501: Line too long (82 &gt; 79 characters)</p></li>
-<li><p>E401: Module level import not at top of file</p></li>
-</ul>
-</div></blockquote>
-</li>
-<li><p>Spaces over tabs. The indent size is 4 spaces.</p></li>
-<li><p>Classes and functions should be documented by following the <a class="reference external" href="http://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings">Google style guide</a>
-that can be interpreted by the <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html">sphinx Napoleon-extension</a></p></li>
-</ul>
-</div></blockquote>
+<p>You are viewing an old version of the documentation. Please refer to the <a href="https://singroup.github.io/dscribe/latest/">newest documentation</a> for this information.</p>
 </div>
 </div>
 
