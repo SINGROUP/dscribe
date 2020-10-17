@@ -7,26 +7,37 @@ from sklearn.preprocessing import StandardScaler
 # H is hidden dimension; D_out is output dimension.
 n_epochs = 1000
 n_out = 1
+n_atoms = 2
 n_hidden = 5
+n_features = 4
+n_samples = 20
 
 # Load numpy data
 D_numpy = np.load("D.npy")
 n_samples, n_features = D_numpy.shape
 E_numpy = np.array([np.load("E.npy")]).T
-F_numpy = np.array([np.load("F.npy")]).T
-print(D_numpy.shape)
+F_numpy = np.load("F.npy")
+# print(D_numpy.shape)
 # print(E_numpy.shape)
 # print(F_numpy.shape)
+
+# Test multiplication
+dD_dr = np.zeros((n_samples, n_atoms, 3, n_features))
+df_dD = np.zeros((n_samples, n_features))
+F_pred = np.einsum('ijkl,il->ijk', dD_dr, df_dD)
+# print(F_pred.shape)
+# print(F_pred)
 
 # Standardize input
 # print(x.shape)
 scaler = StandardScaler().fit(D_numpy)
 D_numpy_scaled = scaler.transform(D_numpy)
 
-# # Create Tensors
+# Create Tensors
 D = torch.Tensor(D_numpy_scaled)
 E = torch.Tensor(E_numpy)
 F = torch.Tensor(F_numpy)
+dD_dr = torch.ones(n_samples, n_atoms, n_features, 3)
 D.requires_grad = True
 
 # # Use the nn package to define our model as a sequence of layers. nn.Sequential
@@ -61,13 +72,14 @@ class ToyNet(torch.nn.Module):
 model = ToyNet(n_features, n_hidden, n_out)
 
 
-def custom_loss(E_pred, E_train, F_pred, F_train):
+def custom_loss(E_pred, E_train, F_pred, F_train, forces=True):
     """Custom loss function that targets both energies and forces.
     """
     energy_loss = torch.mean((E_pred - E_train)**2)
+    if forces:
+        force_loss = torch.mean((F_pred - F_train)**2)
+        return energy_loss + force_loss
     return energy_loss
-    # force_loss = torch.mean((F_pred - F_train)**2)
-    # return energy_loss + force_loss
 
 # The nn package also contains definitions of popular loss functions; in this
 # case we will use Mean Squared Error (MSE) as our loss function.
@@ -80,26 +92,25 @@ def custom_loss(E_pred, E_train, F_pred, F_train):
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-2)
 # loss_function = torch.nn.MSELoss(reduction='mean')
 
+# Initialize the gradients
+E_pred = model(D)
+loss = custom_loss(E_pred, E, None, None, forces=False)
+optimizer.zero_grad()
+loss.backward()
+optimizer.step()
+
 # Train!
 for i_epoch in range(n_epochs):
-    # print("Starting epoch: {}".format(i_epoch))
-    # for i_batch, (D_batch, E_batch, F_batch) in enumerate(data_train):
-
     # Forward pass: Compute predicted y by passing x to the model
     E_pred = model(D)
 
     # Get derivatives of model output with respect to input variables
     # (=descriptor)
     df_dD = D.grad
-    # if df_dD is not None:
-        # print(df_dD.size())
 
     # Get derivatives of input variables (=descriptor) with respect to atom
-    # positions
-    # dD_dr = derivatives
-
-    # Get forces as a product of the two partial derivatives: df/dx = df/dD*dD/dx
-    F_pred = None
+    # positions = forces
+    F_pred = torch.einsum('ijkl,il->ijk', dD_dr, df_dD)
 
     # Compute and print loss
     loss = custom_loss(E_pred, E, F_pred, F)
