@@ -166,6 +166,25 @@ class SOAP(Descriptor):
         self._average = average
         self.crossover = crossover
 
+    def derivatives(self, system, positions=None, include=None, exclude=None, method="numerical"):
+        """Return the SOAP output for the given systems and given positions.
+
+        Args:
+            system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or
+                many atomic structures.
+            positions (list): Positions where to calculate SOAP. Can be
+                provided as cartesian positions or atomic indices. If no
+                positions are defined, the SOAP output will be created for all
+                atoms in the system. When calculating SOAP for multiple
+                systems, provide the positions as a list for each system.
+            n_jobs (int): Number of parallel jobs to instantiate. Parallellizes
+                the calculation across samples. Defaults to serial calculation
+                with n_jobs=1.
+            verbose(bool): Controls whether to print the progress of each job
+                into to the console.
+        """
+        pass
+
     def create(self, system, positions=None, n_jobs=1, verbose=False):
         """Return the SOAP output for the given systems and given positions.
 
