@@ -29,15 +29,16 @@ from dscribe.descriptors import SOAP
 from ase import Atoms
 from ase.build import molecule
 
-H = Atoms(
+H2 = Atoms(
     cell=[
         [15.0, 0.0, 0.0],
         [0.0, 15.0, 0.0],
         [0.0, 0.0, 15.0]
     ],
     positions=[
-        [0.5, 0, 0],
         [-0.5, 0, 0],
+        [0.5, 0, 0],
+
     ],
     symbols=["H", "H"],
 )
@@ -45,9 +46,8 @@ H = Atoms(
 
 class SoapDerivativeTests(unittest.TestCase):
 
-    def test_derivatives(self):
-        """Used to test that changing the setup through properties works as
-        intended.
+    def test_numerical(self):
+        """Tests if the numerical soap derivatives run
         """
         # Test changing species
         soap = SOAP(
@@ -57,8 +57,33 @@ class SoapDerivativeTests(unittest.TestCase):
             lmax=0,
             sparse=False,
         )
-        derivatives = soap.derivatives_single(H, positions=[[0,0,0]], method="numerical")
+        derivatives = soap.derivatives_single(H2, positions=[[0.0,0.0,0.0]], method="numerical")
         print(derivatives*(-2))
+
+    def test_analytical(self):
+        """Tests if the analytical soap derivatives run
+        """
+        soap = SOAP(
+            species=[1],
+            rcut=3,
+            nmax=2,
+            lmax=0,
+            sparse=False,
+        )
+        # soap = a.create(H2, positions = [[0.0, 0.0, 0.0], ])
+        # soap_disturbed = a.create(H2_disturbed, positions = [[0.0, 0.0, 0.0], ])
+        # soap_diff = soap - soap_disturbed
+
+        # print("disturbed soap")
+        # print(soap_diff / 0.00001)
+
+        #derivatives = a.derivatives_single(H2, positions =[0 ] , method = "analytical", include=None, exclude=None)
+        derivatives = soap.derivatives_single(H2, positions=[[0.0,0.0,0.0]], method="analytical")
+        #derivatives = a.derivatives_single(H2, positions =[[0.0, 0.0, 0.0], [-0.5, 0, 0], [0.5, 0, 0], ] , method = "analytical", include=None, exclude=None)
+
+        print(derivatives)
+        # print(derivatives.shape)
+        # print(a._rcut)
 
 
 if __name__ == '__main__':

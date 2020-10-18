@@ -295,7 +295,10 @@ class SOAP(Descriptor):
                     self._average,
                 )
         elif method == "analytical":
-            dscribe.ext.soap_gto_devX(d, positions, centers, alphas, betas, Z_sorted, rcut, cutoff_padding, n_atoms, n_species, nmax, lmax, n_centers, eta, crossover)
+            print("n_centers", n_centers)
+            d = np.zeros(( n_features, n_centers, n_atoms ), dtype=np.float64)
+            dscribe.ext.soap_gto_devX(d, positions, centers, alphas, betas, Z_sorted, 
+                self._rcut, cutoff_padding, n_atoms, n_species, self._nmax, self._lmax, n_centers, self._eta, self.crossover)
         else:
             raise ValueError("Please choose method 'numerical' or 'analytical'")
         return d
