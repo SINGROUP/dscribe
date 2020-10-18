@@ -84,8 +84,9 @@ class SoapDerivativeTests(unittest.TestCase):
         )
         atoms = a.create(H2)
 
-#        derivatives = a.derivatives(H2, positions =[[0.0, 0.0, 0.0], [-0.5, 0, 0], [0.5, 0, 0], ] , method = "analytical", include=None, exclude=None)
+        #derivatives = a.derivatives_single(H2, positions =[0 ] , method = "analytical", include=None, exclude=None)
         derivatives = a.derivatives_single(H2, positions =[[0.0, 0.0, 0.0], ] , method = "analytical", include=None, exclude=None)
+        derivatives = a.derivatives_single(H2, positions =[[0.0, 0.0, 0.0], [-0.5, 0, 0], [0.5, 0, 0], ] , method = "analytical", include=None, exclude=None)
 
         print(derivatives)
         print(derivatives.shape)
