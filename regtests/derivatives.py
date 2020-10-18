@@ -42,22 +42,55 @@ H = Atoms(
     symbols=["H"],
 )
 
+H2 = Atoms(
+    cell=[
+        [15.0, 0.0, 0.0],
+        [0.0, 15.0, 0.0],
+        [0.0, 0.0, 15.0]
+    ],
+    positions=[
+        [-0.5, 0, 0],
+        [0.5, 0, 0],
+
+    ],
+    symbols=["H", "H"],
+)
 
 class SoapDerivativeTests(unittest.TestCase):
 
-    def test_derivatives(self):
-        """Used to test that changing the setup through properties works as
-        intended.
+#    def test_derivatives(self):
+#        """Used to test that changing the setup through properties works as
+#        intended.
+#        """
+#        # Test changing species
+#        soap = SOAP(
+#            species=[1],
+#            rcut=3,
+#            nmax=3,
+#            lmax=3,
+#            sparse=False,
+#        )
+#        derivatives = soap.derivatives_single(H)
+#
+    def test_analytical(self):
+        """Tests if the analytical soap derivatives run
         """
-        # Test changing species
-        soap = SOAP(
+        a = SOAP(
             species=[1],
             rcut=3,
-            nmax=3,
-            lmax=3,
+            nmax=2,
+            lmax=0,
             sparse=False,
         )
-        derivatives = soap.derivatives_single(H)
+        atoms = a.create(H2)
+
+#        derivatives = a.derivatives(H2, positions =[[0.0, 0.0, 0.0], [-0.5, 0, 0], [0.5, 0, 0], ] , method = "analytical", include=None, exclude=None)
+        derivatives = a.derivatives_single(H2, positions =[[0.0, 0.0, 0.0], ] , method = "analytical", include=None, exclude=None)
+
+        print(derivatives)
+        print(derivatives.shape)
+        print(a._rcut)
+
 
 
 if __name__ == '__main__':

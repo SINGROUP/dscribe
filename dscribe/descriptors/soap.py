@@ -166,6 +166,67 @@ class SOAP(Descriptor):
         self._average = average
         self.crossover = crossover
 
+
+    def prepare(self, system, positions=None):
+        # Transform the input system into the internal System-object
+        system = self.get_system(system)
+
+        # Check that the system does not have elements that are not in the list
+        # of atomic numbers
+        self.check_atomic_numbers(system.get_atomic_numbers())
+
+        # Check if periodic is valid
+        if self.periodic:
+            cell = system.get_cell()
+            if np.cross(cell[0], cell[1]).dot(cell[2]) == 0:
+                raise ValueError(
+                    "System doesn't have cell to justify periodicity."
+                )
+
+        # Setup the local positions
+        if positions is None:
+            list_positions = system.get_positions()
+        else:
+            # Check validity of position definitions and create final cartesian
+            # position list
+            list_positions = []
+            if len(positions) == 0:
+                raise ValueError(
+                    "The argument 'positions' should contain a non-empty set of"
+                    " atomic indices or cartesian coordinates with x, y and z "
+                    "components."
+                )
+            for i in positions:
+                if np.issubdtype(type(i), np.integer):
+                    list_positions.append(system.get_positions()[i])
+                elif isinstance(i, (list, tuple, np.ndarray)):
+                    if len(i) != 3:
+                        raise ValueError(
+                            "The argument 'positions' should contain a "
+                            "non-empty set of atomic indices or cartesian "
+                            "coordinates with x, y and z components."
+                        )
+                    list_positions.append(i)
+                else:
+                    raise ValueError(
+                        "Create method requires the argument 'positions', a "
+                        "list of atom indices and/or positions."
+                    )
+
+        # The radial cutoff is extended by adding a padding that depends on
+        # the used used sigma value. The padding is chosen so that the
+        # gaussians decay to the specified threshold value at the cutoff
+        # distance.
+        threshold = 0.001
+        cutoff_padding = self._sigma*np.sqrt(-2*np.log(threshold))
+
+        # Create the extended system if periodicity is requested
+        if self.periodic:
+            system = get_extended_system(system, self._rcut+cutoff_padding, return_cell_indices=False)
+
+        return system, list_positions, cutoff_padding, 
+
+
     def derivatives_single(self, system, positions=None, include=None, exclude=None, method="numerical"):
         """Return the SOAP output for the given systems and given positions.
 
@@ -237,7 +298,8 @@ class SOAP(Descriptor):
                 )
         elif method == "analytical":
             d = np.zeros((n_atoms, n_centers, n_features), dtype=np.float64)
-            dscribe.ext.soap_gto_devX(d, positions, centers, alphas, betas, Z_sorted, rcut, cutoff_padding, n_atoms, n_species, nmax, lmax, n_centers, eta, crossover)
+            dscribe.ext.soap_gto_devX(d, positions, centers, alphas, betas, Z_sorted, 
+                self._rcut, cutoff_padding, n_atoms, n_species, self._nmax, self._lmax, n_centers, self._eta, self.crossover)
         else:
             raise ValueError("Please choose method 'numerical' or 'analytical'")
         return d
