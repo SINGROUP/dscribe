@@ -38,7 +38,7 @@ void derivatives_soap_gto(
     int Nt,
     int nMax,
     int lMax,
-    int Hs,
+    int nCenters,
     double eta,
     bool crossover,
     string average);

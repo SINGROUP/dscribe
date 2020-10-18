@@ -36,10 +36,10 @@ H = Atoms(
         [0.0, 0.0, 15.0]
     ],
     positions=[
-        [0, 0, 0],
-
+        [0.5, 0, 0],
+        [-0.5, 0, 0],
     ],
-    symbols=["H"],
+    symbols=["H", "H"],
 )
 
 
@@ -53,11 +53,12 @@ class SoapDerivativeTests(unittest.TestCase):
         soap = SOAP(
             species=[1],
             rcut=3,
-            nmax=3,
-            lmax=3,
+            nmax=2,
+            lmax=0,
             sparse=False,
         )
-        derivatives = soap.derivatives_single(H)
+        derivatives = soap.derivatives_single(H, positions=[[0,0,0]], method="numerical")
+        print(derivatives*(-2))
 
 
 if __name__ == '__main__':

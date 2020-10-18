@@ -253,12 +253,12 @@ class SOAP(Descriptor):
         else:
             raise ValueError("Provide either 'include' or 'exclude', not both.")
 
-        system, positions, cutoff_padding = self.prepare(system, positions)
+        system, centers, cutoff_padding = self.prepare(system, positions)
         n_atoms = len(system)
         positions, Z_sorted = self.flatten_positions(system, None)
         sorted_species = self._atomic_numbers
         n_species = len(sorted_species)
-        centers = np.array(positions)
+        centers = np.array(centers)
         n_centers = centers.shape[0]
         centers = centers.flatten()
         alphas = self._alphas.flatten()
