@@ -53,6 +53,7 @@ extensions = [
         [
             "dscribe/ext/ext.cpp",
             "dscribe/ext/celllist.cpp",
+            "dscribe/ext/derivatives.cpp",
             "dscribe/ext/soapGTO.cpp",
             "dscribe/ext/soapGeneral.cpp",
             "dscribe/ext/acsf.cpp",

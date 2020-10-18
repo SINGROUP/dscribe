@@ -22,6 +22,7 @@ limitations under the License.
 #include "soapGeneral.h"
 #include "acsf.h"
 #include "mbtr.h"
+#include "derivatives.h"
 
 namespace py = pybind11;
 using namespace std;
@@ -95,4 +96,7 @@ PYBIND11_MODULE(ext, m) {
         .def_readonly("indices", &CellListResult::indices)
         .def_readonly("distances", &CellListResult::distances)
         .def_readonly("distances_squared", &CellListResult::distancesSquared);
+
+    // Derivatives
+    m.def("derivatives_soap_gto", &derivatives_soap_gto, "Numerical derivatives for SOAP with gaussian type orbital radial basis set.");
 }
