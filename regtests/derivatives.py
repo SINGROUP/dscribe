@@ -56,6 +56,20 @@ H2 = Atoms(
     symbols=["H", "H"],
 )
 
+H2_disturbed = Atoms(
+    cell=[
+        [15.0, 0.0, 0.0],
+        [0.0, 15.0, 0.0],
+        [0.0, 0.0, 15.0]
+    ],
+    positions=[
+        [-0.50001, 0, 0],
+        [0.50001, 0, 0],
+
+    ],
+    symbols=["H", "H"],
+)
+
 class SoapDerivativeTests(unittest.TestCase):
 
 #    def test_derivatives(self):
@@ -82,11 +96,17 @@ class SoapDerivativeTests(unittest.TestCase):
             lmax=0,
             sparse=False,
         )
-        atoms = a.create(H2)
+        soap = a.create(H2, positions = [[0.0, 0.0, 0.0], ])
+        soap_disturbed = a.create(H2_disturbed, positions = [[0.0, 0.0, 0.0], ])
+        soap_diff = soap - soap_disturbed
+
+        print("disturbed soap")
+        print(soap_diff / 0.00001)
 
         #derivatives = a.derivatives_single(H2, positions =[0 ] , method = "analytical", include=None, exclude=None)
+        
         derivatives = a.derivatives_single(H2, positions =[[0.0, 0.0, 0.0], ] , method = "analytical", include=None, exclude=None)
-        derivatives = a.derivatives_single(H2, positions =[[0.0, 0.0, 0.0], [-0.5, 0, 0], [0.5, 0, 0], ] , method = "analytical", include=None, exclude=None)
+        #derivatives = a.derivatives_single(H2, positions =[[0.0, 0.0, 0.0], [-0.5, 0, 0], [0.5, 0, 0], ] , method = "analytical", include=None, exclude=None)
 
         print(derivatives)
         print(derivatives.shape)
