@@ -756,27 +756,33 @@ void getCfactorsD(double* preCoef, int Asize, double* x,double* x2, double* x4, 
   }
 }
 //================================================================
-void getCD(double* CDev, double* C, double* preCoef,  double* x, double* y, double* z,double* r2, double* bOa, double* aOa, double* exes,  int totalAN, int Asize, int Ns, int Ntypes, int lMax, int posI, int typeJ, const vector<int> &indices){
+void getCD(double* CDevX,double* CDevY,double* CDevZ, double* C, double* preCoef,  double* x, double* y, double* z,double* r2, double* bOa, double* aOa, double* exes,  int totalAN, int Asize, int Ns, int Ntypes, int lMax, int posI, int typeJ, const vector<int> &indices){
 
   if(Asize == 0){return;}
   double sumMe = 0; int NsNs = Ns*Ns;  int NsJ = ((lMax+1)*(lMax+1))*Ns*typeJ; int LNsNs;
   int LNs; int NsTsI = ((lMax+1)*(lMax+1))*Ns*Ntypes*posI;
-  //Non dev  l=0
-  for(int k = 0; k < Ns; k++){
-    sumMe = 0;
-    for(int i = 0; i < Asize; i++){ sumMe += exp(aOa[k]*r2[i]);}
-    for(int n = 0; n < Ns; n++){
-	    C[NsTsI + NsJ + n] += bOa[n*Ns + k]*sumMe;
-    }}
+  double preExp;
+//  //Non dev  l=0
+//  for(int k = 0; k < Ns; k++){
+//    sumMe = 0;
+//    for(int i = 0; i < Asize; i++){ sumMe += exp(aOa[k]*r2[i]);}
+//    for(int n = 0; n < Ns; n++){
+//	    C[NsTsI + NsJ + n] += bOa[n*Ns + k]*sumMe;
+//    }}
     
-  //dev l=0
-    for(int i = 0; i < Asize; i++){
-     for(int k = 0; k < Ns; k++){
-       for(int n = 0; n < Ns; n++){
-	    CDev[NsTsI*totalAN + NsJ*totalAN + n*totalAN + indices[i]] += bOa[n*Ns + k]*(-2.0)*x[i]*aOa[k]*exp(aOa[k]*r2[i]);
-	    std::cout << x[i]  << std::endl; 
-//	    std::cout << bOa[n*Ns + k]*(-2)*x[i]*aOa[k]*exp(aOa[k]*r2[i])  << std::endl; 
-//	    std::cout << bOa[n*Ns + k]*(-2.0)*x[i]*aOa[k]*exp(aOa[k]*r2[i])  << std::endl; 
+  //dev l=0, dx
+    for(int k = 0; k < Ns; k++){
+//      for(int i = 0; i < Asize; i++){
+//          exes[i] = exp(aOa[k]*r2[i]);
+//      }
+      for(int i = 0; i < Asize; i++){
+	      preExp = exp(aOa[k]*r2[i]);
+        for(int n = 0; n < Ns; n++){
+	    C[NsTsI + NsJ + n] += bOa[n*Ns + k]*preExp;
+	    CDevX[NsTsI*totalAN + NsJ*totalAN + n*totalAN + indices[i]] += -2.0*aOa[k]*x[i]*bOa[n*Ns + k]*preExp;
+	    CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + indices[i]] += -2.0*aOa[k]*y[i]*bOa[n*Ns + k]*preExp;
+	    CDevZ[NsTsI*totalAN + NsJ*totalAN + n*totalAN + indices[i]] += -2.0*aOa[k]*z[i]*bOa[n*Ns + k]*preExp;
+//	    std::cout << x[i] << std::endl; 
        }
      }
     }
@@ -2548,8 +2554,12 @@ void soapGTODevX(py::array_t<double> cArr, py::array_t<double> positions, py::ar
 
   double* cnnd = (double*) malloc(((lMax+1)*(lMax+1))*Nt*Ns*Hs*sizeof(double));
   double* cdevX = (double*) malloc(totalAN*((lMax+1)*(lMax+1))*Nt*Ns*Hs*sizeof(double));
+  double* cdevy = (double*) malloc(totalAN*((lMax+1)*(lMax+1))*Nt*Ns*Hs*sizeof(double));
+  double* cdevZ = (double*) malloc(totalAN*((lMax+1)*(lMax+1))*Nt*Ns*Hs*sizeof(double));
   for(int i = 0; i < ((lMax+1)*(lMax+1))*Nt*Ns*Hs; i++){cnnd[i] = 0.0;}
   for(int i = 0; i < ((lMax+1)*(lMax+1))*Nt*Ns*Hs*totalAN; i++){cdevX[i] = 0.0;}
+  for(int i = 0; i < ((lMax+1)*(lMax+1))*Nt*Ns*Hs*totalAN; i++){cdevY[i] = 0.0;}
+  for(int i = 0; i < ((lMax+1)*(lMax+1))*Nt*Ns*Hs*totalAN; i++){cdevZ[i] = 0.0;}
 
   // Initialize binning
   CellList cellList(positions, rCut+cutoffPadding);
@@ -2597,7 +2607,7 @@ void soapGTODevX(py::array_t<double> cArr, py::array_t<double> positions, py::ar
 
       getRsZsD(dx,x2,x4,x6,x8,x10,x12,x14,x16,x18, dy,y2,y4,y6,y8,y10,y12,y14,y16,y18, dz, r2, r4, r6, r8,r10,r12,r14,r16,r18, z2, z4, z6, z8,z10,z12,z14,z16,z18, n_neighbours,lMax);
       getCfactorsD(preCoef, n_neighbours, dx,x2, x4, x6, x8,x10,x12,x14,x16,x18, dy,y2, y4, y6, y8,y10,y12,y14,y16,y18, dz, z2, z4, z6, z8,z10,z12,z14,z16,z18, r2, r4, r6, r8,r10,r12,r14,r16,r18, totalAN, lMax); // Erased tn
-      getCD(cdevX,cnnd, preCoef, dx, dy, dz, r2, bOa, aOa, exes, totalAN, n_neighbours, Ns, Nt, lMax, i, j, ZIndexPair.second); //erased tn and Nx
+      getCD(cdevX,cdevY, cdevZ, cnnd, preCoef, dx, dy, dz, r2, bOa, aOa, exes, totalAN, n_neighbours, Ns, Nt, lMax, i, j, ZIndexPair.second); //erased tn and Nx
     }
   }
 
