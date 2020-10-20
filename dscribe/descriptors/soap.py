@@ -226,35 +226,66 @@ class SOAP(Descriptor):
         return system, list_positions, cutoff_padding, 
 
     def derivatives_single(self, system, positions=None, include=None, exclude=None, method="numerical"):
-        """Return the SOAP output for the given systems and given positions.
+        """Return the SOAP output for the given system and given positions.
 
         Args:
-            system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or
-                many atomic structures.
+            system (:class:`ase.Atoms`): Atomic structure.
             positions (list): Positions where to calculate SOAP. Can be
                 provided as cartesian positions or atomic indices. If no
                 positions are defined, the SOAP output will be created for all
                 atoms in the system. When calculating SOAP for multiple
                 systems, provide the positions as a list for each system.
-            include (list): indices of atoms to compute the derivatives on. 
-                Cannot be provided with argument exclude.
-            exclude (list): indices of atoms not to compute the derivatives on.
-                Cannot be provided with argument include.
-            method (str): 'numerical' or 'analytical' derivatives
+            include (list): Indices of atoms to compute the derivatives on. 
+                Cannot be provided together with 'exclude'.
+            exclude (list): Indices of atoms not to compute the derivatives on.
+                Cannot be provided together with 'include'.
+            method (str): 'numerical' or 'analytical' derivatives. Numerical
+                derivatives are implemented with central finite difference. If not
+                specified, analytical derivatives are used when available.
+        
+        Returns:
+            4D numpy array containing the derivatives. The dimensions are:
+            [n_positions, n_atoms, n_features, 3]. The first dimension goes
+            over the SOAP centers in the same order as they were given in the
+            argument. The second dimension goes over the included atoms. The
+            order is same as the order of atoms in the given system. The third
+            dimension goes over the features in the default order. The last
+            dimension goes over the cartesian coordinates, x, y and z.
         """
+        if self._sparse:
+            raise ValueError("Sparse output is not available for derivatives.")
+        if self._average is not "none" and method == "analytical":
+            raise ValueError(
+                "Analytical derivatives not available for averaged output."
+            )
+
         # Determine the atom indices that are displaced
+        n_atoms = len(system)
         if include is None and exclude is None:
             displacedIndices = np.arange(len(system))
         elif include is not None:
-            displacedIndices = np.asarray(include)
+            displacedIndices = np.asarray(list(set(include)))
+            if np.any(displacedIndices > n_atoms - 1):
+                raise ValueError(
+                    "Invalid index provided in the list of included atoms."
+                )
+            displacedIndices.sort()
         elif exclude is not None:
+            exclude = np.asarray(list(set(exclude)))
+            if np.any(exclude > n_atoms - 1):
+                raise ValueError(
+                    "Invalid index provided in the list of excluded atoms."
+                )
             displacedIndices = np.arange(len(system))
-            displacedIndices = numpy.delete(displacedIndices, exclude)
+            if len(exclude) > 0:
+                displacedIndices = np.delete(displacedIndices, exclude)
         else:
             raise ValueError("Provide either 'include' or 'exclude', not both.")
+        n_displaced = len(displacedIndices)
+        if n_displaced == 0:
+            raise ValueError("Please include at least one atom.")
 
         system, centers, cutoff_padding = self.prepare(system, positions)
-        n_atoms = len(system)
         positions, Z_sorted = self.flatten_positions(system, None)
         sorted_species = self._atomic_numbers
         n_species = len(sorted_species)
@@ -267,9 +298,9 @@ class SOAP(Descriptor):
         # Determine shape
         n_features = self.get_number_of_features()
         if self._average == "inner" or self._average == "outer":
-            d = np.zeros((1, n_atoms, n_features, 3), dtype=np.float64)
+            d = np.zeros((1, n_displaced, n_features, 3), dtype=np.float64)
         else:
-            d = np.zeros((n_centers, n_atoms, n_features, 3), dtype=np.float64)
+            d = np.zeros((n_centers, n_displaced, n_features, 3), dtype=np.float64)
 
         # Calculate numerically with extension
         if method == "numerical":

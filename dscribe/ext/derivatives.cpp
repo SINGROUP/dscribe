@@ -44,12 +44,11 @@ void derivatives_soap_gto(
     auto positions = positionsArr.mutable_unchecked<2>();
     auto centers = centersArr.unchecked<1>();
     
-    double h = 0.001;
+    double h = 0.0001;
     vector<double> coefficients = {-1.0/2.0, 0.0, 1.0/2.0};
     vector<double> displacement = {-1.0, 0.0, 1.0};
 
     for (int iCenter=0; iCenter < nCenters; ++iCenter) {
-        cout << iCenter << endl;
 
         // Make a copy of the center position
         py::array_t<double> centerArr(3);
@@ -86,9 +85,6 @@ void derivatives_soap_gto(
                     // Calculate descriptor value
                     soapGTO(cArr, positionsArr, centerArr, alphasArr, betasArr, atomicNumbersArr, orderedSpeciesArr, rCut, cutoffPadding, nAtoms, Nt, nMax, lMax, nCenters, eta, crossover, average);
                     auto c = cArr.unchecked<2>();
-                    //for (int j=0; j<3; ++j) {
-                        //cout << c(0, j) << endl;
-                    //}
 
                     // Add value to final derivative array
                     for (int iFeature=0; iFeature < nFeatures; ++iFeature) {
