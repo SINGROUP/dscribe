@@ -43,6 +43,10 @@ H2 = Atoms(
     ],
     symbols=["H", "H"],
 )
+H = Atoms(
+    positions=[[0.5, 0.5, 0.5]],
+    symbols=["H"],
+)
 H2O = molecule("H2O")
 
 
@@ -94,7 +98,7 @@ class SoapDerivativeTests(unittest.TestCase):
         """
         # Compare against naive python implementation.
         soap = SOAP(
-            species=[1],
+            species=[1, 8],
             rcut=3,
             nmax=2,
             lmax=0,
@@ -102,30 +106,33 @@ class SoapDerivativeTests(unittest.TestCase):
         )
 
         # Calculate with forward finite difference
-        positions = [[0.0, 0.0, 0.0]]
-        h = 0.000001
-        n_atoms = len(H2)
+        positions = [[0.0, 0.0, 0.0], [0.12, -0.5, 0.3]]
+        h = 0.0000001
+        n_atoms = len(H)
         n_pos = len(positions)
         n_features = soap.get_number_of_features()
         n_comp = 3
-        derivatives_python = np.zeros((n_pos, n_atoms, n_features, n_comp))
-        d0 = soap.create(H2, positions)
+        # view(H2O)
+        derivatives_python = np.zeros((n_pos, n_atoms, n_comp, n_features))
         for i_pos in range(len(positions)):
-            for i_atom in range(len(H2)):
+            center = positions[i_pos]
+            d0 = soap.create(H, [center])
+            for i_atom in range(len(H)):
                 for i_comp in range(3):
-                    H2_disturbed = H2.copy()
-                    translation = np.array([[0, 0, 0], [0, 0, 0]], dtype=np.float64)
+                    H_disturbed = H.copy()
+                    # translation = np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0]], dtype=np.float64)
+                    translation = np.array([[0, 0, 0]], dtype=np.float64)
                     translation[i_atom, i_comp] = h
-                    H2_disturbed.translate(translation)
-                    d1 = soap.create(H2_disturbed, positions)
+                    H_disturbed.translate(translation)
+                    d1 = soap.create(H_disturbed, [center])
                     ds = (-d0 + d1) / h
-                    derivatives_python[i_pos, i_atom, :, i_comp] = ds
+                    derivatives_python[i_pos, i_atom, i_comp, :] = ds[0, :]
 
         # Calculate with central finite difference implemented in C++
-        derivatives_cpp = soap.derivatives_single(H2, positions=positions, method="numerical")
+        derivatives_cpp = soap.derivatives_single(H, positions=positions, method="numerical")
 
         # Compare values
-        self.assertTrue(np.allclose(derivatives_python, derivatives_cpp, atol=1e-4))
+        self.assertTrue(np.allclose(derivatives_python, derivatives_cpp, atol=1e-5))
 
     # def test_analytical(self):
         # """Tests if the analytical soap derivatives run

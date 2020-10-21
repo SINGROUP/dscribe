@@ -223,7 +223,7 @@ class SOAP(Descriptor):
         if self.periodic:
             system = get_extended_system(system, self._rcut+cutoff_padding, return_cell_indices=False)
 
-        return system, list_positions, cutoff_padding, 
+        return system, np.asarray(list_positions), cutoff_padding, 
 
     def derivatives_single(self, system, positions=None, include=None, exclude=None, method="numerical"):
         """Return the SOAP output for the given system and given positions.
@@ -240,8 +240,8 @@ class SOAP(Descriptor):
             exclude (list): Indices of atoms not to compute the derivatives on.
                 Cannot be provided together with 'include'.
             method (str): 'numerical' or 'analytical' derivatives. Numerical
-                derivatives are implemented with central finite difference. If not
-                specified, analytical derivatives are used when available.
+                derivatives are implemented with central finite difference. If
+                not specified, analytical derivatives are used when available.
         
         Returns:
             4D numpy array containing the derivatives. The dimensions are:
@@ -286,10 +286,9 @@ class SOAP(Descriptor):
             raise ValueError("Please include at least one atom.")
 
         system, centers, cutoff_padding = self.prepare(system, positions)
-        positions, Z_sorted = self.flatten_positions(system, None)
+        newpos, Z_sorted = self.flatten_positions(system, None)
         sorted_species = self._atomic_numbers
         n_species = len(sorted_species)
-        centers = np.array(centers)
         n_centers = centers.shape[0]
         centers = centers.flatten()
         alphas = self._alphas.flatten()
@@ -298,16 +297,16 @@ class SOAP(Descriptor):
         # Determine shape
         n_features = self.get_number_of_features()
         if self._average == "inner" or self._average == "outer":
-            d = np.zeros((1, n_displaced, n_features, 3), dtype=np.float64)
+            d = np.zeros((1, n_displaced, 3, n_features), dtype=np.float64)
         else:
-            d = np.zeros((n_centers, n_displaced, n_features, 3), dtype=np.float64)
+            d = np.zeros((n_centers, n_displaced, 3, n_features), dtype=np.float64)
 
         # Calculate numerically with extension
         if method == "numerical":
             if self._rbf == "gto":
                 dscribe.ext.derivatives_soap_gto(
                     d,
-                    positions,
+                    newpos,
                     centers,
                     alphas,
                     betas,
@@ -328,7 +327,7 @@ class SOAP(Descriptor):
         elif method == "analytical":
             print("n_centers", n_centers)
             d = np.zeros(( n_features, n_centers, n_atoms ), dtype=np.float64)
-            dscribe.ext.soap_gto_devX(d, positions, centers, alphas, betas, Z_sorted, 
+            dscribe.ext.soap_gto_devX(d, newpos, centers, alphas, betas, Z_sorted, 
                 self._rcut, cutoff_padding, n_atoms, n_species, self._nmax, self._lmax, n_centers, self._eta, self.crossover)
         else:
             raise ValueError("Please choose method 'numerical' or 'analytical'")

@@ -44,9 +44,10 @@ void derivatives_soap_gto(
     auto positions = positionsArr.mutable_unchecked<2>();
     auto centers = centersArr.unchecked<1>();
     
+    // Central finite difference with error O(h^2)
     double h = 0.0001;
-    vector<double> coefficients = {-1.0/2.0, 0.0, 1.0/2.0};
-    vector<double> displacement = {-1.0, 0.0, 1.0};
+    vector<double> coefficients = {-1.0/2.0, 1.0/2.0};
+    vector<double> displacement = {-1.0, 1.0};
 
     for (int iCenter=0; iCenter < nCenters; ++iCenter) {
 
@@ -67,13 +68,7 @@ void derivatives_soap_gto(
             }
 
             for (int iComp=0; iComp < 3; ++iComp) {
-                for (int iStencil=0; iStencil < 3; ++iStencil) {
-
-                    // Skip zero coefficient stuff
-                    double coeff = coefficients[iStencil];
-                    if (coeff == 0) {
-                        continue;
-                    }
+                for (int iStencil=0; iStencil < 2; ++iStencil) {
 
                     // Introduce the displacement
                     positions(iPos, iComp) = pos(iComp) + h*displacement[iStencil];
@@ -83,22 +78,21 @@ void derivatives_soap_gto(
                     py::array_t<double> cArr({1, nFeatures});
 
                     // Calculate descriptor value
-                    soapGTO(cArr, positionsArr, centerArr, alphasArr, betasArr, atomicNumbersArr, orderedSpeciesArr, rCut, cutoffPadding, nAtoms, Nt, nMax, lMax, nCenters, eta, crossover, average);
+                    soapGTO(cArr, positionsArr, centerArr, alphasArr, betasArr, atomicNumbersArr, orderedSpeciesArr, rCut, cutoffPadding, nAtoms, Nt, nMax, lMax, 1, eta, crossover, average);
                     auto c = cArr.unchecked<2>();
 
                     // Add value to final derivative array
+                    double coeff = coefficients[iStencil];
                     for (int iFeature=0; iFeature < nFeatures; ++iFeature) {
-                        d(iCenter, iPos, iFeature, iComp) = (d(iCenter, iPos, iFeature, iComp) + coeff*c(0, iFeature));
+                        d(iCenter, iPos, iComp, iFeature) = (d(iCenter, iPos, iComp, iFeature) + coeff*c(0, iFeature));
                     }
                 }
                 for (int iFeature=0; iFeature < nFeatures; ++iFeature) {
-                    d(iCenter, iPos, iFeature, iComp) = d(iCenter, iPos, iFeature, iComp) / h;
+                    d(iCenter, iPos, iComp, iFeature) = d(iCenter, iPos, iComp, iFeature) / h;
                 }
-            }
-            // After running through the components and stencils for this atom,
-            // reset the position to it's original value
-            for (int i = 0; i < 3; ++i) {
-                positions(iPos, i) = pos(i);
+
+                // Return position back to original value for next component
+                positions(iPos, iComp) = pos(iComp);
             }
         }
     }
