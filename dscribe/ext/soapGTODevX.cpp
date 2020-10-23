@@ -786,17 +786,49 @@ void getCD(double* CDevX,double* CDevY,double* CDevZ, double* C, double* preCoef
        }
      }
     }
-
+   // l=1---------------------------------------------------------
+//   if(lMax > 0) { LNsNs=NsNs; LNs=Ns;
+//  for(int k = 0; k < Ns; k++){
+//    for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
+//    sumMe = 0;/*c10*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*z[i];}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c11Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*x[i];}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*2 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c11Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*y[i];}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*3 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//  }}
    if(lMax > 0) { LNsNs=NsNs; LNs=Ns;
-  for(int k = 0; k < Ns; k++){
-    for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
-    sumMe = 0;/*c10*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*z[i];}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+      for(int k = 0; k < Ns; k++){
+          for(int i = 0; i < Asize; i++){
+              preExp = exp(aOa[LNs + k]*r2[i]);
+              for(int n = 0; n < Ns; n++){
+		      C[NsTsI + NsJ + Ns + n] += bOa[LNsNs + n*Ns + k]*preExp*z[i];
+                      CDevX[NsTsI*totalAN + NsJ*totalAN + n*totalAN + Ns*totalAN +  indices[i]] = -2.0*x[i]*preExp*z[i];
+                      CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + Ns*totalAN +  indices[i]] = -2.0*y[i]*preExp*z[i];
+                      CDevZ[NsTsI*totalAN + NsJ*totalAN + n*totalAN + Ns*totalAN +  indices[i]] = -2.0*z[i]*z[i]*preExp + preExp;
+
+                      C[NsTsI + NsJ + Ns*2 + n] += bOa[LNsNs + n*Ns + k]*preExp*x[i];
+                      CDevX[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 2*Ns*totalAN +  indices[i]] = -2.0*x[i]*x[i]*preExp + preExp;
+                      CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 2*Ns*totalAN +  indices[i]] = -2.0*y[i]*preExp*x[i];
+                      CDevZ[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 2*Ns*totalAN +  indices[i]] = -2.0*z[i]*preExp*x[i];
+
+
+                      C[NsTsI + NsJ + Ns*3 + n] += bOa[LNsNs + n*Ns + k]*preExp*y[i];
+                      CDevX[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 2*Ns*totalAN +  indices[i]] = -2.0*x[i]*preExp*y[i] ;
+                      CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 2*Ns*totalAN +  indices[i]] = -2.0*y[i]*y[i]*preExp + preExp;
+                      CDevZ[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 2*Ns*totalAN +  indices[i]] = -2.0*z[i]*preExp*y[i];
+	      }
+    // End l=1 --------------------------------------------------------
+    //
     sumMe = 0;/*c11Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*x[i];}
     for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*2 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
     sumMe = 0;/*c11Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*y[i];}
     for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*3 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-  }} if(lMax > 1) { LNsNs=2*NsNs; LNs=2*Ns;
+         }
+      }
+   }
+   // l=1---------------------------------------------------------
+   if(lMax > 1) { LNsNs=2*NsNs; LNs=2*Ns;
   for(int k = 0; k < Ns; k++){
     for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
     sumMe = 0;/*c20*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*preCoef[i];}
