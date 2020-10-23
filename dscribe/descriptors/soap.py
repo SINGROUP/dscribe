@@ -163,8 +163,10 @@ class SOAP(Descriptor):
         self._nmax = nmax
         self._lmax = lmax
         self._rbf = rbf
-        self._average = average
+        self.average = average
         self.crossover = crossover
+
+
 
     def prepare(self, system, cutoff_padding, positions=None):
         """Prepares the input for the C++ extension.
@@ -264,7 +266,7 @@ class SOAP(Descriptor):
         """
         if self._sparse:
             raise ValueError("Sparse output is not available for derivatives.")
-        if self._average is not "none" and method == "analytical":
+        if self.average != "off" and method == "analytical":
             raise ValueError(
                 "Analytical derivatives not available for averaged output."
             )
@@ -315,7 +317,6 @@ class SOAP(Descriptor):
         # Calculate numerically with extension
         if method == "numerical":
             if self._rbf == "gto":
-                print(sorted_pos)
                 dscribe.ext.derivatives_soap_gto(
                     d,
                     c,
@@ -335,7 +336,7 @@ class SOAP(Descriptor):
                     n_centers,
                     self._eta,
                     self.crossover,
-                    self._average,
+                    self.average,
                     return_descriptor,
                 )
         elif method == "analytical":
@@ -351,14 +352,14 @@ class SOAP(Descriptor):
         return d
 
     def init_descriptor_array(self, n_centers, n_features):
-        if self._average == "inner" or self._average == "outer":
+        if self.average == "inner" or self.average == "outer":
             c = np.zeros((1, n_features), dtype=np.float64)
         else:
             c = np.zeros((n_centers, n_features), dtype=np.float64)
         return c
 
     def init_derivatives_array(self, n_centers, n_atoms, n_features):
-        if self._average == "inner" or self._average == "outer":
+        if self.average == "inner" or self.average == "outer":
             d = np.zeros((1, n_atoms, 3, n_features), dtype=np.float64)
         else:
             d = np.zeros((n_centers, n_atoms, 3, n_features), dtype=np.float64)
@@ -417,7 +418,7 @@ class SOAP(Descriptor):
         output_sizes = []
         for i_job in jobs:
             n_desc = 0
-            if self._average == "outer" or self._average == "inner":
+            if self.average == "outer" or self.average == "inner":
                 n_desc = len(i_job)
             elif positions is None:
                 n_desc = 0
@@ -470,7 +471,7 @@ class SOAP(Descriptor):
                 lmax=self._lmax,
                 eta=self._eta,
                 crossover=self.crossover,
-                average=self._average,
+                average=self.average,
                 atomic_numbers=None,
             )
         elif self._rbf == "polynomial":
@@ -483,7 +484,7 @@ class SOAP(Descriptor):
                 lmax=self._lmax,
                 eta=self._eta,
                 crossover=self.crossover,
-                average=self._average,
+                average=self.average,
                 atomic_numbers=None,
             )
 
