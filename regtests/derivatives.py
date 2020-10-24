@@ -109,31 +109,29 @@ class SoapDerivativeTests(unittest.TestCase):
         # positions = [[0.0, 0.0, 0.0]]
         positions = [[0.0, 0.0, 0.0], [0.12, -0.5, 0.3]]
         h = 0.0000001
-        n_atoms = len(H)
+        n_atoms = len(H2O)
         n_pos = len(positions)
         n_features = soap.get_number_of_features()
         n_comp = 3
         derivatives_python = np.zeros((n_pos, n_atoms, n_comp, n_features))
         for i_pos in range(len(positions)):
             center = positions[i_pos]
-            d0 = soap.create(H, [center])
-            for i_atom in range(len(H)):
+            d0 = soap.create(H2O, [center])
+            for i_atom in range(len(H2O)):
                 for i_comp in range(3):
-                    H_disturbed = H.copy()
-                    translation = np.array([[0, 0, 0]], dtype=np.float64)
-                    # translation = np.array([[0, 0, 0], [0, 0, 0]], dtype=np.float64)
-                    # translation = np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0]], dtype=np.float64)
+                    H2O_disturbed = H2O.copy()
+                    translation = np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0]], dtype=np.float64)
                     translation[i_atom, i_comp] = h
-                    H_disturbed.translate(translation)
-                    d1 = soap.create(H_disturbed, [center])
+                    H2O_disturbed.translate(translation)
+                    d1 = soap.create(H2O_disturbed, [center])
                     ds = (-d0 + d1) / h
                     derivatives_python[i_pos, i_atom, i_comp, :] = ds[0, :]
 
         # Calculate with central finite difference implemented in C++
-        derivatives_cpp, d1 = soap.derivatives_single(H, positions=positions, method="numerical")
+        derivatives_cpp, d1 = soap.derivatives_single(H2O, positions=positions, method="numerical")
 
         # Test that desriptor values are correct
-        d2 = soap.create(H, positions=positions)
+        d2 = soap.create(H2O, positions=positions)
         self.assertTrue(np.allclose(d1, d2, atol=1e-5))
 
         # Compare values

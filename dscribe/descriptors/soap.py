@@ -299,7 +299,8 @@ class SOAP(Descriptor):
 
         cutoff_padding = self.get_cutoff_padding()
         system, centers = self.prepare(system, cutoff_padding, positions)
-        sorted_pos, Z_sorted = self.sort_positions(system, None)
+        pos = system.get_positions()
+        Z = system.get_atomic_numbers()
         sorted_species = self._atomic_numbers
         n_species = len(sorted_species)
         n_centers = centers.shape[0]
@@ -320,11 +321,11 @@ class SOAP(Descriptor):
                 dscribe.ext.derivatives_soap_gto(
                     d,
                     c,
-                    sorted_pos,
+                    pos,
                     centers,
                     alphas,
                     betas,
-                    Z_sorted,
+                    Z,
                     sorted_species,
                     displacedIndices,
                     self._rcut,
@@ -472,7 +473,6 @@ class SOAP(Descriptor):
                 eta=self._eta,
                 crossover=self.crossover,
                 average=self.average,
-                atomic_numbers=None,
             )
         elif self._rbf == "polynomial":
             soap_mat = self.get_soap_locals_poly(
@@ -485,7 +485,6 @@ class SOAP(Descriptor):
                 eta=self._eta,
                 crossover=self.crossover,
                 average=self.average,
-                atomic_numbers=None,
             )
 
         # Make into a sparse array if requested
@@ -605,45 +604,7 @@ class SOAP(Descriptor):
 
         return slice(start, end)
 
-    def sort_positions(self, system, atomic_numbers=None):
-        """Takes an ase Atoms object and returns flattened numpy arrays for the
-        C-extension to use.
-
-        Args:
-            system (ase.atoms): The system to convert.
-            atomic_numbers(): The atomic numbers to consider. Atoms that do not
-                have these atomic numbers are ignored.
-
-        Returns:
-            (np.ndarray, list, int, np.ndarray): Returns the positions sorted
-            by atomic number, atomic numbers sorted by atomic number, number of
-            different species and the sorted set of atomic numbers.
-        """
-        Z = system.get_atomic_numbers()
-        pos = system.get_positions()
-
-        # Get a sorted list of atom types
-        if atomic_numbers is not None:
-            atomtype_set = set(atomic_numbers)
-        else:
-            atomtype_set = set(Z)
-        atomic_numbers_sorted = np.sort(list(atomtype_set))
-
-        # Form a flattened list of atomic positions, sorted by atomic type
-        pos_lst = []
-        z_lst = []
-        for atomtype in atomic_numbers_sorted:
-            condition = Z == atomtype
-            pos_onetype = pos[condition]
-            z_onetype = Z[condition]
-            pos_lst.append(pos_onetype)
-            z_lst.append(z_onetype)
-        positions_sorted = np.concatenate(pos_lst, axis=0)
-        atomic_numbers_sorted = np.concatenate(z_lst).ravel()
-
-        return positions_sorted, atomic_numbers_sorted
-
-    def get_soap_locals_gto(self, system, centers, alphas, betas, rcut, cutoff_padding, nmax, lmax, eta, crossover, average, atomic_numbers=None):
+    def get_soap_locals_gto(self, system, centers, alphas, betas, rcut, cutoff_padding, nmax, lmax, eta, crossover, average):
         """Get the SOAP output for the given positions using the gto radial
         basis.
 
@@ -669,7 +630,8 @@ class SOAP(Descriptor):
             np.ndarray: SOAP output with the gto radial basis for the given positions.
         """
         n_atoms = len(system)
-        sorted_positions, Z_sorted = self.sort_positions(system, atomic_numbers)
+        pos = system.get_positions()
+        Z = system.get_atomic_numbers()
         sorted_species = self._atomic_numbers
         n_species = len(sorted_species)
         centers = np.array(centers)
@@ -685,11 +647,11 @@ class SOAP(Descriptor):
         # Calculate with extension
         dscribe.ext.soap_gto(
             c,
-            sorted_positions,
+            pos,
             centers,
             alphas,
             betas,
-            Z_sorted,
+            Z,
             sorted_species,
             rcut,
             cutoff_padding,
@@ -736,7 +698,8 @@ class SOAP(Descriptor):
 
         # Get atoms positions and species in sorted and flattened format
         n_atoms = len(system)
-        sorted_positions, Z_sorted = self.sort_positions(system, atomic_numbers)
+        pos = system.get_positions()
+        Z = system.get_atomic_numbers()
         sorted_species = self._atomic_numbers
         n_species = len(sorted_species)
         centers = np.array(centers)
@@ -749,9 +712,9 @@ class SOAP(Descriptor):
         # Calculate with extension
         dscribe.ext.soap_general(
             c,
-            sorted_positions,
+            pos,
             centers,
-            Z_sorted,
+            Z,
             sorted_species,
             rcut,
             cutoff_padding,
