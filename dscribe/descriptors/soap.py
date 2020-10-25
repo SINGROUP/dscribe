@@ -353,6 +353,8 @@ class SOAP(Descriptor):
         return d
 
     def init_descriptor_array(self, n_centers, n_features):
+        """Return a zero-initialized numpy array for the descriptor.
+        """
         if self.average == "inner" or self.average == "outer":
             c = np.zeros((1, n_features), dtype=np.float64)
         else:
@@ -360,6 +362,8 @@ class SOAP(Descriptor):
         return c
 
     def init_derivatives_array(self, n_centers, n_atoms, n_features):
+        """Return a zero-initialized numpy array for the derivatives.
+        """
         if self.average == "inner" or self.average == "outer":
             d = np.zeros((1, n_atoms, 3, n_features), dtype=np.float64)
         else:
@@ -457,34 +461,74 @@ class SOAP(Descriptor):
             get_number_of_features()-function.
         """
         cutoff_padding = self.get_cutoff_padding()
-        system, list_positions = self.prepare(system, cutoff_padding, positions)
+        system, centers = self.prepare(system, cutoff_padding, positions)
+        centers = np.array(centers)
+        n_centers = centers.shape[0]
+        sorted_species = self._atomic_numbers
+        n_species = len(sorted_species)
+        n_atoms = len(system)
+        pos = system.get_positions()
+        Z = system.get_atomic_numbers()
+        n_features = self.get_number_of_features()
+        soap_mat = self.init_descriptor_array(n_centers, n_features)
+        centers = centers.flatten()
 
         # Determine the function to call based on rbf
         if self._rbf == "gto":
-            soap_mat = self.get_soap_locals_gto(
-                system,
-                list_positions,
-                self._alphas,
-                self._betas,
-                rcut=self._rcut,
-                cutoff_padding=cutoff_padding,
-                nmax=self._nmax,
-                lmax=self._lmax,
-                eta=self._eta,
-                crossover=self.crossover,
-                average=self.average,
+
+            # Orthonormalized RBF coefficients
+            alphas = self._alphas.flatten()
+            betas = self._betas.flatten()
+
+            # Determine shape
+            n_features = self.get_number_of_features()
+            soap_mat = self.init_descriptor_array(n_centers, n_features)
+
+            # Calculate with extension
+            dscribe.ext.soap_gto(
+                soap_mat,
+                pos,
+                centers,
+                alphas,
+                betas,
+                Z,
+                sorted_species,
+                self._rcut,
+                cutoff_padding,
+                n_atoms,
+                n_species,
+                self._nmax,
+                self._lmax,
+                n_centers,
+                self._eta,
+                self.crossover,
+                self.average,
             )
         elif self._rbf == "polynomial":
-            soap_mat = self.get_soap_locals_poly(
-                system,
-                list_positions,
-                rcut=self._rcut,
-                cutoff_padding=cutoff_padding,
-                nmax=self._nmax,
-                lmax=self._lmax,
-                eta=self._eta,
-                crossover=self.crossover,
-                average=self.average,
+            # Get the discretized and orthogonalized polynomial radial basis
+            # function values
+            rx, gss = self.get_basis_poly(self._rcut, self._nmax)
+            gss = gss.flatten()
+
+            # Calculate with extension
+            dscribe.ext.soap_general(
+                soap_mat,
+                pos,
+                centers,
+                Z,
+                sorted_species,
+                self._rcut,
+                cutoff_padding,
+                n_atoms,
+                n_species,
+                self._nmax,
+                self._lmax,
+                n_centers,
+                self._eta,
+                rx,
+                gss,
+                self.crossover,
+                self.average
             )
 
         # Make into a sparse array if requested
@@ -603,134 +647,6 @@ class SOAP(Descriptor):
             end = int(start+n_elem_feat_symm)
 
         return slice(start, end)
-
-    def get_soap_locals_gto(self, system, centers, alphas, betas, rcut, cutoff_padding, nmax, lmax, eta, crossover, average):
-        """Get the SOAP output for the given positions using the gto radial
-        basis.
-
-        Args:
-            system (ase.Atoms): Atomic structure for which the SOAP output is
-                calculated.
-            centers (np.ndarray): Positions at which to calculate SOAP.
-            alphas (np.ndarray): The alpha coeffients for the gto-basis.
-            betas (np.ndarray): The beta coeffients for the gto-basis.
-            rcut (float): Radial cutoff.
-            cutoff_padding (float): The padding that is added for including
-                atoms beyond the cutoff.
-            nmax (int): Maximum number of radial basis functions.
-            lmax (int): Maximum spherical harmonics degree.
-            eta (float): The gaussian smearing width.
-            crossover (bool): Whether to include species crossover in output.
-            atomic_numbers (np.ndarray): Can be used to specify the species for
-                which to calculate the output. If None, all species are included.
-                If given the output is calculated only for the given species and is
-                ordered by atomic number.
-
-        Returns:
-            np.ndarray: SOAP output with the gto radial basis for the given positions.
-        """
-        n_atoms = len(system)
-        pos = system.get_positions()
-        Z = system.get_atomic_numbers()
-        sorted_species = self._atomic_numbers
-        n_species = len(sorted_species)
-        centers = np.array(centers)
-        n_centers = centers.shape[0]
-        centers = centers.flatten()
-        alphas = alphas.flatten()
-        betas = betas.flatten()
-
-        # Determine shape
-        n_features = self.get_number_of_features()
-        c = self.init_descriptor_array(n_centers, n_features)
-
-        # Calculate with extension
-        dscribe.ext.soap_gto(
-            c,
-            pos,
-            centers,
-            alphas,
-            betas,
-            Z,
-            sorted_species,
-            rcut,
-            cutoff_padding,
-            n_atoms,
-            n_species,
-            nmax,
-            lmax,
-            n_centers,
-            eta,
-            crossover,
-            average,
-        )
-
-        return c
-
-    def get_soap_locals_poly(self, system, centers, rcut, cutoff_padding, nmax, lmax, eta, crossover, average, atomic_numbers=None):
-        """Get the SOAP output using polynomial radial basis for the given
-        positions.
-        Args:
-            system(ase.Atoms): Atomic structure for which the SOAP output is
-                calculated.
-            centers(np.ndarray): Positions at which to calculate SOAP.
-            alphas (np.ndarray): The alpha coeffients for the gto-basis.
-            betas (np.ndarray): The beta coeffients for the gto-basis.
-            rCut (float): Radial cutoff.
-            cutoff_padding (float): The padding that is added for including
-                atoms beyond the cutoff.
-            nmax (int): Maximum number of radial basis functions.
-            lmax (int): Maximum spherical harmonics degree.
-            eta (float): The gaussian smearing width.
-            crossover (bool): Whether to include species crossover in output.
-            atomic_numbers (np.ndarray): Can be used to specify the species for
-                which to calculate the output. If None, all species are included.
-                If given the output is calculated only for the given species and is
-                ordered by atomic number.
-        Returns:
-            np.ndarray: SOAP output with the polynomial radial basis for the
-            given positions.
-        """
-        # Get the discretized and orthogonalized polynomial radial basis
-        # function values
-        rx, gss = self.get_basis_poly(rcut, nmax)
-        gss = gss.flatten()
-
-        # Get atoms positions and species in sorted and flattened format
-        n_atoms = len(system)
-        pos = system.get_positions()
-        Z = system.get_atomic_numbers()
-        sorted_species = self._atomic_numbers
-        n_species = len(sorted_species)
-        centers = np.array(centers)
-        n_centers = centers.shape[0]
-
-        # Determine shape
-        n_features = self.get_number_of_features()
-        c = self.init_descriptor_array(n_centers, n_features)
-
-        # Calculate with extension
-        dscribe.ext.soap_general(
-            c,
-            pos,
-            centers,
-            Z,
-            sorted_species,
-            rcut,
-            cutoff_padding,
-            n_atoms,
-            n_species,
-            nmax,
-            lmax,
-            n_centers,
-            eta,
-            rx,
-            gss,
-            crossover,
-            average
-        )
-
-        return c
 
     def get_basis_gto(self, rcut, nmax):
         """Used to calculate the alpha and beta prefactors for the gto-radial
