@@ -16,7 +16,7 @@ limitations under the License.
 import math
 import unittest
 import itertools
-
+from pprint import pprint as pp
 import numpy as np
 
 import scipy
@@ -137,6 +137,11 @@ class SoapDerivativeTests(unittest.TestCase):
         # Compare values
         self.assertTrue(np.allclose(derivatives_python, derivatives_cpp, atol=1e-5))
 
+        #print("derivatives numerical cpp")
+        #pp(derivatives_cpp)
+        #print("descriptor calculated together with derivatives")
+        #print(d1)
+
     def test_analytical(self):
         """Tests if the analytical soap derivatives run
         """
@@ -151,14 +156,60 @@ class SoapDerivativeTests(unittest.TestCase):
 
         #derivatives = soap.derivatives_single(H2, positions =[0 ] , method = "analytical", include=None, exclude=None)
         derivatives = soap.derivatives_single(H2, positions=[[0.0,0.0,0.0]], method="analytical")
-        #derivatives = a.derivatives_single(H2, positions =[[0.0, 0.0, 0.0], [-0.5, 0, 0], [0.5, 0, 0], ] , method = "analytical", include=None, exclude=None)
 
-        print(derivatives)
-        print(derivatives.shape)
+        #print("analytical derivatives")
+        #print(derivatives)
+        #print(derivatives[0].shape)
+
+        derivatives = soap.derivatives_single(H2, 
+            positions =[[0.0, 0.0, 0.0], [-0.5, 0, 0], [0.5, 0, 0], ] , 
+            method = "analytical", include=None, exclude=None)
+
+        #print("3 centers analytical derivatives")
+        #print(derivatives)
+        #print(derivatives[0].shape)
+        #pp(derivatives)
+
+class SoapDerivativeComparisonTests(unittest.TestCase):
+    def test_analytical_vs_numerical(self):
+        """Tests the analytical soap derivatives implementation against the numerical cpp implementation
+        """
+        soap = SOAP(
+            species=[1],
+            rcut=3,
+            nmax=2,
+            lmax=0,
+            sparse=False,
+        )
+         
+        #positions = [[0.2, 0.0, 0.0], [0.1, 0.2, 0.3]]
+        positions = [[0.0, 0.0, 0.0],]
+        # Calculate with central finite difference implemented in C++
+        derivatives_cpp, d_num = soap.derivatives_single(H2, positions=positions, method="numerical")
+        
+        derivatives_anal, d_anal = soap.derivatives_single(H2, positions=positions, method="analytical")
+        derivatives_anal = 2 * derivatives_anal
+
+
+        # incomplete analytical derivatives, for now only for X. 
+        derivatives_cpp_x = derivatives_cpp[:, :, 0, :]
+        print("numerical derivatives before rearranging")
+        print(derivatives_cpp_x)
+        #order of dimensions also differs from numerical implementation
+        temp_shape = derivatives_cpp_x.shape
+        derivatives_cpp_x = derivatives_cpp_x.reshape((temp_shape[2], temp_shape[0], temp_shape[1]))
+        print(derivatives_cpp_x.shape)
+        diff = derivatives_cpp_x - derivatives_anal
+
+        print("compare numerical against analytical soap derivatives")
+        pp(derivatives_cpp_x)
+        pp(derivatives_anal)
+        pp(diff)
 
 
 if __name__ == '__main__':
     suites = []
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
+    #suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests))
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)
