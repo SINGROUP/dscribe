@@ -25,6 +25,7 @@ using namespace std;
 
 void derivatives_soap_gto(
     py::array_t<double> dArr,
+    py::array_t<double> cArr,
     py::array_t<double> positions,
     py::array_t<double> HposArr,
     py::array_t<double> alphasArr,
@@ -41,6 +42,7 @@ void derivatives_soap_gto(
     int nCenters,
     double eta,
     bool crossover,
-    string average);
+    string average,
+    bool returnDescriptor);
 
 #endif

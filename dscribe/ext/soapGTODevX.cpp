@@ -2075,10 +2075,10 @@ void getCD(double* CDevX,double* CDevY,double* CDevZ, double* C, double* preCoef
 	      preExp = exp(aOa[k]*r2[i]);
         for(int n = 0; n < Ns; n++){
 	    C[NsTsI + NsJ + n] += bOa[n*Ns + k]*preExp;
-	    CDevX[NsTsI*totalAN + NsJ*totalAN + n*totalAN + indices[i]] += -2.0*aOa[k]*x[i]*bOa[n*Ns + k]*preExp;
-	    CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + indices[i]] += -2.0*aOa[k]*y[i]*bOa[n*Ns + k]*preExp;
-	    CDevZ[NsTsI*totalAN + NsJ*totalAN + n*totalAN + indices[i]] += -2.0*aOa[k]*z[i]*bOa[n*Ns + k]*preExp;
-//	    std::cout << x[i] << std::endl; 
+	    CDevX[NsTsI*totalAN + NsJ*totalAN + n*totalAN + indices[i]] += 2.0*aOa[k]*x[i]*bOa[n*Ns + k]*preExp;
+	    CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + indices[i]] += 2.0*aOa[k]*y[i]*bOa[n*Ns + k]*preExp;
+	    CDevZ[NsTsI*totalAN + NsJ*totalAN + n*totalAN + indices[i]] += 2.0*aOa[k]*z[i]*bOa[n*Ns + k]*preExp;
+	    std::cout << x[i] << std::endl; 
        }
      }
     }
