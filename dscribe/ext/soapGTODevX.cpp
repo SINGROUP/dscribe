@@ -2857,7 +2857,7 @@ void getPNoCrossD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMa
 /**
  * Used to calculate the partial power spectrum derivative without crossover.
  */
-  void getPNoCrossDevX(double* soapMatDevX,double* Cdev, double* Cnnd,  int Ns, int Ts, int Hs, int lMax, int totalAN){
+  void getPNoCrossDevX(double* soapMatDevX,double* soapMatDevZ,double* soapMatDevY, double* CdevX,double* CdevY,double* CdevZ, double* Cnnd,  int Ns, int Ts, int Hs, int lMax, int totalAN){
   int NsTs100 = Ns*Ts*((lMax+1)*(lMax+1)); // Used to be NsTs100 = Ns*Ts*100, but 100 is a waste of memory if not lMax = 9, and can't do over that, so changed.
   int Ns100 = Ns*((lMax+1)*(lMax+1));
   int NsNs = (Ns*(Ns+1))/2;
@@ -2882,7 +2882,7 @@ void getPNoCrossD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMa
         shiftN = 0;
         for(int k = 0; k < Ns; k++){
           for(int kd = k; kd < Ns; kd++){
-            soapMatDevX[NsNsLmaxTs*i*totalAN+ NsNsLmax*j*totalAN+ 0*totalAN +shiftN*totalAN + a] = prel0*(cs0*Cnnd[NsTs100*i + Ns100*j + 0 + k]*Cdev[NsTs100*i*totalAN + Ns100*j*totalAN + 0*Ns*totalAN + kd*totalAN + a]);
+            soapMatDevX[NsNsLmaxTs*i*totalAN+ NsNsLmax*j*totalAN+ 0*totalAN +shiftN*totalAN + a] = prel0*(cs0*Cnnd[NsTs100*i + Ns100*j + 0 + k]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + 0*Ns*totalAN + kd*totalAN + a]);
 //	    std::cout << soapMatDevX[NsNsLmaxTs*i*totalAN+ NsNsLmax*j*totalAN+ 0*totalAN +shiftN*totalAN + a]  << std::endl; 
             shiftN++;
           }
@@ -2898,9 +2898,9 @@ void getPNoCrossD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMa
         for(int k = 0; k < Ns; k++){
           for(int kd = k; kd < Ns; kd++){
             soapMatDevX[NsNsLmaxTs*i*totalAN+ NsNsLmax*j*totalAN+ 1*totalAN +shiftN*totalAN + a] = prel1*(
-                  cs1*Cnnd[NsTs100*i + Ns100*j + 1*Ns + k]*Cdev[NsTs100*i*totalAN + Ns100*j*totalAN + 1*Ns*totalAN + kd*totalAN + a]
-                 +cs2*Cnnd[NsTs100*i + Ns100*j + 2*Ns + k]*Cdev[NsTs100*i*totalAN + Ns100*j*totalAN + 2*Ns*totalAN + kd*totalAN + a]
-                 +cs2*Cnnd[NsTs100*i + Ns100*j + 3*Ns + k]*Cdev[NsTs100*i*totalAN + Ns100*j*totalAN + 3*Ns*totalAN + kd*totalAN + a]
+                  cs1*Cnnd[NsTs100*i + Ns100*j + 1*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + 1*Ns*totalAN + kd*totalAN + a]
+                 +cs2*Cnnd[NsTs100*i + Ns100*j + 2*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + 2*Ns*totalAN + kd*totalAN + a]
+                 +cs2*Cnnd[NsTs100*i + Ns100*j + 3*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + 3*Ns*totalAN + kd*totalAN + a]
 	       );
             shiftN++;
             }
@@ -2926,7 +2926,7 @@ void getPNoCrossD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMa
 //{
 //              buffDouble += PI3*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd];
 //	    }
-              soapMatDevX[NsNsLmaxTs*totalAN*i+NsNsLmax*totalAN*j+ 13*NsNs*totalAN + shiftN*totalAN + a] += prel*PI3*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*Cdev[NsTs100*i + Ns100*j + buffShift*Ns + kd];
+              soapMatDevX[NsNsLmaxTs*totalAN*i+NsNsLmax*totalAN*j+ 13*NsNs*totalAN + shiftN*totalAN + a] += prel*PI3*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i + Ns100*j + buffShift*Ns + kd];
             }
             shiftN++;
           }
@@ -3890,10 +3890,13 @@ void getPCrossOverD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int l
 }
 
 //===========================================================================================
-void soapGTODevX(py::array_t<double> cArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<double> alphasArr, py::array_t<double> betasArr, py::array_t<int> atomicNumbersArr, double rCut, double cutoffPadding, int totalAN, int Nt, int Ns, int lMax, int Hs, double eta, bool crossover) {
+void soapGTODevX(py::array_t<double> cArr,py::array_t<double> cArrX,py::array_t<double> cArrY,py::array_t<double> cArrZ, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<double> alphasArr, py::array_t<double> betasArr, py::array_t<int> atomicNumbersArr, double rCut, double cutoffPadding, int totalAN, int Nt, int Ns, int lMax, int Hs, double eta, bool crossover) {
 
   auto atomicNumbers = atomicNumbersArr.unchecked<1>();
   double *c = (double*)cArr.request().ptr;
+  double *cx = (double*)cArrX.request().ptr;
+  double *cy = (double*)cArrY.request().ptr;
+  double *cz = (double*)cArrZ.request().ptr;
   double *Hpos = (double*)HposArr.request().ptr;
   double *alphas = (double*)alphasArr.request().ptr;
   double *betas = (double*)betasArr.request().ptr;
@@ -4055,9 +4058,9 @@ void soapGTODevX(py::array_t<double> cArr, py::array_t<double> positions, py::ar
 
   if (crossover) {
 //    getPCrossOverD(c, cnnd, Ns, Nt, Hs, lMax);
-    getPNoCrossDevX(c,cdevX, cnnd, Ns, Nt, Hs, lMax, totalAN);
+    getPNoCrossDevX(cx,cy,cz,cdevX,cdevY, cdevZ, cnnd, Ns, Nt, Hs, lMax, totalAN);
   } else {
-    getPNoCrossDevX(c,cdevX, cnnd, Ns, Nt, Hs, lMax, totalAN);
+    getPNoCrossDevX(cx,cy,cz,cdevX,cdevY, cdevZ, cnnd, Ns, Nt, Hs, lMax, totalAN);
   };
   free(cnnd);
  
