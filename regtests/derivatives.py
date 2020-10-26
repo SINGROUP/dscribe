@@ -137,30 +137,24 @@ class SoapDerivativeTests(unittest.TestCase):
         # Compare values
         self.assertTrue(np.allclose(derivatives_python, derivatives_cpp, atol=1e-5))
 
-    # def test_analytical(self):
-        # """Tests if the analytical soap derivatives run
-        # """
-        # soap = SOAP(
-            # species=[1],
-            # rcut=3,
-            # nmax=2
-            # lmax=0,
-            # sparse=False,
-        # )
-        # # soap = a.create(H2, positions = [[0.0, 0.0, 0.0], ])
-        # # soap_disturbed = a.create(H2_disturbed, positions = [[0.0, 0.0, 0.0], ])
-        # # soap_diff = soap - soap_disturbed
+    def test_analytical(self):
+        """Tests if the analytical soap derivatives run
+        """
+        soap = SOAP(
+            species=[1],
+            rcut=3,
+            nmax=2,
+            lmax=0,
+            sparse=False,
+        )
+        soap_arr = soap.create(H2, positions = [[0.0, 0.0, 0.0], ])
 
-        # # print("disturbed soap")
-        # # print(soap_diff / 0.00001)
+        #derivatives = soap.derivatives_single(H2, positions =[0 ] , method = "analytical", include=None, exclude=None)
+        derivatives = soap.derivatives_single(H2, positions=[[0.0,0.0,0.0]], method="analytical")
+        #derivatives = a.derivatives_single(H2, positions =[[0.0, 0.0, 0.0], [-0.5, 0, 0], [0.5, 0, 0], ] , method = "analytical", include=None, exclude=None)
 
-        # #derivatives = a.derivatives_single(H2, positions =[0 ] , method = "analytical", include=None, exclude=None)
-        # derivatives = soap.derivatives_single(H2, positions=[[0.0,0.0,0.0]], method="analytical")
-        # #derivatives = a.derivatives_single(H2, positions =[[0.0, 0.0, 0.0], [-0.5, 0, 0], [0.5, 0, 0], ] , method = "analytical", include=None, exclude=None)
-
-        # print(derivatives)
-        # print(derivatives.shape)
-        # print(a._rcut)
+        print(derivatives)
+        print(derivatives.shape)
 
 
 if __name__ == '__main__':
