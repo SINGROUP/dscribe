@@ -5,3 +5,5 @@ sphinx
 sphinx_rtd_theme
 sphinxcontrib-bibtex
 pybind11
+torch
+torchvision

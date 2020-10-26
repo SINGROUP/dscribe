@@ -438,7 +438,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         self.assertTrue(np.allclose(output, assumed))
 
         # Test averaged output
-        desc._average = "outer"
+        desc.average = "outer"
         output = desc.create(
             system=samples,
             positions=[[0], [0, 1]],
@@ -519,7 +519,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         self.assertTrue(np.allclose(output, assumed))
 
         # Test averaged output
-        desc._average = "outer"
+        desc.average = "outer"
         output = desc.create(
             system=samples,
             positions=[[0], [0, 1]],
@@ -1229,7 +1229,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         return coeffs
 
     def coefficients_gto(self, system, soap_centers, alphas, betas, nmax, lmax, rcut, sigma):
-        """Used to numerically calculate the inner product coeffientes of SOAP
+        """Used to numerically calculate the inner product coefficients of SOAP
         with GTO radial basis.
         """
         positions = system.get_positions()

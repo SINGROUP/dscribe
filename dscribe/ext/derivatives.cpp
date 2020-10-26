@@ -20,6 +20,7 @@ limitations under the License.
 
 void derivatives_soap_gto(
     py::array_t<double> dArr,
+    py::array_t<double> cArr,
     py::array_t<double> positionsArr,
     py::array_t<double> centersArr,
     py::array_t<double> alphasArr,
@@ -36,13 +37,19 @@ void derivatives_soap_gto(
     int nCenters,
     double eta,
     bool crossover,
-    string average)
+    string average,
+    bool returnDescriptor)
 {
     int nFeatures = crossover ? (Nt*nMax)*(Nt*nMax+1)/2*(lMax+1) : Nt*(lMax+1)*((nMax+1)*nMax)/2;
     auto d = dArr.mutable_unchecked<4>();
     auto displacedIndices = displacedIndicesArr.unchecked<1>();
     auto positions = positionsArr.mutable_unchecked<2>();
     auto centers = centersArr.unchecked<1>();
+
+    // Calculate the desciptor value if requested
+    if (returnDescriptor) {
+        soapGTO(cArr, positionsArr, centersArr, alphasArr, betasArr, atomicNumbersArr, orderedSpeciesArr, rCut, cutoffPadding, nAtoms, Nt, nMax, lMax, nCenters, eta, crossover, average);
+    }
     
     // Central finite difference with error O(h^2)
     double h = 0.0001;
