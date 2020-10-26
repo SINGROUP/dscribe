@@ -313,7 +313,7 @@ class SOAP(Descriptor):
         if return_descriptor:
             c = self.init_descriptor_array(n_centers, n_features)
         else:
-            c = np.zeros(0)
+            c = np.zeros((n_centers, n_features))
 
         # Calculate numerically with extension
         if method == "numerical":
@@ -342,8 +342,11 @@ class SOAP(Descriptor):
                 )
         elif method == "analytical":
             print("n_centers", n_centers)
-            d = np.zeros(( n_features, n_centers, n_atoms ), dtype=np.float64)
-            dscribe.ext.soap_gto_devX(d, pos, centers, alphas, betas, Z, 
+            d = np.zeros(( n_features, n_centers, n_atoms, 3), dtype=np.float64)
+            dx = d[:,:,:,0] 
+            dy = d[:,:,:,0] 
+            dz = d[:,:,:,0] 
+            dscribe.ext.soap_gto_devX(c, dx, dy, dz, pos, centers, alphas, betas, Z, 
                 self._rcut, cutoff_padding, n_atoms, n_species, self._nmax, self._lmax, n_centers, self._eta, self.crossover)
         else:
             raise ValueError("Please choose method 'numerical' or 'analytical'")
