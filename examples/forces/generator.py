@@ -3,6 +3,7 @@ from ase.visualize import view
 from ase.calculators.lj import LennardJones
 import numpy as np
 from dscribe.descriptors import SOAP
+import matplotlib.pyplot as plt
 
 species = ["H"]
 rcut = 5.0
@@ -29,51 +30,40 @@ atoms = ase.Atoms('HH', positions = [[-0.5 * d, 0, 0], [0.5 * d, 0, 0]])
 #view(atoms)
 atoms.set_calculator(LennardJones(epsilon = 1e-10 , sigma = 5.0, rc = 10.0))
 forces = atoms.get_forces()
-# print(forces)
 total_energy = atoms.get_total_energy()
-# print(total_energy)
-# Create SOAP output for the system
-soap_h2 = soap.create(atoms, positions=[CENTER])
-# print(soap_h2.shape)
 
-#############################
-# trajectory of h2 molecule
+# Generate dataset of LJ energies and forces
 traj = []
 traj_forces = []
 traj_energies = []
-r = np.arange(2.5, 5.0, 0.05) # bond lengths of h2
+r = np.linspace(2.5, 5.0, 200) # bond lengths of h2
 for d in r:
-    #print(d)
     a = ase.Atoms('HH', positions = [[-0.5 * d, 0, 0], [0.5 * d, 0, 0]])
     a.set_calculator(LennardJones(epsilon=1.0 , sigma=2.9))
     traj_forces.append(a.get_forces())
     traj.append(a)
     traj_energies.append(a.get_total_energy())
 	
-# print('Trajectory total energies')
-# print(traj_energies)
-
-import matplotlib.pyplot as plt
-# print('h2 bond lengths')
-# print(r)
 y = traj_energies
-#fig, ax = plt.figure()
 fig, ax = plt.subplots()
-#ax = fig.add_subplot(2, 1, 1)
 line, = ax.plot(r, y, color='blue', lw=2)
-#ax.set_yscale('log')
 plt.show()
 traj_energies = np.array(traj_energies)
 traj_forces = np.array(traj_forces)
 
 # Create SOAP output for the system
-soap_traj = soap.create(traj, positions=[[CENTER]] * len(traj))
+descriptors = []
+derivatives = []
+for t in traj:
+    i_derivative, i_descriptor = soap.derivatives_single(t, positions=[CENTER], method="numerical")
+    descriptors.append(i_descriptor[0])
+    derivatives.append(i_derivative[0])
+descriptors = np.array(descriptors)
+derivatives = np.array(derivatives)
 
-# print(soap_traj)
-print(soap_traj.shape)
-print(traj_energies.shape)
-print(traj_forces.shape)
-
+# Save to disk for later training
+np.save("r.npy", r)
 np.save("E.npy", traj_energies)
-np.save("D.npy", soap_traj)
+np.save("D.npy", descriptors)
+np.save("dD_dr.npy", derivatives)
 np.save("F.npy", traj_forces)
