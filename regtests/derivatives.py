@@ -188,7 +188,7 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
         derivatives_cpp, d_num = soap.derivatives_single(H2, positions=positions, method="numerical")
         
         derivatives_anal, d_anal = soap.derivatives_single(H2, positions=positions, method="analytical")
-        derivatives_anal = 2 * derivatives_anal
+        derivatives_anal =  derivatives_anal
 
         print("numerical derivatives before rearranging")
         print(derivatives_cpp)
