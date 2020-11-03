@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 species = ["H"]
 rcut = 5.0
-nmax = 2
+nmax = 3
 lmax = 0
 sigma=0.5
 
