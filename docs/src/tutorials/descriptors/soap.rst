@@ -75,7 +75,7 @@ Setup
 
 Instantiating the object that is used to create SOAP can be done as follows:
 
-.. literalinclude:: ../../../examples/soap.py
+.. literalinclude:: ../../../../examples/soap.py
    :language: python
    :lines: 1-15
 
@@ -91,7 +91,7 @@ Creation
 After SOAP has been set up, it may be used on atomic structures with the
 :meth:`~.SOAP.create`-method.
 
-.. literalinclude:: ../../../examples/soap.py
+.. literalinclude:: ../../../../examples/soap.py
    :start-after: Creation
    :language: python
    :lines: 1-16
@@ -115,7 +115,7 @@ Finite systems
 ~~~~~~~~~~~~~~
 Adding SOAP to water is as easy as:
 
-.. literalinclude:: ../../../examples/soap.py
+.. literalinclude:: ../../../../examples/soap.py
    :language: python
    :lines: 18-27
 
@@ -124,7 +124,7 @@ one atom of the molecule. The length of the feature vector depends on the
 number of species defined in *species* as well as *nmax* and *lmax*. You can
 try by changing *nmax* and *lmax*.
 
-.. literalinclude:: ../../../examples/soap.py
+.. literalinclude:: ../../../../examples/soap.py
    :language: python
    :lines: 35-40
 
@@ -134,7 +134,7 @@ Periodic systems
 Crystals can also be SOAPed by simply setting the *periodic* keyword to True.
 In this case a cell needs to be defined for the ase object.
 
-.. literalinclude:: ../../../examples/soap.py
+.. literalinclude:: ../../../../examples/soap.py
    :language: python
    :start-after: Periodic systems
    :lines: 1-17
@@ -148,7 +148,7 @@ The SOAP class provides the :meth:`~.SOAP.get_location`-method. This method can
 be used to query for the slice that contains a specific element combination.
 The following example demonstrates its usage.
 
-.. literalinclude:: ../../../examples/soap.py
+.. literalinclude:: ../../../../examples/soap.py
    :start-after: Locations
    :language: python
    :lines: 1-8
@@ -164,7 +164,7 @@ using the `scipy-library
 <https://docs.scipy.org/doc/scipy/reference/sparse.html>`_. Be aware between
 the different types:
 
-.. literalinclude:: ../../../examples/soap.py
+.. literalinclude:: ../../../../examples/soap.py
    :language: python
    :start-after: Sparse output
    :lines: 1-19
@@ -185,7 +185,7 @@ power spectrum of individual sites. In general, the inner averaging will
 preserve the configurational information better but you can experiment with
 both versions.
 
-.. literalinclude:: ../../../examples/soap.py
+.. literalinclude:: ../../../../examples/soap.py
    :language: python
    :start-after: Average output
    :lines: 1-19
@@ -195,7 +195,7 @@ on the system size. This is necessary to compare two or more structures with
 different number of elements. We can do so by e.g. applying the distance metric
 of our choice.
 
-.. literalinclude:: ../../../examples/soap.py
+.. literalinclude:: ../../../../examples/soap.py
    :language: python
    :start-after: Distance
    :lines: 1-7
@@ -207,6 +207,6 @@ different sizes with each other, see the :doc:`kernel building tutorial
 correspond to the Average Kernel discussed in the kernel building tutorial, as
 for non-linear kernels the order of kernel calculation and averaging matters.
 
-.. bibliography:: ../references.bib
+.. bibliography:: ../../references.bib
    :style: unsrt
    :filter: docname in docnames

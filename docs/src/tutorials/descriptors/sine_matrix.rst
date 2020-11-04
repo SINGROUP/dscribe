@@ -26,7 +26,7 @@ Setup
 Instantiating the object that is used to create Sine matrices can be done as
 follows:
 
-.. literalinclude:: ../../../examples/sinematrix.py
+.. literalinclude:: ../../../../examples/sinematrix.py
    :language: python
    :lines: 1-9
 
@@ -40,7 +40,7 @@ Creation
 After the Sine matrix has been set up, it may be used on periodic atomic
 structures with the :meth:`~.SineMatrix.create`-method.
 
-.. literalinclude:: ../../../examples/sinematrix.py
+.. literalinclude:: ../../../../examples/sinematrix.py
    :start-after: Creation
    :language: python
    :lines: 1-14
@@ -70,7 +70,7 @@ The following code calculates the interaction value, as defined by the sine
 matrix, between two aluminum atoms in an FCC-lattice. The values are calculated
 in the xy-plane.
 
-.. literalinclude:: ../../../examples/sinematrix.py
+.. literalinclude:: ../../../../examples/sinematrix.py
    :start-after: Visualization
    :language: python
    :lines: 1-41
@@ -90,6 +90,6 @@ From the figure one can see that the sine matrix correctly encodes the
 periodicity of the lattice. Notice that the shape of the interaction is however
 not perfectly spherical.
 
-.. bibliography:: ../references.bib
+.. bibliography:: ../../references.bib
    :style: unsrt
    :filter: docname in docnames

@@ -58,7 +58,7 @@ Setup
 Instantiating the object that is used to create Coulomb matrices can be done as
 follows:
 
-.. literalinclude:: ../../../examples/coulombmatrix.py
+.. literalinclude:: ../../../../examples/coulombmatrix.py
    :language: python
    :lines: 1-11
 
@@ -72,7 +72,7 @@ Creation
 After CM has been set up, it may be used on atomic structures with the
 :meth:`~.CoulombMatrix.create`-method.
 
-.. literalinclude:: ../../../examples/coulombmatrix.py
+.. literalinclude:: ../../../../examples/coulombmatrix.py
    :start-after: Creation
    :language: python
    :lines: 1-15
@@ -102,7 +102,7 @@ No flattening
 You can control whether the returned array is two-dimensional or
 one-dimensional by using the *flatten*-parameter
 
-.. literalinclude:: ../../../examples/coulombmatrix.py
+.. literalinclude:: ../../../../examples/coulombmatrix.py
    :language: python
    :start-after: No flattening
    :lines: 1-7
@@ -113,7 +113,7 @@ By default, CM is sorted by the L2-norm (more on that later). In order to get
 the unsorted CM it is necessary to specify the keyword *permutation = "none"*
 when setting it up.
 
-.. literalinclude:: ../../../examples/coulombmatrix.py
+.. literalinclude:: ../../../../examples/coulombmatrix.py
    :language: python
    :start-after: No sorting
    :lines: 1-8
@@ -127,7 +127,7 @@ has fewer atoms, the rest of the CM will be zero-padded. One can imagine
 non-interacting ghost atoms as place-holders to ensure the same number of atoms
 in every system.
 
-.. literalinclude:: ../../../examples/coulombmatrix.py
+.. literalinclude:: ../../../../examples/coulombmatrix.py
    :language: python
    :start-after: Zero-padding
    :lines: 1-7
@@ -137,7 +137,7 @@ Not meant for periodic systems
 The CM was not designed for periodic systems. If you do add periodic boundary
 conditions, you will see that it does not change the elements.
 
-.. literalinclude:: ../../../examples/coulombmatrix.py
+.. literalinclude:: ../../../../examples/coulombmatrix.py
    :language: python
    :start-after: Not meant for periodic systems
    :lines: 1-12
@@ -152,7 +152,7 @@ permutation. No matter how you translate or rotate it or change the indexing of
 the atoms (not the atom types!), it will still be the same molecule! The
 following lines confirm that this is true for CM.
 
-.. literalinclude:: ../../../examples/coulombmatrix.py
+.. literalinclude:: ../../../../examples/coulombmatrix.py
    :language: python
    :start-after: Invariance
    :lines: 1-20
@@ -162,7 +162,7 @@ Options for permutation
 The following snippet introduces the different options for handling permutation
 invariance. See :cite:`cm_versions` for more information on these methods.
 
-.. literalinclude:: ../../../examples/coulombmatrix.py
+.. literalinclude:: ../../../../examples/coulombmatrix.py
    :language: python
    :start-after: No sorting
    :lines: 1-37
@@ -191,6 +191,6 @@ invariance. See :cite:`cm_versions` for more information on these methods.
   descriptor, but on the other hand, it potentially loses information encoded
   in the CM interactions.
 
-.. bibliography:: ../references.bib
+.. bibliography:: ../../references.bib
    :style: unsrt
    :filter: docname in docnames
