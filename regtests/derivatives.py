@@ -189,6 +189,7 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
         
         derivatives_anal, d_anal = soap.derivatives_single(H2, positions=positions, method="analytical")
         derivatives_anal =  derivatives_anal
+        print("this is totally anal")
         print(derivatives_anal)
         print("analytical der shape", derivatives_anal.shape)
 
