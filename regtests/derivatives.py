@@ -199,12 +199,20 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
         #order of dimensions differs from numerical implementation
         temp_shape = derivatives_anal.shape
         derivatives_anal = derivatives_anal.reshape((temp_shape[1], temp_shape[2], temp_shape[3], temp_shape[0]))
+        print("analytical der shape")
         print(derivatives_anal.shape)
+        print("numerical derivatives shape")
+        print(derivatives_cpp.shape)
+        #order of dimensions differs from numerical implementation
+        #temp_shape = derivatives_anal.shape
+        #derivatives_anal = derivatives_anal.reshape((temp_shape[1], temp_shape[2], temp_shape[3], temp_shape[0]))
+        #print(derivatives_anal.shape)
         diff = derivatives_cpp - derivatives_anal
 
         print("compare numerical against analytical soap derivatives")
         pp(derivatives_cpp)
         pp(derivatives_anal)
+        print("difference")
         pp(diff)
 
 
