@@ -344,10 +344,11 @@ class SOAP(Descriptor):
             print("n_centers", n_centers)
             d = np.zeros(( n_features, n_centers, n_atoms, 3), dtype=np.float64)
             dx = d[:,:,:,0] 
-            dy = d[:,:,:,0] 
-            dz = d[:,:,:,0] 
+            dy = d[:,:,:,1] 
+            dz = d[:,:,:,2]
             dscribe.ext.soap_gto_devX(c, dx, dy, dz, pos, centers, alphas, betas, Z, 
                 self._rcut, cutoff_padding, n_atoms, n_species, self._nmax, self._lmax, n_centers, self._eta, self.crossover)
+            d = np.moveaxis(d, 0, -1)
         else:
             raise ValueError("Please choose method 'numerical' or 'analytical'")
 
