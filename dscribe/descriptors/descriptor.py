@@ -326,4 +326,6 @@ class Descriptor(ABC):
         else:
            raise ValueError("Input is neither System, nor ase.Atoms object nor is it iterable")
         return
-            
+        
+    def derivatives_parallel(self, inp, func, n_jobs, output_sizes=None, verbose=False, prefer="processes"):
+        pass    
