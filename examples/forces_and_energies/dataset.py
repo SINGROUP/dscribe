@@ -42,7 +42,8 @@ center = [0, 0, 0]
 descriptors = []
 derivatives = []
 for t in traj:
-    i_derivative, i_descriptor = soap.derivatives_single(t, positions=[center], method="numerical")
+    i_derivative = soap.derivatives_single(t, positions=[center], method="analytical", return_descriptor=False)
+    i_descriptor = soap.create_single(t, positions=[center])
     descriptors.append(i_descriptor[0])
     derivatives.append(i_derivative[0])
 descriptors = np.array(descriptors)

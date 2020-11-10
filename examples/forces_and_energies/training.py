@@ -3,7 +3,7 @@ import torch
 from matplotlib import pyplot as mpl
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-torch.manual_seed(42)
+torch.manual_seed(7)
 
 # Load the dataset
 D_numpy = np.load("D.npy")
@@ -20,9 +20,9 @@ D_train, D_test, E_train, E_test, F_train, F_test, dD_dr_train, dD_dr_test, r_tr
     F_numpy,
     dD_dr_numpy,
     r_numpy,
-    test_size=40,
-    train_size=160,
-    random_state=42,
+    test_size=150,
+    train_size=50,
+    random_state=7,
 )
 
 # Standardize input for improved learning. Fit is done only on training data,
@@ -34,12 +34,13 @@ D_whole = scaler.transform(D_numpy)
 dD_dr_train = dD_dr_train / scaler.scale_[None, None, None, :]
 
 # Split off 10% validation data from the training data for early stopping
-D_train, D_valid, E_train, E_valid, F_train, F_valid, dD_dr_train, dD_dr_valid = train_test_split(
+D_train, D_valid, E_train, E_valid, F_train, F_valid, dD_dr_train, dD_dr_valid, r_train, r_valid = train_test_split(
     D_train,
     E_train,
     F_train,
     dD_dr_train,
-    test_size=0.1,
+    r_train,
+    test_size=0.2,
     random_state=42,
 )
 
@@ -106,8 +107,8 @@ optimizer = torch.optim.Adam(model.parameters(), lr=1e-2)
 
 # Train!
 n_epochs = 1000
-batch_size = 32
-patience = 10
+batch_size = 16
+patience = 100
 i_worse = 0
 old_valid_loss = float("Inf")
 best_valid_loss = float("Inf")
@@ -181,21 +182,25 @@ F_whole_pred = -torch.einsum('ijkl,il->ijk', dD_dr_whole, df_dD_whole)
 
 # Plot energies for the whole range
 order = np.argsort(r_whole)
-fig, (ax1, ax2) = mpl.subplots(2, 1, sharex=True)
-ax1.plot(r_whole[order], E_whole[order], label="True")
-ax1.plot(r_whole[order], E_whole_pred.detach().numpy()[order], label="Predicted")
-ax1.set_ylabel('Energy')
-ax1.legend()
+fig, (ax1, ax2) = mpl.subplots(2, 1, sharex=True, figsize=(10, 10))
+ax1.plot(r_whole[order], E_whole[order], label="True", linewidth=3, linestyle="-")
+ax1.plot(r_whole[order], E_whole_pred.detach().numpy()[order], label="Predicted", linewidth=3, linestyle="-")
+ax1.set_ylabel('Energy', size=15)
+ax1.legend(fontsize=12)
 
 # Plot forces for whole range
 F_x_whole_pred = F_whole_pred.detach().numpy()[order, 0, 0]
 F_x_whole = F_whole[:, 0, 0][order]
-ax2.plot(r_whole[order], F_x_whole, label="True")
-ax2.plot(r_whole[order], F_x_whole_pred, label="Predicted")
-ax2.legend()
-ax2.set_xlabel('Distance')
-ax2.set_ylabel('Forces')
+ax2.plot(r_whole[order], F_x_whole, label="True", linewidth=3, linestyle="-")
+ax2.plot(r_whole[order], F_x_whole_pred, label="Predicted", linewidth=3, linestyle="-")
+ax2.legend(fontsize=12)
+ax2.set_xlabel('Distance', size=15)
+ax2.set_ylabel('Forces', size=15)
+
+# Plot training points
+ax1.scatter(r_train, E_train, marker="o", color="k", s=20, label="Training points", zorder=3)
+F_x_train = F_train[:, 0, 0]
+ax2.scatter(r_train, F_x_train, marker="o", color="k", s=20, label="Training points", zorder=3)
 
 # Show plot
-mpl.legend()
 mpl.show()
