@@ -307,7 +307,7 @@ void getAlphaBetaD(double* aOa, double* bOa, double* alphas, double* betas, int 
   }
 }
 //================================================================
-void getCfactorsD(double* preCoef, int Asize, double* x,double* x2, double* x4, double* x6, double* x8, double* x10,double* x12,double* x14,double* x16,double* x18, double* y,double* y2, double* y4, double* y6, double* y8, double* y10,double* y12,double* y14,double* y16,double* y18, double* z, double* z2, double* z4, double* z6, double* z8, double* z10,double* z12,double* z14,double* z16,double* z18, double* r2, double* r4, double* r6, double* r8,double* r10,double* r12,double* r14,double* r16,double* r18,int totalAN, int lMax){
+void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prCofDZ, int Asize, double* x,double* x2, double* x4, double* x6, double* x8, double* x10,double* x12,double* x14,double* x16,double* x18, double* y,double* y2, double* y4, double* y6, double* y8, double* y10,double* y12,double* y14,double* y16,double* y18, double* z, double* z2, double* z4, double* z6, double* z8, double* z10,double* z12,double* z14,double* z16,double* z18, double* r2, double* r4, double* r6, double* r8,double* r10,double* r12,double* r14,double* r16,double* r18,int totalAN, int lMax){
 
   for (int i = 0; i < Asize; i++) {
     if (lMax > 1){
@@ -316,6 +316,26 @@ void getCfactorsD(double* preCoef, int Asize, double* x,double* x2, double* x4, 
       /*c21Im*/  preCoef[totalAN*2+i] = -0.31539156525252*x2[i] - 0.31539156525252*y2[i] + 0.63078313050504*z2[i];
       /*c22Re*/  preCoef[totalAN*3+i] = 1.09254843059208*x[i]*z[i];
       /*c22Im*/  preCoef[totalAN*4+i] = 0.54627421529604*x2[i] - 0.54627421529604*y2[i];
+
+      /*c20Dx*/  prCofDX[         +i] = 1.09254843059208*y[i];
+      /*c21Re*/  prCofDX[totalAN*1+i] = 0;
+      /*c21Im*/  prCofDX[totalAN*2+i] = -0.63078313050504*x[i];
+      /*c22Re*/  prCofDX[totalAN*3+i] = 1.09254843059208*z[i];
+      /*c22Im*/  prCofDX[totalAN*4+i] = 1.09254843059208*x[i];
+
+      /*c20Dy*/  prCofDY[         +i] = 1.09254843059208*x[i];
+      /*c21Re*/  prCofDY[totalAN*1+i] = 1.09254843059208*z[i];
+      /*c21Im*/  prCofDY[totalAN*2+i] = -0.63078313050504*y[i];
+      /*c22Re*/  prCofDY[totalAN*3+i] = 0;
+      /*c22Im*/  prCofDY[totalAN*4+i] = -1.09254843059208*y[i];
+
+      /*c20Dy*/  prCofDZ[         +i] = 0;
+      /*c21Re*/  prCofDZ[totalAN*1+i] = 1.09254843059208*y[i];
+      /*c21Im*/  prCofDZ[totalAN*2+i] = 1.26156626101008*z[i];
+      /*c22Re*/  prCofDZ[totalAN*3+i] = 1.09254843059208*x[i];
+      /*c22Im*/  prCofDZ[totalAN*4+i] = 0;
+
+
     }
     if (lMax > 2){
       /*c30  */  preCoef[totalAN*5+i] = 0.590043589926644*y[i]*(3.0*x2[i] - y2[i]);
@@ -325,6 +345,33 @@ void getCfactorsD(double* preCoef, int Asize, double* x,double* x2, double* x4, 
       /*c32Im*/  preCoef[totalAN*9+i] = -0.457045799464466*x[i]*(x2[i] + y2[i] - 4.0*z2[i]);
       /*c33Re*/  preCoef[totalAN*10+i] = 1.44530572132028*z[i]*(x2[i] - y2[i]);
       /*c33Im*/  preCoef[totalAN*11+i] = 0.590043589926644*x[i]*(x2[i] - 3.0*y2[i]);
+
+      /*c30DX*/  prCofDX[totalAN*5+i] = 3.54026153955986*x[i]*y[i];
+      /*c31Re*/  prCofDX[totalAN*6+i] = 2.89061144264055*y[i]*z[i];
+      /*c31Im*/  prCofDX[totalAN*7+i] = -0.914091598928931*x[i]*y[i];
+      /*c32Re*/  prCofDX[totalAN*8+i] = -2.23905799554069*x[i]*z[i];
+      /*c32Im*/  prCofDX[totalAN*9+i] = -1.3711373983934*x2[i] - 0.457045799464466*y2[i] + 1.82818319785786*z2[i];
+      /*c33Re*/  prCofDX[totalAN*10+i] = 2.89061144264055*x[i]*z[i];
+      /*c33Im*/  prCofDX[totalAN*11+i] = 1.77013076977993*x2[i] - 1.77013076977993*y2[i];
+
+      /*c30DY*/  prCofDY[totalAN*5+i] = 1.77013076977993*x2[i] - 1.77013076977993*y2[i];
+      /*c31Re*/  prCofDY[totalAN*6+i] = 2.89061144264055*x[i]*z[i];
+      /*c31Im*/  prCofDY[totalAN*7+i] = -0.457045799464466*x2[i] - 1.3711373983934*y2[i] + 1.82818319785786*z2[i];
+      /*c32Re*/  prCofDY[totalAN*8+i] = -2.23905799554069*y[i]*z[i];
+      /*c32Im*/  prCofDY[totalAN*9+i] = -0.914091598928931*x[i]*y[i];
+      /*c33Re*/  prCofDY[totalAN*10+i] = -2.89061144264055*y[i]*z[i];
+      /*c33Im*/  prCofDY[totalAN*11+i] = -3.54026153955986*x[i]*y[i];
+
+      /*c30DY*/  prCofDZ[totalAN*5+i] = 0;
+      /*c31Re*/  prCofDZ[totalAN*6+i] = 2.89061144264055*x[i]*y[i];
+      /*c31Im*/  prCofDZ[totalAN*7+i] = 3.65636639571573*y[i]*z[i];
+      /*c32Re*/  prCofDZ[totalAN*8+i] = -1.11952899777035*x2[i] - 1.11952899777035*y2[i] + 2.23905799554069*z2[i];
+      /*c32Im*/  prCofDZ[totalAN*9+i] = 3.65636639571573*x[i]*z[i];
+      /*c33Re*/  prCofDZ[totalAN*10+i] = 1.44530572132028*x2[i] - 1.44530572132028*y2[i];
+      /*c33Im*/  prCofDZ[totalAN*11+i] = 0;
+
+
+
     }
     if (lMax > 3){
       /*c40  */  preCoef[totalAN*12+i] = 2.5033429417967*x[i]*y[i]*(x2[i] - y2[i]);
@@ -336,6 +383,38 @@ void getCfactorsD(double* preCoef, int Asize, double* x,double* x2, double* x4, 
       /*c43Im*/  preCoef[totalAN*18+i] = -0.47308734787878*(x2[i] - y2[i])*(x2[i] + y2[i] - 6.0*z2[i]);
       /*c44Re*/  preCoef[totalAN*19+i] = 1.77013076977993*x[i]*z[i]*(x2[i] - 3.0*y2[i]);
       /*c44Im*/  preCoef[totalAN*20+i] = 0.625835735449176*x4[i] - 3.75501441269506*x2[i]*y2[i] + 0.625835735449176*y4[i];
+
+      /*c40DX*/  prCofDX[totalAN*12+i] = 2.5033429417967*y[i]*(3.0*x2[i] - y2[i]);
+      /*c41Re*/  prCofDX[totalAN*13+i] = 10.6207846186796*x[i]*y[i]*z[i];
+      /*c41Im*/  prCofDX[totalAN*14+i] = 0.94617469575756*y[i]*(-3.0*x2[i] - y2[i] + 6.0*z2[i]);
+      /*c42Re*/  prCofDX[totalAN*15+i] = -4.01427926134374*x[i]*y[i]*z[i];
+      /*c42Im*/  prCofDX[totalAN*16+i] = 1.26942656298245*x[i]*(x2[i] + y2[i] - 4.0*z2[i]);
+      /*c43Re*/  prCofDX[totalAN*17+i] = 0.669046543557289*z[i]*(-9.0*x2[i] - 3.0*y2[i] + 4.0*z2[i]);
+      /*c43Im*/  prCofDX[totalAN*18+i] = 1.89234939151512*x[i]*(-x2[i] + 3.0*z2[i]);
+      /*c44Re*/  prCofDX[totalAN*19+i] = 5.31039230933979*z[i]*(x2[i] - y2[i]);
+      /*c44Im*/  prCofDX[totalAN*20+i] = 2.5033429417967*x[i]*(x2[i] - 3.0*y2[i]);
+
+      /*c40DX*/  prCofDY[totalAN*12+i] = 2.5033429417967*x[i]*(x2[i] - 3.0*y2[i]);
+      /*c41Re*/  prCofDY[totalAN*13+i] = 5.31039230933979*z[i]*(x2[i] - y2[i]);
+      /*c41Im*/  prCofDY[totalAN*14+i] = 0.94617469575756*x[i]*(-x2[i] - 3.0*y2[i] + 6.0*z2[i]);
+      /*c42Re*/  prCofDY[totalAN*15+i] = 0.669046543557289*z[i]*(-3.0*x2[i] - 9.0*y2[i] + 4.0*z2[i]);
+      /*c42Im*/  prCofDY[totalAN*16+i] = 1.26942656298245*y[i]*(x2[i] + y2[i] - 4.0*z2[i]);
+      /*c43Re*/  prCofDY[totalAN*17+i] = -4.01427926134374*x[i]*y[i]*z[i];
+      /*c43Im*/  prCofDY[totalAN*18+i] = 1.89234939151512*y[i]*(y2[i] - 3.0*z2[i]);
+      /*c44Re*/  prCofDY[totalAN*19+i] = -10.6207846186796*x[i]*y[i]*z[i];
+      /*c44Im*/  prCofDY[totalAN*20+i] = 2.5033429417967*y[i]*(-3.0*x2[i] + y2[i]);
+
+      /*c40DX*/  prCofDZ[totalAN*12+i] = 0;
+      /*c41Re*/  prCofDZ[totalAN*13+i] = 1.77013076977993*y[i]*(3.0*x2[i] - y2[i]);
+      /*c41Im*/  prCofDZ[totalAN*14+i] = 11.3540963490907*x[i]*y[i]*z[i];
+      /*c42Re*/  prCofDZ[totalAN*15+i] = -2.00713963067187*y[i]*(x2[i] + y2[i] - 4.0*z2[i]);
+      /*c42Im*/  prCofDZ[totalAN*16+i] = 1.69256875064327*z[i]*(-3.0*x2[i] - 3.0*y2[i] + 2.0*z2[i]);
+      /*c43Re*/  prCofDZ[totalAN*17+i] = -2.00713963067187*x[i]*(x2[i] + y2[i] - 4.0*z2[i]);
+      /*c43Im*/  prCofDZ[totalAN*18+i] = 5.67704817454536*z[i]*(x2[i] - y2[i]);
+      /*c44Re*/  prCofDZ[totalAN*19+i] = 1.77013076977993*x[i]*(x2[i] - 3.0*y2[i]);
+      /*c44Im*/  prCofDZ[totalAN*20+i] = 0;
+
+
     }
     if (lMax > 4){
       /*c50  */  preCoef[totalAN*21+i] = 0.65638205684017*y[i]*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i]);
@@ -349,6 +428,44 @@ void getCfactorsD(double* preCoef, int Asize, double* x,double* x2, double* x4, 
       /*c54Im*/  preCoef[totalAN*29+i] = -0.48923829943525*x[i]*(x2[i] - 3.0*y2[i])*(x2[i] + y2[i] - 8.0*z2[i]);
       /*c55Re*/  preCoef[totalAN*30+i] = 2.07566231488104*z[i]*(x4[i] - 6.0*x2[i]*y2[i] + y4[i]);
       /*c55Im*/  preCoef[totalAN*31+i] = 0.65638205684017*x[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i]);
+
+      /*c50DX*/  prCofDX[totalAN*21+i] = 13.1276411368034*x[i]*y[i]*(x2[i] - y2[i]);
+      /*c51Re*/  prCofDX[totalAN*22+i] = 8.30264925952416*y[i]*z[i]*(3.0*x2[i] - y2[i]);
+      /*c51Im*/  prCofDX[totalAN*23+i] = 1.956953197741*x[i]*y[i]*(-3.0*x2[i] - y2[i] + 12.0*z2[i]);
+      /*c52Re*/  prCofDX[totalAN*24+i] = 4.79353678497332*y[i]*z[i]*(-3.0*x2[i] - y2[i] + 2.0*z2[i]);
+      /*c52Im*/  prCofDX[totalAN*25+i] = 1.81178660478279*x[i]*y[i]*(x2[i] + y2[i] - 6.0*z2[i]);
+      /*c53Re*/  prCofDX[totalAN*26+i] = 2.33900644906847*x[i]*z[i]*(3.0*x2[i] + 3.0*y2[i] - 4.0*z2[i]);
+      /*c53Im*/  prCofDX[totalAN*27+i] = 2.26473325597848*x4[i] + 2.71767990717418*x2[i]*y2[i] - 16.3060794430451*x2[i]*z2[i] + 0.452946651195697*y4[i] - 5.43535981434836*y2[i]*z2[i] + 3.62357320956558*z4[i];
+      /*c54Re*/  prCofDX[totalAN*28+i] = 9.58707356994665*x[i]*z[i]*(-x2[i] + z2[i]);
+      /*c54Im*/  prCofDX[totalAN*29+i] = -0.978476598870501*x2[i]*(x2[i] - 3.0*y2[i]) - 1.46771489830575*(x2[i] - y2[i])*(x2[i] + y2[i] - 8.0*z2[i]);
+      /*c55Re*/  prCofDX[totalAN*30+i] = 8.30264925952416*x[i]*z[i]*(x2[i] - 3.0*y2[i]);
+      /*c55Im*/  prCofDX[totalAN*31+i] = 3.28191028420085*x4[i] - 19.6914617052051*x2[i]*y2[i] + 3.28191028420085*y4[i];
+
+      /*c50DX*/  prCofDY[totalAN*21+i] = 3.28191028420085*x4[i] - 19.6914617052051*x2[i]*y2[i] + 3.28191028420085*y4[i];
+      /*c51Re*/  prCofDY[totalAN*22+i] = 8.30264925952416*x[i]*z[i]*(x2[i] - 3.0*y2[i]);
+      /*c51Im*/  prCofDY[totalAN*23+i] = -0.978476598870501*y2[i]*(3.0*x2[i] - y2[i]) - 1.46771489830575*(x2[i] - y2[i])*(x2[i] + y2[i] - 8.0*z2[i]);
+      /*c52Re*/  prCofDY[totalAN*24+i] = 4.79353678497332*x[i]*z[i]*(-x2[i] - 3.0*y2[i] + 2.0*z2[i]);
+      /*c52Im*/  prCofDY[totalAN*25+i] = 0.452946651195697*x4[i] + 2.71767990717418*x2[i]*y2[i] - 5.43535981434836*x2[i]*z2[i] + 2.26473325597848*y4[i] - 16.3060794430451*y2[i]*z2[i] + 3.62357320956558*z4[i];
+      /*c53Re*/  prCofDY[totalAN*26+i] = 2.33900644906847*y[i]*z[i]*(3.0*x2[i] + 3.0*y2[i] - 4.0*z2[i]);
+      /*c53Im*/  prCofDY[totalAN*27+i] = 1.81178660478279*x[i]*y[i]*(x2[i] + y2[i] - 6.0*z2[i]);
+      /*c54Re*/  prCofDY[totalAN*28+i] = 9.58707356994665*y[i]*z[i]*(y2[i] - z2[i]);
+      /*c54Im*/  prCofDY[totalAN*29+i] = 1.956953197741*x[i]*y[i]*(x2[i] + 3.0*y2[i] - 12.0*z2[i]);
+      /*c55Re*/  prCofDY[totalAN*30+i] = -8.30264925952416*y[i]*z[i]*(3.0*x2[i] - y2[i]);
+      /*c55Im*/  prCofDY[totalAN*31+i] = 13.1276411368034*x[i]*y[i]*(-x2[i] + y2[i]);
+
+      /*c50DX*/  prCofDZ[totalAN*21+i] = 0;
+      /*c51Re*/  prCofDZ[totalAN*22+i] = 8.30264925952416*x[i]*y[i]*(x2[i] - y2[i]);
+      /*c51Im*/  prCofDZ[totalAN*23+i] = 7.82781279096401*y[i]*z[i]*(3.0*x2[i] - y2[i]);
+      /*c52Re*/  prCofDZ[totalAN*24+i] = -4.79353678497332*x[i]*y[i]*(x2[i] + y2[i] - 6.0*z2[i]);
+      /*c52Im*/  prCofDZ[totalAN*25+i] = 3.62357320956558*y[i]*z[i]*(-3.0*x2[i] - 3.0*y2[i] + 4.0*z2[i]);
+      /*c53Re*/  prCofDZ[totalAN*26+i] = 20.4663064293491*z4[i] - 17.5425483680135*z2[i]*r2[i] + 1.75425483680135*r4[i];
+      /*c53Im*/  prCofDZ[totalAN*27+i] = 3.62357320956558*x[i]*z[i]*(-3.0*x2[i] - 3.0*y2[i] + 4.0*z2[i]);
+      /*c54Re*/  prCofDZ[totalAN*28+i] = -2.39676839248666*(x2[i] - y2[i])*(x2[i] + y2[i] - 6.0*z2[i]);
+      /*c54Im*/  prCofDZ[totalAN*29+i] = 7.82781279096401*x[i]*z[i]*(x2[i] - 3.0*y2[i]);
+      /*c55Re*/  prCofDZ[totalAN*30+i] = 2.07566231488104*x4[i] - 12.4539738892862*x2[i]*y2[i] + 2.07566231488104*y4[i];
+      /*c55Im*/  prCofDZ[totalAN*31+i] = 0;
+
+
     }
     if (lMax > 5){
       /*c60  */  preCoef[totalAN*32+i] = 1.36636821038383*x[i]*y[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i]);
@@ -364,6 +481,50 @@ void getCfactorsD(double* preCoef, int Asize, double* x,double* x2, double* x4, 
       /*c65Im*/  preCoef[totalAN*42+i] = -0.504564900728724*(x2[i] + y2[i] - 10.0*z2[i])*(x4[i] - 6.0*x2[i]*y2[i] + y4[i]);
       /*c66Re*/  preCoef[totalAN*43+i] = 2.36661916223175*x[i]*z[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i]);
       /*c66Im*/  preCoef[totalAN*44+i] = 0.683184105191914*x6[i] - 10.2477615778787*x4[i]*y2[i] + 10.2477615778787*x2[i]*y4[i] - 0.683184105191914*y6[i];
+
+      /*c60DX*/  prCofDX[totalAN*32+i] = 4.09910463115149*y[i]*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i]);
+      /*c61Re*/  prCofDX[totalAN*33+i] = 47.332383244635*x[i]*y[i]*z[i]*(x2[i] - y2[i]);
+      /*c61Im*/  prCofDX[totalAN*34+i] = -2.0182596029149*y[i]*(5.0*x4[i] - 30.0*x2[i]*z2[i] - y4[i] + 10.0*y2[i]*z2[i]);
+      /*c62Re*/  prCofDX[totalAN*35+i] = 11.0544631141791*x[i]*y[i]*z[i]*(-3.0*x2[i] - y2[i] + 4.0*z2[i]);
+      /*c62Im*/  prCofDX[totalAN*36+i] = 0.921205259514923*y[i]*(5.0*x4[i] + 6.0*x2[i]*y2[i] - 48.0*x2[i]*z2[i] + y4[i] - 16.0*y2[i]*z2[i] + 16.0*z4[i]);
+      /*c63Re*/  prCofDX[totalAN*37+i] = 11.6524272503746*x[i]*y[i]*z[i]*(x2[i] + y2[i] - 2.0*z2[i]);
+      /*c63Im*/  prCofDX[totalAN*38+i] = 1.90707606802885*x[i]*(-21.0*z4[i] + 14.0*z2[i]*r2[i] - r4[i]);
+      /*c64Re*/  prCofDX[totalAN*39+i] = 0.582621362518731*z[i]*(25.0*x4[i] + 30.0*x2[i]*y2[i] - 60.0*x2[i]*z2[i] + 5.0*y4[i] - 20.0*y2[i]*z2[i] + 8.0*z4[i]);
+      /*c64Im*/  prCofDX[totalAN*40+i] = 0.921205259514923*x[i]*(3.0*x4[i] + 2.0*x2[i]*y2[i] - 32.0*x2[i]*z2[i] - y4[i] + 16.0*z4[i]);
+      /*c65Re*/  prCofDX[totalAN*41+i] = 2.76361577854477*z[i]*(-2.0*x2[i]*(x2[i] - 3.0*y2[i]) + (x2[i] - y2[i])*(-3.0*x2[i] - 3.0*y2[i] + 8.0*z2[i]));
+      /*c65Im*/  prCofDX[totalAN*42+i] = 1.00912980145745*x[i]*(-x4[i] + 6.0*x2[i]*y2[i] - y4[i] - 2.0*(x2[i] - 3.0*y2[i])*(x2[i] + y2[i] - 10.0*z2[i]));
+      /*c66Re*/  prCofDX[totalAN*43+i] = 11.8330958111588*z[i]*(x4[i] - 6.0*x2[i]*y2[i] + y4[i]);
+      /*c66Im*/  prCofDX[totalAN*44+i] = 4.09910463115149*x[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i]);
+
+      /*c60DX*/  prCofDY[totalAN*32+i] = 4.09910463115149*x[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i]);
+      /*c61Re*/  prCofDY[totalAN*33+i] = 11.8330958111588*z[i]*(x4[i] - 6.0*x2[i]*y2[i] + y4[i]);
+      /*c61Im*/  prCofDY[totalAN*34+i] = -2.0182596029149*x[i]*(x4[i] - 10.0*x2[i]*z2[i] - 5.0*y4[i] + 30.0*y2[i]*z2[i]);
+      /*c62Re*/  prCofDY[totalAN*35+i] = 2.76361577854477*z[i]*(-2.0*y2[i]*(3.0*x2[i] - y2[i]) + (x2[i] - y2[i])*(-3.0*x2[i] - 3.0*y2[i] + 8.0*z2[i]));
+      /*c62Im*/  prCofDY[totalAN*36+i] = 0.921205259514923*x[i]*(x4[i] + 6.0*x2[i]*y2[i] - 16.0*x2[i]*z2[i] + 5.0*y4[i] - 48.0*y2[i]*z2[i] + 16.0*z4[i]);
+      /*c63Re*/  prCofDY[totalAN*37+i] = 0.582621362518731*z[i]*(5.0*x4[i] + 30.0*x2[i]*y2[i] - 20.0*x2[i]*z2[i] + 25.0*y4[i] - 60.0*y2[i]*z2[i] + 8.0*z4[i]);
+      /*c63Im*/  prCofDY[totalAN*38+i] = 1.90707606802885*y[i]*(-21.0*z4[i] + 14.0*z2[i]*r2[i] - r4[i]);
+      /*c64Re*/  prCofDY[totalAN*39+i] = 11.6524272503746*x[i]*y[i]*z[i]*(x2[i] + y2[i] - 2.0*z2[i]);
+      /*c64Im*/  prCofDY[totalAN*40+i] = 0.921205259514923*y[i]*(x4[i] - 2.0*x2[i]*y2[i] - 3.0*y4[i] + 32.0*y2[i]*z2[i] - 16.0*z4[i]);
+      /*c65Re*/  prCofDY[totalAN*41+i] = 11.0544631141791*x[i]*y[i]*z[i]*(x2[i] + 3.0*y2[i] - 4.0*z2[i]);
+      /*c65Im*/  prCofDY[totalAN*42+i] = 1.00912980145745*y[i]*(5.0*x4[i] + 10.0*x2[i]*y2[i] - 60.0*x2[i]*z2[i] - 3.0*y4[i] + 20.0*y2[i]*z2[i]);
+      /*c66Re*/  prCofDY[totalAN*43+i] = -47.332383244635*x[i]*y[i]*z[i]*(x2[i] - y2[i]);
+      /*c66Im*/  prCofDY[totalAN*44+i] = 4.09910463115149*y[i]*(-5.0*x4[i] + 10.0*x2[i]*y2[i] - y4[i]);
+
+      /*c60DX*/  prCofDZ[totalAN*32+i] = 0;
+      /*c61Re*/  prCofDZ[totalAN*33+i] = 2.36661916223175*y[i]*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i]);
+      /*c61Im*/  prCofDZ[totalAN*34+i] = 40.3651920582979*x[i]*y[i]*z[i]*(x2[i] - y2[i]);
+      /*c62Re*/  prCofDZ[totalAN*35+i] = -2.76361577854477*y[i]*(3.0*x2[i] - y2[i])*(x2[i] + y2[i] - 8.0*z2[i]);
+      /*c62Im*/  prCofDZ[totalAN*36+i] = 29.4785683044776*x[i]*y[i]*z[i]*(-x2[i] - y2[i] + 2.0*z2[i]);
+      /*c63Re*/  prCofDZ[totalAN*37+i] = 2.91310681259366*y[i]*(21.0*z4[i] - 14.0*z2[i]*r2[i] + r4[i]);
+      /*c63Im*/  prCofDZ[totalAN*38+i] = 0.762830427211541*z[i]*(63.0*z4[i] - 70.0*z2[i]*r2[i] + 15.0*r4[i]);
+      /*c64Re*/  prCofDZ[totalAN*39+i] = 2.91310681259366*x[i]*(21.0*z4[i] - 14.0*z2[i]*r2[i] + r4[i]);
+      /*c64Im*/  prCofDZ[totalAN*40+i] = 14.7392841522388*z[i]*(x2[i] - y2[i])*(-x2[i] - y2[i] + 2.0*z2[i]);
+      /*c65Re*/  prCofDZ[totalAN*41+i] = -2.76361577854477*x[i]*(x2[i] - 3.0*y2[i])*(x2[i] + y2[i] - 8.0*z2[i]);
+      /*c65Im*/  prCofDZ[totalAN*42+i] = 10.0912980145745*z[i]*(x4[i] - 6.0*x2[i]*y2[i] + y4[i]);
+      /*c66Re*/  prCofDZ[totalAN*43+i] = 2.36661916223175*x[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i]);
+      /*c66Im*/  prCofDZ[totalAN*44+i] = 0;
+
+
     }
     if (lMax > 6){
       /*c70  */  preCoef[totalAN*45+i] = 0.707162732524596*y[i]*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]);
@@ -381,6 +542,57 @@ void getCfactorsD(double* preCoef, int Asize, double* x,double* x2, double* x4, 
       /*c76Im*/  preCoef[totalAN*57+i] = -0.51891557872026*x[i]*(x2[i] + y2[i] - 12.0*z2[i])*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i]);
       /*c77Re*/  preCoef[totalAN*58+i] = 2.6459606618019*z[i]*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i]);
       /*c77Im*/  preCoef[totalAN*59+i] = 0.707162732524596*x[i]*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]);
+
+      /*c70DX*/  prCofDX[totalAN*45+i] = 9.90027825534435*x[i]*y[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i]);
+      /*c71Re*/  prCofDX[totalAN*46+i] = 15.8757639708114*y[i]*z[i]*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i]);
+      /*c71Im*/  prCofDX[totalAN*47+i] = 1.03783115744052*x[i]*y[i]*(-5.0*x4[i] + 10.0*x2[i]*y2[i] - y4[i] - 10.0*(x2[i] - y2[i])*(x2[i] + y2[i] - 12.0*z2[i]));
+      /*c72Re*/  prCofDX[totalAN*48+i] = -4.15132462976208*y[i]*z[i]*(15.0*x4[i] - 30.0*x2[i]*z2[i] - 3.0*y4[i] + 10.0*y2[i]*z2[i]);
+      /*c72Im*/  prCofDX[totalAN*49+i] = 0.938753603173764*x[i]*y[i]*(9.0*x4[i] + 10.0*x2[i]*y2[i] - 120.0*x2[i]*z2[i] + y4[i] - 40.0*y2[i]*z2[i] + 80.0*z4[i]);
+      /*c73Re*/  prCofDX[totalAN*50+i] = 0.442532692444983*y[i]*z[i]*(75.0*x4[i] + 90.0*x2[i]*y2[i] - 240.0*x2[i]*z2[i] + 15.0*y4[i] - 80.0*y2[i]*z2[i] + 48.0*z4[i]);
+      /*c73Im*/  prCofDX[totalAN*51+i] = -2.70994822747552*x[i]*y[i]*(33.0*z4[i] - 18.0*z2[i]*r2[i] + r4[i]);
+      /*c74Re*/  prCofDX[totalAN*52+i] = 2.86793963030421*x[i]*z[i]*(-33.0*z4[i] + 30.0*z2[i]*r2[i] - 5.0*r4[i]);
+      /*c74Im*/  prCofDX[totalAN*53+i] = -3.16160626538811*x6[i] - 6.7748705686888*x4[i]*y2[i] + 54.1989645495104*x4[i]*z2[i] - 4.06492234121328*x2[i]*y4[i] + 65.0387574594125*x2[i]*y2[i]*z2[i] - 65.0387574594125*x2[i]*z4[i] - 0.451658037912587*y6[i] + 10.8397929099021*y4[i]*z2[i] - 21.6795858198042*y2[i]*z4[i] + 5.78122288528111*z6[i];
+      /*c75Re*/  prCofDX[totalAN*54+i] = 0.442532692444983*x[i]*z[i]*(45.0*x4[i] + 30.0*x2[i]*y2[i] - 160.0*x2[i]*z2[i] - 15.0*y4[i] + 48.0*z4[i]);
+      /*c75Im*/  prCofDX[totalAN*55+i] = -1.87750720634753*x2[i]*(x2[i] - 3.0*y2[i])*(-x2[i] - y2[i] + 10.0*z2[i]) + 0.469376801586882*(x2[i] - y2[i])*(143.0*z4[i] - 66.0*z2[i]*r2[i] + 3.0*r4[i]);
+      /*c76Re*/  prCofDX[totalAN*56+i] = 2.07566231488104*x[i]*z[i]*(-9.0*x4[i] + 30.0*x2[i]*y2[i] + 20.0*x2[i]*z2[i] + 15.0*y4[i] - 60.0*y2[i]*z2[i]);
+      /*c76Im*/  prCofDX[totalAN*57+i] = -1.03783115744052*x2[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i]) - 2.5945778936013*(x2[i] + y2[i] - 12.0*z2[i])*(x4[i] - 6.0*x2[i]*y2[i] + y4[i]);
+      /*c77Re*/  prCofDX[totalAN*58+i] = 15.8757639708114*x[i]*z[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i]);
+      /*c77Im*/  prCofDX[totalAN*59+i] = 4.95013912767217*x6[i] - 74.2520869150826*x4[i]*y2[i] + 74.2520869150826*x2[i]*y4[i] - 4.95013912767217*y6[i];
+
+      /*c70DX*/  prCofDY[totalAN*45+i] = 4.95013912767217*x6[i] - 74.2520869150826*x4[i]*y2[i] + 74.2520869150826*x2[i]*y4[i] - 4.95013912767217*y6[i];
+      /*c71Re*/  prCofDY[totalAN*46+i] = 15.8757639708114*x[i]*z[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i]);
+      /*c71Im*/  prCofDY[totalAN*47+i] = -1.03783115744052*y2[i]*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i]) - 2.5945778936013*(x2[i] + y2[i] - 12.0*z2[i])*(x4[i] - 6.0*x2[i]*y2[i] + y4[i]);
+      /*c72Re*/  prCofDY[totalAN*48+i] = -4.15132462976208*x[i]*z[i]*(3.0*x4[i] - 10.0*x2[i]*z2[i] - 15.0*y4[i] + 30.0*y2[i]*z2[i]);
+      /*c72Im*/  prCofDY[totalAN*49+i] = -1.87750720634753*y2[i]*(3.0*x2[i] - y2[i])*(-x2[i] - y2[i] + 10.0*z2[i]) + 0.469376801586882*(x2[i] - y2[i])*(143.0*z4[i] - 66.0*z2[i]*r2[i] + 3.0*r4[i]);
+      /*c73Re*/  prCofDY[totalAN*50+i] = 0.442532692444983*x[i]*z[i]*(15.0*x4[i] + 90.0*x2[i]*y2[i] - 80.0*x2[i]*z2[i] + 75.0*y4[i] - 240.0*y2[i]*z2[i] + 48.0*z4[i]);
+      /*c73Im*/  prCofDY[totalAN*51+i] = -0.451658037912587*x6[i] - 4.06492234121328*x4[i]*y2[i] + 10.8397929099021*x4[i]*z2[i] - 6.7748705686888*x2[i]*y4[i] + 65.0387574594125*x2[i]*y2[i]*z2[i] - 21.6795858198042*x2[i]*z4[i] - 3.16160626538811*y6[i] + 54.1989645495104*y4[i]*z2[i] - 65.0387574594125*y2[i]*z4[i] + 5.78122288528111*z6[i];
+      /*c74Re*/  prCofDY[totalAN*52+i] = 2.86793963030421*y[i]*z[i]*(-33.0*z4[i] + 30.0*z2[i]*r2[i] - 5.0*r4[i]);
+      /*c74Im*/  prCofDY[totalAN*53+i] = -2.70994822747552*x[i]*y[i]*(33.0*z4[i] - 18.0*z2[i]*r2[i] + r4[i]);
+      /*c75Re*/  prCofDY[totalAN*54+i] = 0.442532692444983*y[i]*z[i]*(15.0*x4[i] - 30.0*x2[i]*y2[i] - 45.0*y4[i] + 160.0*y2[i]*z2[i] - 48.0*z4[i]);
+      /*c75Im*/  prCofDY[totalAN*55+i] = -0.938753603173764*x[i]*y[i]*(x4[i] + 10.0*x2[i]*y2[i] - 40.0*x2[i]*z2[i] + 9.0*y4[i] - 120.0*y2[i]*z2[i] + 80.0*z4[i]);
+      /*c76Re*/  prCofDY[totalAN*56+i] = 2.07566231488104*y[i]*z[i]*(15.0*x4[i] + 30.0*x2[i]*y2[i] - 60.0*x2[i]*z2[i] - 9.0*y4[i] + 20.0*y2[i]*z2[i]);
+      /*c76Im*/  prCofDY[totalAN*57+i] = 1.03783115744052*x[i]*y[i]*(9.0*x4[i] + 10.0*x2[i]*y2[i] - 120.0*x2[i]*z2[i] - 15.0*y4[i] + 120.0*y2[i]*z2[i]);
+      /*c77Re*/  prCofDY[totalAN*58+i] = -15.8757639708114*y[i]*z[i]*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i]);
+      /*c77Im*/  prCofDY[totalAN*59+i] = 9.90027825534435*x[i]*y[i]*(-3.0*x4[i] + 10.0*x2[i]*y2[i] - 3.0*y4[i]);
+
+      /*c70DX*/  prCofDZ[totalAN*45+i] = 0;
+      /*c71Re*/  prCofDZ[totalAN*46+i] = 5.2919213236038*x[i]*y[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i]);
+      /*c71Im*/  prCofDZ[totalAN*47+i] = 12.4539738892862*y[i]*z[i]*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i]);
+      /*c72Re*/  prCofDZ[totalAN*48+i] = -12.4539738892862*x[i]*y[i]*(x2[i] - y2[i])*(x2[i] + y2[i] - 10.0*z2[i]);
+      /*c72Im*/  prCofDZ[totalAN*49+i] = 6.25835735449176*y[i]*z[i]*(3.0*x2[i] - y2[i])*(-3.0*x2[i] - 3.0*y2[i] + 8.0*z2[i]);
+      /*c73Re*/  prCofDZ[totalAN*50+i] = 6.63799038667474*x[i]*y[i]*(33.0*z4[i] - 18.0*z2[i]*r2[i] + r4[i]);
+      /*c73Im*/  prCofDZ[totalAN*51+i] = 4.33591716396083*y[i]*z[i]*(33.0*z4[i] - 30.0*z2[i]*r2[i] + 5.0*r4[i]);
+      /*c74Re*/  prCofDZ[totalAN*52+i] = 110.415675766712*z6[i] - 150.566830590971*z4[i]*r2[i] + 50.1889435303236*z2[i]*r4[i] - 2.38994969192017*r6[i];
+      /*c74Im*/  prCofDZ[totalAN*53+i] = 4.33591716396083*x[i]*z[i]*(33.0*z4[i] - 30.0*z2[i]*r2[i] + 5.0*r4[i]);
+      /*c75Re*/  prCofDZ[totalAN*54+i] = 3.31899519333737*(x2[i] - y2[i])*(33.0*z4[i] - 18.0*z2[i]*r2[i] + r4[i]);
+      /*c75Im*/  prCofDZ[totalAN*55+i] = 6.25835735449176*x[i]*z[i]*(x2[i] - 3.0*y2[i])*(-3.0*x2[i] - 3.0*y2[i] + 8.0*z2[i]);
+      /*c76Re*/  prCofDZ[totalAN*56+i] = -3.11349347232156*(x2[i] + y2[i] - 10.0*z2[i])*(x4[i] - 6.0*x2[i]*y2[i] + y4[i]);
+      /*c76Im*/  prCofDZ[totalAN*57+i] = 12.4539738892862*x[i]*z[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i]);
+      /*c77Re*/  prCofDZ[totalAN*58+i] = 2.6459606618019*x6[i] - 39.6894099270285*x4[i]*y2[i] + 39.6894099270285*x2[i]*y4[i] - 2.6459606618019*y6[i];
+      /*c77Im*/  prCofDZ[totalAN*59+i] = 0;
+
+
+
     }
     if (lMax > 7){
       /*c80  */  preCoef[totalAN*60+i] = 5.83141328139864*x[i]*y[i]*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]);
@@ -400,6 +612,63 @@ void getCfactorsD(double* preCoef, int Asize, double* x,double* x2, double* x4, 
       /*c87Im*/  preCoef[totalAN*74+i] = -0.532332766059543*(x2[i] + y2[i] - 14.0*z2[i])*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i]);
       /*c88Re*/  preCoef[totalAN*75+i] = 2.91570664069932*x[i]*z[i]*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]);
       /*c88Im*/  preCoef[totalAN*76+i] = 0.72892666017483*x8[i] - 20.4099464848952*x6[i]*y2[i] + 51.0248662122381*x4[i]*y4[i] - 20.4099464848952*x2[i]*y6[i] + 0.72892666017483*y8[i];
+
+      /*c80DX*/  prCofDX[totalAN*60+i] = 5.83141328139864*y[i]*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]);
+      /*c81Re*/  prCofDX[totalAN*61+i] = 40.8198929697905*x[i]*y[i]*z[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i]);
+      /*c81Im*/  prCofDX[totalAN*62+i] = 1.06466553211909*y[i]*(x2[i]*(-6.0*x4[i] + 20.0*x2[i]*y2[i] - 6.0*y4[i]) - 3.0*(x2[i] + y2[i] - 14.0*z2[i])*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i]));
+      /*c82Re*/  prCofDX[totalAN*63+i] = 6.89982124419622*x[i]*y[i]*z[i]*(-5.0*x4[i] + 10.0*x2[i]*y2[i] - y4[i] + 10.0*(x2[i] - y2[i])*(-x2[i] - y2[i] + 4.0*z2[i]));
+      /*c82Im*/  prCofDX[totalAN*64+i] = 1.91366609903732*y[i]*(7.0*x6[i] + 5.0*x4[i]*y2[i] - 120.0*x4[i]*z2[i] - 3.0*x2[i]*y4[i] + 120.0*x2[i]*z4[i] - y6[i] + 24.0*y4[i]*z2[i] - 40.0*y2[i]*z4[i]);
+      /*c83Re*/  prCofDX[totalAN*65+i] = 2.47053231059109*x[i]*y[i]*z[i]*(27.0*x4[i] + 30.0*x2[i]*y2[i] - 120.0*x2[i]*z2[i] + 3.0*y4[i] - 40.0*y2[i]*z2[i] + 48.0*z4[i]);
+      /*c83Im*/  prCofDX[totalAN*66+i] = -0.912304516869819*y[i]*(7.0*x6[i] + 15.0*x4[i]*y2[i] - 150.0*x4[i]*z2[i] + 9.0*x2[i]*y4[i] - 180.0*x2[i]*y2[i]*z2[i] + 240.0*x2[i]*z4[i] + y6[i] - 30.0*y4[i]*z2[i] + 80.0*y2[i]*z4[i] - 32.0*z6[i]);
+      /*c84Re*/  prCofDX[totalAN*67+i] = -1.52657744258292*x[i]*y[i]*z[i]*(143.0*z4[i] - 110.0*z2[i]*r2[i] + 15.0*r4[i]);
+      /*c84Im*/  prCofDX[totalAN*68+i] = 0.50885914752764*x[i]*(-429.0*z6[i] + 495.0*z4[i]*r2[i] - 135.0*z2[i]*r4[i] + 5.0*r6[i]);
+      /*c85Re*/  prCofDX[totalAN*69+i] = -0.10904124589878*z[i]*(245.0*x6[i] + 525.0*x4[i]*y2[i] - 1400.0*x4[i]*z2[i] + 315.0*x2[i]*y4[i] - 1680.0*x2[i]*y2[i]*z2[i] + 1008.0*x2[i]*z4[i] + 35.0*y6[i] - 280.0*y4[i]*z2[i] + 336.0*y2[i]*z4[i] - 64.0*z6[i]);
+      /*c85Im*/  prCofDX[totalAN*70+i] = -1.82460903373964*x[i]*(2.0*x6[i] + 3.0*x4[i]*y2[i] - 45.0*x4[i]*z2[i] - 30.0*x2[i]*y2[i]*z2[i] + 80.0*x2[i]*z4[i] - y6[i] + 15.0*y4[i]*z2[i] - 16.0*z6[i]);
+      /*c86Re*/  prCofDX[totalAN*71+i] = 1.23526615529554*z[i]*(-4.0*x2[i]*(x2[i] - 3.0*y2[i])*(-3.0*x2[i] - 3.0*y2[i] + 10.0*z2[i]) + 3.0*(x2[i] - y2[i])*(39.0*z4[i] - 26.0*z2[i]*r2[i] + 3.0*r4[i]));
+      /*c86Im*/  prCofDX[totalAN*72+i] = 1.91366609903732*x[i]*((x2[i] - 3.0*y2[i])*(65.0*z4[i] - 26.0*z2[i]*r2[i] + r4[i]) - (-x2[i] - y2[i] + 12.0*z2[i])*(x4[i] - 6.0*x2[i]*y2[i] + y4[i]));
+      /*c87Re*/  prCofDX[totalAN*73+i] = 3.44991062209811*z[i]*(-2.0*x2[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i]) + 5.0*(-x2[i] - y2[i] + 4.0*z2[i])*(x4[i] - 6.0*x2[i]*y2[i] + y4[i]));
+      /*c87Im*/  prCofDX[totalAN*74+i] = -2.12933106423817*x[i]*(2.0*x6[i] - 21.0*x4[i]*y2[i] - 21.0*x4[i]*z2[i] + 210.0*x2[i]*y2[i]*z2[i] + 7.0*y6[i] - 105.0*y4[i]*z2[i]);
+      /*c88Re*/  prCofDX[totalAN*75+i] = 20.4099464848952*z[i]*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i]);
+      /*c88Im*/  prCofDX[totalAN*76+i] = 5.83141328139864*x[i]*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]);
+
+      /*c80DX*/  prCofDY[totalAN*60+i] = 5.83141328139864*x[i]*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]);
+      /*c81Re*/  prCofDY[totalAN*61+i] = 20.4099464848952*z[i]*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i]);
+      /*c81Im*/  prCofDY[totalAN*62+i] = 1.06466553211909*x[i]*(y2[i]*(-6.0*x4[i] + 20.0*x2[i]*y2[i] - 6.0*y4[i]) - 3.0*(x2[i] + y2[i] - 14.0*z2[i])*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i]));
+      /*c82Re*/  prCofDY[totalAN*63+i] = 3.44991062209811*z[i]*(-2.0*y2[i]*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i]) + 5.0*(-x2[i] - y2[i] + 4.0*z2[i])*(x4[i] - 6.0*x2[i]*y2[i] + y4[i]));
+      /*c82Im*/  prCofDY[totalAN*64+i] = 1.91366609903732*x[i]*(x6[i] + 3.0*x4[i]*y2[i] - 24.0*x4[i]*z2[i] - 5.0*x2[i]*y4[i] + 40.0*x2[i]*z4[i] - 7.0*y6[i] + 120.0*y4[i]*z2[i] - 120.0*y2[i]*z4[i]);
+      /*c83Re*/  prCofDY[totalAN*65+i] = 1.23526615529554*z[i]*(-4.0*y2[i]*(3.0*x2[i] - y2[i])*(-3.0*x2[i] - 3.0*y2[i] + 10.0*z2[i]) + 3.0*(x2[i] - y2[i])*(39.0*z4[i] - 26.0*z2[i]*r2[i] + 3.0*r4[i]));
+      /*c83Im*/  prCofDY[totalAN*66+i] = -0.912304516869819*x[i]*(x6[i] + 9.0*x4[i]*y2[i] - 30.0*x4[i]*z2[i] + 15.0*x2[i]*y4[i] - 180.0*x2[i]*y2[i]*z2[i] + 80.0*x2[i]*z4[i] + 7.0*y6[i] - 150.0*y4[i]*z2[i] + 240.0*y2[i]*z4[i] - 32.0*z6[i]);
+      /*c84Re*/  prCofDY[totalAN*67+i] = -0.10904124589878*z[i]*(35.0*x6[i] + 315.0*x4[i]*y2[i] - 280.0*x4[i]*z2[i] + 525.0*x2[i]*y4[i] - 1680.0*x2[i]*y2[i]*z2[i] + 336.0*x2[i]*z4[i] + 245.0*y6[i] - 1400.0*y4[i]*z2[i] + 1008.0*y2[i]*z4[i] - 64.0*z6[i]);
+      /*c84Im*/  prCofDY[totalAN*68+i] = 0.50885914752764*y[i]*(-429.0*z6[i] + 495.0*z4[i]*r2[i] - 135.0*z2[i]*r4[i] + 5.0*r6[i]);
+      /*c85Re*/  prCofDY[totalAN*69+i] = -1.52657744258292*x[i]*y[i]*z[i]*(143.0*z4[i] - 110.0*z2[i]*r2[i] + 15.0*r4[i]);
+      /*c85Im*/  prCofDY[totalAN*70+i] = -1.82460903373964*y[i]*(x6[i] - 15.0*x4[i]*z2[i] - 3.0*x2[i]*y4[i] + 30.0*x2[i]*y2[i]*z2[i] - 2.0*y6[i] + 45.0*y4[i]*z2[i] - 80.0*y2[i]*z4[i] + 16.0*z6[i]);
+      /*c86Re*/  prCofDY[totalAN*71+i] = -2.47053231059109*x[i]*y[i]*z[i]*(3.0*x4[i] + 30.0*x2[i]*y2[i] - 40.0*x2[i]*z2[i] + 27.0*y4[i] - 120.0*y2[i]*z2[i] + 48.0*z4[i]);
+      /*c86Im*/  prCofDY[totalAN*72+i] = -1.91366609903732*y[i]*((3.0*x2[i] - y2[i])*(65.0*z4[i] - 26.0*z2[i]*r2[i] + r4[i]) - (x2[i] + y2[i] - 12.0*z2[i])*(x4[i] - 6.0*x2[i]*y2[i] + y4[i]));
+      /*c87Re*/  prCofDY[totalAN*73+i] = 6.89982124419622*x[i]*y[i]*z[i]*(9.0*x4[i] + 10.0*x2[i]*y2[i] - 40.0*x2[i]*z2[i] - 15.0*y4[i] + 40.0*y2[i]*z2[i]);
+      /*c87Im*/  prCofDY[totalAN*74+i] = 2.12933106423817*y[i]*(7.0*x6[i] - 105.0*x4[i]*z2[i] - 21.0*x2[i]*y4[i] + 210.0*x2[i]*y2[i]*z2[i] + 2.0*y6[i] - 21.0*y4[i]*z2[i]);
+      /*c88Re*/  prCofDY[totalAN*75+i] = -40.8198929697905*x[i]*y[i]*z[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i]);
+      /*c88Im*/  prCofDY[totalAN*76+i] = 5.83141328139864*y[i]*(-7.0*x6[i] + 35.0*x4[i]*y2[i] - 21.0*x2[i]*y4[i] + y6[i]);
+
+      /*c80DX*/  prCofDZ[totalAN*60+i] = 0;
+      /*c81Re*/  prCofDZ[totalAN*61+i] = 2.91570664069932*y[i]*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]);
+      /*c81Im*/  prCofDZ[totalAN*62+i] = 29.8106348993344*x[i]*y[i]*z[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i]);
+      /*c82Re*/  prCofDZ[totalAN*63+i] = -3.44991062209811*y[i]*(x2[i] + y2[i] - 12.0*z2[i])*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i]);
+      /*c82Im*/  prCofDZ[totalAN*64+i] = 30.6186575845972*x[i]*y[i]*z[i]*(x2[i] - y2[i])*(-3.0*x2[i] - 3.0*y2[i] + 10.0*z2[i]);
+      /*c83Re*/  prCofDZ[totalAN*65+i] = 1.23526615529554*y[i]*(3.0*x2[i] - y2[i])*(143.0*z4[i] - 66.0*z2[i]*r2[i] + 3.0*r4[i]);
+      /*c83Im*/  prCofDZ[totalAN*66+i] = 3.64921806747928*x[i]*y[i]*z[i]*(143.0*z4[i] - 110.0*z2[i]*r2[i] + 15.0*r4[i]);
+      /*c84Re*/  prCofDZ[totalAN*67+i] = 0.76328872129146*y[i]*(429.0*z6[i] - 495.0*z4[i]*r2[i] + 135.0*z2[i]*r4[i] - 5.0*r6[i]);
+      /*c84Im*/  prCofDZ[totalAN*68+i] = 0.58155331146016*z[i]*(429.0*z6[i] - 693.0*z4[i]*r2[i] + 315.0*z2[i]*r4[i] - 35.0*r6[i]);
+      /*c85Re*/  prCofDZ[totalAN*69+i] = 0.76328872129146*x[i]*(429.0*z6[i] - 495.0*z4[i]*r2[i] + 135.0*z2[i]*r4[i] - 5.0*r6[i]);
+      /*c85Im*/  prCofDZ[totalAN*70+i] = 1.82460903373964*z[i]*(x2[i] - y2[i])*(143.0*z4[i] - 110.0*z2[i]*r2[i] + 15.0*r4[i]);
+      /*c86Re*/  prCofDZ[totalAN*71+i] = 1.23526615529554*x[i]*(x2[i] - 3.0*y2[i])*(143.0*z4[i] - 66.0*z2[i]*r2[i] + 3.0*r4[i]);
+      /*c86Im*/  prCofDZ[totalAN*72+i] = 7.65466439614929*z[i]*(-3.0*x2[i] - 3.0*y2[i] + 10.0*z2[i])*(x4[i] - 6.0*x2[i]*y2[i] + y4[i]);
+      /*c87Re*/  prCofDZ[totalAN*73+i] = -3.44991062209811*x[i]*(x2[i] + y2[i] - 12.0*z2[i])*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i]);
+      /*c87Im*/  prCofDZ[totalAN*74+i] = 14.9053174496672*z[i]*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i]);
+      /*c88Re*/  prCofDZ[totalAN*75+i] = 2.91570664069932*x[i]*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]);
+      /*c88Im*/  prCofDZ[totalAN*76+i] = 0;
+
+
+
     }
     if (lMax > 8){
       /*c90  */  preCoef[totalAN*77+i] = 0.748900951853188*y[i]*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]);
@@ -421,9 +690,73 @@ void getCfactorsD(double* preCoef, int Asize, double* x,double* x2, double* x4, 
       /*c98Im*/  preCoef[totalAN*93+i] = -0.544905481344053*x[i]*(x2[i] + y2[i] - 16.0*z2[i])*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]);
       /*c99Re*/  preCoef[totalAN*94+i] = 3.1773176489547*z[i]*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]);
       /*c99Im*/  preCoef[totalAN*95+i] = 0.748900951853188*x[i]*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]);
+
+      /*c90DX*/  prCofDX[totalAN*77+i] = 53.9208685334296*x[i]*y[i]*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]);
+      /*c91Re*/  prCofDX[totalAN*78+i] = 25.4185411916376*y[i]*z[i]*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]);
+      /*c91Im*/  prCofDX[totalAN*79+i] = 1.08981096268811*x[i]*y[i]*(-7.0*x6[i] + 35.0*x4[i]*y2[i] - 21.0*x2[i]*y4[i] + y6[i] - 7.0*(x2[i] + y2[i] - 16.0*z2[i])*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i]));
+      /*c92Re*/  prCofDX[totalAN*80+i] = 7.5504318320854*y[i]*z[i]*(x2[i]*(-6.0*x4[i] + 20.0*x2[i]*y2[i] - 6.0*y4[i]) + (-3.0*x2[i] - 3.0*y2[i] + 14.0*z2[i])*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i]));
+      /*c92Im*/  prCofDX[totalAN*81+i] = 3.89902623231215*x[i]*y[i]*(5.0*x6[i] - 105.0*x4[i]*z2[i] - 7.0*x2[i]*y4[i] + 70.0*x2[i]*y2[i]*z2[i] + 140.0*x2[i]*z4[i] - 2.0*y6[i] + 63.0*y4[i]*z2[i] - 140.0*y2[i]*z4[i]);
+      /*c93Re*/  prCofDX[totalAN*82+i] = 16.3107969549167*y[i]*z[i]*(7.0*x6[i] + 5.0*x4[i]*y2[i] - 40.0*x4[i]*z2[i] - 3.0*x2[i]*y4[i] + 24.0*x2[i]*z4[i] - y6[i] + 8.0*y4[i]*z2[i] - 8.0*y2[i]*z4[i]);
+      /*c93Im*/  prCofDX[totalAN*83+i] = -11.0810044803887*x[i]*y[i]*(x6[i] + 2.0*x4[i]*y2[i] - 27.0*x4[i]*z2[i] + x2[i]*y4[i] - 30.0*x2[i]*y2[i]*z2[i] + 60.0*x2[i]*z4[i] - 3.0*y4[i]*z2[i] + 20.0*y2[i]*z4[i] - 16.0*z6[i]);
+      /*c94Re*/  prCofDX[totalAN*84+i] = -1.209036709703*y[i]*z[i]*(49.0*x6[i] + 105.0*x4[i]*y2[i] - 350.0*x4[i]*z2[i] + 63.0*x2[i]*y4[i] - 420.0*x2[i]*y2[i]*z2[i] + 336.0*x2[i]*z4[i] + 7.0*y6[i] - 70.0*y4[i]*z2[i] + 112.0*y2[i]*z4[i] - 32.0*z6[i]);
+      /*c94Im*/  prCofDX[totalAN*85+i] = -3.60874489652473*x[i]*y[i]*(143.0*z6[i] - 143.0*z4[i]*r2[i] + 33.0*z2[i]*r4[i] - r6[i]);
+      /*c95Re*/  prCofDX[totalAN*86+i] = 0.691662763035835*x[i]*z[i]*(-715.0*z6[i] + 1001.0*z4[i]*r2[i] - 385.0*z2[i]*r4[i] + 35.0*r6[i]);
+      /*c95Im*/  prCofDX[totalAN*87+i] = -3.60874489652473*x2[i]*(143.0*z6[i] - 143.0*z4[i]*r2[i] + 33.0*z2[i]*r4[i] - r6[i]) + 156.658193633065*z8[i] - 258.025260101518*z6[i]*r2[i] + 129.012630050759*z4[i]*r4[i] - 19.848096930886*z2[i]*r6[i] + 0.451093112065591*r8[i];
+      /*c96Re*/  prCofDX[totalAN*88+i] = -2.41807341940599*x[i]*z[i]*(14.0*x6[i] + 21.0*x4[i]*y2[i] - 105.0*x4[i]*z2[i] - 70.0*x2[i]*y2[i]*z2[i] + 112.0*x2[i]*z4[i] - 7.0*y6[i] + 35.0*y4[i]*z2[i] - 16.0*z6[i]);
+      /*c96Im*/  prCofDX[totalAN*89+i] = -2.77025112009717*x2[i]*(x2[i] - 3.0*y2[i])*(65.0*z4[i] - 26.0*z2[i]*r2[i] + r4[i]) + 1.38512556004858*(x2[i] - y2[i])*(221.0*z6[i] - 195.0*z4[i]*r2[i] + 39.0*z2[i]*r4[i] - r6[i]);
+      /*c97Re*/  prCofDX[totalAN*90+i] = 16.3107969549167*x[i]*z[i]*((x2[i] - 3.0*y2[i])*(17.0*z4[i] - 10.0*z2[i]*r2[i] + r4[i]) - (-x2[i] - y2[i] + 4.0*z2[i])*(x4[i] - 6.0*x2[i]*y2[i] + y4[i]));
+      /*c97Im*/  prCofDX[totalAN*91+i] = -1.94951311615607*x2[i]*(-x2[i] - y2[i] + 14.0*z2[i])*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i]) + 2.43689139519509*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(85.0*z4[i] - 30.0*z2[i]*r2[i] + r4[i]);
+      /*c98Re*/  prCofDX[totalAN*92+i] = -15.1008636641708*x[i]*z[i]*(2.0*x6[i] - 21.0*x4[i]*y2[i] - 7.0*x4[i]*z2[i] + 70.0*x2[i]*y2[i]*z2[i] + 7.0*y6[i] - 35.0*y4[i]*z2[i]);
+      /*c98Im*/  prCofDX[totalAN*93+i] = -1.08981096268811*x2[i]*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]) - 3.81433836940837*(x2[i] + y2[i] - 16.0*z2[i])*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i]);
+      /*c99Re*/  prCofDX[totalAN*94+i] = 25.4185411916376*x[i]*z[i]*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]);
+      /*c99Im*/  prCofDX[totalAN*95+i] = 6.74010856667869*x8[i] - 188.723039867003*x6[i]*y2[i] + 471.807599667509*x4[i]*y4[i] - 188.723039867003*x2[i]*y6[i] + 6.74010856667869*y8[i];
+
+      /*c90DX*/  prCofDY[totalAN*77+i] = 6.74010856667869*x8[i] - 188.723039867003*x6[i]*y2[i] + 471.807599667509*x4[i]*y4[i] - 188.723039867003*x2[i]*y6[i] + 6.74010856667869*y8[i];
+      /*c91Re*/  prCofDY[totalAN*78+i] = 25.4185411916376*x[i]*z[i]*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]);
+      /*c91Im*/  prCofDY[totalAN*79+i] = -1.08981096268811*y2[i]*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]) - 3.81433836940837*(x2[i] + y2[i] - 16.0*z2[i])*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i]);
+      /*c92Re*/  prCofDY[totalAN*80+i] = 7.5504318320854*x[i]*z[i]*(y2[i]*(-6.0*x4[i] + 20.0*x2[i]*y2[i] - 6.0*y4[i]) + (-3.0*x2[i] - 3.0*y2[i] + 14.0*z2[i])*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i]));
+      /*c92Im*/  prCofDY[totalAN*81+i] = -1.94951311615607*y2[i]*(-x2[i] - y2[i] + 14.0*z2[i])*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i]) + 2.43689139519509*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(85.0*z4[i] - 30.0*z2[i]*r2[i] + r4[i]);
+      /*c93Re*/  prCofDY[totalAN*82+i] = 16.3107969549167*x[i]*z[i]*(x6[i] + 3.0*x4[i]*y2[i] - 8.0*x4[i]*z2[i] - 5.0*x2[i]*y4[i] + 8.0*x2[i]*z4[i] - 7.0*y6[i] + 40.0*y4[i]*z2[i] - 24.0*y2[i]*z4[i]);
+      /*c93Im*/  prCofDY[totalAN*83+i] = -2.77025112009717*y2[i]*(3.0*x2[i] - y2[i])*(65.0*z4[i] - 26.0*z2[i]*r2[i] + r4[i]) + 1.38512556004858*(x2[i] - y2[i])*(221.0*z6[i] - 195.0*z4[i]*r2[i] + 39.0*z2[i]*r4[i] - r6[i]);
+      /*c94Re*/  prCofDY[totalAN*84+i] = -1.209036709703*x[i]*z[i]*(7.0*x6[i] + 63.0*x4[i]*y2[i] - 70.0*x4[i]*z2[i] + 105.0*x2[i]*y4[i] - 420.0*x2[i]*y2[i]*z2[i] + 112.0*x2[i]*z4[i] + 49.0*y6[i] - 350.0*y4[i]*z2[i] + 336.0*y2[i]*z4[i] - 32.0*z6[i]);
+      /*c94Im*/  prCofDY[totalAN*85+i] = -3.60874489652473*y2[i]*(143.0*z6[i] - 143.0*z4[i]*r2[i] + 33.0*z2[i]*r4[i] - r6[i]) + 156.658193633065*z8[i] - 258.025260101518*z6[i]*r2[i] + 129.012630050759*z4[i]*r4[i] - 19.848096930886*z2[i]*r6[i] + 0.451093112065591*r8[i];
+      /*c95Re*/  prCofDY[totalAN*86+i] = 0.691662763035835*y[i]*z[i]*(-715.0*z6[i] + 1001.0*z4[i]*r2[i] - 385.0*z2[i]*r4[i] + 35.0*r6[i]);
+      /*c95Im*/  prCofDY[totalAN*87+i] = -3.60874489652473*x[i]*y[i]*(143.0*z6[i] - 143.0*z4[i]*r2[i] + 33.0*z2[i]*r4[i] - r6[i]);
+      /*c96Re*/  prCofDY[totalAN*88+i] = -2.41807341940599*y[i]*z[i]*(7.0*x6[i] - 35.0*x4[i]*z2[i] - 21.0*x2[i]*y4[i] + 70.0*x2[i]*y2[i]*z2[i] - 14.0*y6[i] + 105.0*y4[i]*z2[i] - 112.0*y2[i]*z4[i] + 16.0*z6[i]);
+      /*c96Im*/  prCofDY[totalAN*89+i] = 11.0810044803887*x[i]*y[i]*(x4[i]*y2[i] - 3.0*x4[i]*z2[i] + 2.0*x2[i]*y4[i] - 30.0*x2[i]*y2[i]*z2[i] + 20.0*x2[i]*z4[i] + y6[i] - 27.0*y4[i]*z2[i] + 60.0*y2[i]*z4[i] - 16.0*z6[i]);
+      /*c97Re*/  prCofDY[totalAN*90+i] = -16.3107969549167*y[i]*z[i]*((3.0*x2[i] - y2[i])*(17.0*z4[i] - 10.0*z2[i]*r2[i] + r4[i]) - (x2[i] + y2[i] - 4.0*z2[i])*(x4[i] - 6.0*x2[i]*y2[i] + y4[i]));
+      /*c97Im*/  prCofDY[totalAN*91+i] = -3.89902623231215*x[i]*y[i]*(2.0*x6[i] + 7.0*x4[i]*y2[i] - 63.0*x4[i]*z2[i] - 70.0*x2[i]*y2[i]*z2[i] + 140.0*x2[i]*z4[i] - 5.0*y6[i] + 105.0*y4[i]*z2[i] - 140.0*y2[i]*z4[i]);
+      /*c98Re*/  prCofDY[totalAN*92+i] = 15.1008636641708*y[i]*z[i]*(7.0*x6[i] - 35.0*x4[i]*z2[i] - 21.0*x2[i]*y4[i] + 70.0*x2[i]*y2[i]*z2[i] + 2.0*y6[i] - 7.0*y4[i]*z2[i]);
+      /*c98Im*/  prCofDY[totalAN*93+i] = 4.35924385075243*x[i]*y[i]*(5.0*x6[i] - 7.0*x4[i]*y2[i] - 84.0*x4[i]*z2[i] - 21.0*x2[i]*y4[i] + 280.0*x2[i]*y2[i]*z2[i] + 7.0*y6[i] - 84.0*y4[i]*z2[i]);
+      /*c99Re*/  prCofDY[totalAN*94+i] = -25.4185411916376*y[i]*z[i]*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]);
+      /*c99Im*/  prCofDY[totalAN*95+i] = 53.9208685334296*x[i]*y[i]*(-x6[i] + 7.0*x4[i]*y2[i] - 7.0*x2[i]*y4[i] + y6[i]);
+
+      /*c90DX*/  prCofDZ[totalAN*77+i] = 0;
+      /*c91Re*/  prCofDZ[totalAN*78+i] = 25.4185411916376*x[i]*y[i]*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]);
+      /*c91Im*/  prCofDZ[totalAN*79+i] = 17.4369754030097*y[i]*z[i]*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]);
+      /*c92Re*/  prCofDZ[totalAN*80+i] = -7.5504318320854*x[i]*y[i]*(x2[i] + y2[i] - 14.0*z2[i])*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i]);
+      /*c92Im*/  prCofDZ[totalAN*81+i] = 27.293183626185*y[i]*z[i]*(-x2[i] - y2[i] + 4.0*z2[i])*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i]);
+      /*c93Re*/  prCofDZ[totalAN*82+i] = 16.3107969549167*x[i]*y[i]*(x2[i] - y2[i])*(65.0*z4[i] - 26.0*z2[i]*r2[i] + r4[i]);
+      /*c93Im*/  prCofDZ[totalAN*83+i] = 11.0810044803887*y[i]*z[i]*(3.0*x2[i] - y2[i])*(39.0*z4[i] - 26.0*z2[i]*r2[i] + 3.0*r4[i]);
+      /*c94Re*/  prCofDZ[totalAN*84+i] = 8.46325696792098*x[i]*y[i]*(143.0*z6[i] - 143.0*z4[i]*r2[i] + 33.0*z2[i]*r4[i] - r6[i]);
+      /*c94Im*/  prCofDZ[totalAN*85+i] = 1.03106997043564*y[i]*z[i]*(715.0*z6[i] - 1001.0*z4[i]*r2[i] + 385.0*z2[i]*r4[i] - 35.0*r6[i]);
+      /*c95Re*/  prCofDZ[totalAN*86+i] = 556.356235016949*z8[i] - 1038.53163869831*z6[i]*r2[i] + 599.152868479792*z4[i]*r4[i] - 108.936885178144*z2[i]*r6[i] + 3.02602458828178*r8[i];
+      /*c95Im*/  prCofDZ[totalAN*87+i] = 1.03106997043564*x[i]*z[i]*(715.0*z6[i] - 1001.0*z4[i]*r2[i] + 385.0*z2[i]*r4[i] - 35.0*r6[i]);
+      /*c96Re*/  prCofDZ[totalAN*88+i] = 4.23162848396049*(x2[i] - y2[i])*(143.0*z6[i] - 143.0*z4[i]*r2[i] + 33.0*z2[i]*r4[i] - r6[i]);
+      /*c96Im*/  prCofDZ[totalAN*89+i] = 11.0810044803887*x[i]*z[i]*(x2[i] - 3.0*y2[i])*(39.0*z4[i] - 26.0*z2[i]*r2[i] + 3.0*r4[i]);
+      /*c97Re*/  prCofDZ[totalAN*90+i] = 4.07769923872917*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(65.0*z4[i] - 26.0*z2[i]*r2[i] + r4[i]);
+      /*c97Im*/  prCofDZ[totalAN*91+i] = 27.293183626185*x[i]*z[i]*(-x2[i] - y2[i] + 4.0*z2[i])*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i]);
+      /*c98Re*/  prCofDZ[totalAN*92+i] = -3.7752159160427*(x2[i] + y2[i] - 14.0*z2[i])*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i]);
+      /*c98Im*/  prCofDZ[totalAN*93+i] = 17.4369754030097*x[i]*z[i]*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]);
+      /*c99Re*/  prCofDZ[totalAN*94+i] = 3.1773176489547*x8[i] - 88.9648941707315*x6[i]*y2[i] + 222.412235426829*x4[i]*y4[i] - 88.9648941707315*x2[i]*y6[i] + 3.1773176489547*y8[i];
+      /*c99Im*/  prCofDZ[totalAN*95+i] = 0;
+
+
+
+
     }
     if (lMax > 9){ //OBS!!!!! lMax > 9, tesseral cases
-      /*l=10*/  preCoef[totalAN*96+i] = 1.53479023644398*x[i]*y[i]*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]);
+      /*l10*/  preCoef[totalAN*96+i] = 1.53479023644398*x[i]*y[i]*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]);
       /**/  preCoef[totalAN*97+i] = 3.43189529989171*y[i]*z[i]*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]);
       /**/  preCoef[totalAN*98+i] = -4.45381546176335*x[i]*y[i]*(x2[i] + y2[i] - 18.0*z2[i])*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]);
       /**/  preCoef[totalAN*99+i] = 1.36369691122981*y[i]*z[i]*(-3.0*x2[i] - 3.0*y2[i] + 16.0*z2[i])*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]);
@@ -444,6 +777,75 @@ void getCfactorsD(double* preCoef, int Asize, double* x,double* x2, double* x4, 
       /**/  preCoef[totalAN*114+i] = -0.556726932720418*(x2[i] + y2[i] - 18.0*z2[i])*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]);
       /**/  preCoef[totalAN*115+i] = 3.43189529989171*x[i]*z[i]*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]);
       /**/  preCoef[totalAN*116+i] = 0.76739511822199*x10[i] - 34.5327803199895*x8[i]*y2[i] + 161.152974826618*x6[i]*y4[i] - 161.152974826618*x4[i]*y6[i] + 34.5327803199895*x2[i]*y8[i] - 0.76739511822199*y10[i];
+
+      /*l10DX*/  prCofDX[totalAN*96+i] = 7.6739511822199*y[i]*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]);
+      /**/  prCofDX[totalAN*97+i] = 247.096461592203*x[i]*y[i]*z[i]*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]);
+      /**/  prCofDX[totalAN*98+i] = -4.45381546176335*y[i]*(2.0*x2[i]*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]) + (x2[i] + y2[i] - 18.0*z2[i])*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]));
+      /**/  prCofDX[totalAN*99+i] = 10.9095752898384*x[i]*y[i]*z[i]*(-21.0*x6[i] + 63.0*x4[i]*y2[i] + 84.0*x4[i]*z2[i] + 21.0*x2[i]*y4[i] - 280.0*x2[i]*y2[i]*z2[i] - 15.0*y6[i] + 84.0*y4[i]*z2[i]);
+      /**/  prCofDX[totalAN*100+i] = 0.992235248175713*y[i]*(-4.0*x2[i]*(-x2[i] - y2[i] + 16.0*z2[i])*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i]) + (5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(323.0*z4[i] - 102.0*z2[i]*r2[i] + 3.0*r4[i]));
+      /**/  prCofDX[totalAN*101+i] = 11.8330958111588*x[i]*y[i]*z[i]*(15.0*x6[i] - 105.0*x4[i]*z2[i] - 21.0*x2[i]*y4[i] + 70.0*x2[i]*y2[i]*z2[i] + 84.0*x2[i]*z4[i] - 6.0*y6[i] + 63.0*y4[i]*z2[i] - 84.0*y2[i]*z4[i]);
+      /**/  prCofDX[totalAN*102+i] = -1.87097672671297*y[i]*(9.0*x8[i] + 14.0*x6[i]*y2[i] - 294.0*x6[i]*z2[i] - 210.0*x4[i]*y2[i]*z2[i] + 840.0*x4[i]*z4[i] - 6.0*x2[i]*y6[i] + 126.0*x2[i]*y4[i]*z2[i] - 336.0*x2[i]*z6[i] - y8[i] + 42.0*y6[i]*z2[i] - 168.0*y4[i]*z4[i] + 112.0*y2[i]*z6[i]);
+      /**/  prCofDX[totalAN*103+i] = -15.8757639708114*x[i]*y[i]*z[i]*(7.0*x6[i] + 14.0*x4[i]*y2[i] - 63.0*x4[i]*z2[i] + 7.0*x2[i]*y4[i] - 70.0*x2[i]*y2[i]*z2[i] + 84.0*x2[i]*z4[i] - 7.0*y4[i]*z2[i] + 28.0*y2[i]*z4[i] - 16.0*z6[i]);
+      /**/  prCofDX[totalAN*104+i] = 0.129728894680065*y[i]*(-56.0*x2[i]*(221.0*z6[i] - 195.0*z4[i]*r2[i] + 39.0*z2[i]*r4[i] - r6[i]) + 4199.0*z8[i] - 6188.0*z6[i]*r2[i] + 2730.0*z4[i]*r4[i] - 364.0*z2[i]*r6[i] + 7.0*r8[i]);
+      /**/  prCofDX[totalAN*105+i] = -5.39272888309499*x[i]*y[i]*z[i]*(221.0*z6[i] - 273.0*z4[i]*r2[i] + 91.0*z2[i]*r4[i] - 7.0*r6[i]);
+      /**/  prCofDX[totalAN*106+i] = 0.454472133910524*x[i]*(-2431.0*z8[i] + 4004.0*z6[i]*r2[i] - 2002.0*z4[i]*r4[i] + 308.0*z2[i]*r6[i] - 7.0*r8[i]);
+      /**/  prCofDX[totalAN*107+i] = 0.0748990122652082*z[i]*(-72.0*x2[i]*(221.0*z6[i] - 273.0*z4[i]*r2[i] + 91.0*z2[i]*r4[i] - 7.0*r6[i]) + 4199.0*z8[i] - 7956.0*z6[i]*r2[i] + 4914.0*z4[i]*r4[i] - 1092.0*z2[i]*r6[i] + 63.0*r8[i]);
+      /**/  prCofDX[totalAN*108+i] = 0.129728894680065*x[i]*(35.0*x8[i] + 84.0*x6[i]*y2[i] - 1344.0*x6[i]*z2[i] + 42.0*x4[i]*y4[i] - 2016.0*x4[i]*y2[i]*z2[i] + 5040.0*x4[i]*z4[i] - 28.0*x2[i]*y6[i] + 3360.0*x2[i]*y2[i]*z4[i] - 3584.0*x2[i]*z6[i] - 21.0*y8[i] + 672.0*y6[i]*z2[i] - 1680.0*y4[i]*z4[i] + 384.0*z8[i]);
+      /**/  prCofDX[totalAN*109+i] = 1.98447049635143*z[i]*(-14.0*x2[i]*(x2[i] - 3.0*y2[i])*(17.0*z4[i] - 10.0*z2[i]*r2[i] + r4[i]) + (x2[i] - y2[i])*(323.0*z6[i] - 357.0*z4[i]*r2[i] + 105.0*z2[i]*r4[i] - 7.0*r6[i]));
+      /**/  prCofDX[totalAN*110+i] = 0.935488363356484*x[i]*(2.0*(x2[i] - 3.0*y2[i])*(323.0*z6[i] - 255.0*z4[i]*r2[i] + 45.0*z2[i]*r4[i] - r6[i]) - 3.0*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(85.0*z4[i] - 30.0*z2[i]*r2[i] + r4[i]));
+      /**/  prCofDX[totalAN*111+i] = 1.47913697639485*z[i]*(-4.0*x2[i]*(-3.0*x2[i] - 3.0*y2[i] + 14.0*z2[i])*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i]) + (x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(323.0*z4[i] - 170.0*z2[i]*r2[i] + 15.0*r4[i]));
+      /**/  prCofDX[totalAN*112+i] = 0.992235248175713*x[i]*(-2.0*(-x2[i] - y2[i] + 16.0*z2[i])*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i]) + (x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(323.0*z4[i] - 102.0*z2[i]*r2[i] + 3.0*r4[i]));
+      /**/  prCofDX[totalAN*113+i] = 1.36369691122981*z[i]*(-6.0*x2[i]*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]) + 7.0*(-3.0*x2[i] - 3.0*y2[i] + 16.0*z2[i])*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i]));
+      /**/  prCofDX[totalAN*114+i] = 1.11345386544084*x[i]*(-x8[i] + 28.0*x6[i]*y2[i] - 70.0*x4[i]*y4[i] + 28.0*x2[i]*y6[i] - y8[i] - 4.0*(x2[i] + y2[i] - 18.0*z2[i])*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]));
+      /**/  prCofDX[totalAN*115+i] = 30.8870576990254*z[i]*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]);
+      /**/  prCofDX[totalAN*116+i] = 7.6739511822199*x[i]*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]);
+
+      /*l10DX*/  prCofDY[totalAN*96+i] = 7.6739511822199*x[i]*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]);
+      /**/  prCofDY[totalAN*97+i] = 30.8870576990254*z[i]*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]);
+      /**/  prCofDY[totalAN*98+i] = -4.45381546176335*x[i]*(2.0*y2[i]*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]) + (x2[i] + y2[i] - 18.0*z2[i])*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]));
+      /**/  prCofDY[totalAN*99+i] = 1.36369691122981*z[i]*(-6.0*y2[i]*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]) + 7.0*(-3.0*x2[i] - 3.0*y2[i] + 16.0*z2[i])*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i]));
+      /**/  prCofDY[totalAN*100+i] = 0.992235248175713*x[i]*(-4.0*y2[i]*(-x2[i] - y2[i] + 16.0*z2[i])*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i]) + (x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(323.0*z4[i] - 102.0*z2[i]*r2[i] + 3.0*r4[i]));
+      /**/  prCofDY[totalAN*101+i] = 1.47913697639485*z[i]*(-4.0*y2[i]*(-3.0*x2[i] - 3.0*y2[i] + 14.0*z2[i])*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i]) + (x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(323.0*z4[i] - 170.0*z2[i]*r2[i] + 15.0*r4[i]));
+      /**/  prCofDY[totalAN*102+i] = -1.87097672671297*x[i]*(x8[i] + 6.0*x6[i]*y2[i] - 42.0*x6[i]*z2[i] - 126.0*x4[i]*y2[i]*z2[i] + 168.0*x4[i]*z4[i] - 14.0*x2[i]*y6[i] + 210.0*x2[i]*y4[i]*z2[i] - 112.0*x2[i]*z6[i] - 9.0*y8[i] + 294.0*y6[i]*z2[i] - 840.0*y4[i]*z4[i] + 336.0*y2[i]*z6[i]);
+      /**/  prCofDY[totalAN*103+i] = 1.98447049635143*z[i]*(-14.0*y2[i]*(3.0*x2[i] - y2[i])*(17.0*z4[i] - 10.0*z2[i]*r2[i] + r4[i]) + (x2[i] - y2[i])*(323.0*z6[i] - 357.0*z4[i]*r2[i] + 105.0*z2[i]*r4[i] - 7.0*r6[i]));
+      /**/  prCofDY[totalAN*104+i] = 0.129728894680065*x[i]*(-56.0*y2[i]*(221.0*z6[i] - 195.0*z4[i]*r2[i] + 39.0*z2[i]*r4[i] - r6[i]) + 4199.0*z8[i] - 6188.0*z6[i]*r2[i] + 2730.0*z4[i]*r4[i] - 364.0*z2[i]*r6[i] + 7.0*r8[i]);
+      /**/  prCofDY[totalAN*105+i] = 0.0748990122652082*z[i]*(-72.0*y2[i]*(221.0*z6[i] - 273.0*z4[i]*r2[i] + 91.0*z2[i]*r4[i] - 7.0*r6[i]) + 4199.0*z8[i] - 7956.0*z6[i]*r2[i] + 4914.0*z4[i]*r4[i] - 1092.0*z2[i]*r6[i] + 63.0*r8[i]);
+      /**/  prCofDY[totalAN*106+i] = 0.454472133910524*y[i]*(-2431.0*z8[i] + 4004.0*z6[i]*r2[i] - 2002.0*z4[i]*r4[i] + 308.0*z2[i]*r6[i] - 7.0*r8[i]);
+      /**/  prCofDY[totalAN*107+i] = -5.39272888309499*x[i]*y[i]*z[i]*(221.0*z6[i] - 273.0*z4[i]*r2[i] + 91.0*z2[i]*r4[i] - 7.0*r6[i]);
+      /**/  prCofDY[totalAN*108+i] = 0.129728894680065*y[i]*(21.0*x8[i] + 28.0*x6[i]*y2[i] - 672.0*x6[i]*z2[i] - 42.0*x4[i]*y4[i] + 1680.0*x4[i]*z4[i] - 84.0*x2[i]*y6[i] + 2016.0*x2[i]*y4[i]*z2[i] - 3360.0*x2[i]*y2[i]*z4[i] - 35.0*y8[i] + 1344.0*y6[i]*z2[i] - 5040.0*y4[i]*z4[i] + 3584.0*y2[i]*z6[i] - 384.0*z8[i]);
+      /**/  prCofDY[totalAN*109+i] = 15.8757639708114*x[i]*y[i]*z[i]*(7.0*x4[i]*y2[i] - 7.0*x4[i]*z2[i] + 14.0*x2[i]*y4[i] - 70.0*x2[i]*y2[i]*z2[i] + 28.0*x2[i]*z4[i] + 7.0*y6[i] - 63.0*y4[i]*z2[i] + 84.0*y2[i]*z4[i] - 16.0*z6[i]);
+      /**/  prCofDY[totalAN*110+i] = -0.935488363356484*y[i]*(2.0*(3.0*x2[i] - y2[i])*(323.0*z6[i] - 255.0*z4[i]*r2[i] + 45.0*z2[i]*r4[i] - r6[i]) + 3.0*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(85.0*z4[i] - 30.0*z2[i]*r2[i] + r4[i]));
+      /**/  prCofDY[totalAN*111+i] = -11.8330958111588*x[i]*y[i]*z[i]*(6.0*x6[i] + 21.0*x4[i]*y2[i] - 63.0*x4[i]*z2[i] - 70.0*x2[i]*y2[i]*z2[i] + 84.0*x2[i]*z4[i] - 15.0*y6[i] + 105.0*y4[i]*z2[i] - 84.0*y2[i]*z4[i]);
+      /**/  prCofDY[totalAN*112+i] = 0.992235248175713*y[i]*(2.0*(x2[i] + y2[i] - 16.0*z2[i])*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i]) - (5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(323.0*z4[i] - 102.0*z2[i]*r2[i] + 3.0*r4[i]));
+      /**/  prCofDY[totalAN*113+i] = 10.9095752898384*x[i]*y[i]*z[i]*(15.0*x6[i] - 21.0*x4[i]*y2[i] - 84.0*x4[i]*z2[i] - 63.0*x2[i]*y4[i] + 280.0*x2[i]*y2[i]*z2[i] + 21.0*y6[i] - 84.0*y4[i]*z2[i]);
+      /**/  prCofDY[totalAN*114+i] = 1.11345386544084*y[i]*(-x8[i] + 28.0*x6[i]*y2[i] - 70.0*x4[i]*y4[i] + 28.0*x2[i]*y6[i] - y8[i] + 4.0*(x2[i] + y2[i] - 18.0*z2[i])*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]));
+      /**/  prCofDY[totalAN*115+i] = -247.096461592203*x[i]*y[i]*z[i]*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]);
+      /**/  prCofDY[totalAN*116+i] = 7.6739511822199*y[i]*(-9.0*x8[i] + 84.0*x6[i]*y2[i] - 126.0*x4[i]*y4[i] + 36.0*x2[i]*y6[i] - y8[i]);
+
+      /*l10DX*/  prCofDZ[totalAN*96+i] = 0;
+      /**/  prCofDZ[totalAN*97+i] = 3.43189529989171*y[i]*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]);
+      /**/  prCofDZ[totalAN*98+i] = 160.337356623481*x[i]*y[i]*z[i]*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]);
+      /**/  prCofDZ[totalAN*99+i] = -4.09109073368942*y[i]*(x2[i] + y2[i] - 16.0*z2[i])*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]);
+      /**/  prCofDZ[totalAN*100+i] = 21.1676852944152*x[i]*y[i]*z[i]*(-3.0*x2[i] - 3.0*y2[i] + 14.0*z2[i])*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i]);
+      /**/  prCofDZ[totalAN*101+i] = 4.43741092918453*y[i]*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(85.0*z4[i] - 30.0*z2[i]*r2[i] + r4[i]);
+      /**/  prCofDZ[totalAN*102+i] = 157.162045043889*x[i]*y[i]*z[i]*(x2[i] - y2[i])*(17.0*z4[i] - 10.0*z2[i]*r2[i] + r4[i]);
+      /**/  prCofDZ[totalAN*103+i] = 4.63043115815333*y[i]*(3.0*x2[i] - y2[i])*(221.0*z6[i] - 195.0*z4[i]*r2[i] + 39.0*z2[i]*r4[i] - r6[i]);
+      /**/  prCofDZ[totalAN*104+i] = 12.4539738892862*x[i]*y[i]*z[i]*(221.0*z6[i] - 273.0*z4[i]*r2[i] + 91.0*z2[i]*r4[i] - 7.0*r6[i]);
+      /**/  prCofDZ[totalAN*105+i] = 0.674091110386874*y[i]*(2431.0*z8[i] - 4004.0*z6[i]*r2[i] + 2002.0*z4[i]*r4[i] - 308.0*z2[i]*r6[i] + 7.0*r8[i]);
+      /**/  prCofDZ[totalAN*106+i] = 0.100993807535672*z[i]*(12155.0*z8[i] - 25740.0*z6[i]*r2[i] + 18018.0*z4[i]*r4[i] - 4620.0*z2[i]*r6[i] + 315.0*r8[i]);
+      /**/  prCofDZ[totalAN*107+i] = 0.674091110386874*x[i]*(2431.0*z8[i] - 4004.0*z6[i]*r2[i] + 2002.0*z4[i]*r4[i] - 308.0*z2[i]*r6[i] + 7.0*r8[i]);
+      /**/  prCofDZ[totalAN*108+i] = 6.22698694464312*z[i]*(x2[i] - y2[i])*(221.0*z6[i] - 273.0*z4[i]*r2[i] + 91.0*z2[i]*r4[i] - 7.0*r6[i]);
+      /**/  prCofDZ[totalAN*109+i] = 4.63043115815333*x[i]*(x2[i] - 3.0*y2[i])*(221.0*z6[i] - 195.0*z4[i]*r2[i] + 39.0*z2[i]*r4[i] - r6[i]);
+      /**/  prCofDZ[totalAN*110+i] = 39.2905112609723*z[i]*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(17.0*z4[i] - 10.0*z2[i]*r2[i] + r4[i]);
+      /**/  prCofDZ[totalAN*111+i] = 4.43741092918453*x[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(85.0*z4[i] - 30.0*z2[i]*r2[i] + r4[i]);
+      /**/  prCofDZ[totalAN*112+i] = 10.5838426472076*z[i]*(-3.0*x2[i] - 3.0*y2[i] + 14.0*z2[i])*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i]);
+      /**/  prCofDZ[totalAN*113+i] = -4.09109073368942*x[i]*(x2[i] + y2[i] - 16.0*z2[i])*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]);
+      /**/  prCofDZ[totalAN*114+i] = 20.0421695779351*z[i]*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]);
+      /**/  prCofDZ[totalAN*115+i] = 3.43189529989171*x[i]*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]);
+      /**/  prCofDZ[totalAN*116+i] = 0;
+
+
+
     }
 
     if (lMax > 10){ //OBS!!!!! lMax > 9, tesseral cases
@@ -470,6 +872,81 @@ void getCfactorsD(double* preCoef, int Asize, double* x,double* x2, double* x4, 
       preCoef[totalAN*137+i] = -0.567882263783437*x[i]*(x2[i] + y2[i] - 20.0*z2[i])*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]);
       preCoef[totalAN*138+i] = 3.68029769880531*z[i]*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]);
       preCoef[totalAN*139+i] = 0.784642105787197*x[i]*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]);
+
+      prCofDX[totalAN*117+i] = 17.2621263273183*x[i]*y[i]*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]);
+      prCofDX[totalAN*118+i] = 36.8029769880531*y[i]*z[i]*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]);
+      prCofDX[totalAN*119+i] = 1.13576452756687*x[i]*y[i]*(-9.0*x8[i] + 84.0*x6[i]*y2[i] - 126.0*x4[i]*y4[i] + 36.0*x2[i]*y6[i] - y8[i] - 36.0*(x2[i] + y2[i] - 20.0*z2[i])*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i])) ;
+      prCofDX[totalAN*120+i] = 35.1903768038371*y[i]*z[i]*(-2.0*x2[i]*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]) + (-x2[i] - y2[i] + 6.0*z2[i])*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i])) ;
+      prCofDX[totalAN*121+i] = 1.00915326495424*x[i]*y[i]*(-2.0*(-x2[i] - y2[i] + 18.0*z2[i])*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]) + 7.0*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(133.0*z4[i] - 38.0*z2[i]*r2[i] + r4[i]));
+      prCofDX[totalAN*122+i] = 0.638244565090152*y[i]*z[i]*(-20.0*x2[i]*(-3.0*x2[i] - 3.0*y2[i] + 16.0*z2[i])*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i]) + 3.0*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(399.0*z4[i] - 190.0*z2[i]*r2[i] + 15.0*r4[i]));
+      prCofDX[totalAN*123+i] = 0.947934431913346*x[i]*y[i]*(2.0*(x2[i] - y2[i])*(2261.0*z6[i] - 1615.0*z4[i]*r2[i] + 255.0*z2[i]*r4[i] - 5.0*r6[i]) - (5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(323.0*z4[i] - 102.0*z2[i]*r2[i] + 3.0*r4[i]));
+      prCofDX[totalAN*124+i] = -4.0127980256608*y[i]*z[i]*(45.0*x8[i] + 70.0*x6[i]*y2[i] - 490.0*x6[i]*z2[i] - 350.0*x4[i]*y2[i]*z2[i] + 840.0*x4[i]*z4[i] - 30.0*x2[i]*y6[i] + 210.0*x2[i]*y4[i]*z2[i] - 240.0*x2[i]*z6[i] - 5.0*y8[i] + 70.0*y6[i]*z2[i] - 168.0*y4[i]*z4[i] + 80.0*y2[i]*z6[i]);
+      prCofDX[totalAN*125+i] = 0.915791665569424*x[i]*y[i]*(15.0*x8[i] + 44.0*x6[i]*y2[i] - 672.0*x6[i]*z2[i] + 42.0*x4[i]*y4[i] - 1344.0*x4[i]*y2[i]*z2[i] + 3024.0*x4[i]*z4[i] + 12.0*x2[i]*y6[i] - 672.0*x2[i]*y4[i]*z2[i] + 3360.0*x2[i]*y2[i]*z4[i] - 2688.0*x2[i]*z6[i] - y8[i] + 336.0*y4[i]*z4[i] - 896.0*y2[i]*z6[i] + 384.0*z8[i]);
+      prCofDX[totalAN*126+i] = 0.489511235746264*y[i]*z[i]*(-24.0*x2[i]*(323.0*z6[i] - 357.0*z4[i]*r2[i] + 105.0*z2[i]*r4[i] - 7.0*r6[i]) + 2261.0*z8[i] - 3876.0*z6[i]*r2[i] + 2142.0*z4[i]*r4[i] - 420.0*z2[i]*r6[i] + 21.0*r8[i]);
+      prCofDX[totalAN*127+i] = -0.643994632278231*x[i]*y[i]*(4199.0*z8[i] - 6188.0*z6[i]*r2[i] + 2730.0*z4[i]*r4[i] - 364.0*z2[i]*r6[i] + 7.0*r8[i]);
+      prCofDX[totalAN*128+i] = 0.581315236111974*x[i]*z[i]*(-4199.0*z8[i] + 7956.0*z6[i]*r2[i] - 4914.0*z4[i]*r4[i] + 1092.0*z2[i]*r6[i] - 63.0*r8[i]);
+      prCofDX[totalAN*129+i] = -0.643994632278231*x2[i]*(4199.0*z8[i] - 6188.0*z6[i]*r2[i] + 2730.0*z4[i]*r4[i] - 364.0*z2[i]*r6[i] + 7.0*r8[i]) + 630.964474218468*z10[i] - 1352.06673046815*z8[i]*r2[i] + 996.259696134424*z6[i]*r4[i] - 293.017557686595*z4[i]*r6[i] + 29.3017557686595*z2[i]*r8[i] - 0.450796242594762*r10[i];
+      prCofDX[totalAN*130+i] = 0.489511235746264*x[i]*z[i]*(105.0*x8[i] + 252.0*x6[i]*y2[i] - 1344.0*x6[i]*z2[i] + 126.0*x4[i]*y4[i] - 2016.0*x4[i]*y2[i]*z2[i] + 3024.0*x4[i]*z4[i] - 84.0*x2[i]*y6[i] + 2016.0*x2[i]*y2[i]*z4[i] - 1536.0*x2[i]*z6[i] - 63.0*y8[i] + 672.0*y6[i]*z2[i] - 1008.0*y4[i]*z4[i] + 128.0*z8[i]);
+      prCofDX[totalAN*131+i] = -3.66316666227769*x2[i]*(x2[i] - 3.0*y2[i])*(323.0*z6[i] - 255.0*z4[i]*r2[i] + 45.0*z2[i]*r4[i] - r6[i]) + 1.37368749835414*(x2[i] - y2[i])*(969.0*z8[i] - 1292.0*z6[i]*r2[i] + 510.0*z4[i]*r4[i] - 60.0*z2[i]*r6[i] + r8[i]) ;
+      prCofDX[totalAN*132+i] = 2.0063990128304*x[i]*z[i]*(2.0*(x2[i] - 3.0*y2[i])*(323.0*z6[i] - 323.0*z4[i]*r2[i] + 85.0*z2[i]*r4[i] - 5.0*r6[i]) - (x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(323.0*z4[i] - 170.0*z2[i]*r2[i] + 15.0*r4[i]));
+      prCofDX[totalAN*133+i] = -0.947934431913346*x2[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(323.0*z4[i] - 102.0*z2[i]*r2[i] + 3.0*r4[i]) + 0.473967215956673*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(2261.0*z6[i] - 1615.0*z4[i]*r2[i] + 255.0*z2[i]*r4[i] - 5.0*r6[i]);
+      prCofDX[totalAN*134+i] = 0.638244565090152*x[i]*z[i]*(75.0*x8[i] - 780.0*x6[i]*y2[i] - 640.0*x6[i]*z2[i] - 630.0*x4[i]*y4[i] + 6720.0*x4[i]*y2[i]*z2[i] + 672.0*x4[i]*z4[i] + 420.0*x2[i]*y6[i] - 6720.0*x2[i]*y2[i]*z4[i] + 195.0*y8[i] - 2240.0*y6[i]*z2[i] + 3360.0*y4[i]*z4[i]);
+      prCofDX[totalAN*135+i] = -2.01830652990847*x2[i]*(-x2[i] - y2[i] + 18.0*z2[i])*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]) + 3.53203642733983*(133.0*z4[i] - 38.0*z2[i]*r2[i] + r4[i])*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i]);
+      prCofDX[totalAN*136+i] = 8.79759420095928*x[i]*z[i]*(-x8[i] + 28.0*x6[i]*y2[i] - 70.0*x4[i]*y4[i] + 28.0*x2[i]*y6[i] - y8[i] + 4.0*(-x2[i] - y2[i] + 6.0*z2[i])*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]));
+      prCofDX[totalAN*137+i] = -1.13576452756687*x2[i]*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]) - 5.11094037405094*(x2[i] + y2[i] - 20.0*z2[i])*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]);
+      prCofDX[totalAN*138+i] = 36.8029769880531*x[i]*z[i]*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]);
+      prCofDX[totalAN*139+i] = 8.63106316365917*x10[i] - 388.397842364662*x8[i]*y2[i] + 1812.52326436842*x6[i]*y4[i] - 1812.52326436842*x4[i]*y6[i] + 388.397842364662*x2[i]*y8[i] - 8.63106316365917*y10[i];
+
+      prCofDY[totalAN*117+i] = 8.63106316365917*x10[i] - 388.397842364662*x8[i]*y2[i] + 1812.52326436842*x6[i]*y4[i] - 1812.52326436842*x4[i]*y6[i] + 388.397842364662*x2[i]*y8[i] - 8.63106316365917*y10[i];
+      prCofDY[totalAN*118+i] = 36.8029769880531*x[i]*z[i]*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]);
+      prCofDY[totalAN*119+i] = -1.13576452756687*y2[i]*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]) - 5.11094037405094*(x2[i] + y2[i] - 20.0*z2[i])*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]);
+      prCofDY[totalAN*120+i] = 35.1903768038371*x[i]*z[i]*(-2.0*y2[i]*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]) + (-x2[i] - y2[i] + 6.0*z2[i])*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]));
+      prCofDY[totalAN*121+i] = -2.01830652990847*y2[i]*(-x2[i] - y2[i] + 18.0*z2[i])*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]) + 3.53203642733983*(133.0*z4[i] - 38.0*z2[i]*r2[i] + r4[i])*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i]);
+      prCofDY[totalAN*122+i] = 0.638244565090152*x[i]*z[i]*(-20.0*y2[i]*(-3.0*x2[i] - 3.0*y2[i] + 16.0*z2[i])*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i]) + 3.0*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(399.0*z4[i] - 190.0*z2[i]*r2[i] + 15.0*r4[i]));
+      prCofDY[totalAN*123+i] = -0.947934431913346*y2[i]*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(323.0*z4[i] - 102.0*z2[i]*r2[i] + 3.0*r4[i]) + 0.473967215956673*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(2261.0*z6[i] - 1615.0*z4[i]*r2[i] + 255.0*z2[i]*r4[i] - 5.0*r6[i]);
+      prCofDY[totalAN*124+i] = -4.0127980256608*x[i]*z[i]*(5.0*x8[i] + 30.0*x6[i]*y2[i] - 70.0*x6[i]*z2[i] - 210.0*x4[i]*y2[i]*z2[i] + 168.0*x4[i]*z4[i] - 70.0*x2[i]*y6[i] + 350.0*x2[i]*y4[i]*z2[i] - 80.0*x2[i]*z6[i] - 45.0*y8[i] + 490.0*y6[i]*z2[i] - 840.0*y4[i]*z4[i] + 240.0*y2[i]*z6[i]);
+      prCofDY[totalAN*125+i] = -3.66316666227769*y2[i]*(3.0*x2[i] - y2[i])*(323.0*z6[i] - 255.0*z4[i]*r2[i] + 45.0*z2[i]*r4[i] - r6[i]) + 1.37368749835414*(x2[i] - y2[i])*(969.0*z8[i] - 1292.0*z6[i]*r2[i] + 510.0*z4[i]*r4[i] - 60.0*z2[i]*r6[i] + r8[i]);
+      prCofDY[totalAN*126+i] = 0.489511235746264*x[i]*z[i]*(-24.0*y2[i]*(323.0*z6[i] - 357.0*z4[i]*r2[i] + 105.0*z2[i]*r4[i] - 7.0*r6[i]) + 2261.0*z8[i] - 3876.0*z6[i]*r2[i] + 2142.0*z4[i]*r4[i] - 420.0*z2[i]*r6[i] + 21.0*r8[i]);
+      prCofDY[totalAN*127+i] = -0.643994632278231*y2[i]*(4199.0*z8[i] - 6188.0*z6[i]*r2[i] + 2730.0*z4[i]*r4[i] - 364.0*z2[i]*r6[i] + 7.0*r8[i]) + 630.964474218468*z10[i] - 1352.06673046815*z8[i]*r2[i] + 996.259696134424*z6[i]*r4[i] - 293.017557686595*z4[i]*r6[i] + 29.3017557686595*z2[i]*r8[i] - 0.450796242594762*r10[i];
+      prCofDY[totalAN*128+i] = 0.581315236111974*y[i]*z[i]*(-4199.0*z8[i] + 7956.0*z6[i]*r2[i] - 4914.0*z4[i]*r4[i] + 1092.0*z2[i]*r6[i] - 63.0*r8[i]);
+      prCofDY[totalAN*129+i] = -0.643994632278231*x[i]*y[i]*(4199.0*z8[i] - 6188.0*z6[i]*r2[i] + 2730.0*z4[i]*r4[i] - 364.0*z2[i]*r6[i] + 7.0*r8[i]);
+      prCofDY[totalAN*130+i] = 0.489511235746264*y[i]*z[i]*(63.0*x8[i] + 84.0*x6[i]*y2[i] - 672.0*x6[i]*z2[i] - 126.0*x4[i]*y4[i] + 1008.0*x4[i]*z4[i] - 252.0*x2[i]*y6[i] + 2016.0*x2[i]*y4[i]*z2[i] - 2016.0*x2[i]*y2[i]*z4[i] - 105.0*y8[i] + 1344.0*y6[i]*z2[i] - 3024.0*y4[i]*z4[i] + 1536.0*y2[i]*z6[i] - 128.0*z8[i]);
+      prCofDY[totalAN*131+i] = 0.915791665569424*x[i]*y[i]*(x8[i] - 12.0*x6[i]*y2[i] - 42.0*x4[i]*y4[i] + 672.0*x4[i]*y2[i]*z2[i] - 336.0*x4[i]*z4[i] - 44.0*x2[i]*y6[i] + 1344.0*x2[i]*y4[i]*z2[i] - 3360.0*x2[i]*y2[i]*z4[i] + 896.0*x2[i]*z6[i] - 15.0*y8[i] + 672.0*y6[i]*z2[i] - 3024.0*y4[i]*z4[i] + 2688.0*y2[i]*z6[i] - 384.0*z8[i]);
+      prCofDY[totalAN*132+i] = -2.0063990128304*y[i]*z[i]*(2.0*(3.0*x2[i] - y2[i])*(323.0*z6[i] - 323.0*z4[i]*r2[i] + 85.0*z2[i]*r4[i] - 5.0*r6[i]) + (x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(323.0*z4[i] - 170.0*z2[i]*r2[i] + 15.0*r4[i]));
+      prCofDY[totalAN*133+i] = 0.947934431913346*x[i]*y[i]*(7.0*x8[i] + 44.0*x6[i]*y2[i] - 384.0*x6[i]*z2[i] + 42.0*x4[i]*y4[i] - 1344.0*x4[i]*y2[i]*z2[i] + 2016.0*x4[i]*z4[i] - 20.0*x2[i]*y6[i] + 2240.0*x2[i]*y2[i]*z4[i] - 1792.0*x2[i]*z6[i] - 25.0*y8[i] + 960.0*y6[i]*z2[i] - 3360.0*y4[i]*z4[i] + 1792.0*y2[i]*z6[i]);
+      prCofDY[totalAN*134+i] = -0.638244565090152*y[i]*z[i]*(195.0*x8[i] + 420.0*x6[i]*y2[i] - 2240.0*x6[i]*z2[i] - 630.0*x4[i]*y4[i] + 3360.0*x4[i]*z4[i] - 780.0*x2[i]*y6[i] + 6720.0*x2[i]*y4[i]*z2[i] - 6720.0*x2[i]*y2[i]*z4[i] + 75.0*y8[i] - 640.0*y6[i]*z2[i] + 672.0*y4[i]*z4[i]);
+      prCofDY[totalAN*135+i] = 1.00915326495424*x[i]*y[i]*(2.0*(x2[i] + y2[i] - 18.0*z2[i])*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]) - 7.0*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(133.0*z4[i] - 38.0*z2[i]*r2[i] + r4[i]));
+      prCofDY[totalAN*136+i] = 8.79759420095928*y[i]*z[i]*(-x8[i] + 28.0*x6[i]*y2[i] - 70.0*x4[i]*y4[i] + 28.0*x2[i]*y6[i] - y8[i] - 4.0*(-x2[i] - y2[i] + 6.0*z2[i])*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]));
+      prCofDY[totalAN*137+i] = 1.13576452756687*x[i]*y[i]*(-x8[i] + 36.0*x6[i]*y2[i] - 126.0*x4[i]*y4[i] + 84.0*x2[i]*y6[i] - 9.0*y8[i] + 36.0*(x2[i] + y2[i] - 20.0*z2[i])*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]));
+      prCofDY[totalAN*138+i] = -36.8029769880531*y[i]*z[i]*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]);
+      prCofDY[totalAN*139+i] = 17.2621263273183*x[i]*y[i]*(-5.0*x8[i] + 60.0*x6[i]*y2[i] - 126.0*x4[i]*y4[i] + 60.0*x2[i]*y6[i] - 5.0*y8[i]);
+
+      prCofDZ[totalAN*117+i] = 0;
+      prCofDZ[totalAN*118+i] = 7.36059539761062*x[i]*y[i]*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]);
+      prCofDZ[totalAN*119+i] = 22.7152905513375*y[i]*z[i]*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]);
+      prCofDZ[totalAN*120+i] = -35.1903768038371*x[i]*y[i]*(x2[i] + y2[i] - 18.0*z2[i])*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]);
+      prCofDZ[totalAN*121+i] = 12.1098391794508*y[i]*z[i]*(-3.0*x2[i] - 3.0*y2[i] + 16.0*z2[i])*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]);
+      prCofDZ[totalAN*122+i] = 3.19122282545076*x[i]*y[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(323.0*z4[i] - 102.0*z2[i]*r2[i] + 3.0*r4[i]);
+      prCofDZ[totalAN*123+i] = 3.03339018212271*y[i]*z[i]*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(323.0*z4[i] - 170.0*z2[i]*r2[i] + 15.0*r4[i]);
+      prCofDZ[totalAN*124+i] = 20.063990128304*x[i]*y[i]*(x2[i] - y2[i])*(323.0*z6[i] - 255.0*z4[i]*r2[i] + 45.0*z2[i]*r4[i] - r6[i]);
+      prCofDZ[totalAN*125+i] = 7.32633332455539*y[i]*z[i]*(3.0*x2[i] - y2[i])*(323.0*z6[i] - 357.0*z4[i]*r2[i] + 105.0*z2[i]*r4[i] - 7.0*r6[i]);
+      prCofDZ[totalAN*126+i] = 1.46853370723879*x[i]*y[i]*(4199.0*z8[i] - 6188.0*z6[i]*r2[i] + 2730.0*z4[i]*r4[i] - 364.0*z2[i]*r6[i] + 7.0*r8[i]);
+      prCofDZ[totalAN*127+i] = 0.858659509704308*y[i]*z[i]*(4199.0*z8[i] - 7956.0*z6[i]*r2[i] + 4914.0*z4[i]*r4[i] - 1092.0*z2[i]*r6[i] + 63.0*r8[i]);
+      prCofDZ[totalAN*128+i] = 2685.03694407759*z10[i] - 6359.29802544694*z8[i]*r2[i] + 5237.06896213277*z6[i]*r4[i] - 1745.68965404426*z4[i]*r6[i] + 201.425729312799*z2[i]*r8[i] - 3.66228598750543*r10[i];
+      prCofDZ[totalAN*129+i] = 0.858659509704308*x[i]*z[i]*(4199.0*z8[i] - 7956.0*z6[i]*r2[i] + 4914.0*z4[i]*r4[i] - 1092.0*z2[i]*r6[i] + 63.0*r8[i]);
+      prCofDZ[totalAN*130+i] = 0.734266853619395*(x2[i] - y2[i])*(4199.0*z8[i] - 6188.0*z6[i]*r2[i] + 2730.0*z4[i]*r4[i] - 364.0*z2[i]*r6[i] + 7.0*r8[i]);
+      prCofDZ[totalAN*131+i] = 7.32633332455539*x[i]*z[i]*(x2[i] - 3.0*y2[i])*(323.0*z6[i] - 357.0*z4[i]*r2[i] + 105.0*z2[i]*r4[i] - 7.0*r6[i]);
+      prCofDZ[totalAN*132+i] = 5.01599753207601*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(323.0*z6[i] - 255.0*z4[i]*r2[i] + 45.0*z2[i]*r4[i] - r6[i]);
+      prCofDZ[totalAN*133+i] = 3.03339018212271*x[i]*z[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(323.0*z4[i] - 170.0*z2[i]*r2[i] + 15.0*r4[i]);
+      prCofDZ[totalAN*134+i] = 1.59561141272538*(323.0*z4[i] - 102.0*z2[i]*r2[i] + 3.0*r4[i])*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i]);
+      prCofDZ[totalAN*135+i] = 12.1098391794508*x[i]*z[i]*(-3.0*x2[i] - 3.0*y2[i] + 16.0*z2[i])*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]);
+      prCofDZ[totalAN*136+i] = -4.39879710047964*(x2[i] + y2[i] - 18.0*z2[i])*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]);
+      prCofDZ[totalAN*137+i] = 22.7152905513375*x[i]*z[i]*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]);
+      prCofDZ[totalAN*138+i] = 3.68029769880531*x10[i] - 165.613396446239*x8[i]*y2[i] + 772.862516749115*x6[i]*y4[i] - 772.862516749115*x4[i]*y6[i] + 165.613396446239*x2[i]*y8[i] - 3.68029769880531*y10[i];
+      prCofDZ[totalAN*139+i] = 0;
+
+
+
     }
 
     if (lMax > 11){ //OBS!!!!! lMax > 9, tesseral cases
@@ -498,6 +975,87 @@ void getCfactorsD(double* preCoef, int Asize, double* x,double* x2, double* x4, 
       preCoef[totalAN*162+i] = -0.57844583479381*(x2[i] + y2[i] - 22.0*z2[i])*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]);
       preCoef[totalAN*163+i] = 3.92321052893598*x[i]*z[i]*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]);
       preCoef[totalAN*164+i] = 0.800821995783972*x12[i] - 52.8542517217421*x10[i]*y2[i] + 396.406887913066*x8[i]*y4[i] - 739.95952410439*x6[i]*y6[i] + 396.406887913066*x4[i]*y8[i] - 52.8542517217421*x2[i]*y10[i] + 0.800821995783972*y12[i];
+
+      prCofDX[totalAN*140+i] = 9.60986394940766*y[i]*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]);
+      prCofDX[totalAN*141+i] = 86.3106316365917*x[i]*y[i]*z[i]*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]);
+      prCofDX[totalAN*142+i] = 1.15689166958762*y[i]*(x2[i]*(-10.0*x8[i] + 120.0*x6[i]*y2[i] - 252.0*x4[i]*y4[i] + 120.0*x2[i]*y6[i] - 10.0*y8[i]) - 5.0*(x2[i] + y2[i] - 22.0*z2[i])*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]));
+      prCofDX[totalAN*143+i] = 9.39863235373324*x[i]*y[i]*z[i]*(-9.0*x8[i] + 84.0*x6[i]*y2[i] - 126.0*x4[i]*y4[i] + 36.0*x2[i]*y6[i] - y8[i] + 12.0*(-3.0*x2[i] - 3.0*y2[i] + 20.0*z2[i])*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]));
+      prCofDX[totalAN*144+i] = 4.10189944667082*y[i]*(-4.0*x2[i]*(-x2[i] - y2[i] + 20.0*z2[i])*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]) + (161.0*z4[i] - 42.0*z2[i]*r2[i] + r4[i])*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]));
+      prCofDX[totalAN*145+i] = 2.05094972333541*x[i]*y[i]*z[i]*(-10.0*(-x2[i] - y2[i] + 6.0*z2[i])*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]) + 7.0*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(161.0*z4[i] - 70.0*z2[i]*r2[i] + 5.0*r4[i]));
+      prCofDX[totalAN*146+i] = 0.576267123343003*y[i]*(-10.0*x2[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(133.0*z4[i] - 38.0*z2[i]*r2[i] + r4[i]) + (5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(3059.0*z6[i] - 1995.0*z4[i]*r2[i] + 285.0*z2[i]*r4[i] - 5.0*r6[i]));
+      prCofDX[totalAN*147+i] = 2.15619413881132*x[i]*y[i]*z[i]*(10.0*(x2[i] - y2[i])*(437.0*z6[i] - 399.0*z4[i]*r2[i] + 95.0*z2[i]*r4[i] - 5.0*r6[i]) - (5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(399.0*z4[i] - 190.0*z2[i]*r2[i] + 15.0*r4[i]));
+      prCofDX[totalAN*148+i] = 0.369784244098711*y[i]*(-8.0*x2[i]*(x2[i] - y2[i])*(2261.0*z6[i] - 1615.0*z4[i]*r2[i] + 255.0*z2[i]*r4[i] - 5.0*r6[i]) + (3.0*x2[i] - y2[i])*(7429.0*z8[i] - 9044.0*z6[i]*r2[i] + 3230.0*z4[i]*r4[i] - 340.0*z2[i]*r6[i] + 5.0*r8[i]));
+      prCofDX[totalAN*149+i] = 0.739568488197423*x[i]*y[i]*z[i]*(225.0*x8[i] + 660.0*x6[i]*y2[i] - 3360.0*x6[i]*z2[i] + 630.0*x4[i]*y4[i] - 6720.0*x4[i]*y2[i]*z2[i] + 9072.0*x4[i]*z4[i] + 180.0*x2[i]*y6[i] - 3360.0*x2[i]*y4[i]*z2[i] + 10080.0*x2[i]*y2[i]*z4[i] - 5760.0*x2[i]*z6[i] - 15.0*y8[i] + 1008.0*y4[i]*z4[i] - 1920.0*y2[i]*z6[i] + 640.0*z8[i]);
+      prCofDX[totalAN*150+i] = 0.301927570987541*y[i]*(-30.0*x2[i]*(969.0*z8[i] - 1292.0*z6[i]*r2[i] + 510.0*z4[i]*r4[i] - 60.0*z2[i]*r6[i] + r8[i]) + 7429.0*z10[i] - 14535.0*z8[i]*r2[i] + 9690.0*z6[i]*r4[i] - 2550.0*z4[i]*r6[i] + 225.0*z2[i]*r8[i] - 3.0*r10[i]);
+      prCofDX[totalAN*151+i] = -2.6763018719158*x[i]*y[i]*z[i]*(2261.0*z8[i] - 3876.0*z6[i]*r2[i] + 2142.0*z4[i]*r4[i] - 420.0*z2[i]*r6[i] + 21.0*r8[i]);
+      prCofDX[totalAN*152+i] = 0.181818908760507*x[i]*(-29393.0*z10[i] + 62985.0*z8[i]*r2[i] - 46410.0*z6[i]*r4[i] + 13650.0*z4[i]*r6[i] - 1365.0*z2[i]*r8[i] + 21.0*r10[i]);
+      prCofDX[totalAN*153+i] = 0.0243300170174164*z[i]*(-110.0*x2[i]*(2261.0*z8[i] - 3876.0*z6[i]*r2[i] + 2142.0*z4[i]*r4[i] - 420.0*z2[i]*r6[i] + 21.0*r8[i]) + 52003.0*z10[i] - 124355.0*z8[i]*r2[i] + 106590.0*z6[i]*r4[i] - 39270.0*z4[i]*r6[i] + 5775.0*z2[i]*r8[i] - 231.0*r10[i]);
+      prCofDX[totalAN*154+i] = 0.301927570987541*x[i]*(7429.0*z10[i] - 14535.0*z8[i]*r2[i] + 9690.0*z6[i]*r4[i] - 2550.0*z4[i]*r6[i] + 225.0*z2[i]*r8[i] - 15.0*(x2[i] - y2[i])*(969.0*z8[i] - 1292.0*z6[i]*r2[i] + 510.0*z4[i]*r4[i] - 60.0*z2[i]*r6[i] + r8[i]) - 3.0*r10[i]);
+      prCofDX[totalAN*155+i] = 0.369784244098711*z[i]*(-24.0*x2[i]*(x2[i] - 3.0*y2[i])*(323.0*z6[i] - 323.0*z4[i]*r2[i] + 85.0*z2[i]*r4[i] - 5.0*r6[i]) + (x2[i] - y2[i])*(7429.0*z8[i] - 11628.0*z6[i]*r2[i] + 5814.0*z4[i]*r4[i] - 1020.0*z2[i]*r6[i] + 45.0*r8[i]));
+      prCofDX[totalAN*156+i] = 0.369784244098711*x[i]*((x2[i] - 3.0*y2[i])*(7429.0*z8[i] - 9044.0*z6[i]*r2[i] + 3230.0*z4[i]*r4[i] - 340.0*z2[i]*r6[i] + 5.0*r8[i]) - 2.0*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(2261.0*z6[i] - 1615.0*z4[i]*r2[i] + 255.0*z2[i]*r4[i] - 5.0*r6[i]));
+      prCofDX[totalAN*157+i] = 1.07809706940566*z[i]*(-2.0*x2[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(399.0*z4[i] - 190.0*z2[i]*r2[i] + 15.0*r4[i]) + 5.0*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(437.0*z6[i] - 399.0*z4[i]*r2[i] + 95.0*z2[i]*r4[i] - 5.0*r6[i]));
+      prCofDX[totalAN*158+i] = 0.576267123343003*x[i]*((x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(3059.0*z6[i] - 1995.0*z4[i]*r2[i] + 285.0*z2[i]*r4[i] - 5.0*r6[i]) - 5.0*(133.0*z4[i] - 38.0*z2[i]*r2[i] + r4[i])*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i]));
+      prCofDX[totalAN*159+i] = 1.0254748616677*z[i]*(-20.0*x2[i]*(-x2[i] - y2[i] + 6.0*z2[i])*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]) + 7.0*(161.0*z4[i] - 70.0*z2[i]*r2[i] + 5.0*r4[i])*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i]));
+      prCofDX[totalAN*160+i] = 2.05094972333541*x[i]*(-(-x2[i] - y2[i] + 20.0*z2[i])*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]) + 2.0*(161.0*z4[i] - 42.0*z2[i]*r2[i] + r4[i])*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]));
+      prCofDX[totalAN*161+i] = 4.69931617686662*z[i]*(-2.0*x2[i]*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]) + 3.0*(-3.0*x2[i] - 3.0*y2[i] + 20.0*z2[i])*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]));
+      prCofDX[totalAN*162+i] = 1.15689166958762*x[i]*(-x10[i] + 45.0*x8[i]*y2[i] - 210.0*x6[i]*y4[i] + 210.0*x4[i]*y6[i] - 45.0*x2[i]*y8[i] + y10[i] - 5.0*(x2[i] + y2[i] - 22.0*z2[i])*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]));
+      prCofDX[totalAN*163+i] = 43.1553158182958*z[i]*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]);
+      prCofDX[totalAN*164+i] = 9.60986394940766*x[i]*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]);
+
+      prCofDY[totalAN*140+i] = 9.60986394940766*x[i]*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]);
+      prCofDY[totalAN*141+i] = 43.1553158182958*z[i]*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]);
+      prCofDY[totalAN*142+i] = 1.15689166958762*x[i]*(y2[i]*(-10.0*x8[i] + 120.0*x6[i]*y2[i] - 252.0*x4[i]*y4[i] + 120.0*x2[i]*y6[i] - 10.0*y8[i]) - 5.0*(x2[i] + y2[i] - 22.0*z2[i])*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]));
+      prCofDY[totalAN*143+i] = 4.69931617686662*z[i]*(-2.0*y2[i]*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]) + 3.0*(-3.0*x2[i] - 3.0*y2[i] + 20.0*z2[i])*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]));
+      prCofDY[totalAN*144+i] = 4.10189944667082*x[i]*(-4.0*y2[i]*(-x2[i] - y2[i] + 20.0*z2[i])*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]) + (161.0*z4[i] - 42.0*z2[i]*r2[i] + r4[i])*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]));
+      prCofDY[totalAN*145+i] = 1.0254748616677*z[i]*(-20.0*y2[i]*(-x2[i] - y2[i] + 6.0*z2[i])*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]) + 7.0*(161.0*z4[i] - 70.0*z2[i]*r2[i] + 5.0*r4[i])*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i]));
+      prCofDY[totalAN*146+i] = 0.576267123343003*x[i]*(-10.0*y2[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(133.0*z4[i] - 38.0*z2[i]*r2[i] + r4[i]) + (x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(3059.0*z6[i] - 1995.0*z4[i]*r2[i] + 285.0*z2[i]*r4[i] - 5.0*r6[i]));
+      prCofDY[totalAN*147+i] = 1.07809706940566*z[i]*(-2.0*y2[i]*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(399.0*z4[i] - 190.0*z2[i]*r2[i] + 15.0*r4[i]) + 5.0*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(437.0*z6[i] - 399.0*z4[i]*r2[i] + 95.0*z2[i]*r4[i] - 5.0*r6[i]));
+      prCofDY[totalAN*148+i] = 0.369784244098711*x[i]*(-8.0*y2[i]*(x2[i] - y2[i])*(2261.0*z6[i] - 1615.0*z4[i]*r2[i] + 255.0*z2[i]*r4[i] - 5.0*r6[i]) + (x2[i] - 3.0*y2[i])*(7429.0*z8[i] - 9044.0*z6[i]*r2[i] + 3230.0*z4[i]*r4[i] - 340.0*z2[i]*r6[i] + 5.0*r8[i]));
+      prCofDY[totalAN*149+i] = 0.369784244098711*z[i]*(-24.0*y2[i]*(3.0*x2[i] - y2[i])*(323.0*z6[i] - 323.0*z4[i]*r2[i] + 85.0*z2[i]*r4[i] - 5.0*r6[i]) + (x2[i] - y2[i])*(7429.0*z8[i] - 11628.0*z6[i]*r2[i] + 5814.0*z4[i]*r4[i] - 1020.0*z2[i]*r6[i] + 45.0*r8[i]));
+      prCofDY[totalAN*150+i] = 0.301927570987541*x[i]*(-30.0*y2[i]*(969.0*z8[i] - 1292.0*z6[i]*r2[i] + 510.0*z4[i]*r4[i] - 60.0*z2[i]*r6[i] + r8[i]) + 7429.0*z10[i] - 14535.0*z8[i]*r2[i] + 9690.0*z6[i]*r4[i] - 2550.0*z4[i]*r6[i] + 225.0*z2[i]*r8[i] - 3.0*r10[i]);
+      prCofDY[totalAN*151+i] = 0.0243300170174164*z[i]*(-110.0*y2[i]*(2261.0*z8[i] - 3876.0*z6[i]*r2[i] + 2142.0*z4[i]*r4[i] - 420.0*z2[i]*r6[i] + 21.0*r8[i]) + 52003.0*z10[i] - 124355.0*z8[i]*r2[i] + 106590.0*z6[i]*r4[i] - 39270.0*z4[i]*r6[i] + 5775.0*z2[i]*r8[i] - 231.0*r10[i]);
+      prCofDY[totalAN*152+i] = 0.181818908760507*y[i]*(-29393.0*z10[i] + 62985.0*z8[i]*r2[i] - 46410.0*z6[i]*r4[i] + 13650.0*z4[i]*r6[i] - 1365.0*z2[i]*r8[i] + 21.0*r10[i]);
+      prCofDY[totalAN*153+i] = -2.6763018719158*x[i]*y[i]*z[i]*(2261.0*z8[i] - 3876.0*z6[i]*r2[i] + 2142.0*z4[i]*r4[i] - 420.0*z2[i]*r6[i] + 21.0*r8[i]);
+      prCofDY[totalAN*154+i] = 0.301927570987541*y[i]*(-7429.0*z10[i] + 14535.0*z8[i]*r2[i] - 9690.0*z6[i]*r4[i] + 2550.0*z4[i]*r6[i] - 225.0*z2[i]*r8[i] - 15.0*(x2[i] - y2[i])*(969.0*z8[i] - 1292.0*z6[i]*r2[i] + 510.0*z4[i]*r4[i] - 60.0*z2[i]*r6[i] + r8[i]) + 3.0*r10[i]);
+      prCofDY[totalAN*155+i] = 0.739568488197423*x[i]*y[i]*z[i]*(15.0*x8[i] - 180.0*x6[i]*y2[i] - 630.0*x4[i]*y4[i] + 3360.0*x4[i]*y2[i]*z2[i] - 1008.0*x4[i]*z4[i] - 660.0*x2[i]*y6[i] + 6720.0*x2[i]*y4[i]*z2[i] - 10080.0*x2[i]*y2[i]*z4[i] + 1920.0*x2[i]*z6[i] - 225.0*y8[i] + 3360.0*y6[i]*z2[i] - 9072.0*y4[i]*z4[i] + 5760.0*y2[i]*z6[i] - 640.0*z8[i]);
+      prCofDY[totalAN*156+i] = -0.369784244098711*y[i]*((3.0*x2[i] - y2[i])*(7429.0*z8[i] - 9044.0*z6[i]*r2[i] + 3230.0*z4[i]*r4[i] - 340.0*z2[i]*r6[i] + 5.0*r8[i]) + 2.0*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(2261.0*z6[i] - 1615.0*z4[i]*r2[i] + 255.0*z2[i]*r4[i] - 5.0*r6[i]));
+      prCofDY[totalAN*157+i] = 2.15619413881132*x[i]*y[i]*z[i]*(35.0*x8[i] + 220.0*x6[i]*y2[i] - 640.0*x6[i]*z2[i] + 210.0*x4[i]*y4[i] - 2240.0*x4[i]*y2[i]*z2[i] + 2016.0*x4[i]*z4[i] - 100.0*x2[i]*y6[i] + 2240.0*x2[i]*y2[i]*z4[i] - 1280.0*x2[i]*z6[i] - 125.0*y8[i] + 1600.0*y6[i]*z2[i] - 3360.0*y4[i]*z4[i] + 1280.0*y2[i]*z6[i]);
+      prCofDY[totalAN*158+i] = -0.576267123343003*y[i]*((5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(3059.0*z6[i] - 1995.0*z4[i]*r2[i] + 285.0*z2[i]*r4[i] - 5.0*r6[i]) + 5.0*(133.0*z4[i] - 38.0*z2[i]*r2[i] + r4[i])*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i]));
+      prCofDY[totalAN*159+i] = 2.05094972333541*x[i]*y[i]*z[i]*(10.0*(x2[i] + y2[i] - 6.0*z2[i])*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]) - 7.0*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(161.0*z4[i] - 70.0*z2[i]*r2[i] + 5.0*r4[i]));
+      prCofDY[totalAN*160+i] = 2.05094972333541*y[i]*((x2[i] + y2[i] - 20.0*z2[i])*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]) - 2.0*(161.0*z4[i] - 42.0*z2[i]*r2[i] + r4[i])*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]));
+      prCofDY[totalAN*161+i] = 9.39863235373324*x[i]*y[i]*z[i]*(-x8[i] + 36.0*x6[i]*y2[i] - 126.0*x4[i]*y4[i] + 84.0*x2[i]*y6[i] - 9.0*y8[i] - 12.0*(-3.0*x2[i] - 3.0*y2[i] + 20.0*z2[i])*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]));
+      prCofDY[totalAN*162+i] = 1.15689166958762*y[i]*(-x10[i] + 45.0*x8[i]*y2[i] - 210.0*x6[i]*y4[i] + 210.0*x4[i]*y6[i] - 45.0*x2[i]*y8[i] + y10[i] + 5.0*(x2[i] + y2[i] - 22.0*z2[i])*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]));
+      prCofDY[totalAN*163+i] = -86.3106316365917*x[i]*y[i]*z[i]*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]);
+      prCofDY[totalAN*164+i] = 9.60986394940766*y[i]*(-11.0*x10[i] + 165.0*x8[i]*y2[i] - 462.0*x6[i]*y4[i] + 330.0*x4[i]*y6[i] - 55.0*x2[i]*y8[i] + y10[i]);
+
+      prCofDZ[totalAN*140+i] = 0;
+      prCofDZ[totalAN*141+i] = 3.92321052893598*y[i]*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]);
+      prCofDZ[totalAN*142+i] = 50.9032334618553*x[i]*y[i]*z[i]*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]);
+      prCofDZ[totalAN*143+i] = -4.69931617686662*y[i]*(x2[i] + y2[i] - 20.0*z2[i])*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]);
+      prCofDZ[totalAN*144+i] = 328.151955733665*x[i]*y[i]*z[i]*(-x2[i] - y2[i] + 6.0*z2[i])*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]);
+      prCofDZ[totalAN*145+i] = 5.12737430833852*y[i]*(133.0*z4[i] - 38.0*z2[i]*r2[i] + r4[i])*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]);
+      prCofDZ[totalAN*146+i] = 6.91520548011604*x[i]*y[i]*z[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(399.0*z4[i] - 190.0*z2[i]*r2[i] + 15.0*r4[i]);
+      prCofDZ[totalAN*147+i] = 1.07809706940566*y[i]*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(2261.0*z6[i] - 1615.0*z4[i]*r2[i] + 255.0*z2[i]*r4[i] - 5.0*r6[i]);
+      prCofDZ[totalAN*148+i] = 47.332383244635*x[i]*y[i]*z[i]*(x2[i] - y2[i])*(323.0*z6[i] - 323.0*z4[i]*r2[i] + 85.0*z2[i]*r4[i] - 5.0*r6[i]);
+      prCofDZ[totalAN*149+i] = 5.54676366148067*y[i]*(3.0*x2[i] - y2[i])*(969.0*z8[i] - 1292.0*z6[i]*r2[i] + 510.0*z4[i]*r4[i] - 60.0*z2[i]*r6[i] + r8[i]);
+      prCofDZ[totalAN*150+i] = 6.03855141975083*x[i]*y[i]*z[i]*(2261.0*z8[i] - 3876.0*z6[i]*r2[i] + 2142.0*z4[i]*r4[i] - 420.0*z2[i]*r6[i] + 21.0*r8[i]);
+      prCofDZ[totalAN*151+i] = 0.26763018719158*y[i]*(29393.0*z10[i] - 62985.0*z8[i]*r2[i] + 46410.0*z6[i]*r4[i] - 13650.0*z4[i]*r6[i] + 1365.0*z2[i]*r8[i] - 21.0*r10[i]);
+      prCofDZ[totalAN*152+i] = 0.0661159668220027*z[i]*(88179.0*z10[i] - 230945.0*z8[i]*r2[i] + 218790.0*z6[i]*r4[i] - 90090.0*z4[i]*r6[i] + 15015.0*z2[i]*r8[i] - 693.0*r10[i]);
+      prCofDZ[totalAN*153+i] = 0.26763018719158*x[i]*(29393.0*z10[i] - 62985.0*z8[i]*r2[i] + 46410.0*z6[i]*r4[i] - 13650.0*z4[i]*r6[i] + 1365.0*z2[i]*r8[i] - 21.0*r10[i]);
+      prCofDZ[totalAN*154+i] = 3.01927570987541*z[i]*(x2[i] - y2[i])*(2261.0*z8[i] - 3876.0*z6[i]*r2[i] + 2142.0*z4[i]*r4[i] - 420.0*z2[i]*r6[i] + 21.0*r8[i]);
+      prCofDZ[totalAN*155+i] = 5.54676366148067*x[i]*(x2[i] - 3.0*y2[i])*(969.0*z8[i] - 1292.0*z6[i]*r2[i] + 510.0*z4[i]*r4[i] - 60.0*z2[i]*r6[i] + r8[i]);
+      prCofDZ[totalAN*156+i] = 11.8330958111588*z[i]*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(323.0*z6[i] - 323.0*z4[i]*r2[i] + 85.0*z2[i]*r4[i] - 5.0*r6[i]);
+      prCofDZ[totalAN*157+i] = 1.07809706940566*x[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(2261.0*z6[i] - 1615.0*z4[i]*r2[i] + 255.0*z2[i]*r4[i] - 5.0*r6[i]);
+      prCofDZ[totalAN*158+i] = 3.45760274005802*z[i]*(399.0*z4[i] - 190.0*z2[i]*r2[i] + 15.0*r4[i])*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i]);
+      prCofDZ[totalAN*159+i] = 5.12737430833852*x[i]*(133.0*z4[i] - 38.0*z2[i]*r2[i] + r4[i])*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]);
+      prCofDZ[totalAN*160+i] = 41.0189944667082*z[i]*(-x2[i] - y2[i] + 6.0*z2[i])*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]);
+      prCofDZ[totalAN*161+i] = -4.69931617686662*x[i]*(x2[i] + y2[i] - 20.0*z2[i])*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]);
+      prCofDZ[totalAN*162+i] = 25.4516167309276*z[i]*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]);
+      prCofDZ[totalAN*163+i] = 3.92321052893598*x[i]*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]);
+      prCofDZ[totalAN*164+i] = 0;
+
+
+
     }
 
     if (lMax > 12){ //OBS!!!!! lMax > 9, tesseral cases
@@ -528,6 +1086,93 @@ void getCfactorsD(double* preCoef, int Asize, double* x,double* x2, double* x4, 
       preCoef[totalAN*189+i] = -0.588481579340398*x[i]*(x2[i] + y2[i] - 24.0*z2[i])*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]);
       preCoef[totalAN*190+i] = 4.16119315354964*z[i]*(x12[i] - 66.0*x10[i]*y2[i] + 495.0*x8[i]*y4[i] - 924.0*x6[i]*y6[i] + 495.0*x4[i]*y8[i] - 66.0*x2[i]*y10[i] + y12[i]);
       preCoef[totalAN*191+i] = 0.816077118837628*x[i]*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]);
+
+      prCofDX[totalAN*165+i] = 42.4360101795567*x[i]*y[i]*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]);
+      prCofDX[totalAN*166+i] = 49.9343178425957*y[i]*z[i]*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]);
+      prCofDX[totalAN*167+i] = 1.1769631586808*x[i]*y[i]*(-11.0*x10[i] + 165.0*x8[i]*y2[i] - 462.0*x6[i]*y4[i] + 330.0*x4[i]*y6[i] - 55.0*x2[i]*y8[i] + y10[i] - 11.0*(x2[i] + y2[i] - 24.0*z2[i])*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]));
+      prCofDX[totalAN*168+i] = 3.32895452283972*y[i]*z[i]*(x2[i]*(-30.0*x8[i] + 360.0*x6[i]*y2[i] - 756.0*x4[i]*y4[i] + 360.0*x2[i]*y6[i] - 30.0*y8[i]) + 5.0*(-3.0*x2[i] - 3.0*y2[i] + 22.0*z2[i])*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]));
+      prCofDX[totalAN*169+i] = 2.08240500525772*x[i]*y[i]*(-(-x2[i] - y2[i] + 22.0*z2[i])*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]) + 6.0*(575.0*z4[i] - 138.0*z2[i]*r2[i] + 3.0*r4[i])*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]));
+      prCofDX[totalAN*170+i] = 14.560298633254*y[i]*z[i]*(-4.0*x2[i]*(-3.0*x2[i] - 3.0*y2[i] + 20.0*z2[i])*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]) + (115.0*z4[i] - 46.0*z2[i]*r2[i] + 3.0*r4[i])*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]));
+      prCofDX[totalAN*171+i] = 0.972850873834812*x[i]*y[i]*(7.0*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(805.0*z6[i] - 483.0*z4[i]*r2[i] + 63.0*z2[i]*r4[i] - r6[i]) - 3.0*(161.0*z4[i] - 42.0*z2[i]*r2[i] + r4[i])*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]));
+      prCofDX[totalAN*172+i] = 6.90655606399791*y[i]*z[i]*(-2.0*x2[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(161.0*z4[i] - 70.0*z2[i]*r2[i] + 5.0*r4[i]) + (5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(575.0*z6[i] - 483.0*z4[i]*r2[i] + 105.0*z2[i]*r4[i] - 5.0*r6[i]));
+      prCofDX[totalAN*173+i] = 0.373463779940342*x[i]*y[i]*(5.0*(x2[i] - y2[i])*(10925.0*z8[i] - 12236.0*z6[i]*r2[i] + 3990.0*z4[i]*r4[i] - 380.0*z2[i]*r6[i] + 5.0*r8[i]) - 2.0*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(3059.0*z6[i] - 1995.0*z4[i]*r2[i] + 285.0*z2[i]*r4[i] - 5.0*r6[i]));
+      prCofDX[totalAN*174+i] = 0.528157542646753*y[i]*z[i]*(-72.0*x2[i]*(x2[i] - y2[i])*(437.0*z6[i] - 399.0*z4[i]*r2[i] + 95.0*z2[i]*r4[i] - 5.0*r6[i]) + (3.0*x2[i] - y2[i])*(10925.0*z8[i] - 15732.0*z6[i]*r2[i] + 7182.0*z4[i]*r4[i] - 1140.0*z2[i]*r6[i] + 45.0*r8[i]));
+      prCofDX[totalAN*175+i] = 0.303808757854291*x[i]*y[i]*(37145.0*z10[i] - 66861.0*z8[i]*r2[i] + 40698.0*z6[i]*r4[i] - 9690.0*z4[i]*r6[i] + 765.0*z2[i]*r8[i] - 3.0*(3.0*x2[i] - y2[i])*(7429.0*z8[i] - 9044.0*z6[i]*r2[i] + 3230.0*z4[i]*r4[i] - 340.0*z2[i]*r6[i] + 5.0*r8[i]) - 9.0*r10[i]);
+      prCofDX[totalAN*176+i] = 0.122135716100197*y[i]*z[i]*(-22.0*x2[i]*(7429.0*z8[i] - 11628.0*z6[i]*r2[i] + 5814.0*z4[i]*r4[i] - 1020.0*z2[i]*r6[i] + 45.0*r8[i]) + 37145.0*z10[i] - 81719.0*z8[i]*r2[i] + 63954.0*z6[i]*r4[i] - 21318.0*z4[i]*r6[i] + 2805.0*z2[i]*r8[i] - 99.0*r10[i]);
+      prCofDX[totalAN*177+i] = -1.80248484029233*x[i]*y[i]*(7429.0*z10[i] - 14535.0*z8[i]*r2[i] + 9690.0*z6[i]*r4[i] - 2550.0*z4[i]*r6[i] + 225.0*z2[i]*r8[i] - 3.0*r10[i]);
+      prCofDX[totalAN*178+i] = 0.223306616768131*x[i]*z[i]*(-52003.0*z10[i] + 124355.0*z8[i]*r2[i] - 106590.0*z6[i]*r4[i] + 39270.0*z4[i]*r6[i] - 5775.0*z2[i]*r8[i] + 231.0*r10[i]);
+      prCofDX[totalAN*179+i] = -1.80248484029233*x2[i]*(7429.0*z10[i] - 14535.0*z8[i]*r2[i] + 9690.0*z6[i]*r4[i] - 2550.0*z4[i]*r6[i] + 225.0*z2[i]*r8[i] - 3.0*r10[i]) + 2536.10982547949*z12[i] - 6695.32993926584*z10[i]*r2[i] + 6549.77928841224*z8[i]*r4[i] - 2911.0130170721*z6[i]*r6[i] + 574.542042843179*z4[i]*r8[i] - 40.5559089065773*z2[i]*r10[i] + 0.450621210073081*r12[i];
+      prCofDX[totalAN*180+i] = -0.244271432200393*x[i]*z[i]*(297.0*x10[i] + 990.0*x8[i]*y2[i] - 5775.0*x8[i]*z2[i] + 990.0*x6[i]*y4[i] - 13860.0*x6[i]*y2[i]*z2[i] + 22176.0*x6[i]*z4[i] - 6930.0*x4[i]*y4[i]*z2[i] + 33264.0*x4[i]*y2[i]*z4[i] - 23760.0*x4[i]*z6[i] - 495.0*x2[i]*y8[i] + 4620.0*x2[i]*y6[i]*z2[i] - 15840.0*x2[i]*y2[i]*z6[i] + 7040.0*x2[i]*z8[i] - 198.0*y10[i] + 3465.0*y8[i]*z2[i] - 11088.0*y6[i]*z4[i] + 7920.0*y4[i]*z6[i] - 384.0*z10[i]);
+      prCofDX[totalAN*181+i] = -0.911426273562874*x2[i]*(x2[i] - 3.0*y2[i])*(7429.0*z8[i] - 9044.0*z6[i]*r2[i] + 3230.0*z4[i]*r4[i] - 340.0*z2[i]*r6[i] + 5.0*r8[i]) + 0.151904378927146*(x2[i] - y2[i])*(37145.0*z10[i] - 66861.0*z8[i]*r2[i] + 40698.0*z6[i]*r4[i] - 9690.0*z4[i]*r6[i] + 765.0*z2[i]*r8[i] - 9.0*r10[i]);
+      prCofDX[totalAN*182+i] = 0.528157542646753*x[i]*z[i]*((x2[i] - 3.0*y2[i])*(10925.0*z8[i] - 15732.0*z6[i]*r2[i] + 7182.0*z4[i]*r4[i] - 1140.0*z2[i]*r6[i] + 45.0*r8[i]) - 18.0*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(437.0*z6[i] - 399.0*z4[i]*r2[i] + 95.0*z2[i]*r4[i] - 5.0*r6[i]));
+      prCofDX[totalAN*183+i] = -0.746927559880684*x2[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(3059.0*z6[i] - 1995.0*z4[i]*r2[i] + 285.0*z2[i]*r4[i] - 5.0*r6[i]) + 0.466829724925428*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(10925.0*z8[i] - 12236.0*z6[i]*r2[i] + 3990.0*z4[i]*r4[i] - 380.0*z2[i]*r6[i] + 5.0*r8[i]);
+      prCofDX[totalAN*184+i] = 6.90655606399791*x[i]*z[i]*((x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(575.0*z6[i] - 483.0*z4[i]*r2[i] + 105.0*z2[i]*r4[i] - 5.0*r6[i]) - (161.0*z4[i] - 70.0*z2[i]*r2[i] + 5.0*r4[i])*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i]));
+      prCofDX[totalAN*185+i] = -2.91855262150443*x2[i]*(161.0*z4[i] - 42.0*z2[i]*r2[i] + r4[i])*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]) + 3.40497805842184*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i])*(805.0*z6[i] - 483.0*z4[i]*r2[i] + 63.0*z2[i]*r4[i] - r6[i]);
+      prCofDX[totalAN*186+i] = 7.28014931662701*x[i]*z[i]*(-(-3.0*x2[i] - 3.0*y2[i] + 20.0*z2[i])*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]) + 2.0*(115.0*z4[i] - 46.0*z2[i]*r2[i] + 3.0*r4[i])*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]));
+      prCofDX[totalAN*187+i] = -2.08240500525772*x2[i]*(-x2[i] - y2[i] + 22.0*z2[i])*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]) + 1.56180375394329*(575.0*z4[i] - 138.0*z2[i]*r2[i] + 3.0*r4[i])*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]);
+      prCofDX[totalAN*188+i] = -6.65790904567943*x[i]*z[i]*(9.0*x10[i] - 330.0*x8[i]*y2[i] - 55.0*x8[i]*z2[i] + 990.0*x6[i]*y4[i] + 1980.0*x6[i]*y2[i]*z2[i] - 6930.0*x4[i]*y4[i]*z2[i] - 495.0*x2[i]*y8[i] + 4620.0*x2[i]*y6[i]*z2[i] + 66.0*y10[i] - 495.0*y8[i]*z2[i]);
+      prCofDX[totalAN*189+i] = -1.1769631586808*x2[i]*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]) - 6.47329737274437*(x2[i] + y2[i] - 24.0*z2[i])*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]);
+      prCofDX[totalAN*190+i] = 49.9343178425957*x[i]*z[i]*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]);
+      prCofDX[totalAN*191+i] = 10.6090025448892*x12[i] - 700.194167962685*x10[i]*y2[i] + 5251.45625972014*x8[i]*y4[i] - 9802.71835147759*x6[i]*y6[i] + 5251.45625972014*x4[i]*y8[i] - 700.194167962685*x2[i]*y10[i] + 10.6090025448892*y12[i];
+
+      prCofDY[totalAN*165+i] = 10.6090025448892*x12[i] - 700.194167962685*x10[i]*y2[i] + 5251.45625972014*x8[i]*y4[i] - 9802.71835147759*x6[i]*y6[i] + 5251.45625972014*x4[i]*y8[i] - 700.194167962685*x2[i]*y10[i] + 10.6090025448892*y12[i];
+      prCofDY[totalAN*166+i] = 49.9343178425957*x[i]*z[i]*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]);
+      prCofDY[totalAN*167+i] = -1.1769631586808*y2[i]*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]) - 6.47329737274437*(x2[i] + y2[i] - 24.0*z2[i])*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]);
+      prCofDY[totalAN*168+i] = 3.32895452283972*x[i]*z[i]*(y2[i]*(-30.0*x8[i] + 360.0*x6[i]*y2[i] - 756.0*x4[i]*y4[i] + 360.0*x2[i]*y6[i] - 30.0*y8[i]) + 5.0*(-3.0*x2[i] - 3.0*y2[i] + 22.0*z2[i])*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]));
+      prCofDY[totalAN*169+i] = -2.08240500525772*y2[i]*(-x2[i] - y2[i] + 22.0*z2[i])*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]) + 1.56180375394329*(575.0*z4[i] - 138.0*z2[i]*r2[i] + 3.0*r4[i])*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]);
+      prCofDY[totalAN*170+i] = 14.560298633254*x[i]*z[i]*(-4.0*y2[i]*(-3.0*x2[i] - 3.0*y2[i] + 20.0*z2[i])*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]) + (115.0*z4[i] - 46.0*z2[i]*r2[i] + 3.0*r4[i])*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]));
+      prCofDY[totalAN*171+i] = -2.91855262150443*y2[i]*(161.0*z4[i] - 42.0*z2[i]*r2[i] + r4[i])*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]) + 3.40497805842184*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i])*(805.0*z6[i] - 483.0*z4[i]*r2[i] + 63.0*z2[i]*r4[i] - r6[i]);
+      prCofDY[totalAN*172+i] = 6.90655606399791*x[i]*z[i]*(-2.0*y2[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(161.0*z4[i] - 70.0*z2[i]*r2[i] + 5.0*r4[i]) + (x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(575.0*z6[i] - 483.0*z4[i]*r2[i] + 105.0*z2[i]*r4[i] - 5.0*r6[i]));
+      prCofDY[totalAN*173+i] = -0.746927559880684*y2[i]*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(3059.0*z6[i] - 1995.0*z4[i]*r2[i] + 285.0*z2[i]*r4[i] - 5.0*r6[i]) + 0.466829724925428*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(10925.0*z8[i] - 12236.0*z6[i]*r2[i] + 3990.0*z4[i]*r4[i] - 380.0*z2[i]*r6[i] + 5.0*r8[i]);
+      prCofDY[totalAN*174+i] = 0.528157542646753*x[i]*z[i]*(-72.0*y2[i]*(x2[i] - y2[i])*(437.0*z6[i] - 399.0*z4[i]*r2[i] + 95.0*z2[i]*r4[i] - 5.0*r6[i]) + (x2[i] - 3.0*y2[i])*(10925.0*z8[i] - 15732.0*z6[i]*r2[i] + 7182.0*z4[i]*r4[i] - 1140.0*z2[i]*r6[i] + 45.0*r8[i]));
+      prCofDY[totalAN*175+i] = -0.911426273562874*y2[i]*(3.0*x2[i] - y2[i])*(7429.0*z8[i] - 9044.0*z6[i]*r2[i] + 3230.0*z4[i]*r4[i] - 340.0*z2[i]*r6[i] + 5.0*r8[i]) + 0.151904378927146*(x2[i] - y2[i])*(37145.0*z10[i] - 66861.0*z8[i]*r2[i] + 40698.0*z6[i]*r4[i] - 9690.0*z4[i]*r6[i] + 765.0*z2[i]*r8[i] - 9.0*r10[i]);
+      prCofDY[totalAN*176+i] = 0.122135716100197*x[i]*z[i]*(-22.0*y2[i]*(7429.0*z8[i] - 11628.0*z6[i]*r2[i] + 5814.0*z4[i]*r4[i] - 1020.0*z2[i]*r6[i] + 45.0*r8[i]) + 37145.0*z10[i] - 81719.0*z8[i]*r2[i] + 63954.0*z6[i]*r4[i] - 21318.0*z4[i]*r6[i] + 2805.0*z2[i]*r8[i] - 99.0*r10[i]);
+      prCofDY[totalAN*177+i] = -1.80248484029233*y2[i]*(7429.0*z10[i] - 14535.0*z8[i]*r2[i] + 9690.0*z6[i]*r4[i] - 2550.0*z4[i]*r6[i] + 225.0*z2[i]*r8[i] - 3.0*r10[i]) + 2536.10982547949*z12[i] - 6695.32993926584*z10[i]*r2[i] + 6549.77928841224*z8[i]*r4[i] - 2911.0130170721*z6[i]*r6[i] + 574.542042843179*z4[i]*r8[i] - 40.5559089065773*z2[i]*r10[i] + 0.450621210073081*r12[i];
+      prCofDY[totalAN*178+i] = 0.223306616768131*y[i]*z[i]*(-52003.0*z10[i] + 124355.0*z8[i]*r2[i] - 106590.0*z6[i]*r4[i] + 39270.0*z4[i]*r6[i] - 5775.0*z2[i]*r8[i] + 231.0*r10[i]);
+      prCofDY[totalAN*179+i] = -1.80248484029233*x[i]*y[i]*(7429.0*z10[i] - 14535.0*z8[i]*r2[i] + 9690.0*z6[i]*r4[i] - 2550.0*z4[i]*r6[i] + 225.0*z2[i]*r8[i] - 3.0*r10[i]);
+      prCofDY[totalAN*180+i] = -0.244271432200393*y[i]*z[i]*(198.0*x10[i] + 495.0*x8[i]*y2[i] - 3465.0*x8[i]*z2[i] - 4620.0*x6[i]*y2[i]*z2[i] + 11088.0*x6[i]*z4[i] - 990.0*x4[i]*y6[i] + 6930.0*x4[i]*y4[i]*z2[i] - 7920.0*x4[i]*z6[i] - 990.0*x2[i]*y8[i] + 13860.0*x2[i]*y6[i]*z2[i] - 33264.0*x2[i]*y4[i]*z4[i] + 15840.0*x2[i]*y2[i]*z6[i] - 297.0*y10[i] + 5775.0*y8[i]*z2[i] - 22176.0*y6[i]*z4[i] + 23760.0*y4[i]*z6[i] - 7040.0*y2[i]*z8[i] + 384.0*z10[i]);
+      prCofDY[totalAN*181+i] = 0.303808757854291*x[i]*y[i]*(-37145.0*z10[i] + 66861.0*z8[i]*r2[i] - 40698.0*z6[i]*r4[i] + 9690.0*z4[i]*r6[i] - 765.0*z2[i]*r8[i] - 3.0*(x2[i] - 3.0*y2[i])*(7429.0*z8[i] - 9044.0*z6[i]*r2[i] + 3230.0*z4[i]*r4[i] - 340.0*z2[i]*r6[i] + 5.0*r8[i]) + 9.0*r10[i]);
+      prCofDY[totalAN*182+i] = -0.528157542646753*y[i]*z[i]*((3.0*x2[i] - y2[i])*(10925.0*z8[i] - 15732.0*z6[i]*r2[i] + 7182.0*z4[i]*r4[i] - 1140.0*z2[i]*r6[i] + 45.0*r8[i]) + 18.0*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(437.0*z6[i] - 399.0*z4[i]*r2[i] + 95.0*z2[i]*r4[i] - 5.0*r6[i]));
+      prCofDY[totalAN*183+i] = -0.373463779940342*x[i]*y[i]*(5.0*(x2[i] - y2[i])*(10925.0*z8[i] - 12236.0*z6[i]*r2[i] + 3990.0*z4[i]*r4[i] - 380.0*z2[i]*r6[i] + 5.0*r8[i]) + 2.0*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(3059.0*z6[i] - 1995.0*z4[i]*r2[i] + 285.0*z2[i]*r4[i] - 5.0*r6[i]));
+      prCofDY[totalAN*184+i] = -6.90655606399791*y[i]*z[i]*((5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(575.0*z6[i] - 483.0*z4[i]*r2[i] + 105.0*z2[i]*r4[i] - 5.0*r6[i]) + (161.0*z4[i] - 70.0*z2[i]*r2[i] + 5.0*r4[i])*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i]));
+      prCofDY[totalAN*185+i] = -0.972850873834812*x[i]*y[i]*(7.0*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(805.0*z6[i] - 483.0*z4[i]*r2[i] + 63.0*z2[i]*r4[i] - r6[i]) + 3.0*(161.0*z4[i] - 42.0*z2[i]*r2[i] + r4[i])*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]));
+      prCofDY[totalAN*186+i] = 7.28014931662701*y[i]*z[i]*((3.0*x2[i] + 3.0*y2[i] - 20.0*z2[i])*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]) - 2.0*(115.0*z4[i] - 46.0*z2[i]*r2[i] + 3.0*r4[i])*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]));
+      prCofDY[totalAN*187+i] = 2.08240500525772*x[i]*y[i]*((x2[i] + y2[i] - 22.0*z2[i])*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]) - 6.0*(575.0*z4[i] - 138.0*z2[i]*r2[i] + 3.0*r4[i])*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]));
+      prCofDY[totalAN*188+i] = 6.65790904567943*y[i]*z[i]*(66.0*x10[i] - 495.0*x8[i]*y2[i] - 495.0*x8[i]*z2[i] + 4620.0*x6[i]*y2[i]*z2[i] + 990.0*x4[i]*y6[i] - 6930.0*x4[i]*y4[i]*z2[i] - 330.0*x2[i]*y8[i] + 1980.0*x2[i]*y6[i]*z2[i] + 9.0*y10[i] - 55.0*y8[i]*z2[i]);
+      prCofDY[totalAN*189+i] = 1.1769631586808*x[i]*y[i]*(-x10[i] + 55.0*x8[i]*y2[i] - 330.0*x6[i]*y4[i] + 462.0*x4[i]*y6[i] - 165.0*x2[i]*y8[i] + 11.0*y10[i] + 11.0*(x2[i] + y2[i] - 24.0*z2[i])*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]));
+      prCofDY[totalAN*190+i] = -49.9343178425957*y[i]*z[i]*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]);
+      prCofDY[totalAN*191+i] = 42.4360101795567*x[i]*y[i]*(-3.0*x10[i] + 55.0*x8[i]*y2[i] - 198.0*x6[i]*y4[i] + 198.0*x4[i]*y6[i] - 55.0*x2[i]*y8[i] + 3.0*y10[i]);
+
+      prCofDZ[totalAN*165+i] = 0;
+      prCofDZ[totalAN*166+i] = 16.6447726141986*x[i]*y[i]*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]);
+      prCofDZ[totalAN*167+i] = 28.2471158083391*y[i]*z[i]*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]);
+      prCofDZ[totalAN*168+i] = -9.98686356851915*x[i]*y[i]*(x2[i] + y2[i] - 22.0*z2[i])*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]);
+      prCofDZ[totalAN*169+i] = 15.2709700385566*y[i]*z[i]*(-3.0*x2[i] - 3.0*y2[i] + 20.0*z2[i])*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]);
+      prCofDZ[totalAN*170+i] = 43.6808958997621*x[i]*y[i]*(161.0*z4[i] - 42.0*z2[i]*r2[i] + r4[i])*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]);
+      prCofDZ[totalAN*171+i] = 11.6742104860177*y[i]*z[i]*(161.0*z4[i] - 70.0*z2[i]*r2[i] + 5.0*r4[i])*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]);
+      prCofDZ[totalAN*172+i] = 2.30218535466597*x[i]*y[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(3059.0*z6[i] - 1995.0*z4[i]*r2[i] + 285.0*z2[i]*r4[i] - 5.0*r6[i]);
+      prCofDZ[totalAN*173+i] = 13.4446960778523*y[i]*z[i]*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(437.0*z6[i] - 399.0*z4[i]*r2[i] + 95.0*z2[i]*r4[i] - 5.0*r6[i]);
+      prCofDZ[totalAN*174+i] = 4.75341788382078*x[i]*y[i]*(x2[i] - y2[i])*(7429.0*z8[i] - 9044.0*z6[i]*r2[i] + 3230.0*z4[i]*r4[i] - 340.0*z2[i]*r6[i] + 5.0*r8[i]);
+      prCofDZ[totalAN*175+i] = 1.62031337522289*y[i]*z[i]*(3.0*x2[i] - y2[i])*(7429.0*z8[i] - 11628.0*z6[i]*r2[i] + 5814.0*z4[i]*r4[i] - 1020.0*z2[i]*r6[i] + 45.0*r8[i]);
+      prCofDZ[totalAN*176+i] = 4.03047863130649*x[i]*y[i]*(7429.0*z10[i] - 14535.0*z8[i]*r2[i] + 9690.0*z6[i]*r4[i] - 2550.0*z4[i]*r6[i] + 225.0*z2[i]*r8[i] - 3.0*r10[i]);
+      prCofDZ[totalAN*177+i] = 0.327724516416786*y[i]*z[i]*(52003.0*z10[i] - 124355.0*z8[i]*r2[i] + 106590.0*z6[i]*r4[i] - 39270.0*z4[i]*r6[i] + 5775.0*z2[i]*r8[i] - 231.0*r10[i]);
+      prCofDZ[totalAN*178+i] = 12580.3318244426*z12[i] - 36100.0826266613*z10[i]*r2[i] + 38678.6599571371*z8[i]*r4[i] - 19000.0434877165*z6[i]*r6[i] + 4191.18606346687*z4[i]*r8[i] - 335.294885077349*z2[i]*r10[i] + 4.29865237278653*r12[i];
+      prCofDZ[totalAN*179+i] = 0.327724516416786*x[i]*z[i]*(52003.0*z10[i] - 124355.0*z8[i]*r2[i] + 106590.0*z6[i]*r4[i] - 39270.0*z4[i]*r6[i] + 5775.0*z2[i]*r8[i] - 231.0*r10[i]);
+      prCofDZ[totalAN*180+i] = 2.01523931565325*(x2[i] - y2[i])*(7429.0*z10[i] - 14535.0*z8[i]*r2[i] + 9690.0*z6[i]*r4[i] - 2550.0*z4[i]*r6[i] + 225.0*z2[i]*r8[i] - 3.0*r10[i]);
+      prCofDZ[totalAN*181+i] = 1.62031337522289*x[i]*z[i]*(x2[i] - 3.0*y2[i])*(7429.0*z8[i] - 11628.0*z6[i]*r2[i] + 5814.0*z4[i]*r4[i] - 1020.0*z2[i]*r6[i] + 45.0*r8[i]);
+      prCofDZ[totalAN*182+i] = 1.18835447095519*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(7429.0*z8[i] - 9044.0*z6[i]*r2[i] + 3230.0*z4[i]*r4[i] - 340.0*z2[i]*r6[i] + 5.0*r8[i]);
+      prCofDZ[totalAN*183+i] = 13.4446960778523*x[i]*z[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(437.0*z6[i] - 399.0*z4[i]*r2[i] + 95.0*z2[i]*r4[i] - 5.0*r6[i]);
+      prCofDZ[totalAN*184+i] = 1.15109267733299*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i])*(3059.0*z6[i] - 1995.0*z4[i]*r2[i] + 285.0*z2[i]*r4[i] - 5.0*r6[i]);
+      prCofDZ[totalAN*185+i] = 11.6742104860177*x[i]*z[i]*(161.0*z4[i] - 70.0*z2[i]*r2[i] + 5.0*r4[i])*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]);
+      prCofDZ[totalAN*186+i] = 5.46011198747026*(161.0*z4[i] - 42.0*z2[i]*r2[i] + r4[i])*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]);
+      prCofDZ[totalAN*187+i] = 15.2709700385566*x[i]*z[i]*(-3.0*x2[i] - 3.0*y2[i] + 20.0*z2[i])*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]);
+      prCofDZ[totalAN*188+i] = -4.99343178425957*(x2[i] + y2[i] - 22.0*z2[i])*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]);
+      prCofDZ[totalAN*189+i] = 28.2471158083391*x[i]*z[i]*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]);
+      prCofDZ[totalAN*190+i] = 4.16119315354964*x12[i] - 274.638748134277*x10[i]*y2[i] + 2059.79061100707*x8[i]*y4[i] - 3844.94247387987*x6[i]*y6[i] + 2059.79061100707*x4[i]*y8[i] - 274.638748134277*x2[i]*y10[i] + 4.16119315354964*y12[i];
+      prCofDZ[totalAN*191+i] = 0;
+
+
+
     }
 
     if (lMax > 13){ //OBS!!!!! lMax > 9, tesseral cases
@@ -560,6 +1205,99 @@ void getCfactorsD(double* preCoef, int Asize, double* x,double* x2, double* x4, 
       preCoef[totalAN*218+i] = -0.598044251626971*(x2[i] + y2[i] - 26.0*z2[i])*(x12[i] - 66.0*x10[i]*y2[i] + 495.0*x8[i]*y4[i] - 924.0*x6[i]*y6[i] + 495.0*x4[i]*y8[i] - 66.0*x2[i]*y10[i] + y12[i]);
       preCoef[totalAN*219+i] = 4.39470978027212*x[i]*z[i]*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]);
       preCoef[totalAN*220+i] = 0.830522083064524*x14[i] - 75.5775095588717*x12[i]*y2[i] + 831.352605147589*x10[i]*y4[i] - 2494.05781544277*x8[i]*y6[i] + 2494.05781544277*x6[i]*y8[i] - 831.352605147589*x4[i]*y10[i] + 75.5775095588717*x2[i]*y12[i] - 0.830522083064524*y14[i];
+
+      prCofDX[totalAN*192+i] = 11.6273091629033*y[i]*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]);
+      prCofDX[totalAN*193+i] = 228.52490857415*x[i]*y[i]*z[i]*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]);
+      prCofDX[totalAN*194+i] = 2.39217700650788*y[i]*(x2[i]*(-6.0*x10[i] + 110.0*x8[i]*y2[i] - 396.0*x6[i]*y4[i] + 396.0*x4[i]*y6[i] - 110.0*x2[i]*y8[i] + 6.0*y10[i]) - 3.0*(x2[i] + y2[i] - 26.0*z2[i])*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]));
+      prCofDX[totalAN*195+i] = 10.5635676357028*x[i]*y[i]*z[i]*(-11.0*x10[i] + 165.0*x8[i]*y2[i] - 462.0*x6[i]*y4[i] + 330.0*x4[i]*y6[i] - 55.0*x2[i]*y8[i] + y10[i] + 11.0*(-x2[i] - y2[i] + 8.0*z2[i])*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]));
+      prCofDX[totalAN*196+i] = 1.05635676357028*y[i]*(-4.0*x2[i]*(-x2[i] - y2[i] + 24.0*z2[i])*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]) + 5.0*(225.0*z4[i] - 50.0*z2[i]*r2[i] + r4[i])*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]));
+      prCofDX[totalAN*197+i] = 7.71453904240792*x[i]*y[i]*z[i]*(-(-3.0*x2[i] - 3.0*y2[i] + 22.0*z2[i])*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]) + 18.0*(135.0*z4[i] - 50.0*z2[i]*r2[i] + 3.0*r4[i])*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]));
+      prCofDX[totalAN*198+i] = 3.94023104498585*y[i]*(-2.0*x2[i]*(575.0*z4[i] - 138.0*z2[i]*r2[i] + 3.0*r4[i])*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]) + (7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i])*(1035.0*z6[i] - 575.0*z4[i]*r2[i] + 69.0*z2[i]*r4[i] - r6[i]));
+      prCofDX[totalAN*199+i] = 12.224245339519*x[i]*y[i]*z[i]*((3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(1035.0*z6[i] - 805.0*z4[i]*r2[i] + 161.0*z2[i]*r4[i] - 7.0*r6[i]) - (115.0*z4[i] - 46.0*z2[i]*r2[i] + 3.0*r4[i])*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]));
+      prCofDX[totalAN*200+i] = 0.943121003323134*y[i]*(-8.0*x2[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(805.0*z6[i] - 483.0*z4[i]*r2[i] + 63.0*z2[i]*r4[i] - r6[i]) + 3.0*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(3105.0*z8[i] - 3220.0*z6[i]*r2[i] + 966.0*z4[i]*r4[i] - 84.0*z2[i]*r6[i] + r8[i]));
+      prCofDX[totalAN*201+i] = 5.061318418652*x[i]*y[i]*z[i]*(5.0*(x2[i] - y2[i])*(1725.0*z8[i] - 2300.0*z6[i]*r2[i] + 966.0*z4[i]*r4[i] - 140.0*z2[i]*r6[i] + 5.0*r8[i]) - 2.0*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(575.0*z6[i] - 483.0*z4[i]*r2[i] + 105.0*z2[i]*r4[i] - 5.0*r6[i]));
+      prCofDX[totalAN*202+i] = 1.83593315348819*y[i]*(-2.0*x2[i]*(x2[i] - y2[i])*(10925.0*z8[i] - 12236.0*z6[i]*r2[i] + 3990.0*z4[i]*r4[i] - 380.0*z2[i]*r6[i] + 5.0*r8[i]) + (3.0*x2[i] - y2[i])*(6555.0*z10[i] - 10925.0*z8[i]*r2[i] + 6118.0*z6[i]*r4[i] - 1330.0*z4[i]*r6[i] + 95.0*z2[i]*r8[i] - r10[i]));
+      prCofDX[totalAN*203+i] = 0.130474087834899*x[i]*y[i]*z[i]*(176985.0*z10[i] - 360525.0*z8[i]*r2[i] + 259578.0*z6[i]*r4[i] - 79002.0*z4[i]*r6[i] + 9405.0*z2[i]*r8[i] - 11.0*(3.0*x2[i] - y2[i])*(10925.0*z8[i] - 15732.0*z6[i]*r2[i] + 7182.0*z4[i]*r4[i] - 1140.0*z2[i]*r6[i] + 45.0*r8[i]) - 297.0*r10[i]);
+      prCofDX[totalAN*204+i] = 0.0274050400015396*y[i]*(-44.0*x2[i]*(37145.0*z10[i] - 66861.0*z8[i]*r2[i] + 40698.0*z6[i]*r4[i] - 9690.0*z4[i]*r6[i] + 765.0*z2[i]*r8[i] - 9.0*r10[i]) + 334305.0*z12[i] - 817190.0*z10[i]*r2[i] + 735471.0*z8[i]*r4[i] - 298452.0*z6[i]*r6[i] + 53295.0*z4[i]*r8[i] - 3366.0*z2[i]*r10[i] + 33.0*r12[i]);
+      prCofDX[totalAN*205+i] = -0.790482215453542*x[i]*y[i]*z[i]*(37145.0*z10[i] - 81719.0*z8[i]*r2[i] + 63954.0*z6[i]*r4[i] - 21318.0*z4[i]*r6[i] + 2805.0*z2[i]*r8[i] - 99.0*r10[i]);
+      prCofDX[totalAN*206+i] = 0.135000539051985*x[i]*(-185725.0*z12[i] + 490314.0*z10[i]*r2[i] - 479655.0*z8[i]*r4[i] + 213180.0*z6[i]*r6[i] - 42075.0*z4[i]*r8[i] + 2970.0*z2[i]*r10[i] - 33.0*r12[i]);
+      prCofDX[totalAN*207+i] = 0.0152015810664143*z[i]*(-52.0*x2[i]*(37145.0*z10[i] - 81719.0*z8[i]*r2[i] + 63954.0*z6[i]*r4[i] - 21318.0*z4[i]*r6[i] + 2805.0*z2[i]*r8[i] - 99.0*r10[i]) + 334305.0*z12[i] - 965770.0*z10[i]*r2[i] + 1062347.0*z8[i]*r4[i] - 554268.0*z6[i]*r6[i] + 138567.0*z4[i]*r8[i] - 14586.0*z2[i]*r10[i] + 429.0*r12[i]);
+      prCofDX[totalAN*208+i] = 0.0274050400015396*x[i]*(334305.0*z12[i] - 817190.0*z10[i]*r2[i] + 735471.0*z8[i]*r4[i] - 298452.0*z6[i]*r6[i] + 53295.0*z4[i]*r8[i] - 3366.0*z2[i]*r10[i] - 22.0*(x2[i] - y2[i])*(37145.0*z10[i] - 66861.0*z8[i]*r2[i] + 40698.0*z6[i]*r4[i] - 9690.0*z4[i]*r6[i] + 765.0*z2[i]*r8[i] - 9.0*r10[i]) + 33.0*r12[i]);
+      prCofDX[totalAN*209+i] = 0.0652370439174496*z[i]*(-22.0*x2[i]*(x2[i] - 3.0*y2[i])*(10925.0*z8[i] - 15732.0*z6[i]*r2[i] + 7182.0*z4[i]*r4[i] - 1140.0*z2[i]*r6[i] + 45.0*r8[i]) + 3.0*(x2[i] - y2[i])*(58995.0*z10[i] - 120175.0*z8[i]*r2[i] + 86526.0*z6[i]*r4[i] - 26334.0*z4[i]*r6[i] + 3135.0*z2[i]*r8[i] - 99.0*r10[i]));
+      prCofDX[totalAN*210+i] = 0.917966576744097*x[i]*(2.0*(x2[i] - 3.0*y2[i])*(6555.0*z10[i] - 10925.0*z8[i]*r2[i] + 6118.0*z6[i]*r4[i] - 1330.0*z4[i]*r6[i] + 95.0*z2[i]*r8[i] - r10[i]) - (x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(10925.0*z8[i] - 12236.0*z6[i]*r2[i] + 3990.0*z4[i]*r4[i] - 380.0*z2[i]*r6[i] + 5.0*r8[i])) ;
+      prCofDX[totalAN*211+i] = 1.265329604663*z[i]*(-8.0*x2[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(575.0*z6[i] - 483.0*z4[i]*r2[i] + 105.0*z2[i]*r4[i] - 5.0*r6[i]) + 5.0*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(1725.0*z8[i] - 2300.0*z6[i]*r2[i] + 966.0*z4[i]*r4[i] - 140.0*z2[i]*r6[i] + 5.0*r8[i]));
+      prCofDX[totalAN*212+i] = 0.943121003323134*x[i]*(3.0*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(3105.0*z8[i] - 3220.0*z6[i]*r2[i] + 966.0*z4[i]*r4[i] - 84.0*z2[i]*r6[i] + r8[i]) - 4.0*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i])*(805.0*z6[i] - 483.0*z4[i]*r2[i] + 63.0*z2[i]*r4[i] - r6[i]));
+      prCofDX[totalAN*213+i] = 6.11212266975949*z[i]*(-2.0*x2[i]*(115.0*z4[i] - 46.0*z2[i]*r2[i] + 3.0*r4[i])*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]) + (x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i])*(1035.0*z6[i] - 805.0*z4[i]*r2[i] + 161.0*z2[i]*r4[i] - 7.0*r6[i]));
+      prCofDX[totalAN*214+i] = 0.985057761246463*x[i]*(-(575.0*z4[i] - 138.0*z2[i]*r2[i] + 3.0*r4[i])*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]) + 4.0*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i])*(1035.0*z6[i] - 575.0*z4[i]*r2[i] + 69.0*z2[i]*r4[i] - r6[i]));
+      prCofDX[totalAN*215+i] = 1.92863476060198*z[i]*(-4.0*x2[i]*(-3.0*x2[i] - 3.0*y2[i] + 22.0*z2[i])*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]) + 9.0*(135.0*z4[i] - 50.0*z2[i]*r2[i] + 3.0*r4[i])*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]));
+      prCofDX[totalAN*216+i] = 1.05635676357028*x[i]*(-2.0*(-x2[i] - y2[i] + 24.0*z2[i])*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]) + 5.0*(225.0*z4[i] - 50.0*z2[i]*r2[i] + r4[i])*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]));
+      prCofDX[totalAN*217+i] = 5.2817838178514*z[i]*(-2.0*x2[i]*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]) + 11.0*(-x2[i] - y2[i] + 8.0*z2[i])*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]));
+      prCofDX[totalAN*218+i] = 1.19608850325394*x[i]*(-x12[i] + 66.0*x10[i]*y2[i] - 495.0*x8[i]*y4[i] + 924.0*x6[i]*y6[i] - 495.0*x4[i]*y8[i] + 66.0*x2[i]*y10[i] - y12[i] - 6.0*(x2[i] + y2[i] - 26.0*z2[i])*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]));
+      prCofDX[totalAN*219+i] = 57.1312271435375*z[i]*(x12[i] - 66.0*x10[i]*y2[i] + 495.0*x8[i]*y4[i] - 924.0*x6[i]*y6[i] + 495.0*x4[i]*y8[i] - 66.0*x2[i]*y10[i] + y12[i]);
+      prCofDX[totalAN*220+i] = 11.6273091629033*x[i]*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]);
+
+      prCofDY[totalAN*192+i] = 11.6273091629033*x[i]*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]);
+      prCofDY[totalAN*193+i] = 57.1312271435375*z[i]*(x12[i] - 66.0*x10[i]*y2[i] + 495.0*x8[i]*y4[i] - 924.0*x6[i]*y6[i] + 495.0*x4[i]*y8[i] - 66.0*x2[i]*y10[i] + y12[i]);
+      prCofDY[totalAN*194+i] = 2.39217700650788*x[i]*(y2[i]*(-6.0*x10[i] + 110.0*x8[i]*y2[i] - 396.0*x6[i]*y4[i] + 396.0*x4[i]*y6[i] - 110.0*x2[i]*y8[i] + 6.0*y10[i]) - 3.0*(x2[i] + y2[i] - 26.0*z2[i])*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]));
+      prCofDY[totalAN*195+i] = 5.2817838178514*z[i]*(-2.0*y2[i]*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]) + 11.0*(-x2[i] - y2[i] + 8.0*z2[i])*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]));
+      prCofDY[totalAN*196+i] = 1.05635676357028*x[i]*(-4.0*y2[i]*(-x2[i] - y2[i] + 24.0*z2[i])*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]) + 5.0*(225.0*z4[i] - 50.0*z2[i]*r2[i] + r4[i])*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]));
+      prCofDY[totalAN*197+i] = 1.92863476060198*z[i]*(-4.0*y2[i]*(-3.0*x2[i] - 3.0*y2[i] + 22.0*z2[i])*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]) + 9.0*(135.0*z4[i] - 50.0*z2[i]*r2[i] + 3.0*r4[i])*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]));
+      prCofDY[totalAN*198+i] = 3.94023104498585*x[i]*(-2.0*y2[i]*(575.0*z4[i] - 138.0*z2[i]*r2[i] + 3.0*r4[i])*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]) + (x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i])*(1035.0*z6[i] - 575.0*z4[i]*r2[i] + 69.0*z2[i]*r4[i] - r6[i]));
+      prCofDY[totalAN*199+i] = 6.11212266975949*z[i]*(-2.0*y2[i]*(115.0*z4[i] - 46.0*z2[i]*r2[i] + 3.0*r4[i])*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]) + (x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i])*(1035.0*z6[i] - 805.0*z4[i]*r2[i] + 161.0*z2[i]*r4[i] - 7.0*r6[i]));
+      prCofDY[totalAN*200+i] = 0.943121003323134*x[i]*(-8.0*y2[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(805.0*z6[i] - 483.0*z4[i]*r2[i] + 63.0*z2[i]*r4[i] - r6[i]) + 3.0*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(3105.0*z8[i] - 3220.0*z6[i]*r2[i] + 966.0*z4[i]*r4[i] - 84.0*z2[i]*r6[i] + r8[i]));
+      prCofDY[totalAN*201+i] = 1.265329604663*z[i]*(-8.0*y2[i]*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(575.0*z6[i] - 483.0*z4[i]*r2[i] + 105.0*z2[i]*r4[i] - 5.0*r6[i]) + 5.0*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(1725.0*z8[i] - 2300.0*z6[i]*r2[i] + 966.0*z4[i]*r4[i] - 140.0*z2[i]*r6[i] + 5.0*r8[i]));
+      prCofDY[totalAN*202+i] = 1.83593315348819*x[i]*(-2.0*y2[i]*(x2[i] - y2[i])*(10925.0*z8[i] - 12236.0*z6[i]*r2[i] + 3990.0*z4[i]*r4[i] - 380.0*z2[i]*r6[i] + 5.0*r8[i]) + (x2[i] - 3.0*y2[i])*(6555.0*z10[i] - 10925.0*z8[i]*r2[i] + 6118.0*z6[i]*r4[i] - 1330.0*z4[i]*r6[i] + 95.0*z2[i]*r8[i] - r10[i]));
+      prCofDY[totalAN*203+i] = 0.0652370439174496*z[i]*(-22.0*y2[i]*(3.0*x2[i] - y2[i])*(10925.0*z8[i] - 15732.0*z6[i]*r2[i] + 7182.0*z4[i]*r4[i] - 1140.0*z2[i]*r6[i] + 45.0*r8[i]) + 3.0*(x2[i] - y2[i])*(58995.0*z10[i] - 120175.0*z8[i]*r2[i] + 86526.0*z6[i]*r4[i] - 26334.0*z4[i]*r6[i] + 3135.0*z2[i]*r8[i] - 99.0*r10[i]));
+      prCofDY[totalAN*204+i] = 0.0274050400015396*x[i]*(-44.0*y2[i]*(37145.0*z10[i] - 66861.0*z8[i]*r2[i] + 40698.0*z6[i]*r4[i] - 9690.0*z4[i]*r6[i] + 765.0*z2[i]*r8[i] - 9.0*r10[i]) + 334305.0*z12[i] - 817190.0*z10[i]*r2[i] + 735471.0*z8[i]*r4[i] - 298452.0*z6[i]*r6[i] + 53295.0*z4[i]*r8[i] - 3366.0*z2[i]*r10[i] + 33.0*r12[i]);
+      prCofDY[totalAN*205+i] = 0.0152015810664143*z[i]*(-52.0*y2[i]*(37145.0*z10[i] - 81719.0*z8[i]*r2[i] + 63954.0*z6[i]*r4[i] - 21318.0*z4[i]*r6[i] + 2805.0*z2[i]*r8[i] - 99.0*r10[i]) + 334305.0*z12[i] - 965770.0*z10[i]*r2[i] + 1062347.0*z8[i]*r4[i] - 554268.0*z6[i]*r6[i] + 138567.0*z4[i]*r8[i] - 14586.0*z2[i]*r10[i] + 429.0*r12[i]);
+      prCofDY[totalAN*206+i] = 0.135000539051985*y[i]*(-185725.0*z12[i] + 490314.0*z10[i]*r2[i] - 479655.0*z8[i]*r4[i] + 213180.0*z6[i]*r6[i] - 42075.0*z4[i]*r8[i] + 2970.0*z2[i]*r10[i] - 33.0*r12[i]);
+      prCofDY[totalAN*207+i] = -0.790482215453542*x[i]*y[i]*z[i]*(37145.0*z10[i] - 81719.0*z8[i]*r2[i] + 63954.0*z6[i]*r4[i] - 21318.0*z4[i]*r6[i] + 2805.0*z2[i]*r8[i] - 99.0*r10[i]);
+      prCofDY[totalAN*208+i] = 0.0274050400015396*y[i]*(-334305.0*z12[i] + 817190.0*z10[i]*r2[i] - 735471.0*z8[i]*r4[i] + 298452.0*z6[i]*r6[i] - 53295.0*z4[i]*r8[i] + 3366.0*z2[i]*r10[i] - 22.0*(x2[i] - y2[i])*(37145.0*z10[i] - 66861.0*z8[i]*r2[i] + 40698.0*z6[i]*r4[i] - 9690.0*z4[i]*r6[i] + 765.0*z2[i]*r8[i] - 9.0*r10[i]) - 33.0*r12[i]);
+      prCofDY[totalAN*209+i] = 0.130474087834899*x[i]*y[i]*z[i]*(-176985.0*z10[i] + 360525.0*z8[i]*r2[i] - 259578.0*z6[i]*r4[i] + 79002.0*z4[i]*r6[i] - 9405.0*z2[i]*r8[i] - 11.0*(x2[i] - 3.0*y2[i])*(10925.0*z8[i] - 15732.0*z6[i]*r2[i] + 7182.0*z4[i]*r4[i] - 1140.0*z2[i]*r6[i] + 45.0*r8[i]) + 297.0*r10[i]);
+      prCofDY[totalAN*210+i] = -0.917966576744097*y[i]*(2.0*(3.0*x2[i] - y2[i])*(6555.0*z10[i] - 10925.0*z8[i]*r2[i] + 6118.0*z6[i]*r4[i] - 1330.0*z4[i]*r6[i] + 95.0*z2[i]*r8[i] - r10[i]) + (x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(10925.0*z8[i] - 12236.0*z6[i]*r2[i] + 3990.0*z4[i]*r4[i] - 380.0*z2[i]*r6[i] + 5.0*r8[i]));
+      prCofDY[totalAN*211+i] = -5.061318418652*x[i]*y[i]*z[i]*(5.0*(x2[i] - y2[i])*(1725.0*z8[i] - 2300.0*z6[i]*r2[i] + 966.0*z4[i]*r4[i] - 140.0*z2[i]*r6[i] + 5.0*r8[i]) + 2.0*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(575.0*z6[i] - 483.0*z4[i]*r2[i] + 105.0*z2[i]*r4[i] - 5.0*r6[i]));
+      prCofDY[totalAN*212+i] = -0.943121003323134*y[i]*(3.0*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(3105.0*z8[i] - 3220.0*z6[i]*r2[i] + 966.0*z4[i]*r4[i] - 84.0*z2[i]*r6[i] + r8[i]) + 4.0*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i])*(805.0*z6[i] - 483.0*z4[i]*r2[i] + 63.0*z2[i]*r4[i] - r6[i]));
+      prCofDY[totalAN*213+i] = -12.224245339519*x[i]*y[i]*z[i]*((3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(1035.0*z6[i] - 805.0*z4[i]*r2[i] + 161.0*z2[i]*r4[i] - 7.0*r6[i]) + (115.0*z4[i] - 46.0*z2[i]*r2[i] + 3.0*r4[i])*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]));
+      prCofDY[totalAN*214+i] = -0.985057761246463*y[i]*((575.0*z4[i] - 138.0*z2[i]*r2[i] + 3.0*r4[i])*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]) + 4.0*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i])*(1035.0*z6[i] - 575.0*z4[i]*r2[i] + 69.0*z2[i]*r4[i] - r6[i]));
+      prCofDY[totalAN*215+i] = 7.71453904240792*x[i]*y[i]*z[i]*((3.0*x2[i] + 3.0*y2[i] - 22.0*z2[i])*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]) - 18.0*(135.0*z4[i] - 50.0*z2[i]*r2[i] + 3.0*r4[i])*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]));
+      prCofDY[totalAN*216+i] = 1.05635676357028*y[i]*(2.0*(x2[i] + y2[i] - 24.0*z2[i])*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]) - 5.0*(225.0*z4[i] - 50.0*z2[i]*r2[i] + r4[i])*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]));
+      prCofDY[totalAN*217+i] = 10.5635676357028*x[i]*y[i]*z[i]*(-x10[i] + 55.0*x8[i]*y2[i] - 330.0*x6[i]*y4[i] + 462.0*x4[i]*y6[i] - 165.0*x2[i]*y8[i] + 11.0*y10[i] - 11.0*(-x2[i] - y2[i] + 8.0*z2[i])*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]));
+      prCofDY[totalAN*218+i] = 1.19608850325394*y[i]*(-x12[i] + 66.0*x10[i]*y2[i] - 495.0*x8[i]*y4[i] + 924.0*x6[i]*y6[i] - 495.0*x4[i]*y8[i] + 66.0*x2[i]*y10[i] - y12[i] + 6.0*(x2[i] + y2[i] - 26.0*z2[i])*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]));
+      prCofDY[totalAN*219+i] = -228.52490857415*x[i]*y[i]*z[i]*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]);
+      prCofDY[totalAN*220+i] = 11.6273091629033*y[i]*(-13.0*x12[i] + 286.0*x10[i]*y2[i] - 1287.0*x8[i]*y4[i] + 1716.0*x6[i]*y6[i] - 715.0*x4[i]*y8[i] + 78.0*x2[i]*y10[i] - y12[i]);
+
+      prCofDZ[totalAN*192+i] = 0;
+      prCofDZ[totalAN*193+i] = 4.39470978027212*y[i]*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]);
+      prCofDZ[totalAN*194+i] = 124.39320433841*x[i]*y[i]*z[i]*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]);
+      prCofDZ[totalAN*195+i] = -5.2817838178514*y[i]*(x2[i] + y2[i] - 24.0*z2[i])*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]);
+      prCofDZ[totalAN*196+i] = 33.803416434249*x[i]*y[i]*z[i]*(-3.0*x2[i] - 3.0*y2[i] + 22.0*z2[i])*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]);
+      prCofDZ[totalAN*197+i] = 1.92863476060198*y[i]*(575.0*z4[i] - 138.0*z2[i]*r2[i] + 3.0*r4[i])*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]);
+      prCofDZ[totalAN*198+i] = 173.370165979377*x[i]*y[i]*z[i]*(115.0*z4[i] - 46.0*z2[i]*r2[i] + 3.0*r4[i])*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]);
+      prCofDZ[totalAN*199+i] = 6.11212266975949*y[i]*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i])*(805.0*z6[i] - 483.0*z4[i]*r2[i] + 63.0*z2[i]*r4[i] - r6[i]);
+      prCofDZ[totalAN*200+i] = 30.1798721063403*x[i]*y[i]*z[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(575.0*z6[i] - 483.0*z4[i]*r2[i] + 105.0*z2[i]*r4[i] - 5.0*r6[i]);
+      prCofDZ[totalAN*201+i] = 1.265329604663*y[i]*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(10925.0*z8[i] - 12236.0*z6[i]*r2[i] + 3990.0*z4[i]*r4[i] - 380.0*z2[i]*r6[i] + 5.0*r8[i]);
+      prCofDZ[totalAN*202+i] = 7.34373261395277*x[i]*y[i]*z[i]*(x2[i] - y2[i])*(10925.0*z8[i] - 15732.0*z6[i]*r2[i] + 7182.0*z4[i]*r4[i] - 1140.0*z2[i]*r6[i] + 45.0*r8[i]);
+      prCofDZ[totalAN*203+i] = 0.717607483091946*y[i]*(3.0*x2[i] - y2[i])*(37145.0*z10[i] - 66861.0*z8[i]*r2[i] + 40698.0*z6[i]*r4[i] - 9690.0*z4[i]*r6[i] + 765.0*z2[i]*r8[i] - 9.0*r10[i]);
+      prCofDZ[totalAN*204+i] = 1.75392256009853*x[i]*y[i]*z[i]*(37145.0*z10[i] - 81719.0*z8[i]*r2[i] + 63954.0*z6[i]*r4[i] - 21318.0*z4[i]*r6[i] + 2805.0*z2[i]*r8[i] - 99.0*r10[i]);
+      prCofDZ[totalAN*205+i] = 0.197620553863385*y[i]*(185725.0*z12[i] - 490314.0*z10[i]*r2[i] + 479655.0*z8[i]*r4[i] - 213180.0*z6[i]*r6[i] + 42075.0*z4[i]*r8[i] - 2970.0*z2[i]*r10[i] + 33.0*r12[i]);
+      prCofDZ[totalAN*206+i] = 0.0207693137003054*z[i]*(1300075.0*z12[i] - 4056234.0*z10[i]*r2[i] + 4849845.0*z8[i]*r4[i] - 2771340.0*z6[i]*r6[i] + 765765.0*z4[i]*r8[i] - 90090.0*z2[i]*r10[i] + 3003.0*r12[i]);
+      prCofDZ[totalAN*207+i] = 0.197620553863385*x[i]*(185725.0*z12[i] - 490314.0*z10[i]*r2[i] + 479655.0*z8[i]*r4[i] - 213180.0*z6[i]*r6[i] + 42075.0*z4[i]*r8[i] - 2970.0*z2[i]*r10[i] + 33.0*r12[i]);
+      prCofDZ[totalAN*208+i] = 0.876961280049267*z[i]*(x2[i] - y2[i])*(37145.0*z10[i] - 81719.0*z8[i]*r2[i] + 63954.0*z6[i]*r4[i] - 21318.0*z4[i]*r6[i] + 2805.0*z2[i]*r8[i] - 99.0*r10[i]);
+      prCofDZ[totalAN*209+i] = 0.717607483091946*x[i]*(x2[i] - 3.0*y2[i])*(37145.0*z10[i] - 66861.0*z8[i]*r2[i] + 40698.0*z6[i]*r4[i] - 9690.0*z4[i]*r6[i] + 765.0*z2[i]*r8[i] - 9.0*r10[i]);
+      prCofDZ[totalAN*210+i] = 1.83593315348819*z[i]*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(10925.0*z8[i] - 15732.0*z6[i]*r2[i] + 7182.0*z4[i]*r4[i] - 1140.0*z2[i]*r6[i] + 45.0*r8[i]);
+      prCofDZ[totalAN*211+i] = 1.265329604663*x[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(10925.0*z8[i] - 12236.0*z6[i]*r2[i] + 3990.0*z4[i]*r4[i] - 380.0*z2[i]*r6[i] + 5.0*r8[i]);
+      prCofDZ[totalAN*212+i] = 15.0899360531701*z[i]*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i])*(575.0*z6[i] - 483.0*z4[i]*r2[i] + 105.0*z2[i]*r4[i] - 5.0*r6[i]);
+      prCofDZ[totalAN*213+i] = 6.11212266975949*x[i]*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i])*(805.0*z6[i] - 483.0*z4[i]*r2[i] + 63.0*z2[i]*r4[i] - r6[i]);
+      prCofDZ[totalAN*214+i] = 21.6712707474222*z[i]*(115.0*z4[i] - 46.0*z2[i]*r2[i] + 3.0*r4[i])*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]);
+      prCofDZ[totalAN*215+i] = 1.92863476060198*x[i]*(575.0*z4[i] - 138.0*z2[i]*r2[i] + 3.0*r4[i])*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]);
+      prCofDZ[totalAN*216+i] = 16.9017082171245*z[i]*(-3.0*x2[i] - 3.0*y2[i] + 22.0*z2[i])*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]);
+      prCofDZ[totalAN*217+i] = -5.2817838178514*x[i]*(x2[i] + y2[i] - 24.0*z2[i])*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]);
+      prCofDZ[totalAN*218+i] = 31.0983010846025*z[i]*(x12[i] - 66.0*x10[i]*y2[i] + 495.0*x8[i]*y4[i] - 924.0*x6[i]*y6[i] + 495.0*x4[i]*y8[i] - 66.0*x2[i]*y10[i] + y12[i]);
+      prCofDZ[totalAN*219+i] = 4.39470978027212*x[i]*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]);
+      prCofDZ[totalAN*220+i] = 0;
+
+
+
     }
 
     if (lMax > 14){ //OBS!!!!! lMax > 9, tesseral cases
@@ -594,6 +1332,105 @@ void getCfactorsD(double* preCoef, int Asize, double* x,double* x2, double* x4, 
       preCoef[totalAN*249+i] = -0.60718080651189*x[i]*(x2[i] + y2[i] - 28.0*z2[i])*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]);
       preCoef[totalAN*250+i] = 4.62415125663001*z[i]*(x14[i] - 91.0*x12[i]*y2[i] + 1001.0*x10[i]*y4[i] - 3003.0*x8[i]*y6[i] + 3003.0*x6[i]*y8[i] - 1001.0*x4[i]*y10[i] + 91.0*x2[i]*y12[i] - y14[i]);
       preCoef[totalAN*251+i] = 0.844250650857373*x[i]*(x14[i] - 105.0*x12[i]*y2[i] + 1365.0*x10[i]*y4[i] - 5005.0*x8[i]*y6[i] + 6435.0*x6[i]*y8[i] - 3003.0*x4[i]*y10[i] + 455.0*x2[i]*y12[i] - 15.0*y14[i]);
+
+      prCofDX[totalAN*221+i] = 25.3275195257212*x[i]*y[i]*(7.0*x12[i] - 182.0*x10[i]*y2[i] + 1001.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1001.0*x4[i]*y8[i] - 182.0*x2[i]*y10[i] + 7.0*y12[i]);
+      prCofDX[totalAN*222+i] = 64.7381175928202*y[i]*z[i]*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]);
+      prCofDX[totalAN*223+i] = 1.21436161302378*x[i]*y[i]*(-13.0*x12[i] + 286.0*x10[i]*y2[i] - 1287.0*x8[i]*y4[i] + 1716.0*x6[i]*y6[i] - 715.0*x4[i]*y8[i] + 78.0*x2[i]*y10[i] - y12[i] - 26.0*(x2[i] + y2[i] - 28.0*z2[i])*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]));
+      prCofDX[totalAN*224+i] = 22.2596160509206*y[i]*z[i]*(x2[i]*(-6.0*x10[i] + 110.0*x8[i]*y2[i] - 396.0*x6[i]*y4[i] + 396.0*x4[i]*y6[i] - 110.0*x2[i]*y8[i] + 6.0*y10[i]) + (-3.0*x2[i] - 3.0*y2[i] + 26.0*z2[i])*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]));
+      prCofDX[totalAN*225+i] = 1.07096627658806*x[i]*y[i]*(-2.0*(-x2[i] - y2[i] + 26.0*z2[i])*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]) + 11.0*(261.0*z4[i] - 54.0*z2[i]*r2[i] + r4[i])*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]));
+      prCofDX[totalAN*226+i] = 12.2108942967563*y[i]*z[i]*(-4.0*x2[i]*(-x2[i] - y2[i] + 8.0*z2[i])*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]) + (261.0*z4[i] - 90.0*z2[i]*r2[i] + 5.0*r4[i])*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]));
+      prCofDX[totalAN*227+i] = 2.99104603301142*x[i]*y[i]*(-(225.0*z4[i] - 50.0*z2[i]*r2[i] + r4[i])*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]) + 12.0*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i])*(1305.0*z6[i] - 675.0*z4[i]*r2[i] + 75.0*z2[i]*r4[i] - r6[i]));
+      prCofDX[totalAN*228+i] = 7.38445476455181*y[i]*z[i]*(-14.0*x2[i]*(135.0*z4[i] - 50.0*z2[i]*r2[i] + 3.0*r4[i])*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]) + (7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i])*(1305.0*z6[i] - 945.0*z4[i]*r2[i] + 175.0*z2[i]*r4[i] - 7.0*r6[i]));
+      prCofDX[totalAN*229+i] = 0.95268114867001*x[i]*y[i]*((3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(30015.0*z8[i] - 28980.0*z6[i]*r2[i] + 8050.0*z4[i]*r4[i] - 644.0*z2[i]*r6[i] + 7.0*r8[i]) - 4.0*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i])*(1035.0*z6[i] - 575.0*z4[i]*r2[i] + 69.0*z2[i]*r4[i] - r6[i]));
+      prCofDX[totalAN*230+i] = 1.91505886020364*y[i]*z[i]*(-8.0*x2[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(1035.0*z6[i] - 805.0*z4[i]*r2[i] + 161.0*z2[i]*r4[i] - 7.0*r6[i]) + (5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(10005.0*z8[i] - 12420.0*z6[i]*r2[i] + 4830.0*z4[i]*r4[i] - 644.0*z2[i]*r6[i] + 21.0*r8[i]));
+      prCofDX[totalAN*231+i] = 4.62530657238986*x[i]*y[i]*(2.0*(x2[i] - y2[i])*(10005.0*z10[i] - 15525.0*z8[i]*r2[i] + 8050.0*z6[i]*r4[i] - 1610.0*z4[i]*r6[i] + 105.0*z2[i]*r8[i] - r10[i]) - (5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(3105.0*z8[i] - 3220.0*z6[i]*r2[i] + 966.0*z4[i]*r4[i] - 84.0*z2[i]*r6[i] + r8[i]));
+      prCofDX[totalAN*232+i] = 2.49470484396446*y[i]*z[i]*(-22.0*x2[i]*(x2[i] - y2[i])*(1725.0*z8[i] - 2300.0*z6[i]*r2[i] + 966.0*z4[i]*r4[i] - 140.0*z2[i]*r6[i] + 5.0*r8[i]) + (3.0*x2[i] - y2[i])*(10005.0*z10[i] - 18975.0*z8[i]*r2[i] + 12650.0*z6[i]*r4[i] - 3542.0*z4[i]*r6[i] + 385.0*z2[i]*r8[i] - 11.0*r10[i]));
+      prCofDX[totalAN*233+i] = 0.247823796536837*x[i]*y[i]*(190095.0*z12[i] - 432630.0*z10[i]*r2[i] + 360525.0*z8[i]*r4[i] - 134596.0*z6[i]*r6[i] + 21945.0*z4[i]*r8[i] - 1254.0*z2[i]*r10[i] - 22.0*(3.0*x2[i] - y2[i])*(6555.0*z10[i] - 10925.0*z8[i]*r2[i] + 6118.0*z6[i]*r4[i] - 1330.0*z4[i]*r6[i] + 95.0*z2[i]*r8[i] - r10[i]) + 11.0*r12[i]);
+      prCofDX[totalAN*234+i] = 0.0324014967813841*y[i]*z[i]*(-52.0*x2[i]*(58995.0*z10[i] - 120175.0*z8[i]*r2[i] + 86526.0*z6[i]*r4[i] - 26334.0*z4[i]*r6[i] + 3135.0*z2[i]*r8[i] - 99.0*r10[i]) + 570285.0*z12[i] - 1533870.0*z10[i]*r2[i] + 1562275.0*z8[i]*r4[i] - 749892.0*z6[i]*r6[i] + 171171.0*z4[i]*r8[i] - 16302.0*z2[i]*r10[i] + 429.0*r12[i]);
+      prCofDX[totalAN*235+i] = -0.191125214847445*x[i]*y[i]*(334305.0*z12[i] - 817190.0*z10[i]*r2[i] + 735471.0*z8[i]*r4[i] - 298452.0*z6[i]*r6[i] + 53295.0*z4[i]*r8[i] - 3366.0*z2[i]*r10[i] + 33.0*r12[i]);
+      prCofDX[totalAN*236+i] = 0.161051679199949*x[i]*z[i]*(-334305.0*z12[i] + 965770.0*z10[i]*r2[i] - 1062347.0*z8[i]*r4[i] + 554268.0*z6[i]*r6[i] - 138567.0*z4[i]*r8[i] + 14586.0*z2[i]*r10[i] - 429.0*r12[i]);
+      prCofDX[totalAN*237+i] = -0.191125214847445*x2[i]*(334305.0*z12[i] - 817190.0*z10[i]*r2[i] + 735471.0*z8[i]*r4[i] - 298452.0*z6[i]*r6[i] + 53295.0*z4[i]*r8[i] - 3366.0*z2[i]*r10[i] + 33.0*r12[i]) + 10180.9304040532*z14[i] - 31947.0574747876*z12[i]*r2[i] + 39046.403580296*z10[i]*r4[i] - 23427.8421481776*z8[i]*r6[i] + 7130.21282770622*z6[i]*r8[i] - 1018.60183252946*z4[i]*r10[i] + 53.6106227647084*z2[i]*r12[i] - 0.45050943499755*r14[i];
+      prCofDX[totalAN*238+i] = 0.0324014967813841*x[i]*z[i]*(570285.0*z12[i] - 1533870.0*z10[i]*r2[i] + 1562275.0*z8[i]*r4[i] - 749892.0*z6[i]*r6[i] + 171171.0*z4[i]*r8[i] - 16302.0*z2[i]*r10[i] - 26.0*(x2[i] - y2[i])*(58995.0*z10[i] - 120175.0*z8[i]*r2[i] + 86526.0*z6[i]*r4[i] - 26334.0*z4[i]*r6[i] + 3135.0*z2[i]*r8[i] - 99.0*r10[i]) + 429.0*r12[i]);
+      prCofDX[totalAN*239+i] = -5.45212352381041*x2[i]*(x2[i] - 3.0*y2[i])*(6555.0*z10[i] - 10925.0*z8[i]*r2[i] + 6118.0*z6[i]*r4[i] - 1330.0*z4[i]*r6[i] + 95.0*z2[i]*r8[i] - r10[i]) + 0.123911898268418*(x2[i] - y2[i])*(190095.0*z12[i] - 432630.0*z10[i]*r2[i] + 360525.0*z8[i]*r4[i] - 134596.0*z6[i]*r6[i] + 21945.0*z4[i]*r8[i] - 1254.0*z2[i]*r10[i] + 11.0*r12[i]);
+      prCofDX[totalAN*240+i] = 1.24735242198223*x[i]*z[i]*(2.0*(x2[i] - 3.0*y2[i])*(10005.0*z10[i] - 18975.0*z8[i]*r2[i] + 12650.0*z6[i]*r4[i] - 3542.0*z4[i]*r6[i] + 385.0*z2[i]*r8[i] - 11.0*r10[i]) - 11.0*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(1725.0*z8[i] - 2300.0*z6[i]*r2[i] + 966.0*z4[i]*r4[i] - 140.0*z2[i]*r6[i] + 5.0*r8[i]));
+      prCofDX[totalAN*241+i] = -4.62530657238986*x2[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(3105.0*z8[i] - 3220.0*z6[i]*r2[i] + 966.0*z4[i]*r4[i] - 84.0*z2[i]*r6[i] + r8[i]) + 2.31265328619493*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(10005.0*z10[i] - 15525.0*z8[i]*r2[i] + 8050.0*z6[i]*r4[i] - 1610.0*z4[i]*r6[i] + 105.0*z2[i]*r8[i] - r10[i]);
+      prCofDX[totalAN*242+i] = 1.91505886020364*x[i]*z[i]*((x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(10005.0*z8[i] - 12420.0*z6[i]*r2[i] + 4830.0*z4[i]*r4[i] - 644.0*z2[i]*r6[i] + 21.0*r8[i]) - 4.0*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i])*(1035.0*z6[i] - 805.0*z4[i]*r2[i] + 161.0*z2[i]*r4[i] - 7.0*r6[i]));
+      prCofDX[totalAN*243+i] = -3.81072459468004*x2[i]*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i])*(1035.0*z6[i] - 575.0*z4[i]*r2[i] + 69.0*z2[i]*r4[i] - r6[i]) + 0.476340574335005*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i])*(30015.0*z8[i] - 28980.0*z6[i]*r2[i] + 8050.0*z4[i]*r4[i] - 644.0*z2[i]*r6[i] + 7.0*r8[i]);
+      prCofDX[totalAN*244+i] = 1.84611369113795*x[i]*z[i]*(-7.0*(135.0*z4[i] - 50.0*z2[i]*r2[i] + 3.0*r4[i])*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]) + 4.0*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i])*(1305.0*z6[i] - 945.0*z4[i]*r2[i] + 175.0*z2[i]*r4[i] - 7.0*r6[i]));
+      prCofDX[totalAN*245+i] = -2.99104603301142*x2[i]*(225.0*z4[i] - 50.0*z2[i]*r2[i] + r4[i])*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]) + 4.48656904951713*(1305.0*z6[i] - 675.0*z4[i]*r2[i] + 75.0*z2[i]*r4[i] - r6[i])*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]);
+      prCofDX[totalAN*246+i] = 12.2108942967563*x[i]*z[i]*(-2.0*(-x2[i] - y2[i] + 8.0*z2[i])*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]) + (261.0*z4[i] - 90.0*z2[i]*r2[i] + 5.0*r4[i])*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]));
+      prCofDX[totalAN*247+i] = -2.14193255317612*x2[i]*(-x2[i] - y2[i] + 26.0*z2[i])*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]) + 5.89031452123433*(261.0*z4[i] - 54.0*z2[i]*r2[i] + r4[i])*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]);
+      prCofDX[totalAN*248+i] = 11.1298080254603*x[i]*z[i]*(-x12[i] + 66.0*x10[i]*y2[i] - 495.0*x8[i]*y4[i] + 924.0*x6[i]*y6[i] - 495.0*x4[i]*y8[i] + 66.0*x2[i]*y10[i] - y12[i] + 2.0*(-3.0*x2[i] - 3.0*y2[i] + 26.0*z2[i])*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]));
+      prCofDX[totalAN*249+i] = -1.21436161302378*x2[i]*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]) - 7.89335048465457*(x2[i] + y2[i] - 28.0*z2[i])*(x12[i] - 66.0*x10[i]*y2[i] + 495.0*x8[i]*y4[i] - 924.0*x6[i]*y6[i] + 495.0*x4[i]*y8[i] - 66.0*x2[i]*y10[i] + y12[i]);
+      prCofDX[totalAN*250+i] = 64.7381175928202*x[i]*z[i]*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]);
+      prCofDX[totalAN*251+i] = 12.6637597628606*x14[i] - 1152.40213842031*x12[i]*y2[i] + 12676.4235226235*x10[i]*y4[i] - 38029.2705678703*x8[i]*y6[i] + 38029.2705678703*x6[i]*y8[i] - 12676.4235226235*x4[i]*y10[i] + 1152.40213842031*x2[i]*y12[i] - 12.6637597628606*y14[i];
+
+      prCofDY[totalAN*221+i] = 12.6637597628606*x14[i] - 1152.40213842031*x12[i]*y2[i] + 12676.4235226235*x10[i]*y4[i] - 38029.2705678703*x8[i]*y6[i] + 38029.2705678703*x6[i]*y8[i] - 12676.4235226235*x4[i]*y10[i] + 1152.40213842031*x2[i]*y12[i] - 12.6637597628606*y14[i];
+      prCofDY[totalAN*222+i] = 64.7381175928202*x[i]*z[i]*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]);
+      prCofDY[totalAN*223+i] = -1.21436161302378*y2[i]*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]) - 7.89335048465457*(x2[i] + y2[i] - 28.0*z2[i])*(x12[i] - 66.0*x10[i]*y2[i] + 495.0*x8[i]*y4[i] - 924.0*x6[i]*y6[i] + 495.0*x4[i]*y8[i] - 66.0*x2[i]*y10[i] + y12[i]);
+      prCofDY[totalAN*224+i] = 22.2596160509206*x[i]*z[i]*(y2[i]*(-6.0*x10[i] + 110.0*x8[i]*y2[i] - 396.0*x6[i]*y4[i] + 396.0*x4[i]*y6[i] - 110.0*x2[i]*y8[i] + 6.0*y10[i]) + (-3.0*x2[i] - 3.0*y2[i] + 26.0*z2[i])*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]));
+      prCofDY[totalAN*225+i] = -2.14193255317612*y2[i]*(-x2[i] - y2[i] + 26.0*z2[i])*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]) + 5.89031452123433*(261.0*z4[i] - 54.0*z2[i]*r2[i] + r4[i])*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]);
+      prCofDY[totalAN*226+i] = 12.2108942967563*x[i]*z[i]*(-4.0*y2[i]*(-x2[i] - y2[i] + 8.0*z2[i])*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]) + (261.0*z4[i] - 90.0*z2[i]*r2[i] + 5.0*r4[i])*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]));
+      prCofDY[totalAN*227+i] = -2.99104603301142*y2[i]*(225.0*z4[i] - 50.0*z2[i]*r2[i] + r4[i])*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]) + 4.48656904951713*(1305.0*z6[i] - 675.0*z4[i]*r2[i] + 75.0*z2[i]*r4[i] - r6[i])*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]);
+      prCofDY[totalAN*228+i] = 7.38445476455181*x[i]*z[i]*(-14.0*y2[i]*(135.0*z4[i] - 50.0*z2[i]*r2[i] + 3.0*r4[i])*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]) + (x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i])*(1305.0*z6[i] - 945.0*z4[i]*r2[i] + 175.0*z2[i]*r4[i] - 7.0*r6[i]));
+      prCofDY[totalAN*229+i] = -3.81072459468004*y2[i]*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i])*(1035.0*z6[i] - 575.0*z4[i]*r2[i] + 69.0*z2[i]*r4[i] - r6[i]) + 0.476340574335005*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i])*(30015.0*z8[i] - 28980.0*z6[i]*r2[i] + 8050.0*z4[i]*r4[i] - 644.0*z2[i]*r6[i] + 7.0*r8[i]);
+      prCofDY[totalAN*230+i] = 1.91505886020364*x[i]*z[i]*(-8.0*y2[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(1035.0*z6[i] - 805.0*z4[i]*r2[i] + 161.0*z2[i]*r4[i] - 7.0*r6[i]) + (x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(10005.0*z8[i] - 12420.0*z6[i]*r2[i] + 4830.0*z4[i]*r4[i] - 644.0*z2[i]*r6[i] + 21.0*r8[i]));
+      prCofDY[totalAN*231+i] = -4.62530657238986*y2[i]*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(3105.0*z8[i] - 3220.0*z6[i]*r2[i] + 966.0*z4[i]*r4[i] - 84.0*z2[i]*r6[i] + r8[i]) + 2.31265328619493*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(10005.0*z10[i] - 15525.0*z8[i]*r2[i] + 8050.0*z6[i]*r4[i] - 1610.0*z4[i]*r6[i] + 105.0*z2[i]*r8[i] - r10[i]);
+      prCofDY[totalAN*232+i] = 2.49470484396446*x[i]*z[i]*(-22.0*y2[i]*(x2[i] - y2[i])*(1725.0*z8[i] - 2300.0*z6[i]*r2[i] + 966.0*z4[i]*r4[i] - 140.0*z2[i]*r6[i] + 5.0*r8[i]) + (x2[i] - 3.0*y2[i])*(10005.0*z10[i] - 18975.0*z8[i]*r2[i] + 12650.0*z6[i]*r4[i] - 3542.0*z4[i]*r6[i] + 385.0*z2[i]*r8[i] - 11.0*r10[i]));
+      prCofDY[totalAN*233+i] = -5.45212352381041*y2[i]*(3.0*x2[i] - y2[i])*(6555.0*z10[i] - 10925.0*z8[i]*r2[i] + 6118.0*z6[i]*r4[i] - 1330.0*z4[i]*r6[i] + 95.0*z2[i]*r8[i] - r10[i]) + 0.123911898268418*(x2[i] - y2[i])*(190095.0*z12[i] - 432630.0*z10[i]*r2[i] + 360525.0*z8[i]*r4[i] - 134596.0*z6[i]*r6[i] + 21945.0*z4[i]*r8[i] - 1254.0*z2[i]*r10[i] + 11.0*r12[i]);
+      prCofDY[totalAN*234+i] = 0.0324014967813841*x[i]*z[i]*(-52.0*y2[i]*(58995.0*z10[i] - 120175.0*z8[i]*r2[i] + 86526.0*z6[i]*r4[i] - 26334.0*z4[i]*r6[i] + 3135.0*z2[i]*r8[i] - 99.0*r10[i]) + 570285.0*z12[i] - 1533870.0*z10[i]*r2[i] + 1562275.0*z8[i]*r4[i] - 749892.0*z6[i]*r6[i] + 171171.0*z4[i]*r8[i] - 16302.0*z2[i]*r10[i] + 429.0*r12[i]);
+      prCofDY[totalAN*235+i] = -0.191125214847445*y2[i]*(334305.0*z12[i] - 817190.0*z10[i]*r2[i] + 735471.0*z8[i]*r4[i] - 298452.0*z6[i]*r6[i] + 53295.0*z4[i]*r8[i] - 3366.0*z2[i]*r10[i] + 33.0*r12[i]) + 10180.9304040532*z14[i] - 31947.0574747876*z12[i]*r2[i] + 39046.403580296*z10[i]*r4[i] - 23427.8421481776*z8[i]*r6[i] + 7130.21282770622*z6[i]*r8[i] - 1018.60183252946*z4[i]*r10[i] + 53.6106227647084*z2[i]*r12[i] - 0.45050943499755*r14[i];
+      prCofDY[totalAN*236+i] = 0.161051679199949*y[i]*z[i]*(-334305.0*z12[i] + 965770.0*z10[i]*r2[i] - 1062347.0*z8[i]*r4[i] + 554268.0*z6[i]*r6[i] - 138567.0*z4[i]*r8[i] + 14586.0*z2[i]*r10[i] - 429.0*r12[i]);
+      prCofDY[totalAN*237+i] = -0.191125214847445*x[i]*y[i]*(334305.0*z12[i] - 817190.0*z10[i]*r2[i] + 735471.0*z8[i]*r4[i] - 298452.0*z6[i]*r6[i] + 53295.0*z4[i]*r8[i] - 3366.0*z2[i]*r10[i] + 33.0*r12[i]);
+      prCofDY[totalAN*238+i] = 0.0324014967813841*y[i]*z[i]*(-570285.0*z12[i] + 1533870.0*z10[i]*r2[i] - 1562275.0*z8[i]*r4[i] + 749892.0*z6[i]*r6[i] - 171171.0*z4[i]*r8[i] + 16302.0*z2[i]*r10[i] - 26.0*(x2[i] - y2[i])*(58995.0*z10[i] - 120175.0*z8[i]*r2[i] + 86526.0*z6[i]*r4[i] - 26334.0*z4[i]*r6[i] + 3135.0*z2[i]*r8[i] - 99.0*r10[i]) - 429.0*r12[i]);
+      prCofDY[totalAN*239+i] = 0.247823796536837*x[i]*y[i]*(-190095.0*z12[i] + 432630.0*z10[i]*r2[i] - 360525.0*z8[i]*r4[i] + 134596.0*z6[i]*r6[i] - 21945.0*z4[i]*r8[i] + 1254.0*z2[i]*r10[i] - 22.0*(x2[i] - 3.0*y2[i])*(6555.0*z10[i] - 10925.0*z8[i]*r2[i] + 6118.0*z6[i]*r4[i] - 1330.0*z4[i]*r6[i] + 95.0*z2[i]*r8[i] - r10[i]) - 11.0*r12[i]);
+      prCofDY[totalAN*240+i] = -1.24735242198223*y[i]*z[i]*(2.0*(3.0*x2[i] - y2[i])*(10005.0*z10[i] - 18975.0*z8[i]*r2[i] + 12650.0*z6[i]*r4[i] - 3542.0*z4[i]*r6[i] + 385.0*z2[i]*r8[i] - 11.0*r10[i]) + 11.0*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(1725.0*z8[i] - 2300.0*z6[i]*r2[i] + 966.0*z4[i]*r4[i] - 140.0*z2[i]*r6[i] + 5.0*r8[i]));
+      prCofDY[totalAN*241+i] = -4.62530657238986*x[i]*y[i]*(2.0*(x2[i] - y2[i])*(10005.0*z10[i] - 15525.0*z8[i]*r2[i] + 8050.0*z6[i]*r4[i] - 1610.0*z4[i]*r6[i] + 105.0*z2[i]*r8[i] - r10[i]) + (x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(3105.0*z8[i] - 3220.0*z6[i]*r2[i] + 966.0*z4[i]*r4[i] - 84.0*z2[i]*r6[i] + r8[i]));
+      prCofDY[totalAN*242+i] = -1.91505886020364*y[i]*z[i]*((5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(10005.0*z8[i] - 12420.0*z6[i]*r2[i] + 4830.0*z4[i]*r4[i] - 644.0*z2[i]*r6[i] + 21.0*r8[i]) + 4.0*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i])*(1035.0*z6[i] - 805.0*z4[i]*r2[i] + 161.0*z2[i]*r4[i] - 7.0*r6[i]));
+      prCofDY[totalAN*243+i] = -0.95268114867001*x[i]*y[i]*((3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(30015.0*z8[i] - 28980.0*z6[i]*r2[i] + 8050.0*z4[i]*r4[i] - 644.0*z2[i]*r6[i] + 7.0*r8[i]) + 4.0*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i])*(1035.0*z6[i] - 575.0*z4[i]*r2[i] + 69.0*z2[i]*r4[i] - r6[i]));
+      prCofDY[totalAN*244+i] = -1.84611369113795*y[i]*z[i]*(7.0*(135.0*z4[i] - 50.0*z2[i]*r2[i] + 3.0*r4[i])*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]) + 4.0*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i])*(1305.0*z6[i] - 945.0*z4[i]*r2[i] + 175.0*z2[i]*r4[i] - 7.0*r6[i]));
+      prCofDY[totalAN*245+i] = -2.99104603301142*x[i]*y[i]*((225.0*z4[i] - 50.0*z2[i]*r2[i] + r4[i])*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]) + 12.0*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i])*(1305.0*z6[i] - 675.0*z4[i]*r2[i] + 75.0*z2[i]*r4[i] - r6[i]));
+      prCofDY[totalAN*246+i] = 12.2108942967563*y[i]*z[i]*(2.0*(x2[i] + y2[i] - 8.0*z2[i])*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]) - (261.0*z4[i] - 90.0*z2[i]*r2[i] + 5.0*r4[i])*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]));
+      prCofDY[totalAN*247+i] = 1.07096627658806*x[i]*y[i]*(2.0*(x2[i] + y2[i] - 26.0*z2[i])*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]) - 11.0*(261.0*z4[i] - 54.0*z2[i]*r2[i] + r4[i])*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]));
+      prCofDY[totalAN*248+i] = 11.1298080254603*y[i]*z[i]*(-x12[i] + 66.0*x10[i]*y2[i] - 495.0*x8[i]*y4[i] + 924.0*x6[i]*y6[i] - 495.0*x4[i]*y8[i] + 66.0*x2[i]*y10[i] - y12[i] - 2.0*(-3.0*x2[i] - 3.0*y2[i] + 26.0*z2[i])*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]));
+      prCofDY[totalAN*249+i] = 1.21436161302378*x[i]*y[i]*(-x12[i] + 78.0*x10[i]*y2[i] - 715.0*x8[i]*y4[i] + 1716.0*x6[i]*y6[i] - 1287.0*x4[i]*y8[i] + 286.0*x2[i]*y10[i] - 13.0*y12[i] + 26.0*(x2[i] + y2[i] - 28.0*z2[i])*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]));
+      prCofDY[totalAN*250+i] = -64.7381175928202*y[i]*z[i]*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]);
+      prCofDY[totalAN*251+i] = 25.3275195257212*x[i]*y[i]*(-7.0*x12[i] + 182.0*x10[i]*y2[i] - 1001.0*x8[i]*y4[i] + 1716.0*x6[i]*y6[i] - 1001.0*x4[i]*y8[i] + 182.0*x2[i]*y10[i] - 7.0*y12[i]);
+
+      prCofDZ[totalAN*221+i] = 0;
+      prCofDZ[totalAN*222+i] = 9.24830251326002*x[i]*y[i]*(7.0*x12[i] - 182.0*x10[i]*y2[i] + 1001.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1001.0*x4[i]*y8[i] - 182.0*x2[i]*y10[i] + 7.0*y12[i]);
+      prCofDZ[totalAN*223+i] = 34.0021251646659*y[i]*z[i]*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]);
+      prCofDZ[totalAN*224+i] = -22.2596160509206*x[i]*y[i]*(x2[i] + y2[i] - 26.0*z2[i])*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]);
+      prCofDZ[totalAN*225+i] = 55.6902463825791*y[i]*z[i]*(-x2[i] - y2[i] + 8.0*z2[i])*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]);
+      prCofDZ[totalAN*226+i] = 12.2108942967563*x[i]*y[i]*(225.0*z4[i] - 50.0*z2[i]*r2[i] + r4[i])*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]);
+      prCofDZ[totalAN*227+i] = 23.9283682640914*y[i]*z[i]*(135.0*z4[i] - 50.0*z2[i]*r2[i] + 3.0*r4[i])*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]);
+      prCofDZ[totalAN*228+i] = 51.6911833518627*x[i]*y[i]*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i])*(1035.0*z6[i] - 575.0*z4[i]*r2[i] + 69.0*z2[i]*r4[i] - r6[i]);
+      prCofDZ[totalAN*229+i] = 11.9765630118516*y[i]*z[i]*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i])*(1035.0*z6[i] - 805.0*z4[i]*r2[i] + 161.0*z2[i]*r4[i] - 7.0*r6[i]);
+      prCofDZ[totalAN*230+i] = 13.4054120214255*x[i]*y[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(3105.0*z8[i] - 3220.0*z6[i]*r2[i] + 966.0*z4[i]*r4[i] - 84.0*z2[i]*r6[i] + r8[i]);
+      prCofDZ[totalAN*231+i] = 18.5012262895594*y[i]*z[i]*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(1725.0*z8[i] - 2300.0*z6[i]*r2[i] + 966.0*z4[i]*r4[i] - 140.0*z2[i]*r6[i] + 5.0*r8[i]);
+      prCofDZ[totalAN*232+i] = 27.441753283609*x[i]*y[i]*(x2[i] - y2[i])*(6555.0*z10[i] - 10925.0*z8[i]*r2[i] + 6118.0*z6[i]*r4[i] - 1330.0*z4[i]*r6[i] + 95.0*z2[i]*r8[i] - r10[i]);
+      prCofDZ[totalAN*233+i] = 0.991295186147348*y[i]*z[i]*(3.0*x2[i] - y2[i])*(58995.0*z10[i] - 120175.0*z8[i]*r2[i] + 86526.0*z6[i]*r4[i] - 26334.0*z4[i]*r6[i] + 3135.0*z2[i]*r8[i] - 99.0*r10[i]);
+      prCofDZ[totalAN*234+i] = 0.421219458157993*x[i]*y[i]*(334305.0*z12[i] - 817190.0*z10[i]*r2[i] + 735471.0*z8[i]*r4[i] - 298452.0*z6[i]*r6[i] + 53295.0*z4[i]*r8[i] - 3366.0*z2[i]*r10[i] + 33.0*r12[i]);
+      prCofDZ[totalAN*235+i] = 0.235231033658394*y[i]*z[i]*(334305.0*z12[i] - 965770.0*z10[i]*r2[i] + 1062347.0*z8[i]*r4[i] - 554268.0*z6[i]*r6[i] + 138567.0*z4[i]*r8[i] - 14586.0*z2[i]*r10[i] + 429.0*r12[i]);
+      prCofDZ[totalAN*236+i] = 57686.1231588633*z14[i] - 194423.600276169*z12[i]*r2[i] + 256639.152364543*z10[i]*r4[i] - 167373.360237745*z8[i]*r6[i] + 55791.1200792485*z6[i]*r8[i] - 8809.12422303923*z4[i]*r10[i] + 518.183777825837*z2[i]*r12[i] - 4.93508359834131*r14[i];
+      prCofDZ[totalAN*237+i] = 0.235231033658394*x[i]*z[i]*(334305.0*z12[i] - 965770.0*z10[i]*r2[i] + 1062347.0*z8[i]*r4[i] - 554268.0*z6[i]*r6[i] + 138567.0*z4[i]*r8[i] - 14586.0*z2[i]*r10[i] + 429.0*r12[i]);
+      prCofDZ[totalAN*238+i] = 0.210609729078997*(x2[i] - y2[i])*(334305.0*z12[i] - 817190.0*z10[i]*r2[i] + 735471.0*z8[i]*r4[i] - 298452.0*z6[i]*r6[i] + 53295.0*z4[i]*r8[i] - 3366.0*z2[i]*r10[i] + 33.0*r12[i]);
+      prCofDZ[totalAN*239+i] = 0.991295186147348*x[i]*z[i]*(x2[i] - 3.0*y2[i])*(58995.0*z10[i] - 120175.0*z8[i]*r2[i] + 86526.0*z6[i]*r4[i] - 26334.0*z4[i]*r6[i] + 3135.0*z2[i]*r8[i] - 99.0*r10[i]);
+      prCofDZ[totalAN*240+i] = 6.86043832090226*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(6555.0*z10[i] - 10925.0*z8[i]*r2[i] + 6118.0*z6[i]*r4[i] - 1330.0*z4[i]*r6[i] + 95.0*z2[i]*r8[i] - r10[i]);
+      prCofDZ[totalAN*241+i] = 18.5012262895594*x[i]*z[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(1725.0*z8[i] - 2300.0*z6[i]*r2[i] + 966.0*z4[i]*r4[i] - 140.0*z2[i]*r6[i] + 5.0*r8[i]);
+      prCofDZ[totalAN*242+i] = 6.70270601071276*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i])*(3105.0*z8[i] - 3220.0*z6[i]*r2[i] + 966.0*z4[i]*r4[i] - 84.0*z2[i]*r6[i] + r8[i]);
+      prCofDZ[totalAN*243+i] = 11.9765630118516*x[i]*z[i]*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i])*(1035.0*z6[i] - 805.0*z4[i]*r2[i] + 161.0*z2[i]*r4[i] - 7.0*r6[i]);
+      prCofDZ[totalAN*244+i] = 6.46139791898283*(1035.0*z6[i] - 575.0*z4[i]*r2[i] + 69.0*z2[i]*r4[i] - r6[i])*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]);
+      prCofDZ[totalAN*245+i] = 23.9283682640914*x[i]*z[i]*(135.0*z4[i] - 50.0*z2[i]*r2[i] + 3.0*r4[i])*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]);
+      prCofDZ[totalAN*246+i] = 6.10544714837816*(225.0*z4[i] - 50.0*z2[i]*r2[i] + r4[i])*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]);
+      prCofDZ[totalAN*247+i] = 55.6902463825791*x[i]*z[i]*(-x2[i] - y2[i] + 8.0*z2[i])*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]);
+      prCofDZ[totalAN*248+i] = -5.56490401273015*(x2[i] + y2[i] - 26.0*z2[i])*(x12[i] - 66.0*x10[i]*y2[i] + 495.0*x8[i]*y4[i] - 924.0*x6[i]*y6[i] + 495.0*x4[i]*y8[i] - 66.0*x2[i]*y10[i] + y12[i]);
+      prCofDZ[totalAN*249+i] = 34.0021251646659*x[i]*z[i]*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]);
+      prCofDZ[totalAN*250+i] = 4.62415125663001*x14[i] - 420.797764353331*x12[i]*y2[i] + 4628.77540788664*x10[i]*y4[i] - 13886.3262236599*x8[i]*y6[i] + 13886.3262236599*x6[i]*y8[i] - 4628.77540788664*x4[i]*y10[i] + 420.797764353331*x2[i]*y12[i] - 4.62415125663001*y14[i];
+      prCofDZ[totalAN*251+i] = 0;
+
+
+
     }
 
     if (lMax > 15){ //OBS!!!!! lMax > 9, tesseral cases
@@ -630,6 +1467,111 @@ void getCfactorsD(double* preCoef, int Asize, double* x,double* x2, double* x4, 
       preCoef[totalAN*282+i] = -0.615931661592266*(x2[i] + y2[i] - 30.0*z2[i])*(x14[i] - 91.0*x12[i]*y2[i] + 1001.0*x10[i]*y4[i] - 3003.0*x8[i]*y6[i] + 3003.0*x6[i]*y8[i] - 1001.0*x4[i]*y10[i] + 91.0*x2[i]*y12[i] - y14[i]);
       preCoef[totalAN*283+i] = 4.84985075323068*x[i]*z[i]*(x14[i] - 105.0*x12[i]*y2[i] + 1365.0*x10[i]*y4[i] - 5005.0*x8[i]*y6[i] + 6435.0*x6[i]*y8[i] - 3003.0*x4[i]*y10[i] + 455.0*x2[i]*y12[i] - 15.0*y14[i]);
       preCoef[totalAN*284+i] = 0.857340588838025*x16[i] - 102.880870660563*x14[i]*y2[i] + 1560.35987168521*x12[i]*y4[i] - 6865.5834354149*x10[i]*y6[i] + 11033.9733783454*x8[i]*y8[i] - 6865.5834354149*x6[i]*y10[i] + 1560.35987168521*x4[i]*y12[i] - 102.880870660563*x2[i]*y14[i] + 0.857340588838025*y16[i];
+
+      prCofDX[totalAN*252+i] = 13.7174494214084*y[i]*(15.0*x14[i] - 455.0*x12[i]*y2[i] + 3003.0*x10[i]*y4[i] - 6435.0*x8[i]*y6[i] + 5005.0*x6[i]*y8[i] - 1365.0*x4[i]*y10[i] + 105.0*x2[i]*y12[i] - y14[i]);
+      prCofDX[totalAN*253+i] = 145.49552259692*x[i]*y[i]*z[i]*(7.0*x12[i] - 182.0*x10[i]*y2[i] + 1001.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1001.0*x4[i]*y8[i] - 182.0*x2[i]*y10[i] + 7.0*y12[i]);
+      prCofDX[totalAN*254+i] = 1.23186332318453*y[i]*(x2[i]*(-14.0*x12[i] + 364.0*x10[i]*y2[i] - 2002.0*x8[i]*y4[i] + 3432.0*x6[i]*y6[i] - 2002.0*x4[i]*y8[i] + 364.0*x2[i]*y10[i] - 14.0*y12[i]) - 7.0*(x2[i] + y2[i] - 30.0*z2[i])*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]));
+      prCofDX[totalAN*255+i] = 3.89549386728723*x[i]*y[i]*z[i]*(-39.0*x12[i] + 858.0*x10[i]*y2[i] - 3861.0*x8[i]*y4[i] + 5148.0*x6[i]*y6[i] - 2145.0*x4[i]*y8[i] + 234.0*x2[i]*y10[i] - 3.0*y12[i] + 26.0*(-3.0*x2[i] - 3.0*y2[i] + 28.0*z2[i])*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]));
+      prCofDX[totalAN*256+i] = 2.1701251531576*y[i]*(-4.0*x2[i]*(-x2[i] - y2[i] + 28.0*z2[i])*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]) + (899.0*z4[i] - 174.0*z2[i]*r2[i] + 3.0*r4[i])*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]));
+      prCofDX[totalAN*257+i] = 0.855908903026109*x[i]*y[i]*z[i]*(-10.0*(-3.0*x2[i] - 3.0*y2[i] + 26.0*z2[i])*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]) + 11.0*(899.0*z4[i] - 290.0*z2[i]*r2[i] + 15.0*r4[i])*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]));
+      prCofDX[totalAN*258+i] = 1.0086983156795*y[i]*(-6.0*x2[i]*(261.0*z4[i] - 54.0*z2[i]*r2[i] + r4[i])*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]) + (8091.0*z6[i] - 3915.0*z4[i]*r2[i] + 405.0*z2[i]*r4[i] - 5.0*r6[i])*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]));
+      prCofDX[totalAN*259+i] = 1.16640722205483*x[i]*y[i]*z[i]*(-7.0*(261.0*z4[i] - 90.0*z2[i]*r2[i] + 5.0*r4[i])*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]) + 12.0*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i])*(8091.0*z6[i] - 5481.0*z4[i]*r2[i] + 945.0*z2[i]*r4[i] - 35.0*r6[i]));
+      prCofDX[totalAN*260+i] = 0.549849637559955*y[i]*(-56.0*x2[i]*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i])*(1305.0*z6[i] - 675.0*z4[i]*r2[i] + 75.0*z2[i]*r4[i] - r6[i]) + (7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i])*(40455.0*z8[i] - 36540.0*z6[i]*r2[i] + 9450.0*z4[i]*r4[i] - 700.0*z2[i]*r6[i] + 7.0*r8[i]));
+      prCofDX[totalAN*261+i] = 0.673425523638079*x[i]*y[i]*z[i]*(7.0*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(13485.0*z8[i] - 15660.0*z6[i]*r2[i] + 5670.0*z4[i]*r4[i] - 700.0*z2[i]*r6[i] + 21.0*r8[i]) - 12.0*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i])*(1305.0*z6[i] - 945.0*z4[i]*r2[i] + 175.0*z2[i]*r4[i] - 7.0*r6[i]));
+      prCofDX[totalAN*262+i] = 0.133213092171985*y[i]*(-10.0*x2[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(30015.0*z8[i] - 28980.0*z6[i]*r2[i] + 8050.0*z4[i]*r4[i] - 644.0*z2[i]*r6[i] + 7.0*r8[i]) + (5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(310155.0*z10[i] - 450225.0*z8[i]*r2[i] + 217350.0*z6[i]*r4[i] - 40250.0*z4[i]*r6[i] + 2415.0*z2[i]*r8[i] - 21.0*r10[i]));
+      prCofDX[totalAN*263+i] = 0.31398626939213*x[i]*y[i]*z[i]*(2.0*(x2[i] - y2[i])*(310155.0*z10[i] - 550275.0*z8[i]*r2[i] + 341550.0*z6[i]*r4[i] - 88550.0*z4[i]*r6[i] + 8855.0*z2[i]*r8[i] - 231.0*r10[i]) - 11.0*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(10005.0*z8[i] - 12420.0*z6[i]*r2[i] + 4830.0*z4[i]*r4[i] - 644.0*z2[i]*r6[i] + 21.0*r8[i]));
+      prCofDX[totalAN*264+i] = 0.166145916780101*y[i]*(-132.0*x2[i]*(x2[i] - y2[i])*(10005.0*z10[i] - 15525.0*z8[i]*r2[i] + 8050.0*z6[i]*r4[i] - 1610.0*z4[i]*r6[i] + 105.0*z2[i]*r8[i] - r10[i]) + (3.0*x2[i] - y2[i])*(310155.0*z12[i] - 660330.0*z10[i]*r2[i] + 512325.0*z8[i]*r4[i] - 177100.0*z6[i]*r6[i] + 26565.0*z4[i]*r8[i] - 1386.0*z2[i]*r10[i] + 11.0*r12[i]));
+      prCofDX[totalAN*265+i] = 0.309117970363509*x[i]*y[i]*z[i]*(310155.0*z12[i] - 780390.0*z10[i]*r2[i] + 740025.0*z8[i]*r4[i] - 328900.0*z6[i]*r6[i] + 69069.0*z4[i]*r8[i] - 6006.0*z2[i]*r10[i] - 26.0*(3.0*x2[i] - y2[i])*(10005.0*z10[i] - 18975.0*z8[i]*r2[i] + 12650.0*z6[i]*r4[i] - 3542.0*z4[i]*r6[i] + 385.0*z2[i]*r8[i] - 11.0*r10[i]) + 143.0*r12[i]);
+      prCofDX[totalAN*266+i] = 0.00631774627238717*y[i]*(-182.0*x2[i]*(190095.0*z12[i] - 432630.0*z10[i]*r2[i] + 360525.0*z8[i]*r4[i] - 134596.0*z6[i]*r6[i] + 21945.0*z4[i]*r8[i] - 1254.0*z2[i]*r10[i] + 11.0*r12[i]) + 5892945.0*z14[i] - 17298645.0*z12[i]*r2[i] + 19684665.0*z10[i]*r4[i] - 10935925.0*z8[i]*r6[i] + 3062059.0*z6[i]*r8[i] - 399399.0*z4[i]*r10[i] + 19019.0*z2[i]*r12[i] - 143.0*r14[i]);
+      prCofDX[totalAN*267+i] = -0.242226050218644*x[i]*y[i]*z[i]*(570285.0*z12[i] - 1533870.0*z10[i]*r2[i] + 1562275.0*z8[i]*r4[i] - 749892.0*z6[i]*r6[i] + 171171.0*z4[i]*r8[i] - 16302.0*z2[i]*r10[i] + 429.0*r12[i]);
+      prCofDX[totalAN*268+i] = 0.0118689785420445*x[i]*(-9694845.0*z14[i] + 30421755.0*z12[i]*r2[i] - 37182145.0*z10[i]*r4[i] + 22309287.0*z8[i]*r6[i] - 6789783.0*z6[i]*r8[i] + 969969.0*z4[i]*r10[i] - 51051.0*z2[i]*r12[i] + 429.0*r14[i]);
+      prCofDX[totalAN*269+i] = 0.00115345738199354*z[i]*(-210.0*x2[i]*(570285.0*z12[i] - 1533870.0*z10[i]*r2[i] + 1562275.0*z8[i]*r4[i] - 749892.0*z6[i]*r6[i] + 171171.0*z4[i]*r8[i] - 16302.0*z2[i]*r10[i] + 429.0*r12[i]) + 17678835.0*z14[i] - 59879925.0*z12[i]*r2[i] + 80528175.0*z10[i]*r4[i] - 54679625.0*z8[i]*r6[i] + 19684665.0*z6[i]*r8[i] - 3594591.0*z4[i]*r10[i] + 285285.0*z2[i]*r12[i] - 6435.0*r14[i]);
+      prCofDX[totalAN*270+i] = 0.00631774627238717*x[i]*(5892945.0*z14[i] - 17298645.0*z12[i]*r2[i] + 19684665.0*z10[i]*r4[i] - 10935925.0*z8[i]*r6[i] + 3062059.0*z6[i]*r8[i] - 399399.0*z4[i]*r10[i] + 19019.0*z2[i]*r12[i] - 91.0*(x2[i] - y2[i])*(190095.0*z12[i] - 432630.0*z10[i]*r2[i] + 360525.0*z8[i]*r4[i] - 134596.0*z6[i]*r6[i] + 21945.0*z4[i]*r8[i] - 1254.0*z2[i]*r10[i] + 11.0*r12[i]) - 143.0*r14[i]);
+      prCofDX[totalAN*271+i] = 0.154558985181755*z[i]*(-52.0*x2[i]*(x2[i] - 3.0*y2[i])*(10005.0*z10[i] - 18975.0*z8[i]*r2[i] + 12650.0*z6[i]*r4[i] - 3542.0*z4[i]*r6[i] + 385.0*z2[i]*r8[i] - 11.0*r10[i]) + (x2[i] - y2[i])*(310155.0*z12[i] - 780390.0*z10[i]*r2[i] + 740025.0*z8[i]*r4[i] - 328900.0*z6[i]*r6[i] + 69069.0*z4[i]*r8[i] - 6006.0*z2[i]*r10[i] + 143.0*r12[i]));
+      prCofDX[totalAN*272+i] = 0.166145916780101*x[i]*((x2[i] - 3.0*y2[i])*(310155.0*z12[i] - 660330.0*z10[i]*r2[i] + 512325.0*z8[i]*r4[i] - 177100.0*z6[i]*r6[i] + 26565.0*z4[i]*r8[i] - 1386.0*z2[i]*r10[i] + 11.0*r12[i]) - 33.0*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(10005.0*z10[i] - 15525.0*z8[i]*r2[i] + 8050.0*z6[i]*r4[i] - 1610.0*z4[i]*r6[i] + 105.0*z2[i]*r8[i] - r10[i]));
+      prCofDX[totalAN*273+i] = 0.156993134696065*z[i]*(-22.0*x2[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(10005.0*z8[i] - 12420.0*z6[i]*r2[i] + 4830.0*z4[i]*r4[i] - 644.0*z2[i]*r6[i] + 21.0*r8[i]) + (x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(310155.0*z10[i] - 550275.0*z8[i]*r2[i] + 341550.0*z6[i]*r4[i] - 88550.0*z4[i]*r6[i] + 8855.0*z2[i]*r8[i] - 231.0*r10[i]));
+      prCofDX[totalAN*274+i] = 0.133213092171985*x[i]*((x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(310155.0*z10[i] - 450225.0*z8[i]*r2[i] + 217350.0*z6[i]*r4[i] - 40250.0*z4[i]*r6[i] + 2415.0*z2[i]*r8[i] - 21.0*r10[i]) - 5.0*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i])*(30015.0*z8[i] - 28980.0*z6[i]*r2[i] + 8050.0*z4[i]*r4[i] - 644.0*z2[i]*r6[i] + 7.0*r8[i]));
+      prCofDX[totalAN*275+i] = 0.336712761819039*z[i]*(-24.0*x2[i]*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i])*(1305.0*z6[i] - 945.0*z4[i]*r2[i] + 175.0*z2[i]*r4[i] - 7.0*r6[i]) + 7.0*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i])*(13485.0*z8[i] - 15660.0*z6[i]*r2[i] + 5670.0*z4[i]*r4[i] - 700.0*z2[i]*r6[i] + 21.0*r8[i]));
+      prCofDX[totalAN*276+i] = 0.549849637559955*x[i]*((x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i])*(40455.0*z8[i] - 36540.0*z6[i]*r2[i] + 9450.0*z4[i]*r4[i] - 700.0*z2[i]*r6[i] + 7.0*r8[i]) - 7.0*(1305.0*z6[i] - 675.0*z4[i]*r2[i] + 75.0*z2[i]*r4[i] - r6[i])*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]));
+      prCofDX[totalAN*277+i] = 0.583203611027414*z[i]*(-14.0*x2[i]*(261.0*z4[i] - 90.0*z2[i]*r2[i] + 5.0*r4[i])*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]) + 3.0*(8091.0*z6[i] - 5481.0*z4[i]*r2[i] + 945.0*z2[i]*r4[i] - 35.0*r6[i])*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]));
+      prCofDX[totalAN*278+i] = 1.0086983156795*x[i]*(-3.0*(261.0*z4[i] - 54.0*z2[i]*r2[i] + r4[i])*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]) + (8091.0*z6[i] - 3915.0*z4[i]*r2[i] + 405.0*z2[i]*r4[i] - 5.0*r6[i])*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]));
+      prCofDX[totalAN*279+i] = 0.427954451513054*z[i]*(-20.0*x2[i]*(-3.0*x2[i] - 3.0*y2[i] + 26.0*z2[i])*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]) + 11.0*(899.0*z4[i] - 290.0*z2[i]*r2[i] + 15.0*r4[i])*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]));
+      prCofDX[totalAN*280+i] = 2.1701251531576*x[i]*(-(-x2[i] - y2[i] + 28.0*z2[i])*(x12[i] - 66.0*x10[i]*y2[i] + 495.0*x8[i]*y4[i] - 924.0*x6[i]*y6[i] + 495.0*x4[i]*y8[i] - 66.0*x2[i]*y10[i] + y12[i]) + (899.0*z4[i] - 174.0*z2[i]*r2[i] + 3.0*r4[i])*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]));
+      prCofDX[totalAN*281+i] = 1.94774693364361*z[i]*(-6.0*x2[i]*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]) + 13.0*(-3.0*x2[i] - 3.0*y2[i] + 28.0*z2[i])*(x12[i] - 66.0*x10[i]*y2[i] + 495.0*x8[i]*y4[i] - 924.0*x6[i]*y6[i] + 495.0*x4[i]*y8[i] - 66.0*x2[i]*y10[i] + y12[i]));
+      prCofDX[totalAN*282+i] = 1.23186332318453*x[i]*(-x14[i] + 91.0*x12[i]*y2[i] - 1001.0*x10[i]*y4[i] + 3003.0*x8[i]*y6[i] - 3003.0*x6[i]*y8[i] + 1001.0*x4[i]*y10[i] - 91.0*x2[i]*y12[i] + y14[i] - 7.0*(x2[i] + y2[i] - 30.0*z2[i])*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]));
+      prCofDX[totalAN*283+i] = 72.7477612984602*z[i]*(x14[i] - 91.0*x12[i]*y2[i] + 1001.0*x10[i]*y4[i] - 3003.0*x8[i]*y6[i] + 3003.0*x6[i]*y8[i] - 1001.0*x4[i]*y10[i] + 91.0*x2[i]*y12[i] - y14[i]);
+      prCofDX[totalAN*284+i] = 13.7174494214084*x[i]*(x14[i] - 105.0*x12[i]*y2[i] + 1365.0*x10[i]*y4[i] - 5005.0*x8[i]*y6[i] + 6435.0*x6[i]*y8[i] - 3003.0*x4[i]*y10[i] + 455.0*x2[i]*y12[i] - 15.0*y14[i]);
+
+      prCofDY[totalAN*252+i] =13.7174494214084*x[i]*(x14[i] - 105.0*x12[i]*y2[i] + 1365.0*x10[i]*y4[i] - 5005.0*x8[i]*y6[i] + 6435.0*x6[i]*y8[i] - 3003.0*x4[i]*y10[i] + 455.0*x2[i]*y12[i] - 15.0*y14[i]);
+      prCofDY[totalAN*253+i] = 72.7477612984602*z[i]*(x14[i] - 91.0*x12[i]*y2[i] + 1001.0*x10[i]*y4[i] - 3003.0*x8[i]*y6[i] + 3003.0*x6[i]*y8[i] - 1001.0*x4[i]*y10[i] + 91.0*x2[i]*y12[i] - y14[i]);
+      prCofDY[totalAN*254+i] = 1.23186332318453*x[i]*(y2[i]*(-14.0*x12[i] + 364.0*x10[i]*y2[i] - 2002.0*x8[i]*y4[i] + 3432.0*x6[i]*y6[i] - 2002.0*x4[i]*y8[i] + 364.0*x2[i]*y10[i] - 14.0*y12[i]) - 7.0*(x2[i] + y2[i] - 30.0*z2[i])*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]));
+      prCofDY[totalAN*255+i] = 1.94774693364361*z[i]*(-6.0*y2[i]*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]) + 13.0*(-3.0*x2[i] - 3.0*y2[i] + 28.0*z2[i])*(x12[i] - 66.0*x10[i]*y2[i] + 495.0*x8[i]*y4[i] - 924.0*x6[i]*y6[i] + 495.0*x4[i]*y8[i] - 66.0*x2[i]*y10[i] + y12[i]));
+      prCofDY[totalAN*256+i] = 2.1701251531576*x[i]*(-4.0*y2[i]*(-x2[i] - y2[i] + 28.0*z2[i])*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]) + (899.0*z4[i] - 174.0*z2[i]*r2[i] + 3.0*r4[i])*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]));
+      prCofDY[totalAN*257+i] = 0.427954451513054*z[i]*(-20.0*y2[i]*(-3.0*x2[i] - 3.0*y2[i] + 26.0*z2[i])*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]) + 11.0*(899.0*z4[i] - 290.0*z2[i]*r2[i] + 15.0*r4[i])*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]));
+      prCofDY[totalAN*258+i] = 1.0086983156795*x[i]*(-6.0*y2[i]*(261.0*z4[i] - 54.0*z2[i]*r2[i] + r4[i])*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]) + (8091.0*z6[i] - 3915.0*z4[i]*r2[i] + 405.0*z2[i]*r4[i] - 5.0*r6[i])*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]));
+      prCofDY[totalAN*259+i] = 0.583203611027414*z[i]*(-14.0*y2[i]*(261.0*z4[i] - 90.0*z2[i]*r2[i] + 5.0*r4[i])*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]) + 3.0*(8091.0*z6[i] - 5481.0*z4[i]*r2[i] + 945.0*z2[i]*r4[i] - 35.0*r6[i])*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]));
+      prCofDY[totalAN*260+i] = 0.549849637559955*x[i]*(-56.0*y2[i]*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i])*(1305.0*z6[i] - 675.0*z4[i]*r2[i] + 75.0*z2[i]*r4[i] - r6[i]) + (x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i])*(40455.0*z8[i] - 36540.0*z6[i]*r2[i] + 9450.0*z4[i]*r4[i] - 700.0*z2[i]*r6[i] + 7.0*r8[i]));
+      prCofDY[totalAN*261+i] = 0.336712761819039*z[i]*(-24.0*y2[i]*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i])*(1305.0*z6[i] - 945.0*z4[i]*r2[i] + 175.0*z2[i]*r4[i] - 7.0*r6[i]) + 7.0*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i])*(13485.0*z8[i] - 15660.0*z6[i]*r2[i] + 5670.0*z4[i]*r4[i] - 700.0*z2[i]*r6[i] + 21.0*r8[i]));
+      prCofDY[totalAN*262+i] = 0.133213092171985*x[i]*(-10.0*y2[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(30015.0*z8[i] - 28980.0*z6[i]*r2[i] + 8050.0*z4[i]*r4[i] - 644.0*z2[i]*r6[i] + 7.0*r8[i]) + (x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(310155.0*z10[i] - 450225.0*z8[i]*r2[i] + 217350.0*z6[i]*r4[i] - 40250.0*z4[i]*r6[i] + 2415.0*z2[i]*r8[i] - 21.0*r10[i]));
+      prCofDY[totalAN*263+i] = 0.156993134696065*z[i]*(-22.0*y2[i]*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(10005.0*z8[i] - 12420.0*z6[i]*r2[i] + 4830.0*z4[i]*r4[i] - 644.0*z2[i]*r6[i] + 21.0*r8[i]) + (x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(310155.0*z10[i] - 550275.0*z8[i]*r2[i] + 341550.0*z6[i]*r4[i] - 88550.0*z4[i]*r6[i] + 8855.0*z2[i]*r8[i] - 231.0*r10[i]));
+      prCofDY[totalAN*264+i] = 0.166145916780101*x[i]*(-132.0*y2[i]*(x2[i] - y2[i])*(10005.0*z10[i] - 15525.0*z8[i]*r2[i] + 8050.0*z6[i]*r4[i] - 1610.0*z4[i]*r6[i] + 105.0*z2[i]*r8[i] - r10[i]) + (x2[i] - 3.0*y2[i])*(310155.0*z12[i] - 660330.0*z10[i]*r2[i] + 512325.0*z8[i]*r4[i] - 177100.0*z6[i]*r6[i] + 26565.0*z4[i]*r8[i] - 1386.0*z2[i]*r10[i] + 11.0*r12[i]));
+      prCofDY[totalAN*265+i] = 0.154558985181755*z[i]*(-52.0*y2[i]*(3.0*x2[i] - y2[i])*(10005.0*z10[i] - 18975.0*z8[i]*r2[i] + 12650.0*z6[i]*r4[i] - 3542.0*z4[i]*r6[i] + 385.0*z2[i]*r8[i] - 11.0*r10[i]) + (x2[i] - y2[i])*(310155.0*z12[i] - 780390.0*z10[i]*r2[i] + 740025.0*z8[i]*r4[i] - 328900.0*z6[i]*r6[i] + 69069.0*z4[i]*r8[i] - 6006.0*z2[i]*r10[i] + 143.0*r12[i]));
+      prCofDY[totalAN*266+i] = 0.00631774627238717*x[i]*(-182.0*y2[i]*(190095.0*z12[i] - 432630.0*z10[i]*r2[i] + 360525.0*z8[i]*r4[i] - 134596.0*z6[i]*r6[i] + 21945.0*z4[i]*r8[i] - 1254.0*z2[i]*r10[i] + 11.0*r12[i]) + 5892945.0*z14[i] - 17298645.0*z12[i]*r2[i] + 19684665.0*z10[i]*r4[i] - 10935925.0*z8[i]*r6[i] + 3062059.0*z6[i]*r8[i] - 399399.0*z4[i]*r10[i] + 19019.0*z2[i]*r12[i] - 143.0*r14[i]);
+      prCofDY[totalAN*267+i] = 0.00115345738199354*z[i]*(-210.0*y2[i]*(570285.0*z12[i] - 1533870.0*z10[i]*r2[i] + 1562275.0*z8[i]*r4[i] - 749892.0*z6[i]*r6[i] + 171171.0*z4[i]*r8[i] - 16302.0*z2[i]*r10[i] + 429.0*r12[i]) + 17678835.0*z14[i] - 59879925.0*z12[i]*r2[i] + 80528175.0*z10[i]*r4[i] - 54679625.0*z8[i]*r6[i] + 19684665.0*z6[i]*r8[i] - 3594591.0*z4[i]*r10[i] + 285285.0*z2[i]*r12[i] - 6435.0*r14[i]);
+      prCofDY[totalAN*268+i] = 0.0118689785420445*y[i]*(-9694845.0*z14[i] + 30421755.0*z12[i]*r2[i] - 37182145.0*z10[i]*r4[i] + 22309287.0*z8[i]*r6[i] - 6789783.0*z6[i]*r8[i] + 969969.0*z4[i]*r10[i] - 51051.0*z2[i]*r12[i] + 429.0*r14[i]);
+      prCofDY[totalAN*269+i] = -0.242226050218644*x[i]*y[i]*z[i]*(570285.0*z12[i] - 1533870.0*z10[i]*r2[i] + 1562275.0*z8[i]*r4[i] - 749892.0*z6[i]*r6[i] + 171171.0*z4[i]*r8[i] - 16302.0*z2[i]*r10[i] + 429.0*r12[i]);
+      prCofDY[totalAN*270+i] = 0.00631774627238717*y[i]*(-5892945.0*z14[i] + 17298645.0*z12[i]*r2[i] - 19684665.0*z10[i]*r4[i] + 10935925.0*z8[i]*r6[i] - 3062059.0*z6[i]*r8[i] + 399399.0*z4[i]*r10[i] - 19019.0*z2[i]*r12[i] - 91.0*(x2[i] - y2[i])*(190095.0*z12[i] - 432630.0*z10[i]*r2[i] + 360525.0*z8[i]*r4[i] - 134596.0*z6[i]*r6[i] + 21945.0*z4[i]*r8[i] - 1254.0*z2[i]*r10[i] + 11.0*r12[i]) + 143.0*r14[i]);
+      prCofDY[totalAN*271+i] = 0.309117970363509*x[i]*y[i]*z[i]*(-310155.0*z12[i] + 780390.0*z10[i]*r2[i] - 740025.0*z8[i]*r4[i] + 328900.0*z6[i]*r6[i] - 69069.0*z4[i]*r8[i] + 6006.0*z2[i]*r10[i] - 26.0*(x2[i] - 3.0*y2[i])*(10005.0*z10[i] - 18975.0*z8[i]*r2[i] + 12650.0*z6[i]*r4[i] - 3542.0*z4[i]*r6[i] + 385.0*z2[i]*r8[i] - 11.0*r10[i]) - 143.0*r12[i]);
+      prCofDY[totalAN*272+i] = -0.166145916780101*y[i]*((3.0*x2[i] - y2[i])*(310155.0*z12[i] - 660330.0*z10[i]*r2[i] + 512325.0*z8[i]*r4[i] - 177100.0*z6[i]*r6[i] + 26565.0*z4[i]*r8[i] - 1386.0*z2[i]*r10[i] + 11.0*r12[i]) + 33.0*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(10005.0*z10[i] - 15525.0*z8[i]*r2[i] + 8050.0*z6[i]*r4[i] - 1610.0*z4[i]*r6[i] + 105.0*z2[i]*r8[i] - r10[i]));
+      prCofDY[totalAN*273+i] = -0.31398626939213*x[i]*y[i]*z[i]*(2.0*(x2[i] - y2[i])*(310155.0*z10[i] - 550275.0*z8[i]*r2[i] + 341550.0*z6[i]*r4[i] - 88550.0*z4[i]*r6[i] + 8855.0*z2[i]*r8[i] - 231.0*r10[i]) + 11.0*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(10005.0*z8[i] - 12420.0*z6[i]*r2[i] + 4830.0*z4[i]*r4[i] - 644.0*z2[i]*r6[i] + 21.0*r8[i]));
+      prCofDY[totalAN*274+i] = -0.133213092171985*y[i]*((5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(310155.0*z10[i] - 450225.0*z8[i]*r2[i] + 217350.0*z6[i]*r4[i] - 40250.0*z4[i]*r6[i] + 2415.0*z2[i]*r8[i] - 21.0*r10[i]) + 5.0*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i])*(30015.0*z8[i] - 28980.0*z6[i]*r2[i] + 8050.0*z4[i]*r4[i] - 644.0*z2[i]*r6[i] + 7.0*r8[i]));
+      prCofDY[totalAN*275+i] = -0.673425523638079*x[i]*y[i]*z[i]*(7.0*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(13485.0*z8[i] - 15660.0*z6[i]*r2[i] + 5670.0*z4[i]*r4[i] - 700.0*z2[i]*r6[i] + 21.0*r8[i]) + 12.0*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i])*(1305.0*z6[i] - 945.0*z4[i]*r2[i] + 175.0*z2[i]*r4[i] - 7.0*r6[i]));
+      prCofDY[totalAN*276+i] = -0.549849637559955*y[i]*((7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i])*(40455.0*z8[i] - 36540.0*z6[i]*r2[i] + 9450.0*z4[i]*r4[i] - 700.0*z2[i]*r6[i] + 7.0*r8[i]) + 7.0*(1305.0*z6[i] - 675.0*z4[i]*r2[i] + 75.0*z2[i]*r4[i] - r6[i])*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]));
+      prCofDY[totalAN*277+i] = -1.16640722205483*x[i]*y[i]*z[i]*(7.0*(261.0*z4[i] - 90.0*z2[i]*r2[i] + 5.0*r4[i])*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]) + 12.0*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i])*(8091.0*z6[i] - 5481.0*z4[i]*r2[i] + 945.0*z2[i]*r4[i] - 35.0*r6[i]));
+      prCofDY[totalAN*278+i] = -1.0086983156795*y[i]*(3.0*(261.0*z4[i] - 54.0*z2[i]*r2[i] + r4[i])*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]) + (8091.0*z6[i] - 3915.0*z4[i]*r2[i] + 405.0*z2[i]*r4[i] - 5.0*r6[i])*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]));
+      prCofDY[totalAN*279+i] = 0.855908903026109*x[i]*y[i]*z[i]*(10.0*(3.0*x2[i] + 3.0*y2[i] - 26.0*z2[i])*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]) - 11.0*(899.0*z4[i] - 290.0*z2[i]*r2[i] + 15.0*r4[i])*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]));
+      prCofDY[totalAN*280+i] = 2.1701251531576*y[i]*((x2[i] + y2[i] - 28.0*z2[i])*(x12[i] - 66.0*x10[i]*y2[i] + 495.0*x8[i]*y4[i] - 924.0*x6[i]*y6[i] + 495.0*x4[i]*y8[i] - 66.0*x2[i]*y10[i] + y12[i]) - (899.0*z4[i] - 174.0*z2[i]*r2[i] + 3.0*r4[i])*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]));
+      prCofDY[totalAN*281+i] = 3.89549386728723*x[i]*y[i]*z[i]*(-3.0*x12[i] + 234.0*x10[i]*y2[i] - 2145.0*x8[i]*y4[i] + 5148.0*x6[i]*y6[i] - 3861.0*x4[i]*y8[i] + 858.0*x2[i]*y10[i] - 39.0*y12[i] - 26.0*(-3.0*x2[i] - 3.0*y2[i] + 28.0*z2[i])*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]));
+      prCofDY[totalAN*282+i] = 1.23186332318453*y[i]*(-x14[i] + 91.0*x12[i]*y2[i] - 1001.0*x10[i]*y4[i] + 3003.0*x8[i]*y6[i] - 3003.0*x6[i]*y8[i] + 1001.0*x4[i]*y10[i] - 91.0*x2[i]*y12[i] + y14[i] + 7.0*(x2[i] + y2[i] - 30.0*z2[i])*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]));
+      prCofDY[totalAN*283+i] = -145.49552259692*x[i]*y[i]*z[i]*(7.0*x12[i] - 182.0*x10[i]*y2[i] + 1001.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1001.0*x4[i]*y8[i] - 182.0*x2[i]*y10[i] + 7.0*y12[i]);
+      prCofDY[totalAN*284+i] = 13.7174494214084*y[i]*(-15.0*x14[i] + 455.0*x12[i]*y2[i] - 3003.0*x10[i]*y4[i] + 6435.0*x8[i]*y6[i] - 5005.0*x6[i]*y8[i] + 1365.0*x4[i]*y10[i] - 105.0*x2[i]*y12[i] + y14[i]);
+
+      prCofDZ[totalAN*252+i] = 0;
+      prCofDZ[totalAN*253+i] = 4.84985075323068*y[i]*(15.0*x14[i] - 455.0*x12[i]*y2[i] + 3003.0*x10[i]*y4[i] - 6435.0*x8[i]*y6[i] + 5005.0*x6[i]*y8[i] - 1365.0*x4[i]*y10[i] + 105.0*x2[i]*y12[i] - y14[i]);
+      prCofDZ[totalAN*254+i] = 73.9117993910719*x[i]*y[i]*z[i]*(7.0*x12[i] - 182.0*x10[i]*y2[i] + 1001.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1001.0*x4[i]*y8[i] - 182.0*x2[i]*y10[i] + 7.0*y12[i]);
+      prCofDZ[totalAN*255+i] = -5.84324080093084*y[i]*(x2[i] + y2[i] - 28.0*z2[i])*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]);
+      prCofDZ[totalAN*256+i] = 81.0180057178837*x[i]*y[i]*z[i]*(-3.0*x2[i] - 3.0*y2[i] + 26.0*z2[i])*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]);
+      prCofDZ[totalAN*257+i] = 6.41931677269582*y[i]*(261.0*z4[i] - 54.0*z2[i]*r2[i] + r4[i])*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]);
+      prCofDZ[totalAN*258+i] = 31.4713874492004*x[i]*y[i]*z[i]*(261.0*z4[i] - 90.0*z2[i]*r2[i] + 5.0*r4[i])*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]);
+      prCofDZ[totalAN*259+i] = 6.80404212865317*y[i]*(1305.0*z6[i] - 675.0*z4[i]*r2[i] + 75.0*z2[i]*r4[i] - r6[i])*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]);
+      prCofDZ[totalAN*260+i] = 105.571130411511*x[i]*y[i]*z[i]*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i])*(1305.0*z6[i] - 945.0*z4[i]*r2[i] + 175.0*z2[i]*r4[i] - 7.0*r6[i]);
+      prCofDZ[totalAN*261+i] = 1.01013828545712*y[i]*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i])*(30015.0*z8[i] - 28980.0*z6[i]*r2[i] + 8050.0*z4[i]*r4[i] - 644.0*z2[i]*r6[i] + 7.0*r8[i]);
+      prCofDZ[totalAN*262+i] = 9.76896009261221*x[i]*y[i]*z[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(10005.0*z8[i] - 12420.0*z6[i]*r2[i] + 4830.0*z4[i]*r4[i] - 644.0*z2[i]*r6[i] + 21.0*r8[i]);
+      prCofDZ[totalAN*263+i] = 7.2530828229582*y[i]*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(10005.0*z10[i] - 15525.0*z8[i]*r2[i] + 8050.0*z6[i]*r4[i] - 1610.0*z4[i]*r6[i] + 105.0*z2[i]*r8[i] - r10[i]);
+      prCofDZ[totalAN*264+i] = 39.8750200272244*x[i]*y[i]*z[i]*(x2[i] - y2[i])*(10005.0*z10[i] - 18975.0*z8[i]*r2[i] + 12650.0*z6[i]*r4[i] - 3542.0*z4[i]*r6[i] + 385.0*z2[i]*r8[i] - 11.0*r10[i]);
+      prCofDZ[totalAN*265+i] = 0.66975560245427*y[i]*(3.0*x2[i] - y2[i])*(190095.0*z12[i] - 432630.0*z10[i]*r2[i] + 360525.0*z8[i]*r4[i] - 134596.0*z6[i]*r6[i] + 21945.0*z4[i]*r8[i] - 1254.0*z2[i]*r10[i] + 11.0*r12[i]);
+      prCofDZ[totalAN*266+i] = 0.530690686880522*x[i]*y[i]*z[i]*(570285.0*z12[i] - 1533870.0*z10[i]*r2[i] + 1562275.0*z8[i]*r4[i] - 749892.0*z6[i]*r6[i] + 171171.0*z4[i]*r8[i] - 16302.0*z2[i]*r10[i] + 429.0*r12[i]);
+      prCofDZ[totalAN*267+i] = 0.0173018607299032*y[i]*(9694845.0*z14[i] - 30421755.0*z12[i]*r2[i] + 37182145.0*z10[i]*r4[i] - 22309287.0*z8[i]*r6[i] + 6789783.0*z6[i]*r8[i] - 969969.0*z4[i]*r10[i] + 51051.0*z2[i]*r12[i] - 429.0*r14[i]);
+      prCofDZ[totalAN*268+i] = 0.0126602437781808*z[i]*(9694845.0*z14[i] - 35102025.0*z12[i]*r2[i] + 50702925.0*z10[i]*r4[i] - 37182145.0*z8[i]*r6[i] + 14549535.0*z6[i]*r8[i] - 2909907.0*z4[i]*r10[i] + 255255.0*z2[i]*r12[i] - 6435.0*r14[i]);
+      prCofDZ[totalAN*269+i] = 0.0173018607299032*x[i]*(9694845.0*z14[i] - 30421755.0*z12[i]*r2[i] + 37182145.0*z10[i]*r4[i] - 22309287.0*z8[i]*r6[i] + 6789783.0*z6[i]*r8[i] - 969969.0*z4[i]*r10[i] + 51051.0*z2[i]*r12[i] - 429.0*r14[i]);
+      prCofDZ[totalAN*270+i] = 0.265345343440261*z[i]*(x2[i] - y2[i])*(570285.0*z12[i] - 1533870.0*z10[i]*r2[i] + 1562275.0*z8[i]*r4[i] - 749892.0*z6[i]*r6[i] + 171171.0*z4[i]*r8[i] - 16302.0*z2[i]*r10[i] + 429.0*r12[i]);
+      prCofDZ[totalAN*271+i] = 0.66975560245427*x[i]*(x2[i] - 3.0*y2[i])*(190095.0*z12[i] - 432630.0*z10[i]*r2[i] + 360525.0*z8[i]*r4[i] - 134596.0*z6[i]*r6[i] + 21945.0*z4[i]*r8[i] - 1254.0*z2[i]*r10[i] + 11.0*r12[i]);
+      prCofDZ[totalAN*272+i] = 9.96875500680609*z[i]*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(10005.0*z10[i] - 18975.0*z8[i]*r2[i] + 12650.0*z6[i]*r4[i] - 3542.0*z4[i]*r6[i] + 385.0*z2[i]*r8[i] - 11.0*r10[i]);
+      prCofDZ[totalAN*273+i] = 7.2530828229582*x[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(10005.0*z10[i] - 15525.0*z8[i]*r2[i] + 8050.0*z6[i]*r4[i] - 1610.0*z4[i]*r6[i] + 105.0*z2[i]*r8[i] - r10[i]);
+      prCofDZ[totalAN*274+i] = 4.88448004630611*z[i]*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i])*(10005.0*z8[i] - 12420.0*z6[i]*r2[i] + 4830.0*z4[i]*r4[i] - 644.0*z2[i]*r6[i] + 21.0*r8[i]);
+      prCofDZ[totalAN*275+i] = 1.01013828545712*x[i]*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i])*(30015.0*z8[i] - 28980.0*z6[i]*r2[i] + 8050.0*z4[i]*r4[i] - 644.0*z2[i]*r6[i] + 7.0*r8[i]);
+      prCofDZ[totalAN*276+i] = 13.1963913014389*z[i]*(1305.0*z6[i] - 945.0*z4[i]*r2[i] + 175.0*z2[i]*r4[i] - 7.0*r6[i])*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]);
+      prCofDZ[totalAN*277+i] = 6.80404212865317*x[i]*(1305.0*z6[i] - 675.0*z4[i]*r2[i] + 75.0*z2[i]*r4[i] - r6[i])*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]);
+      prCofDZ[totalAN*278+i] = 15.7356937246002*z[i]*(261.0*z4[i] - 90.0*z2[i]*r2[i] + 5.0*r4[i])*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]);
+      prCofDZ[totalAN*279+i] = 6.41931677269582*x[i]*(261.0*z4[i] - 54.0*z2[i]*r2[i] + r4[i])*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]);
+      prCofDZ[totalAN*280+i] = 20.2545014294709*z[i]*(-3.0*x2[i] - 3.0*y2[i] + 26.0*z2[i])*(x12[i] - 66.0*x10[i]*y2[i] + 495.0*x8[i]*y4[i] - 924.0*x6[i]*y6[i] + 495.0*x4[i]*y8[i] - 66.0*x2[i]*y10[i] + y12[i]);
+      prCofDZ[totalAN*281+i] = -5.84324080093084*x[i]*(x2[i] + y2[i] - 28.0*z2[i])*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]);
+      prCofDZ[totalAN*282+i] = 36.955899695536*z[i]*(x14[i] - 91.0*x12[i]*y2[i] + 1001.0*x10[i]*y4[i] - 3003.0*x8[i]*y6[i] + 3003.0*x6[i]*y8[i] - 1001.0*x4[i]*y10[i] + 91.0*x2[i]*y12[i] - y14[i]);
+      prCofDZ[totalAN*283+i] = 4.84985075323068*x[i]*(x14[i] - 105.0*x12[i]*y2[i] + 1365.0*x10[i]*y4[i] - 5005.0*x8[i]*y6[i] + 6435.0*x6[i]*y8[i] - 3003.0*x4[i]*y10[i] + 455.0*x2[i]*y12[i] - 15.0*y14[i]);
+      prCofDZ[totalAN*284+i] = 0;
+
+
+
     }
 
     if (lMax > 16){ //OBS!!!!! lMax > 9, tesseral cases
@@ -668,6 +1610,118 @@ void getCfactorsD(double* preCoef, int Asize, double* x,double* x2, double* x4, 
       preCoef[totalAN*317+i] = -0.624331775925749*x[i]*(x2[i] + y2[i] - 32.0*z2[i])*(x14[i] - 105.0*x12[i]*y2[i] + 1365.0*x10[i]*y4[i] - 5005.0*x8[i]*y6[i] + 6435.0*x6[i]*y8[i] - 3003.0*x4[i]*y10[i] + 455.0*x2[i]*y12[i] - 15.0*y14[i]);
       preCoef[totalAN*318+i] = 5.07209532485536*z[i]*(x16[i] - 120.0*x14[i]*y2[i] + 1820.0*x12[i]*y4[i] - 8008.0*x10[i]*y6[i] + 12870.0*x8[i]*y8[i] - 8008.0*x6[i]*y10[i] + 1820.0*x4[i]*y12[i] - 120.0*x2[i]*y14[i] + y16[i]);
       preCoef[totalAN*319+i] = 0.869857171920628*x[i]*(x16[i] - 136.0*x14[i]*y2[i] + 2380.0*x12[i]*y4[i] - 12376.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 19448.0*x6[i]*y10[i] + 6188.0*x4[i]*y12[i] - 680.0*x2[i]*y14[i] + 17.0*y16[i]);
+
+      prCofDX[totalAN*285+i] = 236.601150762411*x[i]*y[i]*(x14[i] - 35.0*x12[i]*y2[i] + 273.0*x10[i]*y4[i] - 715.0*x8[i]*y6[i] + 715.0*x6[i]*y8[i] - 273.0*x4[i]*y10[i] + 35.0*x2[i]*y12[i] - y14[i]);
+      prCofDX[totalAN*286+i] = 81.1535251976858*y[i]*z[i]*(15.0*x14[i] - 455.0*x12[i]*y2[i] + 3003.0*x10[i]*y4[i] - 6435.0*x8[i]*y6[i] + 5005.0*x6[i]*y8[i] - 1365.0*x4[i]*y10[i] + 105.0*x2[i]*y12[i] - y14[i]);
+      prCofDX[totalAN*287+i] = 1.2486635518515*x[i]*y[i]*(-15.0*x14[i] + 455.0*x12[i]*y2[i] - 3003.0*x10[i]*y4[i] + 6435.0*x8[i]*y6[i] - 5005.0*x6[i]*y8[i] + 1365.0*x4[i]*y10[i] - 105.0*x2[i]*y12[i] + y14[i] - 15.0*(x2[i] + y2[i] - 32.0*z2[i])*(7.0*x12[i] - 182.0*x10[i]*y2[i] + 1001.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1001.0*x4[i]*y8[i] - 182.0*x2[i]*y10[i] + 7.0*y12[i]));
+      prCofDX[totalAN*288+i] = 12.2343542497898*y[i]*z[i]*(x2[i]*(-14.0*x12[i] + 364.0*x10[i]*y2[i] - 2002.0*x8[i]*y4[i] + 3432.0*x6[i]*y6[i] - 2002.0*x4[i]*y8[i] + 364.0*x2[i]*y10[i] - 14.0*y12[i]) + 7.0*(-x2[i] - y2[i] + 10.0*z2[i])*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]));
+      prCofDX[totalAN*289+i] = 2.19735489013606*x[i]*y[i]*(-(-x2[i] - y2[i] + 30.0*z2[i])*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]) + 13.0*(341.0*z4[i] - 62.0*z2[i]*r2[i] + r4[i])*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]));
+      prCofDX[totalAN*290+i] = 1.79413275488091*y[i]*z[i]*(-20.0*x2[i]*(-3.0*x2[i] - 3.0*y2[i] + 28.0*z2[i])*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]) + 3.0*(1023.0*z4[i] - 310.0*z2[i]*r2[i] + 15.0*r4[i])*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]));
+      prCofDX[totalAN*291+i] = 0.204019279709407*x[i]*y[i]*(-5.0*(899.0*z4[i] - 174.0*z2[i]*r2[i] + 3.0*r4[i])*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]) + 11.0*(9889.0*z6[i] - 4495.0*z4[i]*r2[i] + 435.0*z2[i]*r4[i] - 5.0*r6[i])*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]));
+      prCofDX[totalAN*292+i] = 0.408038559418814*y[i]*z[i]*(-14.0*x2[i]*(899.0*z4[i] - 290.0*z2[i]*r2[i] + 15.0*r4[i])*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]) + 5.0*(9889.0*z6[i] - 6293.0*z4[i]*r2[i] + 1015.0*z2[i]*r4[i] - 35.0*r6[i])*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]));
+      prCofDX[totalAN*293+i] = 0.111054029550712*x[i]*y[i]*(9.0*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i])*(267003.0*z8[i] - 226548.0*z6[i]*r2[i] + 54810.0*z4[i]*r4[i] - 3780.0*z2[i]*r6[i] + 35.0*r8[i]) - 7.0*(8091.0*z6[i] - 3915.0*z4[i]*r2[i] + 405.0*z2[i]*r4[i] - 5.0*r6[i])*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]));
+      prCofDX[totalAN*294+i] = 1.69879999122657*y[i]*z[i]*(-8.0*x2[i]*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i])*(8091.0*z6[i] - 5481.0*z4[i]*r2[i] + 945.0*z2[i]*r4[i] - 35.0*r6[i]) + (7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i])*(29667.0*z8[i] - 32364.0*z6[i]*r2[i] + 10962.0*z4[i]*r4[i] - 1260.0*z2[i]*r6[i] + 35.0*r8[i]));
+      prCofDX[totalAN*295+i] = 0.134301931533751*x[i]*y[i]*(7.0*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(148335.0*z10[i] - 202275.0*z8[i]*r2[i] + 91350.0*z6[i]*r4[i] - 15750.0*z4[i]*r6[i] + 875.0*z2[i]*r8[i] - 7.0*r10[i]) - 5.0*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i])*(40455.0*z8[i] - 36540.0*z6[i]*r2[i] + 9450.0*z4[i]*r4[i] - 700.0*z2[i]*r6[i] + 7.0*r8[i]));
+      prCofDX[totalAN*296+i] = 0.727382699731321*y[i]*z[i]*(-10.0*x2[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(13485.0*z8[i] - 15660.0*z6[i]*r2[i] + 5670.0*z4[i]*r4[i] - 700.0*z2[i]*r6[i] + 21.0*r8[i]) + 3.0*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(40455.0*z10[i] - 67425.0*z8[i]*r2[i] + 39150.0*z6[i]*r4[i] - 9450.0*z4[i]*r6[i] + 875.0*z2[i]*r8[i] - 21.0*r10[i]));
+      prCofDX[totalAN*297+i] = 0.262699760480955*x[i]*y[i]*(5.0*(x2[i] - y2[i])*(310155.0*z12[i] - 620310.0*z10[i]*r2[i] + 450225.0*z8[i]*r4[i] - 144900.0*z6[i]*r6[i] + 20125.0*z4[i]*r8[i] - 966.0*z2[i]*r10[i] + 7.0*r12[i]) - (5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(310155.0*z10[i] - 450225.0*z8[i]*r2[i] + 217350.0*z6[i]*r4[i] - 40250.0*z4[i]*r6[i] + 2415.0*z2[i]*r8[i] - 21.0*r10[i]));
+      prCofDX[totalAN*298+i] = 0.0310675249591503*y[i]*z[i]*(-52.0*x2[i]*(x2[i] - y2[i])*(310155.0*z10[i] - 550275.0*z8[i]*r2[i] + 341550.0*z6[i]*r4[i] - 88550.0*z4[i]*r6[i] + 8855.0*z2[i]*r8[i] - 231.0*r10[i]) + (3.0*x2[i] - y2[i])*(3411705.0*z12[i] - 8064030.0*z10[i]*r2[i] + 7153575.0*z8[i]*r4[i] - 2960100.0*z6[i]*r6[i] + 575575.0*z4[i]*r8[i] - 46046.0*z2[i]*r10[i] + 1001.0*r12[i]));
+      prCofDX[totalAN*299+i] = 0.00634163197675825*x[i]*y[i]*(30705345.0*z14[i] - 84672315.0*z12[i]*r2[i] + 90135045.0*z10[i]*r4[i] - 46621575.0*z8[i]*r6[i] + 12087075.0*z6[i]*r8[i] - 1450449.0*z4[i]*r10[i] + 63063.0*z2[i]*r12[i] - 91.0*(3.0*x2[i] - y2[i])*(310155.0*z12[i] - 660330.0*z10[i]*r2[i] + 512325.0*z8[i]*r4[i] - 177100.0*z6[i]*r6[i] + 26565.0*z4[i]*r8[i] - 1386.0*z2[i]*r10[i] + 11.0*r12[i]) - 429.0*r14[i]);
+      prCofDX[totalAN*300+i] = 0.0219680575732975*y[i]*z[i]*(-70.0*x2[i]*(310155.0*z12[i] - 780390.0*z10[i]*r2[i] + 740025.0*z8[i]*r4[i] - 328900.0*z6[i]*r6[i] + 69069.0*z4[i]*r8[i] - 6006.0*z2[i]*r10[i] + 143.0*r12[i]) + 3411705.0*z14[i] - 10855425.0*z12[i]*r2[i] + 13656825.0*z10[i]*r4[i] - 8633625.0*z8[i]*r6[i] + 2877875.0*z6[i]*r8[i] - 483483.0*z4[i]*r10[i] + 35035.0*z2[i]*r12[i] - 715.0*r14[i]);
+      prCofDX[totalAN*301+i] = -0.050398180498888*x[i]*y[i]*(5892945.0*z14[i] - 17298645.0*z12[i]*r2[i] + 19684665.0*z10[i]*r4[i] - 10935925.0*z8[i]*r6[i] + 3062059.0*z6[i]*r8[i] - 399399.0*z4[i]*r10[i] + 19019.0*z2[i]*r12[i] - 143.0*r14[i]);
+      prCofDX[totalAN*302+i] = 0.0138531347690573*x[i]*z[i]*(-17678835.0*z14[i] + 59879925.0*z12[i]*r2[i] - 80528175.0*z10[i]*r4[i] + 54679625.0*z8[i]*r6[i] - 19684665.0*z6[i]*r8[i] + 3594591.0*z4[i]*r10[i] - 285285.0*z2[i]*r12[i] + 6435.0*r14[i]);
+      prCofDX[totalAN*303+i] = -0.050398180498888*x2[i]*(5892945.0*z14[i] - 17298645.0*z12[i]*r2[i] + 19684665.0*z10[i]*r4[i] - 10935925.0*z8[i]*r6[i] + 3062059.0*z6[i]*r8[i] - 399399.0*z4[i]*r10[i] + 19019.0*z2[i]*r12[i] - 143.0*r14[i]) + 40836.6345447527*z16[i] - 148496.85289001*z14[i]*r2[i] + 217955.058274046*z12[i]*r4[i] - 165345.21662169*z10[i]*r6[i] + 68893.8402590377*z8[i]*r8[i] - 15432.2202180244*z6[i]*r10[i] + 1677.41524108961*z4[i]*r12[i] - 68.4659282077393*z2[i]*r14[i] + 0.450433738208811*r16[i];
+      prCofDX[totalAN*304+i] = 0.0219680575732975*x[i]*z[i]*(3411705.0*z14[i] - 10855425.0*z12[i]*r2[i] + 13656825.0*z10[i]*r4[i] - 8633625.0*z8[i]*r6[i] + 2877875.0*z6[i]*r8[i] - 483483.0*z4[i]*r10[i] + 35035.0*z2[i]*r12[i] - 35.0*(x2[i] - y2[i])*(310155.0*z12[i] - 780390.0*z10[i]*r2[i] + 740025.0*z8[i]*r4[i] - 328900.0*z6[i]*r6[i] + 69069.0*z4[i]*r8[i] - 6006.0*z2[i]*r10[i] + 143.0*r12[i]) - 715.0*r14[i]);
+      prCofDX[totalAN*305+i] = -0.577088509885001*x2[i]*(x2[i] - 3.0*y2[i])*(310155.0*z12[i] - 660330.0*z10[i]*r2[i] + 512325.0*z8[i]*r4[i] - 177100.0*z6[i]*r6[i] + 26565.0*z4[i]*r8[i] - 1386.0*z2[i]*r10[i] + 11.0*r12[i]) + 0.00951244796513738*(x2[i] - y2[i])*(10235115.0*z14[i] - 28224105.0*z12[i]*r2[i] + 30045015.0*z10[i]*r4[i] - 15540525.0*z8[i]*r6[i] + 4029025.0*z6[i]*r8[i] - 483483.0*z4[i]*r10[i] + 21021.0*z2[i]*r12[i] - 143.0*r14[i]);
+      prCofDX[totalAN*306+i] = 0.0310675249591503*x[i]*z[i]*((x2[i] - 3.0*y2[i])*(3411705.0*z12[i] - 8064030.0*z10[i]*r2[i] + 7153575.0*z8[i]*r4[i] - 2960100.0*z6[i]*r6[i] + 575575.0*z4[i]*r8[i] - 46046.0*z2[i]*r10[i] + 1001.0*r12[i]) - 13.0*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(310155.0*z10[i] - 550275.0*z8[i]*r2[i] + 341550.0*z6[i]*r4[i] - 88550.0*z4[i]*r6[i] + 8855.0*z2[i]*r8[i] - 231.0*r10[i]));
+      prCofDX[totalAN*307+i] = -0.262699760480955*x2[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(310155.0*z10[i] - 450225.0*z8[i]*r2[i] + 217350.0*z6[i]*r4[i] - 40250.0*z4[i]*r6[i] + 2415.0*z2[i]*r8[i] - 21.0*r10[i]) + 0.328374700601193*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(310155.0*z12[i] - 620310.0*z10[i]*r2[i] + 450225.0*z8[i]*r4[i] - 144900.0*z6[i]*r6[i] + 20125.0*z4[i]*r8[i] - 966.0*z2[i]*r10[i] + 7.0*r12[i]);
+      prCofDX[totalAN*308+i] = 0.727382699731321*x[i]*z[i]*(3.0*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(40455.0*z10[i] - 67425.0*z8[i]*r2[i] + 39150.0*z6[i]*r4[i] - 9450.0*z4[i]*r6[i] + 875.0*z2[i]*r8[i] - 21.0*r10[i]) - 5.0*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i])*(13485.0*z8[i] - 15660.0*z6[i]*r2[i] + 5670.0*z4[i]*r4[i] - 700.0*z2[i]*r6[i] + 21.0*r8[i]));
+      prCofDX[totalAN*309+i] = -0.671509657668754*x2[i]*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i])*(40455.0*z8[i] - 36540.0*z6[i]*r2[i] + 9450.0*z4[i]*r4[i] - 700.0*z2[i]*r6[i] + 7.0*r8[i]) + 0.470056760368128*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i])*(148335.0*z10[i] - 202275.0*z8[i]*r2[i] + 91350.0*z6[i]*r4[i] - 15750.0*z4[i]*r6[i] + 875.0*z2[i]*r8[i] - 7.0*r10[i]);
+      prCofDX[totalAN*310+i] = 1.69879999122657*x[i]*z[i]*((x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i])*(29667.0*z8[i] - 32364.0*z6[i]*r2[i] + 10962.0*z4[i]*r4[i] - 1260.0*z2[i]*r6[i] + 35.0*r8[i]) - (8091.0*z6[i] - 5481.0*z4[i]*r2[i] + 945.0*z2[i]*r4[i] - 35.0*r6[i])*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]));
+      prCofDX[totalAN*311+i] = -0.777378206854985*x2[i]*(8091.0*z6[i] - 3915.0*z4[i]*r2[i] + 405.0*z2[i]*r4[i] - 5.0*r6[i])*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]) + 0.124935783244551*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i])*(267003.0*z8[i] - 226548.0*z6[i]*r2[i] + 54810.0*z4[i]*r4[i] - 3780.0*z2[i]*r6[i] + 35.0*r8[i]);
+      prCofDX[totalAN*312+i] = 0.408038559418814*x[i]*z[i]*(-7.0*(899.0*z4[i] - 290.0*z2[i]*r2[i] + 15.0*r4[i])*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]) + 5.0*(9889.0*z6[i] - 6293.0*z4[i]*r2[i] + 1015.0*z2[i]*r4[i] - 35.0*r6[i])*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]));
+      prCofDX[totalAN*313+i] = -1.02009639854704*x2[i]*(899.0*z4[i] - 174.0*z2[i]*r2[i] + 3.0*r4[i])*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]) + 1.12210603840174*(9889.0*z6[i] - 4495.0*z4[i]*r2[i] + 435.0*z2[i]*r4[i] - 5.0*r6[i])*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]);
+      prCofDX[totalAN*314+i] = 1.79413275488091*x[i]*z[i]*(-5.0*(-3.0*x2[i] - 3.0*y2[i] + 28.0*z2[i])*(x12[i] - 66.0*x10[i]*y2[i] + 495.0*x8[i]*y4[i] - 924.0*x6[i]*y6[i] + 495.0*x4[i]*y8[i] - 66.0*x2[i]*y10[i] + y12[i]) + 3.0*(1023.0*z4[i] - 310.0*z2[i]*r2[i] + 15.0*r4[i])*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]));
+      prCofDX[totalAN*315+i] = -2.19735489013606*x2[i]*(-x2[i] - y2[i] + 30.0*z2[i])*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]) + 7.14140339294219*(341.0*z4[i] - 62.0*z2[i]*r2[i] + r4[i])*(x12[i] - 66.0*x10[i]*y2[i] + 495.0*x8[i]*y4[i] - 924.0*x6[i]*y6[i] + 495.0*x4[i]*y8[i] - 66.0*x2[i]*y10[i] + y12[i]);
+      prCofDX[totalAN*316+i] = 12.2343542497898*x[i]*z[i]*(-x14[i] + 91.0*x12[i]*y2[i] - 1001.0*x10[i]*y4[i] + 3003.0*x8[i]*y6[i] - 3003.0*x6[i]*y8[i] + 1001.0*x4[i]*y10[i] - 91.0*x2[i]*y12[i] + y14[i] + 7.0*(-x2[i] - y2[i] + 10.0*z2[i])*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]));
+      prCofDX[totalAN*317+i] = -1.2486635518515*x2[i]*(x14[i] - 105.0*x12[i]*y2[i] + 1365.0*x10[i]*y4[i] - 5005.0*x8[i]*y6[i] + 6435.0*x6[i]*y8[i] - 3003.0*x4[i]*y10[i] + 455.0*x2[i]*y12[i] - 15.0*y14[i]) - 9.36497663888624*(x2[i] + y2[i] - 32.0*z2[i])*(x14[i] - 91.0*x12[i]*y2[i] + 1001.0*x10[i]*y4[i] - 3003.0*x8[i]*y6[i] + 3003.0*x6[i]*y8[i] - 1001.0*x4[i]*y10[i] + 91.0*x2[i]*y12[i] - y14[i]);
+      prCofDX[totalAN*318+i] = 81.1535251976858*x[i]*z[i]*(x14[i] - 105.0*x12[i]*y2[i] + 1365.0*x10[i]*y4[i] - 5005.0*x8[i]*y6[i] + 6435.0*x6[i]*y8[i] - 3003.0*x4[i]*y10[i] + 455.0*x2[i]*y12[i] - 15.0*y14[i]);
+      prCofDX[totalAN*319+i] = 14.7875719226507*x16[i] - 1774.50863071808*x14[i]*y2[i] + 26913.3808992242*x12[i]*y4[i] - 118418.875956587*x10[i]*y6[i] + 190316.050644514*x8[i]*y8[i] - 118418.875956587*x6[i]*y10[i] + 26913.3808992242*x4[i]*y12[i] - 1774.50863071808*x2[i]*y14[i] + 14.7875719226507*y16[i];
+
+      prCofDY[totalAN*285+i] = 14.7875719226507*x16[i] - 1774.50863071808*x14[i]*y2[i] + 26913.3808992242*x12[i]*y4[i] - 118418.875956587*x10[i]*y6[i] + 190316.050644514*x8[i]*y8[i] - 118418.875956587*x6[i]*y10[i] + 26913.3808992242*x4[i]*y12[i] - 1774.50863071808*x2[i]*y14[i] + 14.7875719226507*y16[i];
+      prCofDY[totalAN*286+i] = 81.1535251976858*x[i]*z[i]*(x14[i] - 105.0*x12[i]*y2[i] + 1365.0*x10[i]*y4[i] - 5005.0*x8[i]*y6[i] + 6435.0*x6[i]*y8[i] - 3003.0*x4[i]*y10[i] + 455.0*x2[i]*y12[i] - 15.0*y14[i]);
+      prCofDY[totalAN*287+i] = -1.2486635518515*y2[i]*(15.0*x14[i] - 455.0*x12[i]*y2[i] + 3003.0*x10[i]*y4[i] - 6435.0*x8[i]*y6[i] + 5005.0*x6[i]*y8[i] - 1365.0*x4[i]*y10[i] + 105.0*x2[i]*y12[i] - y14[i]) - 9.36497663888624*(x2[i] + y2[i] - 32.0*z2[i])*(x14[i] - 91.0*x12[i]*y2[i] + 1001.0*x10[i]*y4[i] - 3003.0*x8[i]*y6[i] + 3003.0*x6[i]*y8[i] - 1001.0*x4[i]*y10[i] + 91.0*x2[i]*y12[i] - y14[i]);
+      prCofDY[totalAN*288+i] = 12.2343542497898*x[i]*z[i]*(y2[i]*(-14.0*x12[i] + 364.0*x10[i]*y2[i] - 2002.0*x8[i]*y4[i] + 3432.0*x6[i]*y6[i] - 2002.0*x4[i]*y8[i] + 364.0*x2[i]*y10[i] - 14.0*y12[i]) + 7.0*(-x2[i] - y2[i] + 10.0*z2[i])*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]));
+      prCofDY[totalAN*289+i] = -2.19735489013606*y2[i]*(-x2[i] - y2[i] + 30.0*z2[i])*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]) + 7.14140339294219*(341.0*z4[i] - 62.0*z2[i]*r2[i] + r4[i])*(x12[i] - 66.0*x10[i]*y2[i] + 495.0*x8[i]*y4[i] - 924.0*x6[i]*y6[i] + 495.0*x4[i]*y8[i] - 66.0*x2[i]*y10[i] + y12[i]);
+      prCofDY[totalAN*290+i] = 1.79413275488091*x[i]*z[i]*(-20.0*y2[i]*(-3.0*x2[i] - 3.0*y2[i] + 28.0*z2[i])*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]) + 3.0*(1023.0*z4[i] - 310.0*z2[i]*r2[i] + 15.0*r4[i])*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]));
+      prCofDY[totalAN*291+i] = -1.02009639854704*y2[i]*(899.0*z4[i] - 174.0*z2[i]*r2[i] + 3.0*r4[i])*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]) + 1.12210603840174*(9889.0*z6[i] - 4495.0*z4[i]*r2[i] + 435.0*z2[i]*r4[i] - 5.0*r6[i])*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]);
+      prCofDY[totalAN*292+i] = 0.408038559418814*x[i]*z[i]*(-14.0*y2[i]*(899.0*z4[i] - 290.0*z2[i]*r2[i] + 15.0*r4[i])*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]) + 5.0*(9889.0*z6[i] - 6293.0*z4[i]*r2[i] + 1015.0*z2[i]*r4[i] - 35.0*r6[i])*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]));
+      prCofDY[totalAN*293+i] = -0.777378206854985*y2[i]*(8091.0*z6[i] - 3915.0*z4[i]*r2[i] + 405.0*z2[i]*r4[i] - 5.0*r6[i])*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]) + 0.124935783244551*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i])*(267003.0*z8[i] - 226548.0*z6[i]*r2[i] + 54810.0*z4[i]*r4[i] - 3780.0*z2[i]*r6[i] + 35.0*r8[i]);
+      prCofDY[totalAN*294+i] = 1.69879999122657*x[i]*z[i]*(-8.0*y2[i]*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i])*(8091.0*z6[i] - 5481.0*z4[i]*r2[i] + 945.0*z2[i]*r4[i] - 35.0*r6[i]) + (x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i])*(29667.0*z8[i] - 32364.0*z6[i]*r2[i] + 10962.0*z4[i]*r4[i] - 1260.0*z2[i]*r6[i] + 35.0*r8[i]));
+      prCofDY[totalAN*295+i] = -0.671509657668754*y2[i]*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i])*(40455.0*z8[i] - 36540.0*z6[i]*r2[i] + 9450.0*z4[i]*r4[i] - 700.0*z2[i]*r6[i] + 7.0*r8[i]) + 0.470056760368128*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i])*(148335.0*z10[i] - 202275.0*z8[i]*r2[i] + 91350.0*z6[i]*r4[i] - 15750.0*z4[i]*r6[i] + 875.0*z2[i]*r8[i] - 7.0*r10[i]);
+      prCofDY[totalAN*296+i] = 0.727382699731321*x[i]*z[i]*(-10.0*y2[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(13485.0*z8[i] - 15660.0*z6[i]*r2[i] + 5670.0*z4[i]*r4[i] - 700.0*z2[i]*r6[i] + 21.0*r8[i]) + 3.0*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(40455.0*z10[i] - 67425.0*z8[i]*r2[i] + 39150.0*z6[i]*r4[i] - 9450.0*z4[i]*r6[i] + 875.0*z2[i]*r8[i] - 21.0*r10[i]));
+      prCofDY[totalAN*297+i] = -0.262699760480955*y2[i]*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(310155.0*z10[i] - 450225.0*z8[i]*r2[i] + 217350.0*z6[i]*r4[i] - 40250.0*z4[i]*r6[i] + 2415.0*z2[i]*r8[i] - 21.0*r10[i]) + 0.328374700601193*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(310155.0*z12[i] - 620310.0*z10[i]*r2[i] + 450225.0*z8[i]*r4[i] - 144900.0*z6[i]*r6[i] + 20125.0*z4[i]*r8[i] - 966.0*z2[i]*r10[i] + 7.0*r12[i]);
+      prCofDY[totalAN*298+i] = 0.0310675249591503*x[i]*z[i]*(-52.0*y2[i]*(x2[i] - y2[i])*(310155.0*z10[i] - 550275.0*z8[i]*r2[i] + 341550.0*z6[i]*r4[i] - 88550.0*z4[i]*r6[i] + 8855.0*z2[i]*r8[i] - 231.0*r10[i]) + (x2[i] - 3.0*y2[i])*(3411705.0*z12[i] - 8064030.0*z10[i]*r2[i] + 7153575.0*z8[i]*r4[i] - 2960100.0*z6[i]*r6[i] + 575575.0*z4[i]*r8[i] - 46046.0*z2[i]*r10[i] + 1001.0*r12[i]));
+      prCofDY[totalAN*299+i] = -0.577088509885001*y2[i]*(3.0*x2[i] - y2[i])*(310155.0*z12[i] - 660330.0*z10[i]*r2[i] + 512325.0*z8[i]*r4[i] - 177100.0*z6[i]*r6[i] + 26565.0*z4[i]*r8[i] - 1386.0*z2[i]*r10[i] + 11.0*r12[i]) + 0.00951244796513738*(x2[i] - y2[i])*(10235115.0*z14[i] - 28224105.0*z12[i]*r2[i] + 30045015.0*z10[i]*r4[i] - 15540525.0*z8[i]*r6[i] + 4029025.0*z6[i]*r8[i] - 483483.0*z4[i]*r10[i] + 21021.0*z2[i]*r12[i] - 143.0*r14[i]);
+      prCofDY[totalAN*300+i] = 0.0219680575732975*x[i]*z[i]*(-70.0*y2[i]*(310155.0*z12[i] - 780390.0*z10[i]*r2[i] + 740025.0*z8[i]*r4[i] - 328900.0*z6[i]*r6[i] + 69069.0*z4[i]*r8[i] - 6006.0*z2[i]*r10[i] + 143.0*r12[i]) + 3411705.0*z14[i] - 10855425.0*z12[i]*r2[i] + 13656825.0*z10[i]*r4[i] - 8633625.0*z8[i]*r6[i] + 2877875.0*z6[i]*r8[i] - 483483.0*z4[i]*r10[i] + 35035.0*z2[i]*r12[i] - 715.0*r14[i]);
+      prCofDY[totalAN*301+i] = -0.050398180498888*y2[i]*(5892945.0*z14[i] - 17298645.0*z12[i]*r2[i] + 19684665.0*z10[i]*r4[i] - 10935925.0*z8[i]*r6[i] + 3062059.0*z6[i]*r8[i] - 399399.0*z4[i]*r10[i] + 19019.0*z2[i]*r12[i] - 143.0*r14[i]) + 40836.6345447527*z16[i] - 148496.85289001*z14[i]*r2[i] + 217955.058274046*z12[i]*r4[i] - 165345.21662169*z10[i]*r6[i] + 68893.8402590377*z8[i]*r8[i] - 15432.2202180244*z6[i]*r10[i] + 1677.41524108961*z4[i]*r12[i] - 68.4659282077393*z2[i]*r14[i] + 0.450433738208811*r16[i];
+      prCofDY[totalAN*302+i] = 0.0138531347690573*y[i]*z[i]*(-17678835.0*z14[i] + 59879925.0*z12[i]*r2[i] - 80528175.0*z10[i]*r4[i] + 54679625.0*z8[i]*r6[i] - 19684665.0*z6[i]*r8[i] + 3594591.0*z4[i]*r10[i] - 285285.0*z2[i]*r12[i] + 6435.0*r14[i]);
+      prCofDY[totalAN*303+i] = -0.050398180498888*x[i]*y[i]*(5892945.0*z14[i] - 17298645.0*z12[i]*r2[i] + 19684665.0*z10[i]*r4[i] - 10935925.0*z8[i]*r6[i] + 3062059.0*z6[i]*r8[i] - 399399.0*z4[i]*r10[i] + 19019.0*z2[i]*r12[i] - 143.0*r14[i]);
+      prCofDY[totalAN*304+i] = 0.0219680575732975*y[i]*z[i]*(-3411705.0*z14[i] + 10855425.0*z12[i]*r2[i] - 13656825.0*z10[i]*r4[i] + 8633625.0*z8[i]*r6[i] - 2877875.0*z6[i]*r8[i] + 483483.0*z4[i]*r10[i] - 35035.0*z2[i]*r12[i] - 35.0*(x2[i] - y2[i])*(310155.0*z12[i] - 780390.0*z10[i]*r2[i] + 740025.0*z8[i]*r4[i] - 328900.0*z6[i]*r6[i] + 69069.0*z4[i]*r8[i] - 6006.0*z2[i]*r10[i] + 143.0*r12[i]) + 715.0*r14[i]);
+      prCofDY[totalAN*305+i] = 0.00634163197675825*x[i]*y[i]*(-30705345.0*z14[i] + 84672315.0*z12[i]*r2[i] - 90135045.0*z10[i]*r4[i] + 46621575.0*z8[i]*r6[i] - 12087075.0*z6[i]*r8[i] + 1450449.0*z4[i]*r10[i] - 63063.0*z2[i]*r12[i] - 91.0*(x2[i] - 3.0*y2[i])*(310155.0*z12[i] - 660330.0*z10[i]*r2[i] + 512325.0*z8[i]*r4[i] - 177100.0*z6[i]*r6[i] + 26565.0*z4[i]*r8[i] - 1386.0*z2[i]*r10[i] + 11.0*r12[i]) + 429.0*r14[i]);
+      prCofDY[totalAN*306+i] = -0.0310675249591503*y[i]*z[i]*((3.0*x2[i] - y2[i])*(3411705.0*z12[i] - 8064030.0*z10[i]*r2[i] + 7153575.0*z8[i]*r4[i] - 2960100.0*z6[i]*r6[i] + 575575.0*z4[i]*r8[i] - 46046.0*z2[i]*r10[i] + 1001.0*r12[i]) + 13.0*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(310155.0*z10[i] - 550275.0*z8[i]*r2[i] + 341550.0*z6[i]*r4[i] - 88550.0*z4[i]*r6[i] + 8855.0*z2[i]*r8[i] - 231.0*r10[i]));
+      prCofDY[totalAN*307+i] = -0.262699760480955*x[i]*y[i]*(5.0*(x2[i] - y2[i])*(310155.0*z12[i] - 620310.0*z10[i]*r2[i] + 450225.0*z8[i]*r4[i] - 144900.0*z6[i]*r6[i] + 20125.0*z4[i]*r8[i] - 966.0*z2[i]*r10[i] + 7.0*r12[i]) + (x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(310155.0*z10[i] - 450225.0*z8[i]*r2[i] + 217350.0*z6[i]*r4[i] - 40250.0*z4[i]*r6[i] + 2415.0*z2[i]*r8[i] - 21.0*r10[i]));
+      prCofDY[totalAN*308+i] = -0.727382699731321*y[i]*z[i]*(3.0*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(40455.0*z10[i] - 67425.0*z8[i]*r2[i] + 39150.0*z6[i]*r4[i] - 9450.0*z4[i]*r6[i] + 875.0*z2[i]*r8[i] - 21.0*r10[i]) + 5.0*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i])*(13485.0*z8[i] - 15660.0*z6[i]*r2[i] + 5670.0*z4[i]*r4[i] - 700.0*z2[i]*r6[i] + 21.0*r8[i]));
+      prCofDY[totalAN*309+i] = -0.134301931533751*x[i]*y[i]*(7.0*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(148335.0*z10[i] - 202275.0*z8[i]*r2[i] + 91350.0*z6[i]*r4[i] - 15750.0*z4[i]*r6[i] + 875.0*z2[i]*r8[i] - 7.0*r10[i]) + 5.0*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i])*(40455.0*z8[i] - 36540.0*z6[i]*r2[i] + 9450.0*z4[i]*r4[i] - 700.0*z2[i]*r6[i] + 7.0*r8[i]));
+      prCofDY[totalAN*310+i] = -1.69879999122657*y[i]*z[i]*((7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i])*(29667.0*z8[i] - 32364.0*z6[i]*r2[i] + 10962.0*z4[i]*r4[i] - 1260.0*z2[i]*r6[i] + 35.0*r8[i]) + (8091.0*z6[i] - 5481.0*z4[i]*r2[i] + 945.0*z2[i]*r4[i] - 35.0*r6[i])*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]));
+      prCofDY[totalAN*311+i] = -0.111054029550712*x[i]*y[i]*(9.0*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i])*(267003.0*z8[i] - 226548.0*z6[i]*r2[i] + 54810.0*z4[i]*r4[i] - 3780.0*z2[i]*r6[i] + 35.0*r8[i]) + 7.0*(8091.0*z6[i] - 3915.0*z4[i]*r2[i] + 405.0*z2[i]*r4[i] - 5.0*r6[i])*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]));
+      prCofDY[totalAN*312+i] = -0.408038559418814*y[i]*z[i]*(7.0*(899.0*z4[i] - 290.0*z2[i]*r2[i] + 15.0*r4[i])*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]) + 5.0*(9889.0*z6[i] - 6293.0*z4[i]*r2[i] + 1015.0*z2[i]*r4[i] - 35.0*r6[i])*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]));
+      prCofDY[totalAN*313+i] = -0.204019279709407*x[i]*y[i]*(5.0*(899.0*z4[i] - 174.0*z2[i]*r2[i] + 3.0*r4[i])*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]) + 11.0*(9889.0*z6[i] - 4495.0*z4[i]*r2[i] + 435.0*z2[i]*r4[i] - 5.0*r6[i])*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]));
+      prCofDY[totalAN*314+i] = 1.79413275488091*y[i]*z[i]*(5.0*(3.0*x2[i] + 3.0*y2[i] - 28.0*z2[i])*(x12[i] - 66.0*x10[i]*y2[i] + 495.0*x8[i]*y4[i] - 924.0*x6[i]*y6[i] + 495.0*x4[i]*y8[i] - 66.0*x2[i]*y10[i] + y12[i]) - 3.0*(1023.0*z4[i] - 310.0*z2[i]*r2[i] + 15.0*r4[i])*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]));
+      prCofDY[totalAN*315+i] = 2.19735489013606*x[i]*y[i]*((x2[i] + y2[i] - 30.0*z2[i])*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]) - 13.0*(341.0*z4[i] - 62.0*z2[i]*r2[i] + r4[i])*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]));
+      prCofDY[totalAN*316+i] = 12.2343542497898*y[i]*z[i]*(-x14[i] + 91.0*x12[i]*y2[i] - 1001.0*x10[i]*y4[i] + 3003.0*x8[i]*y6[i] - 3003.0*x6[i]*y8[i] + 1001.0*x4[i]*y10[i] - 91.0*x2[i]*y12[i] + y14[i] - 7.0*(-x2[i] - y2[i] + 10.0*z2[i])*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]));
+      prCofDY[totalAN*317+i] = 1.2486635518515*x[i]*y[i]*(-x14[i] + 105.0*x12[i]*y2[i] - 1365.0*x10[i]*y4[i] + 5005.0*x8[i]*y6[i] - 6435.0*x6[i]*y8[i] + 3003.0*x4[i]*y10[i] - 455.0*x2[i]*y12[i] + 15.0*y14[i] + 15.0*(x2[i] + y2[i] - 32.0*z2[i])*(7.0*x12[i] - 182.0*x10[i]*y2[i] + 1001.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1001.0*x4[i]*y8[i] - 182.0*x2[i]*y10[i] + 7.0*y12[i]));
+      prCofDY[totalAN*318+i] = -81.1535251976858*y[i]*z[i]*(15.0*x14[i] - 455.0*x12[i]*y2[i] + 3003.0*x10[i]*y4[i] - 6435.0*x8[i]*y6[i] + 5005.0*x6[i]*y8[i] - 1365.0*x4[i]*y10[i] + 105.0*x2[i]*y12[i] - y14[i]);
+      prCofDY[totalAN*319+i] = 236.601150762411*x[i]*y[i]*(-x14[i] + 35.0*x12[i]*y2[i] - 273.0*x10[i]*y4[i] + 715.0*x8[i]*y6[i] - 715.0*x6[i]*y8[i] + 273.0*x4[i]*y10[i] - 35.0*x2[i]*y12[i] + y14[i]);
+
+      prCofDZ[totalAN*285+i] = 0;
+      prCofDZ[totalAN*286+i] = 81.1535251976858*x[i]*y[i]*(x14[i] - 35.0*x12[i]*y2[i] + 273.0*x10[i]*y4[i] - 715.0*x8[i]*y6[i] + 715.0*x6[i]*y8[i] - 273.0*x4[i]*y10[i] + 35.0*x2[i]*y12[i] - y14[i]);
+      prCofDZ[totalAN*287+i] = 39.957233659248*y[i]*z[i]*(15.0*x14[i] - 455.0*x12[i]*y2[i] + 3003.0*x10[i]*y4[i] - 6435.0*x8[i]*y6[i] + 5005.0*x6[i]*y8[i] - 1365.0*x4[i]*y10[i] + 105.0*x2[i]*y12[i] - y14[i]);
+      prCofDZ[totalAN*288+i] = -12.2343542497898*x[i]*y[i]*(x2[i] + y2[i] - 30.0*z2[i])*(7.0*x12[i] - 182.0*x10[i]*y2[i] + 1001.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1001.0*x4[i]*y8[i] - 182.0*x2[i]*y10[i] + 7.0*y12[i]);
+      prCofDZ[totalAN*289+i] = 21.9735489013606*y[i]*z[i]*(-3.0*x2[i] - 3.0*y2[i] + 28.0*z2[i])*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]);
+      prCofDZ[totalAN*290+i] = 8.97066377440456*x[i]*y[i]*(899.0*z4[i] - 174.0*z2[i]*r2[i] + 3.0*r4[i])*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]);
+      prCofDZ[totalAN*291+i] = 5.7125398318634*y[i]*z[i]*(899.0*z4[i] - 290.0*z2[i]*r2[i] + 15.0*r4[i])*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]);
+      prCofDZ[totalAN*292+i] = 2.8562699159317*x[i]*y[i]*(8091.0*z6[i] - 3915.0*z4[i]*r2[i] + 405.0*z2[i]*r4[i] - 5.0*r6[i])*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]);
+      prCofDZ[totalAN*293+i] = 2.88740476831852*y[i]*z[i]*(8091.0*z6[i] - 5481.0*z4[i]*r2[i] + 945.0*z2[i]*r4[i] - 35.0*r6[i])*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]);
+      prCofDZ[totalAN*294+i] = 8.49399995613287*x[i]*y[i]*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i])*(40455.0*z8[i] - 36540.0*z6[i]*r2[i] + 9450.0*z4[i]*r4[i] - 700.0*z2[i]*r6[i] + 7.0*r8[i]);
+      prCofDZ[totalAN*295+i] = 5.37207726135003*y[i]*z[i]*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i])*(13485.0*z8[i] - 15660.0*z6[i]*r2[i] + 5670.0*z4[i]*r4[i] - 700.0*z2[i]*r6[i] + 21.0*r8[i]);
+      prCofDZ[totalAN*296+i] = 0.727382699731321*x[i]*y[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(310155.0*z10[i] - 450225.0*z8[i]*r2[i] + 217350.0*z6[i]*r4[i] - 40250.0*z4[i]*r6[i] + 2415.0*z2[i]*r8[i] - 21.0*r10[i]);
+      prCofDZ[totalAN*297+i] = 0.52539952096191*y[i]*z[i]*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(310155.0*z10[i] - 550275.0*z8[i]*r2[i] + 341550.0*z6[i]*r4[i] - 88550.0*z4[i]*r6[i] + 8855.0*z2[i]*r8[i] - 231.0*r10[i]);
+      prCofDZ[totalAN*298+i] = 2.82714477128268*x[i]*y[i]*(x2[i] - y2[i])*(310155.0*z12[i] - 660330.0*z10[i]*r2[i] + 512325.0*z8[i]*r4[i] - 177100.0*z6[i]*r6[i] + 26565.0*z4[i]*r8[i] - 1386.0*z2[i]*r10[i] + 11.0*r12[i]);
+      prCofDZ[totalAN*299+i] = 0.887828476746155*y[i]*z[i]*(3.0*x2[i] - y2[i])*(310155.0*z12[i] - 780390.0*z10[i]*r2[i] + 740025.0*z8[i]*r4[i] - 328900.0*z6[i]*r6[i] + 69069.0*z4[i]*r8[i] - 6006.0*z2[i]*r10[i] + 143.0*r12[i]);
+      prCofDZ[totalAN*300+i] = 0.109840287866487*x[i]*y[i]*(5892945.0*z14[i] - 17298645.0*z12[i]*r2[i] + 19684665.0*z10[i]*r4[i] - 10935925.0*z8[i]*r6[i] + 3062059.0*z6[i]*r8[i] - 399399.0*z4[i]*r10[i] + 19019.0*z2[i]*r12[i] - 143.0*r14[i]);
+      prCofDZ[totalAN*301+i] = 0.0201592721995552*y[i]*z[i]*(17678835.0*z14[i] - 59879925.0*z12[i]*r2[i] + 80528175.0*z10[i]*r4[i] - 54679625.0*z8[i]*r6[i] + 19684665.0*z6[i]*r8[i] - 3594591.0*z4[i]*r10[i] + 285285.0*z2[i]*r12[i] - 6435.0*r14[i]);
+      prCofDZ[totalAN*302+i] = 260213.98905336*z16[i] - 1007279.95762591*z14[i]*r2[i] + 1580387.51972341*z12[i]*r4[i] - 1287723.16421907*z10[i]*r6[i] + 579475.423898583*z8[i]*r8[i] - 141089.668427481*z6[i]*r10[i] + 16796.3890985097*z4[i]*r12[i] - 757.731839030511*z2[i]*r14[i] + 5.57155763993023*r16[i];
+      prCofDZ[totalAN*303+i] = 0.0201592721995552*x[i]*z[i]*(17678835.0*z14[i] - 59879925.0*z12[i]*r2[i] + 80528175.0*z10[i]*r4[i] - 54679625.0*z8[i]*r6[i] + 19684665.0*z6[i]*r8[i] - 3594591.0*z4[i]*r10[i] + 285285.0*z2[i]*r12[i] - 6435.0*r14[i]);
+      prCofDZ[totalAN*304+i] = 0.0549201439332437*(x2[i] - y2[i])*(5892945.0*z14[i] - 17298645.0*z12[i]*r2[i] + 19684665.0*z10[i]*r4[i] - 10935925.0*z8[i]*r6[i] + 3062059.0*z6[i]*r8[i] - 399399.0*z4[i]*r10[i] + 19019.0*z2[i]*r12[i] - 143.0*r14[i]);
+      prCofDZ[totalAN*305+i] = 0.887828476746155*x[i]*z[i]*(x2[i] - 3.0*y2[i])*(310155.0*z12[i] - 780390.0*z10[i]*r2[i] + 740025.0*z8[i]*r4[i] - 328900.0*z6[i]*r6[i] + 69069.0*z4[i]*r8[i] - 6006.0*z2[i]*r10[i] + 143.0*r12[i]);
+      prCofDZ[totalAN*306+i] = 0.706786192820669*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(310155.0*z12[i] - 660330.0*z10[i]*r2[i] + 512325.0*z8[i]*r4[i] - 177100.0*z6[i]*r6[i] + 26565.0*z4[i]*r8[i] - 1386.0*z2[i]*r10[i] + 11.0*r12[i]);
+      prCofDZ[totalAN*307+i] = 0.52539952096191*x[i]*z[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(310155.0*z10[i] - 550275.0*z8[i]*r2[i] + 341550.0*z6[i]*r4[i] - 88550.0*z4[i]*r6[i] + 8855.0*z2[i]*r8[i] - 231.0*r10[i]);
+      prCofDZ[totalAN*308+i] = 0.36369134986566*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i])*(310155.0*z10[i] - 450225.0*z8[i]*r2[i] + 217350.0*z6[i]*r4[i] - 40250.0*z4[i]*r6[i] + 2415.0*z2[i]*r8[i] - 21.0*r10[i]);
+      prCofDZ[totalAN*309+i] = 5.37207726135003*x[i]*z[i]*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i])*(13485.0*z8[i] - 15660.0*z6[i]*r2[i] + 5670.0*z4[i]*r4[i] - 700.0*z2[i]*r6[i] + 21.0*r8[i]);
+      prCofDZ[totalAN*310+i] = 1.06174999451661*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i])*(40455.0*z8[i] - 36540.0*z6[i]*r2[i] + 9450.0*z4[i]*r4[i] - 700.0*z2[i]*r6[i] + 7.0*r8[i]);
+      prCofDZ[totalAN*311+i] = 2.88740476831852*x[i]*z[i]*(8091.0*z6[i] - 5481.0*z4[i]*r2[i] + 945.0*z2[i]*r4[i] - 35.0*r6[i])*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]);
+      prCofDZ[totalAN*312+i] = 1.42813495796585*(8091.0*z6[i] - 3915.0*z4[i]*r2[i] + 405.0*z2[i]*r4[i] - 5.0*r6[i])*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]);
+      prCofDZ[totalAN*313+i] = 5.7125398318634*x[i]*z[i]*(899.0*z4[i] - 290.0*z2[i]*r2[i] + 15.0*r4[i])*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]);
+      prCofDZ[totalAN*314+i] = 2.24266594360114*(899.0*z4[i] - 174.0*z2[i]*r2[i] + 3.0*r4[i])*(x12[i] - 66.0*x10[i]*y2[i] + 495.0*x8[i]*y4[i] - 924.0*x6[i]*y6[i] + 495.0*x4[i]*y8[i] - 66.0*x2[i]*y10[i] + y12[i]);
+      prCofDZ[totalAN*315+i] = 21.9735489013606*x[i]*z[i]*(-3.0*x2[i] - 3.0*y2[i] + 28.0*z2[i])*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]);
+      prCofDZ[totalAN*316+i] = -6.11717712489491*(x2[i] + y2[i] - 30.0*z2[i])*(x14[i] - 91.0*x12[i]*y2[i] + 1001.0*x10[i]*y4[i] - 3003.0*x8[i]*y6[i] + 3003.0*x6[i]*y8[i] - 1001.0*x4[i]*y10[i] + 91.0*x2[i]*y12[i] - y14[i]);
+      prCofDZ[totalAN*317+i] = 39.957233659248*x[i]*z[i]*(x14[i] - 105.0*x12[i]*y2[i] + 1365.0*x10[i]*y4[i] - 5005.0*x8[i]*y6[i] + 6435.0*x6[i]*y8[i] - 3003.0*x4[i]*y10[i] + 455.0*x2[i]*y12[i] - 15.0*y14[i]);
+      prCofDZ[totalAN*318+i] = 5.07209532485536*x16[i] - 608.651438982643*x14[i]*y2[i] + 9231.21349123676*x12[i]*y4[i] - 40617.3393614417*x10[i]*y6[i] + 65277.8668308885*x8[i]*y8[i] - 40617.3393614417*x6[i]*y10[i] + 9231.21349123676*x4[i]*y12[i] - 608.651438982643*x2[i]*y14[i] + 5.07209532485536*y16[i];
+      prCofDZ[totalAN*319+i] = 0;
+
+
+
+
     }
 
     if (lMax > 17){ //OBS!!!!! lMax > 9, tesseral cases
@@ -708,6 +1762,124 @@ void getCfactorsD(double* preCoef, int Asize, double* x,double* x2, double* x4, 
       preCoef[totalAN*354+i] = -0.632411546418547*(x2[i] + y2[i] - 34.0*z2[i])*(x16[i] - 120.0*x14[i]*y2[i] + 1820.0*x12[i]*y4[i] - 8008.0*x10[i]*y6[i] + 12870.0*x8[i]*y8[i] - 8008.0*x6[i]*y10[i] + 1820.0*x4[i]*y12[i] - 120.0*x2[i]*y14[i] + y16[i]);
       preCoef[totalAN*355+i] = 5.29113461206997*x[i]*z[i]*(x16[i] - 136.0*x14[i]*y2[i] + 2380.0*x12[i]*y4[i] - 12376.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 19448.0*x6[i]*y10[i] + 6188.0*x4[i]*y12[i] - 680.0*x2[i]*y14[i] + 17.0*y16[i]);
       preCoef[totalAN*356+i] = 0.881855768678329*x18[i] - 134.923932607784*x16[i]*y2[i] + 2698.47865215569*x14[i]*y4[i] - 16370.7704897445*x12[i]*y6[i] + 38588.2447258263*x10[i]*y8[i] - 38588.2447258263*x8[i]*y10[i] + 16370.7704897445*x6[i]*y12[i] - 2698.47865215569*x4[i]*y14[i] + 134.923932607784*x2[i]*y16[i] - 0.881855768678329*y18[i];
+
+      prCofDX[totalAN*320+i] = 15.8734038362099*y[i]*(17.0*x16[i] - 680.0*x14[i]*y2[i] + 6188.0*x12[i]*y4[i] - 19448.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 12376.0*x6[i]*y10[i] + 2380.0*x4[i]*y12[i] - 136.0*x2[i]*y14[i] + y16[i]);
+      prCofDX[totalAN*321+i] = 1439.18861448303*x[i]*y[i]*z[i]*(x14[i] - 35.0*x12[i]*y2[i] + 273.0*x10[i]*y4[i] - 715.0*x8[i]*y6[i] + 715.0*x6[i]*y8[i] - 273.0*x4[i]*y10[i] + 35.0*x2[i]*y12[i] - y14[i]);
+      prCofDX[totalAN*322+i] = -10.1185847426968*y[i]*(2.0*x2[i]*(x14[i] - 35.0*x12[i]*y2[i] + 273.0*x10[i]*y4[i] - 715.0*x8[i]*y6[i] + 715.0*x6[i]*y8[i] - 273.0*x4[i]*y10[i] + 35.0*x2[i]*y12[i] - y14[i]) + (x2[i] + y2[i] - 34.0*z2[i])*(15.0*x14[i] - 455.0*x12[i]*y2[i] + 3003.0*x10[i]*y4[i] - 6435.0*x8[i]*y6[i] + 5005.0*x6[i]*y8[i] - 1365.0*x4[i]*y10[i] + 105.0*x2[i]*y12[i] - y14[i]));
+      prCofDX[totalAN*323+i] = 12.7740870722626*x[i]*y[i]*z[i]*(-15.0*x14[i] + 455.0*x12[i]*y2[i] - 3003.0*x10[i]*y4[i] + 6435.0*x8[i]*y6[i] - 5005.0*x6[i]*y8[i] + 1365.0*x4[i]*y10[i] - 105.0*x2[i]*y12[i] + y14[i] + 5.0*(-3.0*x2[i] - 3.0*y2[i] + 32.0*z2[i])*(7.0*x12[i] - 182.0*x10[i]*y2[i] + 1001.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1001.0*x4[i]*y8[i] - 182.0*x2[i]*y10[i] + 7.0*y12[i]));
+      prCofDX[totalAN*324+i] = 1.11184156725673*y[i]*(-4.0*x2[i]*(-x2[i] - y2[i] + 32.0*z2[i])*(7.0*x12[i] - 182.0*x10[i]*y2[i] + 1001.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1001.0*x4[i]*y8[i] - 182.0*x2[i]*y10[i] + 7.0*y12[i]) + 7.0*(385.0*z4[i] - 66.0*z2[i]*r2[i] + r4[i])*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]));
+      prCofDX[totalAN*325+i] = 28.1276139982605*x[i]*y[i]*z[i]*(-(-x2[i] - y2[i] + 10.0*z2[i])*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]) + 13.0*(77.0*z4[i] - 22.0*z2[i]*r2[i] + r4[i])*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]));
+      prCofDX[totalAN*326+i] = 6.18725016791869*y[i]*(-2.0*x2[i]*(341.0*z4[i] - 62.0*z2[i]*r2[i] + r4[i])*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]) + (2387.0*z6[i] - 1023.0*z4[i]*r2[i] + 93.0*z2[i]*r4[i] - r6[i])*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]));
+      prCofDX[totalAN*327+i] = 2.98872577354112*x[i]*y[i]*z[i]*(-(1023.0*z4[i] - 310.0*z2[i]*r2[i] + 15.0*r4[i])*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]) + 11.0*(1705.0*z6[i] - 1023.0*z4[i]*r2[i] + 155.0*z2[i]*r4[i] - 5.0*r6[i])*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]));
+      prCofDX[totalAN*328+i] = 0.1962194600598*y[i]*(-8.0*x2[i]*(9889.0*z6[i] - 4495.0*z4[i]*r2[i] + 435.0*z2[i]*r4[i] - 5.0*r6[i])*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]) + 5.0*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i])*(49445.0*z8[i] - 39556.0*z6[i]*r2[i] + 8990.0*z4[i]*r4[i] - 580.0*z2[i]*r6[i] + 5.0*r8[i]));
+      prCofDX[totalAN*329+i] = 1.77993563557578*x[i]*y[i]*z[i]*((x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i])*(346115.0*z8[i] - 356004.0*z6[i]*r2[i] + 113274.0*z4[i]*r4[i] - 12180.0*z2[i]*r6[i] + 315.0*r8[i]) - (9889.0*z6[i] - 6293.0*z4[i]*r2[i] + 1015.0*z2[i]*r4[i] - 35.0*r6[i])*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]));
+      prCofDX[totalAN*330+i] = 0.541617165840082*y[i]*(-2.0*x2[i]*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i])*(267003.0*z8[i] - 226548.0*z6[i]*r2[i] + 54810.0*z4[i]*r4[i] - 3780.0*z2[i]*r6[i] + 35.0*r8[i]) + (7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i])*(207669.0*z10[i] - 267003.0*z8[i]*r2[i] + 113274.0*z6[i]*r4[i] - 18270.0*z4[i]*r6[i] + 945.0*z2[i]*r8[i] - 7.0*r10[i]));
+      prCofDX[totalAN*331+i] = 2.28989434989826*x[i]*y[i]*z[i]*(7.0*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(18879.0*z10[i] - 29667.0*z8[i]*r2[i] + 16182.0*z6[i]*r4[i] - 3654.0*z4[i]*r6[i] + 315.0*z2[i]*r8[i] - 7.0*r10[i]) - (7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i])*(29667.0*z8[i] - 32364.0*z6[i]*r2[i] + 10962.0*z4[i]*r4[i] - 1260.0*z2[i]*r6[i] + 35.0*r8[i]));
+      prCofDX[totalAN*332+i] = 0.39662133579887*y[i]*(-4.0*x2[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(148335.0*z10[i] - 202275.0*z8[i]*r2[i] + 91350.0*z6[i]*r4[i] - 15750.0*z4[i]*r6[i] + 875.0*z2[i]*r8[i] - 7.0*r10[i]) + (5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(471975.0*z12[i] - 890010.0*z10[i]*r2[i] + 606825.0*z8[i]*r4[i] - 182700.0*z6[i]*r6[i] + 23625.0*z4[i]*r8[i] - 1050.0*z2[i]*r10[i] + 7.0*r12[i]));
+      prCofDX[totalAN*333+i] = 0.35926818382145*x[i]*y[i]*z[i]*(5.0*(x2[i] - y2[i])*(471975.0*z12[i] - 1051830.0*z10[i]*r2[i] + 876525.0*z8[i]*r4[i] - 339300.0*z6[i]*r6[i] + 61425.0*z4[i]*r8[i] - 4550.0*z2[i]*r10[i] + 91.0*r12[i]) - 13.0*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(40455.0*z10[i] - 67425.0*z8[i]*r2[i] + 39150.0*z6[i]*r4[i] - 9450.0*z4[i]*r6[i] + 875.0*z2[i]*r8[i] - 21.0*r10[i]));
+      prCofDX[totalAN*334+i] = 0.140148631920647*y[i]*(-26.0*x2[i]*(x2[i] - y2[i])*(310155.0*z12[i] - 620310.0*z10[i]*r2[i] + 450225.0*z8[i]*r4[i] - 144900.0*z6[i]*r6[i] + 20125.0*z4[i]*r8[i] - 966.0*z2[i]*r10[i] + 7.0*r12[i]) + (3.0*x2[i] - y2[i])*(1550775.0*z14[i] - 4032015.0*z12[i]*r2[i] + 4032015.0*z10[i]*r4[i] - 1950975.0*z8[i]*r6[i] + 470925.0*z6[i]*r8[i] - 52325.0*z4[i]*r10[i] + 2093.0*z2[i]*r12[i] - 13.0*r14[i]));
+      prCofDX[totalAN*335+i] = 0.115723924107498*x[i]*y[i]*z[i]*(3411705.0*z14[i] - 10235115.0*z12[i]*r2[i] + 12096045.0*z10[i]*r4[i] - 7153575.0*z8[i]*r6[i] + 2220075.0*z6[i]*r8[i] - 345345.0*z4[i]*r10[i] + 23023.0*z2[i]*r12[i] - (3.0*x2[i] - y2[i])*(3411705.0*z12[i] - 8064030.0*z10[i]*r2[i] + 7153575.0*z8[i]*r4[i] - 2960100.0*z6[i]*r6[i] + 575575.0*z4[i]*r8[i] - 46046.0*z2[i]*r10[i] + 1001.0*r12[i]) - 429.0*r14[i]);
+      prCofDX[totalAN*336+i] = 0.0063132576421421*y[i]*(-16.0*x2[i]*(10235115.0*z14[i] - 28224105.0*z12[i]*r2[i] + 30045015.0*z10[i]*r4[i] - 15540525.0*z8[i]*r6[i] + 4029025.0*z6[i]*r8[i] - 483483.0*z4[i]*r10[i] + 21021.0*z2[i]*r12[i] - 143.0*r14[i]) + 23881935.0*z16[i] - 81880920.0*z14[i]*r2[i] + 112896420.0*z12[i]*r4[i] - 80120040.0*z10[i]*r6[i] + 31081050.0*z8[i]*r8[i] - 6446440.0*z6[i]*r10[i] + 644644.0*z4[i]*r12[i] - 24024.0*z2[i]*r14[i] + 143.0*r16[i]);
+      prCofDX[totalAN*337+i] = -0.186257150406634*x[i]*y[i]*z[i]*(3411705.0*z14[i] - 10855425.0*z12[i]*r2[i] + 13656825.0*z10[i]*r4[i] - 8633625.0*z8[i]*r6[i] + 2877875.0*z6[i]*r8[i] - 483483.0*z4[i]*r10[i] + 35035.0*z2[i]*r12[i] - 715.0*r14[i]);
+      prCofDX[totalAN*338+i] = 0.00801193515922079*x[i]*(-64822395.0*z16[i] + 235717800.0*z14[i]*r2[i] - 345972900.0*z12[i]*r4[i] + 262462200.0*z10[i]*r6[i] - 109359250.0*z8[i]*r8[i] + 24496472.0*z6[i]*r10[i] - 2662660.0*z4[i]*r12[i] + 108680.0*z2[i]*r14[i] - 715.0*r16[i]);
+      prCofDX[totalAN*339+i] = 0.000684768935318508*z[i]*(-272.0*x2[i]*(3411705.0*z14[i] - 10855425.0*z12[i]*r2[i] + 13656825.0*z10[i]*r4[i] - 8633625.0*z8[i]*r6[i] + 2877875.0*z6[i]*r8[i] - 483483.0*z4[i]*r10[i] + 35035.0*z2[i]*r12[i] - 715.0*r14[i]) + 119409675.0*z16[i] - 463991880.0*z14[i]*r2[i] + 738168900.0*z12[i]*r4[i] - 619109400.0*z10[i]*r6[i] + 293543250.0*z8[i]*r8[i] - 78278200.0*z6[i]*r10[i] + 10958948.0*z4[i]*r12[i] - 680680.0*z2[i]*r14[i] + 12155.0*r16[i]);
+      prCofDX[totalAN*340+i] = 0.0063132576421421*x[i]*(23881935.0*z16[i] - 81880920.0*z14[i]*r2[i] + 112896420.0*z12[i]*r4[i] - 80120040.0*z10[i]*r6[i] + 31081050.0*z8[i]*r8[i] - 6446440.0*z6[i]*r10[i] + 644644.0*z4[i]*r12[i] - 24024.0*z2[i]*r14[i] - 8.0*(x2[i] - y2[i])*(10235115.0*z14[i] - 28224105.0*z12[i]*r2[i] + 30045015.0*z10[i]*r4[i] - 15540525.0*z8[i]*r6[i] + 4029025.0*z6[i]*r8[i] - 483483.0*z4[i]*r10[i] + 21021.0*z2[i]*r12[i] - 143.0*r14[i]) + 143.0*r16[i]);
+      prCofDX[totalAN*341+i] = 0.0578619620537492*z[i]*(-2.0*x2[i]*(x2[i] - 3.0*y2[i])*(3411705.0*z12[i] - 8064030.0*z10[i]*r2[i] + 7153575.0*z8[i]*r4[i] - 2960100.0*z6[i]*r6[i] + 575575.0*z4[i]*r8[i] - 46046.0*z2[i]*r10[i] + 1001.0*r12[i]) + (x2[i] - y2[i])*(3411705.0*z14[i] - 10235115.0*z12[i]*r2[i] + 12096045.0*z10[i]*r4[i] - 7153575.0*z8[i]*r6[i] + 2220075.0*z6[i]*r8[i] - 345345.0*z4[i]*r10[i] + 23023.0*z2[i]*r12[i] - 429.0*r14[i]));
+      prCofDX[totalAN*342+i] = 0.0700743159603237*x[i]*(2.0*(x2[i] - 3.0*y2[i])*(1550775.0*z14[i] - 4032015.0*z12[i]*r2[i] + 4032015.0*z10[i]*r4[i] - 1950975.0*z8[i]*r6[i] + 470925.0*z6[i]*r8[i] - 52325.0*z4[i]*r10[i] + 2093.0*z2[i]*r12[i] - 13.0*r14[i]) - 13.0*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(310155.0*z12[i] - 620310.0*z10[i]*r2[i] + 450225.0*z8[i]*r4[i] - 144900.0*z6[i]*r6[i] + 20125.0*z4[i]*r8[i] - 966.0*z2[i]*r10[i] + 7.0*r12[i]));
+      prCofDX[totalAN*343+i] = 0.0898170459553624*z[i]*(-52.0*x2[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(40455.0*z10[i] - 67425.0*z8[i]*r2[i] + 39150.0*z6[i]*r4[i] - 9450.0*z4[i]*r6[i] + 875.0*z2[i]*r8[i] - 21.0*r10[i]) + 5.0*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(471975.0*z12[i] - 1051830.0*z10[i]*r2[i] + 876525.0*z8[i]*r4[i] - 339300.0*z6[i]*r6[i] + 61425.0*z4[i]*r8[i] - 4550.0*z2[i]*r10[i] + 91.0*r12[i]));
+      prCofDX[totalAN*344+i] = 0.39662133579887*x[i]*((x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(471975.0*z12[i] - 890010.0*z10[i]*r2[i] + 606825.0*z8[i]*r4[i] - 182700.0*z6[i]*r6[i] + 23625.0*z4[i]*r8[i] - 1050.0*z2[i]*r10[i] + 7.0*r12[i]) - 2.0*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i])*(148335.0*z10[i] - 202275.0*z8[i]*r2[i] + 91350.0*z6[i]*r4[i] - 15750.0*z4[i]*r6[i] + 875.0*z2[i]*r8[i] - 7.0*r10[i]));
+      prCofDX[totalAN*345+i] = 1.14494717494913*z[i]*(-2.0*x2[i]*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i])*(29667.0*z8[i] - 32364.0*z6[i]*r2[i] + 10962.0*z4[i]*r4[i] - 1260.0*z2[i]*r6[i] + 35.0*r8[i]) + 7.0*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i])*(18879.0*z10[i] - 29667.0*z8[i]*r2[i] + 16182.0*z6[i]*r4[i] - 3654.0*z4[i]*r6[i] + 315.0*z2[i]*r8[i] - 7.0*r10[i]));
+      prCofDX[totalAN*346+i] = 0.135404291460021*x[i]*(4.0*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i])*(207669.0*z10[i] - 267003.0*z8[i]*r2[i] + 113274.0*z6[i]*r4[i] - 18270.0*z4[i]*r6[i] + 945.0*z2[i]*r8[i] - 7.0*r10[i]) - (x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i])*(267003.0*z8[i] - 226548.0*z6[i]*r2[i] + 54810.0*z4[i]*r4[i] - 3780.0*z2[i]*r6[i] + 35.0*r8[i]));
+      prCofDX[totalAN*347+i] = 0.222491954446972*z[i]*(-8.0*x2[i]*(9889.0*z6[i] - 6293.0*z4[i]*r2[i] + 1015.0*z2[i]*r4[i] - 35.0*r6[i])*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]) + (x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i])*(346115.0*z8[i] - 356004.0*z6[i]*r2[i] + 113274.0*z4[i]*r4[i] - 12180.0*z2[i]*r6[i] + 315.0*r8[i]));
+      prCofDX[totalAN*348+i] = 0.1962194600598*x[i]*(-4.0*(9889.0*z6[i] - 4495.0*z4[i]*r2[i] + 435.0*z2[i]*r4[i] - 5.0*r6[i])*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]) + 5.0*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i])*(49445.0*z8[i] - 39556.0*z6[i]*r2[i] + 8990.0*z4[i]*r4[i] - 580.0*z2[i]*r6[i] + 5.0*r8[i]));
+      prCofDX[totalAN*349+i] = 1.49436288677056*z[i]*(-2.0*x2[i]*(1023.0*z4[i] - 310.0*z2[i]*r2[i] + 15.0*r4[i])*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]) + 11.0*(1705.0*z6[i] - 1023.0*z4[i]*r2[i] + 155.0*z2[i]*r4[i] - 5.0*r6[i])*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]));
+      prCofDX[totalAN*350+i] = 3.09362508395935*x[i]*(-(341.0*z4[i] - 62.0*z2[i]*r2[i] + r4[i])*(x12[i] - 66.0*x10[i]*y2[i] + 495.0*x8[i]*y4[i] - 924.0*x6[i]*y6[i] + 495.0*x4[i]*y8[i] - 66.0*x2[i]*y10[i] + y12[i]) + 2.0*(2387.0*z6[i] - 1023.0*z4[i]*r2[i] + 93.0*z2[i]*r4[i] - r6[i])*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]));
+      prCofDX[totalAN*351+i] = 7.03190349956512*z[i]*(-4.0*x2[i]*(-x2[i] - y2[i] + 10.0*z2[i])*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]) + 13.0*(77.0*z4[i] - 22.0*z2[i]*r2[i] + r4[i])*(x12[i] - 66.0*x10[i]*y2[i] + 495.0*x8[i]*y4[i] - 924.0*x6[i]*y6[i] + 495.0*x4[i]*y8[i] - 66.0*x2[i]*y10[i] + y12[i]));
+      prCofDX[totalAN*352+i] = 1.11184156725673*x[i]*(-2.0*(-x2[i] - y2[i] + 32.0*z2[i])*(x14[i] - 91.0*x12[i]*y2[i] + 1001.0*x10[i]*y4[i] - 3003.0*x8[i]*y6[i] + 3003.0*x6[i]*y8[i] - 1001.0*x4[i]*y10[i] + 91.0*x2[i]*y12[i] - y14[i]) + 7.0*(385.0*z4[i] - 66.0*z2[i]*r2[i] + r4[i])*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]));
+      prCofDX[totalAN*353+i] = 6.38704353613131*z[i]*(-2.0*x2[i]*(x14[i] - 105.0*x12[i]*y2[i] + 1365.0*x10[i]*y4[i] - 5005.0*x8[i]*y6[i] + 6435.0*x6[i]*y8[i] - 3003.0*x4[i]*y10[i] + 455.0*x2[i]*y12[i] - 15.0*y14[i]) + 5.0*(-3.0*x2[i] - 3.0*y2[i] + 32.0*z2[i])*(x14[i] - 91.0*x12[i]*y2[i] + 1001.0*x10[i]*y4[i] - 3003.0*x8[i]*y6[i] + 3003.0*x6[i]*y8[i] - 1001.0*x4[i]*y10[i] + 91.0*x2[i]*y12[i] - y14[i]));
+      prCofDX[totalAN*354+i] = 1.26482309283709*x[i]*(-x16[i] + 120.0*x14[i]*y2[i] - 1820.0*x12[i]*y4[i] + 8008.0*x10[i]*y6[i] - 12870.0*x8[i]*y8[i] + 8008.0*x6[i]*y10[i] - 1820.0*x4[i]*y12[i] + 120.0*x2[i]*y14[i] - y16[i] - 8.0*(x2[i] + y2[i] - 34.0*z2[i])*(x14[i] - 105.0*x12[i]*y2[i] + 1365.0*x10[i]*y4[i] - 5005.0*x8[i]*y6[i] + 6435.0*x6[i]*y8[i] - 3003.0*x4[i]*y10[i] + 455.0*x2[i]*y12[i] - 15.0*y14[i]));
+      prCofDX[totalAN*355+i] = 89.9492884051895*z[i]*(x16[i] - 120.0*x14[i]*y2[i] + 1820.0*x12[i]*y4[i] - 8008.0*x10[i]*y6[i] + 12870.0*x8[i]*y8[i] - 8008.0*x6[i]*y10[i] + 1820.0*x4[i]*y12[i] - 120.0*x2[i]*y14[i] + y16[i]);
+      prCofDX[totalAN*356+i] = 15.8734038362099*x[i]*(x16[i] - 136.0*x14[i]*y2[i] + 2380.0*x12[i]*y4[i] - 12376.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 19448.0*x6[i]*y10[i] + 6188.0*x4[i]*y12[i] - 680.0*x2[i]*y14[i] + 17.0*y16[i]);
+
+      prCofDY[totalAN*320+i] = 15.8734038362099*x[i]*(x16[i] - 136.0*x14[i]*y2[i] + 2380.0*x12[i]*y4[i] - 12376.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 19448.0*x6[i]*y10[i] + 6188.0*x4[i]*y12[i] - 680.0*x2[i]*y14[i] + 17.0*y16[i]);
+      prCofDY[totalAN*321+i] = 89.9492884051895*z[i]*(x16[i] - 120.0*x14[i]*y2[i] + 1820.0*x12[i]*y4[i] - 8008.0*x10[i]*y6[i] + 12870.0*x8[i]*y8[i] - 8008.0*x6[i]*y10[i] + 1820.0*x4[i]*y12[i] - 120.0*x2[i]*y14[i] + y16[i]);
+      prCofDY[totalAN*322+i] = -10.1185847426968*x[i]*(2.0*y2[i]*(x14[i] - 35.0*x12[i]*y2[i] + 273.0*x10[i]*y4[i] - 715.0*x8[i]*y6[i] + 715.0*x6[i]*y8[i] - 273.0*x4[i]*y10[i] + 35.0*x2[i]*y12[i] - y14[i]) + (x2[i] + y2[i] - 34.0*z2[i])*(x14[i] - 105.0*x12[i]*y2[i] + 1365.0*x10[i]*y4[i] - 5005.0*x8[i]*y6[i] + 6435.0*x6[i]*y8[i] - 3003.0*x4[i]*y10[i] + 455.0*x2[i]*y12[i] - 15.0*y14[i]));
+      prCofDY[totalAN*323+i] = 6.38704353613131*z[i]*(-2.0*y2[i]*(15.0*x14[i] - 455.0*x12[i]*y2[i] + 3003.0*x10[i]*y4[i] - 6435.0*x8[i]*y6[i] + 5005.0*x6[i]*y8[i] - 1365.0*x4[i]*y10[i] + 105.0*x2[i]*y12[i] - y14[i]) + 5.0*(-3.0*x2[i] - 3.0*y2[i] + 32.0*z2[i])*(x14[i] - 91.0*x12[i]*y2[i] + 1001.0*x10[i]*y4[i] - 3003.0*x8[i]*y6[i] + 3003.0*x6[i]*y8[i] - 1001.0*x4[i]*y10[i] + 91.0*x2[i]*y12[i] - y14[i]));
+      prCofDY[totalAN*324+i] = 1.11184156725673*x[i]*(-4.0*y2[i]*(-x2[i] - y2[i] + 32.0*z2[i])*(7.0*x12[i] - 182.0*x10[i]*y2[i] + 1001.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1001.0*x4[i]*y8[i] - 182.0*x2[i]*y10[i] + 7.0*y12[i]) + 7.0*(385.0*z4[i] - 66.0*z2[i]*r2[i] + r4[i])*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]));
+      prCofDY[totalAN*325+i] = 7.03190349956512*z[i]*(-4.0*y2[i]*(-x2[i] - y2[i] + 10.0*z2[i])*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]) + 13.0*(77.0*z4[i] - 22.0*z2[i]*r2[i] + r4[i])*(x12[i] - 66.0*x10[i]*y2[i] + 495.0*x8[i]*y4[i] - 924.0*x6[i]*y6[i] + 495.0*x4[i]*y8[i] - 66.0*x2[i]*y10[i] + y12[i]));
+      prCofDY[totalAN*326+i] = 6.18725016791869*x[i]*(-2.0*y2[i]*(341.0*z4[i] - 62.0*z2[i]*r2[i] + r4[i])*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]) + (2387.0*z6[i] - 1023.0*z4[i]*r2[i] + 93.0*z2[i]*r4[i] - r6[i])*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]));
+      prCofDY[totalAN*327+i] = 1.49436288677056*z[i]*(-2.0*y2[i]*(1023.0*z4[i] - 310.0*z2[i]*r2[i] + 15.0*r4[i])*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]) + 11.0*(1705.0*z6[i] - 1023.0*z4[i]*r2[i] + 155.0*z2[i]*r4[i] - 5.0*r6[i])*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]));
+      prCofDY[totalAN*328+i] = 0.1962194600598*x[i]*(-8.0*y2[i]*(9889.0*z6[i] - 4495.0*z4[i]*r2[i] + 435.0*z2[i]*r4[i] - 5.0*r6[i])*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]) + 5.0*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i])*(49445.0*z8[i] - 39556.0*z6[i]*r2[i] + 8990.0*z4[i]*r4[i] - 580.0*z2[i]*r6[i] + 5.0*r8[i]));
+      prCofDY[totalAN*329+i] = 0.222491954446972*z[i]*(-8.0*y2[i]*(9889.0*z6[i] - 6293.0*z4[i]*r2[i] + 1015.0*z2[i]*r4[i] - 35.0*r6[i])*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]) + (x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i])*(346115.0*z8[i] - 356004.0*z6[i]*r2[i] + 113274.0*z4[i]*r4[i] - 12180.0*z2[i]*r6[i] + 315.0*r8[i]));
+      prCofDY[totalAN*330+i] = 0.541617165840082*x[i]*(-2.0*y2[i]*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i])*(267003.0*z8[i] - 226548.0*z6[i]*r2[i] + 54810.0*z4[i]*r4[i] - 3780.0*z2[i]*r6[i] + 35.0*r8[i]) + (x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i])*(207669.0*z10[i] - 267003.0*z8[i]*r2[i] + 113274.0*z6[i]*r4[i] - 18270.0*z4[i]*r6[i] + 945.0*z2[i]*r8[i] - 7.0*r10[i]));
+      prCofDY[totalAN*331+i] = 1.14494717494913*z[i]*(-2.0*y2[i]*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i])*(29667.0*z8[i] - 32364.0*z6[i]*r2[i] + 10962.0*z4[i]*r4[i] - 1260.0*z2[i]*r6[i] + 35.0*r8[i]) + 7.0*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i])*(18879.0*z10[i] - 29667.0*z8[i]*r2[i] + 16182.0*z6[i]*r4[i] - 3654.0*z4[i]*r6[i] + 315.0*z2[i]*r8[i] - 7.0*r10[i]));
+      prCofDY[totalAN*332+i] = 0.39662133579887*x[i]*(-4.0*y2[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(148335.0*z10[i] - 202275.0*z8[i]*r2[i] + 91350.0*z6[i]*r4[i] - 15750.0*z4[i]*r6[i] + 875.0*z2[i]*r8[i] - 7.0*r10[i]) + (x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(471975.0*z12[i] - 890010.0*z10[i]*r2[i] + 606825.0*z8[i]*r4[i] - 182700.0*z6[i]*r6[i] + 23625.0*z4[i]*r8[i] - 1050.0*z2[i]*r10[i] + 7.0*r12[i]));
+      prCofDY[totalAN*333+i] = 0.0898170459553624*z[i]*(-52.0*y2[i]*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(40455.0*z10[i] - 67425.0*z8[i]*r2[i] + 39150.0*z6[i]*r4[i] - 9450.0*z4[i]*r6[i] + 875.0*z2[i]*r8[i] - 21.0*r10[i]) + 5.0*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(471975.0*z12[i] - 1051830.0*z10[i]*r2[i] + 876525.0*z8[i]*r4[i] - 339300.0*z6[i]*r6[i] + 61425.0*z4[i]*r8[i] - 4550.0*z2[i]*r10[i] + 91.0*r12[i]));
+      prCofDY[totalAN*334+i] = 0.140148631920647*x[i]*(-26.0*y2[i]*(x2[i] - y2[i])*(310155.0*z12[i] - 620310.0*z10[i]*r2[i] + 450225.0*z8[i]*r4[i] - 144900.0*z6[i]*r6[i] + 20125.0*z4[i]*r8[i] - 966.0*z2[i]*r10[i] + 7.0*r12[i]) + (x2[i] - 3.0*y2[i])*(1550775.0*z14[i] - 4032015.0*z12[i]*r2[i] + 4032015.0*z10[i]*r4[i] - 1950975.0*z8[i]*r6[i] + 470925.0*z6[i]*r8[i] - 52325.0*z4[i]*r10[i] + 2093.0*z2[i]*r12[i] - 13.0*r14[i]));
+      prCofDY[totalAN*335+i] = 0.0578619620537492*z[i]*(-2.0*y2[i]*(3.0*x2[i] - y2[i])*(3411705.0*z12[i] - 8064030.0*z10[i]*r2[i] + 7153575.0*z8[i]*r4[i] - 2960100.0*z6[i]*r6[i] + 575575.0*z4[i]*r8[i] - 46046.0*z2[i]*r10[i] + 1001.0*r12[i]) + (x2[i] - y2[i])*(3411705.0*z14[i] - 10235115.0*z12[i]*r2[i] + 12096045.0*z10[i]*r4[i] - 7153575.0*z8[i]*r6[i] + 2220075.0*z6[i]*r8[i] - 345345.0*z4[i]*r10[i] + 23023.0*z2[i]*r12[i] - 429.0*r14[i]));
+      prCofDY[totalAN*336+i] = 0.0063132576421421*x[i]*(-16.0*y2[i]*(10235115.0*z14[i] - 28224105.0*z12[i]*r2[i] + 30045015.0*z10[i]*r4[i] - 15540525.0*z8[i]*r6[i] + 4029025.0*z6[i]*r8[i] - 483483.0*z4[i]*r10[i] + 21021.0*z2[i]*r12[i] - 143.0*r14[i]) + 23881935.0*z16[i] - 81880920.0*z14[i]*r2[i] + 112896420.0*z12[i]*r4[i] - 80120040.0*z10[i]*r6[i] + 31081050.0*z8[i]*r8[i] - 6446440.0*z6[i]*r10[i] + 644644.0*z4[i]*r12[i] - 24024.0*z2[i]*r14[i] + 143.0*r16[i]);
+      prCofDY[totalAN*337+i] = 0.000684768935318508*z[i]*(-272.0*y2[i]*(3411705.0*z14[i] - 10855425.0*z12[i]*r2[i] + 13656825.0*z10[i]*r4[i] - 8633625.0*z8[i]*r6[i] + 2877875.0*z6[i]*r8[i] - 483483.0*z4[i]*r10[i] + 35035.0*z2[i]*r12[i] - 715.0*r14[i]) + 119409675.0*z16[i] - 463991880.0*z14[i]*r2[i] + 738168900.0*z12[i]*r4[i] - 619109400.0*z10[i]*r6[i] + 293543250.0*z8[i]*r8[i] - 78278200.0*z6[i]*r10[i] + 10958948.0*z4[i]*r12[i] - 680680.0*z2[i]*r14[i] + 12155.0*r16[i]);
+      prCofDY[totalAN*338+i] = 0.00801193515922079*y[i]*(-64822395.0*z16[i] + 235717800.0*z14[i]*r2[i] - 345972900.0*z12[i]*r4[i] + 262462200.0*z10[i]*r6[i] - 109359250.0*z8[i]*r8[i] + 24496472.0*z6[i]*r10[i] - 2662660.0*z4[i]*r12[i] + 108680.0*z2[i]*r14[i] - 715.0*r16[i]);
+      prCofDY[totalAN*339+i] = -0.186257150406634*x[i]*y[i]*z[i]*(3411705.0*z14[i] - 10855425.0*z12[i]*r2[i] + 13656825.0*z10[i]*r4[i] - 8633625.0*z8[i]*r6[i] + 2877875.0*z6[i]*r8[i] - 483483.0*z4[i]*r10[i] + 35035.0*z2[i]*r12[i] - 715.0*r14[i]);
+      prCofDY[totalAN*340+i] = 0.0063132576421421*y[i]*(-23881935.0*z16[i] + 81880920.0*z14[i]*r2[i] - 112896420.0*z12[i]*r4[i] + 80120040.0*z10[i]*r6[i] - 31081050.0*z8[i]*r8[i] + 6446440.0*z6[i]*r10[i] - 644644.0*z4[i]*r12[i] + 24024.0*z2[i]*r14[i] - 8.0*(x2[i] - y2[i])*(10235115.0*z14[i] - 28224105.0*z12[i]*r2[i] + 30045015.0*z10[i]*r4[i] - 15540525.0*z8[i]*r6[i] + 4029025.0*z6[i]*r8[i] - 483483.0*z4[i]*r10[i] + 21021.0*z2[i]*r12[i] - 143.0*r14[i]) - 143.0*r16[i]);
+      prCofDY[totalAN*341+i] = 0.115723924107498*x[i]*y[i]*z[i]*(-3411705.0*z14[i] + 10235115.0*z12[i]*r2[i] - 12096045.0*z10[i]*r4[i] + 7153575.0*z8[i]*r6[i] - 2220075.0*z6[i]*r8[i] + 345345.0*z4[i]*r10[i] - 23023.0*z2[i]*r12[i] - (x2[i] - 3.0*y2[i])*(3411705.0*z12[i] - 8064030.0*z10[i]*r2[i] + 7153575.0*z8[i]*r4[i] - 2960100.0*z6[i]*r6[i] + 575575.0*z4[i]*r8[i] - 46046.0*z2[i]*r10[i] + 1001.0*r12[i]) + 429.0*r14[i]);
+      prCofDY[totalAN*342+i] = -0.0700743159603237*y[i]*(2.0*(3.0*x2[i] - y2[i])*(1550775.0*z14[i] - 4032015.0*z12[i]*r2[i] + 4032015.0*z10[i]*r4[i] - 1950975.0*z8[i]*r6[i] + 470925.0*z6[i]*r8[i] - 52325.0*z4[i]*r10[i] + 2093.0*z2[i]*r12[i] - 13.0*r14[i]) + 13.0*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(310155.0*z12[i] - 620310.0*z10[i]*r2[i] + 450225.0*z8[i]*r4[i] - 144900.0*z6[i]*r6[i] + 20125.0*z4[i]*r8[i] - 966.0*z2[i]*r10[i] + 7.0*r12[i]));
+      prCofDY[totalAN*343+i] = -0.35926818382145*x[i]*y[i]*z[i]*(5.0*(x2[i] - y2[i])*(471975.0*z12[i] - 1051830.0*z10[i]*r2[i] + 876525.0*z8[i]*r4[i] - 339300.0*z6[i]*r6[i] + 61425.0*z4[i]*r8[i] - 4550.0*z2[i]*r10[i] + 91.0*r12[i]) + 13.0*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(40455.0*z10[i] - 67425.0*z8[i]*r2[i] + 39150.0*z6[i]*r4[i] - 9450.0*z4[i]*r6[i] + 875.0*z2[i]*r8[i] - 21.0*r10[i]));
+      prCofDY[totalAN*344+i] = -0.39662133579887*y[i]*((5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(471975.0*z12[i] - 890010.0*z10[i]*r2[i] + 606825.0*z8[i]*r4[i] - 182700.0*z6[i]*r6[i] + 23625.0*z4[i]*r8[i] - 1050.0*z2[i]*r10[i] + 7.0*r12[i]) + 2.0*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i])*(148335.0*z10[i] - 202275.0*z8[i]*r2[i] + 91350.0*z6[i]*r4[i] - 15750.0*z4[i]*r6[i] + 875.0*z2[i]*r8[i] - 7.0*r10[i]));
+      prCofDY[totalAN*345+i] = -2.28989434989826*x[i]*y[i]*z[i]*(7.0*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(18879.0*z10[i] - 29667.0*z8[i]*r2[i] + 16182.0*z6[i]*r4[i] - 3654.0*z4[i]*r6[i] + 315.0*z2[i]*r8[i] - 7.0*r10[i]) + (x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i])*(29667.0*z8[i] - 32364.0*z6[i]*r2[i] + 10962.0*z4[i]*r4[i] - 1260.0*z2[i]*r6[i] + 35.0*r8[i]));
+      prCofDY[totalAN*346+i] = -0.135404291460021*y[i]*(4.0*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i])*(207669.0*z10[i] - 267003.0*z8[i]*r2[i] + 113274.0*z6[i]*r4[i] - 18270.0*z4[i]*r6[i] + 945.0*z2[i]*r8[i] - 7.0*r10[i]) + (x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i])*(267003.0*z8[i] - 226548.0*z6[i]*r2[i] + 54810.0*z4[i]*r4[i] - 3780.0*z2[i]*r6[i] + 35.0*r8[i]));
+      prCofDY[totalAN*347+i] = -1.77993563557578*x[i]*y[i]*z[i]*((x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i])*(346115.0*z8[i] - 356004.0*z6[i]*r2[i] + 113274.0*z4[i]*r4[i] - 12180.0*z2[i]*r6[i] + 315.0*r8[i]) + (9889.0*z6[i] - 6293.0*z4[i]*r2[i] + 1015.0*z2[i]*r4[i] - 35.0*r6[i])*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]));
+      prCofDY[totalAN*348+i] = -0.1962194600598*y[i]*(4.0*(9889.0*z6[i] - 4495.0*z4[i]*r2[i] + 435.0*z2[i]*r4[i] - 5.0*r6[i])*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]) + 5.0*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i])*(49445.0*z8[i] - 39556.0*z6[i]*r2[i] + 8990.0*z4[i]*r4[i] - 580.0*z2[i]*r6[i] + 5.0*r8[i]));
+      prCofDY[totalAN*349+i] = -2.98872577354112*x[i]*y[i]*z[i]*((1023.0*z4[i] - 310.0*z2[i]*r2[i] + 15.0*r4[i])*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]) + 11.0*(1705.0*z6[i] - 1023.0*z4[i]*r2[i] + 155.0*z2[i]*r4[i] - 5.0*r6[i])*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]));
+      prCofDY[totalAN*350+i] = -3.09362508395935*y[i]*((341.0*z4[i] - 62.0*z2[i]*r2[i] + r4[i])*(x12[i] - 66.0*x10[i]*y2[i] + 495.0*x8[i]*y4[i] - 924.0*x6[i]*y6[i] + 495.0*x4[i]*y8[i] - 66.0*x2[i]*y10[i] + y12[i]) + 2.0*(2387.0*z6[i] - 1023.0*z4[i]*r2[i] + 93.0*z2[i]*r4[i] - r6[i])*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]));
+      prCofDY[totalAN*351+i] = 28.1276139982605*x[i]*y[i]*z[i]*((x2[i] + y2[i] - 10.0*z2[i])*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]) - 13.0*(77.0*z4[i] - 22.0*z2[i]*r2[i] + r4[i])*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]));
+      prCofDY[totalAN*352+i] = 1.11184156725673*y[i]*(2.0*(x2[i] + y2[i] - 32.0*z2[i])*(x14[i] - 91.0*x12[i]*y2[i] + 1001.0*x10[i]*y4[i] - 3003.0*x8[i]*y6[i] + 3003.0*x6[i]*y8[i] - 1001.0*x4[i]*y10[i] + 91.0*x2[i]*y12[i] - y14[i]) - 7.0*(385.0*z4[i] - 66.0*z2[i]*r2[i] + r4[i])*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]));
+      prCofDY[totalAN*353+i] = 12.7740870722626*x[i]*y[i]*z[i]*(-x14[i] + 105.0*x12[i]*y2[i] - 1365.0*x10[i]*y4[i] + 5005.0*x8[i]*y6[i] - 6435.0*x6[i]*y8[i] + 3003.0*x4[i]*y10[i] - 455.0*x2[i]*y12[i] + 15.0*y14[i] - 5.0*(-3.0*x2[i] - 3.0*y2[i] + 32.0*z2[i])*(7.0*x12[i] - 182.0*x10[i]*y2[i] + 1001.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1001.0*x4[i]*y8[i] - 182.0*x2[i]*y10[i] + 7.0*y12[i]));
+      prCofDY[totalAN*354+i] = 1.26482309283709*y[i]*(-x16[i] + 120.0*x14[i]*y2[i] - 1820.0*x12[i]*y4[i] + 8008.0*x10[i]*y6[i] - 12870.0*x8[i]*y8[i] + 8008.0*x6[i]*y10[i] - 1820.0*x4[i]*y12[i] + 120.0*x2[i]*y14[i] - y16[i] + 8.0*(x2[i] + y2[i] - 34.0*z2[i])*(15.0*x14[i] - 455.0*x12[i]*y2[i] + 3003.0*x10[i]*y4[i] - 6435.0*x8[i]*y6[i] + 5005.0*x6[i]*y8[i] - 1365.0*x4[i]*y10[i] + 105.0*x2[i]*y12[i] - y14[i]));
+      prCofDY[totalAN*355+i] = -1439.18861448303*x[i]*y[i]*z[i]*(x14[i] - 35.0*x12[i]*y2[i] + 273.0*x10[i]*y4[i] - 715.0*x8[i]*y6[i] + 715.0*x6[i]*y8[i] - 273.0*x4[i]*y10[i] + 35.0*x2[i]*y12[i] - y14[i]);
+      prCofDY[totalAN*356+i] = 15.8734038362099*y[i]*(-17.0*x16[i] + 680.0*x14[i]*y2[i] - 6188.0*x12[i]*y4[i] + 19448.0*x10[i]*y6[i] - 24310.0*x8[i]*y8[i] + 12376.0*x6[i]*y10[i] - 2380.0*x4[i]*y12[i] + 136.0*x2[i]*y14[i] - y16[i]);
+
+      prCofDZ[totalAN*320+i] = 0;
+      prCofDZ[totalAN*321+i] = 5.29113461206997*y[i]*(17.0*x16[i] - 680.0*x14[i]*y2[i] + 6188.0*x12[i]*y4[i] - 19448.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 12376.0*x6[i]*y10[i] + 2380.0*x4[i]*y12[i] - 136.0*x2[i]*y14[i] + y16[i]);
+      prCofDZ[totalAN*322+i] = 688.063762503379*x[i]*y[i]*z[i]*(x14[i] - 35.0*x12[i]*y2[i] + 273.0*x10[i]*y4[i] - 715.0*x8[i]*y6[i] + 715.0*x6[i]*y8[i] - 273.0*x4[i]*y10[i] + 35.0*x2[i]*y12[i] - y14[i]);
+      prCofDZ[totalAN*323+i] = -6.38704353613131*y[i]*(x2[i] + y2[i] - 32.0*z2[i])*(15.0*x14[i] - 455.0*x12[i]*y2[i] + 3003.0*x10[i]*y4[i] - 6435.0*x8[i]*y6[i] + 5005.0*x6[i]*y8[i] - 1365.0*x4[i]*y10[i] + 105.0*x2[i]*y12[i] - y14[i]);
+      prCofDZ[totalAN*324+i] = 142.315720608862*x[i]*y[i]*z[i]*(-x2[i] - y2[i] + 10.0*z2[i])*(7.0*x12[i] - 182.0*x10[i]*y2[i] + 1001.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1001.0*x4[i]*y8[i] - 182.0*x2[i]*y10[i] + 7.0*y12[i]);
+      prCofDZ[totalAN*325+i] = 7.03190349956512*y[i]*(341.0*z4[i] - 62.0*z2[i]*r2[i] + r4[i])*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]);
+      prCofDZ[totalAN*326+i] = 24.7490006716748*x[i]*y[i]*z[i]*(1023.0*z4[i] - 310.0*z2[i]*r2[i] + 15.0*r4[i])*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]);
+      prCofDZ[totalAN*327+i] = 1.49436288677056*y[i]*(9889.0*z6[i] - 4495.0*z4[i]*r2[i] + 435.0*z2[i]*r4[i] - 5.0*r6[i])*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]);
+      prCofDZ[totalAN*328+i] = 6.2790227219136*x[i]*y[i]*z[i]*(9889.0*z6[i] - 6293.0*z4[i]*r2[i] + 1015.0*z2[i]*r4[i] - 35.0*r6[i])*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]);
+      prCofDZ[totalAN*329+i] = 0.222491954446972*y[i]*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i])*(267003.0*z8[i] - 226548.0*z6[i]*r2[i] + 54810.0*z4[i]*r4[i] - 3780.0*z2[i]*r6[i] + 35.0*r8[i]);
+      prCofDZ[totalAN*330+i] = 28.1640926236843*x[i]*y[i]*z[i]*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i])*(29667.0*z8[i] - 32364.0*z6[i]*r2[i] + 10962.0*z4[i]*r4[i] - 1260.0*z2[i]*r6[i] + 35.0*r8[i]);
+      prCofDZ[totalAN*331+i] = 1.14494717494913*y[i]*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i])*(148335.0*z10[i] - 202275.0*z8[i]*r2[i] + 91350.0*z6[i]*r4[i] - 15750.0*z4[i]*r6[i] + 875.0*z2[i]*r8[i] - 7.0*r10[i]);
+      prCofDZ[totalAN*332+i] = 12.6918827455638*x[i]*y[i]*z[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(40455.0*z10[i] - 67425.0*z8[i]*r2[i] + 39150.0*z6[i]*r4[i] - 9450.0*z4[i]*r6[i] + 875.0*z2[i]*r8[i] - 21.0*r10[i]);
+      prCofDZ[totalAN*333+i] = 1.16762159741971*y[i]*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(310155.0*z12[i] - 620310.0*z10[i]*r2[i] + 450225.0*z8[i]*r4[i] - 144900.0*z6[i]*r6[i] + 20125.0*z4[i]*r8[i] - 966.0*z2[i]*r10[i] + 7.0*r12[i]);
+      prCofDZ[totalAN*334+i] = 0.56059452768259*x[i]*y[i]*z[i]*(x2[i] - y2[i])*(3411705.0*z12[i] - 8064030.0*z10[i]*r2[i] + 7153575.0*z8[i]*r4[i] - 2960100.0*z6[i]*r6[i] + 575575.0*z4[i]*r8[i] - 46046.0*z2[i]*r10[i] + 1001.0*r12[i]);
+      prCofDZ[totalAN*335+i] = 0.0578619620537492*y[i]*(3.0*x2[i] - y2[i])*(10235115.0*z14[i] - 28224105.0*z12[i]*r2[i] + 30045015.0*z10[i]*r4[i] - 15540525.0*z8[i]*r6[i] + 4029025.0*z6[i]*r8[i] - 483483.0*z4[i]*r10[i] + 21021.0*z2[i]*r12[i] - 143.0*r14[i]);
+      prCofDZ[totalAN*336+i] = 0.404048489097094*x[i]*y[i]*z[i]*(3411705.0*z14[i] - 10855425.0*z12[i]*r2[i] + 13656825.0*z10[i]*r4[i] - 8633625.0*z8[i]*r6[i] + 2877875.0*z6[i]*r8[i] - 483483.0*z4[i]*r10[i] + 35035.0*z2[i]*r12[i] - 715.0*r14[i]);
+      prCofDZ[totalAN*337+i] = 0.0116410719004146*y[i]*(64822395.0*z16[i] - 235717800.0*z14[i]*r2[i] + 345972900.0*z12[i]*r4[i] - 262462200.0*z10[i]*r6[i] + 109359250.0*z8[i]*r8[i] - 24496472.0*z6[i]*r10[i] + 2662660.0*z4[i]*r12[i] - 108680.0*z2[i]*r14[i] + 715.0*r16[i]);
+      prCofDZ[totalAN*338+i] = 0.000942580606967152*z[i]*(583401555.0*z16[i] - 2404321560.0*z14[i]*r2[i] + 4071834900.0*z12[i]*r4[i] - 3650610600.0*z10[i]*r6[i] + 1859107250.0*z8[i]*r8[i] - 535422888.0*z6[i]*r10[i] + 81477396.0*z4[i]*r12[i] - 5542680.0*z2[i]*r14[i] + 109395.0*r16[i]);
+      prCofDZ[totalAN*339+i] = 0.0116410719004146*x[i]*(64822395.0*z16[i] - 235717800.0*z14[i]*r2[i] + 345972900.0*z12[i]*r4[i] - 262462200.0*z10[i]*r6[i] + 109359250.0*z8[i]*r8[i] - 24496472.0*z6[i]*r10[i] + 2662660.0*z4[i]*r12[i] - 108680.0*z2[i]*r14[i] + 715.0*r16[i]);
+      prCofDZ[totalAN*340+i] = 0.202024244548547*z[i]*(x2[i] - y2[i])*(3411705.0*z14[i] - 10855425.0*z12[i]*r2[i] + 13656825.0*z10[i]*r4[i] - 8633625.0*z8[i]*r6[i] + 2877875.0*z6[i]*r8[i] - 483483.0*z4[i]*r10[i] + 35035.0*z2[i]*r12[i] - 715.0*r14[i]);
+      prCofDZ[totalAN*341+i] = 0.0578619620537492*x[i]*(x2[i] - 3.0*y2[i])*(10235115.0*z14[i] - 28224105.0*z12[i]*r2[i] + 30045015.0*z10[i]*r4[i] - 15540525.0*z8[i]*r6[i] + 4029025.0*z6[i]*r8[i] - 483483.0*z4[i]*r10[i] + 21021.0*z2[i]*r12[i] - 143.0*r14[i]);
+      prCofDZ[totalAN*342+i] = 0.140148631920647*z[i]*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(3411705.0*z12[i] - 8064030.0*z10[i]*r2[i] + 7153575.0*z8[i]*r4[i] - 2960100.0*z6[i]*r6[i] + 575575.0*z4[i]*r8[i] - 46046.0*z2[i]*r10[i] + 1001.0*r12[i]);
+      prCofDZ[totalAN*343+i] = 1.16762159741971*x[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(310155.0*z12[i] - 620310.0*z10[i]*r2[i] + 450225.0*z8[i]*r4[i] - 144900.0*z6[i]*r6[i] + 20125.0*z4[i]*r8[i] - 966.0*z2[i]*r10[i] + 7.0*r12[i]);
+      prCofDZ[totalAN*344+i] = 6.34594137278192*z[i]*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i])*(40455.0*z10[i] - 67425.0*z8[i]*r2[i] + 39150.0*z6[i]*r4[i] - 9450.0*z4[i]*r6[i] + 875.0*z2[i]*r8[i] - 21.0*r10[i]);
+      prCofDZ[totalAN*345+i] = 1.14494717494913*x[i]*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i])*(148335.0*z10[i] - 202275.0*z8[i]*r2[i] + 91350.0*z6[i]*r4[i] - 15750.0*z4[i]*r6[i] + 875.0*z2[i]*r8[i] - 7.0*r10[i]);
+      prCofDZ[totalAN*346+i] = 3.52051157796053*z[i]*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i])*(29667.0*z8[i] - 32364.0*z6[i]*r2[i] + 10962.0*z4[i]*r4[i] - 1260.0*z2[i]*r6[i] + 35.0*r8[i]);
+      prCofDZ[totalAN*347+i] = 0.222491954446972*x[i]*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i])*(267003.0*z8[i] - 226548.0*z6[i]*r2[i] + 54810.0*z4[i]*r4[i] - 3780.0*z2[i]*r6[i] + 35.0*r8[i]);
+      prCofDZ[totalAN*348+i] = 3.1395113609568*z[i]*(9889.0*z6[i] - 6293.0*z4[i]*r2[i] + 1015.0*z2[i]*r4[i] - 35.0*r6[i])*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]);
+      prCofDZ[totalAN*349+i] = 1.49436288677056*x[i]*(9889.0*z6[i] - 4495.0*z4[i]*r2[i] + 435.0*z2[i]*r4[i] - 5.0*r6[i])*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]);
+      prCofDZ[totalAN*350+i] = 6.18725016791869*z[i]*(1023.0*z4[i] - 310.0*z2[i]*r2[i] + 15.0*r4[i])*(x12[i] - 66.0*x10[i]*y2[i] + 495.0*x8[i]*y4[i] - 924.0*x6[i]*y6[i] + 495.0*x4[i]*y8[i] - 66.0*x2[i]*y10[i] + y12[i]);
+      prCofDZ[totalAN*351+i] = 7.03190349956512*x[i]*(341.0*z4[i] - 62.0*z2[i]*r2[i] + r4[i])*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]);
+      prCofDZ[totalAN*352+i] = 71.1578603044308*z[i]*(-x2[i] - y2[i] + 10.0*z2[i])*(x14[i] - 91.0*x12[i]*y2[i] + 1001.0*x10[i]*y4[i] - 3003.0*x8[i]*y6[i] + 3003.0*x6[i]*y8[i] - 1001.0*x4[i]*y10[i] + 91.0*x2[i]*y12[i] - y14[i]);
+      prCofDZ[totalAN*353+i] = -6.38704353613131*x[i]*(x2[i] + y2[i] - 32.0*z2[i])*(x14[i] - 105.0*x12[i]*y2[i] + 1365.0*x10[i]*y4[i] - 5005.0*x8[i]*y6[i] + 6435.0*x6[i]*y8[i] - 3003.0*x4[i]*y10[i] + 455.0*x2[i]*y12[i] - 15.0*y14[i]);
+      prCofDZ[totalAN*354+i] = 43.0039851564612*z[i]*(x16[i] - 120.0*x14[i]*y2[i] + 1820.0*x12[i]*y4[i] - 8008.0*x10[i]*y6[i] + 12870.0*x8[i]*y8[i] - 8008.0*x6[i]*y10[i] + 1820.0*x4[i]*y12[i] - 120.0*x2[i]*y14[i] + y16[i]);
+      prCofDZ[totalAN*355+i] = 5.29113461206997*x[i]*(x16[i] - 136.0*x14[i]*y2[i] + 2380.0*x12[i]*y4[i] - 12376.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 19448.0*x6[i]*y10[i] + 6188.0*x4[i]*y12[i] - 680.0*x2[i]*y14[i] + 17.0*y16[i]);
+      prCofDZ[totalAN*356+i] = 0;
+
+
+
+
     }
 
     if (lMax > 18){ //OBS!!!!! lMax > 9, tesseral cases
@@ -750,13 +1922,137 @@ void getCfactorsD(double* preCoef, int Asize, double* x,double* x2, double* x4, 
       preCoef[totalAN*393+i] = -0.640197544188601*x[i]*(x2[i] + y2[i] - 36.0*z2[i])*(x16[i] - 136.0*x14[i]*y2[i] + 2380.0*x12[i]*y4[i] - 12376.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 19448.0*x6[i]*y10[i] + 6188.0*x4[i]*y12[i] - 680.0*x2[i]*y14[i] + 17.0*y16[i]);
       preCoef[totalAN*394+i] = 5.50718751027224*z[i]*(x18[i] - 153.0*x16[i]*y2[i] + 3060.0*x14[i]*y4[i] - 18564.0*x12[i]*y6[i] + 43758.0*x10[i]*y8[i] - 43758.0*x8[i]*y10[i] + 18564.0*x6[i]*y12[i] - 3060.0*x4[i]*y14[i] + 153.0*x2[i]*y16[i] - y18[i]);
       preCoef[totalAN*395+i] = 0.893383784349949*x[i]*(x18[i] - 171.0*x16[i]*y2[i] + 3876.0*x14[i]*y4[i] - 27132.0*x12[i]*y6[i] + 75582.0*x10[i]*y8[i] - 92378.0*x8[i]*y10[i] + 50388.0*x6[i]*y12[i] - 11628.0*x4[i]*y14[i] + 969.0*x2[i]*y16[i] - 19.0*y18[i]);
+
+      prCofDX[totalAN*357+i] = 33.9485838052981*x[i]*y[i]*(9.0*x16[i] - 408.0*x14[i]*y2[i] + 4284.0*x12[i]*y4[i] - 15912.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 15912.0*x6[i]*y10[i] + 4284.0*x4[i]*y12[i] - 408.0*x2[i]*y14[i] + 9.0*y16[i]);
+      prCofDX[totalAN*358+i] = 99.1293751849004*y[i]*z[i]*(17.0*x16[i] - 680.0*x14[i]*y2[i] + 6188.0*x12[i]*y4[i] - 19448.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 12376.0*x6[i]*y10[i] + 2380.0*x4[i]*y12[i] - 136.0*x2[i]*y14[i] + y16[i]);
+      prCofDX[totalAN*359+i] = 1.2803950883772*x[i]*y[i]*(-17.0*x16[i] + 680.0*x14[i]*y2[i] - 6188.0*x12[i]*y4[i] + 19448.0*x10[i]*y6[i] - 24310.0*x8[i]*y8[i] + 12376.0*x6[i]*y10[i] - 2380.0*x4[i]*y12[i] + 136.0*x2[i]*y14[i] - y16[i] - 136.0*(x2[i] + y2[i] - 36.0*z2[i])*(x14[i] - 35.0*x12[i]*y2[i] + 273.0*x10[i]*y4[i] - 715.0*x8[i]*y6[i] + 715.0*x6[i]*y8[i] - 273.0*x4[i]*y10[i] + 35.0*x2[i]*y12[i] - y14[i]));
+      prCofDX[totalAN*360+i] = 35.4833495492953*y[i]*z[i]*(-6.0*x2[i]*(x14[i] - 35.0*x12[i]*y2[i] + 273.0*x10[i]*y4[i] - 715.0*x8[i]*y6[i] + 715.0*x6[i]*y8[i] - 273.0*x4[i]*y10[i] + 35.0*x2[i]*y12[i] - y14[i]) + (-3.0*x2[i] - 3.0*y2[i] + 34.0*z2[i])*(15.0*x14[i] - 455.0*x12[i]*y2[i] + 3003.0*x10[i]*y4[i] - 6435.0*x8[i]*y6[i] + 5005.0*x6[i]*y8[i] - 1365.0*x4[i]*y10[i] + 105.0*x2[i]*y12[i] - y14[i]));
+      prCofDX[totalAN*361+i] = 1.12458389413523*x[i]*y[i]*(-2.0*(-x2[i] - y2[i] + 34.0*z2[i])*(15.0*x14[i] - 455.0*x12[i]*y2[i] + 3003.0*x10[i]*y4[i] - 6435.0*x8[i]*y6[i] + 5005.0*x6[i]*y8[i] - 1365.0*x4[i]*y10[i] + 105.0*x2[i]*y12[i] - y14[i]) + 5.0*(1295.0*z4[i] - 210.0*z2[i]*r2[i] + 3.0*r4[i])*(7.0*x12[i] - 182.0*x10[i]*y2[i] + 1001.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1001.0*x4[i]*y8[i] - 182.0*x2[i]*y10[i] + 7.0*y12[i]));
+      prCofDX[totalAN*362+i] = 4.8875933516657*y[i]*z[i]*(-4.0*x2[i]*(-3.0*x2[i] - 3.0*y2[i] + 32.0*z2[i])*(7.0*x12[i] - 182.0*x10[i]*y2[i] + 1001.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1001.0*x4[i]*y8[i] - 182.0*x2[i]*y10[i] + 7.0*y12[i]) + 7.0*(259.0*z4[i] - 70.0*z2[i]*r2[i] + 3.0*r4[i])*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]));
+      prCofDX[totalAN*363+i] = 1.04203840383005*x[i]*y[i]*(-3.0*(385.0*z4[i] - 66.0*z2[i]*r2[i] + r4[i])*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]) + 26.0*(2849.0*z6[i] - 1155.0*z4[i]*r2[i] + 99.0*z2[i]*r4[i] - r6[i])*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]));
+      prCofDX[totalAN*364+i] = 93.5748165838277*y[i]*z[i]*(-2.0*x2[i]*(77.0*z4[i] - 22.0*z2[i]*r2[i] + r4[i])*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]) + (407.0*z6[i] - 231.0*z4[i]*r2[i] + 33.0*z2[i]*r4[i] - r6[i])*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]));
+      prCofDX[totalAN*365+i] = 0.990334465847138*x[i]*y[i]*(-4.0*(2387.0*z6[i] - 1023.0*z4[i]*r2[i] + 93.0*z2[i]*r4[i] - r6[i])*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]) + 11.0*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i])*(12617.0*z8[i] - 9548.0*z6[i]*r2[i] + 2046.0*z4[i]*r4[i] - 124.0*z2[i]*r6[i] + r8[i]));
+      prCofDX[totalAN*366+i] = 0.361619017612871*y[i]*z[i]*(-72.0*x2[i]*(1705.0*z6[i] - 1023.0*z4[i]*r2[i] + 155.0*z2[i]*r4[i] - 5.0*r6[i])*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]) + 5.0*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i])*(63085.0*z8[i] - 61380.0*z6[i]*r2[i] + 18414.0*z4[i]*r4[i] - 1860.0*z2[i]*r6[i] + 45.0*r8[i]));
+      prCofDX[totalAN*367+i] = 0.955574995064948*x[i]*y[i]*(4.0*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i])*(365893.0*z10[i] - 445005.0*z8[i]*r2[i] + 178002.0*z6[i]*r4[i] - 26970.0*z4[i]*r6[i] + 1305.0*z2[i]*r8[i] - 9.0*r10[i]) - (9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i])*(49445.0*z8[i] - 39556.0*z6[i]*r2[i] + 8990.0*z4[i]*r4[i] - 580.0*z2[i]*r6[i] + 5.0*r8[i]));
+      prCofDX[totalAN*368+i] = 1.06477924459395*y[i]*z[i]*(-2.0*x2[i]*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i])*(346115.0*z8[i] - 356004.0*z6[i]*r2[i] + 113274.0*z4[i]*r4[i] - 12180.0*z2[i]*r6[i] + 315.0*r8[i]) + (7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i])*(232841.0*z10[i] - 346115.0*z8[i]*r2[i] + 178002.0*z6[i]*r4[i] - 37758.0*z4[i]*r6[i] + 3045.0*z2[i]*r8[i] - 63.0*r10[i]));
+      prCofDX[totalAN*369+i] = 0.133097405574243*x[i]*y[i]*(7.0*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(698523.0*z12[i] - 1246014.0*z10[i]*r2[i] + 801009.0*z8[i]*r4[i] - 226548.0*z6[i]*r6[i] + 27405.0*z4[i]*r8[i] - 1134.0*z2[i]*r10[i] + 7.0*r12[i]) - 6.0*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i])*(207669.0*z10[i] - 267003.0*z8[i]*r2[i] + 113274.0*z6[i]*r4[i] - 18270.0*z4[i]*r6[i] + 945.0*z2[i]*r8[i] - 7.0*r10[i]));
+      prCofDX[totalAN*370+i] = 0.564684468239301*y[i]*z[i]*(-52.0*x2[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(18879.0*z10[i] - 29667.0*z8[i]*r2[i] + 16182.0*z6[i]*r4[i] - 3654.0*z4[i]*r6[i] + 315.0*z2[i]*r8[i] - 7.0*r10[i]) + (5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(698523.0*z12[i] - 1472562.0*z10[i]*r2[i] + 1157013.0*z8[i]*r4[i] - 420732.0*z6[i]*r6[i] + 71253.0*z4[i]*r8[i] - 4914.0*z2[i]*r10[i] + 91.0*r12[i]));
+      prCofDX[totalAN*371+i] = 0.0704285270594699*x[i]*y[i]*(10.0*(x2[i] - y2[i])*(2494725.0*z14[i] - 6135675.0*z12[i]*r2[i] + 5785065.0*z10[i]*r4[i] - 2629575.0*z8[i]*r6[i] + 593775.0*z6[i]*r8[i] - 61425.0*z4[i]*r10[i] + 2275.0*z2[i]*r12[i] - 13.0*r14[i]) - 13.0*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(471975.0*z12[i] - 890010.0*z10[i]*r2[i] + 606825.0*z8[i]*r4[i] - 182700.0*z6[i]*r6[i] + 23625.0*z4[i]*r8[i] - 1050.0*z2[i]*r10[i] + 7.0*r12[i]));
+      prCofDX[totalAN*372+i] = 0.890858231034903*y[i]*z[i]*(-6.0*x2[i]*(x2[i] - y2[i])*(471975.0*z12[i] - 1051830.0*z10[i]*r2[i] + 876525.0*z8[i]*r4[i] - 339300.0*z6[i]*r6[i] + 61425.0*z4[i]*r8[i] - 4550.0*z2[i]*r10[i] + 91.0*r12[i]) + (3.0*x2[i] - y2[i])*(498945.0*z14[i] - 1415925.0*z12[i]*r2[i] + 1577745.0*z10[i]*r4[i] - 876525.0*z8[i]*r6[i] + 254475.0*z6[i]*r8[i] - 36855.0*z4[i]*r10[i] + 2275.0*z2[i]*r12[i] - 39.0*r14[i]));
+      prCofDX[totalAN*373+i] = 0.0696587932695619*x[i]*y[i]*(11475735.0*z16[i] - 37218600.0*z14[i]*r2[i] + 48384180.0*z12[i]*r4[i] - 32256120.0*z10[i]*r6[i] + 11705850.0*z8[i]*r8[i] - 2260440.0*z6[i]*r10[i] + 209300.0*z4[i]*r12[i] - 7176.0*z2[i]*r14[i] - 8.0*(3.0*x2[i] - y2[i])*(1550775.0*z14[i] - 4032015.0*z12[i]*r2[i] + 4032015.0*z10[i]*r4[i] - 1950975.0*z8[i]*r6[i] + 470925.0*z6[i]*r8[i] - 52325.0*z4[i]*r10[i] + 2093.0*z2[i]*r12[i] - 13.0*r14[i]) + 39.0*r16[i]);
+      prCofDX[totalAN*374+i] = 0.00240131363330655*y[i]*z[i]*(-272.0*x2[i]*(3411705.0*z14[i] - 10235115.0*z12[i]*r2[i] + 12096045.0*z10[i]*r4[i] - 7153575.0*z8[i]*r6[i] + 2220075.0*z6[i]*r8[i] - 345345.0*z4[i]*r10[i] + 23023.0*z2[i]*r12[i] - 429.0*r14[i]) + 126233085.0*z16[i] - 463991880.0*z14[i]*r2[i] + 695987820.0*z12[i]*r4[i] - 548354040.0*z10[i]*r6[i] + 243221550.0*z8[i]*r8[i] - 60386040.0*z6[i]*r10[i] + 7827820.0*z4[i]*r12[i] - 447304.0*z2[i]*r14[i] + 7293.0*r16[i]);
+      prCofDX[totalAN*375+i] = -0.0566912029031131*x[i]*y[i]*(23881935.0*z16[i] - 81880920.0*z14[i]*r2[i] + 112896420.0*z12[i]*r4[i] - 80120040.0*z10[i]*r6[i] + 31081050.0*z8[i]*r8[i] - 6446440.0*z6[i]*r10[i] + 644644.0*z4[i]*r12[i] - 24024.0*z2[i]*r14[i] + 143.0*r16[i]);
+      prCofDX[totalAN*376+i] = 0.00919334476036647*x[i]*z[i]*(-119409675.0*z16[i] + 463991880.0*z14[i]*r2[i] - 738168900.0*z12[i]*r4[i] + 619109400.0*z10[i]*r6[i] - 293543250.0*z8[i]*r8[i] + 78278200.0*z6[i]*r10[i] - 10958948.0*z4[i]*r12[i] + 680680.0*z2[i]*r14[i] - 12155.0*r16[i]);
+      prCofDX[totalAN*377+i] = -0.0566912029031131*x2[i]*(23881935.0*z16[i] - 81880920.0*z14[i]*r2[i] + 112896420.0*z12[i]*r4[i] - 80120040.0*z10[i]*r6[i] + 31081050.0*z8[i]*r8[i] - 6446440.0*z6[i]*r10[i] + 644644.0*z4[i]*r12[i] - 24024.0*z2[i]*r14[i] + 143.0*r16[i]) + 163706.333476296*z18[i] - 676947.811401979*z16[i]*r2[i] + 1160481.96240339*z14[i]*r4[i] - 1066705.64220918*z12[i]*r6[i] + 567762.680530692*z10[i]*r8[i] - 176202.21119918*z8[i]*r10[i] + 30454.7031702287*z6[i]*r12[i] - 2610.40312887675*z4[i]*r14[i] + 85.1218411590243*z2[i]*r16[i] - 0.45038011195251*r18[i];
+      prCofDX[totalAN*378+i] = 0.00240131363330655*x[i]*z[i]*(126233085.0*z16[i] - 463991880.0*z14[i]*r2[i] + 695987820.0*z12[i]*r4[i] - 548354040.0*z10[i]*r6[i] + 243221550.0*z8[i]*r8[i] - 60386040.0*z6[i]*r10[i] + 7827820.0*z4[i]*r12[i] - 447304.0*z2[i]*r14[i] - 136.0*(x2[i] - y2[i])*(3411705.0*z14[i] - 10235115.0*z12[i]*r2[i] + 12096045.0*z10[i]*r4[i] - 7153575.0*z8[i]*r6[i] + 2220075.0*z6[i]*r8[i] - 345345.0*z4[i]*r10[i] + 23023.0*z2[i]*r12[i] - 429.0*r14[i]) + 7293.0*r16[i]);
+      prCofDX[totalAN*379+i] = -0.557270346156495*x2[i]*(x2[i] - 3.0*y2[i])*(1550775.0*z14[i] - 4032015.0*z12[i]*r2[i] + 4032015.0*z10[i]*r4[i] - 1950975.0*z8[i]*r6[i] + 470925.0*z6[i]*r8[i] - 52325.0*z4[i]*r10[i] + 2093.0*z2[i]*r12[i] - 13.0*r14[i]) + 0.0348293966347809*(x2[i] - y2[i])*(11475735.0*z16[i] - 37218600.0*z14[i]*r2[i] + 48384180.0*z12[i]*r4[i] - 32256120.0*z10[i]*r6[i] + 11705850.0*z8[i]*r8[i] - 2260440.0*z6[i]*r10[i] + 209300.0*z4[i]*r12[i] - 7176.0*z2[i]*r14[i] + 39.0*r16[i]);
+      prCofDX[totalAN*380+i] = 0.445429115517452*x[i]*z[i]*(2.0*(x2[i] - 3.0*y2[i])*(498945.0*z14[i] - 1415925.0*z12[i]*r2[i] + 1577745.0*z10[i]*r4[i] - 876525.0*z8[i]*r6[i] + 254475.0*z6[i]*r8[i] - 36855.0*z4[i]*r10[i] + 2275.0*z2[i]*r12[i] - 39.0*r14[i]) - 3.0*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(471975.0*z12[i] - 1051830.0*z10[i]*r2[i] + 876525.0*z8[i]*r4[i] - 339300.0*z6[i]*r6[i] + 61425.0*z4[i]*r8[i] - 4550.0*z2[i]*r10[i] + 91.0*r12[i]));
+      prCofDX[totalAN*381+i] = -0.915570851773108*x2[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(471975.0*z12[i] - 890010.0*z10[i]*r2[i] + 606825.0*z8[i]*r4[i] - 182700.0*z6[i]*r6[i] + 23625.0*z4[i]*r8[i] - 1050.0*z2[i]*r10[i] + 7.0*r12[i]) + 0.176071317648675*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(2494725.0*z14[i] - 6135675.0*z12[i]*r2[i] + 5785065.0*z10[i]*r4[i] - 2629575.0*z8[i]*r6[i] + 593775.0*z6[i]*r8[i] - 61425.0*z4[i]*r10[i] + 2275.0*z2[i]*r12[i] - 13.0*r14[i]);
+      prCofDX[totalAN*382+i] = 0.564684468239301*x[i]*z[i]*((x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(698523.0*z12[i] - 1472562.0*z10[i]*r2[i] + 1157013.0*z8[i]*r4[i] - 420732.0*z6[i]*r6[i] + 71253.0*z4[i]*r8[i] - 4914.0*z2[i]*r10[i] + 91.0*r12[i]) - 26.0*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i])*(18879.0*z10[i] - 29667.0*z8[i]*r2[i] + 16182.0*z6[i]*r4[i] - 3654.0*z4[i]*r6[i] + 315.0*z2[i]*r8[i] - 7.0*r10[i]));
+      prCofDX[totalAN*383+i] = -0.798584433445459*x2[i]*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i])*(207669.0*z10[i] - 267003.0*z8[i]*r2[i] + 113274.0*z6[i]*r4[i] - 18270.0*z4[i]*r6[i] + 945.0*z2[i]*r8[i] - 7.0*r10[i]) + 0.465840919509851*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i])*(698523.0*z12[i] - 1246014.0*z10[i]*r2[i] + 801009.0*z8[i]*r4[i] - 226548.0*z6[i]*r6[i] + 27405.0*z4[i]*r8[i] - 1134.0*z2[i]*r10[i] + 7.0*r12[i]);
+      prCofDX[totalAN*384+i] = 0.266194811148486*x[i]*z[i]*(4.0*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i])*(232841.0*z10[i] - 346115.0*z8[i]*r2[i] + 178002.0*z6[i]*r4[i] - 37758.0*z4[i]*r6[i] + 3045.0*z2[i]*r8[i] - 63.0*r10[i]) - (x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i])*(346115.0*z8[i] - 356004.0*z6[i]*r2[i] + 113274.0*z4[i]*r4[i] - 12180.0*z2[i]*r6[i] + 315.0*r8[i]));
+      prCofDX[totalAN*385+i] = -0.955574995064948*x2[i]*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i])*(49445.0*z8[i] - 39556.0*z6[i]*r2[i] + 8990.0*z4[i]*r4[i] - 580.0*z2[i]*r6[i] + 5.0*r8[i]) + 0.477787497532474*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i])*(365893.0*z10[i] - 445005.0*z8[i]*r2[i] + 178002.0*z6[i]*r4[i] - 26970.0*z4[i]*r6[i] + 1305.0*z2[i]*r8[i] - 9.0*r10[i]);
+      prCofDX[totalAN*386+i] = 0.361619017612871*x[i]*z[i]*(-36.0*(1705.0*z6[i] - 1023.0*z4[i]*r2[i] + 155.0*z2[i]*r4[i] - 5.0*r6[i])*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]) + 5.0*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i])*(63085.0*z8[i] - 61380.0*z6[i]*r2[i] + 18414.0*z4[i]*r4[i] - 1860.0*z2[i]*r6[i] + 45.0*r8[i]));
+      prCofDX[totalAN*387+i] = -3.96133786338855*x2[i]*(2387.0*z6[i] - 1023.0*z4[i]*r2[i] + 93.0*z2[i]*r4[i] - r6[i])*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]) + 5.44683956215926*(12617.0*z8[i] - 9548.0*z6[i]*r2[i] + 2046.0*z4[i]*r4[i] - 124.0*z2[i]*r6[i] + r8[i])*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]);
+      prCofDX[totalAN*388+i] = 46.7874082919139*x[i]*z[i]*(-(77.0*z4[i] - 22.0*z2[i]*r2[i] + r4[i])*(x12[i] - 66.0*x10[i]*y2[i] + 495.0*x8[i]*y4[i] - 924.0*x6[i]*y6[i] + 495.0*x4[i]*y8[i] - 66.0*x2[i]*y10[i] + y12[i]) + 2.0*(407.0*z6[i] - 231.0*z4[i]*r2[i] + 33.0*z2[i]*r4[i] - r6[i])*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]));
+      prCofDX[totalAN*389+i] = -3.12611521149014*x2[i]*(385.0*z4[i] - 66.0*z2[i]*r2[i] + r4[i])*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]) + 6.7732496248953*(2849.0*z6[i] - 1155.0*z4[i]*r2[i] + 99.0*z2[i]*r4[i] - r6[i])*(x12[i] - 66.0*x10[i]*y2[i] + 495.0*x8[i]*y4[i] - 924.0*x6[i]*y6[i] + 495.0*x4[i]*y8[i] - 66.0*x2[i]*y10[i] + y12[i]);
+      prCofDX[totalAN*390+i] = 4.8875933516657*x[i]*z[i]*(-2.0*(-3.0*x2[i] - 3.0*y2[i] + 32.0*z2[i])*(x14[i] - 91.0*x12[i]*y2[i] + 1001.0*x10[i]*y4[i] - 3003.0*x8[i]*y6[i] + 3003.0*x6[i]*y8[i] - 1001.0*x4[i]*y10[i] + 91.0*x2[i]*y12[i] - y14[i]) + 7.0*(259.0*z4[i] - 70.0*z2[i]*r2[i] + 3.0*r4[i])*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]));
+      prCofDX[totalAN*391+i] = -2.24916778827046*x2[i]*(-x2[i] - y2[i] + 34.0*z2[i])*(x14[i] - 105.0*x12[i]*y2[i] + 1365.0*x10[i]*y4[i] - 5005.0*x8[i]*y6[i] + 6435.0*x6[i]*y8[i] - 3003.0*x4[i]*y10[i] + 455.0*x2[i]*y12[i] - 15.0*y14[i]) + 2.81145973533808*(1295.0*z4[i] - 210.0*z2[i]*r2[i] + 3.0*r4[i])*(x14[i] - 91.0*x12[i]*y2[i] + 1001.0*x10[i]*y4[i] - 3003.0*x8[i]*y6[i] + 3003.0*x6[i]*y8[i] - 1001.0*x4[i]*y10[i] + 91.0*x2[i]*y12[i] - y14[i]);
+      prCofDX[totalAN*392+i] = 4.43541869366192*x[i]*z[i]*(-3.0*x16[i] + 360.0*x14[i]*y2[i] - 5460.0*x12[i]*y4[i] + 24024.0*x10[i]*y6[i] - 38610.0*x8[i]*y8[i] + 24024.0*x6[i]*y10[i] - 5460.0*x4[i]*y12[i] + 360.0*x2[i]*y14[i] - 3.0*y16[i] + 8.0*(-3.0*x2[i] - 3.0*y2[i] + 34.0*z2[i])*(x14[i] - 105.0*x12[i]*y2[i] + 1365.0*x10[i]*y4[i] - 5005.0*x8[i]*y6[i] + 6435.0*x6[i]*y8[i] - 3003.0*x4[i]*y10[i] + 455.0*x2[i]*y12[i] - 15.0*y14[i]));
+      prCofDX[totalAN*393+i] = -1.2803950883772*x2[i]*(x16[i] - 136.0*x14[i]*y2[i] + 2380.0*x12[i]*y4[i] - 12376.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 19448.0*x6[i]*y10[i] + 6188.0*x4[i]*y12[i] - 680.0*x2[i]*y14[i] + 17.0*y16[i]) - 10.8833582512062*(x2[i] + y2[i] - 36.0*z2[i])*(x16[i] - 120.0*x14[i]*y2[i] + 1820.0*x12[i]*y4[i] - 8008.0*x10[i]*y6[i] + 12870.0*x8[i]*y8[i] - 8008.0*x6[i]*y10[i] + 1820.0*x4[i]*y12[i] - 120.0*x2[i]*y14[i] + y16[i]);
+      prCofDX[totalAN*394+i] = 99.1293751849004*x[i]*z[i]*(x16[i] - 136.0*x14[i]*y2[i] + 2380.0*x12[i]*y4[i] - 12376.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 19448.0*x6[i]*y10[i] + 6188.0*x4[i]*y12[i] - 680.0*x2[i]*y14[i] + 17.0*y16[i]);
+      prCofDX[totalAN*395+i] = 16.974291902649*x18[i] - 2597.0666611053*x16[i]*y2[i] + 51941.3332221061*x14[i]*y4[i] - 315110.754880777*x12[i]*y6[i] + 742761.065076117*x10[i]*y8[i] - 742761.065076117*x8[i]*y10[i] + 315110.754880777*x6[i]*y12[i] - 51941.3332221061*x4[i]*y14[i] + 2597.0666611053*x2[i]*y16[i] - 16.974291902649*y18[i];
+
+      prCofDY[totalAN*357+i] = 16.974291902649*x18[i] - 2597.0666611053*x16[i]*y2[i] + 51941.3332221061*x14[i]*y4[i] - 315110.754880777*x12[i]*y6[i] + 742761.065076117*x10[i]*y8[i] - 742761.065076117*x8[i]*y10[i] + 315110.754880777*x6[i]*y12[i] - 51941.3332221061*x4[i]*y14[i] + 2597.0666611053*x2[i]*y16[i] - 16.974291902649*y18[i];
+      prCofDY[totalAN*358+i] = 99.1293751849004*x[i]*z[i]*(x16[i] - 136.0*x14[i]*y2[i] + 2380.0*x12[i]*y4[i] - 12376.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 19448.0*x6[i]*y10[i] + 6188.0*x4[i]*y12[i] - 680.0*x2[i]*y14[i] + 17.0*y16[i]);
+      prCofDY[totalAN*359+i] = -1.2803950883772*y2[i]*(17.0*x16[i] - 680.0*x14[i]*y2[i] + 6188.0*x12[i]*y4[i] - 19448.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 12376.0*x6[i]*y10[i] + 2380.0*x4[i]*y12[i] - 136.0*x2[i]*y14[i] + y16[i]) - 10.8833582512062*(x2[i] + y2[i] - 36.0*z2[i])*(x16[i] - 120.0*x14[i]*y2[i] + 1820.0*x12[i]*y4[i] - 8008.0*x10[i]*y6[i] + 12870.0*x8[i]*y8[i] - 8008.0*x6[i]*y10[i] + 1820.0*x4[i]*y12[i] - 120.0*x2[i]*y14[i] + y16[i]);
+      prCofDY[totalAN*360+i] = 35.4833495492953*x[i]*z[i]*(-6.0*y2[i]*(x14[i] - 35.0*x12[i]*y2[i] + 273.0*x10[i]*y4[i] - 715.0*x8[i]*y6[i] + 715.0*x6[i]*y8[i] - 273.0*x4[i]*y10[i] + 35.0*x2[i]*y12[i] - y14[i]) + (-3.0*x2[i] - 3.0*y2[i] + 34.0*z2[i])*(x14[i] - 105.0*x12[i]*y2[i] + 1365.0*x10[i]*y4[i] - 5005.0*x8[i]*y6[i] + 6435.0*x6[i]*y8[i] - 3003.0*x4[i]*y10[i] + 455.0*x2[i]*y12[i] - 15.0*y14[i]));
+      prCofDY[totalAN*361+i] = -2.24916778827046*y2[i]*(-x2[i] - y2[i] + 34.0*z2[i])*(15.0*x14[i] - 455.0*x12[i]*y2[i] + 3003.0*x10[i]*y4[i] - 6435.0*x8[i]*y6[i] + 5005.0*x6[i]*y8[i] - 1365.0*x4[i]*y10[i] + 105.0*x2[i]*y12[i] - y14[i]) + 2.81145973533808*(1295.0*z4[i] - 210.0*z2[i]*r2[i] + 3.0*r4[i])*(x14[i] - 91.0*x12[i]*y2[i] + 1001.0*x10[i]*y4[i] - 3003.0*x8[i]*y6[i] + 3003.0*x6[i]*y8[i] - 1001.0*x4[i]*y10[i] + 91.0*x2[i]*y12[i] - y14[i]);
+      prCofDY[totalAN*362+i] = 4.8875933516657*x[i]*z[i]*(-4.0*y2[i]*(-3.0*x2[i] - 3.0*y2[i] + 32.0*z2[i])*(7.0*x12[i] - 182.0*x10[i]*y2[i] + 1001.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1001.0*x4[i]*y8[i] - 182.0*x2[i]*y10[i] + 7.0*y12[i]) + 7.0*(259.0*z4[i] - 70.0*z2[i]*r2[i] + 3.0*r4[i])*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]));
+      prCofDY[totalAN*363+i] = -3.12611521149014*y2[i]*(385.0*z4[i] - 66.0*z2[i]*r2[i] + r4[i])*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]) + 6.7732496248953*(2849.0*z6[i] - 1155.0*z4[i]*r2[i] + 99.0*z2[i]*r4[i] - r6[i])*(x12[i] - 66.0*x10[i]*y2[i] + 495.0*x8[i]*y4[i] - 924.0*x6[i]*y6[i] + 495.0*x4[i]*y8[i] - 66.0*x2[i]*y10[i] + y12[i]);
+      prCofDY[totalAN*364+i] = 93.5748165838277*x[i]*z[i]*(-2.0*y2[i]*(77.0*z4[i] - 22.0*z2[i]*r2[i] + r4[i])*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]) + (407.0*z6[i] - 231.0*z4[i]*r2[i] + 33.0*z2[i]*r4[i] - r6[i])*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]));
+      prCofDY[totalAN*365+i] = -3.96133786338855*y2[i]*(2387.0*z6[i] - 1023.0*z4[i]*r2[i] + 93.0*z2[i]*r4[i] - r6[i])*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]) + 5.44683956215926*(12617.0*z8[i] - 9548.0*z6[i]*r2[i] + 2046.0*z4[i]*r4[i] - 124.0*z2[i]*r6[i] + r8[i])*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]);
+      prCofDY[totalAN*366+i] = 0.361619017612871*x[i]*z[i]*(-72.0*y2[i]*(1705.0*z6[i] - 1023.0*z4[i]*r2[i] + 155.0*z2[i]*r4[i] - 5.0*r6[i])*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]) + 5.0*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i])*(63085.0*z8[i] - 61380.0*z6[i]*r2[i] + 18414.0*z4[i]*r4[i] - 1860.0*z2[i]*r6[i] + 45.0*r8[i]));
+      prCofDY[totalAN*367+i] = -0.955574995064948*y2[i]*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i])*(49445.0*z8[i] - 39556.0*z6[i]*r2[i] + 8990.0*z4[i]*r4[i] - 580.0*z2[i]*r6[i] + 5.0*r8[i]) + 0.477787497532474*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i])*(365893.0*z10[i] - 445005.0*z8[i]*r2[i] + 178002.0*z6[i]*r4[i] - 26970.0*z4[i]*r6[i] + 1305.0*z2[i]*r8[i] - 9.0*r10[i]);
+      prCofDY[totalAN*368+i] = 1.06477924459395*x[i]*z[i]*(-2.0*y2[i]*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i])*(346115.0*z8[i] - 356004.0*z6[i]*r2[i] + 113274.0*z4[i]*r4[i] - 12180.0*z2[i]*r6[i] + 315.0*r8[i]) + (x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i])*(232841.0*z10[i] - 346115.0*z8[i]*r2[i] + 178002.0*z6[i]*r4[i] - 37758.0*z4[i]*r6[i] + 3045.0*z2[i]*r8[i] - 63.0*r10[i]));
+      prCofDY[totalAN*369+i] = -0.798584433445459*y2[i]*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i])*(207669.0*z10[i] - 267003.0*z8[i]*r2[i] + 113274.0*z6[i]*r4[i] - 18270.0*z4[i]*r6[i] + 945.0*z2[i]*r8[i] - 7.0*r10[i]) + 0.465840919509851*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i])*(698523.0*z12[i] - 1246014.0*z10[i]*r2[i] + 801009.0*z8[i]*r4[i] - 226548.0*z6[i]*r6[i] + 27405.0*z4[i]*r8[i] - 1134.0*z2[i]*r10[i] + 7.0*r12[i]);
+      prCofDY[totalAN*370+i] = 0.564684468239301*x[i]*z[i]*(-52.0*y2[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(18879.0*z10[i] - 29667.0*z8[i]*r2[i] + 16182.0*z6[i]*r4[i] - 3654.0*z4[i]*r6[i] + 315.0*z2[i]*r8[i] - 7.0*r10[i]) + (x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(698523.0*z12[i] - 1472562.0*z10[i]*r2[i] + 1157013.0*z8[i]*r4[i] - 420732.0*z6[i]*r6[i] + 71253.0*z4[i]*r8[i] - 4914.0*z2[i]*r10[i] + 91.0*r12[i]));
+      prCofDY[totalAN*371+i] = -0.915570851773108*y2[i]*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(471975.0*z12[i] - 890010.0*z10[i]*r2[i] + 606825.0*z8[i]*r4[i] - 182700.0*z6[i]*r6[i] + 23625.0*z4[i]*r8[i] - 1050.0*z2[i]*r10[i] + 7.0*r12[i]) + 0.176071317648675*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(2494725.0*z14[i] - 6135675.0*z12[i]*r2[i] + 5785065.0*z10[i]*r4[i] - 2629575.0*z8[i]*r6[i] + 593775.0*z6[i]*r8[i] - 61425.0*z4[i]*r10[i] + 2275.0*z2[i]*r12[i] - 13.0*r14[i]);
+      prCofDY[totalAN*372+i] = 0.890858231034903*x[i]*z[i]*(-6.0*y2[i]*(x2[i] - y2[i])*(471975.0*z12[i] - 1051830.0*z10[i]*r2[i] + 876525.0*z8[i]*r4[i] - 339300.0*z6[i]*r6[i] + 61425.0*z4[i]*r8[i] - 4550.0*z2[i]*r10[i] + 91.0*r12[i]) + (x2[i] - 3.0*y2[i])*(498945.0*z14[i] - 1415925.0*z12[i]*r2[i] + 1577745.0*z10[i]*r4[i] - 876525.0*z8[i]*r6[i] + 254475.0*z6[i]*r8[i] - 36855.0*z4[i]*r10[i] + 2275.0*z2[i]*r12[i] - 39.0*r14[i]));
+      prCofDY[totalAN*373+i] = -0.557270346156495*y2[i]*(3.0*x2[i] - y2[i])*(1550775.0*z14[i] - 4032015.0*z12[i]*r2[i] + 4032015.0*z10[i]*r4[i] - 1950975.0*z8[i]*r6[i] + 470925.0*z6[i]*r8[i] - 52325.0*z4[i]*r10[i] + 2093.0*z2[i]*r12[i] - 13.0*r14[i]) + 0.0348293966347809*(x2[i] - y2[i])*(11475735.0*z16[i] - 37218600.0*z14[i]*r2[i] + 48384180.0*z12[i]*r4[i] - 32256120.0*z10[i]*r6[i] + 11705850.0*z8[i]*r8[i] - 2260440.0*z6[i]*r10[i] + 209300.0*z4[i]*r12[i] - 7176.0*z2[i]*r14[i] + 39.0*r16[i]);
+      prCofDY[totalAN*374+i] = 0.00240131363330655*x[i]*z[i]*(-272.0*y2[i]*(3411705.0*z14[i] - 10235115.0*z12[i]*r2[i] + 12096045.0*z10[i]*r4[i] - 7153575.0*z8[i]*r6[i] + 2220075.0*z6[i]*r8[i] - 345345.0*z4[i]*r10[i] + 23023.0*z2[i]*r12[i] - 429.0*r14[i]) + 126233085.0*z16[i] - 463991880.0*z14[i]*r2[i] + 695987820.0*z12[i]*r4[i] - 548354040.0*z10[i]*r6[i] + 243221550.0*z8[i]*r8[i] - 60386040.0*z6[i]*r10[i] + 7827820.0*z4[i]*r12[i] - 447304.0*z2[i]*r14[i] + 7293.0*r16[i]);
+      prCofDY[totalAN*375+i] = -0.0566912029031131*y2[i]*(23881935.0*z16[i] - 81880920.0*z14[i]*r2[i] + 112896420.0*z12[i]*r4[i] - 80120040.0*z10[i]*r6[i] + 31081050.0*z8[i]*r8[i] - 6446440.0*z6[i]*r10[i] + 644644.0*z4[i]*r12[i] - 24024.0*z2[i]*r14[i] + 143.0*r16[i]) + 163706.333476296*z18[i] - 676947.811401979*z16[i]*r2[i] + 1160481.96240339*z14[i]*r4[i] - 1066705.64220918*z12[i]*r6[i] + 567762.680530692*z10[i]*r8[i] - 176202.21119918*z8[i]*r10[i] + 30454.7031702287*z6[i]*r12[i] - 2610.40312887675*z4[i]*r14[i] + 85.1218411590243*z2[i]*r16[i] - 0.45038011195251*r18[i];
+      prCofDY[totalAN*376+i] = 0.00919334476036647*y[i]*z[i]*(-119409675.0*z16[i] + 463991880.0*z14[i]*r2[i] - 738168900.0*z12[i]*r4[i] + 619109400.0*z10[i]*r6[i] - 293543250.0*z8[i]*r8[i] + 78278200.0*z6[i]*r10[i] - 10958948.0*z4[i]*r12[i] + 680680.0*z2[i]*r14[i] - 12155.0*r16[i]);
+      prCofDY[totalAN*377+i] = -0.0566912029031131*x[i]*y[i]*(23881935.0*z16[i] - 81880920.0*z14[i]*r2[i] + 112896420.0*z12[i]*r4[i] - 80120040.0*z10[i]*r6[i] + 31081050.0*z8[i]*r8[i] - 6446440.0*z6[i]*r10[i] + 644644.0*z4[i]*r12[i] - 24024.0*z2[i]*r14[i] + 143.0*r16[i]);
+      prCofDY[totalAN*378+i] = 0.00240131363330655*y[i]*z[i]*(-126233085.0*z16[i] + 463991880.0*z14[i]*r2[i] - 695987820.0*z12[i]*r4[i] + 548354040.0*z10[i]*r6[i] - 243221550.0*z8[i]*r8[i] + 60386040.0*z6[i]*r10[i] - 7827820.0*z4[i]*r12[i] + 447304.0*z2[i]*r14[i] - 136.0*(x2[i] - y2[i])*(3411705.0*z14[i] - 10235115.0*z12[i]*r2[i] + 12096045.0*z10[i]*r4[i] - 7153575.0*z8[i]*r6[i] + 2220075.0*z6[i]*r8[i] - 345345.0*z4[i]*r10[i] + 23023.0*z2[i]*r12[i] - 429.0*r14[i]) - 7293.0*r16[i]);
+      prCofDY[totalAN*379+i] = 0.0696587932695619*x[i]*y[i]*(-11475735.0*z16[i] + 37218600.0*z14[i]*r2[i] - 48384180.0*z12[i]*r4[i] + 32256120.0*z10[i]*r6[i] - 11705850.0*z8[i]*r8[i] + 2260440.0*z6[i]*r10[i] - 209300.0*z4[i]*r12[i] + 7176.0*z2[i]*r14[i] - 8.0*(x2[i] - 3.0*y2[i])*(1550775.0*z14[i] - 4032015.0*z12[i]*r2[i] + 4032015.0*z10[i]*r4[i] - 1950975.0*z8[i]*r6[i] + 470925.0*z6[i]*r8[i] - 52325.0*z4[i]*r10[i] + 2093.0*z2[i]*r12[i] - 13.0*r14[i]) - 39.0*r16[i]);
+      prCofDY[totalAN*380+i] = -0.445429115517452*y[i]*z[i]*(2.0*(3.0*x2[i] - y2[i])*(498945.0*z14[i] - 1415925.0*z12[i]*r2[i] + 1577745.0*z10[i]*r4[i] - 876525.0*z8[i]*r6[i] + 254475.0*z6[i]*r8[i] - 36855.0*z4[i]*r10[i] + 2275.0*z2[i]*r12[i] - 39.0*r14[i]) + 3.0*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(471975.0*z12[i] - 1051830.0*z10[i]*r2[i] + 876525.0*z8[i]*r4[i] - 339300.0*z6[i]*r6[i] + 61425.0*z4[i]*r8[i] - 4550.0*z2[i]*r10[i] + 91.0*r12[i]));
+      prCofDY[totalAN*381+i] = -0.0704285270594699*x[i]*y[i]*(10.0*(x2[i] - y2[i])*(2494725.0*z14[i] - 6135675.0*z12[i]*r2[i] + 5785065.0*z10[i]*r4[i] - 2629575.0*z8[i]*r6[i] + 593775.0*z6[i]*r8[i] - 61425.0*z4[i]*r10[i] + 2275.0*z2[i]*r12[i] - 13.0*r14[i]) + 13.0*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(471975.0*z12[i] - 890010.0*z10[i]*r2[i] + 606825.0*z8[i]*r4[i] - 182700.0*z6[i]*r6[i] + 23625.0*z4[i]*r8[i] - 1050.0*z2[i]*r10[i] + 7.0*r12[i]));
+      prCofDY[totalAN*382+i] = -0.564684468239301*y[i]*z[i]*((5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(698523.0*z12[i] - 1472562.0*z10[i]*r2[i] + 1157013.0*z8[i]*r4[i] - 420732.0*z6[i]*r6[i] + 71253.0*z4[i]*r8[i] - 4914.0*z2[i]*r10[i] + 91.0*r12[i]) + 26.0*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i])*(18879.0*z10[i] - 29667.0*z8[i]*r2[i] + 16182.0*z6[i]*r4[i] - 3654.0*z4[i]*r6[i] + 315.0*z2[i]*r8[i] - 7.0*r10[i]));
+      prCofDY[totalAN*383+i] = -0.133097405574243*x[i]*y[i]*(7.0*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(698523.0*z12[i] - 1246014.0*z10[i]*r2[i] + 801009.0*z8[i]*r4[i] - 226548.0*z6[i]*r6[i] + 27405.0*z4[i]*r8[i] - 1134.0*z2[i]*r10[i] + 7.0*r12[i]) + 6.0*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i])*(207669.0*z10[i] - 267003.0*z8[i]*r2[i] + 113274.0*z6[i]*r4[i] - 18270.0*z4[i]*r6[i] + 945.0*z2[i]*r8[i] - 7.0*r10[i]));
+      prCofDY[totalAN*384+i] = -0.266194811148486*y[i]*z[i]*(4.0*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i])*(232841.0*z10[i] - 346115.0*z8[i]*r2[i] + 178002.0*z6[i]*r4[i] - 37758.0*z4[i]*r6[i] + 3045.0*z2[i]*r8[i] - 63.0*r10[i]) + (x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i])*(346115.0*z8[i] - 356004.0*z6[i]*r2[i] + 113274.0*z4[i]*r4[i] - 12180.0*z2[i]*r6[i] + 315.0*r8[i]));
+      prCofDY[totalAN*385+i] = -0.955574995064948*x[i]*y[i]*(4.0*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i])*(365893.0*z10[i] - 445005.0*z8[i]*r2[i] + 178002.0*z6[i]*r4[i] - 26970.0*z4[i]*r6[i] + 1305.0*z2[i]*r8[i] - 9.0*r10[i]) + (x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i])*(49445.0*z8[i] - 39556.0*z6[i]*r2[i] + 8990.0*z4[i]*r4[i] - 580.0*z2[i]*r6[i] + 5.0*r8[i]));
+      prCofDY[totalAN*386+i] = -0.361619017612871*y[i]*z[i]*(36.0*(1705.0*z6[i] - 1023.0*z4[i]*r2[i] + 155.0*z2[i]*r4[i] - 5.0*r6[i])*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]) + 5.0*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i])*(63085.0*z8[i] - 61380.0*z6[i]*r2[i] + 18414.0*z4[i]*r4[i] - 1860.0*z2[i]*r6[i] + 45.0*r8[i]));
+      prCofDY[totalAN*387+i] = -0.990334465847138*x[i]*y[i]*(4.0*(2387.0*z6[i] - 1023.0*z4[i]*r2[i] + 93.0*z2[i]*r4[i] - r6[i])*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]) + 11.0*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i])*(12617.0*z8[i] - 9548.0*z6[i]*r2[i] + 2046.0*z4[i]*r4[i] - 124.0*z2[i]*r6[i] + r8[i]));
+      prCofDY[totalAN*388+i] = -46.7874082919139*y[i]*z[i]*((77.0*z4[i] - 22.0*z2[i]*r2[i] + r4[i])*(x12[i] - 66.0*x10[i]*y2[i] + 495.0*x8[i]*y4[i] - 924.0*x6[i]*y6[i] + 495.0*x4[i]*y8[i] - 66.0*x2[i]*y10[i] + y12[i]) + 2.0*(407.0*z6[i] - 231.0*z4[i]*r2[i] + 33.0*z2[i]*r4[i] - r6[i])*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]));
+      prCofDY[totalAN*389+i] = -1.04203840383005*x[i]*y[i]*(3.0*(385.0*z4[i] - 66.0*z2[i]*r2[i] + r4[i])*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]) + 26.0*(2849.0*z6[i] - 1155.0*z4[i]*r2[i] + 99.0*z2[i]*r4[i] - r6[i])*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]));
+      prCofDY[totalAN*390+i] = 4.8875933516657*y[i]*z[i]*(2.0*(3.0*x2[i] + 3.0*y2[i] - 32.0*z2[i])*(x14[i] - 91.0*x12[i]*y2[i] + 1001.0*x10[i]*y4[i] - 3003.0*x8[i]*y6[i] + 3003.0*x6[i]*y8[i] - 1001.0*x4[i]*y10[i] + 91.0*x2[i]*y12[i] - y14[i]) - 7.0*(259.0*z4[i] - 70.0*z2[i]*r2[i] + 3.0*r4[i])*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]));
+      prCofDY[totalAN*391+i] = 1.12458389413523*x[i]*y[i]*(2.0*(x2[i] + y2[i] - 34.0*z2[i])*(x14[i] - 105.0*x12[i]*y2[i] + 1365.0*x10[i]*y4[i] - 5005.0*x8[i]*y6[i] + 6435.0*x6[i]*y8[i] - 3003.0*x4[i]*y10[i] + 455.0*x2[i]*y12[i] - 15.0*y14[i]) - 5.0*(1295.0*z4[i] - 210.0*z2[i]*r2[i] + 3.0*r4[i])*(7.0*x12[i] - 182.0*x10[i]*y2[i] + 1001.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1001.0*x4[i]*y8[i] - 182.0*x2[i]*y10[i] + 7.0*y12[i]));
+      prCofDY[totalAN*392+i] = 4.43541869366192*y[i]*z[i]*(-3.0*x16[i] + 360.0*x14[i]*y2[i] - 5460.0*x12[i]*y4[i] + 24024.0*x10[i]*y6[i] - 38610.0*x8[i]*y8[i] + 24024.0*x6[i]*y10[i] - 5460.0*x4[i]*y12[i] + 360.0*x2[i]*y14[i] - 3.0*y16[i] - 8.0*(-3.0*x2[i] - 3.0*y2[i] + 34.0*z2[i])*(15.0*x14[i] - 455.0*x12[i]*y2[i] + 3003.0*x10[i]*y4[i] - 6435.0*x8[i]*y6[i] + 5005.0*x6[i]*y8[i] - 1365.0*x4[i]*y10[i] + 105.0*x2[i]*y12[i] - y14[i]));
+      prCofDY[totalAN*393+i] = 1.2803950883772*x[i]*y[i]*(-x16[i] + 136.0*x14[i]*y2[i] - 2380.0*x12[i]*y4[i] + 12376.0*x10[i]*y6[i] - 24310.0*x8[i]*y8[i] + 19448.0*x6[i]*y10[i] - 6188.0*x4[i]*y12[i] + 680.0*x2[i]*y14[i] - 17.0*y16[i] + 136.0*(x2[i] + y2[i] - 36.0*z2[i])*(x14[i] - 35.0*x12[i]*y2[i] + 273.0*x10[i]*y4[i] - 715.0*x8[i]*y6[i] + 715.0*x6[i]*y8[i] - 273.0*x4[i]*y10[i] + 35.0*x2[i]*y12[i] - y14[i]));
+      prCofDY[totalAN*394+i] = -99.1293751849004*y[i]*z[i]*(17.0*x16[i] - 680.0*x14[i]*y2[i] + 6188.0*x12[i]*y4[i] - 19448.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 12376.0*x6[i]*y10[i] + 2380.0*x4[i]*y12[i] - 136.0*x2[i]*y14[i] + y16[i]);
+      prCofDY[totalAN*395+i] = 33.9485838052981*x[i]*y[i]*(-9.0*x16[i] + 408.0*x14[i]*y2[i] - 4284.0*x12[i]*y4[i] + 15912.0*x10[i]*y6[i] - 24310.0*x8[i]*y8[i] + 15912.0*x6[i]*y10[i] - 4284.0*x4[i]*y12[i] + 408.0*x2[i]*y14[i] - 9.0*y16[i]);
+
+      prCofDZ[totalAN*357+i] = 0;
+      prCofDZ[totalAN*358+i] = 11.0143750205445*x[i]*y[i]*(9.0*x16[i] - 408.0*x14[i]*y2[i] + 4284.0*x12[i]*y4[i] - 15912.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 15912.0*x6[i]*y10[i] + 4284.0*x4[i]*y12[i] - 408.0*x2[i]*y14[i] + 9.0*y16[i]);
+      prCofDZ[totalAN*359+i] = 46.0942231815793*y[i]*z[i]*(17.0*x16[i] - 680.0*x14[i]*y2[i] + 6188.0*x12[i]*y4[i] - 19448.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 12376.0*x6[i]*y10[i] + 2380.0*x4[i]*y12[i] - 136.0*x2[i]*y14[i] + y16[i]);
+      prCofDZ[totalAN*360+i] = -106.450048647886*x[i]*y[i]*(x2[i] + y2[i] - 34.0*z2[i])*(x14[i] - 35.0*x12[i]*y2[i] + 273.0*x10[i]*y4[i] - 715.0*x8[i]*y6[i] + 715.0*x6[i]*y8[i] - 273.0*x4[i]*y10[i] + 35.0*x2[i]*y12[i] - y14[i]);
+      prCofDZ[totalAN*361+i] = 25.4905682670652*y[i]*z[i]*(-3.0*x2[i] - 3.0*y2[i] + 32.0*z2[i])*(15.0*x14[i] - 455.0*x12[i]*y2[i] + 3003.0*x10[i]*y4[i] - 6435.0*x8[i]*y6[i] + 5005.0*x6[i]*y8[i] - 1365.0*x4[i]*y10[i] + 105.0*x2[i]*y12[i] - y14[i]);
+      prCofDZ[totalAN*362+i] = 14.6627800549971*x[i]*y[i]*(385.0*z4[i] - 66.0*z2[i]*r2[i] + r4[i])*(7.0*x12[i] - 182.0*x10[i]*y2[i] + 1001.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1001.0*x4[i]*y8[i] - 182.0*x2[i]*y10[i] + 7.0*y12[i]);
+      prCofDZ[totalAN*363+i] = 100.035686767684*y[i]*z[i]*(77.0*z4[i] - 22.0*z2[i]*r2[i] + r4[i])*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]);
+      prCofDZ[totalAN*364+i] = 31.1916055279426*x[i]*y[i]*(2387.0*z6[i] - 1023.0*z4[i]*r2[i] + 93.0*z2[i]*r4[i] - r6[i])*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]);
+      prCofDZ[totalAN*365+i] = 23.7680271803313*y[i]*z[i]*(1705.0*z6[i] - 1023.0*z4[i]*r2[i] + 155.0*z2[i]*r4[i] - 5.0*r6[i])*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]);
+      prCofDZ[totalAN*366+i] = 3.25457115851584*x[i]*y[i]*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i])*(49445.0*z8[i] - 39556.0*z6[i]*r2[i] + 8990.0*z4[i]*r4[i] - 580.0*z2[i]*r6[i] + 5.0*r8[i]);
+      prCofDZ[totalAN*367+i] = 0.424699997806643*y[i]*z[i]*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i])*(346115.0*z8[i] - 356004.0*z6[i]*r2[i] + 113274.0*z4[i]*r4[i] - 12180.0*z2[i]*r6[i] + 315.0*r8[i]);
+      prCofDZ[totalAN*368+i] = 9.5830132013455*x[i]*y[i]*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i])*(207669.0*z10[i] - 267003.0*z8[i]*r2[i] + 113274.0*z6[i]*r4[i] - 18270.0*z4[i]*r6[i] + 945.0*z2[i]*r8[i] - 7.0*r10[i]);
+      prCofDZ[totalAN*369+i] = 20.7631952695819*y[i]*z[i]*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i])*(18879.0*z10[i] - 29667.0*z8[i]*r2[i] + 16182.0*z6[i]*r4[i] - 3654.0*z4[i]*r6[i] + 315.0*z2[i]*r8[i] - 7.0*r10[i]);
+      prCofDZ[totalAN*370+i] = 2.44696602903697*x[i]*y[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i])*(471975.0*z12[i] - 890010.0*z10[i]*r2[i] + 606825.0*z8[i]*r4[i] - 182700.0*z6[i]*r6[i] + 23625.0*z4[i]*r8[i] - 1050.0*z2[i]*r10[i] + 7.0*r12[i]);
+      prCofDZ[totalAN*371+i] = 1.69028464942728*y[i]*z[i]*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(471975.0*z12[i] - 1051830.0*z10[i]*r2[i] + 876525.0*z8[i]*r4[i] - 339300.0*z6[i]*r6[i] + 61425.0*z4[i]*r8[i] - 4550.0*z2[i]*r10[i] + 91.0*r12[i]);
+      prCofDZ[totalAN*372+i] = 2.67257469310471*x[i]*y[i]*(x2[i] - y2[i])*(1550775.0*z14[i] - 4032015.0*z12[i]*r2[i] + 4032015.0*z10[i]*r4[i] - 1950975.0*z8[i]*r6[i] + 470925.0*z6[i]*r8[i] - 52325.0*z4[i]*r10[i] + 2093.0*z2[i]*r12[i] - 13.0*r14[i]);
+      prCofDZ[totalAN*373+i] = 0.37151356410433*y[i]*z[i]*(3.0*x2[i] - y2[i])*(3411705.0*z14[i] - 10235115.0*z12[i]*r2[i] + 12096045.0*z10[i]*r4[i] - 7153575.0*z8[i]*r6[i] + 2220075.0*z6[i]*r8[i] - 345345.0*z4[i]*r10[i] + 23023.0*z2[i]*r12[i] - 429.0*r14[i]);
+      prCofDZ[totalAN*374+i] = 0.122466995298634*x[i]*y[i]*(23881935.0*z16[i] - 81880920.0*z14[i]*r2[i] + 112896420.0*z12[i]*r4[i] - 80120040.0*z10[i]*r6[i] + 31081050.0*z8[i]*r8[i] - 6446440.0*z6[i]*r10[i] + 644644.0*z4[i]*r12[i] - 24024.0*z2[i]*r14[i] + 143.0*r16[i]);
+      prCofDZ[totalAN*375+i] = 0.0133391065654384*y[i]*z[i]*(119409675.0*z16[i] - 463991880.0*z14[i]*r2[i] + 738168900.0*z12[i]*r4[i] - 619109400.0*z10[i]*r6[i] + 293543250.0*z8[i]*r8[i] - 78278200.0*z6[i]*r10[i] + 10958948.0*z4[i]*r12[i] - 680680.0*z2[i]*r14[i] + 12155.0*r16[i]);
+      prCofDZ[totalAN*376+i] = 1158761.77166489*z18[i] - 5065444.31613507*z16[i]*r2[i] + 9209898.75660922*z14[i]*r4[i] - 9011836.41775741*z12[i]*r6[i] + 5127424.16872404*z10[i]*r8[i] - 1709141.38957468*z8[i]*r10[i] + 319039.72605394*z6[i]*r12[i] - 29724.1980795597*z4[i]*r14[i] + 1061.57850284142*z2[i]*r16[i] - 6.20806142012525*r18[i];
+      prCofDZ[totalAN*377+i] = 0.0133391065654384*x[i]*z[i]*(119409675.0*z16[i] - 463991880.0*z14[i]*r2[i] + 738168900.0*z12[i]*r4[i] - 619109400.0*z10[i]*r6[i] + 293543250.0*z8[i]*r8[i] - 78278200.0*z6[i]*r10[i] + 10958948.0*z4[i]*r12[i] - 680680.0*z2[i]*r14[i] + 12155.0*r16[i]);
+      prCofDZ[totalAN*378+i] = 0.0612334976493172*(x2[i] - y2[i])*(23881935.0*z16[i] - 81880920.0*z14[i]*r2[i] + 112896420.0*z12[i]*r4[i] - 80120040.0*z10[i]*r6[i] + 31081050.0*z8[i]*r8[i] - 6446440.0*z6[i]*r10[i] + 644644.0*z4[i]*r12[i] - 24024.0*z2[i]*r14[i] + 143.0*r16[i]);
+      prCofDZ[totalAN*379+i] = 0.37151356410433*x[i]*z[i]*(x2[i] - 3.0*y2[i])*(3411705.0*z14[i] - 10235115.0*z12[i]*r2[i] + 12096045.0*z10[i]*r4[i] - 7153575.0*z8[i]*r6[i] + 2220075.0*z6[i]*r8[i] - 345345.0*z4[i]*r10[i] + 23023.0*z2[i]*r12[i] - 429.0*r14[i]);
+      prCofDZ[totalAN*380+i] = 0.668143673276177*(x4[i] - 6.0*x2[i]*y2[i] + y4[i])*(1550775.0*z14[i] - 4032015.0*z12[i]*r2[i] + 4032015.0*z10[i]*r4[i] - 1950975.0*z8[i]*r6[i] + 470925.0*z6[i]*r8[i] - 52325.0*z4[i]*r10[i] + 2093.0*z2[i]*r12[i] - 13.0*r14[i]);
+      prCofDZ[totalAN*381+i] = 1.69028464942728*x[i]*z[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i])*(471975.0*z12[i] - 1051830.0*z10[i]*r2[i] + 876525.0*z8[i]*r4[i] - 339300.0*z6[i]*r6[i] + 61425.0*z4[i]*r8[i] - 4550.0*z2[i]*r10[i] + 91.0*r12[i]);
+      prCofDZ[totalAN*382+i] = 1.22348301451849*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i])*(471975.0*z12[i] - 890010.0*z10[i]*r2[i] + 606825.0*z8[i]*r4[i] - 182700.0*z6[i]*r6[i] + 23625.0*z4[i]*r8[i] - 1050.0*z2[i]*r10[i] + 7.0*r12[i]);
+      prCofDZ[totalAN*383+i] = 20.7631952695819*x[i]*z[i]*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i])*(18879.0*z10[i] - 29667.0*z8[i]*r2[i] + 16182.0*z6[i]*r4[i] - 3654.0*z4[i]*r6[i] + 315.0*z2[i]*r8[i] - 7.0*r10[i]);
+      prCofDZ[totalAN*384+i] = 1.19787665016819*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i])*(207669.0*z10[i] - 267003.0*z8[i]*r2[i] + 113274.0*z6[i]*r4[i] - 18270.0*z4[i]*r6[i] + 945.0*z2[i]*r8[i] - 7.0*r10[i]);
+      prCofDZ[totalAN*385+i] = 0.424699997806643*x[i]*z[i]*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i])*(346115.0*z8[i] - 356004.0*z6[i]*r2[i] + 113274.0*z4[i]*r4[i] - 12180.0*z2[i]*r6[i] + 315.0*r8[i]);
+      prCofDZ[totalAN*386+i] = 1.62728557925792*(49445.0*z8[i] - 39556.0*z6[i]*r2[i] + 8990.0*z4[i]*r4[i] - 580.0*z2[i]*r6[i] + 5.0*r8[i])*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]);
+      prCofDZ[totalAN*387+i] = 23.7680271803313*x[i]*z[i]*(1705.0*z6[i] - 1023.0*z4[i]*r2[i] + 155.0*z2[i]*r4[i] - 5.0*r6[i])*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]);
+      prCofDZ[totalAN*388+i] = 7.79790138198564*(2387.0*z6[i] - 1023.0*z4[i]*r2[i] + 93.0*z2[i]*r4[i] - r6[i])*(x12[i] - 66.0*x10[i]*y2[i] + 495.0*x8[i]*y4[i] - 924.0*x6[i]*y6[i] + 495.0*x4[i]*y8[i] - 66.0*x2[i]*y10[i] + y12[i]);
+      prCofDZ[totalAN*389+i] = 100.035686767684*x[i]*z[i]*(77.0*z4[i] - 22.0*z2[i]*r2[i] + r4[i])*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]);
+      prCofDZ[totalAN*390+i] = 7.33139002749855*(385.0*z4[i] - 66.0*z2[i]*r2[i] + r4[i])*(x14[i] - 91.0*x12[i]*y2[i] + 1001.0*x10[i]*y4[i] - 3003.0*x8[i]*y6[i] + 3003.0*x6[i]*y8[i] - 1001.0*x4[i]*y10[i] + 91.0*x2[i]*y12[i] - y14[i]);
+      prCofDZ[totalAN*391+i] = 25.4905682670652*x[i]*z[i]*(-3.0*x2[i] - 3.0*y2[i] + 32.0*z2[i])*(x14[i] - 105.0*x12[i]*y2[i] + 1365.0*x10[i]*y4[i] - 5005.0*x8[i]*y6[i] + 6435.0*x6[i]*y8[i] - 3003.0*x4[i]*y10[i] + 455.0*x2[i]*y12[i] - 15.0*y14[i]);
+      prCofDZ[totalAN*392+i] = -6.65312804049287*(x2[i] + y2[i] - 34.0*z2[i])*(x16[i] - 120.0*x14[i]*y2[i] + 1820.0*x12[i]*y4[i] - 8008.0*x10[i]*y6[i] + 12870.0*x8[i]*y8[i] - 8008.0*x6[i]*y10[i] + 1820.0*x4[i]*y12[i] - 120.0*x2[i]*y14[i] + y16[i]);
+      prCofDZ[totalAN*393+i] = 46.0942231815793*x[i]*z[i]*(x16[i] - 136.0*x14[i]*y2[i] + 2380.0*x12[i]*y4[i] - 12376.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 19448.0*x6[i]*y10[i] + 6188.0*x4[i]*y12[i] - 680.0*x2[i]*y14[i] + 17.0*y16[i]);
+      prCofDZ[totalAN*394+i] = 5.50718751027224*x18[i] - 842.599689071654*x16[i]*y2[i] + 16851.9937814331*x14[i]*y4[i] - 102235.428940694*x12[i]*y6[i] + 240983.511074493*x10[i]*y8[i] - 240983.511074493*x8[i]*y10[i] + 102235.428940694*x6[i]*y12[i] - 16851.9937814331*x4[i]*y14[i] + 842.599689071654*x2[i]*y16[i] - 5.50718751027224*y18[i];
+      prCofDZ[totalAN*395+i] = 0;
+
+
+
+
     }
 
 
   }
 }
 //================================================================
-void getCD(double* CDevX,double* CDevY,double* CDevZ, double* C, double* preCoef,  double* x, double* y, double* z,double* r2, double* bOa, double* aOa, double* exes,  int totalAN, int Asize, int Ns, int Ntypes, int lMax, int posI, int typeJ, const vector<int> &indices){
+void getCD(double* CDevX,double* CDevY,double* CDevZ,double* prCofDX,double* prCofDY,double* prCofDZ, double* C, double* preCoef,  double* x, double* y, double* z,double* r2, double* bOa, double* aOa, double* exes,  int totalAN, int Asize, int Ns, int Ntypes, int lMax, int posI, int typeJ, const vector<int> &indices){
 
   if(Asize == 0){return;}
   double sumMe = 0; int NsNs = Ns*Ns;  int NsJ = ((lMax+1)*(lMax+1))*Ns*typeJ; int LNsNs;
@@ -782,273 +2078,340 @@ void getCD(double* CDevX,double* CDevY,double* CDevZ, double* C, double* preCoef
 	    CDevX[NsTsI*totalAN + NsJ*totalAN + n*totalAN + indices[i]] += 2.0*aOa[k]*x[i]*bOa[n*Ns + k]*preExp;
 	    CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + indices[i]] += 2.0*aOa[k]*y[i]*bOa[n*Ns + k]*preExp;
 	    CDevZ[NsTsI*totalAN + NsJ*totalAN + n*totalAN + indices[i]] += 2.0*aOa[k]*z[i]*bOa[n*Ns + k]*preExp;
-	    std::cout << x[i] << std::endl; 
+//	    std::cout << x[i] << std::endl; 
        }
      }
     }
-
-   if(lMax > 0) { LNsNs=NsNs; LNs=Ns;
-  for(int k = 0; k < Ns; k++){
-    for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
-    sumMe = 0;/*c10*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*z[i];}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c11Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*x[i];}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*2 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c11Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*y[i];}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*3 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-  }} if(lMax > 1) { LNsNs=2*NsNs; LNs=2*Ns;
-  for(int k = 0; k < Ns; k++){
-    for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
-    sumMe = 0;/*c20*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*preCoef[i];}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*4 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-    sumMe = 0;/*c21Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*preCoef[totalAN + i];}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*5 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-    sumMe = 0;/*c21Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*preCoef[totalAN*2+ i];}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*6 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-    sumMe = 0;/*c22Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*preCoef[totalAN*3+ i];}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*7 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-    sumMe = 0;/*c22Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*preCoef[totalAN*4+ i];}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*8 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-  }} if(lMax > 2) { LNsNs=3*NsNs; LNs=3*Ns;
-  for(int k = 0; k < Ns; k++){
-    for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
-    sumMe = 0;/*c30*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*5+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*9 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-    sumMe = 0;/*c31Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*6+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*10 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-    sumMe = 0;/*c31Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*7+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*11 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-    sumMe = 0;/*c32Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*8+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*12 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-    sumMe = 0;/*c32Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*9+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*13 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-    sumMe = 0;/*c33Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*10+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*14 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-    sumMe = 0;/*c33Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*11+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*15 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-  }} if(lMax > 3) { LNsNs=4*NsNs; LNs=4*Ns;
-  for(int k = 0; k < Ns; k++){
-    for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
-    sumMe = 0;/*c40*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*12+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*16 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-    sumMe = 0;/*c41Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*13+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*17 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-    sumMe = 0;/*c41Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*14+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*18 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-    sumMe = 0;/*c42Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*15+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*19 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-    sumMe = 0;/*c42Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*16+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*20 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-    sumMe = 0;/*c43Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*17+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*21 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-    sumMe = 0;/*c43Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*18+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*22 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-    sumMe = 0;/*c44Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*19+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*23 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-    sumMe = 0;/*c44Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*20+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*24 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-
-  }} if(lMax > 4) { LNsNs=5*NsNs; LNs=5*Ns;
-  for(int k = 0; k < Ns; k++){
-    for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
-    sumMe = 0;/*c50*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*21+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*25 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c51Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*22+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*26 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c51Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*23+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*27 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c52Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*24+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*28 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c52Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*25+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*29 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c53Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*26+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*30 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c53Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*27+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*31 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c54Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*28+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*32 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c54Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*29+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*33 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c55Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*30+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*34 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c55Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*31+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*35 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-  }} if(lMax > 5) { LNsNs=6*NsNs; LNs=6*Ns;
-  for(int k = 0; k < Ns; k++){
-    for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
-    sumMe = 0;/*c60*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*32+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*36 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c61Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*33+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*37 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c61Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*34+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*38 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c62Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*35+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*39 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c62Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*36+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*40 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c63Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*37+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*41 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c63Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*38+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*42 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c64Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*39+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*43 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c64Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*40+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*44 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c65Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*41+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*45 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c65Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*42+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*46 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c66Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*43+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*47 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c66Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*44+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*48 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-  }} if(lMax > 6) { LNsNs=7*NsNs; LNs=7*Ns;
-  for(int k = 0; k < Ns; k++){
-    for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
-    sumMe = 0;/*c70*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*45+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*49 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c71Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*46+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*50 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c71Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*47+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*51 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c72Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*48+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*52 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c72Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*49+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*53 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c73Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*50+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*54 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c73Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*51+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*55 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c74Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*52+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*56 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c74Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*53+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*57 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c75Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*54+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*58 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c75Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*55+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*59 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c76Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*56+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*60 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c76Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*57+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*61 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c77Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*58+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*62 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c77Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*59+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*63 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-  }} if(lMax > 7) { LNsNs=8*NsNs; LNs=8*Ns;
-  for(int k = 0; k < Ns; k++){
-    for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
-    sumMe = 0;/*c80*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*60+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*64 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c81Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*61+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*65 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c81Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*62+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*66 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c82Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*63+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*67 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c82Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*64+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*68 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c83Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*65+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*69 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c83Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*66+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*70 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c84Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*67+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*71 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c84Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*68+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*72 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c85Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*69+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*73 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c85Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*70+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*74 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c86Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*71+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*75 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c86Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*72+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*76 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c87Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*73+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*77 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c87Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*74+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*78 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c88Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*75+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*79 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c88Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*76+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*80 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-  }}
-  if(lMax > 8) { LNsNs=9*NsNs; LNs=9*Ns;
-  for(int k = 0; k < Ns; k++){
-    for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
-    sumMe = 0;/*c90*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*77+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*81 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c91Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*78+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*82 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c91Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*79+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*83 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c92Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*80+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*84 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c92Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*81+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*85 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c93Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*82+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*86 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c93Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*83+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*87 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c94Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*84+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*88 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c94Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*85+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*89 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c95Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*86+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*90 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c95Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*87+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*91 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c96Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*88+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*92 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c96Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*89+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*93 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c97Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*90+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*94 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c97Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*91+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*95 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c98Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*92+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*96 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c98Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*93+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*97 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c99Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*94+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*98 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-    sumMe = 0;/*c99Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*95+i]);}
-    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*99 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-  }}
-////  double shiftBuffer = 96;
-//  if(lMax > 9) {
-//	 
-//  LNsNs=10*NsNs; LNs=10*Ns; // OBS!!!!!! lMax > 9 Case!
+   // l=1---------------------------------------------------------
+//   if(lMax > 0) { LNsNs=NsNs; LNs=Ns;
 //  for(int k = 0; k < Ns; k++){
 //    for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
-//      for(int sumems = 100; sumems < 121; sumems++){
-//        sumMe = 0; for(int i = 0; i < Asize; i++){
-//		sumMe += exes[i]*(preCoef[totalAN*(sumems - 4)+i]);
-////		printf("%d\n",totalAN*(sumems - 4)+i );
-////		printf("total: %d\n",totalAN);
-////		printf("preCoef: %f\n",preCoef[totalAN*(sumems - 4)+i]);
-//	}
-//        for(int n = 0; n < Ns; n++){
-//		C[NsTsI + NsJ + Ns*sumems + n] += bOa[LNsNs + n*Ns + k]*sumMe; // FOUND SEGFAULT!!!!! OBS!!!
-////		printf("preCoef: %f\n",bOa[LNsNs + n*Ns + k]); // FOUND HERE!!!
-//	}
-//	//shiftBuffer++; WRONG LOGIC, but not in use anyway ( not considering k++)
-//      }
+//    sumMe = 0;/*c10*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*z[i];}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c11Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*x[i];}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*2 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c11Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*y[i];}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*3 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
 //  }}
+   if(lMax > 0) { LNsNs=NsNs; LNs=Ns;
+      for(int k = 0; k < Ns; k++){
+          for(int i = 0; i < Asize; i++){
+              preExp = exp(aOa[LNs + k]*r2[i]);
+              for(int n = 0; n < Ns; n++){
+		      C[NsTsI + NsJ + Ns + n] += bOa[LNsNs + n*Ns + k]*preExp*z[i];
+                      CDevX[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 1*Ns*totalAN +  indices[i]] += 2.0*bOa[LNsNs + n*Ns + k]*x[i]*aOa[LNs + k]*preExp*z[i];
+                      CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 1*Ns*totalAN +  indices[i]] += 2.0*bOa[LNsNs + n*Ns + k]*y[i]*aOa[LNs + k]*preExp*z[i];
+                      CDevZ[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 1*Ns*totalAN +  indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*z[i]*z[i]*aOa[LNs + k]*preExp + preExp);
 
-  if(lMax > 9) {
-  for(int restOfLs = 10; restOfLs <= lMax; restOfLs++){	 
-  LNsNs=restOfLs*NsNs; LNs=restOfLs*Ns; // OBS!!!!!! lMax > 9 Case!
-  for(int k = 0; k < Ns; k++){
-    for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
-      for(int sumems = restOfLs*restOfLs; sumems < (restOfLs+1)*(restOfLs+1); sumems++){
-        sumMe = 0; for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*(sumems - 4)+i]);}
-        for(int n = 0; n < Ns; n++){
-		C[NsTsI + NsJ + Ns*sumems + n] += bOa[LNsNs + n*Ns + k]*sumMe; // FOUND SEGFAULT!!!!! OBS!!!
-	}
+                      C[NsTsI + NsJ + Ns*2 + n] += bOa[LNsNs + n*Ns + k]*preExp*x[i];
+                      CDevX[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 2*Ns*totalAN +  indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*x[i]*x[i]*aOa[LNs + k]*preExp + preExp);
+                      CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 2*Ns*totalAN +  indices[i]] += 2.0*bOa[LNsNs + n*Ns + k]*y[i]*aOa[LNs + k]*preExp*x[i];
+                      CDevZ[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 2*Ns*totalAN +  indices[i]] += 2.0*bOa[LNsNs + n*Ns + k]*z[i]*aOa[LNs + k]*preExp*x[i];
+
+
+                      C[NsTsI + NsJ + Ns*3 + n] += bOa[LNsNs + n*Ns + k]*preExp*y[i];
+                      CDevX[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 2*Ns*totalAN +  indices[i]] += 2.0*bOa[LNsNs + n*Ns + k]*x[i]*aOa[LNs + k]*preExp*y[i] ;
+                      CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 2*Ns*totalAN +  indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*y[i]*y[i]*aOa[LNs + k]*preExp + preExp);
+                      CDevZ[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 2*Ns*totalAN +  indices[i]] += 2.0*bOa[LNsNs + n*Ns + k]*z[i]*aOa[LNs + k]*preExp*y[i];
+	      }
+         }
       }
    }
-  }}
+    // End l=1 --------------------------------------------------------
+   // l=2---------------------------------------------------------
+   if(lMax > 1) { LNsNs=2*NsNs; LNs=2*Ns;
+//      for(int k = 0; k < Ns; k++){
+//        for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
+//        sumMe = 0;/*c20*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*preCoef[i];}
+//        for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*4 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
+//        sumMe = 0;/*c21Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*preCoef[totalAN + i];}
+//        for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*5 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
+//        sumMe = 0;/*c21Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*preCoef[totalAN*2+ i];}
+//        for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*6 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
+//        sumMe = 0;/*c22Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*preCoef[totalAN*3+ i];}
+//        for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*7 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
+//        sumMe = 0;/*c22Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*preCoef[totalAN*4+ i];}
+//        for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*8 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
+//       }
+//      for(int k = 0; k < Ns; k++){
+//          for(int i = 0; i < Asize; i++){
+//              preExp = exp(aOa[LNs + k]*r2[i]);
+//              for(int n = 0; n < Ns; n++){
+//                  for(int m = 4; n < 9; n++){
+//
+//                      C[NsTsI + NsJ + Ns*4 + n] += bOa[LNsNs + n*Ns + k]*preExp*z[i];
+//
+//                      CDevX[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 1*Ns*totalAN +  indices[i]] = -2.0*aOa[LNsNs + n*Ns + k]*x[i]*preExp;
+//                      CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 1*Ns*totalAN +  indices[i]] = -2.0*bOa[LNsNs + n*Ns + k]*y[i]*aOa[LNs + k]*preExp*z[i];
+//                      CDevZ[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 1*Ns*totalAN +  indices[i]] = bOa[LNsNs + n*Ns + k]*(-2.0*z[i]*z[i]*aOa[LNs + k]*preExp + preExp);
+//
+//                  }
+//	      }
+//         }
+//      }
+
+
+  for(int restOfLs = 1; restOfLs <= lMax; restOfLs++){	 
+  LNsNs=restOfLs*NsNs; LNs=restOfLs*Ns; // OBS!!!!!! lMax > 9 Case!
+  for(int k = 0; k < Ns; k++){
+    for(int i = 0; i < Asize; i++){//exponents
+              preExp = exp(aOa[LNs + k]*r2[i]);
+      for(int m = restOfLs*restOfLs; m < (restOfLs+1)*(restOfLs+1); m++){
+        sumMe = 0; for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*(m-4)+i]);}
+        for(int n = 0; n < Ns; n++){
+		C[NsTsI + NsJ + Ns*m + n] += bOa[LNsNs + n*Ns + k]*sumMe; // FOUND SEGFAULT!!!!! OBS!!!
+                CDevX[NsTsI*totalAN+NsJ*totalAN+n*totalAN+m*Ns*totalAN+indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*aOa[LNs + k]*x[i]*preExp*z[i]*preCoef[totalAN*(m-4)+i]+preExp*prCofDX[totalAN*(m-4)+i]);
+                CDevY[NsTsI*totalAN+NsJ*totalAN+n*totalAN+m*Ns*totalAN+indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*aOa[LNs + k]*y[i]*preExp*z[i]*preCoef[totalAN*(m-4)+i]+preExp*prCofDY[totalAN*(m-4)+i]);
+                CDevZ[NsTsI*totalAN+NsJ*totalAN+n*totalAN+m*Ns*totalAN+indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*aOa[LNs + k]*z[i]*preExp*z[i]*preCoef[totalAN*(m-4)+i]+preExp*prCofDZ[totalAN*(m-4)+i]);
+	}
+      }
+    }
+   }
+  }
+
+
+    }
+//   // End l=2------------------------------------------------------
+// if(lMax > 2) { LNsNs=3*NsNs; LNs=3*Ns;
+//  for(int k = 0; k < Ns; k++){
+//    for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
+//    sumMe = 0;/*c30*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*5+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*9 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
+//    sumMe = 0;/*c31Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*6+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*10 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
+//    sumMe = 0;/*c31Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*7+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*11 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
+//    sumMe = 0;/*c32Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*8+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*12 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
+//    sumMe = 0;/*c32Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*9+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*13 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
+//    sumMe = 0;/*c33Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*10+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*14 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
+//    sumMe = 0;/*c33Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*11+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*15 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
+//  }} if(lMax > 3) { LNsNs=4*NsNs; LNs=4*Ns;
+//  for(int k = 0; k < Ns; k++){
+//    for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
+//    sumMe = 0;/*c40*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*12+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*16 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
+//    sumMe = 0;/*c41Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*13+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*17 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
+//    sumMe = 0;/*c41Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*14+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*18 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
+//    sumMe = 0;/*c42Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*15+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*19 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
+//    sumMe = 0;/*c42Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*16+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*20 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
+//    sumMe = 0;/*c43Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*17+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*21 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
+//    sumMe = 0;/*c43Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*18+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*22 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
+//    sumMe = 0;/*c44Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*19+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*23 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
+//    sumMe = 0;/*c44Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*20+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*24 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
+//
+//  }} if(lMax > 4) { LNsNs=5*NsNs; LNs=5*Ns;
+//  for(int k = 0; k < Ns; k++){
+//    for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
+//    sumMe = 0;/*c50*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*21+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*25 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c51Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*22+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*26 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c51Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*23+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*27 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c52Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*24+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*28 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c52Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*25+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*29 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c53Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*26+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*30 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c53Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*27+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*31 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c54Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*28+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*32 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c54Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*29+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*33 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c55Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*30+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*34 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c55Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*31+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*35 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//  }} if(lMax > 5) { LNsNs=6*NsNs; LNs=6*Ns;
+//  for(int k = 0; k < Ns; k++){
+//    for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
+//    sumMe = 0;/*c60*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*32+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*36 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c61Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*33+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*37 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c61Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*34+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*38 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c62Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*35+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*39 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c62Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*36+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*40 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c63Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*37+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*41 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c63Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*38+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*42 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c64Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*39+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*43 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c64Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*40+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*44 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c65Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*41+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*45 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c65Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*42+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*46 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c66Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*43+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*47 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c66Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*44+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*48 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//  }} if(lMax > 6) { LNsNs=7*NsNs; LNs=7*Ns;
+//  for(int k = 0; k < Ns; k++){
+//    for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
+//    sumMe = 0;/*c70*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*45+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*49 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c71Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*46+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*50 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c71Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*47+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*51 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c72Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*48+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*52 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c72Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*49+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*53 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c73Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*50+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*54 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c73Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*51+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*55 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c74Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*52+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*56 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c74Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*53+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*57 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c75Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*54+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*58 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c75Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*55+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*59 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c76Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*56+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*60 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c76Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*57+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*61 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c77Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*58+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*62 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c77Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*59+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*63 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//  }} if(lMax > 7) { LNsNs=8*NsNs; LNs=8*Ns;
+//  for(int k = 0; k < Ns; k++){
+//    for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
+//    sumMe = 0;/*c80*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*60+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*64 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c81Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*61+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*65 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c81Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*62+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*66 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c82Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*63+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*67 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c82Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*64+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*68 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c83Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*65+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*69 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c83Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*66+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*70 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c84Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*67+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*71 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c84Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*68+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*72 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c85Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*69+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*73 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c85Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*70+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*74 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c86Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*71+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*75 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c86Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*72+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*76 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c87Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*73+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*77 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c87Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*74+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*78 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c88Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*75+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*79 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c88Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*76+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*80 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//  }}
+//  if(lMax > 8) { LNsNs=9*NsNs; LNs=9*Ns;
+//  for(int k = 0; k < Ns; k++){
+//    for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
+//    sumMe = 0;/*c90*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*77+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*81 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c91Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*78+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*82 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c91Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*79+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*83 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c92Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*80+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*84 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c92Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*81+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*85 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c93Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*82+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*86 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c93Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*83+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*87 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c94Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*84+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*88 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c94Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*85+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*89 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c95Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*86+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*90 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c95Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*87+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*91 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c96Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*88+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*92 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c96Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*89+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*93 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c97Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*90+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*94 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c97Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*91+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*95 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c98Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*92+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*96 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c98Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*93+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*97 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c99Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*94+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*98 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//    sumMe = 0;/*c99Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*95+i]);}
+//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*99 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
+//  }}
+//////  double shiftBuffer = 96;
+////  if(lMax > 9) {
+////	 
+////  LNsNs=10*NsNs; LNs=10*Ns; // OBS!!!!!! lMax > 9 Case!
+////  for(int k = 0; k < Ns; k++){
+////    for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
+////      for(int sumems = 100; sumems < 121; sumems++){
+////        sumMe = 0; for(int i = 0; i < Asize; i++){
+////		sumMe += exes[i]*(preCoef[totalAN*(sumems - 4)+i]);
+//////		printf("%d\n",totalAN*(sumems - 4)+i );
+//////		printf("total: %d\n",totalAN);
+//////		printf("preCoef: %f\n",preCoef[totalAN*(sumems - 4)+i]);
+////	}
+////        for(int n = 0; n < Ns; n++){
+////		C[NsTsI + NsJ + Ns*sumems + n] += bOa[LNsNs + n*Ns + k]*sumMe; // FOUND SEGFAULT!!!!! OBS!!!
+//////		printf("preCoef: %f\n",bOa[LNsNs + n*Ns + k]); // FOUND HERE!!!
+////	}
+////	//shiftBuffer++; WRONG LOGIC, but not in use anyway ( not considering k++)
+////      }
+////  }}
+//
+//  if(lMax > 9) {
+//  for(int restOfLs = 10; restOfLs <= lMax; restOfLs++){	 
+//  LNsNs=restOfLs*NsNs; LNs=restOfLs*Ns; // OBS!!!!!! lMax > 9 Case!
+//  for(int k = 0; k < Ns; k++){
+//    for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
+//      for(int sumems = restOfLs*restOfLs; sumems < (restOfLs+1)*(restOfLs+1); sumems++){
+//        sumMe = 0; for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*(sumems - 4)+i]);}
+//        for(int n = 0; n < Ns; n++){
+//		C[NsTsI + NsJ + Ns*sumems + n] += bOa[LNsNs + n*Ns + k]*sumMe; // FOUND SEGFAULT!!!!! OBS!!!
+//	}
+//      }
+//   }
+//  }}
 }
 //=======================================================================
 /**
@@ -1494,7 +2857,7 @@ void getPNoCrossD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMa
 /**
  * Used to calculate the partial power spectrum derivative without crossover.
  */
-  void getPNoCrossDevX(double* soapMatDevX,double* Cdev, double* Cnnd,  int Ns, int Ts, int Hs, int lMax, int totalAN){
+  void getPNoCrossDevX(double* soapMatDevX,double* soapMatDevZ,double* soapMatDevY, double* CdevX,double* CdevY,double* CdevZ, double* Cnnd,  int Ns, int Ts, int Hs, int lMax, int totalAN){
   int NsTs100 = Ns*Ts*((lMax+1)*(lMax+1)); // Used to be NsTs100 = Ns*Ts*100, but 100 is a waste of memory if not lMax = 9, and can't do over that, so changed.
   int Ns100 = Ns*((lMax+1)*(lMax+1));
   int NsNs = (Ns*(Ns+1))/2;
@@ -1518,9 +2881,20 @@ void getPNoCrossD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMa
       for(int j = 0; j < Ts; j++){
         shiftN = 0;
         for(int k = 0; k < Ns; k++){
-          for(int kd = k; kd < Ns; kd++){
-            soapMatDevX[NsNsLmaxTs*i*totalAN+ NsNsLmax*j*totalAN+ 0*totalAN +shiftN*totalAN + a] = prel0*(cs0*Cnnd[NsTs100*i + Ns100*j + 0 + k]*Cdev[NsTs100*i*totalAN + Ns100*j*totalAN + 0*Ns*totalAN + kd*totalAN + a]);
-//	    std::cout << soapMatDevX[NsNsLmaxTs*i*totalAN+ NsNsLmax*j*totalAN+ 0*totalAN +shiftN*totalAN + a]  << std::endl; 
+		for(int kd = k; kd < Ns; kd++){
+            soapMatDevX[NsNsLmaxTs*i*totalAN+ NsNsLmax*j*totalAN+ 0*totalAN +shiftN*totalAN + a] = prel0*cs0*(Cnnd[NsTs100*i + Ns100*j + 0 + k]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + 0*Ns*totalAN + kd*totalAN + a]
+                                                                                                     +Cnnd[NsTs100*i + Ns100*j + 0 + kd]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + 0*Ns*totalAN + k*totalAN + a]);
+            soapMatDevY[NsNsLmaxTs*i*totalAN+ NsNsLmax*j*totalAN+ 0*totalAN +shiftN*totalAN + a] = prel0*cs0*(Cnnd[NsTs100*i + Ns100*j + 0 + k]*CdevY[NsTs100*i*totalAN + Ns100*j*totalAN + 0*Ns*totalAN + kd*totalAN + a]
+                                                                                                 +Cnnd[NsTs100*i + Ns100*j + 0 + kd]*CdevY[NsTs100*i*totalAN + Ns100*j*totalAN + 0*Ns*totalAN + k*totalAN + a]);
+            soapMatDevZ[NsNsLmaxTs*i*totalAN+ NsNsLmax*j*totalAN+ 0*totalAN +shiftN*totalAN + a] = prel0*cs0*(Cnnd[NsTs100*i + Ns100*j + 0 + k]*CdevZ[NsTs100*i*totalAN + Ns100*j*totalAN + 0*Ns*totalAN + kd*totalAN + a]
+                                                                                                 +Cnnd[NsTs100*i + Ns100*j + 0 + kd]*CdevZ[NsTs100*i*totalAN + Ns100*j*totalAN + 0*Ns*totalAN + k*totalAN + a]);
+//	    std::cout << "k " << k <<" k' " << kd << " val  " <<prel0*cs0*(Cnnd[NsTs100*i + Ns100*j + 0 + k]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + 0*Ns*totalAN + kd*totalAN + a])<< std::endl; 
+//            std:: cout << "aaa" << endl;
+//	    std::cout << "k " << k <<" k' " << kd << " val  " << soapMatDevX[NsNsLmaxTs*i*totalAN+ NsNsLmax*j*totalAN+ 0*totalAN +shiftN*totalAN + a]  << std::endl; 
+  //          std::cout << Cnnd[NsTs100*i + Ns100*j + 0 + kd]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + 0*Ns*totalAN + k*totalAN + a] << std::endl;
+//            std::cout << "nest " << endl;
+//            std::cout << Cnnd[NsTs100*i + Ns100*j + 0 + kd] << std::endl;
+//            std::cout << prel0 << "   "  << cs0 <<  "   " <<  CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + 0*Ns*totalAN + k*totalAN + a] << std::endl;
             shiftN++;
           }
         }
@@ -1528,408 +2902,87 @@ void getPNoCrossD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMa
     }
   } if(lMax > 0) {
     double prel1 = PI*sqrt(8.0/(2.0*1.0+1.0));
+  for(int a = 0; a < totalAN; a++){
     for(int i = 0; i < Hs; i++){
       for(int j = 0; j < Ts; j++){
         shiftN = 0;
         for(int k = 0; k < Ns; k++){
           for(int kd = k; kd < Ns; kd++){
-            soapMatDevX[NsNsLmaxTs*i+NsNsLmax*j+ NsNs + shiftN] = prel1*(
-              cs1*Cnnd[NsTs100*i + Ns100*j + 1*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 1*Ns + kd]
-             +cs2*Cnnd[NsTs100*i + Ns100*j + 2*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 2*Ns + kd]
-             +cs2*Cnnd[NsTs100*i + Ns100*j + 3*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 3*Ns + kd]);
+            soapMatDevX[NsNsLmaxTs*i*totalAN+ NsNsLmax*j*totalAN+ 1*totalAN +shiftN*totalAN + a] = prel1*(
+                  cs1*Cnnd[NsTs100*i + Ns100*j + 1*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + 1*Ns*totalAN + kd*totalAN + a]
+                 +cs1*Cnnd[NsTs100*i + Ns100*j + 1*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + 1*Ns*totalAN + k*totalAN + a]
+                 +cs2*Cnnd[NsTs100*i + Ns100*j + 2*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + 2*Ns*totalAN + kd*totalAN + a]
+                 +cs2*Cnnd[NsTs100*i + Ns100*j + 2*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + 2*Ns*totalAN + k*totalAN + a]
+                 +cs2*Cnnd[NsTs100*i + Ns100*j + 3*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + 3*Ns*totalAN + kd*totalAN + a]
+                 +cs2*Cnnd[NsTs100*i + Ns100*j + 3*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + 3*Ns*totalAN + k*totalAN + a]
+               );
+
+
+            soapMatDevY[NsNsLmaxTs*i*totalAN+ NsNsLmax*j*totalAN+ 1*totalAN +shiftN*totalAN + a] = prel1*(
+                  cs1*Cnnd[NsTs100*i + Ns100*j + 1*Ns + k]*CdevY[NsTs100*i*totalAN + Ns100*j*totalAN + 1*Ns*totalAN + kd*totalAN + a]
+                 +cs1*Cnnd[NsTs100*i + Ns100*j + 1*Ns + kd]*CdevY[NsTs100*i*totalAN + Ns100*j*totalAN + 1*Ns*totalAN + k*totalAN + a]
+                 +cs2*Cnnd[NsTs100*i + Ns100*j + 2*Ns + k]*CdevY[NsTs100*i*totalAN + Ns100*j*totalAN + 2*Ns*totalAN + kd*totalAN + a]
+                 +cs2*Cnnd[NsTs100*i + Ns100*j + 2*Ns + kd]*CdevY[NsTs100*i*totalAN + Ns100*j*totalAN + 2*Ns*totalAN + k*totalAN + a]
+                 +cs2*Cnnd[NsTs100*i + Ns100*j + 3*Ns + k]*CdevY[NsTs100*i*totalAN + Ns100*j*totalAN + 3*Ns*totalAN + kd*totalAN + a]
+                 +cs2*Cnnd[NsTs100*i + Ns100*j + 3*Ns + kd]*CdevY[NsTs100*i*totalAN + Ns100*j*totalAN + 3*Ns*totalAN + k*totalAN + a]
+                );
+
+            soapMatDevZ[NsNsLmaxTs*i*totalAN+ NsNsLmax*j*totalAN+ 1*totalAN +shiftN*totalAN + a] = prel1*(
+                  cs1*Cnnd[NsTs100*i + Ns100*j + 1*Ns + k]*CdevZ[NsTs100*i*totalAN + Ns100*j*totalAN + 1*Ns*totalAN + kd*totalAN + a]
+                 +cs1*Cnnd[NsTs100*i + Ns100*j + 1*Ns + kd]*CdevZ[NsTs100*i*totalAN + Ns100*j*totalAN + 1*Ns*totalAN + k*totalAN + a]
+                 +cs2*Cnnd[NsTs100*i + Ns100*j + 2*Ns + k]*CdevZ[NsTs100*i*totalAN + Ns100*j*totalAN + 2*Ns*totalAN + kd*totalAN + a]
+                 +cs2*Cnnd[NsTs100*i + Ns100*j + 2*Ns + kd]*CdevZ[NsTs100*i*totalAN + Ns100*j*totalAN + 2*Ns*totalAN + k*totalAN + a]
+                 +cs2*Cnnd[NsTs100*i + Ns100*j + 3*Ns + k]*CdevZ[NsTs100*i*totalAN + Ns100*j*totalAN + 3*Ns*totalAN + kd*totalAN + a]
+                 +cs2*Cnnd[NsTs100*i + Ns100*j + 3*Ns + kd]*CdevZ[NsTs100*i*totalAN + Ns100*j*totalAN + 3*Ns*totalAN + k*totalAN + a]
+	       );
             shiftN++;
-          }
-        }
-      }
-    }
-  } if(lMax > 1) {
-    double prel2 = PI*sqrt(8.0/(2.0*2.0+1.0));
-    for(int i = 0; i < Hs; i++){
-      for(int j = 0; j < Ts; j++){
-        shiftN = 0;
-        for(int k = 0; k < Ns; k++){
-          for(int kd = k; kd < Ns; kd++){
-            soapMatDevX[NsNsLmaxTs*i+NsNsLmax*j+ 2*NsNs + shiftN] = prel2*(
-              PI3*Cnnd[NsTs100*i + Ns100*j + 4*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 4*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 5*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 5*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 6*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 6*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 7*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 7*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 8*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 8*Ns + kd]);
-            shiftN++;
-          }
-        }
-      }
-    }
-  } if(lMax > 2) {
-    double prel3 = PI*sqrt(8.0/(2.0*3.0+1.0));
-    for(int i = 0; i < Hs; i++){
-      for(int j = 0; j < Ts; j++){
-        shiftN = 0;
-        for(int k = 0; k < Ns; k++){
-          for(int kd = k; kd < Ns; kd++){
-            soapMatDevX[NsNsLmaxTs*i+NsNsLmax*j+ 3*NsNs + shiftN] = prel3*(
-              PI3*Cnnd[NsTs100*i + Ns100*j + 9*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 9*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 10*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 10*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 11*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 11*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 12*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 12*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 13*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 13*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 14*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 14*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 15*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 15*Ns + kd]);
-            shiftN++;
-          }
-        }
-      }
-    }
-  } if(lMax > 3) {
-    double prel4 = PI*sqrt(8.0/(2.0*4.0+1.0));
-    for(int i = 0; i < Hs; i++){
-      for(int j = 0; j < Ts; j++){
-        shiftN = 0;
-        for(int k = 0; k < Ns; k++){
-          for(int kd = k; kd < Ns; kd++){
-            soapMatDevX[NsNsLmaxTs*i+NsNsLmax*j+ 4*NsNs + shiftN] = prel4*(
-              PI3*Cnnd[NsTs100*i + Ns100*j + 16*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 16*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 17*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 17*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 18*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 18*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 19*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 19*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 20*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 20*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 21*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 21*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 22*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 22*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 23*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 23*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 24*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 24*Ns + kd]);
-            shiftN++;
-          }
-        }
-      }
-    }
-  } if(lMax > 4) {
-    double prel5 = PI*sqrt(8.0/(2.0*5.0+1.0));
-    for(int i = 0; i < Hs; i++){
-      for(int j = 0; j < Ts; j++){
-        shiftN = 0;
-        for(int k = 0; k < Ns; k++){
-          for(int kd = k; kd < Ns; kd++){
-            soapMatDevX[NsNsLmaxTs*i+NsNsLmax*j+ 5*NsNs + shiftN] = prel5*(
-              PI3*Cnnd[NsTs100*i + Ns100*j + 25*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 25*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 26*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 26*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 27*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 27*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 28*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 28*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 29*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 29*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 30*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 30*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 31*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 31*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 32*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 32*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 33*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 33*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 34*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 34*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 35*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 35*Ns + kd]);
-            shiftN++;
-          }
-        }
-      }
-    }
-  } if(lMax > 5) {
-    double prel6 = PI*sqrt(8.0/(2.0*6.0+1.0));
-    for(int i = 0; i < Hs; i++){
-      for(int j = 0; j < Ts; j++){
-        shiftN = 0;
-        for(int k = 0; k < Ns; k++){
-          for(int kd = k; kd < Ns; kd++){
-            soapMatDevX[NsNsLmaxTs*i+NsNsLmax*j+ 6*NsNs + shiftN] = prel6*(
-              PI3*Cnnd[NsTs100*i + Ns100*j + 36*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 36*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 37*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 37*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 38*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 38*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 39*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 39*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 40*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 40*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 41*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 41*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 42*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 42*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 43*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 43*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 44*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 44*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 45*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 45*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 46*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 46*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 47*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 47*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 48*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 48*Ns + kd]);
-            shiftN++;
-          }
-        }
-      }
-    }
-  } if(lMax > 6) {
-    double prel7 = PI*sqrt(8.0/(2.0*7.0+1.0));
-    for(int i = 0; i < Hs; i++){
-      for(int j = 0; j < Ts; j++){
-        shiftN = 0;
-        for(int k = 0; k < Ns; k++){
-          for(int kd = k; kd < Ns; kd++){
-            soapMatDevX[NsNsLmaxTs*i+NsNsLmax*j+ 7*NsNs + shiftN] = prel7*(
-              PI3*Cnnd[NsTs100*i + Ns100*j + 49*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 49*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 50*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 50*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 51*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 51*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 52*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 52*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 53*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 53*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 54*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 54*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 55*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 55*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 56*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 56*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 57*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 57*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 58*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 58*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 59*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 59*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 60*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 60*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 61*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 61*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 62*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 62*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 63*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 63*Ns + kd]);
-            shiftN++;
-          }
-        }
-      }
-    }
-  } if(lMax > 7) {
-    double prel8 = PI*sqrt(8.0/(2.0*8.0+1.0));
-    for(int i = 0; i < Hs; i++){
-      for(int j = 0; j < Ts; j++){
-        shiftN = 0;
-        for(int k = 0; k < Ns; k++){
-          for(int kd = k; kd < Ns; kd++){
-            soapMatDevX[NsNsLmaxTs*i+NsNsLmax*j+ 8*NsNs + shiftN] = prel8*(
-              PI3*Cnnd[NsTs100*i + Ns100*j + 64*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 64*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 65*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 65*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 66*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 66*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 67*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 67*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 68*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 68*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 69*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 69*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 70*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 70*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 71*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 71*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 72*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 72*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 73*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 73*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 74*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 74*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 75*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 75*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 76*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 76*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 77*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 77*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 78*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 78*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 79*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 79*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 80*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 80*Ns + kd]);
-            shiftN++;
-          }
-        }
-      }
-    }
-  } if(lMax > 8) {
-    double prel9 = PI*sqrt(8.0/(2.0*9.0+1.0));
-    for(int i = 0; i < Hs; i++){
-      for(int j = 0; j < Ts; j++){
-        shiftN = 0;
-        for(int k = 0; k < Ns; k++){
-          for(int kd = k; kd < Ns; kd++){
-            soapMatDevX[NsNsLmaxTs*i+NsNsLmax*j+ 9*NsNs + shiftN] = prel9*(
-              PI3*Cnnd[NsTs100*i + Ns100*j + 81*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 81*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 82*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 82*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 83*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 83*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 84*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 84*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 85*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 85*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 86*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 86*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 87*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 87*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 88*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 88*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 89*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 89*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 90*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 90*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 91*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 91*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 92*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 92*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 93*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 93*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 94*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 94*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 95*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 95*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 96*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 96*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 97*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 97*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 98*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 98*Ns + kd]
-             +PI3*Cnnd[NsTs100*i + Ns100*j + 99*Ns + k]*Cnnd[NsTs100*i + Ns100*j + 99*Ns + kd]);
-            shiftN++;
+            }
           }
         }
       }
     }
   }
-   if(lMax > 9) { // OBS!!!! LMAX > 9 ------
-    double prel10 = PI*sqrt(8.0/(2.0*10.0+1.0));
-    for(int i = 0; i < Hs; i++){
-      for(int j = 0; j < Ts; j++){
-        shiftN = 0;
-        for(int k = 0; k < Ns; k++){
-          for(int kd = k; kd < Ns; kd++){
-            double buffDouble = 0;
-            for(int buffShift = 100; buffShift < 121; buffShift++){
-              buffDouble += PI3*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd];
-	    }
-            soapMatDevX[NsNsLmaxTs*i+NsNsLmax*j+ 10*NsNs + shiftN] = prel10*buffDouble;
-            shiftN++;
-          }
-        }
-      }
-    }
-  } 
-   if(lMax > 10) { // OBS!!!! LMAX > 9 ------
-    double prel11 = PI*sqrt(8.0/(2.0*11.0+1.0));
-    for(int i = 0; i < Hs; i++){
-      for(int j = 0; j < Ts; j++){
-        shiftN = 0;
-        for(int k = 0; k < Ns; k++){
-          for(int kd = k; kd < Ns; kd++){
-            double buffDouble = 0;
-            for(int buffShift = 11*11; buffShift < 12*12; buffShift++){
-              buffDouble += PI3*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd];
-	    }
-            soapMatDevX[NsNsLmaxTs*i+NsNsLmax*j+ 11*NsNs + shiftN] = prel11*buffDouble;
-            shiftN++;
-          }
-        }
-      }
-    }
-  } 
 
-   if(lMax > 11) { // OBS!!!! LMAX > 9 ------
-    double prel12 = PI*sqrt(8.0/(2.0*12.0+1.0));
-    for(int i = 0; i < Hs; i++){
-      for(int j = 0; j < Ts; j++){
-        shiftN = 0;
-        for(int k = 0; k < Ns; k++){
-          for(int kd = k; kd < Ns; kd++){
-            double buffDouble = 0;
-            for(int buffShift = 12*12; buffShift < 13*13; buffShift++){
-              buffDouble += PI3*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd];
-	    }
-            soapMatDevX[NsNsLmaxTs*i+NsNsLmax*j+ 12*NsNs + shiftN] = prel12*buffDouble;
-            shiftN++;
-          }
-        }
-      }
-    }
-  } 
 
-   if(lMax > 12) { // OBS!!!! LMAX > 9 ------
-    double prel13 = PI*sqrt(8.0/(2.0*13.0+1.0));
+//------------------------------------------------------------------------------------------------------------------- 
+   if(lMax > 1) { // OBS!!!! LMAX > 9 ------
+   for(int m=2; m < 20; m++){
+    double prel = PI*sqrt(8.0/(2.0*m+1.0))*PI3;
+   for(int a = 0; a < totalAN; a++){
     for(int i = 0; i < Hs; i++){
       for(int j = 0; j < Ts; j++){
         shiftN = 0;
         for(int k = 0; k < Ns; k++){
           for(int kd = k; kd < Ns; kd++){
             double buffDouble = 0;
-            for(int buffShift = 13*13; buffShift < 14*14; buffShift++){
-              buffDouble += PI3*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd];
-	    }
-            soapMatDevX[NsNsLmaxTs*i+NsNsLmax*j+ 13*NsNs + shiftN] = prel13*buffDouble;
-            shiftN++;
-          }
-        }
-      }
-    }
-  } 
+            for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
+//{
+//              buffDouble += PI3*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd];
+//	    }
+              soapMatDevX[NsNsLmaxTs*totalAN*i+NsNsLmax*totalAN*j+ m*NsNs*totalAN + shiftN*totalAN + a] += prel*(
+                                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i + Ns100*j + buffShift*Ns + kd]
+                                     + Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevX[NsTs100*i + Ns100*j + buffShift*Ns + k]
+                                );
 
-   if(lMax > 13) { // OBS!!!! LMAX > 9 ------
-    double prel14 = PI*sqrt(8.0/(2.0*14.0+1.0));
-    for(int i = 0; i < Hs; i++){
-      for(int j = 0; j < Ts; j++){
-        shiftN = 0;
-        for(int k = 0; k < Ns; k++){
-          for(int kd = k; kd < Ns; kd++){
-            double buffDouble = 0;
-            for(int buffShift = 14*14; buffShift < 15*15; buffShift++){
-              buffDouble += PI3*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd];
-	    }
-            soapMatDevX[NsNsLmaxTs*i+NsNsLmax*j+ 14*NsNs + shiftN] = prel14*buffDouble;
-            shiftN++;
-          }
-        }
-      }
-    }
-  } 
 
-   if(lMax > 14) { // OBS!!!! LMAX > 9 ------
-    double prel15 = PI*sqrt(8.0/(2.0*15.0+1.0));
-    for(int i = 0; i < Hs; i++){
-      for(int j = 0; j < Ts; j++){
-        shiftN = 0;
-        for(int k = 0; k < Ns; k++){
-          for(int kd = k; kd < Ns; kd++){
-            double buffDouble = 0;
-            for(int buffShift = 15*15; buffShift < 16*16; buffShift++){
-              buffDouble += PI3*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd];
-	    }
-            soapMatDevX[NsNsLmaxTs*i+NsNsLmax*j+ 15*NsNs + shiftN] = prel15*buffDouble;
-            shiftN++;
-          }
-        }
-      }
-    }
-  } 
+              soapMatDevY[NsNsLmaxTs*totalAN*i+NsNsLmax*totalAN*j+ m*NsNs*totalAN + shiftN*totalAN + a] += prel*(
+                                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevY[NsTs100*i + Ns100*j + buffShift*Ns + kd]
+                                     + Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevY[NsTs100*i + Ns100*j + buffShift*Ns + k]
+                                );
 
-   if(lMax > 15) { // OBS!!!! LMAX > 9 ------
-    double prel16 = PI*sqrt(8.0/(2.0*16.0+1.0));
-    for(int i = 0; i < Hs; i++){
-      for(int j = 0; j < Ts; j++){
-        shiftN = 0;
-        for(int k = 0; k < Ns; k++){
-          for(int kd = k; kd < Ns; kd++){
-            double buffDouble = 0;
-            for(int buffShift = 16*16; buffShift < 17*17; buffShift++){
-              buffDouble += PI3*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd];
-	    }
-            soapMatDevX[NsNsLmaxTs*i+NsNsLmax*j+ 16*NsNs + shiftN] = prel16*buffDouble;
-            shiftN++;
-          }
-        }
-      }
-    }
-  } 
 
-   if(lMax > 16) { // OBS!!!! LMAX > 9 ------
-    double prel17 = PI*sqrt(8.0/(2.0*17.0+1.0));
-    for(int i = 0; i < Hs; i++){
-      for(int j = 0; j < Ts; j++){
-        shiftN = 0;
-        for(int k = 0; k < Ns; k++){
-          for(int kd = k; kd < Ns; kd++){
-            double buffDouble = 0;
-            for(int buffShift = 17*17; buffShift < 18*18; buffShift++){
-              buffDouble += PI3*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd];
-	    }
-            soapMatDevX[NsNsLmaxTs*i+NsNsLmax*j+ 17*NsNs + shiftN] = prel17*buffDouble;
+              soapMatDevZ[NsNsLmaxTs*totalAN*i+NsNsLmax*totalAN*j+ m*NsNs*totalAN + shiftN*totalAN + a] += prel*(
+                                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevZ[NsTs100*i + Ns100*j + buffShift*Ns + kd]
+                                     + Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevZ[NsTs100*i + Ns100*j + buffShift*Ns + k]
+                                );
+            }
             shiftN++;
           }
         }
       }
     }
-  } 
-
-   if(lMax > 17) { // OBS!!!! LMAX > 9 ------
-    double prel18 = PI*sqrt(8.0/(2.0*18.0+1.0));
-    for(int i = 0; i < Hs; i++){
-      for(int j = 0; j < Ts; j++){
-        shiftN = 0;
-        for(int k = 0; k < Ns; k++){
-          for(int kd = k; kd < Ns; kd++){
-            double buffDouble = 0;
-            for(int buffShift = 18*18; buffShift < 19*19; buffShift++){
-              buffDouble += PI3*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd];
-	    }
-            soapMatDevX[NsNsLmaxTs*i+NsNsLmax*j+ 18*NsNs + shiftN] = prel18*buffDouble;
-            shiftN++;
-          }
-        }
-      }
-    }
-  } 
-
-   if(lMax > 18) { // OBS!!!! LMAX > 9 ------
-    double prel19 = PI*sqrt(8.0/(2.0*19.0+1.0));
-    for(int i = 0; i < Hs; i++){
-      for(int j = 0; j < Ts; j++){
-        shiftN = 0;
-        for(int k = 0; k < Ns; k++){
-          for(int kd = k; kd < Ns; kd++){
-            double buffDouble = 0;
-            for(int buffShift = 19*19; buffShift < 20*20; buffShift++){
-              buffDouble += PI3*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd];
-	    }
-            soapMatDevX[NsNsLmaxTs*i+NsNsLmax*j+ 19*NsNs + shiftN] = prel19*buffDouble;
-            shiftN++;
-          }
-        }
-      }
-    }
+   }
+   }
   } 
 }
 //=======================================================================
@@ -1948,42 +3001,9 @@ void getPCrossOverD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int l
   //  double   cs0  = pow(PIHalf,2);
   //  double   cs1  = pow(2.7206990464,2);
   //  double cs2  = 2*pow(1.9238247452,2); double   cs3  = pow(1.7562036828,2); double cs4  = 2*pow(4.3018029072,2);
-  //  double cs5  = 2*pow(2.1509014536,2); double   cs6  = pow(2.0779682205,2); double cs7  = 2*pow(1.7995732672,2);
-  //  double cs8  = 2*pow(5.6907503408,2); double cs9  = 2*pow(2.3232390981,2); double   cs10 = pow(0.5890486225,2);
-  //  double cs11 = 2*pow(2.6343055241,2); double cs12 = 2*pow(1.8627352998,2); double cs13 = 2*pow(6.9697172942,2);
-  //  double cs14 = 2*pow(2.4641671809,2); double   cs15 = pow(0.6512177548,2); double cs16 = 2*pow(1.7834332706,2);
-  //  double cs17 = 2*pow(9.4370418280,2); double cs18 = 2*pow(1.9263280966,2); double cs19 = 2*pow(8.1727179596,2);
-  //  double cs20 = 2*pow(2.5844403427,2); double   cs21 = pow(0.3539741687,2); double cs22 = 2*pow(2.2940148014,2);
-  //  double cs23 = 2*pow(1.8135779397,2); double cs24 = 2*pow(3.6271558793,2); double cs25 = 2*pow(1.9866750947,2);
-  //  double cs26 = 2*pow(9.3183321738,2); double cs27 = 2*pow(2.6899707945,2); double   cs28 = pow(0.3802292509,2);
-  //  double cs29 = 2*pow(0.3556718963,2); double cs30 = 2*pow(0.8712146618,2); double cs31 = 2*pow(0.6160417952,2);
-  //  double cs32 = 2*pow(4.0863589798,2); double cs33 = 2*pow(2.0431794899,2); double cs34 = 2*pow(10.418212089,2);
-  //  double cs35 = 2*pow(2.7843843014,2); double   cs36 = pow(0.0505981185,2); double cs37 = 2*pow(0.4293392727,2);
-  //  double cs38 = 2*pow(1.7960550366,2); double cs39 = 2*pow(4.8637400313,2); double cs40 = 2*pow(1.8837184141,2);
-  //  double cs41 = 2*pow(13.583686661,2); double cs42 = 2*pow(2.0960083567,2); double cs43 = 2*pow(11.480310577,2);
-  //  double cs44 = 2*pow(2.8700776442,2); double   cs45 = pow(0.0534917379,2); double cs46 = 2*pow(0.2537335916,2);
-  //  double cs47 = 2*pow(2.3802320735,2); double cs48 = 2*pow(1.8179322747,2); double cs49 = 2*pow(16.055543121,2);
-  //  double cs50 = 2*pow(1.9190044477,2); double cs51 = 2*pow(4.9548481782,2); double cs52 = 2*pow(2.1455121971,2);
-  //  double cs53 = 2*pow(12.510378411,2); double cs54 = 2*pow(2.9487244699,2);
   double cs0=2.4674011003; double cs1=7.4022033011; double cs2=7.4022033005;
 //  double cs3=3.0842513755; double cs4=37.0110165048; double cs5=9.2527541262;
 //  double cs6=4.3179519254; double cs7=6.4769278880; double cs8=64.7692788826;
-//  double cs9=10.7948798139; double cs10=0.3469782797; double cs11=13.8791311886;
-//  double cs12=6.9395655942; double cs13=97.1539183221; double cs14=12.1442397908;
-//  double cs15=0.4240845642; double cs16=6.3612684614; double cs17=178.1155169268;
-//  double cs18=7.4214798715; double cs19=133.5866376943; double cs20=13.3586637700;
-//  double cs21=0.1252977121; double cs22=10.5250078181; double cs23=6.5781298867;
-//  double cs24=26.3125195455; double cs25=7.8937558638; double cs26=173.6626290026;
-//  double cs27=14.4718857505; double cs28=0.1445742832; double cs29=0.2530049956;
-//  double cs30=1.5180299739; double cs31=0.7590149869; double cs32=33.3966594236;
-//  double cs33=8.3491648559; double cs34=217.0782862628; double cs35=15.5055918758;
-//  double cs36=0.0025601696; double cs37=0.3686644222; double cs38=6.4516273890;
-//  double cs39=47.3119341841; double cs40=7.0967901272; double cs41=369.0330866085;
-//  double cs42=8.7865020627; double cs43=263.5950618888; double cs44=16.4746913675;
-//  double cs45=0.0028613660; double cs46=0.1287614710; double cs47=11.3310094474;
-//  double cs48=6.6097555108; double cs49=515.5609298206; double cs50=7.3651561406;
-//  double cs51=49.1010409380; double cs52=9.2064451758; double cs53=313.0191359728;
-//  double cs54=17.3899519988;
 
   // The power spectrum is multiplied by an l-dependent prefactor that comes
   // from the normalization of the Wigner D matrices. This prefactor is
@@ -2019,7 +3039,7 @@ void getPCrossOverD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int l
           for(int k = 0; k < Ns; k++){
             for(int kd = k; kd < Ns; kd++){
               soapMat[NsNsLmaxTs*i+NsNsLmax*shiftT+ NsNs + shiftN] = prel1*(
-                  cs1*Cnnd[NsTs100*i + Ns100*j + 1*Ns + k]*Cnnd[NsTs100*i + Ns100*jd + 1*Ns + kd]
+                   cs1*Cnnd[NsTs100*i + Ns100*j + 1*Ns + k]*Cnnd[NsTs100*i + Ns100*jd + 1*Ns + kd]
                   +cs2*Cnnd[NsTs100*i + Ns100*j + 2*Ns + k]*Cnnd[NsTs100*i + Ns100*jd + 2*Ns + kd]
                   +cs2*Cnnd[NsTs100*i + Ns100*j + 3*Ns + k]*Cnnd[NsTs100*i + Ns100*jd + 3*Ns + kd]);
               shiftN++;
@@ -2495,10 +3515,14 @@ void getPCrossOverD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int l
 }
 
 //===========================================================================================
-void soapGTODevX(py::array_t<double> cArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<double> alphasArr, py::array_t<double> betasArr, py::array_t<int> atomicNumbersArr, double rCut, double cutoffPadding, int totalAN, int Nt, int Ns, int lMax, int Hs, double eta, bool crossover) {
+//===========================================================================================
+void soapGTODevX(py::array_t<double> cArr,py::array_t<double> cArrX,py::array_t<double> cArrY,py::array_t<double> cArrZ, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<double> alphasArr, py::array_t<double> betasArr, py::array_t<int> atomicNumbersArr, double rCut, double cutoffPadding, int totalAN, int Nt, int Ns, int lMax, int Hs, double eta, bool crossover) {
 
   auto atomicNumbers = atomicNumbersArr.unchecked<1>();
   double *c = (double*)cArr.request().ptr;
+  double *cx = (double*)cArrX.request().ptr;
+  double *cy = (double*)cArrY.request().ptr;
+  double *cz = (double*)cArrZ.request().ptr;
   double *Hpos = (double*)HposArr.request().ptr;
   double *alphas = (double*)alphasArr.request().ptr;
   double *betas = (double*)betasArr.request().ptr;
@@ -2548,6 +3572,9 @@ void soapGTODevX(py::array_t<double> cArr, py::array_t<double> positions, py::ar
   double* r18 = (double*) malloc(sizeof(double)*totalAN);
   double* exes = (double*) malloc (sizeof(double)*totalAN);
   double* preCoef = (double*) malloc(((lMax + 1)*(lMax + 1) - 4)*sizeof(double)*totalAN); // -4 because no need for l=0 and l=1 (m=-1,0,1) cases.
+  double* prCofDX = (double*) malloc(((lMax + 1)*(lMax + 1) - 4)*sizeof(double)*totalAN); // -4 because no need for l=0 and l=1 (m=-1,0,1) cases.
+  double* prCofDY = (double*) malloc(((lMax + 1)*(lMax + 1) - 4)*sizeof(double)*totalAN); // -4 because no need for l=0 and l=1 (m=-1,0,1) cases.
+  double* prCofDZ = (double*) malloc(((lMax + 1)*(lMax + 1) - 4)*sizeof(double)*totalAN); // -4 because no need for l=0 and l=1 (m=-1,0,1) cases.
   double* bOa = (double*) malloc((lMax+1)*NsNs*sizeof(double));
   double* aOa = (double*) malloc((lMax+1)*Ns*sizeof(double));
 
@@ -2606,8 +3633,8 @@ void soapGTODevX(py::array_t<double> cArr, py::array_t<double> positions, py::ar
       getDeltaD(dx, dy, dz, positions, ix, iy, iz, ZIndexPair.second);
 
       getRsZsD(dx,x2,x4,x6,x8,x10,x12,x14,x16,x18, dy,y2,y4,y6,y8,y10,y12,y14,y16,y18, dz, r2, r4, r6, r8,r10,r12,r14,r16,r18, z2, z4, z6, z8,z10,z12,z14,z16,z18, n_neighbours,lMax);
-      getCfactorsD(preCoef, n_neighbours, dx,x2, x4, x6, x8,x10,x12,x14,x16,x18, dy,y2, y4, y6, y8,y10,y12,y14,y16,y18, dz, z2, z4, z6, z8,z10,z12,z14,z16,z18, r2, r4, r6, r8,r10,r12,r14,r16,r18, totalAN, lMax); // Erased tn
-      getCD(cdevX,cdevY, cdevZ, cnnd, preCoef, dx, dy, dz, r2, bOa, aOa, exes, totalAN, n_neighbours, Ns, Nt, lMax, i, j, ZIndexPair.second); //erased tn and Nx
+      getCfactorsD(preCoef, prCofDX, prCofDY, prCofDZ, n_neighbours, dx,x2, x4, x6, x8,x10,x12,x14,x16,x18, dy,y2, y4, y6, y8,y10,y12,y14,y16,y18, dz, z2, z4, z6, z8,z10,z12,z14,z16,z18, r2, r4, r6, r8,r10,r12,r14,r16,r18, totalAN, lMax); // Erased tn
+      getCD(cdevX,cdevY, cdevZ,prCofDX,prCofDY,prCofDZ, cnnd, preCoef, dx, dy, dz, r2, bOa, aOa, exes, totalAN, n_neighbours, Ns, Nt, lMax, i, j, ZIndexPair.second); //erased tn and Nx
     }
   }
 
@@ -2657,9 +3684,11 @@ void soapGTODevX(py::array_t<double> cArr, py::array_t<double> positions, py::ar
 
   if (crossover) {
 //    getPCrossOverD(c, cnnd, Ns, Nt, Hs, lMax);
-    getPNoCrossDevX(c,cdevX, cnnd, Ns, Nt, Hs, lMax, totalAN);
+    getPNoCrossDevX(cx,cy,cz,cdevX,cdevY, cdevZ, cnnd, Ns, Nt, Hs, lMax, totalAN);
+//    getPNoCrossD( c,  cnnd, Ns, Nt, Hs, lMax){
   } else {
-    getPNoCrossDevX(c,cdevX, cnnd, Ns, Nt, Hs, lMax, totalAN);
+    getPNoCrossDevX(cx,cy,cz,cdevX,cdevY, cdevZ, cnnd, Ns, Nt, Hs, lMax, totalAN);
+//    getPNoCrossD( c,  cnnd, Ns, Nt, Hs, lMax){
   };
   free(cnnd);
  

@@ -188,22 +188,19 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
         derivatives_cpp, d_num = soap.derivatives_single(H2, positions=positions, method="numerical")
         
         derivatives_anal, d_anal = soap.derivatives_single(H2, positions=positions, method="analytical")
-        derivatives_anal = 2 * derivatives_anal
+        derivatives_anal =  derivatives_anal
+        print("this is totally anal")
+        print(derivatives_anal)
+        print("analytical der shape", derivatives_anal.shape)
 
-
-        # incomplete analytical derivatives, for now only for X. 
-        derivatives_cpp_x = derivatives_cpp[:, :, 0, :]
-        print("numerical derivatives before rearranging")
-        print(derivatives_cpp_x)
-        #order of dimensions also differs from numerical implementation
-        temp_shape = derivatives_cpp_x.shape
-        derivatives_cpp_x = derivatives_cpp_x.reshape((temp_shape[2], temp_shape[0], temp_shape[1]))
-        print(derivatives_cpp_x.shape)
-        diff = derivatives_cpp_x - derivatives_anal
+        print("numerical derivatives shape")
+        print(derivatives_cpp.shape)
+        diff = derivatives_cpp - derivatives_anal
 
         print("compare numerical against analytical soap derivatives")
-        pp(derivatives_cpp_x)
+        pp(derivatives_cpp)
         pp(derivatives_anal)
+        print("difference")
         pp(diff)
 
 
