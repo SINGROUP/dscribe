@@ -2110,16 +2110,16 @@ void getCD(double* CDevX,double* CDevY,double* CDevZ,double* prCofDX,double* prC
 
 
                       C[NsTsI + NsJ + Ns*3 + n] += bOa[LNsNs + n*Ns + k]*preExp*y[i];
-                      CDevX[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 2*Ns*totalAN +  indices[i]] += 2.0*bOa[LNsNs + n*Ns + k]*x[i]*aOa[LNs + k]*preExp*y[i] ;
-                      CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 2*Ns*totalAN +  indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*y[i]*y[i]*aOa[LNs + k]*preExp + preExp);
-                      CDevZ[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 2*Ns*totalAN +  indices[i]] += 2.0*bOa[LNsNs + n*Ns + k]*z[i]*aOa[LNs + k]*preExp*y[i];
+                      CDevX[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 3*Ns*totalAN +  indices[i]] += 2.0*bOa[LNsNs + n*Ns + k]*x[i]*aOa[LNs + k]*preExp*y[i] ;
+                      CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 3*Ns*totalAN +  indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*y[i]*y[i]*aOa[LNs + k]*preExp + preExp);
+                      CDevZ[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 3*Ns*totalAN +  indices[i]] += 2.0*bOa[LNsNs + n*Ns + k]*z[i]*aOa[LNs + k]*preExp*y[i];
 	      }
          }
       }
    }
     // End l=1 --------------------------------------------------------
    // l=2---------------------------------------------------------
-   if(lMax > 1) { LNsNs=2*NsNs; LNs=2*Ns;
+   if(lMax > 1) { 
 //      for(int k = 0; k < Ns; k++){
 //        for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
 //        sumMe = 0;/*c20*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*preCoef[i];}
@@ -2151,7 +2151,7 @@ void getCD(double* CDevX,double* CDevY,double* CDevZ,double* prCofDX,double* prC
 //      }
 
 
-  for(int restOfLs = 1; restOfLs <= lMax; restOfLs++){	 
+  for(int restOfLs = 2; restOfLs <= lMax; restOfLs++){	 
   LNsNs=restOfLs*NsNs; LNs=restOfLs*Ns; // OBS!!!!!! lMax > 9 Case!
   for(int k = 0; k < Ns; k++){
     for(int i = 0; i < Asize; i++){//exponents
@@ -2159,16 +2159,26 @@ void getCD(double* CDevX,double* CDevY,double* CDevZ,double* prCofDX,double* prC
       for(int m = restOfLs*restOfLs; m < (restOfLs+1)*(restOfLs+1); m++){
         sumMe = 0; for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*(m-4)+i]);}
         for(int n = 0; n < Ns; n++){
-		C[NsTsI + NsJ + Ns*m + n] += bOa[LNsNs + n*Ns + k]*sumMe; // FOUND SEGFAULT!!!!! OBS!!!
-                CDevX[NsTsI*totalAN+NsJ*totalAN+n*totalAN+m*Ns*totalAN+indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*aOa[LNs + k]*x[i]*preExp*z[i]*preCoef[totalAN*(m-4)+i]+preExp*prCofDX[totalAN*(m-4)+i]);
-                CDevY[NsTsI*totalAN+NsJ*totalAN+n*totalAN+m*Ns*totalAN+indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*aOa[LNs + k]*y[i]*preExp*z[i]*preCoef[totalAN*(m-4)+i]+preExp*prCofDY[totalAN*(m-4)+i]);
-                CDevZ[NsTsI*totalAN+NsJ*totalAN+n*totalAN+m*Ns*totalAN+indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*aOa[LNs + k]*z[i]*preExp*z[i]*preCoef[totalAN*(m-4)+i]+preExp*prCofDZ[totalAN*(m-4)+i]);
+//		C[NsTsI + NsJ + Ns*m + n] += bOa[LNsNs + n*Ns + k]*sumMe; // FOUND SEGFAULT!!!!! OBS!!!
+		C[NsTsI + NsJ + Ns*m + n] += bOa[LNsNs + n*Ns + k]*preExp*preCoef[totalAN*(m-4)+i]; // FOUND SEGFAULT!!!!! OBS!!!
+//  C(i,n,m,ind)
+//                CDevX[NsTsI*totalAN+NsJ*totalAN+n*totalAN+m*Ns*totalAN+indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*aOa[LNs + k]*x[i]*preExp*z[i]*preCoef[totalAN*(m-4)+i]+preExp*prCofDX[totalAN*(m-4)+i]);
+//                CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + m*Ns*totalAN + indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*aOa[LNs + k]*y[i]*preExp*z[i]*preCoef[totalAN*(m-4)+i]+preExp*prCofDY[totalAN*(m-4)+i]);
+//                CDevZ[NsTsI*totalAN+NsJ*totalAN+n*totalAN+m*Ns*totalAN+indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*aOa[LNs + k]*z[i]*preExp*z[i]*preCoef[totalAN*(m-4)+i]+preExp*prCofDZ[totalAN*(m-4)+i]);
+                CDevX[NsTsI*totalAN+NsJ*totalAN+n*totalAN+m*Ns*totalAN+indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*aOa[LNs + k]*x[i]*preExp*preCoef[totalAN*(m-4)+i]+preExp*prCofDX[totalAN*(m-4)+i]);
+                CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + m*Ns*totalAN + indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*aOa[LNs + k]*y[i]*preExp*preCoef[totalAN*(m-4)+i]+preExp*prCofDY[totalAN*(m-4)+i]);
+                CDevZ[NsTsI*totalAN+NsJ*totalAN+n*totalAN+m*Ns*totalAN+indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*aOa[LNs + k]*z[i]*preExp*preCoef[totalAN*(m-4)+i]+preExp*prCofDZ[totalAN*(m-4)+i]);
+cout << " cD " << CDevX[NsTsI*totalAN+NsJ*totalAN+n*totalAN+m*Ns*totalAN+indices[i]] <<  " rest " <<restOfLs <<  " LNsNs " << LNsNs  << " k " << k<< " i " << i << " m " << m <<  std::endl;
+cout << " cD " << preCoef[totalAN*(m-4)+i] <<  " rest " <<restOfLs <<  " LNsNs " << LNsNs  << " k " << k<< " i " << i << " m " << m <<  std::endl;
+cout << " c " << C[NsTsI + NsJ + Ns*m + n] <<  " rest " <<restOfLs <<  " LNsNs " << LNsNs  << " k " << k<< " i " << i << " m " << m <<  std::endl;
+cout << " preexp " << preExp <<  " rest " <<restOfLs <<  " LNsNs " << LNsNs  << " k " << k<< " i " << i << " m " << m <<  std::endl;
 	}
       }
     }
    }
   }
 
+cout << "END" << endl;
 
     }
 //   // End l=2------------------------------------------------------
@@ -2857,7 +2867,7 @@ void getPNoCrossD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMa
 /**
  * Used to calculate the partial power spectrum derivative without crossover.
  */
-  void getPNoCrossDevX(double* soapMatDevX,double* soapMatDevZ,double* soapMatDevY, double* CdevX,double* CdevY,double* CdevZ, double* Cnnd,  int Ns, int Ts, int Hs, int lMax, int totalAN){
+  void getPNoCrossDevX(double* soapMatDevX,double* soapMatDevY,double* soapMatDevZ, double* CdevX,double* CdevY,double* CdevZ, double* Cnnd,  int Ns, int Ts, int Hs, int lMax, int totalAN){
   int NsTs100 = Ns*Ts*((lMax+1)*(lMax+1)); // Used to be NsTs100 = Ns*Ts*100, but 100 is a waste of memory if not lMax = 9, and can't do over that, so changed.
   int Ns100 = Ns*((lMax+1)*(lMax+1));
   int NsNs = (Ns*(Ns+1))/2;
@@ -2908,7 +2918,7 @@ void getPNoCrossD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMa
         shiftN = 0;
         for(int k = 0; k < Ns; k++){
           for(int kd = k; kd < Ns; kd++){
-            soapMatDevX[NsNsLmaxTs*i*totalAN+ NsNsLmax*j*totalAN+ 1*totalAN +shiftN*totalAN + a] = prel1*(
+            soapMatDevX[NsNsLmaxTs*i*totalAN+ NsNsLmax*j*totalAN+ 1*totalAN*NsNs +shiftN*totalAN + a] = prel1*(
                   cs1*Cnnd[NsTs100*i + Ns100*j + 1*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + 1*Ns*totalAN + kd*totalAN + a]
                  +cs1*Cnnd[NsTs100*i + Ns100*j + 1*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + 1*Ns*totalAN + k*totalAN + a]
                  +cs2*Cnnd[NsTs100*i + Ns100*j + 2*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + 2*Ns*totalAN + kd*totalAN + a]
@@ -2918,7 +2928,7 @@ void getPNoCrossD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMa
                );
 
 
-            soapMatDevY[NsNsLmaxTs*i*totalAN+ NsNsLmax*j*totalAN+ 1*totalAN +shiftN*totalAN + a] = prel1*(
+            soapMatDevY[NsNsLmaxTs*i*totalAN+ NsNsLmax*j*totalAN+ 1*totalAN*NsNs +shiftN*totalAN + a] = prel1*(
                   cs1*Cnnd[NsTs100*i + Ns100*j + 1*Ns + k]*CdevY[NsTs100*i*totalAN + Ns100*j*totalAN + 1*Ns*totalAN + kd*totalAN + a]
                  +cs1*Cnnd[NsTs100*i + Ns100*j + 1*Ns + kd]*CdevY[NsTs100*i*totalAN + Ns100*j*totalAN + 1*Ns*totalAN + k*totalAN + a]
                  +cs2*Cnnd[NsTs100*i + Ns100*j + 2*Ns + k]*CdevY[NsTs100*i*totalAN + Ns100*j*totalAN + 2*Ns*totalAN + kd*totalAN + a]
@@ -2927,7 +2937,7 @@ void getPNoCrossD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMa
                  +cs2*Cnnd[NsTs100*i + Ns100*j + 3*Ns + kd]*CdevY[NsTs100*i*totalAN + Ns100*j*totalAN + 3*Ns*totalAN + k*totalAN + a]
                 );
 
-            soapMatDevZ[NsNsLmaxTs*i*totalAN+ NsNsLmax*j*totalAN+ 1*totalAN +shiftN*totalAN + a] = prel1*(
+            soapMatDevZ[NsNsLmaxTs*i*totalAN+ NsNsLmax*j*totalAN+ 1*totalAN*NsNs +shiftN*totalAN + a] = prel1*(
                   cs1*Cnnd[NsTs100*i + Ns100*j + 1*Ns + k]*CdevZ[NsTs100*i*totalAN + Ns100*j*totalAN + 1*Ns*totalAN + kd*totalAN + a]
                  +cs1*Cnnd[NsTs100*i + Ns100*j + 1*Ns + kd]*CdevZ[NsTs100*i*totalAN + Ns100*j*totalAN + 1*Ns*totalAN + k*totalAN + a]
                  +cs2*Cnnd[NsTs100*i + Ns100*j + 2*Ns + k]*CdevZ[NsTs100*i*totalAN + Ns100*j*totalAN + 2*Ns*totalAN + kd*totalAN + a]
@@ -2946,7 +2956,7 @@ void getPNoCrossD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMa
 
 //------------------------------------------------------------------------------------------------------------------- 
    if(lMax > 1) { // OBS!!!! LMAX > 9 ------
-   for(int m=2; m < 20; m++){
+   for(int m=2; m <= lMax; m++){
     double prel = PI*sqrt(8.0/(2.0*m+1.0))*PI3;
    for(int a = 0; a < totalAN; a++){
     for(int i = 0; i < Hs; i++){
@@ -2960,20 +2970,22 @@ void getPNoCrossD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMa
 //              buffDouble += PI3*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd];
 //	    }
               soapMatDevX[NsNsLmaxTs*totalAN*i+NsNsLmax*totalAN*j+ m*NsNs*totalAN + shiftN*totalAN + a] += prel*(
-                                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i + Ns100*j + buffShift*Ns + kd]
-                                     + Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevX[NsTs100*i + Ns100*j + buffShift*Ns + k]
+                                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + kd*totalAN + a]
+                                     + Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + k*totalAN + a]
                                 );
-
-
+//              cout <<  soapMatDevX[NsNsLmaxTs*totalAN*i+NsNsLmax*totalAN*j+ m*NsNs*totalAN + shiftN*totalAN + a] << endl;
+cout << " soapMat "<< soapMatDevX[NsNsLmaxTs*totalAN*i+NsNsLmax*totalAN*j+ m*NsNs*totalAN + shiftN*totalAN + a] << " m " << m << " a " <<  a  <<" i " <<  i <<"j" << j <<  "k" << k << "kd" << kd << endl;
+cout << " cdevx "  <<CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + k*totalAN + a] << " m " << m << " a " <<  a  <<" i " <<  i <<"j" << j <<  "k" << k << "kd" << kd << endl;
+cout << " cnnd "  <<Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd] << " m " << m << " a " <<  a  <<" i " <<  i <<"j" << j <<  "k" << k << "kd" << kd << endl;
               soapMatDevY[NsNsLmaxTs*totalAN*i+NsNsLmax*totalAN*j+ m*NsNs*totalAN + shiftN*totalAN + a] += prel*(
-                                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevY[NsTs100*i + Ns100*j + buffShift*Ns + kd]
-                                     + Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevY[NsTs100*i + Ns100*j + buffShift*Ns + k]
+                                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevY[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + kd*totalAN + a]
+                                     + Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevY[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + k*totalAN + a]
                                 );
 
 
               soapMatDevZ[NsNsLmaxTs*totalAN*i+NsNsLmax*totalAN*j+ m*NsNs*totalAN + shiftN*totalAN + a] += prel*(
-                                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevZ[NsTs100*i + Ns100*j + buffShift*Ns + kd]
-                                     + Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevZ[NsTs100*i + Ns100*j + buffShift*Ns + k]
+                                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevZ[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + kd*totalAN + a]
+                                     + Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevZ[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + k*totalAN + a]
                                 );
             }
             shiftN++;
@@ -3691,6 +3703,9 @@ void soapGTODevX(py::array_t<double> cArr,py::array_t<double> cArrX,py::array_t<
 //    getPNoCrossD( c,  cnnd, Ns, Nt, Hs, lMax){
   };
   free(cnnd);
+  free(cdevX);
+  free(cdevY);
+  free(cdevZ);
  
   return;
 }
