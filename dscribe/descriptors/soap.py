@@ -300,7 +300,7 @@ class SOAP(Descriptor):
         # make the process faster.
         k, m = divmod(n_samples, n_jobs)
         jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
-        output_shapes = []
+        output_sizes = []
         for i_job in jobs:
             n_desc = 0
             if self.average == "outer" or self.average == "inner":
@@ -316,7 +316,7 @@ class SOAP(Descriptor):
                         n_desc += len(i_pos)
                     else:
                         n_desc += len(i_sample)
-            output_shapes.append(n_desc)
+            output_sizes.append(n_desc)
 
         # Create in parallel
         output = self.create_parallel(inp, self.create_single, n_jobs, output_sizes, verbose=verbose)
@@ -520,27 +520,27 @@ class SOAP(Descriptor):
         # Here we precalculate the size for each job to preallocate memory and
         # make the process faster.
         n_features = self.get_number_of_features()
-        def get_output_size(job):
+        def get_shapes(job):
             n_positions = 1 if self.average != "off" else len(job[2])
             n_indices = len(job[1])
-            return (n_positions, n_indices, 3, n_features)
+            return (n_positions, n_indices, 3, n_features), (n_positions, n_features)
 
 
         k, m = divmod(n_samples, n_jobs)
         jobs = list(inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
-        output_shape = get_output_size(jobs[0][0])
+        derivatives_shape, descriptor_shape = get_shapes(jobs[0][0])
 
         # Determine what the output sizes will be, and whether the size stays
         # fixed or not.
         for i_job in jobs[1:]:
             for job in i_job:
-                i_output_size = get_output_size(job)
-                if i_output_size != output_size:
-                    output_shape = None
+                i_derivatives_shape, i_descriptor_shape = get_shapes(job)
+                if i_derivatives_shape != derivatives_shape or i_descriptor_shape != descriptor_shape:
+                    derivatives_shape = None
                     break
 
         # Create in parallel
-        output = self.derivatives_parallel(inp, self.derivatives_single, n_jobs, output_shape, verbose=verbose)
+        output = self.derivatives_parallel(inp, self.derivatives_single, n_jobs, derivatives_shape, descriptor_shape, return_descriptor, verbose=verbose)
 
         return output
 

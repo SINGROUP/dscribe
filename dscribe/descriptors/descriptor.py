@@ -369,7 +369,7 @@ class Descriptor(ABC):
 
         return displaced_indices
         
-    def derivatives_parallel(self, inp, func, n_jobs, output_shape, verbose=False, prefer="processes"):
+    def derivatives_parallel(self, inp, func, n_jobs, derivatives_shape, descriptor_shape, return_descriptor, verbose=False, prefer="processes"):
         """Used to parallelize the descriptor creation across multiple systems.
 
         Args:
@@ -381,7 +381,10 @@ class Descriptor(ABC):
             n_jobs (int): Number of parallel jobs to instantiate. Parallellizes
                 the calculation across samples. Defaults to serial calculation
                 with n_jobs=1.
-            output_shape(list or None): If a fixed size output is produced from
+            derivatives_shape(list or None): If a fixed size output is produced from
+                each job, this contains its shape. For variable size output
+                this parameter is set to None
+            derivatives_shape(list or None): If a fixed size output is produced from
                 each job, this contains its shape. For variable size output
                 this parameter is set to None
             verbose(bool): Controls whether to print the progress of each job
@@ -413,31 +416,45 @@ class Descriptor(ABC):
         k, m = divmod(n_samples, n_jobs)
         jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
 
-        def create_multiple(arguments, func, output_shape, index, verbose):
+        def create_multiple_with_descriptor(arguments, func, index, verbose):
             """This is the function that is called by each job but with
             different parts of the data.
             """
             # Initialize output
             n_samples = len(arguments)
-            if output_shape:
+            if derivatives_shape:
                 shape = [n_samples]
-                shape.extend(output_shape)
-                results = np.empty(shape, dtype=np.float32)
+                shape.extend(derivatives_shape)
+                derivatives = np.empty(shape, dtype=np.float32)
             else:
-                results = []
+                derivatives = []
+            if descriptor_shape:
+                shape = [n_samples]
+                shape.extend(descriptor_shape)
+                descriptors = np.empty(shape, dtype=np.float32)
+            else:
+                descriptors = []
 
-            offset = 0
+            derivative_offset = 0
+            descriptor_offset = 0
             i_sample = 0
             old_percent = 0
 
             for i_sample, i_arg in enumerate(arguments):
-                i_out = func(*i_arg)
-                if output_shape:
-                    new_offset = offset+i_out.shape[0]
-                    results[offset:new_offset, :] = i_out
-                    offset = new_offset
+                i_der, i_des = func(*i_arg)
+                if descriptor_shape:
+                    new_descriptor_offset = descriptor_offset + i_des.shape[0]
+                    descriptors[descriptor_offset:new_descriptor_offset, :] = i_des
+                    descriptor_offset = new_descriptor_offset
                 else:
-                    results.apend(i_out)
+                    descriptors.append(i_des)
+
+                if derivatives_shape:
+                    new_derivative_offset = derivative_offset + i_der.shape[0]
+                    derivatives[derivative_offset:new_derivative_offset, :] = i_der
+                    derivative_offset = new_derivative_offset
+                else:
+                    derivatives.append(i_der)
 
                 if verbose:
                     current_percent = (i_sample+1)/n_samples*100
@@ -445,24 +462,73 @@ class Descriptor(ABC):
                         old_percent = current_percent
                         print("Process {0}: {1:.1f} %".format(index, current_percent))
 
-            return (results, index)
+            return ((derivatives, descriptors), index)
 
-        vec_lists = Parallel(n_jobs=n_jobs, prefer=prefer)(delayed(create_multiple)(i_args, func, output_shape, index, verbose) for index, i_args in enumerate(jobs))
+        def create_multiple_without_descriptor(arguments, func, index, verbose):
+            """This is the function that is called by each job but with
+            different parts of the data.
+            """
+            # Initialize output
+            n_samples = len(arguments)
+            if derivatives_shape:
+                shape = [n_samples]
+                shape.extend(derivatives_shape)
+                derivatives = np.empty(shape, dtype=np.float32)
+            else:
+                derivatives = []
+
+            derivative_offset = 0
+            i_sample = 0
+            old_percent = 0
+
+            for i_sample, i_arg in enumerate(arguments):
+                i_der = func(*i_arg)
+                if derivatives_shape:
+                    new_derivative_offset = derivative_offset + i_der.shape[0]
+                    derivatives[derivative_offset:new_derivative_offset, :] = i_der
+                    derivative_offset = new_derivative_offset
+                else:
+                    derivatives.append(i_der)
+
+                if verbose:
+                    current_percent = (i_sample+1)/n_samples*100
+                    if current_percent >= old_percent + 1:
+                        old_percent = current_percent
+                        print("Process {0}: {1:.1f} %".format(index, current_percent))
+
+                return ((derivatives, ), index)
+
+        if return_descriptor:
+            vec_lists = Parallel(n_jobs=n_jobs, prefer=prefer)(delayed(create_multiple_with_descriptor)(
+                i_args, func, index, verbose) for index, i_args in enumerate(jobs)
+            )
+        else:
+            vec_lists = Parallel(n_jobs=n_jobs, prefer=prefer)(delayed(create_multiple_without_descriptor)(
+                i_args, func, index, verbose) for index, i_args in enumerate(jobs)
+            )
 
         # Restore the calculation order. If using the threading backend, the
         # input order may have been lost.
         vec_lists.sort(key=lambda x: x[1])
 
-        # Remove the job index
-        vec_lists = [x[0] for x in vec_lists]
-
         # If the results are of the same length, we can simply concatenate them
         # into one numpy array. Otherwise we will return a regular python list.
-        if output_shape:
-            results = np.concatenate(vec_lists, axis=0)
+        der_lists = [x[0][0] for x in vec_lists]
+        if derivatives_shape:
+            derivatives = np.concatenate(der_lists, axis=0)
         else:
-            results = []
-            for part in vec_lists:
-                results.extend(part)
+            derivatives = []
+            for part in der_lists:
+                derivatives.extend(part)
+        if return_descriptor:
+            des_lists = [x[0][1] for x in vec_lists]
+            if descriptor_shape:
+                descriptors = np.concatenate(des_lists, axis=0)
+            else:
+                descriptors = []
+                for part in des_lists:
+                    descriptors.extend(part)
+            return (derivatives, descriptors)
 
-        return results
+        return derivatives
+

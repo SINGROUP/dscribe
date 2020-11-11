@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split
 torch.manual_seed(7)
 
 # Load the dataset
-D_numpy = np.load("D.npy")
+D_numpy = np.load("D.npy")[:, 0, :]  # We only have one SOAP center 
 n_samples, n_features = D_numpy.shape
 E_numpy = np.array([np.load("E.npy")]).T
 F_numpy = np.load("F.npy")

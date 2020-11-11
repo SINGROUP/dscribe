@@ -36,16 +36,9 @@ for i, d in enumerate(r):
 # plt.ylabel("Energy (eV)")
 # plt.show()
 
-# Create SOAP output for all samples. One center is chosen to be directly
-# between the atoms.
-center = [0, 0, 0]
-derivatives = soap.derivatives(traj, positions=[[center]] * len(r), method="numerical", return_descriptor=False)
-
-descriptors = []
-for t in traj:
-    i_descriptor = soap.create_single(t, positions=[center])
-    descriptors.append(i_descriptor[0])
-descriptors = np.array(descriptors)
+# Create the SOAP desciptors and their derivatives for all samples. One center
+# is chosen to be directly between the atoms.
+derivatives, descriptors = soap.derivatives(traj, positions=[[[0, 0, 0]]] * len(r), method="numerical")
 
 # Save to disk for later training
 np.save("r.npy", r)
