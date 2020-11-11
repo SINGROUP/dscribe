@@ -231,7 +231,8 @@ class SOAP(Descriptor):
         cutoff_padding = self._sigma*np.sqrt(-2*np.log(threshold))
         return cutoff_padding
 
-    def derivatives_single(self, system, positions=None, include=None, exclude=None, method="numerical", return_descriptor=True):
+
+    def derivatives_single(self, system, displaced_indices, positions=None, method="numerical", return_descriptor=True):
         """Return the SOAP output for the given system and given positions.
 
         Args:
@@ -271,34 +272,9 @@ class SOAP(Descriptor):
                 "Analytical derivatives not available for averaged output."
             )
 
-        # Determine the atom indices that are displaced
-        n_atoms = len(system)
-        if include is None and exclude is None:
-            displacedIndices = np.arange(len(system))
-        elif include is not None:
-            displacedIndices = np.asarray(list(set(include)))
-            if np.any(displacedIndices > n_atoms - 1):
-                raise ValueError(
-                    "Invalid index provided in the list of included atoms."
-                )
-            displacedIndices.sort()
-        elif exclude is not None:
-            exclude = np.asarray(list(set(exclude)))
-            if np.any(exclude > n_atoms - 1):
-                raise ValueError(
-                    "Invalid index provided in the list of excluded atoms."
-                )
-            displacedIndices = np.arange(len(system))
-            if len(exclude) > 0:
-                displacedIndices = np.delete(displacedIndices, exclude)
-        else:
-            raise ValueError("Provide either 'include' or 'exclude', not both.")
-        n_displaced = len(displacedIndices)
-        if n_displaced == 0:
-            raise ValueError("Please include at least one atom.")
-
         cutoff_padding = self.get_cutoff_padding()
         system, centers = self.prepare(system, cutoff_padding, positions)
+        centers = centers[displaced_indices]
         pos = system.get_positions()
         Z = system.get_atomic_numbers()
         sorted_species = self._atomic_numbers
@@ -327,7 +303,7 @@ class SOAP(Descriptor):
                     betas,
                     Z,
                     sorted_species,
-                    displacedIndices,
+                    displaced_indices,
                     self._rcut,
                     cutoff_padding,
                     n_atoms,
@@ -418,7 +394,7 @@ class SOAP(Descriptor):
             if n_pos != n_samples:
                 raise ValueError(
                     "The given number of positions does not match the given"
-                    "number os systems."
+                    "number of systems."
                 )
             inp = list(zip(system, positions))
 
