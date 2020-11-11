@@ -2679,9 +2679,9 @@ void getPNoCrossD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMa
                                      + Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + k*totalAN + a]
                                 );
 //              cout <<  soapMatDevX[NsNsLmaxTs*totalAN*i+NsNsLmax*totalAN*j+ m*NsNs*totalAN + shiftN*totalAN + a] << endl;
-cout << " soapMat "<< soapMatDevX[NsNsLmaxTs*totalAN*i+NsNsLmax*totalAN*j+ m*NsNs*totalAN + shiftN*totalAN + a] << " m " << m << " a " <<  a  <<" i " <<  i <<"j" << j <<  "k" << k << "kd" << kd << endl;
-cout << " cdevx "  <<CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + k*totalAN + a] << " m " << m << " a " <<  a  <<" i " <<  i <<"j" << j <<  "k" << k << "kd" << kd << endl;
-cout << " cnnd "  <<Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd] << " m " << m << " a " <<  a  <<" i " <<  i <<"j" << j <<  "k" << k << "kd" << kd << endl;
+//cout << " soapMat "<< soapMatDevX[NsNsLmaxTs*totalAN*i+NsNsLmax*totalAN*j+ m*NsNs*totalAN + shiftN*totalAN + a] << " m " << m << " a " <<  a  <<" i " <<  i <<"j" << j <<  "k" << k << "kd" << kd << endl;
+//cout << " cdevx "  <<CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + k*totalAN + a] << " m " << m << " a " <<  a  <<" i " <<  i <<"j" << j <<  "k" << k << "kd" << kd << endl;
+//cout << " cnnd "  <<Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd] << " m " << m << " a " <<  a  <<" i " <<  i <<"j" << j <<  "k" << k << "kd" << kd << endl;
               soapMatDevY[NsNsLmaxTs*totalAN*i+NsNsLmax*totalAN*j+ m*NsNs*totalAN + shiftN*totalAN + a] += prel*(
                                       Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevY[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + kd*totalAN + a]
                                      + Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevY[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + k*totalAN + a]
@@ -2702,6 +2702,7 @@ cout << " cnnd "  <<Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd] << " m " << m 
    }
   } 
 }
+//=======================================================================
 //=======================================================================
 /**
  * Used to calculate the partial power spectrum.
@@ -3229,6 +3230,182 @@ void getPCrossOverD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int l
       }
     }
   } 
+}
+
+//===========================================================================================
+//=======================================================================
+/**
+ * Used to calculate the partial power spectrum.
+ */
+  void getPCrossOverDevX(double* soapMatDevX,double* soapMatDevY,double* soapMatDevZ, double* CdevX,double* CdevY,double* CdevZ, double* Cnnd,  int Ns, int Ts, int Hs, int lMax, int totalAN){
+  int NsTs100 = Ns*Ts*((lMax+1)*(lMax+1));
+  int Ns100 = Ns*((lMax+1)*(lMax+1));
+  int NsNs = (Ns*(Ns+1))/2;
+  int NsNsLmax = NsNs*(lMax+1) ;
+  int NsNsLmaxTs = NsNsLmax*getCrosNumD(Ts);
+  int shiftN = 0;
+  int shiftT = 0;
+
+  double cs0=2.4674011003; double cs1=7.4022033011; double cs2=7.4022033005;
+
+  // SUM M's UP!
+  double prel0 = PI*sqrt(8.0/(1.0));
+  for(int a = 0; a < totalAN; a++){
+  for(int i = 0; i < Hs; i++){
+    shiftT = 0;
+    for(int j = 0; j < Ts; j++){
+      for(int jd = j; jd < Ts; jd++){
+        shiftN = 0;
+        if(j==jd){
+        for(int k = 0; k < Ns; k++){
+          for(int kd = k; kd < Ns; kd++){
+            //change to soapMatDevZ[NsNsLmaxTs*totalAN*i+NsNsLmax*totalAN*j+ m*NsNs*totalAN + shiftN*totalAN + a] ... 
+                                     //+ Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + k*totalAN + a]
+            soapMatDevX[NsNsLmaxTs*i*totalAN + NsNsLmax*shiftT*totalAN + 0*totalAN + shiftN*totalAN + a] = prel0*cs0*(
+                Cnnd[NsTs100*i + Ns100*j + 0 + k]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + 0*totalAN + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + 0 + kd]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + 0*totalAN + k*totalAN + a]);
+            soapMatDevY[NsNsLmaxTs*i*totalAN + NsNsLmax*shiftT*totalAN + 0*totalAN + shiftN*totalAN + a] = prel0*cs0*(
+                Cnnd[NsTs100*i + Ns100*j + 0 + k]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + 0*totalAN + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + 0 + kd]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + 0*totalAN + k*totalAN + a]);
+            soapMatDevZ[NsNsLmaxTs*i*totalAN + NsNsLmax*shiftT*totalAN + 0*totalAN + shiftN*totalAN + a] = prel0*cs0*(
+                Cnnd[NsTs100*i + Ns100*j + 0 + k]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + 0*totalAN + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + 0 + kd]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + 0*totalAN + k*totalAN + a]);
+            shiftN++;
+           }
+          }
+        }else{
+        for(int k = 0; k < Ns; k++){
+          for(int kd = 0; kd < Ns; kd++){
+            //change to soapMatDevZ[NsNsLmaxTs*totalAN*i+NsNsLmax*totalAN*j+ m*NsNs*totalAN + shiftN*totalAN + a] ... 
+                                     //+ Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + k*totalAN + a]
+            soapMatDevX[NsNsLmaxTs*i*totalAN + NsNsLmax*shiftT*totalAN + 0*totalAN + shiftN*totalAN + a] = prel0*cs0*(
+                Cnnd[NsTs100*i + Ns100*j + 0 + k]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + 0*totalAN + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + 0 + kd]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + 0*totalAN + k*totalAN + a]);
+            soapMatDevY[NsNsLmaxTs*i*totalAN + NsNsLmax*shiftT*totalAN + 0*totalAN + shiftN*totalAN + a] = prel0*cs0*(
+                Cnnd[NsTs100*i + Ns100*j + 0 + k]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + 0*totalAN + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + 0 + kd]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + 0*totalAN + k*totalAN + a]);
+            soapMatDevZ[NsNsLmaxTs*i*totalAN + NsNsLmax*shiftT*totalAN + 0*totalAN + shiftN*totalAN + a] = prel0*cs0*(
+                Cnnd[NsTs100*i + Ns100*j + 0 + k]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + 0*totalAN + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + 0 + kd]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + 0*totalAN + k*totalAN + a]);
+            shiftN++;
+           }
+        }
+        }
+        shiftT++;
+      }
+    }
+  }} if(lMax > 0){
+    double prel1 = PI*sqrt(8.0/(2.0*1.0+1.0));
+  for(int a = 0; a < totalAN; a++){
+    for(int i = 0; i < Hs; i++){
+      shiftT = 0;
+      for(int j = 0; j < Ts; j++){
+        for(int jd = j; jd < Ts; jd++){
+          shiftN = 0;
+          if(j==jd){
+          for(int k = 0; k < Ns; k++){
+            for(int kd = k; kd < Ns; kd++){
+              soapMatDevX[NsNsLmaxTs*i*totalAN+NsNsLmax*shiftT*totalAN+ NsNs*totalAN + shiftN*totalAN + a] = prel1*(
+                    cs1*(Cnnd[NsTs100*i + Ns100*j + 1*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + 1*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + 1*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + 1*totalAN*Ns + k*totalAN + a])
+                   +cs2*(Cnnd[NsTs100*i + Ns100*j + 2*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + 2*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + 2*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + 2*totalAN*Ns + k*totalAN + a])
+                   +cs2*(Cnnd[NsTs100*i + Ns100*j + 3*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + 3*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + 3*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + 3*totalAN*Ns + k*totalAN + a]));
+
+
+              soapMatDevY[NsNsLmaxTs*i*totalAN+NsNsLmax*shiftT*totalAN+ NsNs*totalAN + shiftN*totalAN + a] = prel1*(
+                    cs1*(Cnnd[NsTs100*i + Ns100*j + 1*Ns + k]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + 1*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + 1*Ns + kd]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + 1*totalAN*Ns + k*totalAN + a])
+                   +cs2*(Cnnd[NsTs100*i + Ns100*j + 2*Ns + k]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + 2*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + 2*Ns + kd]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + 2*totalAN*Ns + k*totalAN + a])
+                   +cs2*(Cnnd[NsTs100*i + Ns100*j + 3*Ns + k]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + 3*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + 3*Ns + kd]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + 3*totalAN*Ns + k*totalAN + a]));
+
+              soapMatDevZ[NsNsLmaxTs*i*totalAN+NsNsLmax*shiftT*totalAN+ NsNs*totalAN + shiftN*totalAN + a] = prel1*(
+                    cs1*(Cnnd[NsTs100*i + Ns100*j + 1*Ns + k]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + 1*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + 1*Ns + kd]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + 1*totalAN*Ns + k*totalAN + a])
+                   +cs2*(Cnnd[NsTs100*i + Ns100*j + 2*Ns + k]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + 2*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + 2*Ns + kd]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + 2*totalAN*Ns + k*totalAN + a])
+                   +cs2*(Cnnd[NsTs100*i + Ns100*j + 3*Ns + k]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + 3*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + 3*Ns + kd]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + 3*totalAN*Ns + k*totalAN + a]));
+
+              shiftN++;
+             }
+             }
+            }else{
+          for(int k = 0; k < Ns; k++){
+            for(int kd = 0; kd < Ns; kd++){
+              soapMatDevX[NsNsLmaxTs*i*totalAN+NsNsLmax*shiftT*totalAN+ NsNs*totalAN + shiftN*totalAN + a] = prel1*(
+                    cs1*(Cnnd[NsTs100*i + Ns100*j + 1*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + 1*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + 1*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + 1*totalAN*Ns + k*totalAN + a])
+                   +cs2*(Cnnd[NsTs100*i + Ns100*j + 2*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + 2*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + 2*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + 2*totalAN*Ns + k*totalAN + a])
+                   +cs2*(Cnnd[NsTs100*i + Ns100*j + 3*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + 3*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + 3*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + 3*totalAN*Ns + k*totalAN + a]));
+
+
+              soapMatDevY[NsNsLmaxTs*i*totalAN+NsNsLmax*shiftT*totalAN+ NsNs*totalAN + shiftN*totalAN + a] = prel1*(
+                    cs1*(Cnnd[NsTs100*i + Ns100*j + 1*Ns + k]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + 1*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + 1*Ns + kd]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + 1*totalAN*Ns + k*totalAN + a])
+                   +cs2*(Cnnd[NsTs100*i + Ns100*j + 2*Ns + k]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + 2*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + 2*Ns + kd]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + 2*totalAN*Ns + k*totalAN + a])
+                   +cs2*(Cnnd[NsTs100*i + Ns100*j + 3*Ns + k]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + 3*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + 3*Ns + kd]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + 3*totalAN*Ns + k*totalAN + a]));
+
+              soapMatDevZ[NsNsLmaxTs*i*totalAN+NsNsLmax*shiftT*totalAN+ NsNs*totalAN + shiftN*totalAN + a] = prel1*(
+                    cs1*(Cnnd[NsTs100*i + Ns100*j + 1*Ns + k]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + 1*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + 1*Ns + kd]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + 1*totalAN*Ns + k*totalAN + a])
+                   +cs2*(Cnnd[NsTs100*i + Ns100*j + 2*Ns + k]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + 2*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + 2*Ns + kd]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + 2*totalAN*Ns + k*totalAN + a])
+                   +cs2*(Cnnd[NsTs100*i + Ns100*j + 3*Ns + k]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + 3*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + 3*Ns + kd]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + 3*totalAN*Ns + k*totalAN + a]));
+
+              shiftN++;
+             }
+             }
+          }
+          shiftT++;
+        }
+      }
+    }
+  }
+}
+
+   if(lMax > 1){
+   for(int m=2; m <= lMax; m++){
+    double prel = PI*sqrt(8.0/(m*1.0+1.0))*PI3;
+  for(int a = 0; a < totalAN; a++){
+    for(int i = 0; i < Hs; i++){
+      shiftT = 0;
+      for(int j = 0; j < Ts; j++){
+        for(int jd = j; jd < Ts; jd++){
+          shiftN = 0;
+         if(j==jd){
+          for(int k = 0; k < Ns; k++){
+            for(int kd = k; kd < Ns; kd++){
+              for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
+
+
+                soapMatDevX[NsNsLmaxTs*i*totalAN+NsNsLmax*shiftT*totalAN+ m*NsNs*totalAN + shiftN*totalAN + a] += prel*(
+                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + a]);
+
+                soapMatDevY[NsNsLmaxTs*i*totalAN+NsNsLmax*shiftT*totalAN+ m*NsNs*totalAN + shiftN*totalAN + a] += prel*(
+                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + a]);
+
+                soapMatDevZ[NsNsLmaxTs*i*totalAN+NsNsLmax*shiftT*totalAN+ m*NsNs*totalAN + shiftN*totalAN + a] += prel*(
+                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + a]);
+
+              }
+              shiftN++;
+            }
+          }
+          }else{
+
+          for(int k = 0; k < Ns; k++){
+            for(int kd = 0; kd < Ns; kd++){
+              for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
+
+
+                soapMatDevX[NsNsLmaxTs*i*totalAN+NsNsLmax*shiftT*totalAN+ m*NsNs*totalAN + shiftN*totalAN + a] += prel*(
+                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + a]);
+
+                soapMatDevY[NsNsLmaxTs*i*totalAN+NsNsLmax*shiftT*totalAN+ m*NsNs*totalAN + shiftN*totalAN + a] += prel*(
+                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + a]);
+
+                soapMatDevZ[NsNsLmaxTs*i*totalAN+NsNsLmax*shiftT*totalAN+ m*NsNs*totalAN + shiftN*totalAN + a] += prel*(
+                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + a]);
+
+              }
+              shiftN++;
+            }
+          }
+          }
+          shiftT++;
+        }
+      }
+    }
+  }
+ }
+}
+
+
 }
 
 //===========================================================================================
