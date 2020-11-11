@@ -166,8 +166,6 @@ class SOAP(Descriptor):
         self.average = average
         self.crossover = crossover
 
-
-
     def prepare(self, system, cutoff_padding, positions=None):
         """Prepares the input for the C++ extension.
         """
@@ -471,6 +469,11 @@ class SOAP(Descriptor):
             raise ValueError(
                 "Analytical derivatives not currently available for averaged output."
             )
+        if self._rbf == "polynomial" and method == "analytical":
+            raise ValueError(
+                "Analytical derivatives not currently available for polynomial radial "
+                "basis set."
+            )
         if method not in {"numerical", "analytical"}:
             raise ValueError("Please choose method 'numerical' or 'analytical'")
 
@@ -478,7 +481,7 @@ class SOAP(Descriptor):
         if isinstance(system, (Atoms, System)):
             n_atoms = len(system)
             indices = self._get_indices(n_atoms, include, exclude)
-            return self.derivatives_single(system, indices, positions=positions, method=method, return_descriptor=return_descriptor)
+            return self.derivatives_single(system, positions, indices, method=method, return_descriptor=return_descriptor)
 
         self._check_system_list(system)
         n_samples = len(system)
@@ -514,15 +517,19 @@ class SOAP(Descriptor):
             indices.append(self._get_indices(n_atoms, inc, exc))
 
         # Combine input arguments
-        inp = list(zip(system, indices, positions, [method]*n_samples, [return_descriptor]*n_samples))
+        inp = list(zip(system, positions, indices, [method]*n_samples, [return_descriptor]*n_samples))
 
         # For the descriptor, the output size for each job depends on the exact arguments.
         # Here we precalculate the size for each job to preallocate memory and
         # make the process faster.
         n_features = self.get_number_of_features()
         def get_shapes(job):
-            n_positions = 1 if self.average != "off" else len(job[2])
-            n_indices = len(job[1])
+            centers = job[1]
+            if centers is None:
+                n_positions = len(job[0])
+            else:
+                n_positions = 1 if self.average != "off" else len(centers)
+            n_indices = len(job[2])
             return (n_positions, n_indices, 3, n_features), (n_positions, n_features)
 
 
@@ -532,19 +539,24 @@ class SOAP(Descriptor):
 
         # Determine what the output sizes will be, and whether the size stays
         # fixed or not.
-        for i_job in jobs[1:]:
-            for job in i_job:
-                i_derivatives_shape, i_descriptor_shape = get_shapes(job)
-                if i_derivatives_shape != derivatives_shape or i_descriptor_shape != descriptor_shape:
-                    derivatives_shape = None
-                    break
+        def is_variable(jobs):
+            for i_job in jobs:
+                for job in i_job:
+                    i_derivatives_shape, i_descriptor_shape = get_shapes(job)
+                    if i_derivatives_shape != derivatives_shape or i_descriptor_shape != descriptor_shape:
+                        return True
+            return False
+
+        if is_variable(jobs):
+            derivatives_shape = None
+            descriptor_shape = None
 
         # Create in parallel
         output = self.derivatives_parallel(inp, self.derivatives_single, n_jobs, derivatives_shape, descriptor_shape, return_descriptor, verbose=verbose)
 
         return output
 
-    def derivatives_single(self, system, indices, positions=None, method="numerical", return_descriptor=True):
+    def derivatives_single(self, system, positions, indices, method="numerical", return_descriptor=True):
         """Return the SOAP output for the given system and given positions.
 
         Args:
@@ -585,8 +597,6 @@ class SOAP(Descriptor):
         n_indices = len(indices)
         n_atoms = len(system)
         centers = centers.flatten()
-        alphas = self._alphas.flatten()
-        betas = self._betas.flatten()
 
         n_features = self.get_number_of_features()
         d = self.init_derivatives_array(n_centers, n_indices, n_features)
@@ -596,8 +606,10 @@ class SOAP(Descriptor):
             c = np.zeros((n_centers, n_features))
 
         # Calculate numerically with extension
-        if method == "numerical":
-            if self._rbf == "gto":
+        if self._rbf == "gto":
+            alphas = self._alphas.flatten()
+            betas = self._betas.flatten()
+            if method == "numerical":
                 dscribe.ext.derivatives_soap_gto(
                     d,
                     c,
@@ -620,18 +632,18 @@ class SOAP(Descriptor):
                     self.average,
                     return_descriptor,
                 )
-        elif method == "analytical":
-            d = np.zeros(( n_features, n_centers, n_atoms, 3), dtype=np.float64)
-            dx = np.zeros(( n_features, n_centers, n_atoms), dtype=np.float64)
-            dy = np.zeros(( n_features, n_centers, n_atoms), dtype=np.float64)
-            dz = np.zeros(( n_features, n_centers, n_atoms), dtype=np.float64)
-            
-            dscribe.ext.soap_gto_devX(c, dx, dy, dz, pos, centers, alphas, betas, Z, 
-                self._rcut, cutoff_padding, n_atoms, n_species, self._nmax, self._lmax, n_centers, self._eta, self.crossover)
-            d[:, :, :, 0] = dx
-            d[:, :, :, 1] = dy
-            d[:, :, :, 2] = dz
-            d = np.moveaxis(d, 0, -1)
+            elif method == "analytical":
+                d = np.zeros(( n_features, n_centers, n_atoms, 3), dtype=np.float64)
+                dx = np.zeros(( n_features, n_centers, n_atoms), dtype=np.float64)
+                dy = np.zeros(( n_features, n_centers, n_atoms), dtype=np.float64)
+                dz = np.zeros(( n_features, n_centers, n_atoms), dtype=np.float64)
+                
+                dscribe.ext.soap_gto_devX(c, dx, dy, dz, pos, centers, alphas, betas, Z, 
+                    self._rcut, cutoff_padding, n_atoms, n_species, self._nmax, self._lmax, n_centers, self._eta, self.crossover)
+                d[:, :, :, 0] = dx
+                d[:, :, :, 1] = dy
+                d[:, :, :, 2] = dz
+                d = np.moveaxis(d, 0, -1)
 
         if return_descriptor:
             return (d, c)
