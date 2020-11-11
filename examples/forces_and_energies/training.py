@@ -10,7 +10,7 @@ D_numpy = np.load("D.npy")
 n_samples, n_features = D_numpy.shape
 E_numpy = np.array([np.load("E.npy")]).T
 F_numpy = np.load("F.npy")
-dD_dr_numpy = np.load("dD_dr.npy")
+dD_dr_numpy = np.load("dD_dr.npy")[:, 0, :, :, : ]  # We only have one SOAP center 
 r_numpy = np.load("r.npy")
 
 # Split data into training and test sets

@@ -2881,8 +2881,6 @@ void getPNoCrossD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMa
   // chemical environments, Phys. Rev. B 87, 184115 (2013). Here the square
   // root of the prefactor in the dot-product kernel is used, so that after a
   // possible dot-product the full prefactor is recovered.
-  std::cout << "START!" << std::endl;
-
   double cs0=2.4674011003; double cs1=7.4022033011; double cs2=7.4022033005;
   // SUM M's UP!
   double prel0 = PI*sqrt(8.0/(1.0));

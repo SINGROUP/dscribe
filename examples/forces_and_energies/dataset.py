@@ -29,25 +29,23 @@ for i, d in enumerate(r):
     forces[i, :, :] = a.get_forces()
 	
 # Plot the energies to validate them
-fig, ax = plt.subplots(figsize=(8, 5))
-plt.subplots_adjust(left=0.1, right=0.95, top=0.95, bottom=0.1)
-line, = ax.plot(r, energies)
-plt.xlabel("Distance (Å)")
-plt.ylabel("Energy (eV)")
-plt.show()
+# fig, ax = plt.subplots(figsize=(8, 5))
+# plt.subplots_adjust(left=0.1, right=0.95, top=0.95, bottom=0.1)
+# line, = ax.plot(r, energies)
+# plt.xlabel("Distance (Å)")
+# plt.ylabel("Energy (eV)")
+# plt.show()
 
 # Create SOAP output for all samples. One center is chosen to be directly
 # between the atoms.
 center = [0, 0, 0]
+derivatives = soap.derivatives(traj, positions=[[center]] * len(r), method="numerical", return_descriptor=False)
+
 descriptors = []
-derivatives = []
 for t in traj:
-    i_derivative = soap.derivatives_single(t, positions=[center], method="analytical", return_descriptor=False)
     i_descriptor = soap.create_single(t, positions=[center])
     descriptors.append(i_descriptor[0])
-    derivatives.append(i_derivative[0])
 descriptors = np.array(descriptors)
-derivatives = np.array(derivatives)
 
 # Save to disk for later training
 np.save("r.npy", r)
