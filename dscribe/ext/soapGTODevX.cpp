@@ -2058,19 +2058,8 @@ void getCD(double* CDevX,double* CDevY,double* CDevZ,double* prCofDX,double* prC
   double sumMe = 0; int NsNs = Ns*Ns;  int NsJ = ((lMax+1)*(lMax+1))*Ns*typeJ; int LNsNs;
   int LNs; int NsTsI = ((lMax+1)*(lMax+1))*Ns*Ntypes*posI;
   double preExp;
-//  //Non dev  l=0
-//  for(int k = 0; k < Ns; k++){
-//    sumMe = 0;
-//    for(int i = 0; i < Asize; i++){ sumMe += exp(aOa[k]*r2[i]);}
-//    for(int n = 0; n < Ns; n++){
-//	    C[NsTsI + NsJ + n] += bOa[n*Ns + k]*sumMe;
-//    }}
     
-  //dev l=0, dx
     for(int k = 0; k < Ns; k++){
-//      for(int i = 0; i < Asize; i++){
-//          exes[i] = exp(aOa[k]*r2[i]);
-//      }
       for(int i = 0; i < Asize; i++){
 	      preExp = exp(aOa[k]*r2[i]);
         for(int n = 0; n < Ns; n++){
@@ -2083,16 +2072,6 @@ void getCD(double* CDevX,double* CDevY,double* CDevZ,double* prCofDX,double* prC
      }
     }
    // l=1---------------------------------------------------------
-//   if(lMax > 0) { LNsNs=NsNs; LNs=Ns;
-//  for(int k = 0; k < Ns; k++){
-//    for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
-//    sumMe = 0;/*c10*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*z[i];}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c11Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*x[i];}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*2 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c11Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*y[i];}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*3 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//  }}
    if(lMax > 0) { LNsNs=NsNs; LNs=Ns;
       for(int k = 0; k < Ns; k++){
           for(int i = 0; i < Asize; i++){
@@ -2120,35 +2099,6 @@ void getCD(double* CDevX,double* CDevY,double* CDevZ,double* prCofDX,double* prC
     // End l=1 --------------------------------------------------------
    // l=2---------------------------------------------------------
    if(lMax > 1) { 
-//      for(int k = 0; k < Ns; k++){
-//        for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
-//        sumMe = 0;/*c20*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*preCoef[i];}
-//        for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*4 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-//        sumMe = 0;/*c21Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*preCoef[totalAN + i];}
-//        for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*5 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-//        sumMe = 0;/*c21Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*preCoef[totalAN*2+ i];}
-//        for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*6 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-//        sumMe = 0;/*c22Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*preCoef[totalAN*3+ i];}
-//        for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*7 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-//        sumMe = 0;/*c22Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*preCoef[totalAN*4+ i];}
-//        for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*8 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-//       }
-//      for(int k = 0; k < Ns; k++){
-//          for(int i = 0; i < Asize; i++){
-//              preExp = exp(aOa[LNs + k]*r2[i]);
-//              for(int n = 0; n < Ns; n++){
-//                  for(int m = 4; n < 9; n++){
-//
-//                      C[NsTsI + NsJ + Ns*4 + n] += bOa[LNsNs + n*Ns + k]*preExp*z[i];
-//
-//                      CDevX[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 1*Ns*totalAN +  indices[i]] = -2.0*aOa[LNsNs + n*Ns + k]*x[i]*preExp;
-//                      CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 1*Ns*totalAN +  indices[i]] = -2.0*bOa[LNsNs + n*Ns + k]*y[i]*aOa[LNs + k]*preExp*z[i];
-//                      CDevZ[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 1*Ns*totalAN +  indices[i]] = bOa[LNsNs + n*Ns + k]*(-2.0*z[i]*z[i]*aOa[LNs + k]*preExp + preExp);
-//
-//                  }
-//	      }
-//         }
-//      }
 
 
   for(int restOfLs = 2; restOfLs <= lMax; restOfLs++){	 
@@ -2157,14 +2107,10 @@ void getCD(double* CDevX,double* CDevY,double* CDevZ,double* prCofDX,double* prC
     for(int i = 0; i < Asize; i++){//exponents
               preExp = exp(aOa[LNs + k]*r2[i]);
       for(int m = restOfLs*restOfLs; m < (restOfLs+1)*(restOfLs+1); m++){
-        sumMe = 0; for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*(m-4)+i]);}
+//        sumMe = 0; for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*(m-4)+i]);}
         for(int n = 0; n < Ns; n++){
-//		C[NsTsI + NsJ + Ns*m + n] += bOa[LNsNs + n*Ns + k]*sumMe; // FOUND SEGFAULT!!!!! OBS!!!
 		C[NsTsI + NsJ + Ns*m + n] += bOa[LNsNs + n*Ns + k]*preExp*preCoef[totalAN*(m-4)+i]; // FOUND SEGFAULT!!!!! OBS!!!
 //  C(i,n,m,ind)
-//                CDevX[NsTsI*totalAN+NsJ*totalAN+n*totalAN+m*Ns*totalAN+indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*aOa[LNs + k]*x[i]*preExp*z[i]*preCoef[totalAN*(m-4)+i]+preExp*prCofDX[totalAN*(m-4)+i]);
-//                CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + m*Ns*totalAN + indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*aOa[LNs + k]*y[i]*preExp*z[i]*preCoef[totalAN*(m-4)+i]+preExp*prCofDY[totalAN*(m-4)+i]);
-//                CDevZ[NsTsI*totalAN+NsJ*totalAN+n*totalAN+m*Ns*totalAN+indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*aOa[LNs + k]*z[i]*preExp*z[i]*preCoef[totalAN*(m-4)+i]+preExp*prCofDZ[totalAN*(m-4)+i]);
                 CDevX[NsTsI*totalAN+NsJ*totalAN+n*totalAN+m*Ns*totalAN+indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*aOa[LNs + k]*x[i]*preExp*preCoef[totalAN*(m-4)+i]+preExp*prCofDX[totalAN*(m-4)+i]);
                 CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + m*Ns*totalAN + indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*aOa[LNs + k]*y[i]*preExp*preCoef[totalAN*(m-4)+i]+preExp*prCofDY[totalAN*(m-4)+i]);
                 CDevZ[NsTsI*totalAN+NsJ*totalAN+n*totalAN+m*Ns*totalAN+indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*aOa[LNs + k]*z[i]*preExp*preCoef[totalAN*(m-4)+i]+preExp*prCofDZ[totalAN*(m-4)+i]);
@@ -2181,247 +2127,6 @@ cout << " preexp " << preExp <<  " rest " <<restOfLs <<  " LNsNs " << LNsNs  << 
 cout << "END" << endl;
 
     }
-//   // End l=2------------------------------------------------------
-// if(lMax > 2) { LNsNs=3*NsNs; LNs=3*Ns;
-//  for(int k = 0; k < Ns; k++){
-//    for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
-//    sumMe = 0;/*c30*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*5+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*9 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-//    sumMe = 0;/*c31Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*6+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*10 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-//    sumMe = 0;/*c31Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*7+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*11 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-//    sumMe = 0;/*c32Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*8+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*12 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-//    sumMe = 0;/*c32Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*9+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*13 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-//    sumMe = 0;/*c33Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*10+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*14 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-//    sumMe = 0;/*c33Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*11+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*15 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-//  }} if(lMax > 3) { LNsNs=4*NsNs; LNs=4*Ns;
-//  for(int k = 0; k < Ns; k++){
-//    for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
-//    sumMe = 0;/*c40*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*12+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*16 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-//    sumMe = 0;/*c41Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*13+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*17 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-//    sumMe = 0;/*c41Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*14+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*18 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-//    sumMe = 0;/*c42Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*15+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*19 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-//    sumMe = 0;/*c42Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*16+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*20 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-//    sumMe = 0;/*c43Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*17+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*21 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-//    sumMe = 0;/*c43Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*18+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*22 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-//    sumMe = 0;/*c44Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*19+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*23 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-//    sumMe = 0;/*c44Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*20+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*24 + n] += bOa[LNsNs + n*Ns + k]*sumMe; }
-//
-//  }} if(lMax > 4) { LNsNs=5*NsNs; LNs=5*Ns;
-//  for(int k = 0; k < Ns; k++){
-//    for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
-//    sumMe = 0;/*c50*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*21+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*25 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c51Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*22+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*26 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c51Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*23+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*27 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c52Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*24+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*28 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c52Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*25+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*29 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c53Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*26+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*30 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c53Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*27+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*31 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c54Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*28+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*32 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c54Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*29+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*33 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c55Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*30+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*34 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c55Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*31+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*35 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//  }} if(lMax > 5) { LNsNs=6*NsNs; LNs=6*Ns;
-//  for(int k = 0; k < Ns; k++){
-//    for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
-//    sumMe = 0;/*c60*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*32+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*36 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c61Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*33+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*37 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c61Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*34+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*38 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c62Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*35+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*39 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c62Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*36+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*40 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c63Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*37+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*41 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c63Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*38+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*42 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c64Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*39+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*43 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c64Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*40+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*44 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c65Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*41+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*45 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c65Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*42+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*46 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c66Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*43+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*47 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c66Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*44+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*48 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//  }} if(lMax > 6) { LNsNs=7*NsNs; LNs=7*Ns;
-//  for(int k = 0; k < Ns; k++){
-//    for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
-//    sumMe = 0;/*c70*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*45+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*49 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c71Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*46+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*50 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c71Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*47+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*51 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c72Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*48+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*52 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c72Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*49+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*53 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c73Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*50+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*54 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c73Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*51+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*55 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c74Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*52+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*56 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c74Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*53+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*57 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c75Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*54+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*58 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c75Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*55+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*59 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c76Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*56+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*60 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c76Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*57+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*61 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c77Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*58+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*62 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c77Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*59+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*63 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//  }} if(lMax > 7) { LNsNs=8*NsNs; LNs=8*Ns;
-//  for(int k = 0; k < Ns; k++){
-//    for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
-//    sumMe = 0;/*c80*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*60+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*64 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c81Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*61+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*65 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c81Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*62+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*66 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c82Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*63+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*67 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c82Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*64+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*68 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c83Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*65+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*69 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c83Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*66+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*70 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c84Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*67+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*71 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c84Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*68+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*72 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c85Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*69+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*73 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c85Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*70+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*74 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c86Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*71+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*75 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c86Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*72+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*76 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c87Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*73+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*77 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c87Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*74+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*78 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c88Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*75+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*79 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c88Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*76+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*80 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//  }}
-//  if(lMax > 8) { LNsNs=9*NsNs; LNs=9*Ns;
-//  for(int k = 0; k < Ns; k++){
-//    for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
-//    sumMe = 0;/*c90*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*77+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*81 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c91Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*78+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*82 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c91Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*79+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*83 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c92Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*80+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*84 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c92Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*81+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*85 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c93Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*82+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*86 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c93Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*83+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*87 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c94Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*84+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*88 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c94Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*85+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*89 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c95Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*86+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*90 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c95Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*87+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*91 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c96Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*88+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*92 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c96Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*89+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*93 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c97Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*90+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*94 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c97Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*91+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*95 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c98Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*92+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*96 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c98Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*93+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*97 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c99Re*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*94+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*98 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//    sumMe = 0;/*c99Im*/ for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*95+i]);}
-//    for(int n = 0; n < Ns; n++){C[NsTsI + NsJ + Ns*99 + n] += bOa[LNsNs + n*Ns + k]*sumMe;}
-//  }}
-//////  double shiftBuffer = 96;
-////  if(lMax > 9) {
-////	 
-////  LNsNs=10*NsNs; LNs=10*Ns; // OBS!!!!!! lMax > 9 Case!
-////  for(int k = 0; k < Ns; k++){
-////    for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
-////      for(int sumems = 100; sumems < 121; sumems++){
-////        sumMe = 0; for(int i = 0; i < Asize; i++){
-////		sumMe += exes[i]*(preCoef[totalAN*(sumems - 4)+i]);
-//////		printf("%d\n",totalAN*(sumems - 4)+i );
-//////		printf("total: %d\n",totalAN);
-//////		printf("preCoef: %f\n",preCoef[totalAN*(sumems - 4)+i]);
-////	}
-////        for(int n = 0; n < Ns; n++){
-////		C[NsTsI + NsJ + Ns*sumems + n] += bOa[LNsNs + n*Ns + k]*sumMe; // FOUND SEGFAULT!!!!! OBS!!!
-//////		printf("preCoef: %f\n",bOa[LNsNs + n*Ns + k]); // FOUND HERE!!!
-////	}
-////	//shiftBuffer++; WRONG LOGIC, but not in use anyway ( not considering k++)
-////      }
-////  }}
-//
-//  if(lMax > 9) {
-//  for(int restOfLs = 10; restOfLs <= lMax; restOfLs++){	 
-//  LNsNs=restOfLs*NsNs; LNs=restOfLs*Ns; // OBS!!!!!! lMax > 9 Case!
-//  for(int k = 0; k < Ns; k++){
-//    for(int i = 0; i < Asize; i++){exes[i] = exp(aOa[LNs + k]*r2[i]);}//exponents
-//      for(int sumems = restOfLs*restOfLs; sumems < (restOfLs+1)*(restOfLs+1); sumems++){
-//        sumMe = 0; for(int i = 0; i < Asize; i++){sumMe += exes[i]*(preCoef[totalAN*(sumems - 4)+i]);}
-//        for(int n = 0; n < Ns; n++){
-//		C[NsTsI + NsJ + Ns*sumems + n] += bOa[LNsNs + n*Ns + k]*sumMe; // FOUND SEGFAULT!!!!! OBS!!!
-//	}
-//      }
-//   }
-//  }}
 }
 //=======================================================================
 /**
