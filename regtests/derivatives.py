@@ -325,6 +325,43 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
         print("difference")
         pp(diff)
 
+    def test_analytical_crossover(self):
+        """Tests the analytical soap derivatives implementation with crossover against the numerical cpp implementation
+        """
+        soap = SOAP(
+            species=[1],
+            rcut=3,
+            nmax=2,
+            lmax=2,
+            sparse=False,
+            crossover = True
+        )
+         
+        #positions = [[0.2, 0.0, 0.0], [0.1, 0.2, 0.3]]
+        positions = [[0.0, 0.0, 0.0],]
+        # Calculate with central finite difference implemented in C++
+        derivatives_cpp, d_num = soap.derivatives(H2, positions=positions, method="numerical")
+        
+        derivatives_anal, d_anal = soap.derivatives(H2, positions=positions, method="analytical")
+        derivatives_anal =  derivatives_anal
+        print("this is totally anal")
+        print(derivatives_anal)
+        print("analytical der shape", derivatives_anal.shape)
+
+        print("numerical derivatives shape")
+        print(derivatives_cpp.shape)
+        diff = derivatives_cpp - derivatives_anal
+
+        print("compare numerical against analytical soap derivatives")
+        pp(derivatives_cpp)
+        pp(derivatives_anal)
+        print("difference")
+        pp(diff)
+        print(np.abs(diff).sum())
+        print(diff.max(), diff.min())
+
+
+
     def test_analytical_vs_numerical_L1(self):
         """Tests the analytical soap derivatives implementation against the numerical cpp implementation
         """
@@ -396,8 +433,9 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
 
 if __name__ == '__main__':
     suites = []
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
+    #suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
     #suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests))
-    # SoapDerivativeComparisonTests().test_analytical_vs_numerical_L9()
+    #SoapDerivativeComparisonTests().test_analytical_vs_numerical_L9()
+    SoapDerivativeComparisonTests().test_analytical_crossover()
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)
