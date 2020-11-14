@@ -25,7 +25,7 @@ Setup
 -----
 Instantiating an MBTR descriptor can be done as follows:
 
-.. literalinclude:: ../../../examples/mbtr.py
+.. literalinclude:: ../../../../examples/mbtr.py
    :language: python
    :lines: 1-23
 
@@ -75,7 +75,7 @@ Creation
 After MBTR has been set up, it may be used on atomic structures with the
 :meth:`~.MBTR.create`-method.
 
-.. literalinclude:: ../../../examples/mbtr.py
+.. literalinclude:: ../../../../examples/mbtr.py
    :language: python
    :start-after: Create
    :lines: 1-9
@@ -103,7 +103,7 @@ provides the :meth:`~.MBTR.get_location`-method. This method can be used to
 query for the slice that contains a specific element combination. The following
 example demonstrates its usage.
 
-.. literalinclude:: ../../../examples/mbtr.py
+.. literalinclude:: ../../../../examples/mbtr.py
    :start-after: Locations
    :language: python
    :lines: 1-10
@@ -113,7 +113,7 @@ Visualization
 The MBTR output vector can be visualized easily. The following snippet
 demonstrates how the output for :math:`k=2` can be visualized with matplotlib.
 
-.. literalinclude:: ../../../examples/mbtr.py
+.. literalinclude:: ../../../../examples/mbtr.py
    :start-after: Visualization
    :language: python
    :lines: 1-35
@@ -138,7 +138,7 @@ such as clusters and bigger molecules, adding weighting will help in removing
 not have any meaningful direct interaction in the system. The following code
 demonstrates both approaches.
 
-.. literalinclude:: ../../../examples/mbtr.py
+.. literalinclude:: ../../../../examples/mbtr.py
    :start-after: Finite
    :language: python
    :lines: 1-31
@@ -193,7 +193,7 @@ periodic copies of the cell we need to include in the calculation, and without
 it we would not know when to stop the periodic repetition. The following code
 demonstrates how to apply MBTR on a periodic crystal:
 
-.. literalinclude:: ../../../examples/mbtr.py
+.. literalinclude:: ../../../../examples/mbtr.py
    :start-after: Periodic
    :language: python
    :lines: 1-19
@@ -206,7 +206,7 @@ can be an issue when predicting properties that do not scale with system size,
 e.g. band gap or formation energy per atom. The following code and plot
 demonstrates this for different cells representing the same crystal:
 
-.. literalinclude:: ../../../examples/mbtr.py
+.. literalinclude:: ../../../../examples/mbtr.py
    :start-after: Supercells
    :language: python
    :lines: 1-15
@@ -226,7 +226,7 @@ However, if the output is normalized (see the example about different
 normalization methods) we can recover truly identical output for the different
 cells representing the same material:
 
-.. literalinclude:: ../../../examples/mbtr.py
+.. literalinclude:: ../../../../examples/mbtr.py
    :start-after: Supercells
    :language: python
    :lines: 19-26
@@ -248,7 +248,7 @@ pairs and triples in the system. This is done in practice by weighting the
 contribution of the pair and triples by how many different periodic repetitions
 of the original cell are involved in forming the pair or triple.
 
-.. bibliography:: ../references.bib
+.. bibliography:: ../../references.bib
    :style: unsrt
    :filter: docname in docnames
 

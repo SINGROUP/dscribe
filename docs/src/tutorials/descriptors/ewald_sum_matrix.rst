@@ -31,7 +31,7 @@ Setup
 Instantiating the object that is used to create Ewald sum matrices can be done as
 follows:
 
-.. literalinclude:: ../../../examples/ewaldsummatrix.py
+.. literalinclude:: ../../../../examples/ewaldsummatrix.py
    :language: python
    :lines: 7-17
 
@@ -45,7 +45,7 @@ Creation
 After the Ewald sum matrix has been set up, it may be used on periodic atomic
 structures with the :meth:`~.EwaldSumMatrix.create`-method.
 
-.. literalinclude:: ../../../examples/ewaldsummatrix.py
+.. literalinclude:: ../../../../examples/ewaldsummatrix.py
    :start-after: Creation
    :language: python
    :lines: 1-14
@@ -75,14 +75,14 @@ Easiest way to control the accuracy of the Ewald summation is to use the
 *accuracy*-parameter. Lower values of this parameter correspond to tighter
 convergence criteria and better accuracy.
 
-.. literalinclude:: ../../../examples/ewaldsummatrix.py
+.. literalinclude:: ../../../../examples/ewaldsummatrix.py
    :start-after: Accuracy
    :language: python
    :lines: 4-5
 
 Another option is to directly provide the real- and reciprocal space cutoffs:
 
-.. literalinclude:: ../../../examples/ewaldsummatrix.py
+.. literalinclude:: ../../../../examples/ewaldsummatrix.py
    :start-after: Accuracy
    :language: python
    :lines: 8
@@ -92,7 +92,7 @@ Total electrostatic energy
 Let's calculate the electrostatic energy of a crystal by using the information
 contained in the Ewald sum matrix.
 
-.. literalinclude:: ../../../examples/ewaldsummatrix.py
+.. literalinclude:: ../../../../examples/ewaldsummatrix.py
    :start-after: Energy
    :language: python
    :lines: 2-21
@@ -100,11 +100,11 @@ contained in the Ewald sum matrix.
 We can compare the result against the Ewald summation implementation in
 pymatgen:
 
-.. literalinclude:: ../../../examples/ewaldsummatrix.py
+.. literalinclude:: ../../../../examples/ewaldsummatrix.py
    :start-after: Energy
    :language: python
    :lines: 24-32
 
-.. bibliography:: ../references.bib
+.. bibliography:: ../../references.bib
    :style: unsrt
    :filter: docname in docnames

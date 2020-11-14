@@ -327,143 +327,208 @@ class Descriptor(ABC):
            raise ValueError("Input is neither System, nor ase.Atoms object nor is it iterable")
         return
 
-    def derivatives(self, system, positions=None, include=None, exclude=None, method="numerical", return_descriptor=True, n_jobs=1, verbose=False):
-        """Return the descriptor derivatives for the given systems and given positions.
+    def _get_indices(self, n_atoms, include, exclude):
+        """Given the number of atoms and which indices to include or exclude,
+        returns a list of final indices that will be used. If not includes or
+        excludes are defined, then by default all atoms will be included.
 
         Args:
-            system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or
-                many atomic structures.
-            positions (list): Positions where to calculate the descriptor. Can be
-                provided as cartesian positions or atomic indices. If no
-                positions are defined, the descriptor output will be created for all
-                atoms in the system. When calculating descriptor for multiple
-                systems, provide the positions as a list for each system.
-            include (list): Indices of atoms to compute the derivatives on.
-                When calculating descriptor for multiple systems, provide a list of indices.  
-                Cannot be provided together with 'exclude'.
-            exclude (list): Indices of atoms not to compute the derivatives on.
-                When calculating descriptor for multiple systems, provide a list of indices.  
-                Cannot be provided together with 'include'.
-            method (str): 'numerical' or 'analytical' derivatives. Numerical
-                derivatives are implemented with central finite difference. If
-                not specified, analytical derivatives are used when available.
-            return_descriptor (bool): Whether to also calculate the descriptor
-                in the same function call. This is true by default as it
-                typically is faster to calculate both in one go.
+            n_atoms(int): Number of atoms.
+            include(list of ints or None): The atomic indices to include, or
+                None if no specific includes made.
+            exclude(list of ints or None): The atomic indices to exclude, or
+                None if no specific excludes made.
+
+        Returns:
+            np.ndarray: List of atomic indices that will be included from the
+            system.
+        """
+        if include is None and exclude is None:
+            displaced_indices = np.arange(n_atoms)
+        elif include is not None:
+            displaced_indices = np.asarray(list(set(include)))
+            if np.any(displaced_indices > n_atoms - 1):
+                raise ValueError(
+                    "Invalid index provided in the list of included atoms."
+                )
+            displaced_indices.sort()
+        elif exclude is not None:
+            exclude = np.asarray(list(set(exclude)))
+            if np.any(exclude > n_atoms - 1):
+                raise ValueError(
+                    "Invalid index provided in the list of excluded atoms."
+                )
+            displaced_indices = np.arange(n_atoms)
+            if len(exclude) > 0:
+                displaced_indices = np.delete(displaced_indices, exclude)
+        else:
+            raise ValueError("Provide either 'include' or 'exclude', not both.")
+        n_displaced = len(displaced_indices)
+        if n_displaced == 0:
+            raise ValueError("Please include at least one atom.")
+
+        return displaced_indices
+        
+    def derivatives_parallel(self, inp, func, n_jobs, derivatives_shape, descriptor_shape, return_descriptor, verbose=False, prefer="processes"):
+        """Used to parallelize the descriptor creation across multiple systems.
+
+        Args:
+            inp(list): Contains a tuple of input arguments for each processed
+                system. These arguments are fed to the function specified by
+                "func".
+            func(function): Function that outputs the descriptor when given
+                input arguments from "inp".
             n_jobs (int): Number of parallel jobs to instantiate. Parallellizes
                 the calculation across samples. Defaults to serial calculation
                 with n_jobs=1.
+            derivatives_shape(list or None): If a fixed size output is produced from
+                each job, this contains its shape. For variable size output
+                this parameter is set to None
+            derivatives_shape(list or None): If a fixed size output is produced from
+                each job, this contains its shape. For variable size output
+                this parameter is set to None
             verbose(bool): Controls whether to print the progress of each job
                 into to the console.
+            backend (str): The parallelization method. Valid options are:
+
+                - "processes": Parallelization based on processes. Uses the
+                  "loky" backend in joblib to serialize the jobs and run them
+                  in separate processes. Using separate processes has a bigger
+                  memory and initialization overhead than threads, but may
+                  provide better scalability if perfomance is limited by the
+                  Global Interpreter Lock (GIL).
+
+                - "threads": Parallelization based on threads. Has bery low
+                  memory and initialization overhead. Performance is limited by
+                  the amount of pure python code that needs to run. Ideal when
+                  most of the calculation time is used by C/C++ extensions that
+                  release the GIL.
 
         Returns:
-            If return_descriptor is True, returns a tuple, where the first item
-            is the derivative array and the second is the descriptor array.
-            Otherwise only returns the derivatives array. The derivatives array
-            is a 4D numpy array (or a list of arrays when multiple systems are provided). 
-            The dimensions are: [n_positions, n_atoms, 3, n_features]. 
-            The first dimension goes over the descriptor centers in the
-            same order as they were given in the argument. The second dimension
-            goes over the included atoms. The order is same as the order of
-            atoms in the given system. The third dimension goes over the
-            cartesian components, x, y and z. The last dimension goes over the
-            features in the default order.
-
+            np.ndarray | scipy.sparse.csr_matrix | list: The descriptor output
+            for each given input. The return type depends on the desciptor
+            setup.
         """
-
-        if isinstance(system, (Atoms, System)):
-            n_samples = len(system)
-        else:
-            n_samples = len(system)
-            if positions is None:
-                positions = [None] * n_samples
-            if include is None:
-                include = [None] * n_samples
-            if exclude is None:
-                exclude = [None] * n_samples
-            n_pos = len(positions)
-            if n_pos != n_samples:
-                raise ValueError(
-                   "The given number of positions does not match the given"
-                   "number of systems."
-                )
-            n_inc = len(include)
-            if n_inc != n_samples:
-                raise ValueError(
-                   "The given number of includes does not match the given"
-                   "number of systems."
-                )
-            n_exc = len(exclude)
-            if n_exc != n_samples:
-                raise ValueError(
-                   "The given number of excludes does not match the given"
-                   "number of systems."
-                )
-            
-        # Determine the atom indices that are displaced
-        for i in range(n_samples):
-            n_atoms = len(system)
-            if include is None and exclude is None:
-                displaced_indices = np.arange(len(system))
-            elif include is not None:
-                displaced_indices = np.asarray(list(set(include)))
-                if np.any(displaced_indices > n_atoms - 1):
-                    raise ValueError(
-                        "Invalid index provided in the list of included atoms."
-                    )
-                displaced_indices.sort()
-            elif exclude is not None:
-                exclude = np.asarray(list(set(exclude)))
-                if np.any(exclude > n_atoms - 1):
-                    raise ValueError(
-                        "Invalid index provided in the list of excluded atoms."
-                    )
-                displaced_indices = np.arange(len(system))
-                if len(exclude) > 0:
-                    displaced_indices = np.delete(displaced_indices, exclude)
-            else:
-                raise ValueError("Provide either 'include' or 'exclude', not both.")
-            n_displaced = len(displaced_indices)
-            if n_displaced == 0:
-                raise ValueError("Please include at least one atom.")
-    
-        # If single system given, skip the parallelization
-        if isinstance(system, (Atoms, System)):
-            return self.derivatives_single(system, displaced_indices, positions=positions, method=method, return_descriptor=return_descriptor)
-        else:
-            self._check_system_list(system)
-
-        # Combine input arguments
-        inp = list(zip(system, displaced_indices, positions, method, return_descriptor))
-
-        # For the descriptor, the output size for each job depends on the exact arguments.
-        # Here we precalculate the size for each job to preallocate memory and
-        # make the process faster.
+        # Split data into n_jobs (almost) equal jobs
+        n_samples = len(inp)
+        n_features = self.get_number_of_features()
+        is_sparse = self._sparse
         k, m = divmod(n_samples, n_jobs)
         jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
-        output_sizes = []
-        for i_job in jobs:
-            n_desc = 0
-            if self.average == "outer" or self.average == "inner":
-                n_desc = len(i_job)
-            elif positions is None:
-                n_desc = 0
-                for job in i_job:
-                    n_desc += len(job[0])
+
+        def create_multiple_with_descriptor(arguments, func, index, verbose):
+            """This is the function that is called by each job but with
+            different parts of the data.
+            """
+            # Initialize output
+            n_samples = len(arguments)
+            if derivatives_shape:
+                shape = [n_samples]
+                shape.extend(derivatives_shape)
+                derivatives = np.empty(shape, dtype=np.float32)
             else:
-                n_desc = 0
-                for i_sample, i_pos in i_job:
-                    if i_pos is not None:
-                        n_desc += len(i_pos)
-                    else:
-                        n_desc += len(i_sample)
-            output_sizes.append(n_desc)
+                derivatives = []
+            if descriptor_shape:
+                shape = [n_samples]
+                shape.extend(descriptor_shape)
+                descriptors = np.empty(shape, dtype=np.float32)
+            else:
+                descriptors = []
 
-        # Create in parallel
-        output = self.derivatives_parallel(inp, self.create_single, n_jobs, output_sizes, verbose=verbose)
+            derivative_offset = 0
+            descriptor_offset = 0
+            i_sample = 0
+            old_percent = 0
 
-        return output
+            for i_sample, i_arg in enumerate(arguments):
+                i_der, i_des = func(*i_arg)
+                if descriptor_shape:
+                    new_descriptor_offset = descriptor_offset + i_des.shape[0]
+                    descriptors[descriptor_offset:new_descriptor_offset, :] = i_des
+                    descriptor_offset = new_descriptor_offset
+                else:
+                    descriptors.append(i_des)
 
-        
-    def derivatives_parallel(self, inp, func, n_jobs, output_sizes=None, verbose=False, prefer="processes"):
-        pass    
+                if derivatives_shape:
+                    new_derivative_offset = derivative_offset + i_der.shape[0]
+                    derivatives[derivative_offset:new_derivative_offset, :] = i_der
+                    derivative_offset = new_derivative_offset
+                else:
+                    derivatives.append(i_der)
+
+                if verbose:
+                    current_percent = (i_sample+1)/n_samples*100
+                    if current_percent >= old_percent + 1:
+                        old_percent = current_percent
+                        print("Process {0}: {1:.1f} %".format(index, current_percent))
+
+            return ((derivatives, descriptors), index)
+
+        def create_multiple_without_descriptor(arguments, func, index, verbose):
+            """This is the function that is called by each job but with
+            different parts of the data.
+            """
+            # Initialize output
+            n_samples = len(arguments)
+            if derivatives_shape:
+                shape = [n_samples]
+                shape.extend(derivatives_shape)
+                derivatives = np.empty(shape, dtype=np.float32)
+            else:
+                derivatives = []
+
+            derivative_offset = 0
+            i_sample = 0
+            old_percent = 0
+
+            for i_sample, i_arg in enumerate(arguments):
+                i_der = func(*i_arg)
+                if derivatives_shape:
+                    new_derivative_offset = derivative_offset + i_der.shape[0]
+                    derivatives[derivative_offset:new_derivative_offset, :] = i_der
+                    derivative_offset = new_derivative_offset
+                else:
+                    derivatives.append(i_der)
+
+                if verbose:
+                    current_percent = (i_sample+1)/n_samples*100
+                    if current_percent >= old_percent + 1:
+                        old_percent = current_percent
+                        print("Process {0}: {1:.1f} %".format(index, current_percent))
+
+                return ((derivatives, ), index)
+
+        if return_descriptor:
+            vec_lists = Parallel(n_jobs=n_jobs, prefer=prefer)(delayed(create_multiple_with_descriptor)(
+                i_args, func, index, verbose) for index, i_args in enumerate(jobs)
+            )
+        else:
+            vec_lists = Parallel(n_jobs=n_jobs, prefer=prefer)(delayed(create_multiple_without_descriptor)(
+                i_args, func, index, verbose) for index, i_args in enumerate(jobs)
+            )
+
+        # Restore the calculation order. If using the threading backend, the
+        # input order may have been lost.
+        vec_lists.sort(key=lambda x: x[1])
+
+        # If the results are of the same length, we can simply concatenate them
+        # into one numpy array. Otherwise we will return a regular python list.
+        der_lists = [x[0][0] for x in vec_lists]
+        if derivatives_shape:
+            derivatives = np.concatenate(der_lists, axis=0)
+        else:
+            derivatives = []
+            for part in der_lists:
+                derivatives.extend(part)
+        if return_descriptor:
+            des_lists = [x[0][1] for x in vec_lists]
+            if descriptor_shape:
+                descriptors = np.concatenate(des_lists, axis=0)
+            else:
+                descriptors = []
+                for part in des_lists:
+                    descriptors.extend(part)
+            return (derivatives, descriptors)
+
+        return derivatives
+

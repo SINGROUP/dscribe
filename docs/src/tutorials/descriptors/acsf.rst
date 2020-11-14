@@ -37,7 +37,7 @@ Setup
 
 Instantiating an ACSF descriptor can be done as follows:
 
-.. literalinclude:: ../../../examples/acsf.py
+.. literalinclude:: ../../../../examples/acsf.py
    :language: python
    :lines: 1-9
 
@@ -51,7 +51,7 @@ Creation
 After ACSF has been set up, it may be used on atomic structures with the
 :meth:`~.ACSF.create`-method.
 
-.. literalinclude:: ../../../examples/acsf.py
+.. literalinclude:: ../../../../examples/acsf.py
    :language: python
    :lines: 12-21
 
@@ -63,6 +63,6 @@ The output will in this case be a numpy array with shape [#positions,
 #features]. The number of features may be requested beforehand with the
 :meth:`~.ACSF.get_number_of_features`-method.
 
-.. bibliography:: ../references.bib
+.. bibliography:: ../../references.bib
    :style: unsrt
    :filter: docname in docnames

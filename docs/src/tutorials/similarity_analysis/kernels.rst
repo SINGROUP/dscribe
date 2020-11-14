@@ -31,7 +31,7 @@ this similarity.  Here is an example of calculating an average kernel for two
 relatively similar molecules by using SOAP and a linear and Gaussian similarity
 metric:
 
-.. literalinclude:: ../../../examples/kernels/averagekernel.py
+.. literalinclude:: ../../../../examples/kernels/averagekernel.py
    :language: python
    :lines: 4-26
 
@@ -59,9 +59,9 @@ again be calculated with any pairwise metric (e.g. linear, gaussian).
 
 The class :class:`.REMatchKernel` can be used to calculate this similarity:
 
-.. literalinclude:: ../../../examples/kernels/rematchkernel.py
+.. literalinclude:: ../../../../examples/kernels/rematchkernel.py
    :language: python
 
-.. bibliography:: ../references.bib
+.. bibliography:: ../../references.bib
    :style: unsrt
    :filter: docname in docnames

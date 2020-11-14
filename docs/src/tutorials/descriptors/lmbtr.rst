@@ -24,7 +24,7 @@ Setup
 
 Instantiating an LMBTR descriptor can be done as follows:
 
-.. literalinclude:: ../../../examples/lmbtr.py
+.. literalinclude:: ../../../../examples/lmbtr.py
    :language: python
    :lines: 1-22
 
@@ -38,7 +38,7 @@ Creation
 After LMBTR has been set up, it may be used on atomic structures with the
 :meth:`~.LMBTR.create`-method.
 
-.. literalinclude:: ../../../examples/lmbtr.py
+.. literalinclude:: ../../../../examples/lmbtr.py
    :language: python
    :start-after: Create
    :lines: 1-9
@@ -62,14 +62,14 @@ This example demonstrate the use of LMBTR as a way of analysing local sites in
 a structure. We build an Al(111) surface and analyze four different adsorption
 sites on this surface: top, bridge, hcp and fcc.
 
-.. literalinclude:: ../../../examples/lmbtr.py
+.. literalinclude:: ../../../../examples/lmbtr.py
    :language: python
    :start-after: Surface sites
    :lines: 1-13
 
 These four sites are described by LMBTR with pairwise :math:`k=2` term.
 
-.. literalinclude:: ../../../examples/lmbtr.py
+.. literalinclude:: ../../../../examples/lmbtr.py
    :language: python
    :start-after: Surface sites
    :lines: 16-32
@@ -77,7 +77,7 @@ These four sites are described by LMBTR with pairwise :math:`k=2` term.
 Plotting the output from these sites reveals the different patterns in these
 sites.
 
-.. literalinclude:: ../../../examples/lmbtr.py
+.. literalinclude:: ../../../../examples/lmbtr.py
    :language: python
    :start-after: Surface sites
    :lines: 34-
@@ -95,7 +95,7 @@ sites.
 Correctly tuned, such information could for example be used to train an
 automatic adsorption site classifier with machine learning.
 
-.. bibliography:: ../references.bib
+.. bibliography:: ../../references.bib
    :style: unsrt
    :filter: docname in docnames
 

@@ -166,8 +166,6 @@ class SOAP(Descriptor):
         self.average = average
         self.crossover = crossover
 
-
-
     def prepare(self, system, cutoff_padding, positions=None):
         """Prepares the input for the C++ extension.
         """
@@ -231,109 +229,6 @@ class SOAP(Descriptor):
         cutoff_padding = self._sigma*np.sqrt(-2*np.log(threshold))
         return cutoff_padding
 
-
-    def derivatives_single(self, system, displaced_indices, positions=None, method="numerical", return_descriptor=True):
-        """Return the SOAP output for the given system and given positions.
-
-        Args:
-            system (:class:`ase.Atoms`): Atomic structure.
-            positions (list): Positions where to calculate SOAP. Can be
-                provided as cartesian positions or atomic indices. If no
-                positions are defined, the SOAP output will be created for all
-                atoms in the system. When calculating SOAP for multiple
-                systems, provide the positions as a list for each system.
-            include (list): Indices of atoms to compute the derivatives on. 
-                Cannot be provided together with 'exclude'.
-            exclude (list): Indices of atoms not to compute the derivatives on.
-                Cannot be provided together with 'include'.
-            method (str): 'numerical' or 'analytical' derivatives. Numerical
-                derivatives are implemented with central finite difference. If
-                not specified, analytical derivatives are used when available.
-            return_descriptor (bool): Whether to also calculate the descriptor
-                in the same function call. This is true by default as it
-                typically is faster to calculate both in one go.
-        
-        Returns:
-            If return_descriptor is True, returns a tuple, where the first item
-            is the derivative array and the second is the descriptor array.
-            Otherwise only returns the derivatives array. The derivatives array
-            is a 4D numpy array. The dimensions are: [n_positions, n_atoms, 3,
-            n_features]. The first dimension goes over the SOAP centers in the
-            same order as they were given in the argument. The second dimension
-            goes over the included atoms. The order is same as the order of
-            atoms in the given system. The third dimension goes over the
-            cartesian components, x, y and z. The last dimension goes over the
-            features in the default order.
-        """
-        if self._sparse:
-            raise ValueError("Sparse output is not available for derivatives.")
-        if self.average != "off" and method == "analytical":
-            raise ValueError(
-                "Analytical derivatives not available for averaged output."
-            )
-
-        cutoff_padding = self.get_cutoff_padding()
-        system, centers = self.prepare(system, cutoff_padding, positions)
-        centers = centers[displaced_indices]
-        pos = system.get_positions()
-        Z = system.get_atomic_numbers()
-        sorted_species = self._atomic_numbers
-        n_species = len(sorted_species)
-        n_centers = centers.shape[0]
-        centers = centers.flatten()
-        alphas = self._alphas.flatten()
-        betas = self._betas.flatten()
-
-        n_features = self.get_number_of_features()
-        d = self.init_derivatives_array(n_centers, n_displaced, n_features)
-        if return_descriptor:
-            c = self.init_descriptor_array(n_centers, n_features)
-        else:
-            c = np.zeros((n_centers, n_features))
-
-        # Calculate numerically with extension
-        if method == "numerical":
-            if self._rbf == "gto":
-                dscribe.ext.derivatives_soap_gto(
-                    d,
-                    c,
-                    pos,
-                    centers,
-                    alphas,
-                    betas,
-                    Z,
-                    sorted_species,
-                    displaced_indices,
-                    self._rcut,
-                    cutoff_padding,
-                    n_atoms,
-                    n_species,
-                    self._nmax,
-                    self._lmax,
-                    n_centers,
-                    self._eta,
-                    self.crossover,
-                    self.average,
-                    return_descriptor,
-                )
-        elif method == "analytical":
-            d = np.zeros(( n_features, n_centers, n_atoms, 3), dtype=np.float64)
-            dx = np.zeros(( n_features, n_centers, n_atoms), dtype=np.float64)
-            dy = np.zeros(( n_features, n_centers, n_atoms), dtype=np.float64)
-            dz = np.zeros(( n_features, n_centers, n_atoms), dtype=np.float64)
-            
-            dscribe.ext.soap_gto_devX(c, dx, dy, dz, pos, centers, alphas, betas, Z, 
-                self._rcut, cutoff_padding, n_atoms, n_species, self._nmax, self._lmax, n_centers, self._eta, self.crossover)
-            d[:,:,:,0] = dx
-            d[:,:,:,1] = dy
-            d[:,:,:,2] = dz
-            d = np.moveaxis(d, 0, -1)
-        else:
-            raise ValueError("Please choose method 'numerical' or 'analytical'")
-
-        if return_descriptor:
-            return (d, c)
-        return d
 
     def init_descriptor_array(self, n_centers, n_features):
         """Return a zero-initialized numpy array for the descriptor.
@@ -519,6 +414,240 @@ class SOAP(Descriptor):
             soap_mat = coo_matrix(soap_mat)
 
         return soap_mat
+
+    def derivatives(self, system, positions=None, include=None, exclude=None, method="numerical", return_descriptor=True, n_jobs=1, verbose=False):
+        """Return the descriptor derivatives for the given systems and given positions.
+
+        Args:
+            system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or
+                many atomic structures.
+            positions (list): Positions where to calculate the descriptor. Can be
+                provided as cartesian positions or atomic indices. If no
+                positions are defined, the descriptor output will be created for all
+                atoms in the system. When calculating descriptor for multiple
+                systems, provide the positions as a list for each system.
+            include (list): Indices of atoms to compute the derivatives on.
+                When calculating descriptor for multiple systems, provide a list of indices.  
+                Cannot be provided together with 'exclude'.
+            exclude (list): Indices of atoms not to compute the derivatives on.
+                When calculating descriptor for multiple systems, provide a list of indices.  
+                Cannot be provided together with 'include'.
+            method (str): 'numerical' or 'analytical' derivatives. Numerical
+                derivatives are implemented with central finite difference. If
+                not specified, analytical derivatives are used when available.
+            return_descriptor (bool): Whether to also calculate the descriptor
+                in the same function call. This is true by default as it
+                typically is faster to calculate both in one go.
+            n_jobs (int): Number of parallel jobs to instantiate. Parallellizes
+                the calculation across samples. Defaults to serial calculation
+                with n_jobs=1.
+            verbose(bool): Controls whether to print the progress of each job
+                into to the console.
+
+        Returns:
+            If return_descriptor is True, returns a tuple, where the first item
+            is the derivative array and the second is the descriptor array.
+            Otherwise only returns the derivatives array. The derivatives array
+            is a either a 4D or 5D array, depending on whether you have
+            provided a single or multiple systems. If the output shape for each
+            system is the same, a single monolithic numpy array is returned.
+            For variable sized output (e.g. differently sized systems,
+            different number of centers or different number of included atoms),
+            a regular python list is returned. The dimensions are:
+            [(n_systems,) n_positions, n_atoms, 3, n_features]. The first
+            dimension goes over the different systems in case multiple were
+            given.  The second dimension goes over the descriptor centers in
+            the same order as they were given in the argument. The third
+            dimension goes over the included atoms. The order is same as the
+            order of atoms in the given system. The fourth dimension goes over
+            the cartesian components, x, y and z. The fifth dimension goes over
+            the features in the default order.
+        """
+        if self._sparse:
+            raise ValueError("Sparse output is not currently available for derivatives.")
+        if self.average != "off" and method == "analytical":
+            raise ValueError(
+                "Analytical derivatives not currently available for averaged output."
+            )
+        if self._rbf == "polynomial" and method == "analytical":
+            raise ValueError(
+                "Analytical derivatives not currently available for polynomial radial "
+                "basis set."
+            )
+        if method not in {"numerical", "analytical"}:
+            raise ValueError("Please choose method 'numerical' or 'analytical'")
+
+        # If single system given, skip the parallelization
+        if isinstance(system, (Atoms, System)):
+            n_atoms = len(system)
+            indices = self._get_indices(n_atoms, include, exclude)
+            return self.derivatives_single(system, positions, indices, method=method, return_descriptor=return_descriptor)
+
+        self._check_system_list(system)
+        n_samples = len(system)
+        if positions is None:
+            positions = [None] * n_samples
+        if include is None:
+            include = [None] * n_samples
+        if exclude is None:
+            exclude = [None] * n_samples
+        n_pos = len(positions)
+        if n_pos != n_samples:
+            raise ValueError(
+                "The given number of positions does not match the given "
+                "number of systems."
+            )
+        n_inc = len(include)
+        if n_inc != n_samples:
+            raise ValueError(
+                "The given number of includes does not match the given "
+                "number of systems."
+            )
+        n_exc = len(exclude)
+        if n_exc != n_samples:
+            raise ValueError(
+                "The given number of excludes does not match the given "
+                "number of systems."
+            )
+            
+        # Determine the atom indices that are displaced
+        indices = []
+        for sys, inc, exc in zip(system, include, exclude):
+            n_atoms = len(sys)
+            indices.append(self._get_indices(n_atoms, inc, exc))
+
+        # Combine input arguments
+        inp = list(zip(system, positions, indices, [method]*n_samples, [return_descriptor]*n_samples))
+
+        # For the descriptor, the output size for each job depends on the exact arguments.
+        # Here we precalculate the size for each job to preallocate memory and
+        # make the process faster.
+        n_features = self.get_number_of_features()
+        def get_shapes(job):
+            centers = job[1]
+            if centers is None:
+                n_positions = len(job[0])
+            else:
+                n_positions = 1 if self.average != "off" else len(centers)
+            n_indices = len(job[2])
+            return (n_positions, n_indices, 3, n_features), (n_positions, n_features)
+
+
+        k, m = divmod(n_samples, n_jobs)
+        jobs = list(inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
+        derivatives_shape, descriptor_shape = get_shapes(jobs[0][0])
+
+        # Determine what the output sizes will be, and whether the size stays
+        # fixed or not.
+        def is_variable(jobs):
+            for i_job in jobs:
+                for job in i_job:
+                    i_derivatives_shape, i_descriptor_shape = get_shapes(job)
+                    if i_derivatives_shape != derivatives_shape or i_descriptor_shape != descriptor_shape:
+                        return True
+            return False
+
+        if is_variable(jobs):
+            derivatives_shape = None
+            descriptor_shape = None
+
+        # Create in parallel
+        output = self.derivatives_parallel(inp, self.derivatives_single, n_jobs, derivatives_shape, descriptor_shape, return_descriptor, verbose=verbose)
+
+        return output
+
+    def derivatives_single(self, system, positions, indices, method="numerical", return_descriptor=True):
+        """Return the SOAP output for the given system and given positions.
+
+        Args:
+            system (:class:`ase.Atoms`): Atomic structure.
+            positions (list): Positions where to calculate SOAP. Can be
+                provided as cartesian positions or atomic indices. If no
+                positions are defined, the SOAP output will be created for all
+                atoms in the system. When calculating SOAP for multiple
+                systems, provide the positions as a list for each system.
+            indices (list): Indices of atoms for which the derivatives will be
+                computed for. 
+            method (str): 'numerical' or 'analytical' derivatives. Numerical
+                derivatives are implemented with central finite difference. If
+                not specified, analytical derivatives are used when available.
+            return_descriptor (bool): Whether to also calculate the descriptor
+                in the same function call. This is true by default as it
+                typically is faster to calculate both in one go.
+        
+        Returns:
+            If return_descriptor is True, returns a tuple, where the first item
+            is the derivative array and the second is the descriptor array.
+            Otherwise only returns the derivatives array. The derivatives array
+            is a 4D numpy array. The dimensions are: [n_positions, n_atoms, 3,
+            n_features]. The first dimension goes over the SOAP centers in the
+            same order as they were given in the argument. The second dimension
+            goes over the included atoms. The order is same as the order of
+            atoms in the given system. The third dimension goes over the
+            cartesian components, x, y and z. The last dimension goes over the
+            features in the default order.
+        """
+        cutoff_padding = self.get_cutoff_padding()
+        system, centers = self.prepare(system, cutoff_padding, positions)
+        pos = system.get_positions()
+        Z = system.get_atomic_numbers()
+        sorted_species = self._atomic_numbers
+        n_species = len(sorted_species)
+        n_centers = centers.shape[0]
+        n_indices = len(indices)
+        n_atoms = len(system)
+        centers = centers.flatten()
+
+        n_features = self.get_number_of_features()
+        d = self.init_derivatives_array(n_centers, n_indices, n_features)
+        if return_descriptor:
+            c = self.init_descriptor_array(n_centers, n_features)
+        else:
+            c = np.zeros((n_centers, n_features))
+
+        # Calculate numerically with extension
+        if self._rbf == "gto":
+            alphas = self._alphas.flatten()
+            betas = self._betas.flatten()
+            if method == "numerical":
+                dscribe.ext.derivatives_soap_gto(
+                    d,
+                    c,
+                    pos,
+                    centers,
+                    alphas,
+                    betas,
+                    Z,
+                    sorted_species,
+                    indices,
+                    self._rcut,
+                    cutoff_padding,
+                    n_atoms,
+                    n_species,
+                    self._nmax,
+                    self._lmax,
+                    n_centers,
+                    self._eta,
+                    self.crossover,
+                    self.average,
+                    return_descriptor,
+                )
+            elif method == "analytical":
+                d = np.zeros(( n_features, n_centers, n_atoms, 3), dtype=np.float64)
+                dx = np.zeros(( n_features, n_centers, n_atoms), dtype=np.float64)
+                dy = np.zeros(( n_features, n_centers, n_atoms), dtype=np.float64)
+                dz = np.zeros(( n_features, n_centers, n_atoms), dtype=np.float64)
+                
+                dscribe.ext.soap_gto_devX(c, dx, dy, dz, pos, centers, alphas, betas, Z, 
+                    self._rcut, cutoff_padding, n_atoms, n_species, self._nmax, self._lmax, n_centers, self._eta, self.crossover)
+                d[:, :, :, 0] = dx
+                d[:, :, :, 1] = dy
+                d[:, :, :, 2] = dz
+                d = np.moveaxis(d, 0, -1)
+
+        if return_descriptor:
+            return (d, c)
+        return d
 
     @property
     def species(self):

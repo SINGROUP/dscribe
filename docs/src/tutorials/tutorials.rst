@@ -7,11 +7,6 @@ Tutorials
    :maxdepth: 1
 
    basics
-   coulomb_matrix
-   sine_matrix
-   ewald_sum_matrix
-   acsf
-   soap
-   mbtr
-   lmbtr
-   kernels
+   descriptors/descriptors.rst
+   machine_learning/machine_learning.rst
+   similarity_analysis/similarity_analysis.rst
