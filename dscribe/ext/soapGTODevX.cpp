@@ -3259,6 +3259,12 @@ void getPCrossOverD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int l
           for(int kd = k; kd < Ns; kd++){
             //change to soapMatDevZ[NsNsLmaxTs*totalAN*i+NsNsLmax*totalAN*j+ m*NsNs*totalAN + shiftN*totalAN + a] ... 
                                      //+ Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + k*totalAN + a]
+
+
+//                                for (int m = 0; m < 2*l+1; ++m) {
+//                                    int offset = l*l + m;
+// Maybe Shift ++all? 
+
             soapMatDevX[NsNsLmaxTs*i*totalAN + NsNsLmax*shiftT*totalAN + 0*totalAN + shiftN*totalAN + a] = prel0*cs0*(
                 Cnnd[NsTs100*i + Ns100*j + 0 + k]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + 0*totalAN + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + 0 + kd]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + 0*totalAN + k*totalAN + a]);
             soapMatDevY[NsNsLmaxTs*i*totalAN + NsNsLmax*shiftT*totalAN + 0*totalAN + shiftN*totalAN + a] = prel0*cs0*(
