@@ -3595,12 +3595,12 @@ void soapGTODevX(py::array_t<double> cArr,py::array_t<double> cArrX,py::array_t<
   free(aOa);
 
   if (crossover) {
-//    getPCrossOverD(c, cnnd, Ns, Nt, Hs, lMax);
+    getPCrossOverD(c, cnnd, Ns, Nt, Hs, lMax);
     getPCrossOverDevX(cx,cy,cz,cdevX,cdevY, cdevZ, cnnd, Ns, Nt, Hs, lMax, totalAN);
 //    getPNoCrossD( c,  cnnd, Ns, Nt, Hs, lMax){
   } else {
     getPNoCrossDevX(cx,cy,cz,cdevX,cdevY, cdevZ, cnnd, Ns, Nt, Hs, lMax, totalAN);
-//    getPNoCrossD( c,  cnnd, Ns, Nt, Hs, lMax){
+    getPNoCrossD( c,  cnnd, Ns, Nt, Hs, lMax){
   };
   free(cnnd);
   free(cdevX);
