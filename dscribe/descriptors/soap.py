@@ -644,6 +644,7 @@ class SOAP(Descriptor):
                 d[:, :, :, 1] = dy
                 d[:, :, :, 2] = dz
                 d = np.moveaxis(d, -2, -1)
+                d = np.moveaxis(d, 0, 1)
 
         if return_descriptor:
             return (d, c)

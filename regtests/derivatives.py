@@ -322,7 +322,7 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
         derivatives_anal, d_anal = soap.derivatives(H2, positions=positions, method="analytical")
         diff = derivatives_cpp - derivatives_anal
 
-        _print_diff(derivatives_cpp, derivatives_anal)
+        #_print_diff(derivatives_cpp, derivatives_anal)
         self.assertTrue(np.allclose(derivatives_cpp, derivatives_anal))
 
 
@@ -355,7 +355,7 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
             species=[1],
             rcut=3,
             nmax=2,
-            lmax=2,
+            lmax=1,
             sparse=False,
             crossover=False,
         )
@@ -364,7 +364,7 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
         derivatives_cpp, d_num = soap.derivatives(H2, positions=positions, method="numerical")
         derivatives_anal, d_anal = soap.derivatives(H2, positions=positions, method="analytical")
         
-        #_print_diff(derivatives_cpp, derivatives_anal)
+        _print_diff(derivatives_cpp, derivatives_anal)
         self.assertTrue(np.allclose(derivatives_cpp, derivatives_anal))
 
     def test_analytical_vs_numerical_L9(self):
@@ -389,9 +389,9 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
 if __name__ == '__main__':
     suites = []
     #suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
-    #suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests))
     #SoapDerivativeComparisonTests().test_analytical_vs_numerical_L9()
     #SoapDerivativeComparisonTests().test_analytical_crossover()
-    SoapDerivativeComparisonTests().test_analytical_vs_numerical()
+    #SoapDerivativeComparisonTests().test_analytical_vs_numerical()
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)
