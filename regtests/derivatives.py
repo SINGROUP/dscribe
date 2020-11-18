@@ -30,6 +30,19 @@ from ase import Atoms
 from ase.build import molecule
 from ase.visualize import view
 
+def _print_diff(num, ana):
+    print("numerical")
+    print(num)
+    print("numerical derivatives shape")
+    print(num.shape)
+    print("analytical")
+    print(ana)
+    print("analytical der shape", ana.shape)
+    print("num - ana")
+    print(num - ana)
+    return
+
+
 H2 = Atoms(
     cell=[
         [15.0, 0.0, 0.0],
@@ -303,27 +316,15 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
             lmax=0,
             sparse=False,
         )
-         
-        #positions = [[0.2, 0.0, 0.0], [0.1, 0.2, 0.3]]
         positions = [[0.0, 0.0, 0.0],]
         # Calculate with central finite difference implemented in C++
         derivatives_cpp, d_num = soap.derivatives(H2, positions=positions, method="numerical")
-        
         derivatives_anal, d_anal = soap.derivatives(H2, positions=positions, method="analytical")
-        derivatives_anal =  derivatives_anal
-        print("this is totally anal")
-        print(derivatives_anal)
-        print("analytical der shape", derivatives_anal.shape)
-
-        print("numerical derivatives shape")
-        print(derivatives_cpp.shape)
         diff = derivatives_cpp - derivatives_anal
 
-        print("compare numerical against analytical soap derivatives")
-        pp(derivatives_cpp)
-        pp(derivatives_anal)
-        print("difference")
-        pp(diff)
+        _print_diff(derivatives_cpp, derivatives_anal)
+        self.assertTrue(np.allclose(derivatives_cpp, derivatives_anal))
+
 
     def test_analytical_crossover(self):
         """Tests the analytical soap derivatives implementation with crossover against the numerical cpp implementation
@@ -336,30 +337,15 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
             sparse=False,
             crossover = True
         )
-         
-        #positions = [[0.2, 0.0, 0.0], [0.1, 0.2, 0.3]]
         positions = [[0.0, 0.0, 0.0],]
         # Calculate with central finite difference implemented in C++
         derivatives_cpp, d_num = soap.derivatives(H2, positions=positions, method="numerical")
-        
         derivatives_anal, d_anal = soap.derivatives(H2, positions=positions, method="analytical")
-        derivatives_anal =  derivatives_anal
-        print("this is totally anal")
-        print(derivatives_anal)
-        print("analytical der shape", derivatives_anal.shape)
 
-        print("numerical derivatives shape")
-        print(derivatives_cpp.shape)
         diff = derivatives_cpp - derivatives_anal
 
-        print("compare numerical against analytical soap derivatives")
-        pp(derivatives_cpp)
-        pp(derivatives_anal)
-        print("difference")
-        pp(diff)
-        print(np.abs(diff).sum())
-        print(diff.max(), diff.min())
-
+        #_print_diff(derivatives_cpp, derivatives_anal)
+        self.assertTrue(np.allclose(derivatives_cpp, derivatives_anal))
 
 
     def test_analytical_vs_numerical_L1(self):
@@ -373,27 +359,14 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
             sparse=False,
             crossover=False,
         )
-         
-        #positions = [[0.2, 0.0, 0.0], [0.1, 0.2, 0.3]]
         positions = [[0.0, 0.0, 0.0],]
         # Calculate with central finite difference implemented in C++
         derivatives_cpp, d_num = soap.derivatives(H2, positions=positions, method="numerical")
-        
         derivatives_anal, d_anal = soap.derivatives(H2, positions=positions, method="analytical")
-        derivatives_anal =  derivatives_anal
-        print("this is totally anal")
-        print(derivatives_anal)
-        print("analytical der shape", derivatives_anal.shape)
+        
+        #_print_diff(derivatives_cpp, derivatives_anal)
+        self.assertTrue(np.allclose(derivatives_cpp, derivatives_anal))
 
-        print("numerical derivatives shape")
-        print(derivatives_cpp.shape)
-        diff = derivatives_cpp - derivatives_anal
-
-        print("compare numerical against analytical soap derivatives")
-        pp(derivatives_cpp)
-        pp(derivatives_anal)
-        print("difference")
-        pp(diff)
     def test_analytical_vs_numerical_L9(self):
         """Tests the analytical soap derivatives implementation against the numerical cpp implementation
         """
@@ -405,30 +378,12 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
             sparse=False,
             crossover=False,
         )
-         
-        #positions = [[0.2, 0.0, 0.0], [0.1, 0.2, 0.3]]
         positions = [[0.1, 0.2, 0.3],]
         # Calculate with central finite difference implemented in C++
         derivatives_cpp, d_num = soap.derivatives(H2, positions=positions, method="numerical")
-        
         derivatives_anal, d_anal = soap.derivatives(H2, positions=positions, method="analytical")
-        derivatives_anal =  derivatives_anal
-        print("this is totally anal")
-        print(derivatives_anal)
-        print("analytical der shape", derivatives_anal.shape)
-
-        print("numerical derivatives shape")
-        print(derivatives_cpp.shape)
-        diff = derivatives_cpp - derivatives_anal
-
-        print("compare numerical against analytical soap derivatives")
-        pp(derivatives_cpp)
-        pp(derivatives_anal)
-        print("difference")
-        pp(diff)
-        pp(np.abs(diff).sum())
-        print(diff.max(), diff.min())
-        print("AAA")
+        #_print_diff(derivatives_cpp, derivatives_anal)
+        self.assertTrue(np.allclose(derivatives_cpp, derivatives_anal))
 
 
 if __name__ == '__main__':
@@ -436,6 +391,7 @@ if __name__ == '__main__':
     #suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
     #suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests))
     #SoapDerivativeComparisonTests().test_analytical_vs_numerical_L9()
-    SoapDerivativeComparisonTests().test_analytical_crossover()
+    #SoapDerivativeComparisonTests().test_analytical_crossover()
+    SoapDerivativeComparisonTests().test_analytical_vs_numerical()
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)

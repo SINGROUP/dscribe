@@ -633,17 +633,17 @@ class SOAP(Descriptor):
                     return_descriptor,
                 )
             elif method == "analytical":
-                d = np.zeros(( n_features, n_centers, n_atoms, 3), dtype=np.float64)
-                dx = np.zeros(( n_features, n_centers, n_atoms), dtype=np.float64)
-                dy = np.zeros(( n_features, n_centers, n_atoms), dtype=np.float64)
-                dz = np.zeros(( n_features, n_centers, n_atoms), dtype=np.float64)
+                d = np.zeros(( n_atoms, n_centers, n_features, 3), dtype=np.float64)
+                dx = np.zeros(( n_atoms, n_centers, n_features,), dtype=np.float64)
+                dy = np.zeros(( n_atoms, n_centers, n_features,), dtype=np.float64)
+                dz = np.zeros(( n_atoms, n_centers, n_features,), dtype=np.float64)
                 
                 dscribe.ext.soap_gto_devX(c, dx, dy, dz, pos, centers, alphas, betas, Z, 
                     self._rcut, cutoff_padding, n_atoms, n_species, self._nmax, self._lmax, n_centers, self._eta, self.crossover)
                 d[:, :, :, 0] = dx
                 d[:, :, :, 1] = dy
                 d[:, :, :, 2] = dz
-                d = np.moveaxis(d, 0, -1)
+                d = np.moveaxis(d, -2, -1)
 
         if return_descriptor:
             return (d, c)
