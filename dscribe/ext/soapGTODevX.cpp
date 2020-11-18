@@ -2114,17 +2114,17 @@ void getCD(double* CDevX,double* CDevY,double* CDevZ,double* prCofDX,double* prC
                 CDevX[NsTsI*totalAN+NsJ*totalAN+n*totalAN+m*Ns*totalAN+indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*aOa[LNs + k]*x[i]*preExp*preCoef[totalAN*(m-4)+i]+preExp*prCofDX[totalAN*(m-4)+i]);
                 CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + m*Ns*totalAN + indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*aOa[LNs + k]*y[i]*preExp*preCoef[totalAN*(m-4)+i]+preExp*prCofDY[totalAN*(m-4)+i]);
                 CDevZ[NsTsI*totalAN+NsJ*totalAN+n*totalAN+m*Ns*totalAN+indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*aOa[LNs + k]*z[i]*preExp*preCoef[totalAN*(m-4)+i]+preExp*prCofDZ[totalAN*(m-4)+i]);
-cout << " cD " << CDevX[NsTsI*totalAN+NsJ*totalAN+n*totalAN+m*Ns*totalAN+indices[i]] <<  " rest " <<restOfLs <<  " LNsNs " << LNsNs  << " k " << k<< " i " << i << " m " << m <<  std::endl;
-cout << " cD " << preCoef[totalAN*(m-4)+i] <<  " rest " <<restOfLs <<  " LNsNs " << LNsNs  << " k " << k<< " i " << i << " m " << m <<  std::endl;
-cout << " c " << C[NsTsI + NsJ + Ns*m + n] <<  " rest " <<restOfLs <<  " LNsNs " << LNsNs  << " k " << k<< " i " << i << " m " << m <<  std::endl;
-cout << " preexp " << preExp <<  " rest " <<restOfLs <<  " LNsNs " << LNsNs  << " k " << k<< " i " << i << " m " << m <<  std::endl;
+//cout << " cD " << CDevX[NsTsI*totalAN+NsJ*totalAN+n*totalAN+m*Ns*totalAN+indices[i]] <<  " rest " <<restOfLs <<  " LNsNs " << LNsNs  << " k " << k<< " i " << i << " m " << m <<  std::endl;
+//cout << " cD " << preCoef[totalAN*(m-4)+i] <<  " rest " <<restOfLs <<  " LNsNs " << LNsNs  << " k " << k<< " i " << i << " m " << m <<  std::endl;
+//cout << " c " << C[NsTsI + NsJ + Ns*m + n] <<  " rest " <<restOfLs <<  " LNsNs " << LNsNs  << " k " << k<< " i " << i << " m " << m <<  std::endl;
+//cout << " preexp " << preExp <<  " rest " <<restOfLs <<  " LNsNs " << LNsNs  << " k " << k<< " i " << i << " m " << m <<  std::endl;
 	}
       }
     }
    }
   }
 
-cout << "END" << endl;
+//cout << "END" << endl;
 
     }
 }
