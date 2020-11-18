@@ -52,7 +52,7 @@ void derivatives_soap_gto(
     }
     
     // Central finite difference with error O(h^2)
-    double h = 0.0001;
+    double h = 0.00000005;
     vector<double> coefficients = {-1.0/2.0, 1.0/2.0};
     vector<double> displacement = {-1.0, 1.0};
 
