@@ -385,6 +385,28 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
         #_print_diff(derivatives_cpp, derivatives_anal)
         self.assertTrue(np.allclose(derivatives_cpp, derivatives_anal))
 
+    def test_descriptor_output(self):
+        """Tests the analytical soap descriptor implementation against the numerical cpp implementation
+        """
+        soap = SOAP(
+            species=[1],
+            rcut=3,
+            nmax=3,
+            lmax=19,
+            sparse=False,
+            crossover=False,
+        )
+        positions = [[0.1, 0.2, 0.3],]
+        # Calculate with central finite difference implemented in C++
+        derivatives_cpp, d_num = soap.derivatives(H2, positions=positions, method="numerical")
+        derivatives_anal, d_anal = soap.derivatives(H2, positions=positions, method="analytical")
+        print("compare descriptors")
+        _print_diff(d_num, d_anal)
+        self.assertTrue(np.allclose(d_num, d_anal))
+
+
+        
+
 
 if __name__ == '__main__':
     suites = []
@@ -393,5 +415,6 @@ if __name__ == '__main__':
     #SoapDerivativeComparisonTests().test_analytical_vs_numerical_L9()
     #SoapDerivativeComparisonTests().test_analytical_crossover()
     #SoapDerivativeComparisonTests().test_analytical_vs_numerical()
+    SoapDerivativeComparisonTests().test_descriptor_output()
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)

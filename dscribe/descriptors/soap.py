@@ -144,10 +144,10 @@ class SOAP(Descriptor):
                     "When using the gaussian radial basis set (gto), the radial "
                     "cutoff should be bigger than 1 angstrom."
                 )
-            if lmax > 9:
+            if lmax > 19:
                 raise ValueError(
                     "When using the gaussian radial basis set (gto), lmax "
-                    "cannot currently exceed 9. lmax={}".format(lmax)
+                    "cannot currently exceed 19. lmax={}".format(lmax)
                 )
             # Precalculate the alpha and beta constants for the GTO basis
             self._alphas, self._betas = self.get_basis_gto(rcut, nmax)
