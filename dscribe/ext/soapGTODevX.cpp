@@ -2690,7 +2690,7 @@ void getPNoCrossD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMa
 //              soapMatDevX[NsNsLmaxTs*totalAN*i+NsNsLmax*totalAN*j+ m*NsNs*totalAN + shiftN*totalAN + a] += prel*(
               soapMatDevX[shiftAll] += prel*(
                                       Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + kd*totalAN + a]
-                                     + Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + k*totalAN + a]
+                                     +Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + k*totalAN + a]
                                 );
 //              cout <<  soapMatDevX[NsNsLmaxTs*totalAN*i+NsNsLmax*totalAN*j+ m*NsNs*totalAN + shiftN*totalAN + a] << endl;
 //cout << " soapMat "<< soapMatDevX[NsNsLmaxTs*totalAN*i+NsNsLmax*totalAN*j+ m*NsNs*totalAN + shiftN*totalAN + a] << " m " << m << " a " <<  a  <<" i " <<  i <<"j" << j <<  "k" << k << "kd" << kd << endl;
@@ -2698,13 +2698,13 @@ void getPNoCrossD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMa
 //cout << " cnnd "  <<Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd] << " m " << m << " a " <<  a  <<" i " <<  i <<"j" << j <<  "k" << k << "kd" << kd << endl;
               soapMatDevY[shiftAll] += prel*(
                                       Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevY[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + kd*totalAN + a]
-                                     + Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevY[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + k*totalAN + a]
+                                     +Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevY[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + k*totalAN + a]
                                 );
 
 
               soapMatDevZ[shiftAll] += prel*(
                                       Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevZ[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + kd*totalAN + a]
-                                     + Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevZ[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + k*totalAN + a]
+                                     +Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevZ[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + k*totalAN + a]
                                 );
             }
             shiftAll++;
@@ -3235,6 +3235,7 @@ void getPCrossOverD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int l
         double prel;
         if(m > 1){prel = PI*sqrt(8.0/(2.0*m+1.0))*PI3;}
         else{prel = PI*sqrt(8.0/(2.0*m+1.0));}
+         if(j==jd){
           for(int k = 0; k < Ns; k++){
             for(int kd = k; kd < Ns; kd++){
               double buffDouble = 0;
@@ -3248,7 +3249,22 @@ void getPCrossOverD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int l
             }
           }
 	  shiftT++;
+       } else { 
+          for(int k = 0; k < Ns; k++){
+            for(int kd = 0; kd < Ns; kd++){
+              double buffDouble = 0;
+              for(int buffShift = m*m; buffShift < m*m; buffShift++){
+                buffDouble += PI3*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd];
+  	       }
+//              soapMat[NsNsLmaxTs*i+NsNsLmax*shiftT+ 19*NsNs + shiftN] = prel19*buffDouble;
+              soapMat[shiftAll] = prel*buffDouble;
+              shiftAll++;
+//              shiftN++;
+            }
+          }
+	  shiftT++;
         }
+          } //end ifelse
       }
     }
   }
@@ -3402,9 +3418,7 @@ void getPCrossOverD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int l
           shiftN = 0;
          for(int m=0; m <= lMax; m++){
         // double prel = PI*sqrt(8.0/(m*1.0+1.0))*PI3;
-        double prel;
-        if(m > 1){prel = PI*sqrt(8.0/(2.0*m+1.0))*PI3;}
-        else{prel = PI*sqrt(8.0/(2.0*m+1.0));}
+        double prel; if(m > 1){prel = PI*sqrt(8.0/(2.0*m+1.0))*PI3;}else{prel = PI*sqrt(8.0/(2.0*m+1.0));}
          if(j==jd){
           for(int k = 0; k < Ns; k++){
             for(int kd = k; kd < Ns; kd++){
@@ -3414,14 +3428,15 @@ void getPCrossOverD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int l
 //                soapMatDevX[NsNsLmaxTs*i*totalAN+NsNsLmax*shiftT*totalAN+ m*NsNs*totalAN + shiftN*totalAN + a] += prel*(
                 soapMatDevX[shiftAll] += prel*(
                       Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + a]);
-
                 soapMatDevY[shiftAll] += prel*(
                       Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + a]);
 
                 soapMatDevZ[shiftAll] += prel*(
                       Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + a]);
 
+ cout << "jjd " << " a " << a  << " i " << i  << " j " << j  << " jd " <<jd<< " m " << m  << " k " << k  << " kd " << kd << " Mat "  << soapMatDevX[shiftAll]<< " C " << Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k] << " devC " <<CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + a] << endl;
               }
+// cout << "jjd " << " a " << a  << " i " << i  << " j " << j  << " jd " <<jd<< " m " << m  << " k " << k  << " kd " << kd << " Mat "  << soapMatDevX[shiftAll]<< " C " << Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k] << " devC " <<CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + a] << endl;
             shiftAll++;
               shiftN++;
             }
@@ -3435,13 +3450,23 @@ void getPCrossOverD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int l
 
 //                soapMatDevX[NsNsLmaxTs*i*totalAN+NsNsLmax*shiftT*totalAN+ m*NsNs*totalAN + shiftN*totalAN + a] += prel*(
                 soapMatDevX[shiftAll] += prel*(
-                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + a]);
+                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*jd + buffShift*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*totalAN*Ns + k*totalAN + a]);
+//                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*jd + buffShift*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + a]);
 
                 soapMatDevY[shiftAll] += prel*(
-                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + a]);
+                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*jd + buffShift*Ns + kd]*CdevY[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*totalAN*Ns + k*totalAN + a]);
+//                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevY[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*jd + buffShift*Ns + kd]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + a]);
 
                 soapMatDevZ[shiftAll] += prel*(
-                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + a]);
+                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*jd + buffShift*Ns + kd]*CdevZ[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*totalAN*Ns + k*totalAN + a]);
+//                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevZ[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*totalAN*Ns + kd*totalAN + a] + Cnnd[NsTs100*i + Ns100*jd + buffShift*Ns + kd]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + a]);
+ cout << "     a " << a  << " i " << i  << " j " << j  << " jd " <<jd<< " m " << m  << " k " << k  << " kd " << kd <<
+ " Mat "  << soapMatDevX[shiftAll]<<
+ " Ck " << Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k] <<
+ " Ckd " << Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd] <<
+ " Ckjd " << Cnnd[NsTs100*i + Ns100*jd + buffShift*Ns + kd] <<
+ " devCjd " <<CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + a] <<
+ " devCj " <<CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*totalAN*Ns + k*totalAN + a] << endl;
 
               }
             shiftAll++;
