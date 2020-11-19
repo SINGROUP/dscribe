@@ -382,8 +382,8 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
         # Calculate with central finite difference implemented in C++
         derivatives_cpp, d_num = soap.derivatives(H2, positions=positions, method="numerical")
         derivatives_anal, d_anal = soap.derivatives(H2, positions=positions, method="analytical")
-        #_print_diff(derivatives_cpp, derivatives_anal)
-        self.assertTrue(np.allclose(derivatives_cpp, derivatives_anal))
+        _print_diff(derivatives_cpp, derivatives_anal)
+        self.assertTrue(np.allclose(derivatives_cpp, derivatives_anal), rtol = 1e-4)
 
     def test_descriptor_output(self):
         """Tests the analytical soap descriptor implementation against the numerical cpp implementation
@@ -420,8 +420,11 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
         derivatives_anal, d_anal = soap.derivatives(H2O, positions=positions, method="analytical")
         diff = derivatives_cpp - derivatives_anal
 
-        _print_diff(derivatives_cpp, derivatives_anal)
+        #print("derivatives multispecies")
+        #_print_diff(derivatives_cpp, derivatives_anal)
         self.assertTrue(np.allclose(derivatives_cpp, derivatives_anal))
+        #print("descriptors multispecies, d_num, d_anal")
+        #_print_diff(d_num, d_anal)
 
 
         
