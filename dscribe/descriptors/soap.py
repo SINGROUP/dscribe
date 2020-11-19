@@ -603,7 +603,7 @@ class SOAP(Descriptor):
         if return_descriptor:
             c = self.init_descriptor_array(n_centers, n_features)
         else:
-            c = np.zeros((n_centers, n_features))
+            c = np.zeros((n_centers, n_features), dtype=np.float64)
 
         # Calculate numerically with extension
         if self._rbf == "gto":
