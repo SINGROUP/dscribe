@@ -2109,7 +2109,7 @@ void getPNoCrossD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMa
             double buffDouble = 0;
             for(int buffShift = m*m; buffShift < (m+1)*(m+1); buffShift++){
               buffDouble += Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd];
-              cout << "i " << i << " j " << j <<" m " << m << " k " << k << " kd " << kd << " b " << buffShift <<  soapMat[shiftAll] << " " << Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd] << " " << Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]<< " " << Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd] << endl;
+//              cout << "i " << i << " j " << j <<" m " << m << " k " << k << " kd " << kd << " b " << buffShift <<  soapMat[shiftAll] << " " << Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd] << " " << Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]<< " " << Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd] << endl;
 	    }
             soapMat[shiftAll] = prel*buffDouble;
             shiftAll++;
@@ -2195,7 +2195,7 @@ void getPCrossOverD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int l
               for(int buffShift = m*m; buffShift < (m+1)*(m+1); buffShift++){
                 buffDouble += Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k] * Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd];
                 soapMat[shiftAll] = prel*buffDouble;
-                cout << "AAAA " << soapMat[shiftAll] << " " << Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd] << " " << Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]<< " " << Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd] << endl;
+//                cout << "AAAA " << soapMat[shiftAll] << " " << Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd] << " " << Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]<< " " << Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd] << endl;
   	       }
               shiftAll++;
             }
