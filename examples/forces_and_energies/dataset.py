@@ -29,12 +29,12 @@ for i, d in enumerate(r):
     forces[i, :, :] = a.get_forces()
 	
 # Plot the energies to validate them
-# fig, ax = plt.subplots(figsize=(8, 5))
-# plt.subplots_adjust(left=0.1, right=0.95, top=0.95, bottom=0.1)
-# line, = ax.plot(r, energies)
-# plt.xlabel("Distance (Å)")
-# plt.ylabel("Energy (eV)")
-# plt.show()
+fig, ax = plt.subplots(figsize=(8, 5))
+plt.subplots_adjust(left=0.1, right=0.95, top=0.95, bottom=0.1)
+line, = ax.plot(r, energies)
+plt.xlabel("Distance (Å)")
+plt.ylabel("Energy (eV)")
+plt.show()
 
 # Create the SOAP desciptors and their derivatives for all samples. One center
 # is chosen to be directly between the atoms.

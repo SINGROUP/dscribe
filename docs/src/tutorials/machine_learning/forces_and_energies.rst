@@ -3,8 +3,8 @@ Predicting forces and energies a.k.a. training a ML force-field
 
 This tutorial covers how descriptors can be effectively used as an input for a
 machine learning model that will predict energies and forces. There are several
-choices that you have to make in building a full-blown ML force field. For the
-sake of simplicity we have decided on the following setup:
+choices that you have to make in building a ML force-field. For the sake of
+simplicity we have decided on the following setup:
 
     - We will use a dataset of two atoms interacting through a Lennard-Jones
       potential. This pretty much as simple as it gets. Real systems will be
@@ -20,18 +20,41 @@ sake of simplicity we have decided on the following setup:
       energy prediction model from which we will automatically get the forces
       as long as we also know the derivatives of the descriptor with respect to
       the atomic positions. This is exactly what the :code:`derivatives`-function
-      provided by DScribe returns. 
+      provided by DScribe returns.
 
 Principle
 ---------
 We will use a dataset of feature vectors :math:`\mathbf{D}`, their derivatives
-as a Jacobian matrix :math:`\nabla \mathbf{D}` and the associated system energies :math:`E` and
+:math:`\nabla_{\mathbf{r_i}} \mathbf{D}` and the associated system energies :math:`E` and
 forces :math:`\mathbf{F}` for training. We will use a neural network :math:`f`
-to predict the energies: :math:`\hat{E} = f(\mathbf{D})`, while the predicted
-forces can be directly computed as the negative gradient with respect to the
-atomic positions: :math:`\hat{\mathbf{F}} = -\nabla f(\mathbf{D})`. Here
+to predict the energies: :math:`\hat{E} = f(\mathbf{D})`. Here
 variables with a "hat" on top indicate predicted quantities to distinguish them
-from the real values.
+from the real values. The predicted forces can be directly computed as the
+negative gradients with respect to the atomic positions. For example the force
+for atom :math:`i` can be computed as (using row vectors):
+
+.. math::
+    \hat{\mathbf{F}}_i &= - \nabla_{\mathbf{r_i}} f(\mathbf{D}) \\
+                 &= - \nabla_{\mathbf{D}} f \cdot \nabla_{\mathbf{r_i}} \mathbf{D}\\
+                 &= - \begin{bmatrix}
+                        \frac{\partial f}{\partial D_1} & \frac{\partial f}{\partial D_2} & \dots
+                      \end{bmatrix}
+                        \begin{bmatrix}
+                        \frac{\partial D_1}{\partial x_i} & \frac{\partial D_1}{\partial y_i} & \frac{\partial D_1}{\partial z_i}\\
+                        \frac{\partial D_2}{\partial x_i} & \frac{\partial D_2}{\partial y_i} & \frac{\partial D_2}{\partial z_i}\\
+                        \vdots & \vdots & \vdots \\
+                      \end{bmatrix}
+
+In these equations :math:`\nabla_{\mathbf{D}} f` is the derivative of the ML
+model output with respect to the input descriptor. As mentioned before, neural networks
+typically can output these derivatives analytically with little effort.
+:math:`\nabla_{\mathbf{r_i}} \mathbf{D}` is the descriptor derivative
+with respect to an atomic position. DScribe provides these derivatives for
+certain descriptors. Notice that the output format used by DScribe for the descriptors is such
+that the last dimension loops over the features. This makes calculating the
+involved dot products faster in an environment that uses a row-major order,
+such as numpy or C/C++, as the dot product is taken over the last, fastest
+dimension. But you can of course organize the output in any way you like.
 
 The loss function for the neural network will contain the sum of mean squared
 error of both energies and forces. In order to better equalize the contribution
@@ -51,12 +74,49 @@ The energies will look like this:
 .. image:: /_static/img/lj.png
    :alt: Lennard-Jones energies
    :align: center
+   :width: 90%
 
 Training
 --------
+The following script defines a simple feed-forward neural network in PyTorch,
+and uses it to train an energy prediction model, where the loss function takes
+into account the errors in energies as well as forces.
 
-Terminology
------------
+Lets first load and prepare the dataset:
+
+.. literalinclude:: ../../../../examples/forces_and_energies/training.py
+    :language: python
+    :lines: 1-58
+
+Then lets defined our model and loss function:
+
+.. literalinclude:: ../../../../examples/forces_and_energies/training.py
+    :language: python
+    :lines: 60-91
+
+Now we can define the training loop that uses batches and early stopping to
+prevent overfitting:
+
+.. literalinclude:: ../../../../examples/forces_and_energies/training.py
+    :language: python
+    :lines: 93-168
 
 Analysis
 --------
+When the training is done (takes a few seconds), we can enter the evaluation
+phase and see how well the model performs. We will simply plot the model
+response in the whole dataset input domain and compare it to the correct
+values:
+
+.. literalinclude:: ../../../../examples/forces_and_energies/training.py
+   :start-at: # Way to tell
+   :language: python
+   :lines: 1-
+
+The plots look something like this:
+
+.. image:: /_static/img/nn_test.png
+   :alt: Lennard-Jones energies
+   :align: center
+   :width: 90%
+
