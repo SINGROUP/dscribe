@@ -29,6 +29,7 @@ dD_dr_train_full = dD_dr_numpy[idx]
 scaler = StandardScaler().fit(D_train_full)
 D_train_full = scaler.transform(D_train_full)
 D_whole = scaler.transform(D_numpy)
+dD_dr_whole = dD_dr_numpy / scaler.scale_[None, None, None, :]
 dD_dr_train_full = dD_dr_train_full / scaler.scale_[None, None, None, :]
 
 # Calculate the variance of energy and force values for the training set. These
@@ -174,8 +175,8 @@ model.eval()
 # Calculate energies and force for the entire range
 E_whole = torch.Tensor(E_numpy)
 F_whole = torch.Tensor(F_numpy)
+dD_dr_whole = torch.Tensor(dD_dr_whole)
 r_whole = r_numpy
-dD_dr_whole = torch.Tensor(dD_dr_numpy / scaler.scale_[None, None, None, :])
 D_whole.requires_grad = True
 E_whole_pred = model(D_whole)
 df_dD_whole = torch.autograd.grad(

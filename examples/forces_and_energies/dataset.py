@@ -1,8 +1,8 @@
+import numpy as np
 import ase
 from ase.calculators.lj import LennardJones
-import numpy as np
-from dscribe.descriptors import SOAP
 import matplotlib.pyplot as plt
+from dscribe.descriptors import SOAP
 
 # Setting up the SOAP descriptor
 soap = SOAP(
@@ -38,7 +38,11 @@ plt.show()
 
 # Create the SOAP desciptors and their derivatives for all samples. One center
 # is chosen to be directly between the atoms.
-derivatives, descriptors = soap.derivatives(traj, positions=[[[0, 0, 0]]] * len(r), method="numerical")
+derivatives, descriptors = soap.derivatives(
+    traj,
+    positions=[[[0, 0, 0]]] * len(r),
+    method="numerical"
+)
 
 # Save to disk for later training
 np.save("r.npy", r)

@@ -1,26 +1,27 @@
 Predicting forces and energies a.k.a. training a ML force-field
 ===============================================================
 
-This tutorial covers how descriptors can be effectively used as an input for a
+This tutorial covers how descriptors can be effectively used as input for a
 machine learning model that will predict energies and forces. There are several
-choices that you have to make in building a ML force-field. For the sake of
-simplicity we have decided on the following setup:
+design choices that you have to make when building a ML force-field: which ML
+model, which descriptor, etc. In this tutorial we will use the following, very
+simple setup:
 
-    - We will use a dataset of two atoms interacting through a Lennard-Jones
-      potential. This pretty much as simple as it gets. Real systems will be
-      much more complicated thus requiring a more complicated machine learning
-      model and longer training times.
-    - We will use the SOAP descriptor calculated directly between the two
-      atoms. Once again this is for simplicity and in real systems you would
-      have many more centers, possibly on top of each atom.
+    - Dataset of two atoms interacting through a Lennard-Jones potential. This
+      pretty much as simple as it gets. Real systems will be much more
+      complicated thus requiring a more complicated machine learning model and
+      longer training times.
+    - SOAP descriptor calculated directly between the two atoms. Once again
+      this is for simplicity and in real systems you would have many more
+      centers, possibly on top of each atom.
     - We will use a fully connected neural network to perform the prediction.
-      In principle any machine learning method will do, but with neural
-      networks it is very convenient to analytically calculate the derivatives
-      of the output with respect to the input. This allows us to train an
-      energy prediction model from which we will automatically get the forces
-      as long as we also know the derivatives of the descriptor with respect to
-      the atomic positions. This is exactly what the :code:`derivatives`-function
-      provided by DScribe returns.
+      In principle any machine learning method will do, but neural networks can
+      very conveniently calculate the analytical derivatives of the output with
+      respect to the input. This allows us to train an energy prediction model
+      from which we will automatically get the forces as long as we also know
+      the derivatives of the descriptor with respect to the atomic positions.
+      This is exactly what the :code:`derivatives`-function provided by DScribe
+      returns (you'll need :code:`dscribe>=0.5.x`).
 
 Principle
 ---------
@@ -46,15 +47,15 @@ for atom :math:`i` can be computed as (using row vectors):
                       \end{bmatrix}
 
 In these equations :math:`\nabla_{\mathbf{D}} f` is the derivative of the ML
-model output with respect to the input descriptor. As mentioned before, neural networks
-typically can output these derivatives analytically with little effort.
-:math:`\nabla_{\mathbf{r_i}} \mathbf{D}` is the descriptor derivative
-with respect to an atomic position. DScribe provides these derivatives for
-certain descriptors. Notice that the output format used by DScribe for the descriptors is such
-that the last dimension loops over the features. This makes calculating the
-involved dot products faster in an environment that uses a row-major order,
-such as numpy or C/C++, as the dot product is taken over the last, fastest
-dimension. But you can of course organize the output in any way you like.
+model output with respect to the input descriptor. As mentioned before, neural
+networks typically can output these derivatives analytically.
+:math:`\nabla_{\mathbf{r_i}} \mathbf{D}` is the descriptor derivative with
+respect to an atomic position. DScribe provides these derivatives for the SOAP
+descriptor. Notice that in the derivatives provided by DScribe last dimension
+loops over the features. This makes calculating the involved dot products
+faster in an environment that uses a row-major order, such as numpy or C/C++,
+as the dot product is taken over the last, fastest dimension. But you can of
+course organize the output in any way you like.
 
 The loss function for the neural network will contain the sum of mean squared
 error of both energies and forces. In order to better equalize the contribution
@@ -78,10 +79,6 @@ The energies will look like this:
 
 Training
 --------
-The following script defines a simple feed-forward neural network in PyTorch,
-and uses it to train an energy prediction model, where the loss function takes
-into account the errors in energies as well as forces.
-
 Lets first load and prepare the dataset:
 
 .. literalinclude:: ../../../../examples/forces_and_energies/training.py
@@ -103,7 +100,7 @@ prevent overfitting:
 
 Analysis
 --------
-When the training is done (takes a few seconds), we can enter the evaluation
+When the training is done (takes around thirty seconds), we can enter the evaluation
 phase and see how well the model performs. We will simply plot the model
 response in the whole dataset input domain and compare it to the correct
 values:
