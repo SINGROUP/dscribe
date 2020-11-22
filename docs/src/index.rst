@@ -14,11 +14,12 @@ similarity analysis, etc. To get started you can check the :doc:`basic tutorial
 <tutorials/basics>`.
 
 .. note::
-   Version **0.4.0** includes a fix to the layout of the SOAP feature vector.
-   See issue `#48 <https://github.com/SINGROUP/dscribe/issues/48>`_ for more
-   details. These changes break the backwards compatibility of the SOAP feature
-   vectors. It is thus encouraged to start using version 0.4.0 or above if
-   working with SOAP.
+   We are incrementally adding support for calculating the derivatives of
+   descriptors with respect to the atom positions. In version **0.5.x** you can
+   find an initial implementation for getting these derivatives for the SOAP
+   descriptor. Also check out the :doc:`new tutorial
+   <tutorials/machine_learning/forces_and_energies>` on predicting energies and
+   forces using these derivatives.
 
 Capabilities at a Glance
 ========================
@@ -58,6 +59,13 @@ full source code with examples and regression tests can be explored at `github
 
 Changelog
 =========
+ - 0.5.0:
+    - Added initial implementation for getting the derivatives of the SOAP
+      descriptor with respect to atom positions. It supports numerical
+      derivatives for any SOAP configuration, and supports analytical
+      derivatives when using the GTO radial basis. Currently only dense output
+      is available.
+
  - 0.4.0:
     - Fixed an issue with the layout of the SOAP descriptor. The output size
       was incorrectly missing elements. See issue `#48 <https://github.com/SINGROUP/dscribe/issues/48>`_.

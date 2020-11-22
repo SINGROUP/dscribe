@@ -83,20 +83,22 @@ Lets first load and prepare the dataset:
 
 .. literalinclude:: ../../../../examples/forces_and_energies/training.py
     :language: python
-    :lines: 1-58
+    :lines: 1-59
 
 Then lets defined our model and loss function:
 
 .. literalinclude:: ../../../../examples/forces_and_energies/training.py
+    :start-at: class FFNet
     :language: python
-    :lines: 60-91
+    :lines: 1-32
 
 Now we can define the training loop that uses batches and early stopping to
 prevent overfitting:
 
 .. literalinclude:: ../../../../examples/forces_and_energies/training.py
+    :start-at: # Train!
     :language: python
-    :lines: 93-168
+    :lines: 1-76
 
 Analysis
 --------

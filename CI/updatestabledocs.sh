@@ -1,4 +1,4 @@
-version=0.4.x
+version=0.5.x
 
 # Build docs, copy to correct docs folder, delete build
 cd ../docs/src

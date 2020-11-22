@@ -60,20 +60,20 @@ dD_dr_valid = torch.Tensor(dD_dr_valid)
 
 class FFNet(torch.nn.Module):
     """A simple feed-forward network with one hidden layer, randomly
-    initialized weights, ReLU activation and a linear output layer.
+    initialized weights, sigmoid activation and a linear output layer.
     """
     def __init__(self, n_features, n_hidden, n_out):
         super(FFNet, self).__init__()
         self.linear1 = torch.nn.Linear(n_features, n_hidden)
         torch.nn.init.normal_(self.linear1.weight, mean=0, std=1.0)
-        self.relu1 = torch.nn.Sigmoid()
-        self.linear3 = torch.nn.Linear(n_hidden, n_out)
-        torch.nn.init.normal_(self.linear3.weight, mean=0, std=1.0)
+        self.sigmoid = torch.nn.Sigmoid()
+        self.linear2 = torch.nn.Linear(n_hidden, n_out)
+        torch.nn.init.normal_(self.linear2.weight, mean=0, std=1.0)
 
     def forward(self, x):
         x = self.linear1(x)
-        x = self.relu1(x)
-        x = self.linear3(x)
+        x = self.sigmoid(x)
+        x = self.linear2(x)
 
         return x
 
