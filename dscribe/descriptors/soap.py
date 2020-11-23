@@ -603,7 +603,7 @@ class SOAP(Descriptor):
         if return_descriptor:
             c = self.init_descriptor_array(n_centers, n_features)
         else:
-            c = np.zeros((n_centers, n_features))
+            c = np.empty(0)
 
         # Calculate numerically with extension
         if self._rbf == "gto":
@@ -644,6 +644,32 @@ class SOAP(Descriptor):
                 d[:, :, :, 1] = dy
                 d[:, :, :, 2] = dz
                 d = np.moveaxis(d, 0, -1)
+        elif self._rbf == "polynomial":
+            rx, gss = self.get_basis_poly(self._rcut, self._nmax)
+            gss = gss.flatten()
+            if method == "numerical":
+                dscribe.ext.derivatives_soap_polynomial(
+                    d,
+                    c,
+                    pos,
+                    centers,
+                    Z,
+                    sorted_species,
+                    indices,
+                    self._rcut,
+                    cutoff_padding,
+                    n_atoms,
+                    n_species,
+                    self._nmax,
+                    self._lmax,
+                    n_centers,
+                    self._eta,
+                    rx,
+                    gss,
+                    self.crossover,
+                    self.average,
+                    return_descriptor,
+                )
 
         if return_descriptor:
             return (d, c)

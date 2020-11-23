@@ -100,5 +100,6 @@ PYBIND11_MODULE(ext, m) {
 
     // Derivatives
     m.def("derivatives_soap_gto", &derivatives_soap_gto, "Numerical derivatives for SOAP with gaussian type orbital radial basis set.");
+    m.def("derivatives_soap_polynomial", &derivatives_soap_polynomial, "Numerical derivatives for SOAP with polynomial radial basis set.");
     m.def("soap_gto_devX", &soapGTODevX, "Analytical derivatives of SOAP with gaussian type orbital radial basis set.");
 }
