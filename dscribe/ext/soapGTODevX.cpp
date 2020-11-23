@@ -102,205 +102,19 @@ inline void getRsZsD(double* x,double* x2,double* x4,double* x6,double* x8,doubl
 //================================================================
 void getAlphaBetaD(double* aOa, double* bOa, double* alphas, double* betas, int Ns,int lMax, double oOeta, double oOeta3O2){
 
-  int  NsNs = Ns*Ns;
-  double  oneO1alpha;  double  oneO1alpha2; double  oneO1alpha3;
-  double  oneO1alpha4; double  oneO1alpha5; double  oneO1alpha6;
-  double  oneO1alpha7; double  oneO1alpha8; double  oneO1alpha9;
-  double  oneO1alpha10;
-  double  oneO1alpha11;
-  double  oneO1alpha12;
-  double  oneO1alpha13;
-  double  oneO1alpha14;
-  double  oneO1alpha15;
-  double  oneO1alpha16;
-  double  oneO1alpha17;
-  double  oneO1alpha18;
-  double  oneO1alpha19;
-  double  oneO1alpha20;
-  double  oneO1alphaSqrt;
-  double  oneO1alphaSqrtX;
+  int  NsNs = Ns*Ns; double  oneO1alpha; double  oneO1alpha2; double  oneO1alphaSqrt; double  oneO1alphaSqrtX;
 
-  for(int k = 0; k < Ns; k++){
-    oneO1alpha = 1.0/(1.0 + oOeta*alphas[k]);
-    oneO1alphaSqrt = sqrt(oneO1alpha);
-    aOa[k] = -alphas[k]*oneO1alpha; //got alpha_0k
-    oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha;
-    for(int n = 0; n < Ns; n++){ bOa[n*Ns + k] = oOeta3O2*betas[n*Ns + k]*oneO1alphaSqrtX;} // got beta_0nk
-  }
-  if(lMax > 0){
+  for(int myL = 0; myL < lMax + 1 ;myL++){
     for(int k = 0; k < Ns; k++){
-      oneO1alpha = 1.0/(1.0 + oOeta*alphas[Ns + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
-      aOa[Ns + k] = -alphas[Ns + k]*oneO1alpha; //got alpha_1k
-      oneO1alpha2 = oneO1alpha*oneO1alpha; oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha2;
-      for(int n = 0; n < Ns; n++){ bOa[NsNs + n*Ns + k] = oOeta3O2*betas[NsNs + n*Ns + k]*oneO1alphaSqrtX;} // got beta_1nk
-    }
-  } if(lMax > 1){
-    int shift1 = 2*Ns; int shift2 = 2*NsNs;
-    for(int k = 0; k < Ns; k++){
-      oneO1alpha = 1.0/(1.0 + oOeta*alphas[shift1 + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
-      aOa[shift1 + k] = -alphas[shift1 + k]*oneO1alpha; 
-      oneO1alpha3 = oneO1alpha*oneO1alpha*oneO1alpha; oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha3;
-      for(int n = 0; n < Ns; n++){bOa[shift2 + n*Ns + k] = oOeta3O2*betas[shift2 + n*Ns + k]*oneO1alphaSqrtX;} 
-    }
-  } if(lMax > 2){
-    int shift1 = 3*Ns; int shift2 = 3*NsNs;
-    for(int k = 0; k < Ns; k++){
-      oneO1alpha = 1.0/(1.0 + oOeta*alphas[shift1 + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
-      aOa[shift1 + k] = -alphas[shift1 + k]*oneO1alpha; 
-      oneO1alpha4 = oneO1alpha*oneO1alpha*oneO1alpha*oneO1alpha; oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha4;
-      for(int n = 0; n < Ns; n++){bOa[shift2 + n*Ns + k] = oOeta3O2*betas[shift2 + n*Ns + k]*oneO1alphaSqrtX;} 
-    }
-  } if(lMax > 3){
-    int shift1 = 4*Ns; int shift2 = 4*NsNs;
-    for(int k = 0; k < Ns; k++){
-      oneO1alpha = 1.0/(1.0 + oOeta*alphas[shift1 + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
-      aOa[shift1 + k] = -alphas[shift1 + k]*oneO1alpha; 
-      oneO1alpha5 = pow(oneO1alpha,5); oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha5;
-      for(int n = 0; n < Ns; n++){ bOa[shift2 + n*Ns + k] = oOeta3O2*betas[shift2 + n*Ns + k]*oneO1alphaSqrtX;} 
-    }
-  } if(lMax > 4){
-    int shift1 = 5*Ns; int shift2 = 5*NsNs;
-    for(int k = 0; k < Ns; k++){
-      oneO1alpha = 1.0/(1.0 + oOeta*alphas[shift1 + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
-      aOa[shift1 + k] = -alphas[shift1 + k]*oneO1alpha; 
-      oneO1alpha6 = pow(oneO1alpha,6); oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha6;
-      for(int n = 0; n < Ns; n++){ bOa[shift2 + n*Ns + k] = oOeta3O2*betas[shift2 + n*Ns + k]*oneO1alphaSqrtX;} 
-    }
-  } if(lMax > 5){
-    int shift1 = 6*Ns; int shift2 = 6*NsNs;
-    for(int k = 0; k < Ns; k++){
-      oneO1alpha = 1.0/(1.0 + oOeta*alphas[shift1 + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
-      aOa[shift1 + k] = -alphas[shift1 + k]*oneO1alpha; 
-      oneO1alpha7 = pow(oneO1alpha,7); oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha7;
-      for(int n = 0; n < Ns; n++){bOa[shift2 + n*Ns + k] = oOeta3O2*betas[shift2 + n*Ns + k]*oneO1alphaSqrtX;} 
-    }
-  } if(lMax > 6){
-    int shift1 = 7*Ns; int shift2 = 7*NsNs;
-    for(int k = 0; k < Ns; k++){
-      oneO1alpha = 1.0/(1.0 + oOeta*alphas[shift1 + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
-      aOa[shift1 + k] = -alphas[shift1 + k]*oneO1alpha; 
-      oneO1alpha8 = pow(oneO1alpha,8); oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha8;
-      for(int n = 0; n < Ns; n++){bOa[shift2 + n*Ns + k] = oOeta3O2*betas[shift2 + n*Ns + k]*oneO1alphaSqrtX;} 
-    }
-  } if(lMax > 7){
-    int shift1 = 8*Ns; int shift2 = 8*NsNs;
-    for(int k = 0; k < Ns; k++){
-      oneO1alpha = 1.0/(1.0 + oOeta*alphas[shift1 + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
-      aOa[shift1 + k] = -alphas[shift1 + k]*oneO1alpha; 
-      oneO1alpha9 = pow(oneO1alpha,9); oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha9;
-      for(int n = 0; n < Ns; n++){bOa[shift2 + n*Ns + k] = oOeta3O2*betas[shift2 + n*Ns + k]*oneO1alphaSqrtX;} 
-    }
-  }
-  if(lMax > 8){
-    int shift1 = 9*Ns; int shift2 = 9*NsNs;
-    for(int k = 0; k < Ns; k++){
-      oneO1alpha = 1.0/(1.0 + oOeta*alphas[shift1 + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
-      aOa[shift1 + k] = -alphas[shift1 + k]*oneO1alpha; 
-      oneO1alpha10 = pow(oneO1alpha,10); oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha10;
-      for(int n = 0; n < Ns; n++){bOa[shift2 + n*Ns + k] = oOeta3O2*betas[shift2 + n*Ns + k]*oneO1alphaSqrtX;} 
-    }
-  }
-  if(lMax > 9){ 
-    int shift1 = 10*Ns; int shift2 = 10*NsNs;
-    for(int k = 0; k < Ns; k++){
-      oneO1alpha = 1.0/(1.0 + oOeta*alphas[shift1 + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
-      aOa[shift1 + k] = -alphas[shift1 + k]*oneO1alpha; 
-      oneO1alpha11 = pow(oneO1alpha,11); oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha11;
-      for(int n = 0; n < Ns; n++){bOa[shift2 + n*Ns + k] = oOeta3O2*betas[shift2 + n*Ns + k]*oneO1alphaSqrtX;
+      oneO1alpha = 1.0/(1.0 + oOeta*alphas[myL*Ns + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
+      aOa[myL*Ns + k] = -alphas[myL*Ns + k]*oneO1alpha; 
+      oneO1alpha2 = pow(oneO1alpha,myL+1); oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha2;
+      for(int n = 0; n < Ns; n++){
+            bOa[myL*NsNs + n*Ns + k] = oOeta3O2*betas[myL*NsNs + n*Ns + k]*oneO1alphaSqrtX;
       } 
     }
   }
 
-  if(lMax > 10){ 
-    int shift1 = 11*Ns; int shift2 = 11*NsNs;
-    for(int k = 0; k < Ns; k++){
-      oneO1alpha = 1.0/(1.0 + oOeta*alphas[shift1 + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
-      aOa[shift1 + k] = -alphas[shift1 + k]*oneO1alpha; 
-      oneO1alpha12 = pow(oneO1alpha,12); oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha12;
-      for(int n = 0; n < Ns; n++){bOa[shift2 + n*Ns + k] = oOeta3O2*betas[shift2 + n*Ns + k]*oneO1alphaSqrtX;
-      } 
-    }
-  }
-  if(lMax > 11){
-    int shift1 = 12*Ns; int shift2 = 12*NsNs;
-    for(int k = 0; k < Ns; k++){
-      oneO1alpha = 1.0/(1.0 + oOeta*alphas[shift1 + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
-      aOa[shift1 + k] = -alphas[shift1 + k]*oneO1alpha; 
-      oneO1alpha13 = pow(oneO1alpha,13); oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha13;
-      for(int n = 0; n < Ns; n++){bOa[shift2 + n*Ns + k] = oOeta3O2*betas[shift2 + n*Ns + k]*oneO1alphaSqrtX;
-      } 
-    }
-  }
-  if(lMax > 12){
-    int shift1 = 13*Ns; int shift2 = 13*NsNs;
-    for(int k = 0; k < Ns; k++){
-      oneO1alpha = 1.0/(1.0 + oOeta*alphas[shift1 + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
-      aOa[shift1 + k] = -alphas[shift1 + k]*oneO1alpha; 
-      oneO1alpha14 = pow(oneO1alpha,14); oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha14;
-      for(int n = 0; n < Ns; n++){bOa[shift2 + n*Ns + k] = oOeta3O2*betas[shift2 + n*Ns + k]*oneO1alphaSqrtX;
-      } 
-    }
-  }
-  if(lMax > 13){ 
-    int shift1 = 14*Ns; int shift2 = 14*NsNs;
-    for(int k = 0; k < Ns; k++){
-      oneO1alpha = 1.0/(1.0 + oOeta*alphas[shift1 + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
-      aOa[shift1 + k] = -alphas[shift1 + k]*oneO1alpha; 
-      oneO1alpha15 = pow(oneO1alpha,15); oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha15;
-      for(int n = 0; n < Ns; n++){bOa[shift2 + n*Ns + k] = oOeta3O2*betas[shift2 + n*Ns + k]*oneO1alphaSqrtX;
-      } 
-    }
-  }
-  if(lMax > 14){ 
-    int shift1 = 15*Ns; int shift2 = 15*NsNs;
-    for(int k = 0; k < Ns; k++){
-      oneO1alpha = 1.0/(1.0 + oOeta*alphas[shift1 + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
-      aOa[shift1 + k] = -alphas[shift1 + k]*oneO1alpha; 
-      oneO1alpha16 = pow(oneO1alpha,16); oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha16;
-      for(int n = 0; n < Ns; n++){bOa[shift2 + n*Ns + k] = oOeta3O2*betas[shift2 + n*Ns + k]*oneO1alphaSqrtX;
-      } 
-    }
-  }
-  if(lMax > 15){ 
-    int shift1 = 16*Ns; int shift2 = 16*NsNs;
-    for(int k = 0; k < Ns; k++){
-      oneO1alpha = 1.0/(1.0 + oOeta*alphas[shift1 + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
-      aOa[shift1 + k] = -alphas[shift1 + k]*oneO1alpha; 
-      oneO1alpha17 = pow(oneO1alpha,17); oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha17;
-      for(int n = 0; n < Ns; n++){bOa[shift2 + n*Ns + k] = oOeta3O2*betas[shift2 + n*Ns + k]*oneO1alphaSqrtX;
-      } 
-    }
-  }
-  if(lMax > 16){ 
-    int shift1 = 17*Ns; int shift2 = 17*NsNs;
-    for(int k = 0; k < Ns; k++){
-      oneO1alpha = 1.0/(1.0 + oOeta*alphas[shift1 + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
-      aOa[shift1 + k] = -alphas[shift1 + k]*oneO1alpha; 
-      oneO1alpha18 = pow(oneO1alpha,18); oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha18;
-      for(int n = 0; n < Ns; n++){bOa[shift2 + n*Ns + k] = oOeta3O2*betas[shift2 + n*Ns + k]*oneO1alphaSqrtX;
-      } 
-    }
-  }
-  if(lMax > 17){ 
-    int shift1 = 18*Ns; int shift2 = 18*NsNs;
-    for(int k = 0; k < Ns; k++){
-      oneO1alpha = 1.0/(1.0 + oOeta*alphas[shift1 + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
-      aOa[shift1 + k] = -alphas[shift1 + k]*oneO1alpha; 
-      oneO1alpha19 = pow(oneO1alpha,19); oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha19;
-      for(int n = 0; n < Ns; n++){bOa[shift2 + n*Ns + k] = oOeta3O2*betas[shift2 + n*Ns + k]*oneO1alphaSqrtX;
-      } 
-    }
-  }
-  if(lMax > 18){ 
-    int shift1 = 19*Ns; int shift2 = 19*NsNs;
-    for(int k = 0; k < Ns; k++){
-      oneO1alpha = 1.0/(1.0 + oOeta*alphas[shift1 + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
-      aOa[shift1 + k] = -alphas[shift1 + k]*oneO1alpha; 
-      oneO1alpha20 = pow(oneO1alpha,20); oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha20;
-      for(int n = 0; n < Ns; n++){bOa[shift2 + n*Ns + k] = oOeta3O2*betas[shift2 + n*Ns + k]*oneO1alphaSqrtX;
-      } 
-    }
-  }
 }
 //================================================================
 void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prCofDZ, int Asize, double* x,double* x2, double* x4, double* x6, double* x8, double* x10,double* x12,double* x14,double* x16,double* x18, double* y,double* y2, double* y4, double* y6, double* y8, double* y10,double* y12,double* y14,double* y16,double* y18, double* z, double* z2, double* z4, double* z6, double* z8, double* z10,double* z12,double* z14,double* z16,double* z18, double* r2, double* r4, double* r6, double* r8,double* r10,double* r12,double* r14,double* r16,double* r18,int totalAN, int lMax){
@@ -2297,12 +2111,14 @@ void soapGTODevX(py::array_t<double> cArr,py::array_t<double> cArrX,py::array_t<
   double* r8  = (double*)malloc(sizeof(double)*totalAN); double* r10 = (double*)malloc(sizeof(double)*totalAN); double* r12 = (double*)malloc(sizeof(double)*totalAN);
   double* r14 = (double*)malloc(sizeof(double)*totalAN); double* r16 = (double*)malloc(sizeof(double)*totalAN); double* r18 = (double*)malloc(sizeof(double)*totalAN);
 
-  double* exes = (double*) malloc(sizeof(double)*totalAN); // -4 -> no need for l=0, l=1.
+  double* exes = (double*) malloc(sizeof(double)*totalAN);
+  // -4 -> no need for l=0, l=1.
   double* preCoef = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN); double* prCofDX = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN);
   double* prCofDY = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN); double* prCofDZ = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN);
   double* bOa = (double*) malloc((lMax+1)*NsNs*sizeof(double)); double* aOa = (double*) malloc((lMax+1)*Ns*sizeof(double));
   double* cnnd = (double*) malloc(((lMax+1)*(lMax+1))*Nt*Ns*Hs*sizeof(double)); double* cdevX = (double*) malloc(totalAN*((lMax+1)*(lMax+1))*Nt*Ns*Hs*sizeof(double)); 
   double* cdevY = (double*) malloc(totalAN*((lMax+1)*(lMax+1))*Nt*Ns*Hs*sizeof(double)); double* cdevZ = (double*) malloc(totalAN*((lMax+1)*(lMax+1))*Nt*Ns*Hs*sizeof(double));
+
   for(int i = 0; i < ((lMax+1)*(lMax+1))*Nt*Ns*Hs; i++){cnnd[i] = 0.0;} for(int i = 0; i < ((lMax+1)*(lMax+1))*Nt*Ns*Hs*totalAN; i++){cdevX[i] = 0.0;}
   for(int i = 0; i < ((lMax+1)*(lMax+1))*Nt*Ns*Hs*totalAN; i++){cdevY[i] = 0.0;} for(int i = 0; i < ((lMax+1)*(lMax+1))*Nt*Ns*Hs*totalAN; i++){cdevZ[i] = 0.0;}
 
