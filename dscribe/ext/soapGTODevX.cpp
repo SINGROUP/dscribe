@@ -25,7 +25,7 @@ limitations under the License.
 #include "celllist.h"
 
 #define PI2 9.86960440108936
-#define PI 3.14159265359
+#define PI 3.141592653589793238
 #define PI3 31.00627668029982 
 #define PIHalf 1.57079632679490
 //===========================================================
@@ -46,52 +46,19 @@ inline void getDeltaD(double* x, double* y, double* z, const py::array_t<double>
 inline void getRsZsD(double* x,double* x2,double* x4,double* x6,double* x8,double* x10,double* x12,double* x14,double* x16,double* x18, double* y,double* y2,double* y4,double* y6,double* y8,double* y10,double* y12,double* y14,double* y16,double* y18, double* z,double* r2,double* r4,double* r6,double* r8,double* r10,double* r12,double* r14,double* r16,double* r18,double* z2,double* z4,double* z6,double* z8,double* z10,double* z12,double* z14,double* z16,double* z18, int size, int lMax){
   for(int i = 0; i < size; i++){
 
-    r2[i] = x[i]*x[i] + y[i]*y[i] + z[i]*z[i];
-    z2[i] = z[i]*z[i]; x2[i] = x[i]*x[i]; y2[i] = y[i]*y[i];
+    r2[i] = x[i]*x[i] + y[i]*y[i] + z[i]*z[i]; z2[i] = z[i]*z[i]; x2[i] = x[i]*x[i]; y2[i] = y[i]*y[i];
 
-    if(lMax > 3){
-      r4[i] = r2[i]*r2[i];
-      z4[i] = z2[i]*z2[i];
-      x4[i] = x2[i]*x2[i];
-      y4[i] = y2[i]*y2[i];
-      if(lMax > 5){
-        r6[i] = r2[i]*r4[i];
-        z6[i] = z2[i]*z4[i];
-        x6[i] = x2[i]*x4[i];
-        y6[i] = y2[i]*y4[i];
-        if(lMax > 7){
-          r8[i] = r4[i]*r4[i];
-          z8[i] = z4[i]*z4[i];
-          x8[i] = x4[i]*x4[i];
-          y8[i] = y4[i]*y4[i];
+    if(lMax > 3){ r4[i] = r2[i]*r2[i]; z4[i] = z2[i]*z2[i]; x4[i] = x2[i]*x2[i]; y4[i] = y2[i]*y2[i];
+      if(lMax > 5){ r6[i] = r2[i]*r4[i]; z6[i] = z2[i]*z4[i]; x6[i] = x2[i]*x4[i]; y6[i] = y2[i]*y4[i];
+        if(lMax > 7){ r8[i] = r4[i]*r4[i]; z8[i] = z4[i]*z4[i]; x8[i] = x4[i]*x4[i]; y8[i] = y4[i]*y4[i];
 	}
       }
     }
-    if(lMax > 9){
-      x10[i] = x6[i]*x4[i];
-      y10[i] = y6[i]*y4[i];
-      z10[i] = z6[i]*z4[i];
-      r10[i] = r6[i]*r4[i];
-      if(lMax > 11){
-        x12[i] = x6[i]*x6[i];
-        y12[i] = y6[i]*y6[i];
-        r12[i] = r6[i]*r6[i];
-        z12[i] = z6[i]*z6[i];
-        if(lMax > 13){
-          x14[i] = x6[i]*x8[i];
-          y14[i] = y6[i]*y8[i];
-          r14[i] = r6[i]*r8[i];
-          z14[i] = z6[i]*z8[i];
-          if(lMax > 15){
-            x16[i] = x8[i]*x8[i];
-            y16[i] = y8[i]*y8[i];
-            r16[i] = r8[i]*r8[i];
-            z16[i] = z8[i]*z8[i];
-            if(lMax > 17){
-              x18[i] = x10[i]*x8[i];
-              y18[i] = y10[i]*y8[i];
-              r18[i] = r10[i]*r8[i];
-              z18[i] = z10[i]*z8[i];
+    if(lMax > 9){ x10[i] = x6[i]*x4[i]; y10[i] = y6[i]*y4[i]; z10[i] = z6[i]*z4[i]; r10[i] = r6[i]*r4[i];
+      if(lMax > 11){ x12[i] = x6[i]*x6[i]; y12[i] = y6[i]*y6[i]; r12[i] = r6[i]*r6[i]; z12[i] = z6[i]*z6[i];
+        if(lMax > 13){ x14[i] = x6[i]*x8[i]; y14[i] = y6[i]*y8[i]; r14[i] = r6[i]*r8[i]; z14[i] = z6[i]*z8[i];
+          if(lMax > 15){ x16[i] = x8[i]*x8[i]; y16[i] = y8[i]*y8[i]; r16[i] = r8[i]*r8[i]; z16[i] = z8[i]*z8[i];
+            if(lMax > 17){ x18[i] = x10[i]*x8[i]; y18[i] = y10[i]*y8[i]; r18[i] = r10[i]*r8[i]; z18[i] = z10[i]*z8[i];
 	    }
     	  }
         }
@@ -106,21 +73,21 @@ void getAlphaBetaD(double* aOa, double* bOa, double* alphas, double* betas, int 
 
   for(int myL = 0; myL < lMax + 1 ;myL++){
     for(int k = 0; k < Ns; k++){
-      oneO1alpha = 1.0/(1.0 + oOeta*alphas[myL*Ns + k]); oneO1alphaSqrt = sqrt(oneO1alpha);
+      oneO1alpha = 1.0/(1.0 + oOeta*alphas[myL*Ns + k]);
+      oneO1alphaSqrt = sqrt(oneO1alpha);
       aOa[myL*Ns + k] = -alphas[myL*Ns + k]*oneO1alpha; 
-      oneO1alpha2 = pow(oneO1alpha,myL+1); oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha2;
+      oneO1alpha2 = pow(oneO1alpha,myL+1);
+      oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha2;
       for(int n = 0; n < Ns; n++){
             bOa[myL*NsNs + n*Ns + k] = oOeta3O2*betas[myL*NsNs + n*Ns + k]*oneO1alphaSqrtX;
       } 
     }
   }
-
 }
 //================================================================
 void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prCofDZ, int Asize, double* x,double* x2, double* x4, double* x6, double* x8, double* x10,double* x12,double* x14,double* x16,double* x18, double* y,double* y2, double* y4, double* y6, double* y8, double* y10,double* y12,double* y14,double* y16,double* y18, double* z, double* z2, double* z4, double* z6, double* z8, double* z10,double* z12,double* z14,double* z16,double* z18, double* r2, double* r4, double* r6, double* r8,double* r10,double* r12,double* r14,double* r16,double* r18,int totalAN, int lMax){
 
   for (int i = 0; i < Asize; i++) {
-
     if (lMax > 1){
         preCoef[         +i] = 1.09254843059208*x[i]*y[i];
         preCoef[totalAN*1+i] = 1.09254843059208*y[i]*z[i];
@@ -145,9 +112,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
         prCofDZ[totalAN*2+i] = 1.26156626101008*z[i];
         prCofDZ[totalAN*3+i] = 1.09254843059208*x[i];
         prCofDZ[totalAN*4+i] = 0;
-
     }
-
     if (lMax > 2){
         preCoef[totalAN*5+i] = 0.590043589926644*y[i]*(3.0*x2[i] - y2[i]);
         preCoef[totalAN*6+i] = 2.89061144264055*x[i]*y[i]*z[i];
@@ -180,9 +145,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
         prCofDZ[totalAN*9+i] = 3.65636639571573*x[i]*z[i];
         prCofDZ[totalAN*10+i] = 1.44530572132028*x2[i] - 1.44530572132028*y2[i];
         prCofDZ[totalAN*11+i] = 0;
-
     }
-
     if (lMax > 3){
         preCoef[totalAN*12+i] = 2.5033429417967*x[i]*y[i]*(x2[i] - y2[i]);
         preCoef[totalAN*13+i] = 1.77013076977993*y[i]*z[i]*(3.0*x2[i] - y2[i]);
@@ -223,9 +186,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
         prCofDZ[totalAN*18+i] = 5.67704817454536*z[i]*(x2[i] - y2[i]);
         prCofDZ[totalAN*19+i] = 1.77013076977993*x[i]*(x2[i] - 3.0*y2[i]);
         prCofDZ[totalAN*20+i] = 0;
-
     }
-
     if (lMax > 4){
         preCoef[totalAN*21+i] = 0.65638205684017*y[i]*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i]);
         preCoef[totalAN*22+i] = 8.30264925952416*x[i]*y[i]*z[i]*(x2[i] - y2[i]);
@@ -274,9 +235,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
         prCofDZ[totalAN*29+i] = 7.82781279096401*x[i]*z[i]*(x2[i] - 3.0*y2[i]);
         prCofDZ[totalAN*30+i] = 2.07566231488104*x4[i] - 12.4539738892862*x2[i]*y2[i] + 2.07566231488104*y4[i];
         prCofDZ[totalAN*31+i] = 0;
-
     }
-
     if (lMax > 5){
         preCoef[totalAN*32+i] = 1.36636821038383*x[i]*y[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i]);
         preCoef[totalAN*33+i] = 2.36661916223175*y[i]*z[i]*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i]);
@@ -333,9 +292,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
         prCofDZ[totalAN*42+i] = 10.0912980145745*z[i]*(x4[i] - 6.0*x2[i]*y2[i] + y4[i]);
         prCofDZ[totalAN*43+i] = 2.36661916223175*x[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i]);
         prCofDZ[totalAN*44+i] = 0;
-
     }
-
     if (lMax > 6){
         preCoef[totalAN*45+i] = 0.707162732524596*y[i]*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]);
         preCoef[totalAN*46+i] = 5.2919213236038*x[i]*y[i]*z[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i]);
@@ -400,9 +357,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
         prCofDZ[totalAN*57+i] = 12.4539738892862*x[i]*z[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i]);
         prCofDZ[totalAN*58+i] = 2.6459606618019*x6[i] - 39.6894099270285*x4[i]*y2[i] + 39.6894099270285*x2[i]*y4[i] - 2.6459606618019*y6[i];
         prCofDZ[totalAN*59+i] = 0;
-
     }
-
     if (lMax > 7){
         preCoef[totalAN*60+i] = 5.83141328139864*x[i]*y[i]*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]);
         preCoef[totalAN*61+i] = 2.91570664069932*y[i]*z[i]*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]);
@@ -475,9 +430,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
         prCofDZ[totalAN*74+i] = 14.9053174496672*z[i]*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i]);
         prCofDZ[totalAN*75+i] = 2.91570664069932*x[i]*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]);
         prCofDZ[totalAN*76+i] = 0;
-
     }
-
     if (lMax > 8){
         preCoef[totalAN*77+i] = 0.748900951853188*y[i]*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]);
         preCoef[totalAN*78+i] = 25.4185411916376*x[i]*y[i]*z[i]*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]);
@@ -558,9 +511,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
         prCofDZ[totalAN*93+i] = 17.4369754030097*x[i]*z[i]*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]);
         prCofDZ[totalAN*94+i] = 3.1773176489547*x8[i] - 88.9648941707315*x6[i]*y2[i] + 222.412235426829*x4[i]*y4[i] - 88.9648941707315*x2[i]*y6[i] + 3.1773176489547*y8[i];
         prCofDZ[totalAN*95+i] = 0;
-
     }
-
     if (lMax > 9){ 
         preCoef[totalAN*96+i] = 1.53479023644398*x[i]*y[i]*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]);
         preCoef[totalAN*97+i] = 3.43189529989171*y[i]*z[i]*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]);
@@ -587,7 +538,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
         prCofDX[totalAN*96+i] = 7.6739511822199*y[i]*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]);
         prCofDX[totalAN*97+i] = 247.096461592203*x[i]*y[i]*z[i]*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]);
         prCofDX[totalAN*98+i] = -4.45381546176335*y[i]*(2.0*x2[i]*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]) + (x2[i] + y2[i] - 18.0*z2[i])*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]));
-      /**/  prCofDX[totalAN*99+i] = 10.9095752898384*x[i]*y[i]*z[i]*(-21.0*x6[i] + 63.0*x4[i]*y2[i] + 84.0*x4[i]*z2[i] + 21.0*x2[i]*y4[i] - 280.0*x2[i]*y2[i]*z2[i] - 15.0*y6[i] + 84.0*y4[i]*z2[i]);
+        prCofDX[totalAN*99+i] = 10.9095752898384*x[i]*y[i]*z[i]*(-21.0*x6[i] + 63.0*x4[i]*y2[i] + 84.0*x4[i]*z2[i] + 21.0*x2[i]*y4[i] - 280.0*x2[i]*y2[i]*z2[i] - 15.0*y6[i] + 84.0*y4[i]*z2[i]); //..//
         prCofDX[totalAN*100+i] = 0.992235248175713*y[i]*(-4.0*x2[i]*(-x2[i] - y2[i] + 16.0*z2[i])*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i]) + (5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i])*(323.0*z4[i] - 102.0*z2[i]*r2[i] + 3.0*r4[i]));
         prCofDX[totalAN*101+i] = 11.8330958111588*x[i]*y[i]*z[i]*(15.0*x6[i] - 105.0*x4[i]*z2[i] - 21.0*x2[i]*y4[i] + 70.0*x2[i]*y2[i]*z2[i] + 84.0*x2[i]*z4[i] - 6.0*y6[i] + 63.0*y4[i]*z2[i] - 84.0*y2[i]*z4[i]);
         prCofDX[totalAN*102+i] = -1.87097672671297*y[i]*(9.0*x8[i] + 14.0*x6[i]*y2[i] - 294.0*x6[i]*z2[i] - 210.0*x4[i]*y2[i]*z2[i] + 840.0*x4[i]*z4[i] - 6.0*x2[i]*y6[i] + 126.0*x2[i]*y4[i]*z2[i] - 336.0*x2[i]*z6[i] - y8[i] + 42.0*y6[i]*z2[i] - 168.0*y4[i]*z4[i] + 112.0*y2[i]*z6[i]);
@@ -649,9 +600,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
         prCofDZ[totalAN*114+i] = 20.0421695779351*z[i]*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]);
         prCofDZ[totalAN*115+i] = 3.43189529989171*x[i]*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]);
         prCofDZ[totalAN*116+i] = 0;
-
     }
-
     if (lMax > 10){ 
       preCoef[totalAN*117+i] = 0.784642105787197*y[i]*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]);
       preCoef[totalAN*118+i] = 7.36059539761062*x[i]*y[i]*z[i]*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]);
@@ -748,9 +697,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
       prCofDZ[totalAN*137+i] = 22.7152905513375*x[i]*z[i]*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]);
       prCofDZ[totalAN*138+i] = 3.68029769880531*x10[i] - 165.613396446239*x8[i]*y2[i] + 772.862516749115*x6[i]*y4[i] - 772.862516749115*x4[i]*y6[i] + 165.613396446239*x2[i]*y8[i] - 3.68029769880531*y10[i];
       prCofDZ[totalAN*139+i] = 0;
-
     }
-
     if (lMax > 11){ 
       preCoef[totalAN*140+i] = 3.20328798313589*x[i]*y[i]*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]);
       preCoef[totalAN*141+i] = 3.92321052893598*y[i]*z[i]*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]);
@@ -855,9 +802,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
       prCofDZ[totalAN*162+i] = 25.4516167309276*z[i]*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]);
       prCofDZ[totalAN*163+i] = 3.92321052893598*x[i]*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]);
       prCofDZ[totalAN*164+i] = 0;
-
     }
-
     if (lMax > 12){ 
       preCoef[totalAN*165+i] = 0.816077118837628*y[i]*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]);
       preCoef[totalAN*166+i] = 16.6447726141986*x[i]*y[i]*z[i]*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]);
@@ -970,9 +915,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
       prCofDZ[totalAN*189+i] = 28.2471158083391*x[i]*z[i]*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]);
       prCofDZ[totalAN*190+i] = 4.16119315354964*x12[i] - 274.638748134277*x10[i]*y2[i] + 2059.79061100707*x8[i]*y4[i] - 3844.94247387987*x6[i]*y6[i] + 2059.79061100707*x4[i]*y8[i] - 274.638748134277*x2[i]*y10[i] + 4.16119315354964*y12[i];
       prCofDZ[totalAN*191+i] = 0;
-
     }
-
     if (lMax > 13){ 
       preCoef[totalAN*192+i] = 1.66104416612905*x[i]*y[i]*(7.0*x12[i] - 182.0*x10[i]*y2[i] + 1001.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1001.0*x4[i]*y8[i] - 182.0*x2[i]*y10[i] + 7.0*y12[i]);
       preCoef[totalAN*193+i] = 4.39470978027212*y[i]*z[i]*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]);
@@ -1093,9 +1036,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
       prCofDZ[totalAN*218+i] = 31.0983010846025*z[i]*(x12[i] - 66.0*x10[i]*y2[i] + 495.0*x8[i]*y4[i] - 924.0*x6[i]*y6[i] + 495.0*x4[i]*y8[i] - 66.0*x2[i]*y10[i] + y12[i]);
       prCofDZ[totalAN*219+i] = 4.39470978027212*x[i]*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]);
       prCofDZ[totalAN*220+i] = 0;
-
     }
-
     if (lMax > 14){ 
       preCoef[totalAN*221+i] = 0.844250650857373*y[i]*(15.0*x14[i] - 455.0*x12[i]*y2[i] + 3003.0*x10[i]*y4[i] - 6435.0*x8[i]*y6[i] + 5005.0*x6[i]*y8[i] - 1365.0*x4[i]*y10[i] + 105.0*x2[i]*y12[i] - y14[i]);
       preCoef[totalAN*222+i] = 9.24830251326002*x[i]*y[i]*z[i]*(7.0*x12[i] - 182.0*x10[i]*y2[i] + 1001.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1001.0*x4[i]*y8[i] - 182.0*x2[i]*y10[i] + 7.0*y12[i]);
@@ -1224,9 +1165,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
       prCofDZ[totalAN*249+i] = 34.0021251646659*x[i]*z[i]*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]);
       prCofDZ[totalAN*250+i] = 4.62415125663001*x14[i] - 420.797764353331*x12[i]*y2[i] + 4628.77540788664*x10[i]*y4[i] - 13886.3262236599*x8[i]*y6[i] + 13886.3262236599*x6[i]*y8[i] - 4628.77540788664*x4[i]*y10[i] + 420.797764353331*x2[i]*y12[i] - 4.62415125663001*y14[i];
       prCofDZ[totalAN*251+i] = 0;
-
     }
-
     if (lMax > 15){ 
       preCoef[totalAN*252+i] = 13.7174494214084*x[i]*y[i]*(x14[i] - 35.0*x12[i]*y2[i] + 273.0*x10[i]*y4[i] - 715.0*x8[i]*y6[i] + 715.0*x6[i]*y8[i] - 273.0*x4[i]*y10[i] + 35.0*x2[i]*y12[i] - y14[i]);
       preCoef[totalAN*253+i] = 4.84985075323068*y[i]*z[i]*(15.0*x14[i] - 455.0*x12[i]*y2[i] + 3003.0*x10[i]*y4[i] - 6435.0*x8[i]*y6[i] + 5005.0*x6[i]*y8[i] - 1365.0*x4[i]*y10[i] + 105.0*x2[i]*y12[i] - y14[i]);
@@ -1363,9 +1302,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
       prCofDZ[totalAN*282+i] = 36.955899695536*z[i]*(x14[i] - 91.0*x12[i]*y2[i] + 1001.0*x10[i]*y4[i] - 3003.0*x8[i]*y6[i] + 3003.0*x6[i]*y8[i] - 1001.0*x4[i]*y10[i] + 91.0*x2[i]*y12[i] - y14[i]);
       prCofDZ[totalAN*283+i] = 4.84985075323068*x[i]*(x14[i] - 105.0*x12[i]*y2[i] + 1365.0*x10[i]*y4[i] - 5005.0*x8[i]*y6[i] + 6435.0*x6[i]*y8[i] - 3003.0*x4[i]*y10[i] + 455.0*x2[i]*y12[i] - 15.0*y14[i]);
       prCofDZ[totalAN*284+i] = 0;
-
     }
-
     if (lMax > 16){ 
       preCoef[totalAN*285+i] = 0.869857171920628*y[i]*(17.0*x16[i] - 680.0*x14[i]*y2[i] + 6188.0*x12[i]*y4[i] - 19448.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 12376.0*x6[i]*y10[i] + 2380.0*x4[i]*y12[i] - 136.0*x2[i]*y14[i] + y16[i]);
       preCoef[totalAN*286+i] = 81.1535251976858*x[i]*y[i]*z[i]*(x14[i] - 35.0*x12[i]*y2[i] + 273.0*x10[i]*y4[i] - 715.0*x8[i]*y6[i] + 715.0*x6[i]*y8[i] - 273.0*x4[i]*y10[i] + 35.0*x2[i]*y12[i] - y14[i]);
@@ -1510,9 +1447,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
       prCofDZ[totalAN*317+i] = 39.957233659248*x[i]*z[i]*(x14[i] - 105.0*x12[i]*y2[i] + 1365.0*x10[i]*y4[i] - 5005.0*x8[i]*y6[i] + 6435.0*x6[i]*y8[i] - 3003.0*x4[i]*y10[i] + 455.0*x2[i]*y12[i] - 15.0*y14[i]);
       prCofDZ[totalAN*318+i] = 5.07209532485536*x16[i] - 608.651438982643*x14[i]*y2[i] + 9231.21349123676*x12[i]*y4[i] - 40617.3393614417*x10[i]*y6[i] + 65277.8668308885*x8[i]*y8[i] - 40617.3393614417*x6[i]*y10[i] + 9231.21349123676*x4[i]*y12[i] - 608.651438982643*x2[i]*y14[i] + 5.07209532485536*y16[i];
       prCofDZ[totalAN*319+i] = 0;
-
     }
-
     if (lMax > 17){ 
       preCoef[totalAN*320+i] = 1.76371153735666*x[i]*y[i]*(9.0*x16[i] - 408.0*x14[i]*y2[i] + 4284.0*x12[i]*y4[i] - 15912.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 15912.0*x6[i]*y10[i] + 4284.0*x4[i]*y12[i] - 408.0*x2[i]*y14[i] + 9.0*y16[i]);
       preCoef[totalAN*321+i] = 5.29113461206997*y[i]*z[i]*(17.0*x16[i] - 680.0*x14[i]*y2[i] + 6188.0*x12[i]*y4[i] - 19448.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 12376.0*x6[i]*y10[i] + 2380.0*x4[i]*y12[i] - 136.0*x2[i]*y14[i] + y16[i]);
@@ -1665,9 +1600,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
       prCofDZ[totalAN*354+i] = 43.0039851564612*z[i]*(x16[i] - 120.0*x14[i]*y2[i] + 1820.0*x12[i]*y4[i] - 8008.0*x10[i]*y6[i] + 12870.0*x8[i]*y8[i] - 8008.0*x6[i]*y10[i] + 1820.0*x4[i]*y12[i] - 120.0*x2[i]*y14[i] + y16[i]);
       prCofDZ[totalAN*355+i] = 5.29113461206997*x[i]*(x16[i] - 136.0*x14[i]*y2[i] + 2380.0*x12[i]*y4[i] - 12376.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 19448.0*x6[i]*y10[i] + 6188.0*x4[i]*y12[i] - 680.0*x2[i]*y14[i] + 17.0*y16[i]);
       prCofDZ[totalAN*356+i] = 0;
-
     }
-
     if (lMax > 18){ 
       preCoef[totalAN*357+i] = 0.893383784349949*y[i]*(19.0*x18[i] - 969.0*x16[i]*y2[i] + 11628.0*x14[i]*y4[i] - 50388.0*x12[i]*y6[i] + 92378.0*x10[i]*y8[i] - 75582.0*x8[i]*y10[i] + 27132.0*x6[i]*y12[i] - 3876.0*x4[i]*y14[i] + 171.0*x2[i]*y16[i] - y18[i]);
       preCoef[totalAN*358+i] = 11.0143750205445*x[i]*y[i]*z[i]*(9.0*x16[i] - 408.0*x14[i]*y2[i] + 4284.0*x12[i]*y4[i] - 15912.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 15912.0*x6[i]*y10[i] + 4284.0*x4[i]*y12[i] - 408.0*x2[i]*y14[i] + 9.0*y16[i]);
@@ -1879,7 +1812,7 @@ void getCD(double* CDevX,double* CDevY,double* CDevZ,double* prCofDX,double* prC
     for(int restOfLs = 2; restOfLs <= lMax; restOfLs++){	 
     LNsNs=restOfLs*NsNs; LNs=restOfLs*Ns; 
       for(int k = 0; k < Ns; k++){
-        for(int i = 0; i < Asize; i++){//exponents
+        for(int i = 0; i < Asize; i++){
           preExp = exp(aOa[LNs + k]*r2[i]);
           for(int m = restOfLs*restOfLs; m < (restOfLs+1)*(restOfLs+1); m++){
             for(int n = 0; n < Ns; n++){
@@ -1900,7 +1833,7 @@ void getCD(double* CDevX,double* CDevY,double* CDevZ,double* prCofDX,double* prC
  */
 void getPNoCrossD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax){
 
-  int NsTs100 = Ns*Ts*((lMax+1)*(lMax+1)); // Used to be NsTs100 = Ns*Ts*100, but 100 is a waste of memory if not lMax = 9, and can't do over that, so changed.
+  int NsTs100 = Ns*Ts*((lMax+1)*(lMax+1)); 
   int Ns100 = Ns*((lMax+1)*(lMax+1)); int NsNs = (Ns*(Ns+1))/2; int NsNsLmax = NsNs*(lMax+1);
   int NsNsLmaxTs = NsNsLmax*Ts; int shiftAll = 0;
 
@@ -2057,7 +1990,6 @@ void getPCrossOverD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int l
           for(int k = 0; k < Ns; k++){
             for(int kd = 0; kd < Ns; kd++){
               for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
-
                 soapMatDevX[shiftAll] += prel*(
                       Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + a]
                      +Cnnd[NsTs100*i + Ns100*jd + buffShift*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*totalAN*Ns + k*totalAN + a]);
@@ -2079,7 +2011,8 @@ void getPCrossOverD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int l
   }
  }
 }
-//===========================================================================================
+//=================================================================================================================================================================
+//=================================================================================================================================================================
 void soapGTODevX(py::array_t<double> cArr,py::array_t<double> cArrX,py::array_t<double> cArrY,py::array_t<double> cArrZ, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<double> alphasArr, py::array_t<double> betasArr, py::array_t<int> atomicNumbersArr, double rCut, double cutoffPadding, int totalAN, int Nt, int Ns, int lMax, int Hs, double eta, bool crossover) {
 
   auto atomicNumbers = atomicNumbersArr.unchecked<1>(); double *c = (double*)cArr.request().ptr;
@@ -2149,13 +2082,11 @@ void soapGTODevX(py::array_t<double> cArr,py::array_t<double> cArrX,py::array_t<
 
     }
   }
-
   free(dx); free(x2); free(x4); free(x6); free(x8); free(x10); free(x12); free(x14); free(x16); free(x18);
   free(dy); free(y2); free(y4); free(y6); free(y8); free(y10); free(y12); free(y14); free(y16); free(y18);
   free(dz); free(z2); free(z4); free(z6); free(z8); free(z10); free(z12); free(z14); free(z16); free(z18);
   free(r2); free(r4); free(r6); free(r8); free(r10); free(r12); free(r14); free(r16); free(r18);
   free(exes); free(preCoef); free(bOa); free(aOa);
-
   if (crossover){
     getPCrossOverD(c, cnnd, Ns, Nt, Hs, lMax);
     getPCrossOverDevX(cx,cy,cz,cdevX,cdevY, cdevZ, cnnd, Ns, Nt, Hs, lMax, totalAN);
@@ -2163,8 +2094,6 @@ void soapGTODevX(py::array_t<double> cArr,py::array_t<double> cArrX,py::array_t<
     getPNoCrossDevX(cx,cy,cz,cdevX,cdevY, cdevZ, cnnd, Ns, Nt, Hs, lMax, totalAN);
     getPNoCrossD( c,  cnnd, Ns, Nt, Hs, lMax);
   };
-
   free(cnnd); free(cdevX); free(cdevY); free(cdevZ);
   return;
-
 }
