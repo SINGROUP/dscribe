@@ -21,6 +21,7 @@ limitations under the License.
 #include "soapGTO.h"
 #include "soapGTODevX.h"
 #include "soapGeneral.h"
+#include "soap.h"
 #include "acsf.h"
 #include "mbtr.h"
 #include "derivatives.h"
@@ -34,6 +35,9 @@ PYBIND11_MODULE(ext, m) {
     // SOAP
     m.def("soap_gto", &soapGTO, "SOAP with gaussian type orbital radial basis set.");
     m.def("soap_general", &soapGeneral, "SOAP with a general radial basis set.");
+    py::class_<SOAPGTOClass>(m, "SOAPGTOWrapper")
+        .def(py::init<double, int, int, double, py::array_t<int>, bool, bool, string, double, py::array_t<double>, py::array_t<double> >())
+        .def("create", &SOAPGTOClass::create);
 
     // ACSF
     py::class_<ACSF>(m, "ACSFWrapper")
@@ -82,10 +86,7 @@ PYBIND11_MODULE(ext, m) {
         .def("get_k2", &MBTR::getK2)
         .def("get_k3", &MBTR::getK3)
         .def("get_k2_local", &MBTR::getK2Local)
-        .def("get_k3_local", &MBTR::getK3Local)
-
-        ;
-
+        .def("get_k3_local", &MBTR::getK3Local);
 
     // CellList
     py::class_<CellList>(m, "CellList")
