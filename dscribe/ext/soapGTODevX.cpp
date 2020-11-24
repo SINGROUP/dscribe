@@ -561,7 +561,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
 
     }
 
-    if (lMax > 9){ //OBS!!!!! lMax > 9, tesseral cases
+    if (lMax > 9){ 
         preCoef[totalAN*96+i] = 1.53479023644398*x[i]*y[i]*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]);
         preCoef[totalAN*97+i] = 3.43189529989171*y[i]*z[i]*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]);
         preCoef[totalAN*98+i] = -4.45381546176335*x[i]*y[i]*(x2[i] + y2[i] - 18.0*z2[i])*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]);
@@ -652,7 +652,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
 
     }
 
-    if (lMax > 10){ //OBS!!!!! lMax > 9, tesseral cases
+    if (lMax > 10){ 
       preCoef[totalAN*117+i] = 0.784642105787197*y[i]*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]);
       preCoef[totalAN*118+i] = 7.36059539761062*x[i]*y[i]*z[i]*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]);
       preCoef[totalAN*119+i] = -0.567882263783437*y[i]*(x2[i] + y2[i] - 20.0*z2[i])*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]);
@@ -751,7 +751,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
 
     }
 
-    if (lMax > 11){ //OBS!!!!! lMax > 9, tesseral cases
+    if (lMax > 11){ 
       preCoef[totalAN*140+i] = 3.20328798313589*x[i]*y[i]*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]);
       preCoef[totalAN*141+i] = 3.92321052893598*y[i]*z[i]*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]);
       preCoef[totalAN*142+i] = -1.15689166958762*x[i]*y[i]*(x2[i] + y2[i] - 22.0*z2[i])*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]);
@@ -858,7 +858,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
 
     }
 
-    if (lMax > 12){ //OBS!!!!! lMax > 9, tesseral cases
+    if (lMax > 12){ 
       preCoef[totalAN*165+i] = 0.816077118837628*y[i]*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]);
       preCoef[totalAN*166+i] = 16.6447726141986*x[i]*y[i]*z[i]*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]);
       preCoef[totalAN*167+i] = -0.588481579340398*y[i]*(x2[i] + y2[i] - 24.0*z2[i])*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]);
@@ -973,7 +973,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
 
     }
 
-    if (lMax > 13){ //OBS!!!!! lMax > 9, tesseral cases
+    if (lMax > 13){ 
       preCoef[totalAN*192+i] = 1.66104416612905*x[i]*y[i]*(7.0*x12[i] - 182.0*x10[i]*y2[i] + 1001.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1001.0*x4[i]*y8[i] - 182.0*x2[i]*y10[i] + 7.0*y12[i]);
       preCoef[totalAN*193+i] = 4.39470978027212*y[i]*z[i]*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]);
       preCoef[totalAN*194+i] = -2.39217700650788*x[i]*y[i]*(x2[i] + y2[i] - 26.0*z2[i])*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]);
@@ -1096,7 +1096,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
 
     }
 
-    if (lMax > 14){ //OBS!!!!! lMax > 9, tesseral cases
+    if (lMax > 14){ 
       preCoef[totalAN*221+i] = 0.844250650857373*y[i]*(15.0*x14[i] - 455.0*x12[i]*y2[i] + 3003.0*x10[i]*y4[i] - 6435.0*x8[i]*y6[i] + 5005.0*x6[i]*y8[i] - 1365.0*x4[i]*y10[i] + 105.0*x2[i]*y12[i] - y14[i]);
       preCoef[totalAN*222+i] = 9.24830251326002*x[i]*y[i]*z[i]*(7.0*x12[i] - 182.0*x10[i]*y2[i] + 1001.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1001.0*x4[i]*y8[i] - 182.0*x2[i]*y10[i] + 7.0*y12[i]);
       preCoef[totalAN*223+i] = -0.60718080651189*y[i]*(x2[i] + y2[i] - 28.0*z2[i])*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]);
@@ -1227,7 +1227,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
 
     }
 
-    if (lMax > 15){ //OBS!!!!! lMax > 9, tesseral cases
+    if (lMax > 15){ 
       preCoef[totalAN*252+i] = 13.7174494214084*x[i]*y[i]*(x14[i] - 35.0*x12[i]*y2[i] + 273.0*x10[i]*y4[i] - 715.0*x8[i]*y6[i] + 715.0*x6[i]*y8[i] - 273.0*x4[i]*y10[i] + 35.0*x2[i]*y12[i] - y14[i]);
       preCoef[totalAN*253+i] = 4.84985075323068*y[i]*z[i]*(15.0*x14[i] - 455.0*x12[i]*y2[i] + 3003.0*x10[i]*y4[i] - 6435.0*x8[i]*y6[i] + 5005.0*x6[i]*y8[i] - 1365.0*x4[i]*y10[i] + 105.0*x2[i]*y12[i] - y14[i]);
       preCoef[totalAN*254+i] = -1.23186332318453*x[i]*y[i]*(x2[i] + y2[i] - 30.0*z2[i])*(7.0*x12[i] - 182.0*x10[i]*y2[i] + 1001.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1001.0*x4[i]*y8[i] - 182.0*x2[i]*y10[i] + 7.0*y12[i]);
@@ -1366,7 +1366,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
 
     }
 
-    if (lMax > 16){ //OBS!!!!! lMax > 9, tesseral cases
+    if (lMax > 16){ 
       preCoef[totalAN*285+i] = 0.869857171920628*y[i]*(17.0*x16[i] - 680.0*x14[i]*y2[i] + 6188.0*x12[i]*y4[i] - 19448.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 12376.0*x6[i]*y10[i] + 2380.0*x4[i]*y12[i] - 136.0*x2[i]*y14[i] + y16[i]);
       preCoef[totalAN*286+i] = 81.1535251976858*x[i]*y[i]*z[i]*(x14[i] - 35.0*x12[i]*y2[i] + 273.0*x10[i]*y4[i] - 715.0*x8[i]*y6[i] + 715.0*x6[i]*y8[i] - 273.0*x4[i]*y10[i] + 35.0*x2[i]*y12[i] - y14[i]);
       preCoef[totalAN*287+i] = -0.624331775925749*y[i]*(x2[i] + y2[i] - 32.0*z2[i])*(15.0*x14[i] - 455.0*x12[i]*y2[i] + 3003.0*x10[i]*y4[i] - 6435.0*x8[i]*y6[i] + 5005.0*x6[i]*y8[i] - 1365.0*x4[i]*y10[i] + 105.0*x2[i]*y12[i] - y14[i]);
@@ -1513,7 +1513,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
 
     }
 
-    if (lMax > 17){ //OBS!!!!! lMax > 9, tesseral cases
+    if (lMax > 17){ 
       preCoef[totalAN*320+i] = 1.76371153735666*x[i]*y[i]*(9.0*x16[i] - 408.0*x14[i]*y2[i] + 4284.0*x12[i]*y4[i] - 15912.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 15912.0*x6[i]*y10[i] + 4284.0*x4[i]*y12[i] - 408.0*x2[i]*y14[i] + 9.0*y16[i]);
       preCoef[totalAN*321+i] = 5.29113461206997*y[i]*z[i]*(17.0*x16[i] - 680.0*x14[i]*y2[i] + 6188.0*x12[i]*y4[i] - 19448.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 12376.0*x6[i]*y10[i] + 2380.0*x4[i]*y12[i] - 136.0*x2[i]*y14[i] + y16[i]);
       preCoef[totalAN*322+i] = -10.1185847426968*x[i]*y[i]*(x2[i] + y2[i] - 34.0*z2[i])*(x14[i] - 35.0*x12[i]*y2[i] + 273.0*x10[i]*y4[i] - 715.0*x8[i]*y6[i] + 715.0*x6[i]*y8[i] - 273.0*x4[i]*y10[i] + 35.0*x2[i]*y12[i] - y14[i]);
@@ -1668,7 +1668,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
 
     }
 
-    if (lMax > 18){ //OBS!!!!! lMax > 9, tesseral cases
+    if (lMax > 18){ 
       preCoef[totalAN*357+i] = 0.893383784349949*y[i]*(19.0*x18[i] - 969.0*x16[i]*y2[i] + 11628.0*x14[i]*y4[i] - 50388.0*x12[i]*y6[i] + 92378.0*x10[i]*y8[i] - 75582.0*x8[i]*y10[i] + 27132.0*x6[i]*y12[i] - 3876.0*x4[i]*y14[i] + 171.0*x2[i]*y16[i] - y18[i]);
       preCoef[totalAN*358+i] = 11.0143750205445*x[i]*y[i]*z[i]*(9.0*x16[i] - 408.0*x14[i]*y2[i] + 4284.0*x12[i]*y4[i] - 15912.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 15912.0*x6[i]*y10[i] + 4284.0*x4[i]*y12[i] - 408.0*x2[i]*y14[i] + 9.0*y16[i]);
       preCoef[totalAN*359+i] = -0.640197544188601*y[i]*(x2[i] + y2[i] - 36.0*z2[i])*(17.0*x16[i] - 680.0*x14[i]*y2[i] + 6188.0*x12[i]*y4[i] - 19448.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 12376.0*x6[i]*y10[i] + 2380.0*x4[i]*y12[i] - 136.0*x2[i]*y14[i] + y16[i]);
@@ -1841,59 +1841,58 @@ void getCD(double* CDevX,double* CDevY,double* CDevZ,double* prCofDX,double* prC
 // l=0-------------------------------------------------------------------------------------------------
     for(int k = 0; k < Ns; k++){
       for(int i = 0; i < Asize; i++){
-	      preExp = 1.5707963267948966*exp(aOa[k]*r2[i]);
+      preExp = 1.5707963267948966*exp(aOa[k]*r2[i]);
         for(int n = 0; n < Ns; n++){
           C[NsTsI + NsJ + n] += bOa[n*Ns + k]*preExp;
           CDevX[NsTsI*totalAN + NsJ*totalAN + n*totalAN + indices[i]] += 2.0*aOa[k]*x[i]*bOa[n*Ns + k]*preExp;
           CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + indices[i]] += 2.0*aOa[k]*y[i]*bOa[n*Ns + k]*preExp;
           CDevZ[NsTsI*totalAN + NsJ*totalAN + n*totalAN + indices[i]] += 2.0*aOa[k]*z[i]*bOa[n*Ns + k]*preExp;
       }
-     }
     }
+  }
 // l=1-------------------------------------------------------------------------------------------------
-   if(lMax > 0) { LNsNs=NsNs; LNs=Ns;
-      for(int k = 0; k < Ns; k++){
-          for(int i = 0; i < Asize; i++){
-              preExp = 2.7206990463849543*exp(aOa[LNs + k]*r2[i]);
-              for(int n = 0; n < Ns; n++){
-		      C[NsTsI + NsJ + Ns + n] += bOa[LNsNs + n*Ns + k]*preExp*z[i];
-                      CDevX[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 1*Ns*totalAN +  indices[i]] += 2.0*bOa[LNsNs + n*Ns + k]*x[i]*aOa[LNs + k]*preExp*z[i];
-                      CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 1*Ns*totalAN +  indices[i]] += 2.0*bOa[LNsNs + n*Ns + k]*y[i]*aOa[LNs + k]*preExp*z[i];
-                      CDevZ[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 1*Ns*totalAN +  indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*z[i]*z[i]*aOa[LNs + k]*preExp + preExp);
-
-                      C[NsTsI + NsJ + Ns*2 + n] += bOa[LNsNs + n*Ns + k]*preExp*x[i];
-                      CDevX[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 2*Ns*totalAN +  indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*x[i]*x[i]*aOa[LNs + k]*preExp + preExp);
-                      CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 2*Ns*totalAN +  indices[i]] += 2.0*bOa[LNsNs + n*Ns + k]*y[i]*aOa[LNs + k]*preExp*x[i];
-                      CDevZ[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 2*Ns*totalAN +  indices[i]] += 2.0*bOa[LNsNs + n*Ns + k]*z[i]*aOa[LNs + k]*preExp*x[i];
-
-                      C[NsTsI + NsJ + Ns*3 + n] += bOa[LNsNs + n*Ns + k]*preExp*y[i];
-                      CDevX[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 3*Ns*totalAN +  indices[i]] += 2.0*bOa[LNsNs + n*Ns + k]*x[i]*aOa[LNs + k]*preExp*y[i] ;
-                      CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 3*Ns*totalAN +  indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*y[i]*y[i]*aOa[LNs + k]*preExp + preExp);
-                      CDevZ[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 3*Ns*totalAN +  indices[i]] += 2.0*bOa[LNsNs + n*Ns + k]*z[i]*aOa[LNs + k]*preExp*y[i];
-	    }
-         }
-      }
-   }
-// l>2------------------------------------------------------------------------------------------------------
-   if(lMax > 1) { 
-
-  for(int restOfLs = 2; restOfLs <= lMax; restOfLs++){	 
-  LNsNs=restOfLs*NsNs; LNs=restOfLs*Ns; // OBS!!!!!! lMax > 9 Case!
-  for(int k = 0; k < Ns; k++){
-    for(int i = 0; i < Asize; i++){//exponents
-              preExp = exp(aOa[LNs + k]*r2[i]);
-      for(int m = restOfLs*restOfLs; m < (restOfLs+1)*(restOfLs+1); m++){
+  if(lMax > 0) { LNsNs=NsNs; LNs=Ns;
+    for(int k = 0; k < Ns; k++){
+      for(int i = 0; i < Asize; i++){
+        preExp = 2.7206990463849543*exp(aOa[LNs + k]*r2[i]);
         for(int n = 0; n < Ns; n++){
+          C[NsTsI + NsJ + Ns + n] += bOa[LNsNs + n*Ns + k]*preExp*z[i];
+          CDevX[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 1*Ns*totalAN +  indices[i]] += 2.0*bOa[LNsNs + n*Ns + k]*x[i]*aOa[LNs + k]*preExp*z[i];
+          CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 1*Ns*totalAN +  indices[i]] += 2.0*bOa[LNsNs + n*Ns + k]*y[i]*aOa[LNs + k]*preExp*z[i];
+          CDevZ[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 1*Ns*totalAN +  indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*z[i]*z[i]*aOa[LNs + k]*preExp + preExp);
+
+          C[NsTsI + NsJ + Ns*2 + n] += bOa[LNsNs + n*Ns + k]*preExp*x[i];
+          CDevX[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 2*Ns*totalAN +  indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*x[i]*x[i]*aOa[LNs + k]*preExp + preExp);
+          CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 2*Ns*totalAN +  indices[i]] += 2.0*bOa[LNsNs + n*Ns + k]*y[i]*aOa[LNs + k]*preExp*x[i];
+          CDevZ[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 2*Ns*totalAN +  indices[i]] += 2.0*bOa[LNsNs + n*Ns + k]*z[i]*aOa[LNs + k]*preExp*x[i];
+
+          C[NsTsI + NsJ + Ns*3 + n] += bOa[LNsNs + n*Ns + k]*preExp*y[i];
+          CDevX[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 3*Ns*totalAN +  indices[i]] += 2.0*bOa[LNsNs + n*Ns + k]*x[i]*aOa[LNs + k]*preExp*y[i] ;
+          CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 3*Ns*totalAN +  indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*y[i]*y[i]*aOa[LNs + k]*preExp + preExp);
+          CDevZ[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 3*Ns*totalAN +  indices[i]] += 2.0*bOa[LNsNs + n*Ns + k]*z[i]*aOa[LNs + k]*preExp*y[i];
+        }
+      }
+    }
+  }
+// l>2------------------------------------------------------------------------------------------------------
+  if(lMax > 1) { 
+    for(int restOfLs = 2; restOfLs <= lMax; restOfLs++){	 
+    LNsNs=restOfLs*NsNs; LNs=restOfLs*Ns; 
+      for(int k = 0; k < Ns; k++){
+        for(int i = 0; i < Asize; i++){//exponents
+          preExp = exp(aOa[LNs + k]*r2[i]);
+          for(int m = restOfLs*restOfLs; m < (restOfLs+1)*(restOfLs+1); m++){
+            for(int n = 0; n < Ns; n++){
                 C[NsTsI + NsJ + Ns*m + n] += bOa[LNsNs + n*Ns + k]*preExp*preCoef[totalAN*(m-4)+i];
                 CDevX[NsTsI*totalAN+NsJ*totalAN+n*totalAN+m*Ns*totalAN+indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*aOa[LNs + k]*x[i]*preExp*preCoef[totalAN*(m-4)+i]+preExp*prCofDX[totalAN*(m-4)+i]);
                 CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + m*Ns*totalAN + indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*aOa[LNs + k]*y[i]*preExp*preCoef[totalAN*(m-4)+i]+preExp*prCofDY[totalAN*(m-4)+i]);
                 CDevZ[NsTsI*totalAN+NsJ*totalAN+n*totalAN+m*Ns*totalAN+indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*aOa[LNs + k]*z[i]*preExp*preCoef[totalAN*(m-4)+i]+preExp*prCofDZ[totalAN*(m-4)+i]);
+            }
+          }
+        }
       }
-     }
     }
-   }
   }
- }
 }
 //=======================================================================
 /**
@@ -1923,7 +1922,6 @@ void getPNoCrossD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMa
             double buffDouble = 0;
             for(int buffShift = m*m; buffShift < (m+1)*(m+1); buffShift++){
               buffDouble += Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd];
-//              cout << "i " << i << " j " << j <<" m " << m << " k " << k << " kd " << kd << " b " << buffShift <<  soapMat[shiftAll] << " " << Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd] << " " << Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]<< " " << Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd] << endl;
 	    }
             soapMat[shiftAll] = prel*buffDouble;
             shiftAll++;
@@ -1988,13 +1986,6 @@ void getPCrossOverD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int l
 
 //  double   cs0  = pow(PIHalf,2); cs1  = pow(2.7206990464,2);
 
-// The power spectrum is multiplied by an l-dependent prefactor that comes
-// from the normalization of the Wigner D matrices. This prefactor is
-// mentioned in the arrata of the original SOAP paper: On representing
-// chemical environments, Phys. Rev. B 87, 184115 (2013). Here the square
-// root of the prefactor in the dot-product kernel is used, so that after a
-// possible dot-product the full prefactor is recovered.
-
     for(int i = 0; i < Hs; i++){
       for(int j = 0; j < Ts; j++){
        for(int jd = j; jd < Ts; jd++){
@@ -2009,7 +2000,6 @@ void getPCrossOverD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int l
               for(int buffShift = m*m; buffShift < (m+1)*(m+1); buffShift++){
                 buffDouble += Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k] * Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd];
                 soapMat[shiftAll] = prel*buffDouble;
-//                cout << "AAAA " << soapMat[shiftAll] << " " << Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd] << " " << Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]<< " " << Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd] << endl;
   	       }
               shiftAll++;
             }
