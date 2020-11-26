@@ -363,25 +363,46 @@ class SOAP(Descriptor):
             soap_mat = self.init_descriptor_array(n_centers, n_features)
 
             # Calculate with extension
-            dscribe.ext.soap_gto(
-                soap_mat,
-                pos,
-                centers,
-                alphas,
-                betas,
-                Z,
-                sorted_species,
+            soap_gto = dscribe.ext.SOAPGTOWrapper(
                 self._rcut,
-                cutoff_padding,
-                n_atoms,
-                n_species,
                 self._nmax,
                 self._lmax,
-                n_centers,
                 self._eta,
                 self.crossover,
                 self.average,
+                cutoff_padding,
+                alphas,
+                betas
             )
+            soap_gto.create(
+                soap_mat, 
+                pos,
+                centers,
+                Z,
+                sorted_species,
+                n_atoms,
+                n_species,
+                n_centers
+            )
+            # dscribe.ext.soap_gto(
+                # soap_mat,
+                # pos,
+                # centers,
+                # alphas,
+                # betas,
+                # Z,
+                # sorted_species,
+                # self._rcut,
+                # cutoff_padding,
+                # n_atoms,
+                # n_species,
+                # self._nmax,
+                # self._lmax,
+                # n_centers,
+                # self._eta,
+                # self.crossover,
+                # self.average,
+            # )
         elif self._rbf == "polynomial":
             # Get the discretized and orthogonalized polynomial radial basis
             # function values
