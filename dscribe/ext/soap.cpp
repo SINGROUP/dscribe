@@ -14,29 +14,30 @@ limitations under the License.
 */
 #include "soap.h"
 #include "soapGTO.h"
+#include "soapGeneral.h"
 
 using namespace std;
 
 SOAPGTO::SOAPGTO(
-    double rCut,
-    int nMax,
-    int lMax,
+    double rcut,
+    int nmax,
+    int lmax,
     double eta,
     py::array_t<int> species,
     bool crossover,
     string average,
-    double cutoffPadding,
+    double cutoff_padding,
     py::array_t<double> alphas,
     py::array_t<double> betas
 )
-    : rCut(rCut)
-    , nMax(nMax)
-    , lMax(lMax)
+    : rcut(rcut)
+    , nmax(nmax)
+    , lmax(lmax)
     , eta(eta)
     , species(species)
     , crossover(crossover)
     , average(average)
-    , cutoffPadding(cutoffPadding)
+    , cutoff_padding(cutoff_padding)
     , alphas(alphas)
     , betas(betas)
 {
@@ -45,7 +46,7 @@ SOAPGTO::SOAPGTO(
 void SOAPGTO::create(
     py::array_t<double> out, 
     py::array_t<double> positions,
-    py::array_t<int> atomicNumbers,
+    py::array_t<int> atomic_numbers,
     py::array_t<double> centers
 ) const
 {
@@ -55,14 +56,83 @@ void SOAPGTO::create(
         centers,
         this->alphas,
         this->betas,
-        atomicNumbers,
+        atomic_numbers,
         this->species,
-        this->rCut,
-        this->cutoffPadding,
-        this->nMax,
-        this->lMax,
+        this->rcut,
+        this->cutoff_padding,
+        this->nmax,
+        this->lmax,
         this->eta,
         this->crossover,
         this->average
     );
+}
+
+int SOAPGTO::get_number_of_features() const
+{
+    int n_species = this->species.shape(0);
+    return this->crossover
+        ? (n_species*this->nmax)*(n_species*this->nmax+1)/2*(this->lmax+1) 
+        : n_species*(this->lmax+1)*((this->nmax+1)*this->nmax)/2;
+}
+
+SOAPPolynomial::SOAPPolynomial(
+    double rcut,
+    int nmax,
+    int lmax,
+    double eta,
+    py::array_t<int> species,
+    bool crossover,
+    string average,
+    double cutoff_padding,
+    py::array_t<double> rx,
+    py::array_t<double> gss
+)
+    : rcut(rcut)
+    , nmax(nmax)
+    , lmax(lmax)
+    , eta(eta)
+    , species(species)
+    , crossover(crossover)
+    , average(average)
+    , cutoff_padding(cutoff_padding)
+    , rx(rx)
+    , gss(gss)
+{
+}
+
+void SOAPPolynomial::create(
+    py::array_t<double> out, 
+    py::array_t<double> positions,
+    py::array_t<int> atomic_numbers,
+    py::array_t<double> centers
+) const
+{
+    soapGeneral(
+        out,
+        positions,
+        centers,
+        atomic_numbers,
+        this->species,
+        this->rcut,
+        this->cutoff_padding,
+        //nAtoms,
+        //Nt,
+        this->nmax,
+        this->lmax,
+        //nCenters,
+        this->eta,
+        this->rx,
+        this->gss,
+        this->crossover,
+        this->average
+    );
+}
+
+int SOAPPolynomial::get_number_of_features() const
+{
+    int n_species = this->species.shape(0);
+    return this->crossover
+        ? (n_species*this->nmax)*(n_species*this->nmax+1)/2*(this->lmax+1) 
+        : n_species*(this->lmax+1)*((this->nmax+1)*this->nmax)/2;
 }

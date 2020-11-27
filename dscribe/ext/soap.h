@@ -16,6 +16,7 @@ limitations under the License.
 #ifndef SOAP_H
 #define SOAP_H
 
+#include "descriptor.h"
 #include <pybind11/numpy.h>
 #include <string>
 
@@ -23,22 +24,22 @@ namespace py = pybind11;
 using namespace std;
 
 /**
- * SOAP descriptor.
+ * SOAP descriptor with GTO radial basis.
  */
-class SOAPGTO {
+class SOAPGTO: public Descriptor {
     public:
         /**
          *
          */
         SOAPGTO(
-            double rCut,
-            int nMax,
-            int lMax,
+            double rcut,
+            int nmax,
+            int lmax,
             double eta,
             py::array_t<int> species,
             bool crossover,
             string average,
-            double cutoffPadding,
+            double cutoff_padding,
             py::array_t<double> alphas,
             py::array_t<double> betas
         );
@@ -48,21 +49,74 @@ class SOAPGTO {
         void create(
             py::array_t<double> out, 
             py::array_t<double> positions,
-            py::array_t<int> atomicNumbers,
+            py::array_t<int> atomic_numbers,
             py::array_t<double> centers
         ) const;
 
+        /**
+         * Get the number of features.
+         */
+        int get_number_of_features() const;
+
     private:
-        const double rCut;
-        const int nMax;
-        const int lMax;
+        const double rcut;
+        const int nmax;
+        const int lmax;
         const double eta;
         const py::array_t<int> species;
         const bool crossover;
         const string average;
-        const float cutoffPadding;
+        const float cutoff_padding;
         const py::array_t<double> alphas;
         const py::array_t<double> betas;
+};
+
+/**
+ * SOAP descriptor with polynomial radial basis.
+ */
+class SOAPPolynomial: public Descriptor {
+    public:
+        /**
+         *
+         */
+        SOAPPolynomial(
+            double rcut,
+            int nmax,
+            int lmax,
+            double eta,
+            py::array_t<int> species,
+            bool crossover,
+            string average,
+            double cutoff_padding,
+            py::array_t<double> rx,
+            py::array_t<double> gss
+        );
+        /**
+         * For creating SOAP output.
+         */
+        void create(
+            py::array_t<double> out, 
+            py::array_t<double> positions,
+            py::array_t<int> atomic_numbers,
+            py::array_t<double> centers
+        ) const;
+
+        /**
+         * Get the number of features.
+         */
+        int get_number_of_features() const;
+
+    private:
+        const double rcut;
+        const int nmax;
+        const int lmax;
+        const double eta;
+        const py::array_t<int> species;
+        const bool crossover;
+        const string average;
+        const float cutoff_padding;
+        const py::array_t<double> rx;
+        const py::array_t<double> gss;
 };
 
 #endif

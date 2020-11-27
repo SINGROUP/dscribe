@@ -340,7 +340,6 @@ class SOAP(Descriptor):
         """
         cutoff_padding = self.get_cutoff_padding()
         system, centers = self.prepare(system, cutoff_padding, positions)
-        centers = np.array(centers)
         n_centers = centers.shape[0]
         n_species = self._atomic_numbers.shape[0]
         pos = system.get_positions()
@@ -386,24 +385,23 @@ class SOAP(Descriptor):
             gss = gss.flatten()
 
             # Calculate with extension
-            dscribe.ext.soap_general(
-                soap_mat,
-                pos,
-                centers,
-                Z,
-                self._atomic_numbers,
+            soap_poly = dscribe.ext.SOAPPolynomial(
                 self._rcut,
-                cutoff_padding,
-                n_atoms,
-                n_species,
                 self._nmax,
                 self._lmax,
-                n_centers,
                 self._eta,
-                rx,
-                gss,
+                self._atomic_numbers,
                 self.crossover,
-                self.average
+                self.average,
+                cutoff_padding,
+                rx,
+                gss
+            )
+            soap_poly.create(
+                soap_mat, 
+                pos,
+                Z,
+                centers,
             )
 
         # Make into a sparse array if requested
@@ -593,7 +591,7 @@ class SOAP(Descriptor):
         n_centers = centers.shape[0]
         n_indices = len(indices)
         n_atoms = len(system)
-        centers = centers.flatten()
+        # centers = centers.flatten()
 
         n_features = self.get_number_of_features()
         d = self.init_derivatives_array(n_centers, n_indices, n_features)
@@ -607,26 +605,26 @@ class SOAP(Descriptor):
             alphas = self._alphas.flatten()
             betas = self._betas.flatten()
             if method == "numerical":
-                dscribe.ext.derivatives_soap_gto(
+                # Calculate with extension
+                soap_gto = dscribe.ext.SOAPGTO(
+                    self._rcut,
+                    self._nmax,
+                    self._lmax,
+                    self._eta,
+                    self._atomic_numbers,
+                    self.crossover,
+                    self.average,
+                    cutoff_padding,
+                    alphas,
+                    betas
+                )
+                soap_gto.derivatives_numerical(
                     d,
                     c,
                     pos,
-                    centers,
-                    alphas,
-                    betas,
                     Z,
-                    sorted_species,
+                    centers,
                     indices,
-                    self._rcut,
-                    cutoff_padding,
-                    n_atoms,
-                    n_species,
-                    self._nmax,
-                    self._lmax,
-                    n_centers,
-                    self._eta,
-                    self.crossover,
-                    self.average,
                     return_descriptor,
                 )
             elif method == "analytical":
@@ -645,26 +643,26 @@ class SOAP(Descriptor):
             rx, gss = self.get_basis_poly(self._rcut, self._nmax)
             gss = gss.flatten()
             if method == "numerical":
-                dscribe.ext.derivatives_soap_polynomial(
+                # Calculate with extension
+                soap_poly = dscribe.ext.SOAPPolynomial(
+                    self._rcut,
+                    self._nmax,
+                    self._lmax,
+                    self._eta,
+                    self._atomic_numbers,
+                    self.crossover,
+                    self.average,
+                    cutoff_padding,
+                    rx,
+                    gss
+                )
+                soap_poly.derivatives_numerical(
                     d,
                     c,
                     pos,
-                    centers,
                     Z,
-                    sorted_species,
+                    centers,
                     indices,
-                    self._rcut,
-                    cutoff_padding,
-                    n_atoms,
-                    n_species,
-                    self._nmax,
-                    self._lmax,
-                    n_centers,
-                    self._eta,
-                    rx,
-                    gss,
-                    self.crossover,
-                    self.average,
                     return_descriptor,
                 )
 

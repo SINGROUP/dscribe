@@ -1831,8 +1831,28 @@ void getP(py::detail::unchecked_mutable_reference<double, 2> &Ps, double* Cs, in
         }
     }
 }
-void soapGeneral(py::array_t<double> PsArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<int> atomicNumbersArr, py::array_t<int> orderedSpeciesArr, double rCut, double cutoffPadding, int nAtoms, int Nt, int nMax, int lMax, int Hs, double alpha, py::array_t<double> rwArr, py::array_t<double> gssArr, bool crossover, string average)
+void soapGeneral(
+    py::array_t<double> PsArr,
+    py::array_t<double> positions,
+    py::array_t<double> HposArr,
+    py::array_t<int> atomicNumbersArr,
+    py::array_t<int> orderedSpeciesArr,
+    double rCut,
+    double cutoffPadding,
+    //int nAtoms,
+    //int Nt,
+    int nMax,
+    int lMax,
+    //int Hs,
+    double alpha,
+    py::array_t<double> rwArr,
+    py::array_t<double> gssArr,
+    bool crossover,
+    string average)
 {
+    int nAtoms = atomicNumbersArr.shape(0);
+    int Nt = orderedSpeciesArr.shape(0);
+    int Hs = HposArr.shape(0);
     int nFeatures = crossover ? (Nt*nMax)*(Nt*nMax+1)/2*(lMax+1) : Nt*(lMax+1)*((nMax+1)*nMax)/2;
     auto atomicNumbers = atomicNumbersArr.unchecked<1>();
     auto species = orderedSpeciesArr.unchecked<1>();

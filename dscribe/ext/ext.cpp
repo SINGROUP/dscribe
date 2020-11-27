@@ -24,7 +24,6 @@ limitations under the License.
 #include "soap.h"
 #include "acsf.h"
 #include "mbtr.h"
-#include "derivatives.h"
 
 namespace py = pybind11;
 using namespace std;
@@ -37,7 +36,12 @@ PYBIND11_MODULE(ext, m) {
     m.def("soap_general", &soapGeneral, "SOAP with a general radial basis set.");
     py::class_<SOAPGTO>(m, "SOAPGTO")
         .def(py::init<double, int, int, double, py::array_t<int>, bool, string, double, py::array_t<double>, py::array_t<double> >())
-        .def("create", &SOAPGTO::create);
+        .def("create", &SOAPGTO::create)
+        .def("derivatives_numerical", &SOAPGTO::derivatives_numerical);
+    py::class_<SOAPPolynomial>(m, "SOAPPolynomial")
+        .def(py::init<double, int, int, double, py::array_t<int>, bool, string, double, py::array_t<double>, py::array_t<double> >())
+        .def("create", &SOAPPolynomial::create)
+        .def("derivatives_numerical", &SOAPPolynomial::derivatives_numerical);
 
     // ACSF
     py::class_<ACSF>(m, "ACSFWrapper")
@@ -100,7 +104,5 @@ PYBIND11_MODULE(ext, m) {
         .def_readonly("distances_squared", &CellListResult::distancesSquared);
 
     // Derivatives
-    m.def("derivatives_soap_gto", &derivatives_soap_gto, "Numerical derivatives for SOAP with gaussian type orbital radial basis set.");
-    m.def("derivatives_soap_polynomial", &derivatives_soap_polynomial, "Numerical derivatives for SOAP with polynomial radial basis set.");
     m.def("soap_gto_devX", &soapGTODevX, "Analytical derivatives of SOAP with gaussian type orbital radial basis set.");
 }
