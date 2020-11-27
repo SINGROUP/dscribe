@@ -22,6 +22,7 @@ SOAPGTO::SOAPGTO(
     int nMax,
     int lMax,
     double eta,
+    py::array_t<int> species,
     bool crossover,
     string average,
     double cutoffPadding,
@@ -32,6 +33,7 @@ SOAPGTO::SOAPGTO(
     , nMax(nMax)
     , lMax(lMax)
     , eta(eta)
+    , species(species)
     , crossover(crossover)
     , average(average)
     , cutoffPadding(cutoffPadding)
@@ -43,12 +45,8 @@ SOAPGTO::SOAPGTO(
 void SOAPGTO::create(
     py::array_t<double> out, 
     py::array_t<double> positions,
-    py::array_t<double> centers,
     py::array_t<int> atomicNumbers,
-    py::array_t<int> orderedSpecies,
-    int nAtoms,
-    int nSpecies,
-    int nCenters
+    py::array_t<double> centers
 ) const
 {
     soapGTO(
@@ -58,14 +56,11 @@ void SOAPGTO::create(
         this->alphas,
         this->betas,
         atomicNumbers,
-        orderedSpecies,
+        this->species,
         this->rCut,
         this->cutoffPadding,
-        nAtoms,
-        nSpecies,
         this->nMax,
         this->lMax,
-        nCenters,
         this->eta,
         this->crossover,
         this->average

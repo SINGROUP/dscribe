@@ -36,8 +36,8 @@ PYBIND11_MODULE(ext, m) {
     m.def("soap_gto", &soapGTO, "SOAP with gaussian type orbital radial basis set.");
     m.def("soap_general", &soapGeneral, "SOAP with a general radial basis set.");
     py::class_<SOAPGTO>(m, "SOAPGTO")
-        .def(py::init<double, int, int, double, bool, string, double, py::array_t<double>, py::array_t<double> >())
-        .def("create", &SOAPGTOClass::create);
+        .def(py::init<double, int, int, double, py::array_t<int>, bool, string, double, py::array_t<double>, py::array_t<double> >())
+        .def("create", &SOAPGTO::create);
 
     // ACSF
     py::class_<ACSF>(m, "ACSFWrapper")

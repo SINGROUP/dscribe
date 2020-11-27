@@ -342,14 +342,12 @@ class SOAP(Descriptor):
         system, centers = self.prepare(system, cutoff_padding, positions)
         centers = np.array(centers)
         n_centers = centers.shape[0]
-        sorted_species = self._atomic_numbers
-        n_species = len(sorted_species)
-        n_atoms = len(system)
+        n_species = self._atomic_numbers.shape[0]
         pos = system.get_positions()
         Z = system.get_atomic_numbers()
         n_features = self.get_number_of_features()
+        n_atoms = Z.shape[0]
         soap_mat = self.init_descriptor_array(n_centers, n_features)
-        centers = centers.flatten()
 
         # Determine the function to call based on rbf
         if self._rbf == "gto":
@@ -363,11 +361,12 @@ class SOAP(Descriptor):
             soap_mat = self.init_descriptor_array(n_centers, n_features)
 
             # Calculate with extension
-            soap_gto = dscribe.ext.SOAPGTOWrapper(
+            soap_gto = dscribe.ext.SOAPGTO(
                 self._rcut,
                 self._nmax,
                 self._lmax,
                 self._eta,
+                self._atomic_numbers,
                 self.crossover,
                 self.average,
                 cutoff_padding,
@@ -377,32 +376,9 @@ class SOAP(Descriptor):
             soap_gto.create(
                 soap_mat, 
                 pos,
-                centers,
                 Z,
-                sorted_species,
-                n_atoms,
-                n_species,
-                n_centers
+                centers,
             )
-            # dscribe.ext.soap_gto(
-                # soap_mat,
-                # pos,
-                # centers,
-                # alphas,
-                # betas,
-                # Z,
-                # sorted_species,
-                # self._rcut,
-                # cutoff_padding,
-                # n_atoms,
-                # n_species,
-                # self._nmax,
-                # self._lmax,
-                # n_centers,
-                # self._eta,
-                # self.crossover,
-                # self.average,
-            # )
         elif self._rbf == "polynomial":
             # Get the discretized and orthogonalized polynomial radial basis
             # function values
@@ -415,7 +391,7 @@ class SOAP(Descriptor):
                 pos,
                 centers,
                 Z,
-                sorted_species,
+                self._atomic_numbers,
                 self._rcut,
                 cutoff_padding,
                 n_atoms,

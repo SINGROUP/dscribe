@@ -25,7 +25,7 @@ using namespace std;
 /**
  * SOAP descriptor.
  */
-class SOAPGTOClass {
+class SOAPGTO {
     public:
         /**
          *
@@ -35,6 +35,7 @@ class SOAPGTOClass {
             int nMax,
             int lMax,
             double eta,
+            py::array_t<int> species,
             bool crossover,
             string average,
             double cutoffPadding,
@@ -42,17 +43,13 @@ class SOAPGTOClass {
             py::array_t<double> betas
         );
         /**
-         *
+         * For creating SOAP output.
          */
         void create(
             py::array_t<double> out, 
             py::array_t<double> positions,
-            py::array_t<double> centers,
             py::array_t<int> atomicNumbers,
-            py::array_t<int> orderedSpeciesArr,
-            int nAtoms,
-            int nSpecies,
-            int nCenters
+            py::array_t<double> centers
         ) const;
 
     private:
@@ -60,6 +57,7 @@ class SOAPGTOClass {
         const int nMax;
         const int lMax;
         const double eta;
+        const py::array_t<int> species;
         const bool crossover;
         const string average;
         const float cutoffPadding;

@@ -31,25 +31,24 @@ void derivatives_soap_gto(
     py::array_t<int> displacedIndicesArr,
     double rCut,
     double cutoffPadding,
-    int nAtoms,
-    int Nt,
     int nMax,
     int lMax,
-    int nCenters,
     double eta,
     bool crossover,
     string average,
     bool returnDescriptor)
 {
-    int nFeatures = crossover ? (Nt*nMax)*(Nt*nMax+1)/2*(lMax+1) : Nt*(lMax+1)*((nMax+1)*nMax)/2;
+    int nSpecies = orderedSpeciesArr.shape(0);
+    int nFeatures = crossover ? (nSpecies*nMax)*(nSpecies*nMax+1)/2*(lMax+1) : nSpecies*(lMax+1)*((nMax+1)*nMax)/2;
     auto d = dArr.mutable_unchecked<4>();
     auto displacedIndices = displacedIndicesArr.unchecked<1>();
     auto positions = positionsArr.mutable_unchecked<2>();
-    auto centers = centersArr.unchecked<1>();
+    auto centers = centersArr.unchecked<2>();
+    int nCenters = centersArr.shape(0);
 
     // Calculate the desciptor value if requested
     if (returnDescriptor) {
-        soapGTO(cArr, positionsArr, centersArr, alphasArr, betasArr, atomicNumbersArr, orderedSpeciesArr, rCut, cutoffPadding, nAtoms, Nt, nMax, lMax, nCenters, eta, crossover, average);
+        soapGTO(cArr, positionsArr, centersArr, alphasArr, betasArr, atomicNumbersArr, orderedSpeciesArr, rCut, cutoffPadding, nMax, lMax, eta, crossover, average);
     }
     
     // Central finite difference with error O(h^2)
@@ -63,7 +62,7 @@ void derivatives_soap_gto(
         py::array_t<double> centerArr(3);
         auto center = centerArr.mutable_unchecked<1>();
         for (int i = 0; i < 3; ++i) {
-            center(i) = centers(iCenter*3+i);
+            center(i) = centers(iCenter, i);
         }
 
         for (int iPos=0; iPos < displacedIndices.size(); ++iPos) {
@@ -86,7 +85,7 @@ void derivatives_soap_gto(
                     py::array_t<double> cArr({1, nFeatures});
 
                     // Calculate descriptor value
-                    soapGTO(cArr, positionsArr, centerArr, alphasArr, betasArr, atomicNumbersArr, orderedSpeciesArr, rCut, cutoffPadding, nAtoms, Nt, nMax, lMax, 1, eta, crossover, average);
+                    soapGTO(cArr, positionsArr, centerArr, alphasArr, betasArr, atomicNumbersArr, orderedSpeciesArr, rCut, cutoffPadding, nMax, lMax, eta, crossover, average);
                     auto c = cArr.unchecked<2>();
 
                     // Add value to final derivative array
@@ -120,7 +119,6 @@ void derivatives_soap_polynomial(
     int Nt,
     int nMax,
     int lMax,
-    int nCenters,
     double eta,
     py::array_t<double> rwArr,
     py::array_t<double> gssArr,
@@ -132,7 +130,8 @@ void derivatives_soap_polynomial(
     auto d = dArr.mutable_unchecked<4>();
     auto displacedIndices = displacedIndicesArr.unchecked<1>();
     auto positions = positionsArr.mutable_unchecked<2>();
-    auto centers = centersArr.unchecked<1>();
+    auto centers = centersArr.unchecked<2>();
+    int nCenters = centersArr.shape(0);
 
     // Calculate the descriptor value if requested
     if (returnDescriptor) {
@@ -150,7 +149,7 @@ void derivatives_soap_polynomial(
         py::array_t<double> centerArr(3);
         auto center = centerArr.mutable_unchecked<1>();
         for (int i = 0; i < 3; ++i) {
-            center(i) = centers(iCenter*3+i);
+            center(i) = centers(iCenter, i);
         }
 
         for (int iPos=0; iPos < displacedIndices.size(); ++iPos) {
