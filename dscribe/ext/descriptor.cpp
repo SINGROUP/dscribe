@@ -14,8 +14,14 @@ limitations under the License.
 */
 
 #include "descriptor.h"
+#include <iostream>
 
 using namespace std;
+
+Descriptor::Descriptor(string average)
+    : average(average)
+{
+}
 
 void Descriptor::derivatives_numerical(
     py::array_t<double> out_d, 
@@ -31,8 +37,12 @@ void Descriptor::derivatives_numerical(
     auto out_d_mu = out_d.mutable_unchecked<4>();
     auto indices_u = indices.unchecked<1>();
     auto positions_mu = positions.mutable_unchecked<2>();
-    auto centers_u = centers.unchecked<2>();
-    int n_centers = centers.shape(0);
+    int n_centers;
+    if (this->average != "off") {
+        n_centers = 1;
+    } else {
+        n_centers = centers.shape(0);
+    }
 
     // Calculate the desciptor value if requested
     if (return_descriptor) {
@@ -44,51 +54,47 @@ void Descriptor::derivatives_numerical(
     vector<double> coefficients = {-1.0/2.0, 1.0/2.0};
     vector<double> displacement = {-1.0, 1.0};
 
-    for (int i_center=0; i_center < n_centers; ++i_center) {
+    for (int i_pos=0; i_pos < indices_u.size(); ++i_pos) {
 
-        // Make a copy of the center position
-        py::array_t<double> center({1, 3});
-        auto center_mu = center.mutable_unchecked<2>();
+        // Create a copy of the original atom position
+        py::array_t<double> pos(3);
+        auto pos_mu = pos.mutable_unchecked<1>();
         for (int i = 0; i < 3; ++i) {
-            center_mu(0, i) = centers_u(i_center, i);
+            pos_mu(i) = positions_mu(i_pos, i);
         }
 
-        for (int i_pos=0; i_pos < indices_u.size(); ++i_pos) {
+        for (int i_comp=0; i_comp < 3; ++i_comp) {
+            for (int i_stencil=0; i_stencil < 2; ++i_stencil) {
 
-            // Create a copy of the original atom position
-            py::array_t<double> pos(3);
-            auto pos_mu = pos.mutable_unchecked<1>();
-            for (int i = 0; i < 3; ++i) {
-                pos_mu(i) = positions_mu(i_pos, i);
-            }
+                // Introduce the displacement
+                positions_mu(i_pos, i_comp) = pos_mu(i_comp) + h*displacement[i_stencil];
 
-            for (int i_comp=0; i_comp < 3; ++i_comp) {
-                for (int i_stencil=0; i_stencil < 2; ++i_stencil) {
+                // Initialize temporary numpy array for storing the descriptor
+                // for this stencil point
+                double* dTemp = new double[n_centers*n_features]();
+                py::array_t<double> d({n_centers, n_features}, dTemp);
 
-                    // Introduce the displacement
-                    positions_mu(i_pos, i_comp) = pos_mu(i_comp) + h*displacement[i_stencil];
+                // Calculate descriptor value
+                this->create(d, positions, atomic_numbers, centers);
+                auto d_u = d.unchecked<2>();
 
-                    // Initialize numpy array for storing the descriptor for this
-                    // stencil point
-                    py::array_t<double> d({1, n_features});
-
-                    // Calculate descriptor value
-                    this->create(d, positions, atomic_numbers, center);
-                    auto d_u = d.unchecked<2>();
-
-                    // Add value to final derivative array
-                    double coeff = coefficients[i_stencil];
+                // Add value to final derivative array
+                double coeff = coefficients[i_stencil];
+                for (int i_center=0; i_center < n_centers; ++i_center) {
                     for (int i_feature=0; i_feature < n_features; ++i_feature) {
-                        out_d_mu(i_center, i_pos, i_comp, i_feature) = (out_d_mu(i_center, i_pos, i_comp, i_feature) + coeff*d_u(0, i_feature));
+                        out_d_mu(i_center, i_pos, i_comp, i_feature) = (out_d_mu(i_center, i_pos, i_comp, i_feature) + coeff*d_u(i_center, i_feature));
                     }
                 }
+                delete [] dTemp;
+            }
+            for (int i_center=0; i_center < n_centers; ++i_center) {
                 for (int i_feature=0; i_feature < n_features; ++i_feature) {
                     out_d_mu(i_center, i_pos, i_comp, i_feature) = out_d_mu(i_center, i_pos, i_comp, i_feature) / h;
                 }
-
-                // Return position back to original value for next component
-                positions_mu(i_pos, i_comp) = pos_mu(i_comp);
             }
+
+            // Return position back to original value for next component
+            positions_mu(i_pos, i_comp) = pos_mu(i_comp);
         }
     }
 }

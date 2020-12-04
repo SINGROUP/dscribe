@@ -591,7 +591,6 @@ class SOAP(Descriptor):
         n_centers = centers.shape[0]
         n_indices = len(indices)
         n_atoms = len(system)
-        # centers = centers.flatten()
 
         n_features = self.get_number_of_features()
         d = self.init_derivatives_array(n_centers, n_indices, n_features)

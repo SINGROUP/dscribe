@@ -911,7 +911,7 @@ void soapGTO(
     } else if (average == "outer") {
         // We allocate the memory and give array_t a pointer to it. This way
         // the memory is owned and freed by C++.
-        double* PsTemp = new double[nFeatures*nCenters];
+        double* PsTemp = new double[nCenters*nFeatures]();
         py::array_t<double> PsTempArrChecked({nCenters, nFeatures}, PsTemp);
         auto PsTempArr = PsTempArrChecked.mutable_unchecked<2>();
         getP(PsTempArr, Cs, nMax, nSpecies, nCenters, lMax, crossover);
@@ -923,7 +923,7 @@ void soapGTO(
         for (int j = 0; j < nFeatures; j++) {
             Ps(0, j) = Ps(0, j) / (double)nCenters;
         }
-        free(PsTemp);
+        delete [] PsTemp;
     // Regular power spectrum without averaging
     } else {
         getP(Ps, Cs, nMax, nSpecies, nCenters, lMax, crossover);

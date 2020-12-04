@@ -54,6 +54,10 @@ class Descriptor {
             py::array_t<int> indices,
             bool return_descriptor
         ) const;
+
+    protected:
+        Descriptor(string average);
+        const string average;
 };
 
 #endif

@@ -30,13 +30,13 @@ SOAPGTO::SOAPGTO(
     py::array_t<double> alphas,
     py::array_t<double> betas
 )
-    : rcut(rcut)
+    : Descriptor(average)
+    , rcut(rcut)
     , nmax(nmax)
     , lmax(lmax)
     , eta(eta)
     , species(species)
     , crossover(crossover)
-    , average(average)
     , cutoff_padding(cutoff_padding)
     , alphas(alphas)
     , betas(betas)
@@ -88,13 +88,13 @@ SOAPPolynomial::SOAPPolynomial(
     py::array_t<double> rx,
     py::array_t<double> gss
 )
-    : rcut(rcut)
+    : Descriptor(average)
+    , rcut(rcut)
     , nmax(nmax)
     , lmax(lmax)
     , eta(eta)
     , species(species)
     , crossover(crossover)
-    , average(average)
     , cutoff_padding(cutoff_padding)
     , rx(rx)
     , gss(gss)
