@@ -30,6 +30,19 @@ from ase import Atoms
 from ase.build import molecule
 from ase.visualize import view
 
+def _print_diff(num, ana):
+    print("numerical")
+    print(num)
+    print("numerical derivatives shape")
+    print(num.shape)
+    print("analytical")
+    print(ana)
+    print("analytical der shape", ana.shape)
+    print("num - ana")
+    print(num - ana)
+    return
+
+
 H2 = Atoms(
     cell=[
         [15.0, 0.0, 0.0],
@@ -250,99 +263,70 @@ class SoapDerivativeTests(unittest.TestCase):
 
 class SoapDerivativeComparisonTests(unittest.TestCase):
 
-    def test_analytical_vs_numerical(self):
-        """Tests the analytical SOAP GTO derivative values against the
-        numerical values.
+    def test_no_crossover(self):
+        """Tests the analytical soap derivatives implementation without
+        crossover against the numerical implementation.
         """
         soap = SOAP(
-            species=[1],
+            species=["H", "O"],
             rcut=3,
             nmax=9,
             lmax=9,
             sparse=False,
+            crossover=False,
         )
-         
-        # positions = [[0.1, 0.1, -0.1]] # Works
-        positions = [[0.1, 0.1, -0.1], [0.2, 0.2, -0.2]] # Doesn't
-        derivatives_num, d_num = soap.derivatives(H2, positions=positions, method="numerical")
-        derivatives_anal, d_anal = soap.derivatives(H2, positions=positions, method="analytical")
-        diff = np.abs(derivatives_num - derivatives_anal)
-        print(np.max(diff))
-        self.assertTrue(np.allclose(derivatives_num, derivatives_anal, rtol=1e-5, atol=1e-8))
+        positions = H2O.get_positions()
+        derivatives_cpp, d_num = soap.derivatives(H2O, positions=positions, method="numerical")
+        derivatives_anal, d_anal = soap.derivatives(H2O, positions=positions, method="analytical")
+        # _print_diff(derivatives_cpp, derivatives_anal)
+        # print(np.abs(derivatives_anal - derivatives_cpp).max())
+        self.assertTrue(np.allclose(derivatives_cpp, derivatives_anal, rtol=1e-6, atol=1e-6))
 
-    # def test_analytical_vs_numerical_L1(self):
-        # """Tests the analytical soap derivatives implementation against the numerical cpp implementation
-        # """
-        # soap = SOAP(
-            # species=[1],
-            # rcut=3,
-            # nmax=2,
-            # lmax=2,
-            # sparse=False,
-            # crossover=False,
-        # )
-         
-        # #positions = [[0.2, 0.0, 0.0], [0.1, 0.2, 0.3]]
-        # positions = [[0.0, 0.0, 0.0],]
-        # # Calculate with central finite difference implemented in C++
-        # derivatives_cpp, d_num = soap.derivatives(H2, positions=positions, method="numerical")
-        
-        # derivatives_anal, d_anal = soap.derivatives(H2, positions=positions, method="analytical")
-        # derivatives_anal =  derivatives_anal
-        # print("this is totally anal")
-        # print(derivatives_anal)
-        # print("analytical der shape", derivatives_anal.shape)
+    def test_crossover(self):
+        """Tests the analytical soap derivatives implementation with crossover
+        against the numerical implementation.
+        """
+        soap = SOAP(
+            species=["H", "O"],
+            rcut=3,
+            nmax=9,
+            lmax=9,
+            sparse=False,
+            crossover=True,
+        )
+        positions = H2O.get_positions()
+        derivatives_cpp, d_num = soap.derivatives(H2O, positions=positions, method="numerical")
+        derivatives_anal, d_anal = soap.derivatives(H2O, positions=positions, method="analytical")
+        # _print_diff(derivatives_cpp, derivatives_anal)
+        # print(np.abs(derivatives_anal - derivatives_cpp).max())
+        self.assertTrue(np.allclose(derivatives_cpp, derivatives_anal, rtol=1e-6, atol=1e-6))
 
-        # print("numerical derivatives shape")
-        # print(derivatives_cpp.shape)
-        # diff = derivatives_cpp - derivatives_anal
-
-        # print("compare numerical against analytical soap derivatives")
-        # pp(derivatives_cpp)
-        # pp(derivatives_anal)
-        # print("difference")
-        # pp(diff)
-
-    # def test_analytical_vs_numerical_L9(self):
-        # """Tests the analytical soap derivatives implementation against the numerical cpp implementation
-        # """
-        # soap = SOAP(
-            # species=[1],
-            # rcut=3,
-            # nmax=9,
-            # lmax=9,
-            # sparse=False,
-            # crossover=False,
-        # )
-         
-        # #positions = [[0.2, 0.0, 0.0], [0.1, 0.2, 0.3]]
-        # positions = [[0.1, 0.2, 0.3],]
-        # # Calculate with central finite difference implemented in C++
-        # derivatives_cpp, d_num = soap.derivatives(H2, positions=positions, method="numerical")
-        
-        # derivatives_anal, d_anal = soap.derivatives(H2, positions=positions, method="analytical")
-        # derivatives_anal =  derivatives_anal
-        # print("this is totally anal")
-        # print(derivatives_anal)
-        # print("analytical der shape", derivatives_anal.shape)
-
-        # print("numerical derivatives shape")
-        # print(derivatives_cpp.shape)
-        # diff = derivatives_cpp - derivatives_anal
-
-        # print("compare numerical against analytical soap derivatives")
-        # pp(derivatives_cpp)
-        # pp(derivatives_anal)
-        # print("difference")
-        # pp(diff)
-        # pp(np.abs(diff).sum())
-        # print(diff.max(), diff.min())
-        # print("AAA")
+    def test_descriptor_output(self):
+        """Tests that the descriptor is output correctly both for numerical and
+        analytical version.
+        """
+        soap = SOAP(
+            species=["H", "O"],
+            rcut=3,
+            nmax=3,
+            lmax=3,
+        )
+        positions = H2O.get_positions()
+        _, d_num = soap.derivatives(H2O, positions=positions, method="numerical")
+        _, d_anal = soap.derivatives(H2O, positions=positions, method="analytical")
+        d = soap.create(H2O, positions=positions)
+        # print(np.abs(d - d_anal).max())
+        # _print_diff(derivatives_cpp, derivatives_anal)
+        self.assertTrue(np.allclose(d, d_num))
+        self.assertTrue(np.allclose(d, d_anal))
 
 
 if __name__ == '__main__':
     suites = []
     suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests))
+    # SoapDerivativeComparisonTests().test_no_crossover()
+    # SoapDerivativeComparisonTests().test_crossover()
+    # SoapDerivativeComparisonTests().test_descriptor_output()
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)
