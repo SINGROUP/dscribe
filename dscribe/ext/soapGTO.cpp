@@ -23,7 +23,6 @@ limitations under the License.
 #include <map>
 #include <set>
 #include "soapGTO.h"
-#include "celllist.h"
 
 #define PI2 9.86960440108936
 #define PI 3.14159265359
@@ -714,7 +713,8 @@ void soapGTO(
     int lMax,
     double eta,
     bool crossover,
-    string average)
+    string average,
+    CellList cellList)
 {
     int nAtoms = atomicNumbersArr.shape(0);
     int nSpecies = orderedSpeciesArr.shape(0);
@@ -825,9 +825,6 @@ void soapGTO(
         CsAve = (double*) malloc(nCoeffs*sizeof(double));
         memset(CsAve, 0.0, nCoeffs*sizeof(double));
     }
-
-    // Initialize binning
-    CellList cellList(positions, rCut+cutoffPadding);
 
     // Create a mapping between an atomic index and its internal index in the
     // output. The list of species is already ordered.

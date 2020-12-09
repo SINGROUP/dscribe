@@ -20,7 +20,6 @@ limitations under the License.
 #include <set>
 #include <iostream>
 #include "soapGeneral.h"
-#include "celllist.h"
 
 #define tot (double*) malloc(sizeof(double)*nAtoms);
 #define totrs (double*) malloc(sizeof(double)*nAtoms*rsize);
@@ -1845,7 +1844,8 @@ void soapGeneral(
     py::array_t<double> rwArr,
     py::array_t<double> gssArr,
     bool crossover,
-    string average)
+    string average,
+    CellList cellList)
 {
     int nAtoms = atomicNumbersArr.shape(0);
     int Nt = orderedSpeciesArr.shape(0);
@@ -1892,9 +1892,6 @@ void soapGeneral(
     for (int i = 0; i < species.size(); ++i) {
         ZIndexMap[species(i)] = i;
     }
-
-    // Initialize binning
-    CellList cellList(positions, rCut+cutoffPadding);
 
     // Loop through central points
     for (int i = 0; i < Hs; i++) {

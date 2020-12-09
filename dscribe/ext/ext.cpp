@@ -28,6 +28,9 @@ limitations under the License.
 namespace py = pybind11;
 using namespace std;
 
+template <typename... Args>
+using overload_cast_ = pybind11::detail::overload_cast_impl<Args...>;
+
 // Notice that the name of the first argument to the module macro needs to
 // correspond to the file name!
 PYBIND11_MODULE(ext, m) {
@@ -36,11 +39,13 @@ PYBIND11_MODULE(ext, m) {
     m.def("soap_general", &soapGeneral, "SOAP with a general radial basis set.");
     py::class_<SOAPGTO>(m, "SOAPGTO")
         .def(py::init<double, int, int, double, py::array_t<int>, bool, string, double, py::array_t<double>, py::array_t<double> >())
-        .def("create", &SOAPGTO::create)
+        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double> >()(&SOAPGTO::create, py::const_))
+        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, CellList>()(&SOAPGTO::create, py::const_))
         .def("derivatives_numerical", &SOAPGTO::derivatives_numerical);
     py::class_<SOAPPolynomial>(m, "SOAPPolynomial")
         .def(py::init<double, int, int, double, py::array_t<int>, bool, string, double, py::array_t<double>, py::array_t<double> >())
-        .def("create", &SOAPPolynomial::create)
+        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double> >()(&SOAPPolynomial::create, py::const_))
+        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, CellList>()(&SOAPPolynomial::create, py::const_))
         .def("derivatives_numerical", &SOAPPolynomial::derivatives_numerical);
 
     // ACSF

@@ -13,13 +13,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "descriptor.h"
 #include <iostream>
+#include "descriptor.h"
 
 using namespace std;
 
-Descriptor::Descriptor(string average)
+Descriptor::Descriptor(string average, double cutoff)
     : average(average)
+    , cutoff(cutoff)
 {
 }
 
@@ -33,6 +34,9 @@ void Descriptor::derivatives_numerical(
     bool return_descriptor
 ) const
 {
+    // Calculate neighbours with a cell list
+    CellList cell_list(positions, this->cutoff);
+
     int n_features = this->get_number_of_features();
     auto out_d_mu = out_d.mutable_unchecked<4>();
     auto indices_u = indices.unchecked<1>();
@@ -46,7 +50,7 @@ void Descriptor::derivatives_numerical(
 
     // Calculate the desciptor value if requested
     if (return_descriptor) {
-        this->create(out, positions, atomic_numbers, centers);
+        this->create(out, positions, atomic_numbers, centers, cell_list);
     }
     
     // Central finite difference with error O(h^2)
@@ -75,7 +79,7 @@ void Descriptor::derivatives_numerical(
                 py::array_t<double> d({n_centers, n_features}, dTemp);
 
                 // Calculate descriptor value
-                this->create(d, positions, atomic_numbers, centers);
+                this->create(d, positions, atomic_numbers, centers, cell_list);
                 auto d_u = d.unchecked<2>();
 
                 // Add value to final derivative array

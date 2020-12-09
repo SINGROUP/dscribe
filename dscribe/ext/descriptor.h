@@ -18,6 +18,7 @@ limitations under the License.
 
 #include <pybind11/numpy.h>
 #include <string>
+#include "celllist.h"
 
 namespace py = pybind11;
 using namespace std;
@@ -35,6 +36,14 @@ class Descriptor {
             py::array_t<double> positions,
             py::array_t<int> atomic_numbers,
             py::array_t<double> centers
+        ) const = 0; 
+
+        virtual void create(
+            py::array_t<double> out, 
+            py::array_t<double> positions,
+            py::array_t<int> atomic_numbers,
+            py::array_t<double> centers,
+            CellList cellList
         ) const = 0; 
 
         /**
@@ -56,8 +65,9 @@ class Descriptor {
         ) const;
 
     protected:
-        Descriptor(string average);
+        Descriptor(string average, double cutoff=0);
         const string average;
+        const double cutoff;
 };
 
 #endif

@@ -30,7 +30,7 @@ SOAPGTO::SOAPGTO(
     py::array_t<double> alphas,
     py::array_t<double> betas
 )
-    : Descriptor(average)
+    : Descriptor(average, rcut+cutoff_padding)
     , rcut(rcut)
     , nmax(nmax)
     , lmax(lmax)
@@ -50,6 +50,9 @@ void SOAPGTO::create(
     py::array_t<double> centers
 ) const
 {
+    // Calculate neighbours with a cell list
+    CellList cell_list(positions, this->cutoff);
+
     soapGTO(
         out,
         positions,
@@ -64,7 +67,35 @@ void SOAPGTO::create(
         this->lmax,
         this->eta,
         this->crossover,
-        this->average
+        this->average,
+        cell_list
+    );
+}
+
+void SOAPGTO::create(
+    py::array_t<double> out, 
+    py::array_t<double> positions,
+    py::array_t<int> atomic_numbers,
+    py::array_t<double> centers,
+    CellList cell_list
+) const
+{
+    soapGTO(
+        out,
+        positions,
+        centers,
+        this->alphas,
+        this->betas,
+        atomic_numbers,
+        this->species,
+        this->rcut,
+        this->cutoff_padding,
+        this->nmax,
+        this->lmax,
+        this->eta,
+        this->crossover,
+        this->average,
+        cell_list
     );
 }
 
@@ -88,7 +119,7 @@ SOAPPolynomial::SOAPPolynomial(
     py::array_t<double> rx,
     py::array_t<double> gss
 )
-    : Descriptor(average)
+    : Descriptor(average, rcut+cutoff_padding)
     , rcut(rcut)
     , nmax(nmax)
     , lmax(lmax)
@@ -108,6 +139,9 @@ void SOAPPolynomial::create(
     py::array_t<double> centers
 ) const
 {
+    // Calculate neighbours with a cell list
+    CellList cell_list(positions, this->cutoff);
+
     soapGeneral(
         out,
         positions,
@@ -122,7 +156,35 @@ void SOAPPolynomial::create(
         this->rx,
         this->gss,
         this->crossover,
-        this->average
+        this->average,
+        cell_list
+    );
+}
+
+void SOAPPolynomial::create(
+    py::array_t<double> out, 
+    py::array_t<double> positions,
+    py::array_t<int> atomic_numbers,
+    py::array_t<double> centers,
+    CellList cell_list
+) const
+{
+    soapGeneral(
+        out,
+        positions,
+        centers,
+        atomic_numbers,
+        this->species,
+        this->rcut,
+        this->cutoff_padding,
+        this->nmax,
+        this->lmax,
+        this->eta,
+        this->rx,
+        this->gss,
+        this->crossover,
+        this->average,
+        cell_list
     );
 }
 
