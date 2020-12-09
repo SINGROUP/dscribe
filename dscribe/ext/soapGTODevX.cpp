@@ -1931,9 +1931,9 @@ void getPCrossOverD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int l
             for(int kd = k; kd < Ns; kd++){
               double buffDouble = 0;
               for(int buffShift = m*m; buffShift < (m+1)*(m+1); buffShift++){
-                buffDouble += Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k] * Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd];
-                soapMat[shiftAll] = prel*buffDouble;
+                buffDouble += Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k] * Cnnd[NsTs100*i + Ns100*jd + buffShift*Ns + kd];
   	       }
+              soapMat[shiftAll] = prel*buffDouble;
               shiftAll++;
             }
           }
@@ -1942,7 +1942,7 @@ void getPCrossOverD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int l
             for(int kd = 0; kd < Ns; kd++){
               double buffDouble = 0;
               for(int buffShift = m*m; buffShift < (m+1)*(m+1); buffShift++){
-                buffDouble += PI3*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd];
+                buffDouble += Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*Cnnd[NsTs100*i + Ns100*jd + buffShift*Ns + kd];
   	       }
               soapMat[shiftAll] = prel*buffDouble;
               shiftAll++;
