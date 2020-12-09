@@ -154,7 +154,7 @@ class SoapDerivativeTests(unittest.TestCase):
         self.assertTrue(np.allclose(assumed_der, der))
 
         # Now with centers given in cartesian positions.
-        centers = [[[0, 1, 2]], [[0, 1, 2]]]
+        centers = [[[0, 1, 2]], [[2, 1, 0]]]
         der, des = desc.derivatives(
             system=samples,
             positions=centers,
@@ -165,7 +165,7 @@ class SoapDerivativeTests(unittest.TestCase):
         assumed_der = np.empty((2, 1, 2, 3, n_features))
         assumed_des = np.empty((2, 1, n_features))
         assumed_der[0, :], assumed_des[0, :]  = desc.derivatives(samples[0], centers[0], n_jobs=1)
-        assumed_der[1, :], assumed_des[1, :]  = desc.derivatives(samples[1], centers[0], n_jobs=1)
+        assumed_der[1, :], assumed_des[1, :]  = desc.derivatives(samples[1], centers[1], n_jobs=1)
         self.assertTrue(np.allclose(assumed_der, der))
 
         # Includes
@@ -199,20 +199,35 @@ class SoapDerivativeTests(unittest.TestCase):
         self.assertTrue(np.allclose(assumed_der, der))
 
         # Test averaged output
-        # desc.average = "inner"
-        # positions=[[0], [0, 1]]
-        # output = desc.derivatives(
-            # system=samples,
-            # positions=positions,
-            # n_jobs=2,
-        # )
-        # self.assertTrue(der.shape == (2, 1, 2, 3, n_features))
-        # self.assertTrue(des.shape == (2, 1, n_features))
-        # assumed_der = np.empty((2, 2, 1, 3, n_features))
-        # assumed_des = np.empty((2, 2, n_features))
-        # assumed_der[0, :], assumed_des[0, :]  = desc.derivatives(samples[0], exclude=excludes[0], n_jobs=1)
-        # assumed_der[1, :], assumed_des[1, :]  = desc.derivatives(samples[1], exclude=excludes[1], n_jobs=1)
-        # self.assertTrue(np.allclose(assumed_der, der))
+        desc.average = "inner"
+        positions=[[0], [0, 1]]
+        der, des = desc.derivatives(
+            system=samples,
+            positions=positions,
+            n_jobs=2,
+        )
+        self.assertTrue(der.shape == (2, 1, 2, 3, n_features))
+        self.assertTrue(des.shape == (2, 1, n_features))
+        assumed_der = np.empty((2, 1, 2, 3, n_features))
+        assumed_des = np.empty((2, 1, n_features))
+        assumed_der[0, :], assumed_des[0, :]  = desc.derivatives(samples[0], positions=positions[0], n_jobs=1)
+        assumed_der[1, :], assumed_des[1, :]  = desc.derivatives(samples[1], positions=positions[1], n_jobs=1)
+        self.assertTrue(np.allclose(assumed_der, der))
+
+        # Variable size list output, as the systems have a different size
+        desc.average = "off"
+        samples = [molecule("CO"), molecule("NO2")]
+        der, des = desc.derivatives(
+            system=samples,
+            n_jobs=2,
+        )
+        self.assertTrue(isinstance(der, list))
+        self.assertTrue(der[0].shape == (2, 2, 3, n_features))
+        self.assertTrue(der[1].shape == (3, 3, 3, n_features))
+        assumed_der0, assumed_des0  = desc.derivatives(samples[0], n_jobs=1)
+        assumed_der1, assumed_des1  = desc.derivatives(samples[1], n_jobs=1)
+        self.assertTrue(np.allclose(assumed_der0, der[0]))
+        self.assertTrue(np.allclose(assumed_der1, der[1]))
 
     def test_numerical(self):
         """Test numerical values.
@@ -325,8 +340,5 @@ if __name__ == '__main__':
     suites = []
     suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests))
-    # SoapDerivativeComparisonTests().test_no_crossover()
-    # SoapDerivativeComparisonTests().test_crossover()
-    # SoapDerivativeComparisonTests().test_descriptor_output()
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)
