@@ -42,11 +42,15 @@ PYBIND11_MODULE(ext, m) {
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double> >()(&SOAPGTO::create, py::const_))
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, CellList>()(&SOAPGTO::create, py::const_))
         .def("derivatives_numerical", &SOAPGTO::derivatives_numerical);
+        //.def("derivatives_numerical", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<int>, bool>()(&SOAPGTO::derivatives_numerical, py::const_))
+        //.def("derivatives_numerical", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<int>, py::array_t<int>, bool>()(&SOAPGTO::derivatives_numerical, py::const_));
     py::class_<SOAPPolynomial>(m, "SOAPPolynomial")
         .def(py::init<double, int, int, double, py::array_t<int>, bool, string, double, py::array_t<double>, py::array_t<double> >())
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double> >()(&SOAPPolynomial::create, py::const_))
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, CellList>()(&SOAPPolynomial::create, py::const_))
-        .def("derivatives_numerical", &SOAPPolynomial::derivatives_numerical);
+        .def("derivatives_numerical", &SOAPGTO::derivatives_numerical);
+        //.def("derivatives_numerical", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<int>, bool>()(&SOAPPolynomial::derivatives_numerical, py::const_))
+        //.def("derivatives_numerical", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<int>, py::array_t<int>, bool>()(&SOAPPolynomial::derivatives_numerical, py::const_));
 
     // ACSF
     py::class_<ACSF>(m, "ACSFWrapper")

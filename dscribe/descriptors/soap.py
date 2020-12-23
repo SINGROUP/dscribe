@@ -187,7 +187,9 @@ class SOAP(Descriptor):
         # Setup the local positions
         if positions is None:
             list_positions = system.get_positions()
+            indices = np.arange(len(system))
         else:
+            indices = np.full(len(positions), -1, dtype=np.int)
             # Check validity of position definitions and create final cartesian
             # position list
             list_positions = []
@@ -197,9 +199,10 @@ class SOAP(Descriptor):
                     " atomic indices or cartesian coordinates with x, y and z "
                     "components."
                 )
-            for i in positions:
+            for idx, i in enumerate(positions):
                 if np.issubdtype(type(i), np.integer):
                     list_positions.append(system.get_positions()[i])
+                    indices[idx] = i
                 elif isinstance(i, (list, tuple, np.ndarray)):
                     if len(i) != 3:
                         raise ValueError(
@@ -218,7 +221,7 @@ class SOAP(Descriptor):
         if self.periodic:
             system = get_extended_system(system, self._rcut+cutoff_padding, return_cell_indices=False)
 
-        return system, np.asarray(list_positions)
+        return system, np.asarray(list_positions), indices
 
     def get_cutoff_padding(self):
         """The radial cutoff is extended by adding a padding that depends on
@@ -339,7 +342,7 @@ class SOAP(Descriptor):
             get_number_of_features()-function.
         """
         cutoff_padding = self.get_cutoff_padding()
-        system, centers = self.prepare(system, cutoff_padding, positions)
+        system, centers, _ = self.prepare(system, cutoff_padding, positions)
         n_centers = centers.shape[0]
         n_species = self._atomic_numbers.shape[0]
         pos = system.get_positions()
@@ -583,7 +586,7 @@ class SOAP(Descriptor):
             features in the default order.
         """
         cutoff_padding = self.get_cutoff_padding()
-        system, centers = self.prepare(system, cutoff_padding, positions)
+        system, centers, center_indices = self.prepare(system, cutoff_padding, positions)
         pos = system.get_positions()
         Z = system.get_atomic_numbers()
         sorted_species = self._atomic_numbers
@@ -623,6 +626,7 @@ class SOAP(Descriptor):
                     pos,
                     Z,
                     centers,
+                    center_indices,
                     indices,
                     return_descriptor,
                 )
@@ -662,6 +666,7 @@ class SOAP(Descriptor):
                     pos,
                     Z,
                     centers,
+                    center_indices,
                     indices,
                     return_descriptor,
                 )
