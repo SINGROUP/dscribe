@@ -54,15 +54,6 @@ class Descriptor {
         /**
          * For creating derivatives.
          */
-        //void derivatives_numerical(
-            //py::array_t<double> out_d, 
-            //py::array_t<double> out, 
-            //py::array_t<double> positions,
-            //py::array_t<int> atomic_numbers,
-            //py::array_t<double> centers,
-            //py::array_t<int> indices,
-            //bool return_descriptor
-        //) const;
         void derivatives_numerical(
             py::array_t<double> out_d,
             py::array_t<double> out,

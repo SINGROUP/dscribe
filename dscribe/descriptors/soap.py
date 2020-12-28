@@ -454,7 +454,7 @@ class SOAP(Descriptor):
             a regular python list is returned. The dimensions are:
             [(n_systems,) n_positions, n_atoms, 3, n_features]. The first
             dimension goes over the different systems in case multiple were
-            given.  The second dimension goes over the descriptor centers in
+            given. The second dimension goes over the descriptor centers in
             the same order as they were given in the argument. The third
             dimension goes over the included atoms. The order is same as the
             order of atoms in the given system. The fourth dimension goes over
