@@ -69,12 +69,13 @@ def test_soap_derivatives(version):
     ax.set_xlabel("Number of atoms")
     ax.set_ylabel("Time (s)")
 
-    for method in ["numerical", "analytical"]:
+    # for method in ["numerical", "analytical"]:
+    for method in ["numerical"]:
 
         N = []
         t = []
         # Loop over different system sizes
-        for ncells in tqdm(range(1, 8)):
+        for ncells in tqdm(range(1, 15)):
 
             soap_generator = SOAP(
                 rcut=3.0,
@@ -89,7 +90,9 @@ def test_soap_derivatives(version):
             # Extend system
             i_system = system_periodic.copy() * [ncells, ncells, 1]
             t0 = time()
-            soap_generator.derivatives(i_system, method=method)
+            der, des = soap_generator.derivatives(i_system, method=method)
+            # print(der.shape)
+            # print("%d bytes" % (der.size * der.itemsize/1000000))
             t1 = time()
             N.append(len(i_system))
             t.append(t1 - t0)

@@ -59,6 +59,8 @@ class Descriptor {
             py::array_t<double> out,
             py::array_t<double> positions,
             py::array_t<int> atomic_numbers,
+            py::array_t<double> cell,
+            py::array_t<bool> pbc,
             py::array_t<double> center_pos,
             py::array_t<int> center_indices,
             py::array_t<int> indices,
@@ -66,7 +68,8 @@ class Descriptor {
         ) const;
 
     protected:
-        Descriptor(string average, double cutoff=0);
+        Descriptor(bool periodic, string average, double cutoff=0);
+        const bool periodic;
         const string average;
         const double cutoff;
 };

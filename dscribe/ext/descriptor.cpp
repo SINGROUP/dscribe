@@ -14,23 +14,30 @@ limitations under the License.
 */
 
 #include <iostream>
+#include <set>
 #include <unordered_map>
+#include <cmath>
 //#include <unordered_set>
 #include "descriptor.h"
+#include "geometry.h"
 
 using namespace std;
 
-Descriptor::Descriptor(string average, double cutoff)
-    : average(average)
+Descriptor::Descriptor(bool periodic, string average, double cutoff)
+    : periodic(periodic)
+    , average(average)
     , cutoff(cutoff)
 {
 }
+
 
 void Descriptor::derivatives_numerical(
     py::array_t<double> out_d, 
     py::array_t<double> out, 
     py::array_t<double> positions,
     py::array_t<int> atomic_numbers,
+    py::array_t<double> cell,
+    py::array_t<bool> pbc,
     py::array_t<double> centers,
     py::array_t<int> center_indices,
     py::array_t<int> indices,
@@ -43,26 +50,60 @@ void Descriptor::derivatives_numerical(
     //  - The CellList for positions is calculated only once and passed to the
     //    create-method.
     //  - Only centers within the cutoff distance from the wiggled atom are
-    //    taken into account by calculating a separate CellList for the centers.
-    //  - Atoms for which there are no neighouring centers are skipped
-    //  - Self-interaction is ignored (the derivative of atom with respect to
-    //    itself is always zero).
+    //    taken into account by calculating a separate CellList for the
+    //    centers. Note that this optimization cannot be naively applied when
+    //    averaging centers.
+    //  - Atoms for which there are no neighouring centers are skipped.
     //  TODO:
     //  - Symmetry of the derivatives is taken into account (derivatives of
     //    [i, j] is -[j, i] AND species position should be swapped)
-    //  - Using symmetry and removing self-intearciont in the averaged case is
+    //  - Using symmetry and removing self-interaction in the averaged case is
     //    much more difficult, especially in the inner-averaging mode. Thus these
     //    optimization are simply left out.
+    //
+    //  Notice that these optimization are NOT valid:
+    //  - Self-derivatives are NOT always zero, only zero for l=0. The shape of
+    //    the atomic density changes as atoms move around.
+
     int n_features = this->get_number_of_features();
     auto out_d_mu = out_d.mutable_unchecked<4>();
     auto indices_u = indices.unchecked<1>();
     auto positions_mu = positions.mutable_unchecked<2>();
     auto centers_u = centers.unchecked<2>();
     auto center_indices_u = center_indices.unchecked<1>();
-    int n_all_centers = center_indices.size();
+    auto pbc_u = pbc.unchecked<1>();
+    py::array_t<int> center_true_indices;
+    int n_copies = 1;
+    int n_atoms = atomic_numbers.size();
 
-    // Calculate neighbours with a cell list.
+    // Create the extended system for periodic systems. 
+    bool is_periodic = this->periodic && (pbc_u(0) || pbc_u(1) || pbc_u(2));
+    if (is_periodic) {
+        ExtendedSystem system_extension = extend_system(positions, atomic_numbers, cell, pbc, this->cutoff);
+        positions = system_extension.positions;
+        n_copies = system_extension.atomic_numbers.size()/atomic_numbers.size();
+        atomic_numbers = system_extension.atomic_numbers;
+    }
+    cout << "Number of copies: " << n_copies << endl;
+    //py::detail::unchecked_reference<int, 1> center_true_indices_u = is_periodic ? center_true_indices.unchecked<1>(): center_indices.unchecked<1>();
+
+    // Pre-calculate cell list for atoms
     CellList cell_list_atoms(positions, this->cutoff);
+
+    // Calculate the desciptor value if requested. This needs to be done with
+    // the non-extended centers, but extended system.
+    if (return_descriptor) {
+        this->create(out, positions, atomic_numbers, centers, cell_list_atoms);
+    }
+
+    // Create the extended centers for periodic systems.
+    if (is_periodic) {
+        ExtendedSystem center_extension = extend_system(centers, center_indices, cell, pbc, this->cutoff);
+        centers = center_extension.positions;
+        center_true_indices = center_extension.indices;
+    }
+
+    // Pre-calculate cell list for centers.
     CellList cell_list_centers(centers, this->cutoff);
 
     // TODO: These are needed for tracking symmetrical values.
@@ -96,11 +137,6 @@ void Descriptor::derivatives_numerical(
         }
     }
 
-    // Calculate the desciptor value if requested
-    if (return_descriptor) {
-        this->create(out, positions, atomic_numbers, centers, cell_list_atoms);
-    }
-    
     // Central finite difference with error O(h^2)
     double h = 0.0001;
     vector<double> coefficients = {-1.0/2.0, 1.0/2.0};
@@ -110,49 +146,70 @@ void Descriptor::derivatives_numerical(
     for (int i_idx=0; i_idx < indices_u.size(); ++i_idx) {
         int i_atom = indices_u(i_idx);
 
-        // Check whether the atom has any centers within radius. If not, the
+        // Find all atom indices that should be moved. For periodic systems
+        // there may be multiple.
+        vector<int> i_atom_indices(n_copies);
+        for (int i = 0; i < n_copies; ++i) {
+            i_atom_indices[i] = i_atom + i*n_atoms;
+        }
+
+        // Check whether the atom has any enters within radius. If not, the
         // calculation is skipped.
         double ix = positions_mu(i_atom, 0);
         double iy = positions_mu(i_atom, 1);
         double iz = positions_mu(i_atom, 2);
         vector<int> centers_local_idx = cell_list_centers.getNeighboursForPosition(ix, iy, iz).indices;
+
+        // The periodically repeated centers are already correctly found from
+        // the extended center list. They just need to be mapped into the
+        // correct centers in the original list, and the original center can be
+        // used (the atoms are periodically repeated and all periodic copies
+        // are moved for the finite difference).
+        if (is_periodic) {
+            auto center_true_indices_u = center_true_indices.unchecked<1>();
+            set<int> centers_set;
+            for (int i=0; i < centers_local_idx.size(); ++i) {
+                int true_index = center_true_indices_u(i);
+                centers_set.insert(true_index);
+            }
+            centers_local_idx = vector<int>(centers_set.begin(), centers_set.end()); 
+        }
+
         int n_locals = centers_local_idx.size();
         if (n_locals == 0) {
             continue;
         }
 
-        // When averaging is not performed, only use the local centers and
-        // remove self-interaction, as these will simply be zeroes.
+        // When averaging is not performed, only use the local centers.
         // TODO Remove half of symmetrical pairs
         int n_centers;
         py::array_t<double> centers_local_pos;
         if (this->average == "off") {
             //bool not_center = atom_center_map.find(i_atom) == atom_center_map.end();
             //unordered_set<int> symmetric;
-            vector<int> locals;
-            for (int i = 0; i < centers_local_idx.size(); ++i) {
-                int local_idx = centers_local_idx[i];
-                auto center_atom_idx = center_atom_map.find(local_idx);
-                if (center_atom_idx == center_atom_map.end()) {
-                    locals.push_back(local_idx);
-                } else if (center_atom_idx->second != i_atom) {
-                    locals.push_back(local_idx);
-                }
-                //if (not_center || center_atom_idx == center_atom_map.end()) {
+            //vector<int> locals;
+            //for (int i = 0; i < centers_local_idx.size(); ++i) {
+                //int local_idx = centers_local_idx[i];
+                //auto center_atom_idx = center_atom_map.find(local_idx);
+                //if (center_atom_idx == center_atom_map.end()) {
                     //locals.push_back(local_idx);
-                //} else if (center_atom_idx->second > i_atom) {
+                //} else if (center_atom_idx->second != i_atom) {
                     //locals.push_back(local_idx);
-                    //symmetric.insert(local_idx);
                 //}
-            }
-            centers_local_idx = locals;
+                ////if (not_center || center_atom_idx == center_atom_map.end()) {
+                    ////locals.push_back(local_idx);
+                ////} else if (center_atom_idx->second > i_atom) {
+                    ////locals.push_back(local_idx);
+                    ////symmetric.insert(local_idx);
+                ////}
+            //}
+            //centers_local_idx = locals;
             n_locals = centers_local_idx.size();
             if (n_locals == 0) {
                 continue;
             }
 
-            // Create a new list containing only the nearby centers, taking into
-            // account symmetry of the derivatives and zero self-interaction.
+            // Create a new list containing only the nearby centers.
             centers_local_pos = py::array_t<double>({n_locals, 3});
             auto centers_local_pos_mu = centers_local_pos.mutable_unchecked<2>();
             for (int i_local = 0; i_local < n_locals; ++i_local) {
@@ -168,18 +225,25 @@ void Descriptor::derivatives_numerical(
             n_centers = 1;
         }
 
-        // Create a copy of the original atom position.
-        py::array_t<double> pos(3);
-        auto pos_mu = pos.mutable_unchecked<1>();
-        for (int i = 0; i < 3; ++i) {
-            pos_mu(i) = positions_mu(i_atom, i);
+        // Create a copy of the original atom position(s).
+        py::array_t<double> pos({n_copies, 3});
+        auto pos_mu = pos.mutable_unchecked<2>();
+        for (int i_copy = 0; i_copy < i_atom_indices.size(); ++i_copy) {
+            int j_copy = i_atom_indices[i_copy];
+            for (int i = 0; i < 3; ++i) {
+                pos_mu(i_copy, i) = positions_mu(j_copy, i);
+            }
         }
 
         for (int i_comp=0; i_comp < 3; ++i_comp) {
             for (int i_stencil=0; i_stencil < 2; ++i_stencil) {
 
-                // Introduce the displacement
-                positions_mu(i_atom, i_comp) = pos_mu(i_comp) + h*displacement[i_stencil];
+                // Introduce the displacement(s). Displacement are done for all
+                // periodic copies as well.
+                for (int i_copy = 0; i_copy < i_atom_indices.size(); ++i_copy) {
+                    int j_copy = i_atom_indices[i_copy];
+                    positions_mu(j_copy, i_comp) = pos_mu(i_copy, i_comp) + h*displacement[i_stencil];
+                }
 
                 // Initialize temporary numpy array for storing the descriptor
                 // for this stencil point
@@ -215,8 +279,13 @@ void Descriptor::derivatives_numerical(
                 }
             }
 
-            // Return position back to original value for next component
-            positions_mu(i_atom, i_comp) = pos_mu(i_comp);
+            // Return position(s) back to original value for next component.
+            for (int i_copy = 0; i_copy < i_atom_indices.size(); ++i_copy) {
+                int j_copy = i_atom_indices[i_copy];
+                positions_mu(j_copy, i_comp) = pos_mu(i_copy, i_comp);
+            }
         }
     }
+    // Write the symmetrical values as a post-processing step if they are
+    // present.
 }

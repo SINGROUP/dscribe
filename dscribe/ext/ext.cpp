@@ -13,7 +13,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>  // Enables easy access to numpy arrays
 #include <pybind11/stl.h>    // Enables automatic type conversion from C++ containers to python
@@ -24,6 +23,7 @@ limitations under the License.
 #include "soap.h"
 #include "acsf.h"
 #include "mbtr.h"
+//#include "geometry.h"
 
 namespace py = pybind11;
 using namespace std;
@@ -38,15 +38,17 @@ PYBIND11_MODULE(ext, m) {
     m.def("soap_gto", &soapGTO, "SOAP with gaussian type orbital radial basis set.");
     m.def("soap_general", &soapGeneral, "SOAP with a general radial basis set.");
     py::class_<SOAPGTO>(m, "SOAPGTO")
-        .def(py::init<double, int, int, double, py::array_t<int>, bool, string, double, py::array_t<double>, py::array_t<double> >())
+        .def(py::init<double, int, int, double, py::array_t<int>, bool, bool, string, double, py::array_t<double>, py::array_t<double> >())
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double> >()(&SOAPGTO::create, py::const_))
+        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<bool>, py::array_t<double> >()(&SOAPGTO::create, py::const_))
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, CellList>()(&SOAPGTO::create, py::const_))
         .def("derivatives_numerical", &SOAPGTO::derivatives_numerical);
         //.def("derivatives_numerical", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<int>, bool>()(&SOAPGTO::derivatives_numerical, py::const_))
         //.def("derivatives_numerical", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<int>, py::array_t<int>, bool>()(&SOAPGTO::derivatives_numerical, py::const_));
     py::class_<SOAPPolynomial>(m, "SOAPPolynomial")
-        .def(py::init<double, int, int, double, py::array_t<int>, bool, string, double, py::array_t<double>, py::array_t<double> >())
+        .def(py::init<double, int, int, double, py::array_t<int>, bool, bool, string, double, py::array_t<double>, py::array_t<double> >())
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double> >()(&SOAPPolynomial::create, py::const_))
+        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<bool>, py::array_t<double> >()(&SOAPPolynomial::create, py::const_))
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, CellList>()(&SOAPPolynomial::create, py::const_))
         .def("derivatives_numerical", &SOAPGTO::derivatives_numerical);
         //.def("derivatives_numerical", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<int>, bool>()(&SOAPPolynomial::derivatives_numerical, py::const_))
@@ -111,6 +113,14 @@ PYBIND11_MODULE(ext, m) {
         .def_readonly("indices", &CellListResult::indices)
         .def_readonly("distances", &CellListResult::distances)
         .def_readonly("distances_squared", &CellListResult::distancesSquared);
+
+    // Geometry
+    //m.def("extend_system", &extend_system, "Create a periodically extended system.");
+    //py::class_<ExtendedSystem>(m, "ExtendedSystem")
+        //.def(py::init<>())
+        //.def_readonly("positions", &ExtendedSystem::positions)
+        //.def_readonly("atomic_numbers", &ExtendedSystem::atomic_numbers)
+        //.def_readonly("indices", &ExtendedSystem::indices);
 
     // Derivatives
     m.def("soap_gto_devX", &soapGTODevX, "Analytical derivatives of SOAP with gaussian type orbital radial basis set.");

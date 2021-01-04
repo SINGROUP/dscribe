@@ -20,11 +20,11 @@ from scipy.special import gamma
 from scipy.linalg import sqrtm, inv
 
 from ase import Atoms
+import ase.geometry.cell
 import ase.data
 
 from dscribe.descriptors import Descriptor
 from dscribe.core import System
-from dscribe.utils.geometry import get_extended_system
 import dscribe.ext
 
 
@@ -166,8 +166,8 @@ class SOAP(Descriptor):
         self.average = average
         self.crossover = crossover
 
-    def prepare(self, system, cutoff_padding, positions=None):
-        """Prepares the input for the C++ extension.
+    def prepare_centers(self, system, cutoff_padding, positions=None):
+        """Validates and prepares the centers for the C++ extension.
         """
         # Transform the input system into the internal System-object
         system = self.get_system(system)
@@ -217,11 +217,7 @@ class SOAP(Descriptor):
                         "list of atom indices and/or positions."
                     )
 
-        # Create the extended system if periodicity is requested
-        if self.periodic:
-            system = get_extended_system(system, self._rcut+cutoff_padding, return_cell_indices=False)
-
-        return system, np.asarray(list_positions), indices
+        return np.asarray(list_positions), indices
 
     def get_cutoff_padding(self):
         """The radial cutoff is extended by adding a padding that depends on
@@ -342,7 +338,7 @@ class SOAP(Descriptor):
             get_number_of_features()-function.
         """
         cutoff_padding = self.get_cutoff_padding()
-        system, centers, _ = self.prepare(system, cutoff_padding, positions)
+        centers, _ = self.prepare_centers(system, cutoff_padding, positions)
         n_centers = centers.shape[0]
         n_species = self._atomic_numbers.shape[0]
         pos = system.get_positions()
@@ -369,6 +365,7 @@ class SOAP(Descriptor):
                 self._lmax,
                 self._eta,
                 self._atomic_numbers,
+                self.periodic,
                 self.crossover,
                 self.average,
                 cutoff_padding,
@@ -379,6 +376,8 @@ class SOAP(Descriptor):
                 soap_mat, 
                 pos,
                 Z,
+                ase.geometry.cell.complete_cell(system.get_cell()),
+                np.asarray(system.get_pbc(), dtype=bool),
                 centers,
             )
         elif self._rbf == "polynomial":
@@ -394,6 +393,7 @@ class SOAP(Descriptor):
                 self._lmax,
                 self._eta,
                 self._atomic_numbers,
+                self.periodic,
                 self.crossover,
                 self.average,
                 cutoff_padding,
@@ -404,6 +404,8 @@ class SOAP(Descriptor):
                 soap_mat, 
                 pos,
                 Z,
+                ase.geometry.cell.complete_cell(system.get_cell()),
+                np.asarray(system.get_pbc(), dtype=bool),
                 centers,
             )
 
@@ -586,7 +588,7 @@ class SOAP(Descriptor):
             features in the default order.
         """
         cutoff_padding = self.get_cutoff_padding()
-        system, centers, center_indices = self.prepare(system, cutoff_padding, positions)
+        centers, center_indices = self.prepare_centers(system, cutoff_padding, positions)
         pos = system.get_positions()
         Z = system.get_atomic_numbers()
         sorted_species = self._atomic_numbers
@@ -602,18 +604,19 @@ class SOAP(Descriptor):
         else:
             c = np.empty(0)
 
-        # Calculate numerically with extension
         if self._rbf == "gto":
             alphas = self._alphas.flatten()
             betas = self._betas.flatten()
+
+            # Calculate numerically with extension
             if method == "numerical":
-                # Calculate with extension
                 soap_gto = dscribe.ext.SOAPGTO(
                     self._rcut,
                     self._nmax,
                     self._lmax,
                     self._eta,
                     self._atomic_numbers,
+                    self.periodic,
                     self.crossover,
                     self.average,
                     cutoff_padding,
@@ -625,6 +628,8 @@ class SOAP(Descriptor):
                     c,
                     pos,
                     Z,
+                    ase.geometry.cell.complete_cell(system.get_cell()),
+                    np.asarray(system.get_pbc(), dtype=bool),
                     centers,
                     center_indices,
                     indices,
@@ -646,14 +651,16 @@ class SOAP(Descriptor):
         elif self._rbf == "polynomial":
             rx, gss = self.get_basis_poly(self._rcut, self._nmax)
             gss = gss.flatten()
+
+            # Calculate numerically with extension
             if method == "numerical":
-                # Calculate with extension
                 soap_poly = dscribe.ext.SOAPPolynomial(
                     self._rcut,
                     self._nmax,
                     self._lmax,
                     self._eta,
                     self._atomic_numbers,
+                    self.periodic,
                     self.crossover,
                     self.average,
                     cutoff_padding,
@@ -665,6 +672,8 @@ class SOAP(Descriptor):
                     c,
                     pos,
                     Z,
+                    ase.geometry.cell.complete_cell(system.get_cell()),
+                    np.asarray(system.get_pbc(), dtype=bool),
                     centers,
                     center_indices,
                     indices,

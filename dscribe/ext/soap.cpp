@@ -15,6 +15,7 @@ limitations under the License.
 #include "soap.h"
 #include "soapGTO.h"
 #include "soapGeneral.h"
+#include "geometry.h"
 
 using namespace std;
 
@@ -24,13 +25,14 @@ SOAPGTO::SOAPGTO(
     int lmax,
     double eta,
     py::array_t<int> species,
+    bool periodic,
     bool crossover,
     string average,
     double cutoff_padding,
     py::array_t<double> alphas,
     py::array_t<double> betas
 )
-    : Descriptor(average, rcut+cutoff_padding)
+    : Descriptor(periodic, average, rcut+cutoff_padding)
     , rcut(rcut)
     , nmax(nmax)
     , lmax(lmax)
@@ -47,29 +49,32 @@ void SOAPGTO::create(
     py::array_t<double> out, 
     py::array_t<double> positions,
     py::array_t<int> atomic_numbers,
+    py::array_t<double> cell,
+    py::array_t<bool> pbc,
+    py::array_t<double> centers
+) const
+{
+    // Extend system if periodicity is requested.
+    auto pbc_u = pbc.unchecked<1>();
+    bool is_periodic = this->periodic && (pbc_u(0) || pbc_u(1) || pbc_u(2));
+    if (is_periodic) {
+        ExtendedSystem system_extended = extend_system(positions, atomic_numbers, cell, pbc, this->cutoff);
+        positions = system_extended.positions;
+        atomic_numbers = system_extended.atomic_numbers;
+    }
+    this->create(out, positions, atomic_numbers, centers);
+}
+
+void SOAPGTO::create(
+    py::array_t<double> out, 
+    py::array_t<double> positions,
+    py::array_t<int> atomic_numbers,
     py::array_t<double> centers
 ) const
 {
     // Calculate neighbours with a cell list
     CellList cell_list(positions, this->cutoff);
-
-    soapGTO(
-        out,
-        positions,
-        centers,
-        this->alphas,
-        this->betas,
-        atomic_numbers,
-        this->species,
-        this->rcut,
-        this->cutoff_padding,
-        this->nmax,
-        this->lmax,
-        this->eta,
-        this->crossover,
-        this->average,
-        cell_list
-    );
+    this->create(out, positions, atomic_numbers, centers, cell_list);
 }
 
 void SOAPGTO::create(
@@ -107,19 +112,24 @@ int SOAPGTO::get_number_of_features() const
         : n_species*(this->lmax+1)*((this->nmax+1)*this->nmax)/2;
 }
 
+//int SOAPGTO::get_location(vector<int>& atomic_numbers) const
+//{
+//}
+
 SOAPPolynomial::SOAPPolynomial(
     double rcut,
     int nmax,
     int lmax,
     double eta,
     py::array_t<int> species,
+    bool periodic,
     bool crossover,
     string average,
     double cutoff_padding,
     py::array_t<double> rx,
     py::array_t<double> gss
 )
-    : Descriptor(average, rcut+cutoff_padding)
+    : Descriptor(periodic, average, rcut+cutoff_padding)
     , rcut(rcut)
     , nmax(nmax)
     , lmax(lmax)
@@ -136,29 +146,32 @@ void SOAPPolynomial::create(
     py::array_t<double> out, 
     py::array_t<double> positions,
     py::array_t<int> atomic_numbers,
+    py::array_t<double> cell,
+    py::array_t<bool> pbc,
+    py::array_t<double> centers
+) const
+{
+    // Extend system if periodicity is requested.
+    auto pbc_u = pbc.unchecked<1>();
+    bool is_periodic = this->periodic && (pbc_u(0) || pbc_u(1) || pbc_u(2));
+    if (is_periodic) {
+        ExtendedSystem system_extended = extend_system(positions, atomic_numbers, cell, pbc, this->cutoff);
+        positions = system_extended.positions;
+        atomic_numbers = system_extended.atomic_numbers;
+    }
+    this->create(out, positions, atomic_numbers, centers);
+}
+
+void SOAPPolynomial::create(
+    py::array_t<double> out, 
+    py::array_t<double> positions,
+    py::array_t<int> atomic_numbers,
     py::array_t<double> centers
 ) const
 {
     // Calculate neighbours with a cell list
     CellList cell_list(positions, this->cutoff);
-
-    soapGeneral(
-        out,
-        positions,
-        centers,
-        atomic_numbers,
-        this->species,
-        this->rcut,
-        this->cutoff_padding,
-        this->nmax,
-        this->lmax,
-        this->eta,
-        this->rx,
-        this->gss,
-        this->crossover,
-        this->average,
-        cell_list
-    );
+    this->create(out, positions, atomic_numbers, centers, cell_list);
 }
 
 void SOAPPolynomial::create(

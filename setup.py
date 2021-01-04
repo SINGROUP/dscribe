@@ -60,6 +60,7 @@ extensions = [
             "dscribe/ext/soapGeneral.cpp",
             "dscribe/ext/acsf.cpp",
             "dscribe/ext/mbtr.cpp",
+            "dscribe/ext/geometry.cpp",
         ],
         include_dirs=[
             # Path to pybind11 headers

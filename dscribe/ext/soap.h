@@ -38,6 +38,7 @@ class SOAPGTO: public Descriptor {
             int lmax,
             double eta,
             py::array_t<int> species,
+            bool periodic,
             bool crossover,
             string average,
             double cutoff_padding,
@@ -47,6 +48,15 @@ class SOAPGTO: public Descriptor {
         /**
          * For creating SOAP output.
          */
+        void create(
+            py::array_t<double> out, 
+            py::array_t<double> positions,
+            py::array_t<int> atomic_numbers,
+            py::array_t<double> cell,
+            py::array_t<bool> pbc,
+            py::array_t<double> centers
+        ) const;
+
         void create(
             py::array_t<double> out, 
             py::array_t<double> positions,
@@ -93,6 +103,7 @@ class SOAPPolynomial: public Descriptor {
             int lmax,
             double eta,
             py::array_t<int> species,
+            bool periodic,
             bool crossover,
             string average,
             double cutoff_padding,
@@ -102,6 +113,15 @@ class SOAPPolynomial: public Descriptor {
         /**
          * For creating SOAP output.
          */
+        void create(
+            py::array_t<double> out, 
+            py::array_t<double> positions,
+            py::array_t<int> atomic_numbers,
+            py::array_t<double> cell,
+            py::array_t<bool> pbc,
+            py::array_t<double> centers
+        ) const;
+
         void create(
             py::array_t<double> out, 
             py::array_t<double> positions,
