@@ -17,9 +17,6 @@ limitations under the License.
 #include <pybind11/numpy.h>  // Enables easy access to numpy arrays
 #include <pybind11/stl.h>    // Enables automatic type conversion from C++ containers to python
 #include "celllist.h"
-#include "soapGTO.h"
-#include "soapGTODevX.h"
-#include "soapGeneral.h"
 #include "soap.h"
 #include "acsf.h"
 #include "mbtr.h"
@@ -35,21 +32,19 @@ using overload_cast_ = pybind11::detail::overload_cast_impl<Args...>;
 // correspond to the file name!
 PYBIND11_MODULE(ext, m) {
     // SOAP
-    m.def("soap_gto", &soapGTO, "SOAP with gaussian type orbital radial basis set.");
-    m.def("soap_general", &soapGeneral, "SOAP with a general radial basis set.");
     py::class_<SOAPGTO>(m, "SOAPGTO")
         .def(py::init<double, int, int, double, py::array_t<int>, bool, bool, string, double, py::array_t<double>, py::array_t<double> >())
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double> >()(&SOAPGTO::create, py::const_))
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<bool>, py::array_t<double> >()(&SOAPGTO::create, py::const_))
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, CellList>()(&SOAPGTO::create, py::const_))
-        .def("derivatives_numerical", &SOAPGTO::derivatives_numerical);
+        .def("derivatives_numerical", &SOAPGTO::derivatives_numerical)
+        .def("derivatives_analytical", &SOAPGTO::derivatives_analytical);
     py::class_<SOAPPolynomial>(m, "SOAPPolynomial")
         .def(py::init<double, int, int, double, py::array_t<int>, bool, bool, string, double, py::array_t<double>, py::array_t<double> >())
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double> >()(&SOAPPolynomial::create, py::const_))
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<bool>, py::array_t<double> >()(&SOAPPolynomial::create, py::const_))
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, CellList>()(&SOAPPolynomial::create, py::const_))
         .def("derivatives_numerical", &SOAPGTO::derivatives_numerical);
-    m.def("soap_gto_devX", &soapGTODevX, "Analytical derivatives of SOAP with gaussian type orbital radial basis set.");  // Analytical derivatives
 
     // ACSF
     py::class_<ACSF>(m, "ACSFWrapper")

@@ -248,7 +248,7 @@ class SoapDerivativeTests(unittest.TestCase):
         )*(2, 2, 2)
 
         centers = np.array(system.get_positions())
-        view(system)
+        # view(system)
         h = 0.0001
         n_atoms = len(system)
         n_comp = 3
@@ -302,100 +302,44 @@ class SoapDerivativeTests(unittest.TestCase):
                     # print(np.abs(derivatives_cpp - derivatives_python).max())
                     self.assertTrue(np.allclose(derivatives_python, derivatives_cpp, atol=1e-6))
 
-    def test_periodic_numerical(self):
-        a = 1
-        system = Atoms(
-            symbols=["C"],
-            cell=[
-                [0, a, a],
-                [a, 0, a],
-                [a, a, 0]
-            ],
-            scaled_positions=[[0,0,0]],
-            pbc=[True, True, True],
-        )
+    # def test_periodic_numerical(self):
+        # a = 1
+        # system = Atoms(
+            # symbols=["C"],
+            # cell=[
+                # [0, a, a],
+                # [a, 0, a],
+                # [a, a, 0]
+            # ],
+            # scaled_positions=[[0,0,0]],
+            # pbc=[True, True, True],
+        # )
 
-        # Test that system extension works as expected
-        rbf = "gto"
-        average = "off"
-        soap = SOAP(
-            species=[6],
-            rcut=3,
-            nmax=4,
-            lmax=4,
-            rbf=rbf,
-            sparse=False,
-            average=average,
-            crossover=True,
-            periodic=True,
-        )
+        # # Test that system extension works as expected
+        # rbf = "gto"
+        # average = "off"
+        # soap = SOAP(
+            # species=[6],
+            # rcut=3,
+            # nmax=4,
+            # lmax=4,
+            # rbf=rbf,
+            # sparse=False,
+            # average=average,
+            # crossover=True,
+            # periodic=True,
+        # )
 
-        # Extend the system and calculate descriptor value on one atom in the
-        # middle of the system. Emulates a periodic system.
-        ext_system = system*(5,5,5)
-        view(ext_system)
-        middle = ext_system.get_center_of  
+        # # Extend the system and calculate descriptor value on one atom in the
+        # # middle of the system. Emulates a periodic system.
+        # ext_system = system*(5,5,5)
+        # view(ext_system)
+        # middle = ext_system.get_center_of  
 
         # a = soap.create(system, positions=[0])
         # soap.periodic = False
         # b = soap.create(system, positions=[0])
         # self.assertFalse(np.allclose(a, b))
-
-
-        # centers = np.array(system.get_positions())
-        # view(system)
-        # h = 0.0001
-        # n_atoms = len(system)
-        # n_comp = 3
-        # for rbf in ["gto"]:
-            # for average in ["off"]:
-                # soap = SOAP(
-                    # species=[6],
-                    # rcut=3,
-                    # nmax=4,
-                    # lmax=4,
-                    # rbf=rbf,
-                    # sparse=False,
-                    # average=average,
-                    # crossover=True,
-                    # periodic=True,
-                # )
-                # n_features = soap.get_number_of_features()
-                # n_centers = 1 if average != "off" else len(centers)
-                # derivatives_python = np.zeros((n_centers, n_atoms, n_comp, n_features))
-                # d0 = soap.create(system, centers)
-                # coeffs = [-1.0/2.0, 1.0/2.0]
-                # deltas = [-1.0, 1.0]
-                # for i_atom in range(len(system)):
-                    # for i_center in range(n_centers):
-                        # for i_comp in range(3):
-                            # for i_stencil in range(2):
-                                # if average == "off":
-                                    # i_cent = [centers[i_center]]
-                                # else:
-                                    # i_cent = centers
-                                # system_disturbed = system.copy()
-                                # i_pos = system_disturbed.get_positions()
-                                # i_pos[i_atom, i_comp] += h*deltas[i_stencil]
-                                # system_disturbed.set_positions(i_pos)
-                                # d1 = soap.create(system_disturbed, i_cent)
-                                # derivatives_python[i_center, i_atom, i_comp, :] += coeffs[i_stencil]*d1[0, :]/h
-
-                # # Calculate with central finite difference implemented in C++.
-                # # Try both cartesian centers and indices.
-                # for c in [centers, None]:
-                    # derivatives_cpp, d_cpp = soap.derivatives(system, positions=c, method="numerical")
-
-                    # # Test that descriptor values are correct
-                    # d2 = soap.create(system, positions=centers)
-                    # self.assertTrue(np.allclose(d0, d_cpp, atol=1e-6))
-
-                    # # Compare values
-                    # # print(np.abs(derivatives_python).max())
-                    # # print(derivatives_python[0,1,:,:])
-                    # # print(derivatives_cpp[0,0,:,:])
-                    # # print(np.abs(derivatives_cpp - derivatives_python).max())
-                    # self.assertTrue(np.allclose(derivatives_python, derivatives_cpp, atol=1e-6))
 
 
 class SoapDerivativeComparisonTests(unittest.TestCase):
@@ -453,10 +397,9 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
 
 
 if __name__ == '__main__':
-
-    SoapDerivativeTests().test_periodic_numerical()
-    # suites = []
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests))
-    # alltests = unittest.TestSuite(suites)
-    # result = unittest.TextTestRunner(verbosity=0).run(alltests)
+    # SoapDerivativeTests().test_periodic_numerical()
+    suites = []
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests))
+    alltests = unittest.TestSuite(suites)
+    result = unittest.TextTestRunner(verbosity=0).run(alltests)

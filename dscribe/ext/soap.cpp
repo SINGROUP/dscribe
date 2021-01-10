@@ -16,6 +16,7 @@ limitations under the License.
 #include "soap.h"
 #include "soapGTO.h"
 #include "soapGeneral.h"
+#include "soapGTODevX.h"
 #include "geometry.h"
 
 using namespace std;
@@ -113,9 +114,55 @@ int SOAPGTO::get_number_of_features() const
         : n_species*(this->lmax+1)*((this->nmax+1)*this->nmax)/2;
 }
 
-//int SOAPGTO::get_location(vector<int>& atomic_numbers) const
-//{
-//}
+void SOAPGTO::derivatives_analytical(
+    py::array_t<double> out_d,
+    py::array_t<double> dx,
+    py::array_t<double> dy,
+    py::array_t<double> dz,
+    py::array_t<double> positions,
+    py::array_t<int> atomic_numbers,
+    py::array_t<double> cell,
+    py::array_t<bool> pbc,
+    py::array_t<double> center_pos,
+    py::array_t<int> indices,
+    bool return_descriptor
+) const
+{
+    int n_atoms = atomic_numbers.shape(0); // Should be saved before extending the system
+    int n_species = this->species.shape(0);
+    int n_centers = center_pos.shape(0);
+    //cout << n_atoms << ", " << n_species << ", " << n_centers << endl;
+
+    // Extend system if periodicity is requested.
+    auto pbc_u = pbc.unchecked<1>();
+    bool is_periodic = this->periodic && (pbc_u(0) || pbc_u(1) || pbc_u(2));
+    if (is_periodic) {
+        ExtendedSystem system_extended = extend_system(positions, atomic_numbers, cell, pbc, this->cutoff);
+        positions = system_extended.positions;
+        atomic_numbers = system_extended.atomic_numbers;
+    }
+
+    soapGTODevX(
+        out_d,
+        dx,
+        dy,
+        dz,
+        positions,
+        center_pos,
+        this->alphas,
+        this->betas,
+        atomic_numbers,
+        this->rcut,
+        this->cutoff_padding,
+        n_atoms,
+        n_species,
+        this->nmax,
+        this->lmax,
+        n_centers,
+        this->eta,
+        this->crossover
+    );
+}
 
 SOAPPolynomial::SOAPPolynomial(
     double rcut,

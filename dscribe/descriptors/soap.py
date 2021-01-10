@@ -602,22 +602,22 @@ class SOAP(Descriptor):
         if self._rbf == "gto":
             alphas = self._alphas.flatten()
             betas = self._betas.flatten()
+            soap_gto = dscribe.ext.SOAPGTO(
+                self._rcut,
+                self._nmax,
+                self._lmax,
+                self._eta,
+                self._atomic_numbers,
+                self.periodic,
+                self.crossover,
+                self.average,
+                cutoff_padding,
+                alphas,
+                betas
+            )
 
             # Calculate numerically with extension
             if method == "numerical":
-                soap_gto = dscribe.ext.SOAPGTO(
-                    self._rcut,
-                    self._nmax,
-                    self._lmax,
-                    self._eta,
-                    self._atomic_numbers,
-                    self.periodic,
-                    self.crossover,
-                    self.average,
-                    cutoff_padding,
-                    alphas,
-                    betas
-                )
                 soap_gto.derivatives_numerical(
                     d,
                     c,
@@ -630,14 +630,26 @@ class SOAP(Descriptor):
                     indices,
                     return_descriptor,
                 )
+            # Calculate analytically with extension
             elif method == "analytical":
                 d = np.zeros(( n_atoms, n_centers, n_features, 3), dtype=np.float64)
                 dx = np.zeros(( n_atoms, n_centers, n_features,), dtype=np.float64)
                 dy = np.zeros(( n_atoms, n_centers, n_features,), dtype=np.float64)
                 dz = np.zeros(( n_atoms, n_centers, n_features,), dtype=np.float64)
-                
-                dscribe.ext.soap_gto_devX(c, dx, dy, dz, pos, centers, alphas, betas, Z, 
-                    self._rcut, cutoff_padding, n_atoms, n_species, self._nmax, self._lmax, n_centers, self._eta, self.crossover)
+
+                soap_gto.derivatives_analytical(
+                    c,
+                    dx,
+                    dy,
+                    dz,
+                    pos,
+                    Z,
+                    ase.geometry.cell.complete_cell(system.get_cell()),
+                    np.asarray(system.get_pbc(), dtype=bool),
+                    centers,
+                    indices,
+                    return_descriptor,
+                )
                 d[:, :, :, 0] = dx
                 d[:, :, :, 1] = dy
                 d[:, :, :, 2] = dz

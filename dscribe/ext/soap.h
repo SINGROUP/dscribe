@@ -77,6 +77,23 @@ class SOAPGTO: public Descriptor {
          */
         int get_number_of_features() const;
 
+        /**
+         * Analytical derivatives.
+         */
+        void derivatives_analytical(
+            py::array_t<double> out_d,
+            py::array_t<double> dx,
+            py::array_t<double> dy,
+            py::array_t<double> dz,
+            py::array_t<double> positions,
+            py::array_t<int> atomic_numbers,
+            py::array_t<double> cell,
+            py::array_t<bool> pbc,
+            py::array_t<double> center_pos,
+            py::array_t<int> indices,
+            bool return_descriptor
+        ) const;
+
     private:
         const double rcut;
         const int nmax;
