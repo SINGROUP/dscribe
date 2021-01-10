@@ -341,7 +341,7 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
             symbols=["H"],
             positions=[[0, 0, 0]],
             cell=[2, 2, 2],
-            pbc=False
+            pbc=True,
         )
         rcut = 2.5
 

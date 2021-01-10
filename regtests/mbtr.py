@@ -820,7 +820,8 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             scaled_positions=[
                 [0.1, 0.5, 0.5],
                 [0.9, 0.5, 0.5],
-            ]
+            ],
+            pbc=True
         )
 
         desc = MBTR(
@@ -1176,6 +1177,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             [0.0, a, 0.0],
             [0.0, 0.0, a]
         ])
+        molecule.set_pbc(True)
         cubic_cell = desc.create(molecule)
         suce = molecule * (2, 1, 1)
         cubic_suce = desc.create(suce)
@@ -1239,6 +1241,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
                 [0, 0, 0],
             ],
             symbols=["H"],
+            pbc=True,
         )
         cubic_spectrum = desc.create(system)[0, :]
         x3 = desc.get_k3_axis()
@@ -1273,17 +1276,6 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             sparse=False
         )
         a = 2.2
-        system = Atoms(
-            cell=[
-                [a, 0.0, 0.0],
-                [0.0, a, 0.0],
-                [0.0, 0.0, a]
-            ],
-            positions=[
-                [0, 0, 0],
-            ],
-            symbols=["H"],
-        )
         angle = 30
         system = Atoms(
             cell=ase.geometry.cellpar_to_cell([3*a, a, a, angle, 90, 90]),
@@ -1291,6 +1283,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
                 [0, 0, 0],
             ],
             symbols=["H"],
+            pbc=True,
         )
         tricl_spectrum = desc.create(system)
         x3 = desc.get_k3_axis()

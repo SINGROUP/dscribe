@@ -116,7 +116,8 @@ def get_extended_system(system, radial_cutoff, centers=None, return_cell_indices
     # direction. We take as many copies as needed to reach the radial cutoff.
     # Notice that we need to use vectors that are perpendicular to the cell
     # vectors to ensure that the correct atoms are included for non-cubic cells.
-    cell = np.array(system.get_cell())
+    cell = np.asarray(system.get_cell())
+    pbc = system.get_pbc()
     a1, a2, a3 = cell[0], cell[1], cell[2]
     b1 = np.cross(a2, a3, axis=0)
     b2 = np.cross(a3, a1, axis=0)
@@ -126,9 +127,9 @@ def get_extended_system(system, radial_cutoff, centers=None, return_cell_indices
     p3 = np.dot(a3, b3) / np.dot(b3, b3) * b3
     xyz_arr = np.linalg.norm(np.array([p1, p2, p3]), axis=1)
     cell_images = np.ceil(radial_cutoff/xyz_arr)
-    nx = int(cell_images[0])
-    ny = int(cell_images[1])
-    nz = int(cell_images[2])
+    nx = int(cell_images[0]) if pbc[0] else 0
+    ny = int(cell_images[1]) if pbc[1] else 0
+    nz = int(cell_images[2]) if pbc[2] else 0
     n_copies_axis = np.array([nx, ny, nz], dtype=int)
 
     # If no centers are given, and the cell indices are not requested, simply

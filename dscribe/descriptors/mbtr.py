@@ -125,8 +125,9 @@ class MBTR(Descriptor):
                 encountered when creating the descriptors for a set of systems.
                 Keeping the number of chemical speices as low as possible is
                 preferable.
-            periodic (bool): Determines whether the system is considered to be
-                periodic.
+            periodic (bool): Set to true if you want the descriptor output to
+                respect the periodicity of the atomic systems (see the
+                pbc-parameter in the constructor of ase.Atoms).
             k1 (dict): Setup for the k=1 term. For example::
 
                 k1 = {

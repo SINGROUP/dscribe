@@ -83,8 +83,9 @@ class SOAP(Descriptor):
                 * "gto": Spherical gaussian type orbitals defined as :math:`g_{nl}(r) = \sum_{n'=1}^{n_\mathrm{max}}\,\\beta_{nn'l} r^l e^{-\\alpha_{n'l}r^2}`
                 * "polynomial": Polynomial basis defined as :math:`g_{n}(r) = \sum_{n'=1}^{n_\mathrm{max}}\,\\beta_{nn'} (r-r_\mathrm{cut})^{n'+2}`
 
-            periodic (bool): Determines whether the system is considered to be
-                periodic.
+            periodic (bool): Set to true if you want the descriptor output to
+                respect the periodicity of the atomic systems (see the
+                pbc-parameter in the constructor of ase.Atoms).
             crossover (bool): Determines if crossover of atomic types should
                 be included in the power spectrum. If enabled, the power
                 spectrum is calculated over all unique species combinations Z

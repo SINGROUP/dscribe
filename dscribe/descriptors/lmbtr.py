@@ -130,8 +130,9 @@ class LMBTR(MBTR):
                 encountered when creating the descriptors for a set of systems.
                 Keeping the number of chemical speices as low as possible is
                 preferable.
-            periodic (bool): Determines whether the system is considered to be
-                periodic.
+            periodic (bool): Set to true if you want the descriptor output to
+                respect the periodicity of the atomic systems (see the
+                pbc-parameter in the constructor of ase.Atoms).
             k2 (dict): Dictionary containing the setup for the k=2 term.
                 Contains setup for the used geometry function, discretization and
                 weighting function. For example::

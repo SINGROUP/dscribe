@@ -64,12 +64,10 @@ void Descriptor::derivatives_numerical(
     //  Notice that these optimization are NOT valid:
     //  - Self-derivatives are NOT always zero, only zero for l=0. The shape of
     //    the atomic density changes as atoms move around.
-
     int n_features = this->get_number_of_features();
+    int n_c = center_indices.size();
     auto out_d_mu = out_d.mutable_unchecked<4>();
     auto indices_u = indices.unchecked<1>();
-    auto positions_mu = positions.mutable_unchecked<2>();
-    auto centers_u = centers.unchecked<2>();
     auto center_indices_u = center_indices.unchecked<1>();
     auto pbc_u = pbc.unchecked<1>();
     py::array_t<int> center_true_indices;
@@ -84,7 +82,9 @@ void Descriptor::derivatives_numerical(
         n_copies = system_extension.atomic_numbers.size()/atomic_numbers.size();
         atomic_numbers = system_extension.atomic_numbers;
     }
-    cout << "Number of copies: " << n_copies << endl;
+    auto positions_mu = positions.mutable_unchecked<2>();
+    auto atomic_numbers_u = atomic_numbers.unchecked<1>();
+    //cout << "Number of copies: " << n_copies << endl;
     //py::detail::unchecked_reference<int, 1> center_true_indices_u = is_periodic ? center_true_indices.unchecked<1>(): center_indices.unchecked<1>();
 
     // Pre-calculate cell list for atoms
@@ -102,6 +102,7 @@ void Descriptor::derivatives_numerical(
         centers = center_extension.positions;
         center_true_indices = center_extension.indices;
     }
+    auto centers_u = centers.unchecked<2>();
 
     // Pre-calculate cell list for centers.
     CellList cell_list_centers(centers, this->cutoff);
@@ -145,6 +146,7 @@ void Descriptor::derivatives_numerical(
     // Loop over all atoms
     for (int i_idx=0; i_idx < indices_u.size(); ++i_idx) {
         int i_atom = indices_u(i_idx);
+        //cout << "Atom index: " << i_atom << endl;
 
         // Find all atom indices that should be moved. For periodic systems
         // there may be multiple.
@@ -153,23 +155,30 @@ void Descriptor::derivatives_numerical(
             i_atom_indices[i] = i_atom + i*n_atoms;
         }
 
-        // Check whether the atom has any enters within radius. If not, the
+        // Check whether the atom has any centers within radius. If not, the
         // calculation is skipped.
         double ix = positions_mu(i_atom, 0);
         double iy = positions_mu(i_atom, 1);
         double iz = positions_mu(i_atom, 2);
         vector<int> centers_local_idx = cell_list_centers.getNeighboursForPosition(ix, iy, iz).indices;
 
+        //cout << "Neighbours:" << endl;
+        //for (int i=0; i < centers_local_idx.size(); ++i) {
+            //cout << "  Extended index: " << centers_local_idx[i] << endl;
+            //cout << "  Position: " << centers_u(centers_local_idx[i], 0) << "," << centers_u(centers_local_idx[i], 1) << "," << centers_u(centers_local_idx[i], 2) << endl;
+        //}
+
         // The periodically repeated centers are already correctly found from
         // the extended center list. They just need to be mapped into the
-        // correct centers in the original list, and the original center can be
-        // used (the atoms are periodically repeated and all periodic copies
-        // are moved for the finite difference).
+        // correct centers in the original list, as the original center
+        // position should be used (the atoms are periodically repeated and all
+        // periodic copies are moved for the finite difference).
         if (is_periodic) {
             auto center_true_indices_u = center_true_indices.unchecked<1>();
             set<int> centers_set;
             for (int i=0; i < centers_local_idx.size(); ++i) {
-                int true_index = center_true_indices_u(i);
+                int ext_index = centers_local_idx[i];
+                int true_index = center_true_indices_u(ext_index);
                 centers_set.insert(true_index);
             }
             centers_local_idx = vector<int>(centers_set.begin(), centers_set.end()); 
@@ -212,12 +221,18 @@ void Descriptor::derivatives_numerical(
             // Create a new list containing only the nearby centers.
             centers_local_pos = py::array_t<double>({n_locals, 3});
             auto centers_local_pos_mu = centers_local_pos.mutable_unchecked<2>();
+            //cout << "True center indices: " << endl;
             for (int i_local = 0; i_local < n_locals; ++i_local) {
                 int i_local_idx = centers_local_idx[i_local];
+                //cout << i_local_idx << endl;
                 for (int i_comp = 0; i_comp < 3; ++i_comp) {
                     centers_local_pos_mu(i_local, i_comp) = centers_u(i_local_idx, i_comp);
                 }
             }
+            //cout << "True center positions: " << endl;
+            //for (int i = 0; i < centers_local_pos.request().shape[0]; ++i) {
+                //cout << "  " << centers_local_pos_mu(i, 0) << "," << centers_local_pos_mu(i, 1) << "," << centers_local_pos_mu(i, 2) << endl;
+            //}
             n_centers = n_locals;
         } else {
             centers_local_pos = centers;
@@ -225,7 +240,14 @@ void Descriptor::derivatives_numerical(
             n_centers = 1;
         }
 
-        // Create a copy of the original atom position(s).
+        // DEBUG: USE ALL CENTERS
+        //py::array_t<double> centers_local_pos = centers;
+        //vector<int> centers_local_idx;
+        //for (int i=0; i < n_c; ++i) {centers_local_idx.push_back(i);}
+        //int n_centers = n_c;
+
+        // Create a copy of the original atom position(s). These will be used
+        // to reset the positions after each displacement.
         py::array_t<double> pos({n_copies, 3});
         auto pos_mu = pos.mutable_unchecked<2>();
         for (int i_copy = 0; i_copy < i_atom_indices.size(); ++i_copy) {
@@ -234,6 +256,14 @@ void Descriptor::derivatives_numerical(
                 pos_mu(i_copy, i) = positions_mu(j_copy, i);
             }
         }
+
+        //cout << "Atoms that are displaced: " << endl;
+        //for (int i_copy = 0; i_copy < i_atom_indices.size(); ++i_copy) {
+            //int j_copy = i_atom_indices[i_copy];
+            //cout << "  Indices: " << i_copy << ", " << j_copy << endl;
+            //cout << "  Position: " << pos_mu(i_copy, 0) << ", " << pos_mu(i_copy, 1) << ", " << pos_mu(i_copy, 2) << endl;
+            //cout << "  Atomic number: " << atomic_numbers_u(j_copy) << endl;
+        //}
 
         for (int i_comp=0; i_comp < 3; ++i_comp) {
             for (int i_stencil=0; i_stencil < 2; ++i_stencil) {
@@ -269,6 +299,7 @@ void Descriptor::derivatives_numerical(
 
                 delete [] dTemp;
             }
+
             for (int i_local=0; i_local < n_centers; ++i_local) {
                 int i_center = centers_local_idx[i_local];
                 for (int i_feature=0; i_feature < n_features; ++i_feature) {
