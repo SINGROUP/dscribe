@@ -1876,7 +1876,6 @@ void getPNoCrossD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMa
   int NsNsLmaxTs = NsNsLmax*Ts;
   int shiftAll = 0;
 
-   for(int a = 0; a < totalAN; a++){
     for(int i = 0; i < Hs; i++){
       for(int j = 0; j < Ts; j++){
         for(int m=0; m <= lMax; m++){
@@ -1885,6 +1884,7 @@ void getPNoCrossD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMa
         else{prel = PI*sqrt(8.0/(2.0*m+1.0));}
         for(int k = 0; k < Ns; k++){
           for(int kd = k; kd < Ns; kd++){
+   for(int a = 0; a < totalAN; a++){
             double buffDouble = 0;
             for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
               soapMatDevX[shiftAll] += prel*(
@@ -1963,7 +1963,6 @@ void getPCrossOverD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int l
   int NsTs100 = Ns*Ts*((lMax+1)*(lMax+1)); int Ns100 = Ns*((lMax+1)*(lMax+1)); int NsNs = (Ns*(Ns+1))/2;
   int NsNsLmax = NsNs*(lMax+1); int NsNsLmaxTs = NsNsLmax*getCrosNumD(Ts); int shiftAll = 0;
 
-  for(int a = 0; a < totalAN; a++){
     for(int i = 0; i < Hs; i++){
       for(int j = 0; j < Ts; j++){
         for(int jd = j; jd < Ts; jd++){
@@ -1972,6 +1971,7 @@ void getPCrossOverD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int l
          if(j==jd){
           for(int k = 0; k < Ns; k++){
             for(int kd = k; kd < Ns; kd++){
+  for(int a = 0; a < totalAN; a++){
               for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
                 soapMatDevX[shiftAll] += prel*(
                       Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + a]
@@ -1985,10 +1985,12 @@ void getPCrossOverD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int l
               }
             shiftAll++;
             }
+            }
           }
           }else{
           for(int k = 0; k < Ns; k++){
             for(int kd = 0; kd < Ns; kd++){
+  for(int a = 0; a < totalAN; a++){
               for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
                 soapMatDevX[shiftAll] += prel*(
                       Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + a]
@@ -2019,7 +2021,7 @@ void soapGTODevX(py::array_t<double> cArr,py::array_t<double> cArrX,py::array_t<
   double *cx = (double*)cArrX.request().ptr; double *cy = (double*)cArrY.request().ptr; double *cz = (double*)cArrZ.request().ptr;
   double *Hpos = (double*)HposArr.request().ptr; double *alphas = (double*)alphasArr.request().ptr; double *betas = (double*)betasArr.request().ptr;
   double oOeta = 1.0/eta; double oOeta3O2 = sqrt(oOeta*oOeta*oOeta); double NsNs = Ns*Ns;
-
+//
   double* dx  = (double*)malloc(sizeof(double)*totalAN); double* dy  = (double*)malloc(sizeof(double)*totalAN); double* dz  = (double*)malloc(sizeof(double)*totalAN);
   double* x2  = (double*)malloc(sizeof(double)*totalAN); double* x4  = (double*)malloc(sizeof(double)*totalAN); double* x6  = (double*)malloc(sizeof(double)*totalAN);
   double* x8  = (double*)malloc(sizeof(double)*totalAN); double* x10 = (double*)malloc(sizeof(double)*totalAN); double* x12 = (double*)malloc(sizeof(double)*totalAN);
@@ -2033,7 +2035,7 @@ void soapGTODevX(py::array_t<double> cArr,py::array_t<double> cArrX,py::array_t<
   double* r2  = (double*)malloc(sizeof(double)*totalAN); double* r4  = (double*)malloc(sizeof(double)*totalAN); double* r6  = (double*)malloc(sizeof(double)*totalAN);
   double* r8  = (double*)malloc(sizeof(double)*totalAN); double* r10 = (double*)malloc(sizeof(double)*totalAN); double* r12 = (double*)malloc(sizeof(double)*totalAN);
   double* r14 = (double*)malloc(sizeof(double)*totalAN); double* r16 = (double*)malloc(sizeof(double)*totalAN); double* r18 = (double*)malloc(sizeof(double)*totalAN);
-
+//
   double* exes = (double*) malloc(sizeof(double)*totalAN);
   // -4 -> no need for l=0, l=1.
   double* preCoef = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN); double* prCofDX = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN);
@@ -2041,45 +2043,45 @@ void soapGTODevX(py::array_t<double> cArr,py::array_t<double> cArrX,py::array_t<
   double* bOa = (double*) malloc((lMax+1)*NsNs*sizeof(double)); double* aOa = (double*) malloc((lMax+1)*Ns*sizeof(double));
   double* cnnd = (double*) malloc(((lMax+1)*(lMax+1))*Nt*Ns*Hs*sizeof(double)); double* cdevX = (double*) malloc(totalAN*((lMax+1)*(lMax+1))*Nt*Ns*Hs*sizeof(double)); 
   double* cdevY = (double*) malloc(totalAN*((lMax+1)*(lMax+1))*Nt*Ns*Hs*sizeof(double)); double* cdevZ = (double*) malloc(totalAN*((lMax+1)*(lMax+1))*Nt*Ns*Hs*sizeof(double));
-
+//
   for(int i = 0; i < ((lMax+1)*(lMax+1))*Nt*Ns*Hs; i++){cnnd[i] = 0.0;} for(int i = 0; i < ((lMax+1)*(lMax+1))*Nt*Ns*Hs*totalAN; i++){cdevX[i] = 0.0;}
   for(int i = 0; i < ((lMax+1)*(lMax+1))*Nt*Ns*Hs*totalAN; i++){cdevY[i] = 0.0;} for(int i = 0; i < ((lMax+1)*(lMax+1))*Nt*Ns*Hs*totalAN; i++){cdevZ[i] = 0.0;}
 
   // Initialize binning
   CellList cellList(positions, rCut+cutoffPadding);
-
-  // Create a mapping between an atomic index and its internal index in the output
+//
+//  // Create a mapping between an atomic index and its internal index in the output
   map<int, int> ZIndexMap;
   set<int> atomicNumberSet;
   for (int i = 0; i < totalAN; ++i) {atomicNumberSet.insert(atomicNumbers(i));};
   int i = 0; for (auto it=atomicNumberSet.begin(); it!=atomicNumberSet.end(); ++it) {ZIndexMap[*it] = i; ++i;};
-
+//
   getAlphaBetaD(aOa,bOa,alphas,betas,Ns,lMax,oOeta, oOeta3O2);
-
-  // Loop through the centers
+//
+//  // Loop through the centers
   for (int i = 0; i < Hs; i++) {
-
-    // Get all neighbours for the central atom i
+//
+//    // Get all neighbours for the central atom i
     double ix = Hpos[3*i]; double iy = Hpos[3*i+1]; double iz = Hpos[3*i+2];
     CellListResult result = cellList.getNeighboursForPosition(ix, iy, iz);
-
-    // Sort the neighbours by type
+//
+//    // Sort the neighbours by type
     map<int, vector<int>> atomicTypeMap;
     for (const int &idx : result.indices) {int Z = atomicNumbers(idx); atomicTypeMap[Z].push_back(idx);};
-
-    // Loop through neighbours sorted by type
+//
+//    // Loop through neighbours sorted by type
     for (const auto &ZIndexPair : atomicTypeMap) {
-
-      // j is the internal index for this atomic number
+//
+//      // j is the internal index for this atomic number
       int j = ZIndexMap[ZIndexPair.first];
       int n_neighbours = ZIndexPair.second.size();
-
-      // Save the neighbour distances into the arrays dx, dy and dz
+//
+//      // Save the neighbour distances into the arrays dx, dy and dz
       getDeltaD(dx, dy, dz, positions, ix, iy, iz, ZIndexPair.second);
       getRsZsD(dx,x2,x4,x6,x8,x10,x12,x14,x16,x18, dy,y2,y4,y6,y8,y10,y12,y14,y16,y18, dz, r2, r4, r6, r8,r10,r12,r14,r16,r18, z2, z4, z6, z8,z10,z12,z14,z16,z18, n_neighbours,lMax);
       getCfactorsD(preCoef, prCofDX, prCofDY, prCofDZ, n_neighbours, dx,x2, x4, x6, x8,x10,x12,x14,x16,x18, dy,y2, y4, y6, y8,y10,y12,y14,y16,y18, dz, z2, z4, z6, z8,z10,z12,z14,z16,z18, r2, r4, r6, r8,r10,r12,r14,r16,r18, totalAN, lMax);
       getCD(cdevX,cdevY, cdevZ,prCofDX,prCofDY,prCofDZ, cnnd, preCoef, dx, dy, dz, r2, bOa, aOa, exes, totalAN, n_neighbours, Ns, Nt, lMax, i, j, ZIndexPair.second);
-
+//
     }
   }
   free(dx); free(x2); free(x4); free(x6); free(x8); free(x10); free(x12); free(x14); free(x16); free(x18);
@@ -2095,5 +2097,5 @@ void soapGTODevX(py::array_t<double> cArr,py::array_t<double> cArrX,py::array_t<
     getPNoCrossD( c,  cnnd, Ns, Nt, Hs, lMax);
   };
   free(cnnd); free(cdevX); free(cdevY); free(cdevZ);
-  return;
+   return;
 }
