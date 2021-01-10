@@ -23,7 +23,7 @@ limitations under the License.
 #include "soap.h"
 #include "acsf.h"
 #include "mbtr.h"
-//#include "geometry.h"
+#include "geometry.h"
 
 namespace py = pybind11;
 using namespace std;
@@ -43,16 +43,13 @@ PYBIND11_MODULE(ext, m) {
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<bool>, py::array_t<double> >()(&SOAPGTO::create, py::const_))
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, CellList>()(&SOAPGTO::create, py::const_))
         .def("derivatives_numerical", &SOAPGTO::derivatives_numerical);
-        //.def("derivatives_numerical", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<int>, bool>()(&SOAPGTO::derivatives_numerical, py::const_))
-        //.def("derivatives_numerical", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<int>, py::array_t<int>, bool>()(&SOAPGTO::derivatives_numerical, py::const_));
     py::class_<SOAPPolynomial>(m, "SOAPPolynomial")
         .def(py::init<double, int, int, double, py::array_t<int>, bool, bool, string, double, py::array_t<double>, py::array_t<double> >())
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double> >()(&SOAPPolynomial::create, py::const_))
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<bool>, py::array_t<double> >()(&SOAPPolynomial::create, py::const_))
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, CellList>()(&SOAPPolynomial::create, py::const_))
         .def("derivatives_numerical", &SOAPGTO::derivatives_numerical);
-        //.def("derivatives_numerical", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<int>, bool>()(&SOAPPolynomial::derivatives_numerical, py::const_))
-        //.def("derivatives_numerical", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<int>, py::array_t<int>, bool>()(&SOAPPolynomial::derivatives_numerical, py::const_));
+    m.def("soap_gto_devX", &soapGTODevX, "Analytical derivatives of SOAP with gaussian type orbital radial basis set.");  // Analytical derivatives
 
     // ACSF
     py::class_<ACSF>(m, "ACSFWrapper")
@@ -93,10 +90,9 @@ PYBIND11_MODULE(ext, m) {
         }
         ));
  
-    //MBTR
+    // MBTR
     py::class_<MBTR>(m, "MBTRWrapper")
         .def(py::init< map<int,int>, int , vector<vector<int>>  >())
-        //.def(py::init< map<int,int> atomicNumberToIndexMap, int interactionLimit, vector<vector<int>> cellIndices >())
         .def("get_k1", &MBTR::getK1)
         .def("get_k2", &MBTR::getK2)
         .def("get_k3", &MBTR::getK3)
@@ -115,13 +111,10 @@ PYBIND11_MODULE(ext, m) {
         .def_readonly("distances_squared", &CellListResult::distancesSquared);
 
     // Geometry
-    //m.def("extend_system", &extend_system, "Create a periodically extended system.");
-    //py::class_<ExtendedSystem>(m, "ExtendedSystem")
-        //.def(py::init<>())
-        //.def_readonly("positions", &ExtendedSystem::positions)
-        //.def_readonly("atomic_numbers", &ExtendedSystem::atomic_numbers)
-        //.def_readonly("indices", &ExtendedSystem::indices);
-
-    // Derivatives
-    m.def("soap_gto_devX", &soapGTODevX, "Analytical derivatives of SOAP with gaussian type orbital radial basis set.");
+    m.def("extend_system", &extend_system, "Create a periodically extended system.");
+    py::class_<ExtendedSystem>(m, "ExtendedSystem")
+        .def(py::init<>())
+        .def_readonly("positions", &ExtendedSystem::positions)
+        .def_readonly("atomic_numbers", &ExtendedSystem::atomic_numbers)
+        .def_readonly("indices", &ExtendedSystem::indices);
 }

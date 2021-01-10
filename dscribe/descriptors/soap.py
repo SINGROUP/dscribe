@@ -190,33 +190,27 @@ class SOAP(Descriptor):
             list_positions = system.get_positions()
             indices = np.arange(len(system))
         else:
-            indices = np.full(len(positions), -1, dtype=np.int)
             # Check validity of position definitions and create final cartesian
             # position list
+            error = ValueError(
+                "The argument 'positions' should contain a non-empty "
+                "one-dimensional list of" " atomic indices or a two-dimensional "
+                "list of cartesian coordinates with x, y and z components."
+            )
+            if not isinstance(positions, (list, tuple, np.ndarray)) or len(positions) == 0:
+                raise error
             list_positions = []
-            if len(positions) == 0:
-                raise ValueError(
-                    "The argument 'positions' should contain a non-empty set of"
-                    " atomic indices or cartesian coordinates with x, y and z "
-                    "components."
-                )
+            indices = np.full(len(positions), -1, dtype=np.int)
             for idx, i in enumerate(positions):
                 if np.issubdtype(type(i), np.integer):
                     list_positions.append(system.get_positions()[i])
                     indices[idx] = i
                 elif isinstance(i, (list, tuple, np.ndarray)):
                     if len(i) != 3:
-                        raise ValueError(
-                            "The argument 'positions' should contain a "
-                            "non-empty set of atomic indices or cartesian "
-                            "coordinates with x, y and z components."
-                        )
+                        raise error
                     list_positions.append(i)
                 else:
-                    raise ValueError(
-                        "Create method requires the argument 'positions', a "
-                        "list of atom indices and/or positions."
-                    )
+                    raise error
 
         return np.asarray(list_positions), indices
 

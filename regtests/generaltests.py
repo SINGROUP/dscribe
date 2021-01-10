@@ -48,170 +48,170 @@ H = Atoms(
 
 class GeometryTests(unittest.TestCase):
 
-    # def test_distances(self):
-        # """Tests that the periodicity is taken into account when calculating
-        # distances.
-        # """
-        # scaled_positions = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
-        # system = System(
-            # scaled_positions=scaled_positions,
-            # symbols=["H", "H"],
-            # cell=[
-                # [5, 5, 0],
-                # [0, -5, -5],
-                # [5, 0, 5]
-            # ],
-        # )
-        # disp = system.get_displacement_tensor()
+    def test_distances(self):
+        """Tests that the periodicity is taken into account when calculating
+        distances.
+        """
+        scaled_positions = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
+        system = System(
+            scaled_positions=scaled_positions,
+            symbols=["H", "H"],
+            cell=[
+                [5, 5, 0],
+                [0, -5, -5],
+                [5, 0, 5]
+            ],
+        )
+        disp = system.get_displacement_tensor()
 
-        # # For a non-periodic system, periodicity should not be taken into
-        # # account even if cell is defined.
-        # pos = system.get_positions()
-        # assumed = np.array([
-            # [pos[0] - pos[0], pos[1] - pos[0]],
-            # [pos[0] - pos[1], pos[1] - pos[1]],
-        # ])
-        # self.assertTrue(np.allclose(assumed, disp))
+        # For a non-periodic system, periodicity should not be taken into
+        # account even if cell is defined.
+        pos = system.get_positions()
+        assumed = np.array([
+            [pos[0] - pos[0], pos[1] - pos[0]],
+            [pos[0] - pos[1], pos[1] - pos[1]],
+        ])
+        self.assertTrue(np.allclose(assumed, disp))
 
-        # # For a periodic system, the nearest copy should be considered when
-        # # comparing distances to neighbors or to self
-        # system.set_pbc([True, True, True])
-        # disp = system.get_displacement_tensor()
-        # assumed = np.array([
-            # [[5.0, 5.0, 0.0], [5, 0, 0]],
-            # [[-5, 0, 0], [5.0, 5.0, 0.0]]])
-        # self.assertTrue(np.allclose(assumed, disp))
+        # For a periodic system, the nearest copy should be considered when
+        # comparing distances to neighbors or to self
+        system.set_pbc([True, True, True])
+        disp = system.get_displacement_tensor()
+        assumed = np.array([
+            [[5.0, 5.0, 0.0], [5, 0, 0]],
+            [[-5, 0, 0], [5.0, 5.0, 0.0]]])
+        self.assertTrue(np.allclose(assumed, disp))
 
-        # # Tests that the displacement tensor is found correctly even for highly
-        # # non-orthorhombic systems.
-        # positions = np.array([
-            # [1.56909, 2.71871, 6.45326],
-            # [3.9248, 4.07536, 6.45326]
-        # ])
-        # cell = np.array([
-            # [4.7077, -2.718, 0.],
-            # [0., 8.15225, 0.],
-            # [0., 0., 50.]
-        # ])
-        # system = System(
-            # positions=positions,
-            # symbols=["H", "H"],
-            # cell=cell,
-            # pbc=True,
-        # )
+        # Tests that the displacement tensor is found correctly even for highly
+        # non-orthorhombic systems.
+        positions = np.array([
+            [1.56909, 2.71871, 6.45326],
+            [3.9248, 4.07536, 6.45326]
+        ])
+        cell = np.array([
+            [4.7077, -2.718, 0.],
+            [0., 8.15225, 0.],
+            [0., 0., 50.]
+        ])
+        system = System(
+            positions=positions,
+            symbols=["H", "H"],
+            cell=cell,
+            pbc=True,
+        )
 
-        # # Fully periodic with minimum image convention
-        # dist_mat = system.get_distance_matrix()
-        # distance = dist_mat[0, 1]
+        # Fully periodic with minimum image convention
+        dist_mat = system.get_distance_matrix()
+        distance = dist_mat[0, 1]
 
-        # # The minimum image should be within the same cell
-        # expected = np.linalg.norm(positions[0, :] - positions[1, :])
-        # self.assertTrue(np.allclose(distance, expected))
+        # The minimum image should be within the same cell
+        expected = np.linalg.norm(positions[0, :] - positions[1, :])
+        self.assertTrue(np.allclose(distance, expected))
 
-    # def test_transformations(self):
-        # """Test that coordinates are correctly transformed from scaled to
-        # cartesian and back again.
-        # """
-        # system = System(
-            # scaled_positions=[[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]],
-            # symbols=["H", "H"],
-            # cell=[
-                # [5, 5, 0],
-                # [0, -5, -5],
-                # [5, 0, 5]
-            # ],
-        # )
+    def test_transformations(self):
+        """Test that coordinates are correctly transformed from scaled to
+        cartesian and back again.
+        """
+        system = System(
+            scaled_positions=[[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]],
+            symbols=["H", "H"],
+            cell=[
+                [5, 5, 0],
+                [0, -5, -5],
+                [5, 0, 5]
+            ],
+        )
 
-        # orig = np.array([[2, 1.45, -4.8]])
-        # scal = system.to_scaled(orig)
-        # cart = system.to_cartesian(scal)
-        # self.assertTrue(np.allclose(orig, cart))
+        orig = np.array([[2, 1.45, -4.8]])
+        scal = system.to_scaled(orig)
+        cart = system.to_cartesian(scal)
+        self.assertTrue(np.allclose(orig, cart))
 
-    # def test_cell_wrap(self):
-        # """Test that coordinates are correctly wrapped inside the cell.
-        # """
-        # system = System(
-            # scaled_positions=[[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]],
-            # symbols=["H", "H"],
-            # cell=[
-                # [1, 0, 0],
-                # [0, 1, 0],
-                # [0, 0, 1]
-            # ],
-            # pbc = [True, True, True],
-        # )
+    def test_cell_wrap(self):
+        """Test that coordinates are correctly wrapped inside the cell.
+        """
+        system = System(
+            scaled_positions=[[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]],
+            symbols=["H", "H"],
+            cell=[
+                [1, 0, 0],
+                [0, 1, 0],
+                [0, 0, 1]
+            ],
+            pbc = [True, True, True],
+        )
 
-        # #orig = np.array([[2, 1.45, -4.8]])
-        # orig = np.array([[0.5, 0.5, 1.5]])
-        # scal = system.to_scaled(orig, wrap = True)
-        # cart = system.to_cartesian(scal)
-        # self.assertFalse(np.allclose(orig, cart))
+        #orig = np.array([[2, 1.45, -4.8]])
+        orig = np.array([[0.5, 0.5, 1.5]])
+        scal = system.to_scaled(orig, wrap = True)
+        cart = system.to_cartesian(scal)
+        self.assertFalse(np.allclose(orig, cart))
 
 
-        # scal2 = system.to_scaled(orig)
-        # cart2 = system.to_cartesian(scal2, wrap = True)
-        # self.assertFalse(np.allclose(orig, cart2))
+        scal2 = system.to_scaled(orig)
+        cart2 = system.to_cartesian(scal2, wrap = True)
+        self.assertFalse(np.allclose(orig, cart2))
 
         
-        # scal3 = system.to_scaled(orig, True)
-        # cart3 = system.to_cartesian(scal3, wrap = True)
-        # self.assertFalse(np.allclose(orig, cart3))
+        scal3 = system.to_scaled(orig, True)
+        cart3 = system.to_cartesian(scal3, wrap = True)
+        self.assertFalse(np.allclose(orig, cart3))
 
-        # scal4 = system.to_scaled(orig)
-        # cart4 = system.to_cartesian(scal4)
-        # self.assertTrue(np.allclose(orig, cart4))
+        scal4 = system.to_scaled(orig)
+        cart4 = system.to_cartesian(scal4)
+        self.assertTrue(np.allclose(orig, cart4))
        
-        # self.assertTrue(np.allclose(cart2, cart3))
+        self.assertTrue(np.allclose(cart2, cart3))
 
-    # def test_set_positions(self):
-        # """Test the method set_positions() of the System class
-        # """
-        # scaled_positions = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
-        # system = System(
-            # scaled_positions=scaled_positions,
-            # symbols=["H", "H"],
-            # cell=[
-                # [5, 5, 0],
-                # [0, -5, -5],
-                # [5, 0, 5]
-            # ],
-        # )
+    def test_set_positions(self):
+        """Test the method set_positions() of the System class
+        """
+        scaled_positions = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
+        system = System(
+            scaled_positions=scaled_positions,
+            symbols=["H", "H"],
+            cell=[
+                [5, 5, 0],
+                [0, -5, -5],
+                [5, 0, 5]
+            ],
+        )
 
 
-        # pos = system.get_positions()
+        pos = system.get_positions()
 
-        # new_pos = pos * 2
-        # system.set_positions(new_pos)
+        new_pos = pos * 2
+        system.set_positions(new_pos)
 
-        # new_pos = system.get_positions()
+        new_pos = system.get_positions()
         
-        # self.assertTrue(np.allclose(pos * 2, new_pos))
-        # self.assertFalse(np.allclose(pos, new_pos))
+        self.assertTrue(np.allclose(pos * 2, new_pos))
+        self.assertFalse(np.allclose(pos, new_pos))
 
-    # def test_set_scaled_positions(self):
-        # """Test the method set_scaled_positions() of the System class
-        # """
-        # scaled_positions = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
-        # system = System(
-            # scaled_positions=scaled_positions,
-            # symbols=["H", "H"],
-            # cell=[
-                # [5, 5, 0],
-                # [0, -5, -5],
-                # [5, 0, 5]
-            # ],
-        # )
+    def test_set_scaled_positions(self):
+        """Test the method set_scaled_positions() of the System class
+        """
+        scaled_positions = [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]]
+        system = System(
+            scaled_positions=scaled_positions,
+            symbols=["H", "H"],
+            cell=[
+                [5, 5, 0],
+                [0, -5, -5],
+                [5, 0, 5]
+            ],
+        )
 
 
-        # pos = system.get_scaled_positions()
+        pos = system.get_scaled_positions()
 
-        # new_pos = pos * 2
-        # system.set_scaled_positions(new_pos)
+        new_pos = pos * 2
+        system.set_scaled_positions(new_pos)
 
-        # new_pos = system.get_scaled_positions()
+        new_pos = system.get_scaled_positions()
         
-        # self.assertTrue(np.allclose(pos * 2, new_pos))
-        # self.assertFalse(np.allclose(pos, new_pos))
+        self.assertTrue(np.allclose(pos * 2, new_pos))
+        self.assertFalse(np.allclose(pos, new_pos))
 
     def test_extended_system(self):
         # Fully periodic system
@@ -286,7 +286,7 @@ class DistanceTests(unittest.TestCase):
         pos = system.get_positions()
         all_distances_naive = system.get_all_distances()
         for cutoff in np.array([0.5, 1, 1.5, 2])*a*n_copies:
-            cell_list = CellList(pos, cutoff)
+            cell_list = dscribe.ext.CellList(pos, cutoff)
             for idx in range(len(system)):
                 result = cell_list.get_neighbours_for_index(idx)
                 indices = result.indices
@@ -318,7 +318,7 @@ class DistanceTests(unittest.TestCase):
         pos = system.get_positions()
         all_distances_naive = system.get_all_distances()
         for cutoff in np.arange(1, 5):
-            cell_list = CellList(pos, cutoff)
+            cell_list = dscribe.ext.CellList(pos, cutoff)
             for idx in range(len(system)):
                 result = cell_list.get_neighbours_for_index(idx)
                 indices = result.indices
@@ -339,7 +339,7 @@ class DistanceTests(unittest.TestCase):
         )
         pos = system.get_positions()
         cutoff = 5
-        cell_list = CellList(pos, cutoff)
+        cell_list = dscribe.ext.CellList(pos, cutoff)
         result = cell_list.get_neighbours_for_position(4, 3, 0)
         indices = result.indices
         distances = result.distances
@@ -358,7 +358,7 @@ class DistanceTests(unittest.TestCase):
         )
         pos = system.get_positions()
         cutoff = 0.2
-        cell_list = CellList(pos, cutoff)
+        cell_list = dscribe.ext.CellList(pos, cutoff)
         result = cell_list.get_neighbours_for_position(500, 500, 500)
         indices = result.indices
         distances = result.distances
@@ -377,7 +377,7 @@ class DistanceTests(unittest.TestCase):
         )
         pos = system.get_positions()
         cutoff = 0.2
-        cell_list = CellList(pos, cutoff)
+        cell_list = dscribe.ext.CellList(pos, cutoff)
         result = cell_list.get_neighbours_for_position(-0.2, 0, 0)
         indices = result.indices
         distances = result.distances
@@ -602,12 +602,12 @@ class DescriptorTests(unittest.TestCase):
 if __name__ == '__main__':
 
     suites = []
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(ASETests))
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(DistanceTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(ASETests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(DistanceTests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(GeometryTests))
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(GaussianTests))
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SpeciesTests))
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(DescriptorTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(GaussianTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(SpeciesTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(DescriptorTests))
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)
 
