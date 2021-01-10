@@ -1831,19 +1831,18 @@ void getCD(double* CDevX,double* CDevY,double* CDevZ,double* prCofDX,double* prC
 /**
  * Used to calculate the partial power spectrum without crossover.
  */
-void getPNoCrossD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax){
+void getPNoCrossD(py::detail::unchecked_mutable_reference<double, 2> &soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax){
 
-  int NsTs100 = Ns*Ts*((lMax+1)*(lMax+1)); 
-  int Ns100 = Ns*((lMax+1)*(lMax+1)); int NsNs = (Ns*(Ns+1))/2; int NsNsLmax = NsNs*(lMax+1);
-  int NsNsLmaxTs = NsNsLmax*Ts; int shiftAll = 0;
+    int NsTs100 = Ns*Ts*((lMax+1)*(lMax+1)); 
+    int Ns100 = Ns*((lMax+1)*(lMax+1)); int NsNs = (Ns*(Ns+1))/2; int NsNsLmax = NsNs*(lMax+1);
+    int NsNsLmaxTs = NsNsLmax*Ts; int shiftAll = 0;
 
-  // The power spectrum is multiplied by an l-dependent prefactor that comes
-  // from the normalization of the Wigner D matrices. This prefactor is
-  // mentioned in the arrata of the original SOAP paper: On representing
-  // chemical environments, Phys. Rev. B 87, 184115 (2013). Here the square
-  // root of the prefactor in the dot-product kernel is used, so that after a
-  // possible dot-product the full prefactor is recovered.
-
+    // The power spectrum is multiplied by an l-dependent prefactor that comes
+    // from the normalization of the Wigner D matrices. This prefactor is
+    // mentioned in the arrata of the original SOAP paper: On representing
+    // chemical environments, Phys. Rev. B 87, 184115 (2013). Here the square
+    // root of the prefactor in the dot-product kernel is used, so that after a
+    // possible dot-product the full prefactor is recovered.
     for(int i = 0; i < Hs; i++){
       for(int j = 0; j < Ts; j++){
         for(int m=0; m <= lMax; m++){
@@ -1856,7 +1855,7 @@ void getPNoCrossD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMa
             for(int buffShift = m*m; buffShift < (m+1)*(m+1); buffShift++){
               buffDouble += Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd];
 	    }
-            soapMat[shiftAll] = prel*buffDouble;
+            soapMat(0, shiftAll) = prel*buffDouble;
             shiftAll++;
           }
         }
@@ -1912,7 +1911,7 @@ void getPNoCrossD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMa
 /**
  * Used to calculate the partial power spectrum (cross over).
  */
-void getPCrossOverD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax){
+void getPCrossOverD(py::detail::unchecked_mutable_reference<double, 2> &soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax){
 
   int NsTs100 = Ns*Ts*((lMax+1)*(lMax+1)); int Ns100 = Ns*((lMax+1)*(lMax+1)); int NsNs = (Ns*(Ns+1))/2;
   int NsNsLmax = NsNs*(lMax+1) ; int NsNsLmaxTs = NsNsLmax*getCrosNumD(Ts); int shiftAll = 0;
@@ -1933,7 +1932,7 @@ void getPCrossOverD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int l
               for(int buffShift = m*m; buffShift < (m+1)*(m+1); buffShift++){
                 buffDouble += Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k] * Cnnd[NsTs100*i + Ns100*jd + buffShift*Ns + kd];
   	       }
-              soapMat[shiftAll] = prel*buffDouble;
+              soapMat(0, shiftAll) = prel*buffDouble;
               shiftAll++;
             }
           }
@@ -1944,7 +1943,7 @@ void getPCrossOverD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int l
               for(int buffShift = m*m; buffShift < (m+1)*(m+1); buffShift++){
                 buffDouble += Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*Cnnd[NsTs100*i + Ns100*jd + buffShift*Ns + kd];
   	       }
-              soapMat[shiftAll] = prel*buffDouble;
+              soapMat(0, shiftAll) = prel*buffDouble;
               shiftAll++;
             }
           }
@@ -2013,10 +2012,37 @@ void getPCrossOverD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int l
 }
 //=================================================================================================================================================================
 //=================================================================================================================================================================
-void soapGTODevX(py::array_t<double> cArr,py::array_t<double> cArrX,py::array_t<double> cArrY,py::array_t<double> cArrZ, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<double> alphasArr, py::array_t<double> betasArr, py::array_t<int> atomicNumbersArr, double rCut, double cutoffPadding, int totalAN, int Nt, int Ns, int lMax, int Hs, double eta, bool crossover) {
+void soapGTODevX(
+    py::array_t<double> out_desc,
+    //py::array_t<double> out_der,
+    //py::array_t<double> cArr,
+    py::array_t<double> cArrX,
+    py::array_t<double> cArrY,
+    py::array_t<double> cArrZ,
+    py::array_t<double> positions,
+    py::array_t<double> HposArr,
+    py::array_t<double> alphasArr,
+    py::array_t<double> betasArr,
+    py::array_t<int> atomicNumbersArr,
+    double rCut,
+    double cutoffPadding,
+    int totalAN,
+    int Nt,
+    int Ns,
+    int lMax,
+    int Hs,
+    double eta,
+    bool crossover
+) {
+  
+  auto out_desc_mu = out_desc.mutable_unchecked<2>();
+  //auto out_der_mu = out_der.mutable_unchecked<4>();
 
-  auto atomicNumbers = atomicNumbersArr.unchecked<1>(); double *c = (double*)cArr.request().ptr;
-  double *cx = (double*)cArrX.request().ptr; double *cy = (double*)cArrY.request().ptr; double *cz = (double*)cArrZ.request().ptr;
+  auto atomicNumbers = atomicNumbersArr.unchecked<1>();
+  //double *c = (double*)cArr.request().ptr;
+  double *cx = (double*)cArrX.request().ptr;
+  double *cy = (double*)cArrY.request().ptr;
+  double *cz = (double*)cArrZ.request().ptr;
   double *Hpos = (double*)HposArr.request().ptr; double *alphas = (double*)alphasArr.request().ptr; double *betas = (double*)betasArr.request().ptr;
   double oOeta = 1.0/eta; double oOeta3O2 = sqrt(oOeta*oOeta*oOeta); double NsNs = Ns*Ns;
 
@@ -2088,11 +2114,11 @@ void soapGTODevX(py::array_t<double> cArr,py::array_t<double> cArrX,py::array_t<
   free(r2); free(r4); free(r6); free(r8); free(r10); free(r12); free(r14); free(r16); free(r18);
   free(exes); free(preCoef); free(bOa); free(aOa);
   if (crossover){
-    getPCrossOverD(c, cnnd, Ns, Nt, Hs, lMax);
-    getPCrossOverDevX(cx,cy,cz,cdevX,cdevY, cdevZ, cnnd, Ns, Nt, Hs, lMax, totalAN);
+    getPCrossOverD(out_desc_mu, cnnd, Ns, Nt, Hs, lMax);
+    getPCrossOverDevX(cx, cy, cz, cdevX, cdevY, cdevZ, cnnd, Ns, Nt, Hs, lMax, totalAN);
   }else{
-    getPNoCrossDevX(cx,cy,cz,cdevX,cdevY, cdevZ, cnnd, Ns, Nt, Hs, lMax, totalAN);
-    getPNoCrossD( c,  cnnd, Ns, Nt, Hs, lMax);
+    getPNoCrossDevX(cx, cy, cz, cdevX, cdevY, cdevZ, cnnd, Ns, Nt, Hs, lMax, totalAN);
+    getPNoCrossD(out_desc_mu, cnnd, Ns, Nt, Hs, lMax);
   };
   free(cnnd); free(cdevX); free(cdevY); free(cdevZ);
   return;
