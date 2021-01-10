@@ -1831,20 +1831,20 @@ void getCD(double* CDevX,double* CDevY,double* CDevZ,double* prCofDX,double* prC
 /**
  * Used to calculate the partial power spectrum without crossover.
  */
-void getPNoCrossD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax){
+void getPNoCrossD(py::detail::unchecked_mutable_reference<double, 2> &descriptor_mu, double* Cnnd, int Ns, int Ts, int Hs, int lMax){
 
-  int NsTs100 = Ns*Ts*((lMax+1)*(lMax+1)); 
-  int Ns100 = Ns*((lMax+1)*(lMax+1)); int NsNs = (Ns*(Ns+1))/2; int NsNsLmax = NsNs*(lMax+1);
-  int NsNsLmaxTs = NsNsLmax*Ts; int shiftAll = 0;
+    int NsTs100 = Ns*Ts*((lMax+1)*(lMax+1)); 
+    int Ns100 = Ns*((lMax+1)*(lMax+1)); int NsNs = (Ns*(Ns+1))/2; int NsNsLmax = NsNs*(lMax+1);
+    int NsNsLmaxTs = NsNsLmax*Ts;
 
-  // The power spectrum is multiplied by an l-dependent prefactor that comes
-  // from the normalization of the Wigner D matrices. This prefactor is
-  // mentioned in the arrata of the original SOAP paper: On representing
-  // chemical environments, Phys. Rev. B 87, 184115 (2013). Here the square
-  // root of the prefactor in the dot-product kernel is used, so that after a
-  // possible dot-product the full prefactor is recovered.
-
+    // The power spectrum is multiplied by an l-dependent prefactor that comes
+    // from the normalization of the Wigner D matrices. This prefactor is
+    // mentioned in the arrata of the original SOAP paper: On representing
+    // chemical environments, Phys. Rev. B 87, 184115 (2013). Here the square
+    // root of the prefactor in the dot-product kernel is used, so that after a
+    // possible dot-product the full prefactor is recovered.
     for(int i = 0; i < Hs; i++){
+      int shiftAll = 0;
       for(int j = 0; j < Ts; j++){
         for(int m=0; m <= lMax; m++){
         double prel;
@@ -1856,7 +1856,7 @@ void getPNoCrossD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMa
             for(int buffShift = m*m; buffShift < (m+1)*(m+1); buffShift++){
               buffDouble += Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd];
 	    }
-            soapMat[shiftAll] = prel*buffDouble;
+            descriptor_mu(i, shiftAll) = prel*buffDouble;
             shiftAll++;
           }
         }
@@ -1868,15 +1868,16 @@ void getPNoCrossD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMa
 /**
  * Used to calculate the partial power spectrum derivative without crossover.
  */
-  void getPNoCrossDevX(double* soapMatDevX,double* soapMatDevY,double* soapMatDevZ, double* CdevX,double* CdevY,double* CdevZ, double* Cnnd,  int Ns, int Ts, int Hs, int lMax, int totalAN){
+  void getPNoCrossDevX(py::detail::unchecked_mutable_reference<double, 4> &derivatives_mu, double* CdevX,double* CdevY,double* CdevZ, double* Cnnd,  int Ns, int Ts, int Hs, int lMax, int totalAN){
   int NsTs100 = Ns*Ts*((lMax+1)*(lMax+1)); // Used to be NsTs100 = Ns*Ts*100, but 100 is a waste of memory if not lMax = 9, and can't do over that, so changed.
   int Ns100 = Ns*((lMax+1)*(lMax+1));
   int NsNs = (Ns*(Ns+1))/2;
   int NsNsLmax = NsNs*(lMax+1);
   int NsNsLmaxTs = NsNsLmax*Ts;
-  int shiftAll = 0;
 
-    for(int i = 0; i < Hs; i++){
+  for(int i = 0; i < Hs; i++){
+    for(int a = 0; a < totalAN; a++){
+      int shiftAll = 0;
       for(int j = 0; j < Ts; j++){
         for(int m=0; m <= lMax; m++){
         double prel;
@@ -1884,21 +1885,32 @@ void getPNoCrossD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMa
         else{prel = PI*sqrt(8.0/(2.0*m+1.0));}
         for(int k = 0; k < Ns; k++){
           for(int kd = k; kd < Ns; kd++){
-   for(int a = 0; a < totalAN; a++){
             double buffDouble = 0;
             for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
-              soapMatDevX[shiftAll] += prel*(
-                                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + kd*totalAN + a]
-                                     +Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + k*totalAN + a]
-                                     );
-              soapMatDevY[shiftAll] += prel*(
-                                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevY[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + kd*totalAN + a]
-                                     +Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevY[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + k*totalAN + a]
-                                     );
-              soapMatDevZ[shiftAll] += prel*(
-                                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevZ[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + kd*totalAN + a]
-                                     +Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevZ[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + k*totalAN + a]
-                                     );
+              derivatives_mu(i, a, 0, shiftAll) += prel*(
+                Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + kd*totalAN + a]
+                +Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + k*totalAN + a]
+              );
+              derivatives_mu(i, a, 1, shiftAll) += prel*(
+                Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevY[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + kd*totalAN + a]
+                +Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevY[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + k*totalAN + a]
+              );
+              derivatives_mu(i, a, 2, shiftAll) += prel*(
+                Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevZ[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + kd*totalAN + a]
+                +Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevZ[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + k*totalAN + a]
+              );
+              //soapMatDevX[shiftAll] += prel*(
+                                      //Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + kd*totalAN + a]
+                                     //+Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + k*totalAN + a]
+                                     //);
+              //soapMatDevY[shiftAll] += prel*(
+                                      //Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevY[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + kd*totalAN + a]
+                                     //+Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevY[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + k*totalAN + a]
+                                     //);
+              //soapMatDevZ[shiftAll] += prel*(
+                                      //Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevZ[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + kd*totalAN + a]
+                                     //+Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevZ[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + k*totalAN + a]
+                                     //);
             }
             shiftAll++;
           }
@@ -1912,14 +1924,15 @@ void getPNoCrossD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMa
 /**
  * Used to calculate the partial power spectrum (cross over).
  */
-void getPCrossOverD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax){
+void getPCrossOverD(py::detail::unchecked_mutable_reference<double, 2> &descriptor_mu, double* Cnnd, int Ns, int Ts, int Hs, int lMax){
 
   int NsTs100 = Ns*Ts*((lMax+1)*(lMax+1)); int Ns100 = Ns*((lMax+1)*(lMax+1)); int NsNs = (Ns*(Ns+1))/2;
-  int NsNsLmax = NsNs*(lMax+1) ; int NsNsLmaxTs = NsNsLmax*getCrosNumD(Ts); int shiftAll = 0;
+  int NsNsLmax = NsNs*(lMax+1) ; int NsNsLmaxTs = NsNsLmax*getCrosNumD(Ts);
 
 //  double   cs0  = pow(PIHalf,2); cs1  = pow(2.7206990464,2);
 
     for(int i = 0; i < Hs; i++){
+      int shiftAll = 0;
       for(int j = 0; j < Ts; j++){
        for(int jd = j; jd < Ts; jd++){
         for(int m=0; m <= lMax; m++){
@@ -1933,7 +1946,7 @@ void getPCrossOverD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int l
               for(int buffShift = m*m; buffShift < (m+1)*(m+1); buffShift++){
                 buffDouble += Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k] * Cnnd[NsTs100*i + Ns100*jd + buffShift*Ns + kd];
   	       }
-              soapMat[shiftAll] = prel*buffDouble;
+              descriptor_mu(i, shiftAll) = prel*buffDouble;
               shiftAll++;
             }
           }
@@ -1944,7 +1957,7 @@ void getPCrossOverD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int l
               for(int buffShift = m*m; buffShift < (m+1)*(m+1); buffShift++){
                 buffDouble += Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*Cnnd[NsTs100*i + Ns100*jd + buffShift*Ns + kd];
   	       }
-              soapMat[shiftAll] = prel*buffDouble;
+              descriptor_mu(i, shiftAll) = prel*buffDouble;
               shiftAll++;
             }
           }
@@ -1958,12 +1971,14 @@ void getPCrossOverD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int l
 /**
  * Used to calculate the partial power spectrum derivatives (cross over).
  */
-  void getPCrossOverDevX(double* soapMatDevX,double* soapMatDevY,double* soapMatDevZ, double* CdevX,double* CdevY,double* CdevZ, double* Cnnd,  int Ns, int Ts, int Hs, int lMax, int totalAN){
+  void getPCrossOverDevX(py::detail::unchecked_mutable_reference<double, 4> &derivatives_mu, double* CdevX, double* CdevY, double* CdevZ, double* Cnnd, int Ns, int Ts, int Hs, int lMax, int totalAN){
 
   int NsTs100 = Ns*Ts*((lMax+1)*(lMax+1)); int Ns100 = Ns*((lMax+1)*(lMax+1)); int NsNs = (Ns*(Ns+1))/2;
-  int NsNsLmax = NsNs*(lMax+1); int NsNsLmaxTs = NsNsLmax*getCrosNumD(Ts); int shiftAll = 0;
+  int NsNsLmax = NsNs*(lMax+1); int NsNsLmaxTs = NsNsLmax*getCrosNumD(Ts);
 
-    for(int i = 0; i < Hs; i++){
+  for(int i = 0; i < Hs; i++){
+    for(int a = 0; a < totalAN; a++){
+      int shiftAll = 0;
       for(int j = 0; j < Ts; j++){
         for(int jd = j; jd < Ts; jd++){
          for(int m=0; m <= lMax; m++){
@@ -1971,37 +1986,33 @@ void getPCrossOverD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int l
          if(j==jd){
           for(int k = 0; k < Ns; k++){
             for(int kd = k; kd < Ns; kd++){
-  for(int a = 0; a < totalAN; a++){
               for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
-                soapMatDevX[shiftAll] += prel*(
+                derivatives_mu(i, a, 0, shiftAll) += prel*(
                       Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + a]
                      +Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + a]);
-                soapMatDevY[shiftAll] += prel*(
+                derivatives_mu(i, a, 1, shiftAll) += prel*(
                       Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + a]
                      +Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + a]);
-                soapMatDevZ[shiftAll] += prel*(
+                derivatives_mu(i, a, 2, shiftAll) += prel*(
                       Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + a]
                      +Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + a]);
               }
             shiftAll++;
             }
-            }
           }
           }else{
           for(int k = 0; k < Ns; k++){
             for(int kd = 0; kd < Ns; kd++){
-  for(int a = 0; a < totalAN; a++){
               for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
-                soapMatDevX[shiftAll] += prel*(
+                derivatives_mu(i, a, 0, shiftAll) += prel*(
                       Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + a]
                      +Cnnd[NsTs100*i + Ns100*jd + buffShift*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*totalAN*Ns + k*totalAN + a]);
-                soapMatDevY[shiftAll] += prel*(
+                derivatives_mu(i, a, 1, shiftAll) += prel*(
                       Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + a]
                      +Cnnd[NsTs100*i + Ns100*jd + buffShift*Ns + kd]*CdevY[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*totalAN*Ns + k*totalAN + a]);
-                soapMatDevZ[shiftAll] += prel*(
+                derivatives_mu(i, a, 2, shiftAll) += prel*(
                       Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + a]
                      +Cnnd[NsTs100*i + Ns100*jd + buffShift*Ns + kd]*CdevZ[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*totalAN*Ns + k*totalAN + a]);
-
               }
             shiftAll++;
             }
@@ -2015,13 +2026,35 @@ void getPCrossOverD(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int l
 }
 //=================================================================================================================================================================
 //=================================================================================================================================================================
-void soapGTODevX(py::array_t<double> cArr,py::array_t<double> cArrX,py::array_t<double> cArrY,py::array_t<double> cArrZ, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<double> alphasArr, py::array_t<double> betasArr, py::array_t<int> atomicNumbersArr, double rCut, double cutoffPadding, int totalAN, int Nt, int Ns, int lMax, int Hs, double eta, bool crossover) {
-
-  auto atomicNumbers = atomicNumbersArr.unchecked<1>(); double *c = (double*)cArr.request().ptr;
-  double *cx = (double*)cArrX.request().ptr; double *cy = (double*)cArrY.request().ptr; double *cz = (double*)cArrZ.request().ptr;
+void soapGTODevX(
+    py::array_t<double> derivatives,
+    py::array_t<double> descriptor,
+    py::array_t<double> positions,
+    py::array_t<double> HposArr,
+    py::array_t<double> alphasArr,
+    py::array_t<double> betasArr,
+    py::array_t<int> atomicNumbersArr,
+    double rCut,
+    double cutoffPadding,
+    int totalAN,
+    int Nt,
+    int Ns,
+    int lMax,
+    int Hs,
+    double eta,
+    bool crossover
+) {
+  
+  auto derivatives_mu = derivatives.mutable_unchecked<4>();
+  auto descriptor_mu = descriptor.mutable_unchecked<2>();
+  auto atomicNumbers = atomicNumbersArr.unchecked<1>();
+  //double *c = (double*)cArr.request().ptr;
+  //double *cx = (double*)cArrX.request().ptr;
+  //double *cy = (double*)cArrY.request().ptr;
+  //double *cz = (double*)cArrZ.request().ptr;
   double *Hpos = (double*)HposArr.request().ptr; double *alphas = (double*)alphasArr.request().ptr; double *betas = (double*)betasArr.request().ptr;
   double oOeta = 1.0/eta; double oOeta3O2 = sqrt(oOeta*oOeta*oOeta); double NsNs = Ns*Ns;
-//
+
   double* dx  = (double*)malloc(sizeof(double)*totalAN); double* dy  = (double*)malloc(sizeof(double)*totalAN); double* dz  = (double*)malloc(sizeof(double)*totalAN);
   double* x2  = (double*)malloc(sizeof(double)*totalAN); double* x4  = (double*)malloc(sizeof(double)*totalAN); double* x6  = (double*)malloc(sizeof(double)*totalAN);
   double* x8  = (double*)malloc(sizeof(double)*totalAN); double* x10 = (double*)malloc(sizeof(double)*totalAN); double* x12 = (double*)malloc(sizeof(double)*totalAN);
@@ -2035,7 +2068,7 @@ void soapGTODevX(py::array_t<double> cArr,py::array_t<double> cArrX,py::array_t<
   double* r2  = (double*)malloc(sizeof(double)*totalAN); double* r4  = (double*)malloc(sizeof(double)*totalAN); double* r6  = (double*)malloc(sizeof(double)*totalAN);
   double* r8  = (double*)malloc(sizeof(double)*totalAN); double* r10 = (double*)malloc(sizeof(double)*totalAN); double* r12 = (double*)malloc(sizeof(double)*totalAN);
   double* r14 = (double*)malloc(sizeof(double)*totalAN); double* r16 = (double*)malloc(sizeof(double)*totalAN); double* r18 = (double*)malloc(sizeof(double)*totalAN);
-//
+
   double* exes = (double*) malloc(sizeof(double)*totalAN);
   // -4 -> no need for l=0, l=1.
   double* preCoef = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN); double* prCofDX = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN);
@@ -2043,45 +2076,45 @@ void soapGTODevX(py::array_t<double> cArr,py::array_t<double> cArrX,py::array_t<
   double* bOa = (double*) malloc((lMax+1)*NsNs*sizeof(double)); double* aOa = (double*) malloc((lMax+1)*Ns*sizeof(double));
   double* cnnd = (double*) malloc(((lMax+1)*(lMax+1))*Nt*Ns*Hs*sizeof(double)); double* cdevX = (double*) malloc(totalAN*((lMax+1)*(lMax+1))*Nt*Ns*Hs*sizeof(double)); 
   double* cdevY = (double*) malloc(totalAN*((lMax+1)*(lMax+1))*Nt*Ns*Hs*sizeof(double)); double* cdevZ = (double*) malloc(totalAN*((lMax+1)*(lMax+1))*Nt*Ns*Hs*sizeof(double));
-//
+
   for(int i = 0; i < ((lMax+1)*(lMax+1))*Nt*Ns*Hs; i++){cnnd[i] = 0.0;} for(int i = 0; i < ((lMax+1)*(lMax+1))*Nt*Ns*Hs*totalAN; i++){cdevX[i] = 0.0;}
   for(int i = 0; i < ((lMax+1)*(lMax+1))*Nt*Ns*Hs*totalAN; i++){cdevY[i] = 0.0;} for(int i = 0; i < ((lMax+1)*(lMax+1))*Nt*Ns*Hs*totalAN; i++){cdevZ[i] = 0.0;}
 
   // Initialize binning
   CellList cellList(positions, rCut+cutoffPadding);
-//
-//  // Create a mapping between an atomic index and its internal index in the output
+
+  // Create a mapping between an atomic index and its internal index in the output
   map<int, int> ZIndexMap;
   set<int> atomicNumberSet;
   for (int i = 0; i < totalAN; ++i) {atomicNumberSet.insert(atomicNumbers(i));};
   int i = 0; for (auto it=atomicNumberSet.begin(); it!=atomicNumberSet.end(); ++it) {ZIndexMap[*it] = i; ++i;};
-//
+
   getAlphaBetaD(aOa,bOa,alphas,betas,Ns,lMax,oOeta, oOeta3O2);
-//
-//  // Loop through the centers
+
+  // Loop through the centers
   for (int i = 0; i < Hs; i++) {
-//
-//    // Get all neighbours for the central atom i
+
+    // Get all neighbours for the central atom i
     double ix = Hpos[3*i]; double iy = Hpos[3*i+1]; double iz = Hpos[3*i+2];
     CellListResult result = cellList.getNeighboursForPosition(ix, iy, iz);
-//
-//    // Sort the neighbours by type
+
+    // Sort the neighbours by type
     map<int, vector<int>> atomicTypeMap;
     for (const int &idx : result.indices) {int Z = atomicNumbers(idx); atomicTypeMap[Z].push_back(idx);};
-//
-//    // Loop through neighbours sorted by type
+
+    // Loop through neighbours sorted by type
     for (const auto &ZIndexPair : atomicTypeMap) {
-//
-//      // j is the internal index for this atomic number
+
+      // j is the internal index for this atomic number
       int j = ZIndexMap[ZIndexPair.first];
       int n_neighbours = ZIndexPair.second.size();
-//
-//      // Save the neighbour distances into the arrays dx, dy and dz
+
+      // Save the neighbour distances into the arrays dx, dy and dz
       getDeltaD(dx, dy, dz, positions, ix, iy, iz, ZIndexPair.second);
       getRsZsD(dx,x2,x4,x6,x8,x10,x12,x14,x16,x18, dy,y2,y4,y6,y8,y10,y12,y14,y16,y18, dz, r2, r4, r6, r8,r10,r12,r14,r16,r18, z2, z4, z6, z8,z10,z12,z14,z16,z18, n_neighbours,lMax);
       getCfactorsD(preCoef, prCofDX, prCofDY, prCofDZ, n_neighbours, dx,x2, x4, x6, x8,x10,x12,x14,x16,x18, dy,y2, y4, y6, y8,y10,y12,y14,y16,y18, dz, z2, z4, z6, z8,z10,z12,z14,z16,z18, r2, r4, r6, r8,r10,r12,r14,r16,r18, totalAN, lMax);
       getCD(cdevX,cdevY, cdevZ,prCofDX,prCofDY,prCofDZ, cnnd, preCoef, dx, dy, dz, r2, bOa, aOa, exes, totalAN, n_neighbours, Ns, Nt, lMax, i, j, ZIndexPair.second);
-//
+
     }
   }
   free(dx); free(x2); free(x4); free(x6); free(x8); free(x10); free(x12); free(x14); free(x16); free(x18);
@@ -2090,12 +2123,12 @@ void soapGTODevX(py::array_t<double> cArr,py::array_t<double> cArrX,py::array_t<
   free(r2); free(r4); free(r6); free(r8); free(r10); free(r12); free(r14); free(r16); free(r18);
   free(exes); free(preCoef); free(bOa); free(aOa);
   if (crossover){
-    getPCrossOverD(c, cnnd, Ns, Nt, Hs, lMax);
-    getPCrossOverDevX(cx,cy,cz,cdevX,cdevY, cdevZ, cnnd, Ns, Nt, Hs, lMax, totalAN);
+    getPCrossOverD(descriptor_mu, cnnd, Ns, Nt, Hs, lMax);
+    getPCrossOverDevX(derivatives_mu, cdevX, cdevY, cdevZ, cnnd, Ns, Nt, Hs, lMax, totalAN);
   }else{
-    getPNoCrossDevX(cx,cy,cz,cdevX,cdevY, cdevZ, cnnd, Ns, Nt, Hs, lMax, totalAN);
-    getPNoCrossD( c,  cnnd, Ns, Nt, Hs, lMax);
+    getPNoCrossDevX(derivatives_mu, cdevX, cdevY, cdevZ, cnnd, Ns, Nt, Hs, lMax, totalAN);
+    getPNoCrossD(descriptor_mu, cnnd, Ns, Nt, Hs, lMax);
   };
   free(cnnd); free(cdevX); free(cdevY); free(cdevZ);
-   return;
+  return;
 }

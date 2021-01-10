@@ -115,10 +115,8 @@ int SOAPGTO::get_number_of_features() const
 }
 
 void SOAPGTO::derivatives_analytical(
-    py::array_t<double> out_d,
-    py::array_t<double> dx,
-    py::array_t<double> dy,
-    py::array_t<double> dz,
+    py::array_t<double> derivatives,
+    py::array_t<double> desciptor,
     py::array_t<double> positions,
     py::array_t<int> atomic_numbers,
     py::array_t<double> cell,
@@ -143,10 +141,8 @@ void SOAPGTO::derivatives_analytical(
     }
 
     soapGTODevX(
-        out_d,
-        dx,
-        dy,
-        dz,
+        derivatives,
+        desciptor,
         positions,
         center_pos,
         this->alphas,
