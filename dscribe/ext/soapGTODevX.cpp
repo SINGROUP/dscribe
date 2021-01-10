@@ -1831,7 +1831,7 @@ void getCD(double* CDevX,double* CDevY,double* CDevZ,double* prCofDX,double* prC
 /**
  * Used to calculate the partial power spectrum without crossover.
  */
-void getPNoCrossD(py::detail::unchecked_mutable_reference<double, 2> &descriptor_mu, double* Cnnd, int Ns, int Ts, int Hs, int lMax, int i, int j){
+void getPNoCrossD(py::detail::unchecked_mutable_reference<double, 2> &descriptor_mu, double* Cnnd, int Ns, int Ts, int Hs, int lMax, int i){
 
     int NsTs100 = Ns*Ts*((lMax+1)*(lMax+1)); 
     int Ns100 = Ns*((lMax+1)*(lMax+1)); int NsNs = (Ns*(Ns+1))/2; int NsNsLmax = NsNs*(lMax+1);
@@ -1845,7 +1845,7 @@ void getPNoCrossD(py::detail::unchecked_mutable_reference<double, 2> &descriptor
     // possible dot-product the full prefactor is recovered.
 //    for(int i = 0; i < Hs; i++){
       int shiftAll = 0;
-//      for(int j = 0; j < Ts; j++){
+      for(int j = 0; j < Ts; j++){
         for(int m=0; m <= lMax; m++){
         double prel;
         if(m > 1){prel = PI*sqrt(8.0/(2.0*m+1.0))*PI3;}
@@ -1861,14 +1861,14 @@ void getPNoCrossD(py::detail::unchecked_mutable_reference<double, 2> &descriptor
           }
         }
       }
-//    }
+    }
 //  }
 }
 //=======================================================================
 /**
  * Used to calculate the partial power spectrum derivative without crossover.
  */
-  void getPNoCrossDevX(py::detail::unchecked_mutable_reference<double, 4> &derivatives_mu, double* CdevX,double* CdevY,double* CdevZ, double* Cnnd,  int Ns, int Ts, int Hs, int lMax, int totalAN, int i, int j, int n_neighbours, const vector<int> &indices){
+  void getPNoCrossDevX(py::detail::unchecked_mutable_reference<double, 4> &derivatives_mu, double* CdevX,double* CdevY,double* CdevZ, double* Cnnd,  int Ns, int Ts, int Hs, int lMax, int totalAN, int i,  int n_neighbours, const vector<int> &indices){
   int NsTs100 = Ns*Ts*((lMax+1)*(lMax+1)); // Used to be NsTs100 = Ns*Ts*100, but 100 is a waste of memory if not lMax = 9, and can't do over that, so changed.
   int Ns100 = Ns*((lMax+1)*(lMax+1));
   int NsNs = (Ns*(Ns+1))/2;
@@ -1878,7 +1878,7 @@ void getPNoCrossD(py::detail::unchecked_mutable_reference<double, 2> &descriptor
 //  for(int i = 0; i < Hs; i++){
     for(int a = 0; a < n_neighbours; a++){
       int shiftAll = 0;
-//      for(int j = 0; j < Ts; j++){
+      for(int j = 0; j < Ts; j++){
         for(int m=0; m <= lMax; m++){
         double prel;
         if(m > 1){prel = PI*sqrt(8.0/(2.0*m+1.0))*PI3;}
@@ -1916,7 +1916,7 @@ void getPNoCrossD(py::detail::unchecked_mutable_reference<double, 2> &descriptor
           }
         }
       }
-//    }
+    }
    }
 // }
 }
@@ -1924,7 +1924,7 @@ void getPNoCrossD(py::detail::unchecked_mutable_reference<double, 2> &descriptor
 /**
  * Used to calculate the partial power spectrum (cross over).
  */
-void getPCrossOverD(py::detail::unchecked_mutable_reference<double, 2> &descriptor_mu, double* Cnnd, int Ns, int Ts, int Hs, int lMax, int i, int j){
+void getPCrossOverD(py::detail::unchecked_mutable_reference<double, 2> &descriptor_mu, double* Cnnd, int Ns, int Ts, int Hs, int lMax, int i){
 
   int NsTs100 = Ns*Ts*((lMax+1)*(lMax+1)); int Ns100 = Ns*((lMax+1)*(lMax+1)); int NsNs = (Ns*(Ns+1))/2;
   int NsNsLmax = NsNs*(lMax+1) ; int NsNsLmaxTs = NsNsLmax*getCrosNumD(Ts);
@@ -1933,7 +1933,7 @@ void getPCrossOverD(py::detail::unchecked_mutable_reference<double, 2> &descript
 
 //    for(int i = 0; i < Hs; i++){
       int shiftAll = 0;
-//      for(int j = 0; j < Ts; j++){
+      for(int j = 0; j < Ts; j++){
        for(int jd = j; jd < Ts; jd++){
         for(int m=0; m <= lMax; m++){
         double prel;
@@ -1964,14 +1964,14 @@ void getPCrossOverD(py::detail::unchecked_mutable_reference<double, 2> &descript
         }
        } //end ifelse
       }
-//    }
+    }
 //  }
 }
 //===========================================================================================
 /**
  * Used to calculate the partial power spectrum derivatives (cross over).
  */
-  void getPCrossOverDevX(py::detail::unchecked_mutable_reference<double, 4> &derivatives_mu, double* CdevX, double* CdevY, double* CdevZ, double* Cnnd, int Ns, int Ts, int Hs, int lMax, int totalAN, int i, int j, int n_neighbours, const vector<int> &indices){
+  void getPCrossOverDevX(py::detail::unchecked_mutable_reference<double, 4> &derivatives_mu, double* CdevX, double* CdevY, double* CdevZ, double* Cnnd, int Ns, int Ts, int Hs, int lMax, int totalAN, int i,  int n_neighbours, const vector<int> &indices){
 
   int NsTs100 = Ns*Ts*((lMax+1)*(lMax+1)); int Ns100 = Ns*((lMax+1)*(lMax+1)); int NsNs = (Ns*(Ns+1))/2;
   int NsNsLmax = NsNs*(lMax+1); int NsNsLmaxTs = NsNsLmax*getCrosNumD(Ts);
@@ -1979,7 +1979,7 @@ void getPCrossOverD(py::detail::unchecked_mutable_reference<double, 2> &descript
 //  for(int i = 0; i < Hs; i++){
     for(int a = 0; a < n_neighbours; a++){
       int shiftAll = 0;
-//      for(int j = 0; j < Ts; j++){
+      for(int j = 0; j < Ts; j++){
         for(int jd = j; jd < Ts; jd++){
          for(int m=0; m <= lMax; m++){
          double prel; if(m > 1){prel = PI*sqrt(8.0/(2.0*m+1.0))*PI3;}else{prel = PI*sqrt(8.0/(2.0*m+1.0));}
@@ -2020,7 +2020,7 @@ void getPCrossOverD(py::detail::unchecked_mutable_reference<double, 2> &descript
           }
         }
       }
-//    }
+    }
   }
 // }
 }
@@ -2055,6 +2055,8 @@ void soapGTODevX(
   double *Hpos = (double*)HposArr.request().ptr; double *alphas = (double*)alphasArr.request().ptr; double *betas = (double*)betasArr.request().ptr;
   double oOeta = 1.0/eta; double oOeta3O2 = sqrt(oOeta*oOeta*oOeta); double NsNs = Ns*Ns;
 
+
+
   double* dx  = (double*)malloc(sizeof(double)*totalAN); double* dy  = (double*)malloc(sizeof(double)*totalAN); double* dz  = (double*)malloc(sizeof(double)*totalAN);
   double* x2  = (double*)malloc(sizeof(double)*totalAN); double* x4  = (double*)malloc(sizeof(double)*totalAN); double* x6  = (double*)malloc(sizeof(double)*totalAN);
   double* x8  = (double*)malloc(sizeof(double)*totalAN); double* x10 = (double*)malloc(sizeof(double)*totalAN); double* x12 = (double*)malloc(sizeof(double)*totalAN);
@@ -2079,6 +2081,9 @@ void soapGTODevX(
 
   for(int i = 0; i < ((lMax+1)*(lMax+1))*Nt*Ns*Hs; i++){cnnd[i] = 0.0;} for(int i = 0; i < ((lMax+1)*(lMax+1))*Nt*Ns*Hs*totalAN; i++){cdevX[i] = 0.0;}
   for(int i = 0; i < ((lMax+1)*(lMax+1))*Nt*Ns*Hs*totalAN; i++){cdevY[i] = 0.0;} for(int i = 0; i < ((lMax+1)*(lMax+1))*Nt*Ns*Hs*totalAN; i++){cdevZ[i] = 0.0;}
+
+//  for (int i = 0; i < Hs; i++) {
+//                derivatives_mu(i, indices[a], 1, shiftAll) = 0.0;
 
   // Initialize binning
   CellList cellList(positions, rCut+cutoffPadding);
@@ -2140,11 +2145,11 @@ void soapGTODevX(
       int n_neighbours = ZIndexPair.second.size();
 
   if (crossover){
-    getPCrossOverD(descriptor_mu, cnnd, Ns, Nt, Hs, lMax, i, j);
-    getPCrossOverDevX(derivatives_mu, cdevX, cdevY, cdevZ, cnnd, Ns, Nt, Hs, lMax, totalAN, i, j, n_neighbours,ZIndexPair.second);
+    getPCrossOverD(descriptor_mu, cnnd, Ns, Nt, Hs, lMax, i);
+    getPCrossOverDevX(derivatives_mu, cdevX, cdevY, cdevZ, cnnd, Ns, Nt, Hs, lMax, totalAN, i, n_neighbours,ZIndexPair.second);
   }else{
-    getPNoCrossDevX(derivatives_mu, cdevX, cdevY, cdevZ, cnnd, Ns, Nt, Hs, lMax, totalAN, i, j, n_neighbours, ZIndexPair.second);
-    getPNoCrossD(descriptor_mu, cnnd, Ns, Nt, Hs, lMax, i, j);
+    getPNoCrossDevX(derivatives_mu, cdevX, cdevY, cdevZ, cnnd, Ns, Nt, Hs, lMax, totalAN, i, n_neighbours, ZIndexPair.second);
+    getPNoCrossD(descriptor_mu, cnnd, Ns, Nt, Hs, lMax, i);
   };
 
 
