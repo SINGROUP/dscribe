@@ -81,10 +81,8 @@ class SOAPGTO: public Descriptor {
          * Analytical derivatives.
          */
         void derivatives_analytical(
-            py::array_t<double> out_d,
-            py::array_t<double> dx,
-            py::array_t<double> dy,
-            py::array_t<double> dz,
+            py::array_t<double> derivatives,
+            py::array_t<double> descriptor,
             py::array_t<double> positions,
             py::array_t<int> atomic_numbers,
             py::array_t<double> cell,

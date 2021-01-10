@@ -632,16 +632,10 @@ class SOAP(Descriptor):
                 )
             # Calculate analytically with extension
             elif method == "analytical":
-                d = np.zeros(( n_atoms, n_centers, n_features, 3), dtype=np.float64)
-                dx = np.zeros(( n_atoms, n_centers, n_features,), dtype=np.float64)
-                dy = np.zeros(( n_atoms, n_centers, n_features,), dtype=np.float64)
-                dz = np.zeros(( n_atoms, n_centers, n_features,), dtype=np.float64)
-
+                d = np.zeros(( n_centers, n_atoms, 3, n_features), dtype=np.float64)
                 soap_gto.derivatives_analytical(
+                    d, 
                     c,
-                    dx,
-                    dy,
-                    dz,
                     pos,
                     Z,
                     ase.geometry.cell.complete_cell(system.get_cell()),
@@ -650,11 +644,6 @@ class SOAP(Descriptor):
                     indices,
                     return_descriptor,
                 )
-                d[:, :, :, 0] = dx
-                d[:, :, :, 1] = dy
-                d[:, :, :, 2] = dz
-                d = np.moveaxis(d, -2, -1)
-                d = np.moveaxis(d, 0, 1)
         elif self._rbf == "polynomial":
             rx, gss = self.get_basis_poly(self._rcut, self._nmax)
             gss = gss.flatten()

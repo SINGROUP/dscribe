@@ -387,6 +387,7 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
             rcut=3,
             nmax=3,
             lmax=3,
+            crossover=True,
         )
         positions = H2O.get_positions()
         _, d_num = soap.derivatives(H2O, positions=positions, method="numerical")
