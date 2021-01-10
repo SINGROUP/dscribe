@@ -400,7 +400,7 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
 if __name__ == '__main__':
     # SoapDerivativeTests().test_periodic_numerical()
     suites = []
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests))
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)
