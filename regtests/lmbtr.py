@@ -457,7 +457,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         assumed[2, :] = desc.create(samples[1], [[1, 2, 0]]).toarray()
         self.assertTrue(np.allclose(output, assumed))
 
-    def 6est_k2_peaks_finite(self):
+    def test_k2_peaks_finite(self):
         """Tests the correct peak locations and intensities are found for the
         k=2 term in finite systems.
         """
