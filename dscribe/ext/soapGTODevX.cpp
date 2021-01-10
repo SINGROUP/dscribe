@@ -1831,7 +1831,7 @@ void getCD(double* CDevX,double* CDevY,double* CDevZ,double* prCofDX,double* prC
 /**
  * Used to calculate the partial power spectrum without crossover.
  */
-void getPNoCrossD(py::detail::unchecked_mutable_reference<double, 2> &descriptor_mu, double* Cnnd, int Ns, int Ts, int Hs, int lMax){
+void getPNoCrossD(py::detail::unchecked_mutable_reference<double, 2> &descriptor_mu, double* Cnnd, int Ns, int Ts, int Hs, int lMax, int i, int j){
 
     int NsTs100 = Ns*Ts*((lMax+1)*(lMax+1)); 
     int Ns100 = Ns*((lMax+1)*(lMax+1)); int NsNs = (Ns*(Ns+1))/2; int NsNsLmax = NsNs*(lMax+1);
@@ -1843,9 +1843,9 @@ void getPNoCrossD(py::detail::unchecked_mutable_reference<double, 2> &descriptor
     // chemical environments, Phys. Rev. B 87, 184115 (2013). Here the square
     // root of the prefactor in the dot-product kernel is used, so that after a
     // possible dot-product the full prefactor is recovered.
-    for(int i = 0; i < Hs; i++){
+//    for(int i = 0; i < Hs; i++){
       int shiftAll = 0;
-      for(int j = 0; j < Ts; j++){
+//      for(int j = 0; j < Ts; j++){
         for(int m=0; m <= lMax; m++){
         double prel;
         if(m > 1){prel = PI*sqrt(8.0/(2.0*m+1.0))*PI3;}
@@ -1861,24 +1861,24 @@ void getPNoCrossD(py::detail::unchecked_mutable_reference<double, 2> &descriptor
           }
         }
       }
-    }
-  }
+//    }
+//  }
 }
 //=======================================================================
 /**
  * Used to calculate the partial power spectrum derivative without crossover.
  */
-  void getPNoCrossDevX(py::detail::unchecked_mutable_reference<double, 4> &derivatives_mu, double* CdevX,double* CdevY,double* CdevZ, double* Cnnd,  int Ns, int Ts, int Hs, int lMax, int totalAN){
+  void getPNoCrossDevX(py::detail::unchecked_mutable_reference<double, 4> &derivatives_mu, double* CdevX,double* CdevY,double* CdevZ, double* Cnnd,  int Ns, int Ts, int Hs, int lMax, int totalAN, int i, int j, int n_neighbours, const vector<int> &indices){
   int NsTs100 = Ns*Ts*((lMax+1)*(lMax+1)); // Used to be NsTs100 = Ns*Ts*100, but 100 is a waste of memory if not lMax = 9, and can't do over that, so changed.
   int Ns100 = Ns*((lMax+1)*(lMax+1));
   int NsNs = (Ns*(Ns+1))/2;
   int NsNsLmax = NsNs*(lMax+1);
   int NsNsLmaxTs = NsNsLmax*Ts;
 
-  for(int i = 0; i < Hs; i++){
-    for(int a = 0; a < totalAN; a++){
+//  for(int i = 0; i < Hs; i++){
+    for(int a = 0; a < n_neighbours; a++){
       int shiftAll = 0;
-      for(int j = 0; j < Ts; j++){
+//      for(int j = 0; j < Ts; j++){
         for(int m=0; m <= lMax; m++){
         double prel;
         if(m > 1){prel = PI*sqrt(8.0/(2.0*m+1.0))*PI3;}
@@ -1887,17 +1887,17 @@ void getPNoCrossD(py::detail::unchecked_mutable_reference<double, 2> &descriptor
           for(int kd = k; kd < Ns; kd++){
             double buffDouble = 0;
             for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
-              derivatives_mu(i, a, 0, shiftAll) += prel*(
-                Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + kd*totalAN + a]
-                +Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + k*totalAN + a]
+              derivatives_mu(i, indices[a], 0, shiftAll) += prel*(
+                Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + kd*totalAN + indices[a]]
+                +Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + k*totalAN + indices[a]]
               );
-              derivatives_mu(i, a, 1, shiftAll) += prel*(
-                Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevY[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + kd*totalAN + a]
-                +Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevY[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + k*totalAN + a]
+              derivatives_mu(i, indices[a], 1, shiftAll) += prel*(
+                Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevY[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + kd*totalAN + indices[a]]
+                +Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevY[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + k*totalAN + indices[a]]
               );
-              derivatives_mu(i, a, 2, shiftAll) += prel*(
-                Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevZ[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + kd*totalAN + a]
-                +Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevZ[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + k*totalAN + a]
+              derivatives_mu(i, indices[a], 2, shiftAll) += prel*(
+                Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevZ[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + kd*totalAN + indices[a]]
+                +Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevZ[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + k*totalAN + indices[a]]
               );
               //soapMatDevX[shiftAll] += prel*(
                                       //Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*Ns*totalAN + kd*totalAN + a]
@@ -1916,24 +1916,24 @@ void getPNoCrossD(py::detail::unchecked_mutable_reference<double, 2> &descriptor
           }
         }
       }
-    }
+//    }
    }
- }
+// }
 }
 //================================================================================================
 /**
  * Used to calculate the partial power spectrum (cross over).
  */
-void getPCrossOverD(py::detail::unchecked_mutable_reference<double, 2> &descriptor_mu, double* Cnnd, int Ns, int Ts, int Hs, int lMax){
+void getPCrossOverD(py::detail::unchecked_mutable_reference<double, 2> &descriptor_mu, double* Cnnd, int Ns, int Ts, int Hs, int lMax, int i, int j){
 
   int NsTs100 = Ns*Ts*((lMax+1)*(lMax+1)); int Ns100 = Ns*((lMax+1)*(lMax+1)); int NsNs = (Ns*(Ns+1))/2;
   int NsNsLmax = NsNs*(lMax+1) ; int NsNsLmaxTs = NsNsLmax*getCrosNumD(Ts);
 
 //  double   cs0  = pow(PIHalf,2); cs1  = pow(2.7206990464,2);
 
-    for(int i = 0; i < Hs; i++){
+//    for(int i = 0; i < Hs; i++){
       int shiftAll = 0;
-      for(int j = 0; j < Ts; j++){
+//      for(int j = 0; j < Ts; j++){
        for(int jd = j; jd < Ts; jd++){
         for(int m=0; m <= lMax; m++){
         double prel;
@@ -1964,22 +1964,22 @@ void getPCrossOverD(py::detail::unchecked_mutable_reference<double, 2> &descript
         }
        } //end ifelse
       }
-    }
-  }
+//    }
+//  }
 }
 //===========================================================================================
 /**
  * Used to calculate the partial power spectrum derivatives (cross over).
  */
-  void getPCrossOverDevX(py::detail::unchecked_mutable_reference<double, 4> &derivatives_mu, double* CdevX, double* CdevY, double* CdevZ, double* Cnnd, int Ns, int Ts, int Hs, int lMax, int totalAN){
+  void getPCrossOverDevX(py::detail::unchecked_mutable_reference<double, 4> &derivatives_mu, double* CdevX, double* CdevY, double* CdevZ, double* Cnnd, int Ns, int Ts, int Hs, int lMax, int totalAN, int i, int j, int n_neighbours, const vector<int> &indices){
 
   int NsTs100 = Ns*Ts*((lMax+1)*(lMax+1)); int Ns100 = Ns*((lMax+1)*(lMax+1)); int NsNs = (Ns*(Ns+1))/2;
   int NsNsLmax = NsNs*(lMax+1); int NsNsLmaxTs = NsNsLmax*getCrosNumD(Ts);
 
-  for(int i = 0; i < Hs; i++){
-    for(int a = 0; a < totalAN; a++){
+//  for(int i = 0; i < Hs; i++){
+    for(int a = 0; a < n_neighbours; a++){
       int shiftAll = 0;
-      for(int j = 0; j < Ts; j++){
+//      for(int j = 0; j < Ts; j++){
         for(int jd = j; jd < Ts; jd++){
          for(int m=0; m <= lMax; m++){
          double prel; if(m > 1){prel = PI*sqrt(8.0/(2.0*m+1.0))*PI3;}else{prel = PI*sqrt(8.0/(2.0*m+1.0));}
@@ -1987,15 +1987,15 @@ void getPCrossOverD(py::detail::unchecked_mutable_reference<double, 2> &descript
           for(int k = 0; k < Ns; k++){
             for(int kd = k; kd < Ns; kd++){
               for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
-                derivatives_mu(i, a, 0, shiftAll) += prel*(
-                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + a]
-                     +Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + a]);
-                derivatives_mu(i, a, 1, shiftAll) += prel*(
-                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + a]
-                     +Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + a]);
-                derivatives_mu(i, a, 2, shiftAll) += prel*(
-                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + a]
-                     +Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + a]);
+                derivatives_mu(i, indices[a], 0, shiftAll) += prel*(
+                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + indices[a]]
+                     +Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + indices[a]]);
+                derivatives_mu(i, indices[a], 1, shiftAll) += prel*(
+                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + indices[a]]
+                     +Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + indices[a]]);
+                derivatives_mu(i, indices[a], 2, shiftAll) += prel*(
+                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + indices[a]]
+                     +Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + kd]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + indices[a]]);
               }
             shiftAll++;
             }
@@ -2004,15 +2004,15 @@ void getPCrossOverD(py::detail::unchecked_mutable_reference<double, 2> &descript
           for(int k = 0; k < Ns; k++){
             for(int kd = 0; kd < Ns; kd++){
               for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
-                derivatives_mu(i, a, 0, shiftAll) += prel*(
-                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + a]
-                     +Cnnd[NsTs100*i + Ns100*jd + buffShift*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*totalAN*Ns + k*totalAN + a]);
-                derivatives_mu(i, a, 1, shiftAll) += prel*(
-                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + a]
-                     +Cnnd[NsTs100*i + Ns100*jd + buffShift*Ns + kd]*CdevY[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*totalAN*Ns + k*totalAN + a]);
-                derivatives_mu(i, a, 2, shiftAll) += prel*(
-                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + a]
-                     +Cnnd[NsTs100*i + Ns100*jd + buffShift*Ns + kd]*CdevZ[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*totalAN*Ns + k*totalAN + a]);
+                derivatives_mu(i, indices[a], 0, shiftAll) += prel*(
+                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + indices[a]]
+                     +Cnnd[NsTs100*i + Ns100*jd + buffShift*Ns + kd]*CdevX[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*totalAN*Ns + k*totalAN + indices[a]]);
+                derivatives_mu(i, indices[a], 1, shiftAll) += prel*(
+                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevY[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + indices[a]]
+                     +Cnnd[NsTs100*i + Ns100*jd + buffShift*Ns + kd]*CdevY[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*totalAN*Ns + k*totalAN + indices[a]]);
+                derivatives_mu(i, indices[a], 2, shiftAll) += prel*(
+                      Cnnd[NsTs100*i + Ns100*j + buffShift*Ns + k]*CdevZ[NsTs100*i*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + indices[a]]
+                     +Cnnd[NsTs100*i + Ns100*jd + buffShift*Ns + kd]*CdevZ[NsTs100*i*totalAN + Ns100*j*totalAN + buffShift*totalAN*Ns + k*totalAN + indices[a]]);
               }
             shiftAll++;
             }
@@ -2020,9 +2020,9 @@ void getPCrossOverD(py::detail::unchecked_mutable_reference<double, 2> &descript
           }
         }
       }
-    }
+//    }
   }
- }
+// }
 }
 //=================================================================================================================================================================
 //=================================================================================================================================================================
@@ -2122,13 +2122,34 @@ void soapGTODevX(
   free(dz); free(z2); free(z4); free(z6); free(z8); free(z10); free(z12); free(z14); free(z16); free(z18);
   free(r2); free(r4); free(r6); free(r8); free(r10); free(r12); free(r14); free(r16); free(r18);
   free(exes); free(preCoef); free(bOa); free(aOa);
+
+  for (int i = 0; i < Hs; i++) {
+    // Get all neighbours for the central atom i
+    double ix = Hpos[3*i]; double iy = Hpos[3*i+1]; double iz = Hpos[3*i+2];
+    CellListResult result = cellList.getNeighboursForPosition(ix, iy, iz);
+
+    // Sort the neighbours by type
+    map<int, vector<int>> atomicTypeMap;
+    for (const int &idx : result.indices) {int Z = atomicNumbers(idx); atomicTypeMap[Z].push_back(idx);};
+
+
+    for (const auto &ZIndexPair : atomicTypeMap) {
+
+      // j is the internal index for this atomic number
+      int j = ZIndexMap[ZIndexPair.first];
+      int n_neighbours = ZIndexPair.second.size();
+
   if (crossover){
-    getPCrossOverD(descriptor_mu, cnnd, Ns, Nt, Hs, lMax);
-    getPCrossOverDevX(derivatives_mu, cdevX, cdevY, cdevZ, cnnd, Ns, Nt, Hs, lMax, totalAN);
+    getPCrossOverD(descriptor_mu, cnnd, Ns, Nt, Hs, lMax, i, j);
+    getPCrossOverDevX(derivatives_mu, cdevX, cdevY, cdevZ, cnnd, Ns, Nt, Hs, lMax, totalAN, i, j, n_neighbours,ZIndexPair.second);
   }else{
-    getPNoCrossDevX(derivatives_mu, cdevX, cdevY, cdevZ, cnnd, Ns, Nt, Hs, lMax, totalAN);
-    getPNoCrossD(descriptor_mu, cnnd, Ns, Nt, Hs, lMax);
+    getPNoCrossDevX(derivatives_mu, cdevX, cdevY, cdevZ, cnnd, Ns, Nt, Hs, lMax, totalAN, i, j, n_neighbours, ZIndexPair.second);
+    getPNoCrossD(descriptor_mu, cnnd, Ns, Nt, Hs, lMax, i, j);
   };
+
+
+    }
+  }
   free(cnnd); free(cdevX); free(cdevY); free(cdevZ);
   return;
 }
