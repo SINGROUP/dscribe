@@ -838,7 +838,7 @@ void soapGTO(
     // Loop through the centers
     for (int i = 0; i < nCenters; i++) {
 
-        // Get all neighbours for the central atom i
+        // Get all neighbours for center i
         double ix = Hpos(i, 0);
         double iy = Hpos(i, 1);
         double iz = Hpos(i, 2);
