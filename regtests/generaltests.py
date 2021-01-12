@@ -6,6 +6,7 @@ import unittest
 from dscribe.core import System
 from dscribe.descriptors import ACSF
 from dscribe.utils.species import symbols_to_numbers
+from dscribe.utils.geometry import get_extended_system
 import dscribe.ext
 
 from ase.lattice.cubic import SimpleCubicFactory
@@ -237,9 +238,9 @@ class GeometryTests(unittest.TestCase):
             system.get_pbc(),
             cutoff
         )
-        self.assertTrue(result.atomic_numbers.shape == (27*len(system),))
-        self.assertTrue(result.positions.shape == (27*len(system), 3))
-        self.assertTrue(result.indices.shape == (27*len(system),))
+        ext_system = get_extended_system(system, 1)
+        self.assertTrue(np.array_equal(result.atomic_numbers, ext_system.get_atomic_numbers()))
+        self.assertTrue(np.allclose(result.positions, ext_system.get_positions()))
 
         # Partly periodic system
         system.set_pbc([True, False, True])
@@ -250,13 +251,9 @@ class GeometryTests(unittest.TestCase):
             system.get_pbc(),
             cutoff
         )
-        self.assertTrue(result.atomic_numbers.shape == (9*len(system),))
-        self.assertTrue(result.positions.shape == (9*len(system), 3))
-        self.assertTrue(result.indices.shape == (9*len(system),))
-        ext_system = Atoms(
-            symbols=result.atomic_numbers,
-            positions=result.positions,
-        )
+        ext_system = get_extended_system(system, 1)
+        self.assertTrue(np.array_equal(result.atomic_numbers, ext_system.get_atomic_numbers()))
+        self.assertTrue(np.allclose(result.positions, ext_system.get_positions()))
 
         # Non-periodic system
         system.set_pbc(False)
@@ -267,9 +264,9 @@ class GeometryTests(unittest.TestCase):
             system.get_pbc(),
             cutoff
         )
-        self.assertTrue(result.atomic_numbers.shape == (len(system),))
-        self.assertTrue(result.positions.shape == (len(system), 3))
-        self.assertTrue(result.indices.shape == (len(system),))
+        ext_system = get_extended_system(system, 1)
+        self.assertTrue(np.array_equal(result.atomic_numbers, ext_system.get_atomic_numbers()))
+        self.assertTrue(np.allclose(result.positions, ext_system.get_positions()))
 
 
 class DistanceTests(unittest.TestCase):
@@ -602,12 +599,12 @@ class DescriptorTests(unittest.TestCase):
 if __name__ == '__main__':
 
     suites = []
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(ASETests))
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(DistanceTests))
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(ASETests))
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(DistanceTests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(GeometryTests))
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(GaussianTests))
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(SpeciesTests))
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(DescriptorTests))
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(GaussianTests))
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SpeciesTests))
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(DescriptorTests))
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)
 
