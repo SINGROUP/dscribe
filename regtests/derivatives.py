@@ -245,62 +245,70 @@ class SoapDerivativeTests(unittest.TestCase):
             ],
             scaled_positions=[[0,0,0], [1/3,1/3,1/3], [2/3,2/3,2/3]],
             pbc=[True, True, True],
-        )*(2, 2, 2)
+        )*(3, 3, 3)
+        view(system)
 
-        centers = np.array(system.get_positions())
-        # view(system)
+        # Two centers: one in the middle, one on the edge.
+        centers = [np.sum(system.get_cell(), axis=0)/2, [0, 0, 0]]
+
         h = 0.0001
         n_atoms = len(system)
         n_comp = 3
-        for rbf in ["gto", "polynomial"]:
-            for average in ["off", "outer", "inner"]:
-                soap = SOAP(
-                    species=[1, 8, 6],
-                    rcut=3,
-                    nmax=4,
-                    lmax=4,
-                    rbf=rbf,
-                    sparse=False,
-                    average=average,
-                    crossover=True,
-                    periodic=False,
-                )
-                n_features = soap.get_number_of_features()
-                n_centers = 1 if average != "off" else len(centers)
-                derivatives_python = np.zeros((n_centers, n_atoms, n_comp, n_features))
-                d0 = soap.create(system, centers)
-                coeffs = [-1.0/2.0, 1.0/2.0]
-                deltas = [-1.0, 1.0]
-                for i_atom in range(len(system)):
-                    for i_center in range(n_centers):
-                        for i_comp in range(3):
-                            for i_stencil in range(2):
-                                if average == "off":
-                                    i_cent = [centers[i_center]]
-                                else:
-                                    i_cent = centers
-                                system_disturbed = system.copy()
-                                i_pos = system_disturbed.get_positions()
-                                i_pos[i_atom, i_comp] += h*deltas[i_stencil]
-                                system_disturbed.set_positions(i_pos)
-                                d1 = soap.create(system_disturbed, i_cent)
-                                derivatives_python[i_center, i_atom, i_comp, :] += coeffs[i_stencil]*d1[0, :]/h
 
-                # Calculate with central finite difference implemented in C++.
-                # Try both cartesian centers and indices.
-                for c in [centers, None]:
-                    derivatives_cpp, d_cpp = soap.derivatives(system, positions=c, method="numerical")
+        # The maximum erorr depends on how big the system is. With a small
+        # system the error is smaller for non-periodic systems than the
+        # corresponding error when periodicity is turned on. The errors become
+        # equal (~1e-5) when the size of the system is increased.
+        for periodic in [False, True]:
+            for rbf in ["gto", "polynomial"]:
+                for average in ["off", "outer", "inner"]:
+                    soap = SOAP(
+                        species=[1, 8, 6],
+                        rcut=3,
+                        nmax=4,
+                        lmax=4,
+                        rbf=rbf,
+                        sparse=False,
+                        average=average,
+                        crossover=True,
+                        periodic=periodic,
+                    )
+                    n_features = soap.get_number_of_features()
+                    n_centers = 1 if average != "off" else len(centers)
+                    derivatives_python = np.zeros((n_centers, n_atoms, n_comp, n_features))
+                    d0 = soap.create(system, centers)
+                    coeffs = [-1.0/2.0, 1.0/2.0]
+                    deltas = [-1.0, 1.0]
+                    for i_atom in range(len(system)):
+                        for i_center in range(n_centers):
+                            for i_comp in range(3):
+                                for i_stencil in range(2):
+                                    if average == "off":
+                                        i_cent = [centers[i_center]]
+                                    else:
+                                        i_cent = centers
+                                    system_disturbed = system.copy()
+                                    i_pos = system_disturbed.get_positions()
+                                    i_pos[i_atom, i_comp] += h*deltas[i_stencil]
+                                    system_disturbed.set_positions(i_pos)
+                                    d1 = soap.create(system_disturbed, i_cent)
+                                    derivatives_python[i_center, i_atom, i_comp, :] += coeffs[i_stencil]*d1[0, :]/h
 
-                    # Test that descriptor values are correct
-                    d2 = soap.create(system, positions=centers)
-                    self.assertTrue(np.allclose(d0, d_cpp, atol=1e-6))
+                    # Calculate with central finite difference implemented in C++.
+                    # Try both cartesian centers and indices.
+                    for c in [centers]:
+                    # for c in [centers, None]:
+                        derivatives_cpp, d_cpp = soap.derivatives(system, positions=c, method="numerical")
 
-                    # Compare values
-                    # print(np.abs(derivatives_python).max())
-                    # print(derivatives_python[0,1,:,:])
-                    # print(derivatives_cpp[0,0,:,:])
-                    # print(np.abs(derivatives_cpp - derivatives_python).max())
-                    self.assertTrue(np.allclose(derivatives_python, derivatives_cpp, atol=1e-6))
+                        # Test that descriptor values are correct
+                        self.assertTrue(np.allclose(d0, d_cpp, atol=1e-6))
+
+                        # Compare values
+                        # print(np.abs(derivatives_python).max())
+                        # print(derivatives_python[0,1,:,:])
+                        # print(derivatives_cpp[0,0,:,:])
+                        # print(np.abs(derivatives_cpp - derivatives_python).max())
+                        self.assertTrue(np.allclose(derivatives_python, derivatives_cpp, atol=1e-5))
 
     def test_periodic(self):
         """Tests that periodicity works correctly for both numerical and
@@ -488,9 +496,10 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    SoapDerivativeTests().test_numerical()
     # SoapDerivativeTests().test_periodic()
-    suites = []
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
+    # suites = []
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
     # suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests))
-    alltests = unittest.TestSuite(suites)
-    result = unittest.TextTestRunner(verbosity=0).run(alltests)
+    # alltests = unittest.TestSuite(suites)
+    # result = unittest.TextTestRunner(verbosity=0).run(alltests)
