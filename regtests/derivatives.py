@@ -246,7 +246,7 @@ class SoapDerivativeTests(unittest.TestCase):
             scaled_positions=[[0,0,0], [1/3,1/3,1/3], [2/3,2/3,2/3]],
             pbc=[True, True, True],
         )*(3, 3, 3)
-        view(system)
+        # view(system)
 
         # Two centers: one in the middle, one on the edge.
         centers = [np.sum(system.get_cell(), axis=0)/2, [0, 0, 0]]
@@ -260,7 +260,9 @@ class SoapDerivativeTests(unittest.TestCase):
         # corresponding error when periodicity is turned on. The errors become
         # equal (~1e-5) when the size of the system is increased.
         for periodic in [False, True]:
+            # for rbf in ["gto"]:
             for rbf in ["gto", "polynomial"]:
+                # for average in ["off"]:
                 for average in ["off", "outer", "inner"]:
                     soap = SOAP(
                         species=[1, 8, 6],
@@ -421,10 +423,10 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    # SoapDerivativeTests().test_numerical()
+    SoapDerivativeTests().test_numerical()
     # SoapDerivativeTests().test_periodic()
-    suites = []
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests))
-    alltests = unittest.TestSuite(suites)
-    result = unittest.TextTestRunner(verbosity=0).run(alltests)
+    # suites = []
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests))
+    # alltests = unittest.TestSuite(suites)
+    # result = unittest.TextTestRunner(verbosity=0).run(alltests)

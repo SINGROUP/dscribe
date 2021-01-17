@@ -17,7 +17,6 @@ limitations under the License.
 #include <set>
 #include <unordered_map>
 #include <cmath>
-//#include <unordered_set>
 #include "descriptor.h"
 #include "geometry.h"
 
@@ -30,9 +29,33 @@ Descriptor::Descriptor(bool periodic, string average, double cutoff)
 {
 }
 
+/**
+ * The general idea: each atom for which a derivative is requested is
+ * "wiggled" with central finite difference. The following tricks are used
+ * to speed up the calculation:
+ *
+ *  - The CellList for positions is calculated only once and passed to the
+ *    create-method.
+ *  - Only centers within the cutoff distance from the wiggled atom are
+ *    taken into account by calculating a separate CellList for the
+ *    centers. Note that this optimization cannot be naively applied when
+ *    averaging centers.
+ *  - Atoms for which there are no neighouring centers are skipped.
+ *
+ *  TODO:
+ *  - Symmetry of the derivatives should be taken into account (derivatives
+ *    of [i, j] is -[j, i] AND species position should be swapped)
+ *  - Using only the local centers is more difficult in the averaged case,
+ *    especially in the inner-averaging mode. Thus these optimization are
+ *    simply left out.
+ *
+ *  Notice that these optimization are NOT valid:
+ *  - Self-derivatives are NOT always zero, only zero for l=0. The shape of
+ *    the atomic density changes as atoms move around.
+ */
 void Descriptor::derivatives_numerical(
-    py::array_t<double> out_d, 
-    py::array_t<double> out, 
+    py::array_t<double> derivatives, 
+    py::array_t<double> descriptor, 
     py::array_t<double> positions,
     py::array_t<int> atomic_numbers,
     py::array_t<double> cell,
@@ -43,54 +66,27 @@ void Descriptor::derivatives_numerical(
     bool return_descriptor
 ) const
 {
-    // The general idea: each atom for which a derivative is requested is
-    // "wiggled" with central finite difference. The following tricks are used
-    // to speed up the calculation:
-    //  - The CellList for positions is calculated only once and passed to the
-    //    create-method.
-    //  - Only centers within the cutoff distance from the wiggled atom are
-    //    taken into account by calculating a separate CellList for the
-    //    centers. Note that this optimization cannot be naively applied when
-    //    averaging centers.
-    //  - Atoms for which there are no neighouring centers are skipped.
-    //  TODO:
-    //  - Symmetry of the derivatives should be taken into account (derivatives
-    //  of [i, j] is -[j, i] AND species position should be swapped)
-    //  - Using only the local centers is more difficult in the averaged case,
-    //    especially in the inner-averaging mode. Thus these optimization are
-    //    simply left out.
-    //
-    //  Notice that these optimization are NOT valid:
-    //  - Self-derivatives are NOT always zero, only zero for l=0. The shape of
-    //    the atomic density changes as atoms move around.
+    int n_copies = 1;
+    int n_atoms = atomic_numbers.size();
     int n_features = this->get_number_of_features();
     int n_c = center_indices.size();
-    auto out_d_mu = out_d.mutable_unchecked<4>();
+    auto derivatives_mu = derivatives.mutable_unchecked<4>();
     auto indices_u = indices.unchecked<1>();
     auto center_indices_u = center_indices.unchecked<1>();
     auto pbc_u = pbc.unchecked<1>();
     py::array_t<int> center_true_indices;
     py::array_t<double> centers_extended;
-    int n_copies = 1;
-    int n_atoms = atomic_numbers.size();
-    //int n_centers;
-    //if (this->average != "off") {
-        //n_centers = 1;
-    //} else {
-        //n_centers = centers.shape(0);
-    //}
 
     // Extend the system if it is periodic
     bool is_periodic = this->periodic && (pbc_u(0) || pbc_u(1) || pbc_u(2));
     if (is_periodic) {
         ExtendedSystem system_extension = extend_system(positions, atomic_numbers, cell, pbc, this->cutoff);
-        positions = system_extension.positions;
         n_copies = system_extension.atomic_numbers.size()/atomic_numbers.size();
+        positions = system_extension.positions;
         atomic_numbers = system_extension.atomic_numbers;
     }
     auto positions_mu = positions.mutable_unchecked<2>();
     auto atomic_numbers_u = atomic_numbers.unchecked<1>();
-    //py::detail::unchecked_reference<int, 1> center_true_indices_u = is_periodic ? center_true_indices.unchecked<1>(): center_indices.unchecked<1>();
 
     // Pre-calculate cell list for atoms
     CellList cell_list_atoms(positions, this->cutoff);
@@ -98,7 +94,7 @@ void Descriptor::derivatives_numerical(
     // Calculate the desciptor value if requested. This needs to be done with
     // the non-extended centers, but extended system.
     if (return_descriptor) {
-        this->create(out, positions, atomic_numbers, centers, cell_list_atoms);
+        this->create(descriptor, positions, atomic_numbers, centers, cell_list_atoms);
     }
 
     // Create the extended centers for periodic systems.
@@ -113,37 +109,6 @@ void Descriptor::derivatives_numerical(
 
     // Pre-calculate cell list for centers.
     CellList cell_list_centers(centers_extended, this->cutoff);
-
-    // TODO: These are needed for tracking symmetrical values.
-    // Create mappings between center index and atom index and vice versa. The
-    // order of centers and indices can be arbitrary, and not all centers
-    // correspond to atoms.
-    unordered_map<int, int> index_atom_map;
-    unordered_map<int, int> center_atom_map;
-    //unordered_map<int, int> index_center_map;
-    //unordered_map<int, int> atom_center_map;
-    //for (int i=0; i < center_indices.size(); ++i) {
-        //int index = center_indices_u(i);
-        //if (index != -1) {
-            //index_center_map[index] = i;
-        //}
-    //}
-    //for (int i=0; i < indices.size(); ++i) {
-        //int index = indices_u(i);
-        //if (index_center_map.find(index) != index_center_map.end()) {
-            //atom_center_map[i] = index_center_map[index];
-        //}
-    //}
-    for (int i=0; i < indices.size(); ++i) {
-        int index = indices_u(i);
-        index_atom_map[index] = i;
-    }
-    for (int i=0; i < center_indices.size(); ++i) {
-        int index = center_indices_u(i);
-        if (index != -1 && index_atom_map.find(index) != index_atom_map.end()) {
-            center_atom_map[i] = index_atom_map[index];
-        }
-    }
 
     // Central finite difference with error O(h^2)
     double h = 0.0001;
@@ -182,7 +147,6 @@ void Descriptor::derivatives_numerical(
             }
             centers_local_idx = vector<int>(centers_set.begin(), centers_set.end()); 
         }
-
         // If there are no centers within the cutoff radius from the atom, the
         // calculation is skipped.
         int n_locals = centers_local_idx.size();
@@ -197,7 +161,6 @@ void Descriptor::derivatives_numerical(
         int n_centers;
         py::array_t<double> centers_local_pos;
         if (this->average == "off") {
-            // Create a new list containing only the nearby centers.
             centers_local_pos = py::array_t<double>({n_locals, 3});
             auto centers_local_pos_mu = centers_local_pos.mutable_unchecked<2>();
             for (int i_local = 0; i_local < n_locals; ++i_local) {
@@ -249,7 +212,7 @@ void Descriptor::derivatives_numerical(
                     int i_center = centers_local_idx[i_local];
                     for (int i_feature=0; i_feature < n_features; ++i_feature) {
                         double value = coeff*d_u(i_local, i_feature);
-                        out_d_mu(i_center, i_pos, i_comp, i_feature) = out_d_mu(i_center, i_pos, i_comp, i_feature) + value;
+                        derivatives_mu(i_center, i_pos, i_comp, i_feature) = derivatives_mu(i_center, i_pos, i_comp, i_feature) + value;
                     }
                 }
 
@@ -259,7 +222,7 @@ void Descriptor::derivatives_numerical(
             for (int i_local=0; i_local < n_centers; ++i_local) {
                 int i_center = centers_local_idx[i_local];
                 for (int i_feature=0; i_feature < n_features; ++i_feature) {
-                    out_d_mu(i_center, i_pos, i_comp, i_feature) = out_d_mu(i_center, i_pos, i_comp, i_feature) / h;
+                    derivatives_mu(i_center, i_pos, i_comp, i_feature) = derivatives_mu(i_center, i_pos, i_comp, i_feature) / h;
                 }
             }
 
