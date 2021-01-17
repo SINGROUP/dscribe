@@ -421,9 +421,53 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
         self.assertTrue(np.allclose(d, d_num))
         self.assertTrue(np.allclose(d, d_anal))
 
+    def test_combinations(self):
+        """Tests that different combinations of centers/atoms work as intended
+        and are equal between analytical/numerical code.
+        """
+        # Elaborate test system with multiple species, non-cubic cell, and
+        # close-by atoms.
+        a = 1
+        system = Atoms(
+            symbols=["C", "H", "O"],
+            cell=[
+                [0, a, a],
+                [a, 0, a],
+                [a, a, 0]
+            ],
+            scaled_positions=[[0,0,0], [1/3,1/3,1/3], [2/3,2/3,2/3]],
+            pbc=[True, True, True],
+        )*(3, 3, 3)
+
+        soap = SOAP(
+            species=[1, 8, 6],
+            rcut=3,
+            nmax=4,
+            lmax=4,
+            rbf="gto",
+            sparse=False,
+            average="off",
+            crossover=True,
+            periodic=False,
+        )
+
+        # The typical full set: derivatives for all atoms, all atoms act as
+        # centers.
+        derivatives_n, d_n = soap.derivatives(system, method="numerical")
+        derivatives_a, d_a = soap.derivatives(system, method="analytical")
+        self.assertTrue(np.allclose(derivatives_n, derivatives_a, rtol=1e-6, atol=1e-6))
+        self.assertTrue(np.allclose(d_n, d_a, rtol=1e-6, atol=1e-6))
+
+        # Derivatives for all atoms, only some atoms act as centers
+        # derivatives_n, d_n = soap.derivatives(system, positions=[2, 0, 1], method="numerical")
+        # derivatives_a, d_a = soap.derivatives(system, positions=[2, 0, 1],  method="analytical")
+        # self.assertTrue(np.allclose(derivatives_n, derivatives_a, rtol=1e-6, atol=1e-6))
+        # self.assertTrue(np.allclose(d_n, d_a, rtol=1e-6, atol=1e-6))
+
 
 if __name__ == '__main__':
-    SoapDerivativeTests().test_numerical()
+    SoapDerivativeComparisonTests().test_combinations()
+    # SoapDerivativeTests().test_numerical()
     # SoapDerivativeTests().test_periodic()
     # suites = []
     # suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
