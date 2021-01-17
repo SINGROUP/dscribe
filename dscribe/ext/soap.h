@@ -87,7 +87,8 @@ class SOAPGTO: public Descriptor {
             py::array_t<int> atomic_numbers,
             py::array_t<double> cell,
             py::array_t<bool> pbc,
-            py::array_t<double> center_pos,
+            py::array_t<double> centers,
+            py::array_t<int> center_indices,
             py::array_t<int> indices,
             bool return_descriptor
         ) const;

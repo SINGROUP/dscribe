@@ -636,7 +636,6 @@ class SOAP(Descriptor):
                 )
             # Calculate analytically with extension
             elif method == "analytical":
-                d = np.zeros(( n_centers, n_atoms, 3, n_features), dtype=np.float64)
                 soap_gto.derivatives_analytical(
                     d, 
                     c,
@@ -645,6 +644,7 @@ class SOAP(Descriptor):
                     ase.geometry.cell.complete_cell(system.get_cell()),
                     np.asarray(system.get_pbc(), dtype=bool),
                     centers,
+                    center_indices,
                     indices,
                     return_descriptor,
                 )

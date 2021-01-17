@@ -1953,6 +1953,7 @@ void getPD(
   // calculated for.
   for (int i_idx = 0; i_idx < indices_u.size(); ++i_idx) {
     int i_atom = indices_u(i_idx);
+    //cout << "Atom: " << i_atom << endl;
 
     // Get all neighbouring centers for the current atom
     double ix = positions_u(i_atom, 0);
@@ -1964,49 +1965,50 @@ void getPD(
     // Loop through all neighbouring centers
     for (int j_idx = 0; j_idx < indices.size(); ++j_idx) {
         int i_center = indices[j_idx];
+        //cout << "  Center: " << i_center << endl;
         int shiftAll = 0;
         for(int j = 0; j < Ts; j++){
             int jdLimit = crossover ? Ts : j+1;
-            for(int jd = j; jd < jdLimit; jd++){
-            for(int m=0; m <= lMax; m++){
-            double prel; if(m > 1){prel = PI*sqrt(8.0/(2.0*m+1.0))*PI3;}else{prel = PI*sqrt(8.0/(2.0*m+1.0));}
-            if(j==jd){
-            for(int k = 0; k < Ns; k++){
-                for(int kd = k; kd < Ns; kd++){
-                for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
-                    derivatives_mu(i_atom, i_center, 0, shiftAll) += prel*(
-                        Cnnd[NsTs100*i_atom + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i_atom*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_center]
-                        +Cnnd[NsTs100*i_atom + Ns100*j + buffShift*Ns + kd]*CdevX[NsTs100*i_atom*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + i_center]);
-                    derivatives_mu(i_atom, i_center, 1, shiftAll) += prel*(
-                        Cnnd[NsTs100*i_atom + Ns100*j + buffShift*Ns + k]*CdevY[NsTs100*i_atom*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_center]
-                        +Cnnd[NsTs100*i_atom + Ns100*j + buffShift*Ns + kd]*CdevY[NsTs100*i_atom*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + i_center]);
-                    derivatives_mu(i_atom, i_center, 2, shiftAll) += prel*(
-                        Cnnd[NsTs100*i_atom + Ns100*j + buffShift*Ns + k]*CdevZ[NsTs100*i_atom*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_center]
-                        +Cnnd[NsTs100*i_atom + Ns100*j + buffShift*Ns + kd]*CdevZ[NsTs100*i_atom*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + i_center]);
-                }
-                shiftAll++;
+            for(int jd = j; jd < jdLimit; jd++) {
+                for(int m=0; m <= lMax; m++) {
+                    double prel = m > 1 ? PI*sqrt(8.0/(2.0*m+1.0))*PI3 : PI*sqrt(8.0/(2.0*m+1.0));
+                    if (j == jd) {
+                        for(int k = 0; k < Ns; k++){
+                            for(int kd = k; kd < Ns; kd++){
+                            for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
+                                derivatives_mu(i_center, i_atom, 0, shiftAll) += prel*(
+                                    Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_atom]
+                                    +Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + kd]*CdevX[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + i_atom]);
+                                derivatives_mu(i_center, i_atom, 1, shiftAll) += prel*(
+                                    Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + k]*CdevY[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_atom]
+                                    +Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + kd]*CdevY[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + i_atom]);
+                                derivatives_mu(i_center, i_atom, 2, shiftAll) += prel*(
+                                    Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + k]*CdevZ[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_atom]
+                                    +Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + kd]*CdevZ[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + i_atom]);
+                            }
+                            shiftAll++;
+                            }
+                        }
+                    } else {
+                        for(int k = 0; k < Ns; k++){
+                            for(int kd = 0; kd < Ns; kd++){
+                            for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
+                                derivatives_mu(i_center, i_atom, 0, shiftAll) += prel*(
+                                    Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_atom]
+                                    +Cnnd[NsTs100*i_center + Ns100*jd + buffShift*Ns + kd]*CdevX[NsTs100*i_center*totalAN + Ns100*j*totalAN + buffShift*totalAN*Ns + k*totalAN + i_atom]);
+                                derivatives_mu(i_center, i_atom, 1, shiftAll) += prel*(
+                                    Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + k]*CdevY[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_atom]
+                                    +Cnnd[NsTs100*i_center + Ns100*jd + buffShift*Ns + kd]*CdevY[NsTs100*i_center*totalAN + Ns100*j*totalAN + buffShift*totalAN*Ns + k*totalAN + i_atom]);
+                                derivatives_mu(i_center, i_atom, 2, shiftAll) += prel*(
+                                    Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + k]*CdevZ[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_atom]
+                                    +Cnnd[NsTs100*i_center + Ns100*jd + buffShift*Ns + kd]*CdevZ[NsTs100*i_center*totalAN + Ns100*j*totalAN + buffShift*totalAN*Ns + k*totalAN + i_atom]);
+                            }
+                            shiftAll++;
+                            }
+                        }
+                    }
                 }
             }
-            }else{
-            for(int k = 0; k < Ns; k++){
-                for(int kd = 0; kd < Ns; kd++){
-                for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
-                    derivatives_mu(i_atom, i_center, 0, shiftAll) += prel*(
-                        Cnnd[NsTs100*i_atom + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i_atom*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_center]
-                        +Cnnd[NsTs100*i_atom + Ns100*jd + buffShift*Ns + kd]*CdevX[NsTs100*i_atom*totalAN + Ns100*j*totalAN + buffShift*totalAN*Ns + k*totalAN + i_center]);
-                    derivatives_mu(i_atom, i_center, 1, shiftAll) += prel*(
-                        Cnnd[NsTs100*i_atom + Ns100*j + buffShift*Ns + k]*CdevY[NsTs100*i_atom*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_center]
-                        +Cnnd[NsTs100*i_atom + Ns100*jd + buffShift*Ns + kd]*CdevY[NsTs100*i_atom*totalAN + Ns100*j*totalAN + buffShift*totalAN*Ns + k*totalAN + i_center]);
-                    derivatives_mu(i_atom, i_center, 2, shiftAll) += prel*(
-                        Cnnd[NsTs100*i_atom + Ns100*j + buffShift*Ns + k]*CdevZ[NsTs100*i_atom*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_center]
-                        +Cnnd[NsTs100*i_atom + Ns100*jd + buffShift*Ns + kd]*CdevZ[NsTs100*i_atom*totalAN + Ns100*j*totalAN + buffShift*totalAN*Ns + k*totalAN + i_center]);
-                }
-                shiftAll++;
-                }
-            }
-            }
-            }
-        }
         }
     }
   }
@@ -2017,6 +2019,7 @@ void soapGTODevX(
     py::array_t<double> descriptor,
     py::array_t<double> positions,
     py::array_t<double> centers,
+    py::array_t<int> center_indices,
     py::array_t<double> alphasArr,
     py::array_t<double> betasArr,
     py::array_t<int> atomicNumbersArr,
@@ -2067,8 +2070,9 @@ void soapGTODevX(
   for(int i = 0; i < ((lMax+1)*(lMax+1))*Nt*Ns*Hs; i++){cnnd[i] = 0.0;} for(int i = 0; i < ((lMax+1)*(lMax+1))*Nt*Ns*Hs*totalAN; i++){cdevX[i] = 0.0;}
   for(int i = 0; i < ((lMax+1)*(lMax+1))*Nt*Ns*Hs*totalAN; i++){cdevY[i] = 0.0;} for(int i = 0; i < ((lMax+1)*(lMax+1))*Nt*Ns*Hs*totalAN; i++){cdevZ[i] = 0.0;}
 
-  // Initialize binning
-  CellList cellList(positions, rCut+cutoffPadding);
+  // Initialize binning for atoms and centers
+  CellList cell_list_atoms(positions, rCut+cutoffPadding);
+  CellList cell_list_centers(centers, rCut+cutoffPadding);
 
   // Create a mapping between an atomic index and its internal index in the output
   map<int, int> ZIndexMap;
@@ -2083,7 +2087,7 @@ void soapGTODevX(
 
     // Get all neighbouring atoms for the center i
     double ix = centers_u(i, 0); double iy = centers_u(i, 1); double iz = centers_u(i, 2);
-    CellListResult result = cellList.getNeighboursForPosition(ix, iy, iz);
+    CellListResult result = cell_list_atoms.getNeighboursForPosition(ix, iy, iz);
 
     // Sort the neighbours by type
     map<int, vector<int>> atomicTypeMap;
@@ -2116,7 +2120,7 @@ void soapGTODevX(
   }
 
   // Calculate the derivatives
-  getPDev(derivatives_mu, positions_u, indices_u, cellList, cdevX, cdevY, cdevZ, cnnd, Ns, Nt, Hs, lMax, totalAN, crossover);
+  getPDev(derivatives_mu, positions_u, indices_u, cell_list_centers, cdevX, cdevY, cdevZ, cnnd, Ns, Nt, Hs, lMax, totalAN, crossover);
 
   free(cnnd); free(cdevX); free(cdevY); free(cdevZ);
   return;
