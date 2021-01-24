@@ -105,6 +105,20 @@ class SoapDerivativeTests(unittest.TestCase):
             soap_poly.derivatives(H2, positions=positions, method="analytical")
         soap_poly.derivatives(H2, positions=positions, method="numerical")
 
+        # Test that trying to get analytical derivatives with periodicicity on
+        # raises an exception
+        soap_poly = SOAP(
+            species=[1, 8],
+            rcut=3,
+            nmax=2,
+            lmax=0,
+            rbf="gto",
+            sparse=False,
+            periodic=True
+        )
+        with self.assertRaises(ValueError):
+            soap_poly.derivatives(H2, positions=positions, method="analytical")
+
         # Test include
         with self.assertRaises(ValueError):
             soap.derivatives(H2O, positions=positions, include=[])
@@ -467,7 +481,8 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    # SoapDerivativeComparisonTests().test_combinations()
+    # SoapDerivativeComparisonTests().tinterface()
+    # SoapDerivativeTests().test_interface()
     # SoapDerivativeTests().test_numerical()
     # SoapDerivativeTests().test_periodic()
     suites = []
