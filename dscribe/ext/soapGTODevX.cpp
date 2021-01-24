@@ -1771,15 +1771,27 @@ void getCD(double* CDevX,double* CDevY,double* CDevZ,double* prCofDX,double* prC
   double sumMe = 0; int NsNs = Ns*Ns;  int NsJ = ((lMax+1)*(lMax+1))*Ns*typeJ; int LNsNs;
   int LNs; int NsTsI = ((lMax+1)*(lMax+1))*Ns*Ntypes*posI;
   double preExp;
+  double preVal;
+  double preValX;
+  double preValY;
+  double preValZ;
 // l=0-------------------------------------------------------------------------------------------------
     for(int k = 0; k < Ns; k++){
       for(int i = 0; i < Asize; i++){
       preExp = 1.5707963267948966*exp(aOa[k]*r2[i]);
+      preVal = 2.0*aOa[k]*preExp;
+      preValX = preVal*x[i];
+      preValY = preVal*y[i];
+      preValZ = preVal*z[i];
         for(int n = 0; n < Ns; n++){
           C[NsTsI + NsJ + n] += bOa[n*Ns + k]*preExp;
-          CDevX[NsTsI*totalAN + NsJ*totalAN + n*totalAN + indices[i]] += 2.0*aOa[k]*x[i]*bOa[n*Ns + k]*preExp;
-          CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + indices[i]] += 2.0*aOa[k]*y[i]*bOa[n*Ns + k]*preExp;
-          CDevZ[NsTsI*totalAN + NsJ*totalAN + n*totalAN + indices[i]] += 2.0*aOa[k]*z[i]*bOa[n*Ns + k]*preExp;
+//          CDevX[NsTsI*totalAN + NsJ*totalAN + n*totalAN + indices[i]] += 2.0*aOa[k]*x[i]*bOa[n*Ns + k]*preExp;
+//          CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + indices[i]] += 2.0*aOa[k]*y[i]*bOa[n*Ns + k]*preExp;
+//          CDevZ[NsTsI*totalAN + NsJ*totalAN + n*totalAN + indices[i]] += 2.0*aOa[k]*z[i]*bOa[n*Ns + k]*preExp;
+//
+          CDevX(indices[i], posI, typeJ,n,0) += bOa[n*Ns + k]*preValX;
+          CDevY(indices[i], posI, typeJ,n,0) += bOa[n*Ns + k]*preValY;
+          CDevZ(indices[i], posI, typeJ,n,0) += bOa[n*Ns + k]*preValZ;
       }
     }
   }
@@ -1788,26 +1800,56 @@ void getCD(double* CDevX,double* CDevY,double* CDevZ,double* prCofDX,double* prC
     for(int k = 0; k < Ns; k++){
       for(int i = 0; i < Asize; i++){
         preExp = 2.7206990463849543*exp(aOa[LNs + k]*r2[i]);
+          preVal = 2.0*aOa[LNs + k]*preExp;
+          double preVal1 = preVal*z[i];
+          double preVal2 = preVal*x[i];
+          double preVal3 = preVal*y[i];
+         
+          double preValX1 = preVal*x[i];
+          double preValY1 = preVal*y[i];
+          double preValZ1 = preVal*z[i] + preExp;
+          double preValX2 = preVal*x[i] + preExp;
+          double preValY2 = preVal*y[i];
+          double preValZ2 = preVal*z[i];
+          double preValX3 = preVal*x[i];
+          double preValY3 = preVal*y[i] + preExp;
+          double preValZ3 = preVal*z[i];
         for(int n = 0; n < Ns; n++){
           C[NsTsI + NsJ + Ns + n] += bOa[LNsNs + n*Ns + k]*preExp*z[i];
-          CDevX[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 1*Ns*totalAN +  indices[i]] += 2.0*bOa[LNsNs + n*Ns + k]*x[i]*aOa[LNs + k]*preExp*z[i];
-          CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 1*Ns*totalAN +  indices[i]] += 2.0*bOa[LNsNs + n*Ns + k]*y[i]*aOa[LNs + k]*preExp*z[i];
-          CDevZ[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 1*Ns*totalAN +  indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*z[i]*z[i]*aOa[LNs + k]*preExp + preExp);
+//          CDevX[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 1*Ns*totalAN +  indices[i]] += 2.0*bOa[LNsNs + n*Ns + k]*x[i]*aOa[LNs + k]*preExp*z[i];
+//          CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 1*Ns*totalAN +  indices[i]] += 2.0*bOa[LNsNs + n*Ns + k]*y[i]*aOa[LNs + k]*preExp*z[i];
+//          CDevZ[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 1*Ns*totalAN +  indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*z[i]*z[i]*aOa[LNs + k]*preExp + preExp);
+
+
+          CDevX(indices[i], posI, typeJ,n,1) += bOa[LNsNs + n*Ns + k]*preValX1;
+          CDevY(indices[i], posI, typeJ,n,1) += bOa[LNsNs + n*Ns + k]*preValY1;
+          CDevZ(indices[i], posI, typeJ,n,1) += bOa[LNsNs + n*Ns + k]*preValZ1;
 
           C[NsTsI + NsJ + Ns*2 + n] += bOa[LNsNs + n*Ns + k]*preExp*x[i];
-          CDevX[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 2*Ns*totalAN +  indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*x[i]*x[i]*aOa[LNs + k]*preExp + preExp);
-          CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 2*Ns*totalAN +  indices[i]] += 2.0*bOa[LNsNs + n*Ns + k]*y[i]*aOa[LNs + k]*preExp*x[i];
-          CDevZ[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 2*Ns*totalAN +  indices[i]] += 2.0*bOa[LNsNs + n*Ns + k]*z[i]*aOa[LNs + k]*preExp*x[i];
+//          CDevX[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 2*Ns*totalAN +  indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*x[i]*x[i]*aOa[LNs + k]*preExp + preExp);
+//          CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 2*Ns*totalAN +  indices[i]] += 2.0*bOa[LNsNs + n*Ns + k]*y[i]*aOa[LNs + k]*preExp*x[i];
+//          CDevZ[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 2*Ns*totalAN +  indices[i]] += 2.0*bOa[LNsNs + n*Ns + k]*z[i]*aOa[LNs + k]*preExp*x[i];
+
+          CDevX(indices[i], posI, typeJ,n,2) += bOa[LNsNs + n*Ns + k]*preValX2;
+          CDevY(indices[i], posI, typeJ,n,2) += bOa[LNsNs + n*Ns + k]*preValY2;
+          CDevZ(indices[i], posI, typeJ,n,2) += bOa[LNsNs + n*Ns + k]*preValZ2;
 
           C[NsTsI + NsJ + Ns*3 + n] += bOa[LNsNs + n*Ns + k]*preExp*y[i];
-          CDevX[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 3*Ns*totalAN +  indices[i]] += 2.0*bOa[LNsNs + n*Ns + k]*x[i]*aOa[LNs + k]*preExp*y[i] ;
-          CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 3*Ns*totalAN +  indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*y[i]*y[i]*aOa[LNs + k]*preExp + preExp);
-          CDevZ[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 3*Ns*totalAN +  indices[i]] += 2.0*bOa[LNsNs + n*Ns + k]*z[i]*aOa[LNs + k]*preExp*y[i];
+//          CDevX[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 3*Ns*totalAN +  indices[i]] += 2.0*bOa[LNsNs + n*Ns + k]*x[i]*aOa[LNs + k]*preExp*y[i] ;
+//          CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 3*Ns*totalAN +  indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*y[i]*y[i]*aOa[LNs + k]*preExp + preExp);
+//          CDevZ[NsTsI*totalAN + NsJ*totalAN + n*totalAN + 3*Ns*totalAN +  indices[i]] += 2.0*bOa[LNsNs + n*Ns + k]*z[i]*aOa[LNs + k]*preExp*y[i];
+
+          CDevX(indices[i], posI, typeJ,n,3) += bOa[LNsNs + n*Ns + k]*preValX3;
+          CDevY(indices[i], posI, typeJ,n,3) += bOa[LNsNs + n*Ns + k]*preValY3;
+          CDevZ(indices[i], posI, typeJ,n,3) += bOa[LNsNs + n*Ns + k]*preValZ3;
         }
       }
     }
   }
 // l>2------------------------------------------------------------------------------------------------------
+//
+//[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_atom]
+//
   if(lMax > 1) { 
     for(int restOfLs = 2; restOfLs <= lMax; restOfLs++){	 
     LNsNs=restOfLs*NsNs; LNs=restOfLs*Ns; 
@@ -1815,11 +1857,19 @@ void getCD(double* CDevX,double* CDevY,double* CDevZ,double* prCofDX,double* prC
         for(int i = 0; i < Asize; i++){
           preExp = exp(aOa[LNs + k]*r2[i]);
           for(int m = restOfLs*restOfLs; m < (restOfLs+1)*(restOfLs+1); m++){
+            preVal = 2.0*aOa[LNs + k]*preExp*preCoef[totalAN*(m-4)+i];
+            preValX = x[i]*preVal + preExp*prCofDX[totalAN*(m-4)+i];
+            preValY = y[i]*preVal + preExp*prCofDY[totalAN*(m-4)+i];
+            preValZ = z[i]*preVal + preExp*prCofDZ[totalAN*(m-4)+i];
             for(int n = 0; n < Ns; n++){
                 C[NsTsI + NsJ + Ns*m + n] += bOa[LNsNs + n*Ns + k]*preExp*preCoef[totalAN*(m-4)+i];
-                CDevX[NsTsI*totalAN+NsJ*totalAN+n*totalAN+m*Ns*totalAN+indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*aOa[LNs + k]*x[i]*preExp*preCoef[totalAN*(m-4)+i]+preExp*prCofDX[totalAN*(m-4)+i]);
-                CDevY[NsTsI*totalAN + NsJ*totalAN + n*totalAN + m*Ns*totalAN + indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*aOa[LNs + k]*y[i]*preExp*preCoef[totalAN*(m-4)+i]+preExp*prCofDY[totalAN*(m-4)+i]);
-                CDevZ[NsTsI*totalAN+NsJ*totalAN+n*totalAN+m*Ns*totalAN+indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*aOa[LNs + k]*z[i]*preExp*preCoef[totalAN*(m-4)+i]+preExp*prCofDZ[totalAN*(m-4)+i]);
+//                CDevX[NsTsI*totalAN+NsJ*totalAN+n*totalAN+m*Ns*totalAN+indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*aOa[LNs + k]*x[i]*preExp*preCoef[totalAN*(m-4)+i]+preExp*prCofDX[totalAN*(m-4)+i]);
+//                CDevY[NsTsI*totalAN+NsJ*totalAN+n*totalAN+m*Ns*totalAN+indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*aOa[LNs + k]*y[i]*preExp*preCoef[totalAN*(m-4)+i]+preExp*prCofDY[totalAN*(m-4)+i]);
+//                CDevZ[NsTsI*totalAN+NsJ*totalAN+n*totalAN+m*Ns*totalAN+indices[i]] += bOa[LNsNs + n*Ns + k]*(2.0*aOa[LNs + k]*z[i]*preExp*preCoef[totalAN*(m-4)+i]+preExp*prCofDZ[totalAN*(m-4)+i]);
+
+          CDevX(indices[i], posI, typeJ,n,m) += bOa[LNsNs + n*Ns + k]*preValX;
+          CDevY(indices[i], posI, typeJ,n,m) += bOa[LNsNs + n*Ns + k]*preValY;
+          CDevZ(indices[i], posI, typeJ,n,m) += bOa[LNsNs + n*Ns + k]*preValZ;
             }
           }
         }
@@ -1974,15 +2024,27 @@ void getPD(
                         for(int k = 0; k < Ns; k++){
                             for(int kd = k; kd < Ns; kd++){
                             for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
+//                                derivatives_mu(i_center, i_idx, 0, shiftAll) += prel*(
+//                                    Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_atom]
+//                                    +Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + kd]*CdevX[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + i_atom]);
+//                                derivatives_mu(i_center, i_idx, 1, shiftAll) += prel*(
+//                                    Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + k]*CdevY[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_atom]
+//                                    +Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + kd]*CdevY[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + i_atom]);
+//                                derivatives_mu(i_center, i_idx, 2, shiftAll) += prel*(
+//                                    Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + k]*CdevZ[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_atom]
+//                                    +Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + kd]*CdevZ[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + i_atom]);
+//
                                 derivatives_mu(i_center, i_idx, 0, shiftAll) += prel*(
-                                    Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_atom]
-                                    +Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + kd]*CdevX[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + i_atom]);
+                                    Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + k]*CdevX(i_atom, i_center, jd, kd, buffShift);
+                                    +Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + kd]*CdevX(i_atom, i_center, jd, kd, buffShift));
                                 derivatives_mu(i_center, i_idx, 1, shiftAll) += prel*(
-                                    Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + k]*CdevY[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_atom]
-                                    +Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + kd]*CdevY[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + i_atom]);
+                                    Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + k]*CdevY(i_atom, i_center, jd, kd, buffShift)
+                                    +Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + kd]*CdevY(i_atom, i_center, jd, kd, buffShift));
                                 derivatives_mu(i_center, i_idx, 2, shiftAll) += prel*(
-                                    Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + k]*CdevZ[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_atom]
-                                    +Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + kd]*CdevZ[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + i_atom]);
+                                    Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + k]*CdevZ(i_atom, i_center, jd, kd, buffShift)
+                                    +Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + kd]*CdevZ(i_atom, i_center, jd, kd, buffShift));
+
+
                             }
                             shiftAll++;
                             }
@@ -1991,15 +2053,25 @@ void getPD(
                         for(int k = 0; k < Ns; k++){
                             for(int kd = 0; kd < Ns; kd++){
                             for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
+//                                derivatives_mu(i_center, i_idx, 0, shiftAll) += prel*(
+//                                    Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_atom]
+//                                    +Cnnd[NsTs100*i_center + Ns100*jd + buffShift*Ns + kd]*CdevX[NsTs100*i_center*totalAN + Ns100*j*totalAN + buffShift*totalAN*Ns + k*totalAN + i_atom]);
+//                                derivatives_mu(i_center, i_idx, 1, shiftAll) += prel*(
+//                                    Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + k]*CdevY[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_atom]
+//                                    +Cnnd[NsTs100*i_center + Ns100*jd + buffShift*Ns + kd]*CdevY[NsTs100*i_center*totalAN + Ns100*j*totalAN + buffShift*totalAN*Ns + k*totalAN + i_atom]);
+//                                derivatives_mu(i_center, i_idx, 2, shiftAll) += prel*(
+//                                    Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + k]*CdevZ[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_atom]
+//                                    +Cnnd[NsTs100*i_center + Ns100*jd + buffShift*Ns + kd]*CdevZ[NsTs100*i_center*totalAN + Ns100*j*totalAN + buffShift*totalAN*Ns + k*totalAN + i_atom]);
+//
                                 derivatives_mu(i_center, i_idx, 0, shiftAll) += prel*(
-                                    Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_atom]
-                                    +Cnnd[NsTs100*i_center + Ns100*jd + buffShift*Ns + kd]*CdevX[NsTs100*i_center*totalAN + Ns100*j*totalAN + buffShift*totalAN*Ns + k*totalAN + i_atom]);
+                                    Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + k]*CdevX(i_atom, i_center, jd, kd, buffShift)
+                                    +Cnnd[NsTs100*i_center + Ns100*jd + buffShift*Ns + kd]*CdevX(i_atom, i_center, j, k, buffShift));
                                 derivatives_mu(i_center, i_idx, 1, shiftAll) += prel*(
-                                    Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + k]*CdevY[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_atom]
-                                    +Cnnd[NsTs100*i_center + Ns100*jd + buffShift*Ns + kd]*CdevY[NsTs100*i_center*totalAN + Ns100*j*totalAN + buffShift*totalAN*Ns + k*totalAN + i_atom]);
+                                    Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + k]*CdevY(i_atom, i_center, jd, kd, buffShift)
+                                    +Cnnd[NsTs100*i_center + Ns100*jd + buffShift*Ns + kd]*CdevY(i_atom, i_center, j, k, buffShift));
                                 derivatives_mu(i_center, i_idx, 2, shiftAll) += prel*(
-                                    Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + k]*CdevZ[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_atom]
-                                    +Cnnd[NsTs100*i_center + Ns100*jd + buffShift*Ns + kd]*CdevZ[NsTs100*i_center*totalAN + Ns100*j*totalAN + buffShift*totalAN*Ns + k*totalAN + i_atom]);
+                                    Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + k]*CdevZ(i_atom, i_center, jd, kd, buffShift)
+                                    +Cnnd[NsTs100*i_center + Ns100*jd + buffShift*Ns + kd]*CdevZ(i_atom, i_center, j, k, buffShift));
                             }
                             shiftAll++;
                             }
@@ -2021,6 +2093,7 @@ void soapGTODevX(
     py::array_t<double> alphasArr,
     py::array_t<double> betasArr,
     py::array_t<int> atomicNumbersArr,
+
     double rCut,
     double cutoffPadding,
     int totalAN,
@@ -2062,11 +2135,29 @@ void soapGTODevX(
   double* preCoef = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN); double* prCofDX = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN);
   double* prCofDY = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN); double* prCofDZ = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN);
   double* bOa = (double*) malloc((lMax+1)*NsNs*sizeof(double)); double* aOa = (double*) malloc((lMax+1)*Ns*sizeof(double));
-  double* cnnd = (double*) malloc(((lMax+1)*(lMax+1))*Nt*Ns*Hs*sizeof(double)); double* cdevX = (double*) malloc(totalAN*((lMax+1)*(lMax+1))*Nt*Ns*Hs*sizeof(double)); 
-  double* cdevY = (double*) malloc(totalAN*((lMax+1)*(lMax+1))*Nt*Ns*Hs*sizeof(double)); double* cdevZ = (double*) malloc(totalAN*((lMax+1)*(lMax+1))*Nt*Ns*Hs*sizeof(double));
 
-  for(int i = 0; i < ((lMax+1)*(lMax+1))*Nt*Ns*Hs; i++){cnnd[i] = 0.0;} for(int i = 0; i < ((lMax+1)*(lMax+1))*Nt*Ns*Hs*totalAN; i++){cdevX[i] = 0.0;}
-  for(int i = 0; i < ((lMax+1)*(lMax+1))*Nt*Ns*Hs*totalAN; i++){cdevY[i] = 0.0;} for(int i = 0; i < ((lMax+1)*(lMax+1))*Nt*Ns*Hs*totalAN; i++){cdevZ[i] = 0.0;}
+  double* cnnd = (double*) malloc(((lMax+1)*(lMax+1))*Nt*Ns*Hs*sizeof(double)); 
+//  double* cdevX = (double*) malloc(totalAN*((lMax+1)*(lMax+1))*Nt*Ns*Hs*sizeof(double)); 
+//  double* cdevY = (double*) malloc(totalAN*((lMax+1)*(lMax+1))*Nt*Ns*Hs*sizeof(double));
+//  double* cdevZ = (double*) malloc(totalAN*((lMax+1)*(lMax+1))*Nt*Ns*Hs*sizeof(double));
+  py::array_t<int> cdevX({totaAN,Hs,Nt,Ns,(lMax+1)*(lMax+1)});
+  py::array_t<int> cdevY({totaAN,Hs,Nt,Ns,(lMax+1)*(lMax+1)});
+  py::array_t<int> cdevZ({totaAN,Hs,Nt,Ns,(lMax+1)*(lMax+1)});
+
+  py::detail::unchecked_mutable_reference<double, 5> &cdevX_mu, // &derivatives_mu,
+
+  for(int i = 0; i < ((lMax+1)*(lMax+1))*Nt*Ns*Hs; i++){cnnd[i] = 0.0;}
+  for(int i = 0; i < totalAN; i++){
+    for(int j = 0; j < totalAN; j++){
+      for(int k = 0; k < totalAN; k++){
+        for(int l = 0; l < totalAN; l++){
+          for(int m = 0; m < totalAN; m++){
+            cdevX(i,j,k,l,m) = 0.0;
+            cdevY(i,j,k,l,m) = 0.0;
+            cdevZ(i,j,k,l,m) = 0.0;
+  }}}}} 
+//  for(int i = 0; i < ((lMax+1)*(lMax+1))*Nt*Ns*Hs*totalAN; i++){cdevY[i] = 0.0;}
+//  for(int i = 0; i < ((lMax+1)*(lMax+1))*Nt*Ns*Hs*totalAN; i++){cdevZ[i] = 0.0;}
 
   // Initialize binning for atoms and centers
   CellList cell_list_atoms(positions, rCut+cutoffPadding);
