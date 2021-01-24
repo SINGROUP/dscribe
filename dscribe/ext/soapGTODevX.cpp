@@ -1953,7 +1953,6 @@ void getPD(
   // calculated for.
   for (int i_idx = 0; i_idx < indices_u.size(); ++i_idx) {
     int i_atom = indices_u(i_idx);
-    //cout << "Atom: " << i_atom << endl;
 
     // Get all neighbouring centers for the current atom
     double ix = positions_u(i_atom, 0);
@@ -1965,7 +1964,6 @@ void getPD(
     // Loop through all neighbouring centers
     for (int j_idx = 0; j_idx < indices.size(); ++j_idx) {
         int i_center = indices[j_idx];
-        //cout << "  Center: " << i_center << endl;
         int shiftAll = 0;
         for(int j = 0; j < Ts; j++){
             int jdLimit = crossover ? Ts : j+1;
@@ -1976,13 +1974,13 @@ void getPD(
                         for(int k = 0; k < Ns; k++){
                             for(int kd = k; kd < Ns; kd++){
                             for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
-                                derivatives_mu(i_center, i_atom, 0, shiftAll) += prel*(
+                                derivatives_mu(i_center, i_idx, 0, shiftAll) += prel*(
                                     Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_atom]
                                     +Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + kd]*CdevX[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + i_atom]);
-                                derivatives_mu(i_center, i_atom, 1, shiftAll) += prel*(
+                                derivatives_mu(i_center, i_idx, 1, shiftAll) += prel*(
                                     Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + k]*CdevY[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_atom]
                                     +Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + kd]*CdevY[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + i_atom]);
-                                derivatives_mu(i_center, i_atom, 2, shiftAll) += prel*(
+                                derivatives_mu(i_center, i_idx, 2, shiftAll) += prel*(
                                     Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + k]*CdevZ[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_atom]
                                     +Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + kd]*CdevZ[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + k*totalAN + i_atom]);
                             }
@@ -1993,13 +1991,13 @@ void getPD(
                         for(int k = 0; k < Ns; k++){
                             for(int kd = 0; kd < Ns; kd++){
                             for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
-                                derivatives_mu(i_center, i_atom, 0, shiftAll) += prel*(
+                                derivatives_mu(i_center, i_idx, 0, shiftAll) += prel*(
                                     Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + k]*CdevX[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_atom]
                                     +Cnnd[NsTs100*i_center + Ns100*jd + buffShift*Ns + kd]*CdevX[NsTs100*i_center*totalAN + Ns100*j*totalAN + buffShift*totalAN*Ns + k*totalAN + i_atom]);
-                                derivatives_mu(i_center, i_atom, 1, shiftAll) += prel*(
+                                derivatives_mu(i_center, i_idx, 1, shiftAll) += prel*(
                                     Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + k]*CdevY[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_atom]
                                     +Cnnd[NsTs100*i_center + Ns100*jd + buffShift*Ns + kd]*CdevY[NsTs100*i_center*totalAN + Ns100*j*totalAN + buffShift*totalAN*Ns + k*totalAN + i_atom]);
-                                derivatives_mu(i_center, i_atom, 2, shiftAll) += prel*(
+                                derivatives_mu(i_center, i_idx, 2, shiftAll) += prel*(
                                     Cnnd[NsTs100*i_center + Ns100*j + buffShift*Ns + k]*CdevZ[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_atom]
                                     +Cnnd[NsTs100*i_center + Ns100*jd + buffShift*Ns + kd]*CdevZ[NsTs100*i_center*totalAN + Ns100*j*totalAN + buffShift*totalAN*Ns + k*totalAN + i_atom]);
                             }

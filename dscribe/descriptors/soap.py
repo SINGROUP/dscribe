@@ -622,6 +622,8 @@ class SOAP(Descriptor):
 
             # Calculate numerically with extension
             if method == "numerical":
+                # print(indices)
+                # print(centers)
                 soap_gto.derivatives_numerical(
                     d,
                     c,
@@ -636,6 +638,8 @@ class SOAP(Descriptor):
                 )
             # Calculate analytically with extension
             elif method == "analytical":
+                # print(indices)
+                # print(centers)
                 soap_gto.derivatives_analytical(
                     d, 
                     c,

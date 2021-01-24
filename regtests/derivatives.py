@@ -482,25 +482,20 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
         self.assertTrue(np.allclose(d_n, d_a, rtol=1e-6, atol=1e-6))
 
         # Derivatives for some atoms, all atoms act as centers
-        # derivatives_n, d_n = soap.derivatives(system, include=include, method="numerical")
-        # derivatives_a, d_a = soap.derivatives(system, include=include, method="analytical")
-        # print(np.abs(derivatives_a - derivatives_n).max())
-        # print(np.abs(derivatives_n - derivatives_a).max())
-        # print(derivatives_a)
-        # print(derivatives_n)
-        # self.assertTrue(np.allclose(derivatives_n, derivatives_a, rtol=1e-6, atol=1e-6))
-        # self.assertTrue(np.allclose(d_n, d_a, rtol=1e-6, atol=1e-6))
+        derivatives_n, d_n = soap.derivatives(system, include=include, method="numerical")
+        derivatives_a, d_a = soap.derivatives(system, include=include, method="analytical")
+        self.assertTrue(np.allclose(derivatives_n, derivatives_a, rtol=1e-6, atol=1e-6))
+        self.assertTrue(np.allclose(d_n, d_a, rtol=1e-6, atol=1e-6))
 
-        # # Mixed set of derivatives and centers
-        # derivatives_n, d_n = soap.derivatives(system, positions=centers, include=include, method="numerical")
-        # derivatives_a, d_a = soap.derivatives(system, positions=centers, include=include, method="analytical")
-        # self.assertTrue(np.allclose(derivatives_n, derivatives_a, rtol=1e-6, atol=1e-6))
-        # self.assertTrue(np.allclose(d_n, d_a, rtol=1e-6, atol=1e-6))
+        # Mixed set of derivatives and centers
+        derivatives_n, d_n = soap.derivatives(system, positions=centers, include=include, method="numerical")
+        derivatives_a, d_a = soap.derivatives(system, positions=centers, include=include, method="analytical")
+        self.assertTrue(np.allclose(derivatives_n, derivatives_a, rtol=1e-6, atol=1e-6))
+        self.assertTrue(np.allclose(d_n, d_a, rtol=1e-6, atol=1e-6))
 
 
 if __name__ == '__main__':
     # SoapDerivativeComparisonTests().test_combinations()
-
     # SoapDerivativeTests().test_interface()
     # SoapDerivativeTests().test_numerical()
     # SoapDerivativeTests().test_periodic()
