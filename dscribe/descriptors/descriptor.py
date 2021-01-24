@@ -346,15 +346,15 @@ class Descriptor(ABC):
         if include is None and exclude is None:
             displaced_indices = np.arange(n_atoms)
         elif include is not None:
-            displaced_indices = np.asarray(list(set(include)))
-            if np.any(displaced_indices > n_atoms - 1):
+            include = np.asarray(include)
+            if np.any(include > n_atoms - 1) or np.any(include < 0):
                 raise ValueError(
                     "Invalid index provided in the list of included atoms."
                 )
-            displaced_indices.sort()
+            displaced_indices = include
         elif exclude is not None:
             exclude = np.asarray(list(set(exclude)))
-            if np.any(exclude > n_atoms - 1):
+            if np.any(exclude > n_atoms - 1) or np.any(exclude < 0):
                 raise ValueError(
                     "Invalid index provided in the list of excluded atoms."
                 )
