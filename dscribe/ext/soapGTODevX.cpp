@@ -1768,6 +1768,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
 //==============================================================================================================================
 void getCD(//double* CDevX,
 		int* currentIndex,
+		int* matrixInd,
 		double* matrixValuesX,
 		double* matrixValuesY,
 		double* matrixValuesZ,
@@ -1803,9 +1804,12 @@ void getCD(//double* CDevX,
   double preValY;
   double preValZ;
 // l=0-------------------------------------------------------------------------------------------------
+  cout << "CCA" << endl;
     for(int k = 0; k < Ns; k++){
+  cout << "CCB" << endl;
 	    int isCounted = 0;
       for(int i = 0; i < Asize; i++){
+  cout << "CCC" << endl;
         double expSholder = aOa[k]*r2[i];
         if(expSholder > -20){
         preExp = 1.5707963267948966*exp(expSholder);
@@ -1813,10 +1817,12 @@ void getCD(//double* CDevX,
         preValX = preVal*x[i];
         preValY = preVal*y[i];
         preValZ = preVal*z[i];
-	if(iscounted == 0){
-	   matrixValues[3*currentIndex[0]    ] = indices[i];
-	   matrixValues[3*currentIndex[0] + 1] = posI;
-	   matrixValues[3*currentIndex[0] + 2] = typeJ;
+  cout << "CCD" << endl;
+	if(isCounted == 0){
+  cout << "CCE" << endl;
+	   matrixInd[3*currentIndex[0]    ] = indices[i]; // ???
+	   matrixInd[3*currentIndex[0] + 1] = posI;
+	   matrixInd[3*currentIndex[0] + 2] = typeJ;
 	   currentIndex[0]++;
 	   isCounted = 1 ;
 	}
@@ -1826,14 +1832,20 @@ void getCD(//double* CDevX,
 //            CDevY_mu(indices[i], posI, typeJ,n,0) += bOa[n*Ns + k]*preValY;
 //            CDevZ_mu(indices[i], posI, typeJ,n,0) += bOa[n*Ns + k]*preValZ;
 
+  cout << "CCF" << endl;
 	    matrixValuesX[currentIndex[0]*Ns + n] += bOa[n*Ns + k]*preValX;
 	    matrixValuesY[currentIndex[0]*Ns + n] += bOa[n*Ns + k]*preValY;
 	    matrixValuesZ[currentIndex[0]*Ns + n] += bOa[n*Ns + k]*preValZ;
+  cout << "CCG" << endl;
             
           } 
+  cout << "CCH" << endl;
         }
+  cout << "CCI" << endl;
       }
+  cout << "CCJ" << endl;
     }
+  cout << "CCK" << endl;
 // l=1-------------------------------------------------------------------------------------------------
 ////  if(lMax > 0) { LNsNs=NsNs; LNs=Ns;
 ////    for(int k = 0; k < Ns; k++){
@@ -1912,7 +1924,7 @@ void getCD(//double* CDevX,
 ////      }
 ////    }
 ////  }
-////}
+}
 //////================================================================================================
 ////void getPD(
 ////  py::detail::unchecked_mutable_reference<double, 2> &descriptor_mu,
@@ -1979,15 +1991,15 @@ void getCD(//double* CDevX,
  * Used to calculate the partial power spectrum derivatives.
  */
   void getPDev(
-    py::detail::unchecked_mutable_reference<double, 4> &derivatives_mu,
-    py::detail::unchecked_reference<double, 2> &positions_u,
-    py::detail::unchecked_reference<int, 1> &indices_u,
-    CellList &cell_list,
     int* currentInd,
     int* matrixInd,
     double* matrixX,
     double* matrixY,
     double* matrixZ,
+    py::detail::unchecked_mutable_reference<double, 4> &derivatives_mu,
+    py::detail::unchecked_reference<double, 2> &positions_u,
+    py::detail::unchecked_reference<int, 1> &indices_u,
+    CellList &cell_list,
 //    py::detail::unchecked_reference<double, 5> &CdevX_u,
 //    py::detail::unchecked_reference<double, 5> &CdevY_u,
 //    py::detail::unchecked_reference<double, 5> &CdevZ_u,
@@ -2002,8 +2014,9 @@ void getCD(//double* CDevX,
 
   for (int i = 0; i < currentInd[0]; ++i) {
 	int i_atom = matrixInd[3*i];
-	int h_center = matrixIndSize[3*i + 1];
-	int j_type = matrixIndSize[3*i + 2];
+	int h_center = matrixInd[3*i + 1];
+	int j_type = matrixInd[3*i + 2];
+	cout << i_atom << " " << h_center << " " << j_type << endl;
   }
 
   // Loop over all given atomic indices for which the derivatives should be
@@ -2116,15 +2129,22 @@ void soapGTODevX(
   double* prCofDY = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN); double* prCofDZ = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN);
   double* bOa = (double*) malloc((lMax+1)*NsNs*sizeof(double)); double* aOa = (double*) malloc((lMax+1)*Ns*sizeof(double));
 
+  cout << "Z" << endl;
   py::array_t<double> cnnd({Hs,Nt,Ns,(lMax+1)*(lMax+1)});
   py::array_t<double> cdevX({totalAN,Hs,Nt,Ns,(lMax+1)*(lMax+1)});
   py::array_t<double> cdevY({totalAN,Hs,Nt,Ns,(lMax+1)*(lMax+1)});
   py::array_t<double> cdevZ({totalAN,Hs,Nt,Ns,(lMax+1)*(lMax+1)});
 //  int matrixIndSize = 0;
-  int* matrixIndeces = (int*) malloc(sizeof(int)*Nt*Hs*totalAN);
-  int currentIndex = 0;
-  double* matrixValues =   (double*) malloc(Ns*(lMax+1)*(lMax+1)*sizeof(double));
+  int* matrixInd = (int*) malloc(sizeof(int)*Nt*Hs*(lMax+1)*(lMax+1)*totalAN);
+  cout << "X" << endl;
+  int* currentIndex = (int*) malloc(sizeof(int));
+  cout << "Y" << endl;
+  currentIndex[0] = 0;
+  double* matrixX =   (double*) malloc(totalAN*Hs*Nt*Ns*(lMax+1)*(lMax+1)*sizeof(double));
+  double* matrixY =   (double*) malloc(totalAN*Hs*Nt*Ns*(lMax+1)*(lMax+1)*sizeof(double));
+  double* matrixZ =   (double*) malloc(totalAN*Hs*Nt*Ns*(lMax+1)*(lMax+1)*sizeof(double));
 
+  cout << "A" << endl;
   auto cnnd_u = cnnd.unchecked<4>(); 
   auto cdevX_u = cdevX.unchecked<5>(); 
   auto cdevY_u = cdevY.unchecked<5>(); 
@@ -2151,6 +2171,7 @@ void soapGTODevX(
             cdevZ_mu(i,j,t,n,m) = 0.0;
   }}}}} 
 
+  cout << "B" << endl;
   // Initialize binning for atoms and centers
   CellList cell_list_atoms(positions, rCut+cutoffPadding);
   CellList cell_list_centers(centers, rCut+cutoffPadding);
@@ -2163,45 +2184,70 @@ void soapGTODevX(
 
   getAlphaBetaD(aOa,bOa,alphas,betas,Ns,lMax,oOeta, oOeta3O2);
 
+  cout << "C" << endl;
   // Loop through the centers
   for (int i = 0; i < Hs; i++) {
 
+  cout << "CA" << endl;
     // Get all neighbouring atoms for the center i
     double ix = centers_u(i, 0); double iy = centers_u(i, 1); double iz = centers_u(i, 2);
     CellListResult result = cell_list_atoms.getNeighboursForPosition(ix, iy, iz);
+  cout << "CB" << endl;
 
     // Sort the neighbours by type
     map<int, vector<int>> atomicTypeMap;
     for (const int &idx : result.indices) {int Z = atomicNumbers(idx); atomicTypeMap[Z].push_back(idx);};
+  cout << "CC" << endl;
 
     // Loop through neighbours sorted by type
     for (const auto &ZIndexPair : atomicTypeMap) {
 
+  cout << "CD" << endl;
       // j is the internal index for this atomic number
       int j = ZIndexMap[ZIndexPair.first];
       int n_neighbours = ZIndexPair.second.size();
+  cout << "CF" << endl;
 
       // Save the neighbour distances into the arrays dx, dy and dz
       getDeltaD(dx, dy, dz, positions, ix, iy, iz, ZIndexPair.second);
+  cout << "CG" << endl;
       getRsZsD(dx,x2,x4,x6,x8,x10,x12,x14,x16,x18, dy,y2,y4,y6,y8,y10,y12,y14,y16,y18, dz, r2, r4, r6, r8,r10,r12,r14,r16,r18, z2, z4, z6, z8,z10,z12,z14,z16,z18, n_neighbours,lMax);
+  cout << "CH" << endl;
       getCfactorsD(preCoef, prCofDX, prCofDY, prCofDZ, n_neighbours, dx,x2, x4, x6, x8,x10,x12,x14,x16,x18, dy,y2, y4, y6, y8,y10,y12,y14,y16,y18, dz, z2, z4, z6, z8,z10,z12,z14,z16,z18, r2, r4, r6, r8,r10,r12,r14,r16,r18, totalAN, lMax);
-      getCD(cdevX_mu, cdevY_mu, cdevZ_mu, prCofDX, prCofDY, prCofDZ, cnnd_mu, preCoef, dx, dy, dz, r2, bOa, aOa, exes, totalAN, n_neighbours, Ns, Nt, lMax, i, j, ZIndexPair.second);
+  cout << "CI" << endl;
+//      getCD(cdevX_mu, cdevY_mu, cdevZ_mu, prCofDX, prCofDY, prCofDZ, cnnd_mu, preCoef, dx, dy, dz, r2, bOa, aOa, exes, totalAN, n_neighbours, Ns, Nt, lMax, i, j, ZIndexPair.second);
+      getCD(currentIndex, matrixInd , matrixX,matrixY, matrixZ, prCofDX, prCofDY, prCofDZ, cnnd_mu, preCoef, dx, dy, dz, r2, bOa, aOa, exes, totalAN, n_neighbours, Ns, Nt, lMax, i, j, ZIndexPair.second);
+  cout << "CKKaK" << endl;
 
     }
   }
+  cout << "Ca" << endl;
   free(dx); free(x2); free(x4); free(x6); free(x8); free(x10); free(x12); free(x14); free(x16); free(x18);
+  cout << "Cb" << endl;
   free(dy); free(y2); free(y4); free(y6); free(y8); free(y10); free(y12); free(y14); free(y16); free(y18);
+  cout << "Cc" << endl;
   free(dz); free(z2); free(z4); free(z6); free(z8); free(z10); free(z12); free(z14); free(z16); free(z18);
+  cout << "Cd" << endl;
   free(r2); free(r4); free(r6); free(r8); free(r10); free(r12); free(r14); free(r16); free(r18);
+  cout << "Ce" << endl;
   free(exes); free(preCoef); free(bOa); free(aOa);
+  cout << "Cf" << endl;
 
   // Calculate the descriptor value if requested
-  if (return_descriptor) {
-    getPD(descriptor_mu, cnnd_u, Ns, Nt, Hs, lMax, crossover);
-  }
+//  if (return_descriptor) {
+//    getPD(descriptor_mu, cnnd_u, Ns, Nt, Hs, lMax, crossover);
+//  }
 
   // Calculate the derivatives
-  getPDev(derivatives_mu, positions_u, indices_u, cell_list_centers, cdevX_u, cdevY_u, cdevZ_u, cnnd_u, Ns, Nt, Hs, lMax, totalAN, crossover);
+//  getPDev(derivatives_mu, positions_u, indices_u, cell_list_centers, cdevX_u, cdevY_u, cdevZ_u, cnnd_u, Ns, Nt, Hs, lMax, totalAN, crossover);
+//
+  cout << "D" << endl;
+  getPDev(currentIndex, matrixInd, matrixX, matrixY, matrixZ, derivatives_mu, positions_u, indices_u, cell_list_centers,  cnnd_u, Ns, Nt, Hs, lMax, totalAN, crossover);
+  free(matrixInd);
+  free(currentIndex);
+  free(matrixX);
+  free(matrixY);
+  free(matrixZ);
 
   return;
 }
