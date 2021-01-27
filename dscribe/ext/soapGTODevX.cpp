@@ -1767,9 +1767,13 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
 }
 //==============================================================================================================================
 void getCD(//double* CDevX,
-    py::detail::unchecked_mutable_reference<double, 5> &CDevX_mu,
-    py::detail::unchecked_mutable_reference<double, 5> &CDevY_mu,
-    py::detail::unchecked_mutable_reference<double, 5> &CDevZ_mu,
+		int* currentIndex,
+		double* matrixValuesX,
+		double* matrixValuesY,
+		double* matrixValuesZ,
+//    py::detail::unchecked_mutable_reference<double, 5> &CDevX_mu,
+//    py::detail::unchecked_mutable_reference<double, 5> &CDevY_mu,
+//    py::detail::unchecked_mutable_reference<double, 5> &CDevZ_mu,
     double* prCofDX,
     double* prCofDY,
     double* prCofDZ,
@@ -1800,6 +1804,7 @@ void getCD(//double* CDevX,
   double preValZ;
 // l=0-------------------------------------------------------------------------------------------------
     for(int k = 0; k < Ns; k++){
+	    int isCounted = 0;
       for(int i = 0; i < Asize; i++){
         double expSholder = aOa[k]*r2[i];
         if(expSholder > -20){
@@ -1808,159 +1813,167 @@ void getCD(//double* CDevX,
         preValX = preVal*x[i];
         preValY = preVal*y[i];
         preValZ = preVal*z[i];
+	if(iscounted == 0){
+	   matrixValues[3*currentIndex[0]    ] = indices[i];
+	   matrixValues[3*currentIndex[0] + 1] = posI;
+	   matrixValues[3*currentIndex[0] + 2] = typeJ;
+	   currentIndex[0]++;
+	   isCounted = 1 ;
+	}
           for(int n = 0; n < Ns; n++){
           C_mu( posI, typeJ,n,0) += bOa[n*Ns + k]*preExp;
-            CDevX_mu(indices[i], posI, typeJ,n,0) += bOa[n*Ns + k]*preValX;
-            CDevY_mu(indices[i], posI, typeJ,n,0) += bOa[n*Ns + k]*preValY;
-            CDevZ_mu(indices[i], posI, typeJ,n,0) += bOa[n*Ns + k]*preValZ;
+//            CDevX_mu(indices[i], posI, typeJ,n,0) += bOa[n*Ns + k]*preValX;
+//            CDevY_mu(indices[i], posI, typeJ,n,0) += bOa[n*Ns + k]*preValY;
+//            CDevZ_mu(indices[i], posI, typeJ,n,0) += bOa[n*Ns + k]*preValZ;
+
+	    matrixValuesX[currentIndex[0]*Ns + n] += bOa[n*Ns + k]*preValX;
+	    matrixValuesY[currentIndex[0]*Ns + n] += bOa[n*Ns + k]*preValY;
+	    matrixValuesZ[currentIndex[0]*Ns + n] += bOa[n*Ns + k]*preValZ;
             
           } 
         }
       }
     }
 // l=1-------------------------------------------------------------------------------------------------
-  if(lMax > 0) { LNsNs=NsNs; LNs=Ns;
-    for(int k = 0; k < Ns; k++){
-      for(int i = 0; i < Asize; i++){
-        double expSholder = aOa[LNs + k]*r2[i];
-        if(expSholder > -20){
-        preExp = 2.7206990463849543*exp(expSholder);
-          preVal = 2.0*aOa[LNs + k]*preExp;
-          double preVal1 = preVal*z[i];
-          double preVal2 = preVal*x[i];
-          double preVal3 = preVal*y[i];
-         
-          double preValX1 = preVal1*x[i];
-          double preValY1 = preVal1*y[i];
-          double preValZ1 = preVal1*z[i] + preExp;
-
-          double preValX2 = preVal2*x[i] + preExp;
-          double preValY2 = preVal2*y[i];
-          double preValZ2 = preVal2*z[i];
-
-          double preValX3 = preVal3*x[i];
-          double preValY3 = preVal3*y[i] + preExp;
-          double preValZ3 = preVal3*z[i];
-        for(int n = 0; n < Ns; n++){
-
-
-          C_mu( posI, typeJ,n,1) += bOa[LNsNs + n*Ns + k]*preExp*z[i];
-          CDevX_mu(indices[i], posI, typeJ,n,1) += bOa[LNsNs + n*Ns + k]*preValX1;
-          CDevY_mu(indices[i], posI, typeJ,n,1) += bOa[LNsNs + n*Ns + k]*preValY1;
-          CDevZ_mu(indices[i], posI, typeJ,n,1) += bOa[LNsNs + n*Ns + k]*preValZ1;
-
-
-          C_mu( posI, typeJ,n,2) += bOa[LNsNs + n*Ns + k]*preExp*x[i];
-          CDevX_mu(indices[i], posI, typeJ,n,2) += bOa[LNsNs + n*Ns + k]*preValX2;
-          CDevY_mu(indices[i], posI, typeJ,n,2) += bOa[LNsNs + n*Ns + k]*preValY2;
-          CDevZ_mu(indices[i], posI, typeJ,n,2) += bOa[LNsNs + n*Ns + k]*preValZ2;
-
-
-          C_mu(posI, typeJ,n,3) += bOa[LNsNs + n*Ns + k]*preExp*y[i];
-          CDevX_mu(indices[i], posI, typeJ,n,3) += bOa[LNsNs + n*Ns + k]*preValX3;
-          CDevY_mu(indices[i], posI, typeJ,n,3) += bOa[LNsNs + n*Ns + k]*preValY3;
-          CDevZ_mu(indices[i], posI, typeJ,n,3) += bOa[LNsNs + n*Ns + k]*preValZ3;
-          
-          }
-        }
-      }
-    }
-  }
-// l>2------------------------------------------------------------------------------------------------------
-//
-//[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_atom]
-//
-  if(lMax > 1) { 
-    for(int restOfLs = 2; restOfLs <= lMax; restOfLs++){	 
-    LNsNs=restOfLs*NsNs; LNs=restOfLs*Ns; 
-      for(int k = 0; k < Ns; k++){
-        for(int i = 0; i < Asize; i++){
-          double expSholder = aOa[LNs + k]*r2[i];
-          if (expSholder > -20){
-          preExp = exp(expSholder);
-          for(int m = restOfLs*restOfLs; m < (restOfLs+1)*(restOfLs+1); m++){
-            preVal = 2.0*aOa[LNs + k]*preExp*preCoef[totalAN*(m-4)+i];
-            preValX = x[i]*preVal + preExp*prCofDX[totalAN*(m-4)+i];
-            preValY = y[i]*preVal + preExp*prCofDY[totalAN*(m-4)+i];
-            preValZ = z[i]*preVal + preExp*prCofDZ[totalAN*(m-4)+i];
-            for(int n = 0; n < Ns; n++){
-
-          C_mu( posI, typeJ,n,m) += bOa[LNsNs + n*Ns + k]*preExp*preCoef[totalAN*(m-4)+i];
-          CDevX_mu(indices[i], posI, typeJ,n,m) += bOa[LNsNs + n*Ns + k]*preValX;
-          CDevY_mu(indices[i], posI, typeJ,n,m) += bOa[LNsNs + n*Ns + k]*preValY;
-          CDevZ_mu(indices[i], posI, typeJ,n,m) += bOa[LNsNs + n*Ns + k]*preValZ;
-               }
-            }
-          }
-        }
-      }
-    }
-  }
-}
-//================================================================================================
-/**
- * Used to calculate the partial power spectrum (cross over).
- */
-void getPD(
-  py::detail::unchecked_mutable_reference<double, 2> &descriptor_mu,
-    py::detail::unchecked_reference<double, 4> &Cnnd_u,
-//  double* Cnnd,
-  int Ns,
-  int Ts,
-  int Hs,
-  int lMax,
-  bool crossover
-) {
-
-  int NsTs100 = Ns*Ts*((lMax+1)*(lMax+1));
-  int Ns100 = Ns*((lMax+1)*(lMax+1));
-
-//  double   cs0  = pow(PIHalf,2); cs1  = pow(2.7206990464,2);
-
-    // The power spectrum is multiplied by an l-dependent prefactor that comes
-    // from the normalization of the Wigner D matrices. This prefactor is
-    // mentioned in the arrata of the original SOAP paper: On representing
-    // chemical environments, Phys. Rev. B 87, 184115 (2013). Here the square
-    // root of the prefactor in the dot-product kernel is used, so that after a
-    // possible dot-product the full prefactor is recovered.
-    for(int i = 0; i < Hs; i++){
-      int shiftAll = 0;
-      for(int j = 0; j < Ts; j++){
-       int jdLimit = crossover ? Ts : j+1;
-       for(int jd = j; jd < jdLimit; jd++){
-        for(int m=0; m <= lMax; m++){
-        double prel;
-        if(m > 1){prel = PI*sqrt(8.0/(2.0*m+1.0))*PI3;}
-        else{prel = PI*sqrt(8.0/(2.0*m+1.0));}
-         if(j==jd){
-          for(int k = 0; k < Ns; k++){
-            for(int kd = k; kd < Ns; kd++){
-              double buffDouble = 0;
-              for(int buffShift = m*m; buffShift < (m+1)*(m+1); buffShift++){
-                buffDouble += Cnnd_u(i,j,k,buffShift) * Cnnd_u(i,jd,kd,buffShift);
-  	       }
-              descriptor_mu(i, shiftAll) = prel*buffDouble;
-              shiftAll++;
-            }
-          }
-       } else { 
-          for(int k = 0; k < Ns; k++){
-            for(int kd = 0; kd < Ns; kd++){
-              double buffDouble = 0;
-              for(int buffShift = m*m; buffShift < (m+1)*(m+1); buffShift++){
-//
-                buffDouble += Cnnd_u(i,j,k,buffShift) * Cnnd_u(i,jd,kd,buffShift);
-  	       }
-              descriptor_mu(i, shiftAll) = prel*buffDouble;
-              shiftAll++;
-            }
-          }
-        }
-       } //end ifelse
-      }
-    }
-  }
-}
+////  if(lMax > 0) { LNsNs=NsNs; LNs=Ns;
+////    for(int k = 0; k < Ns; k++){
+////      for(int i = 0; i < Asize; i++){
+////        double expSholder = aOa[LNs + k]*r2[i];
+////        if(expSholder > -20){
+////        preExp = 2.7206990463849543*exp(expSholder);
+////          preVal = 2.0*aOa[LNs + k]*preExp;
+////          double preVal1 = preVal*z[i];
+////          double preVal2 = preVal*x[i];
+////          double preVal3 = preVal*y[i];
+////         
+////          double preValX1 = preVal1*x[i];
+////          double preValY1 = preVal1*y[i];
+////          double preValZ1 = preVal1*z[i] + preExp;
+////
+////          double preValX2 = preVal2*x[i] + preExp;
+////          double preValY2 = preVal2*y[i];
+////          double preValZ2 = preVal2*z[i];
+////
+////          double preValX3 = preVal3*x[i];
+////          double preValY3 = preVal3*y[i] + preExp;
+////          double preValZ3 = preVal3*z[i];
+////        for(int n = 0; n < Ns; n++){
+////
+////
+////          C_mu( posI, typeJ,n,1) += bOa[LNsNs + n*Ns + k]*preExp*z[i];
+////          CDevX_mu(indices[i], posI, typeJ,n,1) += bOa[LNsNs + n*Ns + k]*preValX1;
+////          CDevY_mu(indices[i], posI, typeJ,n,1) += bOa[LNsNs + n*Ns + k]*preValY1;
+////          CDevZ_mu(indices[i], posI, typeJ,n,1) += bOa[LNsNs + n*Ns + k]*preValZ1;
+////
+////
+////          C_mu( posI, typeJ,n,2) += bOa[LNsNs + n*Ns + k]*preExp*x[i];
+////          CDevX_mu(indices[i], posI, typeJ,n,2) += bOa[LNsNs + n*Ns + k]*preValX2;
+////          CDevY_mu(indices[i], posI, typeJ,n,2) += bOa[LNsNs + n*Ns + k]*preValY2;
+////          CDevZ_mu(indices[i], posI, typeJ,n,2) += bOa[LNsNs + n*Ns + k]*preValZ2;
+////
+////
+////          C_mu(posI, typeJ,n,3) += bOa[LNsNs + n*Ns + k]*preExp*y[i];
+////          CDevX_mu(indices[i], posI, typeJ,n,3) += bOa[LNsNs + n*Ns + k]*preValX3;
+////          CDevY_mu(indices[i], posI, typeJ,n,3) += bOa[LNsNs + n*Ns + k]*preValY3;
+////          CDevZ_mu(indices[i], posI, typeJ,n,3) += bOa[LNsNs + n*Ns + k]*preValZ3;
+////          
+////          }
+////        }
+////      }
+////    }
+////  }
+////// l>2------------------------------------------------------------------------------------------------------
+//////
+//////[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_atom]
+//////
+////  if(lMax > 1) { 
+////    for(int restOfLs = 2; restOfLs <= lMax; restOfLs++){	 
+////    LNsNs=restOfLs*NsNs; LNs=restOfLs*Ns; 
+////      for(int k = 0; k < Ns; k++){
+////        for(int i = 0; i < Asize; i++){
+////          double expSholder = aOa[LNs + k]*r2[i];
+////          if (expSholder > -20){
+////          preExp = exp(expSholder);
+////          for(int m = restOfLs*restOfLs; m < (restOfLs+1)*(restOfLs+1); m++){
+////            preVal = 2.0*aOa[LNs + k]*preExp*preCoef[totalAN*(m-4)+i];
+////            preValX = x[i]*preVal + preExp*prCofDX[totalAN*(m-4)+i];
+////            preValY = y[i]*preVal + preExp*prCofDY[totalAN*(m-4)+i];
+////            preValZ = z[i]*preVal + preExp*prCofDZ[totalAN*(m-4)+i];
+////            for(int n = 0; n < Ns; n++){
+////
+////          C_mu( posI, typeJ,n,m) += bOa[LNsNs + n*Ns + k]*preExp*preCoef[totalAN*(m-4)+i];
+////          CDevX_mu(indices[i], posI, typeJ,n,m) += bOa[LNsNs + n*Ns + k]*preValX;
+////          CDevY_mu(indices[i], posI, typeJ,n,m) += bOa[LNsNs + n*Ns + k]*preValY;
+////          CDevZ_mu(indices[i], posI, typeJ,n,m) += bOa[LNsNs + n*Ns + k]*preValZ;
+////               }
+////            }
+////          }
+////        }
+////      }
+////    }
+////  }
+////}
+//////================================================================================================
+////void getPD(
+////  py::detail::unchecked_mutable_reference<double, 2> &descriptor_mu,
+////    py::detail::unchecked_reference<double, 4> &Cnnd_u,
+//////  double* Cnnd,
+////  int Ns,
+////  int Ts,
+////  int Hs,
+////  int lMax,
+////  bool crossover
+////) {
+////
+////  int NsTs100 = Ns*Ts*((lMax+1)*(lMax+1));
+////  int Ns100 = Ns*((lMax+1)*(lMax+1));
+////
+//////  double   cs0  = pow(PIHalf,2); cs1  = pow(2.7206990464,2);
+////
+////    // The power spectrum is multiplied by an l-dependent prefactor that comes
+////    // from the normalization of the Wigner D matrices. This prefactor is
+////    // mentioned in the arrata of the original SOAP paper: On representing
+////    // chemical environments, Phys. Rev. B 87, 184115 (2013). Here the square
+////    // root of the prefactor in the dot-product kernel is used, so that after a
+////    // possible dot-product the full prefactor is recovered.
+////    for(int i = 0; i < Hs; i++){
+////      int shiftAll = 0;
+////      for(int j = 0; j < Ts; j++){
+////       int jdLimit = crossover ? Ts : j+1;
+////       for(int jd = j; jd < jdLimit; jd++){
+////        for(int m=0; m <= lMax; m++){
+////        double prel;
+////        if(m > 1){prel = PI*sqrt(8.0/(2.0*m+1.0))*PI3;}
+////        else{prel = PI*sqrt(8.0/(2.0*m+1.0));}
+////         if(j==jd){
+////          for(int k = 0; k < Ns; k++){
+////            for(int kd = k; kd < Ns; kd++){
+////              double buffDouble = 0;
+////              for(int buffShift = m*m; buffShift < (m+1)*(m+1); buffShift++){
+////                buffDouble += Cnnd_u(i,j,k,buffShift) * Cnnd_u(i,jd,kd,buffShift);
+////  	       }
+////              descriptor_mu(i, shiftAll) = prel*buffDouble;
+////              shiftAll++;
+////            }
+////          }
+////       } else { 
+////          for(int k = 0; k < Ns; k++){
+////            for(int kd = 0; kd < Ns; kd++){
+////              double buffDouble = 0;
+////              for(int buffShift = m*m; buffShift < (m+1)*(m+1); buffShift++){
+//////
+////                buffDouble += Cnnd_u(i,j,k,buffShift) * Cnnd_u(i,jd,kd,buffShift);
+////  	       }
+////              descriptor_mu(i, shiftAll) = prel*buffDouble;
+////              shiftAll++;
+////            }
+////          }
+////        }
+////       } //end ifelse
+////      }
+////    }
+////  }
+////}
 //===========================================================================================
 /**
  * Used to calculate the partial power spectrum derivatives.
@@ -1970,9 +1983,14 @@ void getPD(
     py::detail::unchecked_reference<double, 2> &positions_u,
     py::detail::unchecked_reference<int, 1> &indices_u,
     CellList &cell_list,
-    py::detail::unchecked_reference<double, 5> &CdevX_u,
-    py::detail::unchecked_reference<double, 5> &CdevY_u,
-    py::detail::unchecked_reference<double, 5> &CdevZ_u,
+    int* currentInd,
+    int* matrixInd,
+    double* matrixX,
+    double* matrixY,
+    double* matrixZ,
+//    py::detail::unchecked_reference<double, 5> &CdevX_u,
+//    py::detail::unchecked_reference<double, 5> &CdevY_u,
+//    py::detail::unchecked_reference<double, 5> &CdevZ_u,
     py::detail::unchecked_reference<double, 4> &Cnnd_u,
     int Ns,
     int Ts,
@@ -1982,62 +2000,68 @@ void getPD(
     bool crossover
   ) {
 
+  for (int i = 0; i < currentInd[0]; ++i) {
+	int i_atom = matrixInd[3*i];
+	int h_center = matrixIndSize[3*i + 1];
+	int j_type = matrixIndSize[3*i + 2];
+  }
+
   // Loop over all given atomic indices for which the derivatives should be
   // calculated for.
-  for (int i_idx = 0; i_idx < indices_u.size(); ++i_idx) {
-    int i_atom = indices_u(i_idx);
-
-    // Get all neighbouring centers for the current atom
-    double ix = positions_u(i_atom, 0);
-    double iy = positions_u(i_atom, 1);
-    double iz = positions_u(i_atom, 2);
-    CellListResult result = cell_list.getNeighboursForPosition(ix, iy, iz);
-    vector<int> indices = result.indices;
-
-    // Loop through all neighbouring centers
-
-    for (int j_idx = 0; j_idx < indices.size(); ++j_idx) {
-        int i_center = indices[j_idx];
-        int shiftAll = 0;
-        for(int j = 0; j < Ts; j++){
-            int jdLimit = crossover ? Ts : j+1;
-            for(int jd = j; jd < jdLimit; jd++) {
-                for(int m=0; m <= lMax; m++) {
-                    double prel = m > 1 ? PI*sqrt(8.0/(2.0*m+1.0))*PI3 : PI*sqrt(8.0/(2.0*m+1.0));
-                    if (j == jd) {
-                        for(int k = 0; k < Ns; k++){
-                            for(int kd = k; kd < Ns; kd++){
-                            for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
-                                derivatives_mu(i_center, i_idx, 0, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevX_u(i_atom, i_center, jd, kd, buffShift)
-                                                                                     +Cnnd_u(i_center,j,kd,buffShift)*CdevX_u(i_atom, i_center, jd, k, buffShift));
-                                derivatives_mu(i_center, i_idx, 1, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevY_u(i_atom, i_center, jd, kd, buffShift)
-                                                                                     +Cnnd_u(i_center,j,kd,buffShift)*CdevY_u(i_atom, i_center, jd, k, buffShift));
-                                derivatives_mu(i_center, i_idx, 2, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevZ_u(i_atom, i_center, jd, kd, buffShift)
-                                                                                     +Cnnd_u(i_center,j,kd,buffShift)*CdevZ_u(i_atom, i_center, jd, k, buffShift));
-                            }
-                            shiftAll++;
-                            }
-                        }
-                    } else {
-                        for(int k = 0; k < Ns; k++){
-                            for(int kd = 0; kd < Ns; kd++){
-                            for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
-                                derivatives_mu(i_center, i_idx, 0, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevX_u(i_atom, i_center, jd, kd, buffShift)
-                                                                                     +Cnnd_u(i_center,jd,kd,buffShift)*CdevX_u(i_atom, i_center, j, k, buffShift));
-                                derivatives_mu(i_center, i_idx, 1, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevY_u(i_atom, i_center, jd, kd, buffShift)
-                                                                                     +Cnnd_u(i_center,jd,kd,buffShift)*CdevY_u(i_atom, i_center, j, k, buffShift));
-                                derivatives_mu(i_center, i_idx, 2, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevZ_u(i_atom, i_center, jd, kd, buffShift)
-                                                                                     +Cnnd_u(i_center,jd,kd,buffShift)*CdevZ_u(i_atom, i_center, j, k, buffShift));
-                            }
-                            shiftAll++;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-  }
+////  for (int i_idx = 0; i_idx < indices_u.size(); ++i_idx) {
+////    int i_atom = indices_u(i_idx);
+////
+////    // Get all neighbouring centers for the current atom
+////    double ix = positions_u(i_atom, 0);
+////    double iy = positions_u(i_atom, 1);
+////    double iz = positions_u(i_atom, 2);
+////    CellListResult result = cell_list.getNeighboursForPosition(ix, iy, iz);
+////    vector<int> indices = result.indices;
+////
+////    // Loop through all neighbouring centers
+////
+////    for (int j_idx = 0; j_idx < indices.size(); ++j_idx) {
+////        int i_center = indices[j_idx];
+////        int shiftAll = 0;
+////        for(int j = 0; j < Ts; j++){
+////            int jdLimit = crossover ? Ts : j+1;
+////            for(int jd = j; jd < jdLimit; jd++) {
+////                for(int m=0; m <= lMax; m++) {
+////                    double prel = m > 1 ? PI*sqrt(8.0/(2.0*m+1.0))*PI3 : PI*sqrt(8.0/(2.0*m+1.0));
+////                    if (j == jd) {
+////                        for(int k = 0; k < Ns; k++){
+////                            for(int kd = k; kd < Ns; kd++){
+////                            for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
+////                                derivatives_mu(i_center, i_idx, 0, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevX_u(i_atom, i_center, jd, kd, buffShift)
+////                                                                                     +Cnnd_u(i_center,j,kd,buffShift)*CdevX_u(i_atom, i_center, jd, k, buffShift));
+////                                derivatives_mu(i_center, i_idx, 1, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevY_u(i_atom, i_center, jd, kd, buffShift)
+////                                                                                     +Cnnd_u(i_center,j,kd,buffShift)*CdevY_u(i_atom, i_center, jd, k, buffShift));
+////                                derivatives_mu(i_center, i_idx, 2, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevZ_u(i_atom, i_center, jd, kd, buffShift)
+////                                                                                     +Cnnd_u(i_center,j,kd,buffShift)*CdevZ_u(i_atom, i_center, jd, k, buffShift));
+////                            }
+////                            shiftAll++;
+////                            }
+////                        }
+////                    } else {
+////                        for(int k = 0; k < Ns; k++){
+////                            for(int kd = 0; kd < Ns; kd++){
+////                            for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
+////                                derivatives_mu(i_center, i_idx, 0, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevX_u(i_atom, i_center, jd, kd, buffShift)
+////                                                                                     +Cnnd_u(i_center,jd,kd,buffShift)*CdevX_u(i_atom, i_center, j, k, buffShift));
+////                                derivatives_mu(i_center, i_idx, 1, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevY_u(i_atom, i_center, jd, kd, buffShift)
+////                                                                                     +Cnnd_u(i_center,jd,kd,buffShift)*CdevY_u(i_atom, i_center, j, k, buffShift));
+////                                derivatives_mu(i_center, i_idx, 2, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevZ_u(i_atom, i_center, jd, kd, buffShift)
+////                                                                                     +Cnnd_u(i_center,jd,kd,buffShift)*CdevZ_u(i_atom, i_center, j, k, buffShift));
+////                            }
+////                            shiftAll++;
+////                            }
+////                        }
+////                    }
+////                }
+////            }
+////        }
+////    }
+////  }
 }
 //=================================================================================================================================================================
 void soapGTODevX(
@@ -2096,6 +2120,10 @@ void soapGTODevX(
   py::array_t<double> cdevX({totalAN,Hs,Nt,Ns,(lMax+1)*(lMax+1)});
   py::array_t<double> cdevY({totalAN,Hs,Nt,Ns,(lMax+1)*(lMax+1)});
   py::array_t<double> cdevZ({totalAN,Hs,Nt,Ns,(lMax+1)*(lMax+1)});
+//  int matrixIndSize = 0;
+  int* matrixIndeces = (int*) malloc(sizeof(int)*Nt*Hs*totalAN);
+  int currentIndex = 0;
+  double* matrixValues =   (double*) malloc(Ns*(lMax+1)*(lMax+1)*sizeof(double));
 
   auto cnnd_u = cnnd.unchecked<4>(); 
   auto cdevX_u = cdevX.unchecked<5>(); 
