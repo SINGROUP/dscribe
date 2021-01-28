@@ -1996,11 +1996,11 @@ void getPD(
                             for(int kd = k; kd < Ns; kd++){
                             for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
                               if( abs(Cnnd_u(j,k,buffShift)) > 1e-12 ||  abs(Cnnd_u(j,kd,buffShift)) > 1e-12 ){
-                                derivatives_mu(i_center, i_idx, 0, shiftAll) += prel*(Cnnd_u(j,k,buffShift)*CdevX_u(i_atom,  jd, kd, buffShift)
+                                derivatives_mu(i_center, i_atom, 0, shiftAll) += prel*(Cnnd_u(j,k,buffShift)*CdevX_u(i_atom,  jd, kd, buffShift)
                                                                                      +Cnnd_u(j,kd,buffShift)*CdevX_u(i_atom,  jd, k, buffShift));
-                                derivatives_mu(i_center, i_idx, 1, shiftAll) += prel*(Cnnd_u(j,k,buffShift)*CdevY_u(i_atom,  jd, kd, buffShift)
+                                derivatives_mu(i_center, i_atom, 1, shiftAll) += prel*(Cnnd_u(j,k,buffShift)*CdevY_u(i_atom,  jd, kd, buffShift)
                                                                                      +Cnnd_u(j,kd,buffShift)*CdevY_u(i_atom,  jd, k, buffShift));
-                                derivatives_mu(i_center, i_idx, 2, shiftAll) += prel*(Cnnd_u(j,k,buffShift)*CdevZ_u(i_atom,  jd, kd, buffShift)
+                                derivatives_mu(i_center, i_atom, 2, shiftAll) += prel*(Cnnd_u(j,k,buffShift)*CdevZ_u(i_atom,  jd, kd, buffShift)
                                                                                      +Cnnd_u(j,kd,buffShift)*CdevZ_u(i_atom,  jd, k, buffShift));
                                 
                             }}
@@ -2013,11 +2013,11 @@ void getPD(
                             for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
                               if( abs(Cnnd_u(j,k,buffShift)) > 1e-12 ||  abs(Cnnd_u(jd,kd,buffShift)) > 1e-12) {
 
-                                derivatives_mu(i_center, i_idx, 0, shiftAll) += prel*(Cnnd_u(j,k,buffShift)*CdevX_u(i_atom,  jd, kd, buffShift)
+                                derivatives_mu(i_center, i_atom, 0, shiftAll) += prel*(Cnnd_u(j,k,buffShift)*CdevX_u(i_atom,  jd, kd, buffShift)
                                                                                      +Cnnd_u(jd,kd,buffShift)*CdevX_u(i_atom,  j, k, buffShift));
-                                derivatives_mu(i_center, i_idx, 1, shiftAll) += prel*(Cnnd_u(j,k,buffShift)*CdevY_u(i_atom,  jd, kd, buffShift)
+                                derivatives_mu(i_center, i_atom, 1, shiftAll) += prel*(Cnnd_u(j,k,buffShift)*CdevY_u(i_atom,  jd, kd, buffShift)
                                                                                      +Cnnd_u(jd,kd,buffShift)*CdevY_u(i_atom,  j, k, buffShift));
-                                derivatives_mu(i_center, i_idx, 2, shiftAll) += prel*(Cnnd_u(j,k,buffShift)*CdevZ_u(i_atom,  jd, kd, buffShift)
+                                derivatives_mu(i_center, i_atom, 2, shiftAll) += prel*(Cnnd_u(j,k,buffShift)*CdevZ_u(i_atom,  jd, kd, buffShift)
                                                                                      +Cnnd_u(jd,kd,buffShift)*CdevZ_u(i_atom,  j, k, buffShift));
                             }}
                             shiftAll++;
@@ -2088,20 +2088,6 @@ void soapGTODevX(
 ////  py::array_t<double> cdevY({totalAN,Hs,Nt,Ns,(lMax+1)*(lMax+1)});
 ////  py::array_t<double> cdevZ({totalAN,Hs,Nt,Ns,(lMax+1)*(lMax+1)});
 
-  py::array_t<double> cnnd({Nt,Ns,(lMax+1)*(lMax+1)});
-  py::array_t<double> cdevX({totalAN,Nt,Ns,(lMax+1)*(lMax+1)});
-  py::array_t<double> cdevY({totalAN,Nt,Ns,(lMax+1)*(lMax+1)});
-  py::array_t<double> cdevZ({totalAN,Nt,Ns,(lMax+1)*(lMax+1)});
-
-  auto cnnd_u = cnnd.unchecked<3>(); 
-  auto cdevX_u = cdevX.unchecked<4>(); 
-  auto cdevY_u = cdevY.unchecked<4>(); 
-  auto cdevZ_u = cdevZ.unchecked<4>(); 
-
-  auto cnnd_mu = cnnd.mutable_unchecked<3>(); 
-  auto cdevX_mu = cdevX.mutable_unchecked<4>(); 
-  auto cdevY_mu = cdevY.mutable_unchecked<4>(); 
-  auto cdevZ_mu = cdevZ.mutable_unchecked<4>(); 
 
 ////    for(int j = 0; j < Hs; j++){
 ////      for(int t = 0; t < Nt; t++){
@@ -2119,6 +2105,26 @@ void soapGTODevX(
 ////            cdevZ_mu(i,j,t,n,m) = 0.0;
 ////  }}}}} 
 
+//  py::array_t<double> cnnd({Nt,Ns,(lMax+1)*(lMax+1)});
+//  py::array_t<double> cdevX({totalAN,Nt,Ns,(lMax+1)*(lMax+1)});
+//  py::array_t<double> cdevY({totalAN,Nt,Ns,(lMax+1)*(lMax+1)});
+//  py::array_t<double> cdevZ({totalAN,Nt,Ns,(lMax+1)*(lMax+1)});
+
+//  auto cnnd_u = cnnd.unchecked<3>(); 
+//  auto cdevX_u = cdevX.unchecked<4>(); 
+//  auto cdevY_u = cdevY.unchecked<4>(); 
+//  auto cdevZ_u = cdevZ.unchecked<4>(); 
+
+//  auto cnnd_mu = cnnd.mutable_unchecked<3>(); 
+//  auto cdevX_mu = cdevX.mutable_unchecked<4>(); 
+//  auto cdevY_mu = cdevY.mutable_unchecked<4>(); 
+//  auto cdevZ_mu = cdevZ.mutable_unchecked<4>(); 
+
+  double* cnnd_u = (double*) malloc(Nt*Ns*(lMax+1)*(lMax+1)*sizeof(double))
+
+  double* cnnd_u = (double*) malloc(Nt*Ns*(lMax+1)*(lMax+1)*sizeof(double))
+  double* cnnd_u = (double*) malloc(Nt*Ns*(lMax+1)*(lMax+1)*sizeof(double))
+  double* cnnd_u = (double*) malloc(Nt*Ns*(lMax+1)*(lMax+1)*sizeof(double))
   // Initialize binning for atoms and centers
   CellList cell_list_atoms(positions, rCut+cutoffPadding);
   CellList cell_list_centers(centers, rCut+cutoffPadding);
@@ -2133,6 +2139,7 @@ void soapGTODevX(
 
   // Loop through the centers
     for(int i = 0; i < Hs; i++){
+
 
       for(int t = 0; t < Nt; t++){
         for(int n = 0; n < Ns; n++){
@@ -2182,7 +2189,7 @@ void soapGTODevX(
   free(dy); free(y2); free(y4); free(y6); free(y8); free(y10); free(y12); free(y14); free(y16); free(y18);
   free(dz); free(z2); free(z4); free(z6); free(z8); free(z10); free(z12); free(z14); free(z16); free(z18);
   free(r2); free(r4); free(r6); free(r8); free(r10); free(r12); free(r14); free(r16); free(r18);
-  free(exes); free(preCoef); free(bOa); free(aOa);
+  free(exes); free(preCoef); free(bOa); free(aOa); free(prCofDZ); free(prCofDY); free(prCofDX);
 
   // Calculate the descriptor value if requested
 
