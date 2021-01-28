@@ -2111,7 +2111,7 @@ void soapGTODevX(
     py::array_t<int> indices,
     bool return_descriptor
 ) {
-  
+//  
   auto derivatives_mu = derivatives.mutable_unchecked<4>();
   auto descriptor_mu = descriptor.mutable_unchecked<2>();
   auto atomicNumbers = atomicNumbersArr.unchecked<1>();
@@ -2120,7 +2120,7 @@ void soapGTODevX(
   double oOeta = 1.0/eta; double oOeta3O2 = sqrt(oOeta*oOeta*oOeta); double NsNs = Ns*Ns;
   auto centers_u = centers.unchecked<2>(); 
   auto positions_u = positions.unchecked<2>(); 
-
+//
   double* dx  = (double*)malloc(sizeof(double)*totalAN); double* dy  = (double*)malloc(sizeof(double)*totalAN); double* dz  = (double*)malloc(sizeof(double)*totalAN);
   double* x2  = (double*)malloc(sizeof(double)*totalAN); double* x4  = (double*)malloc(sizeof(double)*totalAN); double* x6  = (double*)malloc(sizeof(double)*totalAN);
   double* x8  = (double*)malloc(sizeof(double)*totalAN); double* x10 = (double*)malloc(sizeof(double)*totalAN); double* x12 = (double*)malloc(sizeof(double)*totalAN);
@@ -2134,52 +2134,16 @@ void soapGTODevX(
   double* r2  = (double*)malloc(sizeof(double)*totalAN); double* r4  = (double*)malloc(sizeof(double)*totalAN); double* r6  = (double*)malloc(sizeof(double)*totalAN);
   double* r8  = (double*)malloc(sizeof(double)*totalAN); double* r10 = (double*)malloc(sizeof(double)*totalAN); double* r12 = (double*)malloc(sizeof(double)*totalAN);
   double* r14 = (double*)malloc(sizeof(double)*totalAN); double* r16 = (double*)malloc(sizeof(double)*totalAN); double* r18 = (double*)malloc(sizeof(double)*totalAN);
-
+//
   double* exes = (double*) malloc(sizeof(double)*totalAN);
-  // -4 -> no need for l=0, l=1.
+//  // -4 -> no need for l=0, l=1.
   double* preCoef = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN); double* prCofDX = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN);
   double* prCofDY = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN); double* prCofDZ = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN);
   double* bOa = (double*) malloc((lMax+1)*NsNs*sizeof(double)); double* aOa = (double*) malloc((lMax+1)*Ns*sizeof(double));
-
-////  py::array_t<double> cnnd({Hs,Nt,Ns,(lMax+1)*(lMax+1)});
-////  py::array_t<double> cdevX({totalAN,Hs,Nt,Ns,(lMax+1)*(lMax+1)});
-////  py::array_t<double> cdevY({totalAN,Hs,Nt,Ns,(lMax+1)*(lMax+1)});
-////  py::array_t<double> cdevZ({totalAN,Hs,Nt,Ns,(lMax+1)*(lMax+1)});
-
-
-////    for(int j = 0; j < Hs; j++){
-////      for(int t = 0; t < Nt; t++){
-////        for(int n = 0; n < Ns; n++){
-////          for(int m = 0; m < (lMax+1)*(lMax+1); m++){
-////            cnnd_mu(j,t,n,m) = 0.0;
-////  }}}}
-////  for(int i = 0; i < totalAN; i++){
-////    for(int j = 0; j < Hs; j++){
-////      for(int t = 0; t < Nt; t++){
-////        for(int n = 0; n < Ns; n++){
-////          for(int m = 0; m < (lMax+1)*(lMax+1); m++){
-////            cdevX_mu(i,j,t,n,m) = 0.0;
-////            cdevY_mu(i,j,t,n,m) = 0.0;
-////            cdevZ_mu(i,j,t,n,m) = 0.0;
-////  }}}}} 
-
-//  py::array_t<double> cnnd({Nt,Ns,(lMax+1)*(lMax+1)});
-//  py::array_t<double> cdevX({totalAN,Nt,Ns,(lMax+1)*(lMax+1)});
-//  py::array_t<double> cdevY({totalAN,Nt,Ns,(lMax+1)*(lMax+1)});
-//  py::array_t<double> cdevZ({totalAN,Nt,Ns,(lMax+1)*(lMax+1)});
-
-//  auto cnnd_u = cnnd.unchecked<3>(); 
-//  auto cdevX_u = cdevX.unchecked<4>(); 
-//  auto cdevY_u = cdevY.unchecked<4>(); 
-//  auto cdevZ_u = cdevZ.unchecked<4>(); 
-
-//  auto cnnd_mu = cnnd.mutable_unchecked<3>(); 
-//  auto cdevX_mu = cdevX.mutable_unchecked<4>(); 
-//  auto cdevY_mu = cdevY.mutable_unchecked<4>(); 
-//  auto cdevZ_mu = cdevZ.mutable_unchecked<4>(); 
-
+//
+//
   double* cnnd = (double*) malloc(Nt*Ns*(lMax+1)*(lMax+1)*sizeof(double));
-
+//
   double* cdevX = (double*) malloc(totalAN*Nt*Ns*(lMax+1)*(lMax+1)*sizeof(double));
   double* cdevY = (double*) malloc(totalAN*Nt*Ns*(lMax+1)*(lMax+1)*sizeof(double));
   double* cdevZ = (double*) malloc(totalAN*Nt*Ns*(lMax+1)*(lMax+1)*sizeof(double));
@@ -2195,10 +2159,10 @@ void soapGTODevX(
 
   getAlphaBetaD(aOa,bOa,alphas,betas,Ns,lMax,oOeta, oOeta3O2);
 
-  // Loop through the centers
+//  // Loop through the centers
     for(int i = 0; i < Hs; i++){
-
-
+//
+//
       for(int s = 0; s < Nt*Ns*(lMax + 1)*(lMax + 1); s++){
 	      cnnd[s] = 0.0;
       }
@@ -2209,19 +2173,6 @@ void soapGTODevX(
 	      cdevZ[s] = 0.0;
       }
 
-//      for(int t = 0; t < Nt; t++){
-//        for(int n = 0; n < Ns; n++){
-//          for(int m = 0; m < (lMax+1)*(lMax+1); m++){
-//            cnnd_mu(t,n,m) = 0.0;
-//  }}}
-//  for(int a = 0; a < totalAN; a++){
-//      for(int t = 0; t < Nt; t++){
-//        for(int n = 0; n < Ns; n++){
-//          for(int m = 0; m < (lMax+1)*(lMax+1); m++){
-//            cdevX_mu(a,t,n,m) = 0.0;
-//            cdevY_mu(a,t,n,m) = 0.0;
-//            cdevZ_mu(a,t,n,m) = 0.0;
-//  }}}} 
 
     // Get all neighbouring atoms for the center i
     double ix = centers_u(i, 0); double iy = centers_u(i, 1); double iz = centers_u(i, 2);
@@ -2264,8 +2215,8 @@ void soapGTODevX(
   free(cdevY);
   free(cdevZ);
   free(cnnd);
-
-  // Calculate the descriptor value if requested
-
+//
+//  // Calculate the descriptor value if requested
+//
   return;
 }
