@@ -2042,42 +2042,38 @@ void getPD(
                     if (j == jd) {
                         for(int k = 0; k < Ns; k++){
                             for(int kd = k; kd < Ns; kd++){
-                            for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
+//                            for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
 //                              if( abs(Cnnd_u(j,k,buffShift)) > 1e-12 ||  abs(Cnnd_u(j,kd,buffShift)) > 1e-12 ){
-//                                derivatives_mu(i_center, i_atom, 0, shiftAll) += prel*(Cnnd_u(j,k,buffShift)*CdevX_u(i_atom,  jd, kd, buffShift)
-//                                                                                     +Cnnd_u(j,kd,buffShift)*CdevX_u(i_atom,  jd, k, buffShift));
-                                derivatives_mu(i_center, i_atom, 0, shiftAll) += 
-					prel*(Cnnd[j*lmlm*Ns + k*lmlm + buffShift]*CdevX[i_atom*Ns*lmlm*Ts+jd*Ns*lmlm+kd*lmlm+buffShift]
-                                             +Cnnd[j*lmlm*Ns + kd*lmlm + buffShift]*CdevX[i_atom*Ns*lmlm*Ts+jd*Ns*lmlm+k*lmlm+buffShift]);
-                                derivatives_mu(i_center, i_atom, 1, shiftAll) += 
-					prel*(Cnnd[j*lmlm*Ns + k*lmlm + buffShift]*CdevY[i_atom*Ns*lmlm*Ts+jd*Ns*lmlm+kd*lmlm+buffShift]
-                                             +Cnnd[j*lmlm*Ns + kd*lmlm + buffShift]*CdevY[i_atom*Ns*lmlm*Ts+jd*Ns*lmlm+k*lmlm+buffShift]);
-                                derivatives_mu(i_center, i_atom, 2, shiftAll) +=
-				       	prel*(Cnnd[j*lmlm*Ns + k*lmlm + buffShift]*CdevZ[i_atom*Ns*lmlm*Ts+jd*Ns*lmlm+kd*lmlm+buffShift]
-                                             +Cnnd[j*lmlm*Ns + kd*lmlm + buffShift]*CdevZ[i_atom*Ns*lmlm*Ts+jd*Ns*lmlm+k*lmlm+buffShift]);
+                                derivatives_mu(i_center, i_atom, 0, shiftAll) = 0;
+//					prel*(Cnnd[j*lmlm*Ns + k*lmlm + buffShift]*CdevX[i_atom*Ns*lmlm*Ts+jd*Ns*lmlm+kd*lmlm+buffShift]
+//                                             +Cnnd[j*lmlm*Ns + kd*lmlm + buffShift]*CdevX[i_atom*Ns*lmlm*Ts+jd*Ns*lmlm+k*lmlm+buffShift]);
+                                derivatives_mu(i_center, i_atom, 1, shiftAll) = 0;
+//					prel*(Cnnd[j*lmlm*Ns + k*lmlm + buffShift]*CdevY[i_atom*Ns*lmlm*Ts+jd*Ns*lmlm+kd*lmlm+buffShift]
+//                                             +Cnnd[j*lmlm*Ns + kd*lmlm + buffShift]*CdevY[i_atom*Ns*lmlm*Ts+jd*Ns*lmlm+k*lmlm+buffShift]);
+                                derivatives_mu(i_center, i_atom, 2, shiftAll) =0;
+//				       	prel*(Cnnd[j*lmlm*Ns + k*lmlm + buffShift]*CdevZ[i_atom*Ns*lmlm*Ts+jd*Ns*lmlm+kd*lmlm+buffShift]
+//                                             +Cnnd[j*lmlm*Ns + kd*lmlm + buffShift]*CdevZ[i_atom*Ns*lmlm*Ts+jd*Ns*lmlm+k*lmlm+buffShift]);
                                 
-                            }//}
+//                            }//}
                             shiftAll++;
                             }
                         }
                     } else {
                         for(int k = 0; k < Ns; k++){
                             for(int kd = 0; kd < Ns; kd++){
-                            for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
+//                            for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
 //                              if( abs(Cnnd_u(j,k,buffShift)) > 1e-12 ||  abs(Cnnd_u(jd,kd,buffShift)) > 1e-12) {
 
-//                                derivatives_mu(i_center, i_atom, 0, shiftAll) += prel*(Cnnd(j,k,buffShift)*CdevX(i_atom,  jd, kd, buffShift)
-//                                                                                     +Cnnd(jd,kd,buffShift)*CdevX(i_atom,  j, k, buffShift));
-                                derivatives_mu(i_center, i_atom, 0, shiftAll) += 
-					prel*(Cnnd[j*lmlm*Ns + k*lmlm + buffShift]*CdevX[i_atom*Ns*lmlm*Ts+jd*Ns*lmlm+kd*lmlm+buffShift]
-                                             +Cnnd[jd*lmlm*Ns + kd*lmlm + buffShift]*CdevX[i_atom*Ns*lmlm*Ts+j*Ns*lmlm+k*lmlm+buffShift]);
-                                derivatives_mu(i_center, i_atom, 1, shiftAll) +=
-				       	prel*(Cnnd[j*lmlm*Ns + k*lmlm + buffShift]*CdevY[i_atom*Ns*lmlm*Ts+jd*Ns*lmlm+kd*lmlm+buffShift]
-                                             +Cnnd[jd*lmlm*Ns + kd*lmlm + buffShift]*CdevY[i_atom*Ns*lmlm*Ts+j*Ns*lmlm+k*lmlm+buffShift]);
-                                derivatives_mu(i_center, i_atom, 2, shiftAll) +=
-				       	prel*(Cnnd[j*lmlm*Ns + k*lmlm + buffShift]*CdevZ[i_atom*Ns*lmlm*Ts+jd*Ns*lmlm+kd*lmlm+buffShift]
-                                             +Cnnd[jd*lmlm*Ns + kd*lmlm + buffShift]*CdevZ[i_atom*Ns*lmlm*Ts+j*Ns*lmlm+k*lmlm+buffShift]);
-                            }//}
+                                derivatives_mu(i_center, i_atom, 0, shiftAll) = 0;
+//					prel*(Cnnd[j*lmlm*Ns + k*lmlm + buffShift]*CdevX[i_atom*Ns*lmlm*Ts+jd*Ns*lmlm+kd*lmlm+buffShift]
+ //                                            +Cnnd[jd*lmlm*Ns + kd*lmlm + buffShift]*CdevX[i_atom*Ns*lmlm*Ts+j*Ns*lmlm+k*lmlm+buffShift]);
+                                derivatives_mu(i_center, i_atom, 1, shiftAll) =0;
+//				       	prel*(Cnnd[j*lmlm*Ns + k*lmlm + buffShift]*CdevY[i_atom*Ns*lmlm*Ts+jd*Ns*lmlm+kd*lmlm+buffShift]
+//                                             +Cnnd[jd*lmlm*Ns + kd*lmlm + buffShift]*CdevY[i_atom*Ns*lmlm*Ts+j*Ns*lmlm+k*lmlm+buffShift]);
+                                derivatives_mu(i_center, i_atom, 2, shiftAll) =0;
+//				       	prel*(Cnnd[j*lmlm*Ns + k*lmlm + buffShift]*CdevZ[i_atom*Ns*lmlm*Ts+jd*Ns*lmlm+kd*lmlm+buffShift]
+//                                             +Cnnd[jd*lmlm*Ns + kd*lmlm + buffShift]*CdevZ[i_atom*Ns*lmlm*Ts+j*Ns*lmlm+k*lmlm+buffShift]);
+//                            }//}
                             shiftAll++;
                             }
                         }
