@@ -1751,13 +1751,17 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
 }
 //==============================================================================================================================
 void getCD(//double* CDevX,
-    py::detail::unchecked_mutable_reference<double, 4> &CDevX_mu,
-    py::detail::unchecked_mutable_reference<double, 4> &CDevY_mu,
-    py::detail::unchecked_mutable_reference<double, 4> &CDevZ_mu,
+//    py::detail::unchecked_mutable_reference<double, 4> &CDevX_mu,
+//    py::detail::unchecked_mutable_reference<double, 4> &CDevY_mu,
+//    py::detail::unchecked_mutable_reference<double, 4> &CDevZ_mu,
+    double* CDevX,
+    double* CDevY,
+    double* CDevZ,
     double* prCofDX,
     double* prCofDY,
     double* prCofDZ,
-    py::detail::unchecked_mutable_reference<double, 3> &C_mu,
+//    py::detail::unchecked_mutable_reference<double, 3> &C_mu,
+    double* cnnd,
     double* preCoef,
     double* x,
     double* y,
@@ -1793,10 +1797,15 @@ void getCD(//double* CDevX,
         preValY = preVal*y[i];
         preValZ = preVal*z[i];
           for(int n = 0; n < Ns; n++){
-          C_mu(  typeJ,n,0) += bOa[n*Ns + k]*preExp;
-            CDevX_mu(indices[i], typeJ,n,0) += bOa[n*Ns + k]*preValX;
-            CDevY_mu(indices[i], typeJ,n,0) += bOa[n*Ns + k]*preValY;
-            CDevZ_mu(indices[i], typeJ,n,0) += bOa[n*Ns + k]*preValZ;
+//          C( typeJ,n,0) += bOa[n*Ns + k]*preExp;
+          C[ typeJ + n*lMax + 0] += bOa[n*Ns + k]*preExp;
+//            CDevX(indices[i], typeJ,n,0) += bOa[n*Ns + k]*preValX;
+//            CDevY(indices[i], typeJ,n,0) += bOa[n*Ns + k]*preValY;
+//            CDevZ(indices[i], typeJ,n,0) += bOa[n*Ns + k]*preValZ;
+//
+            CDevX(indices[i]+typeJ+n + 0) += bOa[n*Ns + k]*preValX;
+            CDevY(indices[i]+typeJ+n + 0) += bOa[n*Ns + k]*preValY;
+            CDevZ(indices[i]+typeJ+n + 0) += bOa[n*Ns + k]*preValZ;
             
           } 
         }
@@ -1828,22 +1837,22 @@ void getCD(//double* CDevX,
         for(int n = 0; n < Ns; n++){
 
 
-          C_mu(  typeJ,n,1) += bOa[LNsNs + n*Ns + k]*preExp*z[i];
-          CDevX_mu(indices[i],  typeJ,n,1) += bOa[LNsNs + n*Ns + k]*preValX1;
-          CDevY_mu(indices[i],  typeJ,n,1) += bOa[LNsNs + n*Ns + k]*preValY1;
-          CDevZ_mu(indices[i],  typeJ,n,1) += bOa[LNsNs + n*Ns + k]*preValZ1;
+          C(  typeJ,n,1) += bOa[LNsNs + n*Ns + k]*preExp*z[i];
+          CDevX(indices[i],  typeJ,n,1) += bOa[LNsNs + n*Ns + k]*preValX1;
+          CDevY(indices[i],  typeJ,n,1) += bOa[LNsNs + n*Ns + k]*preValY1;
+          CDevZ(indices[i],  typeJ,n,1) += bOa[LNsNs + n*Ns + k]*preValZ1;
 
 
-          C_mu(  typeJ,n,2) += bOa[LNsNs + n*Ns + k]*preExp*x[i];
-          CDevX_mu(indices[i],  typeJ,n,2) += bOa[LNsNs + n*Ns + k]*preValX2;
-          CDevY_mu(indices[i],  typeJ,n,2) += bOa[LNsNs + n*Ns + k]*preValY2;
-          CDevZ_mu(indices[i],  typeJ,n,2) += bOa[LNsNs + n*Ns + k]*preValZ2;
+          C(  typeJ,n,2) += bOa[LNsNs + n*Ns + k]*preExp*x[i];
+          CDevX(indices[i],  typeJ,n,2) += bOa[LNsNs + n*Ns + k]*preValX2;
+          CDevY(indices[i],  typeJ,n,2) += bOa[LNsNs + n*Ns + k]*preValY2;
+          CDevZ(indices[i],  typeJ,n,2) += bOa[LNsNs + n*Ns + k]*preValZ2;
 
 
-          C_mu( typeJ,n,3) += bOa[LNsNs + n*Ns + k]*preExp*y[i];
-          CDevX_mu(indices[i],  typeJ,n,3) += bOa[LNsNs + n*Ns + k]*preValX3;
-          CDevY_mu(indices[i],  typeJ,n,3) += bOa[LNsNs + n*Ns + k]*preValY3;
-          CDevZ_mu(indices[i],  typeJ,n,3) += bOa[LNsNs + n*Ns + k]*preValZ3;
+          C( typeJ,n,3) += bOa[LNsNs + n*Ns + k]*preExp*y[i];
+          CDevX(indices[i],  typeJ,n,3) += bOa[LNsNs + n*Ns + k]*preValX3;
+          CDevY(indices[i],  typeJ,n,3) += bOa[LNsNs + n*Ns + k]*preValY3;
+          CDevZ(indices[i],  typeJ,n,3) += bOa[LNsNs + n*Ns + k]*preValZ3;
           
           }
         }
@@ -1869,10 +1878,10 @@ void getCD(//double* CDevX,
             preValZ = z[i]*preVal + preExp*prCofDZ[totalAN*(m-4)+i];
             for(int n = 0; n < Ns; n++){
 
-          C_mu(  typeJ,n,m) += bOa[LNsNs + n*Ns + k]*preExp*preCoef[totalAN*(m-4)+i];
-          CDevX_mu(indices[i],  typeJ,n,m) += bOa[LNsNs + n*Ns + k]*preValX;
-          CDevY_mu(indices[i],  typeJ,n,m) += bOa[LNsNs + n*Ns + k]*preValY;
-          CDevZ_mu(indices[i],  typeJ,n,m) += bOa[LNsNs + n*Ns + k]*preValZ;
+          C(  typeJ,n,m) += bOa[LNsNs + n*Ns + k]*preExp*preCoef[totalAN*(m-4)+i];
+          CDevX(indices[i],  typeJ,n,m) += bOa[LNsNs + n*Ns + k]*preValX;
+          CDevY(indices[i],  typeJ,n,m) += bOa[LNsNs + n*Ns + k]*preValY;
+          CDevZ(indices[i],  typeJ,n,m) += bOa[LNsNs + n*Ns + k]*preValZ;
                }
             }
           }
@@ -2120,11 +2129,11 @@ void soapGTODevX(
 //  auto cdevY_mu = cdevY.mutable_unchecked<4>(); 
 //  auto cdevZ_mu = cdevZ.mutable_unchecked<4>(); 
 
-  double* cnnd_u = (double*) malloc(Nt*Ns*(lMax+1)*(lMax+1)*sizeof(double))
+  double* cnnd = (double*) malloc(Nt*Ns*(lMax+1)*(lMax+1)*sizeof(double));
 
-  double* cnnd_u = (double*) malloc(Nt*Ns*(lMax+1)*(lMax+1)*sizeof(double))
-  double* cnnd_u = (double*) malloc(Nt*Ns*(lMax+1)*(lMax+1)*sizeof(double))
-  double* cnnd_u = (double*) malloc(Nt*Ns*(lMax+1)*(lMax+1)*sizeof(double))
+  double* cdevX = (double*) malloc(totalAN*Nt*Ns*(lMax+1)*(lMax+1)*sizeof(double));
+  double* cdevY = (double*) malloc(totalAN*Nt*Ns*(lMax+1)*(lMax+1)*sizeof(double));
+  double* cdevZ = (double*) malloc(totalAN*Nt*Ns*(lMax+1)*(lMax+1)*sizeof(double));
   // Initialize binning for atoms and centers
   CellList cell_list_atoms(positions, rCut+cutoffPadding);
   CellList cell_list_centers(centers, rCut+cutoffPadding);
@@ -2141,19 +2150,29 @@ void soapGTODevX(
     for(int i = 0; i < Hs; i++){
 
 
-      for(int t = 0; t < Nt; t++){
-        for(int n = 0; n < Ns; n++){
-          for(int m = 0; m < (lMax+1)*(lMax+1); m++){
-            cnnd_mu(t,n,m) = 0.0;
-  }}}
-  for(int a = 0; a < totalAN; a++){
-      for(int t = 0; t < Nt; t++){
-        for(int n = 0; n < Ns; n++){
-          for(int m = 0; m < (lMax+1)*(lMax+1); m++){
-            cdevX_mu(a,t,n,m) = 0.0;
-            cdevY_mu(a,t,n,m) = 0.0;
-            cdevZ_mu(a,t,n,m) = 0.0;
-  }}}} 
+      for(int s = 0; s < Nt*Ns*(lMax + 1)*(lMax + 1); t++){
+	      cnnd[k] = 0.0;
+      }
+
+      for(int s = 0; s < totalAN*Nt*Ns*(lMax + 1)*(lMax + 1); t++){
+	      cdevX[s] = 0.0;
+	      cdevY[s] = 0.0;
+	      cdevZ[s] = 0.0;
+      }
+
+//      for(int t = 0; t < Nt; t++){
+//        for(int n = 0; n < Ns; n++){
+//          for(int m = 0; m < (lMax+1)*(lMax+1); m++){
+//            cnnd_mu(t,n,m) = 0.0;
+//  }}}
+//  for(int a = 0; a < totalAN; a++){
+//      for(int t = 0; t < Nt; t++){
+//        for(int n = 0; n < Ns; n++){
+//          for(int m = 0; m < (lMax+1)*(lMax+1); m++){
+//            cdevX_mu(a,t,n,m) = 0.0;
+//            cdevY_mu(a,t,n,m) = 0.0;
+//            cdevZ_mu(a,t,n,m) = 0.0;
+//  }}}} 
 
     // Get all neighbouring atoms for the center i
     double ix = centers_u(i, 0); double iy = centers_u(i, 1); double iz = centers_u(i, 2);
