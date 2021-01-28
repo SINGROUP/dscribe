@@ -112,7 +112,6 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
         prCofDZ[totalAN*2+i] = 1.26156626101008*z[i];
         prCofDZ[totalAN*3+i] = 1.09254843059208*x[i];
         prCofDZ[totalAN*4+i] = 0;
-    }
     if (lMax > 2){
         preCoef[totalAN*5+i] = 0.590043589926644*y[i]*(3.0*x2[i] - y2[i]);
         preCoef[totalAN*6+i] = 2.89061144264055*x[i]*y[i]*z[i];
@@ -145,7 +144,6 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
         prCofDZ[totalAN*9+i] = 3.65636639571573*x[i]*z[i];
         prCofDZ[totalAN*10+i] = 1.44530572132028*x2[i] - 1.44530572132028*y2[i];
         prCofDZ[totalAN*11+i] = 0;
-    }
     if (lMax > 3){
         preCoef[totalAN*12+i] = 2.5033429417967*x[i]*y[i]*(x2[i] - y2[i]);
         preCoef[totalAN*13+i] = 1.77013076977993*y[i]*z[i]*(3.0*x2[i] - y2[i]);
@@ -186,7 +184,6 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
         prCofDZ[totalAN*18+i] = 5.67704817454536*z[i]*(x2[i] - y2[i]);
         prCofDZ[totalAN*19+i] = 1.77013076977993*x[i]*(x2[i] - 3.0*y2[i]);
         prCofDZ[totalAN*20+i] = 0;
-    }
     if (lMax > 4){
         preCoef[totalAN*21+i] = 0.65638205684017*y[i]*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i]);
         preCoef[totalAN*22+i] = 8.30264925952416*x[i]*y[i]*z[i]*(x2[i] - y2[i]);
@@ -235,7 +232,6 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
         prCofDZ[totalAN*29+i] = 7.82781279096401*x[i]*z[i]*(x2[i] - 3.0*y2[i]);
         prCofDZ[totalAN*30+i] = 2.07566231488104*x4[i] - 12.4539738892862*x2[i]*y2[i] + 2.07566231488104*y4[i];
         prCofDZ[totalAN*31+i] = 0;
-    }
     if (lMax > 5){
         preCoef[totalAN*32+i] = 1.36636821038383*x[i]*y[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i]);
         preCoef[totalAN*33+i] = 2.36661916223175*y[i]*z[i]*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i]);
@@ -292,7 +288,6 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
         prCofDZ[totalAN*42+i] = 10.0912980145745*z[i]*(x4[i] - 6.0*x2[i]*y2[i] + y4[i]);
         prCofDZ[totalAN*43+i] = 2.36661916223175*x[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i]);
         prCofDZ[totalAN*44+i] = 0;
-    }
     if (lMax > 6){
         preCoef[totalAN*45+i] = 0.707162732524596*y[i]*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]);
         preCoef[totalAN*46+i] = 5.2919213236038*x[i]*y[i]*z[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i]);
@@ -357,7 +352,6 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
         prCofDZ[totalAN*57+i] = 12.4539738892862*x[i]*z[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i]);
         prCofDZ[totalAN*58+i] = 2.6459606618019*x6[i] - 39.6894099270285*x4[i]*y2[i] + 39.6894099270285*x2[i]*y4[i] - 2.6459606618019*y6[i];
         prCofDZ[totalAN*59+i] = 0;
-    }
     if (lMax > 7){
         preCoef[totalAN*60+i] = 5.83141328139864*x[i]*y[i]*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]);
         preCoef[totalAN*61+i] = 2.91570664069932*y[i]*z[i]*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]);
@@ -430,7 +424,6 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
         prCofDZ[totalAN*74+i] = 14.9053174496672*z[i]*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i]);
         prCofDZ[totalAN*75+i] = 2.91570664069932*x[i]*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]);
         prCofDZ[totalAN*76+i] = 0;
-    }
     if (lMax > 8){
         preCoef[totalAN*77+i] = 0.748900951853188*y[i]*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]);
         preCoef[totalAN*78+i] = 25.4185411916376*x[i]*y[i]*z[i]*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]);
@@ -511,7 +504,6 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
         prCofDZ[totalAN*93+i] = 17.4369754030097*x[i]*z[i]*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]);
         prCofDZ[totalAN*94+i] = 3.1773176489547*x8[i] - 88.9648941707315*x6[i]*y2[i] + 222.412235426829*x4[i]*y4[i] - 88.9648941707315*x2[i]*y6[i] + 3.1773176489547*y8[i];
         prCofDZ[totalAN*95+i] = 0;
-    }
     if (lMax > 9){ 
         preCoef[totalAN*96+i] = 1.53479023644398*x[i]*y[i]*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]);
         preCoef[totalAN*97+i] = 3.43189529989171*y[i]*z[i]*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]);
@@ -600,7 +592,6 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
         prCofDZ[totalAN*114+i] = 20.0421695779351*z[i]*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]);
         prCofDZ[totalAN*115+i] = 3.43189529989171*x[i]*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]);
         prCofDZ[totalAN*116+i] = 0;
-    }
     if (lMax > 10){ 
       preCoef[totalAN*117+i] = 0.784642105787197*y[i]*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]);
       preCoef[totalAN*118+i] = 7.36059539761062*x[i]*y[i]*z[i]*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]);
@@ -697,7 +688,6 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
       prCofDZ[totalAN*137+i] = 22.7152905513375*x[i]*z[i]*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]);
       prCofDZ[totalAN*138+i] = 3.68029769880531*x10[i] - 165.613396446239*x8[i]*y2[i] + 772.862516749115*x6[i]*y4[i] - 772.862516749115*x4[i]*y6[i] + 165.613396446239*x2[i]*y8[i] - 3.68029769880531*y10[i];
       prCofDZ[totalAN*139+i] = 0;
-    }
     if (lMax > 11){ 
       preCoef[totalAN*140+i] = 3.20328798313589*x[i]*y[i]*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]);
       preCoef[totalAN*141+i] = 3.92321052893598*y[i]*z[i]*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]);
@@ -802,7 +792,6 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
       prCofDZ[totalAN*162+i] = 25.4516167309276*z[i]*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]);
       prCofDZ[totalAN*163+i] = 3.92321052893598*x[i]*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]);
       prCofDZ[totalAN*164+i] = 0;
-    }
     if (lMax > 12){ 
       preCoef[totalAN*165+i] = 0.816077118837628*y[i]*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]);
       preCoef[totalAN*166+i] = 16.6447726141986*x[i]*y[i]*z[i]*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]);
@@ -915,7 +904,6 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
       prCofDZ[totalAN*189+i] = 28.2471158083391*x[i]*z[i]*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]);
       prCofDZ[totalAN*190+i] = 4.16119315354964*x12[i] - 274.638748134277*x10[i]*y2[i] + 2059.79061100707*x8[i]*y4[i] - 3844.94247387987*x6[i]*y6[i] + 2059.79061100707*x4[i]*y8[i] - 274.638748134277*x2[i]*y10[i] + 4.16119315354964*y12[i];
       prCofDZ[totalAN*191+i] = 0;
-    }
     if (lMax > 13){ 
       preCoef[totalAN*192+i] = 1.66104416612905*x[i]*y[i]*(7.0*x12[i] - 182.0*x10[i]*y2[i] + 1001.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1001.0*x4[i]*y8[i] - 182.0*x2[i]*y10[i] + 7.0*y12[i]);
       preCoef[totalAN*193+i] = 4.39470978027212*y[i]*z[i]*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]);
@@ -1036,7 +1024,6 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
       prCofDZ[totalAN*218+i] = 31.0983010846025*z[i]*(x12[i] - 66.0*x10[i]*y2[i] + 495.0*x8[i]*y4[i] - 924.0*x6[i]*y6[i] + 495.0*x4[i]*y8[i] - 66.0*x2[i]*y10[i] + y12[i]);
       prCofDZ[totalAN*219+i] = 4.39470978027212*x[i]*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]);
       prCofDZ[totalAN*220+i] = 0;
-    }
     if (lMax > 14){ 
       preCoef[totalAN*221+i] = 0.844250650857373*y[i]*(15.0*x14[i] - 455.0*x12[i]*y2[i] + 3003.0*x10[i]*y4[i] - 6435.0*x8[i]*y6[i] + 5005.0*x6[i]*y8[i] - 1365.0*x4[i]*y10[i] + 105.0*x2[i]*y12[i] - y14[i]);
       preCoef[totalAN*222+i] = 9.24830251326002*x[i]*y[i]*z[i]*(7.0*x12[i] - 182.0*x10[i]*y2[i] + 1001.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1001.0*x4[i]*y8[i] - 182.0*x2[i]*y10[i] + 7.0*y12[i]);
@@ -1165,7 +1152,6 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
       prCofDZ[totalAN*249+i] = 34.0021251646659*x[i]*z[i]*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]);
       prCofDZ[totalAN*250+i] = 4.62415125663001*x14[i] - 420.797764353331*x12[i]*y2[i] + 4628.77540788664*x10[i]*y4[i] - 13886.3262236599*x8[i]*y6[i] + 13886.3262236599*x6[i]*y8[i] - 4628.77540788664*x4[i]*y10[i] + 420.797764353331*x2[i]*y12[i] - 4.62415125663001*y14[i];
       prCofDZ[totalAN*251+i] = 0;
-    }
     if (lMax > 15){ 
       preCoef[totalAN*252+i] = 13.7174494214084*x[i]*y[i]*(x14[i] - 35.0*x12[i]*y2[i] + 273.0*x10[i]*y4[i] - 715.0*x8[i]*y6[i] + 715.0*x6[i]*y8[i] - 273.0*x4[i]*y10[i] + 35.0*x2[i]*y12[i] - y14[i]);
       preCoef[totalAN*253+i] = 4.84985075323068*y[i]*z[i]*(15.0*x14[i] - 455.0*x12[i]*y2[i] + 3003.0*x10[i]*y4[i] - 6435.0*x8[i]*y6[i] + 5005.0*x6[i]*y8[i] - 1365.0*x4[i]*y10[i] + 105.0*x2[i]*y12[i] - y14[i]);
@@ -1302,7 +1288,6 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
       prCofDZ[totalAN*282+i] = 36.955899695536*z[i]*(x14[i] - 91.0*x12[i]*y2[i] + 1001.0*x10[i]*y4[i] - 3003.0*x8[i]*y6[i] + 3003.0*x6[i]*y8[i] - 1001.0*x4[i]*y10[i] + 91.0*x2[i]*y12[i] - y14[i]);
       prCofDZ[totalAN*283+i] = 4.84985075323068*x[i]*(x14[i] - 105.0*x12[i]*y2[i] + 1365.0*x10[i]*y4[i] - 5005.0*x8[i]*y6[i] + 6435.0*x6[i]*y8[i] - 3003.0*x4[i]*y10[i] + 455.0*x2[i]*y12[i] - 15.0*y14[i]);
       prCofDZ[totalAN*284+i] = 0;
-    }
     if (lMax > 16){ 
       preCoef[totalAN*285+i] = 0.869857171920628*y[i]*(17.0*x16[i] - 680.0*x14[i]*y2[i] + 6188.0*x12[i]*y4[i] - 19448.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 12376.0*x6[i]*y10[i] + 2380.0*x4[i]*y12[i] - 136.0*x2[i]*y14[i] + y16[i]);
       preCoef[totalAN*286+i] = 81.1535251976858*x[i]*y[i]*z[i]*(x14[i] - 35.0*x12[i]*y2[i] + 273.0*x10[i]*y4[i] - 715.0*x8[i]*y6[i] + 715.0*x6[i]*y8[i] - 273.0*x4[i]*y10[i] + 35.0*x2[i]*y12[i] - y14[i]);
@@ -1447,7 +1432,6 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
       prCofDZ[totalAN*317+i] = 39.957233659248*x[i]*z[i]*(x14[i] - 105.0*x12[i]*y2[i] + 1365.0*x10[i]*y4[i] - 5005.0*x8[i]*y6[i] + 6435.0*x6[i]*y8[i] - 3003.0*x4[i]*y10[i] + 455.0*x2[i]*y12[i] - 15.0*y14[i]);
       prCofDZ[totalAN*318+i] = 5.07209532485536*x16[i] - 608.651438982643*x14[i]*y2[i] + 9231.21349123676*x12[i]*y4[i] - 40617.3393614417*x10[i]*y6[i] + 65277.8668308885*x8[i]*y8[i] - 40617.3393614417*x6[i]*y10[i] + 9231.21349123676*x4[i]*y12[i] - 608.651438982643*x2[i]*y14[i] + 5.07209532485536*y16[i];
       prCofDZ[totalAN*319+i] = 0;
-    }
     if (lMax > 17){ 
       preCoef[totalAN*320+i] = 1.76371153735666*x[i]*y[i]*(9.0*x16[i] - 408.0*x14[i]*y2[i] + 4284.0*x12[i]*y4[i] - 15912.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 15912.0*x6[i]*y10[i] + 4284.0*x4[i]*y12[i] - 408.0*x2[i]*y14[i] + 9.0*y16[i]);
       preCoef[totalAN*321+i] = 5.29113461206997*y[i]*z[i]*(17.0*x16[i] - 680.0*x14[i]*y2[i] + 6188.0*x12[i]*y4[i] - 19448.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 12376.0*x6[i]*y10[i] + 2380.0*x4[i]*y12[i] - 136.0*x2[i]*y14[i] + y16[i]);
@@ -1600,7 +1584,6 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
       prCofDZ[totalAN*354+i] = 43.0039851564612*z[i]*(x16[i] - 120.0*x14[i]*y2[i] + 1820.0*x12[i]*y4[i] - 8008.0*x10[i]*y6[i] + 12870.0*x8[i]*y8[i] - 8008.0*x6[i]*y10[i] + 1820.0*x4[i]*y12[i] - 120.0*x2[i]*y14[i] + y16[i]);
       prCofDZ[totalAN*355+i] = 5.29113461206997*x[i]*(x16[i] - 136.0*x14[i]*y2[i] + 2380.0*x12[i]*y4[i] - 12376.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 19448.0*x6[i]*y10[i] + 6188.0*x4[i]*y12[i] - 680.0*x2[i]*y14[i] + 17.0*y16[i]);
       prCofDZ[totalAN*356+i] = 0;
-    }
     if (lMax > 18){ 
       preCoef[totalAN*357+i] = 0.893383784349949*y[i]*(19.0*x18[i] - 969.0*x16[i]*y2[i] + 11628.0*x14[i]*y4[i] - 50388.0*x12[i]*y6[i] + 92378.0*x10[i]*y8[i] - 75582.0*x8[i]*y10[i] + 27132.0*x6[i]*y12[i] - 3876.0*x4[i]*y14[i] + 171.0*x2[i]*y16[i] - y18[i]);
       preCoef[totalAN*358+i] = 11.0143750205445*x[i]*y[i]*z[i]*(9.0*x16[i] - 408.0*x14[i]*y2[i] + 4284.0*x12[i]*y4[i] - 15912.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 15912.0*x6[i]*y10[i] + 4284.0*x4[i]*y12[i] - 408.0*x2[i]*y14[i] + 9.0*y16[i]);
@@ -1762,6 +1745,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
       prCofDZ[totalAN*394+i] = 5.50718751027224*x18[i] - 842.599689071654*x16[i]*y2[i] + 16851.9937814331*x14[i]*y4[i] - 102235.428940694*x12[i]*y6[i] + 240983.511074493*x10[i]*y8[i] - 240983.511074493*x8[i]*y10[i] + 102235.428940694*x6[i]*y12[i] - 16851.9937814331*x4[i]*y14[i] + 842.599689071654*x2[i]*y16[i] - 5.50718751027224*y18[i];
       prCofDZ[totalAN*395+i] = 0;
 
+}}}}}}}}}}}}}}}}}
     }
   }
 }
@@ -1802,7 +1786,7 @@ void getCD(//double* CDevX,
     for(int k = 0; k < Ns; k++){
       for(int i = 0; i < Asize; i++){
         double expSholder = aOa[k]*r2[i];
-        if(expSholder > -20){
+        if(expSholder > -20 ){
         preExp = 1.5707963267948966*exp(expSholder);
         preVal = 2.0*aOa[k]*preExp;
         preValX = preVal*x[i];
@@ -1937,6 +1921,7 @@ void getPD(
             for(int kd = k; kd < Ns; kd++){
               double buffDouble = 0;
               for(int buffShift = m*m; buffShift < (m+1)*(m+1); buffShift++){
+//                cout << i  << " " << j  << " " <<k  << " " << buffShift << " " << Cnnd_u(i,j,k,buffShift) << endl;
                 buffDouble += Cnnd_u(i,j,k,buffShift) * Cnnd_u(i,jd,kd,buffShift);
   	       }
               descriptor_mu(i, shiftAll) = prel*buffDouble;
@@ -2008,13 +1993,15 @@ void getPD(
                         for(int k = 0; k < Ns; k++){
                             for(int kd = k; kd < Ns; kd++){
                             for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
+                              if( abs(Cnnd_u(i_center,j,k,buffShift)) > 1e-7 ||  abs(Cnnd_u(i_center,j,kd,buffShift)) > 1e-7 ){
                                 derivatives_mu(i_center, i_idx, 0, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevX_u(i_atom, i_center, jd, kd, buffShift)
                                                                                      +Cnnd_u(i_center,j,kd,buffShift)*CdevX_u(i_atom, i_center, jd, k, buffShift));
                                 derivatives_mu(i_center, i_idx, 1, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevY_u(i_atom, i_center, jd, kd, buffShift)
                                                                                      +Cnnd_u(i_center,j,kd,buffShift)*CdevY_u(i_atom, i_center, jd, k, buffShift));
                                 derivatives_mu(i_center, i_idx, 2, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevZ_u(i_atom, i_center, jd, kd, buffShift)
                                                                                      +Cnnd_u(i_center,j,kd,buffShift)*CdevZ_u(i_atom, i_center, jd, k, buffShift));
-                            }
+                                
+                            }}
                             shiftAll++;
                             }
                         }
@@ -2022,13 +2009,15 @@ void getPD(
                         for(int k = 0; k < Ns; k++){
                             for(int kd = 0; kd < Ns; kd++){
                             for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
+                              if( abs(Cnnd_u(i_center,j,k,buffShift)) > 1e-7 ||  abs(Cnnd_u(i_center,jd,kd,buffShift)) > 1e-7) {
+
                                 derivatives_mu(i_center, i_idx, 0, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevX_u(i_atom, i_center, jd, kd, buffShift)
                                                                                      +Cnnd_u(i_center,jd,kd,buffShift)*CdevX_u(i_atom, i_center, j, k, buffShift));
                                 derivatives_mu(i_center, i_idx, 1, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevY_u(i_atom, i_center, jd, kd, buffShift)
                                                                                      +Cnnd_u(i_center,jd,kd,buffShift)*CdevY_u(i_atom, i_center, j, k, buffShift));
                                 derivatives_mu(i_center, i_idx, 2, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevZ_u(i_atom, i_center, jd, kd, buffShift)
                                                                                      +Cnnd_u(i_center,jd,kd,buffShift)*CdevZ_u(i_atom, i_center, j, k, buffShift));
-                            }
+                            }}
                             shiftAll++;
                             }
                         }
