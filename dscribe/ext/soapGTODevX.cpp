@@ -51,9 +51,7 @@ inline void getRsZsD(double* x,double* x2,double* x4,double* x6,double* x8,doubl
     if(lMax > 3){ r4[i] = r2[i]*r2[i]; z4[i] = z2[i]*z2[i]; x4[i] = x2[i]*x2[i]; y4[i] = y2[i]*y2[i];
       if(lMax > 5){ r6[i] = r2[i]*r4[i]; z6[i] = z2[i]*z4[i]; x6[i] = x2[i]*x4[i]; y6[i] = y2[i]*y4[i];
         if(lMax > 7){ r8[i] = r4[i]*r4[i]; z8[i] = z4[i]*z4[i]; x8[i] = x4[i]*x4[i]; y8[i] = y4[i]*y4[i];
-	}
-      }
-    }
+
     if(lMax > 9){ x10[i] = x6[i]*x4[i]; y10[i] = y6[i]*y4[i]; z10[i] = z6[i]*z4[i]; r10[i] = r6[i]*r4[i];
       if(lMax > 11){ x12[i] = x6[i]*x6[i]; y12[i] = y6[i]*y6[i]; r12[i] = r6[i]*r6[i]; z12[i] = z6[i]*z6[i];
         if(lMax > 13){ x14[i] = x6[i]*x8[i]; y14[i] = y6[i]*y8[i]; r14[i] = r6[i]*r8[i]; z14[i] = z6[i]*z8[i];
@@ -62,6 +60,9 @@ inline void getRsZsD(double* x,double* x2,double* x4,double* x6,double* x8,doubl
 	    }
     	  }
         }
+      }
+    }
+	}
       }
     }
   }
@@ -1786,7 +1787,7 @@ void getCD(//double* CDevX,
     for(int k = 0; k < Ns; k++){
       for(int i = 0; i < Asize; i++){
         double expSholder = aOa[k]*r2[i];
-        if(expSholder > -20 ){
+        if(expSholder > -22 ){ // check point
         preExp = 1.5707963267948966*exp(expSholder);
         preVal = 2.0*aOa[k]*preExp;
         preValX = preVal*x[i];
@@ -1807,7 +1808,7 @@ void getCD(//double* CDevX,
     for(int k = 0; k < Ns; k++){
       for(int i = 0; i < Asize; i++){
         double expSholder = aOa[LNs + k]*r2[i];
-        if(expSholder > -20){
+        if(expSholder > -22){
         preExp = 2.7206990463849543*exp(expSholder);
           preVal = 2.0*aOa[LNs + k]*preExp;
           double preVal1 = preVal*z[i];
@@ -1860,7 +1861,7 @@ void getCD(//double* CDevX,
       for(int k = 0; k < Ns; k++){
         for(int i = 0; i < Asize; i++){
           double expSholder = aOa[LNs + k]*r2[i];
-          if (expSholder > -20){
+          if (expSholder > -22){
           preExp = exp(expSholder);
           for(int m = restOfLs*restOfLs; m < (restOfLs+1)*(restOfLs+1); m++){
             preVal = 2.0*aOa[LNs + k]*preExp*preCoef[totalAN*(m-4)+i];
@@ -1993,11 +1994,14 @@ void getPD(
                         for(int k = 0; k < Ns; k++){
                             for(int kd = k; kd < Ns; kd++){
                             for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
-                              if( abs(Cnnd_u(i_center,j,k,buffShift)) > 1e-7 ||  abs(Cnnd_u(i_center,j,kd,buffShift)) > 1e-7 ){
-                                derivatives_mu(i_center, i_idx, 0, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevX_u(i_atom, i_center, jd, kd, buffShift)
+                              if( abs(Cnnd_u(i_center,j,k,buffShift)) > 1e-8 ||  abs(Cnnd_u(i_center,j,kd,buffShift)) > 1e-8 ){
+//                                if( abs(CdevX_u(i_atom, i_center, jd, kd, buffShift)) > 1e-8 ||  abs(CdevX_u(i_atom, i_center, j, k, buffShift)) > 1e-8 )
+                                  derivatives_mu(i_center, i_idx, 0, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevX_u(i_atom, i_center, jd, kd, buffShift)
                                                                                      +Cnnd_u(i_center,j,kd,buffShift)*CdevX_u(i_atom, i_center, jd, k, buffShift));
+//                                if( abs(CdevY_u(i_atom, i_center, jd, kd, buffShift)) > 1e-8 ||  abs(CdevY_u(i_atom, i_center, j, k, buffShift)) > 1e-8 )
                                 derivatives_mu(i_center, i_idx, 1, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevY_u(i_atom, i_center, jd, kd, buffShift)
                                                                                      +Cnnd_u(i_center,j,kd,buffShift)*CdevY_u(i_atom, i_center, jd, k, buffShift));
+//                                if( abs(CdevZ_u(i_atom, i_center, jd, kd, buffShift)) > 1e-8 ||  abs(CdevZ_u(i_atom, i_center, j, k, buffShift)) > 1e-8 )
                                 derivatives_mu(i_center, i_idx, 2, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevZ_u(i_atom, i_center, jd, kd, buffShift)
                                                                                      +Cnnd_u(i_center,j,kd,buffShift)*CdevZ_u(i_atom, i_center, jd, k, buffShift));
                                 
@@ -2009,13 +2013,15 @@ void getPD(
                         for(int k = 0; k < Ns; k++){
                             for(int kd = 0; kd < Ns; kd++){
                             for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
-                              if( abs(Cnnd_u(i_center,j,k,buffShift)) > 1e-7 ||  abs(Cnnd_u(i_center,jd,kd,buffShift)) > 1e-7) {
-
-                                derivatives_mu(i_center, i_idx, 0, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevX_u(i_atom, i_center, jd, kd, buffShift)
+                              if( abs(Cnnd_u(i_center,j,k,buffShift)) > 1e-8 ||  abs(Cnnd_u(i_center,jd,kd,buffShift)) > 1e-8) {
+//                                if( abs(CdevX_u(i_atom, i_center, jd, kd, buffShift)) > 1e-8 ||  abs(CdevX_u(i_atom, i_center, j, k, buffShift)) > 1e-8 )
+                                  derivatives_mu(i_center, i_idx, 0, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevX_u(i_atom, i_center, jd, kd, buffShift)
                                                                                      +Cnnd_u(i_center,jd,kd,buffShift)*CdevX_u(i_atom, i_center, j, k, buffShift));
-                                derivatives_mu(i_center, i_idx, 1, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevY_u(i_atom, i_center, jd, kd, buffShift)
+//                                if( abs(CdevY_u(i_atom, i_center, jd, kd, buffShift)) > 1e-8 ||  abs(CdevY_u(i_atom, i_center, j, k, buffShift)) > 1e-8 )
+                                  derivatives_mu(i_center, i_idx, 1, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevY_u(i_atom, i_center, jd, kd, buffShift)
                                                                                      +Cnnd_u(i_center,jd,kd,buffShift)*CdevY_u(i_atom, i_center, j, k, buffShift));
-                                derivatives_mu(i_center, i_idx, 2, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevZ_u(i_atom, i_center, jd, kd, buffShift)
+//                                if( abs(CdevZ_u(i_atom, i_center, jd, kd, buffShift)) > 1e-8 ||  abs(CdevZ_u(i_atom, i_center, j, k, buffShift)) > 1e-8 )
+                                  derivatives_mu(i_center, i_idx, 2, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevZ_u(i_atom, i_center, jd, kd, buffShift)
                                                                                      +Cnnd_u(i_center,jd,kd,buffShift)*CdevZ_u(i_atom, i_center, j, k, buffShift));
                             }}
                             shiftAll++;
@@ -2032,6 +2038,10 @@ void getPD(
 void soapGTODevX(
     py::array_t<double> derivatives,
     py::array_t<double> descriptor,
+    py::array_t<double> cdevX,
+    py::array_t<double> cdevY,
+    py::array_t<double> cdevZ,
+    py::array_t<double> cnnd,
     py::array_t<double> positions,
     py::array_t<double> centers,
     py::array_t<int> center_indices,
@@ -2081,10 +2091,10 @@ void soapGTODevX(
   double* prCofDY = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN); double* prCofDZ = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN);
   double* bOa = (double*) malloc((lMax+1)*NsNs*sizeof(double)); double* aOa = (double*) malloc((lMax+1)*Ns*sizeof(double));
 
-  py::array_t<double> cnnd({Hs,Nt,Ns,(lMax+1)*(lMax+1)});
-  py::array_t<double> cdevX({totalAN,Hs,Nt,Ns,(lMax+1)*(lMax+1)});
-  py::array_t<double> cdevY({totalAN,Hs,Nt,Ns,(lMax+1)*(lMax+1)});
-  py::array_t<double> cdevZ({totalAN,Hs,Nt,Ns,(lMax+1)*(lMax+1)});
+//  py::array_t<double> cnnd({Hs,Nt,Ns,(lMax+1)*(lMax+1)});
+//  py::array_t<double> cdevX({totalAN,Hs,Nt,Ns,(lMax+1)*(lMax+1)});
+//  py::array_t<double> cdevY({totalAN,Hs,Nt,Ns,(lMax+1)*(lMax+1)});
+//  py::array_t<double> cdevZ({totalAN,Hs,Nt,Ns,(lMax+1)*(lMax+1)});
 
   auto cnnd_u = cnnd.unchecked<4>(); 
   auto cdevX_u = cdevX.unchecked<5>(); 
@@ -2096,21 +2106,21 @@ void soapGTODevX(
   auto cdevY_mu = cdevY.mutable_unchecked<5>(); 
   auto cdevZ_mu = cdevZ.mutable_unchecked<5>(); 
 
-    for(int j = 0; j < Hs; j++){
-      for(int t = 0; t < Nt; t++){
-        for(int n = 0; n < Ns; n++){
-          for(int m = 0; m < (lMax+1)*(lMax+1); m++){
-            cnnd_mu(j,t,n,m) = 0.0;
-  }}}}
-  for(int i = 0; i < totalAN; i++){
-    for(int j = 0; j < Hs; j++){
-      for(int t = 0; t < Nt; t++){
-        for(int n = 0; n < Ns; n++){
-          for(int m = 0; m < (lMax+1)*(lMax+1); m++){
-            cdevX_mu(i,j,t,n,m) = 0.0;
-            cdevY_mu(i,j,t,n,m) = 0.0;
-            cdevZ_mu(i,j,t,n,m) = 0.0;
-  }}}}} 
+//    for(int j = 0; j < Hs; j++){
+//      for(int t = 0; t < Nt; t++){
+//        for(int n = 0; n < Ns; n++){
+//          for(int m = 0; m < (lMax+1)*(lMax+1); m++){
+//            cnnd_mu(j,t,n,m) = 0.0;
+//  }}}}
+//  for(int i = 0; i < totalAN; i++){
+//    for(int j = 0; j < Hs; j++){
+//      for(int t = 0; t < Nt; t++){
+//        for(int n = 0; n < Ns; n++){
+//          for(int m = 0; m < (lMax+1)*(lMax+1); m++){
+//            cdevX_mu(i,j,t,n,m) = 0.0;
+//            cdevY_mu(i,j,t,n,m) = 0.0;
+//            cdevZ_mu(i,j,t,n,m) = 0.0;
+//  }}}}} 
 
   // Initialize binning for atoms and centers
   CellList cell_list_atoms(positions, rCut+cutoffPadding);

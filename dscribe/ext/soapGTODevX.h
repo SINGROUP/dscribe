@@ -38,6 +38,10 @@ void getP(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax);
 void soapGTODevX(
     py::array_t<double> derivatives,
     py::array_t<double> descriptor,
+    py::array_t<double> cdevX,
+    py::array_t<double> cdevY,
+    py::array_t<double> cdevZ,
+    py::array_t<double> cnnd,
     py::array_t<double> positions,
     py::array_t<double> centers,
     py::array_t<int> center_indices,
