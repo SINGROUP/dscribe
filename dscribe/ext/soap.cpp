@@ -117,6 +117,10 @@ int SOAPGTO::get_number_of_features() const
 void SOAPGTO::derivatives_analytical(
     py::array_t<double> derivatives,
     py::array_t<double> descriptor,
+    py::array_t<double> xd,
+    py::array_t<double> yd,
+    py::array_t<double> zd,
+    py::array_t<double> cd,
     py::array_t<double> positions,
     py::array_t<int> atomic_numbers,
     py::array_t<double> cell,
@@ -131,6 +135,7 @@ void SOAPGTO::derivatives_analytical(
     int n_species = this->species.shape(0);
     int n_centers = centers.shape(0);
 
+
     // Extend system if periodicity is requested.
     auto pbc_u = pbc.unchecked<1>();
     bool is_periodic = this->periodic && (pbc_u(0) || pbc_u(1) || pbc_u(2));
@@ -143,6 +148,10 @@ void SOAPGTO::derivatives_analytical(
     soapGTODevX(
         derivatives,
         descriptor,
+        xd,
+        yd,
+        zd,
+        cd,
         positions,
         centers,
         center_indices,
