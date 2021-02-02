@@ -223,7 +223,6 @@ class SOAP(Descriptor):
         cutoff_padding = self._sigma*np.sqrt(-2*np.log(threshold))
         return cutoff_padding
 
-
     def init_descriptor_array(self, n_centers, n_features):
         """Return a zero-initialized numpy array for the descriptor.
         """
@@ -240,26 +239,18 @@ class SOAP(Descriptor):
             d = np.zeros((1, n_atoms, 3, n_features), dtype=np.float64)
         else:
             d = np.zeros((n_centers, n_atoms, 3, n_features), dtype=np.float64)
-#            for i in range(n_centers):
-#                for j in range(n_atoms):
-#                    for k in range(n_features):
-#                        d[i, j, 0, k] = 0.0
-#                        d[i, j, 1, k] = 0.0
-#                        d[i, j, 2, k] = 0.0
-#            d[:] = 0.0
-            print("Done")
         return d
+
     def init_internal_dev_array(self, n_centers, n_atoms, n_types, n, lMax):
         """Return a zero-initialized numpy array for the derivatives.
         """
         d = np.zeros(( n_atoms,n_centers,n_types, n, (lMax+1)*(lMax+1)), dtype=np.float64)
-#            {totalAN,Hs,Nt,Ns,(lMax+1)*(lMax+1)
         return d
+
     def init_internal_array(self, n_centers,  n_types, n, lMax):
         """Return a zero-initialized numpy array for the derivatives.
         """
         d = np.zeros(( n_centers,n_types, n, (lMax+1)*(lMax+1)), dtype=np.float64)
-#            {totalAN,Hs,Nt,Ns,(lMax+1)*(lMax+1)
         return d
 
     def create(self, system, positions=None, n_jobs=1, verbose=False):
@@ -430,7 +421,7 @@ class SOAP(Descriptor):
 
         return soap_mat
 
-    def derivatives(self, system, positions=None, include=None, exclude=None, method="numerical", return_descriptor=True, n_jobs=1, verbose=False):
+    def derivatives(self, system, positions=None, include=None, exclude=None, method="auto", return_descriptor=True, n_jobs=1, verbose=False):
         """Return the descriptor derivatives for the given systems and given positions.
 
         Args:
@@ -447,12 +438,12 @@ class SOAP(Descriptor):
             exclude (list): Indices of atoms not to compute the derivatives on.
                 When calculating descriptor for multiple systems, provide a list of indices.  
                 Cannot be provided together with 'include'.
-            method (str): 'numerical' or 'analytical' derivatives. Numerical
-                derivatives are implemented with central finite difference. If
-                not specified, analytical derivatives are used when available.
+            method (str): The method for calculating the derivatives. Provide
+                either 'numerical', 'analytical' or 'auto'. If using 'auto',
+                the most efficient available method is automatically chosen.
             return_descriptor (bool): Whether to also calculate the descriptor
-                in the same function call. This is true by default as it
-                typically is faster to calculate both in one go.
+                in the same function call. Notice that it typically is faster
+                to calculate both in one go.
             n_jobs (int): Number of parallel jobs to instantiate. Parallellizes
                 the calculation across samples. Defaults to serial calculation
                 with n_jobs=1.
@@ -478,23 +469,31 @@ class SOAP(Descriptor):
             the cartesian components, x, y and z. The fifth dimension goes over
             the features in the default order.
         """
+        methods = {"numerical", "analytical", "auto"}
+        if method not in methods:
+            raise ValueError("Invalid method specified. Please choose from: {}".format(methods))
         if self._sparse:
             raise ValueError("Sparse output is not currently available for derivatives.")
         if self.average != "off" and method == "analytical":
             raise ValueError(
                 "Analytical derivatives not currently available for averaged output."
             )
-        if self.periodic and method == "analytical":
+        if self.periodic:
             raise ValueError(
-                "Analytical derivatives not currently available for periodic systems."
+                "Derivatives are currently not available for periodic systems."
             )
         if self._rbf == "polynomial" and method == "analytical":
             raise ValueError(
-                "Analytical derivatives not currently available for polynomial radial "
-                "basis set."
+                "Analytical derivatives not currently available for polynomial "
+                "radial basis set."
             )
-        if method not in {"numerical", "analytical"}:
-            raise ValueError("Please choose method 'numerical' or 'analytical'")
+
+        # Determine the appropriate method if not given explicitly.
+        if method == "auto":
+            if self._rbf == "polynomial" or self.average != "off":
+                method = "numerical"
+            else:
+                method = "analytical"
 
         # If single system given, skip the parallelization
         if isinstance(system, (Atoms, System)):
@@ -642,9 +641,6 @@ class SOAP(Descriptor):
 
             # Calculate numerically with extension
             if method == "numerical":
-                # print(indices)
-                # print(centers)
-
                 soap_gto.derivatives_numerical(
                     d,
                     c,
@@ -659,8 +655,6 @@ class SOAP(Descriptor):
                 )
             # Calculate analytically with extension
             elif method == "analytical":
-                # print(indices)
-                # print(centers)
                 xd = self.init_internal_dev_array( n_centers, n_atoms, n_species, self._nmax, self._lmax)
                 yd = self.init_internal_dev_array( n_centers, n_atoms, n_species, self._nmax, self._lmax)
                 zd = self.init_internal_dev_array( n_centers, n_atoms, n_species, self._nmax, self._lmax)

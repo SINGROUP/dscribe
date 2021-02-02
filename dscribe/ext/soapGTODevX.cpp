@@ -1884,12 +1884,11 @@ void getCD(//double* CDevX,
 }
 //================================================================================================
 /**
- * Used to calculate the partial power spectrum (cross over).
+ * Used to calculate the partial power spectrum.
  */
 void getPD(
   py::detail::unchecked_mutable_reference<double, 2> &descriptor_mu,
-    py::detail::unchecked_reference<double, 4> &Cnnd_u,
-//  double* Cnnd,
+  py::detail::unchecked_reference<double, 4> &Cnnd_u,
   int Ns,
   int Ts,
   int Hs,
@@ -1934,7 +1933,6 @@ void getPD(
             for(int kd = 0; kd < Ns; kd++){
               double buffDouble = 0;
               for(int buffShift = m*m; buffShift < (m+1)*(m+1); buffShift++){
-//
                 buffDouble += Cnnd_u(i,j,k,buffShift) * Cnnd_u(i,jd,kd,buffShift);
   	       }
               descriptor_mu(i, shiftAll) = prel*buffDouble;
@@ -2063,7 +2061,6 @@ void soapGTODevX(
 ) {
   
   auto derivatives_mu = derivatives.mutable_unchecked<4>();
-  auto descriptor_mu = descriptor.mutable_unchecked<2>();
   auto atomicNumbers = atomicNumbersArr.unchecked<1>();
   auto indices_u = indices.unchecked<1>();
   double *alphas = (double*)alphasArr.request().ptr; double *betas = (double*)betasArr.request().ptr;
@@ -2168,6 +2165,7 @@ void soapGTODevX(
 
   // Calculate the descriptor value if requested
   if (return_descriptor) {
+    auto descriptor_mu = descriptor.mutable_unchecked<2>();
     getPD(descriptor_mu, cnnd_u, Ns, Nt, Hs, lMax, crossover);
   }
 

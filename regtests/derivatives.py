@@ -105,8 +105,8 @@ class SoapDerivativeTests(unittest.TestCase):
             soap_poly.derivatives(H2, positions=positions, method="analytical")
         soap_poly.derivatives(H2, positions=positions, method="numerical")
 
-        # Test that trying to get analytical derivatives with periodicicity on
-        # raises an exception
+        # Test that trying to get derivatives with periodicicity on raises an
+        # exception
         soap_poly = SOAP(
             species=[1, 8],
             rcut=3,
@@ -118,22 +118,64 @@ class SoapDerivativeTests(unittest.TestCase):
         )
         with self.assertRaises(ValueError):
             soap_poly.derivatives(H2, positions=positions, method="analytical")
+        with self.assertRaises(ValueError):
+            soap_poly.derivatives(H2, positions=positions, method="numerical")
 
-        # Test include
-        with self.assertRaises(ValueError):
-            soap.derivatives(H2O, positions=positions, include=[])
-        with self.assertRaises(ValueError):
-            soap.derivatives(H2O, positions=positions, include=[3])
-        with self.assertRaises(ValueError):
-            soap.derivatives(H2O, positions=positions, include=[-1])
+        # Test that asking for descriptor works
+        s = soap.derivatives(H2O, positions=positions, method="analytical", return_descriptor=False)
+        D, d = soap.derivatives(H2O, positions=positions, method="analytical", return_descriptor=True)
+        s = soap.derivatives(H2O, positions=positions, method="numerical", return_descriptor=False)
+        D, d = soap.derivatives(H2O, positions=positions, method="numerical", return_descriptor=True)
 
-        # Test exclude
-        s = soap.derivatives(H2O, positions=positions, exclude=[], return_descriptor=False)
-        self.assertEqual(s.shape[1], 3)
-        with self.assertRaises(ValueError):
-            soap.derivatives(H2O, positions=positions, exclude=[3])
-        s = soap.derivatives(H2O, positions=positions, exclude=[0, 2, 2], return_descriptor=False)
-        self.assertEqual(s.shape[1], 1)
+    def test_include(self):
+        soap = SOAP(
+            species=[1, 8],
+            rcut=3,
+            nmax=2,
+            lmax=1,
+            rbf="gto",
+            sparse=False,
+            periodic=False,
+        )
+
+        for method in ["numerical", "analytical"]:
+            # Invalid include options
+            with self.assertRaises(ValueError):
+                soap.derivatives(H2O, include=[], method=method)
+            with self.assertRaises(ValueError):
+                soap.derivatives(H2O, include=[3], method=method)
+            with self.assertRaises(ValueError):
+                soap.derivatives(H2O, include=[-1], method=method)
+
+            # Test that correct atoms are included and in the correct order
+            D1, d1 = soap.derivatives(H2O, include=[2, 0], method=method)
+            D2, d2 = soap.derivatives(H2O, method=method)
+            self.assertTrue(np.array_equal(D1[:, 0], D2[:, 2]))
+            self.assertTrue(np.array_equal(D1[:, 1], D2[:, 0]))
+
+    def test_exclude(self):
+        soap = SOAP(
+            species=[1, 8],
+            rcut=3,
+            nmax=2,
+            lmax=1,
+            rbf="gto",
+            sparse=False,
+            periodic=False,
+        )
+
+        for method in ["numerical", "analytical"]:
+            # Invalid exclude options
+            with self.assertRaises(ValueError):
+                soap.derivatives(H2O, exclude=[3], method=method)
+            with self.assertRaises(ValueError):
+                soap.derivatives(H2O, exclude=[-1], method=method)
+
+            # Test that correct atoms are excluded and in the correct order
+            D1, d1 = soap.derivatives(H2O, exclude=[1], method=method)
+            D2, d2 = soap.derivatives(H2O, method=method)
+            self.assertTrue(np.array_equal(D1[:, 0], D2[:, 0]))
+            self.assertTrue(np.array_equal(D1[:, 1], D2[:, 2]))
 
     def test_parallel_dense(self):
         """Tests creating dense output parallelly.
@@ -269,14 +311,12 @@ class SoapDerivativeTests(unittest.TestCase):
         n_atoms = len(system)
         n_comp = 3
 
-        # The maximum erorr depends on how big the system is. With a small
+        # The maximum error depends on how big the system is. With a small
         # system the error is smaller for non-periodic systems than the
         # corresponding error when periodicity is turned on. The errors become
         # equal (~1e-5) when the size of the system is increased.
-        for periodic in [False, True]:
-            # for rbf in ["gto"]:
+        for periodic in [False]:
             for rbf in ["gto", "polynomial"]:
-                # for average in ["off"]:
                 for average in ["off", "outer", "inner"]:
                     soap = SOAP(
                         species=[1, 8, 6],
@@ -313,7 +353,6 @@ class SoapDerivativeTests(unittest.TestCase):
                     # Calculate with central finite difference implemented in C++.
                     # Try both cartesian centers and indices.
                     for c in [centers]:
-                    # for c in [centers, None]:
                         derivatives_cpp, d_cpp = soap.derivatives(system, positions=c, method="numerical")
 
                         # Test that descriptor values are correct
@@ -323,62 +362,62 @@ class SoapDerivativeTests(unittest.TestCase):
                         # print(np.abs(derivatives_python).max())
                         # print(derivatives_python[0,1,:,:])
                         # print(derivatives_cpp[0,0,:,:])
-                        print(np.abs(derivatives_cpp - derivatives_python).max())
+                        # print(np.abs(derivatives_cpp - derivatives_python).max())
                         self.assertTrue(np.allclose(derivatives_python, derivatives_cpp, atol=1e-5))
 
-    def test_periodic(self):
-        """Tests that periodicity works correctly for both numerical and
-        analytical code.
-        """
-        a = 1
-        system = Atoms(
-            symbols=["C"],
-            cell=[
-                [0, a, a],
-                [a, 0, a],
-                [a, a, 0]
-            ],
-            scaled_positions=[[0,0,0]],
-            pbc=[True, True, True],
-        )
+    # def test_periodic(self):
+        # """Tests that periodicity works correctly for both numerical and
+        # analytical code.
+        # """
+        # a = 1
+        # system = Atoms(
+            # symbols=["C"],
+            # cell=[
+                # [0, a, a],
+                # [a, 0, a],
+                # [a, a, 0]
+            # ],
+            # scaled_positions=[[0,0,0]],
+            # pbc=[True, True, True],
+        # )
 
-        # Calculate as periodic first
-        soap = SOAP(
-            species=[6],
-            rcut=3,
-            nmax=1,
-            lmax=1,
-            rbf="gto",
-            sparse=False,
-            average="off",
-            crossover=True,
-            periodic=True,
-        )
-        a_normal = soap.create(system, positions=[0])
-        a_der, a_des = soap.derivatives(system, positions=[0], include=[0], method="numerical")
+        # # Calculate as periodic first
+        # soap = SOAP(
+            # species=[6],
+            # rcut=3,
+            # nmax=1,
+            # lmax=1,
+            # rbf="gto",
+            # sparse=False,
+            # average="off",
+            # crossover=True,
+            # periodic=True,
+        # )
+        # a_normal = soap.create(system, positions=[0])
+        # a_der, a_des = soap.derivatives(system, positions=[0], include=[0], method="numerical")
 
-        # Extend the system and calculate it as non-periodic
-        n_copies = 13
-        ext_system = system*(n_copies, n_copies, n_copies)
-        ext_system.set_pbc(False)
-        middle = ext_system.get_center_of_mass()
-        positions = ext_system.get_positions()
-        dist = np.linalg.norm(positions - middle, axis=1)
-        idx = np.argmin(dist)
-        soap.periodic = False
-        b_normal = soap.create(ext_system, positions=[idx])
-        b_der, b_des = soap.derivatives(ext_system, positions=[idx], include=[idx], method="numerical")
+        # # Extend the system and calculate it as non-periodic
+        # n_copies = 13
+        # ext_system = system*(n_copies, n_copies, n_copies)
+        # ext_system.set_pbc(False)
+        # middle = ext_system.get_center_of_mass()
+        # positions = ext_system.get_positions()
+        # dist = np.linalg.norm(positions - middle, axis=1)
+        # idx = np.argmin(dist)
+        # soap.periodic = False
+        # b_normal = soap.create(ext_system, positions=[idx])
+        # b_der, b_des = soap.derivatives(ext_system, positions=[idx], include=[idx], method="numerical")
 
-        # Assert that regularly calculated descriptors are the same
-        # print(np.abs(a_normal - b_normal).max())
-        self.assertTrue(np.allclose(a_normal, b_normal))
+        # # Assert that regularly calculated descriptors are the same
+        # # print(np.abs(a_normal - b_normal).max())
+        # self.assertTrue(np.allclose(a_normal, b_normal))
 
-        # Assert that descriptors returned with the derivatives are the same
-        # print(np.abs(a_des - b_des).max())
-        self.assertTrue(np.allclose(a_des, b_des))
+        # # Assert that descriptors returned with the derivatives are the same
+        # # print(np.abs(a_des - b_des).max())
+        # self.assertTrue(np.allclose(a_des, b_des))
 
-        # print(np.abs(a_der - b_der).max())
-        self.assertTrue(np.allclose(a_der, b_der))
+        # # print(np.abs(a_der - b_der).max())
+        # self.assertTrue(np.allclose(a_der, b_der))
 
 
 class SoapDerivativeComparisonTests(unittest.TestCase):
