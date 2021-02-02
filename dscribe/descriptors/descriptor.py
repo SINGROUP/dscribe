@@ -18,6 +18,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 
 from scipy.sparse import coo_matrix
+import sparse
 
 from ase import Atoms
 from dscribe.core.system import System
@@ -215,20 +216,22 @@ class Descriptor(ABC):
         else:
             static_size = True
 
-        def create_multiple(arguments, func, is_sparse, n_features, n_desc, index, verbose):
+        def create_multiple(arguments, func, is_sparse, n_features, i_output_size, index, verbose):
             """This is the function that is called by each job but with
             different parts of the data.
             """
             # Initialize output
-            if n_desc is None:
+            if i_output_size is None:
+                shape = None
                 results = []
             else:
+                shape = i_output_size + [n_features]
                 if is_sparse:
                     data = []
                     rows = []
                     cols = []
                 else:
-                    results = np.empty((n_desc, n_features), dtype=np.float32)
+                    results = np.empty(shape, dtype=np.float32)
 
             offset = 0
             i_sample = 0
@@ -238,7 +241,8 @@ class Descriptor(ABC):
             for i_sample, i_arg in enumerate(arguments):
                 i_out = func(*i_arg)
 
-                if n_desc is None:
+                # If the shape varies, just add result into a list
+                if i_output_size is None:
                     results.append(i_out)
                 else:
                     if is_sparse:
@@ -246,7 +250,7 @@ class Descriptor(ABC):
                         rows.append(i_out.row + offset)
                         cols.append(i_out.col)
                     else:
-                        results[offset:offset+i_out.shape[0], :] = i_out
+                        results[i_sample] = i_out
                     offset += i_out.shape[0]
 
                 if verbose:
@@ -255,15 +259,15 @@ class Descriptor(ABC):
                         old_percent = current_percent
                         print("Process {0}: {1:.1f} %".format(index, current_percent))
 
-            if n_desc is not None and is_sparse:
+            if i_output_size is not None and is_sparse:
                 data = np.concatenate(data)
                 rows = np.concatenate(rows)
                 cols = np.concatenate(cols)
-                results = coo_matrix((data, (rows, cols)), shape=[n_desc, n_features], dtype=np.float32)
+                results = coo_matrix((data, (rows, cols)), shape=shape, dtype=np.float32)
 
             return (results, index)
 
-        vec_lists = Parallel(n_jobs=n_jobs, prefer=prefer)(delayed(create_multiple)(i_args, func, is_sparse, n_features, n_desc, index, verbose) for index, (i_args, n_desc) in enumerate(zip(jobs, output_sizes)))
+        vec_lists = Parallel(n_jobs=n_jobs, prefer=prefer)(delayed(create_multiple)(i_args, func, is_sparse, n_features, i_output_size, index, verbose) for index, (i_args, i_output_size) in enumerate(zip(jobs, output_sizes)))
 
         # Restore the caluclation order. If using the threading backend, the
         # input order may have been lost.
@@ -299,6 +303,9 @@ class Descriptor(ABC):
                 rows = np.concatenate(rows)
                 cols = np.concatenate(cols)
                 results = coo_matrix((data, (rows, cols)), shape=[n_descs, n_features], dtype=np.float32)
+                # n_systemsl= len(vec_lists)
+                # shape = [n_systems].extend(static_size)
+                # s = sparse.COO(np.column_stack((rows, cols)), data, shape=shape)
 
                 # The final output is transformed into CSR form which is faster for
                 # linear algebra

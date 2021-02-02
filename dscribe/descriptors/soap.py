@@ -244,7 +244,7 @@ class SOAP(Descriptor):
     def init_internal_dev_array(self, n_centers, n_atoms, n_types, n, lMax):
         """Return a zero-initialized numpy array for the derivatives.
         """
-        d = np.zeros(( n_atoms,n_centers,n_types, n, (lMax+1)*(lMax+1)), dtype=np.float64)
+        d = np.zeros((n_atoms, n_centers, n_types, n, (lMax+1)*(lMax+1)), dtype=np.float64)
         return d
 
     def init_internal_array(self, n_centers,  n_types, n, lMax):
@@ -302,24 +302,40 @@ class SOAP(Descriptor):
         # Here we precalculate the size for each job to preallocate memory and
         # make the process faster.
         k, m = divmod(n_samples, n_jobs)
-        jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
-        output_sizes = []
-        for i_job in jobs:
-            n_desc = 0
-            if self.average == "outer" or self.average == "inner":
-                n_desc = len(i_job)
-            elif positions is None:
-                n_desc = 0
-                for job in i_job:
-                    n_desc += len(job[0])
+        jobs = list((inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs)))
+
+        # Averaged output always has fixed shape
+        output_sizes = None
+        if self.average == "outer" or self.average == "inner":
+            output_sizes = [[len(i_job)] for i_job in jobs]
+        # Check if there always is the same amount of centers in each system
+        else:
+            if positions is None:
+                n_centers = jobs[0][0][0]
             else:
-                n_desc = 0
-                for i_sample, i_pos in i_job:
-                    if i_pos is not None:
-                        n_desc += len(i_pos)
+                first_sample, first_pos = jobs[0][0]
+                if first_pos is not None:
+                    n_centers = len(first_pos)
+                else:
+                    n_centers = len(first_sample)
+
+            def is_static():
+                for i_job in jobs:
+                    if positions is None:
+                        for job in i_job:
+                            if n_centers != job[0]:
+                                return False
                     else:
-                        n_desc += len(i_sample)
-            output_sizes.append(n_desc)
+                        for i_sample, i_pos in i_job:
+                            if i_pos is not None:
+                                if n_centers != len(i_pos):
+                                    return False
+                            else:
+                                if n_centers != len(i_sample):
+                                    return False
+                return True
+            if is_static():
+                output_sizes = [[len(i_job), n_centers] for i_job in jobs]
 
         # Create in parallel
         output = self.create_parallel(inp, self.create_single, n_jobs, output_sizes, verbose=verbose)
@@ -620,7 +636,7 @@ class SOAP(Descriptor):
         if return_descriptor:
             c = self.init_descriptor_array(n_centers, n_features)
         else:
-            c = np.empty(0)
+            c = np.empty()
 
         if self._rbf == "gto":
             alphas = self._alphas.flatten()
