@@ -240,6 +240,26 @@ class SOAP(Descriptor):
             d = np.zeros((1, n_atoms, 3, n_features), dtype=np.float64)
         else:
             d = np.zeros((n_centers, n_atoms, 3, n_features), dtype=np.float64)
+#            for i in range(n_centers):
+#                for j in range(n_atoms):
+#                    for k in range(n_features):
+#                        d[i, j, 0, k] = 0.0
+#                        d[i, j, 1, k] = 0.0
+#                        d[i, j, 2, k] = 0.0
+#            d[:] = 0.0
+            print("Done")
+        return d
+    def init_internal_dev_array(self, n_centers, n_atoms, n_types, n, lMax):
+        """Return a zero-initialized numpy array for the derivatives.
+        """
+        d = np.zeros(( n_atoms,n_centers,n_types, n, (lMax+1)*(lMax+1)), dtype=np.float64)
+#            {totalAN,Hs,Nt,Ns,(lMax+1)*(lMax+1)
+        return d
+    def init_internal_array(self, n_centers,  n_types, n, lMax):
+        """Return a zero-initialized numpy array for the derivatives.
+        """
+        d = np.zeros(( n_centers,n_types, n, (lMax+1)*(lMax+1)), dtype=np.float64)
+#            {totalAN,Hs,Nt,Ns,(lMax+1)*(lMax+1)
         return d
 
     def create(self, system, positions=None, n_jobs=1, verbose=False):
@@ -597,7 +617,7 @@ class SOAP(Descriptor):
         n_atoms = len(system)
 
         n_features = self.get_number_of_features()
-        d = self.init_derivatives_array(n_centers, n_indices, n_features)
+        d = self.init_derivatives_array(n_centers, n_indices,   n_features)
         if return_descriptor:
             c = self.init_descriptor_array(n_centers, n_features)
         else:
@@ -624,6 +644,7 @@ class SOAP(Descriptor):
             if method == "numerical":
                 # print(indices)
                 # print(centers)
+
                 soap_gto.derivatives_numerical(
                     d,
                     c,
@@ -640,9 +661,17 @@ class SOAP(Descriptor):
             elif method == "analytical":
                 # print(indices)
                 # print(centers)
+                xd = self.init_internal_dev_array( n_centers, n_atoms, n_species, self._nmax, self._lmax)
+                yd = self.init_internal_dev_array( n_centers, n_atoms, n_species, self._nmax, self._lmax)
+                zd = self.init_internal_dev_array( n_centers, n_atoms, n_species, self._nmax, self._lmax)
+                cd = self.init_internal_array( n_centers,  n_species, self._nmax, self._lmax)
                 soap_gto.derivatives_analytical(
                     d, 
                     c,
+                    xd,
+                    yd,
+                    zd,
+                    cd,
                     pos,
                     Z,
                     ase.geometry.cell.complete_cell(system.get_cell()),
