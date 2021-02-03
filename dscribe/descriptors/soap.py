@@ -23,6 +23,8 @@ from ase import Atoms
 import ase.geometry.cell
 import ase.data
 
+import sparse
+
 from dscribe.descriptors import Descriptor
 from dscribe.core import System
 import dscribe.ext
@@ -250,7 +252,7 @@ class SOAP(Descriptor):
     def init_internal_array(self, n_centers,  n_types, n, lMax):
         """Return a zero-initialized numpy array for the derivatives.
         """
-        d = np.zeros(( n_centers,n_types, n, (lMax+1)*(lMax+1)), dtype=np.float64)
+        d = np.zeros((n_centers, n_types, n, (lMax+1)*(lMax+1)), dtype=np.float64)
         return d
 
     def create(self, system, positions=None, n_jobs=1, verbose=False):
@@ -271,11 +273,11 @@ class SOAP(Descriptor):
                 into to the console.
 
         Returns:
-            np.ndarray | scipy.sparse.csr_matrix: The SOAP output for the given
-            systems and positions. The return type depends on the
-            'sparse'-attribute. The first dimension is determined by the amount
-            of positions and systems and the second dimension is determined by
-            the get_number_of_features()-function. When multiple systems are
+            np.ndarray | sparse.COO: The SOAP output for the given systems and
+            positions. The return type depends on the 'sparse'-attribute. The
+            first dimension is determined by the amount of positions and
+            systems and the second dimension is determined by the
+            get_number_of_features()-function. When multiple systems are
             provided the results are ordered by the input order of systems and
             their positions.
         """
@@ -305,9 +307,11 @@ class SOAP(Descriptor):
         jobs = list((inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs)))
 
         # Averaged output always has fixed shape
-        output_sizes = None
+        n_features = self.get_number_of_features()
+        output_sizes = [[len(i_job)] for i_job in jobs]
+        static_size = None
         if self.average == "outer" or self.average == "inner":
-            output_sizes = [[len(i_job)] for i_job in jobs]
+            static_size = [1, n_features]
         # Check if there always is the same amount of centers in each system
         else:
             if positions is None:
@@ -335,10 +339,10 @@ class SOAP(Descriptor):
                                     return False
                 return True
             if is_static():
-                output_sizes = [[len(i_job), n_centers] for i_job in jobs]
+                static_size = [n_centers, n_features]
 
         # Create in parallel
-        output = self.create_parallel(inp, self.create_single, n_jobs, output_sizes, verbose=verbose)
+        output = self.create_parallel(inp, self.create_single, n_jobs, output_sizes, static_size, verbose=verbose)
 
         return output
 
@@ -353,7 +357,7 @@ class SOAP(Descriptor):
                 for all atoms in the system.
 
         Returns:
-            np.ndarray | scipy.sparse.coo_matrix: The SOAP output for the
+            np.ndarray | sparse.COO: The SOAP output for the
             given system and positions. The return type depends on the
             'sparse'-attribute. The first dimension is given by the number of
             positions and the second dimension is determined by the
@@ -433,7 +437,7 @@ class SOAP(Descriptor):
 
         # Make into a sparse array if requested
         if self._sparse:
-            soap_mat = coo_matrix(soap_mat)
+            soap_mat = sparse.COO.from_numpy(soap_mat)
 
         return soap_mat
 
