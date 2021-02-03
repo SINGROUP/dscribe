@@ -17,7 +17,6 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
-from scipy.sparse import coo_matrix
 import sparse
 
 from ase import Atoms
@@ -30,7 +29,6 @@ from joblib import Parallel, delayed
 class Descriptor(ABC):
     """An abstract base class for all descriptors.
     """
-
     def __init__(self, periodic, flatten, sparse):
         """
         Args:

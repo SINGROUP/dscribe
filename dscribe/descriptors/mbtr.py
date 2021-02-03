@@ -17,6 +17,8 @@ import sys
 import math
 import numpy as np
 
+import sparse
+
 from scipy.sparse import lil_matrix, coo_matrix
 
 from ase import Atoms
@@ -24,7 +26,6 @@ import ase.data
 
 from dscribe.core import System
 from dscribe.descriptors import Descriptor
-#from dscribe.libmbtr.mbtrwrapper import MBTRWrapper
 from dscribe.ext import MBTRWrapper
 import dscribe.utils.geometry
 
@@ -498,16 +499,16 @@ class MBTR(Descriptor):
         inp = [(i_sys,) for i_sys in system]
 
         # Here we precalculate the size for each job to preallocate memory.
+        n_samples = len(system)
+        k, m = divmod(n_samples, n_jobs)
+        jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
+        output_sizes = [[len(i_job)] for i_job in jobs]
+        static_size = None
         if self.flatten:
-            n_samples = len(system)
-            k, m = divmod(n_samples, n_jobs)
-            jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
-            output_sizes = [len(job) for job in jobs]
-        else:
-            output_sizes = None
+            static_size = [1, self.get_number_of_features()]
 
         # Create in parallel
-        output = self.create_parallel(inp, self.create_single, n_jobs, output_sizes, verbose=verbose)
+        output = self.create_parallel(inp, self.create_single, n_jobs, output_sizes, static_size, verbose=verbose)
 
         return output
 
@@ -585,10 +586,11 @@ class MBTR(Descriptor):
             rows = np.concatenate(rows)
             cols = np.concatenate(cols)
             mbtr = coo_matrix((datas, (rows, cols)), shape=[1, length], dtype=np.float32)
+            mbtr = sparse.COO.from_scipy_sparse(mbtr)
 
             # Make into a dense array if requested
             if not self.sparse:
-                mbtr = mbtr.toarray()
+                mbtr = mbtr.todense()
 
         return mbtr
 

@@ -19,8 +19,9 @@ import itertools
 
 import numpy as np
 
+import sparse
+
 import scipy
-import scipy.sparse
 from scipy.integrate import tplquad
 from scipy.linalg import sqrtm
 
@@ -344,7 +345,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         # Sparse
         desc = SOAP(species=[1, 8], rcut=5, nmax=5, lmax=5, periodic=True, sparse=True)
         vec = desc.create(H2O)
-        self.assertTrue(type(vec) == scipy.sparse.coo_matrix)
+        self.assertTrue(type(vec) == sparse.COO)
 
     def test_positions(self):
         """Tests that different positions are handled correctly.
@@ -1396,9 +1397,9 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         ))
 
 if __name__ == '__main__':
-    SoapTests().test_parallel_sparse()
-    SoapTests().test_parallel_dense()
-    # suites = []
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapTests))
-    # alltests = unittest.TestSuite(suites)
-    # result = unittest.TextTestRunner(verbosity=0).run(alltests)
+    # SoapTests().test_parallel_sparse()
+    # SoapTests().test_parallel_dense()
+    suites = []
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapTests))
+    alltests = unittest.TestSuite(suites)
+    result = unittest.TextTestRunner(verbosity=0).run(alltests)

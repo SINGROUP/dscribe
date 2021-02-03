@@ -3,7 +3,7 @@ import copy
 import numpy as np
 import unittest
 
-import scipy.sparse
+import sparse
 from scipy.signal import find_peaks_cwt, find_peaks
 
 from dscribe.descriptors import MBTR
@@ -469,7 +469,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         desc = copy.deepcopy(default_desc_k1)
         desc.sparse = True
         vec = desc.create(H2O)
-        self.assertTrue(type(vec) == scipy.sparse.coo_matrix)
+        self.assertTrue(type(vec) == sparse.COO)
 
     def test_properties(self):
         """Used to test that changing the setup through properties works as
@@ -601,20 +601,20 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         output = desc.create(
             system=samples,
             n_jobs=1,
-        ).toarray()
+        ).todense()
         assumed = np.empty((2, n_features))
-        assumed[0, :] = desc.create(samples[0]).toarray()
-        assumed[1, :] = desc.create(samples[1]).toarray()
+        assumed[0, :] = desc.create(samples[0]).todense()
+        assumed[1, :] = desc.create(samples[1]).todense()
         self.assertTrue(np.allclose(output, assumed))
 
         # Multiple systems, parallel job
         output = desc.create(
             system=samples,
             n_jobs=2,
-        ).toarray()
+        ).todense()
         assumed = np.empty((2, n_features))
-        assumed[0, :] = desc.create(samples[0]).toarray()
-        assumed[1, :] = desc.create(samples[1]).toarray()
+        assumed[0, :] = desc.create(samples[0]).todense()
+        assumed[1, :] = desc.create(samples[1]).todense()
         self.assertTrue(np.allclose(output, assumed))
 
     def test_periodic_supercell_similarity(self):
@@ -709,7 +709,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         # Test normalization of flat sparse output with l2_each
         desc.sparse = True
         desc.normalization = "l2_each"
-        feat = desc.create(H2O).toarray()
+        feat = desc.create(H2O).todense()
         self.assertTrue(np.allclose(feat[0, :], feat_flat_manual_norm_each, atol=1e-7, rtol=0))
 
         # Test normalization of flat dense output with n_atoms
@@ -723,7 +723,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         # Test normalization of flat sparse output with n_atoms
         desc.sparse = True
         desc.normalization = "n_atoms"
-        feat = desc.create(H2O).toarray()
+        feat = desc.create(H2O).todense()
         self.assertTrue(np.allclose(feat[0, :], feat_flat/n_atoms, atol=1e-7, rtol=0))
 
     def test_k1_peaks_finite(self):

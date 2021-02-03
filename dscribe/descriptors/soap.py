@@ -15,7 +15,6 @@ limitations under the License.
 """
 import numpy as np
 
-from scipy.sparse import coo_matrix
 from scipy.special import gamma
 from scipy.linalg import sqrtm, inv
 
