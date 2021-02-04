@@ -326,8 +326,8 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             desc.periodic = False
             desc.species = ["H", "O", "C"]
 
-            co2_out = desc.create(CO2)[0, :]
-            h2o_out = desc.create(H2O)[0, :]
+            co2_out = desc.create(CO2)[:]
+            h2o_out = desc.create(H2O)[:]
 
             loc_h = desc.get_location(("H"))
             loc_c = desc.get_location(("C"))
@@ -364,8 +364,8 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             CO2 = molecule("CO2")
             H2O = molecule("H2O")
 
-            co2_out = desc.create(CO2)[0, :]
-            h2o_out = desc.create(H2O)[0, :]
+            co2_out = desc.create(CO2)[:]
+            h2o_out = desc.create(H2O)[:]
 
             loc_hh = desc.get_location(("H", "H"))
             loc_hc = desc.get_location(("H", "C"))
@@ -412,8 +412,8 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         for desc in descriptors:
             desc.periodic = False
             desc.species = ["H", "O", "C"]
-            co2_out = desc.create(CO2)[0, :]
-            h2o_out = desc.create(H2O)[0, :]
+            co2_out = desc.create(CO2)[:]
+            h2o_out = desc.create(H2O)[:]
 
             loc_hhh = desc.get_location(("H", "H", "H"))
             loc_hho = desc.get_location(("H", "H", "O"))
@@ -491,7 +491,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         nfeat2 = a.get_number_of_features()
         vec2 = a.create(molecule("CH3OH"))
         self.assertTrue(nfeat1 != nfeat2)
-        self.assertTrue(vec1.shape[1] != vec2.shape[1])
+        self.assertTrue(vec1.shape != vec2.shape)
 
         # Test changing geometry function and grid setup
         a.k1 = {
@@ -538,11 +538,10 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         feat = desc.create(system)["k1"]
         self.assertEqual(feat.shape, (n_species, n))
 
-        # K1 flattened. The sparse matrix only supports 2D matrices, so the first
-        # dimension is always present, even if it is of length 1.
+        # K1 flattened.
         desc.flatten = True
         feat = desc.create(system)
-        self.assertEqual(feat.shape, (1, n_species*n))
+        self.assertEqual(feat.shape, (n_species*n,))
 
     def test_parallel_dense(self):
         """Tests creating dense output parallelly.
@@ -699,18 +698,18 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         feat = desc.create(H2O)
         n1 = int(n*n_elem)
         n2 = int((n_elem*(n_elem+1)/2)*n)
-        a1 = feat_flat[0, 0:n1]/k1_norm
-        a2 = feat_flat[0, n1:n1+n2]/k2_norm
-        a3 = feat_flat[0, n1+n2:]/k3_norm
+        a1 = feat_flat[0:n1]/k1_norm
+        a2 = feat_flat[n1:n1+n2]/k2_norm
+        a3 = feat_flat[n1+n2:]/k3_norm
         feat_flat_manual_norm_each = np.hstack((a1, a2, a3))
 
-        self.assertTrue(np.allclose(feat[0, :], feat_flat_manual_norm_each, atol=1e-7, rtol=0))
+        self.assertTrue(np.allclose(feat[:], feat_flat_manual_norm_each, atol=1e-7, rtol=0))
 
         # Test normalization of flat sparse output with l2_each
         desc.sparse = True
         desc.normalization = "l2_each"
         feat = desc.create(H2O).todense()
-        self.assertTrue(np.allclose(feat[0, :], feat_flat_manual_norm_each, atol=1e-7, rtol=0))
+        self.assertTrue(np.allclose(feat, feat_flat_manual_norm_each, atol=1e-7, rtol=0))
 
         # Test normalization of flat dense output with n_atoms
         desc.sparse = False
@@ -718,13 +717,13 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         n_atoms = len(H2O)
         n_elem = len(desc.species)
         feat = desc.create(H2O)
-        self.assertTrue(np.allclose(feat[0, :], feat_flat/n_atoms, atol=1e-7, rtol=0))
+        self.assertTrue(np.allclose(feat, feat_flat/n_atoms, atol=1e-7, rtol=0))
 
         # Test normalization of flat sparse output with n_atoms
         desc.sparse = True
         desc.normalization = "n_atoms"
         feat = desc.create(H2O).todense()
-        self.assertTrue(np.allclose(feat[0, :], feat_flat/n_atoms, atol=1e-7, rtol=0))
+        self.assertTrue(np.allclose(feat, feat_flat/n_atoms, atol=1e-7, rtol=0))
 
     def test_k1_peaks_finite(self):
         """Tests the correct peak locations and intensities are found for the
@@ -741,7 +740,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             flatten=True,
             sparse=False
         )
-        features = desc.create(H2O)[0, :]
+        features = desc.create(H2O)
         x = desc.get_k1_axis()
 
         # Check the H peaks
@@ -781,7 +780,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             flatten=True,
             sparse=False
         )
-        features = desc.create(H2O)[0, :]
+        features = desc.create(H2O)
         pos = H2O.get_positions()
         x = desc.get_k2_axis()
 
@@ -836,7 +835,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             flatten=True,
             sparse=False
         )
-        features = desc.create(atoms)[0, :]
+        features = desc.create(atoms)
         x = desc.get_k2_axis()
 
         # Calculate assumed locations and intensities.
@@ -890,8 +889,8 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         desc.k2["weighting"] = {"function": "exp", "scale": 0.8, "cutoff": 1e-3}
 
         # The resulting spectra should be indentical
-        spectra1 = desc.create(atoms)[0, :]
-        spectra2 = desc.create(atoms2)[0, :]
+        spectra1 = desc.create(atoms)
+        spectra2 = desc.create(atoms2)
         self.assertTrue(np.allclose(spectra1, spectra2, rtol=0, atol=1e-7))
 
     def test_k3_peaks_finite(self):
@@ -911,7 +910,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             flatten=True,
             sparse=False
         )
-        features = desc.create(H2O)[0, :]
+        features = desc.create(H2O)
         x = desc.get_k3_axis()
 
         # Check the H-H-O peaks
@@ -974,7 +973,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             ],
             pbc=True
         )
-        features = desc.create(atoms)[0, :]
+        features = desc.create(atoms)
         x = desc.get_k3_axis()
 
         # Calculate assumed locations and intensities.
@@ -1030,8 +1029,8 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         desc.periodic = True
 
         # The resulting spectra should be indentical
-        spectra1 = desc.create(atoms)[0, :]
-        spectra2 = desc.create(atoms2)[0, :]
+        spectra1 = desc.create(atoms)
+        spectra2 = desc.create(atoms2)
         self.assertTrue(np.allclose(spectra1, spectra2, rtol=0, atol=1e-8))
 
     def test_gaussian_distribution(self):
@@ -1182,8 +1181,8 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         suce = molecule * (2, 1, 1)
         cubic_suce = desc.create(suce)
 
-        diff = abs(np.sum(cubic_cell[0, :] - cubic_suce[0, :]))
-        cubic_sum = abs(np.sum(cubic_cell[0, :]))
+        diff = abs(np.sum(cubic_cell - cubic_suce))
+        cubic_sum = abs(np.sum(cubic_cell))
         self.assertTrue(diff/cubic_sum < 0.05)  # A 5% error is tolerated
 
         # Same test but for triclinic cell
@@ -1197,8 +1196,8 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         suce = molecule * (2, 1, 1)
         triclinic_suce = desc.create(suce)
 
-        diff = abs(np.sum(triclinic_cell[0, :] - triclinic_suce[0, :]))
-        tricl_sum = abs(np.sum(triclinic_cell[0, :]))
+        diff = abs(np.sum(triclinic_cell - triclinic_suce))
+        tricl_sum = abs(np.sum(triclinic_cell))
         self.assertTrue(diff/tricl_sum < 0.05)
 
         # Testing that the same crystal, but different unit cells will have a
@@ -1212,9 +1211,9 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         orthorhombic_cell = desc.create(a2)
         cubic_cell = desc.create(a3)
 
-        diff1 = abs(np.sum(triclinic_cell[0, :] - orthorhombic_cell[0, :]))
-        diff2 = abs(np.sum(triclinic_cell[0, :] - cubic_cell[0, :]))
-        tricl_sum = abs(np.sum(triclinic_cell[0, :]))
+        diff1 = abs(np.sum(triclinic_cell - orthorhombic_cell))
+        diff2 = abs(np.sum(triclinic_cell - cubic_cell))
+        tricl_sum = abs(np.sum(triclinic_cell))
         self.assertTrue(diff1/tricl_sum < 0.05)
         self.assertTrue(diff2/tricl_sum < 0.05)
 
@@ -1243,7 +1242,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             symbols=["H"],
             pbc=True,
         )
-        cubic_spectrum = desc.create(system)[0, :]
+        cubic_spectrum = desc.create(system)
         x3 = desc.get_k3_axis()
 
         peak_ids = find_peaks_cwt(cubic_spectrum, [2])
@@ -1288,7 +1287,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         tricl_spectrum = desc.create(system)
         x3 = desc.get_k3_axis()
 
-        peak_ids = find_peaks_cwt(tricl_spectrum[0, :], [3])
+        peak_ids = find_peaks_cwt(tricl_spectrum, [3])
         peak_locs = x3[peak_ids]
 
         angle = (6)/(np.sqrt(5)*np.sqrt(8))
@@ -1306,13 +1305,13 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         desc.sparse = False
 
         # Create normalized vectors for each system
-        vec1 = desc.create(sys1)[0, :]
+        vec1 = desc.create(sys1)
         vec1 /= np.linalg.norm(vec1)
 
-        vec2 = desc.create(sys2)[0, :]
+        vec2 = desc.create(sys2)
         vec2 /= np.linalg.norm(vec2)
 
-        vec3 = desc.create(sys3)[0, :]
+        vec3 = desc.create(sys3)
         vec3 /= np.linalg.norm(vec3)
 
         # The dot-product should be zero when there are no overlapping elements

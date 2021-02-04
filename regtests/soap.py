@@ -471,7 +471,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             positions=[[0], [0, 1]],
             n_jobs=2,
         )
-        assumed = np.empty((2, 1, n_features))
+        assumed = np.empty((2, n_features))
         assumed[0] = desc.create(samples[0], [0])
         assumed[1] = 1/2*(desc.create(samples[1], [0]) + desc.create(samples[1], [1]))
         self.assertTrue(np.allclose(output, assumed))
@@ -561,7 +561,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             positions=[[0], [0, 1]],
             n_jobs=2,
         ).todense()
-        assumed = np.empty((2, 1, n_features))
+        assumed = np.empty((2, n_features))
         assumed[0] = desc.create(samples[0], [0]).todense()
         assumed[1] = 1/2*(desc.create(samples[1], [0]).todense() + desc.create(samples[1], [1]).todense())
         self.assertTrue(np.allclose(output, assumed))
@@ -738,7 +738,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                 average="outer",
                 sparse=False
             )
-            average = desc.create(sys)[0, :]
+            average = desc.create(sys)
 
             # Create individual output for both atoms
             desc = SOAP(
@@ -1397,8 +1397,6 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         ))
 
 if __name__ == '__main__':
-    # SoapTests().test_parallel_sparse()
-    # SoapTests().test_parallel_dense()
     suites = []
     suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapTests))
     alltests = unittest.TestSuite(suites)

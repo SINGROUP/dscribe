@@ -19,8 +19,6 @@ import numpy as np
 
 import sparse
 
-from scipy.sparse import lil_matrix, coo_matrix
-
 from ase import Atoms
 import ase.data
 
@@ -95,8 +93,8 @@ class MBTR(Descriptor):
     n_grid_points), where the elements are sorted in ascending order by their
     atomic number.
 
-    If flatten=True, a scipy.sparse.coo_matrix is returned. This sparse matrix
-    is of size (1, n_features), where n_features is given by
+    If flatten=True, a sparse.COO sparse matrix is returned. This sparse matrix
+    is of size (n_features,), where n_features is given by
     get_number_of_features(). This vector is ordered so that the different
     k-terms are ordered in ascending order, and within each k-term the
     distributions at each entry (i, j, h) of the tensor are ordered in an
@@ -179,10 +177,9 @@ class MBTR(Descriptor):
         """
         if sparse and not flatten:
             raise ValueError(
-                "Cannot provide a non-flattened output in sparse output because"
-                " only 2D sparse matrices are supported. If you want a "
-                "non-flattened output, please specify sparse=False in the MBTR"
-                "constructor."
+                "Sparse, non-flattened output is currently not supported. If "
+                "you want a non-flattened output, please specify sparse=False "
+                "in the MBTR constructor."
             )
         super().__init__(periodic=periodic, flatten=flatten, sparse=sparse)
         self.system = None
@@ -481,13 +478,12 @@ class MBTR(Descriptor):
                 into to the console.
 
         Returns:
-            np.ndarray | scipy.sparse.csr_matrix | list: MBTR for the
+            np.ndarray | sparse.COO | list: MBTR for the
             given systems. The return type depends on the 'sparse' and
             'flatten'-attributes. For flattened output a single numpy array or
-            sparse scipy.csr_matrix is returned. The first dimension is
-            determined by the amount of systems. If the output is not
-            flattened, dictionaries containing the MBTR tensors for each k-term
-            are returned.
+            sparse.COO matrix is returned. If the output is not flattened,
+            dictionaries containing the MBTR tensors for each k-term are
+            returned.
         """
         # If single system given, skip the parallelization
         if isinstance(system, (Atoms, System)):
@@ -498,17 +494,14 @@ class MBTR(Descriptor):
         # Combine input arguments
         inp = [(i_sys,) for i_sys in system]
 
-        # Here we precalculate the size for each job to preallocate memory.
-        n_samples = len(system)
-        k, m = divmod(n_samples, n_jobs)
-        jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
-        output_sizes = [[len(i_job)] for i_job in jobs]
-        static_size = None
+        # Determine if the outputs have a fixed size 
         if self.flatten:
-            static_size = [1, self.get_number_of_features()]
+            static_size = [self.get_number_of_features()]
+        else:
+            static_size = None
 
         # Create in parallel
-        output = self.create_parallel(inp, self.create_single, n_jobs, output_sizes, static_size, verbose=verbose)
+        output = self.create_parallel(inp, self.create_single, n_jobs, static_size, verbose=verbose)
 
         return output
 
@@ -519,7 +512,7 @@ class MBTR(Descriptor):
             system (:class:`ase.Atoms` | :class:`.System`): Input system.
 
         Returns:
-            dict | np.ndarray | scipy.sparse.coo_matrix: The return type is
+            dict | np.ndarray | sparse.COO: The return type is
             specified by the 'flatten' and 'sparse'-parameters. If the output
             is not flattened, a dictionary containing of MBTR outputs as numpy
             arrays is created. Each output is under a "kX" key. If the output
@@ -549,7 +542,7 @@ class MBTR(Descriptor):
         if self.normalization == "l2_each":
             if self.flatten is True:
                 for key, value in mbtr.items():
-                    i_data = np.array(value.tocsr().data)
+                    i_data = np.array(value.data)
                     i_norm = np.linalg.norm(i_data)
                     mbtr[key] = value/i_norm
             else:
@@ -568,25 +561,11 @@ class MBTR(Descriptor):
 
         # Flatten output if requested
         if self.flatten:
-            length = 0
-
-            datas = []
-            rows = []
-            cols = []
-            for key in sorted(mbtr.keys()):
-                tensor = mbtr[key]
-                size = tensor.shape[1]
-                coo = tensor.tocoo()
-                datas.append(coo.data)
-                rows.append(coo.row)
-                cols.append(coo.col + length)
-                length += size
-
-            datas = np.concatenate(datas)
-            rows = np.concatenate(rows)
-            cols = np.concatenate(cols)
-            mbtr = coo_matrix((datas, (rows, cols)), shape=[1, length], dtype=np.float32)
-            mbtr = sparse.COO.from_scipy_sparse(mbtr)
+            keys = sorted(mbtr.keys())
+            if len(keys) > 1:
+                mbtr = sparse.concatenate([mbtr[key] for key in keys], axis=0)
+            else:
+                mbtr = mbtr[keys[0]]
 
             # Make into a dense array if requested
             if not self.sparse:
@@ -776,7 +755,7 @@ class MBTR(Descriptor):
         # Depending on flattening, use either a sparse matrix or a dense one.
         n_elem = self.n_elements
         if self.flatten:
-            k1 = lil_matrix((1, n_elem*n), dtype=np.float32)
+            k1 = sparse.DOK((n_elem*n), dtype=np.float32)
         else:
             k1 = np.zeros((n_elem, n), dtype=np.float32)
 
@@ -791,9 +770,11 @@ class MBTR(Descriptor):
             if self.flatten:
                 start = i*n
                 end = (i+1)*n
-                k1[0, start:end] = gaussian_sum
+                k1[start:end] = gaussian_sum
             else:
                 k1[i, :] = gaussian_sum
+        if self.flatten:
+            k1 = k1.to_coo()
 
         return k1
 
@@ -883,8 +864,7 @@ class MBTR(Descriptor):
         # Depending of flattening, use either a sparse matrix or a dense one.
         n_elem = self.n_elements
         if self.flatten:
-            k2 = lil_matrix(
-                (1, int(n_elem*(n_elem+1)/2*n)), dtype=np.float32)
+            k2 = sparse.DOK((int(n_elem*(n_elem+1)/2*n)), dtype=np.float32)
         else:
             k2 = np.zeros((self.n_elements, self.n_elements, n), dtype=np.float32)
 
@@ -905,9 +885,11 @@ class MBTR(Descriptor):
             if self.flatten:
                 start = m*n
                 end = (m + 1)*n
-                k2[0, start:end] = gaussian_sum
+                k2[start:end] = gaussian_sum
             else:
                 k2[i, j, :] = gaussian_sum
+        if self.flatten:
+            k2 = k2.to_coo()
 
         return k2
 
@@ -995,9 +977,7 @@ class MBTR(Descriptor):
         # Depending of flattening, use either a sparse matrix or a dense one.
         n_elem = self.n_elements
         if self.flatten:
-            k3 = lil_matrix(
-                (1, int(n_elem*n_elem*(n_elem+1)/2*n)), dtype=np.float32
-            )
+            k3 = sparse.DOK((int(n_elem*n_elem*(n_elem+1)/2*n)), dtype=np.float32)
         else:
             k3 = np.zeros((n_elem, n_elem, n_elem, n), dtype=np.float32)
 
@@ -1020,8 +1000,10 @@ class MBTR(Descriptor):
             if self.flatten:
                 start = m*n
                 end = (m+1)*n
-                k3[0, start:end] = gaussian_sum
+                k3[start:end] = gaussian_sum
             else:
                 k3[i, j, k, :] = gaussian_sum
+        if self.flatten:
+            k3 = k3.to_coo()
 
         return k3

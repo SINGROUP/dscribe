@@ -162,7 +162,7 @@ class Descriptor(ABC):
                 .format(zs.difference(self._atomic_number_set))
             )
 
-    def create_parallel(self, inp, func, n_jobs, output_sizes=None, static_size=None, verbose=False, prefer="processes"):
+    def create_parallel(self, inp, func, n_jobs, static_size=None, verbose=False, prefer="processes"):
         """Used to parallelize the descriptor creation across multiple systems.
 
         Args:
@@ -202,16 +202,11 @@ class Descriptor(ABC):
         """
         # Split data into n_jobs (almost) equal jobs
         n_samples = len(inp)
-        n_features = self.get_number_of_features()
         is_sparse = self._sparse
         k, m = divmod(n_samples, n_jobs)
         jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
 
-        # Calculate the result in parallel with joblib
-        if output_sizes is None:
-            output_sizes = n_jobs*[None]
-
-        def create_multiple(arguments, func, is_sparse, n_features, i_output_size, index, verbose):
+        def create_multiple(arguments, func, is_sparse, index, verbose):
             """This is the function that is called by each job but with
             different parts of the data.
             """
@@ -220,7 +215,7 @@ class Descriptor(ABC):
                 i_shape = None
                 results = []
             else:
-                i_shape = i_output_size + static_size
+                i_shape = [len(arguments)] + static_size
                 if is_sparse:
                     data = []
                     coords = []
@@ -233,6 +228,7 @@ class Descriptor(ABC):
 
             for i_sample, i_arg in enumerate(arguments):
                 i_out = func(*i_arg)
+                # print(i_out.shape)
 
                 # If the shape varies, just add result into a list
                 if static_size is None:
@@ -258,7 +254,7 @@ class Descriptor(ABC):
 
             return (results, index)
 
-        vec_lists = Parallel(n_jobs=n_jobs, prefer=prefer)(delayed(create_multiple)(i_args, func, is_sparse, n_features, i_output_size, index, verbose) for index, (i_args, i_output_size) in enumerate(zip(jobs, output_sizes)))
+        vec_lists = Parallel(n_jobs=n_jobs, prefer=prefer)(delayed(create_multiple)(i_args, func, is_sparse, index, verbose) for index, i_args in enumerate(jobs))
 
         # Restore the calculation order. If using the threading backend, the
         # input order may have been lost.

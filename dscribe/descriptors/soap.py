@@ -299,49 +299,39 @@ class SOAP(Descriptor):
                 )
             inp = list(zip(system, positions))
 
-        # For SOAP the output size for each job depends on the exact arguments.
-        # Here we precalculate the size for each job to preallocate memory and
-        # make the process faster.
-        k, m = divmod(n_samples, n_jobs)
-        jobs = list((inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs)))
-
-        # Averaged output always has fixed shape
+        # Determine if the outputs have a fixed size 
         n_features = self.get_number_of_features()
-        output_sizes = [[len(i_job)] for i_job in jobs]
         static_size = None
         if self.average == "outer" or self.average == "inner":
-            static_size = [1, n_features]
-        # Check if there always is the same amount of centers in each system
+            static_size = [n_features]
         else:
             if positions is None:
-                n_centers = jobs[0][0][0]
+                n_centers = len(inp[0][0])
             else:
-                first_sample, first_pos = jobs[0][0]
+                first_sample, first_pos = inp[0]
                 if first_pos is not None:
                     n_centers = len(first_pos)
                 else:
                     n_centers = len(first_sample)
 
             def is_static():
-                for i_job in jobs:
+                for i_job in inp:
                     if positions is None:
-                        for job in i_job:
-                            if n_centers != job[0]:
-                                return False
+                        if len(i_job[0]) != n_centers:
+                            return False
                     else:
-                        for i_sample, i_pos in i_job:
-                            if i_pos is not None:
-                                if n_centers != len(i_pos):
-                                    return False
-                            else:
-                                if n_centers != len(i_sample):
-                                    return False
+                        if i_job[1] is not None:
+                            if len(i_job[1]) != n_centers:
+                                return False
+                        else:
+                            if len(i_job[0]) != n_centers:
+                                return False
                 return True
             if is_static():
                 static_size = [n_centers, n_features]
 
         # Create in parallel
-        output = self.create_parallel(inp, self.create_single, n_jobs, output_sizes, static_size, verbose=verbose)
+        output = self.create_parallel(inp, self.create_single, n_jobs, static_size, verbose=verbose)
 
         return output
 
@@ -433,6 +423,10 @@ class SOAP(Descriptor):
                 np.asarray(system.get_pbc(), dtype=bool),
                 centers,
             )
+
+        # Remove the unnecessary dimension from averaged output
+        if self.average != "off":
+            soap_mat = np.squeeze(soap_mat, axis=0)
 
         # Make into a sparse array if requested
         if self._sparse:
