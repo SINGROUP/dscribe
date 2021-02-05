@@ -97,11 +97,11 @@ class EwaldSumMatrix(MatrixDescriptor):
                 into to the console.
 
         Returns:
-            np.ndarray | scipy.sparse.csr_matrix: Ewald sum matrix for the
-            given systems. The return type depends on the 'sparse' and
-            'flatten'-attributes. For flattened output a single numpy array or
-            sparse scipy.csr_matrix is returned. The first dimension is
-            determined by the amount of systems.
+            np.ndarray | sparse.COO: Ewald sum matrix for the given systems.
+            The return type depends on the 'sparse' and 'flatten'-attributes.
+            For flattened output a single numpy array or sparse.COO is
+            returned. The first dimension is determined by the amount of
+            systems.
         """
         # If single system given, skip the parallelization
         if isinstance(system, (Atoms, System)):
