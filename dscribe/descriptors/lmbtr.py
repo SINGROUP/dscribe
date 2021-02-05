@@ -19,7 +19,6 @@ import numpy as np
 
 from sklearn.preprocessing import normalize
 
-# from scipy.sparse import coo_matrix
 from scipy.sparse import lil_matrix
 import sparse
 
@@ -384,8 +383,8 @@ class LMBTR(MBTR):
         if self.normalization == "l2_each":
             if self.flatten is True:
                 for key, value in mbtr.items():
-                    value_normalized = normalize(value, norm='l2', axis=1)
-                    mbtr[key] = value_normalized
+                    norm = np.linalg.norm(value.data)
+                    value /= norm
             else:
                 for key, value in mbtr.items():
                     for array in value:
@@ -395,31 +394,9 @@ class LMBTR(MBTR):
 
         # Flatten output if requested
         if self.flatten:
-            # length = 0
-
-            # datas = []
-            # rows = []
-            # cols = []
-            # print("===================")
-            # for key in sorted(mbtr.keys()):
-                # tensor = mbtr[key]
-                # print(tensor.shape)
-                # print(type(tensor))
-                # size = tensor.shape[1]
-                # coo = tensor.tocoo()
-                # datas.append(coo.data)
-                # rows.append(coo.row)
-                # cols.append(coo.col + length)
-                # length += size
-
-            # datas = np.concatenate(datas)
-            # rows = np.concatenate(rows)
-            # cols = np.concatenate(cols)
-            # result = coo_matrix((datas, (rows, cols)), shape=[n_loc, length], dtype=np.float32)
-
             keys = sorted(mbtr.keys())
             if len(keys) > 1:
-                result = sparse.concatenate([mbtr[key] for key in keys], axis=0)
+                result = sparse.concatenate([mbtr[key] for key in keys], axis=1)
             else:
                 result = mbtr[keys[0]]
 
@@ -485,7 +462,6 @@ class LMBTR(MBTR):
             new_kx_map = {}
             item = dict(item)
             for key, value in item.items():
-                #new_key = tuple(int(x) for x in key.decode("utf-8").split(","))
                 new_key = tuple(int(x) for x in key.split(","))
                 new_kx_map[new_key] = np.array(value, dtype=np.float32)
             new_kx_list.append(new_kx_map)

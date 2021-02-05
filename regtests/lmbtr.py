@@ -19,7 +19,8 @@ import copy
 
 import numpy as np
 
-import scipy.sparse
+import sparse
+
 from scipy.signal import find_peaks
 
 from dscribe.descriptors import LMBTR
@@ -167,6 +168,24 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         feat2 = desc.create(H2O, [0])
         k2_each = feat2[0]["k2"]
         k3_each = feat2[0]["k3"]
+        self.assertTrue(np.array_equal(k2/k2_norm, k2_each))
+        self.assertTrue(np.array_equal(k3/k3_norm, k3_each))
+
+        # Test normalization of flat sparse output with l2_each
+        n_elem = desc.n_elements
+        k2_slice = slice(0, default_k2["grid"]["n"]*n_elem)
+        k3_slice = slice(default_k2["grid"]["n"]*n_elem, -1)
+        desc.flatten = True
+        desc.sparse = False
+        desc.normalization = "none"
+        feat3 = desc.create(H2O, [0])
+        k2 = feat3[0, k2_slice]
+        k3 = feat3[0, k3_slice]
+        desc.normalization = "l2_each"
+        desc.sparse = True
+        feat4 = desc.create(H2O, [0])
+        k2_each = feat4[0, k2_slice].todense()
+        k3_each = feat4[0, k3_slice].todense()
         self.assertTrue(np.array_equal(k2/k2_norm, k2_each))
         self.assertTrue(np.array_equal(k3/k3_norm, k3_each))
 
@@ -364,7 +383,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         desc = copy.deepcopy(default_desc_k2_k3)
         desc.sparse = True
         vec = desc.create(H2O, positions=[0])
-        self.assertTrue(type(vec) == scipy.sparse.coo_matrix)
+        self.assertTrue(type(vec) == sparse.COO)
 
     def test_parallel_dense(self):
         """Tests creating dense output parallelly.
@@ -690,9 +709,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         self.assertTrue(self.is_translationally_symmetric(create_1))
 
 if __name__ == "__main__":
-    LMBTRTests().test_parallel_sparse()
-    LMBTRTests().test_parallel_dense()
-    # suites = []
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(LMBTRTests))
-    # alltests = unittest.TestSuite(suites)
-    # result = unittest.TextTestRunner(verbosity=0).run(alltests)
+    suites = []
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(LMBTRTests))
+    alltests = unittest.TestSuite(suites)
+    result = unittest.TextTestRunner(verbosity=0).run(alltests)
