@@ -128,13 +128,12 @@ void SOAPGTO::derivatives_analytical(
     py::array_t<double> centers,
     py::array_t<int> center_indices,
     py::array_t<int> indices,
-    bool return_descriptor
+    const bool return_descriptor
 ) const
 {
     int n_atoms = atomic_numbers.shape(0); // Should be saved before extending the system
     int n_species = this->species.shape(0);
     int n_centers = centers.shape(0);
-
 
     // Extend system if periodicity is requested.
     auto pbc_u = pbc.unchecked<1>();
@@ -168,7 +167,8 @@ void SOAPGTO::derivatives_analytical(
         this->eta,
         this->crossover,
         indices,
-        return_descriptor
+        return_descriptor,
+        true
     );
 }
 

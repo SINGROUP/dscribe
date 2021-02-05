@@ -86,7 +86,7 @@ void getAlphaBetaD(double* aOa, double* bOa, double* alphas, double* betas, int 
   }
 }
 //================================================================
-void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prCofDZ, int Asize, double* x,double* x2, double* x4, double* x6, double* x8, double* x10,double* x12,double* x14,double* x16,double* x18, double* y,double* y2, double* y4, double* y6, double* y8, double* y10,double* y12,double* y14,double* y16,double* y18, double* z, double* z2, double* z4, double* z6, double* z8, double* z10,double* z12,double* z14,double* z16,double* z18, double* r2, double* r4, double* r6, double* r8,double* r10,double* r12,double* r14,double* r16,double* r18,int totalAN, int lMax, int onlyDescriptor){
+void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prCofDZ, int Asize, double* x,double* x2, double* x4, double* x6, double* x8, double* x10,double* x12,double* x14,double* x16,double* x18, double* y,double* y2, double* y4, double* y6, double* y8, double* y10,double* y12,double* y14,double* y16,double* y18, double* z, double* z2, double* z4, double* z6, double* z8, double* z10,double* z12,double* z14,double* z16,double* z18, double* r2, double* r4, double* r6, double* r8,double* r10,double* r12,double* r14,double* r16,double* r18,int totalAN, int lMax, bool return_derivatives){
 
   for (int i = 0; i < Asize; i++) {
     if (lMax > 1){
@@ -95,7 +95,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
         preCoef[totalAN*2+i] = -0.31539156525252*x2[i] - 0.31539156525252*y2[i] + 0.63078313050504*z2[i];
         preCoef[totalAN*3+i] = 1.09254843059208*x[i]*z[i];
         preCoef[totalAN*4+i] = 0.54627421529604*x2[i] - 0.54627421529604*y2[i];
-        if(onlyDescriptor == 0){
+        if (return_derivatives) {
         prCofDX[         +i] = 1.09254843059208*y[i];
         prCofDX[totalAN*1+i] = 0;
         prCofDX[totalAN*2+i] = -0.63078313050504*x[i];
@@ -123,7 +123,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
         preCoef[totalAN*10+i] = 1.44530572132028*z[i]*(x2[i] - y2[i]);
         preCoef[totalAN*11+i] = 0.590043589926644*x[i]*(x2[i] - 3.0*y2[i]);
 
-        if(onlyDescriptor == 0){
+        if(return_derivatives){
         prCofDX[totalAN*5+i] = 3.54026153955986*x[i]*y[i];
         prCofDX[totalAN*6+i] = 2.89061144264055*y[i]*z[i];
         prCofDX[totalAN*7+i] = -0.914091598928931*x[i]*y[i];
@@ -159,7 +159,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
         preCoef[totalAN*19+i] = 1.77013076977993*x[i]*z[i]*(x2[i] - 3.0*y2[i]);
         preCoef[totalAN*20+i] = 0.625835735449176*x4[i] - 3.75501441269506*x2[i]*y2[i] + 0.625835735449176*y4[i];
 
-        if(onlyDescriptor == 0){
+        if(return_derivatives){
         prCofDX[totalAN*12+i] = 2.5033429417967*y[i]*(3.0*x2[i] - y2[i]);
         prCofDX[totalAN*13+i] = 10.6207846186796*x[i]*y[i]*z[i];
         prCofDX[totalAN*14+i] = 0.94617469575756*y[i]*(-3.0*x2[i] - y2[i] + 6.0*z2[i]);
@@ -203,7 +203,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
         preCoef[totalAN*30+i] = 2.07566231488104*z[i]*(x4[i] - 6.0*x2[i]*y2[i] + y4[i]);
         preCoef[totalAN*31+i] = 0.65638205684017*x[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i]);
 
-        if(onlyDescriptor == 0){
+        if(return_derivatives){
         prCofDX[totalAN*21+i] = 13.1276411368034*x[i]*y[i]*(x2[i] - y2[i]);
         prCofDX[totalAN*22+i] = 8.30264925952416*y[i]*z[i]*(3.0*x2[i] - y2[i]);
         prCofDX[totalAN*23+i] = 1.956953197741*x[i]*y[i]*(-3.0*x2[i] - y2[i] + 12.0*z2[i]);
@@ -255,7 +255,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
         preCoef[totalAN*43+i] = 2.36661916223175*x[i]*z[i]*(x4[i] - 10.0*x2[i]*y2[i] + 5.0*y4[i]);
         preCoef[totalAN*44+i] = 0.683184105191914*x6[i] - 10.2477615778787*x4[i]*y2[i] + 10.2477615778787*x2[i]*y4[i] - 0.683184105191914*y6[i];
 
-        if(onlyDescriptor == 0){
+        if(return_derivatives){
         prCofDX[totalAN*32+i] = 4.09910463115149*y[i]*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i]);
         prCofDX[totalAN*33+i] = 47.332383244635*x[i]*y[i]*z[i]*(x2[i] - y2[i]);
         prCofDX[totalAN*34+i] = -2.0182596029149*y[i]*(5.0*x4[i] - 30.0*x2[i]*z2[i] - y4[i] + 10.0*y2[i]*z2[i]);
@@ -315,7 +315,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
         preCoef[totalAN*58+i] = 2.6459606618019*z[i]*(x6[i] - 15.0*x4[i]*y2[i] + 15.0*x2[i]*y4[i] - y6[i]);
         preCoef[totalAN*59+i] = 0.707162732524596*x[i]*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]);
 
-        if(onlyDescriptor == 0){
+        if(return_derivatives){
         prCofDX[totalAN*45+i] = 9.90027825534435*x[i]*y[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i]);
         prCofDX[totalAN*46+i] = 15.8757639708114*y[i]*z[i]*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i]);
         prCofDX[totalAN*47+i] = 1.03783115744052*x[i]*y[i]*(-5.0*x4[i] + 10.0*x2[i]*y2[i] - y4[i] - 10.0*(x2[i] - y2[i])*(x2[i] + y2[i] - 12.0*z2[i]));
@@ -383,7 +383,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
         preCoef[totalAN*75+i] = 2.91570664069932*x[i]*z[i]*(x6[i] - 21.0*x4[i]*y2[i] + 35.0*x2[i]*y4[i] - 7.0*y6[i]);
         preCoef[totalAN*76+i] = 0.72892666017483*x8[i] - 20.4099464848952*x6[i]*y2[i] + 51.0248662122381*x4[i]*y4[i] - 20.4099464848952*x2[i]*y6[i] + 0.72892666017483*y8[i];
 
-        if(onlyDescriptor == 0){
+        if(return_derivatives){
         prCofDX[totalAN*60+i] = 5.83141328139864*y[i]*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]);
         prCofDX[totalAN*61+i] = 40.8198929697905*x[i]*y[i]*z[i]*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i]);
         prCofDX[totalAN*62+i] = 1.06466553211909*y[i]*(x2[i]*(-6.0*x4[i] + 20.0*x2[i]*y2[i] - 6.0*y4[i]) - 3.0*(x2[i] + y2[i] - 14.0*z2[i])*(5.0*x4[i] - 10.0*x2[i]*y2[i] + y4[i]));
@@ -459,7 +459,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
         preCoef[totalAN*94+i] = 3.1773176489547*z[i]*(x8[i] - 28.0*x6[i]*y2[i] + 70.0*x4[i]*y4[i] - 28.0*x2[i]*y6[i] + y8[i]);
         preCoef[totalAN*95+i] = 0.748900951853188*x[i]*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]);
 
-        if(onlyDescriptor == 0){
+        if(return_derivatives){
         prCofDX[totalAN*77+i] = 53.9208685334296*x[i]*y[i]*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]);
         prCofDX[totalAN*78+i] = 25.4185411916376*y[i]*z[i]*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]);
         prCofDX[totalAN*79+i] = 1.08981096268811*x[i]*y[i]*(-7.0*x6[i] + 35.0*x4[i]*y2[i] - 21.0*x2[i]*y4[i] + y6[i] - 7.0*(x2[i] + y2[i] - 16.0*z2[i])*(3.0*x4[i] - 10.0*x2[i]*y2[i] + 3.0*y4[i]));
@@ -543,7 +543,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
         preCoef[totalAN*115+i] = 3.43189529989171*x[i]*z[i]*(x8[i] - 36.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 84.0*x2[i]*y6[i] + 9.0*y8[i]);
         preCoef[totalAN*116+i] = 0.76739511822199*x10[i] - 34.5327803199895*x8[i]*y2[i] + 161.152974826618*x6[i]*y4[i] - 161.152974826618*x4[i]*y6[i] + 34.5327803199895*x2[i]*y8[i] - 0.76739511822199*y10[i];
 
-        if(onlyDescriptor == 0){
+        if(return_derivatives){
         prCofDX[totalAN*96+i] = 7.6739511822199*y[i]*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]);
         prCofDX[totalAN*97+i] = 247.096461592203*x[i]*y[i]*z[i]*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]);
         prCofDX[totalAN*98+i] = -4.45381546176335*y[i]*(2.0*x2[i]*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i]) + (x2[i] + y2[i] - 18.0*z2[i])*(7.0*x6[i] - 35.0*x4[i]*y2[i] + 21.0*x2[i]*y4[i] - y6[i]));
@@ -635,7 +635,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
       preCoef[totalAN*138+i] = 3.68029769880531*z[i]*(x10[i] - 45.0*x8[i]*y2[i] + 210.0*x6[i]*y4[i] - 210.0*x4[i]*y6[i] + 45.0*x2[i]*y8[i] - y10[i]);
       preCoef[totalAN*139+i] = 0.784642105787197*x[i]*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]);
 
-        if(onlyDescriptor == 0){
+        if(return_derivatives){
       prCofDX[totalAN*117+i] = 17.2621263273183*x[i]*y[i]*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]);
       prCofDX[totalAN*118+i] = 36.8029769880531*y[i]*z[i]*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]);
       prCofDX[totalAN*119+i] = 1.13576452756687*x[i]*y[i]*(-9.0*x8[i] + 84.0*x6[i]*y2[i] - 126.0*x4[i]*y4[i] + 36.0*x2[i]*y6[i] - y8[i] - 36.0*(x2[i] + y2[i] - 20.0*z2[i])*(x6[i] - 7.0*x4[i]*y2[i] + 7.0*x2[i]*y4[i] - y6[i])) ;
@@ -735,7 +735,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
       preCoef[totalAN*163+i] = 3.92321052893598*x[i]*z[i]*(x10[i] - 55.0*x8[i]*y2[i] + 330.0*x6[i]*y4[i] - 462.0*x4[i]*y6[i] + 165.0*x2[i]*y8[i] - 11.0*y10[i]);
       preCoef[totalAN*164+i] = 0.800821995783972*x12[i] - 52.8542517217421*x10[i]*y2[i] + 396.406887913066*x8[i]*y4[i] - 739.95952410439*x6[i]*y6[i] + 396.406887913066*x4[i]*y8[i] - 52.8542517217421*x2[i]*y10[i] + 0.800821995783972*y12[i];
 
-        if(onlyDescriptor == 0){
+        if(return_derivatives){
       prCofDX[totalAN*140+i] = 9.60986394940766*y[i]*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]);
       prCofDX[totalAN*141+i] = 86.3106316365917*x[i]*y[i]*z[i]*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]);
       prCofDX[totalAN*142+i] = 1.15689166958762*y[i]*(x2[i]*(-10.0*x8[i] + 120.0*x6[i]*y2[i] - 252.0*x4[i]*y4[i] + 120.0*x2[i]*y6[i] - 10.0*y8[i]) - 5.0*(x2[i] + y2[i] - 22.0*z2[i])*(9.0*x8[i] - 84.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 36.0*x2[i]*y6[i] + y8[i]));
@@ -843,7 +843,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
       preCoef[totalAN*190+i] = 4.16119315354964*z[i]*(x12[i] - 66.0*x10[i]*y2[i] + 495.0*x8[i]*y4[i] - 924.0*x6[i]*y6[i] + 495.0*x4[i]*y8[i] - 66.0*x2[i]*y10[i] + y12[i]);
       preCoef[totalAN*191+i] = 0.816077118837628*x[i]*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]);
 
-        if(onlyDescriptor == 0){
+        if(return_derivatives){
       prCofDX[totalAN*165+i] = 42.4360101795567*x[i]*y[i]*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]);
       prCofDX[totalAN*166+i] = 49.9343178425957*y[i]*z[i]*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]);
       prCofDX[totalAN*167+i] = 1.1769631586808*x[i]*y[i]*(-11.0*x10[i] + 165.0*x8[i]*y2[i] - 462.0*x6[i]*y4[i] + 330.0*x4[i]*y6[i] - 55.0*x2[i]*y8[i] + y10[i] - 11.0*(x2[i] + y2[i] - 24.0*z2[i])*(5.0*x8[i] - 60.0*x6[i]*y2[i] + 126.0*x4[i]*y4[i] - 60.0*x2[i]*y6[i] + 5.0*y8[i]));
@@ -959,7 +959,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
       preCoef[totalAN*219+i] = 4.39470978027212*x[i]*z[i]*(x12[i] - 78.0*x10[i]*y2[i] + 715.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1287.0*x4[i]*y8[i] - 286.0*x2[i]*y10[i] + 13.0*y12[i]);
       preCoef[totalAN*220+i] = 0.830522083064524*x14[i] - 75.5775095588717*x12[i]*y2[i] + 831.352605147589*x10[i]*y4[i] - 2494.05781544277*x8[i]*y6[i] + 2494.05781544277*x6[i]*y8[i] - 831.352605147589*x4[i]*y10[i] + 75.5775095588717*x2[i]*y12[i] - 0.830522083064524*y14[i];
 
-        if(onlyDescriptor == 0){
+        if(return_derivatives){
       prCofDX[totalAN*192+i] = 11.6273091629033*y[i]*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]);
       prCofDX[totalAN*193+i] = 228.52490857415*x[i]*y[i]*z[i]*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]);
       prCofDX[totalAN*194+i] = 2.39217700650788*y[i]*(x2[i]*(-6.0*x10[i] + 110.0*x8[i]*y2[i] - 396.0*x6[i]*y4[i] + 396.0*x4[i]*y6[i] - 110.0*x2[i]*y8[i] + 6.0*y10[i]) - 3.0*(x2[i] + y2[i] - 26.0*z2[i])*(11.0*x10[i] - 165.0*x8[i]*y2[i] + 462.0*x6[i]*y4[i] - 330.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - y10[i]));
@@ -1083,7 +1083,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
       preCoef[totalAN*250+i] = 4.62415125663001*z[i]*(x14[i] - 91.0*x12[i]*y2[i] + 1001.0*x10[i]*y4[i] - 3003.0*x8[i]*y6[i] + 3003.0*x6[i]*y8[i] - 1001.0*x4[i]*y10[i] + 91.0*x2[i]*y12[i] - y14[i]);
       preCoef[totalAN*251+i] = 0.844250650857373*x[i]*(x14[i] - 105.0*x12[i]*y2[i] + 1365.0*x10[i]*y4[i] - 5005.0*x8[i]*y6[i] + 6435.0*x6[i]*y8[i] - 3003.0*x4[i]*y10[i] + 455.0*x2[i]*y12[i] - 15.0*y14[i]);
 
-        if(onlyDescriptor == 0){
+        if(return_derivatives){
       prCofDX[totalAN*221+i] = 25.3275195257212*x[i]*y[i]*(7.0*x12[i] - 182.0*x10[i]*y2[i] + 1001.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1001.0*x4[i]*y8[i] - 182.0*x2[i]*y10[i] + 7.0*y12[i]);
       prCofDX[totalAN*222+i] = 64.7381175928202*y[i]*z[i]*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]);
       prCofDX[totalAN*223+i] = 1.21436161302378*x[i]*y[i]*(-13.0*x12[i] + 286.0*x10[i]*y2[i] - 1287.0*x8[i]*y4[i] + 1716.0*x6[i]*y6[i] - 715.0*x4[i]*y8[i] + 78.0*x2[i]*y10[i] - y12[i] - 26.0*(x2[i] + y2[i] - 28.0*z2[i])*(3.0*x10[i] - 55.0*x8[i]*y2[i] + 198.0*x6[i]*y4[i] - 198.0*x4[i]*y6[i] + 55.0*x2[i]*y8[i] - 3.0*y10[i]));
@@ -1215,7 +1215,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
       preCoef[totalAN*283+i] = 4.84985075323068*x[i]*z[i]*(x14[i] - 105.0*x12[i]*y2[i] + 1365.0*x10[i]*y4[i] - 5005.0*x8[i]*y6[i] + 6435.0*x6[i]*y8[i] - 3003.0*x4[i]*y10[i] + 455.0*x2[i]*y12[i] - 15.0*y14[i]);
       preCoef[totalAN*284+i] = 0.857340588838025*x16[i] - 102.880870660563*x14[i]*y2[i] + 1560.35987168521*x12[i]*y4[i] - 6865.5834354149*x10[i]*y6[i] + 11033.9733783454*x8[i]*y8[i] - 6865.5834354149*x6[i]*y10[i] + 1560.35987168521*x4[i]*y12[i] - 102.880870660563*x2[i]*y14[i] + 0.857340588838025*y16[i];
 
-        if(onlyDescriptor == 0){
+        if(return_derivatives){
       prCofDX[totalAN*252+i] = 13.7174494214084*y[i]*(15.0*x14[i] - 455.0*x12[i]*y2[i] + 3003.0*x10[i]*y4[i] - 6435.0*x8[i]*y6[i] + 5005.0*x6[i]*y8[i] - 1365.0*x4[i]*y10[i] + 105.0*x2[i]*y12[i] - y14[i]);
       prCofDX[totalAN*253+i] = 145.49552259692*x[i]*y[i]*z[i]*(7.0*x12[i] - 182.0*x10[i]*y2[i] + 1001.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1001.0*x4[i]*y8[i] - 182.0*x2[i]*y10[i] + 7.0*y12[i]);
       prCofDX[totalAN*254+i] = 1.23186332318453*y[i]*(x2[i]*(-14.0*x12[i] + 364.0*x10[i]*y2[i] - 2002.0*x8[i]*y4[i] + 3432.0*x6[i]*y6[i] - 2002.0*x4[i]*y8[i] + 364.0*x2[i]*y10[i] - 14.0*y12[i]) - 7.0*(x2[i] + y2[i] - 30.0*z2[i])*(13.0*x12[i] - 286.0*x10[i]*y2[i] + 1287.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 715.0*x4[i]*y8[i] - 78.0*x2[i]*y10[i] + y12[i]));
@@ -1355,7 +1355,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
       preCoef[totalAN*318+i] = 5.07209532485536*z[i]*(x16[i] - 120.0*x14[i]*y2[i] + 1820.0*x12[i]*y4[i] - 8008.0*x10[i]*y6[i] + 12870.0*x8[i]*y8[i] - 8008.0*x6[i]*y10[i] + 1820.0*x4[i]*y12[i] - 120.0*x2[i]*y14[i] + y16[i]);
       preCoef[totalAN*319+i] = 0.869857171920628*x[i]*(x16[i] - 136.0*x14[i]*y2[i] + 2380.0*x12[i]*y4[i] - 12376.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 19448.0*x6[i]*y10[i] + 6188.0*x4[i]*y12[i] - 680.0*x2[i]*y14[i] + 17.0*y16[i]);
 
-        if(onlyDescriptor == 0){
+        if(return_derivatives){
       prCofDX[totalAN*285+i] = 236.601150762411*x[i]*y[i]*(x14[i] - 35.0*x12[i]*y2[i] + 273.0*x10[i]*y4[i] - 715.0*x8[i]*y6[i] + 715.0*x6[i]*y8[i] - 273.0*x4[i]*y10[i] + 35.0*x2[i]*y12[i] - y14[i]);
       prCofDX[totalAN*286+i] = 81.1535251976858*y[i]*z[i]*(15.0*x14[i] - 455.0*x12[i]*y2[i] + 3003.0*x10[i]*y4[i] - 6435.0*x8[i]*y6[i] + 5005.0*x6[i]*y8[i] - 1365.0*x4[i]*y10[i] + 105.0*x2[i]*y12[i] - y14[i]);
       prCofDX[totalAN*287+i] = 1.2486635518515*x[i]*y[i]*(-15.0*x14[i] + 455.0*x12[i]*y2[i] - 3003.0*x10[i]*y4[i] + 6435.0*x8[i]*y6[i] - 5005.0*x6[i]*y8[i] + 1365.0*x4[i]*y10[i] - 105.0*x2[i]*y12[i] + y14[i] - 15.0*(x2[i] + y2[i] - 32.0*z2[i])*(7.0*x12[i] - 182.0*x10[i]*y2[i] + 1001.0*x8[i]*y4[i] - 1716.0*x6[i]*y6[i] + 1001.0*x4[i]*y8[i] - 182.0*x2[i]*y10[i] + 7.0*y12[i]));
@@ -1503,7 +1503,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
       preCoef[totalAN*355+i] = 5.29113461206997*x[i]*z[i]*(x16[i] - 136.0*x14[i]*y2[i] + 2380.0*x12[i]*y4[i] - 12376.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 19448.0*x6[i]*y10[i] + 6188.0*x4[i]*y12[i] - 680.0*x2[i]*y14[i] + 17.0*y16[i]);
       preCoef[totalAN*356+i] = 0.881855768678329*x18[i] - 134.923932607784*x16[i]*y2[i] + 2698.47865215569*x14[i]*y4[i] - 16370.7704897445*x12[i]*y6[i] + 38588.2447258263*x10[i]*y8[i] - 38588.2447258263*x8[i]*y10[i] + 16370.7704897445*x6[i]*y12[i] - 2698.47865215569*x4[i]*y14[i] + 134.923932607784*x2[i]*y16[i] - 0.881855768678329*y18[i];
 
-        if(onlyDescriptor == 0){
+        if(return_derivatives){
       prCofDX[totalAN*320+i] = 15.8734038362099*y[i]*(17.0*x16[i] - 680.0*x14[i]*y2[i] + 6188.0*x12[i]*y4[i] - 19448.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 12376.0*x6[i]*y10[i] + 2380.0*x4[i]*y12[i] - 136.0*x2[i]*y14[i] + y16[i]);
       prCofDX[totalAN*321+i] = 1439.18861448303*x[i]*y[i]*z[i]*(x14[i] - 35.0*x12[i]*y2[i] + 273.0*x10[i]*y4[i] - 715.0*x8[i]*y6[i] + 715.0*x6[i]*y8[i] - 273.0*x4[i]*y10[i] + 35.0*x2[i]*y12[i] - y14[i]);
       prCofDX[totalAN*322+i] = -10.1185847426968*y[i]*(2.0*x2[i]*(x14[i] - 35.0*x12[i]*y2[i] + 273.0*x10[i]*y4[i] - 715.0*x8[i]*y6[i] + 715.0*x6[i]*y8[i] - 273.0*x4[i]*y10[i] + 35.0*x2[i]*y12[i] - y14[i]) + (x2[i] + y2[i] - 34.0*z2[i])*(15.0*x14[i] - 455.0*x12[i]*y2[i] + 3003.0*x10[i]*y4[i] - 6435.0*x8[i]*y6[i] + 5005.0*x6[i]*y8[i] - 1365.0*x4[i]*y10[i] + 105.0*x2[i]*y12[i] - y14[i]));
@@ -1659,7 +1659,7 @@ void getCfactorsD(double* preCoef, double* prCofDX, double* prCofDY, double* prC
       preCoef[totalAN*394+i] = 5.50718751027224*z[i]*(x18[i] - 153.0*x16[i]*y2[i] + 3060.0*x14[i]*y4[i] - 18564.0*x12[i]*y6[i] + 43758.0*x10[i]*y8[i] - 43758.0*x8[i]*y10[i] + 18564.0*x6[i]*y12[i] - 3060.0*x4[i]*y14[i] + 153.0*x2[i]*y16[i] - y18[i]);
       preCoef[totalAN*395+i] = 0.893383784349949*x[i]*(x18[i] - 171.0*x16[i]*y2[i] + 3876.0*x14[i]*y4[i] - 27132.0*x12[i]*y6[i] + 75582.0*x10[i]*y8[i] - 92378.0*x8[i]*y10[i] + 50388.0*x6[i]*y12[i] - 11628.0*x4[i]*y14[i] + 969.0*x2[i]*y16[i] - 19.0*y18[i]);
 
-        if(onlyDescriptor == 0){
+        if(return_derivatives){
       prCofDX[totalAN*357+i] = 33.9485838052981*x[i]*y[i]*(9.0*x16[i] - 408.0*x14[i]*y2[i] + 4284.0*x12[i]*y4[i] - 15912.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 15912.0*x6[i]*y10[i] + 4284.0*x4[i]*y12[i] - 408.0*x2[i]*y14[i] + 9.0*y16[i]);
       prCofDX[totalAN*358+i] = 99.1293751849004*y[i]*z[i]*(17.0*x16[i] - 680.0*x14[i]*y2[i] + 6188.0*x12[i]*y4[i] - 19448.0*x10[i]*y6[i] + 24310.0*x8[i]*y8[i] - 12376.0*x6[i]*y10[i] + 2380.0*x4[i]*y12[i] - 136.0*x2[i]*y14[i] + y16[i]);
       prCofDX[totalAN*359+i] = 1.2803950883772*x[i]*y[i]*(-17.0*x16[i] + 680.0*x14[i]*y2[i] - 6188.0*x12[i]*y4[i] + 19448.0*x10[i]*y6[i] - 24310.0*x8[i]*y8[i] + 12376.0*x6[i]*y10[i] - 2380.0*x4[i]*y12[i] + 136.0*x2[i]*y14[i] - y16[i] - 136.0*(x2[i] + y2[i] - 36.0*z2[i])*(x14[i] - 35.0*x12[i]*y2[i] + 273.0*x10[i]*y4[i] - 715.0*x8[i]*y6[i] + 715.0*x6[i]*y8[i] - 273.0*x4[i]*y10[i] + 35.0*x2[i]*y12[i] - y14[i]));
@@ -1811,7 +1811,7 @@ void getCD(//double* CDevX,
     int posI,
     int typeJ,
     const vector<int> &indices,
-    int onlyDescriptor){
+    bool return_derivatives){
   if(Asize == 0){return;}
   double sumMe = 0; int NsNs = Ns*Ns;  int NsJ = ((lMax+1)*(lMax+1))*Ns*typeJ; int LNsNs;
   int LNs; int NsTsI = ((lMax+1)*(lMax+1))*Ns*Ntypes*posI;
@@ -1848,7 +1848,7 @@ void getCD(//double* CDevX,
         preValZ = preVal*z[i];
           for(int n = 0; n < Ns; n++){
           C_mu( posI, typeJ,n,0) += bOa[n*Ns + k]*preExp;
-           if(onlyDescriptor==0){
+           if(return_derivatives){
             CDevX_mu(indices[i], posI, typeJ,n,0) += bOa[n*Ns + k]*preValX;
             CDevY_mu(indices[i], posI, typeJ,n,0) += bOa[n*Ns + k]*preValY;
             CDevZ_mu(indices[i], posI, typeJ,n,0) += bOa[n*Ns + k]*preValZ;
@@ -1865,7 +1865,7 @@ void getCD(//double* CDevX,
         if(expSholder > -22){
         preExp = 2.7206990463849543*exp(expSholder);
           preVal = 2.0*aOa[LNs + k]*preExp;
-          if(onlyDescriptor==0){
+          if(return_derivatives){
           preVal1 = preVal*z[i];
           preVal2 = preVal*x[i];
           preVal3 = preVal*y[i];
@@ -1886,7 +1886,7 @@ void getCD(//double* CDevX,
 
 
           C_mu( posI, typeJ,n,1) += bOa[LNsNs + n*Ns + k]*preExp*z[i];
-           if(onlyDescriptor==0){
+           if(return_derivatives){
           CDevX_mu(indices[i], posI, typeJ,n,1) += bOa[LNsNs + n*Ns + k]*preValX1;
           CDevY_mu(indices[i], posI, typeJ,n,1) += bOa[LNsNs + n*Ns + k]*preValY1;
           CDevZ_mu(indices[i], posI, typeJ,n,1) += bOa[LNsNs + n*Ns + k]*preValZ1;
@@ -1894,7 +1894,7 @@ void getCD(//double* CDevX,
 
 
           C_mu( posI, typeJ,n,2) += bOa[LNsNs + n*Ns + k]*preExp*x[i];
-           if(onlyDescriptor==0){
+           if(return_derivatives){
           CDevX_mu(indices[i], posI, typeJ,n,2) += bOa[LNsNs + n*Ns + k]*preValX2;
           CDevY_mu(indices[i], posI, typeJ,n,2) += bOa[LNsNs + n*Ns + k]*preValY2;
           CDevZ_mu(indices[i], posI, typeJ,n,2) += bOa[LNsNs + n*Ns + k]*preValZ2;
@@ -1902,7 +1902,7 @@ void getCD(//double* CDevX,
 
 
           C_mu(posI, typeJ,n,3) += bOa[LNsNs + n*Ns + k]*preExp*y[i];
-           if(onlyDescriptor==0){
+           if(return_derivatives){
           CDevX_mu(indices[i], posI, typeJ,n,3) += bOa[LNsNs + n*Ns + k]*preValX3;
           CDevY_mu(indices[i], posI, typeJ,n,3) += bOa[LNsNs + n*Ns + k]*preValY3;
           CDevZ_mu(indices[i], posI, typeJ,n,3) += bOa[LNsNs + n*Ns + k]*preValZ3;
@@ -1927,7 +1927,7 @@ void getCD(//double* CDevX,
           if (expSholder > -22){
           preExp = exp(expSholder);
           for(int m = restOfLs*restOfLs; m < (restOfLs+1)*(restOfLs+1); m++){
-           if(onlyDescriptor==0){
+           if(return_derivatives){
             preVal = 2.0*aOa[LNs + k]*preExp*preCoef[totalAN*(m-4)+i];
             preValX = x[i]*preVal + preExp*prCofDX[totalAN*(m-4)+i];
             preValY = y[i]*preVal + preExp*prCofDY[totalAN*(m-4)+i];
@@ -1936,7 +1936,7 @@ void getCD(//double* CDevX,
             for(int n = 0; n < Ns; n++){
 
           C_mu( posI, typeJ,n,m) += bOa[LNsNs + n*Ns + k]*preExp*preCoef[totalAN*(m-4)+i];
-           if(onlyDescriptor==0){
+           if(return_derivatives){
           CDevX_mu(indices[i], posI, typeJ,n,m) += bOa[LNsNs + n*Ns + k]*preValX;
           CDevY_mu(indices[i], posI, typeJ,n,m) += bOa[LNsNs + n*Ns + k]*preValY;
           CDevZ_mu(indices[i], posI, typeJ,n,m) += bOa[LNsNs + n*Ns + k]*preValZ;
@@ -2115,17 +2115,18 @@ void soapGTODevX(
     py::array_t<double> betasArr,
     py::array_t<int> atomicNumbersArr,
 
-    double rCut,
-    double cutoffPadding,
-    int totalAN,
-    int Nt,
-    int Ns,
-    int lMax,
-    int Hs,
-    double eta,
-    bool crossover,
+    const double rCut,
+    const double cutoffPadding,
+    const int totalAN,
+    const int Nt,
+    const int Ns,
+    const int lMax,
+    const int Hs,
+    const double eta,
+    const bool crossover,
     py::array_t<int> indices,
-    bool return_descriptor
+    const bool return_descriptor,
+    const bool return_derivatives
 ) {
   
   auto derivatives_mu = derivatives.mutable_unchecked<4>();
@@ -2190,7 +2191,6 @@ void soapGTODevX(
   // Initialize binning for atoms and centers
   CellList cell_list_atoms(positions, rCut+cutoffPadding);
   CellList cell_list_centers(centers, rCut+cutoffPadding);
-  int onlyDescriptor = 0;
 
   // Create a mapping between an atomic index and its internal index in the output
   map<int, int> ZIndexMap;
@@ -2221,8 +2221,8 @@ void soapGTODevX(
       // Save the neighbour distances into the arrays dx, dy and dz
       getDeltaD(dx, dy, dz, positions, ix, iy, iz, ZIndexPair.second);
       getRsZsD(dx,x2,x4,x6,x8,x10,x12,x14,x16,x18, dy,y2,y4,y6,y8,y10,y12,y14,y16,y18, dz, r2, r4, r6, r8,r10,r12,r14,r16,r18, z2, z4, z6, z8,z10,z12,z14,z16,z18, n_neighbours,lMax);
-      getCfactorsD(preCoef, prCofDX, prCofDY, prCofDZ, n_neighbours, dx,x2, x4, x6, x8,x10,x12,x14,x16,x18, dy,y2, y4, y6, y8,y10,y12,y14,y16,y18, dz, z2, z4, z6, z8,z10,z12,z14,z16,z18, r2, r4, r6, r8,r10,r12,r14,r16,r18, totalAN, lMax, onlyDescriptor);
-      getCD(cdevX_mu, cdevY_mu, cdevZ_mu, prCofDX, prCofDY, prCofDZ, cnnd_mu, preCoef, dx, dy, dz, r2, bOa, aOa, exes, totalAN, n_neighbours, Ns, Nt, lMax, i, j, ZIndexPair.second, onlyDescriptor);
+      getCfactorsD(preCoef, prCofDX, prCofDY, prCofDZ, n_neighbours, dx,x2, x4, x6, x8,x10,x12,x14,x16,x18, dy,y2, y4, y6, y8,y10,y12,y14,y16,y18, dz, z2, z4, z6, z8,z10,z12,z14,z16,z18, r2, r4, r6, r8,r10,r12,r14,r16,r18, totalAN, lMax, return_derivatives);
+      getCD(cdevX_mu, cdevY_mu, cdevZ_mu, prCofDX, prCofDY, prCofDZ, cnnd_mu, preCoef, dx, dy, dz, r2, bOa, aOa, exes, totalAN, n_neighbours, Ns, Nt, lMax, i, j, ZIndexPair.second, return_derivatives);
 
     }
   }
@@ -2239,9 +2239,9 @@ void soapGTODevX(
   }
 
   // Calculate the derivatives
-  if(onlyDescriptor==0){
-  getPDev(derivatives_mu, positions_u, indices_u, cell_list_centers, cdevX_u, cdevY_u, cdevZ_u, cnnd_u, Ns, Nt, Hs, lMax, totalAN, crossover);
-}
+  if (return_derivatives) {
+    getPDev(derivatives_mu, positions_u, indices_u, cell_list_centers, cdevX_u, cdevY_u, cdevZ_u, cnnd_u, Ns, Nt, Hs, lMax, totalAN, crossover);
+  }
 
   return;
 }
