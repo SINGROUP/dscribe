@@ -757,7 +757,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
             # Check that the averaging is done correctly
             assumed_average = (first+second)/2
-            self.assertTrue(np.array_equal(average, assumed_average))
+            self.assertTrue(np.allclose(average, assumed_average))
 
     def test_average_inner_gto(self):
         """Tests the inner averaging (averaging done before calculating power

@@ -126,7 +126,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         lmbtr = copy.deepcopy(default_desc_k2_k3)
 
         # Position as a cartesian coordinate in list
-        lmbtr.create(H2O, positions=[[0, 1, 0]])
+        a = lmbtr.create(H2O, positions=[[0, 1, 0]])
 
         # Position as a cartesian coordinate in numpy array
         lmbtr.create(H2O, positions=np.array([[0, 1, 0]]))

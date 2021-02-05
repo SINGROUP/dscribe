@@ -228,18 +228,18 @@ class SOAP(Descriptor):
         """Return a zero-initialized numpy array for the descriptor.
         """
         if self.average == "inner" or self.average == "outer":
-            c = np.zeros((1, n_features), dtype=np.float32)
+            c = np.zeros((1, n_features), dtype=np.float64)
         else:
-            c = np.zeros((n_centers, n_features), dtype=np.float32)
+            c = np.zeros((n_centers, n_features), dtype=np.float64)
         return c
 
     def init_derivatives_array(self, n_centers, n_atoms, n_features):
         """Return a zero-initialized numpy array for the derivatives.
         """
         if self.average == "inner" or self.average == "outer":
-            d = np.zeros((1, n_atoms, 3, n_features), dtype=np.float32)
+            d = np.zeros((1, n_atoms, 3, n_features), dtype=np.float64)
         else:
-            d = np.zeros((n_centers, n_atoms, 3, n_features), dtype=np.float32)
+            d = np.zeros((n_centers, n_atoms, 3, n_features), dtype=np.float64)
         return d
 
     def init_internal_dev_array(self, n_centers, n_atoms, n_types, n, lMax):
@@ -423,6 +423,11 @@ class SOAP(Descriptor):
         # Remove the unnecessary dimension from averaged output
         if self.average != "off":
             soap_mat = np.squeeze(soap_mat, axis=0)
+
+        # Convert to float precision to save space and keep the output type
+        # consistent with other descriptors. The internal calculations still
+        # use double precision.
+        soap_mat = soap_mat.astype(np.float32)
 
         # Make into a sparse array if requested
         if self._sparse:
