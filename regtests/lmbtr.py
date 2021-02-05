@@ -430,6 +430,16 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         assumed[1, 0] = desc.create(samples[1], [[1, 2, 0]])
         self.assertTrue(np.allclose(output, assumed))
 
+        # Multiple systems, parallel job, indices, variable size
+        output = desc.create(
+            system=samples,
+            positions=[[0], [0, 1]],
+            n_jobs=2,
+        )
+        self.assertTrue(np.allclose(output[0][0], desc.create(samples[0], [0])))
+        self.assertTrue(np.allclose(output[1][0], desc.create(samples[1], [0])))
+        self.assertTrue(np.allclose(output[1][1], desc.create(samples[1], [1])))
+
     def test_parallel_sparse(self):
         """Tests creating sparse output parallelly.
         """
@@ -477,6 +487,16 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         assumed[0, 0] = desc.create(samples[0], [[0, 0, 0]]).todense()
         assumed[1, 0] = desc.create(samples[1], [[1, 2, 0]]).todense()
         self.assertTrue(np.allclose(output, assumed))
+
+        # Multiple systems, parallel job, indices, variable size
+        output = desc.create(
+            system=samples,
+            positions=[[0], [0, 1]],
+            n_jobs=2,
+        )
+        self.assertTrue(np.allclose(output[0][0].todense(), desc.create(samples[0], [0]).todense()))
+        self.assertTrue(np.allclose(output[1][0].todense(), desc.create(samples[1], [0]).todense()))
+        self.assertTrue(np.allclose(output[1][1].todense(), desc.create(samples[1], [1]).todense()))
 
     def test_k2_peaks_finite(self):
         """Tests the correct peak locations and intensities are found for the

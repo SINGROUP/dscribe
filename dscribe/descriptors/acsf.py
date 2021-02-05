@@ -17,6 +17,7 @@ import sys
 
 import numpy as np
 
+import sparse
 from scipy.sparse import coo_matrix
 
 from dscribe.descriptors.descriptor import Descriptor
@@ -30,8 +31,7 @@ import dscribe.utils.geometry
 
 
 class ACSF(Descriptor):
-    """Implementation of Atom-Centered Symmetry Functions. Currently valid for
-    finite systems only.
+    """Implementation of Atom-Centered Symmetry Functions.
 
     Notice that the species of the central atom is not encoded in the output,
     only the surrounding environment is encoded. In a typical application one
@@ -109,7 +109,7 @@ class ACSF(Descriptor):
                 into to the console.
 
         Returns:
-            np.ndarray | scipy.sparse.csr_matrix: The ACSF output for the given
+            np.ndarray | sparse.COO: The ACSF output for the given
             systems and positions. The return type depends on the
             'sparse'-attribute. The first dimension is determined by the amount
             of positions and systems and the second dimension is determined by
@@ -129,30 +129,36 @@ class ACSF(Descriptor):
         else:
             inp = list(zip(system, positions))
 
-        # For ACSF the output size for each job depends on the exact arguments.
-        # Here we precalculate the size for each job to preallocate memory and
-        # make the process faster.
-        n_samples = len(system)
-        k, m = divmod(n_samples, n_jobs)
-        jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
-        output_sizes = []
-        for i_job in jobs:
-            n_desc = 0
-            if positions is None:
-                n_desc = 0
-                for job in i_job:
-                    n_desc += len(job[0])
+        # Determine if the outputs have a fixed size 
+        n_features = self.get_number_of_features()
+        static_size = None
+        if positions is None:
+            n_centers = len(inp[0][0])
+        else:
+            first_sample, first_pos = inp[0]
+            if first_pos is not None:
+                n_centers = len(first_pos)
             else:
-                n_desc = 0
-                for i_sample, i_pos in i_job:
-                    if i_pos is not None:
-                        n_desc += len(i_pos)
+                n_centers = len(first_sample)
+
+        def is_static():
+            for i_job in inp:
+                if positions is None:
+                    if len(i_job[0]) != n_centers:
+                        return False
+                else:
+                    if i_job[1] is not None:
+                        if len(i_job[1]) != n_centers:
+                            return False
                     else:
-                        n_desc += len(i_sample)
-            output_sizes.append(n_desc)
+                        if len(i_job[0]) != n_centers:
+                            return False
+            return True
+        if is_static():
+            static_size = [n_centers, n_features]
 
         # Create in parallel
-        output = self.create_parallel(inp, self.create_single, n_jobs, output_sizes, verbose=verbose)
+        output = self.create_parallel(inp, self.create_single, n_jobs, static_size, verbose=verbose)
 
         return output
 
@@ -166,7 +172,7 @@ class ACSF(Descriptor):
                 for all atoms in the system.
 
         Returns:
-            np.ndarray | scipy.sparse.coo_matrix: The ACSF output for the
+            np.ndarray | sparse.COO: The ACSF output for the
             given system and positions. The return type depends on the
             'sparse'-attribute. The first dimension is given by the number of
             positions and the second dimension is determined by the
@@ -247,7 +253,7 @@ class ACSF(Descriptor):
 
         # Return sparse matrix if requested
         if self._sparse:
-            output = coo_matrix(output)
+            output = sparse.COO.from_numpy(output)
 
         return output
 

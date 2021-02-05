@@ -240,24 +240,30 @@ class LMBTR(MBTR):
         # Determine if the outputs have a fixed size 
         n_features = self.get_number_of_features()
         static_size = None
-        if self._flatten:
+        if positions is None:
+            n_centers = len(inp[0][0])
+        else:
             first_sample, first_pos = inp[0]
             if first_pos is not None:
                 n_centers = len(first_pos)
             else:
                 n_centers = len(first_sample)
 
-            def is_static():
-                for i_job in inp:
+        def is_static():
+            for i_job in inp:
+                if positions is None:
+                    if len(i_job[0]) != n_centers:
+                        return False
+                else:
                     if i_job[1] is not None:
                         if len(i_job[1]) != n_centers:
                             return False
                     else:
                         if len(i_job[0]) != n_centers:
                             return False
-                return True
-            if is_static():
-                static_size = [n_centers, n_features]
+            return True
+        if is_static():
+            static_size = [n_centers, n_features]
 
         # Create in parallel
         output = self.create_parallel(inp, self.create_single, n_jobs, static_size, verbose=verbose)
