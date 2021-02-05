@@ -41,9 +41,9 @@ hoh_loc = mbtr.get_location(("H", "O", "H"))
 
 # These locations can be directly used to slice the corresponding part from an
 # MBTR output for e.g. plotting.
-mbtr_water[0, h_loc]
-mbtr_water[0, ho_loc]
-mbtr_water[0, hoh_loc]
+mbtr_water[h_loc]
+mbtr_water[ho_loc]
+mbtr_water[hoh_loc]
 
 # Visualization
 import ase.data
@@ -109,8 +109,8 @@ output_weight = desc.create(system)
 fig, ax = mpl.subplots()
 x = np.linspace(0.3, 10, 200)
 ax.set_xlabel("Distance angstrom")
-ax.plot(x, output_no_weight[0, :], label="No weighting")
-ax.plot(x, output_weight[0, :], label="Exponential weighting")
+ax.plot(x, output_no_weight, label="No weighting")
+ax.plot(x, output_weight, label="Exponential weighting")
 ax.legend()
 mpl.show()
 
