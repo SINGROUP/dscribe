@@ -6,23 +6,23 @@ Changelog
           with respect to atom positions. For now, only non-periodic structures
           are supported. Supports numerical derivatives for any SOAP
           configuration, and analytical derivatives when using the GTO radial
-          basis.See more at the documentation page for derivatives.
+          basis. See more at the documentation page for derivatives.
         - Increased maximum lmax from previous 9 to 19 for the gto radial basis.
     - Breaking changes:
         - The "periodic" -keyword now instructs the code to take into account
           the periodicity of the system as defined by the pbc-attribute of the
-          ase.Atoms.  So in addition to setting periodicity=True in the
+          ase.Atoms. So in addition to setting periodicity=True in the
           descriptor, also make your system periodic in the wanted directions
-          by setting the pbc attribute.  -
+          by setting the pbc attribute.
         - The sparse output now uses the sparse matrices from the
           sparse-library. This change is motivated by the need for
           n-dimensional sparse arrays in various places. See more at the
           documentation page for sparse output.
         - The output shapes have been made more consistent across different
           descriptors: global descriptors now produce 1D flattened output and
-          local descriptors produce 2D flattened output, Whenever
-          multiple systems are given, an additional dimension is added that
-          runs across the different systems.
+          local descriptors produce 2D flattened output. Whenever multiple
+          systems are given, an additional dimension is added that runs across
+          the different systems.
 
  - 0.4.0:
     - Fixes:
