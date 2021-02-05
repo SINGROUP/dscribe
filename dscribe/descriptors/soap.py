@@ -228,29 +228,25 @@ class SOAP(Descriptor):
         """Return a zero-initialized numpy array for the descriptor.
         """
         if self.average == "inner" or self.average == "outer":
-            c = np.zeros((1, n_features), dtype=np.float64)
+            c = np.zeros((1, n_features), dtype=np.float32)
         else:
-            c = np.zeros((n_centers, n_features), dtype=np.float64)
+            c = np.zeros((n_centers, n_features), dtype=np.float32)
         return c
 
     def init_derivatives_array(self, n_centers, n_atoms, n_features):
         """Return a zero-initialized numpy array for the derivatives.
         """
         if self.average == "inner" or self.average == "outer":
-            d = np.zeros((1, n_atoms, 3, n_features), dtype=np.float64)
+            d = np.zeros((1, n_atoms, 3, n_features), dtype=np.float32)
         else:
-            d = np.zeros((n_centers, n_atoms, 3, n_features), dtype=np.float64)
+            d = np.zeros((n_centers, n_atoms, 3, n_features), dtype=np.float32)
         return d
 
     def init_internal_dev_array(self, n_centers, n_atoms, n_types, n, lMax):
-        """Return a zero-initialized numpy array for the derivatives.
-        """
         d = np.zeros((n_atoms, n_centers, n_types, n, (lMax+1)*(lMax+1)), dtype=np.float64)
         return d
 
     def init_internal_array(self, n_centers,  n_types, n, lMax):
-        """Return a zero-initialized numpy array for the derivatives.
-        """
         d = np.zeros((n_centers, n_types, n, (lMax+1)*(lMax+1)), dtype=np.float64)
         return d
 

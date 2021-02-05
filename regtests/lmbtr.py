@@ -374,40 +374,41 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         desc.species = ["C", "O", "N"]
         n_features = desc.get_number_of_features()
 
-        # Multiple systems, serial job
+        # Multiple systems, serial job, fixed size
         output = desc.create(
             system=samples,
-            positions=[[0], [0, 1]],
+            positions=[[0, 1], [0, 1]],
             n_jobs=1,
         )
-        assumed = np.empty((3, n_features))
-        assumed[0, :] = desc.create(samples[0], [0])
-        assumed[1, :] = desc.create(samples[1], [0])
-        assumed[2, :] = desc.create(samples[1], [1])
+        assumed = np.empty((2, 2, n_features))
+        assumed[0, 0] = desc.create(samples[0], [0])
+        assumed[0, 1] = desc.create(samples[0], [1])
+        assumed[1, 0] = desc.create(samples[1], [0])
+        assumed[1, 1] = desc.create(samples[1], [1])
         self.assertTrue(np.allclose(output, assumed))
 
-        # Test when position given as indices
+        # Multiple systems, parallel job, fixed size
         output = desc.create(
             system=samples,
-            positions=[[0], [0, 1]],
+            positions=[[0, 1], [0, 1]],
             n_jobs=2,
         )
-        assumed = np.empty((3, n_features))
-        assumed[0, :] = desc.create(samples[0], [0])
-        assumed[1, :] = desc.create(samples[1], [0])
-        assumed[2, :] = desc.create(samples[1], [1])
+        assumed = np.empty((2, 2, n_features))
+        assumed[0, 0] = desc.create(samples[0], [0])
+        assumed[0, 1] = desc.create(samples[0], [1])
+        assumed[1, 0] = desc.create(samples[1], [0])
+        assumed[1, 1] = desc.create(samples[1], [1])
         self.assertTrue(np.allclose(output, assumed))
 
         # Test with cartesian positions.
         output = desc.create(
             system=samples,
-            positions=[[[0, 0, 0], [1, 2, 0]], [[1, 2, 0]]],
+            positions=[[[0, 0, 0]], [[1, 2, 0]]],
             n_jobs=2,
         )
-        assumed = np.empty((2+1, n_features))
-        assumed[0, :] = desc.create(samples[0], [[0, 0, 0]])
-        assumed[1, :] = desc.create(samples[0], [[1, 2, 0]])
-        assumed[2, :] = desc.create(samples[1], [[1, 2, 0]])
+        assumed = np.empty((2, 1, n_features))
+        assumed[0, 0] = desc.create(samples[0], [[0, 0, 0]])
+        assumed[1, 0] = desc.create(samples[1], [[1, 2, 0]])
         self.assertTrue(np.allclose(output, assumed))
 
     def test_parallel_sparse(self):
@@ -420,41 +421,42 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         desc.sparse = True
         n_features = desc.get_number_of_features()
 
-        # Multiple systems, serial job
+        # Multiple systems, serial job, fixed size
         output = desc.create(
             system=samples,
-            positions=[[0], [0, 1]],
+            positions=[[0, 1], [0, 1]],
             n_jobs=1,
-        ).toarray()
-        assumed = np.empty((3, n_features))
-        assumed[0, :] = desc.create(samples[0], [0]).toarray()
-        assumed[1, :] = desc.create(samples[1], [0]).toarray()
-        assumed[2, :] = desc.create(samples[1], [1]).toarray()
+        ).todense()
+        assumed = np.empty((2, 2, n_features))
+        assumed[0, 0] = desc.create(samples[0], [0]).todense()
+        assumed[0, 1] = desc.create(samples[0], [1]).todense()
+        assumed[1, 0] = desc.create(samples[1], [0]).todense()
+        assumed[1, 1] = desc.create(samples[1], [1]).todense()
         self.assertTrue(np.allclose(output, assumed))
 
-        # Test when position given as indices
+        # Multiple systems, parallel job, fixed size
         output = desc.create(
             system=samples,
-            positions=[[0], [0, 1]],
+            positions=[[0, 1], [0, 1]],
             n_jobs=2,
-        ).toarray()
-        assumed = np.empty((3, n_features))
-        assumed[0, :] = desc.create(samples[0], [0]).toarray()
-        assumed[1, :] = desc.create(samples[1], [0]).toarray()
-        assumed[2, :] = desc.create(samples[1], [1]).toarray()
+        ).todense()
+        assumed = np.empty((2, 2, n_features))
+        assumed[0, 0] = desc.create(samples[0], [0]).todense()
+        assumed[0, 1] = desc.create(samples[0], [1]).todense()
+        assumed[1, 0] = desc.create(samples[1], [0]).todense()
+        assumed[1, 1] = desc.create(samples[1], [1]).todense()
         self.assertTrue(np.allclose(output, assumed))
 
         # Test with cartesian positions. In this case virtual positions have to
-        # be enabled
+        # be enabled.
         output = desc.create(
             system=samples,
-            positions=[[[0, 0, 0], [1, 2, 0]], [[1, 2, 0]]],
+            positions=[[[0, 0, 0]], [[1, 2, 0]]],
             n_jobs=2,
-        ).toarray()
-        assumed = np.empty((2+1, n_features))
-        assumed[0, :] = desc.create(samples[0], [[0, 0, 0]]).toarray()
-        assumed[1, :] = desc.create(samples[0], [[1, 2, 0]]).toarray()
-        assumed[2, :] = desc.create(samples[1], [[1, 2, 0]]).toarray()
+        ).todense()
+        assumed = np.empty((2, 1, n_features))
+        assumed[0, 0] = desc.create(samples[0], [[0, 0, 0]]).todense()
+        assumed[1, 0] = desc.create(samples[1], [[1, 2, 0]]).todense()
         self.assertTrue(np.allclose(output, assumed))
 
     def test_k2_peaks_finite(self):
@@ -688,7 +690,9 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         self.assertTrue(self.is_translationally_symmetric(create_1))
 
 if __name__ == "__main__":
-    suites = []
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(LMBTRTests))
-    alltests = unittest.TestSuite(suites)
-    result = unittest.TextTestRunner(verbosity=0).run(alltests)
+    LMBTRTests().test_parallel_sparse()
+    LMBTRTests().test_parallel_dense()
+    # suites = []
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(LMBTRTests))
+    # alltests = unittest.TestSuite(suites)
+    # result = unittest.TextTestRunner(verbosity=0).run(alltests)
