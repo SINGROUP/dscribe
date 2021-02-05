@@ -123,16 +123,17 @@ class EwaldSumMatrix(MatrixDescriptor):
             a = n_samples*[a]
         inp = [(i_sys, i_accuracy, i_w, i_rcut, i_gcut, i_a) for i_sys, i_accuracy, i_w, i_rcut, i_gcut, i_a in zip(system, accuracy, w, rcut, gcut, a)]
 
-        # Here we precalculate the size for each job to preallocate memory.
+        # Determine if the outputs have a fixed size 
+        n_features = self.get_number_of_features()
         if self._flatten:
-            k, m = divmod(n_samples, n_jobs)
-            jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
-            output_sizes = [len(job) for job in jobs]
+            static_size = [n_features]
+        elif self.permutation == "eigenspectrum":
+            static_size = [self.n_atoms_max]
         else:
-            output_sizes = None
+            static_size = [self.n_atoms_max, self.n_atoms_max]
 
         # Create in parallel
-        output = self.create_parallel(inp, self.create_single, n_jobs, output_sizes, verbose=verbose)
+        output = self.create_parallel(inp, self.create_single, n_jobs, static_size, verbose=verbose)
 
         return output
 

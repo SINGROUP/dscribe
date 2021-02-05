@@ -77,15 +77,10 @@ class CoulombMatrix(MatrixDescriptor):
         n_features = self.get_number_of_features()
         if self._flatten:
             static_size = [n_features]
-            # n_samples = len(system)
-            # k, m = divmod(n_samples, n_jobs)
-            # jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
-            # output_sizes = [len(job) for job in jobs]
         elif self.permutation == "eigenspectrum":
             static_size = [self.n_atoms_max]
         else:
             static_size = [self.n_atoms_max, self.n_atoms_max]
-            # output_sizes = None
 
         # Create in parallel
         output = self.create_parallel(inp, self.create_single, n_jobs, static_size, verbose=verbose)
