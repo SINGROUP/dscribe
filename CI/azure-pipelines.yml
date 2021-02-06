@@ -3,7 +3,7 @@ trigger:
 - master
 - development
 - predev
-- derivatives
+- 0.5.0rc1
 
 # Jobs
 jobs:
