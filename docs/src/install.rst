@@ -8,6 +8,11 @@ suggest using the `Windows Subsystem for Linux (WSL)
 of dependencies are given in setup.py and all of them will be automatically
 installed during setup.
 
+The package contains C++ extensions that are automatically compiled during
+install. On Linux-based systems the compilation tools are typically installed
+by default, on MacOS you may need to install additional command line tools if
+facing issues during setup (see common issues below).
+
 The latest stable release is available through pip: (add the *-\\-user* flag if
 root access is not available)
 
@@ -46,3 +51,12 @@ Common issues
    .. code-block:: sh
 
        sudo apt install python3.7-dev
+
+ - **Installation errors on MacOS**: The package depends on C++ extensions that
+   are compiled during the setup. If experiencing problems with setup on MacOS,
+   you may need to install the Xcode Command Line tools package. This can be
+   done with:
+
+   .. code-block:: sh
+
+       xcode-select —install

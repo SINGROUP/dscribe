@@ -19,7 +19,8 @@ import copy
 
 import numpy as np
 
-import scipy.sparse
+import sparse
+
 from scipy.signal import find_peaks
 
 from dscribe.descriptors import LMBTR
@@ -125,7 +126,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         lmbtr = copy.deepcopy(default_desc_k2_k3)
 
         # Position as a cartesian coordinate in list
-        lmbtr.create(H2O, positions=[[0, 1, 0]])
+        a = lmbtr.create(H2O, positions=[[0, 1, 0]])
 
         # Position as a cartesian coordinate in numpy array
         lmbtr.create(H2O, positions=np.array([[0, 1, 0]]))
@@ -167,6 +168,24 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         feat2 = desc.create(H2O, [0])
         k2_each = feat2[0]["k2"]
         k3_each = feat2[0]["k3"]
+        self.assertTrue(np.array_equal(k2/k2_norm, k2_each))
+        self.assertTrue(np.array_equal(k3/k3_norm, k3_each))
+
+        # Test normalization of flat sparse output with l2_each
+        n_elem = desc.n_elements
+        k2_slice = slice(0, default_k2["grid"]["n"]*n_elem)
+        k3_slice = slice(default_k2["grid"]["n"]*n_elem, -1)
+        desc.flatten = True
+        desc.sparse = False
+        desc.normalization = "none"
+        feat3 = desc.create(H2O, [0])
+        k2 = feat3[0, k2_slice]
+        k3 = feat3[0, k3_slice]
+        desc.normalization = "l2_each"
+        desc.sparse = True
+        feat4 = desc.create(H2O, [0])
+        k2_each = feat4[0, k2_slice].todense()
+        k3_each = feat4[0, k3_slice].todense()
         self.assertTrue(np.array_equal(k2/k2_norm, k2_each))
         self.assertTrue(np.array_equal(k3/k3_norm, k3_each))
 
@@ -364,7 +383,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         desc = copy.deepcopy(default_desc_k2_k3)
         desc.sparse = True
         vec = desc.create(H2O, positions=[0])
-        self.assertTrue(type(vec) == scipy.sparse.coo_matrix)
+        self.assertTrue(type(vec) == sparse.COO)
 
     def test_parallel_dense(self):
         """Tests creating dense output parallelly.
@@ -374,41 +393,52 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         desc.species = ["C", "O", "N"]
         n_features = desc.get_number_of_features()
 
-        # Multiple systems, serial job
+        # Multiple systems, serial job, fixed size
         output = desc.create(
             system=samples,
-            positions=[[0], [0, 1]],
+            positions=[[0, 1], [0, 1]],
             n_jobs=1,
         )
-        assumed = np.empty((3, n_features))
-        assumed[0, :] = desc.create(samples[0], [0])
-        assumed[1, :] = desc.create(samples[1], [0])
-        assumed[2, :] = desc.create(samples[1], [1])
+        assumed = np.empty((2, 2, n_features))
+        assumed[0, 0] = desc.create(samples[0], [0])
+        assumed[0, 1] = desc.create(samples[0], [1])
+        assumed[1, 0] = desc.create(samples[1], [0])
+        assumed[1, 1] = desc.create(samples[1], [1])
         self.assertTrue(np.allclose(output, assumed))
 
-        # Test when position given as indices
+        # Multiple systems, parallel job, fixed size
         output = desc.create(
             system=samples,
-            positions=[[0], [0, 1]],
+            positions=[[0, 1], [0, 1]],
             n_jobs=2,
         )
-        assumed = np.empty((3, n_features))
-        assumed[0, :] = desc.create(samples[0], [0])
-        assumed[1, :] = desc.create(samples[1], [0])
-        assumed[2, :] = desc.create(samples[1], [1])
+        assumed = np.empty((2, 2, n_features))
+        assumed[0, 0] = desc.create(samples[0], [0])
+        assumed[0, 1] = desc.create(samples[0], [1])
+        assumed[1, 0] = desc.create(samples[1], [0])
+        assumed[1, 1] = desc.create(samples[1], [1])
         self.assertTrue(np.allclose(output, assumed))
 
         # Test with cartesian positions.
         output = desc.create(
             system=samples,
-            positions=[[[0, 0, 0], [1, 2, 0]], [[1, 2, 0]]],
+            positions=[[[0, 0, 0]], [[1, 2, 0]]],
             n_jobs=2,
         )
-        assumed = np.empty((2+1, n_features))
-        assumed[0, :] = desc.create(samples[0], [[0, 0, 0]])
-        assumed[1, :] = desc.create(samples[0], [[1, 2, 0]])
-        assumed[2, :] = desc.create(samples[1], [[1, 2, 0]])
+        assumed = np.empty((2, 1, n_features))
+        assumed[0, 0] = desc.create(samples[0], [[0, 0, 0]])
+        assumed[1, 0] = desc.create(samples[1], [[1, 2, 0]])
         self.assertTrue(np.allclose(output, assumed))
+
+        # Multiple systems, parallel job, indices, variable size
+        output = desc.create(
+            system=samples,
+            positions=[[0], [0, 1]],
+            n_jobs=2,
+        )
+        self.assertTrue(np.allclose(output[0][0], desc.create(samples[0], [0])))
+        self.assertTrue(np.allclose(output[1][0], desc.create(samples[1], [0])))
+        self.assertTrue(np.allclose(output[1][1], desc.create(samples[1], [1])))
 
     def test_parallel_sparse(self):
         """Tests creating sparse output parallelly.
@@ -420,42 +450,53 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         desc.sparse = True
         n_features = desc.get_number_of_features()
 
-        # Multiple systems, serial job
+        # Multiple systems, serial job, fixed size
         output = desc.create(
             system=samples,
-            positions=[[0], [0, 1]],
+            positions=[[0, 1], [0, 1]],
             n_jobs=1,
-        ).toarray()
-        assumed = np.empty((3, n_features))
-        assumed[0, :] = desc.create(samples[0], [0]).toarray()
-        assumed[1, :] = desc.create(samples[1], [0]).toarray()
-        assumed[2, :] = desc.create(samples[1], [1]).toarray()
+        ).todense()
+        assumed = np.empty((2, 2, n_features))
+        assumed[0, 0] = desc.create(samples[0], [0]).todense()
+        assumed[0, 1] = desc.create(samples[0], [1]).todense()
+        assumed[1, 0] = desc.create(samples[1], [0]).todense()
+        assumed[1, 1] = desc.create(samples[1], [1]).todense()
         self.assertTrue(np.allclose(output, assumed))
 
-        # Test when position given as indices
+        # Multiple systems, parallel job, fixed size
         output = desc.create(
             system=samples,
-            positions=[[0], [0, 1]],
+            positions=[[0, 1], [0, 1]],
             n_jobs=2,
-        ).toarray()
-        assumed = np.empty((3, n_features))
-        assumed[0, :] = desc.create(samples[0], [0]).toarray()
-        assumed[1, :] = desc.create(samples[1], [0]).toarray()
-        assumed[2, :] = desc.create(samples[1], [1]).toarray()
+        ).todense()
+        assumed = np.empty((2, 2, n_features))
+        assumed[0, 0] = desc.create(samples[0], [0]).todense()
+        assumed[0, 1] = desc.create(samples[0], [1]).todense()
+        assumed[1, 0] = desc.create(samples[1], [0]).todense()
+        assumed[1, 1] = desc.create(samples[1], [1]).todense()
         self.assertTrue(np.allclose(output, assumed))
 
         # Test with cartesian positions. In this case virtual positions have to
-        # be enabled
+        # be enabled.
         output = desc.create(
             system=samples,
-            positions=[[[0, 0, 0], [1, 2, 0]], [[1, 2, 0]]],
+            positions=[[[0, 0, 0]], [[1, 2, 0]]],
             n_jobs=2,
-        ).toarray()
-        assumed = np.empty((2+1, n_features))
-        assumed[0, :] = desc.create(samples[0], [[0, 0, 0]]).toarray()
-        assumed[1, :] = desc.create(samples[0], [[1, 2, 0]]).toarray()
-        assumed[2, :] = desc.create(samples[1], [[1, 2, 0]]).toarray()
+        ).todense()
+        assumed = np.empty((2, 1, n_features))
+        assumed[0, 0] = desc.create(samples[0], [[0, 0, 0]]).todense()
+        assumed[1, 0] = desc.create(samples[1], [[1, 2, 0]]).todense()
         self.assertTrue(np.allclose(output, assumed))
+
+        # Multiple systems, parallel job, indices, variable size
+        output = desc.create(
+            system=samples,
+            positions=[[0], [0, 1]],
+            n_jobs=2,
+        )
+        self.assertTrue(np.allclose(output[0][0].todense(), desc.create(samples[0], [0]).todense()))
+        self.assertTrue(np.allclose(output[1][0].todense(), desc.create(samples[1], [0]).todense()))
+        self.assertTrue(np.allclose(output[1][1].todense(), desc.create(samples[1], [1]).todense()))
 
     def test_k2_peaks_finite(self):
         """Tests the correct peak locations and intensities are found for the

@@ -18,6 +18,7 @@ import unittest
 
 import numpy as np
 
+import sparse
 import scipy.linalg
 
 from dscribe.descriptors import ACSF
@@ -150,7 +151,7 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
         # Sparse
         default_desc._sparse = True
         vec = default_desc.create(H2O)
-        self.assertTrue(type(vec) == scipy.sparse.coo_matrix)
+        self.assertTrue(type(vec) == sparse.COO)
 
         # Dense
         default_desc._sparse = False
@@ -160,7 +161,7 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
     def test_parallel_dense(self):
         """Tests creating dense output parallelly.
         """
-        samples = [molecule("CO"), molecule("N2O")]
+        samples = [molecule("CO"), molecule("NO")]
         desc = ACSF(
             rcut=6.0,
             species=[6, 7, 8],
@@ -171,28 +172,30 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
         )
         n_features = desc.get_number_of_features()
 
-        # Multiple systems, serial job
+        # Multiple systems, serial job, fixed size
         output = desc.create(
             system=samples,
-            positions=[[0], [0, 1]],
+            positions=[[0, 1], [0, 1]],
             n_jobs=1,
         )
-        assumed = np.empty((3, n_features))
-        assumed[0, :] = desc.create(samples[0], [0])
-        assumed[1, :] = desc.create(samples[1], [0])
-        assumed[2, :] = desc.create(samples[1], [1])
+        assumed = np.empty((2, 2, n_features))
+        assumed[0, 0] = desc.create(samples[0], [0])
+        assumed[0, 1] = desc.create(samples[0], [1])
+        assumed[1, 0] = desc.create(samples[1], [0])
+        assumed[1, 1] = desc.create(samples[1], [1])
         self.assertTrue(np.allclose(output, assumed))
 
         # Test when position given as indices
         output = desc.create(
             system=samples,
-            positions=[[0], [0, 1]],
+            positions=[[0, 1], [0, 1]],
             n_jobs=2,
         )
-        assumed = np.empty((3, n_features))
-        assumed[0, :] = desc.create(samples[0], [0])
-        assumed[1, :] = desc.create(samples[1], [0])
-        assumed[2, :] = desc.create(samples[1], [1])
+        assumed = np.empty((2, 2, n_features))
+        assumed[0, 0] = desc.create(samples[0], [0])
+        assumed[0, 1] = desc.create(samples[0], [1])
+        assumed[1, 0] = desc.create(samples[1], [0])
+        assumed[1, 1] = desc.create(samples[1], [1])
         self.assertTrue(np.allclose(output, assumed))
 
         # Test with no positions specified
@@ -201,19 +204,28 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
             positions=[None, None],
             n_jobs=2,
         )
-        assumed = np.empty((2+3, n_features))
-        assumed[0, :] = desc.create(samples[0], [0])
-        assumed[1, :] = desc.create(samples[0], [1])
-        assumed[2, :] = desc.create(samples[1], [0])
-        assumed[3, :] = desc.create(samples[1], [1])
-        assumed[4, :] = desc.create(samples[1], [2])
+        assumed = np.empty((2, 2, n_features))
+        assumed[0, 0] = desc.create(samples[0], [0])
+        assumed[0, 1] = desc.create(samples[0], [1])
+        assumed[1, 0] = desc.create(samples[1], [0])
+        assumed[1, 1] = desc.create(samples[1], [1])
         self.assertTrue(np.allclose(output, assumed))
+
+        # Multiple systems, parallel job, indices, variable size
+        output = desc.create(
+            system=samples,
+            positions=[[0], [0, 1]],
+            n_jobs=2,
+        )
+        self.assertTrue(np.allclose(output[0][0], desc.create(samples[0], [0])))
+        self.assertTrue(np.allclose(output[1][0], desc.create(samples[1], [0])))
+        self.assertTrue(np.allclose(output[1][1], desc.create(samples[1], [1])))
 
     def test_parallel_sparse(self):
         """Tests creating sparse output parallelly.
         """
         # Test indices
-        samples = [molecule("CO"), molecule("N2O")]
+        samples = [molecule("CO"), molecule("NO")]
         desc = ACSF(
             rcut=6.0,
             species=[6, 7, 8],
@@ -225,28 +237,30 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
         )
         n_features = desc.get_number_of_features()
 
-        # Multiple systems, serial job
+        # Multiple systems, serial job, fixed size
         output = desc.create(
             system=samples,
-            positions=[[0], [0, 1]],
+            positions=[[0, 1], [0, 1]],
             n_jobs=1,
-        ).toarray()
-        assumed = np.empty((3, n_features))
-        assumed[0, :] = desc.create(samples[0], [0]).toarray()
-        assumed[1, :] = desc.create(samples[1], [0]).toarray()
-        assumed[2, :] = desc.create(samples[1], [1]).toarray()
+        ).todense()
+        assumed = np.empty((2, 2, n_features))
+        assumed[0, 0] = desc.create(samples[0], [0]).todense()
+        assumed[0, 1] = desc.create(samples[0], [1]).todense()
+        assumed[1, 0] = desc.create(samples[1], [0]).todense()
+        assumed[1, 1] = desc.create(samples[1], [1]).todense()
         self.assertTrue(np.allclose(output, assumed))
 
-        # Test when position given as indices
+        # Multiple systems, parallel job, fixed size
         output = desc.create(
             system=samples,
-            positions=[[0], [0, 1]],
+            positions=[[0, 1], [0, 1]],
             n_jobs=2,
-        ).toarray()
-        assumed = np.empty((3, n_features))
-        assumed[0, :] = desc.create(samples[0], [0]).toarray()
-        assumed[1, :] = desc.create(samples[1], [0]).toarray()
-        assumed[2, :] = desc.create(samples[1], [1]).toarray()
+        ).todense()
+        assumed = np.empty((2, 2, n_features))
+        assumed[0, 0] = desc.create(samples[0], [0]).todense()
+        assumed[0, 1] = desc.create(samples[0], [1]).todense()
+        assumed[1, 0] = desc.create(samples[1], [0]).todense()
+        assumed[1, 1] = desc.create(samples[1], [1]).todense()
         self.assertTrue(np.allclose(output, assumed))
 
         # Test with no positions specified
@@ -254,15 +268,23 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
             system=samples,
             positions=[None, None],
             n_jobs=2,
-        ).toarray()
-
-        assumed = np.empty((2+3, n_features))
-        assumed[0, :] = desc.create(samples[0], [0]).toarray()
-        assumed[1, :] = desc.create(samples[0], [1]).toarray()
-        assumed[2, :] = desc.create(samples[1], [0]).toarray()
-        assumed[3, :] = desc.create(samples[1], [1]).toarray()
-        assumed[4, :] = desc.create(samples[1], [2]).toarray()
+        ).todense()
+        assumed = np.empty((2, 2, n_features))
+        assumed[0, 0] = desc.create(samples[0], [0]).todense()
+        assumed[0, 1] = desc.create(samples[0], [1]).todense()
+        assumed[1, 0] = desc.create(samples[1], [0]).todense()
+        assumed[1, 1] = desc.create(samples[1], [1]).todense()
         self.assertTrue(np.allclose(output, assumed))
+
+        # Multiple systems, parallel job, indices, variable size
+        output = desc.create(
+            system=samples,
+            positions=[[0], [0, 1]],
+            n_jobs=2,
+        )
+        self.assertTrue(np.allclose(output[0][0].todense(), desc.create(samples[0], [0]).todense()))
+        self.assertTrue(np.allclose(output[1][0].todense(), desc.create(samples[1], [0]).todense()))
+        self.assertTrue(np.allclose(output[1][1].todense(), desc.create(samples[1], [1]).todense()))
 
     def test_features(self):
         """Tests that the correct features are present in the descriptor.

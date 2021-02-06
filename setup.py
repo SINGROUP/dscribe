@@ -36,7 +36,6 @@ class get_pybind_include(object):
 
 cpp_extra_link_args = []
 cpp_extra_compile_args = ["-std=c++11", "-O3"]
-c_extra_compile_args = ["-std=c99", "-O3"]
 
 # Needed to specify C++ runtime library on OSX. This solution is replicated
 # from the setup.py of mdanalysis
@@ -83,7 +82,7 @@ if __name__ == "__main__":
         long_description="A Python package for creating feature transformations in applications of machine learning to materials science.",
         packages=find_packages(),
         setup_requires=['pybind11>=2.4'],
-        install_requires=['pybind11>=2.4', "numpy", "scipy", "ase>=3.19.0", "scikit-learn", "joblib"],
+        install_requires=['pybind11>=2.4', "numpy", "scipy", "ase>=3.19.0", "scikit-learn", "joblib", "sparse"],
         include_package_data=True,  # This ensures that files defined in MANIFEST.in are included
         ext_modules=extensions,
         license="Apache License 2.0",

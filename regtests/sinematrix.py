@@ -3,7 +3,7 @@ import unittest
 
 import numpy as np
 
-import scipy.sparse
+import sparse
 
 from ase import Atoms
 from ase.build import bulk
@@ -55,7 +55,7 @@ class SineMatrixTests(TestBaseClass, unittest.TestCase):
         # Flattened
         desc = SineMatrix(n_atoms_max=5, permutation="none", flatten=True)
         cm = desc.create(H2O)
-        self.assertEqual(cm.shape, (1, 25))
+        self.assertEqual(cm.shape, (25,))
 
     def test_sparse(self):
         """Tests the sparse matrix creation.
@@ -68,7 +68,7 @@ class SineMatrixTests(TestBaseClass, unittest.TestCase):
         # Sparse
         desc = SineMatrix(n_atoms_max=5, permutation="none", flatten=True, sparse=True)
         vec = desc.create(H2O)
-        self.assertTrue(type(vec) == scipy.sparse.coo_matrix)
+        self.assertTrue(type(vec) == sparse.COO)
 
     def test_parallel_dense(self):
         """Tests creating dense output parallelly.
@@ -120,31 +120,31 @@ class SineMatrixTests(TestBaseClass, unittest.TestCase):
         output = desc.create(
             system=samples,
             n_jobs=1,
-        ).toarray()
+        ).todense()
         assumed = np.empty((2, n_features))
-        assumed[0, :] = desc.create(samples[0]).toarray()
-        assumed[1, :] = desc.create(samples[1]).toarray()
+        assumed[0, :] = desc.create(samples[0]).todense()
+        assumed[1, :] = desc.create(samples[1]).todense()
         self.assertTrue(np.allclose(output, assumed))
 
         # Multiple systems, parallel job
         output = desc.create(
             system=samples,
             n_jobs=2,
-        ).toarray()
+        ).todense()
         assumed = np.empty((2, n_features))
-        assumed[0, :] = desc.create(samples[0]).toarray()
-        assumed[1, :] = desc.create(samples[1]).toarray()
+        assumed[0, :] = desc.create(samples[0]).todense()
+        assumed[1, :] = desc.create(samples[1]).todense()
         self.assertTrue(np.allclose(output, assumed))
 
         # Non-flattened output
         desc = SineMatrix(n_atoms_max=5, permutation="none", flatten=False, sparse=True)
-        output = [x.toarray() for x in desc.create(
+        output = desc.create(
             system=samples,
             n_jobs=2,
-        )]
+        ).todense()
         assumed = np.empty((2, 5, 5))
-        assumed[0] = desc.create(samples[0]).toarray()
-        assumed[1] = desc.create(samples[1]).toarray()
+        assumed[0] = desc.create(samples[0]).todense()
+        assumed[1] = desc.create(samples[1]).todense()
         self.assertTrue(np.allclose(np.array(output), assumed))
 
     def test_features(self):

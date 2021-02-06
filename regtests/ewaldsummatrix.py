@@ -8,8 +8,9 @@ from dscribe.descriptors import EwaldSumMatrix
 from ase import Atoms
 from ase.build import bulk
 
+import sparse
+
 import scipy.constants
-import scipy.sparse
 
 from pymatgen.analysis.ewald import EwaldSummation
 from pymatgen.core.structure import Structure
@@ -80,7 +81,7 @@ class EwaldSumMatrixTests(TestBaseClass, unittest.TestCase):
         # Flattened
         desc = EwaldSumMatrix(n_atoms_max=5, permutation="none", flatten=True)
         matrix = desc.create(H2O)
-        self.assertEqual(matrix.shape, (1, 25))
+        self.assertEqual(matrix.shape, (25,))
 
     def test_sparse(self):
         """Tests the sparse matrix creation.
@@ -93,7 +94,7 @@ class EwaldSumMatrixTests(TestBaseClass, unittest.TestCase):
         # Sparse
         desc = EwaldSumMatrix(n_atoms_max=5, permutation="none", flatten=True, sparse=True)
         vec = desc.create(H2O)
-        self.assertTrue(type(vec) == scipy.sparse.coo_matrix)
+        self.assertTrue(type(vec) == sparse.COO)
 
     def test_parallel_dense(self):
         """Tests creating dense output parallelly.
@@ -145,31 +146,31 @@ class EwaldSumMatrixTests(TestBaseClass, unittest.TestCase):
         output = desc.create(
             system=samples,
             n_jobs=1,
-        ).toarray()
+        ).todense()
         assumed = np.empty((2, n_features))
-        assumed[0, :] = desc.create(samples[0]).toarray()
-        assumed[1, :] = desc.create(samples[1]).toarray()
+        assumed[0, :] = desc.create(samples[0]).todense()
+        assumed[1, :] = desc.create(samples[1]).todense()
         self.assertTrue(np.allclose(output, assumed))
 
         # Test multiple systems, parallel job
         output = desc.create(
             system=samples,
             n_jobs=2,
-        ).toarray()
+        ).todense()
         assumed = np.empty((2, n_features))
-        assumed[0, :] = desc.create(samples[0]).toarray()
-        assumed[1, :] = desc.create(samples[1]).toarray()
+        assumed[0, :] = desc.create(samples[0]).todense()
+        assumed[1, :] = desc.create(samples[1]).todense()
         self.assertTrue(np.allclose(output, assumed))
 
         # Non-flattened output
         desc = EwaldSumMatrix(n_atoms_max=5, permutation="none", flatten=False, sparse=True)
-        output = [x.toarray() for x in desc.create(
+        output = desc.create(
             system=samples,
             n_jobs=2,
-        )]
+        ).todense()
         assumed = np.empty((2, 5, 5))
-        assumed[0] = desc.create(samples[0]).toarray()
-        assumed[1] = desc.create(samples[1]).toarray()
+        assumed[0] = desc.create(samples[0]).todense()
+        assumed[1] = desc.create(samples[1]).todense()
         self.assertTrue(np.allclose(np.array(output), assumed))
 
     def test_a_independence(self):

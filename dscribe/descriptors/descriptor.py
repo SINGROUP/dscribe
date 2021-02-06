@@ -17,7 +17,7 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
-from scipy.sparse import coo_matrix
+import sparse
 
 from ase import Atoms
 from dscribe.core.system import System
@@ -29,7 +29,6 @@ from joblib import Parallel, delayed
 class Descriptor(ABC):
     """An abstract base class for all descriptors.
     """
-
     def __init__(self, periodic, flatten, sparse):
         """
         Args:
@@ -163,7 +162,7 @@ class Descriptor(ABC):
                 .format(zs.difference(self._atomic_number_set))
             )
 
-    def create_parallel(self, inp, func, n_jobs, output_sizes=None, verbose=False, prefer="processes"):
+    def create_parallel(self, inp, func, n_jobs, static_size=None, verbose=False, prefer="processes"):
         """Used to parallelize the descriptor creation across multiple systems.
 
         Args:
@@ -203,51 +202,44 @@ class Descriptor(ABC):
         """
         # Split data into n_jobs (almost) equal jobs
         n_samples = len(inp)
-        n_features = self.get_number_of_features()
         is_sparse = self._sparse
         k, m = divmod(n_samples, n_jobs)
         jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
 
-        # Calculate the result in parallel with joblib
-        if output_sizes is None:
-            output_sizes = n_jobs*[None]
-            static_size = False
-        else:
-            static_size = True
-
-        def create_multiple(arguments, func, is_sparse, n_features, n_desc, index, verbose):
+        def create_multiple(arguments, func, is_sparse, index, verbose):
             """This is the function that is called by each job but with
             different parts of the data.
             """
             # Initialize output
-            if n_desc is None:
+            if static_size is None:
+                i_shape = None
                 results = []
             else:
+                i_shape = [len(arguments)] + static_size
                 if is_sparse:
                     data = []
-                    rows = []
-                    cols = []
+                    coords = []
                 else:
-                    results = np.empty((n_desc, n_features), dtype=np.float32)
+                    results = np.empty(i_shape, dtype=np.float32)
 
-            offset = 0
             i_sample = 0
             old_percent = 0
             n_samples = len(arguments)
 
             for i_sample, i_arg in enumerate(arguments):
                 i_out = func(*i_arg)
+                # print(i_out.shape)
 
-                if n_desc is None:
+                # If the shape varies, just add result into a list
+                if static_size is None:
                     results.append(i_out)
                 else:
                     if is_sparse:
+                        sample_index = np.full((1, i_out.data.size), i_sample)
                         data.append(i_out.data)
-                        rows.append(i_out.row + offset)
-                        cols.append(i_out.col)
+                        coords.append(np.vstack((sample_index, i_out.coords)))
                     else:
-                        results[offset:offset+i_out.shape[0], :] = i_out
-                    offset += i_out.shape[0]
+                        results[i_sample] = i_out
 
                 if verbose:
                     current_percent = (i_sample+1)/n_samples*100
@@ -255,54 +247,45 @@ class Descriptor(ABC):
                         old_percent = current_percent
                         print("Process {0}: {1:.1f} %".format(index, current_percent))
 
-            if n_desc is not None and is_sparse:
+            if static_size is not None and is_sparse:
                 data = np.concatenate(data)
-                rows = np.concatenate(rows)
-                cols = np.concatenate(cols)
-                results = coo_matrix((data, (rows, cols)), shape=[n_desc, n_features], dtype=np.float32)
+                coords = np.concatenate(coords, axis=1)
+                results = sparse.COO(coords, data, shape=i_shape)
 
             return (results, index)
 
-        vec_lists = Parallel(n_jobs=n_jobs, prefer=prefer)(delayed(create_multiple)(i_args, func, is_sparse, n_features, n_desc, index, verbose) for index, (i_args, n_desc) in enumerate(zip(jobs, output_sizes)))
+        vec_lists = Parallel(n_jobs=n_jobs, prefer=prefer)(delayed(create_multiple)(i_args, func, is_sparse, index, verbose) for index, i_args in enumerate(jobs))
 
-        # Restore the caluclation order. If using the threading backend, the
+        # Restore the calculation order. If using the threading backend, the
         # input order may have been lost.
         vec_lists.sort(key=lambda x: x[1])
 
         # Remove the job index
         vec_lists = [x[0] for x in vec_lists]
 
-        if static_size is True:
+        # Create the final results by concatenating the results from each
+        # process
+        if static_size is not None:
             if self._sparse:
-                row_offset = 0
+                sample_offset = 0
                 data = []
-                cols = []
-                rows = []
-                n_descs = 0
+                coords = []
                 for i, i_res in enumerate(vec_lists):
-                    n_descs += i_res.shape[0]
-                    i_res = i_res.tocoo()
                     i_n_desc = i_res.shape[0]
                     i_data = i_res.data
-                    i_col = i_res.col
-                    i_row = i_res.row
+                    i_coords = i_res.coords
+                    i_coords[0, :] += sample_offset
 
                     data.append(i_data)
-                    rows.append(i_row + row_offset)
-                    cols.append(i_col)
+                    coords.append(i_coords)
 
-                    # Increase the row offset
-                    row_offset += i_n_desc
+                    # Increase the sample offset
+                    sample_offset += i_n_desc
 
                 # Saves the descriptors as a sparse matrix
                 data = np.concatenate(data)
-                rows = np.concatenate(rows)
-                cols = np.concatenate(cols)
-                results = coo_matrix((data, (rows, cols)), shape=[n_descs, n_features], dtype=np.float32)
-
-                # The final output is transformed into CSR form which is faster for
-                # linear algebra
-                results = results.tocsr()
+                coords = np.concatenate(coords, axis=1)
+                results = sparse.COO(coords, data, shape=[n_samples] + static_size)
             else:
                 results = np.concatenate(vec_lists, axis=0)
         else:
@@ -411,7 +394,6 @@ class Descriptor(ABC):
         """
         # Split data into n_jobs (almost) equal jobs
         n_samples = len(inp)
-        n_features = self.get_number_of_features()
         is_sparse = self._sparse
         k, m = divmod(n_samples, n_jobs)
         jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))

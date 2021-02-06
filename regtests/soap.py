@@ -19,8 +19,9 @@ import itertools
 
 import numpy as np
 
+import sparse
+
 import scipy
-import scipy.sparse
 from scipy.integrate import tplquad
 from scipy.linalg import sqrtm
 
@@ -344,7 +345,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         # Sparse
         desc = SOAP(species=[1, 8], rcut=5, nmax=5, lmax=5, periodic=True, sparse=True)
         vec = desc.create(H2O)
-        self.assertTrue(type(vec) == scipy.sparse.coo_matrix)
+        self.assertTrue(type(vec) == sparse.COO)
 
     def test_positions(self):
         """Tests that different positions are handled correctly.
@@ -387,7 +388,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
     def test_parallel_dense(self):
         """Tests creating dense output parallelly.
         """
-        samples = [molecule("CO"), molecule("N2O")]
+        samples = [molecule("CO"), molecule("NO")]
         desc = SOAP(
             species=[6, 7, 8],
             rcut=5,
@@ -401,55 +402,67 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         )
         n_features = desc.get_number_of_features()
 
-        # Multiple systems, serial job
+        # Multiple systems, serial job, indices, fixed size
         output = desc.create(
             system=samples,
-            positions=[[0], [0, 1]],
+            positions=[[0, 1], [0, 1]],
             n_jobs=1,
         )
-        assumed = np.empty((3, n_features))
-        assumed[0, :] = desc.create(samples[0], [0])
-        assumed[1, :] = desc.create(samples[1], [0])
-        assumed[2, :] = desc.create(samples[1], [1])
+        assumed = np.empty((2, 2, n_features))
+        assumed[0, 0] = desc.create(samples[0], [0])
+        assumed[0, 1] = desc.create(samples[0], [1])
+        assumed[1, 0] = desc.create(samples[1], [0])
+        assumed[1, 1] = desc.create(samples[1], [1])
         self.assertTrue(np.allclose(output, assumed))
 
-        # Test when position given as indices
+        # Multiple systems, parallel job, indices, fixed size
         output = desc.create(
             system=samples,
-            positions=[[0], [0, 1]],
+            positions=[[0, 1], [0, 1]],
             n_jobs=2,
         )
-        assumed = np.empty((3, n_features))
-        assumed[0, :] = desc.create(samples[0], [0])
-        assumed[1, :] = desc.create(samples[1], [0])
-        assumed[2, :] = desc.create(samples[1], [1])
+        assumed = np.empty((2, 2, n_features))
+        assumed[0, 0] = desc.create(samples[0], [0])
+        assumed[0, 1] = desc.create(samples[0], [1])
+        assumed[1, 0] = desc.create(samples[1], [0])
+        assumed[1, 1] = desc.create(samples[1], [1])
         self.assertTrue(np.allclose(output, assumed))
 
-        # Test with no positions specified
+        # Multiple systems, parallel job, all atoms, fixed size
         output = desc.create(
             system=samples,
             positions=[None, None],
             n_jobs=2,
         )
-        assumed = np.empty((2+3, n_features))
-        assumed[0, :] = desc.create(samples[0], [0])
-        assumed[1, :] = desc.create(samples[0], [1])
-        assumed[2, :] = desc.create(samples[1], [0])
-        assumed[3, :] = desc.create(samples[1], [1])
-        assumed[4, :] = desc.create(samples[1], [2])
+        assumed = np.empty((2, 2, n_features))
+        assumed[0, 0] = desc.create(samples[0], [0])
+        assumed[0, 1] = desc.create(samples[0], [1])
+        assumed[1, 0] = desc.create(samples[1], [0])
+        assumed[1, 1] = desc.create(samples[1], [1])
         self.assertTrue(np.allclose(output, assumed))
 
-        # Test with cartesian positions
+        # Multiple systems, parallel job, cartesian positions, fixed size
         output = desc.create(
             system=samples,
-            positions=[[[0, 0, 0], [1, 2, 0]], [[1, 2, 0]]],
+            positions=[[[0, 0, 0], [1, 2, 0]], [[0, 0, 0], [1, 2, 0]]],
             n_jobs=2,
         )
-        assumed = np.empty((2+1, n_features))
-        assumed[0, :] = desc.create(samples[0], [[0, 0, 0]])
-        assumed[1, :] = desc.create(samples[0], [[1, 2, 0]])
-        assumed[2, :] = desc.create(samples[1], [[1, 2, 0]])
+        assumed = np.empty((2, 2, n_features))
+        assumed[0, 0] = desc.create(samples[0], [[0, 0, 0]])
+        assumed[0, 1] = desc.create(samples[0], [[1, 2, 0]])
+        assumed[1, 0] = desc.create(samples[1], [[0, 0, 0]])
+        assumed[1, 1] = desc.create(samples[1], [[1, 2, 0]])
         self.assertTrue(np.allclose(output, assumed))
+
+        # Multiple systems, parallel job, indices, variable size
+        output = desc.create(
+            system=samples,
+            positions=[[0], [0, 1]],
+            n_jobs=2,
+        )
+        self.assertTrue(np.allclose(output[0][0], desc.create(samples[0], [0])))
+        self.assertTrue(np.allclose(output[1][0], desc.create(samples[1], [0])))
+        self.assertTrue(np.allclose(output[1][1], desc.create(samples[1], [1])))
 
         # Test averaged output
         desc.average = "outer"
@@ -459,15 +472,15 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             n_jobs=2,
         )
         assumed = np.empty((2, n_features))
-        assumed[0, :] = desc.create(samples[0], [0])
-        assumed[1, :] = 1/2*(desc.create(samples[1], [0]) + desc.create(samples[1], [1]))
+        assumed[0] = desc.create(samples[0], [0])
+        assumed[1] = 1/2*(desc.create(samples[1], [0]) + desc.create(samples[1], [1]))
         self.assertTrue(np.allclose(output, assumed))
 
     def test_parallel_sparse(self):
         """Tests creating sparse output parallelly.
         """
         # Test indices
-        samples = [molecule("CO"), molecule("N2O")]
+        samples = [molecule("CO"), molecule("NO")]
         desc = SOAP(
             species=[6, 7, 8],
             rcut=5,
@@ -481,56 +494,65 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         )
         n_features = desc.get_number_of_features()
 
-        # Multiple systems, serial job
+        # Multiple systems, serial job, fixed size
         output = desc.create(
             system=samples,
-            positions=[[0], [0, 1]],
+            positions=[[0, 1], [0, 1]],
             n_jobs=1,
-        ).toarray()
-        assumed = np.empty((3, n_features))
-        assumed[0, :] = desc.create(samples[0], [0]).toarray()
-        assumed[1, :] = desc.create(samples[1], [0]).toarray()
-        assumed[2, :] = desc.create(samples[1], [1]).toarray()
+        ).todense()
+        assumed = np.empty((2, 2, n_features))
+        assumed[0, 0] = desc.create(samples[0], [0]).todense()
+        assumed[0, 1] = desc.create(samples[0], [1]).todense()
+        assumed[1, 0] = desc.create(samples[1], [0]).todense()
+        assumed[1, 1] = desc.create(samples[1], [1]).todense()
         self.assertTrue(np.allclose(output, assumed))
 
-        # Test when position given as indices
+        # Multiple systems, parallel job, fixed size
         output = desc.create(
             system=samples,
-            positions=[[0], [0, 1]],
+            positions=[[0, 1], [0, 1]],
             n_jobs=2,
-        ).toarray()
-        assumed = np.empty((3, n_features))
-        assumed[0, :] = desc.create(samples[0], [0]).toarray()
-        assumed[1, :] = desc.create(samples[1], [0]).toarray()
-        assumed[2, :] = desc.create(samples[1], [1]).toarray()
+        ).todense()
+        assumed = np.empty((2, 2, n_features))
+        assumed[0, 0] = desc.create(samples[0], [0]).todense()
+        assumed[0, 1] = desc.create(samples[0], [1]).todense()
+        assumed[1, 0] = desc.create(samples[1], [0]).todense()
+        assumed[1, 1] = desc.create(samples[1], [1]).todense()
         self.assertTrue(np.allclose(output, assumed))
 
-        # Test with no positions specified
+        # Multiple systems, parallel job, all atoms, fixed size
         output = desc.create(
             system=samples,
             positions=[None, None],
             n_jobs=2,
-        ).toarray()
-
-        assumed = np.empty((2+3, n_features))
-        assumed[0, :] = desc.create(samples[0], [0]).toarray()
-        assumed[1, :] = desc.create(samples[0], [1]).toarray()
-        assumed[2, :] = desc.create(samples[1], [0]).toarray()
-        assumed[3, :] = desc.create(samples[1], [1]).toarray()
-        assumed[4, :] = desc.create(samples[1], [2]).toarray()
+        ).todense()
+        assumed = np.empty((2, 2, n_features))
+        assumed[0, 0] = desc.create(samples[0], [0]).todense()
+        assumed[0, 1] = desc.create(samples[0], [1]).todense()
+        assumed[1, 0] = desc.create(samples[1], [0]).todense()
+        assumed[1, 1] = desc.create(samples[1], [1]).todense()
         self.assertTrue(np.allclose(output, assumed))
 
-        # Test with cartesian positions
+        # Multiple systems, parallel job, cartesian positions, fixed size
         output = desc.create(
             system=samples,
-            positions=[[[0, 0, 0], [1, 2, 0]], [[1, 2, 0]]],
+            positions=[[[0, 0, 0]], [[1, 2, 0]]],
             n_jobs=2,
-        ).toarray()
-        assumed = np.empty((2+1, n_features))
-        assumed[0, :] = desc.create(samples[0], [[0, 0, 0]]).toarray()
-        assumed[1, :] = desc.create(samples[0], [[1, 2, 0]]).toarray()
-        assumed[2, :] = desc.create(samples[1], [[1, 2, 0]]).toarray()
+        ).todense()
+        assumed = np.empty((2, 1, n_features))
+        assumed[0, 0] = desc.create(samples[0], [[0, 0, 0]]).todense()
+        assumed[1, 0] = desc.create(samples[1], [[1, 2, 0]]).todense()
         self.assertTrue(np.allclose(output, assumed))
+
+        # Multiple systems, parallel job, indices, variable size
+        output = desc.create(
+            system=samples,
+            positions=[[0], [0, 1]],
+            n_jobs=2,
+        )
+        self.assertTrue(np.allclose(output[0][0].todense(), desc.create(samples[0], [0]).todense()))
+        self.assertTrue(np.allclose(output[1][0].todense(), desc.create(samples[1], [0]).todense()))
+        self.assertTrue(np.allclose(output[1][1].todense(), desc.create(samples[1], [1]).todense()))
 
         # Test averaged output
         desc.average = "outer"
@@ -538,10 +560,10 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             system=samples,
             positions=[[0], [0, 1]],
             n_jobs=2,
-        ).toarray()
+        ).todense()
         assumed = np.empty((2, n_features))
-        assumed[0, :] = desc.create(samples[0], [0]).toarray()
-        assumed[1, :] = 1/2*(desc.create(samples[1], [0]).toarray() + desc.create(samples[1], [1]).toarray())
+        assumed[0] = desc.create(samples[0], [0]).todense()
+        assumed[1] = 1/2*(desc.create(samples[1], [0]).todense() + desc.create(samples[1], [1]).todense())
         self.assertTrue(np.allclose(output, assumed))
 
     def test_unit_cells(self):
@@ -716,7 +738,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                 average="outer",
                 sparse=False
             )
-            average = desc.create(sys)[0, :]
+            average = desc.create(sys)
 
             # Create individual output for both atoms
             desc = SOAP(
@@ -735,7 +757,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
             # Check that the averaging is done correctly
             assumed_average = (first+second)/2
-            self.assertTrue(np.array_equal(average, assumed_average))
+            self.assertTrue(np.allclose(average, assumed_average))
 
     def test_average_inner_gto(self):
         """Tests the inner averaging (averaging done before calculating power

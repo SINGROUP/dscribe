@@ -19,8 +19,9 @@ import numpy as np
 
 from sklearn.preprocessing import normalize
 
-from scipy.sparse import coo_matrix
 from scipy.sparse import lil_matrix
+import sparse
+
 import scipy.spatial.distance
 
 from ase import Atoms
@@ -28,7 +29,6 @@ import ase.data
 
 from dscribe.core import System
 from dscribe.descriptors import MBTR
-#from dscribe.libmbtr.mbtrwrapper import MBTRWrapper
 from dscribe.ext import MBTRWrapper
 import dscribe.utils.geometry
 
@@ -100,8 +100,8 @@ class LMBTR(MBTR):
     n_grid_points), where the elements are sorted in ascending order by their
     atomic number.
 
-    If flatten=True, a scipy.sparse.coo_matrix is returned. This sparse matrix
-    is of size (1, n_features), where n_features is given by
+    If flatten=True, a sparse.COO is returned. This sparse matrix
+    is of size (n_features,), where n_features is given by
     get_number_of_features(). This vector is ordered so that the different
     k-terms are ordered in ascending order, and within each k-term the
     distributions at each entry (i, j, h) of the tensor are ordered in an
@@ -235,33 +235,38 @@ class LMBTR(MBTR):
 
         # Combine input arguments
         n_samples = len(system)
-        inp = [(i_sys, i_pos) for i_sys, i_pos in zip(system, positions)]
+        inp = list(zip(system, positions))
 
-        # Here we precalculate the size for each job to preallocate memory.
-        if self._flatten:
-            n_samples = len(system)
-            k, m = divmod(n_samples, n_jobs)
-            jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
-            output_sizes = []
-            for i_job in jobs:
-                n_desc = 0
-                if positions is None:
-                    n_desc = 0
-                    for job in i_job:
-                        n_desc += len(job[0])
-                else:
-                    n_desc = 0
-                    for i_sample, i_pos in i_job:
-                        if i_pos is not None:
-                            n_desc += len(i_pos)
-                        else:
-                            n_desc += len(i_sample)
-                output_sizes.append(n_desc)
+        # Determine if the outputs have a fixed size 
+        n_features = self.get_number_of_features()
+        static_size = None
+        if positions is None:
+            n_centers = len(inp[0][0])
         else:
-            output_sizes = None
+            first_sample, first_pos = inp[0]
+            if first_pos is not None:
+                n_centers = len(first_pos)
+            else:
+                n_centers = len(first_sample)
+
+        def is_static():
+            for i_job in inp:
+                if positions is None:
+                    if len(i_job[0]) != n_centers:
+                        return False
+                else:
+                    if i_job[1] is not None:
+                        if len(i_job[1]) != n_centers:
+                            return False
+                    else:
+                        if len(i_job[0]) != n_centers:
+                            return False
+            return True
+        if is_static():
+            static_size = [n_centers, n_features]
 
         # Create in parallel
-        output = self.create_parallel(inp, self.create_single, n_jobs, output_sizes, verbose=verbose)
+        output = self.create_parallel(inp, self.create_single, n_jobs, static_size, verbose=verbose)
 
         return output
 
@@ -384,8 +389,8 @@ class LMBTR(MBTR):
         if self.normalization == "l2_each":
             if self.flatten is True:
                 for key, value in mbtr.items():
-                    value_normalized = normalize(value, norm='l2', axis=1)
-                    mbtr[key] = value_normalized
+                    norm = np.linalg.norm(value.data)
+                    value /= norm
             else:
                 for key, value in mbtr.items():
                     for array in value:
@@ -395,28 +400,16 @@ class LMBTR(MBTR):
 
         # Flatten output if requested
         if self.flatten:
-            length = 0
-
-            datas = []
-            rows = []
-            cols = []
-            for key in sorted(mbtr.keys()):
-                tensor = mbtr[key]
-                size = tensor.shape[1]
-                coo = tensor.tocoo()
-                datas.append(coo.data)
-                rows.append(coo.row)
-                cols.append(coo.col + length)
-                length += size
-
-            datas = np.concatenate(datas)
-            rows = np.concatenate(rows)
-            cols = np.concatenate(cols)
-            result = coo_matrix((datas, (rows, cols)), shape=[n_loc, length], dtype=np.float32)
+            keys = sorted(mbtr.keys())
+            if len(keys) > 1:
+                result = sparse.concatenate([mbtr[key] for key in keys], axis=1)
+            else:
+                result = mbtr[keys[0]]
 
             # Make into a dense array if requested
             if not self.sparse:
-                result = result.toarray()
+                result = result.todense()
+
         # Otherwise return a list of dictionaries, each dictionary containing
         # the requested unflattened tensors
         else:
@@ -475,7 +468,6 @@ class LMBTR(MBTR):
             new_kx_map = {}
             item = dict(item)
             for key, value in item.items():
-                #new_key = tuple(int(x) for x in key.decode("utf-8").split(","))
                 new_key = tuple(int(x) for x in key.split(","))
                 new_kx_map[new_key] = np.array(value, dtype=np.float32)
             new_kx_list.append(new_kx_map)
@@ -576,8 +568,7 @@ class LMBTR(MBTR):
         n_elem = self.n_elements
         n_loc = len(indices)
         if self.flatten:
-            k2 = lil_matrix(
-                (n_loc, n_elem*n), dtype=np.float32)
+            k2 = sparse.DOK((n_loc, n_elem*n), dtype=np.float32)
 
             for i_loc, k2_map in enumerate(k2_list):
                 for key, gaussian_sum in k2_map.items():
@@ -592,6 +583,7 @@ class LMBTR(MBTR):
                         gaussian_sum /= max_val
 
                     k2[i_loc, start:end] = gaussian_sum
+            k2 = k2.to_coo()
         else:
             k2 = np.zeros((n_loc, n_elem, n), dtype=np.float32)
             for i_loc, k2_map in enumerate(k2_list):
@@ -743,9 +735,7 @@ class LMBTR(MBTR):
         n_elem = self.n_elements
         n_loc = len(indices)
         if self.flatten:
-            k3 = lil_matrix(
-                (n_loc, int((n_elem*(3*n_elem-1)*n/2))), dtype=np.float32
-            )
+            k3 = sparse.DOK((n_loc, int((n_elem*(3*n_elem-1)*n/2))), dtype=np.float32)
 
             for i_loc, k3_map in enumerate(k3_list):
                 for key, gaussian_sum in k3_map.items():
@@ -771,6 +761,7 @@ class LMBTR(MBTR):
                         gaussian_sum /= max_val
 
                     k3[i_loc, start:end] = gaussian_sum
+            k3 = k3.to_coo()
         else:
             k3 = np.zeros((n_loc, n_elem, n_elem, n_elem, n), dtype=np.float32)
             for i_loc, k3_map in enumerate(k3_list):

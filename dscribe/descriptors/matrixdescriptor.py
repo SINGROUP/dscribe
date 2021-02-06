@@ -16,7 +16,7 @@ limitations under the License.
 import numpy as np
 from numpy.random import RandomState
 
-from scipy.sparse import coo_matrix
+import sparse
 
 from dscribe.descriptors import Descriptor
 from abc import abstractmethod
@@ -129,11 +129,11 @@ class MatrixDescriptor(Descriptor):
 
         # Flatten
         if self.permutation == "eigenspectrum" or self._flatten:
-            matrix = np.reshape(matrix, (1, np.product(matrix.shape)))
+            matrix = np.reshape(matrix, (matrix.size,))
 
         # If a sparse matrix is requested, convert to coo_matrix
         if self._sparse:
-            matrix = coo_matrix(matrix)
+            matrix = sparse.COO.from_numpy(matrix)
 
         return matrix
 
