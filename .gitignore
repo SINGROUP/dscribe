@@ -93,6 +93,7 @@ profiling
 # Vim setup
 .vim
 
-# .npy and .npz files in example folder
+# Data files in example folder
 examples/**/*.npy
-examples/**/*.npz
+examples/**/*.npt
+examples/**/*.pt
