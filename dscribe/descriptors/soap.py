@@ -63,6 +63,7 @@ class SOAP(Descriptor):
             crossover=True,
             average="off",
             sparse=False,
+            dtype="float32",
             ):
         """
         Args:
@@ -103,6 +104,11 @@ class SOAP(Descriptor):
 
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
+            dtype (string): The data type of the output. Valid options are:
+
+                    * "float32": Single precision floating point numbers.
+                    * "float64": Double precision floating point numbers.
+                
         """
         super().__init__(periodic=periodic, flatten=True, sparse=sparse)
 
@@ -138,6 +144,12 @@ class SOAP(Descriptor):
                 "Invalid average mode '{}' given. Please use "
                 "one of the following: {}".format(average, supported_average)
             )
+        supported_dtype = set(("float32", "float64"))
+        if dtype not in supported_dtype:
+            raise ValueError(
+                "Invalid output data type '{}' given. Please use "
+                "one of the following: {}".format(dtype, supported_dtype)
+            )
 
         # Test that radial basis set specific settings are valid
         if rbf == "gto":
@@ -165,6 +177,7 @@ class SOAP(Descriptor):
         self._nmax = nmax
         self._lmax = lmax
         self._rbf = rbf
+        self.dtype = dtype
         self.average = average
         self.crossover = crossover
 
@@ -420,14 +433,15 @@ class SOAP(Descriptor):
                 centers,
             )
 
-        # Remove the unnecessary dimension from averaged output
+        # Averaged output is a global descriptor, and thus the first dimension
+        # is squeezed out to keep the output size consistent with the size of
+        # other global descriptors.
         if self.average != "off":
             soap_mat = np.squeeze(soap_mat, axis=0)
 
-        # Convert to float precision to save space and keep the output type
-        # consistent with other descriptors. The internal calculations still
-        # use double precision.
-        soap_mat = soap_mat.astype(np.float32)
+        # Convert to the final output precision.
+        if self.dtype == "float32":
+            soap_mat = soap_mat.astype(self.dtype)
 
         # Make into a sparse array if requested
         if self._sparse:
@@ -496,6 +510,10 @@ class SOAP(Descriptor):
                 [],
                 True,
             )
+
+        # Convert to the final output precision.
+        if self.dtype == "float32":
+            soap_mat = soap_mat.astype(self.dtype)
 
         # Make into a sparse array if requested
         if self._sparse:
@@ -702,7 +720,7 @@ class SOAP(Descriptor):
         if return_descriptor:
             c = self.init_descriptor_array(n_centers, n_features)
         else:
-            c = np.empty()
+            c = np.empty(0)
 
         if self._rbf == "gto":
             alphas = self._alphas.flatten()
@@ -788,6 +806,11 @@ class SOAP(Descriptor):
                     indices,
                     return_descriptor,
                 )
+
+        # Convert to the final output precision.
+        if self.dtype == "float32":
+            d = d.astype(self.dtype)
+            c = c.astype(self.dtype)
 
         if return_descriptor:
             return (d, c)

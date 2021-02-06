@@ -95,5 +95,5 @@ profiling
 
 # Data files in example folder
 examples/**/*.npy
-examples/**/*.npt
+examples/**/*.npz
 examples/**/*.pt

@@ -328,10 +328,15 @@ class SoapDerivativeTests(unittest.TestCase):
                         average=average,
                         crossover=True,
                         periodic=periodic,
+                        dtype="float64", # The numerical derivatives require double precision
                     )
                     n_features = soap.get_number_of_features()
-                    n_centers = 1 if average != "off" else len(centers)
-                    derivatives_python = np.zeros((n_centers, n_atoms, n_comp, n_features))
+                    if average != "off":
+                        n_centers = 1
+                        derivatives_python = np.zeros((n_atoms, n_comp, n_features))
+                    else:
+                        n_centers = len(centers)
+                        derivatives_python = np.zeros((n_centers, n_atoms, n_comp, n_features))
                     d0 = soap.create(system, centers)
                     coeffs = [-1.0/2.0, 1.0/2.0]
                     deltas = [-1.0, 1.0]
@@ -348,7 +353,10 @@ class SoapDerivativeTests(unittest.TestCase):
                                     i_pos[i_atom, i_comp] += h*deltas[i_stencil]
                                     system_disturbed.set_positions(i_pos)
                                     d1 = soap.create(system_disturbed, i_cent)
-                                    derivatives_python[i_center, i_atom, i_comp, :] += coeffs[i_stencil]*d1[0, :]/h
+                                    if average != "off":
+                                        derivatives_python[i_atom, i_comp, :] += coeffs[i_stencil]*d1/h
+                                    else:
+                                        derivatives_python[i_center, i_atom, i_comp, :] += coeffs[i_stencil]*d1[0, :]/h
 
                     # Calculate with central finite difference implemented in C++.
                     # Try both cartesian centers and indices.
@@ -362,8 +370,7 @@ class SoapDerivativeTests(unittest.TestCase):
                         # print(np.abs(derivatives_python).max())
                         # print(derivatives_python[0,1,:,:])
                         # print(derivatives_cpp[0,0,:,:])
-                        # print(np.abs(derivatives_cpp - derivatives_python).max())
-                        self.assertTrue(np.allclose(derivatives_python, derivatives_cpp, atol=1e-5))
+                        self.assertTrue(np.allclose(derivatives_python, derivatives_cpp, atol=2e-5))
 
     # def test_periodic(self):
         # """Tests that periodicity works correctly for both numerical and

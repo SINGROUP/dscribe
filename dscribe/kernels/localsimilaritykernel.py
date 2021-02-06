@@ -14,7 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from abc import ABC, abstractmethod
+
 import numpy as np
+
+import sparse
+
 from sklearn.metrics.pairwise import pairwise_kernels
 
 
@@ -75,6 +79,7 @@ class LocalSimilarityKernel(ABC):
             y = x
             symmetric = True
 
+
         # First calculate the "raw" pairwise similarity of atomic environments
         n_x = len(x)
         n_y = len(y)
@@ -94,6 +99,13 @@ class LocalSimilarityKernel(ABC):
                     y_j = None
                 else:
                     y_j = y[j]
+
+                # Convert sparse.COO to scipy.sparse.csr
+                if isinstance(x_i, sparse.COO):
+                    x_i = x_i.tocsr()
+                if isinstance(y_j, sparse.COO):
+                    y_j = y_j.tocsr()
+
                 C_ij = self.get_pairwise_matrix(x_i, y_j)
                 C_ij_dict[i, j] = C_ij
 

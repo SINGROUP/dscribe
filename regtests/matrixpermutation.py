@@ -3,6 +3,8 @@ import unittest
 
 import numpy as np
 
+import sparse
+
 import scipy.stats
 
 from ase import Atoms
@@ -68,7 +70,7 @@ class SortedMatrixTests(TestBaseClass, unittest.TestCase):
         # Flattened
         desc = CoulombMatrix(n_atoms_max=5, permutation="sorted_l2", flatten=True)
         cm = desc.create(H2O)
-        self.assertEqual(cm.shape, (1, 25))
+        self.assertEqual(cm.shape, (25,))
 
     def test_sparse(self):
         """Tests the sparse matrix creation.
@@ -81,7 +83,7 @@ class SortedMatrixTests(TestBaseClass, unittest.TestCase):
         # Sparse
         desc = CoulombMatrix(n_atoms_max=5, permutation="sorted_l2", flatten=True, sparse=True)
         vec = desc.create(H2O)
-        self.assertTrue(type(vec) == scipy.sparse.coo_matrix)
+        self.assertTrue(type(vec) == sparse.COO)
 
     def test_features(self):
         """Tests that the correct features are present in the desciptor.
@@ -135,16 +137,16 @@ class EigenSpectrumTests(TestBaseClass, unittest.TestCase):
         desc = CoulombMatrix(n_atoms_max=5, permutation="eigenspectrum")
         cm = desc.create(H2O)
 
-        self.assertEqual(cm.shape, (1, 5))
+        self.assertEqual(cm.shape, (5,))
 
         # Test that eigenvalues are in decreasing order when looking at absolute value
         prev_eig = float("Inf")
-        for eigenvalue in cm[0, :len(H2O)]:
+        for eigenvalue in cm[:len(H2O)]:
             self.assertTrue(abs(eigenvalue) <= abs(prev_eig))
             prev_eig = eigenvalue
 
         # Test that array is zero-padded
-        self.assertTrue(np.array_equal(cm[0, len(H2O):], [0, 0]))
+        self.assertTrue(np.array_equal(cm[len(H2O):], [0, 0]))
 
     def test_flatten(self):
         """Tests the flattening.
@@ -153,12 +155,12 @@ class EigenSpectrumTests(TestBaseClass, unittest.TestCase):
         desc = CoulombMatrix(n_atoms_max=5, permutation="eigenspectrum", flatten=False)
         cm = desc.create(H2O)
         # print(cm)
-        self.assertEqual(cm.shape, (1, 5))
+        self.assertEqual(cm.shape, (5,))
 
         # Flattened
         desc = CoulombMatrix(n_atoms_max=5, permutation="eigenspectrum", flatten=True)
         cm = desc.create(H2O)
-        self.assertEqual(cm.shape, (1, 5))
+        self.assertEqual(cm.shape, (5,))
 
     def test_sparse(self):
         """Tests the sparse matrix creation.
@@ -171,7 +173,7 @@ class EigenSpectrumTests(TestBaseClass, unittest.TestCase):
         # Sparse
         desc = CoulombMatrix(n_atoms_max=5, permutation="eigenspectrum", flatten=True, sparse=True)
         vec = desc.create(H2O)
-        self.assertTrue(type(vec) == scipy.sparse.coo_matrix)
+        self.assertTrue(type(vec) == sparse.COO)
 
     def test_symmetries(self):
         """Tests the symmetries of the descriptor.
@@ -226,7 +228,7 @@ class RandomMatrixTests(TestBaseClass, unittest.TestCase):
         # Flattened
         desc = CoulombMatrix(n_atoms_max=5, permutation="random", sigma=100, flatten=True)
         cm = desc.create(H2O)
-        self.assertEqual(cm.shape, (1, 25))
+        self.assertEqual(cm.shape, (25,))
 
     def test_sparse(self):
         """Tests the sparse matrix creation.
@@ -239,7 +241,7 @@ class RandomMatrixTests(TestBaseClass, unittest.TestCase):
         # Sparse
         desc = CoulombMatrix(n_atoms_max=5, permutation="random", sigma=100, flatten=True, sparse=True)
         vec = desc.create(H2O)
-        self.assertTrue(type(vec) == scipy.sparse.coo_matrix)
+        self.assertTrue(type(vec) == sparse.COO)
 
     def test_norm_vector(self):
         """Tests if the attribute _norm_vector is written and used correctly

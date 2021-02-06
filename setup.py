@@ -1,8 +1,8 @@
 import sys
 
 # Check python version
-if sys.version_info[:2] < (3, 0):
-    raise RuntimeError("Python version >= 3.0 required.")
+if sys.version_info[:2] < (3, 6):
+    raise RuntimeError("Python version >= 3.6 required.")
 
 import platform
 from distutils.ccompiler import new_compiler
