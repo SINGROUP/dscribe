@@ -72,6 +72,23 @@ class SOAPGTO: public Descriptor {
             CellList cell_list
         ) const;
 
+        void create_cartesian(
+            py::array_t<double> derivatives,
+            py::array_t<double> descriptor,
+            py::array_t<double> xd,
+            py::array_t<double> yd,
+            py::array_t<double> zd,
+            py::array_t<double> cd,
+            py::array_t<double> positions,
+            py::array_t<int> atomic_numbers,
+            py::array_t<double> cell,
+            py::array_t<bool> pbc,
+            py::array_t<double> centers,
+            py::array_t<int> center_indices,
+            py::array_t<int> indices,
+            const bool return_descriptor
+        ) const;
+
         /**
          * Get the number of features.
          */

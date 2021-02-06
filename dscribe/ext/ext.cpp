@@ -37,6 +37,7 @@ PYBIND11_MODULE(ext, m) {
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double> >()(&SOAPGTO::create, py::const_))
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<bool>, py::array_t<double> >()(&SOAPGTO::create, py::const_))
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, CellList>()(&SOAPGTO::create, py::const_))
+        .def("create_cartesian", &SOAPGTO::create_cartesian)
         .def("derivatives_numerical", &SOAPGTO::derivatives_numerical)
         .def("derivatives_analytical", &SOAPGTO::derivatives_analytical);
     py::class_<SOAPPolynomial>(m, "SOAPPolynomial")

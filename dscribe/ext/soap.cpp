@@ -106,6 +106,64 @@ void SOAPGTO::create(
     );
 }
 
+void SOAPGTO::create_cartesian(
+    py::array_t<double> derivatives,
+    py::array_t<double> descriptor,
+    py::array_t<double> xd,
+    py::array_t<double> yd,
+    py::array_t<double> zd,
+    py::array_t<double> cd,
+    py::array_t<double> positions,
+    py::array_t<int> atomic_numbers,
+    py::array_t<double> cell,
+    py::array_t<bool> pbc,
+    py::array_t<double> centers,
+    py::array_t<int> center_indices,
+    py::array_t<int> indices,
+    const bool return_descriptor
+) const
+{
+    int n_atoms = atomic_numbers.shape(0); // Should be saved before extending the system
+    int n_species = this->species.shape(0);
+    int n_centers = centers.shape(0);
+
+    // Extend system if periodicity is requested.
+    auto pbc_u = pbc.unchecked<1>();
+    bool is_periodic = this->periodic && (pbc_u(0) || pbc_u(1) || pbc_u(2));
+    if (is_periodic) {
+        ExtendedSystem system_extended = extend_system(positions, atomic_numbers, cell, pbc, this->cutoff);
+        positions = system_extended.positions;
+        atomic_numbers = system_extended.atomic_numbers;
+    }
+
+    soapGTODevX(
+        derivatives,
+        descriptor,
+        xd,
+        yd,
+        zd,
+        cd,
+        positions,
+        centers,
+        center_indices,
+        this->alphas,
+        this->betas,
+        atomic_numbers,
+        this->rcut,
+        this->cutoff_padding,
+        n_atoms,
+        n_species,
+        this->nmax,
+        this->lmax,
+        n_centers,
+        this->eta,
+        this->crossover,
+        indices,
+        return_descriptor,
+        false
+    );
+}
+
 int SOAPGTO::get_number_of_features() const
 {
     int n_species = this->species.shape(0);

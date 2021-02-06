@@ -2157,11 +2157,6 @@ void soapGTODevX(
   double* prCofDY = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN); double* prCofDZ = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN);
   double* bOa = (double*) malloc((lMax+1)*NsNs*sizeof(double)); double* aOa = (double*) malloc((lMax+1)*Ns*sizeof(double));
 
-//  py::array_t<double> cnnd({Hs,Nt,Ns,(lMax+1)*(lMax+1)});
-//  py::array_t<double> cdevX({totalAN,Hs,Nt,Ns,(lMax+1)*(lMax+1)});
-//  py::array_t<double> cdevY({totalAN,Hs,Nt,Ns,(lMax+1)*(lMax+1)});
-//  py::array_t<double> cdevZ({totalAN,Hs,Nt,Ns,(lMax+1)*(lMax+1)});
-
   auto cnnd_u = cnnd.unchecked<4>(); 
   auto cdevX_u = cdevX.unchecked<5>(); 
   auto cdevY_u = cdevY.unchecked<5>(); 
@@ -2171,22 +2166,6 @@ void soapGTODevX(
   auto cdevX_mu = cdevX.mutable_unchecked<5>(); 
   auto cdevY_mu = cdevY.mutable_unchecked<5>(); 
   auto cdevZ_mu = cdevZ.mutable_unchecked<5>(); 
-
-//    for(int j = 0; j < Hs; j++){
-//      for(int t = 0; t < Nt; t++){
-//        for(int n = 0; n < Ns; n++){
-//          for(int m = 0; m < (lMax+1)*(lMax+1); m++){
-//            cnnd_mu(j,t,n,m) = 0.0;
-//  }}}}
-//  for(int i = 0; i < totalAN; i++){
-//    for(int j = 0; j < Hs; j++){
-//      for(int t = 0; t < Nt; t++){
-//        for(int n = 0; n < Ns; n++){
-//          for(int m = 0; m < (lMax+1)*(lMax+1); m++){
-//            cdevX_mu(i,j,t,n,m) = 0.0;
-//            cdevY_mu(i,j,t,n,m) = 0.0;
-//            cdevZ_mu(i,j,t,n,m) = 0.0;
-//  }}}}} 
 
   // Initialize binning for atoms and centers
   CellList cell_list_atoms(positions, rCut+cutoffPadding);

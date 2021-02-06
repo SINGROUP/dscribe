@@ -421,6 +421,74 @@ class SOAP(Descriptor):
 
         return soap_mat
 
+    def _cartesian(self, system, positions=None):
+        """Internal test function.
+        """
+        cutoff_padding = self.get_cutoff_padding()
+        centers, center_indices = self.prepare_centers(system, cutoff_padding, positions)
+        n_centers = centers.shape[0]
+        n_species = self._atomic_numbers.shape[0]
+        pos = system.get_positions()
+        Z = system.get_atomic_numbers()
+        n_features = self.get_number_of_features()
+        n_atoms = Z.shape[0]
+        soap_mat = self.init_descriptor_array(n_centers, n_features)
+
+        # Determine the function to call based on rbf
+        if self._rbf == "gto":
+
+            # Orthonormalized RBF coefficients
+            alphas = self._alphas.flatten()
+            betas = self._betas.flatten()
+
+            # Determine shape
+            n_features = self.get_number_of_features()
+            soap_mat = self.init_descriptor_array(n_centers, n_features)
+
+            # Calculate with extension
+            soap_gto = dscribe.ext.SOAPGTO(
+                self._rcut,
+                self._nmax,
+                self._lmax,
+                self._eta,
+                self._atomic_numbers,
+                self.periodic,
+                self.crossover,
+                self.average,
+                cutoff_padding,
+                alphas,
+                betas
+            )
+
+            # Calculate analytically with extension
+            xd = np.empty((1,1,1,1,1))
+            yd = np.empty((1,1,1,1,1))
+            zd = np.empty((1,1,1,1,1))
+            cd = self.init_internal_array( n_centers,  n_species, self._nmax, self._lmax)
+            d = np.empty((1,1,1,1))
+            soap_gto.create_cartesian(
+                d, 
+                soap_mat,
+                xd,
+                yd,
+                zd,
+                cd,
+                pos,
+                Z,
+                ase.geometry.cell.complete_cell(system.get_cell()),
+                np.asarray(system.get_pbc(), dtype=bool),
+                centers,
+                center_indices,
+                [],
+                True,
+            )
+
+        # Make into a sparse array if requested
+        if self._sparse:
+            soap_mat = coo_matrix(soap_mat)
+
+        return soap_mat
+
     def derivatives(self, system, positions=None, include=None, exclude=None, method="auto", return_descriptor=True, n_jobs=1, verbose=False):
         """Return the descriptor derivatives for the given systems and given positions.
 
