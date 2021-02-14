@@ -2017,8 +2017,9 @@ void getPD(
 /**
  * Used to calculate the partial power spectrum derivatives.
  */
+  template <class T>
   void getPDev(
-    py::detail::unchecked_mutable_reference<double, 4> &derivatives_mu,
+    T &derivatives_mu,
     py::detail::unchecked_reference<double, 2> &positions_u,
     py::detail::unchecked_reference<int, 1> &indices_u,
     CellList &cell_list,
@@ -2047,7 +2048,6 @@ void getPD(
     vector<int> indices = result.indices;
 
     // Loop through all neighbouring centers
-
     for (int j_idx = 0; j_idx < indices.size(); ++j_idx) {
         int i_center = indices[j_idx];
         int shiftAll = 0;
@@ -2061,13 +2061,10 @@ void getPD(
                             for(int kd = k; kd < Ns; kd++){
                             for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
                               if( abs(Cnnd_u(i_center,j,k,buffShift)) > 1e-8 ||  abs(Cnnd_u(i_center,j,kd,buffShift)) > 1e-8 ){
-//                                if( abs(CdevX_u(i_atom, i_center, jd, kd, buffShift)) > 1e-8 ||  abs(CdevX_u(i_atom, i_center, j, k, buffShift)) > 1e-8 )
-                                  derivatives_mu(i_center, i_idx, 0, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevX_u(i_atom, i_center, jd, kd, buffShift)
+                                derivatives_mu(i_center, i_idx, 0, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevX_u(i_atom, i_center, jd, kd, buffShift)
                                                                                      +Cnnd_u(i_center,j,kd,buffShift)*CdevX_u(i_atom, i_center, jd, k, buffShift));
-//                                if( abs(CdevY_u(i_atom, i_center, jd, kd, buffShift)) > 1e-8 ||  abs(CdevY_u(i_atom, i_center, j, k, buffShift)) > 1e-8 )
                                 derivatives_mu(i_center, i_idx, 1, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevY_u(i_atom, i_center, jd, kd, buffShift)
                                                                                      +Cnnd_u(i_center,j,kd,buffShift)*CdevY_u(i_atom, i_center, jd, k, buffShift));
-//                                if( abs(CdevZ_u(i_atom, i_center, jd, kd, buffShift)) > 1e-8 ||  abs(CdevZ_u(i_atom, i_center, j, k, buffShift)) > 1e-8 )
                                 derivatives_mu(i_center, i_idx, 2, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevZ_u(i_atom, i_center, jd, kd, buffShift)
                                                                                      +Cnnd_u(i_center,j,kd,buffShift)*CdevZ_u(i_atom, i_center, jd, k, buffShift));
                                 
@@ -2080,13 +2077,10 @@ void getPD(
                             for(int kd = 0; kd < Ns; kd++){
                             for(int buffShift = m*m; buffShift < (m +1)*(m +1); buffShift++){
                               if( abs(Cnnd_u(i_center,j,k,buffShift)) > 1e-8 ||  abs(Cnnd_u(i_center,jd,kd,buffShift)) > 1e-8) {
-//                                if( abs(CdevX_u(i_atom, i_center, jd, kd, buffShift)) > 1e-8 ||  abs(CdevX_u(i_atom, i_center, j, k, buffShift)) > 1e-8 )
                                   derivatives_mu(i_center, i_idx, 0, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevX_u(i_atom, i_center, jd, kd, buffShift)
                                                                                      +Cnnd_u(i_center,jd,kd,buffShift)*CdevX_u(i_atom, i_center, j, k, buffShift));
-//                                if( abs(CdevY_u(i_atom, i_center, jd, kd, buffShift)) > 1e-8 ||  abs(CdevY_u(i_atom, i_center, j, k, buffShift)) > 1e-8 )
                                   derivatives_mu(i_center, i_idx, 1, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevY_u(i_atom, i_center, jd, kd, buffShift)
                                                                                      +Cnnd_u(i_center,jd,kd,buffShift)*CdevY_u(i_atom, i_center, j, k, buffShift));
-//                                if( abs(CdevZ_u(i_atom, i_center, jd, kd, buffShift)) > 1e-8 ||  abs(CdevZ_u(i_atom, i_center, j, k, buffShift)) > 1e-8 )
                                   derivatives_mu(i_center, i_idx, 2, shiftAll) += prel*(Cnnd_u(i_center,j,k,buffShift)*CdevZ_u(i_atom, i_center, jd, kd, buffShift)
                                                                                      +Cnnd_u(i_center,jd,kd,buffShift)*CdevZ_u(i_atom, i_center, j, k, buffShift));
                             }}
@@ -2114,7 +2108,6 @@ void soapGTODevX(
     py::array_t<double> alphasArr,
     py::array_t<double> betasArr,
     py::array_t<int> atomicNumbersArr,
-
     const double rCut,
     const double cutoffPadding,
     const int totalAN,
@@ -2128,8 +2121,170 @@ void soapGTODevX(
     const bool return_descriptor,
     const bool return_derivatives
 ) {
-  
-  auto derivatives_mu = derivatives.mutable_unchecked<4>();
+    // Initialize access to internal arrays
+    auto derivatives_mu = derivatives.mutable_unchecked<4>();
+    auto indices_u = indices.unchecked<1>();
+    auto centers_u = centers.unchecked<2>(); 
+    auto positions_u = positions.unchecked<2>(); 
+    auto cnnd_u = cnnd.unchecked<4>(); 
+    auto cdevX_u = cdevX.unchecked<5>(); 
+    auto cdevY_u = cdevY.unchecked<5>(); 
+    auto cdevZ_u = cdevZ.unchecked<5>(); 
+    auto cnnd_mu = cnnd.mutable_unchecked<4>(); 
+    auto cdevX_mu = cdevX.mutable_unchecked<5>(); 
+    auto cdevY_mu = cdevY.mutable_unchecked<5>(); 
+    auto cdevZ_mu = cdevZ.mutable_unchecked<5>(); 
+
+    // Calculate coefficients and derivative parts
+    prepareSOAP(
+        cdevX,
+        cdevY,
+        cdevZ,
+        cnnd,
+        positions,
+        centers,
+        center_indices,
+        alphasArr,
+        betasArr,
+        atomicNumbersArr,
+        rCut,
+        cutoffPadding,
+        totalAN,
+        Nt,
+        Ns,
+        lMax,
+        Hs,
+        eta,
+        crossover,
+        indices,
+        return_descriptor,
+        return_derivatives
+    );
+
+    // Calculate the descriptor value if requested
+    if (return_descriptor) {
+        auto descriptor_mu = descriptor.mutable_unchecked<2>();
+        getPD(descriptor_mu, cnnd_u, Ns, Nt, Hs, lMax, crossover);
+    }
+
+    // Calculate the derivatives
+    if (return_derivatives) {
+        CellList cell_list_centers(centers, rCut+cutoffPadding);
+        getPDev<py::detail::unchecked_mutable_reference<double, 4>>(derivatives_mu, positions_u, indices_u, cell_list_centers, cdevX_u, cdevY_u, cdevZ_u, cnnd_u, Ns, Nt, Hs, lMax, totalAN, crossover);
+    }
+}
+//=================================================================================================================================================================
+DOK soapGTODevXSparse(
+    py::array_t<double> descriptor,
+    py::array_t<double> cdevX,
+    py::array_t<double> cdevY,
+    py::array_t<double> cdevZ,
+    py::array_t<double> cnnd,
+    py::array_t<double> positions,
+    py::array_t<double> centers,
+    py::array_t<int> center_indices,
+    py::array_t<double> alphasArr,
+    py::array_t<double> betasArr,
+    py::array_t<int> atomicNumbersArr,
+    const double rCut,
+    const double cutoffPadding,
+    const int totalAN,
+    const int Nt,
+    const int Ns,
+    const int lMax,
+    const int Hs,
+    const double eta,
+    const bool crossover,
+    py::array_t<int> indices,
+    const bool return_descriptor,
+    const bool return_derivatives
+) {
+    // Initialize sparse array for derivatives. Also reserve space for it
+    // (reduces rehashing).
+    DOK derivatives;
+    int n_features = crossover
+        ? (Nt*Ns)*(Nt*Ns+1)/2*(lMax+1)
+        : Nt*(lMax+1)*((Ns+1)*Ns)/2;
+    derivatives.reserve(indices.size()*n_features*3*20); // Assume that each indexed atom has max. 20 neighbours
+
+    // Initialize access to internal arrays
+    auto indices_u = indices.unchecked<1>();
+    auto centers_u = centers.unchecked<2>(); 
+    auto positions_u = positions.unchecked<2>(); 
+    auto cnnd_u = cnnd.unchecked<4>(); 
+    auto cdevX_u = cdevX.unchecked<5>(); 
+    auto cdevY_u = cdevY.unchecked<5>(); 
+    auto cdevZ_u = cdevZ.unchecked<5>(); 
+    auto cnnd_mu = cnnd.mutable_unchecked<4>(); 
+    auto cdevX_mu = cdevX.mutable_unchecked<5>(); 
+    auto cdevY_mu = cdevY.mutable_unchecked<5>(); 
+    auto cdevZ_mu = cdevZ.mutable_unchecked<5>(); 
+
+    // Calculate coefficients and derivative parts
+    prepareSOAP(
+        cdevX,
+        cdevY,
+        cdevZ,
+        cnnd,
+        positions,
+        centers,
+        center_indices,
+        alphasArr,
+        betasArr,
+        atomicNumbersArr,
+        rCut,
+        cutoffPadding,
+        totalAN,
+        Nt,
+        Ns,
+        lMax,
+        Hs,
+        eta,
+        crossover,
+        indices,
+        return_descriptor,
+        return_derivatives
+    );
+
+    // Calculate the descriptor value if requested
+    if (return_descriptor) {
+        auto descriptor_mu = descriptor.mutable_unchecked<2>();
+        getPD(descriptor_mu, cnnd_u, Ns, Nt, Hs, lMax, crossover);
+    }
+
+    // Calculate the derivatives
+    if (return_derivatives) {
+        CellList cell_list_centers(centers, rCut+cutoffPadding);
+        getPDev<DOK>(derivatives, positions_u, indices_u, cell_list_centers, cdevX_u, cdevY_u, cdevZ_u, cnnd_u, Ns, Nt, Hs, lMax, totalAN, crossover);
+    }
+
+    return derivatives;
+}
+//=================================================================================================================================================================
+void prepareSOAP(
+    py::array_t<double> cdevX,
+    py::array_t<double> cdevY,
+    py::array_t<double> cdevZ,
+    py::array_t<double> cnnd,
+    py::array_t<double> positions,
+    py::array_t<double> centers,
+    py::array_t<int> center_indices,
+    py::array_t<double> alphasArr,
+    py::array_t<double> betasArr,
+    py::array_t<int> atomicNumbersArr,
+    const double rCut,
+    const double cutoffPadding,
+    const int totalAN,
+    const int Nt,
+    const int Ns,
+    const int lMax,
+    const int Hs,
+    const double eta,
+    const bool crossover,
+    py::array_t<int> indices,
+    const bool return_descriptor,
+    const bool return_derivatives
+) {
   auto atomicNumbers = atomicNumbersArr.unchecked<1>();
   auto indices_u = indices.unchecked<1>();
   double *alphas = (double*)alphasArr.request().ptr; double *betas = (double*)betasArr.request().ptr;
@@ -2169,7 +2324,6 @@ void soapGTODevX(
 
   // Initialize binning for atoms and centers
   CellList cell_list_atoms(positions, rCut+cutoffPadding);
-  CellList cell_list_centers(centers, rCut+cutoffPadding);
 
   // Create a mapping between an atomic index and its internal index in the output
   map<int, int> ZIndexMap;
@@ -2210,17 +2364,128 @@ void soapGTODevX(
   free(dz); free(z2); free(z4); free(z6); free(z8); free(z10); free(z12); free(z14); free(z16); free(z18);
   free(r2); free(r4); free(r6); free(r8); free(r10); free(r12); free(r14); free(r16); free(r18);
   free(exes); free(preCoef); free(bOa); free(aOa);
-
-  // Calculate the descriptor value if requested
-  if (return_descriptor) {
-    auto descriptor_mu = descriptor.mutable_unchecked<2>();
-    getPD(descriptor_mu, cnnd_u, Ns, Nt, Hs, lMax, crossover);
-  }
-
-  // Calculate the derivatives
-  if (return_derivatives) {
-    getPDev(derivatives_mu, positions_u, indices_u, cell_list_centers, cdevX_u, cdevY_u, cdevZ_u, cnnd_u, Ns, Nt, Hs, lMax, totalAN, crossover);
-  }
-
-  return;
 }
+//=================================================================================================================================================================
+//void soapGTODevX(
+    //py::array_t<double> derivatives,
+    //py::array_t<double> descriptor,
+    //py::array_t<double> cdevX,
+    //py::array_t<double> cdevY,
+    //py::array_t<double> cdevZ,
+    //py::array_t<double> cnnd,
+    //py::array_t<double> positions,
+    //py::array_t<double> centers,
+    //py::array_t<int> center_indices,
+    //py::array_t<double> alphasArr,
+    //py::array_t<double> betasArr,
+    //py::array_t<int> atomicNumbersArr,
+
+    //const double rCut,
+    //const double cutoffPadding,
+    //const int totalAN,
+    //const int Nt,
+    //const int Ns,
+    //const int lMax,
+    //const int Hs,
+    //const double eta,
+    //const bool crossover,
+    //py::array_t<int> indices,
+    //const bool return_descriptor,
+    //const bool return_derivatives
+//) {
+  
+  //auto derivatives_mu = derivatives.mutable_unchecked<4>();
+  //auto atomicNumbers = atomicNumbersArr.unchecked<1>();
+  //auto indices_u = indices.unchecked<1>();
+  //double *alphas = (double*)alphasArr.request().ptr; double *betas = (double*)betasArr.request().ptr;
+  //double oOeta = 1.0/eta; double oOeta3O2 = sqrt(oOeta*oOeta*oOeta); double NsNs = Ns*Ns;
+  //auto centers_u = centers.unchecked<2>(); 
+  //auto positions_u = positions.unchecked<2>(); 
+
+  //double* dx  = (double*)malloc(sizeof(double)*totalAN); double* dy  = (double*)malloc(sizeof(double)*totalAN); double* dz  = (double*)malloc(sizeof(double)*totalAN);
+  //double* x2  = (double*)malloc(sizeof(double)*totalAN); double* x4  = (double*)malloc(sizeof(double)*totalAN); double* x6  = (double*)malloc(sizeof(double)*totalAN);
+  //double* x8  = (double*)malloc(sizeof(double)*totalAN); double* x10 = (double*)malloc(sizeof(double)*totalAN); double* x12 = (double*)malloc(sizeof(double)*totalAN);
+  //double* x14 = (double*)malloc(sizeof(double)*totalAN); double* x16 = (double*)malloc(sizeof(double)*totalAN); double* x18 = (double*)malloc(sizeof(double)*totalAN);
+  //double* y2  = (double*)malloc(sizeof(double)*totalAN); double* y4  = (double*)malloc(sizeof(double)*totalAN); double* y6  = (double*)malloc(sizeof(double)*totalAN);
+  //double* y8  = (double*)malloc(sizeof(double)*totalAN); double* y10 = (double*)malloc(sizeof(double)*totalAN); double* y12 = (double*)malloc(sizeof(double)*totalAN);
+  //double* y14 = (double*)malloc(sizeof(double)*totalAN); double* y16 = (double*)malloc(sizeof(double)*totalAN); double* y18 = (double*)malloc(sizeof(double)*totalAN);
+  //double* z2  = (double*)malloc(sizeof(double)*totalAN); double* z4  = (double*)malloc(sizeof(double)*totalAN); double* z6  = (double*)malloc(sizeof(double)*totalAN);
+  //double* z8  = (double*)malloc(sizeof(double)*totalAN); double* z10 = (double*)malloc(sizeof(double)*totalAN); double* z12 = (double*)malloc(sizeof(double)*totalAN);
+  //double* z14 = (double*)malloc(sizeof(double)*totalAN); double* z16 = (double*)malloc(sizeof(double)*totalAN); double* z18 = (double*)malloc(sizeof(double)*totalAN);
+  //double* r2  = (double*)malloc(sizeof(double)*totalAN); double* r4  = (double*)malloc(sizeof(double)*totalAN); double* r6  = (double*)malloc(sizeof(double)*totalAN);
+  //double* r8  = (double*)malloc(sizeof(double)*totalAN); double* r10 = (double*)malloc(sizeof(double)*totalAN); double* r12 = (double*)malloc(sizeof(double)*totalAN);
+  //double* r14 = (double*)malloc(sizeof(double)*totalAN); double* r16 = (double*)malloc(sizeof(double)*totalAN); double* r18 = (double*)malloc(sizeof(double)*totalAN);
+
+  //double* exes = (double*) malloc(sizeof(double)*totalAN);
+  //// -4 -> no need for l=0, l=1.
+  //double* preCoef = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN); double* prCofDX = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN);
+  //double* prCofDY = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN); double* prCofDZ = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN);
+  //double* bOa = (double*) malloc((lMax+1)*NsNs*sizeof(double)); double* aOa = (double*) malloc((lMax+1)*Ns*sizeof(double));
+
+  //auto cnnd_u = cnnd.unchecked<4>(); 
+  //auto cdevX_u = cdevX.unchecked<5>(); 
+  //auto cdevY_u = cdevY.unchecked<5>(); 
+  //auto cdevZ_u = cdevZ.unchecked<5>(); 
+
+  //auto cnnd_mu = cnnd.mutable_unchecked<4>(); 
+  //auto cdevX_mu = cdevX.mutable_unchecked<5>(); 
+  //auto cdevY_mu = cdevY.mutable_unchecked<5>(); 
+  //auto cdevZ_mu = cdevZ.mutable_unchecked<5>(); 
+
+  //// Initialize binning for atoms and centers
+  //CellList cell_list_atoms(positions, rCut+cutoffPadding);
+  //CellList cell_list_centers(centers, rCut+cutoffPadding);
+
+  //// Create a mapping between an atomic index and its internal index in the output
+  //map<int, int> ZIndexMap;
+  //set<int> atomicNumberSet;
+  //for (int i = 0; i < totalAN; ++i) {atomicNumberSet.insert(atomicNumbers(i));};
+  //int i = 0; for (auto it=atomicNumberSet.begin(); it!=atomicNumberSet.end(); ++it) {ZIndexMap[*it] = i; ++i;};
+
+  //getAlphaBetaD(aOa,bOa,alphas,betas,Ns,lMax,oOeta, oOeta3O2);
+
+  //// Loop through the centers
+  //for (int i = 0; i < Hs; i++) {
+
+    //// Get all neighbouring atoms for the center i
+    //double ix = centers_u(i, 0); double iy = centers_u(i, 1); double iz = centers_u(i, 2);
+    //CellListResult result = cell_list_atoms.getNeighboursForPosition(ix, iy, iz);
+
+    //// Sort the neighbours by type
+    //map<int, vector<int>> atomicTypeMap;
+    //for (const int &idx : result.indices) {int Z = atomicNumbers(idx); atomicTypeMap[Z].push_back(idx);};
+
+    //// Loop through neighbours sorted by type
+    //for (const auto &ZIndexPair : atomicTypeMap) {
+
+      //// j is the internal index for this atomic number
+      //int j = ZIndexMap[ZIndexPair.first];
+      //int n_neighbours = ZIndexPair.second.size();
+
+      //// Save the neighbour distances into the arrays dx, dy and dz
+      //getDeltaD(dx, dy, dz, positions, ix, iy, iz, ZIndexPair.second);
+      //getRsZsD(dx,x2,x4,x6,x8,x10,x12,x14,x16,x18, dy,y2,y4,y6,y8,y10,y12,y14,y16,y18, dz, r2, r4, r6, r8,r10,r12,r14,r16,r18, z2, z4, z6, z8,z10,z12,z14,z16,z18, n_neighbours,lMax);
+      //getCfactorsD(preCoef, prCofDX, prCofDY, prCofDZ, n_neighbours, dx,x2, x4, x6, x8,x10,x12,x14,x16,x18, dy,y2, y4, y6, y8,y10,y12,y14,y16,y18, dz, z2, z4, z6, z8,z10,z12,z14,z16,z18, r2, r4, r6, r8,r10,r12,r14,r16,r18, totalAN, lMax, return_derivatives);
+      //getCD(cdevX_mu, cdevY_mu, cdevZ_mu, prCofDX, prCofDY, prCofDZ, cnnd_mu, preCoef, dx, dy, dz, r2, bOa, aOa, exes, totalAN, n_neighbours, Ns, Nt, lMax, i, j, ZIndexPair.second, return_derivatives);
+
+    //}
+  //}
+  //free(dx); free(x2); free(x4); free(x6); free(x8); free(x10); free(x12); free(x14); free(x16); free(x18);
+  //free(dy); free(y2); free(y4); free(y6); free(y8); free(y10); free(y12); free(y14); free(y16); free(y18);
+  //free(dz); free(z2); free(z4); free(z6); free(z8); free(z10); free(z12); free(z14); free(z16); free(z18);
+  //free(r2); free(r4); free(r6); free(r8); free(r10); free(r12); free(r14); free(r16); free(r18);
+  //free(exes); free(preCoef); free(bOa); free(aOa);
+
+  //// Calculate the descriptor value if requested
+  //if (return_descriptor) {
+    //auto descriptor_mu = descriptor.mutable_unchecked<2>();
+    //getPD(descriptor_mu, cnnd_u, Ns, Nt, Hs, lMax, crossover);
+  //}
+
+  //// Calculate the derivatives
+  //if (return_derivatives) {
+    //getPDev<py::detail::unchecked_mutable_reference<double, 4>>(derivatives_mu, positions_u, indices_u, cell_list_centers, cdevX_u, cdevY_u, cdevZ_u, cnnd_u, Ns, Nt, Hs, lMax, totalAN, crossover);
+  //}
+
+  //return;
+//}

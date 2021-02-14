@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+import time
 import numpy as np
 
 from scipy.special import gamma
@@ -22,7 +23,7 @@ from ase import Atoms
 import ase.geometry.cell
 import ase.data
 
-import sparse
+import sparse as sp
 
 from dscribe.descriptors import Descriptor
 from dscribe.core import System
@@ -246,14 +247,13 @@ class SOAP(Descriptor):
             c = np.zeros((n_centers, n_features), dtype=np.float64)
         return c
 
-    def init_derivatives_array(self, n_centers, n_atoms, n_features):
+    def derivatives_shape(self, n_centers, n_atoms, n_features):
         """Return a zero-initialized numpy array for the derivatives.
         """
         if self.average == "inner" or self.average == "outer":
-            d = np.zeros((1, n_atoms, 3, n_features), dtype=np.float64)
+            return (1, n_atoms, 3, n_features)
         else:
-            d = np.zeros((n_centers, n_atoms, 3, n_features), dtype=np.float64)
-        return d
+            return (n_centers, n_atoms, 3, n_features)
 
     def init_internal_dev_array(self, n_centers, n_atoms, n_types, n, lMax):
         d = np.zeros((n_atoms, n_centers, n_types, n, (lMax+1)*(lMax+1)), dtype=np.float64)
@@ -445,7 +445,7 @@ class SOAP(Descriptor):
 
         # Make into a sparse array if requested
         if self._sparse:
-            soap_mat = sparse.COO.from_numpy(soap_mat)
+            soap_mat = sp.COO.from_numpy(soap_mat)
 
         return soap_mat
 
@@ -516,7 +516,7 @@ class SOAP(Descriptor):
             soap_mat = soap_mat.astype(self.dtype)
 
         # Make into a sparse array if requested
-        if self._sparse:
+        if self.sparse:
             soap_mat = coo_matrix(soap_mat)
 
         return soap_mat
@@ -572,8 +572,6 @@ class SOAP(Descriptor):
         methods = {"numerical", "analytical", "auto"}
         if method not in methods:
             raise ValueError("Invalid method specified. Please choose from: {}".format(methods))
-        if self._sparse:
-            raise ValueError("Sparse output is not currently available for derivatives.")
         if self.average != "off" and method == "analytical":
             raise ValueError(
                 "Analytical derivatives not currently available for averaged output."
@@ -716,11 +714,14 @@ class SOAP(Descriptor):
         n_atoms = len(system)
 
         n_features = self.get_number_of_features()
-        d = self.init_derivatives_array(n_centers, n_indices,   n_features)
         if return_descriptor:
             c = self.init_descriptor_array(n_centers, n_features)
         else:
             c = np.empty(0)
+
+        shape = self.derivatives_shape(n_centers, n_indices, n_features)
+        if not self.sparse:
+            d = np.zeros(shape, dtype=np.float64)
 
         if self._rbf == "gto":
             alphas = self._alphas.flatten()
@@ -755,26 +756,53 @@ class SOAP(Descriptor):
                 )
             # Calculate analytically with extension
             elif method == "analytical":
-                xd = self.init_internal_dev_array( n_centers, n_atoms, n_species, self._nmax, self._lmax)
-                yd = self.init_internal_dev_array( n_centers, n_atoms, n_species, self._nmax, self._lmax)
-                zd = self.init_internal_dev_array( n_centers, n_atoms, n_species, self._nmax, self._lmax)
-                cd = self.init_internal_array( n_centers,  n_species, self._nmax, self._lmax)
-                soap_gto.derivatives_analytical(
-                    d, 
-                    c,
-                    xd,
-                    yd,
-                    zd,
-                    cd,
-                    pos,
-                    Z,
-                    ase.geometry.cell.complete_cell(system.get_cell()),
-                    np.asarray(system.get_pbc(), dtype=bool),
-                    centers,
-                    center_indices,
-                    indices,
-                    return_descriptor,
-                )
+                # These arrays are only used internally by the C++ code.
+                # Allocating them here with python is much faster than
+                # allocating similarly sized arrays within C++. It seems
+                # that numpy does some kind of lazy allocation that is
+                # highly efficient for zero-initialized arrays. Similar
+                # performace could not be achieved even with calloc.
+                xd = self.init_internal_dev_array(n_centers, n_atoms, n_species, self._nmax, self._lmax)
+                yd = self.init_internal_dev_array(n_centers, n_atoms, n_species, self._nmax, self._lmax)
+                zd = self.init_internal_dev_array(n_centers, n_atoms, n_species, self._nmax, self._lmax)
+                cd = self.init_internal_array(n_centers,  n_species, self._nmax, self._lmax)
+
+                if self.sparse:
+                    d = soap_gto.derivatives_analytical_sparse(
+                        c,
+                        xd,
+                        yd,
+                        zd,
+                        cd,
+                        pos,
+                        Z,
+                        ase.geometry.cell.complete_cell(system.get_cell()),
+                        np.asarray(system.get_pbc(), dtype=bool),
+                        centers,
+                        center_indices,
+                        indices,
+                        return_descriptor,
+                    )
+                    d = sp.COO(coords=d.coords, data=d.data, shape=shape)
+                    c = sp.COO.from_numpy(c)
+                else:
+                    soap_gto.derivatives_analytical(
+                        d, 
+                        c,
+                        xd,
+                        yd,
+                        zd,
+                        cd,
+                        pos,
+                        Z,
+                        ase.geometry.cell.complete_cell(system.get_cell()),
+                        np.asarray(system.get_pbc(), dtype=bool),
+                        centers,
+                        center_indices,
+                        indices,
+                        return_descriptor,
+                    )
+
         elif self._rbf == "polynomial":
             rx, gss = self.get_basis_poly(self._rcut, self._nmax)
             gss = gss.flatten()
@@ -809,8 +837,11 @@ class SOAP(Descriptor):
 
         # Convert to the final output precision.
         if self.dtype == "float32":
-            d = d.astype(self.dtype)
-            c = c.astype(self.dtype)
+            if self.sparse:
+                d.data = d.data.astype(self.dtype)
+            else:
+                d = d.astype(self.dtype)
+                c = c.astype(self.dtype)
 
         if return_descriptor:
             return (d, c)

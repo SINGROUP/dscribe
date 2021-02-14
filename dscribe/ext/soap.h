@@ -20,6 +20,7 @@ limitations under the License.
 #include <string>
 #include "descriptor.h"
 #include "celllist.h"
+#include "dok.h"
 
 namespace py = pybind11;
 using namespace std;
@@ -99,6 +100,25 @@ class SOAPGTO: public Descriptor {
          */
         void derivatives_analytical(
             py::array_t<double> derivatives,
+            py::array_t<double> descriptor,
+            py::array_t<double> xd,
+            py::array_t<double> yd,
+            py::array_t<double> zd,
+            py::array_t<double> cd,
+            py::array_t<double> positions,
+            py::array_t<int> atomic_numbers,
+            py::array_t<double> cell,
+            py::array_t<bool> pbc,
+            py::array_t<double> centers,
+            py::array_t<int> center_indices,
+            py::array_t<int> indices,
+            const bool return_descriptor
+        ) const;
+
+        /**
+         * Analytical derivatives in sparse format.
+         */
+        DOK derivatives_analytical_sparse(
             py::array_t<double> descriptor,
             py::array_t<double> xd,
             py::array_t<double> yd,

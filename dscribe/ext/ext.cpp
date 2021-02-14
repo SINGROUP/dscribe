@@ -21,6 +21,8 @@ limitations under the License.
 #include "acsf.h"
 #include "mbtr.h"
 #include "geometry.h"
+#include "dok.h"
+#include "test.h"
 
 namespace py = pybind11;
 using namespace std;
@@ -39,7 +41,8 @@ PYBIND11_MODULE(ext, m) {
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, CellList>()(&SOAPGTO::create, py::const_))
         .def("create_cartesian", &SOAPGTO::create_cartesian)
         .def("derivatives_numerical", &SOAPGTO::derivatives_numerical)
-        .def("derivatives_analytical", &SOAPGTO::derivatives_analytical);
+        .def("derivatives_analytical", &SOAPGTO::derivatives_analytical)
+        .def("derivatives_analytical_sparse", &SOAPGTO::derivatives_analytical_sparse);
     py::class_<SOAPPolynomial>(m, "SOAPPolynomial")
         .def(py::init<double, int, int, double, py::array_t<int>, bool, bool, string, double, py::array_t<double>, py::array_t<double> >())
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double> >()(&SOAPPolynomial::create, py::const_))
@@ -60,8 +63,6 @@ PYBIND11_MODULE(ext, m) {
         .def_readwrite("n_g3", &ACSF::nG3)
         .def_readwrite("n_g4", &ACSF::nG4)
         .def_readwrite("n_g5", &ACSF::nG5)
-
-
         .def_property("rcut", &ACSF::getRCut, &ACSF::setRCut)
         .def_property("g3_params", &ACSF::getG3Params, &ACSF::setG3Params)
         .def_property("g4_params", &ACSF::getG4Params, &ACSF::setG4Params)
@@ -105,6 +106,26 @@ PYBIND11_MODULE(ext, m) {
         .def_readonly("indices", &CellListResult::indices)
         .def_readonly("distances", &CellListResult::distances)
         .def_readonly("distances_squared", &CellListResult::distancesSquared);
+
+    // DOK
+    py::class_<DOK>(m, "DOK")
+        .def(py::init<>())
+        .def_readonly("container", &DOK::container)
+        .def_property_readonly("coords", &DOK::coords)
+        .def_property_readonly("data", &DOK::data);
+
+    // Test
+    py::class_<Test>(m, "Test")
+        .def(py::init<int, int>())
+        .def("fill_map", &Test::fill_map)
+        .def("fill_unordered_map", &Test::fill_unordered_map)
+        .def("fill_numpy", &Test::fill_numpy)
+        .def("unordered_map_to_coo", &Test::unordered_map_to_coo)
+        .def("map_to_coo", &Test::map_to_coo)
+        .def("unordered_map_to_coo_data", &Test::unordered_map_to_coo_data, py::return_value_policy::move)
+        .def("unordered_map_to_coo_coords", &Test::unordered_map_to_coo_coords, py::return_value_policy::move)
+        .def_readonly("u_map", &Test::u_map)
+        .def_readonly("s_map", &Test::s_map);
 
     // Geometry
     m.def("extend_system", &extend_system, "Create a periodically extended system.");

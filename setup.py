@@ -60,6 +60,8 @@ extensions = [
             "dscribe/ext/acsf.cpp",
             "dscribe/ext/mbtr.cpp",
             "dscribe/ext/geometry.cpp",
+            "dscribe/ext/dok.cpp",
+            "dscribe/ext/test.cpp",
         ],
         include_dirs=[
             # Path to pybind11 headers
@@ -76,7 +78,7 @@ extensions = [
 if __name__ == "__main__":
     setup(
         name="dscribe",
-        version="0.5.0",
+        version="0.5.0rc1",
         url="https://singroup.github.io/dscribe/",
         description="A Python package for creating feature transformations in applications of machine learning to materials science.",
         long_description="A Python package for creating feature transformations in applications of machine learning to materials science.",

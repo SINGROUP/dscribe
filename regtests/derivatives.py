@@ -78,11 +78,6 @@ class SoapDerivativeTests(unittest.TestCase):
         )
         positions = [[0.0, 0.0, 0.0]]
 
-        # Test that trying to do sparse output raises an exception
-        soap.sparse = True
-        with self.assertRaises(ValueError):
-            soap.derivatives(H2, positions=positions, method="numerical")
-
         # Test that trying to get analytical derivatives with averaged output
         # raises an exception
         soap.sparse = False
@@ -426,6 +421,25 @@ class SoapDerivativeTests(unittest.TestCase):
         # # print(np.abs(a_der - b_der).max())
         # self.assertTrue(np.allclose(a_der, b_der))
 
+    def test_sparse(self):
+        """Test that the sparse values are identical to the dense ones.
+        """
+        positions = H2O.get_positions()
+
+        soap = SOAP(
+            species=["H", "O"],
+            rcut=3,
+            nmax=9,
+            lmax=9,
+            sparse=False,
+            crossover=False,
+        )
+        D_dense, d_dense = soap.derivatives(H2O, positions=positions, method="analytical")
+        soap.sparse = True
+        D_sparse, d_sparse = soap.derivatives(H2O, positions=positions, method="analytical")
+        self.assertTrue(np.allclose(D_dense, D_sparse.todense()))
+        self.assertTrue(np.allclose(d_dense, d_sparse.todense()))
+
 
 class SoapDerivativeComparisonTests(unittest.TestCase):
 
@@ -541,10 +555,8 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    # SoapDerivativeComparisonTests().test_combinations()
+    # SoapDerivativeTests().test_sparse()
     # SoapDerivativeTests().test_interface()
-    # SoapDerivativeTests().test_numerical()
-    # SoapDerivativeTests().test_periodic()
     suites = []
     suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests))
