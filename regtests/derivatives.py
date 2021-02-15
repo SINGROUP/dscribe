@@ -429,8 +429,8 @@ class SoapDerivativeTests(unittest.TestCase):
         soap = SOAP(
             species=["H", "O"],
             rcut=3,
-            nmax=9,
-            lmax=9,
+            nmax=1,
+            lmax=1,
             sparse=False,
             crossover=False,
         )
@@ -555,8 +555,6 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    # SoapDerivativeTests().test_sparse()
-    # SoapDerivativeTests().test_interface()
     suites = []
     suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests))

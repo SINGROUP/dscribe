@@ -159,10 +159,10 @@ class SOAP(Descriptor):
                     "When using the gaussian radial basis set (gto), the radial "
                     "cutoff should be bigger than 1 angstrom."
                 )
-            if lmax > 19:
+            if lmax > 9:
                 raise ValueError(
                     "When using the gaussian radial basis set (gto), lmax "
-                    "cannot currently exceed 19. lmax={}".format(lmax)
+                    "cannot currently exceed 9. lmax={}".format(lmax)
                 )
             # Precalculate the alpha and beta constants for the GTO basis
             self._alphas, self._betas = self.get_basis_gto(rcut, nmax)
@@ -247,13 +247,13 @@ class SOAP(Descriptor):
             c = np.zeros((n_centers, n_features), dtype=np.float64)
         return c
 
-    def derivatives_shape(self, n_centers, n_atoms, n_features):
+    def init_derivatives_array(self, n_centers, n_atoms, n_features):
         """Return a zero-initialized numpy array for the derivatives.
         """
         if self.average == "inner" or self.average == "outer":
-            return (1, n_atoms, 3, n_features)
+            return np.zeros((1, n_atoms, 3, n_features), dtype=np.float64)
         else:
-            return (n_centers, n_atoms, 3, n_features)
+            return np.zeros((n_centers, n_atoms, 3, n_features), dtype=np.float64)
 
     def init_internal_dev_array(self, n_centers, n_atoms, n_types, n, lMax):
         d = np.zeros((n_atoms, n_centers, n_types, n, (lMax+1)*(lMax+1)), dtype=np.float64)
@@ -718,10 +718,7 @@ class SOAP(Descriptor):
             c = self.init_descriptor_array(n_centers, n_features)
         else:
             c = np.empty(0)
-
-        shape = self.derivatives_shape(n_centers, n_indices, n_features)
-        if not self.sparse:
-            d = np.zeros(shape, dtype=np.float64)
+        d = self.init_derivatives_array(n_centers, n_indices, n_features)
 
         if self._rbf == "gto":
             alphas = self._alphas.flatten()
@@ -762,46 +759,27 @@ class SOAP(Descriptor):
                 # that numpy does some kind of lazy allocation that is
                 # highly efficient for zero-initialized arrays. Similar
                 # performace could not be achieved even with calloc.
+                cd = self.init_internal_array(n_centers, n_species, self._nmax, self._lmax)
                 xd = self.init_internal_dev_array(n_centers, n_atoms, n_species, self._nmax, self._lmax)
                 yd = self.init_internal_dev_array(n_centers, n_atoms, n_species, self._nmax, self._lmax)
                 zd = self.init_internal_dev_array(n_centers, n_atoms, n_species, self._nmax, self._lmax)
-                cd = self.init_internal_array(n_centers,  n_species, self._nmax, self._lmax)
 
-                if self.sparse:
-                    d = soap_gto.derivatives_analytical_sparse(
-                        c,
-                        xd,
-                        yd,
-                        zd,
-                        cd,
-                        pos,
-                        Z,
-                        ase.geometry.cell.complete_cell(system.get_cell()),
-                        np.asarray(system.get_pbc(), dtype=bool),
-                        centers,
-                        center_indices,
-                        indices,
-                        return_descriptor,
-                    )
-                    d = sp.COO(coords=d.coords, data=d.data, shape=shape)
-                    c = sp.COO.from_numpy(c)
-                else:
-                    soap_gto.derivatives_analytical(
-                        d, 
-                        c,
-                        xd,
-                        yd,
-                        zd,
-                        cd,
-                        pos,
-                        Z,
-                        ase.geometry.cell.complete_cell(system.get_cell()),
-                        np.asarray(system.get_pbc(), dtype=bool),
-                        centers,
-                        center_indices,
-                        indices,
-                        return_descriptor,
-                    )
+                soap_gto.derivatives_analytical(
+                    d, 
+                    c,
+                    xd,
+                    yd,
+                    zd,
+                    cd,
+                    pos,
+                    Z,
+                    ase.geometry.cell.complete_cell(system.get_cell()),
+                    np.asarray(system.get_pbc(), dtype=bool),
+                    centers,
+                    center_indices,
+                    indices,
+                    return_descriptor,
+                )
 
         elif self._rbf == "polynomial":
             rx, gss = self.get_basis_poly(self._rcut, self._nmax)
@@ -837,11 +815,14 @@ class SOAP(Descriptor):
 
         # Convert to the final output precision.
         if self.dtype == "float32":
-            if self.sparse:
-                d.data = d.data.astype(self.dtype)
-            else:
-                d = d.astype(self.dtype)
-                c = c.astype(self.dtype)
+            d = d.astype(self.dtype)
+            c = c.astype(self.dtype)
+
+        # Convert to sparse here. Currently everything up to this point is
+        # calculated with dense matrices. This imposes some memory limitations.
+        if self.sparse:
+            d = sp.COO.from_numpy(d)
+            c = sp.COO.from_numpy(c)
 
         if return_descriptor:
             return (d, c)
