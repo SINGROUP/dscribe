@@ -1,9 +1,19 @@
 {
     "versions": [
         {
-            "versionNumber": "0.5.x",
+            "versionNumber": "stable",
+            "description": "",
+            "url": "https://singroup.github.io/dscribe/stable"
+        },
+        {
+            "versionNumber": "latest",
             "description": "",
             "url": "https://singroup.github.io/dscribe/latest"
+        },
+        {
+            "versionNumber": "0.5.x",
+            "description": "",
+            "url": "https://singroup.github.io/dscribe/0.5.x"
         },
         {
             "versionNumber": "0.4.x",
