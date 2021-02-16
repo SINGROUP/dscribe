@@ -89,11 +89,11 @@ def energy_force_loss(E_pred, E_train, F_pred, F_train):
 model = FFNet(n_features, n_hidden=5, n_out=1)
 
 # The Adam optimizer is used for training the model parameters
-optimizer = torch.optim.Adam(model.parameters(), lr=2e-2)
+optimizer = torch.optim.Adam(model.parameters(), lr=1e-2)
 
 # Train!
-n_epochs = 10000
-batch_size = 4
+n_max_epochs = 5000
+batch_size = 2
 patience = 20
 i_worse = 0
 old_valid_loss = float("Inf")
@@ -104,7 +104,7 @@ best_valid_loss = float("Inf")
 D_valid.requires_grad = True
 
 # Epochs
-for i_epoch in range(n_epochs):
+for i_epoch in range(n_max_epochs):
 
     # Batches
     permutation = torch.randperm(D_train.size()[0])

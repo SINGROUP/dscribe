@@ -41,7 +41,7 @@ plt.show()
 derivatives, descriptors = soap.derivatives(
     traj,
     positions=[[[0, 0, 0]]] * len(r),
-    method="numerical"
+    method="analytical"
 )
 
 # Save to disk for later training
