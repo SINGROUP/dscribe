@@ -13,6 +13,7 @@ class ExampleTests(unittest.TestCase):
         example_root = os.getcwd()
         paths = set()
         for root, dirs, files in os.walk('./'):
+            files.sort()
             for f in files:
                 filename = os.path.join(root, f)
                 if filename.endswith(".py"):
@@ -32,6 +33,7 @@ class ExampleTests(unittest.TestCase):
         os.chdir(old_cwd)
 
 if __name__ == '__main__':
+    ExampleTests().test_examples()
     suites = []
     suites.append(unittest.TestLoader().loadTestsFromTestCase(ExampleTests))
     alltests = unittest.TestSuite(suites)
