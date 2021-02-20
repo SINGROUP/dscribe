@@ -63,7 +63,7 @@ by default, on MacOS you may need to install additional command line tools if
 facing issues during setup ([see common issues in the
 documentation](https://singroup.github.io/dscribe/latest/install.html).
 
-The latest stable release is available through pip: (add the `-\-user` flag if
+The latest stable release is available through pip: (add the `--user` flag if
 root access is not available)
 
 ```sh
