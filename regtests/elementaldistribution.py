@@ -7,8 +7,8 @@ from dscribe.descriptors import ElementalDistribution
 
 
 class ElementalDistributionTests(unittest.TestCase):
-    """Tests for the ElementalDistribution-descriptor.
-    """
+    """Tests for the ElementalDistribution-descriptor."""
+
     def test_invalid_values(self):
         # Invalid distribution type
         with self.assertRaises(ValueError):
@@ -20,7 +20,7 @@ class ElementalDistributionTests(unittest.TestCase):
                         "max": 2.5,
                         "std": 0.5,
                         "n": 50,
-                        "values": {"H": 2}
+                        "values": {"H": 2},
                     }
                 }
             )
@@ -35,7 +35,7 @@ class ElementalDistributionTests(unittest.TestCase):
                         "max": 2.5,
                         "std": 0.5,
                         "n": 50,
-                        "values": {"H": 2.0}
+                        "values": {"H": 2.0},
                     }
                 }
             )
@@ -50,7 +50,7 @@ class ElementalDistributionTests(unittest.TestCase):
                         "max": 2.5,
                         "std": 0.5,
                         "n": 50,
-                        "values": {"H": 5.0}
+                        "values": {"H": 5.0},
                     }
                 }
             )
@@ -72,7 +72,7 @@ class ElementalDistributionTests(unittest.TestCase):
                     "max": 2.5,
                     "std": std,
                     "n": 50,
-                    "values": values
+                    "values": values,
                 }
             }
         )
@@ -84,6 +84,7 @@ class ElementalDistributionTests(unittest.TestCase):
 
         # Test that the peak positions match
         from scipy.signal import find_peaks_cwt
+
         peak_indices = find_peaks_cwt(y, [std])
         peak_loc = x[peak_indices]
 
@@ -103,12 +104,7 @@ class ElementalDistributionTests(unittest.TestCase):
         peaks = [0, 4, 18, 2]
         values = dict(zip(elements, peaks))
         elemdist = ElementalDistribution(
-            properties={
-                "first_property": {
-                    "type": "discrete",
-                    "values": values
-                }
-            }
+            properties={"first_property": {"type": "discrete", "values": values}}
         )
 
         # Features
@@ -117,7 +113,7 @@ class ElementalDistributionTests(unittest.TestCase):
 
         # Check that the axis is correct
         x = elemdist.get_axis("first_property")
-        self.assertTrue(np.array_equal(x, np.arange(0, 18+1)))
+        self.assertTrue(np.array_equal(x, np.arange(0, 18 + 1)))
 
         y = elemdist.create(system)
         y = y.todense().A1
@@ -133,8 +129,10 @@ class ElementalDistributionTests(unittest.TestCase):
         # mpl.show()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     suites = []
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(ElementalDistributionTests))
+    suites.append(
+        unittest.TestLoader().loadTestsFromTestCase(ElementalDistributionTests)
+    )
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)

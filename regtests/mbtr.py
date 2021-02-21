@@ -17,12 +17,12 @@ from testbaseclass import TestBaseClass
 
 default_k1 = {
     "geometry": {"function": "atomic_number"},
-    "grid": {"min": 1, "max": 8, "sigma": 0.1, "n": 50}
+    "grid": {"min": 1, "max": 8, "sigma": 0.1, "n": 50},
 }
 
 default_k2 = {
     "geometry": {"function": "inverse_distance"},
-    "grid": {"min": 0, "max": 1/0.7, "sigma": 0.1, "n": 50},
+    "grid": {"min": 0, "max": 1 / 0.7, "sigma": 0.1, "n": 50},
     "weighting": {"function": "exponential", "scale": 0.5, "cutoff": 1e-2},
 }
 
@@ -33,27 +33,15 @@ default_k3 = {
 }
 
 default_desc_k1 = MBTR(
-    species=[1, 8],
-    k1=default_k1,
-    periodic=False,
-    flatten=True,
-    sparse=False
+    species=[1, 8], k1=default_k1, periodic=False, flatten=True, sparse=False
 )
 
 default_desc_k2 = MBTR(
-    species=[1, 8],
-    k2=default_k2,
-    periodic=False,
-    flatten=True,
-    sparse=False
+    species=[1, 8], k2=default_k2, periodic=False, flatten=True, sparse=False
 )
 
 default_desc_k3 = MBTR(
-    species=[1, 8],
-    k3=default_k3,
-    periodic=False,
-    flatten=True,
-    sparse=False
+    species=[1, 8], k3=default_k3, periodic=False, flatten=True, sparse=False
 )
 
 default_desc_k1_k2_k3 = MBTR(
@@ -79,31 +67,35 @@ default_desc_k1_k2_k3 = MBTR(
 )
 
 H2O = Atoms(
-    cell=[
-        [5.0, 0.0, 0.0],
-        [0.0, 5.0, 0.0],
-        [0.0, 0.0, 5.0]
-    ],
+    cell=[[5.0, 0.0, 0.0], [0.0, 5.0, 0.0], [0.0, 0.0, 5.0]],
     positions=[
         [0, 0, 0],
         [0.95, 0, 0],
-        [0.95*(1+math.cos(76/180*math.pi)), 0.95*math.sin(76/180*math.pi), 0.0]
+        [
+            0.95 * (1 + math.cos(76 / 180 * math.pi)),
+            0.95 * math.sin(76 / 180 * math.pi),
+            0.0,
+        ],
     ],
     symbols=["H", "O", "H"],
 )
 
 H2O_2 = Atoms(
     cell=[[5.0, 0.0, 0], [0, 5, 0], [0, 0, 5.0]],
-    positions=[[0.95, 0, 0], [0, 0, 0], [0.95*(1+math.cos(76/180*math.pi)), 0.95*math.sin(76/180*math.pi), 0.0]],
+    positions=[
+        [0.95, 0, 0],
+        [0, 0, 0],
+        [
+            0.95 * (1 + math.cos(76 / 180 * math.pi)),
+            0.95 * math.sin(76 / 180 * math.pi),
+            0.0,
+        ],
+    ],
     symbols=["O", "H", "H"],
 )
 
 HHe = Atoms(
-    cell=[
-        [5.0, 0.0, 0.0],
-        [0.0, 5.0, 0.0],
-        [0.0, 0.0, 5.0]
-    ],
+    cell=[[5.0, 0.0, 0.0], [0.0, 5.0, 0.0], [0.0, 0.0, 5.0]],
     positions=[
         [0, 0, 0],
         [0.71, 0, 0],
@@ -112,11 +104,7 @@ HHe = Atoms(
 )
 
 H = Atoms(
-    cell=[
-        [5.0, 0.0, 0.0],
-        [0.0, 5.0, 0.0],
-        [0.0, 0.0, 5.0]
-    ],
+    cell=[[5.0, 0.0, 0.0], [0.0, 5.0, 0.0], [0.0, 0.0, 5.0]],
     positions=[
         [0, 0, 0],
     ],
@@ -125,10 +113,8 @@ H = Atoms(
 
 
 class MBTRTests(TestBaseClass, unittest.TestCase):
-
     def test_constructor(self):
-        """Tests different valid and invalid constructor values.
-        """
+        """Tests different valid and invalid constructor values."""
         # Cannot create a sparse and non-flattened output.
         with self.assertRaises(ValueError):
             MBTR(
@@ -143,16 +129,15 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         with self.assertRaises(ValueError):
             MBTR(
                 species=["H"],
-                k2={"geometry": default_k2["geometry"],
-                    "grid": default_k2["grid"]
-                },
+                k2={"geometry": default_k2["geometry"], "grid": default_k2["grid"]},
                 periodic=True,
             )
             MBTR(
                 species=["H"],
-                k2={"geometry": default_k2["geometry"],
+                k2={
+                    "geometry": default_k2["geometry"],
                     "grid": default_k2["grid"],
-                    "weighting": {"function": "unity"}
+                    "weighting": {"function": "unity"},
                 },
                 periodic=True,
             )
@@ -160,15 +145,16 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         with self.assertRaises(ValueError):
             MBTR(
                 species=["H"],
-                k3={"geometry": default_k3["geometry"],
-                    "grid": default_k3["grid"]},
+                k3={"geometry": default_k3["geometry"], "grid": default_k3["grid"]},
                 periodic=True,
             )
             MBTR(
                 species=["H"],
-                k3={"geometry": default_k3["geometry"],
+                k3={
+                    "geometry": default_k3["geometry"],
                     "grid": default_k3["grid"],
-                    "weighting": {"function": "unity"}},
+                    "weighting": {"function": "unity"},
+                },
                 periodic=True,
             )
 
@@ -176,28 +162,31 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         with self.assertRaises(ValueError):
             MBTR(
                 species=[1],
-                k1={"geometry": default_k1["geometry"],
+                k1={
+                    "geometry": default_k1["geometry"],
                     "grid": default_k1["grid"],
-                    "weighting": {"function": "none"}
+                    "weighting": {"function": "none"},
                 },
-                periodic=True
+                periodic=True,
             )
 
         with self.assertRaises(ValueError):
             MBTR(
                 species=[1],
-                k2={"geometry": default_k2["geometry"],
+                k2={
+                    "geometry": default_k2["geometry"],
                     "grid": default_k2["grid"],
-                    "weighting": {"function": "none"}
+                    "weighting": {"function": "none"},
                 },
                 periodic=True,
             )
         with self.assertRaises(ValueError):
             MBTR(
                 species=[1],
-                k3={"geometry": default_k3["geometry"],
+                k3={
+                    "geometry": default_k3["geometry"],
                     "grid": default_k3["grid"],
-                    "weighting": {"function": "none"}
+                    "weighting": {"function": "none"},
                 },
                 periodic=True,
             )
@@ -206,24 +195,27 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         with self.assertRaises(ValueError):
             MBTR(
                 species=[1],
-                k1={"geometry": {"function": "none"},
-                    "grid": {"min": 0, "max": 1, "n": 10, "sigma": 0.1}
+                k1={
+                    "geometry": {"function": "none"},
+                    "grid": {"min": 0, "max": 1, "n": 10, "sigma": 0.1},
                 },
                 periodic=False,
             )
         with self.assertRaises(ValueError):
             MBTR(
                 species=[1],
-                k2={"geometry": {"function": "none"},
-                    "grid": {"min": 0, "max": 1, "n": 10, "sigma": 0.1}
+                k2={
+                    "geometry": {"function": "none"},
+                    "grid": {"min": 0, "max": 1, "n": 10, "sigma": 0.1},
                 },
                 periodic=False,
             )
         with self.assertRaises(ValueError):
             MBTR(
                 species=[1],
-                k3={"geometry": {"function": "none"},
-                    "grid": {"min": 0, "max": 1, "n": 10, "sigma": 0.1}
+                k3={
+                    "geometry": {"function": "none"},
+                    "grid": {"min": 0, "max": 1, "n": 10, "sigma": 0.1},
                 },
                 periodic=False,
             )
@@ -249,8 +241,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             )
 
     def test_number_of_features(self):
-        """Tests that the reported number of features is correct.
-        """
+        """Tests that the reported number of features is correct."""
         # K=1
         n = 100
         atomic_numbers = [1, 8]
@@ -259,13 +250,13 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             species=atomic_numbers,
             k1={
                 "geometry": {"function": "atomic_number"},
-                "grid": {"min": 1, "max": 8, "sigma": 0.1, "n": 100}
+                "grid": {"min": 1, "max": 8, "sigma": 0.1, "n": 100},
             },
             periodic=False,
-            flatten=True
+            flatten=True,
         )
         n_features = mbtr.get_number_of_features()
-        expected = n_elem*n
+        expected = n_elem * n
         self.assertEqual(n_features, expected)
 
         # K=2
@@ -277,14 +268,14 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             },
             k2={
                 "geometry": {"function": "inverse_distance"},
-                "grid": {"min": 0, "max": 1/0.7, "sigma": 0.1, "n": n},
+                "grid": {"min": 0, "max": 1 / 0.7, "sigma": 0.1, "n": n},
                 "weighting": {"function": "exponential", "scale": 0.5, "cutoff": 1e-2},
             },
             periodic=False,
-            flatten=True
+            flatten=True,
         )
         n_features = mbtr.get_number_of_features()
-        expected = n_elem*n + 1/2*(n_elem)*(n_elem+1)*n
+        expected = n_elem * n + 1 / 2 * (n_elem) * (n_elem + 1) * n
         self.assertEqual(n_features, expected)
 
         # K=3
@@ -296,7 +287,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             },
             k2={
                 "geometry": {"function": "inverse_distance"},
-                "grid": {"min": 0, "max": 1/0.7, "sigma": 0.1, "n": n},
+                "grid": {"min": 0, "max": 1 / 0.7, "sigma": 0.1, "n": n},
                 "weighting": {"function": "exponential", "scale": 0.5, "cutoff": 1e-2},
             },
             k3={
@@ -305,10 +296,14 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
                 "weighting": {"function": "exponential", "scale": 0.5, "cutoff": 1e-2},
             },
             periodic=False,
-            flatten=True
+            flatten=True,
         )
         n_features = mbtr.get_number_of_features()
-        expected = n_elem*n + 1/2*(n_elem)*(n_elem+1)*n + n_elem*1/2*(n_elem)*(n_elem+1)*n
+        expected = (
+            n_elem * n
+            + 1 / 2 * (n_elem) * (n_elem + 1) * n
+            + n_elem * 1 / 2 * (n_elem) * (n_elem + 1) * n
+        )
         self.assertEqual(n_features, expected)
 
     def test_locations_k1(self):
@@ -319,7 +314,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         H2O = molecule("H2O")
         descriptors = [
             copy.deepcopy(default_desc_k1),
-            copy.deepcopy(default_desc_k1_k2_k3)
+            copy.deepcopy(default_desc_k1_k2_k3),
         ]
 
         for desc in descriptors:
@@ -354,7 +349,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         H2O = molecule("H2O")
         descriptors = [
             copy.deepcopy(default_desc_k2),
-            copy.deepcopy(default_desc_k1_k2_k3)
+            copy.deepcopy(default_desc_k1_k2_k3),
         ]
 
         for desc in descriptors:
@@ -406,7 +401,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         H2O = molecule("H2O")
         descriptors = [
             copy.deepcopy(default_desc_k3),
-            copy.deepcopy(default_desc_k1_k2_k3)
+            copy.deepcopy(default_desc_k1_k2_k3),
         ]
 
         for desc in descriptors:
@@ -457,8 +452,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             self.assertTrue(h2o_out[loc_ohh].sum() != 0)
 
     def test_sparse(self):
-        """Tests the sparse matrix creation.
-        """
+        """Tests the sparse matrix creation."""
         # Dense
         desc = copy.deepcopy(default_desc_k1)
         desc.sparse = False
@@ -518,8 +512,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         self.assertTrue(not np.allclose(vec4, vec5))
 
     def test_flatten(self):
-        """Tests that flattened, and non-flattened output works correctly.
-        """
+        """Tests that flattened, and non-flattened output works correctly."""
         system = H2O
         n = 10
         n_species = len(set(system.get_atomic_numbers()))
@@ -529,11 +522,11 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             species=[1, 8],
             k1={
                 "grid": {"n": n, "min": 1, "max": 8, "sigma": 0.1},
-                "geometry": {"function": "atomic_number"}
+                "geometry": {"function": "atomic_number"},
             },
             periodic=False,
             flatten=False,
-            sparse=False
+            sparse=False,
         )
         feat = desc.create(system)["k1"]
         self.assertEqual(feat.shape, (n_species, n))
@@ -541,11 +534,10 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         # K1 flattened.
         desc.flatten = True
         feat = desc.create(system)
-        self.assertEqual(feat.shape, (n_species*n,))
+        self.assertEqual(feat.shape, (n_species * n,))
 
     def test_parallel_dense(self):
-        """Tests creating dense output parallelly.
-        """
+        """Tests creating dense output parallelly."""
         samples = [molecule("CO"), molecule("N2O")]
         desc = copy.deepcopy(default_desc_k2)
         desc.species = ["C", "O", "N"]
@@ -587,8 +579,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
                 self.assertTrue(np.allclose(i_tensor, j_tensor))
 
     def test_parallel_sparse(self):
-        """Tests creating sparse output parallelly.
-        """
+        """Tests creating sparse output parallelly."""
         # Test indices
         samples = [molecule("CO"), molecule("N2O")]
         desc = copy.deepcopy(default_desc_k2)
@@ -631,12 +622,20 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             k2={
                 "geometry": {"function": "inverse_distance"},
                 "grid": {"min": 0, "max": 1.0, "sigma": 0.02, "n": 200},
-                "weighting": {"function": "exponential", "scale": decay, "cutoff": 1e-3},
+                "weighting": {
+                    "function": "exponential",
+                    "scale": decay,
+                    "cutoff": 1e-3,
+                },
             },
             k3={
                 "geometry": {"function": "cosine"},
                 "grid": {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 200},
-                "weighting": {"function": "exponential", "scale": decay, "cutoff": 1e-3},
+                "weighting": {
+                    "function": "exponential",
+                    "scale": decay,
+                    "cutoff": 1e-3,
+                },
             },
             flatten=True,
             sparse=False,
@@ -644,10 +643,10 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         )
 
         # Create various supercells for the FCC structure
-        a1 = bulk('H', 'fcc', a=2.0)                     # Primitive
-        a2 = a1*[2, 2, 2]                                # Supercell
-        a3 = bulk('H', 'fcc', a=2.0, orthorhombic=True)  # Orthorhombic
-        a4 = bulk('H', 'fcc', a=2.0, cubic=True)         # Conventional cubic
+        a1 = bulk("H", "fcc", a=2.0)  # Primitive
+        a2 = a1 * [2, 2, 2]  # Supercell
+        a3 = bulk("H", "fcc", a=2.0, orthorhombic=True)  # Orthorhombic
+        a4 = bulk("H", "fcc", a=2.0, cubic=True)  # Conventional cubic
 
         output = desc.create([a1, a2, a3, a4])
 
@@ -658,8 +657,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         self.assertTrue(np.allclose(output[0, :], output[3, :], atol=1e-5, rtol=0))
 
     def test_normalization(self):
-        """Tests that each normalization method works correctly.
-        """
+        """Tests that each normalization method works correctly."""
         n = 100
         desc = copy.deepcopy(default_desc_k1_k2_k3)
         desc.species = ("H", "O")
@@ -682,9 +680,9 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         k1_each = feat2["k1"]
         k2_each = feat2["k2"]
         k3_each = feat2["k3"]
-        self.assertTrue(np.array_equal(k1/k1_norm, k1_each))
-        self.assertTrue(np.array_equal(k2/k2_norm, k2_each))
-        self.assertTrue(np.array_equal(k3/k3_norm, k3_each))
+        self.assertTrue(np.array_equal(k1 / k1_norm, k1_each))
+        self.assertTrue(np.array_equal(k2 / k2_norm, k2_each))
+        self.assertTrue(np.array_equal(k3 / k3_norm, k3_each))
 
         # Flattened dense output
         desc.flatten = True
@@ -696,20 +694,24 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         desc.normalization = "l2_each"
         n_elem = len(desc.species)
         feat = desc.create(H2O)
-        n1 = int(n*n_elem)
-        n2 = int((n_elem*(n_elem+1)/2)*n)
-        a1 = feat_flat[0:n1]/k1_norm
-        a2 = feat_flat[n1:n1+n2]/k2_norm
-        a3 = feat_flat[n1+n2:]/k3_norm
+        n1 = int(n * n_elem)
+        n2 = int((n_elem * (n_elem + 1) / 2) * n)
+        a1 = feat_flat[0:n1] / k1_norm
+        a2 = feat_flat[n1 : n1 + n2] / k2_norm
+        a3 = feat_flat[n1 + n2 :] / k3_norm
         feat_flat_manual_norm_each = np.hstack((a1, a2, a3))
 
-        self.assertTrue(np.allclose(feat[:], feat_flat_manual_norm_each, atol=1e-7, rtol=0))
+        self.assertTrue(
+            np.allclose(feat[:], feat_flat_manual_norm_each, atol=1e-7, rtol=0)
+        )
 
         # Test normalization of flat sparse output with l2_each
         desc.sparse = True
         desc.normalization = "l2_each"
         feat = desc.create(H2O).todense()
-        self.assertTrue(np.allclose(feat, feat_flat_manual_norm_each, atol=1e-7, rtol=0))
+        self.assertTrue(
+            np.allclose(feat, feat_flat_manual_norm_each, atol=1e-7, rtol=0)
+        )
 
         # Test normalization of flat dense output with n_atoms
         desc.sparse = False
@@ -717,13 +719,13 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         n_atoms = len(H2O)
         n_elem = len(desc.species)
         feat = desc.create(H2O)
-        self.assertTrue(np.allclose(feat, feat_flat/n_atoms, atol=1e-7, rtol=0))
+        self.assertTrue(np.allclose(feat, feat_flat / n_atoms, atol=1e-7, rtol=0))
 
         # Test normalization of flat sparse output with n_atoms
         desc.sparse = True
         desc.normalization = "n_atoms"
         feat = desc.create(H2O).todense()
-        self.assertTrue(np.allclose(feat, feat_flat/n_atoms, atol=1e-7, rtol=0))
+        self.assertTrue(np.allclose(feat, feat_flat / n_atoms, atol=1e-7, rtol=0))
 
     def test_k1_peaks_finite(self):
         """Tests the correct peak locations and intensities are found for the
@@ -733,12 +735,12 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             species=[1, 8],
             k1={
                 "geometry": {"function": "atomic_number"},
-                "grid": {"min": 0, "max": 9, "sigma": 0.5, "n": 1000}
+                "grid": {"min": 0, "max": 9, "sigma": 0.5, "n": 1000},
             },
             normalize_gaussians=False,
             periodic=False,
             flatten=True,
-            sparse=False
+            sparse=False,
         )
         features = desc.create(H2O)
         x = desc.get_k1_axis()
@@ -778,7 +780,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             normalize_gaussians=False,
             periodic=False,
             flatten=True,
-            sparse=False
+            sparse=False,
         )
         features = desc.create(H2O)
         pos = H2O.get_positions()
@@ -789,7 +791,11 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         hh_peak_indices = find_peaks(hh_feat, prominence=0.5)[0]
         hh_peak_locs = x[hh_peak_indices]
         hh_peak_ints = hh_feat[hh_peak_indices]
-        self.assertTrue(np.allclose(hh_peak_locs, [np.linalg.norm(pos[0] - pos[2])], rtol=0, atol=1e-2))
+        self.assertTrue(
+            np.allclose(
+                hh_peak_locs, [np.linalg.norm(pos[0] - pos[2])], rtol=0, atol=1e-2
+            )
+        )
         self.assertTrue(np.allclose(hh_peak_ints, [1], rtol=0, atol=1e-2))
 
         # Check the O-H peaks
@@ -797,7 +803,11 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         ho_peak_indices = find_peaks(ho_feat, prominence=0.5)[0]
         ho_peak_locs = x[ho_peak_indices]
         ho_peak_ints = ho_feat[ho_peak_indices]
-        self.assertTrue(np.allclose(ho_peak_locs, np.linalg.norm(pos[0] - pos[1]), rtol=0, atol=1e-2))
+        self.assertTrue(
+            np.allclose(
+                ho_peak_locs, np.linalg.norm(pos[0] - pos[1]), rtol=0, atol=1e-2
+            )
+        )
         self.assertTrue(np.allclose(ho_peak_ints, [2], rtol=0, atol=1e-2))
 
         # Check that everything else is zero
@@ -820,7 +830,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
                 [0.1, 0.5, 0.5],
                 [0.9, 0.5, 0.5],
             ],
-            pbc=True
+            pbc=True,
         )
 
         desc = MBTR(
@@ -833,16 +843,20 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             normalize_gaussians=False,
             periodic=True,
             flatten=True,
-            sparse=False
+            sparse=False,
         )
         features = desc.create(atoms)
         x = desc.get_k2_axis()
 
         # Calculate assumed locations and intensities.
         assumed_locs = np.array([2, 8])
-        assumed_ints = np.exp(-0.8*np.array([2, 8]))
+        assumed_ints = np.exp(-0.8 * np.array([2, 8]))
         assumed_ints[0] *= 2  # There are two periodic distances at 2Å
-        assumed_ints[0] /= 2  # The periodic distances ar halved because they belong to different cells
+        assumed_ints[
+            0
+        ] /= (
+            2  # The periodic distances ar halved because they belong to different cells
+        )
 
         # Check the H-C peaks
         hc_feat = features[desc.get_location(("H", "C"))]
@@ -875,7 +889,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
                 [0.1, 0.5, 0.5],
                 [0.9, 0.5, 0.5],
             ],
-            pbc=True
+            pbc=True,
         )
 
         # Translated system with atoms next to each other
@@ -908,7 +922,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             normalize_gaussians=False,
             periodic=False,
             flatten=True,
-            sparse=False
+            sparse=False,
         )
         features = desc.create(H2O)
         x = desc.get_k3_axis()
@@ -956,7 +970,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             normalize_gaussians=False,
             periodic=True,
             flatten=True,
-            sparse=False
+            sparse=False,
         )
 
         atoms = Atoms(
@@ -965,23 +979,25 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
                 [0, 10, 0],
                 [0, 0, 10],
             ],
-            symbols=3*["H"],
+            symbols=3 * ["H"],
             scaled_positions=[
                 [0.05, 0.40, 0.5],
                 [0.05, 0.60, 0.5],
                 [0.95, 0.5, 0.5],
             ],
-            pbc=True
+            pbc=True,
         )
         features = desc.create(atoms)
         x = desc.get_k3_axis()
 
         # Calculate assumed locations and intensities.
         assumed_locs = np.array([45, 90])
-        dist = 2+2*np.sqrt(2)  # The total distance around the three atoms
-        weight = np.exp(-scale*dist)
-        assumed_ints = np.array([4*weight, 2*weight])
-        assumed_ints /= 2  # The periodic distances ar halved because they belong to different cells
+        dist = 2 + 2 * np.sqrt(2)  # The total distance around the three atoms
+        weight = np.exp(-scale * dist)
+        assumed_ints = np.array([4 * weight, 2 * weight])
+        assumed_ints /= (
+            2  # The periodic distances ar halved because they belong to different cells
+        )
 
         # Check the H-H-H peaks
         hhh_feat = features[desc.get_location(("H", "H", "H"))]
@@ -1016,7 +1032,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
                 [0.9, 0.50, 0.5],
                 [0.9, 0.60, 0.5],
             ],
-            pbc=True
+            pbc=True,
         )
 
         # Translated system with atoms next to each other
@@ -1034,8 +1050,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         self.assertTrue(np.allclose(spectra1, spectra2, rtol=0, atol=1e-8))
 
     def test_gaussian_distribution(self):
-        """Check that the broadening follows gaussian distribution.
-        """
+        """Check that the broadening follows gaussian distribution."""
         # Check with normalization
         std = 1
         start = -3
@@ -1055,14 +1070,20 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         peak2_y = y[1, peak2_x]
 
         # Check against the analytical value
-        gaussian = lambda x, mean, sigma: 1/(sigma*np.sqrt(2*np.pi))*np.exp(-(x-mean)**2/(2*sigma**2))
-        self.assertTrue(np.allclose(peak1_y, 2*gaussian(1, 1, std), rtol=0, atol=0.001))
+        gaussian = (
+            lambda x, mean, sigma: 1
+            / (sigma * np.sqrt(2 * np.pi))
+            * np.exp(-((x - mean) ** 2) / (2 * sigma ** 2))
+        )
+        self.assertTrue(
+            np.allclose(peak1_y, 2 * gaussian(1, 1, std), rtol=0, atol=0.001)
+        )
         self.assertTrue(np.allclose(peak2_y, gaussian(8, 8, std), rtol=0, atol=0.001))
 
         # Check the integral
         pdf = y[0, :]
-        dx = (stop-start)/(n-1)
-        sum_cum = np.sum(0.5*dx*(pdf[:-1]+pdf[1:]))
+        dx = (stop - start) / (n - 1)
+        sum_cum = np.sum(0.5 * dx * (pdf[:-1] + pdf[1:]))
         exp = 2
         self.assertTrue(np.allclose(sum_cum, exp, rtol=0, atol=0.001))
 
@@ -1083,19 +1104,20 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         peak2_y = y[1, peak2_x]
 
         # Check against the analytical value
-        gaussian = lambda x, mean, sigma: np.exp(-(x-mean)**2/(2*sigma**2))
-        self.assertTrue(np.allclose(peak1_y, 2*gaussian(1, 1, std), rtol=0, atol=0.001))
+        gaussian = lambda x, mean, sigma: np.exp(-((x - mean) ** 2) / (2 * sigma ** 2))
+        self.assertTrue(
+            np.allclose(peak1_y, 2 * gaussian(1, 1, std), rtol=0, atol=0.001)
+        )
         self.assertTrue(np.allclose(peak2_y, gaussian(8, 8, std), rtol=0, atol=0.001))
 
         # Check the integral
         pdf = y[0, :]
-        dx = (stop-start)/(n-1)
-        sum_cum = np.sum(0.5*dx*(pdf[:-1]+pdf[1:]))
-        exp = 2/(1/math.sqrt(2*math.pi*std**2))
+        dx = (stop - start) / (n - 1)
+        sum_cum = np.sum(0.5 * dx * (pdf[:-1] + pdf[1:]))
+        exp = 2 / (1 / math.sqrt(2 * math.pi * std ** 2))
         self.assertTrue(np.allclose(sum_cum, exp, rtol=0, atol=0.001))
 
     def test_symmetries(self):
-
         def create(system):
             desc = copy.deepcopy(default_desc_k1_k2_k3)
             desc.species = ["H", "O"]
@@ -1111,52 +1133,38 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         self.assertTrue(self.is_permutation_symmetric(create))
 
     def test_unit_cells(self):
-        """Tests that arbitrary unit cells are accepted.
-        """
+        """Tests that arbitrary unit cells are accepted."""
         desc = copy.deepcopy(default_desc_k1_k2_k3)
         desc.periodic = False
         desc.species = ["H", "O"]
         molecule = H2O.copy()
 
         # No cell needed for finite systems
-        molecule.set_cell([
-            [0.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0]
-        ])
+        molecule.set_cell([[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]])
         nocell = desc.create(molecule)
 
         # Different periodic cells
         desc.periodic = True
-        molecule.set_cell([
-            [2.0, 0.0, 0.0],
-            [0.0, 2.0, 0.0],
-            [0.0, 0.0, 2.0]
-        ])
+        molecule.set_cell([[2.0, 0.0, 0.0], [0.0, 2.0, 0.0], [0.0, 0.0, 2.0]])
         cubic_cell = desc.create(molecule)
 
-        molecule.set_cell([
-            [0.0, 2.0, 2.0],
-            [2.0, 0.0, 2.0],
-            [2.0, 2.0, 0.0]
-        ])
+        molecule.set_cell([[0.0, 2.0, 2.0], [2.0, 0.0, 2.0], [2.0, 2.0, 0.0]])
         triclinic_smallcell = desc.create(molecule)
 
     def test_periodic_images(self):
-        """Tests that periodic images are handled correctly.
-        """
+        """Tests that periodic images are handled correctly."""
         decay = 1
         desc = MBTR(
             species=[1],
             periodic=True,
             k1={
                 "geometry": {"function": "atomic_number"},
-                "grid": {"min": 0, "max": 2, "sigma": 0.1, "n": 21}
+                "grid": {"min": 0, "max": 2, "sigma": 0.1, "n": 21},
             },
             k2={
                 "geometry": {"function": "inverse_distance"},
                 "grid": {"min": 0, "max": 1.0, "sigma": 0.02, "n": 21},
-                "weighting": {"function": "exp", "scale": decay, "cutoff": 1e-4}
+                "weighting": {"function": "exp", "scale": decay, "cutoff": 1e-4},
             },
             k3={
                 "geometry": {"function": "cosine"},
@@ -1164,18 +1172,14 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
                 "weighting": {"function": "exp", "scale": decay, "cutoff": 1e-4},
             },
             normalization="l2_each",  # This normalizes the spectrum
-            flatten=True
+            flatten=True,
         )
 
         # Tests that a system has the same spectrum as the supercell of
         # the same system.
         molecule = H.copy()
         a = 1.5
-        molecule.set_cell([
-            [a, 0.0, 0.0],
-            [0.0, a, 0.0],
-            [0.0, 0.0, a]
-        ])
+        molecule.set_cell([[a, 0.0, 0.0], [0.0, a, 0.0], [0.0, 0.0, a]])
         molecule.set_pbc(True)
         cubic_cell = desc.create(molecule)
         suce = molecule * (2, 1, 1)
@@ -1183,14 +1187,10 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
 
         diff = abs(np.sum(cubic_cell - cubic_suce))
         cubic_sum = abs(np.sum(cubic_cell))
-        self.assertTrue(diff/cubic_sum < 0.05)  # A 5% error is tolerated
+        self.assertTrue(diff / cubic_sum < 0.05)  # A 5% error is tolerated
 
         # Same test but for triclinic cell
-        molecule.set_cell([
-            [0.0, 2.0, 1.0],
-            [1.0, 0.0, 1.0],
-            [1.0, 2.0, 0.0]
-        ])
+        molecule.set_cell([[0.0, 2.0, 1.0], [1.0, 0.0, 1.0], [1.0, 2.0, 0.0]])
 
         triclinic_cell = desc.create(molecule)
         suce = molecule * (2, 1, 1)
@@ -1198,14 +1198,14 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
 
         diff = abs(np.sum(triclinic_cell - triclinic_suce))
         tricl_sum = abs(np.sum(triclinic_cell))
-        self.assertTrue(diff/tricl_sum < 0.05)
+        self.assertTrue(diff / tricl_sum < 0.05)
 
         # Testing that the same crystal, but different unit cells will have a
         # similar spectrum when they are normalized. There will be small
         # differences in the shape (due to not double counting distances)
-        a1 = bulk('H', 'fcc', a=2.0)
-        a2 = bulk('H', 'fcc', a=2.0, orthorhombic=True)
-        a3 = bulk('H', 'fcc', a=2.0, cubic=True)
+        a1 = bulk("H", "fcc", a=2.0)
+        a2 = bulk("H", "fcc", a=2.0, orthorhombic=True)
+        a3 = bulk("H", "fcc", a=2.0, cubic=True)
 
         triclinic_cell = desc.create(a1)
         orthorhombic_cell = desc.create(a2)
@@ -1214,8 +1214,8 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         diff1 = abs(np.sum(triclinic_cell - orthorhombic_cell))
         diff2 = abs(np.sum(triclinic_cell - cubic_cell))
         tricl_sum = abs(np.sum(triclinic_cell))
-        self.assertTrue(diff1/tricl_sum < 0.05)
-        self.assertTrue(diff2/tricl_sum < 0.05)
+        self.assertTrue(diff1 / tricl_sum < 0.05)
+        self.assertTrue(diff2 / tricl_sum < 0.05)
 
         # Tests that the correct peak locations are present in a cubic periodic
         desc = MBTR(
@@ -1224,18 +1224,14 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             k3={
                 "geometry": {"function": "cosine"},
                 "grid": {"min": -1.1, "max": 1.1, "sigma": 0.010, "n": 600},
-                "weighting": {"function": "exp", "scale": decay, "cutoff": 1e-4}
+                "weighting": {"function": "exp", "scale": decay, "cutoff": 1e-4},
             },
             normalization="l2_each",  # This normalizes the spectrum
-            flatten=True
+            flatten=True,
         )
         a = 2.2
         system = Atoms(
-            cell=[
-                [a, 0.0, 0.0],
-                [0.0, a, 0.0],
-                [0.0, 0.0, a]
-            ],
+            cell=[[a, 0.0, 0.0], [0.0, a, 0.0], [0.0, 0.0, a]],
             positions=[
                 [0, 0, 0],
             ],
@@ -1248,17 +1244,23 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         peak_ids = find_peaks_cwt(cubic_spectrum, [2])
         peak_locs = x3[peak_ids]
 
-        assumed_peaks = np.cos(np.array(
-            [
-                180,
-                90,
-                np.arctan(np.sqrt(2))*180/np.pi,
-                45,
-                np.arctan(np.sqrt(2)/2)*180/np.pi,
-                0
-            ])*np.pi/180
+        assumed_peaks = np.cos(
+            np.array(
+                [
+                    180,
+                    90,
+                    np.arctan(np.sqrt(2)) * 180 / np.pi,
+                    45,
+                    np.arctan(np.sqrt(2) / 2) * 180 / np.pi,
+                    0,
+                ]
+            )
+            * np.pi
+            / 180
         )
-        self.assertTrue(np.allclose(peak_locs, assumed_peaks, rtol=0, atol=5*np.pi/180))
+        self.assertTrue(
+            np.allclose(peak_locs, assumed_peaks, rtol=0, atol=5 * np.pi / 180)
+        )
 
         # Tests that the correct peak locations are present in a system with a
         # non-cubic basis
@@ -1268,16 +1270,16 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             k3={
                 "geometry": {"function": "cosine"},
                 "grid": {"min": -1.0, "max": 1.0, "sigma": 0.030, "n": 200},
-                "weighting": {"function": "exp", "scale": 1.5, "cutoff": 1e-4}
+                "weighting": {"function": "exp", "scale": 1.5, "cutoff": 1e-4},
             },
             normalization="l2_each",  # This normalizes the spectrum
             flatten=True,
-            sparse=False
+            sparse=False,
         )
         a = 2.2
         angle = 30
         system = Atoms(
-            cell=ase.geometry.cellpar_to_cell([3*a, a, a, angle, 90, 90]),
+            cell=ase.geometry.cellpar_to_cell([3 * a, a, a, angle, 90, 90]),
             positions=[
                 [0, 0, 0],
             ],
@@ -1290,16 +1292,17 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         peak_ids = find_peaks_cwt(tricl_spectrum, [3])
         peak_locs = x3[peak_ids]
 
-        angle = (6)/(np.sqrt(5)*np.sqrt(8))
-        assumed_peaks = np.cos(np.array([180, 105, 75, 51.2, 30, 0])*np.pi/180)
-        self.assertTrue(np.allclose(peak_locs, assumed_peaks, rtol=0, atol=5*np.pi/180))
+        angle = (6) / (np.sqrt(5) * np.sqrt(8))
+        assumed_peaks = np.cos(np.array([180, 105, 75, 51.2, 30, 0]) * np.pi / 180)
+        self.assertTrue(
+            np.allclose(peak_locs, assumed_peaks, rtol=0, atol=5 * np.pi / 180)
+        )
 
     def test_basis(self):
-        """Tests that the output vectors behave correctly as a basis.
-        """
+        """Tests that the output vectors behave correctly as a basis."""
         sys1 = Atoms(symbols=["H"], positions=[[0, 0, 0]], cell=[2, 2, 2], pbc=True)
         sys2 = Atoms(symbols=["O"], positions=[[0, 0, 0]], cell=[2, 2, 2], pbc=True)
-        sys3 = sys2*[2, 2, 2]
+        sys3 = sys2 * [2, 2, 2]
 
         desc = copy.deepcopy(default_desc_k1_k2_k3)
         desc.sparse = False
@@ -1320,10 +1323,10 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
 
         # The dot-product should be rougly one for a primitive cell and a supercell
         dot = np.dot(vec2, vec3)
-        self.assertTrue(abs(dot-1) < 1e-3)
+        self.assertTrue(abs(dot - 1) < 1e-3)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     suites = []
     suites.append(unittest.TestLoader().loadTestsFromTestCase(MBTRTests))
     alltests = unittest.TestSuite(suites)

@@ -16,25 +16,21 @@ from testbaseclass import TestBaseClass
 
 
 H2O = Atoms(
-    cell=[
-        [5.0, 0.0, 0.0],
-        [0.0, 5.0, 0.0],
-        [0.0, 0.0, 5.0]
-    ],
+    cell=[[5.0, 0.0, 0.0], [0.0, 5.0, 0.0], [0.0, 0.0, 5.0]],
     positions=[
         [0, 0, 0],
         [0.95, 0, 0],
-        [0.95*(1+math.cos(76/180*math.pi)), 0.95*math.sin(76/180*math.pi), 0.0]
+        [
+            0.95 * (1 + math.cos(76 / 180 * math.pi)),
+            0.95 * math.sin(76 / 180 * math.pi),
+            0.0,
+        ],
     ],
     symbols=["H", "O", "H"],
 )
 
 HHe = Atoms(
-    cell=[
-        [5.0, 0.0, 0.0],
-        [0.0, 5.0, 0.0],
-        [0.0, 0.0, 5.0]
-    ],
+    cell=[[5.0, 0.0, 0.0], [0.0, 5.0, 0.0], [0.0, 0.0, 5.0]],
     positions=[
         [0, 0, 0],
         [0.71, 0, 0],
@@ -44,18 +40,15 @@ HHe = Atoms(
 
 
 class CoulombMatrixTests(TestBaseClass, unittest.TestCase):
-
     def test_constructor(self):
-        """Tests different valid and invalid constructor values.
-        """
+        """Tests different valid and invalid constructor values."""
         with self.assertRaises(ValueError):
             CoulombMatrix(n_atoms_max=5, permutation="unknown")
         with self.assertRaises(ValueError):
             CoulombMatrix(n_atoms_max=-1)
 
     def test_number_of_features(self):
-        """Tests that the reported number of features is correct.
-        """
+        """Tests that the reported number of features is correct."""
         desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=False)
         n_features = desc.get_number_of_features()
         self.assertEqual(n_features, 25)
@@ -71,18 +64,17 @@ class CoulombMatrixTests(TestBaseClass, unittest.TestCase):
                 [0.9, 0, 0],
             ],
             symbols=["H", "H"],
-            pbc=True
+            pbc=True,
         )
         desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=False)
         cm = desc.create(system)
 
         pos = system.get_positions()
-        assumed = 1*1/np.linalg.norm((pos[0] - pos[1]))
+        assumed = 1 * 1 / np.linalg.norm((pos[0] - pos[1]))
         self.assertEqual(cm[0, 1], assumed)
 
     def test_flatten(self):
-        """Tests the flattening.
-        """
+        """Tests the flattening."""
         # Unflattened
         desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=False)
         cm = desc.create(H2O)
@@ -94,23 +86,27 @@ class CoulombMatrixTests(TestBaseClass, unittest.TestCase):
         self.assertEqual(cm.shape, (25,))
 
     def test_sparse(self):
-        """Tests the sparse matrix creation.
-        """
+        """Tests the sparse matrix creation."""
         # Dense
-        desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=False, sparse=False)
+        desc = CoulombMatrix(
+            n_atoms_max=5, permutation="none", flatten=False, sparse=False
+        )
         vec = desc.create(H2O)
         self.assertTrue(type(vec) == np.ndarray)
 
         # Sparse
-        desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=True, sparse=True)
+        desc = CoulombMatrix(
+            n_atoms_max=5, permutation="none", flatten=True, sparse=True
+        )
         vec = desc.create(H2O)
         self.assertTrue(type(vec) == sparse.COO)
 
     def test_parallel_dense(self):
-        """Tests creating dense output parallelly.
-        """
+        """Tests creating dense output parallelly."""
         samples = [molecule("CO"), molecule("N2O")]
-        desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=True, sparse=False)
+        desc = CoulombMatrix(
+            n_atoms_max=5, permutation="none", flatten=True, sparse=False
+        )
         n_features = desc.get_number_of_features()
 
         # Test multiple systems, serial job
@@ -134,7 +130,9 @@ class CoulombMatrixTests(TestBaseClass, unittest.TestCase):
         self.assertTrue(np.allclose(output, assumed))
 
         # Non-flattened output
-        desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=False, sparse=False)
+        desc = CoulombMatrix(
+            n_atoms_max=5, permutation="none", flatten=False, sparse=False
+        )
         output = desc.create(
             system=samples,
             n_jobs=2,
@@ -145,11 +143,12 @@ class CoulombMatrixTests(TestBaseClass, unittest.TestCase):
         self.assertTrue(np.allclose(np.array(output), assumed))
 
     def test_parallel_sparse(self):
-        """Tests creating sparse output parallelly.
-        """
+        """Tests creating sparse output parallelly."""
         # Test indices
         samples = [molecule("CO"), molecule("N2O")]
-        desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=True, sparse=True)
+        desc = CoulombMatrix(
+            n_atoms_max=5, permutation="none", flatten=True, sparse=True
+        )
         n_features = desc.get_number_of_features()
 
         # Test multiple systems, serial job
@@ -173,7 +172,9 @@ class CoulombMatrixTests(TestBaseClass, unittest.TestCase):
         self.assertTrue(np.allclose(output, assumed))
 
         # Non-flattened output
-        desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=False, sparse=True)
+        desc = CoulombMatrix(
+            n_atoms_max=5, permutation="none", flatten=False, sparse=True
+        )
         output = desc.create(
             system=samples,
             n_jobs=2,
@@ -184,8 +185,7 @@ class CoulombMatrixTests(TestBaseClass, unittest.TestCase):
         self.assertTrue(np.allclose(np.array(output), assumed))
 
     def test_features(self):
-        """Tests that the correct features are present in the desciptor.
-        """
+        """Tests that the correct features are present in the desciptor."""
         desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=False)
         cm = desc.create(H2O)
 
@@ -195,9 +195,21 @@ class CoulombMatrixTests(TestBaseClass, unittest.TestCase):
         norm = np.linalg.norm
         assumed = np.array(
             [
-                [0.5*q[0]**2.4,              q[0]*q[1]/(norm(p[0]-p[1])),  q[0]*q[2]/(norm(p[0]-p[2]))],
-                [q[1]*q[0]/(norm(p[1]-p[0])), 0.5*q[1]**2.4,               q[1]*q[2]/(norm(p[1]-p[2]))],
-                [q[2]*q[0]/(norm(p[2]-p[0])), q[2]*q[1]/(norm(p[2]-p[1])), 0.5*q[2]**2.4],
+                [
+                    0.5 * q[0] ** 2.4,
+                    q[0] * q[1] / (norm(p[0] - p[1])),
+                    q[0] * q[2] / (norm(p[0] - p[2])),
+                ],
+                [
+                    q[1] * q[0] / (norm(p[1] - p[0])),
+                    0.5 * q[1] ** 2.4,
+                    q[1] * q[2] / (norm(p[1] - p[2])),
+                ],
+                [
+                    q[2] * q[0] / (norm(p[2] - p[0])),
+                    q[2] * q[1] / (norm(p[2] - p[1])),
+                    0.5 * q[2] ** 2.4,
+                ],
             ]
         )
         zeros = np.zeros((5, 5))
@@ -207,8 +219,8 @@ class CoulombMatrixTests(TestBaseClass, unittest.TestCase):
         self.assertTrue(np.array_equal(cm, assumed))
 
     def test_symmetries(self):
-        """Tests the symmetries of the descriptor.
-        """
+        """Tests the symmetries of the descriptor."""
+
         def create(system):
             desc = CoulombMatrix(n_atoms_max=3, permutation="none", flatten=True)
             return desc.create(system)
@@ -223,7 +235,7 @@ class CoulombMatrixTests(TestBaseClass, unittest.TestCase):
         self.assertFalse(self.is_permutation_symmetric(create))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     suites = []
     suites.append(unittest.TestLoader().loadTestsFromTestCase(CoulombMatrixTests))
     alltests = unittest.TestSuite(suites)

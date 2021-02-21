@@ -32,15 +32,10 @@ from ase.visualize import view
 from ase.build import bulk
 
 H2 = Atoms(
-    cell=[
-        [15.0, 0.0, 0.0],
-        [0.0, 15.0, 0.0],
-        [0.0, 0.0, 15.0]
-    ],
+    cell=[[15.0, 0.0, 0.0], [0.0, 15.0, 0.0], [0.0, 0.0, 15.0]],
     positions=[
         [-0.5, 0, 0],
         [0.5, 0, 0],
-
     ],
     symbols=["H", "H"],
 )
@@ -52,10 +47,8 @@ H2O = molecule("H2O")
 
 
 class SoapDerivativeTests(unittest.TestCase):
-
     def test_interface(self):
-        """Test the derivative interface.
-        """
+        """Test the derivative interface."""
         soap = SOAP(
             species=[1, 8],
             rcut=3,
@@ -96,7 +89,7 @@ class SoapDerivativeTests(unittest.TestCase):
             lmax=0,
             rbf="gto",
             sparse=False,
-            periodic=True
+            periodic=True,
         )
         with self.assertRaises(ValueError):
             soap_poly.derivatives(H2, positions=positions, method="analytical")
@@ -104,10 +97,18 @@ class SoapDerivativeTests(unittest.TestCase):
             soap_poly.derivatives(H2, positions=positions, method="numerical")
 
         # Test that asking for descriptor works
-        s = soap.derivatives(H2O, positions=positions, method="analytical", return_descriptor=False)
-        D, d = soap.derivatives(H2O, positions=positions, method="analytical", return_descriptor=True)
-        s = soap.derivatives(H2O, positions=positions, method="numerical", return_descriptor=False)
-        D, d = soap.derivatives(H2O, positions=positions, method="numerical", return_descriptor=True)
+        s = soap.derivatives(
+            H2O, positions=positions, method="analytical", return_descriptor=False
+        )
+        D, d = soap.derivatives(
+            H2O, positions=positions, method="analytical", return_descriptor=True
+        )
+        s = soap.derivatives(
+            H2O, positions=positions, method="numerical", return_descriptor=False
+        )
+        D, d = soap.derivatives(
+            H2O, positions=positions, method="numerical", return_descriptor=True
+        )
 
     def test_include(self):
         soap = SOAP(
@@ -160,8 +161,7 @@ class SoapDerivativeTests(unittest.TestCase):
             self.assertTrue(np.array_equal(D1[:, 1], D2[:, 2]))
 
     def test_parallel_dense(self):
-        """Tests creating dense output parallelly.
-        """
+        """Tests creating dense output parallelly."""
         desc = SOAP(
             species=[6, 7, 8],
             rcut=5,
@@ -188,8 +188,12 @@ class SoapDerivativeTests(unittest.TestCase):
         self.assertTrue(des.shape == (2, 1, n_features))
         assumed_der = np.empty((2, 1, 2, 3, n_features))
         assumed_des = np.empty((2, 1, n_features))
-        assumed_der[0, :], assumed_des[0, :]  = desc.derivatives(samples[0], centers[0], n_jobs=1)
-        assumed_der[1, :], assumed_des[1, :]  = desc.derivatives(samples[1], centers[0], n_jobs=1)
+        assumed_der[0, :], assumed_des[0, :] = desc.derivatives(
+            samples[0], centers[0], n_jobs=1
+        )
+        assumed_der[1, :], assumed_des[1, :] = desc.derivatives(
+            samples[1], centers[0], n_jobs=1
+        )
         self.assertTrue(np.allclose(assumed_der, der))
 
         # Now with centers given in cartesian positions.
@@ -203,8 +207,12 @@ class SoapDerivativeTests(unittest.TestCase):
         self.assertTrue(des.shape == (2, 1, n_features))
         assumed_der = np.empty((2, 1, 2, 3, n_features))
         assumed_des = np.empty((2, 1, n_features))
-        assumed_der[0, :], assumed_des[0, :]  = desc.derivatives(samples[0], centers[0], n_jobs=1)
-        assumed_der[1, :], assumed_des[1, :]  = desc.derivatives(samples[1], centers[1], n_jobs=1)
+        assumed_der[0, :], assumed_des[0, :] = desc.derivatives(
+            samples[0], centers[0], n_jobs=1
+        )
+        assumed_der[1, :], assumed_des[1, :] = desc.derivatives(
+            samples[1], centers[1], n_jobs=1
+        )
         self.assertTrue(np.allclose(assumed_der, der))
 
         # Includes
@@ -218,8 +226,12 @@ class SoapDerivativeTests(unittest.TestCase):
         self.assertTrue(des.shape == (2, 2, n_features))
         assumed_der = np.empty((2, 2, 1, 3, n_features))
         assumed_des = np.empty((2, 2, n_features))
-        assumed_der[0, :], assumed_des[0, :]  = desc.derivatives(samples[0], include=includes[0], n_jobs=1)
-        assumed_der[1, :], assumed_des[1, :]  = desc.derivatives(samples[1], include=includes[1], n_jobs=1)
+        assumed_der[0, :], assumed_des[0, :] = desc.derivatives(
+            samples[0], include=includes[0], n_jobs=1
+        )
+        assumed_der[1, :], assumed_des[1, :] = desc.derivatives(
+            samples[1], include=includes[1], n_jobs=1
+        )
         self.assertTrue(np.allclose(assumed_der, der))
 
         # Excludes
@@ -233,13 +245,17 @@ class SoapDerivativeTests(unittest.TestCase):
         self.assertTrue(des.shape == (2, 2, n_features))
         assumed_der = np.empty((2, 2, 1, 3, n_features))
         assumed_des = np.empty((2, 2, n_features))
-        assumed_der[0, :], assumed_des[0, :]  = desc.derivatives(samples[0], exclude=excludes[0], n_jobs=1)
-        assumed_der[1, :], assumed_des[1, :]  = desc.derivatives(samples[1], exclude=excludes[1], n_jobs=1)
+        assumed_der[0, :], assumed_des[0, :] = desc.derivatives(
+            samples[0], exclude=excludes[0], n_jobs=1
+        )
+        assumed_der[1, :], assumed_des[1, :] = desc.derivatives(
+            samples[1], exclude=excludes[1], n_jobs=1
+        )
         self.assertTrue(np.allclose(assumed_der, der))
 
         # Test averaged output
         desc.average = "inner"
-        positions=[[0], [0, 1]]
+        positions = [[0], [0, 1]]
         der, des = desc.derivatives(
             system=samples,
             positions=positions,
@@ -249,8 +265,12 @@ class SoapDerivativeTests(unittest.TestCase):
         self.assertTrue(des.shape == (2, 1, n_features))
         assumed_der = np.empty((2, 1, 2, 3, n_features))
         assumed_des = np.empty((2, 1, n_features))
-        assumed_der[0, :], assumed_des[0, :]  = desc.derivatives(samples[0], positions=positions[0], n_jobs=1)
-        assumed_der[1, :], assumed_des[1, :]  = desc.derivatives(samples[1], positions=positions[1], n_jobs=1)
+        assumed_der[0, :], assumed_des[0, :] = desc.derivatives(
+            samples[0], positions=positions[0], n_jobs=1
+        )
+        assumed_der[1, :], assumed_des[1, :] = desc.derivatives(
+            samples[1], positions=positions[1], n_jobs=1
+        )
         self.assertTrue(np.allclose(assumed_der, der))
 
         # Variable size list output, as the systems have a different size
@@ -263,31 +283,33 @@ class SoapDerivativeTests(unittest.TestCase):
         self.assertTrue(isinstance(der, list))
         self.assertTrue(der[0].shape == (2, 2, 3, n_features))
         self.assertTrue(der[1].shape == (3, 3, 3, n_features))
-        assumed_der0, assumed_des0  = desc.derivatives(samples[0], n_jobs=1)
-        assumed_der1, assumed_des1  = desc.derivatives(samples[1], n_jobs=1)
+        assumed_der0, assumed_des0 = desc.derivatives(samples[0], n_jobs=1)
+        assumed_der1, assumed_des1 = desc.derivatives(samples[1], n_jobs=1)
         self.assertTrue(np.allclose(assumed_der0, der[0]))
         self.assertTrue(np.allclose(assumed_der1, der[1]))
 
     def test_numerical(self):
-        """Test numerical values against a naive python implementation.
-        """
+        """Test numerical values against a naive python implementation."""
         # Elaborate test system with multiple species, non-cubic cell, and
         # close-by atoms.
         a = 1
-        system = Atoms(
-            symbols=["C", "H", "O"],
-            cell=[
-                [0, a, a],
-                [a, 0, a],
-                [a, a, 0]
-            ],
-            scaled_positions=[[0,0,0], [1/3,1/3,1/3], [2/3,2/3,2/3]],
-            pbc=[True, True, True],
-        )*(3, 3, 3)
+        system = (
+            Atoms(
+                symbols=["C", "H", "O"],
+                cell=[[0, a, a], [a, 0, a], [a, a, 0]],
+                scaled_positions=[
+                    [0, 0, 0],
+                    [1 / 3, 1 / 3, 1 / 3],
+                    [2 / 3, 2 / 3, 2 / 3],
+                ],
+                pbc=[True, True, True],
+            )
+            * (3, 3, 3)
+        )
         # view(system)
 
         # Two centers: one in the middle, one on the edge.
-        centers = [np.sum(system.get_cell(), axis=0)/2, [0, 0, 0]]
+        centers = [np.sum(system.get_cell(), axis=0) / 2, [0, 0, 0]]
 
         h = 0.0001
         n_atoms = len(system)
@@ -310,7 +332,7 @@ class SoapDerivativeTests(unittest.TestCase):
                         average=average,
                         crossover=True,
                         periodic=periodic,
-                        dtype="float64", # The numerical derivatives require double precision
+                        dtype="float64",  # The numerical derivatives require double precision
                     )
                     n_features = soap.get_number_of_features()
                     if average != "off":
@@ -318,9 +340,11 @@ class SoapDerivativeTests(unittest.TestCase):
                         derivatives_python = np.zeros((n_atoms, n_comp, n_features))
                     else:
                         n_centers = len(centers)
-                        derivatives_python = np.zeros((n_centers, n_atoms, n_comp, n_features))
+                        derivatives_python = np.zeros(
+                            (n_centers, n_atoms, n_comp, n_features)
+                        )
                     d0 = soap.create(system, centers)
-                    coeffs = [-1.0/2.0, 1.0/2.0]
+                    coeffs = [-1.0 / 2.0, 1.0 / 2.0]
                     deltas = [-1.0, 1.0]
                     for i_atom in range(len(system)):
                         for i_center in range(n_centers):
@@ -332,18 +356,24 @@ class SoapDerivativeTests(unittest.TestCase):
                                         i_cent = centers
                                     system_disturbed = system.copy()
                                     i_pos = system_disturbed.get_positions()
-                                    i_pos[i_atom, i_comp] += h*deltas[i_stencil]
+                                    i_pos[i_atom, i_comp] += h * deltas[i_stencil]
                                     system_disturbed.set_positions(i_pos)
                                     d1 = soap.create(system_disturbed, i_cent)
                                     if average != "off":
-                                        derivatives_python[i_atom, i_comp, :] += coeffs[i_stencil]*d1/h
+                                        derivatives_python[i_atom, i_comp, :] += (
+                                            coeffs[i_stencil] * d1 / h
+                                        )
                                     else:
-                                        derivatives_python[i_center, i_atom, i_comp, :] += coeffs[i_stencil]*d1[0, :]/h
+                                        derivatives_python[
+                                            i_center, i_atom, i_comp, :
+                                        ] += (coeffs[i_stencil] * d1[0, :] / h)
 
                     # Calculate with central finite difference implemented in C++.
                     # Try both cartesian centers and indices.
                     for c in [centers]:
-                        derivatives_cpp, d_cpp = soap.derivatives(system, positions=c, method="numerical")
+                        derivatives_cpp, d_cpp = soap.derivatives(
+                            system, positions=c, method="numerical"
+                        )
 
                         # Test that descriptor values are correct
                         self.assertTrue(np.allclose(d0, d_cpp, atol=1e-6))
@@ -352,65 +382,66 @@ class SoapDerivativeTests(unittest.TestCase):
                         # print(np.abs(derivatives_python).max())
                         # print(derivatives_python[0,1,:,:])
                         # print(derivatives_cpp[0,0,:,:])
-                        self.assertTrue(np.allclose(derivatives_python, derivatives_cpp, atol=2e-5))
+                        self.assertTrue(
+                            np.allclose(derivatives_python, derivatives_cpp, atol=2e-5)
+                        )
 
     # def test_periodic(self):
-        # """Tests that periodicity works correctly for both numerical and
-        # analytical code.
-        # """
-        # a = 1
-        # system = Atoms(
-            # symbols=["C"],
-            # cell=[
-                # [0, a, a],
-                # [a, 0, a],
-                # [a, a, 0]
-            # ],
-            # scaled_positions=[[0,0,0]],
-            # pbc=[True, True, True],
-        # )
+    # """Tests that periodicity works correctly for both numerical and
+    # analytical code.
+    # """
+    # a = 1
+    # system = Atoms(
+    # symbols=["C"],
+    # cell=[
+    # [0, a, a],
+    # [a, 0, a],
+    # [a, a, 0]
+    # ],
+    # scaled_positions=[[0,0,0]],
+    # pbc=[True, True, True],
+    # )
 
-        # # Calculate as periodic first
-        # soap = SOAP(
-            # species=[6],
-            # rcut=3,
-            # nmax=1,
-            # lmax=1,
-            # rbf="gto",
-            # sparse=False,
-            # average="off",
-            # crossover=True,
-            # periodic=True,
-        # )
-        # a_normal = soap.create(system, positions=[0])
-        # a_der, a_des = soap.derivatives(system, positions=[0], include=[0], method="numerical")
+    # # Calculate as periodic first
+    # soap = SOAP(
+    # species=[6],
+    # rcut=3,
+    # nmax=1,
+    # lmax=1,
+    # rbf="gto",
+    # sparse=False,
+    # average="off",
+    # crossover=True,
+    # periodic=True,
+    # )
+    # a_normal = soap.create(system, positions=[0])
+    # a_der, a_des = soap.derivatives(system, positions=[0], include=[0], method="numerical")
 
-        # # Extend the system and calculate it as non-periodic
-        # n_copies = 13
-        # ext_system = system*(n_copies, n_copies, n_copies)
-        # ext_system.set_pbc(False)
-        # middle = ext_system.get_center_of_mass()
-        # positions = ext_system.get_positions()
-        # dist = np.linalg.norm(positions - middle, axis=1)
-        # idx = np.argmin(dist)
-        # soap.periodic = False
-        # b_normal = soap.create(ext_system, positions=[idx])
-        # b_der, b_des = soap.derivatives(ext_system, positions=[idx], include=[idx], method="numerical")
+    # # Extend the system and calculate it as non-periodic
+    # n_copies = 13
+    # ext_system = system*(n_copies, n_copies, n_copies)
+    # ext_system.set_pbc(False)
+    # middle = ext_system.get_center_of_mass()
+    # positions = ext_system.get_positions()
+    # dist = np.linalg.norm(positions - middle, axis=1)
+    # idx = np.argmin(dist)
+    # soap.periodic = False
+    # b_normal = soap.create(ext_system, positions=[idx])
+    # b_der, b_des = soap.derivatives(ext_system, positions=[idx], include=[idx], method="numerical")
 
-        # # Assert that regularly calculated descriptors are the same
-        # # print(np.abs(a_normal - b_normal).max())
-        # self.assertTrue(np.allclose(a_normal, b_normal))
+    # # Assert that regularly calculated descriptors are the same
+    # # print(np.abs(a_normal - b_normal).max())
+    # self.assertTrue(np.allclose(a_normal, b_normal))
 
-        # # Assert that descriptors returned with the derivatives are the same
-        # # print(np.abs(a_des - b_des).max())
-        # self.assertTrue(np.allclose(a_des, b_des))
+    # # Assert that descriptors returned with the derivatives are the same
+    # # print(np.abs(a_des - b_des).max())
+    # self.assertTrue(np.allclose(a_des, b_des))
 
-        # # print(np.abs(a_der - b_der).max())
-        # self.assertTrue(np.allclose(a_der, b_der))
+    # # print(np.abs(a_der - b_der).max())
+    # self.assertTrue(np.allclose(a_der, b_der))
 
     def test_sparse(self):
-        """Test that the sparse values are identical to the dense ones.
-        """
+        """Test that the sparse values are identical to the dense ones."""
         positions = H2O.get_positions()
 
         soap = SOAP(
@@ -421,15 +452,18 @@ class SoapDerivativeTests(unittest.TestCase):
             sparse=False,
             crossover=False,
         )
-        D_dense, d_dense = soap.derivatives(H2O, positions=positions, method="analytical")
+        D_dense, d_dense = soap.derivatives(
+            H2O, positions=positions, method="analytical"
+        )
         soap.sparse = True
-        D_sparse, d_sparse = soap.derivatives(H2O, positions=positions, method="analytical")
+        D_sparse, d_sparse = soap.derivatives(
+            H2O, positions=positions, method="analytical"
+        )
         self.assertTrue(np.allclose(D_dense, D_sparse.todense()))
         self.assertTrue(np.allclose(d_dense, d_sparse.todense()))
 
 
 class SoapDerivativeComparisonTests(unittest.TestCase):
-
     def test_no_crossover(self):
         """Tests the analytical soap derivatives implementation without
         crossover against the numerical implementation.
@@ -443,9 +477,15 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
             crossover=False,
         )
         positions = H2O.get_positions()
-        derivatives_cpp, d_num = soap.derivatives(H2O, positions=positions, method="numerical")
-        derivatives_anal, d_anal = soap.derivatives(H2O, positions=positions, method="analytical")
-        self.assertTrue(np.allclose(derivatives_cpp, derivatives_anal, rtol=1e-6, atol=1e-6))
+        derivatives_cpp, d_num = soap.derivatives(
+            H2O, positions=positions, method="numerical"
+        )
+        derivatives_anal, d_anal = soap.derivatives(
+            H2O, positions=positions, method="analytical"
+        )
+        self.assertTrue(
+            np.allclose(derivatives_cpp, derivatives_anal, rtol=1e-6, atol=1e-6)
+        )
 
     def test_crossover(self):
         """Tests the analytical soap derivatives implementation with crossover
@@ -460,9 +500,15 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
             crossover=True,
         )
         positions = H2O.get_positions()
-        derivatives_cpp, d_num = soap.derivatives(H2O, positions=positions, method="numerical")
-        derivatives_anal, d_anal = soap.derivatives(H2O, positions=positions, method="analytical")
-        self.assertTrue(np.allclose(derivatives_cpp, derivatives_anal, rtol=1e-6, atol=1e-6))
+        derivatives_cpp, d_num = soap.derivatives(
+            H2O, positions=positions, method="numerical"
+        )
+        derivatives_anal, d_anal = soap.derivatives(
+            H2O, positions=positions, method="analytical"
+        )
+        self.assertTrue(
+            np.allclose(derivatives_cpp, derivatives_anal, rtol=1e-6, atol=1e-6)
+        )
 
     def test_descriptor_output(self):
         """Tests that the descriptor is output correctly both for numerical and
@@ -489,16 +535,19 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
         # Elaborate test system with multiple species, non-cubic cell, and
         # close-by atoms.
         a = 1
-        system = Atoms(
-            symbols=["C", "C", "C"],
-            cell=[
-                [0, a, a],
-                [a, 0, a],
-                [a, a, 0]
-            ],
-            scaled_positions=[[0,0,0], [1/3,1/3,1/3], [2/3,2/3,2/3]],
-            pbc=[True, True, True],
-        )*(3, 3, 3)
+        system = (
+            Atoms(
+                symbols=["C", "C", "C"],
+                cell=[[0, a, a], [a, 0, a], [a, a, 0]],
+                scaled_positions=[
+                    [0, 0, 0],
+                    [1 / 3, 1 / 3, 1 / 3],
+                    [2 / 3, 2 / 3, 2 / 3],
+                ],
+                pbc=[True, True, True],
+            )
+            * (3, 3, 3)
+        )
 
         soap = SOAP(
             species=[6],
@@ -523,27 +572,41 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
         self.assertTrue(np.allclose(d_n, d_a, rtol=1e-6, atol=1e-6))
 
         # Derivatives for all atoms, only some atoms act as centers
-        derivatives_n, d_n = soap.derivatives(system, positions=centers, method="numerical")
-        derivatives_a, d_a = soap.derivatives(system, positions=centers, method="analytical")
+        derivatives_n, d_n = soap.derivatives(
+            system, positions=centers, method="numerical"
+        )
+        derivatives_a, d_a = soap.derivatives(
+            system, positions=centers, method="analytical"
+        )
         self.assertTrue(np.allclose(derivatives_n, derivatives_a, rtol=1e-6, atol=1e-6))
         self.assertTrue(np.allclose(d_n, d_a, rtol=1e-6, atol=1e-6))
 
         # Derivatives for some atoms, all atoms act as centers
-        derivatives_n, d_n = soap.derivatives(system, include=include, method="numerical")
-        derivatives_a, d_a = soap.derivatives(system, include=include, method="analytical")
+        derivatives_n, d_n = soap.derivatives(
+            system, include=include, method="numerical"
+        )
+        derivatives_a, d_a = soap.derivatives(
+            system, include=include, method="analytical"
+        )
         self.assertTrue(np.allclose(derivatives_n, derivatives_a, rtol=1e-6, atol=1e-6))
         self.assertTrue(np.allclose(d_n, d_a, rtol=1e-6, atol=1e-6))
 
         # Mixed set of derivatives and centers
-        derivatives_n, d_n = soap.derivatives(system, positions=centers, include=include, method="numerical")
-        derivatives_a, d_a = soap.derivatives(system, positions=centers, include=include, method="analytical")
+        derivatives_n, d_n = soap.derivatives(
+            system, positions=centers, include=include, method="numerical"
+        )
+        derivatives_a, d_a = soap.derivatives(
+            system, positions=centers, include=include, method="analytical"
+        )
         self.assertTrue(np.allclose(derivatives_n, derivatives_a, rtol=1e-6, atol=1e-6))
         self.assertTrue(np.allclose(d_n, d_a, rtol=1e-6, atol=1e-6))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     suites = []
     suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests))
+    suites.append(
+        unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests)
+    )
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)

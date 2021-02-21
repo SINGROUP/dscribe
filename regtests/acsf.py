@@ -30,28 +30,23 @@ from ase.build import bulk
 
 
 H2O = Atoms(
-    cell=[
-        [15.0, 0.0, 0.0],
-        [0.0, 15.0, 0.0],
-        [0.0, 0.0, 15.0]
-    ],
+    cell=[[15.0, 0.0, 0.0], [0.0, 15.0, 0.0], [0.0, 0.0, 15.0]],
     positions=[
         [0, 0, 0],
         [0.95, 0, 0],
-        [0.95*(1+math.cos(76/180*math.pi)), 0.95*math.sin(76/180*math.pi), 0.0]
+        [
+            0.95 * (1 + math.cos(76 / 180 * math.pi)),
+            0.95 * math.sin(76 / 180 * math.pi),
+            0.0,
+        ],
     ],
     symbols=["H", "O", "H"],
 )
 
 H = Atoms(
-    cell=[
-        [15.0, 0.0, 0.0],
-        [0.0, 15.0, 0.0],
-        [0.0, 0.0, 15.0]
-    ],
+    cell=[[15.0, 0.0, 0.0], [0.0, 15.0, 0.0], [0.0, 0.0, 15.0]],
     positions=[
         [0, 0, 0],
-
     ],
     symbols=["H"],
 )
@@ -67,14 +62,12 @@ default_desc = ACSF(
 
 
 def cutoff(R, rcut):
-    return 0.5 * (np.cos(np.pi*R / rcut) + 1)
+    return 0.5 * (np.cos(np.pi * R / rcut) + 1)
 
 
 class ACSFTests(TestBaseClass, unittest.TestCase):
-
     def test_constructor(self):
-        """Tests different valid and invalid constructor values.
-        """
+        """Tests different valid and invalid constructor values."""
         # Invalid species
         with self.assertRaises(ValueError):
             ACSF(rcut=6.0, species=None)
@@ -119,8 +112,7 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
         self.assertTrue(vec1.shape[1] != vec2.shape[1])
 
     def test_number_of_features(self):
-        """Tests that the reported number of features is correct.
-        """
+        """Tests that the reported number of features is correct."""
         species = [1, 8]
         n_elem = len(species)
 
@@ -130,24 +122,32 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
 
         desc = ACSF(rcut=6.0, species=species, g2_params=[[1, 2], [4, 5]])
         n_features = desc.get_number_of_features()
-        self.assertEqual(n_features, n_elem * (2+1))
+        self.assertEqual(n_features, n_elem * (2 + 1))
 
         desc = ACSF(rcut=6.0, species=[1, 8], g3_params=[1, 2, 3, 4])
         n_features = desc.get_number_of_features()
-        self.assertEqual(n_features, n_elem * (4+1))
+        self.assertEqual(n_features, n_elem * (4 + 1))
 
-        desc = ACSF(rcut=6.0, species=[1, 8], g4_params=[[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]])
+        desc = ACSF(
+            rcut=6.0,
+            species=[1, 8],
+            g4_params=[[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]],
+        )
         n_features = desc.get_number_of_features()
         self.assertEqual(n_features, n_elem + 4 * 3)
 
-        desc = ACSF(rcut=6.0, species=[1, 8], g2_params=[[1, 2], [4, 5]], g3_params=[1, 2, 3, 4],
-            g4_params=[[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]])
+        desc = ACSF(
+            rcut=6.0,
+            species=[1, 8],
+            g2_params=[[1, 2], [4, 5]],
+            g3_params=[1, 2, 3, 4],
+            g4_params=[[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]],
+        )
         n_features = desc.get_number_of_features()
         self.assertEqual(n_features, n_elem * (1 + 2 + 4) + 4 * 3)
 
     def test_sparse(self):
-        """Tests the sparse matrix creation.
-        """
+        """Tests the sparse matrix creation."""
         # Sparse
         default_desc._sparse = True
         vec = default_desc.create(H2O)
@@ -159,8 +159,7 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
         self.assertTrue(type(vec) == np.ndarray)
 
     def test_parallel_dense(self):
-        """Tests creating dense output parallelly.
-        """
+        """Tests creating dense output parallelly."""
         samples = [molecule("CO"), molecule("NO")]
         desc = ACSF(
             rcut=6.0,
@@ -222,8 +221,7 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
         self.assertTrue(np.allclose(output[1][1], desc.create(samples[1], [1])))
 
     def test_parallel_sparse(self):
-        """Tests creating sparse output parallelly.
-        """
+        """Tests creating sparse output parallelly."""
         # Test indices
         samples = [molecule("CO"), molecule("NO")]
         desc = ACSF(
@@ -233,7 +231,7 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
             g3_params=[1, 2, 3, 4],
             g4_params=[[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]],
             g5_params=[[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]],
-            sparse=True
+            sparse=True,
         )
         n_features = desc.get_number_of_features()
 
@@ -282,13 +280,18 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
             positions=[[0], [0, 1]],
             n_jobs=2,
         )
-        self.assertTrue(np.allclose(output[0][0].todense(), desc.create(samples[0], [0]).todense()))
-        self.assertTrue(np.allclose(output[1][0].todense(), desc.create(samples[1], [0]).todense()))
-        self.assertTrue(np.allclose(output[1][1].todense(), desc.create(samples[1], [1]).todense()))
+        self.assertTrue(
+            np.allclose(output[0][0].todense(), desc.create(samples[0], [0]).todense())
+        )
+        self.assertTrue(
+            np.allclose(output[1][0].todense(), desc.create(samples[1], [0]).todense())
+        )
+        self.assertTrue(
+            np.allclose(output[1][1].todense(), desc.create(samples[1], [1]).todense())
+        )
 
     def test_features(self):
-        """Tests that the correct features are present in the descriptor.
-        """
+        """Tests that the correct features are present in the descriptor."""
         rs = math.sqrt(2)
         kappa = math.sqrt(3)
         eta = math.sqrt(5)
@@ -300,7 +303,7 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
         dist_hh = H2O.get_distance(0, 2)
         ang_hoh = H2O.get_angle(0, 1, 2) * np.pi / 180.0
         ang_hho = H2O.get_angle(1, 0, 2) * np.pi / 180.0
-        ang_ohh = - H2O.get_angle(2, 0, 1) * np.pi / 180.0
+        ang_ohh = -H2O.get_angle(2, 0, 1) * np.pi / 180.0
         rc = 6.0
 
         # G1
@@ -336,10 +339,21 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
         # G4
         desc = ACSF(rcut=6.0, species=[1, 8], g4_params=[[eta, zeta, lmbd]])
         acsfg4 = desc.create(H2O)
-        gauss = np.exp(-eta * (2 * dist_oh * dist_oh + dist_hh * dist_hh)) * g1_ho * g1_hh * g1_ho
-        g4_h_ho = np.power(2, 1 - zeta) * np.power((1 + lmbd*np.cos(ang_hho)), zeta) * gauss
-        g4_h_oh = np.power(2, 1 - zeta) * np.power((1 + lmbd*np.cos(ang_ohh)), zeta) * gauss
-        g4_o_hh = np.power(2, 1 - zeta) * np.power((1 + lmbd*np.cos(ang_hoh)), zeta) * gauss
+        gauss = (
+            np.exp(-eta * (2 * dist_oh * dist_oh + dist_hh * dist_hh))
+            * g1_ho
+            * g1_hh
+            * g1_ho
+        )
+        g4_h_ho = (
+            np.power(2, 1 - zeta) * np.power((1 + lmbd * np.cos(ang_hho)), zeta) * gauss
+        )
+        g4_h_oh = (
+            np.power(2, 1 - zeta) * np.power((1 + lmbd * np.cos(ang_ohh)), zeta) * gauss
+        )
+        g4_o_hh = (
+            np.power(2, 1 - zeta) * np.power((1 + lmbd * np.cos(ang_hoh)), zeta) * gauss
+        )
         self.assertAlmostEqual(acsfg4[0, 3], g4_h_ho, places=6)
         self.assertAlmostEqual(acsfg4[2, 3], g4_h_oh, places=6)
         self.assertAlmostEqual(acsfg4[1, 2], g4_o_hh, places=6)
@@ -348,9 +362,19 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
         desc = ACSF(rcut=6.0, species=[1, 8], g5_params=[[eta, zeta, lmbd]])
         acsfg5 = desc.create(H2O)
         gauss = np.exp(-eta * (dist_oh * dist_oh + dist_hh * dist_hh)) * g1_ho * g1_hh
-        g5_h_ho = np.power(2, 1 - zeta) * np.power((1 + lmbd*np.cos(ang_hho)), zeta) * gauss
-        g5_h_oh = np.power(2, 1 - zeta) * np.power((1 + lmbd*np.cos(ang_ohh)), zeta) * gauss
-        g5_o_hh = np.power(2, 1 - zeta) * np.power((1 + lmbd*np.cos(ang_hoh)), zeta) * np.exp(-eta * (2 * dist_oh * dist_oh)) * g1_ho * g1_ho
+        g5_h_ho = (
+            np.power(2, 1 - zeta) * np.power((1 + lmbd * np.cos(ang_hho)), zeta) * gauss
+        )
+        g5_h_oh = (
+            np.power(2, 1 - zeta) * np.power((1 + lmbd * np.cos(ang_ohh)), zeta) * gauss
+        )
+        g5_o_hh = (
+            np.power(2, 1 - zeta)
+            * np.power((1 + lmbd * np.cos(ang_hoh)), zeta)
+            * np.exp(-eta * (2 * dist_oh * dist_oh))
+            * g1_ho
+            * g1_ho
+        )
         self.assertAlmostEqual(acsfg5[0, 3], g5_h_ho, places=6)
         self.assertAlmostEqual(acsfg5[2, 3], g5_h_oh, places=6)
         self.assertAlmostEqual(acsfg5[1, 2], g5_o_hh, places=6)
@@ -383,23 +407,44 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
         rcut = 3
         system_nacl = bulk("NaCl", "rocksalt", a=4)
         eta, zeta, lambd = 0.01, 0.1, 1
-        desc = ACSF(rcut=rcut, g4_params=[(eta, zeta, lambd)], species=["Na", "Cl"], periodic=True)
+        desc = ACSF(
+            rcut=rcut,
+            g4_params=[(eta, zeta, lambd)],
+            species=["Na", "Cl"],
+            periodic=True,
+        )
         feat = desc.create(system_nacl)
 
         # Cl-Cl: 12 triplets with 90 degree angle at 2 angstrom distance
         R_ij = 2
         R_ik = 2
-        R_jk = np.sqrt(2)*2
-        theta = np.pi/2
-        g4_cl_cl = 2**(1-zeta)*12*(1+lambd*np.cos(theta))**zeta*np.e**(-eta*(R_ij**2+R_ik**2+R_jk**2))*cutoff(R_ij, rcut)*cutoff(R_ik, rcut)*cutoff(R_jk, rcut)
+        R_jk = np.sqrt(2) * 2
+        theta = np.pi / 2
+        g4_cl_cl = (
+            2 ** (1 - zeta)
+            * 12
+            * (1 + lambd * np.cos(theta)) ** zeta
+            * np.e ** (-eta * (R_ij ** 2 + R_ik ** 2 + R_jk ** 2))
+            * cutoff(R_ij, rcut)
+            * cutoff(R_ik, rcut)
+            * cutoff(R_jk, rcut)
+        )
         self.assertTrue(np.allclose(feat[0, 4], g4_cl_cl, rtol=1e-6, atol=0))
 
         # Na-Cl: 24 triplets with 45 degree angle at sqrt(2)*2 angstrom distance
-        R_ij = np.sqrt(2)*2
+        R_ij = np.sqrt(2) * 2
         R_ik = 2
         R_jk = 2
-        theta = np.pi/4
-        g4_na_cl = 2**(1-zeta)*24*(1+lambd*np.cos(theta))**zeta*np.e**(-eta*(R_ij**2+R_ik**2+R_jk**2))*cutoff(R_ij, rcut)*cutoff(R_ik, rcut)*cutoff(R_jk, rcut)
+        theta = np.pi / 4
+        g4_na_cl = (
+            2 ** (1 - zeta)
+            * 24
+            * (1 + lambd * np.cos(theta)) ** zeta
+            * np.e ** (-eta * (R_ij ** 2 + R_ik ** 2 + R_jk ** 2))
+            * cutoff(R_ij, rcut)
+            * cutoff(R_ik, rcut)
+            * cutoff(R_jk, rcut)
+        )
         self.assertTrue(np.allclose(feat[0, 3], g4_na_cl, rtol=1e-6, atol=0))
 
         # Periodic primitive FCC: 12 neighbours at distance sqrt(2)/2*5
@@ -408,11 +453,15 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
         desc = ACSF(rcut=rcut, species=[1], periodic=True)
         feat = desc.create(system_fcc)
         self.assertTrue(feat.sum() != 0)
-        self.assertAlmostEqual(feat[0, 0], 12 * 0.5 * (np.cos(np.pi*np.sqrt(2)/2*5 / rcut) + 1), places=6)
+        self.assertAlmostEqual(
+            feat[0, 0],
+            12 * 0.5 * (np.cos(np.pi * np.sqrt(2) / 2 * 5 / rcut) + 1),
+            places=6,
+        )
 
     def test_symmetries(self):
-        """Tests translational and rotational symmetries
-        """
+        """Tests translational and rotational symmetries"""
+
         def create(system):
             acsf = default_desc.create(system)
             return acsf
@@ -424,10 +473,19 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
         self.assertTrue(self.is_translationally_symmetric(create))
 
     def test_basis(self):
-        """Tests that the output vectors behave correctly as a basis.
-        """
-        sys1 = Atoms(symbols=["H", "H"], positions=[[0, 0, 0], [1, 0, 0]], cell=[2, 2, 2], pbc=False)
-        sys2 = Atoms(symbols=["H", "O"], positions=[[0, 0, 0], [1, 0, 0]], cell=[2, 2, 2], pbc=False)
+        """Tests that the output vectors behave correctly as a basis."""
+        sys1 = Atoms(
+            symbols=["H", "H"],
+            positions=[[0, 0, 0], [1, 0, 0]],
+            cell=[2, 2, 2],
+            pbc=False,
+        )
+        sys2 = Atoms(
+            symbols=["H", "O"],
+            positions=[[0, 0, 0], [1, 0, 0]],
+            cell=[2, 2, 2],
+            pbc=False,
+        )
 
         # Create vectors for each system
         vec1 = default_desc.create(sys1, positions=[0])[0, :]
@@ -447,47 +505,30 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
         # environment, even if the central atom is different.
         dot1 = np.dot(vec3, vec3)
         dot2 = np.dot(vec3, vec4)
-        self.assertTrue(abs(dot1-dot2) < 1e-8)
+        self.assertTrue(abs(dot1 - dot2) < 1e-8)
 
     def test_unit_cells(self):
-        """Tests if arbitrary unit cells are accepted.
-        """
+        """Tests if arbitrary unit cells are accepted."""
         # No cell
         molecule = H2O.copy()
-        molecule.set_cell([
-            [0.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0]
-        ])
+        molecule.set_cell([[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]])
         nocell = default_desc.create(molecule)
 
         # Large cell
         molecule.set_pbc(True)
-        molecule.set_cell([
-            [20.0, 0.0, 0.0],
-            [0.0, 30.0, 0.0],
-            [0.0, 0.0, 40.0]
-        ])
+        molecule.set_cell([[20.0, 0.0, 0.0], [0.0, 30.0, 0.0], [0.0, 0.0, 40.0]])
         largecell = default_desc.create(molecule)
 
         # Cubic cell
-        molecule.set_cell([
-            [2.0, 0.0, 0.0],
-            [0.0, 2.0, 0.0],
-            [0.0, 0.0, 2.0]
-        ])
+        molecule.set_cell([[2.0, 0.0, 0.0], [0.0, 2.0, 0.0], [0.0, 0.0, 2.0]])
         cubic_cell = default_desc.create(molecule)
 
         # Triclinic cell
-        molecule.set_cell([
-            [0.0, 2.0, 2.0],
-            [2.0, 0.0, 2.0],
-            [2.0, 2.0, 0.0]
-        ])
+        molecule.set_cell([[0.0, 2.0, 2.0], [2.0, 0.0, 2.0], [2.0, 2.0, 0.0]])
         triclinic_smallcell = default_desc.create(molecule)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     suites = []
     suites.append(unittest.TestLoader().loadTestsFromTestCase(ACSFTests))
     alltests = unittest.TestSuite(suites)
