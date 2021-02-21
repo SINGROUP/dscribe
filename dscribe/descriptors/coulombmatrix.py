@@ -26,8 +26,8 @@ class CoulombMatrix(MatrixDescriptor):
 
     The Coulomb matrix is defined as:
 
-        C_ij = 0.5 Zi**exponent      | i = j
-             = (Zi*Zj)/(Ri-Rj)	     | i != j
+        C_ij = 0.5 Zi**exponent, when i = j
+             = (Zi*Zj)/(Ri-Rj), when i != j
 
     The matrix is padded with invisible atoms, which means that the matrix is
     padded with zeros until the maximum allowed size defined by n_max_atoms is
