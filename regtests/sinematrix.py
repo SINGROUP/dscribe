@@ -26,14 +26,28 @@ H2O = Atoms(
     symbols=["H", "O", "H"],
 )
 
+HHe = Atoms(
+    cell=[[5.0, 0.0, 0.0], [0.0, 5.0, 0.0], [0.0, 0.0, 5.0]],
+    positions=[
+        [0, 0, 0],
+        [0.71, 0, 0],
+    ],
+    symbols=["H", "He"],
+)
+
 
 class SineMatrixTests(TestBaseClass, unittest.TestCase):
-    def test_constructor(self):
-        """Tests different valid and invalid constructor values."""
+    def test_exceptions(self):
+        """Tests different invalid parameters that should raise an
+        exception.
+        """
         with self.assertRaises(ValueError):
             SineMatrix(n_atoms_max=5, permutation="unknown")
         with self.assertRaises(ValueError):
             SineMatrix(n_atoms_max=-1)
+        with self.assertRaises(ValueError):
+            sm = SineMatrix(n_atoms_max=2)
+            sm.create([HHe, H2O])
 
     def test_number_of_features(self):
         """Tests that the reported number of features is correct."""

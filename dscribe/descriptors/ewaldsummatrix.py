@@ -44,8 +44,6 @@ class EwaldSumMatrix(MatrixDescriptor):
     independent of the value of the screening parameter a that is used, as long
     as sufficient cutoff values are used.
 
-    This implementation provides default values for
-
     For reference, see:
         "Crystal Structure Representations for Machine Learning Models of
         Formation Energies", Felix Faber, Alexander Lindmaa, Anatole von
@@ -74,7 +72,7 @@ class EwaldSumMatrix(MatrixDescriptor):
         n_jobs=1,
         verbose=False,
     ):
-        """Return the Coulomb matrix for the given systems.
+        """Return the Ewald sum matrix for the given systems.
 
         Args:
             system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or
@@ -114,11 +112,20 @@ class EwaldSumMatrix(MatrixDescriptor):
             returned. The first dimension is determined by the amount of
             systems.
         """
-        # If single system given, skip the parallelization
         if isinstance(system, (Atoms, System)):
-            return self.create_single(system, accuracy, w, rcut, gcut, a)
-        else:
-            self._check_system_list(system)
+            system = [system]
+
+        # Check input validity
+        for s in system:
+            if len(s) > self.n_atoms_max:
+                raise ValueError(
+                    "One of the given systems has more atoms ({}) than allowed "
+                    "by n_atoms_max ({}).".format(len(s), self.n_atoms_max)
+                )
+
+        # If single system given, skip the parallelization
+        if len(system) == 1:
+            return self.create_single(system[0], accuracy, w, rcut, gcut, a)
 
         # Combine input arguments
         n_samples = len(system)

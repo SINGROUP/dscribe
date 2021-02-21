@@ -40,12 +40,17 @@ HHe = Atoms(
 
 
 class CoulombMatrixTests(TestBaseClass, unittest.TestCase):
-    def test_constructor(self):
-        """Tests different valid and invalid constructor values."""
+    def test_exceptions(self):
+        """Tests different invalid parameters that should raise an
+        exception.
+        """
         with self.assertRaises(ValueError):
             CoulombMatrix(n_atoms_max=5, permutation="unknown")
         with self.assertRaises(ValueError):
             CoulombMatrix(n_atoms_max=-1)
+        with self.assertRaises(ValueError):
+            cm = CoulombMatrix(n_atoms_max=2)
+            cm.create([HHe, H2O])
 
     def test_number_of_features(self):
         """Tests that the reported number of features is correct."""

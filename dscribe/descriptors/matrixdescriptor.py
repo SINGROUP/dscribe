@@ -177,10 +177,9 @@ class MatrixDescriptor(Descriptor):
         # Remove sign
         abs_values = np.absolute(eigenvalues)
 
-        # Get ordering that sorts the values by absolute value
-        sorted_indices = np.argsort(abs_values)[
-            ::-1
-        ]  # This sorts the list in descending order in place
+        # Get ordering that sorts the values in descending order by absolute
+        # value
+        sorted_indices = np.argsort(abs_values)[::-1]
         eigenvalues = eigenvalues[sorted_indices]
 
         return eigenvalues

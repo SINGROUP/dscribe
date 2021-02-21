@@ -113,8 +113,10 @@ H = Atoms(
 
 
 class MBTRTests(TestBaseClass, unittest.TestCase):
-    def test_constructor(self):
-        """Tests different valid and invalid constructor values."""
+    def test_exceptions(self):
+        """Tests different invalid parameters that should raise an
+        exception.
+        """
         # Cannot create a sparse and non-flattened output.
         with self.assertRaises(ValueError):
             MBTR(

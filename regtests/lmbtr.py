@@ -108,10 +108,9 @@ default_desc_k2_k3 = LMBTR(
 
 
 class LMBTRTests(TestBaseClass, unittest.TestCase):
-    def test_constructor(self):
-        """Tests different valid and invalid constructor values. As LMBTR is
-        subclassed from MBTr, many of the tests are already performed in the
-        regression tests for MBTR.
+    def test_exceptions(self):
+        """Tests different invalid parameters that should raise an
+        exception.
         """
         # Cannot use n_atoms normalization
         with self.assertRaises(ValueError):

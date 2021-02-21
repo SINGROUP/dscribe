@@ -66,8 +66,10 @@ def cutoff(R, rcut):
 
 
 class ACSFTests(TestBaseClass, unittest.TestCase):
-    def test_constructor(self):
-        """Tests different valid and invalid constructor values."""
+    def test_exceptions(self):
+        """Tests different invalid parameters that should raise an
+        exception.
+        """
         # Invalid species
         with self.assertRaises(ValueError):
             ACSF(rcut=6.0, species=None)

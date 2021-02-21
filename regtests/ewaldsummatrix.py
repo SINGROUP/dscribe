@@ -31,17 +31,32 @@ H2O = Atoms(
     ],
     symbols=["H", "O", "H"],
 )
+
+HHe = Atoms(
+    cell=[[5.0, 0.0, 0.0], [0.0, 5.0, 0.0], [0.0, 0.0, 5.0]],
+    positions=[
+        [0, 0, 0],
+        [0.71, 0, 0],
+    ],
+    symbols=["H", "He"],
+)
+
 rcut = 30
 gcut = 20
 
 
 class EwaldSumMatrixTests(TestBaseClass, unittest.TestCase):
-    def test_constructor(self):
-        """Tests different valid and invalid constructor values."""
+    def test_exceptions(self):
+        """Tests different invalid parameters that should raise an
+        exception.
+        """
         with self.assertRaises(ValueError):
             EwaldSumMatrix(n_atoms_max=5, permutation="unknown")
         with self.assertRaises(ValueError):
             EwaldSumMatrix(n_atoms_max=-1)
+        with self.assertRaises(ValueError):
+            em = EwaldSumMatrix(n_atoms_max=2)
+            em.create([HHe, H2O])
 
     def test_create(self):
         """Tests different valid and invalid create values."""

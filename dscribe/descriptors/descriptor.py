@@ -195,7 +195,7 @@ class Descriptor(ABC):
                   release the GIL.
 
         Returns:
-            np.ndarray | scipy.sparse.csr_matrix | list: The descriptor output
+            np.ndarray | sparse.COO | list: The descriptor output
             for each given input. The return type depends on the desciptor
             setup.
         """
@@ -229,7 +229,6 @@ class Descriptor(ABC):
 
             for i_sample, i_arg in enumerate(arguments):
                 i_out = func(*i_arg)
-                # print(i_out.shape)
 
                 # If the shape varies, just add result into a list
                 if static_size is None:
@@ -377,7 +376,7 @@ class Descriptor(ABC):
                 "func".
             func(function): Function that outputs the descriptor when given
                 input arguments from "inp".
-            n_jobs (int): Number of parallel jobs to instantiate. Parallellizes
+            n_jobs(int): Number of parallel jobs to instantiate. Parallellizes
                 the calculation across samples. Defaults to serial calculation
                 with n_jobs=1.
             derivatives_shape(list or None): If a fixed size output is produced from
@@ -388,7 +387,7 @@ class Descriptor(ABC):
                 this parameter is set to None
             verbose(bool): Controls whether to print the progress of each job
                 into to the console.
-            backend (str): The parallelization method. Valid options are:
+            backend(str): The parallelization method. Valid options are:
 
                 - "processes": Parallelization based on processes. Uses the
                   "loky" backend in joblib to serialize the jobs and run them
@@ -404,7 +403,7 @@ class Descriptor(ABC):
                   release the GIL.
 
         Returns:
-            np.ndarray | scipy.sparse.csr_matrix | list: The descriptor output
+            np.ndarray | sparse.COO | list: The descriptor output
             for each given input. The return type depends on the desciptor
             setup.
         """

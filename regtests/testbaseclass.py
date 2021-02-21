@@ -28,7 +28,7 @@ class TestBaseClass(ABC):
     """
 
     @abc.abstractmethod
-    def test_constructor(self):
+    def test_exceptions(self):
         """"""
 
     @abc.abstractmethod

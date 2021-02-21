@@ -65,11 +65,20 @@ class CoulombMatrix(MatrixDescriptor):
             flattened output a single numpy array or sparse.COO is returned.
             The first dimension is determined by the amount of systems.
         """
-        # If single system given, skip the parallelization
         if isinstance(system, (Atoms, System)):
-            return self.create_single(system)
-        else:
-            self._check_system_list(system)
+            system = [system]
+
+        # Check input validity
+        for s in system:
+            if len(s) > self.n_atoms_max:
+                raise ValueError(
+                    "One of the given systems has more atoms ({}) than allowed "
+                    "by n_atoms_max ({}).".format(len(s), self.n_atoms_max)
+                )
+
+        # If single system given, skip the parallelization
+        if len(system) == 1:
+            return self.create_single(system[0])
 
         # Combine input arguments
         inp = [(i_sys,) for i_sys in system]

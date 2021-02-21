@@ -71,8 +71,10 @@ n_species_num = len(species_num)
 
 
 class SoapTests(TestBaseClass, unittest.TestCase):
-    def test_constructor(self):
-        """Tests different valid and invalid constructor values."""
+    def test_exceptions(self):
+        """Tests different invalid parameters that should raise an
+        exception.
+        """
         # Invalid gaussian width
         with self.assertRaises(ValueError):
             SOAP(species=[-1, 2], rcut=5, sigma=0, nmax=5, lmax=5, periodic=True)
