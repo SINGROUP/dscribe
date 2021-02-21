@@ -98,6 +98,7 @@
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="publications.html">Publications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="citing.html">Citing DScribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="about.html">About</a></li>
 </ul>
 
@@ -214,12 +215,16 @@
 </li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF">ACSF (class in dscribe.descriptors.acsf)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="doc/dscribe.html#dscribe.ext.ACSFWrapper">ACSFWrapper (class in dscribe.ext)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="doc/dscribe.html#dscribe.ext.ACSFWrapper.atomic_numbers">atomic_numbers() (dscribe.ext.ACSFWrapper property)</a>
+
+      <ul>
+        <li><a href="doc/dscribe.html#dscribe.ext.ExtendedSystem.atomic_numbers">(dscribe.ext.ExtendedSystem property)</a>
 </li>
+      </ul></li>
       <li><a href="doc/dscribe.kernels.html#dscribe.kernels.averagekernel.AverageKernel">AverageKernel (class in dscribe.kernels.averagekernel)</a>
 </li>
   </ul></td>
@@ -259,11 +264,17 @@
 </li>
         <li><a href="doc/dscribe.html#dscribe.ext.ACSFWrapper.create">(dscribe.ext.ACSFWrapper method)</a>
 </li>
+        <li><a href="doc/dscribe.html#dscribe.ext.SOAPGTO.create">(dscribe.ext.SOAPGTO method)</a>
+</li>
+        <li><a href="doc/dscribe.html#dscribe.ext.SOAPPolynomial.create">(dscribe.ext.SOAPPolynomial method)</a>
+</li>
         <li><a href="doc/dscribe.kernels.html#dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel.create">(dscribe.kernels.localsimilaritykernel.LocalSimilarityKernel method)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="doc/dscribe.html#dscribe.ext.SOAPGTO.create_cartesian">create_cartesian() (dscribe.ext.SOAPGTO method)</a>
+</li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.create_parallel">create_parallel() (dscribe.descriptors.descriptor.Descriptor method)</a>
 </li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.create_single">create_single() (dscribe.descriptors.acsf.ACSF method)</a>
@@ -286,6 +297,14 @@
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="doc/dscribe.html#dscribe.ext.SOAPGTO.derivatives_analytical">derivatives_analytical() (dscribe.ext.SOAPGTO method)</a>
+</li>
+      <li><a href="doc/dscribe.html#dscribe.ext.SOAPGTO.derivatives_numerical">derivatives_numerical() (dscribe.ext.SOAPGTO method)</a>
+
+      <ul>
+        <li><a href="doc/dscribe.html#dscribe.ext.SOAPPolynomial.derivatives_numerical">(dscribe.ext.SOAPPolynomial method)</a>
+</li>
+      </ul></li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor">Descriptor (class in dscribe.descriptors.descriptor)</a>
 </li>
       <li><a href="doc/dscribe.html#dscribe.ext.CellListResult.distances">distances() (dscribe.ext.CellListResult property)</a>
@@ -470,9 +489,13 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.elementaldistribution.ElementalDistribution">ElementalDistribution (class in dscribe.descriptors.elementaldistribution)</a>
 </li>
+      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix">EwaldSumMatrix (class in dscribe.descriptors.ewaldsummatrix)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix">EwaldSumMatrix (class in dscribe.descriptors.ewaldsummatrix)</a>
+      <li><a href="doc/dscribe.html#dscribe.ext.extend_system">extend_system() (in module dscribe.ext)</a>
+</li>
+      <li><a href="doc/dscribe.html#dscribe.ext.ExtendedSystem">ExtendedSystem (class in dscribe.ext)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -631,7 +654,11 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="doc/dscribe.html#dscribe.ext.CellListResult.indices">indices() (dscribe.ext.CellListResult property)</a>
+
+      <ul>
+        <li><a href="doc/dscribe.html#dscribe.ext.ExtendedSystem.indices">(dscribe.ext.ExtendedSystem property)</a>
 </li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="doc/dscribe.core.html#dscribe.core.lattice.Lattice.inv_matrix">inv_matrix() (dscribe.core.lattice.Lattice property)</a>
@@ -768,6 +795,10 @@
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.periodic">periodic() (dscribe.descriptors.descriptor.Descriptor property)</a>
 </li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="doc/dscribe.html#dscribe.ext.ExtendedSystem.positions">positions() (dscribe.ext.ExtendedSystem property)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="R">R</h2>
@@ -807,9 +838,9 @@
 </li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP">SOAP (class in dscribe.descriptors.soap)</a>
 </li>
-      <li><a href="doc/dscribe.html#dscribe.ext.soap_general">soap_general() (in module dscribe.ext)</a>
+      <li><a href="doc/dscribe.html#dscribe.ext.SOAPGTO">SOAPGTO (class in dscribe.ext)</a>
 </li>
-      <li><a href="doc/dscribe.html#dscribe.ext.soap_gto">soap_gto() (in module dscribe.ext)</a>
+      <li><a href="doc/dscribe.html#dscribe.ext.SOAPPolynomial">SOAPPolynomial (class in dscribe.ext)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>

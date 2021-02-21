@@ -1,5 +1,5 @@
-Contributing
-============
+Changelog
+=========
 
 You are viewing an old version of the documentation. Please refer to the
 `newest documentation <https://singroup.github.io/dscribe/latest/>`_ for this
