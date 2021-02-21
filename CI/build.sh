@@ -1,4 +1,5 @@
 # Make a source distribution
+cd ..
 python setup.py sdist
 
 # Install the package itself from the newly created source distribution (this
