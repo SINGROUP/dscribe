@@ -32,6 +32,10 @@ jobs:
     displayName: 'Use Python $(python.version)'
 
   - script: |
+      cd $(Build.Repository.LocalPath)/CI && ./devtools.sh
+    displayName: 'Install development tools'
+
+  - script: |
       cd $(Build.Repository.LocalPath)/CI && ./lint.sh
     displayName: 'Lint code'
 
