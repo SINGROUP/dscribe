@@ -31,19 +31,6 @@ from ase.build import molecule
 from ase.visualize import view
 from ase.build import bulk
 
-def _print_diff(num, ana):
-    print("numerical")
-    print(num)
-    print("numerical derivatives shape")
-    print(num.shape)
-    print("analytical")
-    print(ana)
-    print("analytical der shape", ana.shape)
-    print("num - ana")
-    print(num - ana)
-    return
-
-
 H2 = Atoms(
     cell=[
         [15.0, 0.0, 0.0],
