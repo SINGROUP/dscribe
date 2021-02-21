@@ -8,7 +8,7 @@ model, which descriptor, etc. In this tutorial we will use the following, very
 simple setup:
 
     - Dataset of two atoms interacting through a Lennard-Jones potential. This
-      pretty much as simple as it gets. Real systems will be much more
+      is pretty much as simple as it gets. Real systems will be much more
       complicated thus requiring a more complicated machine learning model and
       longer training times.
     - SOAP descriptor calculated directly between the two atoms. Once again
@@ -21,7 +21,7 @@ simple setup:
       from which we will automatically get the forces as long as we also know
       the derivatives of the descriptor with respect to the atomic positions.
       This is exactly what the :code:`derivatives`-function provided by DScribe
-      returns (you'll need :code:`dscribe>=0.5.x`).
+      returns (you will need :code:`dscribe>=0.5.x`).
 
 Principle
 ---------
@@ -79,13 +79,13 @@ The energies will look like this:
 
 Training
 --------
-Lets first load and prepare the dataset:
+Let us first load and prepare the dataset:
 
 .. literalinclude:: ../../../../examples/forces_and_energies/training.py
     :language: python
     :lines: 1-59
 
-Then lets defined our model and loss function:
+Then let us define our model and loss function:
 
 .. literalinclude:: ../../../../examples/forces_and_energies/training.py
     :start-at: class FFNet

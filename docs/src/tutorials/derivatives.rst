@@ -77,6 +77,6 @@ quickly with system size. A good way around this is to use sparse arrays
 instead by using the :code:`sparse=True` option in the descriptor constructor.
 In large systems the derivative array will typically become quite sparse,
 giving significant savings in storage space. Since 0.5.x we have opted to use
-the `sparse library <https://sparse.pydata.org/en/stable/>`_-library for all of
+the `scipy sparse <https://sparse.pydata.org/en/stable/>`_-library for all of
 our sparse outputs, see the :doc:`documentation page on sparse output
 <machine_learning/forces_and_energies>`.
