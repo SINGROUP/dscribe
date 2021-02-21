@@ -42,10 +42,12 @@ jobs:
   - script: |
       cd $(Build.Repository.LocalPath)/CI && ./build.sh
     displayName: 'Build package'
+    condition: always()
 
   - script: |
       cd $(Build.Repository.LocalPath)/CI && ./test.sh
     displayName: 'Run regression tests'
+    condition: always()
 
   - script: |
       cd $(Build.Repository.LocalPath)/CI && ./updatecoverage.sh
