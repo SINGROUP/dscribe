@@ -52,20 +52,21 @@ class SOAP(Descriptor):
     Lauri Himanen & Adam S. Foster, npj Comput. Mater., 4, 37 (2018),
     https://doi.org/10.1038/s41524-018-0096-5
     """
+
     def __init__(
-            self,
-            rcut,
-            nmax,
-            lmax,
-            sigma=1.0,
-            rbf="gto",
-            species=None,
-            periodic=False,
-            crossover=True,
-            average="off",
-            sparse=False,
-            dtype="float32",
-            ):
+        self,
+        rcut,
+        nmax,
+        lmax,
+        sigma=1.0,
+        rbf="gto",
+        species=None,
+        periodic=False,
+        crossover=True,
+        average="off",
+        sparse=False,
+        dtype="float32",
+    ):
         """
         Args:
             rcut (float): A cutoff for local region in angstroms. Should be
@@ -109,7 +110,7 @@ class SOAP(Descriptor):
 
                     * "float32": Single precision floating point numbers.
                     * "float64": Double precision floating point numbers.
-                
+
         """
         super().__init__(periodic=periodic, flatten=True, sparse=sparse)
 
@@ -117,17 +118,15 @@ class SOAP(Descriptor):
         self.species = species
 
         # Test that general settings are valid
-        if (sigma <= 0):
+        if sigma <= 0:
             raise ValueError(
                 "Only positive gaussian width parameters 'sigma' are allowed."
             )
-        self._eta = 1/(2*sigma**2)
+        self._eta = 1 / (2 * sigma ** 2)
         self._sigma = sigma
 
         if lmax < 0:
-            raise ValueError(
-                "lmax cannot be negative. lmax={}".format(lmax)
-            )
+            raise ValueError("lmax cannot be negative. lmax={}".format(lmax))
         supported_rbf = set(("gto", "polynomial"))
         if rbf not in supported_rbf:
             raise ValueError(
@@ -136,8 +135,7 @@ class SOAP(Descriptor):
             )
         if nmax < 1:
             raise ValueError(
-                "Must have at least one radial basis function."
-                "nmax={}".format(nmax)
+                "Must have at least one radial basis function." "nmax={}".format(nmax)
             )
         supported_average = set(("off", "inner", "outer"))
         if average not in supported_average:
@@ -183,8 +181,7 @@ class SOAP(Descriptor):
         self.crossover = crossover
 
     def prepare_centers(self, system, cutoff_padding, positions=None):
-        """Validates and prepares the centers for the C++ extension.
-        """
+        """Validates and prepares the centers for the C++ extension."""
         # Transform the input system into the internal System-object
         system = self.get_system(system)
 
@@ -196,9 +193,7 @@ class SOAP(Descriptor):
         if self.periodic:
             cell = system.get_cell()
             if np.cross(cell[0], cell[1]).dot(cell[2]) == 0:
-                raise ValueError(
-                    "System doesn't have cell to justify periodicity."
-                )
+                raise ValueError("System doesn't have cell to justify periodicity.")
 
         # Setup the local positions
         if positions is None:
@@ -209,10 +204,14 @@ class SOAP(Descriptor):
             # position list
             error = ValueError(
                 "The argument 'positions' should contain a non-empty "
-                "one-dimensional list of" " atomic indices or a two-dimensional "
+                "one-dimensional list of"
+                " atomic indices or a two-dimensional "
                 "list of cartesian coordinates with x, y and z components."
             )
-            if not isinstance(positions, (list, tuple, np.ndarray)) or len(positions) == 0:
+            if (
+                not isinstance(positions, (list, tuple, np.ndarray))
+                or len(positions) == 0
+            ):
                 raise error
             list_positions = []
             indices = np.full(len(positions), -1, dtype=np.int)
@@ -235,12 +234,11 @@ class SOAP(Descriptor):
         decay to the specified threshold value at the cutoff distance.
         """
         threshold = 0.001
-        cutoff_padding = self._sigma*np.sqrt(-2*np.log(threshold))
+        cutoff_padding = self._sigma * np.sqrt(-2 * np.log(threshold))
         return cutoff_padding
 
     def init_descriptor_array(self, n_centers, n_features):
-        """Return a zero-initialized numpy array for the descriptor.
-        """
+        """Return a zero-initialized numpy array for the descriptor."""
         if self.average == "inner" or self.average == "outer":
             c = np.zeros((1, n_features), dtype=np.float64)
         else:
@@ -248,19 +246,20 @@ class SOAP(Descriptor):
         return c
 
     def init_derivatives_array(self, n_centers, n_atoms, n_features):
-        """Return a zero-initialized numpy array for the derivatives.
-        """
+        """Return a zero-initialized numpy array for the derivatives."""
         if self.average == "inner" or self.average == "outer":
             return np.zeros((1, n_atoms, 3, n_features), dtype=np.float64)
         else:
             return np.zeros((n_centers, n_atoms, 3, n_features), dtype=np.float64)
 
     def init_internal_dev_array(self, n_centers, n_atoms, n_types, n, lMax):
-        d = np.zeros((n_atoms, n_centers, n_types, n, (lMax+1)*(lMax+1)), dtype=np.float64)
+        d = np.zeros(
+            (n_atoms, n_centers, n_types, n, (lMax + 1) * (lMax + 1)), dtype=np.float64
+        )
         return d
 
-    def init_internal_array(self, n_centers,  n_types, n, lMax):
-        d = np.zeros((n_centers, n_types, n, (lMax+1)*(lMax+1)), dtype=np.float64)
+    def init_internal_array(self, n_centers, n_types, n, lMax):
+        d = np.zeros((n_centers, n_types, n, (lMax + 1) * (lMax + 1)), dtype=np.float64)
         return d
 
     def create(self, system, positions=None, n_jobs=1, verbose=False):
@@ -308,7 +307,7 @@ class SOAP(Descriptor):
                 )
             inp = list(zip(system, positions))
 
-        # Determine if the outputs have a fixed size 
+        # Determine if the outputs have a fixed size
         n_features = self.get_number_of_features()
         static_size = None
         if self.average == "outer" or self.average == "inner":
@@ -336,11 +335,14 @@ class SOAP(Descriptor):
                             if len(i_job[0]) != n_centers:
                                 return False
                 return True
+
             if is_static():
                 static_size = [n_centers, n_features]
 
         # Create in parallel
-        output = self.create_parallel(inp, self.create_single, n_jobs, static_size, verbose=verbose)
+        output = self.create_parallel(
+            inp, self.create_single, n_jobs, static_size, verbose=verbose
+        )
 
         return output
 
@@ -394,10 +396,10 @@ class SOAP(Descriptor):
                 self.average,
                 cutoff_padding,
                 alphas,
-                betas
+                betas,
             )
             soap_gto.create(
-                soap_mat, 
+                soap_mat,
                 pos,
                 Z,
                 ase.geometry.cell.complete_cell(system.get_cell()),
@@ -422,10 +424,10 @@ class SOAP(Descriptor):
                 self.average,
                 cutoff_padding,
                 rx,
-                gss
+                gss,
             )
             soap_poly.create(
-                soap_mat, 
+                soap_mat,
                 pos,
                 Z,
                 ase.geometry.cell.complete_cell(system.get_cell()),
@@ -450,10 +452,11 @@ class SOAP(Descriptor):
         return soap_mat
 
     def _cartesian(self, system, positions=None):
-        """Internal test function.
-        """
+        """Internal test function."""
         cutoff_padding = self.get_cutoff_padding()
-        centers, center_indices = self.prepare_centers(system, cutoff_padding, positions)
+        centers, center_indices = self.prepare_centers(
+            system, cutoff_padding, positions
+        )
         n_centers = centers.shape[0]
         n_species = self._atomic_numbers.shape[0]
         pos = system.get_positions()
@@ -485,17 +488,17 @@ class SOAP(Descriptor):
                 self.average,
                 cutoff_padding,
                 alphas,
-                betas
+                betas,
             )
 
             # Calculate analytically with extension
-            xd = np.empty((1,1,1,1,1))
-            yd = np.empty((1,1,1,1,1))
-            zd = np.empty((1,1,1,1,1))
-            cd = self.init_internal_array( n_centers,  n_species, self._nmax, self._lmax)
-            d = np.empty((1,1,1,1))
+            xd = np.empty((1, 1, 1, 1, 1))
+            yd = np.empty((1, 1, 1, 1, 1))
+            zd = np.empty((1, 1, 1, 1, 1))
+            cd = self.init_internal_array(n_centers, n_species, self._nmax, self._lmax)
+            d = np.empty((1, 1, 1, 1))
             soap_gto.create_cartesian(
-                d, 
+                d,
                 soap_mat,
                 xd,
                 yd,
@@ -521,7 +524,17 @@ class SOAP(Descriptor):
 
         return soap_mat
 
-    def derivatives(self, system, positions=None, include=None, exclude=None, method="auto", return_descriptor=True, n_jobs=1, verbose=False):
+    def derivatives(
+        self,
+        system,
+        positions=None,
+        include=None,
+        exclude=None,
+        method="auto",
+        return_descriptor=True,
+        n_jobs=1,
+        verbose=False,
+    ):
         """Return the descriptor derivatives for the given systems and given positions.
 
         Args:
@@ -533,10 +546,10 @@ class SOAP(Descriptor):
                 atoms in the system. When calculating descriptor for multiple
                 systems, provide the positions as a list for each system.
             include (list): Indices of atoms to compute the derivatives on.
-                When calculating descriptor for multiple systems, provide a list of indices.  
+                When calculating descriptor for multiple systems, provide a list of indices.
                 Cannot be provided together with 'exclude'.
             exclude (list): Indices of atoms not to compute the derivatives on.
-                When calculating descriptor for multiple systems, provide a list of indices.  
+                When calculating descriptor for multiple systems, provide a list of indices.
                 Cannot be provided together with 'include'.
             method (str): The method for calculating the derivatives. Provide
                 either 'numerical', 'analytical' or 'auto'. If using 'auto',
@@ -571,7 +584,9 @@ class SOAP(Descriptor):
         """
         methods = {"numerical", "analytical", "auto"}
         if method not in methods:
-            raise ValueError("Invalid method specified. Please choose from: {}".format(methods))
+            raise ValueError(
+                "Invalid method specified. Please choose from: {}".format(methods)
+            )
         if self.average != "off" and method == "analytical":
             raise ValueError(
                 "Analytical derivatives not currently available for averaged output."
@@ -597,7 +612,13 @@ class SOAP(Descriptor):
         if isinstance(system, (Atoms, System)):
             n_atoms = len(system)
             indices = self._get_indices(n_atoms, include, exclude)
-            return self.derivatives_single(system, positions, indices, method=method, return_descriptor=return_descriptor)
+            return self.derivatives_single(
+                system,
+                positions,
+                indices,
+                method=method,
+                return_descriptor=return_descriptor,
+            )
 
         self._check_system_list(system)
         n_samples = len(system)
@@ -625,7 +646,7 @@ class SOAP(Descriptor):
                 "The given number of excludes does not match the given "
                 "number of systems."
             )
-            
+
         # Determine the atom indices that are displaced
         indices = []
         for sys, inc, exc in zip(system, include, exclude):
@@ -633,12 +654,21 @@ class SOAP(Descriptor):
             indices.append(self._get_indices(n_atoms, inc, exc))
 
         # Combine input arguments
-        inp = list(zip(system, positions, indices, [method]*n_samples, [return_descriptor]*n_samples))
+        inp = list(
+            zip(
+                system,
+                positions,
+                indices,
+                [method] * n_samples,
+                [return_descriptor] * n_samples,
+            )
+        )
 
         # For the descriptor, the output size for each job depends on the exact arguments.
         # Here we precalculate the size for each job to preallocate memory and
         # make the process faster.
         n_features = self.get_number_of_features()
+
         def get_shapes(job):
             centers = job[1]
             if centers is None:
@@ -648,9 +678,10 @@ class SOAP(Descriptor):
             n_indices = len(job[2])
             return (n_positions, n_indices, 3, n_features), (n_positions, n_features)
 
-
         k, m = divmod(n_samples, n_jobs)
-        jobs = list(inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
+        jobs = list(
+            inp[i * k + min(i, m) : (i + 1) * k + min(i + 1, m)] for i in range(n_jobs)
+        )
         derivatives_shape, descriptor_shape = get_shapes(jobs[0][0])
 
         # Determine what the output sizes will be, and whether the size stays
@@ -659,7 +690,10 @@ class SOAP(Descriptor):
             for i_job in jobs:
                 for job in i_job:
                     i_derivatives_shape, i_descriptor_shape = get_shapes(job)
-                    if i_derivatives_shape != derivatives_shape or i_descriptor_shape != descriptor_shape:
+                    if (
+                        i_derivatives_shape != derivatives_shape
+                        or i_descriptor_shape != descriptor_shape
+                    ):
                         return True
             return False
 
@@ -668,11 +702,21 @@ class SOAP(Descriptor):
             descriptor_shape = None
 
         # Create in parallel
-        output = self.derivatives_parallel(inp, self.derivatives_single, n_jobs, derivatives_shape, descriptor_shape, return_descriptor, verbose=verbose)
+        output = self.derivatives_parallel(
+            inp,
+            self.derivatives_single,
+            n_jobs,
+            derivatives_shape,
+            descriptor_shape,
+            return_descriptor,
+            verbose=verbose,
+        )
 
         return output
 
-    def derivatives_single(self, system, positions, indices, method="numerical", return_descriptor=True):
+    def derivatives_single(
+        self, system, positions, indices, method="numerical", return_descriptor=True
+    ):
         """Return the SOAP output for the given system and given positions.
 
         Args:
@@ -683,14 +727,14 @@ class SOAP(Descriptor):
                 atoms in the system. When calculating SOAP for multiple
                 systems, provide the positions as a list for each system.
             indices (list): Indices of atoms for which the derivatives will be
-                computed for. 
+                computed for.
             method (str): 'numerical' or 'analytical' derivatives. Numerical
                 derivatives are implemented with central finite difference. If
                 not specified, analytical derivatives are used when available.
             return_descriptor (bool): Whether to also calculate the descriptor
                 in the same function call. This is true by default as it
                 typically is faster to calculate both in one go.
-        
+
         Returns:
             If return_descriptor is True, returns a tuple, where the first item
             is the derivative array and the second is the descriptor array.
@@ -704,7 +748,9 @@ class SOAP(Descriptor):
             features in the default order.
         """
         cutoff_padding = self.get_cutoff_padding()
-        centers, center_indices = self.prepare_centers(system, cutoff_padding, positions)
+        centers, center_indices = self.prepare_centers(
+            system, cutoff_padding, positions
+        )
         pos = system.get_positions()
         Z = system.get_atomic_numbers()
         sorted_species = self._atomic_numbers
@@ -734,7 +780,7 @@ class SOAP(Descriptor):
                 self.average,
                 cutoff_padding,
                 alphas,
-                betas
+                betas,
             )
 
             # Calculate numerically with extension
@@ -759,13 +805,21 @@ class SOAP(Descriptor):
                 # that numpy does some kind of lazy allocation that is
                 # highly efficient for zero-initialized arrays. Similar
                 # performace could not be achieved even with calloc.
-                cd = self.init_internal_array(n_centers, n_species, self._nmax, self._lmax)
-                xd = self.init_internal_dev_array(n_centers, n_atoms, n_species, self._nmax, self._lmax)
-                yd = self.init_internal_dev_array(n_centers, n_atoms, n_species, self._nmax, self._lmax)
-                zd = self.init_internal_dev_array(n_centers, n_atoms, n_species, self._nmax, self._lmax)
+                cd = self.init_internal_array(
+                    n_centers, n_species, self._nmax, self._lmax
+                )
+                xd = self.init_internal_dev_array(
+                    n_centers, n_atoms, n_species, self._nmax, self._lmax
+                )
+                yd = self.init_internal_dev_array(
+                    n_centers, n_atoms, n_species, self._nmax, self._lmax
+                )
+                zd = self.init_internal_dev_array(
+                    n_centers, n_atoms, n_species, self._nmax, self._lmax
+                )
 
                 soap_gto.derivatives_analytical(
-                    d, 
+                    d,
                     c,
                     xd,
                     yd,
@@ -798,7 +852,7 @@ class SOAP(Descriptor):
                     self.average,
                     cutoff_padding,
                     rx,
-                    gss
+                    gss,
                 )
                 soap_poly.derivatives_numerical(
                     d,
@@ -885,9 +939,7 @@ class SOAP(Descriptor):
         """
         # Check that the corresponding part is calculated
         if len(species) != 2:
-            raise ValueError(
-                "Please use a pair of atomic numbers or chemical symbols."
-            )
+            raise ValueError("Please use a pair of atomic numbers or chemical symbols.")
 
         # Change chemical elements into atomic numbers
         numbers = []
@@ -903,8 +955,7 @@ class SOAP(Descriptor):
         for number in numbers:
             if number not in self._atomic_number_set:
                 raise ValueError(
-                    "Atomic number {} was not specified in the species."
-                    .format(number)
+                    "Atomic number {} was not specified in the species.".format(number)
                 )
 
         # Change into internal indexing
@@ -915,27 +966,26 @@ class SOAP(Descriptor):
             numbers = list(reversed(numbers))
         i = numbers[0]
         j = numbers[1]
-        n_elem_feat_symm = self._nmax*(self._nmax+1)/2*(self._lmax + 1)
+        n_elem_feat_symm = self._nmax * (self._nmax + 1) / 2 * (self._lmax + 1)
 
         if self.crossover:
-            n_elem_feat_unsymm = self._nmax*self._nmax*(self._lmax + 1)
+            n_elem_feat_unsymm = self._nmax * self._nmax * (self._lmax + 1)
             n_elem_feat = n_elem_feat_symm if i == j else n_elem_feat_unsymm
 
             # The diagonal terms are symmetric and off-diagonal terms are
             # unsymmetric
             m_symm = i + int(j > i)
-            m_unsymm = j + i*n_elem - i*(i+1)/2 - m_symm
+            m_unsymm = j + i * n_elem - i * (i + 1) / 2 - m_symm
 
-            start = int(m_symm*n_elem_feat_symm+m_unsymm*n_elem_feat_unsymm)
-            end = int(start+n_elem_feat)
+            start = int(m_symm * n_elem_feat_symm + m_unsymm * n_elem_feat_unsymm)
+            end = int(start + n_elem_feat)
         else:
             if i != j:
                 raise ValueError(
-                    "Crossover is set to False. No cross-species output "
-                    "available"
+                    "Crossover is set to False. No cross-species output " "available"
                 )
-            start = int(i*n_elem_feat_symm)
-            end = int(start+n_elem_feat_symm)
+            start = int(i * n_elem_feat_symm)
+            end = int(start + n_elem_feat_symm)
 
         return slice(start, end)
 
@@ -962,20 +1012,20 @@ class SOAP(Descriptor):
         for l in range(0, 10):
             # The alphas are calculated so that the GTOs will decay to the set
             # threshold value at their respective cutoffs
-            alphas = -np.log(threshold/np.power(a, l))/a**2
+            alphas = -np.log(threshold / np.power(a, l)) / a ** 2
 
             # Calculate the overlap matrix
             m = np.zeros((alphas.shape[0], alphas.shape[0]))
             m[:, :] = alphas
             m = m + m.transpose()
-            S = 0.5*gamma(l + 3.0/2.0)*m**(-l-3.0/2.0)
+            S = 0.5 * gamma(l + 3.0 / 2.0) * m ** (-l - 3.0 / 2.0)
 
             # Get the beta factors that orthonormalize the set with Löwdin
             # orthonormalization
             betas = sqrtm(inv(S))
 
             # If the result is complex, the calculation is currently halted.
-            if (betas.dtype == np.complex128):
+            if betas.dtype == np.complex128:
                 raise ValueError(
                     "Could not calculate normalization factors for the radial "
                     "basis in the domain of real numbers. Lowering the number of "
@@ -1006,16 +1056,18 @@ class SOAP(Descriptor):
         # + 2) (rc - r)^(b + 2) r^2, {r, 0, rc}]. Then the weights B that make
         # the basis orthonormal are given by B=S^{-1/2}
         S = np.zeros((nmax, nmax), dtype=np.float64)
-        for i in range(1, nmax+1):
-            for j in range(1, nmax+1):
-                S[i-1, j-1] = (2*(rcut)**(7+i+j))/((5+i+j)*(6+i+j)*(7+i+j))
+        for i in range(1, nmax + 1):
+            for j in range(1, nmax + 1):
+                S[i - 1, j - 1] = (2 * (rcut) ** (7 + i + j)) / (
+                    (5 + i + j) * (6 + i + j) * (7 + i + j)
+                )
 
         # Get the beta factors that orthonormalize the set with Löwdin
         # orthonormalization
         betas = sqrtm(np.linalg.inv(S))
 
         # If the result is complex, the calculation is currently halted.
-        if (betas.dtype == np.complex128):
+        if betas.dtype == np.complex128:
             raise ValueError(
                 "Could not calculate normalization factors for the radial "
                 "basis in the domain of real numbers. Lowering the number of "
@@ -1127,13 +1179,13 @@ class SOAP(Descriptor):
         x[98] = 0.998491950639595818
         x[99] = 0.99971372677344123
 
-        rx = rcut*0.5*(x + 1)
+        rx = rcut * 0.5 * (x + 1)
 
         # Calculate the value of the orthonormalized polynomial basis at the rx
         # values
         fs = np.zeros([nmax, len(x)])
-        for n in range(1, nmax+1):
-            fs[n-1, :] = (rcut-np.clip(rx, 0, rcut))**(n+2)
+        for n in range(1, nmax + 1):
+            fs[n - 1, :] = (rcut - np.clip(rx, 0, rcut)) ** (n + 2)
 
         gss = np.dot(betas, fs)
 

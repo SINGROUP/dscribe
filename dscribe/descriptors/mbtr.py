@@ -103,18 +103,19 @@ class MBTR(Descriptor):
     This implementation does not support the use of a non-identity correlation
     matrix.
     """
+
     def __init__(
-            self,
-            species,
-            periodic,
-            k1=None,
-            k2=None,
-            k3=None,
-            normalize_gaussians=True,
-            normalization="none",
-            flatten=True,
-            sparse=False
-            ):
+        self,
+        species,
+        periodic,
+        k1=None,
+        k2=None,
+        k3=None,
+        normalize_gaussians=True,
+        normalization="none",
+        flatten=True,
+        sparse=False,
+    ):
         """
         Args:
             species (iterable): The chemical species as a list of atomic
@@ -242,9 +243,7 @@ class MBTR(Descriptor):
         # Make the n into integer
         grid["n"] = int(grid["n"])
         if grid["min"] >= grid["max"]:
-            raise ValueError(
-                "The min value should be smaller than the max value."
-            )
+            raise ValueError("The min value should be smaller than the max value.")
 
     @property
     def k1(self):
@@ -258,7 +257,11 @@ class MBTR(Descriptor):
             for key in value.keys():
                 valid_keys = set(("geometry", "grid", "weighting"))
                 if key not in valid_keys:
-                    raise ValueError("The given setup contains the following invalid key: {}".format(key))
+                    raise ValueError(
+                        "The given setup contains the following invalid key: {}".format(
+                            key
+                        )
+                    )
 
             # Check the geometry function
             geom_func = value["geometry"].get("function")
@@ -297,7 +300,11 @@ class MBTR(Descriptor):
             for key in value.keys():
                 valid_keys = set(("geometry", "grid", "weighting"))
                 if key not in valid_keys:
-                    raise ValueError("The given setup contains the following invalid key: {}".format(key))
+                    raise ValueError(
+                        "The given setup contains the following invalid key: {}".format(
+                            key
+                        )
+                    )
 
             # Check the geometry function
             geom_func = value["geometry"].get("function")
@@ -326,7 +333,9 @@ class MBTR(Descriptor):
                             param = weighting.get(pname)
                             if param is None:
                                 raise ValueError(
-                                    "Missing value for '{}' in the k=2 weighting.".format(key)
+                                    "Missing value for '{}' in the k=2 weighting.".format(
+                                        key
+                                    )
                                 )
 
             # Check grid
@@ -345,7 +354,11 @@ class MBTR(Descriptor):
             for key in value.keys():
                 valid_keys = set(("geometry", "grid", "weighting"))
                 if key not in valid_keys:
-                    raise ValueError("The given setup contains the following invalid key: {}".format(key))
+                    raise ValueError(
+                        "The given setup contains the following invalid key: {}".format(
+                            key
+                        )
+                    )
 
             # Check the geometry function
             geom_func = value["geometry"].get("function")
@@ -374,7 +387,9 @@ class MBTR(Descriptor):
                             param = weighting.get(pname)
                             if param is None:
                                 raise ValueError(
-                                    "Missing value for '{}' in the k=3 weighting.".format(key)
+                                    "Missing value for '{}' in the k=3 weighting.".format(
+                                        key
+                                    )
                                 )
 
             # Check grid
@@ -494,14 +509,16 @@ class MBTR(Descriptor):
         # Combine input arguments
         inp = [(i_sys,) for i_sys in system]
 
-        # Determine if the outputs have a fixed size 
+        # Determine if the outputs have a fixed size
         if self.flatten:
             static_size = [self.get_number_of_features()]
         else:
             static_size = None
 
         # Create in parallel
-        output = self.create_parallel(inp, self.create_single, n_jobs, static_size, verbose=verbose)
+        output = self.create_parallel(
+            inp, self.create_single, n_jobs, static_size, verbose=verbose
+        )
 
         return output
 
@@ -518,7 +535,7 @@ class MBTR(Descriptor):
             arrays is created. Each output is under a "kX" key. If the output
             is flattened, a single concatenated output vector is returned,
             either as a sparse or a dense vector.
-       """
+        """
         # Transform the input system into the internal System-object
         system = self.get_system(system)
 
@@ -544,20 +561,20 @@ class MBTR(Descriptor):
                 for key, value in mbtr.items():
                     i_data = np.array(value.data)
                     i_norm = np.linalg.norm(i_data)
-                    mbtr[key] = value/i_norm
+                    mbtr[key] = value / i_norm
             else:
                 for key, value in mbtr.items():
                     i_data = value.ravel()
                     i_norm = np.linalg.norm(i_data)
-                    mbtr[key] = value/i_norm
+                    mbtr[key] = value / i_norm
         elif self.normalization == "n_atoms":
             n_atoms = len(self.system)
             if self.flatten is True:
                 for key, value in mbtr.items():
-                    mbtr[key] = value/n_atoms
+                    mbtr[key] = value / n_atoms
             else:
                 for key, value in mbtr.items():
-                    mbtr[key] = value/n_atoms
+                    mbtr[key] = value / n_atoms
 
         # Flatten output if requested
         if self.flatten:
@@ -585,15 +602,15 @@ class MBTR(Descriptor):
 
         if self.k1 is not None:
             n_k1_grid = self.k1["grid"]["n"]
-            n_k1 = n_elem*n_k1_grid
+            n_k1 = n_elem * n_k1_grid
             n_features += n_k1
         if self.k2 is not None:
             n_k2_grid = self.k2["grid"]["n"]
-            n_k2 = (n_elem*(n_elem+1)/2)*n_k2_grid
+            n_k2 = (n_elem * (n_elem + 1) / 2) * n_k2_grid
             n_features += n_k2
         if self.k3 is not None:
             n_k3_grid = self.k3["grid"]["n"]
-            n_k3 = (n_elem*n_elem*(n_elem+1)/2)*n_k3_grid
+            n_k3 = (n_elem * n_elem * (n_elem + 1) / 2) * n_k3_grid
             n_features += n_k3
 
         return int(n_features)
@@ -644,8 +661,8 @@ class MBTR(Descriptor):
             n1 = self.k1["grid"]["n"]
             i = numbers[0]
             m = i
-            start = int(m*n1)
-            end = int((m+1)*n1)
+            start = int(m * n1)
+            end = int((m + 1) * n1)
 
         # k=2
         if len(numbers) == 2:
@@ -659,14 +676,14 @@ class MBTR(Descriptor):
             # This is the index of the spectrum. It is given by enumerating the
             # elements of an upper triangular matrix from left to right and top
             # to bottom.
-            m = j + i*n_elem - i*(i+1)/2
+            m = j + i * n_elem - i * (i + 1) / 2
 
             offset = 0
             if self.k1 is not None:
                 n1 = self.k1["grid"]["n"]
-                offset += n_elem*n1
-            start = int(offset+m*n2)
-            end = int(offset+(m+1)*n2)
+                offset += n_elem * n1
+            start = int(offset + m * n2)
+            end = int(offset + (m + 1) * n2)
 
         # k=3
         if len(numbers) == 3:
@@ -682,17 +699,17 @@ class MBTR(Descriptor):
             # elements of a three-dimensional array where for valid elements
             # k>=i. The enumeration begins from [0, 0, 0], and ends at [n_elem,
             # n_elem, n_elem], looping the elements in the order k, i, j.
-            m = j*n_elem*(n_elem+1)/2 + k + i*n_elem - i*(i+1)/2
+            m = j * n_elem * (n_elem + 1) / 2 + k + i * n_elem - i * (i + 1) / 2
 
             offset = 0
             if self.k1 is not None:
                 n1 = self.k1["grid"]["n"]
-                offset += n_elem*n1
+                offset += n_elem * n1
             if self.k2 is not None:
                 n2 = self.k2["grid"]["n"]
-                offset += (n_elem*(n_elem+1)/2)*n2
-            start = int(offset+m*n3)
-            end = int(offset+(m+1)*n3)
+                offset += (n_elem * (n_elem + 1) / 2) * n2
+            start = int(offset + m * n3)
+            end = int(offset + (m + 1) * n3)
 
         return slice(start, end)
 
@@ -716,7 +733,6 @@ class MBTR(Descriptor):
 
         return new_kx_map
 
-
     def _get_k1(self, system):
         """Calculates the second order terms where the scalar mapping is the
         inverse distance between atoms.
@@ -736,7 +752,7 @@ class MBTR(Descriptor):
         cmbtr = MBTRWrapper(
             self.atomic_number_to_index,
             self._interaction_limit,
-            np.zeros((len(system), 3), dtype=int)
+            np.zeros((len(system), 3), dtype=int),
         )
 
         k1_map = cmbtr.get_k1(
@@ -755,7 +771,7 @@ class MBTR(Descriptor):
         # Depending on flattening, use either a sparse matrix or a dense one.
         n_elem = self.n_elements
         if self.flatten:
-            k1 = sparse.DOK((n_elem*n), dtype=np.float32)
+            k1 = sparse.DOK((n_elem * n), dtype=np.float32)
         else:
             k1 = np.zeros((n_elem, n), dtype=np.float32)
 
@@ -764,12 +780,12 @@ class MBTR(Descriptor):
 
             # Denormalize if requested
             if not self.normalize_gaussians:
-                max_val = 1/(sigma*math.sqrt(2*math.pi))
+                max_val = 1 / (sigma * math.sqrt(2 * math.pi))
                 gaussian_sum /= max_val
 
             if self.flatten:
-                start = i*n
-                end = (i+1)*n
+                start = i * n
+                end = (i + 1) * n
                 k1[start:end] = gaussian_sum
             else:
                 k1[i, :] = gaussian_sum
@@ -800,11 +816,8 @@ class MBTR(Descriptor):
                 scale = weighting["scale"]
                 cutoff = weighting["cutoff"]
                 if scale != 0:
-                    radial_cutoff = -math.log(cutoff)/scale
-                parameters = {
-                    b"scale": scale,
-                    b"cutoff": cutoff
-                }
+                    radial_cutoff = -math.log(cutoff) / scale
+                parameters = {b"scale": scale, b"cutoff": cutoff}
         else:
             weighting_function = "unity"
 
@@ -815,10 +828,7 @@ class MBTR(Descriptor):
         if self.periodic:
             centers = system.get_positions()
             ext_system, cell_indices = dscribe.utils.geometry.get_extended_system(
-                system,
-                radial_cutoff,
-                centers,
-                return_cell_indices=True
+                system, radial_cutoff, centers, return_cell_indices=True
             )
             ext_system = System.from_atoms(ext_system)
         else:
@@ -826,9 +836,7 @@ class MBTR(Descriptor):
             cell_indices = np.zeros((len(system), 3), dtype=int)
 
         cmbtr = MBTRWrapper(
-            self.atomic_number_to_index,
-            self._interaction_limit,
-            cell_indices
+            self.atomic_number_to_index, self._interaction_limit, cell_indices
         )
 
         # If radial cutoff is finite, use it to calculate the sparse
@@ -838,7 +846,9 @@ class MBTR(Descriptor):
         if radial_cutoff is not None:
             dmat = ext_system.get_distance_matrix_within_radius(radial_cutoff)
             adj_list = dscribe.utils.geometry.get_adjacency_list(dmat)
-            dmat_dense = np.full((n_atoms, n_atoms), sys.float_info.max)  # The non-neighbor values are treated as "infinitely far".
+            dmat_dense = np.full(
+                (n_atoms, n_atoms), sys.float_info.max
+            )  # The non-neighbor values are treated as "infinitely far".
             dmat_dense[dmat.row, dmat.col] = dmat.data
         # If no weighting is used, the full distance matrix is calculated
         else:
@@ -860,11 +870,10 @@ class MBTR(Descriptor):
 
         k2_map = self._make_new_kmap(k2_map)
 
-
         # Depending of flattening, use either a sparse matrix or a dense one.
         n_elem = self.n_elements
         if self.flatten:
-            k2 = sparse.DOK((int(n_elem*(n_elem+1)/2*n)), dtype=np.float32)
+            k2 = sparse.DOK((int(n_elem * (n_elem + 1) / 2 * n)), dtype=np.float32)
         else:
             k2 = np.zeros((self.n_elements, self.n_elements, n), dtype=np.float32)
 
@@ -875,16 +884,16 @@ class MBTR(Descriptor):
             # This is the index of the spectrum. It is given by enumerating the
             # elements of an upper triangular matrix from left to right and top
             # to bottom.
-            m = int(j + i*n_elem - i*(i+1)/2)
+            m = int(j + i * n_elem - i * (i + 1) / 2)
 
             # Denormalize if requested
             if not self.normalize_gaussians:
-                max_val = 1/(sigma*math.sqrt(2*math.pi))
+                max_val = 1 / (sigma * math.sqrt(2 * math.pi))
                 gaussian_sum /= max_val
 
             if self.flatten:
-                start = m*n
-                end = (m + 1)*n
+                start = m * n
+                end = (m + 1) * n
                 k2[start:end] = gaussian_sum
             else:
                 k2[i, j, :] = gaussian_sum
@@ -915,11 +924,8 @@ class MBTR(Descriptor):
                 scale = weighting["scale"]
                 cutoff = weighting["cutoff"]
                 if scale != 0:
-                    radial_cutoff = -0.5*math.log(cutoff)/scale
-                parameters = {
-                    b"scale": scale,
-                    b"cutoff": cutoff
-                }
+                    radial_cutoff = -0.5 * math.log(cutoff) / scale
+                parameters = {b"scale": scale, b"cutoff": cutoff}
         else:
             weighting_function = "unity"
 
@@ -930,10 +936,7 @@ class MBTR(Descriptor):
         if self.periodic:
             centers = system.get_positions()
             ext_system, cell_indices = dscribe.utils.geometry.get_extended_system(
-                system,
-                radial_cutoff,
-                centers,
-                return_cell_indices=True
+                system, radial_cutoff, centers, return_cell_indices=True
             )
             ext_system = System.from_atoms(ext_system)
         else:
@@ -941,9 +944,7 @@ class MBTR(Descriptor):
             cell_indices = np.zeros((len(system), 3), dtype=int)
 
         cmbtr = MBTRWrapper(
-            self.atomic_number_to_index,
-            self._interaction_limit,
-            cell_indices
+            self.atomic_number_to_index, self._interaction_limit, cell_indices
         )
 
         # If radial cutoff is finite, use it to calculate the sparse
@@ -953,7 +954,9 @@ class MBTR(Descriptor):
         if radial_cutoff is not None:
             dmat = ext_system.get_distance_matrix_within_radius(radial_cutoff)
             adj_list = dscribe.utils.geometry.get_adjacency_list(dmat)
-            dmat_dense = np.full((n_atoms, n_atoms), sys.float_info.max)  # The non-neighbor values are treated as "infinitely far".
+            dmat_dense = np.full(
+                (n_atoms, n_atoms), sys.float_info.max
+            )  # The non-neighbor values are treated as "infinitely far".
             dmat_dense[dmat.col, dmat.row] = dmat.data
         # If no weighting is used, the full distance matrix is calculated
         else:
@@ -977,7 +980,9 @@ class MBTR(Descriptor):
         # Depending of flattening, use either a sparse matrix or a dense one.
         n_elem = self.n_elements
         if self.flatten:
-            k3 = sparse.DOK((int(n_elem*n_elem*(n_elem+1)/2*n)), dtype=np.float32)
+            k3 = sparse.DOK(
+                (int(n_elem * n_elem * (n_elem + 1) / 2 * n)), dtype=np.float32
+            )
         else:
             k3 = np.zeros((n_elem, n_elem, n_elem, n), dtype=np.float32)
 
@@ -990,16 +995,16 @@ class MBTR(Descriptor):
             # elements of a three-dimensional array where for valid elements
             # k>=i. The enumeration begins from [0, 0, 0], and ends at [n_elem,
             # n_elem, n_elem], looping the elements in the order j, i, k.
-            m = int(j*n_elem*(n_elem+1)/2 + k + i*n_elem - i*(i+1)/2)
+            m = int(j * n_elem * (n_elem + 1) / 2 + k + i * n_elem - i * (i + 1) / 2)
 
             # Denormalize if requested
             if not self.normalize_gaussians:
-                max_val = 1/(sigma*math.sqrt(2*math.pi))
+                max_val = 1 / (sigma * math.sqrt(2 * math.pi))
                 gaussian_sum /= max_val
 
             if self.flatten:
-                start = m*n
-                end = (m+1)*n
+                start = m * n
+                end = (m + 1) * n
                 k3[start:end] = gaussian_sum
             else:
                 k3[i, j, k, :] = gaussian_sum

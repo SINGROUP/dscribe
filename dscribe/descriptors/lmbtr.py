@@ -110,17 +110,18 @@ class LMBTR(MBTR):
     This implementation does not support the use of a non-identity correlation
     matrix.
     """
+
     def __init__(
-            self,
-            species,
-            periodic,
-            k2=None,
-            k3=None,
-            normalize_gaussians=True,
-            normalization="none",
-            flatten=True,
-            sparse=False,
-            ):
+        self,
+        species,
+        periodic,
+        k2=None,
+        k3=None,
+        normalize_gaussians=True,
+        normalization="none",
+        flatten=True,
+        sparse=False,
+    ):
         """
         Args:
             species (iterable): The chemical species as a list of atomic
@@ -237,7 +238,7 @@ class LMBTR(MBTR):
         n_samples = len(system)
         inp = list(zip(system, positions))
 
-        # Determine if the outputs have a fixed size 
+        # Determine if the outputs have a fixed size
         n_features = self.get_number_of_features()
         static_size = None
         if positions is None:
@@ -262,19 +263,22 @@ class LMBTR(MBTR):
                         if len(i_job[0]) != n_centers:
                             return False
             return True
+
         if is_static():
             static_size = [n_centers, n_features]
 
         # Create in parallel
-        output = self.create_parallel(inp, self.create_single, n_jobs, static_size, verbose=verbose)
+        output = self.create_parallel(
+            inp, self.create_single, n_jobs, static_size, verbose=verbose
+        )
 
         return output
 
     def create_single(
-            self,
-            system,
-            positions,
-            ):
+        self,
+        system,
+        positions,
+    ):
         """Return the local many-body tensor representation for the given
         system and positions.
 
@@ -413,7 +417,7 @@ class LMBTR(MBTR):
         # Otherwise return a list of dictionaries, each dictionary containing
         # the requested unflattened tensors
         else:
-            result = np.empty((n_loc), dtype='object')
+            result = np.empty((n_loc), dtype="object")
             for i_loc in range(n_loc):
                 i_dict = {}
                 for key in mbtr.keys():
@@ -452,11 +456,13 @@ class LMBTR(MBTR):
 
         if self.k2 is not None:
             n_k2_grid = self.k2["grid"]["n"]
-            n_k2 = (n_elem)*n_k2_grid
+            n_k2 = (n_elem) * n_k2_grid
             n_features += n_k2
         if self.k3 is not None:
             n_k3_grid = self.k3["grid"]["n"]
-            n_k3 = n_elem*(3*n_elem-1)*n_k3_grid/2  # = (n_elem*n_elem + (n_elem-1)*n_elem/2)*n_k3_grid
+            n_k3 = (
+                n_elem * (3 * n_elem - 1) * n_k3_grid / 2
+            )  # = (n_elem*n_elem + (n_elem-1)*n_elem/2)*n_k3_grid
             n_features += n_k3
 
         return int(n_features)
@@ -473,7 +479,6 @@ class LMBTR(MBTR):
             new_kx_list.append(new_kx_map)
 
         return new_kx_list
-
 
     def _get_k2(self, system, new_system, indices):
         """Calculates the second order terms where the scalar mapping is the
@@ -498,10 +503,10 @@ class LMBTR(MBTR):
                 scale = weighting["scale"]
                 cutoff = weighting["cutoff"]
                 if scale != 0:
-                    radial_cutoff = -math.log(cutoff)/scale
+                    radial_cutoff = -math.log(cutoff) / scale
                 parameters = {
                     b"scale": weighting["scale"],
-                    b"cutoff": weighting["cutoff"]
+                    b"cutoff": weighting["cutoff"],
                 }
         else:
             weighting_function = "unity"
@@ -524,9 +529,7 @@ class LMBTR(MBTR):
             cell_indices = np.zeros((len(system), 3), dtype=int)
 
         cmbtr = MBTRWrapper(
-            self.atomic_number_to_index,
-            self._interaction_limit,
-            cell_indices
+            self.atomic_number_to_index, self._interaction_limit, cell_indices
         )
 
         # If radial cutoff is finite, use it to calculate the sparse distance
@@ -537,9 +540,13 @@ class LMBTR(MBTR):
         ext_pos = ext_system.get_positions()
         new_pos = new_system.get_positions()
         if radial_cutoff is not None:
-            dmat = new_system.get_distance_matrix_within_radius(radial_cutoff, pos=ext_pos)
+            dmat = new_system.get_distance_matrix_within_radius(
+                radial_cutoff, pos=ext_pos
+            )
             adj_list = dscribe.utils.geometry.get_adjacency_list(dmat)
-            dmat_dense = np.full((n_atoms_new, n_atoms_ext), sys.float_info.max)  # The non-neighbor values are treated as "infinitely far".
+            dmat_dense = np.full(
+                (n_atoms_new, n_atoms_ext), sys.float_info.max
+            )  # The non-neighbor values are treated as "infinitely far".
             dmat_dense[dmat.row, dmat.col] = dmat.data
         else:
             dmat_dense = scipy.spatial.distance.cdist(new_pos, ext_pos)
@@ -547,7 +554,12 @@ class LMBTR(MBTR):
 
         # Form new indices that include the existing atoms and the newly added
         # ones
-        indices = np.array(np.append(indices, [n_atoms_ext+i for i in range(n_atoms_new-len(indices))]), dtype = int)
+        indices = np.array(
+            np.append(
+                indices, [n_atoms_ext + i for i in range(n_atoms_new - len(indices))]
+            ),
+            dtype=int,
+        )
 
         k2_list = cmbtr.get_k2_local(
             indices,
@@ -568,18 +580,18 @@ class LMBTR(MBTR):
         n_elem = self.n_elements
         n_loc = len(indices)
         if self.flatten:
-            k2 = sparse.DOK((n_loc, n_elem*n), dtype=np.float32)
+            k2 = sparse.DOK((n_loc, n_elem * n), dtype=np.float32)
 
             for i_loc, k2_map in enumerate(k2_list):
                 for key, gaussian_sum in k2_map.items():
                     i = key[1]
                     m = i
-                    start = int(m*n)
-                    end = int((m+1)*n)
+                    start = int(m * n)
+                    end = int((m + 1) * n)
 
                     # Denormalize if requested
                     if not self.normalize_gaussians:
-                        max_val = 1/(sigma*math.sqrt(2*math.pi))
+                        max_val = 1 / (sigma * math.sqrt(2 * math.pi))
                         gaussian_sum /= max_val
 
                     k2[i_loc, start:end] = gaussian_sum
@@ -592,7 +604,7 @@ class LMBTR(MBTR):
 
                     # Denormalize if requested
                     if not self.normalize_gaussians:
-                        max_val = 1/(sigma*math.sqrt(2*math.pi))
+                        max_val = 1 / (sigma * math.sqrt(2 * math.pi))
                         gaussian_sum /= max_val
 
                     k2[i_loc, i, :] = gaussian_sum
@@ -622,11 +634,8 @@ class LMBTR(MBTR):
                 scale = weighting["scale"]
                 cutoff = weighting["cutoff"]
                 if scale != 0:
-                    radial_cutoff = -0.5*math.log(cutoff)/scale
-                parameters = {
-                    b"scale": scale,
-                    b"cutoff": cutoff
-                }
+                    radial_cutoff = -0.5 * math.log(cutoff) / scale
+                parameters = {b"scale": scale, b"cutoff": cutoff}
         else:
             weighting_function = "unity"
 
@@ -650,9 +659,7 @@ class LMBTR(MBTR):
             cell_indices = np.zeros((len(system), 3), dtype=int)
 
         cmbtr = MBTRWrapper(
-            self.atomic_number_to_index,
-            self._interaction_limit,
-            cell_indices
+            self.atomic_number_to_index, self._interaction_limit, cell_indices
         )
 
         # If radial cutoff is finite, use it to calculate the sparse
@@ -667,30 +674,38 @@ class LMBTR(MBTR):
         if radial_cutoff is not None:
 
             # Calculate distance within the extended system
-            dmat_ext_to_ext = ext_system.get_distance_matrix_within_radius(radial_cutoff, pos=ext_pos)
+            dmat_ext_to_ext = ext_system.get_distance_matrix_within_radius(
+                radial_cutoff, pos=ext_pos
+            )
             col = dmat_ext_to_ext.col
             row = dmat_ext_to_ext.row
             data = dmat_ext_to_ext.data
-            dmat = scipy.sparse.coo_matrix((data, (row, col)), shape=(n_atoms_fin, n_atoms_fin))
+            dmat = scipy.sparse.coo_matrix(
+                (data, (row, col)), shape=(n_atoms_fin, n_atoms_fin)
+            )
 
             # Calculate the distances from the new positions to atoms in the
             # extended system using the cutoff
             if len(new_pos) != 0:
-                dmat_ext_to_new = ext_system.get_distance_matrix_within_radius(radial_cutoff, pos=new_pos)
+                dmat_ext_to_new = ext_system.get_distance_matrix_within_radius(
+                    radial_cutoff, pos=new_pos
+                )
                 col = dmat_ext_to_new.col
                 row = dmat_ext_to_new.row
                 data = dmat_ext_to_new.data
-                dmat.col = np.append(dmat.col, col+n_atoms_ext)
+                dmat.col = np.append(dmat.col, col + n_atoms_ext)
                 dmat.row = np.append(dmat.row, row)
                 dmat.data = np.append(dmat.data, data)
                 dmat.col = np.append(dmat.col, row)
-                dmat.row = np.append(dmat.row, col+n_atoms_ext)
+                dmat.row = np.append(dmat.row, col + n_atoms_ext)
                 dmat.data = np.append(dmat.data, data)
 
             # Calculate adjacencies and transform to the dense matrix for
             # sending information to C++
             adj_list = dscribe.utils.geometry.get_adjacency_list(dmat)
-            dmat_dense = np.full((n_atoms_fin, n_atoms_fin), sys.float_info.max)  # The non-neighbor values are treated as "infinitely far".
+            dmat_dense = np.full(
+                (n_atoms_fin, n_atoms_fin), sys.float_info.max
+            )  # The non-neighbor values are treated as "infinitely far".
             dmat_dense[dmat.row, dmat.col] = dmat.data
 
         # If no weighting is used, the full distance matrix is calculated
@@ -703,18 +718,26 @@ class LMBTR(MBTR):
 
             # Fill in block for extended system to new system
             dmat_ext_to_new = scipy.spatial.distance.cdist(ext_pos, new_pos)
-            dmat[0:n_atoms_ext, n_atoms_ext:n_atoms_ext+n_atoms_new] = dmat_ext_to_new
-            dmat[n_atoms_ext:n_atoms_ext+n_atoms_new, 0:n_atoms_ext] = dmat_ext_to_new.T
+            dmat[
+                0:n_atoms_ext, n_atoms_ext : n_atoms_ext + n_atoms_new
+            ] = dmat_ext_to_new
+            dmat[
+                n_atoms_ext : n_atoms_ext + n_atoms_new, 0:n_atoms_ext
+            ] = dmat_ext_to_new.T
 
             # Calculate adjacencies and the dense version
             dmat = dmat.tocoo()
             adj_list = dscribe.utils.geometry.get_adjacency_list(dmat)
-            dmat_dense = np.full((n_atoms_fin, n_atoms_fin), sys.float_info.max)  # The non-neighbor values are treated as "infinitely far".
+            dmat_dense = np.full(
+                (n_atoms_fin, n_atoms_fin), sys.float_info.max
+            )  # The non-neighbor values are treated as "infinitely far".
             dmat_dense[dmat.row, dmat.col] = dmat.data
 
         # Form new indices that include the existing atoms and the newly added
         # ones
-        indices = np.array(np.append(indices, [n_atoms_ext+i for i in range(n_atoms_new)]), dtype = int)
+        indices = np.array(
+            np.append(indices, [n_atoms_ext + i for i in range(n_atoms_new)]), dtype=int
+        )
 
         k3_list = cmbtr.get_k3_local(
             indices,
@@ -735,7 +758,9 @@ class LMBTR(MBTR):
         n_elem = self.n_elements
         n_loc = len(indices)
         if self.flatten:
-            k3 = sparse.DOK((n_loc, int((n_elem*(3*n_elem-1)*n/2))), dtype=np.float32)
+            k3 = sparse.DOK(
+                (n_loc, int((n_elem * (3 * n_elem - 1) * n / 2))), dtype=np.float32
+            )
 
             for i_loc, k3_map in enumerate(k3_list):
                 for key, gaussian_sum in k3_map.items():
@@ -749,15 +774,15 @@ class LMBTR(MBTR):
                     # from [0, 0, 0], and ends at [n_elem, n_elem, n_elem], looping the
                     # elements in the order k, i, j.
                     if j == 0:
-                        m = k + i*n_elem - i*(i+1)/2
+                        m = k + i * n_elem - i * (i + 1) / 2
                     else:
-                        m = n_elem*(n_elem+1)/2+(j-1)*n_elem + k
-                    start = int(m*n)
-                    end = int((m+1)*n)
+                        m = n_elem * (n_elem + 1) / 2 + (j - 1) * n_elem + k
+                    start = int(m * n)
+                    end = int((m + 1) * n)
 
                     # Denormalize if requested
                     if not self.normalize_gaussians:
-                        max_val = 1/(sigma*math.sqrt(2*math.pi))
+                        max_val = 1 / (sigma * math.sqrt(2 * math.pi))
                         gaussian_sum /= max_val
 
                     k3[i_loc, start:end] = gaussian_sum
@@ -772,7 +797,7 @@ class LMBTR(MBTR):
 
                     # Denormalize if requested
                     if not self.normalize_gaussians:
-                        max_val = 1/(sigma*math.sqrt(2*math.pi))
+                        max_val = 1 / (sigma * math.sqrt(2 * math.pi))
                         gaussian_sum /= max_val
 
                     k3[i_loc, i, j, k, :] = gaussian_sum
@@ -828,8 +853,8 @@ class LMBTR(MBTR):
             n2 = self.k2["grid"]["n"]
             j = numbers[1]
             m = j
-            start = int(m*n2)
-            end = int((m+1)*n2)
+            start = int(m * n2)
+            end = int((m + 1) * n2)
 
         # k=3
         if len(numbers) == 3:
@@ -847,16 +872,16 @@ class LMBTR(MBTR):
             # from [0, 0, 0], and ends at [n_elem, n_elem, n_elem], looping the
             # elements in the order k, i, j.
             if j == 0:
-                m = k + i*n_elem - i*(i+1)/2
+                m = k + i * n_elem - i * (i + 1) / 2
             else:
-                m = n_elem*(n_elem+1)/2+(j-1)*n_elem + k
+                m = n_elem * (n_elem + 1) / 2 + (j - 1) * n_elem + k
 
             offset = 0
             if self.k2 is not None:
                 n2 = self.k2["grid"]["n"]
-                offset += n_elem*n2
-            start = int(offset+m*n3)
-            end = int(offset+(m+1)*n3)
+                offset += n_elem * n2
+            start = int(offset + m * n3)
+            end = int(offset + (m + 1) * n3)
 
         return slice(start, end)
 

@@ -42,6 +42,7 @@ class ACSF(Descriptor):
         neural network potentials", Jörg Behler, The Journal of Chemical
         Physics, 134, 074106 (2011), https://doi.org/10.1063/1.3553717
     """
+
     def __init__(
         self,
         rcut,
@@ -51,7 +52,7 @@ class ACSF(Descriptor):
         g5_params=None,
         species=None,
         periodic=False,
-        sparse=False
+        sparse=False,
     ):
         """
         Args:
@@ -129,7 +130,7 @@ class ACSF(Descriptor):
         else:
             inp = list(zip(system, positions))
 
-        # Determine if the outputs have a fixed size 
+        # Determine if the outputs have a fixed size
         n_features = self.get_number_of_features()
         static_size = None
         if positions is None:
@@ -154,11 +155,14 @@ class ACSF(Descriptor):
                         if len(i_job[0]) != n_centers:
                             return False
             return True
+
         if is_static():
             static_size = [n_centers, n_features]
 
         # Create in parallel
-        output = self.create_parallel(inp, self.create_single, n_jobs, static_size, verbose=verbose)
+        output = self.create_parallel(
+            inp, self.create_single, n_jobs, static_size, verbose=verbose
+        )
 
         return output
 
@@ -196,7 +200,9 @@ class ACSF(Descriptor):
         if calculate_all and not self.periodic:
             n_atoms = len(system)
             all_pos = system.get_positions()
-            dmat = dscribe.utils.geometry.get_adjacency_matrix(self.rcut, all_pos, all_pos)
+            dmat = dscribe.utils.geometry.get_adjacency_matrix(
+                self.rcut, all_pos, all_pos
+            )
         # Otherwise the amount of pairwise distances that are calculated is
         # kept at minimum. Only distances for the given indices (and possibly
         # the secondary neighbours if G4 is specified) are calculated.
@@ -205,18 +211,24 @@ class ACSF(Descriptor):
             # the distance from central atom needs to be considered in extending
             # the system.
             if self.periodic:
-                system = dscribe.utils.geometry.get_extended_system(system, self.rcut, return_cell_indices=False)
+                system = dscribe.utils.geometry.get_extended_system(
+                    system, self.rcut, return_cell_indices=False
+                )
 
             # First calculate distances from specified centers to all other
             # atoms. This is already enough for everything else except G4.
             n_atoms = len(system)
             all_pos = system.get_positions()
             central_pos = all_pos[indices]
-            dmat_primary = dscribe.utils.geometry.get_adjacency_matrix(self.rcut, central_pos, all_pos)
+            dmat_primary = dscribe.utils.geometry.get_adjacency_matrix(
+                self.rcut, central_pos, all_pos
+            )
 
             # Create symmetric full matrix
             col = dmat_primary.col
-            row = [indices[x] for x in dmat_primary.row]  # Fix row numbering to refer to original system
+            row = [
+                indices[x] for x in dmat_primary.row
+            ]  # Fix row numbering to refer to original system
             data = dmat_primary.data
             dmat = coo_matrix((data, (row, col)), shape=(n_atoms, n_atoms))
             dmat_lil = dmat.tolil()
@@ -226,27 +238,37 @@ class ACSF(Descriptor):
             if len(self.g4_params) != 0:
                 neighbour_indices = np.unique(col)
                 neigh_pos = all_pos[neighbour_indices]
-                dmat_secondary = dscribe.utils.geometry.get_adjacency_matrix(self.rcut, neigh_pos, neigh_pos)
-                col = [neighbour_indices[x] for x in dmat_secondary.col]  # Fix col numbering to refer to original system
-                row = [neighbour_indices[x] for x in dmat_secondary.row]  # Fix row numbering to refer to original system
+                dmat_secondary = dscribe.utils.geometry.get_adjacency_matrix(
+                    self.rcut, neigh_pos, neigh_pos
+                )
+                col = [
+                    neighbour_indices[x] for x in dmat_secondary.col
+                ]  # Fix col numbering to refer to original system
+                row = [
+                    neighbour_indices[x] for x in dmat_secondary.row
+                ]  # Fix row numbering to refer to original system
                 dmat_lil[row, col] = np.array(dmat_secondary.data)
 
             dmat = dmat_lil.tocoo()
 
         # Get adjancency list and full dense adjancency matrix
         neighbours = dscribe.utils.geometry.get_adjacency_list(dmat)
-        dmat_dense = np.full((n_atoms, n_atoms), sys.float_info.max)  # The non-neighbor values are treated as "infinitely far".
+        dmat_dense = np.full(
+            (n_atoms, n_atoms), sys.float_info.max
+        )  # The non-neighbor values are treated as "infinitely far".
         dmat_dense[dmat.col, dmat.row] = dmat.data
 
         # Calculate ACSF with C++
-        output = np.array(self.acsf_wrapper.create(
-            system.get_positions(),
-            system.get_atomic_numbers(),
-            dmat_dense,
-            neighbours,
-            indices,
-        ), 
-        dtype = np.float32)
+        output = np.array(
+            self.acsf_wrapper.create(
+                system.get_positions(),
+                system.get_atomic_numbers(),
+                dmat_dense,
+                neighbours,
+                indices,
+            ),
+            dtype=np.float32,
+        )
 
         # Check if there are types that have not been declared
         self.check_atomic_numbers(system.get_atomic_numbers())
@@ -320,9 +342,13 @@ class ACSF(Descriptor):
             # Check dimensions
             value = np.array(value, dtype=np.float)
             if value.ndim != 2:
-                raise ValueError("g2_params should be a matrix with two columns (eta, Rs).")
+                raise ValueError(
+                    "g2_params should be a matrix with two columns (eta, Rs)."
+                )
             if value.shape[1] != 2:
-                raise ValueError("g2_params should be a matrix with two columns (eta, Rs).")
+                raise ValueError(
+                    "g2_params should be a matrix with two columns (eta, Rs)."
+                )
 
             # Check that etas are positive
             if np.any(value[:, 0] <= 0) is True:
@@ -372,9 +398,13 @@ class ACSF(Descriptor):
             # Check dimensions
             value = np.array(value, dtype=np.float)
             if value.ndim != 2:
-                raise ValueError("g4_params should be a matrix with three columns (eta, zeta, lambda).")
+                raise ValueError(
+                    "g4_params should be a matrix with three columns (eta, zeta, lambda)."
+                )
             if value.shape[1] != 3:
-                raise ValueError("g4_params should be a matrix with three columns (eta, zeta, lambda).")
+                raise ValueError(
+                    "g4_params should be a matrix with three columns (eta, zeta, lambda)."
+                )
 
             # Check that etas are positive
             if np.any(value[:, 2] <= 0) is True:
@@ -401,9 +431,13 @@ class ACSF(Descriptor):
             # Check dimensions
             value = np.array(value, dtype=np.float)
             if value.ndim != 2:
-                raise ValueError("g5_params should be a matrix with three columns (eta, zeta, lambda).")
+                raise ValueError(
+                    "g5_params should be a matrix with three columns (eta, zeta, lambda)."
+                )
             if value.shape[1] != 3:
-                raise ValueError("g5_params should be a matrix with three columns (eta, zeta, lambda).")
+                raise ValueError(
+                    "g5_params should be a matrix with three columns (eta, zeta, lambda)."
+                )
 
             # Check that etas are positive
             if np.any(value[:, 2] <= 0) is True:

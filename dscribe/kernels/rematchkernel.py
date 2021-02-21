@@ -39,7 +39,18 @@ class REMatchKernel(LocalSimilarityKernel):
     Phys.  Chem. Chem. Phys. 18, 13754 (2016),
     https://doi.org/10.1039/c6cp00415f
     """
-    def __init__(self, alpha=0.1, threshold=1e-6, metric="linear", gamma=None, degree=3, coef0=1, kernel_params=None, normalize_kernel=True):
+
+    def __init__(
+        self,
+        alpha=0.1,
+        threshold=1e-6,
+        metric="linear",
+        gamma=None,
+        degree=3,
+        coef0=1,
+        kernel_params=None,
+        normalize_kernel=True,
+    ):
         """
         Args:
             alpha(float): Parameter controlling the entropic penalty. Values
@@ -96,7 +107,7 @@ class REMatchKernel(LocalSimilarityKernel):
         # converge balancing vectors u and v
         itercount = 0
         error = 1
-        while (error > self.threshold):
+        while error > self.threshold:
             uprev = u
             vprev = v
             v = np.divide(em, np.dot(K.T, u))
@@ -104,14 +115,16 @@ class REMatchKernel(LocalSimilarityKernel):
 
             # determine error every now and then
             if itercount % 5:
-                error = np.sum((u - uprev) ** 2) / np.sum((u) ** 2) + np.sum((v - vprev) ** 2) / np.sum((v) ** 2)
+                error = np.sum((u - uprev) ** 2) / np.sum((u) ** 2) + np.sum(
+                    (v - vprev) ** 2
+                ) / np.sum((v) ** 2)
             itercount += 1
 
         # using Tr(X.T Y) = Sum[ij](Xij * Yij)
         # P.T * C
         # P_ij = u_i * v_j * K_ij
-        pity = np.multiply( np.multiply(K, u.reshape((-1, 1))), v)
+        pity = np.multiply(np.multiply(K, u.reshape((-1, 1))), v)
 
-        glosim = np.sum( np.multiply( pity, localkernel))
+        glosim = np.sum(np.multiply(pity, localkernel))
 
         return glosim

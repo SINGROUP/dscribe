@@ -26,7 +26,16 @@ class LocalSimilarityKernel(ABC):
     """An abstract base class for all kernels that use the similarity of local
     atomic environments to compute a global similarity measure.
     """
-    def __init__(self, metric, gamma=None, degree=3, coef0=1, kernel_params=None, normalize_kernel=True):
+
+    def __init__(
+        self,
+        metric,
+        gamma=None,
+        degree=3,
+        coef0=1,
+        kernel_params=None,
+        normalize_kernel=True,
+    ):
         """
         Args:
             metric(string or callable): The pairwise metric used for
@@ -78,7 +87,6 @@ class LocalSimilarityKernel(ABC):
         if y is None:
             y = x
             symmetric = True
-
 
         # First calculate the "raw" pairwise similarity of atomic environments
         n_x = len(x)
@@ -172,11 +180,8 @@ class LocalSimilarityKernel(ABC):
         if callable(self.metric):
             params = self.kernel_params or {}
         else:
-            params = {"gamma": self.gamma,
-                      "degree": self.degree,
-                      "coef0": self.coef0}
-        return pairwise_kernels(X, Y, metric=self.metric,
-                                filter_params=True, **params)
+            params = {"gamma": self.gamma, "degree": self.degree, "coef0": self.coef0}
+        return pairwise_kernels(X, Y, metric=self.metric, filter_params=True, **params)
 
     @abstractmethod
     def get_global_similarity(self, localkernel):

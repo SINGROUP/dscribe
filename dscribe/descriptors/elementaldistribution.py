@@ -35,12 +35,13 @@ class ElementalDistribution(Descriptor):
     Discrete distributions are assumed to be integer values, and you only need
     to specify the values.
     """
+
     def __init__(
-            self,
-            properties,
-            flatten=True,
-            sparse=True,
-            ):
+        self,
+        properties,
+        flatten=True,
+        sparse=True,
+    ):
         """
         Args:
             properties(dict): Contains a description of the elemental property
@@ -77,8 +78,9 @@ class ElementalDistribution(Descriptor):
             valid_dist_types = set(["continuous", "discrete"])
             if dist_type not in valid_dist_types:
                 raise ValueError(
-                    "Please specify the distribution type. Valid options are: {}"
-                    .format(valid_dist_types)
+                    "Please specify the distribution type. Valid options are: {}".format(
+                        valid_dist_types
+                    )
                 )
             i_min = prop_grid.get("min")
             i_max = prop_grid.get("max")
@@ -98,10 +100,10 @@ class ElementalDistribution(Descriptor):
                 true_min = values.min()
                 true_max = values.max()
                 if i_min is None:
-                    i_min = true_min - 3*std
+                    i_min = true_min - 3 * std
                     prop_grid["min"] = i_min
                 if i_max is None:
-                    i_max = true_max + 3*std
+                    i_max = true_max + 3 * std
                     prop_grid["max"] = i_max
                 if i_min >= i_max:
                     raise ValueError(
@@ -114,8 +116,7 @@ class ElementalDistribution(Descriptor):
                     )
                 if n <= 0:
                     raise ValueError(
-                        "The number of grid points must be a non-negative "
-                        "integer."
+                        "The number of grid points must be a non-negative " "integer."
                     )
                 if true_min < prop_grid["min"]:
                     raise ValueError(
@@ -172,7 +173,7 @@ class ElementalDistribution(Descriptor):
             n = prop["n"]
             x = np.linspace(minimum, maximum, n)
         elif dist_type == "discrete":
-            x = np.arange(minimum, maximum+1)
+            x = np.arange(minimum, maximum + 1)
         return x
 
     def create(self, system):
@@ -200,7 +201,7 @@ class ElementalDistribution(Descriptor):
                 values = prop["values"]
                 centers = np.array([values[x] for x in occurrence.keys()])
                 pdf = self.gaussian_sum(centers, weights, minimum, maximum, std, n)
-                distribution[0, index:index+n] += pdf
+                distribution[0, index : index + n] += pdf
                 index += n
             elif dist_type == "discrete":
                 n = prop["n"]
@@ -211,7 +212,7 @@ class ElementalDistribution(Descriptor):
                     value = values[element]
                     hist_index = value - minimum
                     hist[hist_index] = occ
-                distribution[0, index:index+n] += hist
+                distribution[0, index : index + n] += hist
                 index += n
 
         return distribution
@@ -239,16 +240,16 @@ class ElementalDistribution(Descriptor):
         Returns:
             Value of the gaussian sums on the given grid.
         """
-        max_val = 1/(std*math.sqrt(2*math.pi))
+        max_val = 1 / (std * math.sqrt(2 * math.pi))
 
-        dx = (maximum - minimum)/(n-1)
-        x = np.linspace(minimum-dx/2, maximum+dx/2, n+1)
+        dx = (maximum - minimum) / (n - 1)
+        x = np.linspace(minimum - dx / 2, maximum + dx / 2, n + 1)
         pos = x[np.newaxis, :] - centers[:, np.newaxis]
-        y = weights[:, np.newaxis]*1/2*(1 + erf(pos/(std*np.sqrt(2))))
+        y = weights[:, np.newaxis] * 1 / 2 * (1 + erf(pos / (std * np.sqrt(2))))
         f = np.sum(y, axis=0)
         f /= max_val
         f_rolled = np.roll(f, -1)
-        pdf = (f_rolled - f)[0:-1]/dx  # PDF is the derivative of CDF
+        pdf = (f_rolled - f)[0:-1] / dx  # PDF is the derivative of CDF
 
         return pdf
 

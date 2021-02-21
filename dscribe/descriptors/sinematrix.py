@@ -44,6 +44,7 @@ class SineMatrix(MatrixDescriptor):
         Chemistry, (2015),
         https://doi.org/10.1002/qua.24917
     """
+
     def create(self, system, n_jobs=1, verbose=False):
         """Return the Sine matrix for the given systems.
 
@@ -71,7 +72,7 @@ class SineMatrix(MatrixDescriptor):
         # Combine input arguments
         inp = [(i_sys,) for i_sys in system]
 
-        # Determine if the outputs have a fixed size 
+        # Determine if the outputs have a fixed size
         n_features = self.get_number_of_features()
         if self._flatten:
             static_size = [n_features]
@@ -81,7 +82,9 @@ class SineMatrix(MatrixDescriptor):
             static_size = [self.n_atoms_max, self.n_atoms_max]
 
         # Create in parallel
-        output = self.create_parallel(inp, self.create_single, n_jobs, static_size, verbose=verbose)
+        output = self.create_parallel(
+            inp, self.create_single, n_jobs, static_size, verbose=verbose
+        )
 
         return output
 
@@ -111,18 +114,18 @@ class SineMatrix(MatrixDescriptor):
 
         # Calculate phi
         arg_to_sin = np.pi * np.dot(diff_tensor, B_inv)
-        phi = np.linalg.norm(np.dot(np.sin(arg_to_sin)**2, B), axis=2)
+        phi = np.linalg.norm(np.dot(np.sin(arg_to_sin) ** 2, B), axis=2)
 
-        with np.errstate(divide='ignore'):
+        with np.errstate(divide="ignore"):
             phi = np.reciprocal(phi)
 
         # Calculate Z_i*Z_j
         q = system.get_atomic_numbers()
-        qiqj = q[None, :]*q[:, None]
+        qiqj = q[None, :] * q[:, None]
         np.fill_diagonal(phi, 0)
 
         # Multiply by charges
-        smat = qiqj*phi
+        smat = qiqj * phi
 
         # Set diagonal
         np.fill_diagonal(smat, 0.5 * q ** 2.4)

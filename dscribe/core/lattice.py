@@ -22,6 +22,7 @@ class Lattice(object):
     general, it is assumed that length units are in Angstroms and angles are in
     degrees unless otherwise stated.
     """
+
     def __init__(self, matrix):
         """
         Create a lattice from any sequence of 9 numbers. Note that the sequence
@@ -96,7 +97,6 @@ class Lattice(object):
         Lengths of the lattice vectors, i.e. (a, b, c)
         """
         return tuple(self.lengths)
-
 
     @property
     def reciprocal_lattice(self):
@@ -173,24 +173,29 @@ class Lattice(object):
         arange = arange[:, None] * np.array([1, 0, 0])[None, :]
         brange = brange[:, None] * np.array([0, 1, 0])[None, :]
         crange = crange[:, None] * np.array([0, 0, 1])[None, :]
-        images = arange[:, None, None] + brange[None, :, None] +\
-            crange[None, None, :]
+        images = arange[:, None, None] + brange[None, :, None] + crange[None, None, :]
 
-        shifted_coords = fcoords[:, None, None, None, :] + \
-            images[None, :, :, :, :]
+        shifted_coords = fcoords[:, None, None, None, :] + images[None, :, :, :, :]
 
         cart_coords = self.get_cartesian_coords(fcoords)
         cart_images = self.get_cartesian_coords(images)
-        coords = cart_coords[:, None, None, None, :] + \
-            cart_images[None, :, :, :, :]
+        coords = cart_coords[:, None, None, None, :] + cart_images[None, :, :, :, :]
         coords -= center[None, None, None, None, :]
         coords **= 2
         d_2 = np.sum(coords, axis=4)
 
         within_r = np.where(d_2 <= r ** 2)
         if zip_results:
-            return list(zip(shifted_coords[within_r], np.sqrt(d_2[within_r]),
-                            indices[within_r[0]]))
+            return list(
+                zip(
+                    shifted_coords[within_r],
+                    np.sqrt(d_2[within_r]),
+                    indices[within_r[0]],
+                )
+            )
         else:
-            return shifted_coords[within_r], np.sqrt(d_2[within_r]), \
-                indices[within_r[0]]
+            return (
+                shifted_coords[within_r],
+                np.sqrt(d_2[within_r]),
+                indices[within_r[0]],
+            )

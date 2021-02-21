@@ -62,7 +62,18 @@ class EwaldSumMatrix(MatrixDescriptor):
         https://doi.org/10.1080/08927022.2013.840898
         "
     """
-    def create(self, system, accuracy=1e-5, w=1, rcut=None, gcut=None, a=None, n_jobs=1, verbose=False):
+
+    def create(
+        self,
+        system,
+        accuracy=1e-5,
+        w=1,
+        rcut=None,
+        gcut=None,
+        a=None,
+        n_jobs=1,
+        verbose=False,
+    ):
         """Return the Coulomb matrix for the given systems.
 
         Args:
@@ -112,18 +123,23 @@ class EwaldSumMatrix(MatrixDescriptor):
         # Combine input arguments
         n_samples = len(system)
         if np.ndim(accuracy) == 0:
-            accuracy = n_samples*[accuracy]
+            accuracy = n_samples * [accuracy]
         if np.ndim(w) == 0:
-            w = n_samples*[w]
+            w = n_samples * [w]
         if np.ndim(rcut) == 0:
-            rcut = n_samples*[rcut]
+            rcut = n_samples * [rcut]
         if np.ndim(gcut) == 0:
-            gcut = n_samples*[gcut]
+            gcut = n_samples * [gcut]
         if np.ndim(a) == 0:
-            a = n_samples*[a]
-        inp = [(i_sys, i_accuracy, i_w, i_rcut, i_gcut, i_a) for i_sys, i_accuracy, i_w, i_rcut, i_gcut, i_a in zip(system, accuracy, w, rcut, gcut, a)]
+            a = n_samples * [a]
+        inp = [
+            (i_sys, i_accuracy, i_w, i_rcut, i_gcut, i_a)
+            for i_sys, i_accuracy, i_w, i_rcut, i_gcut, i_a in zip(
+                system, accuracy, w, rcut, gcut, a
+            )
+        ]
 
-        # Determine if the outputs have a fixed size 
+        # Determine if the outputs have a fixed size
         n_features = self.get_number_of_features()
         if self._flatten:
             static_size = [n_features]
@@ -133,7 +149,9 @@ class EwaldSumMatrix(MatrixDescriptor):
             static_size = [self.n_atoms_max, self.n_atoms_max]
 
         # Create in parallel
-        output = self.create_parallel(inp, self.create_single, n_jobs, static_size, verbose=verbose)
+        output = self.create_parallel(
+            inp, self.create_single, n_jobs, static_size, verbose=verbose
+        )
 
         return output
 
@@ -160,7 +178,7 @@ class EwaldSumMatrix(MatrixDescriptor):
                 Corresponds to the standard deviation of the Gaussians.
         """
         self.q = system.get_atomic_numbers()
-        self.q_squared = self.q**2
+        self.q_squared = self.q ** 2
         self.n_atoms = len(system)
         self.volume = system.get_volume()
         self.sqrt_pi = math.sqrt(np.pi)
@@ -183,7 +201,7 @@ class EwaldSumMatrix(MatrixDescriptor):
             )
 
         self.a = a
-        self.a_squared = self.a**2
+        self.a_squared = self.a ** 2
         self.gcut = gcut
         self.rcut = rcut
 
@@ -232,17 +250,17 @@ class EwaldSumMatrix(MatrixDescriptor):
         # element + upper diagonal part.
         q = self.q
         matself = np.zeros((self.n_atoms, self.n_atoms))
-        diag = q**2
+        diag = q ** 2
         np.fill_diagonal(matself, diag)
-        matself *= -self.a/self.sqrt_pi
+        matself *= -self.a / self.sqrt_pi
 
         # Calculate the interaction energy between constant neutralizing
         # background charge. On the diagonal this is defined by
-        matbg = 2*q[None, :]*q[:, None].astype(float)
-        matbg *= -np.pi/(2*self.volume*self.a_squared)
+        matbg = 2 * q[None, :] * q[:, None].astype(float)
+        matbg *= -np.pi / (2 * self.volume * self.a_squared)
 
         # The diagonal terms are divided by two
-        diag = np.diag(matbg)/2
+        diag = np.diag(matbg) / 2
         np.fill_diagonal(matbg, diag)
 
         correction_matrix = matself + matbg
@@ -275,10 +293,7 @@ class EwaldSumMatrix(MatrixDescriptor):
 
             # Get points that are within the real space cutoff
             nfcoords, rij, js = lattice.get_points_in_sphere(
-                fcoords,
-                coords[i],
-                self.rcut,
-                zip_results=False
+                fcoords, coords[i], self.rcut, zip_results=False
             )
             # Remove the rii term, because a charge does not interact with
             # itself (but does interact with copies of itself).
@@ -298,7 +313,7 @@ class EwaldSumMatrix(MatrixDescriptor):
                 ereal[k, i] = np.sum(new_ereals[js == k])
 
         # The diagonal terms are divided by two
-        diag = np.diag(ereal)/2
+        diag = np.diag(ereal) / 2
         np.fill_diagonal(ereal, diag)
 
         return ereal
@@ -325,10 +340,9 @@ class EwaldSumMatrix(MatrixDescriptor):
         coords = system.get_positions()
 
         # Get the reciprocal lattice points within the reciprocal space cutoff
-        rcp_latt = 2*np.pi*system.get_reciprocal_cell()
+        rcp_latt = 2 * np.pi * system.get_reciprocal_cell()
         rcp_latt = Lattice(rcp_latt)
-        recip_nn = rcp_latt.get_points_in_sphere([[0, 0, 0]], [0, 0, 0],
-                                                 self.gcut)
+        recip_nn = rcp_latt.get_points_in_sphere([[0, 0, 0]], [0, 0, 0], self.gcut)
 
         # Ignore the terms with G=0.
         frac_coords = [fcoords for (fcoords, dist, i) in recip_nn if dist != 0]
@@ -354,7 +368,7 @@ class EwaldSumMatrix(MatrixDescriptor):
         erecip *= 4 * math.pi / self.volume * qiqj * 2 ** 0.5
 
         # The diagonal terms are divided by two
-        diag = np.diag(erecip)/2
+        diag = np.diag(erecip) / 2
         np.fill_diagonal(erecip, diag)
 
         return erecip

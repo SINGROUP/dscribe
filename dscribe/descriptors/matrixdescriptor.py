@@ -23,9 +23,17 @@ from abc import abstractmethod
 
 
 class MatrixDescriptor(Descriptor):
-    """A common base class for two-body matrix-like descriptors.
-    """
-    def __init__(self, n_atoms_max, permutation="sorted_l2", sigma=None, seed=None, flatten=True, sparse=False):
+    """A common base class for two-body matrix-like descriptors."""
+
+    def __init__(
+        self,
+        n_atoms_max,
+        permutation="sorted_l2",
+        sigma=None,
+        seed=None,
+        flatten=True,
+        sparse=False,
+    ):
         """
         Args:
             n_atoms_max (int): The maximum nuber of atoms that any of the
@@ -58,20 +66,18 @@ class MatrixDescriptor(Descriptor):
 
         # Check parameter validity
         if n_atoms_max <= 0:
-            raise ValueError(
-                "The maximum number of atoms must be a positive number."
-            )
-        perm_options = set(("sorted_l2", "none", "eigenspectrum", "eigenspectrum", "random"))
+            raise ValueError("The maximum number of atoms must be a positive number.")
+        perm_options = set(
+            ("sorted_l2", "none", "eigenspectrum", "eigenspectrum", "random")
+        )
         if permutation not in perm_options:
             raise ValueError(
                 "Unknown permutation option given. Please use one of the "
                 "following: {}.".format(", ".join(perm_options))
             )
 
-        if not sigma and permutation == 'random':
-            raise ValueError(
-                "Please specify sigma as a degree of random noise."
-            )
+        if not sigma and permutation == "random":
+            raise ValueError("Please specify sigma as a degree of random noise.")
 
         # Raise a value error if sigma specified, but random sorting not used
         if permutation != "random" and sigma is not None:
@@ -172,7 +178,9 @@ class MatrixDescriptor(Descriptor):
         abs_values = np.absolute(eigenvalues)
 
         # Get ordering that sorts the values by absolute value
-        sorted_indices = np.argsort(abs_values)[::-1]  # This sorts the list in descending order in place
+        sorted_indices = np.argsort(abs_values)[
+            ::-1
+        ]  # This sorts the list in descending order in place
         eigenvalues = eigenvalues[sorted_indices]
 
         return eigenvalues
@@ -189,7 +197,7 @@ class MatrixDescriptor(Descriptor):
         # Pad with zeros
         n_atoms = array.shape[0]
         n_dim = array.ndim
-        padded = np.pad(array, [(0, self.n_atoms_max-n_atoms)]*n_dim, 'constant')
+        padded = np.pad(array, [(0, self.n_atoms_max - n_atoms)] * n_dim, "constant")
 
         return padded
 
@@ -203,7 +211,7 @@ class MatrixDescriptor(Descriptor):
         if self.permutation == "eigenspectrum":
             return int(self.n_atoms_max)
         else:
-            return int(self.n_atoms_max**2)
+            return int(self.n_atoms_max ** 2)
 
     def sort_randomly(self, matrix, sigma):
         """

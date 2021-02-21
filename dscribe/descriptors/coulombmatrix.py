@@ -46,6 +46,7 @@ class CoulombMatrix(MatrixDescriptor):
         Prediction", Gregoire Montavon et. al, Advances in Neural Information
         Processing Systems 25 (NIPS 2012)
     """
+
     def create(self, system, n_jobs=1, verbose=False):
         """Return the Coulomb matrix for the given systems.
 
@@ -73,7 +74,7 @@ class CoulombMatrix(MatrixDescriptor):
         # Combine input arguments
         inp = [(i_sys,) for i_sys in system]
 
-        # Determine if the outputs have a fixed size 
+        # Determine if the outputs have a fixed size
         n_features = self.get_number_of_features()
         if self._flatten:
             static_size = [n_features]
@@ -83,7 +84,9 @@ class CoulombMatrix(MatrixDescriptor):
             static_size = [self.n_atoms_max, self.n_atoms_max]
 
         # Create in parallel
-        output = self.create_parallel(inp, self.create_single, n_jobs, static_size, verbose=verbose)
+        output = self.create_parallel(
+            inp, self.create_single, n_jobs, static_size, verbose=verbose
+        )
 
         return output
 
@@ -101,10 +104,10 @@ class CoulombMatrix(MatrixDescriptor):
 
         # Calculate offdiagonals
         q = system.get_atomic_numbers()
-        qiqj = q[None, :]*q[:, None]
+        qiqj = q[None, :] * q[:, None]
         idmat = system.get_inverse_distance_matrix()
         np.fill_diagonal(idmat, 0)
-        cmat = qiqj*idmat
+        cmat = qiqj * idmat
 
         # Set diagonal
         np.fill_diagonal(cmat, 0.5 * q ** 2.4)

@@ -26,20 +26,20 @@ def get_basis_gto(rcut, nmax):
     for l in range(0, 10):
         # The alphas are calculated so that the GTOs will decay to the set
         # threshold value at their respective cutoffs
-        alphas = -np.log(threshold/np.power(a, l))/a**2
+        alphas = -np.log(threshold / np.power(a, l)) / a ** 2
 
         # Calculate the overlap matrix
         m = np.zeros((alphas.shape[0], alphas.shape[0]))
         m[:, :] = alphas
         m = m + m.transpose()
-        S = 0.5*gamma(l + 3.0/2.0)*m**(-l-3.0/2.0)
+        S = 0.5 * gamma(l + 3.0 / 2.0) * m ** (-l - 3.0 / 2.0)
 
         # Get the beta factors that orthonormalize the set with Löwdin
         # orthonormalization
         betas = sqrtm(inv(S))
 
         # If the result is complex, the calculation is currently halted.
-        if (betas.dtype == np.complex128):
+        if betas.dtype == np.complex128:
             raise ValueError(
                 "Could not calculate normalization factors for the radial "
                 "basis in the domain of real numbers. Lowering the number of "
@@ -51,5 +51,6 @@ def get_basis_gto(rcut, nmax):
         betas_full[l, :, :] = betas
 
     return alphas_full, betas_full
+
 
 print(get_basis_gto(5, 10))

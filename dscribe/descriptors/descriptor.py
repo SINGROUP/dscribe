@@ -27,8 +27,8 @@ from joblib import Parallel, delayed
 
 
 class Descriptor(ABC):
-    """An abstract base class for all descriptors.
-    """
+    """An abstract base class for all descriptors."""
+
     def __init__(self, periodic, flatten, sparse):
         """
         Args:
@@ -83,9 +83,7 @@ class Descriptor(ABC):
             else:
                 return System.from_atoms(system)
         else:
-            raise ValueError(
-                "Invalid system with type: '{}'.".format(type(system))
-            )
+            raise ValueError("Invalid system with type: '{}'.".format(type(system)))
 
     @property
     def sparse(self):
@@ -158,11 +156,12 @@ class Descriptor(ABC):
         if not zs.issubset(self._atomic_number_set):
             raise ValueError(
                 "The following atomic numbers are not defined "
-                "for this descriptor: {}"
-                .format(zs.difference(self._atomic_number_set))
+                "for this descriptor: {}".format(zs.difference(self._atomic_number_set))
             )
 
-    def create_parallel(self, inp, func, n_jobs, static_size=None, verbose=False, prefer="processes"):
+    def create_parallel(
+        self, inp, func, n_jobs, static_size=None, verbose=False, prefer="processes"
+    ):
         """Used to parallelize the descriptor creation across multiple systems.
 
         Args:
@@ -204,7 +203,9 @@ class Descriptor(ABC):
         n_samples = len(inp)
         is_sparse = self._sparse
         k, m = divmod(n_samples, n_jobs)
-        jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
+        jobs = (
+            inp[i * k + min(i, m) : (i + 1) * k + min(i + 1, m)] for i in range(n_jobs)
+        )
 
         def create_multiple(arguments, func, is_sparse, index, verbose):
             """This is the function that is called by each job but with
@@ -242,7 +243,7 @@ class Descriptor(ABC):
                         results[i_sample] = i_out
 
                 if verbose:
-                    current_percent = (i_sample+1)/n_samples*100
+                    current_percent = (i_sample + 1) / n_samples * 100
                     if current_percent >= old_percent + 1:
                         old_percent = current_percent
                         print("Process {0}: {1:.1f} %".format(index, current_percent))
@@ -254,7 +255,10 @@ class Descriptor(ABC):
 
             return (results, index)
 
-        vec_lists = Parallel(n_jobs=n_jobs, prefer=prefer)(delayed(create_multiple)(i_args, func, is_sparse, index, verbose) for index, i_args in enumerate(jobs))
+        vec_lists = Parallel(n_jobs=n_jobs, prefer=prefer)(
+            delayed(create_multiple)(i_args, func, is_sparse, index, verbose)
+            for index, i_args in enumerate(jobs)
+        )
 
         # Restore the calculation order. If using the threading backend, the
         # input order may have been lost.
@@ -296,7 +300,6 @@ class Descriptor(ABC):
         return results
 
     def _check_system_list(self, lst):
-
         def iterable(obj):
             try:
                 iter(obj)
@@ -304,10 +307,13 @@ class Descriptor(ABC):
                 return False
             else:
                 return True
+
         if iterable(lst):
             self.get_system(lst[0])
         else:
-           raise ValueError("Input is neither System, nor ase.Atoms object nor is it iterable")
+            raise ValueError(
+                "Input is neither System, nor ase.Atoms object nor is it iterable"
+            )
         return
 
     def _get_indices(self, n_atoms, include, exclude):
@@ -351,8 +357,18 @@ class Descriptor(ABC):
             raise ValueError("Please include at least one atom.")
 
         return displaced_indices
-        
-    def derivatives_parallel(self, inp, func, n_jobs, derivatives_shape, descriptor_shape, return_descriptor, verbose=False, prefer="processes"):
+
+    def derivatives_parallel(
+        self,
+        inp,
+        func,
+        n_jobs,
+        derivatives_shape,
+        descriptor_shape,
+        return_descriptor,
+        verbose=False,
+        prefer="processes",
+    ):
         """Used to parallelize the descriptor creation across multiple systems.
 
         Args:
@@ -396,7 +412,9 @@ class Descriptor(ABC):
         n_samples = len(inp)
         is_sparse = self._sparse
         k, m = divmod(n_samples, n_jobs)
-        jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
+        jobs = (
+            inp[i * k + min(i, m) : (i + 1) * k + min(i + 1, m)] for i in range(n_jobs)
+        )
 
         def create_multiple_with_descriptor(arguments, func, index, verbose):
             """This is the function that is called by each job but with
@@ -439,7 +457,7 @@ class Descriptor(ABC):
                     derivatives.append(i_der)
 
                 if verbose:
-                    current_percent = (i_sample+1)/n_samples*100
+                    current_percent = (i_sample + 1) / n_samples * 100
                     if current_percent >= old_percent + 1:
                         old_percent = current_percent
                         print("Process {0}: {1:.1f} %".format(index, current_percent))
@@ -473,20 +491,24 @@ class Descriptor(ABC):
                     derivatives.append(i_der)
 
                 if verbose:
-                    current_percent = (i_sample+1)/n_samples*100
+                    current_percent = (i_sample + 1) / n_samples * 100
                     if current_percent >= old_percent + 1:
                         old_percent = current_percent
                         print("Process {0}: {1:.1f} %".format(index, current_percent))
 
-                return ((derivatives, ), index)
+                return ((derivatives,), index)
 
         if return_descriptor:
-            vec_lists = Parallel(n_jobs=n_jobs, prefer=prefer)(delayed(create_multiple_with_descriptor)(
-                i_args, func, index, verbose) for index, i_args in enumerate(jobs)
+            vec_lists = Parallel(n_jobs=n_jobs, prefer=prefer)(
+                delayed(create_multiple_with_descriptor)(i_args, func, index, verbose)
+                for index, i_args in enumerate(jobs)
             )
         else:
-            vec_lists = Parallel(n_jobs=n_jobs, prefer=prefer)(delayed(create_multiple_without_descriptor)(
-                i_args, func, index, verbose) for index, i_args in enumerate(jobs)
+            vec_lists = Parallel(n_jobs=n_jobs, prefer=prefer)(
+                delayed(create_multiple_without_descriptor)(
+                    i_args, func, index, verbose
+                )
+                for index, i_args in enumerate(jobs)
             )
 
         # Restore the calculation order. If using the threading backend, the
@@ -513,4 +535,3 @@ class Descriptor(ABC):
             return (derivatives, descriptors)
 
         return derivatives
-
