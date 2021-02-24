@@ -165,7 +165,12 @@ class EwaldSumMatrix(MatrixDescriptor):
 
         # Create in parallel
         output = self.create_parallel(
-            inp, self.create_single, n_jobs, static_size, only_physical_cores, verbose=verbose
+            inp,
+            self.create_single,
+            n_jobs,
+            static_size,
+            only_physical_cores,
+            verbose=verbose,
         )
 
         return output

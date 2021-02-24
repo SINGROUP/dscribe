@@ -204,7 +204,9 @@ class LMBTR(MBTR):
             )
         self._normalization = value
 
-    def create(self, system, positions=None, n_jobs=1, only_physical_cores=False, verbose=False):
+    def create(
+        self, system, positions=None, n_jobs=1, only_physical_cores=False, verbose=False
+    ):
         """Return the LMBTR output for the given systems and given positions.
 
         Args:
@@ -285,7 +287,12 @@ class LMBTR(MBTR):
 
         # Create in parallel
         output = self.create_parallel(
-            inp, self.create_single, n_jobs, static_size, only_physical_cores, verbose=verbose
+            inp,
+            self.create_single,
+            n_jobs,
+            static_size,
+            only_physical_cores,
+            verbose=verbose,
         )
 
         return output

@@ -92,7 +92,9 @@ class ACSF(Descriptor):
         self.g5_params = g5_params
         self.rcut = rcut
 
-    def create(self, system, positions=None, n_jobs=1, only_physical_cores=False, verbose=False):
+    def create(
+        self, system, positions=None, n_jobs=1, only_physical_cores=False, verbose=False
+    ):
         """Return the ACSF output for the given systems and given positions.
 
         Args:
@@ -168,7 +170,12 @@ class ACSF(Descriptor):
 
         # Create in parallel
         output = self.create_parallel(
-            inp, self.create_single, n_jobs, static_size, only_physical_cores, verbose=verbose
+            inp,
+            self.create_single,
+            n_jobs,
+            static_size,
+            only_physical_cores,
+            verbose=verbose,
         )
 
         return output

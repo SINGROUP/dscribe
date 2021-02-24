@@ -262,7 +262,9 @@ class SOAP(Descriptor):
         d = np.zeros((n_centers, n_types, n, (lMax + 1) * (lMax + 1)), dtype=np.float64)
         return d
 
-    def create(self, system, positions=None, n_jobs=1, only_physical_cores=False, verbose=False):
+    def create(
+        self, system, positions=None, n_jobs=1, only_physical_cores=False, verbose=False
+    ):
         """Return the SOAP output for the given systems and given positions.
 
         Args:
@@ -348,7 +350,12 @@ class SOAP(Descriptor):
 
         # Create in parallel
         output = self.create_parallel(
-            inp, self.create_single, n_jobs, static_size, only_physical_cores, verbose=verbose
+            inp,
+            self.create_single,
+            n_jobs,
+            static_size,
+            only_physical_cores,
+            verbose=verbose,
         )
 
         return output
@@ -702,10 +709,7 @@ class SOAP(Descriptor):
         def is_variable(inp):
             for job in inp[1:]:
                 i_der_shape, i_desc_shape = get_shapes(job)
-                if (
-                    i_der_shape != derivatives_shape
-                    or i_desc_shape != descriptor_shape
-                ):
+                if i_der_shape != derivatives_shape or i_desc_shape != descriptor_shape:
                     return True
             return False
 
@@ -722,7 +726,7 @@ class SOAP(Descriptor):
             descriptor_shape,
             return_descriptor,
             only_physical_cores,
-            verbose=verbose
+            verbose=verbose,
         )
 
         return output

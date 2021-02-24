@@ -47,7 +47,7 @@ H2O = molecule("H2O")
 
 
 class SoapDerivativeTests(unittest.TestCase):
-    def test_interface(self):
+    def test_exceptions(self):
         """Test the derivative interface."""
         soap = SOAP(
             species=[1, 8],
@@ -80,9 +80,13 @@ class SoapDerivativeTests(unittest.TestCase):
             soap_poly.derivatives(H2, positions=positions, method="analytical")
         soap_poly.derivatives(H2, positions=positions, method="numerical")
 
+        # Test that trying to provide both include and exclude raises an error
+        with self.assertRaises(ValueError):
+            soap.derivatives(H2, include=[0], exclude=[1])
+
         # Test that trying to get derivatives with periodicicity on raises an
         # exception
-        soap_poly = SOAP(
+        soap = SOAP(
             species=[1, 8],
             rcut=3,
             nmax=2,
@@ -92,23 +96,24 @@ class SoapDerivativeTests(unittest.TestCase):
             periodic=True,
         )
         with self.assertRaises(ValueError):
-            soap_poly.derivatives(H2, positions=positions, method="analytical")
+            soap.derivatives(H2, positions=positions, method="analytical")
         with self.assertRaises(ValueError):
-            soap_poly.derivatives(H2, positions=positions, method="numerical")
+            soap.derivatives(H2, positions=positions, method="numerical")
 
-        # Test that asking for descriptor works
-        s = soap.derivatives(
-            H2O, positions=positions, method="analytical", return_descriptor=False
+    def test_return_descriptor(self):
+        soap = SOAP(
+            species=[1, 8],
+            rcut=3,
+            nmax=2,
+            lmax=0,
+            rbf="gto",
+            sparse=False,
+            periodic=False,
         )
-        D, d = soap.derivatives(
-            H2O, positions=positions, method="analytical", return_descriptor=True
-        )
-        s = soap.derivatives(
-            H2O, positions=positions, method="numerical", return_descriptor=False
-        )
-        D, d = soap.derivatives(
-            H2O, positions=positions, method="numerical", return_descriptor=True
-        )
+        s = soap.derivatives(H2O, method="analytical", return_descriptor=False)
+        D, d = soap.derivatives(H2O, method="analytical", return_descriptor=True)
+        s = soap.derivatives(H2O, method="numerical", return_descriptor=False)
+        D, d = soap.derivatives(H2O, method="numerical", return_descriptor=True)
 
     def test_include(self):
         soap = SOAP(
@@ -607,11 +612,10 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    SoapDerivativeTests().test_parallel_dense()
-    # suites = []
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
-    # suites.append(
-        # unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests)
-    # )
-    # alltests = unittest.TestSuite(suites)
-    # result = unittest.TextTestRunner(verbosity=0).run(alltests)
+    suites = []
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
+    suites.append(
+        unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests)
+    )
+    alltests = unittest.TestSuite(suites)
+    result = unittest.TextTestRunner(verbosity=0).run(alltests)

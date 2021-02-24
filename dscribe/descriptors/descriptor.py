@@ -161,7 +161,14 @@ class Descriptor(ABC):
             )
 
     def create_parallel(
-        self, inp, func, n_jobs, static_size=None, only_physical_cores=False, verbose=False, prefer="processes"
+        self,
+        inp,
+        func,
+        n_jobs,
+        static_size=None,
+        only_physical_cores=False,
+        verbose=False,
+        prefer="processes",
     ):
         """Used to parallelize the descriptor creation across multiple systems.
 
@@ -347,14 +354,14 @@ class Descriptor(ABC):
         """
         if include is None and exclude is None:
             displaced_indices = np.arange(n_atoms)
-        elif include is not None:
+        elif include is not None and exclude is None:
             include = np.asarray(include)
             if np.any(include > n_atoms - 1) or np.any(include < 0):
                 raise ValueError(
                     "Invalid index provided in the list of included atoms."
                 )
             displaced_indices = include
-        elif exclude is not None:
+        elif exclude is not None and include is None:
             exclude = np.asarray(list(set(exclude)))
             if np.any(exclude > n_atoms - 1) or np.any(exclude < 0):
                 raise ValueError(
