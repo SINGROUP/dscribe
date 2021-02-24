@@ -243,7 +243,16 @@ class LMBTR(MBTR):
 
         # Combine input arguments
         n_samples = len(system)
-        inp = list(zip(system, positions))
+        if positions is None:
+            inp = [(i_sys,) for i_sys in system]
+        else:
+            n_pos = len(positions)
+            if n_pos != n_samples:
+                raise ValueError(
+                    "The given number of positions does not match the given"
+                    "number of systems."
+                )
+            inp = list(zip(system, positions))
 
         # Determine if the outputs have a fixed size
         n_features = self.get_number_of_features()
@@ -284,7 +293,7 @@ class LMBTR(MBTR):
     def create_single(
         self,
         system,
-        positions,
+        positions=None,
     ):
         """Return the local many-body tensor representation for the given
         system and positions.
@@ -295,7 +304,8 @@ class LMBTR(MBTR):
                 which local_mbtr is created. Can be a list of integer numbers
                 or a list of xyz-coordinates. If integers provided, the atoms
                 at that index are used as centers. If positions provided, new
-                atoms are added at that position.
+                atoms are added at that position. If no positions are provided,
+                all atoms in the system will be used as centers.
 
         Returns:
             1D ndarray: The local many-body tensor representations of given
