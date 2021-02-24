@@ -20,9 +20,11 @@ Changelog
           sparse output. <tutorials/sparse>`
         - The output shapes have been made more consistent across different
           descriptors: global descriptors now produce 1D flattened output and
-          local descriptors produce 2D flattened output. Whenever multiple
-          systems are given, an additional dimension is added that runs across
-          the different systems.
+          local descriptors produce 2D flattened output for a single system.
+          Whenever multiple systems are given, an additional dimension is added
+          that runs across the different systems: for systems with the same
+          number of atoms the output becomes a five-dimensional array,
+          otherwise the output becomes a list of four-dimensional arrays.
 
  - 0.4.0:
     - Fixes:

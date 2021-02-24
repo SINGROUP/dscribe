@@ -201,12 +201,13 @@
 <span class="sd">    Discrete distributions are assumed to be integer values, and you only need</span>
 <span class="sd">    to specify the values.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span>
-            <span class="n">properties</span><span class="p">,</span>
-            <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">sparse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="p">):</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">properties</span><span class="p">,</span>
+        <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">sparse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            properties(dict): Contains a description of the elemental property</span>
@@ -243,8 +244,9 @@
             <span class="n">valid_dist_types</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s2">&quot;continuous&quot;</span><span class="p">,</span> <span class="s2">&quot;discrete&quot;</span><span class="p">])</span>
             <span class="k">if</span> <span class="n">dist_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_dist_types</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;Please specify the distribution type. Valid options are: </span><span class="si">{}</span><span class="s2">&quot;</span>
-                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">valid_dist_types</span><span class="p">)</span>
+                    <span class="s2">&quot;Please specify the distribution type. Valid options are: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">valid_dist_types</span>
+                    <span class="p">)</span>
                 <span class="p">)</span>
             <span class="n">i_min</span> <span class="o">=</span> <span class="n">prop_grid</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;min&quot;</span><span class="p">)</span>
             <span class="n">i_max</span> <span class="o">=</span> <span class="n">prop_grid</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;max&quot;</span><span class="p">)</span>
@@ -264,10 +266,10 @@
                 <span class="n">true_min</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
                 <span class="n">true_max</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
                 <span class="k">if</span> <span class="n">i_min</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">i_min</span> <span class="o">=</span> <span class="n">true_min</span> <span class="o">-</span> <span class="mi">3</span><span class="o">*</span><span class="n">std</span>
+                    <span class="n">i_min</span> <span class="o">=</span> <span class="n">true_min</span> <span class="o">-</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">std</span>
                     <span class="n">prop_grid</span><span class="p">[</span><span class="s2">&quot;min&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">i_min</span>
                 <span class="k">if</span> <span class="n">i_max</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">i_max</span> <span class="o">=</span> <span class="n">true_max</span> <span class="o">+</span> <span class="mi">3</span><span class="o">*</span><span class="n">std</span>
+                    <span class="n">i_max</span> <span class="o">=</span> <span class="n">true_max</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">std</span>
                     <span class="n">prop_grid</span><span class="p">[</span><span class="s2">&quot;max&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">i_max</span>
                 <span class="k">if</span> <span class="n">i_min</span> <span class="o">&gt;=</span> <span class="n">i_max</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -280,8 +282,7 @@
                     <span class="p">)</span>
                 <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="s2">&quot;The number of grid points must be a non-negative &quot;</span>
-                        <span class="s2">&quot;integer.&quot;</span>
+                        <span class="s2">&quot;The number of grid points must be a non-negative &quot;</span> <span class="s2">&quot;integer.&quot;</span>
                     <span class="p">)</span>
                 <span class="k">if</span> <span class="n">true_min</span> <span class="o">&lt;</span> <span class="n">prop_grid</span><span class="p">[</span><span class="s2">&quot;min&quot;</span><span class="p">]:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -338,7 +339,7 @@
             <span class="n">n</span> <span class="o">=</span> <span class="n">prop</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span>
             <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">minimum</span><span class="p">,</span> <span class="n">maximum</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">dist_type</span> <span class="o">==</span> <span class="s2">&quot;discrete&quot;</span><span class="p">:</span>
-            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">minimum</span><span class="p">,</span> <span class="n">maximum</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">minimum</span><span class="p">,</span> <span class="n">maximum</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">x</span></div>
 
 <div class="viewcode-block" id="ElementalDistribution.create"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.elementaldistribution.ElementalDistribution.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
@@ -366,7 +367,7 @@
                 <span class="n">values</span> <span class="o">=</span> <span class="n">prop</span><span class="p">[</span><span class="s2">&quot;values&quot;</span><span class="p">]</span>
                 <span class="n">centers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">values</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">occurrence</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span>
                 <span class="n">pdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gaussian_sum</span><span class="p">(</span><span class="n">centers</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">minimum</span><span class="p">,</span> <span class="n">maximum</span><span class="p">,</span> <span class="n">std</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
-                <span class="n">distribution</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span><span class="n">index</span><span class="o">+</span><span class="n">n</span><span class="p">]</span> <span class="o">+=</span> <span class="n">pdf</span>
+                <span class="n">distribution</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">index</span> <span class="p">:</span> <span class="n">index</span> <span class="o">+</span> <span class="n">n</span><span class="p">]</span> <span class="o">+=</span> <span class="n">pdf</span>
                 <span class="n">index</span> <span class="o">+=</span> <span class="n">n</span>
             <span class="k">elif</span> <span class="n">dist_type</span> <span class="o">==</span> <span class="s2">&quot;discrete&quot;</span><span class="p">:</span>
                 <span class="n">n</span> <span class="o">=</span> <span class="n">prop</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span>
@@ -377,7 +378,7 @@
                     <span class="n">value</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="n">element</span><span class="p">]</span>
                     <span class="n">hist_index</span> <span class="o">=</span> <span class="n">value</span> <span class="o">-</span> <span class="n">minimum</span>
                     <span class="n">hist</span><span class="p">[</span><span class="n">hist_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">occ</span>
-                <span class="n">distribution</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span><span class="n">index</span><span class="o">+</span><span class="n">n</span><span class="p">]</span> <span class="o">+=</span> <span class="n">hist</span>
+                <span class="n">distribution</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">index</span> <span class="p">:</span> <span class="n">index</span> <span class="o">+</span> <span class="n">n</span><span class="p">]</span> <span class="o">+=</span> <span class="n">hist</span>
                 <span class="n">index</span> <span class="o">+=</span> <span class="n">n</span>
 
         <span class="k">return</span> <span class="n">distribution</span></div>
@@ -405,16 +406,16 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Value of the gaussian sums on the given grid.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">max_val</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="n">std</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+        <span class="n">max_val</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">std</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
 
-        <span class="n">dx</span> <span class="o">=</span> <span class="p">(</span><span class="n">maximum</span> <span class="o">-</span> <span class="n">minimum</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">minimum</span><span class="o">-</span><span class="n">dx</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">maximum</span><span class="o">+</span><span class="n">dx</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="p">(</span><span class="n">maximum</span> <span class="o">-</span> <span class="n">minimum</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">minimum</span> <span class="o">-</span> <span class="n">dx</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">maximum</span> <span class="o">+</span> <span class="n">dx</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">pos</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">centers</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
-        <span class="n">y</span> <span class="o">=</span> <span class="n">weights</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">*</span><span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">erf</span><span class="p">(</span><span class="n">pos</span><span class="o">/</span><span class="p">(</span><span class="n">std</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">))))</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">weights</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">erf</span><span class="p">(</span><span class="n">pos</span> <span class="o">/</span> <span class="p">(</span><span class="n">std</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">))))</span>
         <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">f</span> <span class="o">/=</span> <span class="n">max_val</span>
         <span class="n">f_rolled</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">pdf</span> <span class="o">=</span> <span class="p">(</span><span class="n">f_rolled</span> <span class="o">-</span> <span class="n">f</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">dx</span>  <span class="c1"># PDF is the derivative of CDF</span>
+        <span class="n">pdf</span> <span class="o">=</span> <span class="p">(</span><span class="n">f_rolled</span> <span class="o">-</span> <span class="n">f</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">dx</span>  <span class="c1"># PDF is the derivative of CDF</span>
 
         <span class="k">return</span> <span class="n">pdf</span></div>
 

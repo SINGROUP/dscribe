@@ -232,9 +232,8 @@ systems are provided, upon which the job is split between multiple processes.</p
 <h2>Layout<a class="headerlink" href="#layout" title="Permalink to this headline">¶</a></h2>
 <p>We have decided to retain as much structure in the derivative output as
 possible. This approach allows you to better understand the different
-components, and you still have the option to re-arrange the output as you wish
-before your application. The derivative output for a single system is organized
-as follows:</p>
+components, and you still have the option to re-arrange the output as you wish.
+The derivative output for a single system is organized as follows:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>For global descriptors the output is three-dimensional: <code class="code docutils literal notranslate"><span class="pre">[n_atoms,</span> <span class="pre">3,</span> <span class="pre">n_features]</span></code></p></li>
@@ -253,9 +252,10 @@ these dimension with either <a class="reference external" href="https://numpy.or
 completely custom layouts with some looping.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Notice, that if you calculate the derivatives of several systems in one
-function call, one additional dimension is added in front which loops through
-the given systems.</p>
+<p>Whenever multiple systems are provided, an additional dimension is added
+that runs across the different systems: for systems with the same number of
+atoms the output becomes a five-dimensional array, otherwise the output
+becomes a list of four-dimensional arrays.</p>
 </div>
 <p>If you use the default dense output, the derivatives will be stored in a
 regular numpy array. Notice that the size of these dense arrays grows very
@@ -263,7 +263,7 @@ quickly with system size. A good way around this is to use sparse arrays
 instead by using the <code class="code docutils literal notranslate"><span class="pre">sparse=True</span></code> option in the descriptor constructor.
 In large systems the derivative array will typically become quite sparse,
 giving significant savings in storage space. Since 0.5.x we have opted to use
-the <a class="reference external" href="https://sparse.pydata.org/en/stable/">sparse library</a>-library for all of
+the <a class="reference external" href="https://sparse.pydata.org/en/stable/">scipy sparse</a>-library for all of
 our sparse outputs, see the <a class="reference internal" href="machine_learning/forces_and_energies.html"><span class="doc">documentation page on sparse output</span></a>.</p>
 </div>
 </div>

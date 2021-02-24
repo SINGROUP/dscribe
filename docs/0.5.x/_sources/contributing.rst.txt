@@ -26,18 +26,13 @@ implementation to DScribe:
 
 Code style guideline
 --------------------
-  - The code is designed to run on Python 3 only from version 0.2.8 onwards.
-  - The code style is guided by PEP 8, but ignoring the following:
-
-     - E123: Closing bracket does not match indentation of opening bracket’s line
-     - E124: Closing bracket does not match visual indentation
-     - E126: Continuation line over-indented for hanging indent
-     - E128: Continuation line under-indented for visual indent
-     - E226: Missing whitespace around operator
-     - E501: Line too long (82 > 79 characters)
-     - E401: Module level import not at top of file
-
-  - Spaces over tabs. The indent size is 4 spaces.
+  - We follow the `Black code style
+    <https://black.readthedocs.io/en/stable/?badge=stable>`_,
+    which is a PEP 8 compliant. The good thing about Black is that you can
+    simply run the autoformatter to ensure that you fullfill the code style.
+    Before committing (or using pre-commit hooks), you should simply run the
+    automatic formatting. Any unformatted code will be caught by the style
+    checks in CI.
   - Classes and functions should be documented by following the `Google style guide
     <http://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings>`_
     that can be interpreted by the `sphinx Napoleon-extension

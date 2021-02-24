@@ -191,25 +191,27 @@
 <span class="sd">    various time-consuming quantities that can be shared when creating multiple</span>
 <span class="sd">    descriptors.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span>
-            <span class="n">symbols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">positions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">numbers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">tags</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">momenta</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">masses</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">magmoms</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">charges</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">scaled_positions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">cell</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">pbc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">celldisp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">constraint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">calculator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">info</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">wyckoff_positions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">equivalent_atoms</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">symbols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">positions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">numbers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">tags</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">momenta</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">masses</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">magmoms</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">charges</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">scaled_positions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">cell</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">pbc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">celldisp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">constraint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">calculator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">info</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">wyckoff_positions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">equivalent_atoms</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">symbols</span><span class="p">,</span>
@@ -226,7 +228,8 @@
             <span class="n">celldisp</span><span class="p">,</span>
             <span class="n">constraint</span><span class="p">,</span>
             <span class="n">calculator</span><span class="p">,</span>
-            <span class="n">info</span><span class="p">)</span>
+            <span class="n">info</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">wyckoff_positions</span> <span class="o">=</span> <span class="n">wyckoff_positions</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">equivalent_atoms</span> <span class="o">=</span> <span class="n">equivalent_atoms</span>
@@ -237,8 +240,7 @@
 
 <div class="viewcode-block" id="System.from_atoms"><a class="viewcode-back" href="../../../doc/dscribe.core.html#dscribe.core.system.System.from_atoms">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_atoms</span><span class="p">(</span><span class="n">atoms</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Creates a System object from ASE.Atoms object.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Creates a System object from ASE.Atoms object.&quot;&quot;&quot;</span>
         <span class="n">system</span> <span class="o">=</span> <span class="n">System</span><span class="p">(</span>
             <span class="n">symbols</span><span class="o">=</span><span class="n">atoms</span><span class="o">.</span><span class="n">get_chemical_symbols</span><span class="p">(),</span>
             <span class="n">positions</span><span class="o">=</span><span class="n">atoms</span><span class="o">.</span><span class="n">get_positions</span><span class="p">(),</span>
@@ -252,13 +254,13 @@
             <span class="n">celldisp</span><span class="o">=</span><span class="n">atoms</span><span class="o">.</span><span class="n">get_celldisp</span><span class="p">(),</span>
             <span class="n">constraint</span><span class="o">=</span><span class="n">atoms</span><span class="o">.</span><span class="n">_get_constraints</span><span class="p">(),</span>
             <span class="n">calculator</span><span class="o">=</span><span class="n">atoms</span><span class="o">.</span><span class="n">get_calculator</span><span class="p">(),</span>
-            <span class="n">info</span><span class="o">=</span><span class="n">atoms</span><span class="o">.</span><span class="n">info</span><span class="p">)</span>
+            <span class="n">info</span><span class="o">=</span><span class="n">atoms</span><span class="o">.</span><span class="n">info</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">system</span></div>
 
 <div class="viewcode-block" id="System.get_cell_inverse"><a class="viewcode-back" href="../../../doc/dscribe.core.html#dscribe.core.system.System.get_cell_inverse">[docs]</a>    <span class="k">def</span> <span class="nf">get_cell_inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get the matrix inverse of the lattice matrix.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Get the matrix inverse of the lattice matrix.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cell_inverse</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_cell_inverse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_cell</span><span class="p">())</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cell_inverse</span></div>
@@ -275,9 +277,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            numpy.ndarray: The scaled positions</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">fractional</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">get_cell</span><span class="p">()</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
-            <span class="n">positions</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">fractional</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_cell</span><span class="p">()</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">positions</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
 
         <span class="k">if</span> <span class="n">wrap</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">periodic</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pbc</span><span class="p">):</span>
@@ -325,9 +325,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_displacement_tensor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 
             <span class="n">D</span><span class="p">,</span> <span class="n">D_len</span> <span class="o">=</span> <span class="n">ase</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_distances</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">get_positions</span><span class="p">(),</span>
-                <span class="n">cell</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_cell</span><span class="p">(),</span>
-                <span class="n">pbc</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_pbc</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get_positions</span><span class="p">(),</span> <span class="n">cell</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_cell</span><span class="p">(),</span> <span class="n">pbc</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_pbc</span><span class="p">()</span>
             <span class="p">)</span>
 
             <span class="c1"># Figure out the smallest basis vector and set it as</span>
@@ -366,7 +364,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">get_displacement_tensor</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distance_matrix</span></div>
 
-<div class="viewcode-block" id="System.get_distance_matrix_within_radius"><a class="viewcode-back" href="../../../doc/dscribe.core.html#dscribe.core.system.System.get_distance_matrix_within_radius">[docs]</a>    <span class="k">def</span> <span class="nf">get_distance_matrix_within_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_type</span><span class="o">=</span><span class="s2">&quot;coo_matrix&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="System.get_distance_matrix_within_radius"><a class="viewcode-back" href="../../../doc/dscribe.core.html#dscribe.core.system.System.get_distance_matrix_within_radius">[docs]</a>    <span class="k">def</span> <span class="nf">get_distance_matrix_within_radius</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_type</span><span class="o">=</span><span class="s2">&quot;coo_matrix&quot;</span>
+    <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculates a sparse distance matrix by only considering distances</span>
 <span class="sd">        within a certain cutoff. Uses a k-d tree to reach O(n log(N)) time</span>
 <span class="sd">        complexity.</span>
@@ -382,7 +382,9 @@
 <span class="sd">            dok_matrix | np.array | coo_matrix | dict: Symmetric sparse 2D</span>
 <span class="sd">            matrix containing the pairwise distances.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">dmat</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_adjacency_matrix</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_positions</span><span class="p">(),</span> <span class="n">pos2</span><span class="o">=</span><span class="n">pos</span><span class="p">,</span> <span class="n">output_type</span><span class="o">=</span><span class="n">output_type</span><span class="p">)</span>
+        <span class="n">dmat</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_adjacency_matrix</span><span class="p">(</span>
+            <span class="n">radius</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_positions</span><span class="p">(),</span> <span class="n">pos2</span><span class="o">=</span><span class="n">pos</span><span class="p">,</span> <span class="n">output_type</span><span class="o">=</span><span class="n">output_type</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="n">dmat</span></div>
 
 <div class="viewcode-block" id="System.get_inverse_distance_matrix"><a class="viewcode-back" href="../../../doc/dscribe.core.html#dscribe.core.system.System.get_inverse_distance_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">get_inverse_distance_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -403,7 +405,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inverse_distance_matrix</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">distance_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_distance_matrix</span><span class="p">()</span>
-            <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">):</span>
+            <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">):</span>
                 <span class="n">inv_distance_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reciprocal</span><span class="p">(</span><span class="n">distance_matrix</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_inverse_distance_matrix</span> <span class="o">=</span> <span class="n">inv_distance_matrix</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inverse_distance_matrix</span></div>

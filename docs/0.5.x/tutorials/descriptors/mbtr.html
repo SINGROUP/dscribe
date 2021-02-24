@@ -376,7 +376,7 @@ where <cite>x</cite> is the perimeter of the triangle formed by the tree atoms.<
 <p>The call syntax for the create-function is as follows:</p>
 <dl class="py method">
 <dt id="dscribe.descriptors.mbtr.MBTR.create">
-<code class="sig-prename descclassname">MBTR.</code><code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dscribe/descriptors/mbtr.html#MBTR.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.create" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">MBTR.</code><code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">only_physical_cores</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dscribe/descriptors/mbtr.html#MBTR.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return MBTR output for the given systems.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -384,7 +384,14 @@ where <cite>x</cite> is the perimeter of the triangle formed by the tree atoms.<
 <li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> or list of <code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code>) – One or many atomic structures.</p></li>
 <li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
 the calculation across samples. Defaults to serial calculation
-with n_jobs=1.</p></li>
+with n_jobs=1. If a negative number is given, the used cpus
+will be calculated with, n_cpus + n_jobs, where n_cpus is the
+amount of CPUs as reported by the OS. With only_physical_cores
+you can control which types of CPUs are counted in n_cpus.</p></li>
+<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If a negative n_jobs is given,
+determines which types of CPUs are used in calculating the
+number of jobs. If set to False (default), also virtual CPUs
+are counted.  If set to True, only physical CPUs are counted.</p></li>
 <li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Controls whether to print the progress of each job
 into to the console.</p></li>
 </ul>

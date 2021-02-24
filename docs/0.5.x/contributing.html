@@ -200,22 +200,13 @@ Follow the structure of the existing tutorials.</p></li>
 <div class="section" id="code-style-guideline">
 <h2>Code style guideline<a class="headerlink" href="#code-style-guideline" title="Permalink to this headline">¶</a></h2>
 <blockquote>
-<div><ul>
-<li><p>The code is designed to run on Python 3 only from version 0.2.8 onwards.</p></li>
-<li><p>The code style is guided by PEP 8, but ignoring the following:</p>
-<blockquote>
 <div><ul class="simple">
-<li><p>E123: Closing bracket does not match indentation of opening bracket’s line</p></li>
-<li><p>E124: Closing bracket does not match visual indentation</p></li>
-<li><p>E126: Continuation line over-indented for hanging indent</p></li>
-<li><p>E128: Continuation line under-indented for visual indent</p></li>
-<li><p>E226: Missing whitespace around operator</p></li>
-<li><p>E501: Line too long (82 &gt; 79 characters)</p></li>
-<li><p>E401: Module level import not at top of file</p></li>
-</ul>
-</div></blockquote>
-</li>
-<li><p>Spaces over tabs. The indent size is 4 spaces.</p></li>
+<li><p>We follow the <a class="reference external" href="https://black.readthedocs.io/en/stable/?badge=stable">Black code style</a>,
+which is a PEP 8 compliant. The good thing about Black is that you can
+simply run the autoformatter to ensure that you fullfill the code style.
+Before committing (or using pre-commit hooks), you should simply run the
+automatic formatting. Any unformatted code will be caught by the style
+checks in CI.</p></li>
 <li><p>Classes and functions should be documented by following the <a class="reference external" href="http://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings">Google style guide</a>
 that can be interpreted by the <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html">sphinx Napoleon-extension</a></p></li>
 </ul>

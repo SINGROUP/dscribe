@@ -189,9 +189,17 @@
 
 
 <div class="viewcode-block" id="MatrixDescriptor"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.matrixdescriptor.MatrixDescriptor">[docs]</a><span class="k">class</span> <span class="nc">MatrixDescriptor</span><span class="p">(</span><span class="n">Descriptor</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;A common base class for two-body matrix-like descriptors.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_atoms_max</span><span class="p">,</span> <span class="n">permutation</span><span class="o">=</span><span class="s2">&quot;sorted_l2&quot;</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A common base class for two-body matrix-like descriptors.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">n_atoms_max</span><span class="p">,</span>
+        <span class="n">permutation</span><span class="o">=</span><span class="s2">&quot;sorted_l2&quot;</span><span class="p">,</span>
+        <span class="n">sigma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            n_atoms_max (int): The maximum nuber of atoms that any of the</span>
@@ -224,20 +232,18 @@
 
         <span class="c1"># Check parameter validity</span>
         <span class="k">if</span> <span class="n">n_atoms_max</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;The maximum number of atoms must be a positive number.&quot;</span>
-            <span class="p">)</span>
-        <span class="n">perm_options</span> <span class="o">=</span> <span class="nb">set</span><span class="p">((</span><span class="s2">&quot;sorted_l2&quot;</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="s2">&quot;eigenspectrum&quot;</span><span class="p">,</span> <span class="s2">&quot;eigenspectrum&quot;</span><span class="p">,</span> <span class="s2">&quot;random&quot;</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The maximum number of atoms must be a positive number.&quot;</span><span class="p">)</span>
+        <span class="n">perm_options</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
+            <span class="p">(</span><span class="s2">&quot;sorted_l2&quot;</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="s2">&quot;eigenspectrum&quot;</span><span class="p">,</span> <span class="s2">&quot;eigenspectrum&quot;</span><span class="p">,</span> <span class="s2">&quot;random&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
         <span class="k">if</span> <span class="n">permutation</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">perm_options</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;Unknown permutation option given. Please use one of the &quot;</span>
                 <span class="s2">&quot;following: </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">perm_options</span><span class="p">))</span>
             <span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">sigma</span> <span class="ow">and</span> <span class="n">permutation</span> <span class="o">==</span> <span class="s1">&#39;random&#39;</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Please specify sigma as a degree of random noise.&quot;</span>
-            <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">sigma</span> <span class="ow">and</span> <span class="n">permutation</span> <span class="o">==</span> <span class="s2">&quot;random&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Please specify sigma as a degree of random noise.&quot;</span><span class="p">)</span>
 
         <span class="c1"># Raise a value error if sigma specified, but random sorting not used</span>
         <span class="k">if</span> <span class="n">permutation</span> <span class="o">!=</span> <span class="s2">&quot;random&quot;</span> <span class="ow">and</span> <span class="n">sigma</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -337,8 +343,9 @@
         <span class="c1"># Remove sign</span>
         <span class="n">abs_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">absolute</span><span class="p">(</span><span class="n">eigenvalues</span><span class="p">)</span>
 
-        <span class="c1"># Get ordering that sorts the values by absolute value</span>
-        <span class="n">sorted_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">abs_values</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># This sorts the list in descending order in place</span>
+        <span class="c1"># Get ordering that sorts the values in descending order by absolute</span>
+        <span class="c1"># value</span>
+        <span class="n">sorted_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">abs_values</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">eigenvalues</span> <span class="o">=</span> <span class="n">eigenvalues</span><span class="p">[</span><span class="n">sorted_indices</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="n">eigenvalues</span></div>
@@ -355,7 +362,7 @@
         <span class="c1"># Pad with zeros</span>
         <span class="n">n_atoms</span> <span class="o">=</span> <span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">n_dim</span> <span class="o">=</span> <span class="n">array</span><span class="o">.</span><span class="n">ndim</span>
-        <span class="n">padded</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_atoms_max</span><span class="o">-</span><span class="n">n_atoms</span><span class="p">)]</span><span class="o">*</span><span class="n">n_dim</span><span class="p">,</span> <span class="s1">&#39;constant&#39;</span><span class="p">)</span>
+        <span class="n">padded</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_atoms_max</span> <span class="o">-</span> <span class="n">n_atoms</span><span class="p">)]</span> <span class="o">*</span> <span class="n">n_dim</span><span class="p">,</span> <span class="s2">&quot;constant&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">padded</span></div>
 
@@ -369,7 +376,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">permutation</span> <span class="o">==</span> <span class="s2">&quot;eigenspectrum&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_atoms_max</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_atoms_max</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span></div>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_atoms_max</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MatrixDescriptor.sort_randomly"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.sort_randomly">[docs]</a>    <span class="k">def</span> <span class="nf">sort_randomly</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">matrix</span><span class="p">,</span> <span class="n">sigma</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>

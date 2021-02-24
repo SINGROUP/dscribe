@@ -269,18 +269,19 @@
 <span class="sd">    This implementation does not support the use of a non-identity correlation</span>
 <span class="sd">    matrix.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="MBTR.__init__"><a class="viewcode-back" href="../../../tutorials/descriptors/mbtr.html#dscribe.descriptors.mbtr.MBTR.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span>
-            <span class="n">species</span><span class="p">,</span>
-            <span class="n">periodic</span><span class="p">,</span>
-            <span class="n">k1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">k2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">k3</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">normalize_gaussians</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">normalization</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
-            <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span>
-            <span class="p">):</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">species</span><span class="p">,</span>
+        <span class="n">periodic</span><span class="p">,</span>
+        <span class="n">k1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">k2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">k3</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">normalize_gaussians</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">normalization</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
+        <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            species (iterable): The chemical species as a list of atomic</span>
@@ -408,9 +409,7 @@
         <span class="c1"># Make the n into integer</span>
         <span class="n">grid</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">grid</span><span class="p">[</span><span class="s2">&quot;min&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">grid</span><span class="p">[</span><span class="s2">&quot;max&quot;</span><span class="p">]:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;The min value should be smaller than the max value.&quot;</span>
-            <span class="p">)</span></div>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The min value should be smaller than the max value.&quot;</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">k1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -424,7 +423,11 @@
             <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="n">valid_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">((</span><span class="s2">&quot;geometry&quot;</span><span class="p">,</span> <span class="s2">&quot;grid&quot;</span><span class="p">,</span> <span class="s2">&quot;weighting&quot;</span><span class="p">))</span>
                 <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_keys</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The given setup contains the following invalid key: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;The given setup contains the following invalid key: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="n">key</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
 
             <span class="c1"># Check the geometry function</span>
             <span class="n">geom_func</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;function&quot;</span><span class="p">)</span>
@@ -463,7 +466,11 @@
             <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="n">valid_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">((</span><span class="s2">&quot;geometry&quot;</span><span class="p">,</span> <span class="s2">&quot;grid&quot;</span><span class="p">,</span> <span class="s2">&quot;weighting&quot;</span><span class="p">))</span>
                 <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_keys</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The given setup contains the following invalid key: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;The given setup contains the following invalid key: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="n">key</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
 
             <span class="c1"># Check the geometry function</span>
             <span class="n">geom_func</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;function&quot;</span><span class="p">)</span>
@@ -492,7 +499,9 @@
                             <span class="n">param</span> <span class="o">=</span> <span class="n">weighting</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pname</span><span class="p">)</span>
                             <span class="k">if</span> <span class="n">param</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                                    <span class="s2">&quot;Missing value for &#39;</span><span class="si">{}</span><span class="s2">&#39; in the k=2 weighting.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                                    <span class="s2">&quot;Missing value for &#39;</span><span class="si">{}</span><span class="s2">&#39; in the k=2 weighting.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                        <span class="n">key</span>
+                                    <span class="p">)</span>
                                 <span class="p">)</span>
 
             <span class="c1"># Check grid</span>
@@ -511,7 +520,11 @@
             <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="n">valid_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">((</span><span class="s2">&quot;geometry&quot;</span><span class="p">,</span> <span class="s2">&quot;grid&quot;</span><span class="p">,</span> <span class="s2">&quot;weighting&quot;</span><span class="p">))</span>
                 <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_keys</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The given setup contains the following invalid key: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;The given setup contains the following invalid key: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="n">key</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
 
             <span class="c1"># Check the geometry function</span>
             <span class="n">geom_func</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;function&quot;</span><span class="p">)</span>
@@ -540,7 +553,9 @@
                             <span class="n">param</span> <span class="o">=</span> <span class="n">weighting</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pname</span><span class="p">)</span>
                             <span class="k">if</span> <span class="n">param</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                                    <span class="s2">&quot;Missing value for &#39;</span><span class="si">{}</span><span class="s2">&#39; in the k=3 weighting.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                                    <span class="s2">&quot;Missing value for &#39;</span><span class="si">{}</span><span class="s2">&#39; in the k=3 weighting.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                        <span class="n">key</span>
+                                    <span class="p">)</span>
                                 <span class="p">)</span>
 
             <span class="c1"># Check grid</span>
@@ -632,14 +647,21 @@
 
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MBTR.create"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="MBTR.create"><a class="viewcode-back" href="../../../tutorials/descriptors/mbtr.html#dscribe.descriptors.mbtr.MBTR.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">only_physical_cores</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return MBTR output for the given systems.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or many atomic structures.</span>
 <span class="sd">            n_jobs (int): Number of parallel jobs to instantiate. Parallellizes</span>
 <span class="sd">                the calculation across samples. Defaults to serial calculation</span>
-<span class="sd">                with n_jobs=1.</span>
+<span class="sd">                with n_jobs=1. If a negative number is given, the used cpus</span>
+<span class="sd">                will be calculated with, n_cpus + n_jobs, where n_cpus is the</span>
+<span class="sd">                amount of CPUs as reported by the OS. With only_physical_cores</span>
+<span class="sd">                you can control which types of CPUs are counted in n_cpus.</span>
+<span class="sd">            only_physical_cores (bool): If a negative n_jobs is given,</span>
+<span class="sd">                determines which types of CPUs are used in calculating the</span>
+<span class="sd">                number of jobs. If set to False (default), also virtual CPUs</span>
+<span class="sd">                are counted.  If set to True, only physical CPUs are counted.</span>
 <span class="sd">            verbose(bool): Controls whether to print the progress of each job</span>
 <span class="sd">                into to the console.</span>
 
@@ -660,14 +682,21 @@
         <span class="c1"># Combine input arguments</span>
         <span class="n">inp</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i_sys</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i_sys</span> <span class="ow">in</span> <span class="n">system</span><span class="p">]</span>
 
-        <span class="c1"># Determine if the outputs have a fixed size </span>
+        <span class="c1"># Determine if the outputs have a fixed size</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">:</span>
             <span class="n">static_size</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_number_of_features</span><span class="p">()]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">static_size</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># Create in parallel</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_parallel</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_single</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">,</span> <span class="n">static_size</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_parallel</span><span class="p">(</span>
+            <span class="n">inp</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_single</span><span class="p">,</span>
+            <span class="n">n_jobs</span><span class="p">,</span>
+            <span class="n">static_size</span><span class="p">,</span>
+            <span class="n">only_physical_cores</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">output</span></div>
 
@@ -684,7 +713,7 @@
 <span class="sd">            arrays is created. Each output is under a &quot;kX&quot; key. If the output</span>
 <span class="sd">            is flattened, a single concatenated output vector is returned,</span>
 <span class="sd">            either as a sparse or a dense vector.</span>
-<span class="sd">       &quot;&quot;&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Transform the input system into the internal System-object</span>
         <span class="n">system</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_system</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
 
@@ -710,20 +739,20 @@
                 <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">mbtr</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                     <span class="n">i_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
                     <span class="n">i_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">i_data</span><span class="p">)</span>
-                    <span class="n">mbtr</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">/</span><span class="n">i_norm</span>
+                    <span class="n">mbtr</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span> <span class="o">/</span> <span class="n">i_norm</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">mbtr</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                     <span class="n">i_data</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
                     <span class="n">i_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">i_data</span><span class="p">)</span>
-                    <span class="n">mbtr</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">/</span><span class="n">i_norm</span>
+                    <span class="n">mbtr</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span> <span class="o">/</span> <span class="n">i_norm</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalization</span> <span class="o">==</span> <span class="s2">&quot;n_atoms&quot;</span><span class="p">:</span>
             <span class="n">n_atoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">mbtr</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="n">mbtr</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">/</span><span class="n">n_atoms</span>
+                    <span class="n">mbtr</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span> <span class="o">/</span> <span class="n">n_atoms</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">mbtr</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="n">mbtr</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">/</span><span class="n">n_atoms</span>
+                    <span class="n">mbtr</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span> <span class="o">/</span> <span class="n">n_atoms</span>
 
         <span class="c1"># Flatten output if requested</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">:</span>
@@ -751,15 +780,15 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">k1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">n_k1_grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">k1</span><span class="p">[</span><span class="s2">&quot;grid&quot;</span><span class="p">][</span><span class="s2">&quot;n&quot;</span><span class="p">]</span>
-            <span class="n">n_k1</span> <span class="o">=</span> <span class="n">n_elem</span><span class="o">*</span><span class="n">n_k1_grid</span>
+            <span class="n">n_k1</span> <span class="o">=</span> <span class="n">n_elem</span> <span class="o">*</span> <span class="n">n_k1_grid</span>
             <span class="n">n_features</span> <span class="o">+=</span> <span class="n">n_k1</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">k2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">n_k2_grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">k2</span><span class="p">[</span><span class="s2">&quot;grid&quot;</span><span class="p">][</span><span class="s2">&quot;n&quot;</span><span class="p">]</span>
-            <span class="n">n_k2</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_elem</span><span class="o">*</span><span class="p">(</span><span class="n">n_elem</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">n_k2_grid</span>
+            <span class="n">n_k2</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_elem</span> <span class="o">*</span> <span class="p">(</span><span class="n">n_elem</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">n_k2_grid</span>
             <span class="n">n_features</span> <span class="o">+=</span> <span class="n">n_k2</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">k3</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">n_k3_grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">k3</span><span class="p">[</span><span class="s2">&quot;grid&quot;</span><span class="p">][</span><span class="s2">&quot;n&quot;</span><span class="p">]</span>
-            <span class="n">n_k3</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_elem</span><span class="o">*</span><span class="n">n_elem</span><span class="o">*</span><span class="p">(</span><span class="n">n_elem</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">n_k3_grid</span>
+            <span class="n">n_k3</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_elem</span> <span class="o">*</span> <span class="n">n_elem</span> <span class="o">*</span> <span class="p">(</span><span class="n">n_elem</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">n_k3_grid</span>
             <span class="n">n_features</span> <span class="o">+=</span> <span class="n">n_k3</span>
 
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_features</span><span class="p">)</span></div>
@@ -810,8 +839,8 @@
             <span class="n">n1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">k1</span><span class="p">[</span><span class="s2">&quot;grid&quot;</span><span class="p">][</span><span class="s2">&quot;n&quot;</span><span class="p">]</span>
             <span class="n">i</span> <span class="o">=</span> <span class="n">numbers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">m</span> <span class="o">=</span> <span class="n">i</span>
-            <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">*</span><span class="n">n1</span><span class="p">)</span>
-            <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n1</span><span class="p">)</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span> <span class="o">*</span> <span class="n">n1</span><span class="p">)</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">n1</span><span class="p">)</span>
 
         <span class="c1"># k=2</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">numbers</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
@@ -825,14 +854,14 @@
             <span class="c1"># This is the index of the spectrum. It is given by enumerating the</span>
             <span class="c1"># elements of an upper triangular matrix from left to right and top</span>
             <span class="c1"># to bottom.</span>
-            <span class="n">m</span> <span class="o">=</span> <span class="n">j</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="n">n_elem</span> <span class="o">-</span> <span class="n">i</span><span class="o">*</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">j</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">n_elem</span> <span class="o">-</span> <span class="n">i</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
 
             <span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">k1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">n1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">k1</span><span class="p">[</span><span class="s2">&quot;grid&quot;</span><span class="p">][</span><span class="s2">&quot;n&quot;</span><span class="p">]</span>
-                <span class="n">offset</span> <span class="o">+=</span> <span class="n">n_elem</span><span class="o">*</span><span class="n">n1</span>
-            <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">offset</span><span class="o">+</span><span class="n">m</span><span class="o">*</span><span class="n">n2</span><span class="p">)</span>
-            <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">offset</span><span class="o">+</span><span class="p">(</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n2</span><span class="p">)</span>
+                <span class="n">offset</span> <span class="o">+=</span> <span class="n">n_elem</span> <span class="o">*</span> <span class="n">n1</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">offset</span> <span class="o">+</span> <span class="n">m</span> <span class="o">*</span> <span class="n">n2</span><span class="p">)</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">offset</span> <span class="o">+</span> <span class="p">(</span><span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">n2</span><span class="p">)</span>
 
         <span class="c1"># k=3</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">numbers</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
@@ -848,17 +877,17 @@
             <span class="c1"># elements of a three-dimensional array where for valid elements</span>
             <span class="c1"># k&gt;=i. The enumeration begins from [0, 0, 0], and ends at [n_elem,</span>
             <span class="c1"># n_elem, n_elem], looping the elements in the order k, i, j.</span>
-            <span class="n">m</span> <span class="o">=</span> <span class="n">j</span><span class="o">*</span><span class="n">n_elem</span><span class="o">*</span><span class="p">(</span><span class="n">n_elem</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span> <span class="o">+</span> <span class="n">k</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="n">n_elem</span> <span class="o">-</span> <span class="n">i</span><span class="o">*</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">j</span> <span class="o">*</span> <span class="n">n_elem</span> <span class="o">*</span> <span class="p">(</span><span class="n">n_elem</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">k</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">n_elem</span> <span class="o">-</span> <span class="n">i</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
 
             <span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">k1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">n1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">k1</span><span class="p">[</span><span class="s2">&quot;grid&quot;</span><span class="p">][</span><span class="s2">&quot;n&quot;</span><span class="p">]</span>
-                <span class="n">offset</span> <span class="o">+=</span> <span class="n">n_elem</span><span class="o">*</span><span class="n">n1</span>
+                <span class="n">offset</span> <span class="o">+=</span> <span class="n">n_elem</span> <span class="o">*</span> <span class="n">n1</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">k2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">n2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">k2</span><span class="p">[</span><span class="s2">&quot;grid&quot;</span><span class="p">][</span><span class="s2">&quot;n&quot;</span><span class="p">]</span>
-                <span class="n">offset</span> <span class="o">+=</span> <span class="p">(</span><span class="n">n_elem</span><span class="o">*</span><span class="p">(</span><span class="n">n_elem</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">n2</span>
-            <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">offset</span><span class="o">+</span><span class="n">m</span><span class="o">*</span><span class="n">n3</span><span class="p">)</span>
-            <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">offset</span><span class="o">+</span><span class="p">(</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n3</span><span class="p">)</span>
+                <span class="n">offset</span> <span class="o">+=</span> <span class="p">(</span><span class="n">n_elem</span> <span class="o">*</span> <span class="p">(</span><span class="n">n_elem</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">n2</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">offset</span> <span class="o">+</span> <span class="n">m</span> <span class="o">*</span> <span class="n">n3</span><span class="p">)</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">offset</span> <span class="o">+</span> <span class="p">(</span><span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">n3</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="nb">slice</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span></div>
 
@@ -882,7 +911,6 @@
 
         <span class="k">return</span> <span class="n">new_kx_map</span>
 
-
     <span class="k">def</span> <span class="nf">_get_k1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculates the second order terms where the scalar mapping is the</span>
 <span class="sd">        inverse distance between atoms.</span>
@@ -902,7 +930,7 @@
         <span class="n">cmbtr</span> <span class="o">=</span> <span class="n">MBTRWrapper</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_to_index</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_limit</span><span class="p">,</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">),</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">),</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span>
         <span class="p">)</span>
 
         <span class="n">k1_map</span> <span class="o">=</span> <span class="n">cmbtr</span><span class="o">.</span><span class="n">get_k1</span><span class="p">(</span>
@@ -921,7 +949,7 @@
         <span class="c1"># Depending on flattening, use either a sparse matrix or a dense one.</span>
         <span class="n">n_elem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_elements</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">:</span>
-            <span class="n">k1</span> <span class="o">=</span> <span class="n">sparse</span><span class="o">.</span><span class="n">DOK</span><span class="p">((</span><span class="n">n_elem</span><span class="o">*</span><span class="n">n</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="n">k1</span> <span class="o">=</span> <span class="n">sparse</span><span class="o">.</span><span class="n">DOK</span><span class="p">((</span><span class="n">n_elem</span> <span class="o">*</span> <span class="n">n</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">k1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_elem</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
@@ -930,12 +958,12 @@
 
             <span class="c1"># Denormalize if requested</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_gaussians</span><span class="p">:</span>
-                <span class="n">max_val</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="n">sigma</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+                <span class="n">max_val</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">sigma</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
                 <span class="n">gaussian_sum</span> <span class="o">/=</span> <span class="n">max_val</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">:</span>
-                <span class="n">start</span> <span class="o">=</span> <span class="n">i</span><span class="o">*</span><span class="n">n</span>
-                <span class="n">end</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n</span>
+                <span class="n">start</span> <span class="o">=</span> <span class="n">i</span> <span class="o">*</span> <span class="n">n</span>
+                <span class="n">end</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">n</span>
                 <span class="n">k1</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span> <span class="o">=</span> <span class="n">gaussian_sum</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">k1</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">gaussian_sum</span>
@@ -966,11 +994,8 @@
                 <span class="n">scale</span> <span class="o">=</span> <span class="n">weighting</span><span class="p">[</span><span class="s2">&quot;scale&quot;</span><span class="p">]</span>
                 <span class="n">cutoff</span> <span class="o">=</span> <span class="n">weighting</span><span class="p">[</span><span class="s2">&quot;cutoff&quot;</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">scale</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">radial_cutoff</span> <span class="o">=</span> <span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">cutoff</span><span class="p">)</span><span class="o">/</span><span class="n">scale</span>
-                <span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="sa">b</span><span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="n">scale</span><span class="p">,</span>
-                    <span class="sa">b</span><span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="n">cutoff</span>
-                <span class="p">}</span>
+                    <span class="n">radial_cutoff</span> <span class="o">=</span> <span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">cutoff</span><span class="p">)</span> <span class="o">/</span> <span class="n">scale</span>
+                <span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span><span class="sa">b</span><span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="n">scale</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="n">cutoff</span><span class="p">}</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">weighting_function</span> <span class="o">=</span> <span class="s2">&quot;unity&quot;</span>
 
@@ -981,10 +1006,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">:</span>
             <span class="n">centers</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
             <span class="n">ext_system</span><span class="p">,</span> <span class="n">cell_indices</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_extended_system</span><span class="p">(</span>
-                <span class="n">system</span><span class="p">,</span>
-                <span class="n">radial_cutoff</span><span class="p">,</span>
-                <span class="n">centers</span><span class="p">,</span>
-                <span class="n">return_cell_indices</span><span class="o">=</span><span class="kc">True</span>
+                <span class="n">system</span><span class="p">,</span> <span class="n">radial_cutoff</span><span class="p">,</span> <span class="n">centers</span><span class="p">,</span> <span class="n">return_cell_indices</span><span class="o">=</span><span class="kc">True</span>
             <span class="p">)</span>
             <span class="n">ext_system</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="n">from_atoms</span><span class="p">(</span><span class="n">ext_system</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -992,9 +1014,7 @@
             <span class="n">cell_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">),</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
 
         <span class="n">cmbtr</span> <span class="o">=</span> <span class="n">MBTRWrapper</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_to_index</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_limit</span><span class="p">,</span>
-            <span class="n">cell_indices</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_to_index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_limit</span><span class="p">,</span> <span class="n">cell_indices</span>
         <span class="p">)</span>
 
         <span class="c1"># If radial cutoff is finite, use it to calculate the sparse</span>
@@ -1004,7 +1024,9 @@
         <span class="k">if</span> <span class="n">radial_cutoff</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">dmat</span> <span class="o">=</span> <span class="n">ext_system</span><span class="o">.</span><span class="n">get_distance_matrix_within_radius</span><span class="p">(</span><span class="n">radial_cutoff</span><span class="p">)</span>
             <span class="n">adj_list</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_adjacency_list</span><span class="p">(</span><span class="n">dmat</span><span class="p">)</span>
-            <span class="n">dmat_dense</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n_atoms</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">),</span> <span class="n">sys</span><span class="o">.</span><span class="n">float_info</span><span class="o">.</span><span class="n">max</span><span class="p">)</span>  <span class="c1"># The non-neighbor values are treated as &quot;infinitely far&quot;.</span>
+            <span class="n">dmat_dense</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">n_atoms</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">),</span> <span class="n">sys</span><span class="o">.</span><span class="n">float_info</span><span class="o">.</span><span class="n">max</span>
+            <span class="p">)</span>  <span class="c1"># The non-neighbor values are treated as &quot;infinitely far&quot;.</span>
             <span class="n">dmat_dense</span><span class="p">[</span><span class="n">dmat</span><span class="o">.</span><span class="n">row</span><span class="p">,</span> <span class="n">dmat</span><span class="o">.</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">dmat</span><span class="o">.</span><span class="n">data</span>
         <span class="c1"># If no weighting is used, the full distance matrix is calculated</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1026,11 +1048,10 @@
 
         <span class="n">k2_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_new_kmap</span><span class="p">(</span><span class="n">k2_map</span><span class="p">)</span>
 
-
         <span class="c1"># Depending of flattening, use either a sparse matrix or a dense one.</span>
         <span class="n">n_elem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_elements</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">:</span>
-            <span class="n">k2</span> <span class="o">=</span> <span class="n">sparse</span><span class="o">.</span><span class="n">DOK</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">n_elem</span><span class="o">*</span><span class="p">(</span><span class="n">n_elem</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="o">*</span><span class="n">n</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="n">k2</span> <span class="o">=</span> <span class="n">sparse</span><span class="o">.</span><span class="n">DOK</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">n_elem</span> <span class="o">*</span> <span class="p">(</span><span class="n">n_elem</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">n</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">k2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">n_elements</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_elements</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
@@ -1041,16 +1062,16 @@
             <span class="c1"># This is the index of the spectrum. It is given by enumerating the</span>
             <span class="c1"># elements of an upper triangular matrix from left to right and top</span>
             <span class="c1"># to bottom.</span>
-            <span class="n">m</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">j</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="n">n_elem</span> <span class="o">-</span> <span class="n">i</span><span class="o">*</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">j</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">n_elem</span> <span class="o">-</span> <span class="n">i</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
 
             <span class="c1"># Denormalize if requested</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_gaussians</span><span class="p">:</span>
-                <span class="n">max_val</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="n">sigma</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+                <span class="n">max_val</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">sigma</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
                 <span class="n">gaussian_sum</span> <span class="o">/=</span> <span class="n">max_val</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">:</span>
-                <span class="n">start</span> <span class="o">=</span> <span class="n">m</span><span class="o">*</span><span class="n">n</span>
-                <span class="n">end</span> <span class="o">=</span> <span class="p">(</span><span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n</span>
+                <span class="n">start</span> <span class="o">=</span> <span class="n">m</span> <span class="o">*</span> <span class="n">n</span>
+                <span class="n">end</span> <span class="o">=</span> <span class="p">(</span><span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">n</span>
                 <span class="n">k2</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span> <span class="o">=</span> <span class="n">gaussian_sum</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">k2</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">gaussian_sum</span>
@@ -1081,11 +1102,8 @@
                 <span class="n">scale</span> <span class="o">=</span> <span class="n">weighting</span><span class="p">[</span><span class="s2">&quot;scale&quot;</span><span class="p">]</span>
                 <span class="n">cutoff</span> <span class="o">=</span> <span class="n">weighting</span><span class="p">[</span><span class="s2">&quot;cutoff&quot;</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">scale</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">radial_cutoff</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.5</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">cutoff</span><span class="p">)</span><span class="o">/</span><span class="n">scale</span>
-                <span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="sa">b</span><span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="n">scale</span><span class="p">,</span>
-                    <span class="sa">b</span><span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="n">cutoff</span>
-                <span class="p">}</span>
+                    <span class="n">radial_cutoff</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">cutoff</span><span class="p">)</span> <span class="o">/</span> <span class="n">scale</span>
+                <span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span><span class="sa">b</span><span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="n">scale</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="n">cutoff</span><span class="p">}</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">weighting_function</span> <span class="o">=</span> <span class="s2">&quot;unity&quot;</span>
 
@@ -1096,10 +1114,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">:</span>
             <span class="n">centers</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
             <span class="n">ext_system</span><span class="p">,</span> <span class="n">cell_indices</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_extended_system</span><span class="p">(</span>
-                <span class="n">system</span><span class="p">,</span>
-                <span class="n">radial_cutoff</span><span class="p">,</span>
-                <span class="n">centers</span><span class="p">,</span>
-                <span class="n">return_cell_indices</span><span class="o">=</span><span class="kc">True</span>
+                <span class="n">system</span><span class="p">,</span> <span class="n">radial_cutoff</span><span class="p">,</span> <span class="n">centers</span><span class="p">,</span> <span class="n">return_cell_indices</span><span class="o">=</span><span class="kc">True</span>
             <span class="p">)</span>
             <span class="n">ext_system</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="n">from_atoms</span><span class="p">(</span><span class="n">ext_system</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1107,9 +1122,7 @@
             <span class="n">cell_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">),</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
 
         <span class="n">cmbtr</span> <span class="o">=</span> <span class="n">MBTRWrapper</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_to_index</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_limit</span><span class="p">,</span>
-            <span class="n">cell_indices</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_to_index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_limit</span><span class="p">,</span> <span class="n">cell_indices</span>
         <span class="p">)</span>
 
         <span class="c1"># If radial cutoff is finite, use it to calculate the sparse</span>
@@ -1119,7 +1132,9 @@
         <span class="k">if</span> <span class="n">radial_cutoff</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">dmat</span> <span class="o">=</span> <span class="n">ext_system</span><span class="o">.</span><span class="n">get_distance_matrix_within_radius</span><span class="p">(</span><span class="n">radial_cutoff</span><span class="p">)</span>
             <span class="n">adj_list</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_adjacency_list</span><span class="p">(</span><span class="n">dmat</span><span class="p">)</span>
-            <span class="n">dmat_dense</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n_atoms</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">),</span> <span class="n">sys</span><span class="o">.</span><span class="n">float_info</span><span class="o">.</span><span class="n">max</span><span class="p">)</span>  <span class="c1"># The non-neighbor values are treated as &quot;infinitely far&quot;.</span>
+            <span class="n">dmat_dense</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">n_atoms</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">),</span> <span class="n">sys</span><span class="o">.</span><span class="n">float_info</span><span class="o">.</span><span class="n">max</span>
+            <span class="p">)</span>  <span class="c1"># The non-neighbor values are treated as &quot;infinitely far&quot;.</span>
             <span class="n">dmat_dense</span><span class="p">[</span><span class="n">dmat</span><span class="o">.</span><span class="n">col</span><span class="p">,</span> <span class="n">dmat</span><span class="o">.</span><span class="n">row</span><span class="p">]</span> <span class="o">=</span> <span class="n">dmat</span><span class="o">.</span><span class="n">data</span>
         <span class="c1"># If no weighting is used, the full distance matrix is calculated</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1143,7 +1158,9 @@
         <span class="c1"># Depending of flattening, use either a sparse matrix or a dense one.</span>
         <span class="n">n_elem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_elements</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">:</span>
-            <span class="n">k3</span> <span class="o">=</span> <span class="n">sparse</span><span class="o">.</span><span class="n">DOK</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">n_elem</span><span class="o">*</span><span class="n">n_elem</span><span class="o">*</span><span class="p">(</span><span class="n">n_elem</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="o">*</span><span class="n">n</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="n">k3</span> <span class="o">=</span> <span class="n">sparse</span><span class="o">.</span><span class="n">DOK</span><span class="p">(</span>
+                <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">n_elem</span> <span class="o">*</span> <span class="n">n_elem</span> <span class="o">*</span> <span class="p">(</span><span class="n">n_elem</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">n</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span>
+            <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">k3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_elem</span><span class="p">,</span> <span class="n">n_elem</span><span class="p">,</span> <span class="n">n_elem</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
@@ -1156,16 +1173,16 @@
             <span class="c1"># elements of a three-dimensional array where for valid elements</span>
             <span class="c1"># k&gt;=i. The enumeration begins from [0, 0, 0], and ends at [n_elem,</span>
             <span class="c1"># n_elem, n_elem], looping the elements in the order j, i, k.</span>
-            <span class="n">m</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">j</span><span class="o">*</span><span class="n">n_elem</span><span class="o">*</span><span class="p">(</span><span class="n">n_elem</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span> <span class="o">+</span> <span class="n">k</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="n">n_elem</span> <span class="o">-</span> <span class="n">i</span><span class="o">*</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">j</span> <span class="o">*</span> <span class="n">n_elem</span> <span class="o">*</span> <span class="p">(</span><span class="n">n_elem</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">k</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">n_elem</span> <span class="o">-</span> <span class="n">i</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
 
             <span class="c1"># Denormalize if requested</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_gaussians</span><span class="p">:</span>
-                <span class="n">max_val</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="n">sigma</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+                <span class="n">max_val</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">sigma</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
                 <span class="n">gaussian_sum</span> <span class="o">/=</span> <span class="n">max_val</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">:</span>
-                <span class="n">start</span> <span class="o">=</span> <span class="n">m</span><span class="o">*</span><span class="n">n</span>
-                <span class="n">end</span> <span class="o">=</span> <span class="p">(</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n</span>
+                <span class="n">start</span> <span class="o">=</span> <span class="n">m</span> <span class="o">*</span> <span class="n">n</span>
+                <span class="n">end</span> <span class="o">=</span> <span class="p">(</span><span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">n</span>
                 <span class="n">k3</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span> <span class="o">=</span> <span class="n">gaussian_sum</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">k3</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">gaussian_sum</span>

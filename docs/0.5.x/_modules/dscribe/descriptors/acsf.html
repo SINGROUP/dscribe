@@ -208,6 +208,7 @@
 <span class="sd">        neural network potentials&quot;, Jörg Behler, The Journal of Chemical</span>
 <span class="sd">        Physics, 134, 074106 (2011), https://doi.org/10.1063/1.3553717</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="ACSF.__init__"><a class="viewcode-back" href="../../../tutorials/descriptors/acsf.html#dscribe.descriptors.acsf.ACSF.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">rcut</span><span class="p">,</span>
@@ -217,7 +218,7 @@
         <span class="n">g5_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">species</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span>
+        <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
@@ -257,7 +258,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">g5_params</span> <span class="o">=</span> <span class="n">g5_params</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rcut</span> <span class="o">=</span> <span class="n">rcut</span></div>
 
-<div class="viewcode-block" id="ACSF.create"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="ACSF.create"><a class="viewcode-back" href="../../../tutorials/descriptors/acsf.html#dscribe.descriptors.acsf.ACSF.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">only_physical_cores</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the ACSF output for the given systems and given positions.</span>
 
 <span class="sd">        Args:</span>
@@ -270,7 +273,14 @@
 <span class="sd">                systems, provide the positions as a list for each system.</span>
 <span class="sd">            n_jobs (int): Number of parallel jobs to instantiate. Parallellizes</span>
 <span class="sd">                the calculation across samples. Defaults to serial calculation</span>
-<span class="sd">                with n_jobs=1.</span>
+<span class="sd">                with n_jobs=1. If a negative number is given, the used cpus</span>
+<span class="sd">                will be calculated with, n_cpus + n_jobs, where n_cpus is the</span>
+<span class="sd">                amount of CPUs as reported by the OS. With only_physical_cores</span>
+<span class="sd">                you can control which types of CPUs are counted in n_cpus.</span>
+<span class="sd">            only_physical_cores (bool): If a negative n_jobs is given,</span>
+<span class="sd">                determines which types of CPUs are used in calculating the</span>
+<span class="sd">                number of jobs. If set to False (default), also virtual CPUs</span>
+<span class="sd">                are counted.  If set to True, only physical CPUs are counted.</span>
 <span class="sd">            verbose(bool): Controls whether to print the progress of each job</span>
 <span class="sd">                into to the console.</span>
 
@@ -295,7 +305,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">inp</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="p">))</span>
 
-        <span class="c1"># Determine if the outputs have a fixed size </span>
+        <span class="c1"># Determine if the outputs have a fixed size</span>
         <span class="n">n_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_number_of_features</span><span class="p">()</span>
         <span class="n">static_size</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">positions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -320,11 +330,19 @@
                         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">i_job</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">!=</span> <span class="n">n_centers</span><span class="p">:</span>
                             <span class="k">return</span> <span class="kc">False</span>
             <span class="k">return</span> <span class="kc">True</span>
+
         <span class="k">if</span> <span class="n">is_static</span><span class="p">():</span>
             <span class="n">static_size</span> <span class="o">=</span> <span class="p">[</span><span class="n">n_centers</span><span class="p">,</span> <span class="n">n_features</span><span class="p">]</span>
 
         <span class="c1"># Create in parallel</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_parallel</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_single</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">,</span> <span class="n">static_size</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_parallel</span><span class="p">(</span>
+            <span class="n">inp</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_single</span><span class="p">,</span>
+            <span class="n">n_jobs</span><span class="p">,</span>
+            <span class="n">static_size</span><span class="p">,</span>
+            <span class="n">only_physical_cores</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">output</span></div>
 
@@ -362,7 +380,9 @@
         <span class="k">if</span> <span class="n">calculate_all</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">:</span>
             <span class="n">n_atoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
             <span class="n">all_pos</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
-            <span class="n">dmat</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_adjacency_matrix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rcut</span><span class="p">,</span> <span class="n">all_pos</span><span class="p">,</span> <span class="n">all_pos</span><span class="p">)</span>
+            <span class="n">dmat</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_adjacency_matrix</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">rcut</span><span class="p">,</span> <span class="n">all_pos</span><span class="p">,</span> <span class="n">all_pos</span>
+            <span class="p">)</span>
         <span class="c1"># Otherwise the amount of pairwise distances that are calculated is</span>
         <span class="c1"># kept at minimum. Only distances for the given indices (and possibly</span>
         <span class="c1"># the secondary neighbours if G4 is specified) are calculated.</span>
@@ -371,18 +391,24 @@
             <span class="c1"># the distance from central atom needs to be considered in extending</span>
             <span class="c1"># the system.</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">:</span>
-                <span class="n">system</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_extended_system</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rcut</span><span class="p">,</span> <span class="n">return_cell_indices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">system</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_extended_system</span><span class="p">(</span>
+                    <span class="n">system</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rcut</span><span class="p">,</span> <span class="n">return_cell_indices</span><span class="o">=</span><span class="kc">False</span>
+                <span class="p">)</span>
 
             <span class="c1"># First calculate distances from specified centers to all other</span>
             <span class="c1"># atoms. This is already enough for everything else except G4.</span>
             <span class="n">n_atoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
             <span class="n">all_pos</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
             <span class="n">central_pos</span> <span class="o">=</span> <span class="n">all_pos</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
-            <span class="n">dmat_primary</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_adjacency_matrix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rcut</span><span class="p">,</span> <span class="n">central_pos</span><span class="p">,</span> <span class="n">all_pos</span><span class="p">)</span>
+            <span class="n">dmat_primary</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_adjacency_matrix</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">rcut</span><span class="p">,</span> <span class="n">central_pos</span><span class="p">,</span> <span class="n">all_pos</span>
+            <span class="p">)</span>
 
             <span class="c1"># Create symmetric full matrix</span>
             <span class="n">col</span> <span class="o">=</span> <span class="n">dmat_primary</span><span class="o">.</span><span class="n">col</span>
-            <span class="n">row</span> <span class="o">=</span> <span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dmat_primary</span><span class="o">.</span><span class="n">row</span><span class="p">]</span>  <span class="c1"># Fix row numbering to refer to original system</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">indices</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dmat_primary</span><span class="o">.</span><span class="n">row</span>
+            <span class="p">]</span>  <span class="c1"># Fix row numbering to refer to original system</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">dmat_primary</span><span class="o">.</span><span class="n">data</span>
             <span class="n">dmat</span> <span class="o">=</span> <span class="n">coo_matrix</span><span class="p">((</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">)),</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_atoms</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">))</span>
             <span class="n">dmat_lil</span> <span class="o">=</span> <span class="n">dmat</span><span class="o">.</span><span class="n">tolil</span><span class="p">()</span>
@@ -392,27 +418,37 @@
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">g4_params</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">neighbour_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
                 <span class="n">neigh_pos</span> <span class="o">=</span> <span class="n">all_pos</span><span class="p">[</span><span class="n">neighbour_indices</span><span class="p">]</span>
-                <span class="n">dmat_secondary</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_adjacency_matrix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rcut</span><span class="p">,</span> <span class="n">neigh_pos</span><span class="p">,</span> <span class="n">neigh_pos</span><span class="p">)</span>
-                <span class="n">col</span> <span class="o">=</span> <span class="p">[</span><span class="n">neighbour_indices</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dmat_secondary</span><span class="o">.</span><span class="n">col</span><span class="p">]</span>  <span class="c1"># Fix col numbering to refer to original system</span>
-                <span class="n">row</span> <span class="o">=</span> <span class="p">[</span><span class="n">neighbour_indices</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dmat_secondary</span><span class="o">.</span><span class="n">row</span><span class="p">]</span>  <span class="c1"># Fix row numbering to refer to original system</span>
+                <span class="n">dmat_secondary</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_adjacency_matrix</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">rcut</span><span class="p">,</span> <span class="n">neigh_pos</span><span class="p">,</span> <span class="n">neigh_pos</span>
+                <span class="p">)</span>
+                <span class="n">col</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">neighbour_indices</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dmat_secondary</span><span class="o">.</span><span class="n">col</span>
+                <span class="p">]</span>  <span class="c1"># Fix col numbering to refer to original system</span>
+                <span class="n">row</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">neighbour_indices</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dmat_secondary</span><span class="o">.</span><span class="n">row</span>
+                <span class="p">]</span>  <span class="c1"># Fix row numbering to refer to original system</span>
                 <span class="n">dmat_lil</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dmat_secondary</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
 
             <span class="n">dmat</span> <span class="o">=</span> <span class="n">dmat_lil</span><span class="o">.</span><span class="n">tocoo</span><span class="p">()</span>
 
         <span class="c1"># Get adjancency list and full dense adjancency matrix</span>
         <span class="n">neighbours</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_adjacency_list</span><span class="p">(</span><span class="n">dmat</span><span class="p">)</span>
-        <span class="n">dmat_dense</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n_atoms</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">),</span> <span class="n">sys</span><span class="o">.</span><span class="n">float_info</span><span class="o">.</span><span class="n">max</span><span class="p">)</span>  <span class="c1"># The non-neighbor values are treated as &quot;infinitely far&quot;.</span>
+        <span class="n">dmat_dense</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">n_atoms</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">),</span> <span class="n">sys</span><span class="o">.</span><span class="n">float_info</span><span class="o">.</span><span class="n">max</span>
+        <span class="p">)</span>  <span class="c1"># The non-neighbor values are treated as &quot;infinitely far&quot;.</span>
         <span class="n">dmat_dense</span><span class="p">[</span><span class="n">dmat</span><span class="o">.</span><span class="n">col</span><span class="p">,</span> <span class="n">dmat</span><span class="o">.</span><span class="n">row</span><span class="p">]</span> <span class="o">=</span> <span class="n">dmat</span><span class="o">.</span><span class="n">data</span>
 
         <span class="c1"># Calculate ACSF with C++</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-            <span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">(),</span>
-            <span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">(),</span>
-            <span class="n">dmat_dense</span><span class="p">,</span>
-            <span class="n">neighbours</span><span class="p">,</span>
-            <span class="n">indices</span><span class="p">,</span>
-        <span class="p">),</span> 
-        <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">(),</span>
+                <span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">(),</span>
+                <span class="n">dmat_dense</span><span class="p">,</span>
+                <span class="n">neighbours</span><span class="p">,</span>
+                <span class="n">indices</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="c1"># Check if there are types that have not been declared</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_atomic_numbers</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">())</span>
@@ -486,9 +522,13 @@
             <span class="c1"># Check dimensions</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;g2_params should be a matrix with two columns (eta, Rs).&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;g2_params should be a matrix with two columns (eta, Rs).&quot;</span>
+                <span class="p">)</span>
             <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;g2_params should be a matrix with two columns (eta, Rs).&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;g2_params should be a matrix with two columns (eta, Rs).&quot;</span>
+                <span class="p">)</span>
 
             <span class="c1"># Check that etas are positive</span>
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">value</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
@@ -538,9 +578,13 @@
             <span class="c1"># Check dimensions</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;g4_params should be a matrix with three columns (eta, zeta, lambda).&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;g4_params should be a matrix with three columns (eta, zeta, lambda).&quot;</span>
+                <span class="p">)</span>
             <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;g4_params should be a matrix with three columns (eta, zeta, lambda).&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;g4_params should be a matrix with three columns (eta, zeta, lambda).&quot;</span>
+                <span class="p">)</span>
 
             <span class="c1"># Check that etas are positive</span>
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">value</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
@@ -567,9 +611,13 @@
             <span class="c1"># Check dimensions</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;g5_params should be a matrix with three columns (eta, zeta, lambda).&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;g5_params should be a matrix with three columns (eta, zeta, lambda).&quot;</span>
+                <span class="p">)</span>
             <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;g5_params should be a matrix with three columns (eta, zeta, lambda).&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;g5_params should be a matrix with three columns (eta, zeta, lambda).&quot;</span>
+                <span class="p">)</span>
 
             <span class="c1"># Check that etas are positive</span>
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">value</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>

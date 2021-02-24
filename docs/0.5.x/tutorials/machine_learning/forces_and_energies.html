@@ -190,6 +190,13 @@
             
   <div class="section" id="predicting-forces-and-energies-a-k-a-training-a-ml-force-field">
 <h1>Predicting forces and energies a.k.a. training a ML force-field<a class="headerlink" href="#predicting-forces-and-energies-a-k-a-training-a-ml-force-field" title="Permalink to this headline">¶</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We are incrementally adding support for calculating the derivatives of
+descriptors with respect to the atom positions. In version <strong>0.5.0rc1</strong> you
+can find an implementation for getting derivatives of non-periodic systems
+for the SOAP descriptor.</p>
+</div>
 <p>This tutorial covers how descriptors can be effectively used as input for a
 machine learning model that will predict energies and forces. There are several
 design choices that you have to make when building a ML force-field: which ML
@@ -198,7 +205,7 @@ simple setup:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>Dataset of two atoms interacting through a Lennard-Jones potential. This
-pretty much as simple as it gets. Real systems will be much more
+is pretty much as simple as it gets. Real systems will be much more
 complicated thus requiring a more complicated machine learning model and
 longer training times.</p></li>
 <li><p>SOAP descriptor calculated directly between the two atoms. Once again
@@ -211,7 +218,7 @@ respect to the input. This allows us to train an energy prediction model
 from which we will automatically get the forces as long as we also know
 the derivatives of the descriptor with respect to the atomic positions.
 This is exactly what the <code class="code docutils literal notranslate"><span class="pre">derivatives</span></code>-function provided by DScribe
-returns (you’ll need <code class="code docutils literal notranslate"><span class="pre">dscribe&gt;=0.5.x</span></code>).</p></li>
+returns (you will need <code class="code docutils literal notranslate"><span class="pre">dscribe&gt;=0.5.x</span></code>).</p></li>
 </ul>
 </div></blockquote>
 <div class="section" id="principle">
@@ -252,8 +259,13 @@ variance in the training set.</p>
 </div>
 <div class="section" id="dataset-generation">
 <h2>Dataset generation<a class="headerlink" href="#dataset-generation" title="Permalink to this headline">¶</a></h2>
-<p>The following script generates our training dataset. You can find it in the
-examples folder.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The code for this tutorial can be found under
+<em>examples/forces_and_energies/</em>. Notice that if you want to run the training
+yourself, you will need to install <a class="reference external" href="https://pytorch.org/">pytorch</a>.</p>
+</div>
+<p>The following script generates our training dataset:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">ase</span>
 <span class="kn">from</span> <span class="nn">ase.calculators.lj</span> <span class="kn">import</span> <span class="n">LennardJones</span>
@@ -313,7 +325,7 @@ examples folder.</p>
 </div>
 <div class="section" id="training">
 <h2>Training<a class="headerlink" href="#training" title="Permalink to this headline">¶</a></h2>
-<p>Lets first load and prepare the dataset:</p>
+<p>Let us first load and prepare the dataset:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
@@ -375,7 +387,7 @@ examples folder.</p>
 <span class="n">dD_dr_valid</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">dD_dr_valid</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Then lets defined our model and loss function:</p>
+<p>Then let us define our model and loss function:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">FFNet</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;A simple feed-forward network with one hidden layer, randomly</span>
 <span class="sd">    initialized weights, sigmoid activation and a linear output layer.</span>

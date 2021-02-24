@@ -188,6 +188,7 @@
 <span class="sd">    general, it is assumed that length units are in Angstroms and angles are in</span>
 <span class="sd">    degrees unless otherwise stated.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">matrix</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a lattice from any sequence of 9 numbers. Note that the sequence</span>
@@ -262,7 +263,6 @@
 <span class="sd">        Lengths of the lattice vectors, i.e. (a, b, c)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lengths</span><span class="p">)</span>
-
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">reciprocal_lattice</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -339,27 +339,32 @@
         <span class="n">arange</span> <span class="o">=</span> <span class="n">arange</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
         <span class="n">brange</span> <span class="o">=</span> <span class="n">brange</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
         <span class="n">crange</span> <span class="o">=</span> <span class="n">crange</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
-        <span class="n">images</span> <span class="o">=</span> <span class="n">arange</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="n">brange</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">+</span>\
-            <span class="n">crange</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">images</span> <span class="o">=</span> <span class="n">arange</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="n">brange</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="n">crange</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
 
-        <span class="n">shifted_coords</span> <span class="o">=</span> <span class="n">fcoords</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> \
-            <span class="n">images</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span>
+        <span class="n">shifted_coords</span> <span class="o">=</span> <span class="n">fcoords</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">images</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span>
 
         <span class="n">cart_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">fcoords</span><span class="p">)</span>
         <span class="n">cart_images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">images</span><span class="p">)</span>
-        <span class="n">coords</span> <span class="o">=</span> <span class="n">cart_coords</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> \
-            <span class="n">cart_images</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">cart_coords</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">cart_images</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span>
         <span class="n">coords</span> <span class="o">-=</span> <span class="n">center</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
         <span class="n">coords</span> <span class="o">**=</span> <span class="mi">2</span>
         <span class="n">d_2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 
         <span class="n">within_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">d_2</span> <span class="o">&lt;=</span> <span class="n">r</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">zip_results</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">shifted_coords</span><span class="p">[</span><span class="n">within_r</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">d_2</span><span class="p">[</span><span class="n">within_r</span><span class="p">]),</span>
-                            <span class="n">indices</span><span class="p">[</span><span class="n">within_r</span><span class="p">[</span><span class="mi">0</span><span class="p">]]))</span>
+            <span class="k">return</span> <span class="nb">list</span><span class="p">(</span>
+                <span class="nb">zip</span><span class="p">(</span>
+                    <span class="n">shifted_coords</span><span class="p">[</span><span class="n">within_r</span><span class="p">],</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">d_2</span><span class="p">[</span><span class="n">within_r</span><span class="p">]),</span>
+                    <span class="n">indices</span><span class="p">[</span><span class="n">within_r</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">shifted_coords</span><span class="p">[</span><span class="n">within_r</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">d_2</span><span class="p">[</span><span class="n">within_r</span><span class="p">]),</span> \
-                <span class="n">indices</span><span class="p">[</span><span class="n">within_r</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span></div></div>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="n">shifted_coords</span><span class="p">[</span><span class="n">within_r</span><span class="p">],</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">d_2</span><span class="p">[</span><span class="n">within_r</span><span class="p">]),</span>
+                <span class="n">indices</span><span class="p">[</span><span class="n">within_r</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span>
+            <span class="p">)</span></div></div>
 </pre></div>
 
            </div>

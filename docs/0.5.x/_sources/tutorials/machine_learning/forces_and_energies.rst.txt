@@ -1,6 +1,12 @@
 Predicting forces and energies a.k.a. training a ML force-field
 ===============================================================
 
+.. note::
+   We are incrementally adding support for calculating the derivatives of
+   descriptors with respect to the atom positions. In version **0.5.0rc1** you
+   can find an implementation for getting derivatives of non-periodic systems
+   for the SOAP descriptor.
+
 This tutorial covers how descriptors can be effectively used as input for a
 machine learning model that will predict energies and forces. There are several
 design choices that you have to make when building a ML force-field: which ML
@@ -8,7 +14,7 @@ model, which descriptor, etc. In this tutorial we will use the following, very
 simple setup:
 
     - Dataset of two atoms interacting through a Lennard-Jones potential. This
-      pretty much as simple as it gets. Real systems will be much more
+      is pretty much as simple as it gets. Real systems will be much more
       complicated thus requiring a more complicated machine learning model and
       longer training times.
     - SOAP descriptor calculated directly between the two atoms. Once again
@@ -21,7 +27,7 @@ simple setup:
       from which we will automatically get the forces as long as we also know
       the derivatives of the descriptor with respect to the atomic positions.
       This is exactly what the :code:`derivatives`-function provided by DScribe
-      returns (you'll need :code:`dscribe>=0.5.x`).
+      returns (you will need :code:`dscribe>=0.5.x`).
 
 Principle
 ---------
@@ -64,8 +70,12 @@ variance in the training set.
 
 Dataset generation
 ------------------
-The following script generates our training dataset. You can find it in the
-examples folder.
+.. note::
+   The code for this tutorial can be found under
+   *examples/forces_and_energies/*. Notice that if you want to run the training
+   yourself, you will need to install `pytorch <https://pytorch.org/>`_.
+
+The following script generates our training dataset:
 
 .. literalinclude:: ../../../../examples/forces_and_energies/dataset.py
     :language: python
@@ -79,13 +89,13 @@ The energies will look like this:
 
 Training
 --------
-Lets first load and prepare the dataset:
+Let us first load and prepare the dataset:
 
 .. literalinclude:: ../../../../examples/forces_and_energies/training.py
     :language: python
     :lines: 1-59
 
-Then lets defined our model and loss function:
+Then let us define our model and loss function:
 
 .. literalinclude:: ../../../../examples/forces_and_energies/training.py
     :start-at: class FFNet

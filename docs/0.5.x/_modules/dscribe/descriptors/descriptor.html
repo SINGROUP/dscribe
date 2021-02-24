@@ -189,12 +189,13 @@
 <span class="kn">from</span> <span class="nn">dscribe.core.system</span> <span class="kn">import</span> <span class="n">System</span>
 <span class="kn">from</span> <span class="nn">dscribe.utils.species</span> <span class="kn">import</span> <span class="n">get_atomic_numbers</span>
 
+<span class="kn">import</span> <span class="nn">joblib</span>
 <span class="kn">from</span> <span class="nn">joblib</span> <span class="kn">import</span> <span class="n">Parallel</span><span class="p">,</span> <span class="n">delayed</span>
 
 
 <div class="viewcode-block" id="Descriptor"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor">[docs]</a><span class="k">class</span> <span class="nc">Descriptor</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;An abstract base class for all descriptors.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;An abstract base class for all descriptors.&quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">periodic</span><span class="p">,</span> <span class="n">flatten</span><span class="p">,</span> <span class="n">sparse</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
@@ -249,9 +250,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">System</span><span class="o">.</span><span class="n">from_atoms</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Invalid system with type: &#39;</span><span class="si">{}</span><span class="s2">&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">system</span><span class="p">))</span>
-            <span class="p">)</span></div>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid system with type: &#39;</span><span class="si">{}</span><span class="s2">&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">system</span><span class="p">)))</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">sparse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -324,11 +323,19 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">zs</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_number_set</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;The following atomic numbers are not defined &quot;</span>
-                <span class="s2">&quot;for this descriptor: </span><span class="si">{}</span><span class="s2">&quot;</span>
-                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">zs</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_number_set</span><span class="p">))</span>
+                <span class="s2">&quot;for this descriptor: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">zs</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_number_set</span><span class="p">))</span>
             <span class="p">)</span></div>
 
-<div class="viewcode-block" id="Descriptor.create_parallel"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.create_parallel">[docs]</a>    <span class="k">def</span> <span class="nf">create_parallel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inp</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">,</span> <span class="n">static_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">prefer</span><span class="o">=</span><span class="s2">&quot;processes&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="Descriptor.create_parallel"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.create_parallel">[docs]</a>    <span class="k">def</span> <span class="nf">create_parallel</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">inp</span><span class="p">,</span>
+        <span class="n">func</span><span class="p">,</span>
+        <span class="n">n_jobs</span><span class="p">,</span>
+        <span class="n">static_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">only_physical_cores</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">prefer</span><span class="o">=</span><span class="s2">&quot;processes&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Used to parallelize the descriptor creation across multiple systems.</span>
 
 <span class="sd">        Args:</span>
@@ -339,14 +346,21 @@
 <span class="sd">                input arguments from &quot;inp&quot;.</span>
 <span class="sd">            n_jobs (int): Number of parallel jobs to instantiate. Parallellizes</span>
 <span class="sd">                the calculation across samples. Defaults to serial calculation</span>
-<span class="sd">                with n_jobs=1.</span>
+<span class="sd">                with n_jobs=1. If a negative number is given, the number of jobs</span>
+<span class="sd">                will be calculated with, n_cpus + n_jobs, where n_cpus is the</span>
+<span class="sd">                amount of CPUs as reported by the OS. With only_physical_cores</span>
+<span class="sd">                you can control which types of CPUs are counted in n_cpus.</span>
 <span class="sd">            output_sizes(list of ints): The size of the output for each job.</span>
 <span class="sd">                Makes the creation faster by preallocating the correct amount of</span>
 <span class="sd">                memory beforehand. If not specified, a dynamically created list of</span>
 <span class="sd">                outputs is used.</span>
+<span class="sd">            only_physical_cores (bool): If a negative n_jobs is given,</span>
+<span class="sd">                determines which types of CPUs are used in calculating the</span>
+<span class="sd">                number of jobs. If set to False (default), also virtual CPUs</span>
+<span class="sd">                are counted.  If set to True, only physical CPUs are counted.</span>
 <span class="sd">            verbose(bool): Controls whether to print the progress of each job</span>
 <span class="sd">                into to the console.</span>
-<span class="sd">            backend (str): The parallelization method. Valid options are:</span>
+<span class="sd">            prefer (str): The parallelization method. Valid options are:</span>
 
 <span class="sd">                - &quot;processes&quot;: Parallelization based on processes. Uses the</span>
 <span class="sd">                  &quot;loky&quot; backend in joblib to serialize the jobs and run them</span>
@@ -362,15 +376,23 @@
 <span class="sd">                  release the GIL.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            np.ndarray | scipy.sparse.csr_matrix | list: The descriptor output</span>
+<span class="sd">            np.ndarray | sparse.COO | list: The descriptor output</span>
 <span class="sd">            for each given input. The return type depends on the desciptor</span>
 <span class="sd">            setup.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Determine the number of jobs</span>
+        <span class="k">if</span> <span class="n">n_jobs</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">n_jobs</span> <span class="o">=</span> <span class="n">joblib</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">(</span><span class="n">only_physical_cores</span><span class="p">)</span> <span class="o">+</span> <span class="n">n_jobs</span>
+        <span class="k">if</span> <span class="n">n_jobs</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid number of jobs specified.&quot;</span><span class="p">)</span>
+
         <span class="c1"># Split data into n_jobs (almost) equal jobs</span>
         <span class="n">n_samples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span>
         <span class="n">is_sparse</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span>
         <span class="n">k</span><span class="p">,</span> <span class="n">m</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">)</span>
-        <span class="n">jobs</span> <span class="o">=</span> <span class="p">(</span><span class="n">inp</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">k</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">m</span><span class="p">):(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">k</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">m</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_jobs</span><span class="p">))</span>
+        <span class="n">jobs</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">inp</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">k</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span> <span class="p">:</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">k</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">m</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_jobs</span><span class="p">)</span>
+        <span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">create_multiple</span><span class="p">(</span><span class="n">arguments</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">is_sparse</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
             <span class="sd">&quot;&quot;&quot;This is the function that is called by each job but with</span>
@@ -394,7 +416,6 @@
 
             <span class="k">for</span> <span class="n">i_sample</span><span class="p">,</span> <span class="n">i_arg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">arguments</span><span class="p">):</span>
                 <span class="n">i_out</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">i_arg</span><span class="p">)</span>
-                <span class="c1"># print(i_out.shape)</span>
 
                 <span class="c1"># If the shape varies, just add result into a list</span>
                 <span class="k">if</span> <span class="n">static_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -408,7 +429,7 @@
                         <span class="n">results</span><span class="p">[</span><span class="n">i_sample</span><span class="p">]</span> <span class="o">=</span> <span class="n">i_out</span>
 
                 <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-                    <span class="n">current_percent</span> <span class="o">=</span> <span class="p">(</span><span class="n">i_sample</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">n_samples</span><span class="o">*</span><span class="mi">100</span>
+                    <span class="n">current_percent</span> <span class="o">=</span> <span class="p">(</span><span class="n">i_sample</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_samples</span> <span class="o">*</span> <span class="mi">100</span>
                     <span class="k">if</span> <span class="n">current_percent</span> <span class="o">&gt;=</span> <span class="n">old_percent</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
                         <span class="n">old_percent</span> <span class="o">=</span> <span class="n">current_percent</span>
                         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Process </span><span class="si">{0}</span><span class="s2">: </span><span class="si">{1:.1f}</span><span class="s2"> %&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">current_percent</span><span class="p">))</span>
@@ -420,7 +441,10 @@
 
             <span class="k">return</span> <span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
 
-        <span class="n">vec_lists</span> <span class="o">=</span> <span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">,</span> <span class="n">prefer</span><span class="o">=</span><span class="n">prefer</span><span class="p">)(</span><span class="n">delayed</span><span class="p">(</span><span class="n">create_multiple</span><span class="p">)(</span><span class="n">i_args</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">is_sparse</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span> <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">i_args</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">jobs</span><span class="p">))</span>
+        <span class="n">vec_lists</span> <span class="o">=</span> <span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">,</span> <span class="n">prefer</span><span class="o">=</span><span class="n">prefer</span><span class="p">)(</span>
+            <span class="n">delayed</span><span class="p">(</span><span class="n">create_multiple</span><span class="p">)(</span><span class="n">i_args</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">is_sparse</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">i_args</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">jobs</span><span class="p">)</span>
+        <span class="p">)</span>
 
         <span class="c1"># Restore the calculation order. If using the threading backend, the</span>
         <span class="c1"># input order may have been lost.</span>
@@ -462,7 +486,6 @@
         <span class="k">return</span> <span class="n">results</span></div>
 
     <span class="k">def</span> <span class="nf">_check_system_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lst</span><span class="p">):</span>
-
         <span class="k">def</span> <span class="nf">iterable</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="nb">iter</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
@@ -470,10 +493,13 @@
                 <span class="k">return</span> <span class="kc">False</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">True</span>
+
         <span class="k">if</span> <span class="n">iterable</span><span class="p">(</span><span class="n">lst</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">get_system</span><span class="p">(</span><span class="n">lst</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
-           <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input is neither System, nor ase.Atoms object nor is it iterable&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Input is neither System, nor ase.Atoms object nor is it iterable&quot;</span>
+            <span class="p">)</span>
         <span class="k">return</span>
 
     <span class="k">def</span> <span class="nf">_get_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">,</span> <span class="n">include</span><span class="p">,</span> <span class="n">exclude</span><span class="p">):</span>
@@ -494,14 +520,14 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">include</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">exclude</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">displaced_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_atoms</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">include</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">include</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">exclude</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">include</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">include</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">include</span> <span class="o">&gt;</span> <span class="n">n_atoms</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">include</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="s2">&quot;Invalid index provided in the list of included atoms.&quot;</span>
                 <span class="p">)</span>
             <span class="n">displaced_indices</span> <span class="o">=</span> <span class="n">include</span>
-        <span class="k">elif</span> <span class="n">exclude</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">exclude</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">include</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">exclude</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">exclude</span><span class="p">)))</span>
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">exclude</span> <span class="o">&gt;</span> <span class="n">n_atoms</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">exclude</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -517,8 +543,19 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Please include at least one atom.&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">displaced_indices</span>
-        
-<div class="viewcode-block" id="Descriptor.derivatives_parallel"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.derivatives_parallel">[docs]</a>    <span class="k">def</span> <span class="nf">derivatives_parallel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inp</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">,</span> <span class="n">derivatives_shape</span><span class="p">,</span> <span class="n">descriptor_shape</span><span class="p">,</span> <span class="n">return_descriptor</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">prefer</span><span class="o">=</span><span class="s2">&quot;processes&quot;</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Descriptor.derivatives_parallel"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.derivatives_parallel">[docs]</a>    <span class="k">def</span> <span class="nf">derivatives_parallel</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">inp</span><span class="p">,</span>
+        <span class="n">func</span><span class="p">,</span>
+        <span class="n">n_jobs</span><span class="p">,</span>
+        <span class="n">derivatives_shape</span><span class="p">,</span>
+        <span class="n">descriptor_shape</span><span class="p">,</span>
+        <span class="n">return_descriptor</span><span class="p">,</span>
+        <span class="n">only_physical_cores</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">prefer</span><span class="o">=</span><span class="s2">&quot;processes&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Used to parallelize the descriptor creation across multiple systems.</span>
 
 <span class="sd">        Args:</span>
@@ -529,16 +566,23 @@
 <span class="sd">                input arguments from &quot;inp&quot;.</span>
 <span class="sd">            n_jobs (int): Number of parallel jobs to instantiate. Parallellizes</span>
 <span class="sd">                the calculation across samples. Defaults to serial calculation</span>
-<span class="sd">                with n_jobs=1.</span>
+<span class="sd">                with n_jobs=1. If a negative number is given, the number of jobs</span>
+<span class="sd">                will be calculated with, n_cpus + n_jobs, where n_cpus is the</span>
+<span class="sd">                amount of CPUs as reported by the OS. With only_physical_cores</span>
+<span class="sd">                you can control which types of CPUs are counted in n_cpus.</span>
 <span class="sd">            derivatives_shape(list or None): If a fixed size output is produced from</span>
 <span class="sd">                each job, this contains its shape. For variable size output</span>
 <span class="sd">                this parameter is set to None</span>
 <span class="sd">            derivatives_shape(list or None): If a fixed size output is produced from</span>
 <span class="sd">                each job, this contains its shape. For variable size output</span>
 <span class="sd">                this parameter is set to None</span>
+<span class="sd">            only_physical_cores (bool): If a negative n_jobs is given,</span>
+<span class="sd">                determines which types of CPUs are used in calculating the</span>
+<span class="sd">                number of jobs. If set to False (default), also virtual CPUs</span>
+<span class="sd">                are counted.  If set to True, only physical CPUs are counted.</span>
 <span class="sd">            verbose(bool): Controls whether to print the progress of each job</span>
 <span class="sd">                into to the console.</span>
-<span class="sd">            backend (str): The parallelization method. Valid options are:</span>
+<span class="sd">            prefer(str): The parallelization method. Valid options are:</span>
 
 <span class="sd">                - &quot;processes&quot;: Parallelization based on processes. Uses the</span>
 <span class="sd">                  &quot;loky&quot; backend in joblib to serialize the jobs and run them</span>
@@ -554,15 +598,23 @@
 <span class="sd">                  release the GIL.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            np.ndarray | scipy.sparse.csr_matrix | list: The descriptor output</span>
+<span class="sd">            np.ndarray | sparse.COO | list: The descriptor output</span>
 <span class="sd">            for each given input. The return type depends on the desciptor</span>
 <span class="sd">            setup.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Determine the number of jobs</span>
+        <span class="k">if</span> <span class="n">n_jobs</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">n_jobs</span> <span class="o">=</span> <span class="n">joblib</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">(</span><span class="n">only_physical_cores</span><span class="p">)</span> <span class="o">+</span> <span class="n">n_jobs</span>
+        <span class="k">if</span> <span class="n">n_jobs</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid number of jobs specified.&quot;</span><span class="p">)</span>
+
         <span class="c1"># Split data into n_jobs (almost) equal jobs</span>
         <span class="n">n_samples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span>
         <span class="n">is_sparse</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span>
         <span class="n">k</span><span class="p">,</span> <span class="n">m</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">)</span>
-        <span class="n">jobs</span> <span class="o">=</span> <span class="p">(</span><span class="n">inp</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">k</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">m</span><span class="p">):(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">k</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">m</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_jobs</span><span class="p">))</span>
+        <span class="n">jobs</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">inp</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">k</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span> <span class="p">:</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">k</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">m</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_jobs</span><span class="p">)</span>
+        <span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">create_multiple_with_descriptor</span><span class="p">(</span><span class="n">arguments</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
             <span class="sd">&quot;&quot;&quot;This is the function that is called by each job but with</span>
@@ -605,7 +657,7 @@
                     <span class="n">derivatives</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i_der</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-                    <span class="n">current_percent</span> <span class="o">=</span> <span class="p">(</span><span class="n">i_sample</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">n_samples</span><span class="o">*</span><span class="mi">100</span>
+                    <span class="n">current_percent</span> <span class="o">=</span> <span class="p">(</span><span class="n">i_sample</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_samples</span> <span class="o">*</span> <span class="mi">100</span>
                     <span class="k">if</span> <span class="n">current_percent</span> <span class="o">&gt;=</span> <span class="n">old_percent</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
                         <span class="n">old_percent</span> <span class="o">=</span> <span class="n">current_percent</span>
                         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Process </span><span class="si">{0}</span><span class="s2">: </span><span class="si">{1:.1f}</span><span class="s2"> %&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">current_percent</span><span class="p">))</span>
@@ -639,20 +691,24 @@
                     <span class="n">derivatives</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i_der</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-                    <span class="n">current_percent</span> <span class="o">=</span> <span class="p">(</span><span class="n">i_sample</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">n_samples</span><span class="o">*</span><span class="mi">100</span>
+                    <span class="n">current_percent</span> <span class="o">=</span> <span class="p">(</span><span class="n">i_sample</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_samples</span> <span class="o">*</span> <span class="mi">100</span>
                     <span class="k">if</span> <span class="n">current_percent</span> <span class="o">&gt;=</span> <span class="n">old_percent</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
                         <span class="n">old_percent</span> <span class="o">=</span> <span class="n">current_percent</span>
                         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Process </span><span class="si">{0}</span><span class="s2">: </span><span class="si">{1:.1f}</span><span class="s2"> %&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">current_percent</span><span class="p">))</span>
 
-                <span class="k">return</span> <span class="p">((</span><span class="n">derivatives</span><span class="p">,</span> <span class="p">),</span> <span class="n">index</span><span class="p">)</span>
+                <span class="k">return</span> <span class="p">((</span><span class="n">derivatives</span><span class="p">,),</span> <span class="n">index</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">return_descriptor</span><span class="p">:</span>
-            <span class="n">vec_lists</span> <span class="o">=</span> <span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">,</span> <span class="n">prefer</span><span class="o">=</span><span class="n">prefer</span><span class="p">)(</span><span class="n">delayed</span><span class="p">(</span><span class="n">create_multiple_with_descriptor</span><span class="p">)(</span>
-                <span class="n">i_args</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span> <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">i_args</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">jobs</span><span class="p">)</span>
+            <span class="n">vec_lists</span> <span class="o">=</span> <span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">,</span> <span class="n">prefer</span><span class="o">=</span><span class="n">prefer</span><span class="p">)(</span>
+                <span class="n">delayed</span><span class="p">(</span><span class="n">create_multiple_with_descriptor</span><span class="p">)(</span><span class="n">i_args</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">i_args</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">jobs</span><span class="p">)</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">vec_lists</span> <span class="o">=</span> <span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">,</span> <span class="n">prefer</span><span class="o">=</span><span class="n">prefer</span><span class="p">)(</span><span class="n">delayed</span><span class="p">(</span><span class="n">create_multiple_without_descriptor</span><span class="p">)(</span>
-                <span class="n">i_args</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span> <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">i_args</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">jobs</span><span class="p">)</span>
+            <span class="n">vec_lists</span> <span class="o">=</span> <span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">,</span> <span class="n">prefer</span><span class="o">=</span><span class="n">prefer</span><span class="p">)(</span>
+                <span class="n">delayed</span><span class="p">(</span><span class="n">create_multiple_without_descriptor</span><span class="p">)(</span>
+                    <span class="n">i_args</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">verbose</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">i_args</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">jobs</span><span class="p">)</span>
             <span class="p">)</span>
 
         <span class="c1"># Restore the calculation order. If using the threading backend, the</span>
@@ -679,7 +735,6 @@
             <span class="k">return</span> <span class="p">(</span><span class="n">derivatives</span><span class="p">,</span> <span class="n">descriptors</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">derivatives</span></div></div>
-
 </pre></div>
 
            </div>

@@ -250,7 +250,7 @@ dense numpy array.</p></li>
 </dl>
 <dl class="py method">
 <dt id="dscribe.descriptors.acsf.ACSF.create">
-<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">positions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/acsf.html#ACSF.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.create" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">positions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">only_physical_cores</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/acsf.html#ACSF.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the ACSF output for the given systems and given positions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -264,7 +264,14 @@ atoms in the system. When calculating SOAP for multiple
 systems, provide the positions as a list for each system.</p></li>
 <li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
 the calculation across samples. Defaults to serial calculation
-with n_jobs=1.</p></li>
+with n_jobs=1. If a negative number is given, the used cpus
+will be calculated with, n_cpus + n_jobs, where n_cpus is the
+amount of CPUs as reported by the OS. With only_physical_cores
+you can control which types of CPUs are counted in n_cpus.</p></li>
+<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If a negative n_jobs is given,
+determines which types of CPUs are used in calculating the
+number of jobs. If set to False (default), also virtual CPUs
+are counted.  If set to True, only physical CPUs are counted.</p></li>
 <li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Controls whether to print the progress of each job
 into to the console.</p></li>
 </ul>
@@ -380,7 +387,7 @@ limitations under the License.</p>
 <p>The Coulomb matrix is defined as:</p>
 <blockquote>
 <div><dl class="simple">
-<dt>C_ij = 0.5 Zi**exponent      | i = j</dt><dd><p>= (Zi*Zj)/(Ri-Rj)       | i != j</p>
+<dt>C_ij = 0.5 Zi**exponent, when i = j</dt><dd><p>= (Zi*Zj)/(Ri-Rj), when i != j</p>
 </dd>
 </dl>
 </div></blockquote>
@@ -438,7 +445,7 @@ dense numpy array.</p></li>
 </dl>
 <dl class="py method">
 <dt id="dscribe.descriptors.coulombmatrix.CoulombMatrix.create">
-<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/coulombmatrix.html#CoulombMatrix.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.coulombmatrix.CoulombMatrix.create" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">only_physical_cores</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/coulombmatrix.html#CoulombMatrix.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.coulombmatrix.CoulombMatrix.create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the Coulomb matrix for the given systems.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -447,7 +454,14 @@ dense numpy array.</p></li>
 many atomic structures.</p></li>
 <li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
 the calculation across samples. Defaults to serial calculation
-with n_jobs=1.</p></li>
+with n_jobs=1. If a negative number is given, the used cpus
+will be calculated with, n_cpus + n_jobs, where n_cpus is the
+amount of CPUs as reported by the OS. With only_physical_cores
+you can control which types of CPUs are counted in n_cpus.</p></li>
+<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If a negative n_jobs is given,
+determines which types of CPUs are used in calculating the
+number of jobs. If set to False (default), also virtual CPUs
+are counted.  If set to True, only physical CPUs are counted.</p></li>
 <li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Controls whether to print the progress of each job
 into to the console.</p></li>
 </ul>
@@ -550,7 +564,7 @@ this descriptor.</p>
 
 <dl class="py method">
 <dt id="dscribe.descriptors.descriptor.Descriptor.create_parallel">
-<code class="sig-name descname">create_parallel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inp</span></em>, <em class="sig-param"><span class="n">func</span></em>, <em class="sig-param"><span class="n">n_jobs</span></em>, <em class="sig-param"><span class="n">static_size</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">prefer</span><span class="o">=</span><span class="default_value">'processes'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/descriptor.html#Descriptor.create_parallel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor.create_parallel" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create_parallel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inp</span></em>, <em class="sig-param"><span class="n">func</span></em>, <em class="sig-param"><span class="n">n_jobs</span></em>, <em class="sig-param"><span class="n">static_size</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">only_physical_cores</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">prefer</span><span class="o">=</span><span class="default_value">'processes'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/descriptor.html#Descriptor.create_parallel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor.create_parallel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to parallelize the descriptor creation across multiple systems.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -562,14 +576,21 @@ system. These arguments are fed to the function specified by
 input arguments from “inp”.</p></li>
 <li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
 the calculation across samples. Defaults to serial calculation
-with n_jobs=1.</p></li>
+with n_jobs=1. If a negative number is given, the number of jobs
+will be calculated with, n_cpus + n_jobs, where n_cpus is the
+amount of CPUs as reported by the OS. With only_physical_cores
+you can control which types of CPUs are counted in n_cpus.</p></li>
 <li><p><strong>output_sizes</strong> (<em>list of ints</em>) – The size of the output for each job.
 Makes the creation faster by preallocating the correct amount of
 memory beforehand. If not specified, a dynamically created list of
 outputs is used.</p></li>
+<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If a negative n_jobs is given,
+determines which types of CPUs are used in calculating the
+number of jobs. If set to False (default), also virtual CPUs
+are counted.  If set to True, only physical CPUs are counted.</p></li>
 <li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Controls whether to print the progress of each job
 into to the console.</p></li>
-<li><p><strong>backend</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – <p>The parallelization method. Valid options are:</p>
+<li><p><strong>prefer</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – <p>The parallelization method. Valid options are:</p>
 <ul>
 <li><p>”processes”: Parallelization based on processes. Uses the
 “loky” backend in joblib to serialize the jobs and run them
@@ -592,14 +613,14 @@ for each given input. The return type depends on the desciptor
 setup.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>np.ndarray | scipy.sparse.csr_matrix | list</p>
+<dd class="field-odd"><p>np.ndarray | sparse.COO | list</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="dscribe.descriptors.descriptor.Descriptor.derivatives_parallel">
-<code class="sig-name descname">derivatives_parallel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inp</span></em>, <em class="sig-param"><span class="n">func</span></em>, <em class="sig-param"><span class="n">n_jobs</span></em>, <em class="sig-param"><span class="n">derivatives_shape</span></em>, <em class="sig-param"><span class="n">descriptor_shape</span></em>, <em class="sig-param"><span class="n">return_descriptor</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">prefer</span><span class="o">=</span><span class="default_value">'processes'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/descriptor.html#Descriptor.derivatives_parallel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor.derivatives_parallel" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">derivatives_parallel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inp</span></em>, <em class="sig-param"><span class="n">func</span></em>, <em class="sig-param"><span class="n">n_jobs</span></em>, <em class="sig-param"><span class="n">derivatives_shape</span></em>, <em class="sig-param"><span class="n">descriptor_shape</span></em>, <em class="sig-param"><span class="n">return_descriptor</span></em>, <em class="sig-param"><span class="n">only_physical_cores</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">prefer</span><span class="o">=</span><span class="default_value">'processes'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/descriptor.html#Descriptor.derivatives_parallel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor.derivatives_parallel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to parallelize the descriptor creation across multiple systems.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -611,16 +632,23 @@ system. These arguments are fed to the function specified by
 input arguments from “inp”.</p></li>
 <li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
 the calculation across samples. Defaults to serial calculation
-with n_jobs=1.</p></li>
+with n_jobs=1. If a negative number is given, the number of jobs
+will be calculated with, n_cpus + n_jobs, where n_cpus is the
+amount of CPUs as reported by the OS. With only_physical_cores
+you can control which types of CPUs are counted in n_cpus.</p></li>
 <li><p><strong>derivatives_shape</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – If a fixed size output is produced from
 each job, this contains its shape. For variable size output
 this parameter is set to None</p></li>
 <li><p><strong>derivatives_shape</strong> – If a fixed size output is produced from
 each job, this contains its shape. For variable size output
 this parameter is set to None</p></li>
+<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If a negative n_jobs is given,
+determines which types of CPUs are used in calculating the
+number of jobs. If set to False (default), also virtual CPUs
+are counted.  If set to True, only physical CPUs are counted.</p></li>
 <li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Controls whether to print the progress of each job
 into to the console.</p></li>
-<li><p><strong>backend</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – <p>The parallelization method. Valid options are:</p>
+<li><p><strong>prefer</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – <p>The parallelization method. Valid options are:</p>
 <ul>
 <li><p>”processes”: Parallelization based on processes. Uses the
 “loky” backend in joblib to serialize the jobs and run them
@@ -643,7 +671,7 @@ for each given input. The return type depends on the desciptor
 setup.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>np.ndarray | scipy.sparse.csr_matrix | list</p>
+<dd class="field-odd"><p>np.ndarray | sparse.COO | list</p>
 </dd>
 </dl>
 </dd></dl>
@@ -908,7 +936,6 @@ itself.</p>
 distributions in the Ewald summation, but the final matrix elements will be
 independent of the value of the screening parameter a that is used, as long
 as sufficient cutoff values are used.</p>
-<p>This implementation provides default values for</p>
 <dl class="simple">
 <dt>For reference, see:</dt><dd><p>“Crystal Structure Representations for Machine Learning Models of
 Formation Energies”, Felix Faber, Alexander Lindmaa, Anatole von
@@ -964,8 +991,8 @@ dense numpy array.</p></li>
 </dl>
 <dl class="py method">
 <dt id="dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create">
-<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">accuracy</span><span class="o">=</span><span class="default_value">1e-05</span></em>, <em class="sig-param"><span class="n">w</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">rcut</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">gcut</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">a</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/ewaldsummatrix.html#EwaldSumMatrix.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the Coulomb matrix for the given systems.</p>
+<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">accuracy</span><span class="o">=</span><span class="default_value">1e-05</span></em>, <em class="sig-param"><span class="n">w</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">rcut</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">gcut</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">a</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">only_physical_cores</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/ewaldsummatrix.html#EwaldSumMatrix.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Ewald sum matrix for the given systems.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -995,7 +1022,14 @@ Corresponds to the standard deviation of the Gaussians. Provide
 either one value or a list of values for each system.</p></li>
 <li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
 the calculation across samples. Defaults to serial calculation
-with n_jobs=1.</p></li>
+with n_jobs=1. If a negative number is given, the used cpus
+will be calculated with, n_cpus + n_jobs, where n_cpus is the
+amount of CPUs as reported by the OS. With only_physical_cores
+you can control which types of CPUs are counted in n_cpus.</p></li>
+<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If a negative n_jobs is given,
+determines which types of CPUs are used in calculating the
+number of jobs. If set to False (default), also virtual CPUs
+are counted.  If set to True, only physical CPUs are counted.</p></li>
 <li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Controls whether to print the progress of each job
 into to the console.</p></li>
 </ul>
@@ -1221,7 +1255,7 @@ dense numpy array.</p></li>
 </dl>
 <dl class="py method">
 <dt id="dscribe.descriptors.lmbtr.LMBTR.create">
-<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">positions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/lmbtr.html#LMBTR.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.create" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">positions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">only_physical_cores</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/lmbtr.html#LMBTR.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the LMBTR output for the given systems and given positions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1235,7 +1269,14 @@ atoms in the system. When calculating LMBTR for multiple
 systems, provide the positions as a list for each system.</p></li>
 <li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
 the calculation across samples. Defaults to serial calculation
-with n_jobs=1.</p></li>
+with n_jobs=1. If a negative number is given, the used cpus
+will be calculated with, n_cpus + n_jobs, where n_cpus is the
+amount of CPUs as reported by the OS. With only_physical_cores
+you can control which types of CPUs are counted in n_cpus.</p></li>
+<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If a negative n_jobs is given,
+determines which types of CPUs are used in calculating the
+number of jobs. If set to False (default), also virtual CPUs
+are counted.  If set to True, only physical CPUs are counted.</p></li>
 <li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Controls whether to print the progress of each job
 into to the console.</p></li>
 </ul>
@@ -1255,7 +1296,7 @@ the get_number_of_features()-function.</p>
 
 <dl class="py method">
 <dt id="dscribe.descriptors.lmbtr.LMBTR.create_single">
-<code class="sig-name descname">create_single</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">positions</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/lmbtr.html#LMBTR.create_single"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.create_single" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create_single</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">positions</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/lmbtr.html#LMBTR.create_single"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.create_single" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the local many-body tensor representation for the given
 system and positions.</p>
 <dl class="field-list simple">
@@ -1266,7 +1307,8 @@ system and positions.</p>
 which local_mbtr is created. Can be a list of integer numbers
 or a list of xyz-coordinates. If integers provided, the atoms
 at that index are used as centers. If positions provided, new
-atoms are added at that position.</p></li>
+atoms are added at that position. If no positions are provided,
+all atoms in the system will be used as centers.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1728,7 +1770,7 @@ dense numpy array.</p></li>
 
 <dl class="py method">
 <dt id="dscribe.descriptors.mbtr.MBTR.create">
-<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.create" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">only_physical_cores</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return MBTR output for the given systems.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1736,7 +1778,14 @@ dense numpy array.</p></li>
 <li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> or list of <code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code>) – One or many atomic structures.</p></li>
 <li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
 the calculation across samples. Defaults to serial calculation
-with n_jobs=1.</p></li>
+with n_jobs=1. If a negative number is given, the used cpus
+will be calculated with, n_cpus + n_jobs, where n_cpus is the
+amount of CPUs as reported by the OS. With only_physical_cores
+you can control which types of CPUs are counted in n_cpus.</p></li>
+<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If a negative n_jobs is given,
+determines which types of CPUs are used in calculating the
+number of jobs. If set to False (default), also virtual CPUs
+are counted.  If set to True, only physical CPUs are counted.</p></li>
 <li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Controls whether to print the progress of each job
 into to the console.</p></li>
 </ul>
@@ -1971,7 +2020,7 @@ dense numpy array.</p></li>
 </dl>
 <dl class="py method">
 <dt id="dscribe.descriptors.sinematrix.SineMatrix.create">
-<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/sinematrix.html#SineMatrix.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.sinematrix.SineMatrix.create" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">only_physical_cores</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/sinematrix.html#SineMatrix.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.sinematrix.SineMatrix.create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the Sine matrix for the given systems.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1980,7 +2029,14 @@ dense numpy array.</p></li>
 many atomic structures.</p></li>
 <li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
 the calculation across samples. Defaults to serial calculation
-with n_jobs=1.</p></li>
+with n_jobs=1. If a negative number is given, the used cpus
+will be calculated with, n_cpus + n_jobs, where n_cpus is the
+amount of CPUs as reported by the OS. With only_physical_cores
+you can control which types of CPUs are counted in n_cpus.</p></li>
+<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If a negative n_jobs is given,
+determines which types of CPUs are used in calculating the
+number of jobs. If set to False (default), also virtual CPUs
+are counted.  If set to True, only physical CPUs are counted.</p></li>
 <li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Controls whether to print the progress of each job
 into to the console.</p></li>
 </ul>
@@ -2106,7 +2162,7 @@ dense numpy array.</p></li>
 </dl>
 <dl class="py method">
 <dt id="dscribe.descriptors.soap.SOAP.create">
-<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">positions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.create" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">positions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">only_physical_cores</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the SOAP output for the given systems and given positions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -2120,7 +2176,14 @@ atoms in the system. When calculating SOAP for multiple
 systems, provide the positions as a list for each system.</p></li>
 <li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
 the calculation across samples. Defaults to serial calculation
-with n_jobs=1.</p></li>
+with n_jobs=1. If a negative number is given, the used cpus
+will be calculated with, n_cpus + n_jobs, where n_cpus is the
+amount of CPUs as reported by the OS. With only_physical_cores
+you can control which types of CPUs are counted in n_cpus.</p></li>
+<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If a negative n_jobs is given,
+determines which types of CPUs are used in calculating the
+number of jobs. If set to False (default), also virtual CPUs
+are counted.  If set to True, only physical CPUs are counted.</p></li>
 <li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Controls whether to print the progress of each job
 into to the console.</p></li>
 </ul>
@@ -2169,7 +2232,7 @@ get_number_of_features()-function.</p>
 
 <dl class="py method">
 <dt id="dscribe.descriptors.soap.SOAP.derivatives">
-<code class="sig-name descname">derivatives</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">positions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">include</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">exclude</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">method</span><span class="o">=</span><span class="default_value">'auto'</span></em>, <em class="sig-param"><span class="n">return_descriptor</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.derivatives"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.derivatives" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">derivatives</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">positions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">include</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">exclude</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">method</span><span class="o">=</span><span class="default_value">'auto'</span></em>, <em class="sig-param"><span class="n">return_descriptor</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">only_physical_cores</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.derivatives"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.derivatives" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the descriptor derivatives for the given systems and given positions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -2182,11 +2245,15 @@ positions are defined, the descriptor output will be created for all
 atoms in the system. When calculating descriptor for multiple
 systems, provide the positions as a list for each system.</p></li>
 <li><p><strong>include</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – Indices of atoms to compute the derivatives on.
-When calculating descriptor for multiple systems, provide a list of indices.
-Cannot be provided together with ‘exclude’.</p></li>
+When calculating descriptor for multiple systems, provide
+either a one-dimensional list that if applied to all systems or
+a two-dimensional list of indices. Cannot be provided together
+with ‘exclude’.</p></li>
 <li><p><strong>exclude</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – Indices of atoms not to compute the derivatives on.
-When calculating descriptor for multiple systems, provide a list of indices.
-Cannot be provided together with ‘include’.</p></li>
+When calculating descriptor for multiple systems, provide
+either a one-dimensional list that if applied to all systems or
+a two-dimensional list of indices. Cannot be provided together
+with ‘include’.</p></li>
 <li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The method for calculating the derivatives. Provide
 either ‘numerical’, ‘analytical’ or ‘auto’. If using ‘auto’,
 the most efficient available method is automatically chosen.</p></li>
@@ -2195,7 +2262,14 @@ in the same function call. Notice that it typically is faster
 to calculate both in one go.</p></li>
 <li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
 the calculation across samples. Defaults to serial calculation
-with n_jobs=1.</p></li>
+with n_jobs=1. If a negative number is given, the number of jobs
+will be calculated with, n_cpus + n_jobs, where n_cpus is the
+amount of CPUs as reported by the OS. With only_physical_cores
+you can control which types of CPUs are counted in n_cpus.</p></li>
+<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If a negative n_jobs is given,
+determines which types of CPUs are used in calculating the
+number of jobs. If set to False (default), also virtual CPUs
+are counted.  If set to True, only physical CPUs are counted.</p></li>
 <li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Controls whether to print the progress of each job
 into to the console.</p></li>
 </ul>

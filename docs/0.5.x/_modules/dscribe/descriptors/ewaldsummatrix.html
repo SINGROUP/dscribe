@@ -210,8 +210,6 @@
 <span class="sd">    independent of the value of the screening parameter a that is used, as long</span>
 <span class="sd">    as sufficient cutoff values are used.</span>
 
-<span class="sd">    This implementation provides default values for</span>
-
 <span class="sd">    For reference, see:</span>
 <span class="sd">        &quot;Crystal Structure Representations for Machine Learning Models of</span>
 <span class="sd">        Formation Energies&quot;, Felix Faber, Alexander Lindmaa, Anatole von</span>
@@ -228,8 +226,20 @@
 <span class="sd">        https://doi.org/10.1080/08927022.2013.840898</span>
 <span class="sd">        &quot;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="EwaldSumMatrix.create"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">rcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Coulomb matrix for the given systems.</span>
+
+<div class="viewcode-block" id="EwaldSumMatrix.create"><a class="viewcode-back" href="../../../tutorials/descriptors/ewald_sum_matrix.html#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">system</span><span class="p">,</span>
+        <span class="n">accuracy</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span>
+        <span class="n">w</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">rcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">gcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">a</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">only_physical_cores</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the Ewald sum matrix for the given systems.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or</span>
@@ -258,7 +268,14 @@
 <span class="sd">                either one value or a list of values for each system.</span>
 <span class="sd">            n_jobs (int): Number of parallel jobs to instantiate. Parallellizes</span>
 <span class="sd">                the calculation across samples. Defaults to serial calculation</span>
-<span class="sd">                with n_jobs=1.</span>
+<span class="sd">                with n_jobs=1. If a negative number is given, the used cpus</span>
+<span class="sd">                will be calculated with, n_cpus + n_jobs, where n_cpus is the</span>
+<span class="sd">                amount of CPUs as reported by the OS. With only_physical_cores</span>
+<span class="sd">                you can control which types of CPUs are counted in n_cpus.</span>
+<span class="sd">            only_physical_cores (bool): If a negative n_jobs is given,</span>
+<span class="sd">                determines which types of CPUs are used in calculating the</span>
+<span class="sd">                number of jobs. If set to False (default), also virtual CPUs</span>
+<span class="sd">                are counted.  If set to True, only physical CPUs are counted.</span>
 <span class="sd">            verbose(bool): Controls whether to print the progress of each job</span>
 <span class="sd">                into to the console.</span>
 
@@ -269,27 +286,41 @@
 <span class="sd">            returned. The first dimension is determined by the amount of</span>
 <span class="sd">            systems.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># If single system given, skip the parallelization</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="p">(</span><span class="n">Atoms</span><span class="p">,</span> <span class="n">System</span><span class="p">)):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_single</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">rcut</span><span class="p">,</span> <span class="n">gcut</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_check_system_list</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+            <span class="n">system</span> <span class="o">=</span> <span class="p">[</span><span class="n">system</span><span class="p">]</span>
+
+        <span class="c1"># Check input validity</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">system</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_atoms_max</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;One of the given systems has more atoms (</span><span class="si">{}</span><span class="s2">) than allowed &quot;</span>
+                    <span class="s2">&quot;by n_atoms_max (</span><span class="si">{}</span><span class="s2">).&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_atoms_max</span><span class="p">)</span>
+                <span class="p">)</span>
+
+        <span class="c1"># If single system given, skip the parallelization</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_single</span><span class="p">(</span><span class="n">system</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">accuracy</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">rcut</span><span class="p">,</span> <span class="n">gcut</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
 
         <span class="c1"># Combine input arguments</span>
         <span class="n">n_samples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">accuracy</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">accuracy</span> <span class="o">=</span> <span class="n">n_samples</span><span class="o">*</span><span class="p">[</span><span class="n">accuracy</span><span class="p">]</span>
+            <span class="n">accuracy</span> <span class="o">=</span> <span class="n">n_samples</span> <span class="o">*</span> <span class="p">[</span><span class="n">accuracy</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">w</span> <span class="o">=</span> <span class="n">n_samples</span><span class="o">*</span><span class="p">[</span><span class="n">w</span><span class="p">]</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="n">n_samples</span> <span class="o">*</span> <span class="p">[</span><span class="n">w</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">rcut</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">rcut</span> <span class="o">=</span> <span class="n">n_samples</span><span class="o">*</span><span class="p">[</span><span class="n">rcut</span><span class="p">]</span>
+            <span class="n">rcut</span> <span class="o">=</span> <span class="n">n_samples</span> <span class="o">*</span> <span class="p">[</span><span class="n">rcut</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">gcut</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">gcut</span> <span class="o">=</span> <span class="n">n_samples</span><span class="o">*</span><span class="p">[</span><span class="n">gcut</span><span class="p">]</span>
+            <span class="n">gcut</span> <span class="o">=</span> <span class="n">n_samples</span> <span class="o">*</span> <span class="p">[</span><span class="n">gcut</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">a</span> <span class="o">=</span> <span class="n">n_samples</span><span class="o">*</span><span class="p">[</span><span class="n">a</span><span class="p">]</span>
-        <span class="n">inp</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i_sys</span><span class="p">,</span> <span class="n">i_accuracy</span><span class="p">,</span> <span class="n">i_w</span><span class="p">,</span> <span class="n">i_rcut</span><span class="p">,</span> <span class="n">i_gcut</span><span class="p">,</span> <span class="n">i_a</span><span class="p">)</span> <span class="k">for</span> <span class="n">i_sys</span><span class="p">,</span> <span class="n">i_accuracy</span><span class="p">,</span> <span class="n">i_w</span><span class="p">,</span> <span class="n">i_rcut</span><span class="p">,</span> <span class="n">i_gcut</span><span class="p">,</span> <span class="n">i_a</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">rcut</span><span class="p">,</span> <span class="n">gcut</span><span class="p">,</span> <span class="n">a</span><span class="p">)]</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">n_samples</span> <span class="o">*</span> <span class="p">[</span><span class="n">a</span><span class="p">]</span>
+        <span class="n">inp</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="n">i_sys</span><span class="p">,</span> <span class="n">i_accuracy</span><span class="p">,</span> <span class="n">i_w</span><span class="p">,</span> <span class="n">i_rcut</span><span class="p">,</span> <span class="n">i_gcut</span><span class="p">,</span> <span class="n">i_a</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i_sys</span><span class="p">,</span> <span class="n">i_accuracy</span><span class="p">,</span> <span class="n">i_w</span><span class="p">,</span> <span class="n">i_rcut</span><span class="p">,</span> <span class="n">i_gcut</span><span class="p">,</span> <span class="n">i_a</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                <span class="n">system</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">rcut</span><span class="p">,</span> <span class="n">gcut</span><span class="p">,</span> <span class="n">a</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
 
-        <span class="c1"># Determine if the outputs have a fixed size </span>
+        <span class="c1"># Determine if the outputs have a fixed size</span>
         <span class="n">n_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_number_of_features</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flatten</span><span class="p">:</span>
             <span class="n">static_size</span> <span class="o">=</span> <span class="p">[</span><span class="n">n_features</span><span class="p">]</span>
@@ -299,7 +330,14 @@
             <span class="n">static_size</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">n_atoms_max</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_atoms_max</span><span class="p">]</span>
 
         <span class="c1"># Create in parallel</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_parallel</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_single</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">,</span> <span class="n">static_size</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_parallel</span><span class="p">(</span>
+            <span class="n">inp</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_single</span><span class="p">,</span>
+            <span class="n">n_jobs</span><span class="p">,</span>
+            <span class="n">static_size</span><span class="p">,</span>
+            <span class="n">only_physical_cores</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">output</span></div>
 
@@ -326,7 +364,7 @@
 <span class="sd">                Corresponds to the standard deviation of the Gaussians.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">q</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">q_squared</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">**</span><span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_squared</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span> <span class="o">**</span> <span class="mi">2</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_atoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">volume</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_volume</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sqrt_pi</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
@@ -349,7 +387,7 @@
             <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">a</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">a_squared</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="o">**</span><span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">a_squared</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">**</span> <span class="mi">2</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gcut</span> <span class="o">=</span> <span class="n">gcut</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rcut</span> <span class="o">=</span> <span class="n">rcut</span>
 
@@ -398,17 +436,17 @@
         <span class="c1"># element + upper diagonal part.</span>
         <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span>
         <span class="n">matself</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">n_atoms</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_atoms</span><span class="p">))</span>
-        <span class="n">diag</span> <span class="o">=</span> <span class="n">q</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">diag</span> <span class="o">=</span> <span class="n">q</span> <span class="o">**</span> <span class="mi">2</span>
         <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">matself</span><span class="p">,</span> <span class="n">diag</span><span class="p">)</span>
-        <span class="n">matself</span> <span class="o">*=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">sqrt_pi</span>
+        <span class="n">matself</span> <span class="o">*=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">sqrt_pi</span>
 
         <span class="c1"># Calculate the interaction energy between constant neutralizing</span>
         <span class="c1"># background charge. On the diagonal this is defined by</span>
-        <span class="n">matbg</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">q</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span><span class="o">*</span><span class="n">q</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
-        <span class="n">matbg</span> <span class="o">*=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">volume</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">a_squared</span><span class="p">)</span>
+        <span class="n">matbg</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">q</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">*</span> <span class="n">q</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">matbg</span> <span class="o">*=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">volume</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">a_squared</span><span class="p">)</span>
 
         <span class="c1"># The diagonal terms are divided by two</span>
-        <span class="n">diag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">matbg</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+        <span class="n">diag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">matbg</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
         <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">matbg</span><span class="p">,</span> <span class="n">diag</span><span class="p">)</span>
 
         <span class="n">correction_matrix</span> <span class="o">=</span> <span class="n">matself</span> <span class="o">+</span> <span class="n">matbg</span>
@@ -441,10 +479,7 @@
 
             <span class="c1"># Get points that are within the real space cutoff</span>
             <span class="n">nfcoords</span><span class="p">,</span> <span class="n">rij</span><span class="p">,</span> <span class="n">js</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_points_in_sphere</span><span class="p">(</span>
-                <span class="n">fcoords</span><span class="p">,</span>
-                <span class="n">coords</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">rcut</span><span class="p">,</span>
-                <span class="n">zip_results</span><span class="o">=</span><span class="kc">False</span>
+                <span class="n">fcoords</span><span class="p">,</span> <span class="n">coords</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">rcut</span><span class="p">,</span> <span class="n">zip_results</span><span class="o">=</span><span class="kc">False</span>
             <span class="p">)</span>
             <span class="c1"># Remove the rii term, because a charge does not interact with</span>
             <span class="c1"># itself (but does interact with copies of itself).</span>
@@ -464,7 +499,7 @@
                 <span class="n">ereal</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">new_ereals</span><span class="p">[</span><span class="n">js</span> <span class="o">==</span> <span class="n">k</span><span class="p">])</span>
 
         <span class="c1"># The diagonal terms are divided by two</span>
-        <span class="n">diag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">ereal</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+        <span class="n">diag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">ereal</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
         <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">ereal</span><span class="p">,</span> <span class="n">diag</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">ereal</span>
@@ -491,10 +526,9 @@
         <span class="n">coords</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
 
         <span class="c1"># Get the reciprocal lattice points within the reciprocal space cutoff</span>
-        <span class="n">rcp_latt</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">system</span><span class="o">.</span><span class="n">get_reciprocal_cell</span><span class="p">()</span>
+        <span class="n">rcp_latt</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">system</span><span class="o">.</span><span class="n">get_reciprocal_cell</span><span class="p">()</span>
         <span class="n">rcp_latt</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span><span class="n">rcp_latt</span><span class="p">)</span>
-        <span class="n">recip_nn</span> <span class="o">=</span> <span class="n">rcp_latt</span><span class="o">.</span><span class="n">get_points_in_sphere</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
-                                                 <span class="bp">self</span><span class="o">.</span><span class="n">gcut</span><span class="p">)</span>
+        <span class="n">recip_nn</span> <span class="o">=</span> <span class="n">rcp_latt</span><span class="o">.</span><span class="n">get_points_in_sphere</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">gcut</span><span class="p">)</span>
 
         <span class="c1"># Ignore the terms with G=0.</span>
         <span class="n">frac_coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">fcoords</span> <span class="k">for</span> <span class="p">(</span><span class="n">fcoords</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="ow">in</span> <span class="n">recip_nn</span> <span class="k">if</span> <span class="n">dist</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span>
@@ -520,7 +554,7 @@
         <span class="n">erecip</span> <span class="o">*=</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">volume</span> <span class="o">*</span> <span class="n">qiqj</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">**</span> <span class="mf">0.5</span>
 
         <span class="c1"># The diagonal terms are divided by two</span>
-        <span class="n">diag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">erecip</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+        <span class="n">diag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">erecip</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
         <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">erecip</span><span class="p">,</span> <span class="n">diag</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">erecip</span></div>
