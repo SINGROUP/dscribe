@@ -496,6 +496,10 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         )
         n_features = desc.get_number_of_features()
 
+        # Determining number of jobs based on the amount of CPUs
+        desc.create(system=samples, n_jobs=-1, only_physical_cores=False)
+        desc.create(system=samples, n_jobs=-1, only_physical_cores=True)
+
         # Multiple systems, serial job, indices, fixed size
         output = desc.create(
             system=samples,
@@ -1644,7 +1648,8 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
 
 if __name__ == "__main__":
-    suites = []
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapTests))
-    alltests = unittest.TestSuite(suites)
-    result = unittest.TextTestRunner(verbosity=0).run(alltests)
+    SoapTests().test_parallel_dense()
+    # suites = []
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapTests))
+    # alltests = unittest.TestSuite(suites)
+    # result = unittest.TextTestRunner(verbosity=0).run(alltests)

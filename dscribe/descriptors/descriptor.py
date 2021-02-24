@@ -23,6 +23,7 @@ from ase import Atoms
 from dscribe.core.system import System
 from dscribe.utils.species import get_atomic_numbers
 
+import joblib
 from joblib import Parallel, delayed
 
 
@@ -160,7 +161,7 @@ class Descriptor(ABC):
             )
 
     def create_parallel(
-        self, inp, func, n_jobs, static_size=None, verbose=False, prefer="processes"
+        self, inp, func, n_jobs, static_size=None, only_physical_cores=False, verbose=False, prefer="processes"
     ):
         """Used to parallelize the descriptor creation across multiple systems.
 
@@ -172,14 +173,21 @@ class Descriptor(ABC):
                 input arguments from "inp".
             n_jobs (int): Number of parallel jobs to instantiate. Parallellizes
                 the calculation across samples. Defaults to serial calculation
-                with n_jobs=1.
+                with n_jobs=1. If a negative number is given, the number of jobs
+                will be calculated with, n_cpus + n_jobs, where n_cpus is the
+                amount of CPUs as reported by the OS. With only_physical_cores
+                you can control which types of CPUs are counted in n_cpus.
             output_sizes(list of ints): The size of the output for each job.
                 Makes the creation faster by preallocating the correct amount of
                 memory beforehand. If not specified, a dynamically created list of
                 outputs is used.
+            only_physical_cores (bool): If a negative n_jobs is given,
+                determines which types of CPUs are used in calculating the
+                number of jobs. If set to False (default), also virtual CPUs
+                are counted.  If set to True, only physical CPUs are counted.
             verbose(bool): Controls whether to print the progress of each job
                 into to the console.
-            backend (str): The parallelization method. Valid options are:
+            prefer (str): The parallelization method. Valid options are:
 
                 - "processes": Parallelization based on processes. Uses the
                   "loky" backend in joblib to serialize the jobs and run them
@@ -199,6 +207,12 @@ class Descriptor(ABC):
             for each given input. The return type depends on the desciptor
             setup.
         """
+        # Determine the number of jobs
+        if n_jobs < 0:
+            n_jobs = joblib.cpu_count(only_physical_cores) + n_jobs
+        if n_jobs <= 0:
+            raise ValueError("Invalid number of jobs specified.")
+
         # Split data into n_jobs (almost) equal jobs
         n_samples = len(inp)
         is_sparse = self._sparse
@@ -365,6 +379,7 @@ class Descriptor(ABC):
         derivatives_shape,
         descriptor_shape,
         return_descriptor,
+        only_physical_cores=False,
         verbose=False,
         prefer="processes",
     ):
@@ -376,18 +391,25 @@ class Descriptor(ABC):
                 "func".
             func(function): Function that outputs the descriptor when given
                 input arguments from "inp".
-            n_jobs(int): Number of parallel jobs to instantiate. Parallellizes
+            n_jobs (int): Number of parallel jobs to instantiate. Parallellizes
                 the calculation across samples. Defaults to serial calculation
-                with n_jobs=1.
+                with n_jobs=1. If a negative number is given, the number of jobs
+                will be calculated with, n_cpus + n_jobs, where n_cpus is the
+                amount of CPUs as reported by the OS. With only_physical_cores
+                you can control which types of CPUs are counted in n_cpus.
             derivatives_shape(list or None): If a fixed size output is produced from
                 each job, this contains its shape. For variable size output
                 this parameter is set to None
             derivatives_shape(list or None): If a fixed size output is produced from
                 each job, this contains its shape. For variable size output
                 this parameter is set to None
+            only_physical_cores (bool): If a negative n_jobs is given,
+                determines which types of CPUs are used in calculating the
+                number of jobs. If set to False (default), also virtual CPUs
+                are counted.  If set to True, only physical CPUs are counted.
             verbose(bool): Controls whether to print the progress of each job
                 into to the console.
-            backend(str): The parallelization method. Valid options are:
+            prefer(str): The parallelization method. Valid options are:
 
                 - "processes": Parallelization based on processes. Uses the
                   "loky" backend in joblib to serialize the jobs and run them
@@ -407,6 +429,12 @@ class Descriptor(ABC):
             for each given input. The return type depends on the desciptor
             setup.
         """
+        # Determine the number of jobs
+        if n_jobs < 0:
+            n_jobs = joblib.cpu_count(only_physical_cores) + n_jobs
+        if n_jobs <= 0:
+            raise ValueError("Invalid number of jobs specified.")
+
         # Split data into n_jobs (almost) equal jobs
         n_samples = len(inp)
         is_sparse = self._sparse

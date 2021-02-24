@@ -173,6 +173,10 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
         )
         n_features = desc.get_number_of_features()
 
+        # Determining number of jobs based on the amount of CPUs
+        desc.create(system=samples, n_jobs=-1, only_physical_cores=False)
+        desc.create(system=samples, n_jobs=-1, only_physical_cores=True)
+
         # Multiple systems, serial job, fixed size
         output = desc.create(
             system=samples,

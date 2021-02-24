@@ -117,6 +117,10 @@ class EwaldSumMatrixTests(TestBaseClass, unittest.TestCase):
         )
         n_features = desc.get_number_of_features()
 
+        # Determining number of jobs based on the amount of CPUs
+        desc.create(system=samples, n_jobs=-1, only_physical_cores=False)
+        desc.create(system=samples, n_jobs=-1, only_physical_cores=True)
+
         # Test multiple systems, serial job
         output = desc.create(
             system=samples,

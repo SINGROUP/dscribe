@@ -85,6 +85,10 @@ class SineMatrixTests(TestBaseClass, unittest.TestCase):
         desc = SineMatrix(n_atoms_max=5, permutation="none", flatten=True, sparse=False)
         n_features = desc.get_number_of_features()
 
+        # Determining number of jobs based on the amount of CPUs
+        desc.create(system=samples, n_jobs=-1, only_physical_cores=False)
+        desc.create(system=samples, n_jobs=-1, only_physical_cores=True)
+
         # Multiple systems, serial job
         output = desc.create(
             system=samples,

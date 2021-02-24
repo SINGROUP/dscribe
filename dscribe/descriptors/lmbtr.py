@@ -204,7 +204,7 @@ class LMBTR(MBTR):
             )
         self._normalization = value
 
-    def create(self, system, positions=None, n_jobs=1, verbose=False):
+    def create(self, system, positions=None, n_jobs=1, only_physical_cores=False, verbose=False):
         """Return the LMBTR output for the given systems and given positions.
 
         Args:
@@ -217,7 +217,14 @@ class LMBTR(MBTR):
                 systems, provide the positions as a list for each system.
             n_jobs (int): Number of parallel jobs to instantiate. Parallellizes
                 the calculation across samples. Defaults to serial calculation
-                with n_jobs=1.
+                with n_jobs=1. If a negative number is given, the used cpus
+                will be calculated with, n_cpus + n_jobs, where n_cpus is the
+                amount of CPUs as reported by the OS. With only_physical_cores
+                you can control which types of CPUs are counted in n_cpus.
+            only_physical_cores (bool): If a negative n_jobs is given,
+                determines which types of CPUs are used in calculating the
+                number of jobs. If set to False (default), also virtual CPUs
+                are counted.  If set to True, only physical CPUs are counted.
             verbose(bool): Controls whether to print the progress of each job
                 into to the console.
 
@@ -269,7 +276,7 @@ class LMBTR(MBTR):
 
         # Create in parallel
         output = self.create_parallel(
-            inp, self.create_single, n_jobs, static_size, verbose=verbose
+            inp, self.create_single, n_jobs, static_size, only_physical_cores, verbose=verbose
         )
 
         return output

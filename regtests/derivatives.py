@@ -174,11 +174,15 @@ class SoapDerivativeTests(unittest.TestCase):
             sparse=False,
         )
         n_features = desc.get_number_of_features()
+        samples = [molecule("CO"), molecule("CO")]
+        centers = [[0], [0]]
+
+        # Determining number of jobs based on the amount of CPUs
+        desc.derivatives(system=samples, n_jobs=-1, only_physical_cores=False)
+        desc.derivatives(system=samples, n_jobs=-1, only_physical_cores=True)
 
         # Perhaps most common scenario: multiple systems with same atoms in
         # different locations, sames centers and indices, dense numpy output.
-        samples = [molecule("CO"), molecule("CO")]
-        centers = [[0], [0]]
         der, des = desc.derivatives(
             system=samples,
             positions=centers,
@@ -603,10 +607,11 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    suites = []
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
-    suites.append(
-        unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests)
-    )
-    alltests = unittest.TestSuite(suites)
-    result = unittest.TextTestRunner(verbosity=0).run(alltests)
+    SoapDerivativeTests().test_parallel_dense()
+    # suites = []
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
+    # suites.append(
+        # unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests)
+    # )
+    # alltests = unittest.TestSuite(suites)
+    # result = unittest.TextTestRunner(verbosity=0).run(alltests)

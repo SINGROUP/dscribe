@@ -262,7 +262,7 @@ class SOAP(Descriptor):
         d = np.zeros((n_centers, n_types, n, (lMax + 1) * (lMax + 1)), dtype=np.float64)
         return d
 
-    def create(self, system, positions=None, n_jobs=1, verbose=False):
+    def create(self, system, positions=None, n_jobs=1, only_physical_cores=False, verbose=False):
         """Return the SOAP output for the given systems and given positions.
 
         Args:
@@ -275,7 +275,14 @@ class SOAP(Descriptor):
                 systems, provide the positions as a list for each system.
             n_jobs (int): Number of parallel jobs to instantiate. Parallellizes
                 the calculation across samples. Defaults to serial calculation
-                with n_jobs=1.
+                with n_jobs=1. If a negative number is given, the used cpus
+                will be calculated with, n_cpus + n_jobs, where n_cpus is the
+                amount of CPUs as reported by the OS. With only_physical_cores
+                you can control which types of CPUs are counted in n_cpus.
+            only_physical_cores (bool): If a negative n_jobs is given,
+                determines which types of CPUs are used in calculating the
+                number of jobs. If set to False (default), also virtual CPUs
+                are counted.  If set to True, only physical CPUs are counted.
             verbose(bool): Controls whether to print the progress of each job
                 into to the console.
 
@@ -341,7 +348,7 @@ class SOAP(Descriptor):
 
         # Create in parallel
         output = self.create_parallel(
-            inp, self.create_single, n_jobs, static_size, verbose=verbose
+            inp, self.create_single, n_jobs, static_size, only_physical_cores, verbose=verbose
         )
 
         return output
@@ -533,6 +540,7 @@ class SOAP(Descriptor):
         method="auto",
         return_descriptor=True,
         n_jobs=1,
+        only_physical_cores=False,
         verbose=False,
     ):
         """Return the descriptor derivatives for the given systems and given positions.
@@ -559,7 +567,14 @@ class SOAP(Descriptor):
                 to calculate both in one go.
             n_jobs (int): Number of parallel jobs to instantiate. Parallellizes
                 the calculation across samples. Defaults to serial calculation
-                with n_jobs=1.
+                with n_jobs=1. If a negative number is given, the number of jobs
+                will be calculated with, n_cpus + n_jobs, where n_cpus is the
+                amount of CPUs as reported by the OS. With only_physical_cores
+                you can control which types of CPUs are counted in n_cpus.
+            only_physical_cores (bool): If a negative n_jobs is given,
+                determines which types of CPUs are used in calculating the
+                number of jobs. If set to False (default), also virtual CPUs
+                are counted.  If set to True, only physical CPUs are counted.
             verbose(bool): Controls whether to print the progress of each job
                 into to the console.
 
@@ -608,18 +623,22 @@ class SOAP(Descriptor):
             else:
                 method = "analytical"
 
-        # If single system given, skip the parallelization
         if isinstance(system, (Atoms, System)):
-            n_atoms = len(system)
+            system = [system]
+
+        # If single system given, skip the parallelization
+        if len(system) == 1:
+            n_atoms = len(system[0])
             indices = self._get_indices(n_atoms, include, exclude)
             return self.derivatives_single(
-                system,
+                system[0],
                 positions,
                 indices,
                 method=method,
                 return_descriptor=return_descriptor,
             )
 
+        # Check input validity
         self._check_system_list(system)
         n_samples = len(system)
         if positions is None:
@@ -678,26 +697,19 @@ class SOAP(Descriptor):
             n_indices = len(job[2])
             return (n_positions, n_indices, 3, n_features), (n_positions, n_features)
 
-        k, m = divmod(n_samples, n_jobs)
-        jobs = list(
-            inp[i * k + min(i, m) : (i + 1) * k + min(i + 1, m)] for i in range(n_jobs)
-        )
-        derivatives_shape, descriptor_shape = get_shapes(jobs[0][0])
+        derivatives_shape, descriptor_shape = get_shapes(inp[0])
 
-        # Determine what the output sizes will be, and whether the size stays
-        # fixed or not.
-        def is_variable(jobs):
-            for i_job in jobs:
-                for job in i_job:
-                    i_derivatives_shape, i_descriptor_shape = get_shapes(job)
-                    if (
-                        i_derivatives_shape != derivatives_shape
-                        or i_descriptor_shape != descriptor_shape
-                    ):
-                        return True
+        def is_variable(inp):
+            for job in inp[1:]:
+                i_der_shape, i_desc_shape = get_shapes(job)
+                if (
+                    i_der_shape != derivatives_shape
+                    or i_desc_shape != descriptor_shape
+                ):
+                    return True
             return False
 
-        if is_variable(jobs):
+        if is_variable(inp):
             derivatives_shape = None
             descriptor_shape = None
 
@@ -709,7 +721,8 @@ class SOAP(Descriptor):
             derivatives_shape,
             descriptor_shape,
             return_descriptor,
-            verbose=verbose,
+            only_physical_cores,
+            verbose=verbose
         )
 
         return output
