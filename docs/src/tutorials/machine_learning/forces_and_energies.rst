@@ -1,6 +1,12 @@
 Predicting forces and energies a.k.a. training a ML force-field
 ===============================================================
 
+.. note::
+   We are incrementally adding support for calculating the derivatives of
+   descriptors with respect to the atom positions. In version **0.5.0rc1** you
+   can find an implementation for getting derivatives of non-periodic systems
+   for the SOAP descriptor.
+
 This tutorial covers how descriptors can be effectively used as input for a
 machine learning model that will predict energies and forces. There are several
 design choices that you have to make when building a ML force-field: which ML
@@ -64,8 +70,12 @@ variance in the training set.
 
 Dataset generation
 ------------------
-The following script generates our training dataset. You can find it in the
-examples folder.
+.. note::
+   The code for this tutorial can be found under
+   *examples/forces_and_energies/*. Notice that if you want to run the training
+   yourself, you will need to install `pytorch <https://pytorch.org/>`_.
+
+The following script generates our training dataset:
 
 .. literalinclude:: ../../../../examples/forces_and_energies/dataset.py
     :language: python

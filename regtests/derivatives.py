@@ -44,6 +44,7 @@ H = Atoms(
     symbols=["H"],
 )
 H2O = molecule("H2O")
+CO2 = molecule("CO2")
 
 
 class SoapDerivativeTests(unittest.TestCase):
@@ -117,7 +118,7 @@ class SoapDerivativeTests(unittest.TestCase):
 
     def test_include(self):
         soap = SOAP(
-            species=[1, 8],
+            species=[1, 6, 8],
             rcut=3,
             nmax=2,
             lmax=1,
@@ -141,9 +142,15 @@ class SoapDerivativeTests(unittest.TestCase):
             self.assertTrue(np.array_equal(D1[:, 0], D2[:, 2]))
             self.assertTrue(np.array_equal(D1[:, 1], D2[:, 0]))
 
+            # Test that using single list and multiple samples works
+            D1, d1 = soap.derivatives([H2O, CO2], include=[1, 0], method=method)
+            D2, d2 = soap.derivatives([H2O, CO2], method=method)
+            self.assertTrue(np.array_equal(D1[:, :, 0], D2[:, :, 1]))
+            self.assertTrue(np.array_equal(D1[:, :, 1], D2[:, :, 0]))
+
     def test_exclude(self):
         soap = SOAP(
-            species=[1, 8],
+            species=[1, 6, 8],
             rcut=3,
             nmax=2,
             lmax=1,
@@ -164,6 +171,12 @@ class SoapDerivativeTests(unittest.TestCase):
             D2, d2 = soap.derivatives(H2O, method=method)
             self.assertTrue(np.array_equal(D1[:, 0], D2[:, 0]))
             self.assertTrue(np.array_equal(D1[:, 1], D2[:, 2]))
+
+            # Test that using single list and multiple samples works
+            D1, d1 = soap.derivatives([H2O, CO2], exclude=[1], method=method)
+            D2, d2 = soap.derivatives([H2O, CO2], method=method)
+            self.assertTrue(np.array_equal(D1[:, :, 0], D2[:, :, 0]))
+            self.assertTrue(np.array_equal(D1[:, :, 1], D2[:, :, 2]))
 
     def test_parallel_dense(self):
         """Tests creating dense output parallelly."""
@@ -612,10 +625,11 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    suites = []
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
-    suites.append(
-        unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests)
-    )
-    alltests = unittest.TestSuite(suites)
-    result = unittest.TextTestRunner(verbosity=0).run(alltests)
+    SoapDerivativeTests().test_exclude()
+    # suites = []
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
+    # suites.append(
+        # unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests)
+    # )
+    # alltests = unittest.TestSuite(suites)
+    # result = unittest.TextTestRunner(verbosity=0).run(alltests)

@@ -27,6 +27,7 @@ import sparse as sp
 
 from dscribe.descriptors import Descriptor
 from dscribe.core import System
+from dscribe.utils.dimensionality import is1d
 import dscribe.ext
 
 
@@ -561,11 +562,15 @@ class SOAP(Descriptor):
                 atoms in the system. When calculating descriptor for multiple
                 systems, provide the positions as a list for each system.
             include (list): Indices of atoms to compute the derivatives on.
-                When calculating descriptor for multiple systems, provide a list of indices.
-                Cannot be provided together with 'exclude'.
+                When calculating descriptor for multiple systems, provide
+                either a one-dimensional list that if applied to all systems or
+                a two-dimensional list of indices. Cannot be provided together
+                with 'exclude'.
             exclude (list): Indices of atoms not to compute the derivatives on.
-                When calculating descriptor for multiple systems, provide a list of indices.
-                Cannot be provided together with 'include'.
+                When calculating descriptor for multiple systems, provide
+                either a one-dimensional list that if applied to all systems or
+                a two-dimensional list of indices. Cannot be provided together
+                with 'include'.
             method (str): The method for calculating the derivatives. Provide
                 either 'numerical', 'analytical' or 'auto'. If using 'auto',
                 the most efficient available method is automatically chosen.
@@ -652,8 +657,12 @@ class SOAP(Descriptor):
             positions = [None] * n_samples
         if include is None:
             include = [None] * n_samples
+        elif is1d(include, np.integer):
+            include = [include] * n_samples
         if exclude is None:
             exclude = [None] * n_samples
+        elif is1d(exclude, np.integer):
+            exclude = [exclude] * n_samples
         n_pos = len(positions)
         if n_pos != n_samples:
             raise ValueError(

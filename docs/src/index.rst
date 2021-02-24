@@ -1,8 +1,8 @@
 DScribe
 =======
 
-.. image:: https://travis-ci.org/SINGROUP/dscribe.svg?branch=master
-    :target: https://travis-ci.org/SINGROUP/dscribe
+.. image:: https://dev.azure.com/laurihimanen/DScribe%20CI/_apis/build/status/SINGROUP.dscribe?branchName=master
+    :target: https://dev.azure.com/laurihimanen/DScribe%20CI/_build/latest?definitionId=1&branchName=master
 
 .. image:: https://coveralls.io/repos/github/SINGROUP/dscribe/badge.svg?branch=master
     :target: https://coveralls.io/github/SINGROUP/dscribe?branch=master
@@ -18,12 +18,17 @@ similarity analysis, etc. To get started you can check the :doc:`basic tutorial
 
 .. note::
    We are incrementally adding support for calculating the derivatives of
-   descriptors with respect to the atom positions. In version **0.5.0rc1** you can
-   find an initial implementation for getting these derivatives for the SOAP
-   descriptor. Please check the :doc:`new documentation on derivatives
-   <tutorials/derivatives>` and the new :doc:`new tutorial
+   descriptors with respect to the atom positions. In version **0.5.0rc1** you
+   can find an implementation for getting derivatives of non-periodic systems
+   for the SOAP descriptor. Please check the :doc:`new documentation on
+   derivatives <tutorials/derivatives>` and the new :doc:`new tutorial
    <tutorials/machine_learning/forces_and_energies>` on predicting energies and
    forces using these derivatives.
+
+.. note::
+   Version **0.5.x** introduces some improvements that are not directly
+   backwards compatible with previous versions. Check the :doc:`changelog
+   <changelog>` for details.
 
 Capabilities at a Glance
 ========================
