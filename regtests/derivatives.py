@@ -629,7 +629,7 @@ if __name__ == "__main__":
     # suites = []
     # suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
     # suites.append(
-        # unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests)
+    # unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests)
     # )
     # alltests = unittest.TestSuite(suites)
     # result = unittest.TextTestRunner(verbosity=0).run(alltests)
