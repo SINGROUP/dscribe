@@ -1,0 +1,476 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Sine matrix &mdash; DScribe 1.0.x documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/style.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script src="../../_static/js/versions.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../about.html" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Ewald sum matrix" href="ewald_sum_matrix.html" />
+    <link rel="prev" title="Coulomb Matrix" href="coulomb_matrix.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html">
+          
+
+          
+            
+            <img src="../../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../basics.html">Basic concepts</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="descriptors.html">Descriptors</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="coulomb_matrix.html">Coulomb Matrix</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Sine matrix</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#setup">Setup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#creation">Creation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ewald_sum_matrix.html">Ewald sum matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="acsf.html">Atom-centered Symmetry Functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="soap.html">Smooth Overlap of Atomic Positions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mbtr.html">Many-body Tensor Representation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lmbtr.html">Local Many-body Tensor Representation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../derivatives.html">Derivatives</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sparse.html">Sparse output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../machine_learning/machine_learning.html">Machine learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../similarity_analysis/similarity_analysis.html">Similarity analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../doc/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../citing.html">Citing DScribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../about.html">About</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">DScribe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../tutorials.html">Tutorials</a> &raquo;</li>
+        
+          <li><a href="descriptors.html">Descriptors</a> &raquo;</li>
+        
+      <li>Sine matrix</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/tutorials/descriptors/sine_matrix.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="sine-matrix">
+<h1>Sine matrix<a class="headerlink" href="#sine-matrix" title="Permalink to this headline">¶</a></h1>
+<p>The sine matrix <a class="bibtex reference internal" href="#sm" id="id1">[1]</a> captures features of interacting atoms in a periodic
+system with a very low computational cost. The matrix elements are defined by</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{equation}
+M_{ij}^\mathrm{sine}=\left\{
+    \begin{matrix}
+    0.5 Z_i^{2.4} &amp; \text{for } i = j \\
+        \frac{Z_i Z_j}{\lvert \mathbf{B} \cdot \sum_{k=\{x,y,z\}} \hat{\mathbf{e}}_k \sin^2 \left( \pi \mathbf{B}^{-1} \cdot \left( \mathbf{R}_{i} - \mathbf{R}_{j} \right) \right)\rvert} &amp; \text{for } i \neq j
+    \end{matrix}
+    \right.
+\end{equation}\end{split}\]</div>
+<p>Here <span class="math notranslate nohighlight">\(\mathbf{B}\)</span> is a matrix formed by the lattice vectors and
+<span class="math notranslate nohighlight">\(\hat{\mathbf{e}}_k\)</span> are the cartesian unit vectors. This functional form
+has no physical interpretation, but it captures some of the properties of the
+Coulomb interaction, such as the periodicity of the crystal lattice and an
+infinite energy when two atoms overlap.</p>
+<div class="section" id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h2>
+<p>Instantiating the object that is used to create Sine matrices can be done as
+follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">SineMatrix</span>
+
+<span class="c1"># Setting up the sine matrix descriptor</span>
+<span class="n">sm</span> <span class="o">=</span> <span class="n">SineMatrix</span><span class="p">(</span>
+    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+    <span class="n">permutation</span><span class="o">=</span><span class="s2">&quot;sorted_l2&quot;</span><span class="p">,</span>
+    <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The constructor takes the following parameters:</p>
+<dl class="py method">
+<dt id="dscribe.descriptors.sinematrix.SineMatrix.__init__">
+<code class="sig-prename descclassname">SineMatrix.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_atoms_max</span></em>, <em class="sig-param"><span class="n">permutation</span><span class="o">=</span><span class="default_value">'sorted_l2'</span></em>, <em class="sig-param"><span class="n">sigma</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">flatten</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">sparse</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#dscribe.descriptors.sinematrix.SineMatrix.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_atoms_max</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The maximum nuber of atoms that any of the
+samples can have. This controls how much zeros need to be
+padded to the final result.</p></li>
+<li><p><strong>permutation</strong> (<em>string</em>) – <p>Defines the method for handling permutational
+invariance. Can be one of the following:</p>
+<blockquote>
+<div><ul>
+<li><p>none: The matrix is returned in the order defined by the
+Atoms.</p></li>
+<li><p>sorted_l2: The rows and columns are sorted by the L2 norm.</p></li>
+<li><p>eigenspectrum: Only the eigenvalues are returned sorted
+by their absolute value in descending order.</p></li>
+<li><p>random: The rows and columns are sorted by their L2 norm
+after applying Gaussian noise to the norms. The standard
+deviation of the noise is determined by the
+sigma-parameter.</p></li>
+</ul>
+</div></blockquote>
+</p></li>
+<li><p><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Provide only when using the <em>random</em>-permutation
+option. Standard deviation of the gaussian distributed noise
+determining how much the rows and columns of the randomly
+sorted matrix are scrambled.</p></li>
+<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Provide only when using the <em>random</em>-permutation
+option. A seed to use for drawing samples from a normal
+distribution.</p></li>
+<li><p><strong>flatten</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether the output of create() should be flattened
+to a 1D array.</p></li>
+<li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
+dense numpy array.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="creation">
+<h2>Creation<a class="headerlink" href="#creation" title="Permalink to this headline">¶</a></h2>
+<p>After the Sine matrix has been set up, it may be used on periodic atomic
+structures with the <a class="reference internal" href="#dscribe.descriptors.sinematrix.SineMatrix.create" title="dscribe.descriptors.sinematrix.SineMatrix.create"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create()</span></code></a>-method.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">bulk</span>
+
+<span class="c1"># NaCl crystal created as an ASE.Atoms</span>
+<span class="n">nacl</span> <span class="o">=</span> <span class="n">bulk</span><span class="p">(</span><span class="s2">&quot;NaCl&quot;</span><span class="p">,</span> <span class="s2">&quot;rocksalt&quot;</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mf">5.64</span><span class="p">)</span>
+
+<span class="c1"># Create output for the system</span>
+<span class="n">nacl_sine</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">nacl</span><span class="p">)</span>
+
+<span class="c1"># Create output for multiple system</span>
+<span class="n">al</span> <span class="o">=</span> <span class="n">bulk</span><span class="p">(</span><span class="s2">&quot;Al&quot;</span><span class="p">,</span> <span class="s2">&quot;fcc&quot;</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mf">4.046</span><span class="p">)</span>
+<span class="n">fe</span> <span class="o">=</span> <span class="n">bulk</span><span class="p">(</span><span class="s2">&quot;Fe&quot;</span><span class="p">,</span> <span class="s2">&quot;bcc&quot;</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mf">2.856</span><span class="p">)</span>
+<span class="n">samples</span> <span class="o">=</span> <span class="p">[</span><span class="n">nacl</span><span class="p">,</span> <span class="n">al</span><span class="p">,</span> <span class="n">fe</span><span class="p">]</span>
+<span class="n">sine_matrices</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>            <span class="c1"># Serial</span>
+<span class="n">sine_matrices</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># Parallel</span>
+</pre></div>
+</div>
+<p>The call syntax for the create-function is as follows:</p>
+<dl class="py method">
+<dt id="dscribe.descriptors.sinematrix.SineMatrix.create">
+<code class="sig-prename descclassname">SineMatrix.</code><code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">only_physical_cores</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dscribe/descriptors/sinematrix.html#SineMatrix.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.sinematrix.SineMatrix.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Sine matrix for the given systems.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> or list of <code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code>) – One or
+many atomic structures.</p></li>
+<li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
+the calculation across samples. Defaults to serial calculation
+with n_jobs=1. If a negative number is given, the used cpus
+will be calculated with, n_cpus + n_jobs, where n_cpus is the
+amount of CPUs as reported by the OS. With only_physical_cores
+you can control which types of CPUs are counted in n_cpus.</p></li>
+<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If a negative n_jobs is given,
+determines which types of CPUs are used in calculating the
+number of jobs. If set to False (default), also virtual CPUs
+are counted.  If set to True, only physical CPUs are counted.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Controls whether to print the progress of each job
+into to the console.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Sine matrix for the given systems. The
+return type depends on the ‘sparse’ and ‘flatten’-attributes. For
+flattened output a single numpy array or sparse.COO is returned.
+The first dimension is determined by the amount of systems.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray | sparse.COO</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Note that if you specify in <em>n_atoms_max</em> a lower number than atoms in your
+structure it will cause an error. The output will in this case be a flattened
+matrix, specifically a numpy array with size #atoms * #atoms. The number of
+features may be requested beforehand with the
+<a class="reference internal" href="../../doc/dscribe.descriptors.html#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.get_number_of_features" title="dscribe.descriptors.matrixdescriptor.MatrixDescriptor.get_number_of_features"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_number_of_features()</span></code></a>-method.</p>
+<p>In the case of multiple samples, the creation can also be parallellized by using the
+<em>n_jobs</em>-parameter. This splits the list of structures into equally sized parts
+and spaws a separate process to handle each part.</p>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>The following examples demonstrate usage of the descriptor. These
+examples are also available in dscribe/examples/sinematrix.py.</p>
+<div class="section" id="interaction-in-a-periodic-crystal">
+<h3>Interaction in a periodic crystal<a class="headerlink" href="#interaction-in-a-periodic-crystal" title="Permalink to this headline">¶</a></h3>
+<p>The following code calculates the interaction value, as defined by the sine
+matrix, between two aluminum atoms in an FCC-lattice. The values are calculated
+in the xy-plane.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">ase</span> <span class="kn">import</span> <span class="n">Atoms</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">mpl</span>
+<span class="kn">from</span> <span class="nn">mpl_toolkits.axes_grid1</span> <span class="kn">import</span> <span class="n">make_axes_locatable</span>
+
+<span class="c1"># FCC aluminum crystal</span>
+<span class="n">system</span> <span class="o">=</span> <span class="n">bulk</span><span class="p">(</span><span class="s2">&quot;Al&quot;</span><span class="p">,</span> <span class="s2">&quot;fcc&quot;</span><span class="p">,</span> <span class="n">cubic</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="c1"># Calculate the sine matrix entries for a 2D slice at z=0</span>
+<span class="n">sm</span> <span class="o">=</span> <span class="n">SineMatrix</span><span class="p">(</span>
+    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">permutation</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
+    <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">flatten</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+<span class="n">n</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">d</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+<span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">ix</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">iy</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+        <span class="n">i_atom</span> <span class="o">=</span> <span class="n">Atoms</span><span class="p">([</span><span class="s2">&quot;Al&quot;</span><span class="p">],</span> <span class="n">positions</span><span class="o">=</span><span class="p">[[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
+        <span class="n">i_sys</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">+</span><span class="n">i_atom</span>
+        <span class="n">i_sm</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">i_sys</span><span class="p">)</span>
+        <span class="n">i_sm</span> <span class="o">=</span> <span class="n">i_sm</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">grid</span><span class="p">[</span><span class="n">ix</span><span class="p">,</span> <span class="n">iy</span><span class="p">]</span> <span class="o">=</span> <span class="n">i_sm</span>
+
+<span class="c1"># Plot the resulting sine matrix values</span>
+<span class="n">maxval</span> <span class="o">=</span> <span class="mi">150</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">a_min</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">a_max</span><span class="o">=</span><span class="n">maxval</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">grid</span><span class="p">)</span>
+<span class="n">c1</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">linewidths</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">the_divider</span> <span class="o">=</span> <span class="n">make_axes_locatable</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">color_axis</span> <span class="o">=</span> <span class="n">the_divider</span><span class="o">.</span><span class="n">append_axes</span><span class="p">(</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="s2">&quot;5%&quot;</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c1</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">color_axis</span><span class="p">,</span> <span class="n">ticks</span><span class="o">=</span><span class="p">[</span><span class="n">grid</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">grid</span><span class="o">.</span><span class="n">max</span><span class="p">()])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;y (Å)&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;x (Å)&quot;</span><span class="p">)</span>
+<span class="n">mpl</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">mpl</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This code will result in the following plot:</p>
+<div class="figure align-center" id="id2">
+<a class="reference internal image-reference" href="../../_images/sinematrix.png"><img alt="sine matrix" src="../../_images/sinematrix.png" style="width: 460.8px; height: 384.0px;" /></a>
+<p class="caption"><span class="caption-text">Illustration of the periodic interaction defined by the sine matrix.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</div>
+<p>From the figure one can see that the sine matrix correctly encodes the
+periodicity of the lattice. Notice that the shape of the interaction is however
+not perfectly spherical.</p>
+<p id="bibtex-bibliography-tutorials/descriptors/sine_matrix-0"><dl class="citation">
+<dt class="bibtex label" id="sm"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>Felix Faber, Alexander Lindmaa, O. Anatole von Lilienfeld, and Rickard Armiento. Crystal structure representations for machine learning models of formation energies. <em>International Journal of Quantum Chemistry</em>, 115(16):1094–1101, 8 2015. <a class="reference external" href="https://doi.org/10.1002/qua.24917">doi:10.1002/qua.24917</a>.</p>
+</dd>
+</dl>
+</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="ewald_sum_matrix.html" class="btn btn-neutral float-right" title="Ewald sum matrix" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="coulomb_matrix.html" class="btn btn-neutral float-left" title="Coulomb Matrix" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Versions</span>
+      v: 1.0.x
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl id="version-table">
+        <dt>Versions</dt>
+      </dl>
+    </div>
+  </div>
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,615 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Coulomb Matrix &mdash; DScribe 1.0.x documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/style.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script src="../../_static/js/versions.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../about.html" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Sine matrix" href="sine_matrix.html" />
+    <link rel="prev" title="Descriptors" href="descriptors.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html">
+          
+
+          
+            
+            <img src="../../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../basics.html">Basic concepts</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="descriptors.html">Descriptors</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Coulomb Matrix</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#setup">Setup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#creation">Creation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#examples">Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#invariance">Invariance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#options-for-permutation">Options for permutation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sine_matrix.html">Sine matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ewald_sum_matrix.html">Ewald sum matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="acsf.html">Atom-centered Symmetry Functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="soap.html">Smooth Overlap of Atomic Positions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mbtr.html">Many-body Tensor Representation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lmbtr.html">Local Many-body Tensor Representation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../derivatives.html">Derivatives</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sparse.html">Sparse output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../machine_learning/machine_learning.html">Machine learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../similarity_analysis/similarity_analysis.html">Similarity analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../doc/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../citing.html">Citing DScribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../about.html">About</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">DScribe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../tutorials.html">Tutorials</a> &raquo;</li>
+        
+          <li><a href="descriptors.html">Descriptors</a> &raquo;</li>
+        
+      <li>Coulomb Matrix</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/tutorials/descriptors/coulomb_matrix.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="coulomb-matrix">
+<h1>Coulomb Matrix<a class="headerlink" href="#coulomb-matrix" title="Permalink to this headline">¶</a></h1>
+<p>Coulomb Matrix (CM) <a class="bibtex reference internal" href="#cm" id="id1">[1]</a> is a simple global descriptor which mimics the
+electrostatic interaction between nuclei.</p>
+<p>Coulomb matrix is calculated with the equation below.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{equation}
+M_{ij}^\mathrm{Coulomb}=\left\{
+    \begin{matrix}
+    0.5 Z_i^{2.4} &amp; \text{for } i = j \\
+        \frac{Z_i Z_j}{R_{ij}} &amp; \text{for } i \neq j
+    \end{matrix}
+    \right.
+\end{equation}\end{split}\]</div>
+<p>The diagonal elements can be seen as the interaction of an atom with itself and
+are essentially a polynomial fit of the atomic energies to the nuclear charge
+<span class="math notranslate nohighlight">\(Z_i\)</span>. The off-diagonal elements represent the Coulomb repulsion between
+nuclei <span class="math notranslate nohighlight">\(i\)</span> and <span class="math notranslate nohighlight">\(j\)</span>.</p>
+<p>Let’s have a look at the CM for methanol:</p>
+<a class="reference internal image-reference" href="../../_images/methanol-3d-balls.png"><img alt="image of methanol" class="align-center" src="../../_images/methanol-3d-balls.png" style="width: 172.0px; height: 114.5px;" /></a>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+36.9 &amp; 33.7 &amp; 5.5  &amp; 3.1  &amp; 5.5  &amp; 5.5 \\
+33.7 &amp; 73.5 &amp; 4.0  &amp; 8.2  &amp; 3.8  &amp; 3.8  \\
+ 5.5 &amp; 4.0  &amp; 0.5  &amp; 0.35 &amp; 0.56 &amp; 0.56 \\
+ 3.1 &amp; 8.2  &amp; 0.35 &amp; 0.5  &amp; 0.43 &amp; 0.43 \\
+ 5.5 &amp; 3.8  &amp; 0.56 &amp; 0.43 &amp; 0.5  &amp; 0.56 \\
+ 5.5 &amp; 3.8  &amp; 0.56 &amp; 0.43 &amp; 0.56 &amp; 0.5
+\end{bmatrix}\end{split}\]</div>
+<p>In the matrix above the first row corresponds to carbon (C) in methanol
+interacting with all the other atoms (columns 2-5) and itself (column 1).
+Likewise, the first column displays the same numbers, since the matrix is
+symmetric. Furthermore, the second row (column) corresponds to oxygen and the
+remaining rows (columns) correspond to hydrogen (H). Can you determine which
+one is which?</p>
+<p>Since the Coulomb Matrix was published in 2012 more sophisticated descriptors
+have been developed. However, CM still does a reasonably good job when
+comparing molecules with each other. Apart from that, it can be understood
+intuitively and is a good introduction to descriptors.</p>
+<div class="section" id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h2>
+<p>Instantiating the object that is used to create Coulomb matrices can be done as
+follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">CoulombMatrix</span>
+
+<span class="n">atomic_numbers</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span>
+<span class="n">rcut</span> <span class="o">=</span> <span class="mf">6.0</span>
+<span class="n">nmax</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="n">lmax</span> <span class="o">=</span> <span class="mi">6</span>
+
+<span class="c1"># Setting up the CM descriptor</span>
+<span class="n">cm</span> <span class="o">=</span> <span class="n">CoulombMatrix</span><span class="p">(</span>
+    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The constructor takes the following parameters:</p>
+<dl class="py method">
+<dt id="dscribe.descriptors.coulombmatrix.CoulombMatrix.__init__">
+<code class="sig-prename descclassname">CoulombMatrix.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_atoms_max</span></em>, <em class="sig-param"><span class="n">permutation</span><span class="o">=</span><span class="default_value">'sorted_l2'</span></em>, <em class="sig-param"><span class="n">sigma</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">flatten</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">sparse</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#dscribe.descriptors.coulombmatrix.CoulombMatrix.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_atoms_max</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The maximum nuber of atoms that any of the
+samples can have. This controls how much zeros need to be
+padded to the final result.</p></li>
+<li><p><strong>permutation</strong> (<em>string</em>) – <p>Defines the method for handling permutational
+invariance. Can be one of the following:</p>
+<blockquote>
+<div><ul>
+<li><p>none: The matrix is returned in the order defined by the
+Atoms.</p></li>
+<li><p>sorted_l2: The rows and columns are sorted by the L2 norm.</p></li>
+<li><p>eigenspectrum: Only the eigenvalues are returned sorted
+by their absolute value in descending order.</p></li>
+<li><p>random: The rows and columns are sorted by their L2 norm
+after applying Gaussian noise to the norms. The standard
+deviation of the noise is determined by the
+sigma-parameter.</p></li>
+</ul>
+</div></blockquote>
+</p></li>
+<li><p><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Provide only when using the <em>random</em>-permutation
+option. Standard deviation of the gaussian distributed noise
+determining how much the rows and columns of the randomly
+sorted matrix are scrambled.</p></li>
+<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Provide only when using the <em>random</em>-permutation
+option. A seed to use for drawing samples from a normal
+distribution.</p></li>
+<li><p><strong>flatten</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether the output of create() should be flattened
+to a 1D array.</p></li>
+<li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
+dense numpy array.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="creation">
+<h2>Creation<a class="headerlink" href="#creation" title="Permalink to this headline">¶</a></h2>
+<p>After CM has been set up, it may be used on atomic structures with the
+<a class="reference internal" href="#dscribe.descriptors.coulombmatrix.CoulombMatrix.create" title="dscribe.descriptors.coulombmatrix.CoulombMatrix.create"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create()</span></code></a>-method.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">molecule</span>
+
+<span class="c1"># Molecule created as an ASE.Atoms</span>
+<span class="n">methanol</span> <span class="o">=</span> <span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;CH3OH&quot;</span><span class="p">)</span>
+
+<span class="c1"># Create CM output for the system</span>
+<span class="n">cm_methanol</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">methanol</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">cm_methanol</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;flattened&quot;</span><span class="p">,</span> <span class="n">cm_methanol</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+<span class="c1"># Create output for multiple system</span>
+<span class="n">samples</span> <span class="o">=</span> <span class="p">[</span><span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;H2O&quot;</span><span class="p">),</span> <span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;NO2&quot;</span><span class="p">),</span> <span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;CO2&quot;</span><span class="p">)]</span>
+<span class="n">coulomb_matrices</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>            <span class="c1"># Serial</span>
+<span class="n">coulomb_matrices</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># Parallel</span>
+</pre></div>
+</div>
+<p>The call syntax for the create-function is as follows:</p>
+<dl class="py method">
+<dt id="dscribe.descriptors.coulombmatrix.CoulombMatrix.create">
+<code class="sig-prename descclassname">CoulombMatrix.</code><code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">only_physical_cores</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dscribe/descriptors/coulombmatrix.html#CoulombMatrix.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.coulombmatrix.CoulombMatrix.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Coulomb matrix for the given systems.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> or list of <code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code>) – One or
+many atomic structures.</p></li>
+<li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
+the calculation across samples. Defaults to serial calculation
+with n_jobs=1. If a negative number is given, the used cpus
+will be calculated with, n_cpus + n_jobs, where n_cpus is the
+amount of CPUs as reported by the OS. With only_physical_cores
+you can control which types of CPUs are counted in n_cpus.</p></li>
+<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If a negative n_jobs is given,
+determines which types of CPUs are used in calculating the
+number of jobs. If set to False (default), also virtual CPUs
+are counted.  If set to True, only physical CPUs are counted.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Controls whether to print the progress of each job
+into to the console.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Coulomb matrix for the given systems. The
+return type depends on the ‘sparse’ and ‘flatten’-attributes. For
+flattened output a single numpy array or sparse.COO is returned.
+The first dimension is determined by the amount of systems.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray | sparse.COO</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Note that if you specify in <em>n_atoms_max</em> a lower number than atoms in your
+structure it will cause an error. The output will in this case be a flattened
+matrix, specifically a numpy array with size #atoms * #atoms. The number of
+features may be requested beforehand with the
+<a class="reference internal" href="../../doc/dscribe.descriptors.html#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.get_number_of_features" title="dscribe.descriptors.matrixdescriptor.MatrixDescriptor.get_number_of_features"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_number_of_features()</span></code></a>-method.</p>
+<p>In the case of multiple samples, the creation can also be parallellized by using the
+<em>n_jobs</em>-parameter. This splits the list of structures into equally sized parts
+and spaws a separate process to handle each part.</p>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>The following examples demonstrate usage of the descriptor. These
+examples are also available in dscribe/examples/coulombmatrix.py.</p>
+<div class="section" id="no-flattening">
+<h3>No flattening<a class="headerlink" href="#no-flattening" title="Permalink to this headline">¶</a></h3>
+<p>You can control whether the returned array is two-dimensional or
+one-dimensional by using the <em>flatten</em>-parameter</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cm</span> <span class="o">=</span> <span class="n">CoulombMatrix</span><span class="p">(</span>
+    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+<span class="n">cm_methanol</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">methanol</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">cm_methanol</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;not flattened&quot;</span><span class="p">,</span> <span class="n">cm_methanol</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="no-sorting">
+<h3>No Sorting<a class="headerlink" href="#no-sorting" title="Permalink to this headline">¶</a></h3>
+<p>By default, CM is sorted by the L2-norm (more on that later). In order to get
+the unsorted CM it is necessary to specify the keyword <em>permutation = “none”</em>
+when setting it up.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cm</span> <span class="o">=</span> <span class="n">CoulombMatrix</span><span class="p">(</span>
+    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">permutation</span><span class="o">=</span><span class="s1">&#39;none&#39;</span>
+<span class="p">)</span>
+
+<span class="n">cm_methanol</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">methanol</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">methanol</span><span class="o">.</span><span class="n">get_chemical_symbols</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;in order of appearance&quot;</span><span class="p">,</span> <span class="n">cm_methanol</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="zero-padding">
+<h3>Zero-padding<a class="headerlink" href="#zero-padding" title="Permalink to this headline">¶</a></h3>
+<p>The number of features in CM depends on the size of the system. Since most
+machine learning methods require size-consistent inputs it is convenient to
+define the maximum number of atoms <em>n_atoms_max</em> in a dataset. If the structure
+has fewer atoms, the rest of the CM will be zero-padded. One can imagine
+non-interacting ghost atoms as place-holders to ensure the same number of atoms
+in every system.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cm</span> <span class="o">=</span> <span class="n">CoulombMatrix</span><span class="p">(</span>
+    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+<span class="n">cm_methanol</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">methanol</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;zero-padded&quot;</span><span class="p">,</span> <span class="n">cm_methanol</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cm_methanol</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="not-meant-for-periodic-systems">
+<h3>Not meant for periodic systems<a class="headerlink" href="#not-meant-for-periodic-systems" title="Permalink to this headline">¶</a></h3>
+<p>The CM was not designed for periodic systems. If you do add periodic boundary
+conditions, you will see that it does not change the elements.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">methanol</span><span class="o">.</span><span class="n">set_pbc</span><span class="p">([</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">])</span>
+<span class="n">methanol</span><span class="o">.</span><span class="n">set_cell</span><span class="p">([[</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+    <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+    <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">],</span>
+    <span class="p">])</span>
+
+<span class="n">cm</span> <span class="o">=</span> <span class="n">CoulombMatrix</span><span class="p">(</span>
+    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+
+<span class="n">cm_methanol</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">methanol</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;with pbc&quot;</span><span class="p">,</span> <span class="n">cm_methanol</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Instead, the <a class="reference internal" href="sine_matrix.html"><span class="doc">Sine Matrix</span></a> and the <cite>Ewald Matrix
+&lt;ewald_matrix&gt;</cite> have been designed as periodic counterparts to the CM.</p>
+</div>
+</div>
+<div class="section" id="invariance">
+<h2>Invariance<a class="headerlink" href="#invariance" title="Permalink to this headline">¶</a></h2>
+<p>A good descriptor should be invariant with respect to translation, rotation and
+permutation. No matter how you translate or rotate it or change the indexing of
+the atoms (not the atom types!), it will still be the same molecule! The
+following lines confirm that this is true for CM.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cm</span> <span class="o">=</span> <span class="n">CoulombMatrix</span><span class="p">(</span>
+    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+    <span class="n">flatten</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">permutation</span><span class="o">=</span><span class="s2">&quot;sorted_l2&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Translation</span>
+<span class="n">methanol</span><span class="o">.</span><span class="n">translate</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
+<span class="n">cm_methanol</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">methanol</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cm_methanol</span><span class="p">)</span>
+
+<span class="c1"># Rotation</span>
+<span class="n">methanol</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="mi">90</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="n">cm_methanol</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">methanol</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cm_methanol</span><span class="p">)</span>
+
+<span class="c1"># Permutation</span>
+<span class="n">upside_down_methanol</span> <span class="o">=</span> <span class="n">methanol</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">cm_methanol</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">upside_down_methanol</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cm_methanol</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="options-for-permutation">
+<h2>Options for permutation<a class="headerlink" href="#options-for-permutation" title="Permalink to this headline">¶</a></h2>
+<p>The following snippet introduces the different options for handling permutation
+invariance. See <a class="bibtex reference internal" href="#cm-versions" id="id2">[2]</a> for more information on these methods.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cm</span> <span class="o">=</span> <span class="n">CoulombMatrix</span><span class="p">(</span>
+    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">permutation</span><span class="o">=</span><span class="s1">&#39;none&#39;</span>
+<span class="p">)</span>
+
+<span class="n">cm_methanol</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">methanol</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">methanol</span><span class="o">.</span><span class="n">get_chemical_symbols</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;in order of appearance&quot;</span><span class="p">,</span> <span class="n">cm_methanol</span><span class="p">)</span>
+
+<span class="c1"># Sort by Euclidean (L2) norm.</span>
+<span class="n">cm</span> <span class="o">=</span> <span class="n">CoulombMatrix</span><span class="p">(</span>
+    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">permutation</span><span class="o">=</span><span class="s1">&#39;sorted_l2&#39;</span>
+<span class="p">)</span>
+
+<span class="n">cm_methanol</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">methanol</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;default: sorted by L2-norm&quot;</span><span class="p">,</span> <span class="n">cm_methanol</span><span class="p">)</span>
+
+<span class="c1"># Random</span>
+<span class="n">cm</span> <span class="o">=</span> <span class="n">CoulombMatrix</span><span class="p">(</span>
+    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">permutation</span><span class="o">=</span><span class="s1">&#39;random&#39;</span><span class="p">,</span>
+    <span class="n">sigma</span><span class="o">=</span><span class="mi">70</span><span class="p">,</span>
+    <span class="n">seed</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+
+<span class="n">cm_methanol</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">methanol</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;randomly sorted&quot;</span><span class="p">,</span> <span class="n">cm_methanol</span><span class="p">)</span>
+
+<span class="c1"># Eigenspectrum</span>
+<span class="n">cm</span> <span class="o">=</span> <span class="n">CoulombMatrix</span><span class="p">(</span>
+    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">permutation</span><span class="o">=</span><span class="s1">&#39;eigenspectrum&#39;</span>
+<span class="p">)</span>
+
+<span class="n">cm_methanol</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">methanol</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;eigenvalues&quot;</span><span class="p">,</span> <span class="n">cm_methanol</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><strong>sorted_l2 (default)</strong>: Sorts rows and columns by their L2-norm.</p></li>
+<li><p><strong>none</strong>: keeps the order of the rows and columns as the atoms are read from
+the ase object.</p></li>
+<li><p><strong>random</strong>: The term random can be misleading at first sight because it does not
+scramble the rows and columns completely randomly. The rows and columns are
+sorted by their L2-norm  after applying Gaussian noise to the norms. The
+standard deviation of the noise is determined by the additionally required
+<em>sigma</em>-parameter. <em>sigma</em> determines the standard deviation of the gaussian
+distributed noise determining how much the rows and columns of the randomly
+sorted matrix are scrambled. Feel free to try different <em>sigma</em> values to
+see the effect on the ordering. Optionally, you can specify a random <em>seed</em>.
+<em>sigma</em> and <em>seed</em> are ignored if <em>permutation</em> is other than “random”. This
+option is useful if you want to augment your dataset, similar to augmented
+image datasets where each image gets mirrored, rotated, cropped or otherwise
+transformed. You would need to create several instances of the randomly
+sorted CM in a loop. The advantage of augmenting data like this over using
+completely random CM lies in the lower number of “likely permutations”. Rows
+and columns of the CM are allowed to flip just so that the feature space
+(all possible CM) is smooth but also compact.</p></li>
+<li><p><strong>eigenspectrum</strong>: Only the eigenvalues of the matrix are returned sorted by
+their absolute value in descending order. On one hand, it is a more compact
+descriptor, but on the other hand, it potentially loses information encoded
+in the CM interactions.</p></li>
+</ul>
+<p id="bibtex-bibliography-tutorials/descriptors/coulomb_matrix-0"><dl class="citation">
+<dt class="bibtex label" id="cm"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>Matthias Rupp, Alexandre Tkatchenko, Klaus-Robert Müller, and O. Anatole von Lilienfeld. Fast and accurate modeling of molecular atomization energies with machine learning. <em>Phys. Rev. Lett.</em>, 108:058301, Jan 2012. <a class="reference external" href="https://doi.org/10.1103/PhysRevLett.108.058301">doi:10.1103/PhysRevLett.108.058301</a>.</p>
+</dd>
+<dt class="bibtex label" id="cm-versions"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
+<dd><p>Grégoire Montavon, Katja Hansen, Siamac Fazli, Matthias Rupp, Franziska Biegler, Andreas Ziehe, Alexandre Tkatchenko, Anatole V. Lilienfeld, and Klaus-Robert Müller. Learning invariant representations of molecules for atomization energy prediction. In F. Pereira, C. J. C. Burges, L. Bottou, and K. Q. Weinberger, editors, <em>Advances in Neural Information Processing Systems 25</em>, pages 440–448. Curran Associates, Inc., 2012. URL: <a class="reference external" href="http://papers.nips.cc/paper/4830-learning-invariant-representations-of-molecules-for-atomization-energy-prediction.pdf">http://papers.nips.cc/paper/4830-learning-invariant-representations-of-molecules-for-atomization-energy-prediction.pdf</a>.</p>
+</dd>
+</dl>
+</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="sine_matrix.html" class="btn btn-neutral float-right" title="Sine matrix" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="descriptors.html" class="btn btn-neutral float-left" title="Descriptors" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Versions</span>
+      v: 1.0.x
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl id="version-table">
+        <dt>Versions</dt>
+      </dl>
+    </div>
+  </div>
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
