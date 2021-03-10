@@ -183,7 +183,9 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         self.assertTrue(der.dtype == np.float32)
 
         # Sparse, float32
-        soap = SOAP(species=[1, 8], rcut=3, nmax=1, lmax=1, sparse=True, dtype="float32")
+        soap = SOAP(
+            species=[1, 8], rcut=3, nmax=1, lmax=1, sparse=True, dtype="float32"
+        )
         desc1 = soap.create(H2O)
         der, desc2 = soap.derivatives(H2O)
         self.assertTrue(desc1.dtype == np.float32)
@@ -199,7 +201,9 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         self.assertTrue(der.dtype == np.float64)
 
         # Sparse, float64
-        soap = SOAP(species=[1, 8], rcut=3, nmax=1, lmax=1, sparse=True, dtype="float64")
+        soap = SOAP(
+            species=[1, 8], rcut=3, nmax=1, lmax=1, sparse=True, dtype="float64"
+        )
         desc1 = soap.create(H2O)
         der, desc2 = soap.derivatives(H2O)
         self.assertTrue(desc1.dtype == np.float64)
