@@ -497,7 +497,6 @@ class SpeciesTests(unittest.TestCase):
         self.assertEqual(d.species, ["N", "Pb"])
         self.assertTrue(np.array_equal(d._atomic_numbers, [7, 82]))
 
-
     def test_symbols_to_atomic_number(self):
         """Tests that chemical symbols are correctly transformed into atomic
         numbers.
