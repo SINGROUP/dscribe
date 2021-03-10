@@ -124,7 +124,6 @@ void SOAPGTO::create_cartesian(
 ) const
 {
     int n_atoms = atomic_numbers.shape(0); // Should be saved before extending the system
-    int n_species = this->species.shape(0);
     int n_centers = centers.shape(0);
 
     // Extend system if periodicity is requested.
@@ -149,10 +148,10 @@ void SOAPGTO::create_cartesian(
         this->alphas,
         this->betas,
         atomic_numbers,
+        this->species,
         this->rcut,
         this->cutoff_padding,
         n_atoms,
-        n_species,
         this->nmax,
         this->lmax,
         n_centers,
@@ -190,7 +189,6 @@ void SOAPGTO::derivatives_analytical(
 ) const
 {
     int n_atoms = atomic_numbers.shape(0); // Should be saved before extending the system
-    int n_species = this->species.shape(0);
     int n_centers = centers.shape(0);
 
     // Extend system if periodicity is requested.
@@ -215,10 +213,10 @@ void SOAPGTO::derivatives_analytical(
         this->alphas,
         this->betas,
         atomic_numbers,
+        this->species,
         this->rcut,
         this->cutoff_padding,
         n_atoms,
-        n_species,
         this->nmax,
         this->lmax,
         n_centers,

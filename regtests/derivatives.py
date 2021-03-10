@@ -602,6 +602,26 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
         self.assertTrue(np.allclose(d, d_num))
         self.assertTrue(np.allclose(d, d_anal))
 
+    def test_stratification(self):
+        """Tests that the ordering of the output works, especially when the
+        total chemical space is larger than the chemical space of individual
+        samples.
+        """
+        soap = SOAP(
+            species=[1, 6, 5, 8, 9],
+            rcut=3,
+            nmax=1,
+            lmax=1,
+            rbf="gto",
+            average="off",
+            crossover=True,
+        )
+
+        derivatives_n, d_n = soap.derivatives(CO2, method="numerical")
+        derivatives_a, d_a = soap.derivatives(CO2, method="analytical")
+        self.assertTrue(np.allclose(derivatives_n, derivatives_a, rtol=1e-6, atol=1e-6))
+        self.assertTrue(np.allclose(d_n, d_a, rtol=1e-6, atol=1e-6))
+
     def test_combinations(self):
         """Tests that different combinations of centers/atoms work as intended
         and are equal between analytical/numerical code.
@@ -625,7 +645,6 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
 
         soap = SOAP(
             species=[6],
-            # species=[1, 6, 8], #TODO: Does not pass if there are extra elements?!
             rcut=3,
             nmax=1,
             lmax=1,

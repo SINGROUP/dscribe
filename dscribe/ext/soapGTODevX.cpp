@@ -1847,11 +1847,11 @@ void getCD(
         preValY = preVal*y[i];
         preValZ = preVal*z[i];
           for(int n = 0; n < Ns; n++){
-          C_mu( posI, typeJ,n,0) += bOa[n*Ns + k]*preExp;
+          C_mu(posI, typeJ, n, 0) += bOa[n*Ns + k]*preExp;
            if(return_derivatives){
-            CDevX_mu(indices[i], posI, typeJ,n,0) += bOa[n*Ns + k]*preValX;
-            CDevY_mu(indices[i], posI, typeJ,n,0) += bOa[n*Ns + k]*preValY;
-            CDevZ_mu(indices[i], posI, typeJ,n,0) += bOa[n*Ns + k]*preValZ;
+            CDevX_mu(indices[i], posI, typeJ, n, 0) += bOa[n*Ns + k]*preValX;
+            CDevY_mu(indices[i], posI, typeJ, n, 0) += bOa[n*Ns + k]*preValY;
+            CDevZ_mu(indices[i], posI, typeJ, n, 0) += bOa[n*Ns + k]*preValZ;
             }
           } 
         }
@@ -2027,7 +2027,6 @@ void getPD(
     int Ts,
     int Hs,
     int lMax,
-    int totalAN,
     bool crossover
   ) {
 
@@ -2047,7 +2046,7 @@ void getPD(
     for (int j_idx = 0; j_idx < indices.size(); ++j_idx) {
         int i_center = indices[j_idx];
         int shiftAll = 0;
-        for(int j = 0; j < Ts; j++){
+        for(int j = 0; j < Ts; j++) {
             int jdLimit = crossover ? Ts : j+1;
             for(int jd = j; jd < jdLimit; jd++) {
                 for(int m=0; m <= lMax; m++) {
@@ -2104,11 +2103,10 @@ void soapGTODevX(
     py::array_t<double> alphasArr,
     py::array_t<double> betasArr,
     py::array_t<int> atomicNumbersArr,
-
+    py::array_t<int> orderedSpeciesArr,
     const double rCut,
     const double cutoffPadding,
     const int totalAN,
-    const int Nt,
     const int Ns,
     const int lMax,
     const int Hs,
@@ -2121,6 +2119,8 @@ void soapGTODevX(
   
   auto derivatives_mu = derivatives.mutable_unchecked<4>();
   auto atomicNumbers = atomicNumbersArr.unchecked<1>();
+  auto species = orderedSpeciesArr.unchecked<1>();
+  int nSpecies = orderedSpeciesArr.shape(0);
   auto indices_u = indices.unchecked<1>();
   double *alphas = (double*)alphasArr.request().ptr; double *betas = (double*)betasArr.request().ptr;
   double oOeta = 1.0/eta; double oOeta3O2 = sqrt(oOeta*oOeta*oOeta); double NsNs = Ns*Ns;
@@ -2143,9 +2143,12 @@ void soapGTODevX(
 
   double* exes = (double*) malloc(sizeof(double)*totalAN);
   // -4 -> no need for l=0, l=1.
-  double* preCoef = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN); double* prCofDX = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN);
-  double* prCofDY = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN); double* prCofDZ = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN);
-  double* bOa = (double*) malloc((lMax+1)*NsNs*sizeof(double)); double* aOa = (double*) malloc((lMax+1)*Ns*sizeof(double));
+  double* preCoef = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN);
+  double* prCofDX = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN);
+  double* prCofDY = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN);
+  double* prCofDZ = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN);
+  double* bOa = (double*) malloc((lMax+1)*NsNs*sizeof(double));
+  double* aOa = (double*) malloc((lMax+1)*Ns*sizeof(double));
 
   auto cnnd_u = cnnd.unchecked<4>(); 
   auto cdevX_u = cdevX.unchecked<5>(); 
@@ -2161,11 +2164,12 @@ void soapGTODevX(
   CellList cell_list_atoms(positions, rCut+cutoffPadding);
   CellList cell_list_centers(centers, rCut+cutoffPadding);
 
-  // Create a mapping between an atomic index and its internal index in the output
+  // Create a mapping between an atomic index and its internal index in the
+  // output. The list of species is already ordered.
   map<int, int> ZIndexMap;
-  set<int> atomicNumberSet;
-  for (int i = 0; i < totalAN; ++i) {atomicNumberSet.insert(atomicNumbers(i));};
-  int i = 0; for (auto it=atomicNumberSet.begin(); it!=atomicNumberSet.end(); ++it) {ZIndexMap[*it] = i; ++i;};
+  for (int i = 0; i < species.size(); ++i) {
+      ZIndexMap[species(i)] = i;
+  }
 
   getAlphaBetaD(aOa,bOa,alphas,betas,Ns,lMax,oOeta, oOeta3O2);
 
@@ -2191,7 +2195,7 @@ void soapGTODevX(
       getDeltaD(dx, dy, dz, positions, ix, iy, iz, ZIndexPair.second);
       getRsZsD(dx,x2,x4,x6,x8,x10,x12,x14,x16,x18, dy,y2,y4,y6,y8,y10,y12,y14,y16,y18, dz, r2, r4, r6, r8,r10,r12,r14,r16,r18, z2, z4, z6, z8,z10,z12,z14,z16,z18, n_neighbours,lMax);
       getCfactorsD(preCoef, prCofDX, prCofDY, prCofDZ, n_neighbours, dx,x2, x4, x6, x8,x10,x12,x14,x16,x18, dy,y2, y4, y6, y8,y10,y12,y14,y16,y18, dz, z2, z4, z6, z8,z10,z12,z14,z16,z18, r2, r4, r6, r8,r10,r12,r14,r16,r18, totalAN, lMax, return_derivatives);
-      getCD(cdevX_mu, cdevY_mu, cdevZ_mu, prCofDX, prCofDY, prCofDZ, cnnd_mu, preCoef, dx, dy, dz, r2, bOa, aOa, exes, totalAN, n_neighbours, Ns, Nt, lMax, i, j, ZIndexPair.second, return_derivatives);
+      getCD(cdevX_mu, cdevY_mu, cdevZ_mu, prCofDX, prCofDY, prCofDZ, cnnd_mu, preCoef, dx, dy, dz, r2, bOa, aOa, exes, totalAN, n_neighbours, Ns, nSpecies, lMax, i, j, ZIndexPair.second, return_derivatives);
 
     }
   }
@@ -2204,12 +2208,12 @@ void soapGTODevX(
   // Calculate the descriptor value if requested
   if (return_descriptor) {
     auto descriptor_mu = descriptor.mutable_unchecked<2>();
-    getPD(descriptor_mu, cnnd_u, Ns, Nt, Hs, lMax, crossover);
+    getPD(descriptor_mu, cnnd_u, Ns, nSpecies, Hs, lMax, crossover);
   }
 
   // Calculate the derivatives
   if (return_derivatives) {
-    getPDev(derivatives_mu, positions_u, indices_u, cell_list_centers, cdevX_u, cdevY_u, cdevZ_u, cnnd_u, Ns, Nt, Hs, lMax, totalAN, crossover);
+    getPDev(derivatives_mu, positions_u, indices_u, cell_list_centers, cdevX_u, cdevY_u, cdevZ_u, cnnd_u, Ns, nSpecies, Hs, lMax, crossover);
   }
 
   return;
