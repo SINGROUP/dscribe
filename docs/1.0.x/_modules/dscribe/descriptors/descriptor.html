@@ -183,7 +183,7 @@
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="kn">import</span> <span class="nn">sparse</span>
+<span class="kn">import</span> <span class="nn">sparse</span> <span class="k">as</span> <span class="nn">sp</span>
 
 <span class="kn">from</span> <span class="nn">ase</span> <span class="kn">import</span> <span class="n">Atoms</span>
 <span class="kn">from</span> <span class="nn">dscribe.core.system</span> <span class="kn">import</span> <span class="n">System</span>
@@ -196,7 +196,7 @@
 <div class="viewcode-block" id="Descriptor"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor">[docs]</a><span class="k">class</span> <span class="nc">Descriptor</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;An abstract base class for all descriptors.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">periodic</span><span class="p">,</span> <span class="n">flatten</span><span class="p">,</span> <span class="n">sparse</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">periodic</span><span class="p">,</span> <span class="n">flatten</span><span class="p">,</span> <span class="n">sparse</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            flatten (bool): Whether the output of create() should be flattened</span>
@@ -205,6 +205,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">sparse</span> <span class="o">=</span> <span class="n">sparse</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span> <span class="o">=</span> <span class="n">flatten</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span> <span class="o">=</span> <span class="n">periodic</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">dtype</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_atomic_number_set</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_species</span> <span class="o">=</span> <span class="kc">None</span>
@@ -408,7 +409,7 @@
                     <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="n">coords</span> <span class="o">=</span> <span class="p">[]</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">results</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">i_shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+                    <span class="n">results</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">i_shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
 
             <span class="n">i_sample</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="n">old_percent</span> <span class="o">=</span> <span class="mi">0</span>
@@ -437,7 +438,7 @@
             <span class="k">if</span> <span class="n">static_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">is_sparse</span><span class="p">:</span>
                 <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
                 <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-                <span class="n">results</span> <span class="o">=</span> <span class="n">sparse</span><span class="o">.</span><span class="n">COO</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">i_shape</span><span class="p">)</span>
+                <span class="n">results</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">COO</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">i_shape</span><span class="p">)</span>
 
             <span class="k">return</span> <span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
 
@@ -475,7 +476,7 @@
                 <span class="c1"># Saves the descriptors as a sparse matrix</span>
                 <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
                 <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-                <span class="n">results</span> <span class="o">=</span> <span class="n">sparse</span><span class="o">.</span><span class="n">COO</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="n">n_samples</span><span class="p">]</span> <span class="o">+</span> <span class="n">static_size</span><span class="p">)</span>
+                <span class="n">results</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">COO</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="n">n_samples</span><span class="p">]</span> <span class="o">+</span> <span class="n">static_size</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">results</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">vec_lists</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -623,36 +624,47 @@
             <span class="c1"># Initialize output</span>
             <span class="n">n_samples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">arguments</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">derivatives_shape</span><span class="p">:</span>
-                <span class="n">shape</span> <span class="o">=</span> <span class="p">[</span><span class="n">n_samples</span><span class="p">]</span>
-                <span class="n">shape</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">derivatives_shape</span><span class="p">)</span>
-                <span class="n">derivatives</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+                <span class="n">shape_der</span> <span class="o">=</span> <span class="p">[</span><span class="n">n_samples</span><span class="p">]</span>
+                <span class="n">shape_der</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">derivatives_shape</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">is_sparse</span><span class="p">:</span>
+                    <span class="n">data_der</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">coords_der</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">derivatives</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape_der</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">derivatives</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">if</span> <span class="n">descriptor_shape</span><span class="p">:</span>
-                <span class="n">shape</span> <span class="o">=</span> <span class="p">[</span><span class="n">n_samples</span><span class="p">]</span>
-                <span class="n">shape</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">descriptor_shape</span><span class="p">)</span>
-                <span class="n">descriptors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+                <span class="n">shape_des</span> <span class="o">=</span> <span class="p">[</span><span class="n">n_samples</span><span class="p">]</span>
+                <span class="n">shape_des</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">descriptor_shape</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">is_sparse</span><span class="p">:</span>
+                    <span class="n">data_des</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">coords_des</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">descriptors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape_des</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">descriptors</span> <span class="o">=</span> <span class="p">[]</span>
-
-            <span class="n">derivative_offset</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="n">descriptor_offset</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="n">i_sample</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="n">old_percent</span> <span class="o">=</span> <span class="mi">0</span>
 
+            <span class="c1"># Loop through all samples assigned for this job</span>
             <span class="k">for</span> <span class="n">i_sample</span><span class="p">,</span> <span class="n">i_arg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">arguments</span><span class="p">):</span>
                 <span class="n">i_der</span><span class="p">,</span> <span class="n">i_des</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">i_arg</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">descriptor_shape</span><span class="p">:</span>
-                    <span class="n">new_descriptor_offset</span> <span class="o">=</span> <span class="n">descriptor_offset</span> <span class="o">+</span> <span class="n">i_des</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                    <span class="n">descriptors</span><span class="p">[</span><span class="n">descriptor_offset</span><span class="p">:</span><span class="n">new_descriptor_offset</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">i_des</span>
-                    <span class="n">descriptor_offset</span> <span class="o">=</span> <span class="n">new_descriptor_offset</span>
+                    <span class="k">if</span> <span class="n">is_sparse</span><span class="p">:</span>
+                        <span class="n">sample_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">i_des</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="n">i_sample</span><span class="p">)</span>
+                        <span class="n">data_des</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i_des</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+                        <span class="n">coords_des</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">sample_index</span><span class="p">,</span> <span class="n">i_des</span><span class="o">.</span><span class="n">coords</span><span class="p">)))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">descriptors</span><span class="p">[</span><span class="n">i_sample</span><span class="p">]</span> <span class="o">=</span> <span class="n">i_des</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">descriptors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i_des</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="n">derivatives_shape</span><span class="p">:</span>
-                    <span class="n">new_derivative_offset</span> <span class="o">=</span> <span class="n">derivative_offset</span> <span class="o">+</span> <span class="n">i_der</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                    <span class="n">derivatives</span><span class="p">[</span><span class="n">derivative_offset</span><span class="p">:</span><span class="n">new_derivative_offset</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">i_der</span>
-                    <span class="n">derivative_offset</span> <span class="o">=</span> <span class="n">new_derivative_offset</span>
+                    <span class="k">if</span> <span class="n">is_sparse</span><span class="p">:</span>
+                        <span class="n">sample_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">i_der</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="n">i_sample</span><span class="p">)</span>
+                        <span class="n">data_der</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i_der</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+                        <span class="n">coords_der</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">sample_index</span><span class="p">,</span> <span class="n">i_der</span><span class="o">.</span><span class="n">coords</span><span class="p">)))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">derivatives</span><span class="p">[</span><span class="n">i_sample</span><span class="p">]</span> <span class="o">=</span> <span class="n">i_der</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">derivatives</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i_der</span><span class="p">)</span>
 
@@ -661,6 +673,16 @@
                     <span class="k">if</span> <span class="n">current_percent</span> <span class="o">&gt;=</span> <span class="n">old_percent</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
                         <span class="n">old_percent</span> <span class="o">=</span> <span class="n">current_percent</span>
                         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Process </span><span class="si">{0}</span><span class="s2">: </span><span class="si">{1:.1f}</span><span class="s2"> %&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">current_percent</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">is_sparse</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">descriptor_shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">data_des</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">data_des</span><span class="p">)</span>
+                    <span class="n">coords_des</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">coords_des</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="n">descriptors</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">COO</span><span class="p">(</span><span class="n">coords_des</span><span class="p">,</span> <span class="n">data_des</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">shape_des</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">derivatives_shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">data_der</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">data_der</span><span class="p">)</span>
+                    <span class="n">coords_der</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">coords_der</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="n">derivatives</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">COO</span><span class="p">(</span><span class="n">coords_der</span><span class="p">,</span> <span class="n">data_der</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">shape_der</span><span class="p">)</span>
 
             <span class="k">return</span> <span class="p">((</span><span class="n">derivatives</span><span class="p">,</span> <span class="n">descriptors</span><span class="p">),</span> <span class="n">index</span><span class="p">)</span>
 
@@ -671,22 +693,28 @@
             <span class="c1"># Initialize output</span>
             <span class="n">n_samples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">arguments</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">derivatives_shape</span><span class="p">:</span>
-                <span class="n">shape</span> <span class="o">=</span> <span class="p">[</span><span class="n">n_samples</span><span class="p">]</span>
-                <span class="n">shape</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">derivatives_shape</span><span class="p">)</span>
-                <span class="n">derivatives</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+                <span class="n">shape_der</span> <span class="o">=</span> <span class="p">[</span><span class="n">n_samples</span><span class="p">]</span>
+                <span class="n">shape_der</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">derivatives_shape</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">is_sparse</span><span class="p">:</span>
+                    <span class="n">data_der</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">coords_der</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">derivatives</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape_der</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">derivatives</span> <span class="o">=</span> <span class="p">[]</span>
 
-            <span class="n">derivative_offset</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="n">i_sample</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="n">old_percent</span> <span class="o">=</span> <span class="mi">0</span>
 
+            <span class="c1"># Loop through all samples assigned for this job</span>
             <span class="k">for</span> <span class="n">i_sample</span><span class="p">,</span> <span class="n">i_arg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">arguments</span><span class="p">):</span>
                 <span class="n">i_der</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">i_arg</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">derivatives_shape</span><span class="p">:</span>
-                    <span class="n">new_derivative_offset</span> <span class="o">=</span> <span class="n">derivative_offset</span> <span class="o">+</span> <span class="n">i_der</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                    <span class="n">derivatives</span><span class="p">[</span><span class="n">derivative_offset</span><span class="p">:</span><span class="n">new_derivative_offset</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">i_der</span>
-                    <span class="n">derivative_offset</span> <span class="o">=</span> <span class="n">new_derivative_offset</span>
+                    <span class="k">if</span> <span class="n">is_sparse</span><span class="p">:</span>
+                        <span class="n">sample_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">i_der</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="n">i_sample</span><span class="p">)</span>
+                        <span class="n">data_der</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i_der</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+                        <span class="n">coords_der</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">sample_index</span><span class="p">,</span> <span class="n">i_der</span><span class="o">.</span><span class="n">coords</span><span class="p">)))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">derivatives</span><span class="p">[</span><span class="n">i_sample</span><span class="p">]</span> <span class="o">=</span> <span class="n">i_der</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">derivatives</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i_der</span><span class="p">)</span>
 
@@ -696,7 +724,11 @@
                         <span class="n">old_percent</span> <span class="o">=</span> <span class="n">current_percent</span>
                         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Process </span><span class="si">{0}</span><span class="s2">: </span><span class="si">{1:.1f}</span><span class="s2"> %&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">current_percent</span><span class="p">))</span>
 
-                <span class="k">return</span> <span class="p">((</span><span class="n">derivatives</span><span class="p">,),</span> <span class="n">index</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">is_sparse</span> <span class="ow">and</span> <span class="n">derivatives_shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">data_der</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">data_der</span><span class="p">)</span>
+                <span class="n">coords_der</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">coords_der</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">derivatives</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">COO</span><span class="p">(</span><span class="n">coords_der</span><span class="p">,</span> <span class="n">data_der</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">shape_der</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">((</span><span class="n">derivatives</span><span class="p">,),</span> <span class="n">index</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">return_descriptor</span><span class="p">:</span>
             <span class="n">vec_lists</span> <span class="o">=</span> <span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">,</span> <span class="n">prefer</span><span class="o">=</span><span class="n">prefer</span><span class="p">)(</span>
@@ -719,7 +751,10 @@
         <span class="c1"># into one numpy array. Otherwise we will return a regular python list.</span>
         <span class="n">der_lists</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">vec_lists</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">derivatives_shape</span><span class="p">:</span>
-            <span class="n">derivatives</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">der_lists</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">is_sparse</span><span class="p">:</span>
+                <span class="n">derivatives</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">der_lists</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">derivatives</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">der_lists</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">derivatives</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">der_lists</span><span class="p">:</span>
@@ -727,7 +762,10 @@
         <span class="k">if</span> <span class="n">return_descriptor</span><span class="p">:</span>
             <span class="n">des_lists</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">vec_lists</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">descriptor_shape</span><span class="p">:</span>
-                <span class="n">descriptors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">des_lists</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">is_sparse</span><span class="p">:</span>
+                    <span class="n">descriptors</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">des_lists</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">descriptors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">des_lists</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">descriptors</span> <span class="o">=</span> <span class="p">[]</span>
                 <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">des_lists</span><span class="p">:</span>

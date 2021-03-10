@@ -9,21 +9,11 @@ Interfaces at the Nanoscale (SIN) <https://www.aalto.fi/department-of-applied-ph
 
 Contact
 -------
-If you encounter issues with the software, or want to suggest improvements,
-please use the `issues feature <https://github.com/SINGROUP/describe/issues>`_ of
-github where the code is hosted. This way the discussion is publicly available
-and the discussion history is preserved.
-
-.. raw:: html
-
-    <script type="text/javascript" src="_static/js/spamspan.js"></script>
-    <p>If you want to contact the authors on other matters, use the following email:
-        <span class="spamspan">
-        <span class="u">lauri.himanen</span>
-        [at]
-        <span class="d">aalto [dot] fi</span>
-        </span>
-    </p>
+If you encounter issues with the software please submit them directly as
+`GitHub issues <https://github.com/SINGROUP/describe/issues>`_. For general
+discussion and possible improvements/additions use the `GitHub discussion forum
+<https://github.com/SINGROUP/describe/discussions>`_. This ensures that all
+issues/discussion are publicly available and archived.
 
 License
 -------
