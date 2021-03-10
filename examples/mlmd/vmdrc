@@ -1,0 +1,83 @@
+############################################################################
+#cr
+#cr            (C) Copyright 1995-2007 The Board of Trustees of the
+#cr                        University of Illinois
+#cr                         All Rights Reserved
+#cr
+############################################################################
+
+############################################################################
+# RCS INFORMATION:
+#
+#       $RCSfile: .vmdrc,v $
+#       $Author: johns $        $Locker:  $                $State: Exp $
+#       $Revision: 1.9 $      $Date: 2007/01/12 20:12:44 $
+#
+############################################################################
+# DESCRIPTION:
+#
+# VMD startup script.  The commands here are executed as soon as VMD starts up
+############################################################################
+
+# turn on lights 0 and 1
+light 0 on
+light 1 on
+light 2 off
+light 3 off
+
+# position the stage and axes
+axes location lowerleft
+stage location off
+
+# position and turn on menus
+menu main     move 5   225
+menu display  move 395 30
+menu graphics move 395 500
+menu color    move 125 225
+menu files    move 125 325
+menu labels   move 125 525
+menu render   move 125 525
+
+menu main      on
+#menu display  on
+#menu graphics on
+#menu color    on
+#menu labels   on
+#menu render   on
+#menu files    on
+
+# Change rendermode to GLSL
+display rendermode GLSL
+
+# User's default values for newly loaded molecules/reps, etc
+#  mol default color {colorID 5}
+#  mol default style {CPK 1.000000 0.300000 19.000000 16.000000}
+#  mol default selection {name CA}
+#  mol default material {Transparent}
+
+after idle {
+# change default rep for already loaded molecules
+  mol representation CPK 1.0000000 0.300000 19.000000 16.000000
+  foreach mid [molinfo list] {
+    mol delrep 0 $mid
+    mol addrep $mid
+  }
+}
+
+# These change the appearance
+#color Display Background white
+display shadows on
+display depthcue off
+display projection orthographic
+
+# Dirtier colors
+#color change rgb  0 0.1 0.1 0.9 ;# blue
+#color change rgb  1 0.9 0.1 0.1 ;# red
+#color change rgb  7 0.1 0.9 0.1 ;# green
+
+#material change outline Opaque 30
+#material change outlinewidth Opaque 0.25
+#material change ambient Opaque 0.00
+#material change specular Opaque 0.1
+#material change diffuse Opaque 0.7
+#material change shininess Opaque 0.2

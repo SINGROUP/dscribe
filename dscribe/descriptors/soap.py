@@ -618,9 +618,9 @@ class SOAP(Descriptor):
             raise ValueError(
                 "Analytical derivatives not currently available for averaged output."
             )
-        if self.periodic:
+        if self.periodic and method == "analytical":
             raise ValueError(
-                "Derivatives are currently not available for periodic systems."
+                "Analytical derivatives are currently not available for periodic systems."
             )
         if self._rbf == "polynomial" and method == "analytical":
             raise ValueError(
@@ -630,7 +630,7 @@ class SOAP(Descriptor):
 
         # Determine the appropriate method if not given explicitly.
         if method == "auto":
-            if self._rbf == "polynomial" or self.average != "off":
+            if self._rbf == "polynomial" or self.average != "off" or self.periodic:
                 method = "numerical"
             else:
                 method = "analytical"
@@ -741,7 +741,7 @@ class SOAP(Descriptor):
         return output
 
     def derivatives_single(
-        self, system, positions, indices, method="numerical", return_descriptor=True
+        self, system, positions, indices, method, return_descriptor=True
     ):
         """Return the SOAP output for the given system and given positions.
 
