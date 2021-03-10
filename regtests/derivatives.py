@@ -19,6 +19,7 @@ import itertools
 from pprint import pprint as pp
 import numpy as np
 
+import sparse as sp
 import scipy
 import scipy.sparse
 from scipy.integrate import tplquad
@@ -178,137 +179,242 @@ class SoapDerivativeTests(unittest.TestCase):
             self.assertTrue(np.array_equal(D1[:, :, 0], D2[:, :, 0]))
             self.assertTrue(np.array_equal(D1[:, :, 1], D2[:, :, 2]))
 
-    def test_parallel_dense(self):
-        """Tests creating dense output parallelly."""
-        desc = SOAP(
-            species=[6, 7, 8],
-            rcut=5,
-            nmax=3,
-            lmax=3,
-            sigma=1,
-            periodic=False,
-            crossover=True,
-            average="off",
-            sparse=False,
-        )
-        n_features = desc.get_number_of_features()
-        samples = [molecule("CO"), molecule("CO")]
-        centers = [[0], [0]]
+    def test_parallel(self):
+        """Tests parallel output validity for both dense and sparse output."""
+        for sparse in [False, True]:
+            desc = SOAP(
+                species=[1, 6, 7, 8],
+                rcut=5,
+                nmax=3,
+                lmax=3,
+                sigma=1,
+                periodic=False,
+                crossover=True,
+                average="off",
+                sparse=sparse,
+            )
+            n_features = desc.get_number_of_features()
 
-        # Determining number of jobs based on the amount of CPUs
-        desc.derivatives(system=samples, n_jobs=-1, only_physical_cores=False)
-        desc.derivatives(system=samples, n_jobs=-1, only_physical_cores=True)
+            samples = [molecule("CO"), molecule("NO"), molecule("OH")]
+            centers = [[0], [0], [0]]
 
-        # Perhaps most common scenario: multiple systems with same atoms in
-        # different locations, sames centers and indices, dense numpy output.
-        der, des = desc.derivatives(
-            system=samples,
-            positions=centers,
-            n_jobs=2,
-        )
-        self.assertTrue(der.shape == (2, 1, 2, 3, n_features))
-        self.assertTrue(des.shape == (2, 1, n_features))
-        assumed_der = np.empty((2, 1, 2, 3, n_features))
-        assumed_des = np.empty((2, 1, n_features))
-        assumed_der[0, :], assumed_des[0, :] = desc.derivatives(
-            samples[0], centers[0], n_jobs=1
-        )
-        assumed_der[1, :], assumed_des[1, :] = desc.derivatives(
-            samples[1], centers[0], n_jobs=1
-        )
-        self.assertTrue(np.allclose(assumed_der, der))
+            # Determining number of jobs based on the amount of CPUs
+            # desc.derivatives(system=samples, n_jobs=-1, only_physical_cores=False)
+            # desc.derivatives(system=samples, n_jobs=-1, only_physical_cores=True)
 
-        # Now with centers given in cartesian positions.
-        centers = [[[0, 1, 2]], [[2, 1, 0]]]
-        der, des = desc.derivatives(
-            system=samples,
-            positions=centers,
-            n_jobs=2,
-        )
-        self.assertTrue(der.shape == (2, 1, 2, 3, n_features))
-        self.assertTrue(des.shape == (2, 1, n_features))
-        assumed_der = np.empty((2, 1, 2, 3, n_features))
-        assumed_des = np.empty((2, 1, n_features))
-        assumed_der[0, :], assumed_des[0, :] = desc.derivatives(
-            samples[0], centers[0], n_jobs=1
-        )
-        assumed_der[1, :], assumed_des[1, :] = desc.derivatives(
-            samples[1], centers[1], n_jobs=1
-        )
-        self.assertTrue(np.allclose(assumed_der, der))
+            # Perhaps most common scenario: more systems than jobs, using all
+            # centers and indices
+            der, des = desc.derivatives(
+                system=samples,
+                n_jobs=2,
+            )
+            self.assertTrue(der.shape == (3, 2, 2, 3, n_features))
+            self.assertTrue(des.shape == (3, 2, n_features))
+            assumed_der = np.empty((3, 2, 2, 3, n_features))
+            assumed_des = np.empty((3, 2, n_features))
+            desc.sparse = False
+            assumed_der[0, :], assumed_des[0, :] = desc.derivatives(
+                samples[0], n_jobs=1
+            )
+            assumed_der[1, :], assumed_des[1, :] = desc.derivatives(
+                samples[1], n_jobs=1
+            )
+            assumed_der[2, :], assumed_des[2, :] = desc.derivatives(
+                samples[2], n_jobs=1
+            )
+            desc._sparse = sparse
+            if sparse:
+                der = der.todense()
+                des = des.todense()
+            self.assertTrue(np.allclose(assumed_der, der))
+            self.assertTrue(np.allclose(assumed_des, des))
 
-        # Includes
-        includes = [[0], [0]]
-        der, des = desc.derivatives(
-            system=samples,
-            include=includes,
-            n_jobs=2,
-        )
-        self.assertTrue(der.shape == (2, 2, 1, 3, n_features))
-        self.assertTrue(des.shape == (2, 2, n_features))
-        assumed_der = np.empty((2, 2, 1, 3, n_features))
-        assumed_des = np.empty((2, 2, n_features))
-        assumed_der[0, :], assumed_des[0, :] = desc.derivatives(
-            samples[0], include=includes[0], n_jobs=1
-        )
-        assumed_der[1, :], assumed_des[1, :] = desc.derivatives(
-            samples[1], include=includes[1], n_jobs=1
-        )
-        self.assertTrue(np.allclose(assumed_der, der))
+            # More systems than jobs, using all centers and indices, not requesting
+            # descriptors
+            der = desc.derivatives(
+                system=samples,
+                return_descriptor=False,
+                n_jobs=2,
+            )
+            self.assertTrue(der.shape == (3, 2, 2, 3, n_features))
+            assumed_der = np.empty((3, 2, 2, 3, n_features))
+            desc._sparse = False
+            assumed_der[0, :] = desc.derivatives(
+                samples[0], n_jobs=1, return_descriptor=False
+            )
+            assumed_der[1, :] = desc.derivatives(
+                samples[1], n_jobs=1, return_descriptor=False
+            )
+            assumed_der[2, :] = desc.derivatives(
+                samples[2], n_jobs=1, return_descriptor=False
+            )
+            desc._sparse = sparse
+            if sparse:
+                der = der.todense()
+            self.assertTrue(np.allclose(assumed_der, der))
 
-        # Excludes
-        excludes = [[0], [0]]
-        der, des = desc.derivatives(
-            system=samples,
-            exclude=excludes,
-            n_jobs=2,
-        )
-        self.assertTrue(der.shape == (2, 2, 1, 3, n_features))
-        self.assertTrue(des.shape == (2, 2, n_features))
-        assumed_der = np.empty((2, 2, 1, 3, n_features))
-        assumed_des = np.empty((2, 2, n_features))
-        assumed_der[0, :], assumed_des[0, :] = desc.derivatives(
-            samples[0], exclude=excludes[0], n_jobs=1
-        )
-        assumed_der[1, :], assumed_des[1, :] = desc.derivatives(
-            samples[1], exclude=excludes[1], n_jobs=1
-        )
-        self.assertTrue(np.allclose(assumed_der, der))
+            # More systems than jobs, using custom indices as centers
+            der, des = desc.derivatives(
+                system=samples,
+                positions=centers,
+                n_jobs=2,
+            )
+            self.assertTrue(der.shape == (3, 1, 2, 3, n_features))
+            self.assertTrue(des.shape == (3, 1, n_features))
+            assumed_der = np.empty((3, 1, 2, 3, n_features))
+            assumed_des = np.empty((3, 1, n_features))
+            desc._sparse = False
+            assumed_der[0, :], assumed_des[0, :] = desc.derivatives(
+                samples[0], centers[0], n_jobs=1
+            )
+            assumed_der[1, :], assumed_des[1, :] = desc.derivatives(
+                samples[1], centers[1], n_jobs=1
+            )
+            assumed_der[2, :], assumed_des[2, :] = desc.derivatives(
+                samples[2], centers[2], n_jobs=1
+            )
+            desc._sparse = sparse
+            if sparse:
+                der = der.todense()
+                des = des.todense()
+            self.assertTrue(np.allclose(assumed_der, der))
+            self.assertTrue(np.allclose(assumed_des, des))
 
-        # Test averaged output
-        desc.average = "inner"
-        positions = [[0], [0, 1]]
-        der, des = desc.derivatives(
-            system=samples,
-            positions=positions,
-            n_jobs=2,
-        )
-        self.assertTrue(der.shape == (2, 1, 2, 3, n_features))
-        self.assertTrue(des.shape == (2, 1, n_features))
-        assumed_der = np.empty((2, 1, 2, 3, n_features))
-        assumed_des = np.empty((2, 1, n_features))
-        assumed_der[0, :], assumed_des[0, :] = desc.derivatives(
-            samples[0], positions=positions[0], n_jobs=1
-        )
-        assumed_der[1, :], assumed_des[1, :] = desc.derivatives(
-            samples[1], positions=positions[1], n_jobs=1
-        )
-        self.assertTrue(np.allclose(assumed_der, der))
+            # More systems than jobs, using custom cartesian centers
+            centers = [[[0, 1, 2]], [[2, 1, 0]], [[1, 2, 0]]]
+            der, des = desc.derivatives(
+                system=samples,
+                positions=centers,
+                n_jobs=2,
+            )
+            self.assertTrue(der.shape == (3, 1, 2, 3, n_features))
+            self.assertTrue(des.shape == (3, 1, n_features))
+            assumed_der = np.empty((3, 1, 2, 3, n_features))
+            assumed_des = np.empty((3, 1, n_features))
+            desc._sparse = False
+            assumed_der[0, :], assumed_des[0, :] = desc.derivatives(
+                samples[0], centers[0], n_jobs=1
+            )
+            assumed_der[1, :], assumed_des[1, :] = desc.derivatives(
+                samples[1], centers[1], n_jobs=1
+            )
+            assumed_der[2, :], assumed_des[2, :] = desc.derivatives(
+                samples[2], centers[2], n_jobs=1
+            )
+            desc._sparse = sparse
+            if sparse:
+                der = der.todense()
+                des = des.todense()
+            self.assertTrue(np.allclose(assumed_der, der))
+            self.assertTrue(np.allclose(assumed_des, des))
 
-        # Variable size list output, as the systems have a different size
-        desc.average = "off"
-        samples = [molecule("CO"), molecule("NO2")]
-        der, des = desc.derivatives(
-            system=samples,
-            n_jobs=2,
-        )
-        self.assertTrue(isinstance(der, list))
-        self.assertTrue(der[0].shape == (2, 2, 3, n_features))
-        self.assertTrue(der[1].shape == (3, 3, 3, n_features))
-        assumed_der0, assumed_des0 = desc.derivatives(samples[0], n_jobs=1)
-        assumed_der1, assumed_des1 = desc.derivatives(samples[1], n_jobs=1)
-        self.assertTrue(np.allclose(assumed_der0, der[0]))
-        self.assertTrue(np.allclose(assumed_der1, der[1]))
+            # Includes
+            includes = [[0], [0], [0]]
+            der, des = desc.derivatives(
+                system=samples,
+                include=includes,
+                n_jobs=2,
+            )
+            self.assertTrue(der.shape == (3, 2, 1, 3, n_features))
+            self.assertTrue(des.shape == (3, 2, n_features))
+            assumed_der = np.empty((3, 2, 1, 3, n_features))
+            assumed_des = np.empty((3, 2, n_features))
+            desc._sparse = False
+            assumed_der[0, :], assumed_des[0, :] = desc.derivatives(
+                samples[0], include=includes[0], n_jobs=1
+            )
+            assumed_der[1, :], assumed_des[1, :] = desc.derivatives(
+                samples[1], include=includes[1], n_jobs=1
+            )
+            assumed_der[2, :], assumed_des[2, :] = desc.derivatives(
+                samples[2], include=includes[2], n_jobs=1
+            )
+            desc._sparse = sparse
+            if sparse:
+                der = der.todense()
+                des = des.todense()
+            self.assertTrue(np.allclose(assumed_der, der))
+            self.assertTrue(np.allclose(assumed_des, des))
+
+            # Excludes
+            excludes = [[0], [0], [0]]
+            der, des = desc.derivatives(
+                system=samples,
+                exclude=excludes,
+                n_jobs=2,
+            )
+            self.assertTrue(der.shape == (3, 2, 1, 3, n_features))
+            self.assertTrue(des.shape == (3, 2, n_features))
+            assumed_der = np.empty((3, 2, 1, 3, n_features))
+            assumed_des = np.empty((3, 2, n_features))
+            desc._sparse = False
+            assumed_der[0, :], assumed_des[0, :] = desc.derivatives(
+                samples[0], exclude=excludes[0], n_jobs=1
+            )
+            assumed_der[1, :], assumed_des[1, :] = desc.derivatives(
+                samples[1], exclude=excludes[1], n_jobs=1
+            )
+            assumed_der[2, :], assumed_des[2, :] = desc.derivatives(
+                samples[2], exclude=excludes[2], n_jobs=1
+            )
+            desc._sparse = sparse
+            if sparse:
+                der = der.todense()
+                des = des.todense()
+            self.assertTrue(np.allclose(assumed_der, der))
+            self.assertTrue(np.allclose(assumed_des, des))
+
+            # Test averaged output
+            desc.average = "inner"
+            positions = [[0], [0, 1], [1]]
+            der, des = desc.derivatives(
+                system=samples,
+                positions=positions,
+                n_jobs=2,
+            )
+            self.assertTrue(der.shape == (3, 1, 2, 3, n_features))
+            self.assertTrue(des.shape == (3, 1, n_features))
+            desc._sparse = False
+            assumed_der = np.empty((3, 1, 2, 3, n_features))
+            assumed_des = np.empty((3, 1, n_features))
+            assumed_der[0, :], assumed_des[0, :] = desc.derivatives(
+                samples[0], positions=positions[0], n_jobs=1
+            )
+            assumed_der[1, :], assumed_des[1, :] = desc.derivatives(
+                samples[1], positions=positions[1], n_jobs=1
+            )
+            assumed_der[2, :], assumed_des[2, :] = desc.derivatives(
+                samples[2], positions=positions[2], n_jobs=1
+            )
+            desc._sparse = sparse
+            if sparse:
+                der = der.todense()
+                des = des.todense()
+            self.assertTrue(np.allclose(assumed_der, der))
+            self.assertTrue(np.allclose(assumed_des, des))
+
+            # Variable size list output, as the systems have a different size
+            desc.average = "off"
+            samples = [molecule("CO"), molecule("NO2"), molecule("OH")]
+            der, des = desc.derivatives(
+                system=samples,
+                n_jobs=2,
+            )
+            self.assertTrue(isinstance(der, list))
+            self.assertTrue(der[0].shape == (2, 2, 3, n_features))
+            self.assertTrue(der[1].shape == (3, 3, 3, n_features))
+            self.assertTrue(der[2].shape == (2, 2, 3, n_features))
+            desc._sparse = False
+            for i in range(len(samples)):
+                assumed_der, assumed_des = desc.derivatives(samples[i], n_jobs=1)
+                i_der = der[i]
+                i_des = des[i]
+                if sparse:
+                    i_der = i_der.todense()
+                    i_des = i_des.todense()
+                self.assertTrue(np.allclose(assumed_der, i_der))
+                self.assertTrue(np.allclose(assumed_des, i_des))
+            desc._sparse = sparse
 
     def test_numerical(self):
         """Test numerical values against a naive python implementation."""
@@ -408,60 +514,6 @@ class SoapDerivativeTests(unittest.TestCase):
                             np.allclose(derivatives_python, derivatives_cpp, atol=2e-5)
                         )
 
-    # def test_periodic(self):
-    # """Tests that periodicity works correctly for both numerical and
-    # analytical code.
-    # """
-    # a = 1
-    # system = Atoms(
-    # symbols=["C"],
-    # cell=[
-    # [0, a, a],
-    # [a, 0, a],
-    # [a, a, 0]
-    # ],
-    # scaled_positions=[[0,0,0]],
-    # pbc=[True, True, True],
-    # )
-
-    # # Calculate as periodic first
-    # soap = SOAP(
-    # species=[6],
-    # rcut=3,
-    # nmax=1,
-    # lmax=1,
-    # rbf="gto",
-    # sparse=False,
-    # average="off",
-    # crossover=True,
-    # periodic=True,
-    # )
-    # a_normal = soap.create(system, positions=[0])
-    # a_der, a_des = soap.derivatives(system, positions=[0], include=[0], method="numerical")
-
-    # # Extend the system and calculate it as non-periodic
-    # n_copies = 13
-    # ext_system = system*(n_copies, n_copies, n_copies)
-    # ext_system.set_pbc(False)
-    # middle = ext_system.get_center_of_mass()
-    # positions = ext_system.get_positions()
-    # dist = np.linalg.norm(positions - middle, axis=1)
-    # idx = np.argmin(dist)
-    # soap.periodic = False
-    # b_normal = soap.create(ext_system, positions=[idx])
-    # b_der, b_des = soap.derivatives(ext_system, positions=[idx], include=[idx], method="numerical")
-
-    # # Assert that regularly calculated descriptors are the same
-    # # print(np.abs(a_normal - b_normal).max())
-    # self.assertTrue(np.allclose(a_normal, b_normal))
-
-    # # Assert that descriptors returned with the derivatives are the same
-    # # print(np.abs(a_des - b_des).max())
-    # self.assertTrue(np.allclose(a_des, b_des))
-
-    # # print(np.abs(a_der - b_der).max())
-    # self.assertTrue(np.allclose(a_der, b_der))
-
     def test_sparse(self):
         """Test that the sparse values are identical to the dense ones."""
         positions = H2O.get_positions()
@@ -483,34 +535,6 @@ class SoapDerivativeTests(unittest.TestCase):
         )
         self.assertTrue(np.allclose(D_dense, D_sparse.todense()))
         self.assertTrue(np.allclose(d_dense, d_sparse.todense()))
-
-    def test_trajectory(self):
-        atoms1 = Atoms(
-            'CC',
-            scaled_positions=[[0, 0, 0], [0.5, 0.5, 0.5]],
-            cell=[3, 3, 3],
-            pbc=False
-        )
-        atoms2 = atoms1.copy()
-        atoms2.translate([0.1, 0.1, 0.1])
-        atoms2.wrap()
-        traj = [atoms1, atoms2]
-
-        # Create the SOAP desciptors and their derivatives for all samples. We use both
-        # of the atoms as centers.
-        cutoff = 5
-        soap = SOAP(
-            species=["C"],
-            periodic=False,
-            rcut=cutoff,
-            sigma=0.5,
-            nmax=4,
-            lmax=3,
-        )
-        # print(soap.get_number_of_features())
-        derivatives, descriptors1 = soap.derivatives(traj)
-        descriptors2 = soap.create(traj)
-        print(np.max(np.abs(descriptors1-descriptors2)))
 
 
 class SoapDerivativeComparisonTests(unittest.TestCase):
@@ -601,7 +625,7 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
 
         soap = SOAP(
             species=[6],
-            # species=[1, 6, 8] TODO: Does not pass if there are extra elements?!
+            # species=[1, 6, 8], #TODO: Does not pass if there are extra elements?!
             rcut=3,
             nmax=1,
             lmax=1,
@@ -653,11 +677,10 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    SoapDerivativeTests().test_trajectory()
-    # suites = []
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
-    # suites.append(
-        # unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests)
-    # )
-    # alltests = unittest.TestSuite(suites)
-    # result = unittest.TextTestRunner(verbosity=0).run(alltests)
+    suites = []
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
+    suites.append(
+        unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests)
+    )
+    alltests = unittest.TestSuite(suites)
+    result = unittest.TextTestRunner(verbosity=0).run(alltests)

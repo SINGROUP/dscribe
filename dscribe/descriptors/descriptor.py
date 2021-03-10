@@ -17,7 +17,7 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
-import sparse
+import sparse as sp
 
 from ase import Atoms
 from dscribe.core.system import System
@@ -30,7 +30,7 @@ from joblib import Parallel, delayed
 class Descriptor(ABC):
     """An abstract base class for all descriptors."""
 
-    def __init__(self, periodic, flatten, sparse):
+    def __init__(self, periodic, flatten, sparse, dtype="float64"):
         """
         Args:
             flatten (bool): Whether the output of create() should be flattened
@@ -39,6 +39,7 @@ class Descriptor(ABC):
         self.sparse = sparse
         self.flatten = flatten
         self.periodic = periodic
+        self.dtype = dtype
         self._atomic_numbers = None
         self._atomic_number_set = None
         self._species = None
@@ -242,7 +243,7 @@ class Descriptor(ABC):
                     data = []
                     coords = []
                 else:
-                    results = np.empty(i_shape, dtype=np.float32)
+                    results = np.empty(i_shape, dtype=self.dtype)
 
             i_sample = 0
             old_percent = 0
@@ -271,7 +272,7 @@ class Descriptor(ABC):
             if static_size is not None and is_sparse:
                 data = np.concatenate(data)
                 coords = np.concatenate(coords, axis=1)
-                results = sparse.COO(coords, data, shape=i_shape)
+                results = sp.COO(coords, data, shape=i_shape)
 
             return (results, index)
 
@@ -309,7 +310,7 @@ class Descriptor(ABC):
                 # Saves the descriptors as a sparse matrix
                 data = np.concatenate(data)
                 coords = np.concatenate(coords, axis=1)
-                results = sparse.COO(coords, data, shape=[n_samples] + static_size)
+                results = sp.COO(coords, data, shape=[n_samples] + static_size)
             else:
                 results = np.concatenate(vec_lists, axis=0)
         else:
@@ -457,36 +458,47 @@ class Descriptor(ABC):
             # Initialize output
             n_samples = len(arguments)
             if derivatives_shape:
-                shape = [n_samples]
-                shape.extend(derivatives_shape)
-                derivatives = np.empty(shape, dtype=np.float32)
+                shape_der = [n_samples]
+                shape_der.extend(derivatives_shape)
+                if is_sparse:
+                    data_der = []
+                    coords_der = []
+                else:
+                    derivatives = np.empty(shape_der, dtype=self.dtype)
             else:
                 derivatives = []
             if descriptor_shape:
-                shape = [n_samples]
-                shape.extend(descriptor_shape)
-                descriptors = np.empty(shape, dtype=np.float32)
+                shape_des = [n_samples]
+                shape_des.extend(descriptor_shape)
+                if is_sparse:
+                    data_des = []
+                    coords_des = []
+                else:
+                    descriptors = np.empty(shape_des, dtype=self.dtype)
             else:
                 descriptors = []
-
-            derivative_offset = 0
-            descriptor_offset = 0
-            i_sample = 0
             old_percent = 0
 
+            # Loop through all samples assigned for this job
             for i_sample, i_arg in enumerate(arguments):
                 i_der, i_des = func(*i_arg)
                 if descriptor_shape:
-                    new_descriptor_offset = descriptor_offset + i_des.shape[0]
-                    descriptors[descriptor_offset:new_descriptor_offset, :] = i_des
-                    descriptor_offset = new_descriptor_offset
+                    if is_sparse:
+                        sample_index = np.full((1, i_des.data.size), i_sample)
+                        data_des.append(i_des.data)
+                        coords_des.append(np.vstack((sample_index, i_des.coords)))
+                    else:
+                        descriptors[i_sample] = i_des
                 else:
                     descriptors.append(i_des)
 
                 if derivatives_shape:
-                    new_derivative_offset = derivative_offset + i_der.shape[0]
-                    derivatives[derivative_offset:new_derivative_offset, :] = i_der
-                    derivative_offset = new_derivative_offset
+                    if is_sparse:
+                        sample_index = np.full((1, i_der.data.size), i_sample)
+                        data_der.append(i_der.data)
+                        coords_der.append(np.vstack((sample_index, i_der.coords)))
+                    else:
+                        derivatives[i_sample] = i_der
                 else:
                     derivatives.append(i_der)
 
@@ -495,6 +507,16 @@ class Descriptor(ABC):
                     if current_percent >= old_percent + 1:
                         old_percent = current_percent
                         print("Process {0}: {1:.1f} %".format(index, current_percent))
+
+            if is_sparse:
+                if descriptor_shape is not None:
+                    data_des = np.concatenate(data_des)
+                    coords_des = np.concatenate(coords_des, axis=1)
+                    descriptors = sp.COO(coords_des, data_des, shape=shape_des)
+                if derivatives_shape is not None:
+                    data_der = np.concatenate(data_der)
+                    coords_der = np.concatenate(coords_der, axis=1)
+                    derivatives = sp.COO(coords_der, data_der, shape=shape_der)
 
             return ((derivatives, descriptors), index)
 
@@ -505,22 +527,28 @@ class Descriptor(ABC):
             # Initialize output
             n_samples = len(arguments)
             if derivatives_shape:
-                shape = [n_samples]
-                shape.extend(derivatives_shape)
-                derivatives = np.empty(shape, dtype=np.float32)
+                shape_der = [n_samples]
+                shape_der.extend(derivatives_shape)
+                if is_sparse:
+                    data_der = []
+                    coords_der = []
+                else:
+                    derivatives = np.empty(shape_der, dtype=self.dtype)
             else:
                 derivatives = []
 
-            derivative_offset = 0
-            i_sample = 0
             old_percent = 0
 
+            # Loop through all samples assigned for this job
             for i_sample, i_arg in enumerate(arguments):
                 i_der = func(*i_arg)
                 if derivatives_shape:
-                    new_derivative_offset = derivative_offset + i_der.shape[0]
-                    derivatives[derivative_offset:new_derivative_offset, :] = i_der
-                    derivative_offset = new_derivative_offset
+                    if is_sparse:
+                        sample_index = np.full((1, i_der.data.size), i_sample)
+                        data_der.append(i_der.data)
+                        coords_der.append(np.vstack((sample_index, i_der.coords)))
+                    else:
+                        derivatives[i_sample] = i_der
                 else:
                     derivatives.append(i_der)
 
@@ -530,7 +558,11 @@ class Descriptor(ABC):
                         old_percent = current_percent
                         print("Process {0}: {1:.1f} %".format(index, current_percent))
 
-                return ((derivatives,), index)
+            if is_sparse and derivatives_shape is not None:
+                data_der = np.concatenate(data_der)
+                coords_der = np.concatenate(coords_der, axis=1)
+                derivatives = sp.COO(coords_der, data_der, shape=shape_der)
+            return ((derivatives,), index)
 
         if return_descriptor:
             vec_lists = Parallel(n_jobs=n_jobs, prefer=prefer)(
@@ -553,7 +585,10 @@ class Descriptor(ABC):
         # into one numpy array. Otherwise we will return a regular python list.
         der_lists = [x[0][0] for x in vec_lists]
         if derivatives_shape:
-            derivatives = np.concatenate(der_lists, axis=0)
+            if is_sparse:
+                derivatives = sp.concatenate(der_lists, axis=0)
+            else:
+                derivatives = np.concatenate(der_lists, axis=0)
         else:
             derivatives = []
             for part in der_lists:
@@ -561,7 +596,10 @@ class Descriptor(ABC):
         if return_descriptor:
             des_lists = [x[0][1] for x in vec_lists]
             if descriptor_shape:
-                descriptors = np.concatenate(des_lists, axis=0)
+                if is_sparse:
+                    descriptors = sp.concatenate(des_lists, axis=0)
+                else:
+                    descriptors = np.concatenate(des_lists, axis=0)
             else:
                 descriptors = []
                 for part in des_lists:
