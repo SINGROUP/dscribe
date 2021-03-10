@@ -1,8 +1,8 @@
 import sys
 
 # Check python version
-if sys.version_info[:2] < (3, 0):
-    raise RuntimeError("Python version >= 3.0 required.")
+if sys.version_info[:2] < (3, 6):
+    raise RuntimeError("Python version >= 3.6 required.")
 
 import platform
 from distutils.ccompiler import new_compiler
@@ -36,7 +36,6 @@ class get_pybind_include(object):
 
 cpp_extra_link_args = []
 cpp_extra_compile_args = ["-std=c++11", "-O3"]
-c_extra_compile_args = ["-std=c99", "-O3"]
 
 # Needed to specify C++ runtime library on OSX. This solution is replicated
 # from the setup.py of mdanalysis
@@ -53,10 +52,14 @@ extensions = [
         [
             "dscribe/ext/ext.cpp",
             "dscribe/ext/celllist.cpp",
+            "dscribe/ext/descriptor.cpp",
             "dscribe/ext/soapGTO.cpp",
+            "dscribe/ext/soap.cpp",
+            "dscribe/ext/soapGTODevX.cpp",
             "dscribe/ext/soapGeneral.cpp",
             "dscribe/ext/acsf.cpp",
             "dscribe/ext/mbtr.cpp",
+            "dscribe/ext/geometry.cpp",
         ],
         include_dirs=[
             # Path to pybind11 headers
@@ -73,13 +76,13 @@ extensions = [
 if __name__ == "__main__":
     setup(
         name="dscribe",
-        version="0.4.1a0",
+        version="1.0.0",
         url="https://singroup.github.io/dscribe/",
         description="A Python package for creating feature transformations in applications of machine learning to materials science.",
         long_description="A Python package for creating feature transformations in applications of machine learning to materials science.",
         packages=find_packages(),
         setup_requires=['pybind11>=2.4'],
-        install_requires=['pybind11>=2.4', "numpy", "scipy", "ase>=3.19.0", "scikit-learn", "joblib"],
+        install_requires=['pybind11>=2.4', "numpy", "scipy", "ase>=3.19.0", "scikit-learn", "joblib>=1.0.0", "sparse"],
         include_package_data=True,  # This ensures that files defined in MANIFEST.in are included
         ext_modules=extensions,
         license="Apache License 2.0",

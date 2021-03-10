@@ -3,6 +3,7 @@ trigger:
 - master
 - development
 - predev
+- 1.0.0
 
 # Jobs
 jobs:
@@ -13,8 +14,6 @@ jobs:
     vmImage: 'ubuntu-latest'
   strategy:
     matrix:
-      python35:
-        python.version: '3.5'
       python36:
         python.version: '3.6'
       python37:
@@ -33,12 +32,22 @@ jobs:
     displayName: 'Use Python $(python.version)'
 
   - script: |
+      cd $(Build.Repository.LocalPath)/CI && ./devtools.sh
+    displayName: 'Install development tools'
+
+  - script: |
+      cd $(Build.Repository.LocalPath)/CI && ./lint.sh
+    displayName: 'Lint code'
+
+  - script: |
       cd $(Build.Repository.LocalPath)/CI && ./build.sh
     displayName: 'Build package'
+    condition: always()
 
   - script: |
       cd $(Build.Repository.LocalPath)/CI && ./test.sh
     displayName: 'Run regression tests'
+    condition: always()
 
   - script: |
       cd $(Build.Repository.LocalPath)/CI && ./updatecoverage.sh
@@ -46,9 +55,3 @@ jobs:
       COVERALLS_REPO_TOKEN: $(COVERALLS_REPO_TOKEN) # right way to map to an env variable
     displayName: 'Update coverage'
     condition: and(succeeded(), eq(variables['python.version'], '3.7'))
-
-#  - script: |
-#      cd $(Build.Repository.LocalPath)/CI && ./updatedocs.sh
-#    displayName: 'Update docs'
-#    condition: and(succeeded(), eq(variables['python.version'], '3.7'))
-

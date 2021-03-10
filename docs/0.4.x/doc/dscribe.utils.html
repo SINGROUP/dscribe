@@ -1,0 +1,473 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dscribe.utils package &mdash; DScribe 0.4.x documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/js/versions.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Contributing" href="../contributing.html" />
+    <link rel="prev" title="dscribe.kernels package" href="dscribe.kernels.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.4.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/tutorials.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="dscribe.html">dscribe package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="dscribe.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="dscribe.core.html">dscribe.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dscribe.descriptors.html">dscribe.descriptors package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dscribe.kernels.html">dscribe.kernels package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">dscribe.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dscribe.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dscribe.html#module-dscribe.ext">dscribe.ext module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dscribe.html#module-dscribe">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing DScribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DScribe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="modules.html">dscribe</a> &raquo;</li>
+        
+          <li><a href="dscribe.html">dscribe package</a> &raquo;</li>
+        
+      <li>dscribe.utils package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/doc/dscribe.utils.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="dscribe-utils-package">
+<h1>dscribe.utils package<a class="headerlink" href="#dscribe-utils-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-dscribe.utils.geometry">
+<span id="dscribe-utils-geometry-module"></span><h2>dscribe.utils.geometry module<a class="headerlink" href="#module-dscribe.utils.geometry" title="Permalink to this headline">¶</a></h2>
+<p>Copyright 2019 DScribe developers</p>
+<p>Licensed under the Apache License, Version 2.0 (the “License”);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<blockquote>
+<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+</div></blockquote>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</p>
+<dl class="py function">
+<dt id="dscribe.utils.geometry.get_adjacency_list">
+<code class="sig-prename descclassname">dscribe.utils.geometry.</code><code class="sig-name descname">get_adjacency_list</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">adjacency_matrix</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/utils/geometry.html#get_adjacency_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.utils.geometry.get_adjacency_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to transform an adjacency matrix into an adjacency list. The
+adjacency list provides much faster access to the neighbours of a node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>adjacency_matrix</strong> (<em>scipy.sparse.spmatrix</em>) – The adjacency matrix from
+which the adjacency list is constructed from. Any of the scipy
+sparse matrix classes.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of neighbouring indices. The list of neighbouring indices
+for atom at index i is given by accessing the ith element of this list.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="dscribe.utils.geometry.get_adjacency_matrix">
+<code class="sig-prename descclassname">dscribe.utils.geometry.</code><code class="sig-name descname">get_adjacency_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">radius</span></em>, <em class="sig-param"><span class="n">pos1</span></em>, <em class="sig-param"><span class="n">pos2</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">output_type</span><span class="o">=</span><span class="default_value">'coo_matrix'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/utils/geometry.html#get_adjacency_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.utils.geometry.get_adjacency_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates a sparse adjacency matrix by only considering distances
+within a certain cutoff. Uses a k-d tree to reach O(n log(N)) time
+complexity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>radius</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – The cutoff radius within which distances are
+calculated. Distances outside this radius are not included.</p></li>
+<li><p><strong>pos1</strong> (<em>np.ndarray</em>) – A list of N-dimensional positions.</p></li>
+<li><p><strong>pos2</strong> (<em>np.ndarray</em>) – A list of N-dimensional positions. If not provided,
+is assumed to be the same as pos1.</p></li>
+<li><p><strong>output_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Which container to use for output data. Options:
+“dok_matrix”, “coo_matrix”, “dict”, or “ndarray”. Default:
+“dok_matrix”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Symmetric sparse 2D
+matrix containing the pairwise distances.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dok_matrix | np.array | coo_matrix | dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="dscribe.utils.geometry.get_extended_system">
+<code class="sig-prename descclassname">dscribe.utils.geometry.</code><code class="sig-name descname">get_extended_system</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">radial_cutoff</span></em>, <em class="sig-param"><span class="n">centers</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">return_cell_indices</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/utils/geometry.html#get_extended_system"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.utils.geometry.get_extended_system" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to create a periodically extended system. If centers are not
+specified, simply takes returns the original system multiplied by an
+integer amount of times in each direction to cover the radial cutoff. If
+centers are provided, returns the exact atoms that are within the given
+radial cutoff from the given centers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>original_system</strong> (<em>ase.Atoms</em>) – The original periodic system to duplicate.</p></li>
+<li><p><strong>radial_cutoff</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – The radial cutoff to use in constructing the
+extended system.</p></li>
+<li><p><strong>centers</strong> (<em>np.ndarray</em>) – Array of xyz-coordinates from which the distance
+is calculated. If provided, these centers are used to calculate the
+exact distance and only atoms within the radial cutoff from these
+centers are returned.</p></li>
+<li><p><strong>return_cell_indices</strong> (<em>boolean</em>) – Whether to return an array of cell
+indices for each atom in the extended system.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>If return_cell_indices is False, returns the new
+extended system. Else returns a tuple containing the new extended
+system as the first entry and the index of the periodically repeated
+cell for each atom as the second entry.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ase.Atoms | tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-dscribe.utils.species">
+<span id="dscribe-utils-species-module"></span><h2>dscribe.utils.species module<a class="headerlink" href="#module-dscribe.utils.species" title="Permalink to this headline">¶</a></h2>
+<p>Copyright 2019 DScribe developers</p>
+<p>Licensed under the Apache License, Version 2.0 (the “License”);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<blockquote>
+<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+</div></blockquote>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</p>
+<dl class="py function">
+<dt id="dscribe.utils.species.get_atomic_numbers">
+<code class="sig-prename descclassname">dscribe.utils.species.</code><code class="sig-name descname">get_atomic_numbers</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">species</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/utils/species.html#get_atomic_numbers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.utils.species.get_atomic_numbers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a list of chemical species either as a atomic numbers or chemical
+symbols, return the correponding list of ordered atomic numbers with
+duplicates removed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>species</strong> (<em>iterable of ints</em><em> or </em><em>strings</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of atomic numbers as an integer array.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="dscribe.utils.species.symbols_to_numbers">
+<code class="sig-prename descclassname">dscribe.utils.species.</code><code class="sig-name descname">symbols_to_numbers</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">symbols</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/utils/species.html#symbols_to_numbers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.utils.species.symbols_to_numbers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transforms a set of chemical symbols into the corresponding atomic
+numbers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>symbols</strong> (<em>iterable</em>) – List of chemical symbols.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Atomic numbers as an array of integers.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-dscribe.utils.stats">
+<span id="dscribe-utils-stats-module"></span><h2>dscribe.utils.stats module<a class="headerlink" href="#module-dscribe.utils.stats" title="Permalink to this headline">¶</a></h2>
+<p>Copyright 2019 DScribe developers</p>
+<p>Licensed under the Apache License, Version 2.0 (the “License”);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<blockquote>
+<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+</div></blockquote>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</p>
+<dl class="py function">
+<dt id="dscribe.utils.stats.system_stats">
+<code class="sig-prename descclassname">dscribe.utils.stats.</code><code class="sig-name descname">system_stats</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system_iterator</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/utils/stats.html#system_stats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.utils.stats.system_stats" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>system_stats</strong> (<em>iterable containing ASE.Atoms</em><em> or </em><a class="reference internal" href="dscribe.core.html#dscribe.core.system.System" title="dscribe.core.system.System"><em>System</em></a>) – The atomic
+systems for which to gather statistics.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>A dictionary of different statistics for the system. The
+dictionary will contain:</p>
+<blockquote>
+<div><p>n_atoms_max: The maximum number of atoms in a system.
+max_atomic_number: The highest atomic number
+min_atomic_number: The lowest atomic number
+atomic_numbers: List of present atomic numbers
+element_symbols: List of present atomic symbols
+min_distance: Minimum distance in the system</p>
+</div></blockquote>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-dscribe.utils">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-dscribe.utils" title="Permalink to this headline">¶</a></h2>
+<p>Copyright 2019 DScribe developers</p>
+<p>Licensed under the Apache License, Version 2.0 (the “License”);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<blockquote>
+<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+</div></blockquote>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../contributing.html" class="btn btn-neutral float-right" title="Contributing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="dscribe.kernels.html" class="btn btn-neutral float-left" title="dscribe.kernels package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Versions</span>
+      v: 0.4.x
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl id="version-table">
+        <dt>Versions</dt>
+      </dl>
+    </div>
+  </div>
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

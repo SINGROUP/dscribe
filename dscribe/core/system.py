@@ -25,25 +25,27 @@ class System(Atoms):
     various time-consuming quantities that can be shared when creating multiple
     descriptors.
     """
+
     def __init__(
-            self,
-            symbols=None,
-            positions=None,
-            numbers=None,
-            tags=None,
-            momenta=None,
-            masses=None,
-            magmoms=None,
-            charges=None,
-            scaled_positions=None,
-            cell=None,
-            pbc=None,
-            celldisp=None,
-            constraint=None,
-            calculator=None,
-            info=None,
-            wyckoff_positions=None,
-            equivalent_atoms=None):
+        self,
+        symbols=None,
+        positions=None,
+        numbers=None,
+        tags=None,
+        momenta=None,
+        masses=None,
+        magmoms=None,
+        charges=None,
+        scaled_positions=None,
+        cell=None,
+        pbc=None,
+        celldisp=None,
+        constraint=None,
+        calculator=None,
+        info=None,
+        wyckoff_positions=None,
+        equivalent_atoms=None,
+    ):
 
         super().__init__(
             symbols,
@@ -60,7 +62,8 @@ class System(Atoms):
             celldisp,
             constraint,
             calculator,
-            info)
+            info,
+        )
 
         self.wyckoff_positions = wyckoff_positions
         self.equivalent_atoms = equivalent_atoms
@@ -71,8 +74,7 @@ class System(Atoms):
 
     @staticmethod
     def from_atoms(atoms):
-        """Creates a System object from ASE.Atoms object.
-        """
+        """Creates a System object from ASE.Atoms object."""
         system = System(
             symbols=atoms.get_chemical_symbols(),
             positions=atoms.get_positions(),
@@ -86,13 +88,13 @@ class System(Atoms):
             celldisp=atoms.get_celldisp(),
             constraint=atoms._get_constraints(),
             calculator=atoms.get_calculator(),
-            info=atoms.info)
+            info=atoms.info,
+        )
 
         return system
 
     def get_cell_inverse(self):
-        """Get the matrix inverse of the lattice matrix.
-        """
+        """Get the matrix inverse of the lattice matrix."""
         if self._cell_inverse is None:
             self._cell_inverse = np.linalg.inv(self.get_cell())
         return self._cell_inverse
@@ -109,9 +111,7 @@ class System(Atoms):
         Returns:
             numpy.ndarray: The scaled positions
         """
-        fractional = np.linalg.solve(
-            self.get_cell().T,
-            positions.T).T
+        fractional = np.linalg.solve(self.get_cell().T, positions.T).T
 
         if wrap:
             for i, periodic in enumerate(self.pbc):
@@ -159,9 +159,7 @@ class System(Atoms):
         if self._displacement_tensor is None:
 
             D, D_len = ase.geometry.geometry.get_distances(
-                self.get_positions(),
-                cell=self.get_cell(),
-                pbc=self.get_pbc()
+                self.get_positions(), cell=self.get_cell(), pbc=self.get_pbc()
             )
 
             # Figure out the smallest basis vector and set it as
@@ -200,7 +198,9 @@ class System(Atoms):
             self.get_displacement_tensor()
         return self._distance_matrix
 
-    def get_distance_matrix_within_radius(self, radius, pos=None, output_type="coo_matrix"):
+    def get_distance_matrix_within_radius(
+        self, radius, pos=None, output_type="coo_matrix"
+    ):
         """Calculates a sparse distance matrix by only considering distances
         within a certain cutoff. Uses a k-d tree to reach O(n log(N)) time
         complexity.
@@ -216,7 +216,9 @@ class System(Atoms):
             dok_matrix | np.array | coo_matrix | dict: Symmetric sparse 2D
             matrix containing the pairwise distances.
         """
-        dmat = dscribe.utils.geometry.get_adjacency_matrix(radius, self.get_positions(), pos2=pos, output_type=output_type)
+        dmat = dscribe.utils.geometry.get_adjacency_matrix(
+            radius, self.get_positions(), pos2=pos, output_type=output_type
+        )
         return dmat
 
     def get_inverse_distance_matrix(self):
@@ -237,7 +239,7 @@ class System(Atoms):
         """
         if self._inverse_distance_matrix is None:
             distance_matrix = self.get_distance_matrix()
-            with np.errstate(divide='ignore'):
+            with np.errstate(divide="ignore"):
                 inv_distance_matrix = np.reciprocal(distance_matrix)
             self._inverse_distance_matrix = inv_distance_matrix
         return self._inverse_distance_matrix

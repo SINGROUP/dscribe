@@ -4,7 +4,6 @@ from importlib import import_module
 
 
 class ExampleTests(unittest.TestCase):
-
     def test_examples(self):
         # Walks through the examples folder and tests each example by
         # dynamically importing them which will also run their code.
@@ -12,7 +11,8 @@ class ExampleTests(unittest.TestCase):
         os.chdir("../examples")
         example_root = os.getcwd()
         paths = set()
-        for root, dirs, files in os.walk('./'):
+        for root, dirs, files in os.walk("./"):
+            files.sort()
             for f in files:
                 filename = os.path.join(root, f)
                 if filename.endswith(".py"):
@@ -31,7 +31,9 @@ class ExampleTests(unittest.TestCase):
                     import_module(modulename)
         os.chdir(old_cwd)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
+    ExampleTests().test_examples()
     suites = []
     suites.append(unittest.TestLoader().loadTestsFromTestCase(ExampleTests))
     alltests = unittest.TestSuite(suites)

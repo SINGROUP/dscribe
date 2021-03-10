@@ -1,0 +1,372 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Building similarity kernels from local environments &mdash; DScribe 0.4.x documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/js/versions.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="dscribe" href="../doc/modules.html" />
+    <link rel="prev" title="Local Many-body Tensor Representation" href="lmbtr.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.4.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="basics.html">Basic concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="coulomb_matrix.html">Coulomb Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sine_matrix.html">Sine matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ewald_sum_matrix.html">Ewald sum matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="acsf.html">Atom-centered Symmetry Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="soap.html">Smooth Overlap of Atomic Positions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mbtr.html">Many-body Tensor Representation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lmbtr.html">Local Many-body Tensor Representation</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Building similarity kernels from local environments</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#average-kernel">Average kernel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#best-match-kernel">Best-match kernel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rematch-kernel">REMatch kernel</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../doc/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing DScribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DScribe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="tutorials.html">Tutorials</a> &raquo;</li>
+        
+      <li>Building similarity kernels from local environments</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/tutorials/kernels.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="building-similarity-kernels-from-local-environments">
+<h1>Building similarity kernels from local environments<a class="headerlink" href="#building-similarity-kernels-from-local-environments" title="Permalink to this headline">¶</a></h1>
+<p>Measuring the similarity of structures becomes easy when the feature vectors
+represent the whole structure, such as in the case of Coulomb matrix or MBTR.
+In these cases the feature vectors are directly comparable with different
+kernels, e.g. the linear or Gaussian kernel.</p>
+<p>Local descriptors such as SOAP or ACSF can be used in the same way to compare
+individual local atomic environments, but additional tools are needed to make
+comparison of entire structures based on local environments.
+This tutorial goes through two different strategies for building such global
+similarity measures by comparing local atomic environments between structures.
+For more insight, see <a class="bibtex reference internal" href="#kernels" id="id1">[1]</a>.</p>
+<div class="section" id="average-kernel">
+<h2>Average kernel<a class="headerlink" href="#average-kernel" title="Permalink to this headline">¶</a></h2>
+<p>The simplest approach is to average over the local contributions to create a
+global similarity measure. This average kernel <span class="math notranslate nohighlight">\(K\)</span> is defined as:</p>
+<div class="math notranslate nohighlight">
+\[K(A, B) = \frac{1}{N M}\sum_{ij} C_{ij}(A, B)\]</div>
+<p>where <span class="math notranslate nohighlight">\(N\)</span> is the number of atoms in structure <span class="math notranslate nohighlight">\(A\)</span>, <span class="math notranslate nohighlight">\(M\)</span> is the
+number of atoms in structure <span class="math notranslate nohighlight">\(B\)</span> and the similarity between local atomic
+environments <span class="math notranslate nohighlight">\(C_{ij}\)</span> can in general be calculated with any pairwise
+metric (e.g.  linear, gaussian).</p>
+<p>The class <a class="reference internal" href="../doc/dscribe.kernels.html#dscribe.kernels.averagekernel.AverageKernel" title="dscribe.kernels.averagekernel.AverageKernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">AverageKernel</span></code></a> can be used to calculate
+this similarity.  Here is an example of calculating an average kernel for two
+relatively similar molecules by using SOAP and a linear and Gaussian similarity
+metric:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">SOAP</span>
+<span class="kn">from</span> <span class="nn">dscribe.kernels</span> <span class="kn">import</span> <span class="n">AverageKernel</span>
+
+<span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">molecule</span>
+
+<span class="c1"># We will compare two similar molecules</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;H2O&quot;</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;H2O2&quot;</span><span class="p">)</span>
+
+<span class="c1"># First we will have to create the features for atomic environments. Lets</span>
+<span class="c1"># use SOAP.</span>
+<span class="n">desc</span> <span class="o">=</span> <span class="n">SOAP</span><span class="p">(</span><span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="n">rcut</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">nmax</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">lmax</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">crossover</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">a_features</span> <span class="o">=</span> <span class="n">desc</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="n">b_features</span> <span class="o">=</span> <span class="n">desc</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+
+<span class="c1"># Calculates the similarity with an average kernel and a linear metric. The</span>
+<span class="c1"># result will be a full similarity matrix.</span>
+<span class="n">re</span> <span class="o">=</span> <span class="n">AverageKernel</span><span class="p">(</span><span class="n">metric</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">)</span>
+<span class="n">re_kernel</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">create</span><span class="p">([</span><span class="n">a_features</span><span class="p">,</span> <span class="n">b_features</span><span class="p">])</span>
+
+<span class="c1"># Any metric supported by scikit-learn will work: e.g. a Gaussian:</span>
+<span class="n">re</span> <span class="o">=</span> <span class="n">AverageKernel</span><span class="p">(</span><span class="n">metric</span><span class="o">=</span><span class="s2">&quot;rbf&quot;</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">re_kernel</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">create</span><span class="p">([</span><span class="n">a_features</span><span class="p">,</span> <span class="n">b_features</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="best-match-kernel">
+<h2>Best-match kernel<a class="headerlink" href="#best-match-kernel" title="Permalink to this headline">¶</a></h2>
+<p>TODO</p>
+</div>
+<div class="section" id="rematch-kernel">
+<h2>REMatch kernel<a class="headerlink" href="#rematch-kernel" title="Permalink to this headline">¶</a></h2>
+<p>The REMatch kernel lets you choose between the best match of local environments
+and the averaging strategy. The parameter <span class="math notranslate nohighlight">\(\alpha\)</span> determines the
+contribution of the two: <span class="math notranslate nohighlight">\(\alpha = 0\)</span> means only the similarity of
+the best matching local environments is taken into account and <span class="math notranslate nohighlight">\(\alpha
+\rightarrow \infty\)</span> channels in the average solution. The similarity kernel
+<span class="math notranslate nohighlight">\(K\)</span> is defined as:</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}\DeclareMathOperator*{\argmax}{argmax}
+K(A, B) &amp;= \mathrm{Tr} \mathbf{P}^\alpha \mathbf{C}(A, B)\\\mathbf{P}^\alpha &amp;= \argmax_{\mathbf{P} \in \mathcal{U}(N, N)} \sum_{ij} P_{ij} (1-C_{ij} +\alpha \ln P_{ij})\end{aligned}\end{align} \]</div>
+<p>where the similarity between local atomic environments <span class="math notranslate nohighlight">\(C_{ij}\)</span> can once
+again be calculated with any pairwise metric (e.g. linear, gaussian).</p>
+<p>The class <a class="reference internal" href="../doc/dscribe.kernels.html#dscribe.kernels.rematchkernel.REMatchKernel" title="dscribe.kernels.rematchkernel.REMatchKernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">REMatchKernel</span></code></a> can be used to calculate this similarity:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Demostrates how global similarity kernels can be built from local atomic</span>
+<span class="sd">environments.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">SOAP</span>
+<span class="kn">from</span> <span class="nn">dscribe.kernels</span> <span class="kn">import</span> <span class="n">REMatchKernel</span>
+
+<span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">molecule</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">normalize</span>
+
+<span class="c1"># We will compare two similar molecules</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;H2O&quot;</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;H2O2&quot;</span><span class="p">)</span>
+
+<span class="c1"># First we will have to create the features for atomic environments. Lets</span>
+<span class="c1"># use SOAP.</span>
+<span class="n">desc</span> <span class="o">=</span> <span class="n">SOAP</span><span class="p">(</span><span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="n">rcut</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">nmax</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">lmax</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">crossover</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">a_features</span> <span class="o">=</span> <span class="n">desc</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="n">b_features</span> <span class="o">=</span> <span class="n">desc</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+
+<span class="c1"># Before passing the features we normalize them. Depending on the metric, the</span>
+<span class="c1"># REMatch kernel can become numerically unstable if some kind of normalization</span>
+<span class="c1"># is not done.</span>
+<span class="n">a_features</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">a_features</span><span class="p">)</span>
+<span class="n">b_features</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">b_features</span><span class="p">)</span>
+
+<span class="c1"># Calculates the similarity with the REMatch kernel and a linear metric. The</span>
+<span class="c1"># result will be a full similarity matrix.</span>
+<span class="n">re</span> <span class="o">=</span> <span class="n">REMatchKernel</span><span class="p">(</span><span class="n">metric</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">)</span>
+<span class="n">re_kernel</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">create</span><span class="p">([</span><span class="n">a_features</span><span class="p">,</span> <span class="n">b_features</span><span class="p">])</span>
+
+<span class="c1"># Any metric supported by scikit-learn will work: e.g. a Gaussian.</span>
+<span class="n">re</span> <span class="o">=</span> <span class="n">REMatchKernel</span><span class="p">(</span><span class="n">metric</span><span class="o">=</span><span class="s2">&quot;rbf&quot;</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">)</span>
+<span class="n">re_kernel</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">create</span><span class="p">([</span><span class="n">a_features</span><span class="p">,</span> <span class="n">b_features</span><span class="p">])</span>
+</pre></div>
+</div>
+<p id="bibtex-bibliography-tutorials/kernels-0"><dl class="citation">
+<dt class="bibtex label" id="kernels"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>Sandip De, Albert P. Bartók, Gábor Csányi, and Michele Ceriotti. Comparing molecules and solids across structural and alchemical space. <em>Phys. Chem. Chem. Phys.</em>, 18(20):13754–13769, 2016. <a class="reference external" href="https://arxiv.org/abs/1601.04077">arXiv:1601.04077</a>.</p>
+</dd>
+</dl>
+</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../doc/modules.html" class="btn btn-neutral float-right" title="dscribe" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="lmbtr.html" class="btn btn-neutral float-left" title="Local Many-body Tensor Representation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Versions</span>
+      v: 0.4.x
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl id="version-table">
+        <dt>Versions</dt>
+      </dl>
+    </div>
+  </div>
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

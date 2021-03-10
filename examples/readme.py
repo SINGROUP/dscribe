@@ -10,7 +10,7 @@ samples = [molecule("H2O"), molecule("NO2"), molecule("CO2")]
 cm_desc = CoulombMatrix(n_atoms_max=3, permutation="sorted_l2")
 soap_desc = SOAP(species=["C", "H", "O", "N"], rcut=5, nmax=8, lmax=6, crossover=True)
 
-# Create descriptors as numpy arrays or scipy sparse matrices
+# Create descriptors as numpy arrays or sparse arrays
 water = samples[0]
 coulomb_matrix = cm_desc.create(water)
 soap = soap_desc.create(water, positions=[0])
@@ -20,3 +20,7 @@ coulomb_matrices = cm_desc.create(samples)
 coulomb_matrices = cm_desc.create(samples, n_jobs=3)
 oxygen_indices = [np.where(x.get_atomic_numbers() == 8)[0] for x in samples]
 oxygen_soap = soap_desc.create(samples, oxygen_indices, n_jobs=3)
+
+# Some descriptors also allow calculating derivatives with respect to atomic
+# positions
+der, des = soap_desc.derivatives(samples, method="auto", return_descriptor=True)

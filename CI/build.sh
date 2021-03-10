@@ -1,12 +1,5 @@
-# Update pip and setuptools
-pip install pip --upgrade
-pip install setuptools --upgrade
-
-# Install development dependencies
-cd ..
-pip install -r devrequirements.txt
-
 # Make a source distribution
+cd ..
 python setup.py sdist
 
 # Install the package itself from the newly created source distribution (this

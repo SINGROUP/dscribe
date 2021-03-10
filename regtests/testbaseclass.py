@@ -3,18 +3,18 @@ import abc
 import numpy as np
 from ase import Atoms
 
-ABC = abc.ABCMeta('ABC', (object,), {})
+ABC = abc.ABCMeta("ABC", (object,), {})
 
 finite_system = Atoms(
-    cell=[
-        [5.0, 0.0, 0.0],
-        [0.0, 5.0, 0.0],
-        [0.0, 0.0, 5.0]
-    ],
+    cell=[[5.0, 0.0, 0.0], [0.0, 5.0, 0.0], [0.0, 0.0, 5.0]],
     positions=[
         [0, 0, 0],
         [0.95, 0, 0],
-        [0.95*(1+math.cos(76/180*math.pi)), 0.95*math.sin(76/180*math.pi), 0.0]
+        [
+            0.95 * (1 + math.cos(76 / 180 * math.pi)),
+            0.95 * math.sin(76 / 180 * math.pi),
+            0.0,
+        ],
     ],
     symbols=["H", "O", "H"],
     pbc=False,
@@ -26,15 +26,14 @@ class TestBaseClass(ABC):
     different descriptors. It also defines a set of common basic tests that
     should be implemented for every descriptor.
     """
+
     @abc.abstractmethod
-    def test_constructor(self):
-        """
-        """
+    def test_exceptions(self):
+        """"""
 
     @abc.abstractmethod
     def test_number_of_features(self):
-        """
-        """
+        """"""
 
     @abc.abstractmethod
     def test_sparse(self):
@@ -45,8 +44,7 @@ class TestBaseClass(ABC):
 
     @abc.abstractmethod
     def test_symmetries(self):
-        """
-        """
+        """"""
 
     def is_rotationally_symmetric(self, create):
         """Tests whether the descriptor output is invariant to rotations of the
@@ -56,7 +54,7 @@ class TestBaseClass(ABC):
         is_rot_sym = True
 
         # Rotational Check
-        for rotation in ['x', 'y', 'z']:
+        for rotation in ["x", "y", "z"]:
             i_system = finite_system.copy()
             i_system.rotate(45, rotation, rotate_cell=True)
             i_features = create(i_system)
@@ -104,8 +102,7 @@ class TestBaseClass(ABC):
         return is_perm_sym
 
     def dict_comparison(self, first, second):
-        """Used to compare values in two dictionaries.
-        """
+        """Used to compare values in two dictionaries."""
         n_first = len(first)
         n_second = len(second)
 
@@ -117,9 +114,7 @@ class TestBaseClass(ABC):
         first_keys = set(first.keys())
         second_keys = set(second.keys())
         if first_keys != second_keys:
-            raise ValueError(
-                "The dictionaries do not have the same keys."
-            )
+            raise ValueError("The dictionaries do not have the same keys.")
 
         for key in first_keys:
             assumed_elem = second[key]

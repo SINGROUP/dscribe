@@ -17,20 +17,20 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
-from scipy.sparse import coo_matrix
+import sparse as sp
 
 from ase import Atoms
 from dscribe.core.system import System
 from dscribe.utils.species import get_atomic_numbers
 
+import joblib
 from joblib import Parallel, delayed
 
 
 class Descriptor(ABC):
-    """An abstract base class for all descriptors.
-    """
+    """An abstract base class for all descriptors."""
 
-    def __init__(self, periodic, flatten, sparse):
+    def __init__(self, periodic, flatten, sparse, dtype="float64"):
         """
         Args:
             flatten (bool): Whether the output of create() should be flattened
@@ -39,6 +39,7 @@ class Descriptor(ABC):
         self.sparse = sparse
         self.flatten = flatten
         self.periodic = periodic
+        self.dtype = dtype
         self._atomic_numbers = None
         self._atomic_number_set = None
         self._species = None
@@ -84,9 +85,7 @@ class Descriptor(ABC):
             else:
                 return System.from_atoms(system)
         else:
-            raise ValueError(
-                "Invalid system with type: '{}'.".format(type(system))
-            )
+            raise ValueError("Invalid system with type: '{}'.".format(type(system)))
 
     @property
     def sparse(self):
@@ -159,11 +158,19 @@ class Descriptor(ABC):
         if not zs.issubset(self._atomic_number_set):
             raise ValueError(
                 "The following atomic numbers are not defined "
-                "for this descriptor: {}"
-                .format(zs.difference(self._atomic_number_set))
+                "for this descriptor: {}".format(zs.difference(self._atomic_number_set))
             )
 
-    def create_parallel(self, inp, func, n_jobs, output_sizes=None, verbose=False, prefer="processes"):
+    def create_parallel(
+        self,
+        inp,
+        func,
+        n_jobs,
+        static_size=None,
+        only_physical_cores=False,
+        verbose=False,
+        prefer="processes",
+    ):
         """Used to parallelize the descriptor creation across multiple systems.
 
         Args:
@@ -174,14 +181,21 @@ class Descriptor(ABC):
                 input arguments from "inp".
             n_jobs (int): Number of parallel jobs to instantiate. Parallellizes
                 the calculation across samples. Defaults to serial calculation
-                with n_jobs=1.
+                with n_jobs=1. If a negative number is given, the number of jobs
+                will be calculated with, n_cpus + n_jobs, where n_cpus is the
+                amount of CPUs as reported by the OS. With only_physical_cores
+                you can control which types of CPUs are counted in n_cpus.
             output_sizes(list of ints): The size of the output for each job.
                 Makes the creation faster by preallocating the correct amount of
                 memory beforehand. If not specified, a dynamically created list of
                 outputs is used.
+            only_physical_cores (bool): If a negative n_jobs is given,
+                determines which types of CPUs are used in calculating the
+                number of jobs. If set to False (default), also virtual CPUs
+                are counted.  If set to True, only physical CPUs are counted.
             verbose(bool): Controls whether to print the progress of each job
                 into to the console.
-            backend (str): The parallelization method. Valid options are:
+            prefer (str): The parallelization method. Valid options are:
 
                 - "processes": Parallelization based on processes. Uses the
                   "loky" backend in joblib to serialize the jobs and run them
@@ -197,40 +211,40 @@ class Descriptor(ABC):
                   release the GIL.
 
         Returns:
-            np.ndarray | scipy.sparse.csr_matrix | list: The descriptor output
+            np.ndarray | sparse.COO | list: The descriptor output
             for each given input. The return type depends on the desciptor
             setup.
         """
+        # Determine the number of jobs
+        if n_jobs < 0:
+            n_jobs = joblib.cpu_count(only_physical_cores) + n_jobs
+        if n_jobs <= 0:
+            raise ValueError("Invalid number of jobs specified.")
+
         # Split data into n_jobs (almost) equal jobs
         n_samples = len(inp)
-        n_features = self.get_number_of_features()
         is_sparse = self._sparse
         k, m = divmod(n_samples, n_jobs)
-        jobs = (inp[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n_jobs))
+        jobs = (
+            inp[i * k + min(i, m) : (i + 1) * k + min(i + 1, m)] for i in range(n_jobs)
+        )
 
-        # Calculate the result in parallel with joblib
-        if output_sizes is None:
-            output_sizes = n_jobs*[None]
-            static_size = False
-        else:
-            static_size = True
-
-        def create_multiple(arguments, func, is_sparse, n_features, n_desc, index, verbose):
+        def create_multiple(arguments, func, is_sparse, index, verbose):
             """This is the function that is called by each job but with
             different parts of the data.
             """
             # Initialize output
-            if n_desc is None:
+            if static_size is None:
+                i_shape = None
                 results = []
             else:
+                i_shape = [len(arguments)] + static_size
                 if is_sparse:
                     data = []
-                    rows = []
-                    cols = []
+                    coords = []
                 else:
-                    results = np.empty((n_desc, n_features), dtype=np.float32)
+                    results = np.empty(i_shape, dtype=self.dtype)
 
-            offset = 0
             i_sample = 0
             old_percent = 0
             n_samples = len(arguments)
@@ -238,71 +252,65 @@ class Descriptor(ABC):
             for i_sample, i_arg in enumerate(arguments):
                 i_out = func(*i_arg)
 
-                if n_desc is None:
+                # If the shape varies, just add result into a list
+                if static_size is None:
                     results.append(i_out)
                 else:
                     if is_sparse:
+                        sample_index = np.full((1, i_out.data.size), i_sample)
                         data.append(i_out.data)
-                        rows.append(i_out.row + offset)
-                        cols.append(i_out.col)
+                        coords.append(np.vstack((sample_index, i_out.coords)))
                     else:
-                        results[offset:offset+i_out.shape[0], :] = i_out
-                    offset += i_out.shape[0]
+                        results[i_sample] = i_out
 
                 if verbose:
-                    current_percent = (i_sample+1)/n_samples*100
+                    current_percent = (i_sample + 1) / n_samples * 100
                     if current_percent >= old_percent + 1:
                         old_percent = current_percent
                         print("Process {0}: {1:.1f} %".format(index, current_percent))
 
-            if n_desc is not None and is_sparse:
+            if static_size is not None and is_sparse:
                 data = np.concatenate(data)
-                rows = np.concatenate(rows)
-                cols = np.concatenate(cols)
-                results = coo_matrix((data, (rows, cols)), shape=[n_desc, n_features], dtype=np.float32)
+                coords = np.concatenate(coords, axis=1)
+                results = sp.COO(coords, data, shape=i_shape)
 
             return (results, index)
 
-        vec_lists = Parallel(n_jobs=n_jobs, prefer=prefer)(delayed(create_multiple)(i_args, func, is_sparse, n_features, n_desc, index, verbose) for index, (i_args, n_desc) in enumerate(zip(jobs, output_sizes)))
+        vec_lists = Parallel(n_jobs=n_jobs, prefer=prefer)(
+            delayed(create_multiple)(i_args, func, is_sparse, index, verbose)
+            for index, i_args in enumerate(jobs)
+        )
 
-        # Restore the caluclation order. If using the threading backend, the
+        # Restore the calculation order. If using the threading backend, the
         # input order may have been lost.
         vec_lists.sort(key=lambda x: x[1])
 
         # Remove the job index
         vec_lists = [x[0] for x in vec_lists]
 
-        if static_size is True:
+        # Create the final results by concatenating the results from each
+        # process
+        if static_size is not None:
             if self._sparse:
-                row_offset = 0
+                sample_offset = 0
                 data = []
-                cols = []
-                rows = []
-                n_descs = 0
+                coords = []
                 for i, i_res in enumerate(vec_lists):
-                    n_descs += i_res.shape[0]
-                    i_res = i_res.tocoo()
                     i_n_desc = i_res.shape[0]
                     i_data = i_res.data
-                    i_col = i_res.col
-                    i_row = i_res.row
+                    i_coords = i_res.coords
+                    i_coords[0, :] += sample_offset
 
                     data.append(i_data)
-                    rows.append(i_row + row_offset)
-                    cols.append(i_col)
+                    coords.append(i_coords)
 
-                    # Increase the row offset
-                    row_offset += i_n_desc
+                    # Increase the sample offset
+                    sample_offset += i_n_desc
 
                 # Saves the descriptors as a sparse matrix
                 data = np.concatenate(data)
-                rows = np.concatenate(rows)
-                cols = np.concatenate(cols)
-                results = coo_matrix((data, (rows, cols)), shape=[n_descs, n_features], dtype=np.float32)
-
-                # The final output is transformed into CSR form which is faster for
-                # linear algebra
-                results = results.tocsr()
+                coords = np.concatenate(coords, axis=1)
+                results = sp.COO(coords, data, shape=[n_samples] + static_size)
             else:
                 results = np.concatenate(vec_lists, axis=0)
         else:
@@ -313,7 +321,6 @@ class Descriptor(ABC):
         return results
 
     def _check_system_list(self, lst):
-
         def iterable(obj):
             try:
                 iter(obj)
@@ -321,9 +328,282 @@ class Descriptor(ABC):
                 return False
             else:
                 return True
+
         if iterable(lst):
             self.get_system(lst[0])
         else:
-           raise ValueError("Input is neither System, nor ase.Atoms object nor is it iterable")
+            raise ValueError(
+                "Input is neither System, nor ase.Atoms object nor is it iterable"
+            )
         return
-            
+
+    def _get_indices(self, n_atoms, include, exclude):
+        """Given the number of atoms and which indices to include or exclude,
+        returns a list of final indices that will be used. If not includes or
+        excludes are defined, then by default all atoms will be included.
+
+        Args:
+            n_atoms(int): Number of atoms.
+            include(list of ints or None): The atomic indices to include, or
+                None if no specific includes made.
+            exclude(list of ints or None): The atomic indices to exclude, or
+                None if no specific excludes made.
+
+        Returns:
+            np.ndarray: List of atomic indices that will be included from the
+            system.
+        """
+        if include is None and exclude is None:
+            displaced_indices = np.arange(n_atoms)
+        elif include is not None and exclude is None:
+            include = np.asarray(include)
+            if np.any(include > n_atoms - 1) or np.any(include < 0):
+                raise ValueError(
+                    "Invalid index provided in the list of included atoms."
+                )
+            displaced_indices = include
+        elif exclude is not None and include is None:
+            exclude = np.asarray(list(set(exclude)))
+            if np.any(exclude > n_atoms - 1) or np.any(exclude < 0):
+                raise ValueError(
+                    "Invalid index provided in the list of excluded atoms."
+                )
+            displaced_indices = np.arange(n_atoms)
+            if len(exclude) > 0:
+                displaced_indices = np.delete(displaced_indices, exclude)
+        else:
+            raise ValueError("Provide either 'include' or 'exclude', not both.")
+        n_displaced = len(displaced_indices)
+        if n_displaced == 0:
+            raise ValueError("Please include at least one atom.")
+
+        return displaced_indices
+
+    def derivatives_parallel(
+        self,
+        inp,
+        func,
+        n_jobs,
+        derivatives_shape,
+        descriptor_shape,
+        return_descriptor,
+        only_physical_cores=False,
+        verbose=False,
+        prefer="processes",
+    ):
+        """Used to parallelize the descriptor creation across multiple systems.
+
+        Args:
+            inp(list): Contains a tuple of input arguments for each processed
+                system. These arguments are fed to the function specified by
+                "func".
+            func(function): Function that outputs the descriptor when given
+                input arguments from "inp".
+            n_jobs (int): Number of parallel jobs to instantiate. Parallellizes
+                the calculation across samples. Defaults to serial calculation
+                with n_jobs=1. If a negative number is given, the number of jobs
+                will be calculated with, n_cpus + n_jobs, where n_cpus is the
+                amount of CPUs as reported by the OS. With only_physical_cores
+                you can control which types of CPUs are counted in n_cpus.
+            derivatives_shape(list or None): If a fixed size output is produced from
+                each job, this contains its shape. For variable size output
+                this parameter is set to None
+            derivatives_shape(list or None): If a fixed size output is produced from
+                each job, this contains its shape. For variable size output
+                this parameter is set to None
+            only_physical_cores (bool): If a negative n_jobs is given,
+                determines which types of CPUs are used in calculating the
+                number of jobs. If set to False (default), also virtual CPUs
+                are counted.  If set to True, only physical CPUs are counted.
+            verbose(bool): Controls whether to print the progress of each job
+                into to the console.
+            prefer(str): The parallelization method. Valid options are:
+
+                - "processes": Parallelization based on processes. Uses the
+                  "loky" backend in joblib to serialize the jobs and run them
+                  in separate processes. Using separate processes has a bigger
+                  memory and initialization overhead than threads, but may
+                  provide better scalability if perfomance is limited by the
+                  Global Interpreter Lock (GIL).
+
+                - "threads": Parallelization based on threads. Has bery low
+                  memory and initialization overhead. Performance is limited by
+                  the amount of pure python code that needs to run. Ideal when
+                  most of the calculation time is used by C/C++ extensions that
+                  release the GIL.
+
+        Returns:
+            np.ndarray | sparse.COO | list: The descriptor output
+            for each given input. The return type depends on the desciptor
+            setup.
+        """
+        # Determine the number of jobs
+        if n_jobs < 0:
+            n_jobs = joblib.cpu_count(only_physical_cores) + n_jobs
+        if n_jobs <= 0:
+            raise ValueError("Invalid number of jobs specified.")
+
+        # Split data into n_jobs (almost) equal jobs
+        n_samples = len(inp)
+        is_sparse = self._sparse
+        k, m = divmod(n_samples, n_jobs)
+        jobs = (
+            inp[i * k + min(i, m) : (i + 1) * k + min(i + 1, m)] for i in range(n_jobs)
+        )
+
+        def create_multiple_with_descriptor(arguments, func, index, verbose):
+            """This is the function that is called by each job but with
+            different parts of the data.
+            """
+            # Initialize output
+            n_samples = len(arguments)
+            if derivatives_shape:
+                shape_der = [n_samples]
+                shape_der.extend(derivatives_shape)
+                if is_sparse:
+                    data_der = []
+                    coords_der = []
+                else:
+                    derivatives = np.empty(shape_der, dtype=self.dtype)
+            else:
+                derivatives = []
+            if descriptor_shape:
+                shape_des = [n_samples]
+                shape_des.extend(descriptor_shape)
+                if is_sparse:
+                    data_des = []
+                    coords_des = []
+                else:
+                    descriptors = np.empty(shape_des, dtype=self.dtype)
+            else:
+                descriptors = []
+            old_percent = 0
+
+            # Loop through all samples assigned for this job
+            for i_sample, i_arg in enumerate(arguments):
+                i_der, i_des = func(*i_arg)
+                if descriptor_shape:
+                    if is_sparse:
+                        sample_index = np.full((1, i_des.data.size), i_sample)
+                        data_des.append(i_des.data)
+                        coords_des.append(np.vstack((sample_index, i_des.coords)))
+                    else:
+                        descriptors[i_sample] = i_des
+                else:
+                    descriptors.append(i_des)
+
+                if derivatives_shape:
+                    if is_sparse:
+                        sample_index = np.full((1, i_der.data.size), i_sample)
+                        data_der.append(i_der.data)
+                        coords_der.append(np.vstack((sample_index, i_der.coords)))
+                    else:
+                        derivatives[i_sample] = i_der
+                else:
+                    derivatives.append(i_der)
+
+                if verbose:
+                    current_percent = (i_sample + 1) / n_samples * 100
+                    if current_percent >= old_percent + 1:
+                        old_percent = current_percent
+                        print("Process {0}: {1:.1f} %".format(index, current_percent))
+
+            if is_sparse:
+                if descriptor_shape is not None:
+                    data_des = np.concatenate(data_des)
+                    coords_des = np.concatenate(coords_des, axis=1)
+                    descriptors = sp.COO(coords_des, data_des, shape=shape_des)
+                if derivatives_shape is not None:
+                    data_der = np.concatenate(data_der)
+                    coords_der = np.concatenate(coords_der, axis=1)
+                    derivatives = sp.COO(coords_der, data_der, shape=shape_der)
+
+            return ((derivatives, descriptors), index)
+
+        def create_multiple_without_descriptor(arguments, func, index, verbose):
+            """This is the function that is called by each job but with
+            different parts of the data.
+            """
+            # Initialize output
+            n_samples = len(arguments)
+            if derivatives_shape:
+                shape_der = [n_samples]
+                shape_der.extend(derivatives_shape)
+                if is_sparse:
+                    data_der = []
+                    coords_der = []
+                else:
+                    derivatives = np.empty(shape_der, dtype=self.dtype)
+            else:
+                derivatives = []
+
+            old_percent = 0
+
+            # Loop through all samples assigned for this job
+            for i_sample, i_arg in enumerate(arguments):
+                i_der = func(*i_arg)
+                if derivatives_shape:
+                    if is_sparse:
+                        sample_index = np.full((1, i_der.data.size), i_sample)
+                        data_der.append(i_der.data)
+                        coords_der.append(np.vstack((sample_index, i_der.coords)))
+                    else:
+                        derivatives[i_sample] = i_der
+                else:
+                    derivatives.append(i_der)
+
+                if verbose:
+                    current_percent = (i_sample + 1) / n_samples * 100
+                    if current_percent >= old_percent + 1:
+                        old_percent = current_percent
+                        print("Process {0}: {1:.1f} %".format(index, current_percent))
+
+            if is_sparse and derivatives_shape is not None:
+                data_der = np.concatenate(data_der)
+                coords_der = np.concatenate(coords_der, axis=1)
+                derivatives = sp.COO(coords_der, data_der, shape=shape_der)
+            return ((derivatives,), index)
+
+        if return_descriptor:
+            vec_lists = Parallel(n_jobs=n_jobs, prefer=prefer)(
+                delayed(create_multiple_with_descriptor)(i_args, func, index, verbose)
+                for index, i_args in enumerate(jobs)
+            )
+        else:
+            vec_lists = Parallel(n_jobs=n_jobs, prefer=prefer)(
+                delayed(create_multiple_without_descriptor)(
+                    i_args, func, index, verbose
+                )
+                for index, i_args in enumerate(jobs)
+            )
+
+        # Restore the calculation order. If using the threading backend, the
+        # input order may have been lost.
+        vec_lists.sort(key=lambda x: x[1])
+
+        # If the results are of the same length, we can simply concatenate them
+        # into one numpy array. Otherwise we will return a regular python list.
+        der_lists = [x[0][0] for x in vec_lists]
+        if derivatives_shape:
+            if is_sparse:
+                derivatives = sp.concatenate(der_lists, axis=0)
+            else:
+                derivatives = np.concatenate(der_lists, axis=0)
+        else:
+            derivatives = []
+            for part in der_lists:
+                derivatives.extend(part)
+        if return_descriptor:
+            des_lists = [x[0][1] for x in vec_lists]
+            if descriptor_shape:
+                if is_sparse:
+                    descriptors = sp.concatenate(des_lists, axis=0)
+                else:
+                    descriptors = np.concatenate(des_lists, axis=0)
+            else:
+                descriptors = []
+                for part in des_lists:
+                    descriptors.extend(part)
+            return (derivatives, descriptors)
+
+        return derivatives

@@ -31,6 +31,7 @@ class AverageKernel(LocalSimilarityKernel):
     metric (e.g. linear, gaussian) defined by the parameters given in the
     constructor.
     """
+
     def get_global_similarity(self, localkernel):
         """
         Computes the average global similarity between two structures A and B.

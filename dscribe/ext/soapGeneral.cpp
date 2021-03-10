@@ -20,7 +20,6 @@ limitations under the License.
 #include <set>
 #include <iostream>
 #include "soapGeneral.h"
-#include "celllist.h"
 
 #define tot (double*) malloc(sizeof(double)*nAtoms);
 #define totrs (double*) malloc(sizeof(double)*nAtoms*rsize);
@@ -1831,8 +1830,26 @@ void getP(py::detail::unchecked_mutable_reference<double, 2> &Ps, double* Cs, in
         }
     }
 }
-void soapGeneral(py::array_t<double> PsArr, py::array_t<double> positions, py::array_t<double> HposArr, py::array_t<int> atomicNumbersArr, py::array_t<int> orderedSpeciesArr, double rCut, double cutoffPadding, int nAtoms, int Nt, int nMax, int lMax, int Hs, double alpha, py::array_t<double> rwArr, py::array_t<double> gssArr, bool crossover, string average)
+void soapGeneral(
+    py::array_t<double> PsArr,
+    py::array_t<double> positions,
+    py::array_t<double> HposArr,
+    py::array_t<int> atomicNumbersArr,
+    py::array_t<int> orderedSpeciesArr,
+    double rCut,
+    double cutoffPadding,
+    int nMax,
+    int lMax,
+    double alpha,
+    py::array_t<double> rwArr,
+    py::array_t<double> gssArr,
+    bool crossover,
+    string average,
+    CellList cellList)
 {
+    int nAtoms = atomicNumbersArr.shape(0);
+    int Nt = orderedSpeciesArr.shape(0);
+    int Hs = HposArr.shape(0);
     int nFeatures = crossover ? (Nt*nMax)*(Nt*nMax+1)/2*(lMax+1) : Nt*(lMax+1)*((nMax+1)*nMax)/2;
     auto atomicNumbers = atomicNumbersArr.unchecked<1>();
     auto species = orderedSpeciesArr.unchecked<1>();
@@ -1875,9 +1892,6 @@ void soapGeneral(py::array_t<double> PsArr, py::array_t<double> positions, py::a
     for (int i = 0; i < species.size(); ++i) {
         ZIndexMap[species(i)] = i;
     }
-
-    // Initialize binning
-    CellList cellList(positions, rCut+cutoffPadding);
 
     // Loop through central points
     for (int i = 0; i < Hs; i++) {

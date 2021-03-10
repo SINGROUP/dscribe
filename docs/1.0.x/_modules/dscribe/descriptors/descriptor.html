@@ -1,0 +1,837 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dscribe.descriptors.descriptor &mdash; DScribe 1.0.x documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/style.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+        <script src="../../../_static/js/versions.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html">
+          
+
+          
+            
+            <img src="../../../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../doc/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../citing.html">Citing DScribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about.html">About</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DScribe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>dscribe.descriptors.descriptor</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for dscribe.descriptors.descriptor</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;Copyright 2019 DScribe developers</span>
+
+<span class="sd">Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="sd">you may not use this file except in compliance with the License.</span>
+<span class="sd">You may obtain a copy of the License at</span>
+
+<span class="sd">    http://www.apache.org/licenses/LICENSE-2.0</span>
+
+<span class="sd">Unless required by applicable law or agreed to in writing, software</span>
+<span class="sd">distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="sd">WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="sd">See the License for the specific language governing permissions and</span>
+<span class="sd">limitations under the License.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">sparse</span> <span class="k">as</span> <span class="nn">sp</span>
+
+<span class="kn">from</span> <span class="nn">ase</span> <span class="kn">import</span> <span class="n">Atoms</span>
+<span class="kn">from</span> <span class="nn">dscribe.core.system</span> <span class="kn">import</span> <span class="n">System</span>
+<span class="kn">from</span> <span class="nn">dscribe.utils.species</span> <span class="kn">import</span> <span class="n">get_atomic_numbers</span>
+
+<span class="kn">import</span> <span class="nn">joblib</span>
+<span class="kn">from</span> <span class="nn">joblib</span> <span class="kn">import</span> <span class="n">Parallel</span><span class="p">,</span> <span class="n">delayed</span>
+
+
+<div class="viewcode-block" id="Descriptor"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor">[docs]</a><span class="k">class</span> <span class="nc">Descriptor</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An abstract base class for all descriptors.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">periodic</span><span class="p">,</span> <span class="n">flatten</span><span class="p">,</span> <span class="n">sparse</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            flatten (bool): Whether the output of create() should be flattened</span>
+<span class="sd">                to a 1D array.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sparse</span> <span class="o">=</span> <span class="n">sparse</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span> <span class="o">=</span> <span class="n">flatten</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span> <span class="o">=</span> <span class="n">periodic</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">dtype</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_atomic_number_set</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_species</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Descriptor.create"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.create">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates the descriptor for the given systems.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            system (ase.Atoms): The system for which to create the descriptor.</span>
+<span class="sd">            args: Descriptor specific positional arguments.</span>
+<span class="sd">            kwargs: Descriptor specific keyword arguments.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.array | scipy.sparse.coo_matrix: A descriptor for the system.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="Descriptor.get_number_of_features"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.get_number_of_features">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">get_number_of_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Used to inquire the final number of features that this descriptor</span>
+<span class="sd">        will have.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: Number of features for this descriptor.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="Descriptor.get_system"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.get_system">[docs]</a>    <span class="k">def</span> <span class="nf">get_system</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Used to convert the given atomic system into a custom System-object</span>
+<span class="sd">        that is used internally. The System class inherits from ase.Atoms, but</span>
+<span class="sd">        includes built-in caching for geometric quantities that may be re-used</span>
+<span class="sd">        by the descriptors.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            system (:class:`ase.Atoms` | :class:`.System`): Input system.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            :class:`.System`: The given system transformed into a corresponding</span>
+<span class="sd">                System-object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">Atoms</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">system</span><span class="p">)</span> <span class="o">==</span> <span class="n">System</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">system</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">System</span><span class="o">.</span><span class="n">from_atoms</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid system with type: &#39;</span><span class="si">{}</span><span class="s2">&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">system</span><span class="p">)))</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">sparse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span>
+
+    <span class="nd">@sparse</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">sparse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets whether the output should be sparse or not.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value(float): Should the output be in sparse format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">periodic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_periodic</span>
+
+    <span class="nd">@periodic</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">periodic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets whether the inputs should be considered periodic or not.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value(float): Are the systems periodic.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_periodic</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">flatten</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flatten</span>
+
+    <span class="nd">@flatten</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">flatten</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets whether the output should be flattened or not.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value(float): Should the output be flattened.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_flatten</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">_set_species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Used to setup the species information for this descriptor. This</span>
+<span class="sd">        information includes an ordered list of unique atomic numbers, a set</span>
+<span class="sd">        of atomic numbers and the original variable contents.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            species(iterable): Chemical species either as a list of atomic</span>
+<span class="sd">                numbers or list of chemical symbols.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># The species are stored as atomic numbers for internal use.</span>
+        <span class="n">atomic_numbers</span> <span class="o">=</span> <span class="n">get_atomic_numbers</span><span class="p">(</span><span class="n">species</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span> <span class="o">=</span> <span class="n">atomic_numbers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_atomic_number_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_species</span> <span class="o">=</span> <span class="n">species</span>
+
+<div class="viewcode-block" id="Descriptor.check_atomic_numbers"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.check_atomic_numbers">[docs]</a>    <span class="k">def</span> <span class="nf">check_atomic_numbers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atomic_numbers</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Used to check that the given atomic numbers have been defined for</span>
+<span class="sd">        this descriptor.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            species(iterable): Atomic numbers to check.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If the atomic numbers in the given system are not</span>
+<span class="sd">            included in the species given to this descriptor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Check that the system does not have elements that are not in the list</span>
+        <span class="c1"># of atomic numbers</span>
+        <span class="n">zs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">atomic_numbers</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">zs</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_number_set</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;The following atomic numbers are not defined &quot;</span>
+                <span class="s2">&quot;for this descriptor: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">zs</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_number_set</span><span class="p">))</span>
+            <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Descriptor.create_parallel"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.create_parallel">[docs]</a>    <span class="k">def</span> <span class="nf">create_parallel</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">inp</span><span class="p">,</span>
+        <span class="n">func</span><span class="p">,</span>
+        <span class="n">n_jobs</span><span class="p">,</span>
+        <span class="n">static_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">only_physical_cores</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">prefer</span><span class="o">=</span><span class="s2">&quot;processes&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Used to parallelize the descriptor creation across multiple systems.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            inp(list): Contains a tuple of input arguments for each processed</span>
+<span class="sd">                system. These arguments are fed to the function specified by</span>
+<span class="sd">                &quot;func&quot;.</span>
+<span class="sd">            func(function): Function that outputs the descriptor when given</span>
+<span class="sd">                input arguments from &quot;inp&quot;.</span>
+<span class="sd">            n_jobs (int): Number of parallel jobs to instantiate. Parallellizes</span>
+<span class="sd">                the calculation across samples. Defaults to serial calculation</span>
+<span class="sd">                with n_jobs=1. If a negative number is given, the number of jobs</span>
+<span class="sd">                will be calculated with, n_cpus + n_jobs, where n_cpus is the</span>
+<span class="sd">                amount of CPUs as reported by the OS. With only_physical_cores</span>
+<span class="sd">                you can control which types of CPUs are counted in n_cpus.</span>
+<span class="sd">            output_sizes(list of ints): The size of the output for each job.</span>
+<span class="sd">                Makes the creation faster by preallocating the correct amount of</span>
+<span class="sd">                memory beforehand. If not specified, a dynamically created list of</span>
+<span class="sd">                outputs is used.</span>
+<span class="sd">            only_physical_cores (bool): If a negative n_jobs is given,</span>
+<span class="sd">                determines which types of CPUs are used in calculating the</span>
+<span class="sd">                number of jobs. If set to False (default), also virtual CPUs</span>
+<span class="sd">                are counted.  If set to True, only physical CPUs are counted.</span>
+<span class="sd">            verbose(bool): Controls whether to print the progress of each job</span>
+<span class="sd">                into to the console.</span>
+<span class="sd">            prefer (str): The parallelization method. Valid options are:</span>
+
+<span class="sd">                - &quot;processes&quot;: Parallelization based on processes. Uses the</span>
+<span class="sd">                  &quot;loky&quot; backend in joblib to serialize the jobs and run them</span>
+<span class="sd">                  in separate processes. Using separate processes has a bigger</span>
+<span class="sd">                  memory and initialization overhead than threads, but may</span>
+<span class="sd">                  provide better scalability if perfomance is limited by the</span>
+<span class="sd">                  Global Interpreter Lock (GIL).</span>
+
+<span class="sd">                - &quot;threads&quot;: Parallelization based on threads. Has bery low</span>
+<span class="sd">                  memory and initialization overhead. Performance is limited by</span>
+<span class="sd">                  the amount of pure python code that needs to run. Ideal when</span>
+<span class="sd">                  most of the calculation time is used by C/C++ extensions that</span>
+<span class="sd">                  release the GIL.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray | sparse.COO | list: The descriptor output</span>
+<span class="sd">            for each given input. The return type depends on the desciptor</span>
+<span class="sd">            setup.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Determine the number of jobs</span>
+        <span class="k">if</span> <span class="n">n_jobs</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">n_jobs</span> <span class="o">=</span> <span class="n">joblib</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">(</span><span class="n">only_physical_cores</span><span class="p">)</span> <span class="o">+</span> <span class="n">n_jobs</span>
+        <span class="k">if</span> <span class="n">n_jobs</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid number of jobs specified.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Split data into n_jobs (almost) equal jobs</span>
+        <span class="n">n_samples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span>
+        <span class="n">is_sparse</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span>
+        <span class="n">k</span><span class="p">,</span> <span class="n">m</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">)</span>
+        <span class="n">jobs</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">inp</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">k</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span> <span class="p">:</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">k</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">m</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_jobs</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">create_multiple</span><span class="p">(</span><span class="n">arguments</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">is_sparse</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;This is the function that is called by each job but with</span>
+<span class="sd">            different parts of the data.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="c1"># Initialize output</span>
+            <span class="k">if</span> <span class="n">static_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">i_shape</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">i_shape</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">arguments</span><span class="p">)]</span> <span class="o">+</span> <span class="n">static_size</span>
+                <span class="k">if</span> <span class="n">is_sparse</span><span class="p">:</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">coords</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">results</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">i_shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+
+            <span class="n">i_sample</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">old_percent</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">n_samples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">arguments</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">i_sample</span><span class="p">,</span> <span class="n">i_arg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">arguments</span><span class="p">):</span>
+                <span class="n">i_out</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">i_arg</span><span class="p">)</span>
+
+                <span class="c1"># If the shape varies, just add result into a list</span>
+                <span class="k">if</span> <span class="n">static_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i_out</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">is_sparse</span><span class="p">:</span>
+                        <span class="n">sample_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">i_out</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="n">i_sample</span><span class="p">)</span>
+                        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i_out</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+                        <span class="n">coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">sample_index</span><span class="p">,</span> <span class="n">i_out</span><span class="o">.</span><span class="n">coords</span><span class="p">)))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">results</span><span class="p">[</span><span class="n">i_sample</span><span class="p">]</span> <span class="o">=</span> <span class="n">i_out</span>
+
+                <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                    <span class="n">current_percent</span> <span class="o">=</span> <span class="p">(</span><span class="n">i_sample</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_samples</span> <span class="o">*</span> <span class="mi">100</span>
+                    <span class="k">if</span> <span class="n">current_percent</span> <span class="o">&gt;=</span> <span class="n">old_percent</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">old_percent</span> <span class="o">=</span> <span class="n">current_percent</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Process </span><span class="si">{0}</span><span class="s2">: </span><span class="si">{1:.1f}</span><span class="s2"> %&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">current_percent</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">static_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">is_sparse</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">results</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">COO</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">i_shape</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
+
+        <span class="n">vec_lists</span> <span class="o">=</span> <span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">,</span> <span class="n">prefer</span><span class="o">=</span><span class="n">prefer</span><span class="p">)(</span>
+            <span class="n">delayed</span><span class="p">(</span><span class="n">create_multiple</span><span class="p">)(</span><span class="n">i_args</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">is_sparse</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">i_args</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">jobs</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Restore the calculation order. If using the threading backend, the</span>
+        <span class="c1"># input order may have been lost.</span>
+        <span class="n">vec_lists</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># Remove the job index</span>
+        <span class="n">vec_lists</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">vec_lists</span><span class="p">]</span>
+
+        <span class="c1"># Create the final results by concatenating the results from each</span>
+        <span class="c1"># process</span>
+        <span class="k">if</span> <span class="n">static_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span><span class="p">:</span>
+                <span class="n">sample_offset</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">coords</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">i_res</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">vec_lists</span><span class="p">):</span>
+                    <span class="n">i_n_desc</span> <span class="o">=</span> <span class="n">i_res</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">i_data</span> <span class="o">=</span> <span class="n">i_res</span><span class="o">.</span><span class="n">data</span>
+                    <span class="n">i_coords</span> <span class="o">=</span> <span class="n">i_res</span><span class="o">.</span><span class="n">coords</span>
+                    <span class="n">i_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">sample_offset</span>
+
+                    <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i_data</span><span class="p">)</span>
+                    <span class="n">coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i_coords</span><span class="p">)</span>
+
+                    <span class="c1"># Increase the sample offset</span>
+                    <span class="n">sample_offset</span> <span class="o">+=</span> <span class="n">i_n_desc</span>
+
+                <span class="c1"># Saves the descriptors as a sparse matrix</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">results</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">COO</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="n">n_samples</span><span class="p">]</span> <span class="o">+</span> <span class="n">static_size</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">results</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">vec_lists</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">vec_lists</span><span class="p">:</span>
+                <span class="n">results</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">part</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">results</span></div>
+
+    <span class="k">def</span> <span class="nf">_check_system_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lst</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">iterable</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="nb">iter</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="n">iterable</span><span class="p">(</span><span class="n">lst</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_system</span><span class="p">(</span><span class="n">lst</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Input is neither System, nor ase.Atoms object nor is it iterable&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="k">def</span> <span class="nf">_get_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">,</span> <span class="n">include</span><span class="p">,</span> <span class="n">exclude</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Given the number of atoms and which indices to include or exclude,</span>
+<span class="sd">        returns a list of final indices that will be used. If not includes or</span>
+<span class="sd">        excludes are defined, then by default all atoms will be included.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n_atoms(int): Number of atoms.</span>
+<span class="sd">            include(list of ints or None): The atomic indices to include, or</span>
+<span class="sd">                None if no specific includes made.</span>
+<span class="sd">            exclude(list of ints or None): The atomic indices to exclude, or</span>
+<span class="sd">                None if no specific excludes made.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: List of atomic indices that will be included from the</span>
+<span class="sd">            system.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">include</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">exclude</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">displaced_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_atoms</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">include</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">exclude</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">include</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">include</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">include</span> <span class="o">&gt;</span> <span class="n">n_atoms</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">include</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Invalid index provided in the list of included atoms.&quot;</span>
+                <span class="p">)</span>
+            <span class="n">displaced_indices</span> <span class="o">=</span> <span class="n">include</span>
+        <span class="k">elif</span> <span class="n">exclude</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">include</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">exclude</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">exclude</span><span class="p">)))</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">exclude</span> <span class="o">&gt;</span> <span class="n">n_atoms</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">exclude</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Invalid index provided in the list of excluded atoms.&quot;</span>
+                <span class="p">)</span>
+            <span class="n">displaced_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_atoms</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">exclude</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">displaced_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">displaced_indices</span><span class="p">,</span> <span class="n">exclude</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Provide either &#39;include&#39; or &#39;exclude&#39;, not both.&quot;</span><span class="p">)</span>
+        <span class="n">n_displaced</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">displaced_indices</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">n_displaced</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Please include at least one atom.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">displaced_indices</span>
+
+<div class="viewcode-block" id="Descriptor.derivatives_parallel"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.derivatives_parallel">[docs]</a>    <span class="k">def</span> <span class="nf">derivatives_parallel</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">inp</span><span class="p">,</span>
+        <span class="n">func</span><span class="p">,</span>
+        <span class="n">n_jobs</span><span class="p">,</span>
+        <span class="n">derivatives_shape</span><span class="p">,</span>
+        <span class="n">descriptor_shape</span><span class="p">,</span>
+        <span class="n">return_descriptor</span><span class="p">,</span>
+        <span class="n">only_physical_cores</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">prefer</span><span class="o">=</span><span class="s2">&quot;processes&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Used to parallelize the descriptor creation across multiple systems.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            inp(list): Contains a tuple of input arguments for each processed</span>
+<span class="sd">                system. These arguments are fed to the function specified by</span>
+<span class="sd">                &quot;func&quot;.</span>
+<span class="sd">            func(function): Function that outputs the descriptor when given</span>
+<span class="sd">                input arguments from &quot;inp&quot;.</span>
+<span class="sd">            n_jobs (int): Number of parallel jobs to instantiate. Parallellizes</span>
+<span class="sd">                the calculation across samples. Defaults to serial calculation</span>
+<span class="sd">                with n_jobs=1. If a negative number is given, the number of jobs</span>
+<span class="sd">                will be calculated with, n_cpus + n_jobs, where n_cpus is the</span>
+<span class="sd">                amount of CPUs as reported by the OS. With only_physical_cores</span>
+<span class="sd">                you can control which types of CPUs are counted in n_cpus.</span>
+<span class="sd">            derivatives_shape(list or None): If a fixed size output is produced from</span>
+<span class="sd">                each job, this contains its shape. For variable size output</span>
+<span class="sd">                this parameter is set to None</span>
+<span class="sd">            derivatives_shape(list or None): If a fixed size output is produced from</span>
+<span class="sd">                each job, this contains its shape. For variable size output</span>
+<span class="sd">                this parameter is set to None</span>
+<span class="sd">            only_physical_cores (bool): If a negative n_jobs is given,</span>
+<span class="sd">                determines which types of CPUs are used in calculating the</span>
+<span class="sd">                number of jobs. If set to False (default), also virtual CPUs</span>
+<span class="sd">                are counted.  If set to True, only physical CPUs are counted.</span>
+<span class="sd">            verbose(bool): Controls whether to print the progress of each job</span>
+<span class="sd">                into to the console.</span>
+<span class="sd">            prefer(str): The parallelization method. Valid options are:</span>
+
+<span class="sd">                - &quot;processes&quot;: Parallelization based on processes. Uses the</span>
+<span class="sd">                  &quot;loky&quot; backend in joblib to serialize the jobs and run them</span>
+<span class="sd">                  in separate processes. Using separate processes has a bigger</span>
+<span class="sd">                  memory and initialization overhead than threads, but may</span>
+<span class="sd">                  provide better scalability if perfomance is limited by the</span>
+<span class="sd">                  Global Interpreter Lock (GIL).</span>
+
+<span class="sd">                - &quot;threads&quot;: Parallelization based on threads. Has bery low</span>
+<span class="sd">                  memory and initialization overhead. Performance is limited by</span>
+<span class="sd">                  the amount of pure python code that needs to run. Ideal when</span>
+<span class="sd">                  most of the calculation time is used by C/C++ extensions that</span>
+<span class="sd">                  release the GIL.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray | sparse.COO | list: The descriptor output</span>
+<span class="sd">            for each given input. The return type depends on the desciptor</span>
+<span class="sd">            setup.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Determine the number of jobs</span>
+        <span class="k">if</span> <span class="n">n_jobs</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">n_jobs</span> <span class="o">=</span> <span class="n">joblib</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">(</span><span class="n">only_physical_cores</span><span class="p">)</span> <span class="o">+</span> <span class="n">n_jobs</span>
+        <span class="k">if</span> <span class="n">n_jobs</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid number of jobs specified.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Split data into n_jobs (almost) equal jobs</span>
+        <span class="n">n_samples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span>
+        <span class="n">is_sparse</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span>
+        <span class="n">k</span><span class="p">,</span> <span class="n">m</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">)</span>
+        <span class="n">jobs</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">inp</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">k</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span> <span class="p">:</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">k</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">m</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_jobs</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">create_multiple_with_descriptor</span><span class="p">(</span><span class="n">arguments</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;This is the function that is called by each job but with</span>
+<span class="sd">            different parts of the data.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="c1"># Initialize output</span>
+            <span class="n">n_samples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">arguments</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">derivatives_shape</span><span class="p">:</span>
+                <span class="n">shape_der</span> <span class="o">=</span> <span class="p">[</span><span class="n">n_samples</span><span class="p">]</span>
+                <span class="n">shape_der</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">derivatives_shape</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">is_sparse</span><span class="p">:</span>
+                    <span class="n">data_der</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">coords_der</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">derivatives</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape_der</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">derivatives</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="n">descriptor_shape</span><span class="p">:</span>
+                <span class="n">shape_des</span> <span class="o">=</span> <span class="p">[</span><span class="n">n_samples</span><span class="p">]</span>
+                <span class="n">shape_des</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">descriptor_shape</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">is_sparse</span><span class="p">:</span>
+                    <span class="n">data_des</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">coords_des</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">descriptors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape_des</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">descriptors</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">old_percent</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="c1"># Loop through all samples assigned for this job</span>
+            <span class="k">for</span> <span class="n">i_sample</span><span class="p">,</span> <span class="n">i_arg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">arguments</span><span class="p">):</span>
+                <span class="n">i_der</span><span class="p">,</span> <span class="n">i_des</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">i_arg</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">descriptor_shape</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">is_sparse</span><span class="p">:</span>
+                        <span class="n">sample_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">i_des</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="n">i_sample</span><span class="p">)</span>
+                        <span class="n">data_des</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i_des</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+                        <span class="n">coords_des</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">sample_index</span><span class="p">,</span> <span class="n">i_des</span><span class="o">.</span><span class="n">coords</span><span class="p">)))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">descriptors</span><span class="p">[</span><span class="n">i_sample</span><span class="p">]</span> <span class="o">=</span> <span class="n">i_des</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">descriptors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i_des</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">derivatives_shape</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">is_sparse</span><span class="p">:</span>
+                        <span class="n">sample_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">i_der</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="n">i_sample</span><span class="p">)</span>
+                        <span class="n">data_der</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i_der</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+                        <span class="n">coords_der</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">sample_index</span><span class="p">,</span> <span class="n">i_der</span><span class="o">.</span><span class="n">coords</span><span class="p">)))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">derivatives</span><span class="p">[</span><span class="n">i_sample</span><span class="p">]</span> <span class="o">=</span> <span class="n">i_der</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">derivatives</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i_der</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                    <span class="n">current_percent</span> <span class="o">=</span> <span class="p">(</span><span class="n">i_sample</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_samples</span> <span class="o">*</span> <span class="mi">100</span>
+                    <span class="k">if</span> <span class="n">current_percent</span> <span class="o">&gt;=</span> <span class="n">old_percent</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">old_percent</span> <span class="o">=</span> <span class="n">current_percent</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Process </span><span class="si">{0}</span><span class="s2">: </span><span class="si">{1:.1f}</span><span class="s2"> %&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">current_percent</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">is_sparse</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">descriptor_shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">data_des</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">data_des</span><span class="p">)</span>
+                    <span class="n">coords_des</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">coords_des</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="n">descriptors</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">COO</span><span class="p">(</span><span class="n">coords_des</span><span class="p">,</span> <span class="n">data_des</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">shape_des</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">derivatives_shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">data_der</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">data_der</span><span class="p">)</span>
+                    <span class="n">coords_der</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">coords_der</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="n">derivatives</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">COO</span><span class="p">(</span><span class="n">coords_der</span><span class="p">,</span> <span class="n">data_der</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">shape_der</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="p">((</span><span class="n">derivatives</span><span class="p">,</span> <span class="n">descriptors</span><span class="p">),</span> <span class="n">index</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">create_multiple_without_descriptor</span><span class="p">(</span><span class="n">arguments</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;This is the function that is called by each job but with</span>
+<span class="sd">            different parts of the data.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="c1"># Initialize output</span>
+            <span class="n">n_samples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">arguments</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">derivatives_shape</span><span class="p">:</span>
+                <span class="n">shape_der</span> <span class="o">=</span> <span class="p">[</span><span class="n">n_samples</span><span class="p">]</span>
+                <span class="n">shape_der</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">derivatives_shape</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">is_sparse</span><span class="p">:</span>
+                    <span class="n">data_der</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">coords_der</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">derivatives</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape_der</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">derivatives</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="n">old_percent</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="c1"># Loop through all samples assigned for this job</span>
+            <span class="k">for</span> <span class="n">i_sample</span><span class="p">,</span> <span class="n">i_arg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">arguments</span><span class="p">):</span>
+                <span class="n">i_der</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">i_arg</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">derivatives_shape</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">is_sparse</span><span class="p">:</span>
+                        <span class="n">sample_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">i_der</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="n">i_sample</span><span class="p">)</span>
+                        <span class="n">data_der</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i_der</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+                        <span class="n">coords_der</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">sample_index</span><span class="p">,</span> <span class="n">i_der</span><span class="o">.</span><span class="n">coords</span><span class="p">)))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">derivatives</span><span class="p">[</span><span class="n">i_sample</span><span class="p">]</span> <span class="o">=</span> <span class="n">i_der</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">derivatives</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i_der</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                    <span class="n">current_percent</span> <span class="o">=</span> <span class="p">(</span><span class="n">i_sample</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_samples</span> <span class="o">*</span> <span class="mi">100</span>
+                    <span class="k">if</span> <span class="n">current_percent</span> <span class="o">&gt;=</span> <span class="n">old_percent</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">old_percent</span> <span class="o">=</span> <span class="n">current_percent</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Process </span><span class="si">{0}</span><span class="s2">: </span><span class="si">{1:.1f}</span><span class="s2"> %&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">current_percent</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">is_sparse</span> <span class="ow">and</span> <span class="n">derivatives_shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">data_der</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">data_der</span><span class="p">)</span>
+                <span class="n">coords_der</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">coords_der</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">derivatives</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">COO</span><span class="p">(</span><span class="n">coords_der</span><span class="p">,</span> <span class="n">data_der</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">shape_der</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">((</span><span class="n">derivatives</span><span class="p">,),</span> <span class="n">index</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">return_descriptor</span><span class="p">:</span>
+            <span class="n">vec_lists</span> <span class="o">=</span> <span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">,</span> <span class="n">prefer</span><span class="o">=</span><span class="n">prefer</span><span class="p">)(</span>
+                <span class="n">delayed</span><span class="p">(</span><span class="n">create_multiple_with_descriptor</span><span class="p">)(</span><span class="n">i_args</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">i_args</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">jobs</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">vec_lists</span> <span class="o">=</span> <span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">,</span> <span class="n">prefer</span><span class="o">=</span><span class="n">prefer</span><span class="p">)(</span>
+                <span class="n">delayed</span><span class="p">(</span><span class="n">create_multiple_without_descriptor</span><span class="p">)(</span>
+                    <span class="n">i_args</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">verbose</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">i_args</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">jobs</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Restore the calculation order. If using the threading backend, the</span>
+        <span class="c1"># input order may have been lost.</span>
+        <span class="n">vec_lists</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># If the results are of the same length, we can simply concatenate them</span>
+        <span class="c1"># into one numpy array. Otherwise we will return a regular python list.</span>
+        <span class="n">der_lists</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">vec_lists</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">derivatives_shape</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">is_sparse</span><span class="p">:</span>
+                <span class="n">derivatives</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">der_lists</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">derivatives</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">der_lists</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">derivatives</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">der_lists</span><span class="p">:</span>
+                <span class="n">derivatives</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">part</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">return_descriptor</span><span class="p">:</span>
+            <span class="n">des_lists</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">vec_lists</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">descriptor_shape</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">is_sparse</span><span class="p">:</span>
+                    <span class="n">descriptors</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">des_lists</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">descriptors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">des_lists</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">descriptors</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">des_lists</span><span class="p">:</span>
+                    <span class="n">descriptors</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">part</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">derivatives</span><span class="p">,</span> <span class="n">descriptors</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">derivatives</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Versions</span>
+      v: 1.0.x
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl id="version-table">
+        <dt>Versions</dt>
+      </dl>
+    </div>
+  </div>
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

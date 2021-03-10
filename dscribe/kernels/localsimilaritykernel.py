@@ -14,7 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from abc import ABC, abstractmethod
+
 import numpy as np
+
+import sparse
+
 from sklearn.metrics.pairwise import pairwise_kernels
 
 
@@ -22,7 +26,16 @@ class LocalSimilarityKernel(ABC):
     """An abstract base class for all kernels that use the similarity of local
     atomic environments to compute a global similarity measure.
     """
-    def __init__(self, metric, gamma=None, degree=3, coef0=1, kernel_params=None, normalize_kernel=True):
+
+    def __init__(
+        self,
+        metric,
+        gamma=None,
+        degree=3,
+        coef0=1,
+        kernel_params=None,
+        normalize_kernel=True,
+    ):
         """
         Args:
             metric(string or callable): The pairwise metric used for
@@ -94,6 +107,13 @@ class LocalSimilarityKernel(ABC):
                     y_j = None
                 else:
                     y_j = y[j]
+
+                # Convert sparse.COO to scipy.sparse.csr
+                if isinstance(x_i, sparse.COO):
+                    x_i = x_i.tocsr()
+                if isinstance(y_j, sparse.COO):
+                    y_j = y_j.tocsr()
+
                 C_ij = self.get_pairwise_matrix(x_i, y_j)
                 C_ij_dict[i, j] = C_ij
 
@@ -160,11 +180,8 @@ class LocalSimilarityKernel(ABC):
         if callable(self.metric):
             params = self.kernel_params or {}
         else:
-            params = {"gamma": self.gamma,
-                      "degree": self.degree,
-                      "coef0": self.coef0}
-        return pairwise_kernels(X, Y, metric=self.metric,
-                                filter_params=True, **params)
+            params = {"gamma": self.gamma, "degree": self.degree, "coef0": self.coef0}
+        return pairwise_kernels(X, Y, metric=self.metric, filter_params=True, **params)
 
     @abstractmethod
     def get_global_similarity(self, localkernel):

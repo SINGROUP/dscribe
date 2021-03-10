@@ -1,0 +1,630 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Smooth Overlap of Atomic Positions &mdash; DScribe 0.4.x documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/js/versions.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Many-body Tensor Representation" href="mbtr.html" />
+    <link rel="prev" title="Atom-centered Symmetry Functions" href="acsf.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.4.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="basics.html">Basic concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="coulomb_matrix.html">Coulomb Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sine_matrix.html">Sine matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ewald_sum_matrix.html">Ewald sum matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="acsf.html">Atom-centered Symmetry Functions</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Smooth Overlap of Atomic Positions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#setup">Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#creation">Creation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#finite-systems">Finite systems</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#periodic-systems">Periodic systems</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#locating-information">Locating information</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sparse-output">Sparse output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#average-output">Average output</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mbtr.html">Many-body Tensor Representation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lmbtr.html">Local Many-body Tensor Representation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kernels.html">Building similarity kernels from local environments</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../doc/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing DScribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DScribe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="tutorials.html">Tutorials</a> &raquo;</li>
+        
+      <li>Smooth Overlap of Atomic Positions</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/tutorials/soap.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="smooth-overlap-of-atomic-positions">
+<h1>Smooth Overlap of Atomic Positions<a class="headerlink" href="#smooth-overlap-of-atomic-positions" title="Permalink to this headline">¶</a></h1>
+<p>Smooth Overlap of Atomic Positions (SOAP) is a descriptor that encodes regions
+of atomic geometries by using a local expansion of a gaussian smeared atomic
+density with orthonormal functions based on spherical harmonics and radial
+basis functions.</p>
+<p>The SOAP output from DScribe is the partial power spectrum vector
+<span class="math notranslate nohighlight">\(\mathbf{p}(\mathbf{r})\)</span>, where the elements are defined as <a class="bibtex reference internal" href="#soap2" id="id1">[1]</a></p>
+<div class="math notranslate nohighlight">
+\[p(\mathbf{r})^{Z_1 Z_2}_{n n' l} = \pi \sqrt{\frac{8}{2l+1}}\sum_m c^{Z_1}_{n l m}(\mathbf{r})^*c^{Z_2}_{n' l m}(\mathbf{r})\]</div>
+<p>where <span class="math notranslate nohighlight">\(n\)</span> and <span class="math notranslate nohighlight">\(n'\)</span> are indices for the different radial basis
+functions up to <span class="math notranslate nohighlight">\(n_\mathrm{max}\)</span>, <span class="math notranslate nohighlight">\(l\)</span> is the angular degree of the
+spherical harmonics up to <span class="math notranslate nohighlight">\(l_\mathrm{max}\)</span> and <span class="math notranslate nohighlight">\(Z_1\)</span> and <span class="math notranslate nohighlight">\(Z_2\)</span>
+are atomic species.</p>
+<p>The coefficients <span class="math notranslate nohighlight">\(c^Z_{nlm}\)</span> are defined as the following inner
+products:</p>
+<div class="math notranslate nohighlight">
+\[c^Z_{nlm}(\mathbf{r}) =\iiint_{\mathcal{R}^3}\mathrm{d}V g_{n}(r)Y_{lm}(\theta, \phi)\rho^Z(\mathbf{r}).\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathbf{r}\)</span> is a position in space, <span class="math notranslate nohighlight">\(\rho^Z(\mathbf{r})\)</span> is
+the gaussian smoothed atomic density for atoms with atomic number <span class="math notranslate nohighlight">\(Z\)</span>,
+<span class="math notranslate nohighlight">\(Y_{lm}(\theta, \phi)\)</span> are the real spherical harmonics, and
+<span class="math notranslate nohighlight">\(g_{n}(r)\)</span> is the radial basis function.</p>
+<p>For the radial degree of freedom the selection of the basis function
+<span class="math notranslate nohighlight">\(g_{n}(r)\)</span> is not as trivial and multiple approaches may be used. By
+default the DScribe implementation uses spherical gaussian type orbitals as
+radial basis functions <a class="bibtex reference internal" href="#akisoap" id="id2">[2]</a>, as they allow much faster analytic
+computation. We however also include the possibility of using the original
+polynomial radial basis set <a class="bibtex reference internal" href="#soap1" id="id3">[3]</a>.</p>
+<p>The spherical harmonics definition used by DScribe is based on <a class="reference external" href="https://en.wikipedia.org/wiki/Spherical_harmonics#Real_form">real (tesseral)
+spherical harmonics</a>. This real form
+spans the same space as the complex version, and is defined as a linear
+combination of the complex basis. As the atomic density is a real-valued
+quantity (no imaginary part) it is natural and computationally easier to use
+this form that does not require complex algebra.</p>
+<p>The SOAP kernel <a class="bibtex reference internal" href="#soap1" id="id4">[3]</a> between two atomic environments can be retrieved
+as a normalized polynomial kernel of the partial powers spectrums:</p>
+<div class="math notranslate nohighlight">
+\[K^\mathrm{SOAP}(\mathbf{p}, \mathbf{p'}) = \left( \frac{\mathbf{p} \cdot \mathbf{p'}}{\sqrt{\mathbf{p} \cdot \mathbf{p}~\mathbf{p'} \cdot \mathbf{p'}}}\right)^{\xi}\]</div>
+<p>Although this is the original similarity definition, nothing in practice
+prevents the usage of the output in non-kernel based methods or with other
+kernel definitions.</p>
+<p>The partial SOAP spectrum ensures stratification of the output by species and
+also provides information about cross-species interaction. See the
+<a class="reference internal" href="../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_location" title="dscribe.descriptors.soap.SOAP.get_location"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_location()</span></code></a> method for a way of easily accessing parts of the
+output that correspond to a particular species combination. In pseudo-code the
+ordering of the output vector is as follows:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>for Z in atomic numbers in increasing order:
+   for Z&#39; in atomic numbers in increasing order:
+      for l in range(l_max+1):
+         for n in range(n_max):
+            for n&#39; in range(n_max):
+               if (n&#39;, Z&#39;) &gt;= (n, Z):
+                  append p(\chi)^{Z Z&#39;}_{n n&#39; l}` to output
+</pre></div>
+</div>
+<div class="section" id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h2>
+<p>Instantiating the object that is used to create SOAP can be done as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">SOAP</span>
+
+<span class="n">species</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="s2">&quot;N&quot;</span><span class="p">]</span>
+<span class="n">rcut</span> <span class="o">=</span> <span class="mf">6.0</span>
+<span class="n">nmax</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="n">lmax</span> <span class="o">=</span> <span class="mi">6</span>
+
+<span class="c1"># Setting up the SOAP descriptor</span>
+<span class="n">soap</span> <span class="o">=</span> <span class="n">SOAP</span><span class="p">(</span>
+    <span class="n">species</span><span class="o">=</span><span class="n">species</span><span class="p">,</span>
+    <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">rcut</span><span class="o">=</span><span class="n">rcut</span><span class="p">,</span>
+    <span class="n">nmax</span><span class="o">=</span><span class="n">nmax</span><span class="p">,</span>
+    <span class="n">lmax</span><span class="o">=</span><span class="n">lmax</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The constructor takes the following parameters:</p>
+<dl class="py method">
+<dt id="dscribe.descriptors.soap.SOAP.__init__">
+<code class="sig-prename descclassname">SOAP.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rcut</span></em>, <em class="sig-param"><span class="n">nmax</span></em>, <em class="sig-param"><span class="n">lmax</span></em>, <em class="sig-param"><span class="n">sigma</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">rbf</span><span class="o">=</span><span class="default_value">'gto'</span></em>, <em class="sig-param"><span class="n">species</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">periodic</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">crossover</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">average</span><span class="o">=</span><span class="default_value">'off'</span></em>, <em class="sig-param"><span class="n">sparse</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – A cutoff for local region in angstroms. Should be
+bigger than 1 angstrom.</p></li>
+<li><p><strong>nmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of radial basis functions.</p></li>
+<li><p><strong>lmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The maximum degree of spherical harmonics.</p></li>
+<li><p><strong>species</strong> (<em>iterable</em>) – The chemical species as a list of atomic
+numbers or as a list of chemical symbols. Notice that this is not
+the atomic numbers that are present for an individual system, but
+should contain all the elements that are ever going to be
+encountered when creating the descriptors for a set of systems.
+Keeping the number of chemical species as low as possible is
+preferable.</p></li>
+<li><p><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – The standard deviation of the gaussians used to expand the
+atomic density.</p></li>
+<li><p><strong>rbf</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – <p>The radial basis functions to use. The available options are:</p>
+<ul>
+<li><p>”gto”: Spherical gaussian type orbitals defined as <span class="math notranslate nohighlight">\(g_{nl}(r) = \sum_{n'=1}^{n_\mathrm{max}}\,\beta_{nn'l} r^l e^{-\alpha_{n'l}r^2}\)</span></p></li>
+<li><p>”polynomial”: Polynomial basis defined as <span class="math notranslate nohighlight">\(g_{n}(r) = \sum_{n'=1}^{n_\mathrm{max}}\,\beta_{nn'} (r-r_\mathrm{cut})^{n'+2}\)</span></p></li>
+</ul>
+</p></li>
+<li><p><strong>periodic</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Determines whether the system is considered to be
+periodic.</p></li>
+<li><p><strong>crossover</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Determines if crossover of atomic types should
+be included in the power spectrum. If enabled, the power
+spectrum is calculated over all unique species combinations Z
+and Z’. If disabled, the power spectrum does not contain
+cross-species information and is only run over each unique
+species Z. Turned on by default to correspond to the original
+definition</p></li>
+<li><p><strong>average</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – <p>The averaging mode over the centers of interest.
+Valid options are:</p>
+<blockquote>
+<div><ul>
+<li><p>”off”: No averaging.</p></li>
+<li><p>”inner”: Averaging over sites before summing up the magnetic quantum numbers: <span class="math notranslate nohighlight">\(p_{nn'l}^{Z_1,Z_2} \sim \sum_m (\frac{1}{n} \sum_i c_{nlm}^{i, Z_1})^{*} (\frac{1}{n} \sum_i c_{n'lm}^{i, Z_2})\)</span></p></li>
+<li><p>”outer”: Averaging over the power spectrum of different sites: <span class="math notranslate nohighlight">\(p_{nn'l}^{Z_1,Z_2} \sim \frac{1}{n} \sum_i \sum_m (c_{nlm}^{i, Z_1})^{*} (c_{n'lm}^{i, Z_2})\)</span></p></li>
+</ul>
+</div></blockquote>
+</p></li>
+<li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
+dense numpy array.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Increasing the arguments <em>nmax</em> and <em>lmax</em> makes SOAP more accurate but also
+increases the number of features.</p>
+</div>
+<div class="section" id="creation">
+<h2>Creation<a class="headerlink" href="#creation" title="Permalink to this headline">¶</a></h2>
+<p>After SOAP has been set up, it may be used on atomic structures with the
+<a class="reference internal" href="#dscribe.descriptors.soap.SOAP.create" title="dscribe.descriptors.soap.SOAP.create"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create()</span></code></a>-method.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">molecule</span>
+
+<span class="c1"># Molecule created as an ASE.Atoms</span>
+<span class="n">water</span> <span class="o">=</span> <span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;H2O&quot;</span><span class="p">)</span>
+
+<span class="c1"># Create SOAP output for the system</span>
+<span class="n">soap_water</span> <span class="o">=</span> <span class="n">soap</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">water</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">soap_water</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">soap_water</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+<span class="c1"># Create output for multiple system</span>
+<span class="n">samples</span> <span class="o">=</span> <span class="p">[</span><span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;H2O&quot;</span><span class="p">),</span> <span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;NO2&quot;</span><span class="p">),</span> <span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;CO2&quot;</span><span class="p">)]</span>
+<span class="n">positions</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]]</span>
+<span class="n">coulomb_matrices</span> <span class="o">=</span> <span class="n">soap</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">positions</span><span class="p">)</span>            <span class="c1"># Serial</span>
+<span class="n">coulomb_matrices</span> <span class="o">=</span> <span class="n">soap</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">positions</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># Parallel</span>
+</pre></div>
+</div>
+<p>As SOAP is a local descriptor, it also takes as input a list of atomic indices
+or positions. If no such positions are defined, SOAP will be created for each
+atom in the system. The call syntax for the create-method is as follows:</p>
+<dl class="py method">
+<dt id="dscribe.descriptors.soap.SOAP.create">
+<code class="sig-prename descclassname">SOAP.</code><code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">positions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the SOAP output for the given systems and given positions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> or list of <code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code>) – One or
+many atomic structures.</p></li>
+<li><p><strong>positions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – Positions where to calculate SOAP. Can be
+provided as cartesian positions or atomic indices. If no
+positions are defined, the SOAP output will be created for all
+atoms in the system. When calculating SOAP for multiple
+systems, provide the positions as a list for each system.</p></li>
+<li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
+the calculation across samples. Defaults to serial calculation
+with n_jobs=1.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Controls whether to print the progress of each job
+into to the console.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The SOAP output for the given
+systems and positions. The return type depends on the
+‘sparse’-attribute. The first dimension is determined by the amount
+of positions and systems and the second dimension is determined by
+the get_number_of_features()-function. When multiple systems are
+provided the results are ordered by the input order of systems and
+their positions.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray | scipy.sparse.csr_matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>The output will in this case be a numpy array with shape [#positions,
+#features]. The number of features may be requested beforehand with the
+<a class="reference internal" href="../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_number_of_features" title="dscribe.descriptors.soap.SOAP.get_number_of_features"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_number_of_features()</span></code></a>-method.</p>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>The following examples demonstrate common use cases for the descriptor. These
+examples are also available in dscribe/examples/soap.py.</p>
+<div class="section" id="finite-systems">
+<h3>Finite systems<a class="headerlink" href="#finite-systems" title="Permalink to this headline">¶</a></h3>
+<p>Adding SOAP to water is as easy as:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">molecule</span>
+
+<span class="c1"># Molecule created as an ASE.Atoms</span>
+<span class="n">water</span> <span class="o">=</span> <span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;H2O&quot;</span><span class="p">)</span>
+
+<span class="c1"># Create SOAP output for the system</span>
+<span class="n">soap_water</span> <span class="o">=</span> <span class="n">soap</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">water</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">soap_water</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">soap_water</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We are expecting a matrix where each row represents the local environment of
+one atom of the molecule. The length of the feature vector depends on the
+number of species defined in <em>species</em> as well as <em>nmax</em> and <em>lmax</em>. You can
+try by changing <em>nmax</em> and <em>lmax</em>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Lets change the SOAP setup and see how the number of features changes</span>
+<span class="n">small_soap</span> <span class="o">=</span> <span class="n">SOAP</span><span class="p">(</span><span class="n">species</span><span class="o">=</span><span class="n">species</span><span class="p">,</span> <span class="n">rcut</span><span class="o">=</span><span class="n">rcut</span><span class="p">,</span> <span class="n">nmax</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">lmax</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">big_soap</span> <span class="o">=</span> <span class="n">SOAP</span><span class="p">(</span><span class="n">species</span><span class="o">=</span><span class="n">species</span><span class="p">,</span> <span class="n">rcut</span><span class="o">=</span><span class="n">rcut</span><span class="p">,</span> <span class="n">nmax</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">lmax</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+<span class="n">n_feat1</span> <span class="o">=</span> <span class="n">small_soap</span><span class="o">.</span><span class="n">get_number_of_features</span><span class="p">()</span>
+<span class="n">n_feat2</span> <span class="o">=</span> <span class="n">big_soap</span><span class="o">.</span><span class="n">get_number_of_features</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">n_feat1</span><span class="p">,</span> <span class="n">n_feat2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="periodic-systems">
+<h3>Periodic systems<a class="headerlink" href="#periodic-systems" title="Permalink to this headline">¶</a></h3>
+<p>Crystals can also be SOAPed by simply setting the <em>periodic</em> keyword to True.
+In this case a cell needs to be defined for the ase object.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">bulk</span>
+
+<span class="n">copper</span> <span class="o">=</span> <span class="n">bulk</span><span class="p">(</span><span class="s1">&#39;Cu&#39;</span><span class="p">,</span> <span class="s1">&#39;fcc&#39;</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mf">3.6</span><span class="p">,</span> <span class="n">cubic</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">copper</span><span class="o">.</span><span class="n">get_pbc</span><span class="p">())</span>
+<span class="n">periodic_soap</span> <span class="o">=</span> <span class="n">SOAP</span><span class="p">(</span>
+    <span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="mi">29</span><span class="p">],</span>
+    <span class="n">rcut</span><span class="o">=</span><span class="n">rcut</span><span class="p">,</span>
+    <span class="n">nmax</span><span class="o">=</span><span class="n">nmax</span><span class="p">,</span>
+    <span class="n">lmax</span><span class="o">=</span><span class="n">nmax</span><span class="p">,</span>
+    <span class="n">periodic</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+
+<span class="n">soap_copper</span> <span class="o">=</span> <span class="n">periodic_soap</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">copper</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">soap_copper</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">soap_copper</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Since the SOAP feature vectors of each of the four copper atoms in the cubic
+unit cell match, they turn out to be equivalent.</p>
+</div>
+<div class="section" id="locating-information">
+<h3>Locating information<a class="headerlink" href="#locating-information" title="Permalink to this headline">¶</a></h3>
+<p>The SOAP class provides the <a class="reference internal" href="../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_location" title="dscribe.descriptors.soap.SOAP.get_location"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_location()</span></code></a>-method. This method can
+be used to query for the slice that contains a specific element combination.
+The following example demonstrates its usage.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># The locations of specific element combinations can be retrieved like this.</span>
+<span class="n">hh_loc</span> <span class="o">=</span> <span class="n">soap</span><span class="o">.</span><span class="n">get_location</span><span class="p">((</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">))</span>
+<span class="n">ho_loc</span> <span class="o">=</span> <span class="n">soap</span><span class="o">.</span><span class="n">get_location</span><span class="p">((</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">))</span>
+
+<span class="c1"># These locations can be directly used to slice the corresponding part from an</span>
+<span class="c1"># SOAP output for e.g. plotting.</span>
+<span class="n">soap_water</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">hh_loc</span><span class="p">]</span>
+<span class="n">soap_water</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">ho_loc</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="sparse-output">
+<h3>Sparse output<a class="headerlink" href="#sparse-output" title="Permalink to this headline">¶</a></h3>
+<p>If the descriptor size is large (this can be the case for instance with a
+myriad of different element types as well as high <em>nmax</em> and <em>lmax</em>) more often
+than not considerable parts of the features will be zero. In this case saving
+the results in a sparse matrix will save memory. DScribe does so by default
+using the <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/sparse.html">scipy-library</a>. Be aware between
+the different types:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">soap</span> <span class="o">=</span> <span class="n">SOAP</span><span class="p">(</span>
+    <span class="n">species</span><span class="o">=</span><span class="n">species</span><span class="p">,</span>
+    <span class="n">rcut</span><span class="o">=</span><span class="n">rcut</span><span class="p">,</span>
+    <span class="n">nmax</span><span class="o">=</span><span class="n">nmax</span><span class="p">,</span>
+    <span class="n">lmax</span><span class="o">=</span><span class="n">lmax</span><span class="p">,</span>
+    <span class="n">sparse</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+<span class="n">soap_water</span> <span class="o">=</span> <span class="n">soap</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">water</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">soap_water</span><span class="p">))</span>
+
+<span class="n">soap</span> <span class="o">=</span> <span class="n">SOAP</span><span class="p">(</span>
+    <span class="n">species</span><span class="o">=</span><span class="n">species</span><span class="p">,</span>
+    <span class="n">rcut</span><span class="o">=</span><span class="n">rcut</span><span class="p">,</span>
+    <span class="n">nmax</span><span class="o">=</span><span class="n">nmax</span><span class="p">,</span>
+    <span class="n">lmax</span><span class="o">=</span><span class="n">lmax</span><span class="p">,</span>
+    <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+<span class="n">soap_water</span> <span class="o">=</span> <span class="n">soap</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">water</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">soap_water</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Most operations work on sparse matrices as they would on numpy matrices.
+Otherwise, a sparse matrix can simply be converted calling the <em>.toarray()</em>
+method. For further information check the <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/sparse.html">scipy documentation</a> on sparse matrices.</p>
+</div>
+<div class="section" id="average-output">
+<h3>Average output<a class="headerlink" href="#average-output" title="Permalink to this headline">¶</a></h3>
+<p>One way of turning a local descriptor into a global descriptor is simply by
+taking the average over all sites. DScribe supports two averaging modes:
+<em>inner</em> and <em>outer</em>. The inner average is taken over the sites before summing
+up the magnetic quantum number. Outer averaging instead averages over the
+power spectrum of individual sites. In general, the inner averaging will
+preserve the configurational information better but you can experiment with
+both versions.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">average_soap</span> <span class="o">=</span> <span class="n">SOAP</span><span class="p">(</span>
+    <span class="n">species</span><span class="o">=</span><span class="n">species</span><span class="p">,</span>
+    <span class="n">rcut</span><span class="o">=</span><span class="n">rcut</span><span class="p">,</span>
+    <span class="n">nmax</span><span class="o">=</span><span class="n">nmax</span><span class="p">,</span>
+    <span class="n">lmax</span><span class="o">=</span><span class="n">lmax</span><span class="p">,</span>
+    <span class="n">average</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">,</span>
+    <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+
+<span class="n">soap_water</span> <span class="o">=</span> <span class="n">average_soap</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">water</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Average SOAP water: &quot;</span><span class="p">,</span> <span class="n">soap_water</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+<span class="n">methanol</span> <span class="o">=</span> <span class="n">molecule</span><span class="p">(</span><span class="s1">&#39;CH3OH&#39;</span><span class="p">)</span>
+<span class="n">soap_methanol</span> <span class="o">=</span> <span class="n">average_soap</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">methanol</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Average SOAP methanol: &quot;</span><span class="p">,</span> <span class="n">soap_methanol</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+<span class="n">h2o2</span> <span class="o">=</span> <span class="n">molecule</span><span class="p">(</span><span class="s1">&#39;H2O2&#39;</span><span class="p">)</span>
+<span class="n">soap_peroxide</span> <span class="o">=</span> <span class="n">average_soap</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">h2o2</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Average SOAP peroxide: &quot;</span><span class="p">,</span> <span class="n">soap_peroxide</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The result will be a feature vector and not a matrix, so it no longer depends
+on the system size. This is necessary to compare two or more structures with
+different number of elements. We can do so by e.g. applying the distance metric
+of our choice.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scipy.spatial.distance</span> <span class="kn">import</span> <span class="n">pdist</span><span class="p">,</span> <span class="n">squareform</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">molecules</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">soap_water</span><span class="p">,</span> <span class="n">soap_methanol</span><span class="p">,</span> <span class="n">soap_peroxide</span><span class="p">])</span>
+<span class="n">distance</span> <span class="o">=</span> <span class="n">squareform</span><span class="p">(</span><span class="n">pdist</span><span class="p">(</span><span class="n">molecules</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Distance matrix: water - methanol - peroxide: &quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">distance</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>It seems that the local environments of water and hydrogen peroxide are more
+similar to each other. To see more advanced methods for comparing structures of
+different sizes with each other, see the <a class="reference internal" href="kernels.html"><span class="doc">kernel building tutorial</span></a>. Notice that simply averaging the SOAP vector does not always
+correspond to the Average Kernel discussed in the kernel building tutorial, as
+for non-linear kernels the order of kernel calculation and averaging matters.</p>
+<p id="bibtex-bibliography-tutorials/soap-0"><dl class="citation">
+<dt class="bibtex label" id="soap2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>Sandip De, Albert P. Bartók, Gábor Csányi, and Michele Ceriotti. Comparing molecules and solids across structural and alchemical space. <em>Physical Chemistry Chemical Physics</em>, 18(20):13754–13769, 2016. <a class="reference external" href="https://doi.org/10.1039/c6cp00415f">doi:10.1039/c6cp00415f</a>.</p>
+</dd>
+<dt class="bibtex label" id="akisoap"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
+<dd><p>Marc O J Jäger, Eiaki V Morooka, Filippo Federici Canova, Lauri Himanen, and Adam S Foster. Machine learning hydrogen adsorption on nanoclusters through structural descriptors. <em>npj Computational Materials</em>, 2018. <a class="reference external" href="https://doi.org/10.1038/s41524-018-0096-5">doi:10.1038/s41524-018-0096-5</a>.</p>
+</dd>
+<dt class="bibtex label" id="soap1"><span class="brackets">3</span><span class="fn-backref">(<a href="#id3">1</a>,<a href="#id4">2</a>)</span></dt>
+<dd><p>Albert P. Bartók, Risi Kondor, and Gábor Csányi. On representing chemical environments. <em>Physical Review B - Condensed Matter and Materials Physics</em>, 87(18):1–16, 2013. <a class="reference external" href="https://doi.org/10.1103/PhysRevB.87.184115">doi:10.1103/PhysRevB.87.184115</a>.</p>
+</dd>
+</dl>
+</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="mbtr.html" class="btn btn-neutral float-right" title="Many-body Tensor Representation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="acsf.html" class="btn btn-neutral float-left" title="Atom-centered Symmetry Functions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Versions</span>
+      v: 0.4.x
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl id="version-table">
+        <dt>Versions</dt>
+      </dl>
+    </div>
+  </div>
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

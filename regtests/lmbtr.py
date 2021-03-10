@@ -19,7 +19,8 @@ import copy
 
 import numpy as np
 
-import scipy.sparse
+import sparse
+
 from scipy.signal import find_peaks
 
 from dscribe.descriptors import LMBTR
@@ -31,31 +32,35 @@ from testbaseclass import TestBaseClass
 
 
 H2O = Atoms(
-    cell=[
-        [5.0, 0.0, 0.0],
-        [0.0, 5.0, 0.0],
-        [0.0, 0.0, 5.0]
-    ],
+    cell=[[5.0, 0.0, 0.0], [0.0, 5.0, 0.0], [0.0, 0.0, 5.0]],
     positions=[
         [0, 0, 0],
         [0.95, 0, 0],
-        [0.95*(1+math.cos(76/180*math.pi)), 0.95*math.sin(76/180*math.pi), 0.0]
+        [
+            0.95 * (1 + math.cos(76 / 180 * math.pi)),
+            0.95 * math.sin(76 / 180 * math.pi),
+            0.0,
+        ],
     ],
     symbols=["H", "O", "H"],
 )
 
 H2O_2 = Atoms(
     cell=[[5.0, 0.0, 0], [0, 5, 0], [0, 0, 5.0]],
-    positions=[[0.95, 0, 0], [0, 0, 0], [0.95*(1+math.cos(76/180*math.pi)), 0.95*math.sin(76/180*math.pi), 0.0]],
+    positions=[
+        [0.95, 0, 0],
+        [0, 0, 0],
+        [
+            0.95 * (1 + math.cos(76 / 180 * math.pi)),
+            0.95 * math.sin(76 / 180 * math.pi),
+            0.0,
+        ],
+    ],
     symbols=["O", "H", "H"],
 )
 
 HHe = Atoms(
-    cell=[
-        [5.0, 0.0, 0.0],
-        [0.0, 5.0, 0.0],
-        [0.0, 0.0, 5.0]
-        ],
+    cell=[[5.0, 0.0, 0.0], [0.0, 5.0, 0.0], [0.0, 0.0, 5.0]],
     positions=[
         [0, 0, 0],
         [0.71, 0, 0],
@@ -66,7 +71,7 @@ HHe = Atoms(
 nk2 = 50
 default_k2 = {
     "geometry": {"function": "inverse_distance"},
-    "grid": {"min": 0, "max": 1/0.7, "sigma": 0.1, "n": nk2},
+    "grid": {"min": 0, "max": 1 / 0.7, "sigma": 0.1, "n": nk2},
     "weighting": {"function": "exponential", "scale": 0.5, "cutoff": 1e-2},
 }
 
@@ -103,11 +108,9 @@ default_desc_k2_k3 = LMBTR(
 
 
 class LMBTRTests(TestBaseClass, unittest.TestCase):
-
-    def test_constructor(self):
-        """Tests different valid and invalid constructor values. As LMBTR is
-        subclassed from MBTr, many of the tests are already performed in the
-        regression tests for MBTR.
+    def test_exceptions(self):
+        """Tests different invalid parameters that should raise an
+        exception.
         """
         # Cannot use n_atoms normalization
         with self.assertRaises(ValueError):
@@ -125,7 +128,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         lmbtr = copy.deepcopy(default_desc_k2_k3)
 
         # Position as a cartesian coordinate in list
-        lmbtr.create(H2O, positions=[[0, 1, 0]])
+        a = lmbtr.create(H2O, positions=[[0, 1, 0]])
 
         # Position as a cartesian coordinate in numpy array
         lmbtr.create(H2O, positions=np.array([[0, 1, 0]]))
@@ -140,15 +143,14 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
 
         # Invalid data type
         with self.assertRaises(ValueError):
-            lmbtr.create(H2O, positions=['a'])
+            lmbtr.create(H2O, positions=["a"])
 
         # Positions as a list of integers pointing to atom indices
         positions = [0, 1, 2]
         lmbtr.create(H2O, positions)
 
     def test_normalization(self):
-        """Tests that each normalization method works correctly.
-        """
+        """Tests that each normalization method works correctly."""
         desc = copy.deepcopy(default_desc_k2_k3)
         desc.species = ("H", "O")
         desc.normalization = "none"
@@ -167,19 +169,36 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         feat2 = desc.create(H2O, [0])
         k2_each = feat2[0]["k2"]
         k3_each = feat2[0]["k3"]
-        self.assertTrue(np.array_equal(k2/k2_norm, k2_each))
-        self.assertTrue(np.array_equal(k3/k3_norm, k3_each))
+        self.assertTrue(np.array_equal(k2 / k2_norm, k2_each))
+        self.assertTrue(np.array_equal(k3 / k3_norm, k3_each))
+
+        # Test normalization of flat sparse output with l2_each
+        n_elem = desc.n_elements
+        k2_slice = slice(0, default_k2["grid"]["n"] * n_elem)
+        k3_slice = slice(default_k2["grid"]["n"] * n_elem, -1)
+        desc.flatten = True
+        desc.sparse = False
+        desc.normalization = "none"
+        feat3 = desc.create(H2O, [0])
+        k2 = feat3[0, k2_slice]
+        k3 = feat3[0, k3_slice]
+        desc.normalization = "l2_each"
+        desc.sparse = True
+        feat4 = desc.create(H2O, [0])
+        k2_each = feat4[0, k2_slice].todense()
+        k3_each = feat4[0, k3_slice].todense()
+        self.assertTrue(np.array_equal(k2 / k2_norm, k2_each))
+        self.assertTrue(np.array_equal(k3 / k3_norm, k3_each))
 
     def test_number_of_features(self):
-        """LMBTR: Tests that the reported number of features is correct.
-        """
+        """LMBTR: Tests that the reported number of features is correct."""
         # k=2
         n = 50
         species = [1, 8]
         n_elem = len(species) + 1  # Including ghost atom
         lmbtr = copy.deepcopy(default_desc_k2)
         n_features = lmbtr.get_number_of_features()
-        expected = n_elem*n
+        expected = n_elem * n
         real = lmbtr.create(H2O, positions=[0]).shape[1]
         self.assertEqual(n_features, expected)
         self.assertEqual(n_features, real)
@@ -187,7 +206,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         # k=3
         lmbtr = copy.deepcopy(default_desc_k3)
         n_features = lmbtr.get_number_of_features()
-        expected = (n_elem*n_elem+(n_elem-1)*(n_elem)/2)*n
+        expected = (n_elem * n_elem + (n_elem - 1) * (n_elem) / 2) * n
         real = lmbtr.create(H2O, positions=[0]).shape[1]
         self.assertEqual(n_features, expected)
         self.assertEqual(n_features, real)
@@ -201,7 +220,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         H2O = molecule("H2O")
         descriptors = [
             copy.deepcopy(default_desc_k2),
-            copy.deepcopy(default_desc_k2_k3)
+            copy.deepcopy(default_desc_k2_k3),
         ]
 
         for desc in descriptors:
@@ -239,7 +258,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         H2O = molecule("H2O")
         descriptors = [
             copy.deepcopy(default_desc_k3),
-            copy.deepcopy(default_desc_k2_k3)
+            copy.deepcopy(default_desc_k2_k3),
         ]
 
         for desc in descriptors:
@@ -339,10 +358,10 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         desc = copy.deepcopy(default_desc_k2)
         desc.flatten = True
         feat_flat = desc.create(system)
-        self.assertEqual(feat_flat.shape, (3, n_elem*nk2))
+        self.assertEqual(feat_flat.shape, (3, n_elem * nk2))
 
         # Check that the elements in flattened and unflattened match
-        sorted_species = sorted(desc._atomic_numbers+[0])
+        sorted_species = sorted(desc._atomic_numbers + [0])
         for i_pos in range(len(system)):
             for i_species in range(len(sorted_species)):
                 i_z = sorted_species[i_species]
@@ -352,8 +371,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
                 self.assertTrue(np.array_equal(i_flat, i_unflat))
 
     def test_sparse(self):
-        """Tests the sparse matrix creation.
-        """
+        """Tests the sparse matrix creation."""
         # Dense
         desc = copy.deepcopy(default_desc_k2_k3)
         desc.sparse = False
@@ -364,55 +382,68 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         desc = copy.deepcopy(default_desc_k2_k3)
         desc.sparse = True
         vec = desc.create(H2O, positions=[0])
-        self.assertTrue(type(vec) == scipy.sparse.coo_matrix)
+        self.assertTrue(type(vec) == sparse.COO)
 
     def test_parallel_dense(self):
-        """Tests creating dense output parallelly.
-        """
+        """Tests creating dense output parallelly."""
         samples = [molecule("CO"), molecule("N2O")]
         desc = copy.deepcopy(default_desc_k2)
         desc.species = ["C", "O", "N"]
         n_features = desc.get_number_of_features()
 
-        # Multiple systems, serial job
+        # Determining number of jobs based on the amount of CPUs
+        desc.create(system=samples, n_jobs=-1, only_physical_cores=False)
+        desc.create(system=samples, n_jobs=-1, only_physical_cores=True)
+
+        # Multiple systems, serial job, fixed size
         output = desc.create(
             system=samples,
-            positions=[[0], [0, 1]],
+            positions=[[0, 1], [0, 1]],
             n_jobs=1,
         )
-        assumed = np.empty((3, n_features))
-        assumed[0, :] = desc.create(samples[0], [0])
-        assumed[1, :] = desc.create(samples[1], [0])
-        assumed[2, :] = desc.create(samples[1], [1])
+        assumed = np.empty((2, 2, n_features))
+        assumed[0, 0] = desc.create(samples[0], [0])
+        assumed[0, 1] = desc.create(samples[0], [1])
+        assumed[1, 0] = desc.create(samples[1], [0])
+        assumed[1, 1] = desc.create(samples[1], [1])
         self.assertTrue(np.allclose(output, assumed))
 
-        # Test when position given as indices
+        # Multiple systems, parallel job, fixed size
         output = desc.create(
             system=samples,
-            positions=[[0], [0, 1]],
+            positions=[[0, 1], [0, 1]],
             n_jobs=2,
         )
-        assumed = np.empty((3, n_features))
-        assumed[0, :] = desc.create(samples[0], [0])
-        assumed[1, :] = desc.create(samples[1], [0])
-        assumed[2, :] = desc.create(samples[1], [1])
+        assumed = np.empty((2, 2, n_features))
+        assumed[0, 0] = desc.create(samples[0], [0])
+        assumed[0, 1] = desc.create(samples[0], [1])
+        assumed[1, 0] = desc.create(samples[1], [0])
+        assumed[1, 1] = desc.create(samples[1], [1])
         self.assertTrue(np.allclose(output, assumed))
 
         # Test with cartesian positions.
         output = desc.create(
             system=samples,
-            positions=[[[0, 0, 0], [1, 2, 0]], [[1, 2, 0]]],
+            positions=[[[0, 0, 0]], [[1, 2, 0]]],
             n_jobs=2,
         )
-        assumed = np.empty((2+1, n_features))
-        assumed[0, :] = desc.create(samples[0], [[0, 0, 0]])
-        assumed[1, :] = desc.create(samples[0], [[1, 2, 0]])
-        assumed[2, :] = desc.create(samples[1], [[1, 2, 0]])
+        assumed = np.empty((2, 1, n_features))
+        assumed[0, 0] = desc.create(samples[0], [[0, 0, 0]])
+        assumed[1, 0] = desc.create(samples[1], [[1, 2, 0]])
         self.assertTrue(np.allclose(output, assumed))
 
+        # Multiple systems, parallel job, indices, variable size
+        output = desc.create(
+            system=samples,
+            positions=[[0], [0, 1]],
+            n_jobs=2,
+        )
+        self.assertTrue(np.allclose(output[0][0], desc.create(samples[0], [0])))
+        self.assertTrue(np.allclose(output[1][0], desc.create(samples[1], [0])))
+        self.assertTrue(np.allclose(output[1][1], desc.create(samples[1], [1])))
+
     def test_parallel_sparse(self):
-        """Tests creating sparse output parallelly.
-        """
+        """Tests creating sparse output parallelly."""
         # Test indices
         samples = [molecule("CO"), molecule("N2O")]
         desc = copy.deepcopy(default_desc_k2)
@@ -420,42 +451,59 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         desc.sparse = True
         n_features = desc.get_number_of_features()
 
-        # Multiple systems, serial job
+        # Multiple systems, serial job, fixed size
         output = desc.create(
             system=samples,
-            positions=[[0], [0, 1]],
+            positions=[[0, 1], [0, 1]],
             n_jobs=1,
-        ).toarray()
-        assumed = np.empty((3, n_features))
-        assumed[0, :] = desc.create(samples[0], [0]).toarray()
-        assumed[1, :] = desc.create(samples[1], [0]).toarray()
-        assumed[2, :] = desc.create(samples[1], [1]).toarray()
+        ).todense()
+        assumed = np.empty((2, 2, n_features))
+        assumed[0, 0] = desc.create(samples[0], [0]).todense()
+        assumed[0, 1] = desc.create(samples[0], [1]).todense()
+        assumed[1, 0] = desc.create(samples[1], [0]).todense()
+        assumed[1, 1] = desc.create(samples[1], [1]).todense()
         self.assertTrue(np.allclose(output, assumed))
 
-        # Test when position given as indices
+        # Multiple systems, parallel job, fixed size
         output = desc.create(
             system=samples,
-            positions=[[0], [0, 1]],
+            positions=[[0, 1], [0, 1]],
             n_jobs=2,
-        ).toarray()
-        assumed = np.empty((3, n_features))
-        assumed[0, :] = desc.create(samples[0], [0]).toarray()
-        assumed[1, :] = desc.create(samples[1], [0]).toarray()
-        assumed[2, :] = desc.create(samples[1], [1]).toarray()
+        ).todense()
+        assumed = np.empty((2, 2, n_features))
+        assumed[0, 0] = desc.create(samples[0], [0]).todense()
+        assumed[0, 1] = desc.create(samples[0], [1]).todense()
+        assumed[1, 0] = desc.create(samples[1], [0]).todense()
+        assumed[1, 1] = desc.create(samples[1], [1]).todense()
         self.assertTrue(np.allclose(output, assumed))
 
         # Test with cartesian positions. In this case virtual positions have to
-        # be enabled
+        # be enabled.
         output = desc.create(
             system=samples,
-            positions=[[[0, 0, 0], [1, 2, 0]], [[1, 2, 0]]],
+            positions=[[[0, 0, 0]], [[1, 2, 0]]],
             n_jobs=2,
-        ).toarray()
-        assumed = np.empty((2+1, n_features))
-        assumed[0, :] = desc.create(samples[0], [[0, 0, 0]]).toarray()
-        assumed[1, :] = desc.create(samples[0], [[1, 2, 0]]).toarray()
-        assumed[2, :] = desc.create(samples[1], [[1, 2, 0]]).toarray()
+        ).todense()
+        assumed = np.empty((2, 1, n_features))
+        assumed[0, 0] = desc.create(samples[0], [[0, 0, 0]]).todense()
+        assumed[1, 0] = desc.create(samples[1], [[1, 2, 0]]).todense()
         self.assertTrue(np.allclose(output, assumed))
+
+        # Multiple systems, parallel job, indices, variable size
+        output = desc.create(
+            system=samples,
+            positions=[[0], [0, 1]],
+            n_jobs=2,
+        )
+        self.assertTrue(
+            np.allclose(output[0][0].todense(), desc.create(samples[0], [0]).todense())
+        )
+        self.assertTrue(
+            np.allclose(output[1][0].todense(), desc.create(samples[1], [0]).todense())
+        )
+        self.assertTrue(
+            np.allclose(output[1][1].todense(), desc.create(samples[1], [1]).todense())
+        )
 
     def test_k2_peaks_finite(self):
         """Tests the correct peak locations and intensities are found for the
@@ -471,7 +519,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
             normalize_gaussians=False,
             periodic=False,
             flatten=True,
-            sparse=False
+            sparse=False,
         )
         features = desc.create(H2O, [0])[0, :]
         pos = H2O.get_positions()
@@ -482,7 +530,11 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         xh_peak_indices = find_peaks(xh_feat, prominence=0.5)[0]
         xh_peak_locs = x[xh_peak_indices]
         xh_peak_ints = xh_feat[xh_peak_indices]
-        self.assertTrue(np.allclose(xh_peak_locs, [np.linalg.norm(pos[0] - pos[2])], rtol=0, atol=1e-2))
+        self.assertTrue(
+            np.allclose(
+                xh_peak_locs, [np.linalg.norm(pos[0] - pos[2])], rtol=0, atol=1e-2
+            )
+        )
         self.assertTrue(np.allclose(xh_peak_ints, [1], rtol=0, atol=1e-2))
 
         # Check the X-O peaks
@@ -490,7 +542,11 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         xo_peak_indices = find_peaks(xo_feat, prominence=0.5)[0]
         xo_peak_locs = x[xo_peak_indices]
         xo_peak_ints = xo_feat[xo_peak_indices]
-        self.assertTrue(np.allclose(xo_peak_locs, np.linalg.norm(pos[0] - pos[1]), rtol=0, atol=1e-2))
+        self.assertTrue(
+            np.allclose(
+                xo_peak_locs, np.linalg.norm(pos[0] - pos[1]), rtol=0, atol=1e-2
+            )
+        )
         self.assertTrue(np.allclose(xo_peak_ints, [1], rtol=0, atol=1e-2))
 
         # Check that everything else is zero
@@ -512,7 +568,8 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
             scaled_positions=[
                 [0.1, 0.5, 0.5],
                 [0.9, 0.5, 0.5],
-            ]
+            ],
+            pbc=True,
         )
 
         desc = LMBTR(
@@ -525,14 +582,14 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
             normalize_gaussians=False,
             periodic=True,
             flatten=True,
-            sparse=False
+            sparse=False,
         )
         features = desc.create(atoms, [0])[0, :]
         x = desc.get_k2_axis()
 
         # Calculate assumed locations and intensities.
         assumed_locs = np.array([2, 8])
-        assumed_ints = np.exp(-0.8*np.array([2, 8]))
+        assumed_ints = np.exp(-0.8 * np.array([2, 8]))
 
         # Check the X-C peaks
         xc_feat = features[desc.get_location(("X", "C"))]
@@ -560,7 +617,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
             normalize_gaussians=False,
             periodic=False,
             flatten=True,
-            sparse=False
+            sparse=False,
         )
         features = desc.create(H2O, [0])[0, :]
         x = desc.get_k3_axis()
@@ -616,7 +673,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
             normalize_gaussians=False,
             periodic=True,
             flatten=True,
-            sparse=False
+            sparse=False,
         )
 
         atoms = Atoms(
@@ -625,21 +682,21 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
                 [0, 10, 0],
                 [0, 0, 10],
             ],
-            symbols=3*["H"],
+            symbols=3 * ["H"],
             scaled_positions=[
                 [0.05, 0.40, 0.5],
                 [0.05, 0.60, 0.5],
                 [0.95, 0.5, 0.5],
             ],
-            pbc=True
+            pbc=True,
         )
         features = desc.create(atoms, [0])[0, :]
         x = desc.get_k3_axis()
 
         # Calculate assumed locations and intensities.
         assumed_locs = np.array([45, 90])
-        dist = 2+2*np.sqrt(2)  # The total distance around the three atoms
-        weight = np.exp(-scale*dist)
+        dist = 2 + 2 * np.sqrt(2)  # The total distance around the three atoms
+        weight = np.exp(-scale * dist)
         assumed_ints = np.array([weight, weight])
 
         # Check the X-H-H peaks
@@ -652,8 +709,8 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
 
         # Calculate assumed locations and intensities.
         assumed_locs = np.array([45])
-        dist = 2+2*np.sqrt(2)  # The total distance around the three atoms
-        weight = np.exp(-scale*dist)
+        dist = 2 + 2 * np.sqrt(2)  # The total distance around the three atoms
+        weight = np.exp(-scale * dist)
         assumed_ints = np.array([weight])
 
         # Check the H-X-H peaks
@@ -670,8 +727,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         self.assertEqual(features.sum(), 0)
 
     def test_symmetries(self):
-        """Tests translational and rotational symmetries for a finite system.
-        """
+        """Tests translational and rotational symmetries for a finite system."""
         desc = copy.deepcopy(default_desc_k2_k3)
 
         def create_1(system):
@@ -685,6 +741,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
 
         # Translational
         self.assertTrue(self.is_translationally_symmetric(create_1))
+
 
 if __name__ == "__main__":
     suites = []

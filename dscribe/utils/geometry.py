@@ -46,7 +46,7 @@ def get_adjacency_matrix(radius, pos1, pos2=None, output_type="coo_matrix"):
         compact_nodes=True,
         copy_data=False,
         balanced_tree=True,
-        boxsize=None
+        boxsize=None,
     )
     if pos2 is None:
         pos2 = pos1
@@ -56,7 +56,7 @@ def get_adjacency_matrix(radius, pos1, pos2=None, output_type="coo_matrix"):
         compact_nodes=True,
         copy_data=False,
         balanced_tree=True,
-        boxsize=None
+        boxsize=None,
     )
     dmat = tree1.sparse_distance_matrix(tree2, radius, output_type=output_type)
 
@@ -116,7 +116,8 @@ def get_extended_system(system, radial_cutoff, centers=None, return_cell_indices
     # direction. We take as many copies as needed to reach the radial cutoff.
     # Notice that we need to use vectors that are perpendicular to the cell
     # vectors to ensure that the correct atoms are included for non-cubic cells.
-    cell = np.array(system.get_cell())
+    cell = np.asarray(system.get_cell())
+    pbc = system.get_pbc()
     a1, a2, a3 = cell[0], cell[1], cell[2]
     b1 = np.cross(a2, a3, axis=0)
     b2 = np.cross(a3, a1, axis=0)
@@ -125,10 +126,10 @@ def get_extended_system(system, radial_cutoff, centers=None, return_cell_indices
     p2 = np.dot(a2, b2) / np.dot(b2, b2) * b2
     p3 = np.dot(a3, b3) / np.dot(b3, b3) * b3
     xyz_arr = np.linalg.norm(np.array([p1, p2, p3]), axis=1)
-    cell_images = np.ceil(radial_cutoff/xyz_arr)
-    nx = int(cell_images[0])
-    ny = int(cell_images[1])
-    nz = int(cell_images[2])
+    cell_images = np.ceil(radial_cutoff / xyz_arr)
+    nx = int(cell_images[0]) if pbc[0] else 0
+    ny = int(cell_images[1]) if pbc[1] else 0
+    nz = int(cell_images[2]) if pbc[2] else 0
     n_copies_axis = np.array([nx, ny, nz], dtype=int)
 
     # If no centers are given, and the cell indices are not requested, simply
@@ -136,16 +137,16 @@ def get_extended_system(system, radial_cutoff, centers=None, return_cell_indices
     if centers is None and not return_cell_indices:
 
         n_atoms = len(system)
-        n_rep = np.product(2*n_copies_axis+1)  # Number of repeated copies
+        n_rep = np.product(2 * n_copies_axis + 1)  # Number of repeated copies
         ext_pos = np.tile(system.get_positions(), (n_rep, 1))
 
         # Calculate the extended system positions so that the original cell
         # stays in place: both in space and in index
         i_curr = 0
-        for m0 in np.append(np.arange(0, nx+1), np.arange(-nx, 0)):
-            for m1 in np.append(np.arange(0, ny+1), np.arange(-ny, 0)):
-                for m2 in np.append(np.arange(0, nz+1), np.arange(-nz, 0)):
-                    ext_pos[i_curr:i_curr+n_atoms] += np.dot((m0, m1, m2), cell)
+        for m0 in np.append(np.arange(0, nx + 1), np.arange(-nx, 0)):
+            for m1 in np.append(np.arange(0, ny + 1), np.arange(-ny, 0)):
+                for m2 in np.append(np.arange(0, nz + 1), np.arange(-nz, 0)):
+                    ext_pos[i_curr : i_curr + n_atoms] += np.dot((m0, m1, m2), cell)
                     i_curr += n_atoms
 
         ext_symbols = np.tile(system.get_atomic_numbers(), n_rep)
@@ -178,9 +179,9 @@ def get_extended_system(system, radial_cutoff, centers=None, return_cell_indices
         c = np.array([0, 0, 1])
         cell_indices = [np.zeros((len(system), 3), dtype=int)]
 
-        for i in range(-n_copies_axis[0], n_copies_axis[0]+1):
-            for j in range(-n_copies_axis[1], n_copies_axis[1]+1):
-                for k in range(-n_copies_axis[2], n_copies_axis[2]+1):
+        for i in range(-n_copies_axis[0], n_copies_axis[0] + 1):
+            for j in range(-n_copies_axis[1], n_copies_axis[1] + 1):
+                for k in range(-n_copies_axis[2], n_copies_axis[2] + 1):
                     if i == 0 and j == 0 and k == 0:
                         continue
 
@@ -190,7 +191,7 @@ def get_extended_system(system, radial_cutoff, centers=None, return_cell_indices
                     num_copy = np.array(numbers)
                     pos_copy = np.array(relative_pos)
 
-                    pos_shifted = pos_copy-i*a-j*b-k*c
+                    pos_shifted = pos_copy - i * a - j * b - k * c
                     pos_copy_cartesian = np.dot(pos_shifted, cell)
 
                     # Only distances to the atoms within the interaction limit
@@ -205,7 +206,9 @@ def get_extended_system(system, radial_cutoff, centers=None, return_cell_indices
                     if np.any(valids_mask):
                         valid_pos = pos_copy_cartesian[valids_mask]
                         valid_num = num_copy[valids_mask]
-                        valid_ind = np.tile(np.array([i, j, k], dtype=int), (len(valid_num), 1))
+                        valid_ind = np.tile(
+                            np.array([i, j, k], dtype=int), (len(valid_num), 1)
+                        )
 
                         pos_extended.append(valid_pos)
                         num_extended.append(valid_num)
@@ -216,11 +219,7 @@ def get_extended_system(system, radial_cutoff, centers=None, return_cell_indices
         cell_indices = np.vstack(cell_indices)
 
         extended_system = Atoms(
-            positions=pos_extended,
-            numbers=num_extended,
-            cell=cell,
-            pbc=False
+            positions=pos_extended, numbers=num_extended, cell=cell, pbc=False
         )
 
         return extended_system, cell_indices
-

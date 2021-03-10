@@ -1,0 +1,657 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dscribe.core package &mdash; DScribe 0.4.x documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/js/versions.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="dscribe.descriptors package" href="dscribe.descriptors.html" />
+    <link rel="prev" title="dscribe package" href="dscribe.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.4.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/tutorials.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="dscribe.html">dscribe package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="dscribe.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">dscribe.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dscribe.descriptors.html">dscribe.descriptors package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dscribe.kernels.html">dscribe.kernels package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dscribe.utils.html">dscribe.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dscribe.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dscribe.html#module-dscribe.ext">dscribe.ext module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dscribe.html#module-dscribe">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing DScribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DScribe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="modules.html">dscribe</a> &raquo;</li>
+        
+          <li><a href="dscribe.html">dscribe package</a> &raquo;</li>
+        
+      <li>dscribe.core package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/doc/dscribe.core.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="dscribe-core-package">
+<h1>dscribe.core package<a class="headerlink" href="#dscribe-core-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-dscribe.core.lattice">
+<span id="dscribe-core-lattice-module"></span><h2>dscribe.core.lattice module<a class="headerlink" href="#module-dscribe.core.lattice" title="Permalink to this headline">¶</a></h2>
+<p>Copyright 2019 DScribe developers</p>
+<p>Licensed under the Apache License, Version 2.0 (the “License”);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<blockquote>
+<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+</div></blockquote>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</p>
+<dl class="py class">
+<dt id="dscribe.core.lattice.Lattice">
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.core.lattice.</code><code class="sig-name descname">Lattice</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">matrix</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/lattice.html#Lattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.lattice.Lattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>A lattice object.  Essentially a matrix with conversion matrices. In
+general, it is assumed that length units are in Angstroms and angles are in
+degrees unless otherwise stated.</p>
+<p>Create a lattice from any sequence of 9 numbers. Note that the sequence
+is assumed to be read one row at a time. Each row represents one
+lattice vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>matrix</strong> – Sequence of numbers in any form. Examples of acceptable
+input.
+i) An actual numpy array.
+ii) [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+iii) [1, 0, 0 , 0, 1, 0, 0, 0, 1]
+iv) (1, 0, 0, 0, 1, 0, 0, 0, 1)
+Each row should correspond to a lattice vector.
+E.g., [[10, 0, 0], [20, 10, 0], [0, 0, 30]] specifies a lattice
+with lattice vectors [10, 0, 0], [20, 10, 0] and [0, 0, 30].</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="dscribe.core.lattice.Lattice.abc">
+<em class="property">property </em><code class="sig-name descname">abc</code><a class="headerlink" href="#dscribe.core.lattice.Lattice.abc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lengths of the lattice vectors, i.e. (a, b, c)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.core.lattice.Lattice.get_cartesian_coords">
+<code class="sig-name descname">get_cartesian_coords</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fractional_coords</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/lattice.html#Lattice.get_cartesian_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.lattice.Lattice.get_cartesian_coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the cartesian coordinates given fractional coordinates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>fractional_coords</strong> (<em>3x1 array</em>) – Fractional coords.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Cartesian coordinates</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.core.lattice.Lattice.get_fractional_coords">
+<code class="sig-name descname">get_fractional_coords</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cart_coords</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/lattice.html#Lattice.get_fractional_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.lattice.Lattice.get_fractional_coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the fractional coordinates given cartesian coordinates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cart_coords</strong> (<em>3x1 array</em>) – Cartesian coords.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Fractional coordinates.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.core.lattice.Lattice.get_points_in_sphere">
+<code class="sig-name descname">get_points_in_sphere</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">frac_points</span></em>, <em class="sig-param"><span class="n">center</span></em>, <em class="sig-param"><span class="n">r</span></em>, <em class="sig-param"><span class="n">zip_results</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/lattice.html#Lattice.get_points_in_sphere"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.lattice.Lattice.get_points_in_sphere" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find all points within a sphere from the point taking into account
+periodic boundary conditions. This includes sites in other periodic
+images.</p>
+<p>Algorithm:</p>
+<ol class="arabic">
+<li><p>place sphere of radius r in crystal and determine minimum supercell
+(parallelpiped) which would contain a sphere of radius r. for this
+we need the projection of a_1 on a unit vector perpendicular
+to a_2 &amp; a_3 (i.e. the unit vector in the direction b_1) to
+determine how many a_1”s it will take to contain the sphere.</p>
+<p>Nxmax = r * length_of_b_1 / (2 Pi)</p>
+</li>
+<li><p>keep points falling within r.</p></li>
+</ol>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frac_points</strong> – All points in the lattice in fractional coordinates.</p></li>
+<li><p><strong>center</strong> – Cartesian coordinates of center of sphere.</p></li>
+<li><p><strong>r</strong> – radius of sphere.</p></li>
+<li><p><strong>zip_results</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether to zip the results together to group by
+point, or return the raw fcoord, dist, index arrays</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>[(fcoord, dist, index) …] since most of the time, subsequent</dt><dd><p>processing requires the distance.</p>
+</dd>
+<dt>else:</dt><dd><p>fcoords, dists, inds</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>if zip_results</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.core.lattice.Lattice.inv_matrix">
+<em class="property">property </em><code class="sig-name descname">inv_matrix</code><a class="headerlink" href="#dscribe.core.lattice.Lattice.inv_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inverse of lattice matrix.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.core.lattice.Lattice.lengths">
+<em class="property">property </em><code class="sig-name descname">lengths</code><a class="headerlink" href="#dscribe.core.lattice.Lattice.lengths" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.core.lattice.Lattice.matrix">
+<em class="property">property </em><code class="sig-name descname">matrix</code><a class="headerlink" href="#dscribe.core.lattice.Lattice.matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy of matrix representing the Lattice</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.core.lattice.Lattice.reciprocal_lattice">
+<em class="property">property </em><code class="sig-name descname">reciprocal_lattice</code><a class="headerlink" href="#dscribe.core.lattice.Lattice.reciprocal_lattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the reciprocal lattice. Note that this is the standard
+reciprocal lattice used for solid state physics with a factor of 2 *
+pi. If you are looking for the crystallographic reciprocal lattice,
+use the reciprocal_lattice_crystallographic property.
+The property is lazily generated for efficiency.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.core.lattice.Lattice.reciprocal_lattice_crystallographic">
+<em class="property">property </em><code class="sig-name descname">reciprocal_lattice_crystallographic</code><a class="headerlink" href="#dscribe.core.lattice.Lattice.reciprocal_lattice_crystallographic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the <em>crystallographic</em> reciprocal lattice, i.e., no factor of
+2 * pi.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-dscribe.core.system">
+<span id="dscribe-core-system-module"></span><h2>dscribe.core.system module<a class="headerlink" href="#module-dscribe.core.system" title="Permalink to this headline">¶</a></h2>
+<p>Copyright 2019 DScribe developers</p>
+<p>Licensed under the Apache License, Version 2.0 (the “License”);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<blockquote>
+<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+</div></blockquote>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</p>
+<dl class="py class">
+<dt id="dscribe.core.system.System">
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.core.system.</code><code class="sig-name descname">System</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">symbols</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">positions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">numbers</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">tags</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">momenta</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">masses</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">magmoms</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">charges</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">scaled_positions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cell</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">pbc</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">celldisp</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">constraint</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">calculator</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">info</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">wyckoff_positions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">equivalent_atoms</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ase.atoms.Atoms</span></code></p>
+<p>Represents atomic systems that are used internally by the package.
+Inherits from the ase.Atoms class, but adds the possibility to cache
+various time-consuming quantities that can be shared when creating multiple
+descriptors.</p>
+<dl class="py method">
+<dt id="dscribe.core.system.System.from_atoms">
+<em class="property">static </em><code class="sig-name descname">from_atoms</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">atoms</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.from_atoms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.from_atoms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a System object from ASE.Atoms object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.core.system.System.get_cell_inverse">
+<code class="sig-name descname">get_cell_inverse</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.get_cell_inverse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.get_cell_inverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the matrix inverse of the lattice matrix.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.core.system.System.get_displacement_tensor">
+<code class="sig-name descname">get_displacement_tensor</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.get_displacement_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.get_displacement_tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>A matrix where the entry A[i, j, :] is the vector
+self.cartesian_pos[j] - self.cartesian_pos[i].</p>
+<p>For periodic systems the distance of an atom from itself is the
+smallest displacement of an atom from one of it’s periodic copies, and
+the distance of two different atoms is the distance of two closest
+copies.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>3D matrix containing the pairwise distance vectors.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.core.system.System.get_distance_matrix">
+<code class="sig-name descname">get_distance_matrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.get_distance_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.get_distance_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the distance matrix A defined as:</p>
+<div class="math notranslate nohighlight">
+\[A_{ij} = \lvert \mathbf{r}_i - \mathbf{r}_j \rvert\]</div>
+<p>For periodic systems the distance of an atom from itself is the
+smallest displacement of an atom from one of it’s periodic copies, and
+the distance of two different atoms is the distance of two closest
+copies.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Symmetric 2D matrix containing the pairwise distances.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.core.system.System.get_distance_matrix_within_radius">
+<code class="sig-name descname">get_distance_matrix_within_radius</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">radius</span></em>, <em class="sig-param"><span class="n">pos</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">output_type</span><span class="o">=</span><span class="default_value">'coo_matrix'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.get_distance_matrix_within_radius"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.get_distance_matrix_within_radius" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates a sparse distance matrix by only considering distances
+within a certain cutoff. Uses a k-d tree to reach O(n log(N)) time
+complexity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>radius</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – The cutoff radius within which distances are
+calculated. Distances outside this radius are not included.</p></li>
+<li><p><strong>output_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Which container to use for output data. Options:
+“dok_matrix”, “coo_matrix”, “dict”, or “ndarray”. Default:
+“dok_matrix”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Symmetric sparse 2D
+matrix containing the pairwise distances.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dok_matrix | np.array | coo_matrix | dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.core.system.System.get_inverse_distance_matrix">
+<code class="sig-name descname">get_inverse_distance_matrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.get_inverse_distance_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.get_inverse_distance_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the inverse distance matrix A defined as:</p>
+<div class="math notranslate nohighlight">
+\[A_{ij} = \frac{1}{\lvert \mathbf{r}_i - \mathbf{r}_j \rvert }\]</div>
+<p>For periodic systems the distance of an atom from itself is the
+smallest displacement of an atom from one of it’s periodic copies, and
+the distance of two different atoms is the distance of two closest
+copies.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Symmetric 2D matrix containing the pairwise inverse
+distances.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.core.system.System.set_cell">
+<code class="sig-name descname">set_cell</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cell</span></em>, <em class="sig-param"><span class="n">scale_atoms</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.set_cell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.set_cell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set unit cell vectors.</p>
+<p>Parameters:</p>
+<dl class="simple">
+<dt>cell: 3x3 matrix or length 3 or 6 vector</dt><dd><p>Unit cell.  A 3x3 matrix (the three unit cell vectors) or
+just three numbers for an orthorhombic cell. Another option is
+6 numbers, which describes unit cell with lengths of unit cell
+vectors and with angles between them (in degrees), in following
+order: [len(a), len(b), len(c), angle(b,c), angle(a,c),
+angle(a,b)].  First vector will lie in x-direction, second in
+xy-plane, and the third one in z-positive subspace.</p>
+</dd>
+<dt>scale_atoms: bool</dt><dd><p>Fix atomic positions or move atoms with the unit cell?
+Default behavior is to <em>not</em> move the atoms (scale_atoms=False).</p>
+</dd>
+</dl>
+<p>Examples:</p>
+<p>Two equivalent ways to define an orthorhombic cell:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">atoms</span> <span class="o">=</span> <span class="n">Atoms</span><span class="p">(</span><span class="s1">&#39;He&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="mi">7</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mi">8</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">atoms</span><span class="o">.</span><span class="n">set_cell</span><span class="p">([</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">atoms</span><span class="o">.</span><span class="n">set_cell</span><span class="p">([(</span><span class="n">a</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">c</span><span class="p">)])</span>
+</pre></div>
+</div>
+<p>FCC unit cell:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">atoms</span><span class="o">.</span><span class="n">set_cell</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span> <span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span> <span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="mi">0</span><span class="p">)])</span>
+</pre></div>
+</div>
+<p>Hexagonal unit cell:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">atoms</span><span class="o">.</span><span class="n">set_cell</span><span class="p">([</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">120</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Rhombohedral unit cell:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">alpha</span> <span class="o">=</span> <span class="mi">77</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">atoms</span><span class="o">.</span><span class="n">set_cell</span><span class="p">([</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">alpha</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.core.system.System.set_pbc">
+<code class="sig-name descname">set_pbc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pbc</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.set_pbc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.set_pbc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set periodic boundary condition flags.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.core.system.System.set_positions">
+<code class="sig-name descname">set_positions</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">newpositions</span></em>, <em class="sig-param"><span class="n">apply_constraint</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.set_positions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.set_positions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set positions, honoring any constraints. To ignore constraints,
+use <em>apply_constraint=False</em>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.core.system.System.set_scaled_positions">
+<code class="sig-name descname">set_scaled_positions</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">scaled</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.set_scaled_positions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.set_scaled_positions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set positions relative to unit cell.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.core.system.System.to_cartesian">
+<code class="sig-name descname">to_cartesian</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">scaled_positions</span></em>, <em class="sig-param"><span class="n">wrap</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.to_cartesian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.to_cartesian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to transofrm a set of relative positions to the cartesian basis
+defined by the cell of this system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>positions</strong> (<em>numpy.ndarray</em>) – The positions to scale</p></li>
+<li><p><strong>wrap</strong> (<em>numpy.ndarray</em>) – Whether the positions should be wrapped
+inside the cell.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The cartesian positions</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.core.system.System.to_scaled">
+<code class="sig-name descname">to_scaled</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">positions</span></em>, <em class="sig-param"><span class="n">wrap</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.to_scaled"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.core.system.System.to_scaled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to transform a set of positions to the basis defined by the
+cell of this system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>positions</strong> (<em>numpy.ndarray</em>) – The positions to scale</p></li>
+<li><p><strong>wrap</strong> (<em>numpy.ndarray</em>) – Whether the positions should be wrapped
+inside the cell.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The scaled positions</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-dscribe.core">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-dscribe.core" title="Permalink to this headline">¶</a></h2>
+<p>Copyright 2019 DScribe developers</p>
+<p>Licensed under the Apache License, Version 2.0 (the “License”);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<blockquote>
+<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+</div></blockquote>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="dscribe.descriptors.html" class="btn btn-neutral float-right" title="dscribe.descriptors package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="dscribe.html" class="btn btn-neutral float-left" title="dscribe package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Versions</span>
+      v: 0.4.x
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl id="version-table">
+        <dt>Versions</dt>
+      </dl>
+    </div>
+  </div>
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

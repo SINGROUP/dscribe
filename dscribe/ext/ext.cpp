@@ -13,25 +13,40 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>  // Enables easy access to numpy arrays
 #include <pybind11/stl.h>    // Enables automatic type conversion from C++ containers to python
 #include "celllist.h"
-#include "soapGTO.h"
-#include "soapGeneral.h"
+#include "soap.h"
 #include "acsf.h"
 #include "mbtr.h"
+#include "geometry.h"
 
 namespace py = pybind11;
 using namespace std;
+
+template <typename... Args>
+using overload_cast_ = pybind11::detail::overload_cast_impl<Args...>;
 
 // Notice that the name of the first argument to the module macro needs to
 // correspond to the file name!
 PYBIND11_MODULE(ext, m) {
     // SOAP
-    m.def("soap_gto", &soapGTO, "SOAP with gaussian type orbital radial basis set.");
-    m.def("soap_general", &soapGeneral, "SOAP with a general radial basis set.");
+    py::class_<SOAPGTO>(m, "SOAPGTO")
+        .def(py::init<double, int, int, double, py::array_t<int>, bool, bool, string, double, py::array_t<double>, py::array_t<double> >())
+        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double> >()(&SOAPGTO::create, py::const_))
+        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<bool>, py::array_t<double> >()(&SOAPGTO::create, py::const_))
+        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, CellList>()(&SOAPGTO::create, py::const_))
+        .def("create_cartesian", &SOAPGTO::create_cartesian)
+        .def("derivatives_numerical", &SOAPGTO::derivatives_numerical)
+        .def("derivatives_analytical", &SOAPGTO::derivatives_analytical);
+        //.def("derivatives_analytical_sparse", &SOAPGTO::derivatives_analytical_sparse);
+    py::class_<SOAPPolynomial>(m, "SOAPPolynomial")
+        .def(py::init<double, int, int, double, py::array_t<int>, bool, bool, string, double, py::array_t<double>, py::array_t<double> >())
+        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double> >()(&SOAPPolynomial::create, py::const_))
+        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<bool>, py::array_t<double> >()(&SOAPPolynomial::create, py::const_))
+        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, CellList>()(&SOAPPolynomial::create, py::const_))
+        .def("derivatives_numerical", &SOAPGTO::derivatives_numerical);
 
     // ACSF
     py::class_<ACSF>(m, "ACSFWrapper")
@@ -46,8 +61,6 @@ PYBIND11_MODULE(ext, m) {
         .def_readwrite("n_g3", &ACSF::nG3)
         .def_readwrite("n_g4", &ACSF::nG4)
         .def_readwrite("n_g5", &ACSF::nG5)
-
-
         .def_property("rcut", &ACSF::getRCut, &ACSF::setRCut)
         .def_property("g3_params", &ACSF::getG3Params, &ACSF::setG3Params)
         .def_property("g4_params", &ACSF::getG4Params, &ACSF::setG4Params)
@@ -72,18 +85,14 @@ PYBIND11_MODULE(ext, m) {
         }
         ));
  
-    //MBTR
+    // MBTR
     py::class_<MBTR>(m, "MBTRWrapper")
         .def(py::init< map<int,int>, int , vector<vector<int>>  >())
-        //.def(py::init< map<int,int> atomicNumberToIndexMap, int interactionLimit, vector<vector<int>> cellIndices >())
         .def("get_k1", &MBTR::getK1)
         .def("get_k2", &MBTR::getK2)
         .def("get_k3", &MBTR::getK3)
         .def("get_k2_local", &MBTR::getK2Local)
-        .def("get_k3_local", &MBTR::getK3Local)
-
-        ;
-
+        .def("get_k3_local", &MBTR::getK3Local);
 
     // CellList
     py::class_<CellList>(m, "CellList")
@@ -95,4 +104,12 @@ PYBIND11_MODULE(ext, m) {
         .def_readonly("indices", &CellListResult::indices)
         .def_readonly("distances", &CellListResult::distances)
         .def_readonly("distances_squared", &CellListResult::distancesSquared);
+
+    // Geometry
+    m.def("extend_system", &extend_system, "Create a periodically extended system.");
+    py::class_<ExtendedSystem>(m, "ExtendedSystem")
+        .def(py::init<>())
+        .def_readonly("positions", &ExtendedSystem::positions)
+        .def_readonly("atomic_numbers", &ExtendedSystem::atomic_numbers)
+        .def_readonly("indices", &ExtendedSystem::indices);
 }
