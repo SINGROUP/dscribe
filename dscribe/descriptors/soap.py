@@ -635,15 +635,12 @@ class SOAP(Descriptor):
             else:
                 method = "analytical"
 
-        if isinstance(system, (Atoms, System)):
-            system = [system]
-
         # If single system given, skip the parallelization
-        if len(system) == 1:
-            n_atoms = len(system[0])
+        if isinstance(system, (Atoms, System)):
+            n_atoms = len(system)
             indices = self._get_indices(n_atoms, include, exclude)
             return self.derivatives_single(
-                system[0],
+                system,
                 positions,
                 indices,
                 method=method,

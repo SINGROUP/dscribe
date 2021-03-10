@@ -484,6 +484,34 @@ class SoapDerivativeTests(unittest.TestCase):
         self.assertTrue(np.allclose(D_dense, D_sparse.todense()))
         self.assertTrue(np.allclose(d_dense, d_sparse.todense()))
 
+    def test_trajectory(self):
+        atoms1 = Atoms(
+            'CC',
+            scaled_positions=[[0, 0, 0], [0.5, 0.5, 0.5]],
+            cell=[3, 3, 3],
+            pbc=False
+        )
+        atoms2 = atoms1.copy()
+        atoms2.translate([0.1, 0.1, 0.1])
+        atoms2.wrap()
+        traj = [atoms1, atoms2]
+
+        # Create the SOAP desciptors and their derivatives for all samples. We use both
+        # of the atoms as centers.
+        cutoff = 5
+        soap = SOAP(
+            species=["C"],
+            periodic=False,
+            rcut=cutoff,
+            sigma=0.5,
+            nmax=4,
+            lmax=3,
+        )
+        # print(soap.get_number_of_features())
+        derivatives, descriptors1 = soap.derivatives(traj)
+        descriptors2 = soap.create(traj)
+        print(np.max(np.abs(descriptors1-descriptors2)))
+
 
 class SoapDerivativeComparisonTests(unittest.TestCase):
     def test_no_crossover(self):
@@ -625,10 +653,11 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    suites = []
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
-    suites.append(
-        unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests)
-    )
-    alltests = unittest.TestSuite(suites)
-    result = unittest.TextTestRunner(verbosity=0).run(alltests)
+    SoapDerivativeTests().test_trajectory()
+    # suites = []
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
+    # suites.append(
+        # unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests)
+    # )
+    # alltests = unittest.TestSuite(suites)
+    # result = unittest.TextTestRunner(verbosity=0).run(alltests)
