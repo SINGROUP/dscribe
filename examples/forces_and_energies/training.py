@@ -137,7 +137,6 @@ for i_epoch in range(n_max_epochs):
         F_train_pred_batch = -torch.einsum('ijkl,il->ijk', dD_dr_train_batch, df_dD_train_batch)
 
         # Zero gradients, perform a backward pass, and update the weights.
-        # D_train_batch.grad.data.zero_()
         optimizer.zero_grad()
         loss = energy_force_loss(E_train_pred_batch, E_train_batch, F_train_pred_batch, F_train_batch)
         loss.backward()

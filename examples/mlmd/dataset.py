@@ -18,7 +18,7 @@ np.random.seed(42)
 
 # Generate dataset of Lennard-Jones energies and forces. We use a periodic
 # system with two atoms, both randomly positioned within the cell.
-n_samples = 10
+n_samples = 2000
 n_atoms = 2
 energies = np.zeros(n_samples)
 forces = np.zeros((n_samples, n_atoms, 3))
@@ -38,7 +38,7 @@ atoms = ase.Atoms(
     'CC',
     scaled_positions=[[0, 0, 0], [0.5, 0.5, 0.5]],
     cell=[3, 3, 3],
-    pbc=False
+    pbc=True
 )
 atoms.set_calculator(calculator)
 
@@ -52,7 +52,7 @@ i = 0
 def snapshot():
     global i
     copy = atoms.copy()
-    # copy.wrap()
+    copy.wrap()
     traj.append(copy)
     energies[i] = atoms.get_potential_energy()
     forces[i] = atoms.get_forces()
@@ -71,19 +71,16 @@ traj = read("trajectory.xyz", index=":")
 # of the atoms as centers.
 soap = SOAP(
     species=["C"],
-    periodic=False,
+    periodic=True,
     rcut=cutoff,
     sigma=0.5,
-    nmax=4,
-    lmax=3,
+    nmax=8,
+    lmax=8,
 )
-# print(soap.get_number_of_features())
-derivatives, descriptors1 = soap.derivatives(traj)
-descriptors2 = soap.create(traj)
-print(np.max(np.abs(descriptors1-descriptors2)))
+derivatives, descriptors = soap.derivatives(traj)
 
 # Save to disk for later training
-# np.save("E.npy", energies)
-# np.save("D.npy", descriptors)
-# np.save("dD_dr.npy", derivatives)
-# np.save("F.npy", forces)
+np.save("E.npy", energies)
+np.save("D.npy", descriptors)
+np.save("dD_dr.npy", derivatives)
+np.save("F.npy", forces)
