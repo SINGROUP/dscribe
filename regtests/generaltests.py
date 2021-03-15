@@ -482,6 +482,16 @@ class SpeciesTests(unittest.TestCase):
         self.assertEqual(d.species, ["O", "H"])  # Saves the original variable
         self.assertTrue(np.array_equal(d._atomic_numbers, [1, 8]))  # Ordered here
 
+        # As set of chemical symbols in the contructor
+        d = ACSF(rcut=6.0, species={"O", "H"})
+        self.assertEqual(d.species, {"O", "H"})  # Saves the original variable
+        self.assertTrue(np.array_equal(d._atomic_numbers, [1, 8]))  # Ordered here
+
+        # As set of atomic numbers in the contructor
+        d = ACSF(rcut=6.0, species={8, 1})
+        self.assertEqual(d.species, {8, 1})  # Saves the original variable
+        self.assertTrue(np.array_equal(d._atomic_numbers, [1, 8]))  # Ordered here
+
         # Set through property
         d.species = ["N", "Pb"]
         self.assertEqual(d.species, ["N", "Pb"])
@@ -571,12 +581,12 @@ class DescriptorTests(unittest.TestCase):
 if __name__ == "__main__":
 
     suites = []
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(ASETests))
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(DistanceTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(ASETests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(DistanceTests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(GeometryTests))
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(GaussianTests))
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SpeciesTests))
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(DescriptorTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(GaussianTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(SpeciesTests))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(DescriptorTests))
     alltests = unittest.TestSuite(suites)
     result = unittest.TextTestRunner(verbosity=0).run(alltests)
 

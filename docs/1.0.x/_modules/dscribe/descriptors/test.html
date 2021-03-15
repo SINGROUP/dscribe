@@ -1,0 +1,284 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dscribe.descriptors.test &mdash; DScribe 1.0.x documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/style.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+        <script src="../../../_static/js/versions.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html">
+          
+
+          
+            
+            <img src="../../../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../doc/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../citing.html">Citing DScribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about.html">About</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DScribe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>dscribe.descriptors.test</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for dscribe.descriptors.test</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.linalg</span> <span class="kn">import</span> <span class="n">sqrtm</span><span class="p">,</span> <span class="n">inv</span>
+<span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">gamma</span>
+
+
+<div class="viewcode-block" id="get_basis_gto"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.test.get_basis_gto">[docs]</a><span class="k">def</span> <span class="nf">get_basis_gto</span><span class="p">(</span><span class="n">rcut</span><span class="p">,</span> <span class="n">nmax</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Used to calculate the alpha and beta prefactors for the gto-radial</span>
+<span class="sd">    basis.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        rcut(float): Radial cutoff.</span>
+<span class="sd">        nmax(int): Number of gto radial bases.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (np.ndarray, np.ndarray): The alpha and beta prefactors for all bases</span>
+<span class="sd">        up to a fixed size of l=10.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># These are the values for where the different basis functions should decay</span>
+    <span class="c1"># to: evenly space between 1 angstrom and rcut.</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">rcut</span><span class="p">,</span> <span class="n">nmax</span><span class="p">)</span>
+    <span class="n">threshold</span> <span class="o">=</span> <span class="mf">1e-3</span>  <span class="c1"># This is the fixed gaussian decay threshold</span>
+
+    <span class="n">alphas_full</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">10</span><span class="p">,</span> <span class="n">nmax</span><span class="p">))</span>
+    <span class="n">betas_full</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">10</span><span class="p">,</span> <span class="n">nmax</span><span class="p">,</span> <span class="n">nmax</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>
+        <span class="c1"># The alphas are calculated so that the GTOs will decay to the set</span>
+        <span class="c1"># threshold value at their respective cutoffs</span>
+        <span class="n">alphas</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">threshold</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">l</span><span class="p">))</span> <span class="o">/</span> <span class="n">a</span> <span class="o">**</span> <span class="mi">2</span>
+
+        <span class="c1"># Calculate the overlap matrix</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">alphas</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">alphas</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="n">m</span><span class="p">[:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">alphas</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">m</span> <span class="o">+</span> <span class="n">m</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+        <span class="n">S</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">gamma</span><span class="p">(</span><span class="n">l</span> <span class="o">+</span> <span class="mf">3.0</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">m</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="n">l</span> <span class="o">-</span> <span class="mf">3.0</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span>
+
+        <span class="c1"># Get the beta factors that orthonormalize the set with Löwdin</span>
+        <span class="c1"># orthonormalization</span>
+        <span class="n">betas</span> <span class="o">=</span> <span class="n">sqrtm</span><span class="p">(</span><span class="n">inv</span><span class="p">(</span><span class="n">S</span><span class="p">))</span>
+
+        <span class="c1"># If the result is complex, the calculation is currently halted.</span>
+        <span class="k">if</span> <span class="n">betas</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Could not calculate normalization factors for the radial &quot;</span>
+                <span class="s2">&quot;basis in the domain of real numbers. Lowering the number of &quot;</span>
+                <span class="s2">&quot;radial basis functions (nmax) or increasing the radial &quot;</span>
+                <span class="s2">&quot;cutoff (rcut) is advised.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">alphas_full</span><span class="p">[</span><span class="n">l</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">alphas</span>
+        <span class="n">betas_full</span><span class="p">[</span><span class="n">l</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">betas</span>
+
+    <span class="k">return</span> <span class="n">alphas_full</span><span class="p">,</span> <span class="n">betas_full</span></div>
+
+
+<span class="nb">print</span><span class="p">(</span><span class="n">get_basis_gto</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Versions</span>
+      v: 1.0.x
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl id="version-table">
+        <dt>Versions</dt>
+      </dl>
+    </div>
+  </div>
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

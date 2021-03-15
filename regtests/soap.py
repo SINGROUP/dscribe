@@ -172,6 +172,44 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         vec = desc.create(H2O)
         self.assertEqual(n_features, vec.shape[1])
 
+    def test_dtype(self):
+        """Tests that the the specified data type is respected."""
+        # Dense, float32
+        soap = SOAP(species=[1, 8], rcut=3, nmax=1, lmax=1, dtype="float32")
+        desc1 = soap.create(H2O)
+        der, desc2 = soap.derivatives(H2O)
+        self.assertTrue(desc1.dtype == np.float32)
+        self.assertTrue(desc2.dtype == np.float32)
+        self.assertTrue(der.dtype == np.float32)
+
+        # Sparse, float32
+        soap = SOAP(
+            species=[1, 8], rcut=3, nmax=1, lmax=1, sparse=True, dtype="float32"
+        )
+        desc1 = soap.create(H2O)
+        der, desc2 = soap.derivatives(H2O)
+        self.assertTrue(desc1.dtype == np.float32)
+        self.assertTrue(desc2.dtype == np.float32)
+        self.assertTrue(der.dtype == np.float32)
+
+        # Dense, float64
+        soap = SOAP(species=[1, 8], rcut=3, nmax=1, lmax=1, dtype="float64")
+        desc1 = soap.create(H2O)
+        der, desc2 = soap.derivatives(H2O)
+        self.assertTrue(desc1.dtype == np.float64)
+        self.assertTrue(desc2.dtype == np.float64)
+        self.assertTrue(der.dtype == np.float64)
+
+        # Sparse, float64
+        soap = SOAP(
+            species=[1, 8], rcut=3, nmax=1, lmax=1, sparse=True, dtype="float64"
+        )
+        desc1 = soap.create(H2O)
+        der, desc2 = soap.derivatives(H2O)
+        self.assertTrue(desc1.dtype == np.float64)
+        self.assertTrue(desc2.dtype == np.float64)
+        self.assertTrue(der.dtype == np.float64)
+
     def test_crossover(self):
         """Tests that disabling/enabling crossover works as expected."""
         pos = [[0.1, 0.1, 0.1]]

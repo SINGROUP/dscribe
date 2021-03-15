@@ -1,0 +1,557 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dscribe package &mdash; DScribe 1.0.x documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/js/versions.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="dscribe.core package" href="dscribe.core.html" />
+    <link rel="prev" title="dscribe" href="modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/tutorials.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">dscribe package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dscribe.core.html">dscribe.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dscribe.descriptors.html">dscribe.descriptors package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dscribe.kernels.html">dscribe.kernels package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dscribe.utils.html">dscribe.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-dscribe.ext">dscribe.ext module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-dscribe">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing DScribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DScribe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="modules.html">dscribe</a> &raquo;</li>
+        
+      <li>dscribe package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/doc/dscribe.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="dscribe-package">
+<h1>dscribe package<a class="headerlink" href="#dscribe-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="dscribe.core.html">dscribe.core package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dscribe.core.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dscribe.core.html#module-dscribe.core.lattice">dscribe.core.lattice module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dscribe.core.html#module-dscribe.core.system">dscribe.core.system module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dscribe.core.html#module-dscribe.core">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dscribe.descriptors.html">dscribe.descriptors package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dscribe.descriptors.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dscribe.descriptors.html#module-dscribe.descriptors.acsf">dscribe.descriptors.acsf module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dscribe.descriptors.html#module-dscribe.descriptors.coulombmatrix">dscribe.descriptors.coulombmatrix module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dscribe.descriptors.html#module-dscribe.descriptors.descriptor">dscribe.descriptors.descriptor module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dscribe.descriptors.html#module-dscribe.descriptors.elementaldistribution">dscribe.descriptors.elementaldistribution module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dscribe.descriptors.html#module-dscribe.descriptors.ewaldsummatrix">dscribe.descriptors.ewaldsummatrix module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dscribe.descriptors.html#module-dscribe.descriptors.lmbtr">dscribe.descriptors.lmbtr module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dscribe.descriptors.html#module-dscribe.descriptors.matrixdescriptor">dscribe.descriptors.matrixdescriptor module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dscribe.descriptors.html#module-dscribe.descriptors.mbtr">dscribe.descriptors.mbtr module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dscribe.descriptors.html#module-dscribe.descriptors.sinematrix">dscribe.descriptors.sinematrix module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dscribe.descriptors.html#module-dscribe.descriptors.soap">dscribe.descriptors.soap module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dscribe.descriptors.html#module-dscribe.descriptors.test">dscribe.descriptors.test module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dscribe.descriptors.html#module-dscribe.descriptors">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dscribe.kernels.html">dscribe.kernels package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dscribe.kernels.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dscribe.kernels.html#module-dscribe.kernels.averagekernel">dscribe.kernels.averagekernel module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dscribe.kernels.html#module-dscribe.kernels.localsimilaritykernel">dscribe.kernels.localsimilaritykernel module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dscribe.kernels.html#module-dscribe.kernels.rematchkernel">dscribe.kernels.rematchkernel module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dscribe.kernels.html#module-dscribe.kernels">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dscribe.utils.html">dscribe.utils package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dscribe.utils.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dscribe.utils.html#module-dscribe.utils.geometry">dscribe.utils.geometry module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dscribe.utils.html#module-dscribe.utils.species">dscribe.utils.species module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dscribe.utils.html#module-dscribe.utils.stats">dscribe.utils.stats module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dscribe.utils.html#module-dscribe.utils">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-dscribe.ext">
+<span id="dscribe-ext-module"></span><h2>dscribe.ext module<a class="headerlink" href="#module-dscribe.ext" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="dscribe.ext.ACSFWrapper">
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.ext.</code><code class="sig-name descname">ACSFWrapper</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#dscribe.ext.ACSFWrapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pybind11_builtins.pybind11_object</span></code></p>
+<p>Overloaded function.</p>
+<ol class="arabic simple">
+<li><p>__init__(self: dscribe.ext.ACSFWrapper, arg0: float, arg1: List[List[float]], arg2: List[float], arg3: List[List[float]], arg4: List[List[float]], arg5: List[int]) -&gt; None</p></li>
+<li><p>__init__(self: dscribe.ext.ACSFWrapper) -&gt; None</p></li>
+</ol>
+<dl class="py method">
+<dt id="dscribe.ext.ACSFWrapper.atomic_numbers">
+<em class="property">property </em><code class="sig-name descname">atomic_numbers</code><a class="headerlink" href="#dscribe.ext.ACSFWrapper.atomic_numbers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.ext.ACSFWrapper.create">
+<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#dscribe.ext.ACSFWrapper" title="dscribe.ext.ACSFWrapper">dscribe.ext.ACSFWrapper</a></span></em>, <em class="sig-param"><span class="n">arg0</span><span class="p">:</span> <span class="n">List<span class="p">[</span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a><span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg1</span><span class="p">:</span> <span class="n">List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg2</span><span class="p">:</span> <span class="n">List<span class="p">[</span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a><span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg3</span><span class="p">:</span> <span class="n">List<span class="p">[</span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a><span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg4</span><span class="p">:</span> <span class="n">List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a><span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a><span class="p">]</span><span class="p">]</span><a class="headerlink" href="#dscribe.ext.ACSFWrapper.create" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.ext.ACSFWrapper.g3_params">
+<em class="property">property </em><code class="sig-name descname">g3_params</code><a class="headerlink" href="#dscribe.ext.ACSFWrapper.g3_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.ext.ACSFWrapper.g4_params">
+<em class="property">property </em><code class="sig-name descname">g4_params</code><a class="headerlink" href="#dscribe.ext.ACSFWrapper.g4_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.ext.ACSFWrapper.g5_params">
+<em class="property">property </em><code class="sig-name descname">g5_params</code><a class="headerlink" href="#dscribe.ext.ACSFWrapper.g5_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.ext.ACSFWrapper.get_g2_params">
+<code class="sig-name descname">get_g2_params</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#dscribe.ext.ACSFWrapper" title="dscribe.ext.ACSFWrapper">dscribe.ext.ACSFWrapper</a></span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a><span class="p">]</span><span class="p">]</span><a class="headerlink" href="#dscribe.ext.ACSFWrapper.get_g2_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.ext.ACSFWrapper.n_g2">
+<em class="property">property </em><code class="sig-name descname">n_g2</code><a class="headerlink" href="#dscribe.ext.ACSFWrapper.n_g2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.ext.ACSFWrapper.n_g3">
+<em class="property">property </em><code class="sig-name descname">n_g3</code><a class="headerlink" href="#dscribe.ext.ACSFWrapper.n_g3" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.ext.ACSFWrapper.n_g4">
+<em class="property">property </em><code class="sig-name descname">n_g4</code><a class="headerlink" href="#dscribe.ext.ACSFWrapper.n_g4" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.ext.ACSFWrapper.n_g5">
+<em class="property">property </em><code class="sig-name descname">n_g5</code><a class="headerlink" href="#dscribe.ext.ACSFWrapper.n_g5" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.ext.ACSFWrapper.n_type_pairs">
+<em class="property">property </em><code class="sig-name descname">n_type_pairs</code><a class="headerlink" href="#dscribe.ext.ACSFWrapper.n_type_pairs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.ext.ACSFWrapper.n_types">
+<em class="property">property </em><code class="sig-name descname">n_types</code><a class="headerlink" href="#dscribe.ext.ACSFWrapper.n_types" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.ext.ACSFWrapper.rcut">
+<em class="property">property </em><code class="sig-name descname">rcut</code><a class="headerlink" href="#dscribe.ext.ACSFWrapper.rcut" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.ext.ACSFWrapper.set_g2_params">
+<code class="sig-name descname">set_g2_params</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#dscribe.ext.ACSFWrapper" title="dscribe.ext.ACSFWrapper">dscribe.ext.ACSFWrapper</a></span></em>, <em class="sig-param"><span class="n">arg0</span><span class="p">:</span> <span class="n">List<span class="p">[</span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a><span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a><a class="headerlink" href="#dscribe.ext.ACSFWrapper.set_g2_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="dscribe.ext.CellList">
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.ext.</code><code class="sig-name descname">CellList</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#dscribe.ext.CellList" title="dscribe.ext.CellList">dscribe.ext.CellList</a></span></em>, <em class="sig-param"><span class="n">arg0</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg1</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a><a class="headerlink" href="#dscribe.ext.CellList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pybind11_builtins.pybind11_object</span></code></p>
+<dl class="py method">
+<dt id="dscribe.ext.CellList.get_neighbours_for_index">
+<code class="sig-name descname">get_neighbours_for_index</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#dscribe.ext.CellList" title="dscribe.ext.CellList">dscribe.ext.CellList</a></span></em>, <em class="sig-param"><span class="n">arg0</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></span></em><span class="sig-paren">)</span> &#x2192; CellListResult<a class="headerlink" href="#dscribe.ext.CellList.get_neighbours_for_index" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.ext.CellList.get_neighbours_for_position">
+<code class="sig-name descname">get_neighbours_for_position</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#dscribe.ext.CellList" title="dscribe.ext.CellList">dscribe.ext.CellList</a></span></em>, <em class="sig-param"><span class="n">arg0</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></span></em>, <em class="sig-param"><span class="n">arg1</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></span></em>, <em class="sig-param"><span class="n">arg2</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></span></em><span class="sig-paren">)</span> &#x2192; CellListResult<a class="headerlink" href="#dscribe.ext.CellList.get_neighbours_for_position" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="dscribe.ext.CellListResult">
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.ext.</code><code class="sig-name descname">CellListResult</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#dscribe.ext.CellListResult" title="dscribe.ext.CellListResult">dscribe.ext.CellListResult</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a><a class="headerlink" href="#dscribe.ext.CellListResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pybind11_builtins.pybind11_object</span></code></p>
+<dl class="py method">
+<dt id="dscribe.ext.CellListResult.distances">
+<em class="property">property </em><code class="sig-name descname">distances</code><a class="headerlink" href="#dscribe.ext.CellListResult.distances" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.ext.CellListResult.distances_squared">
+<em class="property">property </em><code class="sig-name descname">distances_squared</code><a class="headerlink" href="#dscribe.ext.CellListResult.distances_squared" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.ext.CellListResult.indices">
+<em class="property">property </em><code class="sig-name descname">indices</code><a class="headerlink" href="#dscribe.ext.CellListResult.indices" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="dscribe.ext.ExtendedSystem">
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.ext.</code><code class="sig-name descname">ExtendedSystem</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#dscribe.ext.ExtendedSystem" title="dscribe.ext.ExtendedSystem">dscribe.ext.ExtendedSystem</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a><a class="headerlink" href="#dscribe.ext.ExtendedSystem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pybind11_builtins.pybind11_object</span></code></p>
+<dl class="py method">
+<dt id="dscribe.ext.ExtendedSystem.atomic_numbers">
+<em class="property">property </em><code class="sig-name descname">atomic_numbers</code><a class="headerlink" href="#dscribe.ext.ExtendedSystem.atomic_numbers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.ext.ExtendedSystem.indices">
+<em class="property">property </em><code class="sig-name descname">indices</code><a class="headerlink" href="#dscribe.ext.ExtendedSystem.indices" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.ext.ExtendedSystem.positions">
+<em class="property">property </em><code class="sig-name descname">positions</code><a class="headerlink" href="#dscribe.ext.ExtendedSystem.positions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="dscribe.ext.MBTRWrapper">
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.ext.</code><code class="sig-name descname">MBTRWrapper</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#dscribe.ext.MBTRWrapper" title="dscribe.ext.MBTRWrapper">dscribe.ext.MBTRWrapper</a></span></em>, <em class="sig-param"><span class="n">arg0</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg1</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></span></em>, <em class="sig-param"><span class="n">arg2</span><span class="p">:</span> <span class="n">List<span class="p">[</span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a><span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a><a class="headerlink" href="#dscribe.ext.MBTRWrapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pybind11_builtins.pybind11_object</span></code></p>
+<dl class="py method">
+<dt id="dscribe.ext.MBTRWrapper.get_k1">
+<code class="sig-name descname">get_k1</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#dscribe.ext.MBTRWrapper" title="dscribe.ext.MBTRWrapper">dscribe.ext.MBTRWrapper</a></span></em>, <em class="sig-param"><span class="n">arg0</span><span class="p">:</span> <span class="n">List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg1</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span></em>, <em class="sig-param"><span class="n">arg2</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span></em>, <em class="sig-param"><span class="n">arg3</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg4</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></span></em>, <em class="sig-param"><span class="n">arg5</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></span></em>, <em class="sig-param"><span class="n">arg6</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></span></em>, <em class="sig-param"><span class="n">arg7</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></span></em><span class="sig-paren">)</span> &#x2192; Dict<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a><span class="p">]</span><span class="p">]</span><a class="headerlink" href="#dscribe.ext.MBTRWrapper.get_k1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.ext.MBTRWrapper.get_k2">
+<code class="sig-name descname">get_k2</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#dscribe.ext.MBTRWrapper" title="dscribe.ext.MBTRWrapper">dscribe.ext.MBTRWrapper</a></span></em>, <em class="sig-param"><span class="n">arg0</span><span class="p">:</span> <span class="n">List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg1</span><span class="p">:</span> <span class="n">List<span class="p">[</span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a><span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg2</span><span class="p">:</span> <span class="n">List<span class="p">[</span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a><span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg3</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span></em>, <em class="sig-param"><span class="n">arg4</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span></em>, <em class="sig-param"><span class="n">arg5</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg6</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></span></em>, <em class="sig-param"><span class="n">arg7</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></span></em>, <em class="sig-param"><span class="n">arg8</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></span></em>, <em class="sig-param"><span class="n">arg9</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></span></em><span class="sig-paren">)</span> &#x2192; Dict<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a><span class="p">]</span><span class="p">]</span><a class="headerlink" href="#dscribe.ext.MBTRWrapper.get_k2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.ext.MBTRWrapper.get_k2_local">
+<code class="sig-name descname">get_k2_local</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#dscribe.ext.MBTRWrapper" title="dscribe.ext.MBTRWrapper">dscribe.ext.MBTRWrapper</a></span></em>, <em class="sig-param"><span class="n">arg0</span><span class="p">:</span> <span class="n">List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg1</span><span class="p">:</span> <span class="n">List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg2</span><span class="p">:</span> <span class="n">List<span class="p">[</span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a><span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg3</span><span class="p">:</span> <span class="n">List<span class="p">[</span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a><span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg4</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span></em>, <em class="sig-param"><span class="n">arg5</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span></em>, <em class="sig-param"><span class="n">arg6</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg7</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></span></em>, <em class="sig-param"><span class="n">arg8</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></span></em>, <em class="sig-param"><span class="n">arg9</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></span></em>, <em class="sig-param"><span class="n">arg10</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>Dict<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a><span class="p">]</span><span class="p">]</span><span class="p">]</span><a class="headerlink" href="#dscribe.ext.MBTRWrapper.get_k2_local" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.ext.MBTRWrapper.get_k3">
+<code class="sig-name descname">get_k3</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#dscribe.ext.MBTRWrapper" title="dscribe.ext.MBTRWrapper">dscribe.ext.MBTRWrapper</a></span></em>, <em class="sig-param"><span class="n">arg0</span><span class="p">:</span> <span class="n">List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg1</span><span class="p">:</span> <span class="n">List<span class="p">[</span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a><span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg2</span><span class="p">:</span> <span class="n">List<span class="p">[</span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a><span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg3</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span></em>, <em class="sig-param"><span class="n">arg4</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span></em>, <em class="sig-param"><span class="n">arg5</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg6</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></span></em>, <em class="sig-param"><span class="n">arg7</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></span></em>, <em class="sig-param"><span class="n">arg8</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></span></em>, <em class="sig-param"><span class="n">arg9</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></span></em><span class="sig-paren">)</span> &#x2192; Dict<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a><span class="p">]</span><span class="p">]</span><a class="headerlink" href="#dscribe.ext.MBTRWrapper.get_k3" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.ext.MBTRWrapper.get_k3_local">
+<code class="sig-name descname">get_k3_local</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#dscribe.ext.MBTRWrapper" title="dscribe.ext.MBTRWrapper">dscribe.ext.MBTRWrapper</a></span></em>, <em class="sig-param"><span class="n">arg0</span><span class="p">:</span> <span class="n">List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg1</span><span class="p">:</span> <span class="n">List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg2</span><span class="p">:</span> <span class="n">List<span class="p">[</span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a><span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg3</span><span class="p">:</span> <span class="n">List<span class="p">[</span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a><span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg4</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span></em>, <em class="sig-param"><span class="n">arg5</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span></em>, <em class="sig-param"><span class="n">arg6</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg7</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></span></em>, <em class="sig-param"><span class="n">arg8</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></span></em>, <em class="sig-param"><span class="n">arg9</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></span></em>, <em class="sig-param"><span class="n">arg10</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>Dict<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a><span class="p">, </span>List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a><span class="p">]</span><span class="p">]</span><span class="p">]</span><a class="headerlink" href="#dscribe.ext.MBTRWrapper.get_k3_local" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="dscribe.ext.SOAPGTO">
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.ext.</code><code class="sig-name descname">SOAPGTO</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#dscribe.ext.SOAPGTO" title="dscribe.ext.SOAPGTO">dscribe.ext.SOAPGTO</a></span></em>, <em class="sig-param"><span class="n">arg0</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></span></em>, <em class="sig-param"><span class="n">arg1</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></span></em>, <em class="sig-param"><span class="n">arg2</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></span></em>, <em class="sig-param"><span class="n">arg3</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></span></em>, <em class="sig-param"><span class="n">arg4</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>int32<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg5</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></span></em>, <em class="sig-param"><span class="n">arg6</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></span></em>, <em class="sig-param"><span class="n">arg7</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span></em>, <em class="sig-param"><span class="n">arg8</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></span></em>, <em class="sig-param"><span class="n">arg9</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg10</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a><a class="headerlink" href="#dscribe.ext.SOAPGTO" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pybind11_builtins.pybind11_object</span></code></p>
+<dl class="py method">
+<dt id="dscribe.ext.SOAPGTO.create">
+<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#dscribe.ext.SOAPGTO.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overloaded function.</p>
+<ol class="arabic simple">
+<li><p>create(self: dscribe.ext.SOAPGTO, arg0: numpy.ndarray[float64], arg1: numpy.ndarray[float64], arg2: numpy.ndarray[int32], arg3: numpy.ndarray[float64]) -&gt; None</p></li>
+<li><p>create(self: dscribe.ext.SOAPGTO, arg0: numpy.ndarray[float64], arg1: numpy.ndarray[float64], arg2: numpy.ndarray[int32], arg3: numpy.ndarray[float64], arg4: numpy.ndarray[bool], arg5: numpy.ndarray[float64]) -&gt; None</p></li>
+<li><p>create(self: dscribe.ext.SOAPGTO, arg0: numpy.ndarray[float64], arg1: numpy.ndarray[float64], arg2: numpy.ndarray[int32], arg3: numpy.ndarray[float64], arg4: CellList) -&gt; None</p></li>
+</ol>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.ext.SOAPGTO.create_cartesian">
+<code class="sig-name descname">create_cartesian</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#dscribe.ext.SOAPGTO" title="dscribe.ext.SOAPGTO">dscribe.ext.SOAPGTO</a></span></em>, <em class="sig-param"><span class="n">arg0</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg1</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg2</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg3</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg4</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg5</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg6</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg7</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>int32<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg8</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg9</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg10</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg11</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>int32<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg12</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>int32<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg13</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a><a class="headerlink" href="#dscribe.ext.SOAPGTO.create_cartesian" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.ext.SOAPGTO.derivatives_analytical">
+<code class="sig-name descname">derivatives_analytical</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#dscribe.ext.SOAPGTO" title="dscribe.ext.SOAPGTO">dscribe.ext.SOAPGTO</a></span></em>, <em class="sig-param"><span class="n">arg0</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg1</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg2</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg3</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg4</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg5</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg6</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg7</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>int32<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg8</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg9</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg10</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg11</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>int32<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg12</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>int32<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg13</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a><a class="headerlink" href="#dscribe.ext.SOAPGTO.derivatives_analytical" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.ext.SOAPGTO.derivatives_numerical">
+<code class="sig-name descname">derivatives_numerical</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#dscribe.ext.SOAPGTO" title="dscribe.ext.SOAPGTO">dscribe.ext.SOAPGTO</a></span></em>, <em class="sig-param"><span class="n">arg0</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg1</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg2</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg3</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>int32<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg4</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg5</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg6</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg7</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>int32<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg8</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>int32<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg9</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a><a class="headerlink" href="#dscribe.ext.SOAPGTO.derivatives_numerical" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="dscribe.ext.SOAPPolynomial">
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.ext.</code><code class="sig-name descname">SOAPPolynomial</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#dscribe.ext.SOAPPolynomial" title="dscribe.ext.SOAPPolynomial">dscribe.ext.SOAPPolynomial</a></span></em>, <em class="sig-param"><span class="n">arg0</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></span></em>, <em class="sig-param"><span class="n">arg1</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></span></em>, <em class="sig-param"><span class="n">arg2</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></span></em>, <em class="sig-param"><span class="n">arg3</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></span></em>, <em class="sig-param"><span class="n">arg4</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>int32<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg5</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></span></em>, <em class="sig-param"><span class="n">arg6</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></span></em>, <em class="sig-param"><span class="n">arg7</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span></em>, <em class="sig-param"><span class="n">arg8</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></span></em>, <em class="sig-param"><span class="n">arg9</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg10</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a><a class="headerlink" href="#dscribe.ext.SOAPPolynomial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pybind11_builtins.pybind11_object</span></code></p>
+<dl class="py method">
+<dt id="dscribe.ext.SOAPPolynomial.create">
+<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#dscribe.ext.SOAPPolynomial.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overloaded function.</p>
+<ol class="arabic simple">
+<li><p>create(self: dscribe.ext.SOAPPolynomial, arg0: numpy.ndarray[float64], arg1: numpy.ndarray[float64], arg2: numpy.ndarray[int32], arg3: numpy.ndarray[float64]) -&gt; None</p></li>
+<li><p>create(self: dscribe.ext.SOAPPolynomial, arg0: numpy.ndarray[float64], arg1: numpy.ndarray[float64], arg2: numpy.ndarray[int32], arg3: numpy.ndarray[float64], arg4: numpy.ndarray[bool], arg5: numpy.ndarray[float64]) -&gt; None</p></li>
+<li><p>create(self: dscribe.ext.SOAPPolynomial, arg0: numpy.ndarray[float64], arg1: numpy.ndarray[float64], arg2: numpy.ndarray[int32], arg3: numpy.ndarray[float64], arg4: CellList) -&gt; None</p></li>
+</ol>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.ext.SOAPPolynomial.derivatives_numerical">
+<code class="sig-name descname">derivatives_numerical</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#dscribe.ext.SOAPPolynomial" title="dscribe.ext.SOAPPolynomial">dscribe.ext.SOAPPolynomial</a></span></em>, <em class="sig-param"><span class="n">arg0</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg1</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg2</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg3</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>int32<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg4</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg5</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg6</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg7</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>int32<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg8</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>int32<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg9</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a><a class="headerlink" href="#dscribe.ext.SOAPPolynomial.derivatives_numerical" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="dscribe.ext.extend_system">
+<code class="sig-prename descclassname">dscribe.ext.</code><code class="sig-name descname">extend_system</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">arg0</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg1</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>int32<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg2</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span>float64<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg3</span><span class="p">:</span> <span class="n">numpy.ndarray<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">arg4</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></span></em><span class="sig-paren">)</span> &#x2192; ExtendedSystem<a class="headerlink" href="#dscribe.ext.extend_system" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a periodically extended system.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-dscribe">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-dscribe" title="Permalink to this headline">¶</a></h2>
+<p>Copyright 2019 DScribe developers</p>
+<p>Licensed under the Apache License, Version 2.0 (the “License”);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<blockquote>
+<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+</div></blockquote>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="dscribe.core.html" class="btn btn-neutral float-right" title="dscribe.core package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="modules.html" class="btn btn-neutral float-left" title="dscribe" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Versions</span>
+      v: 1.0.x
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl id="version-table">
+        <dt>Versions</dt>
+      </dl>
+    </div>
+  </div>
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

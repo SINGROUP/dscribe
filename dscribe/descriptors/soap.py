@@ -113,7 +113,13 @@ class SOAP(Descriptor):
                     * "float64": Double precision floating point numbers.
 
         """
-        super().__init__(periodic=periodic, flatten=True, sparse=sparse)
+        supported_dtype = set(("float32", "float64"))
+        if dtype not in supported_dtype:
+            raise ValueError(
+                "Invalid output data type '{}' given. Please use "
+                "one of the following: {}".format(dtype, supported_dtype)
+            )
+        super().__init__(periodic=periodic, flatten=True, sparse=sparse, dtype=dtype)
 
         # Setup the involved chemical species
         self.species = species
@@ -144,12 +150,6 @@ class SOAP(Descriptor):
                 "Invalid average mode '{}' given. Please use "
                 "one of the following: {}".format(average, supported_average)
             )
-        supported_dtype = set(("float32", "float64"))
-        if dtype not in supported_dtype:
-            raise ValueError(
-                "Invalid output data type '{}' given. Please use "
-                "one of the following: {}".format(dtype, supported_dtype)
-            )
 
         # Test that radial basis set specific settings are valid
         if rbf == "gto":
@@ -177,7 +177,6 @@ class SOAP(Descriptor):
         self._nmax = nmax
         self._lmax = lmax
         self._rbf = rbf
-        self.dtype = dtype
         self.average = average
         self.crossover = crossover
 
@@ -635,15 +634,12 @@ class SOAP(Descriptor):
             else:
                 method = "analytical"
 
-        if isinstance(system, (Atoms, System)):
-            system = [system]
-
         # If single system given, skip the parallelization
-        if len(system) == 1:
-            n_atoms = len(system[0])
+        if isinstance(system, (Atoms, System)):
+            n_atoms = len(system)
             indices = self._get_indices(n_atoms, include, exclude)
             return self.derivatives_single(
-                system[0],
+                system,
                 positions,
                 indices,
                 method=method,

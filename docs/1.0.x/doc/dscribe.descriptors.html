@@ -1,0 +1,2576 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dscribe.descriptors package &mdash; DScribe 1.0.x documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/js/versions.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="dscribe.kernels package" href="dscribe.kernels.html" />
+    <link rel="prev" title="dscribe.core package" href="dscribe.core.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/tutorials.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="dscribe.html">dscribe package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="dscribe.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="dscribe.core.html">dscribe.core package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">dscribe.descriptors package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dscribe.kernels.html">dscribe.kernels package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dscribe.utils.html">dscribe.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dscribe.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dscribe.html#module-dscribe.ext">dscribe.ext module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dscribe.html#module-dscribe">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing DScribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DScribe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="modules.html">dscribe</a> &raquo;</li>
+        
+          <li><a href="dscribe.html">dscribe package</a> &raquo;</li>
+        
+      <li>dscribe.descriptors package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/doc/dscribe.descriptors.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="dscribe-descriptors-package">
+<h1>dscribe.descriptors package<a class="headerlink" href="#dscribe-descriptors-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-dscribe.descriptors.acsf">
+<span id="dscribe-descriptors-acsf-module"></span><h2>dscribe.descriptors.acsf module<a class="headerlink" href="#module-dscribe.descriptors.acsf" title="Permalink to this headline">¶</a></h2>
+<p>Copyright 2019 DScribe developers</p>
+<p>Licensed under the Apache License, Version 2.0 (the “License”);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<blockquote>
+<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+</div></blockquote>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</p>
+<dl class="py class">
+<dt id="dscribe.descriptors.acsf.ACSF">
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.descriptors.acsf.</code><code class="sig-name descname">ACSF</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rcut</span></em>, <em class="sig-param"><span class="n">g2_params</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">g3_params</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">g4_params</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">g5_params</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">species</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">periodic</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">sparse</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/acsf.html#ACSF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dscribe.descriptors.descriptor.Descriptor" title="dscribe.descriptors.descriptor.Descriptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.descriptors.descriptor.Descriptor</span></code></a></p>
+<p>Implementation of Atom-Centered Symmetry Functions.</p>
+<p>Notice that the species of the central atom is not encoded in the output,
+only the surrounding environment is encoded. In a typical application one
+can train a different model for each central species.</p>
+<dl class="simple">
+<dt>For reference, see:</dt><dd><p>“Atom-centered symmetry functions for constructing high-dimensional
+neural network potentials”, Jörg Behler, The Journal of Chemical
+Physics, 134, 074106 (2011), <a class="reference external" href="https://doi.org/10.1063/1.3553717">https://doi.org/10.1063/1.3553717</a></p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – The smooth cutoff value in angstroms. This cutoff
+value is used throughout the calculations for all symmetry
+functions.</p></li>
+<li><p><strong>g2_params</strong> (<em>n*2 np.ndarray</em>) – A list of pairs of <span class="math notranslate nohighlight">\(\eta\)</span> and
+<span class="math notranslate nohighlight">\(R_s\)</span> parameters for <span class="math notranslate nohighlight">\(G^2\)</span> functions.</p></li>
+<li><p><strong>g3_params</strong> (<em>n*1 np.ndarray</em>) – A list of <span class="math notranslate nohighlight">\(\kappa\)</span> parameters for
+<span class="math notranslate nohighlight">\(G^3\)</span> functions.</p></li>
+<li><p><strong>g4_params</strong> (<em>n*3 np.ndarray</em>) – A list of triplets of <span class="math notranslate nohighlight">\(\eta\)</span>,
+<span class="math notranslate nohighlight">\(\zeta\)</span> and  <span class="math notranslate nohighlight">\(\lambda\)</span> parameters for <span class="math notranslate nohighlight">\(G^4\)</span> functions.</p></li>
+<li><p><strong>g5_params</strong> (<em>n*3 np.ndarray</em>) – A list of triplets of <span class="math notranslate nohighlight">\(\eta\)</span>,
+<span class="math notranslate nohighlight">\(\zeta\)</span> and  <span class="math notranslate nohighlight">\(\lambda\)</span> parameters for <span class="math notranslate nohighlight">\(G^5\)</span> functions.</p></li>
+<li><p><strong>species</strong> (<em>iterable</em>) – The chemical species as a list of atomic
+numbers or as a list of chemical symbols. Notice that this is not
+the atomic numbers that are present for an individual system, but
+should contain all the elements that are ever going to be
+encountered when creating the descriptors for a set of systems.
+Keeping the number of chemical species as low as possible is
+preferable.</p></li>
+<li><p><strong>periodic</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Set to true if you want the descriptor output to
+respect the periodicity of the atomic systems (see the
+pbc-parameter in the constructor of ase.Atoms).</p></li>
+<li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
+dense numpy array.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="dscribe.descriptors.acsf.ACSF.create">
+<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">positions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">only_physical_cores</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/acsf.html#ACSF.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the ACSF output for the given systems and given positions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> or list of <code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code>) – One or
+many atomic structures.</p></li>
+<li><p><strong>positions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – Positions where to calculate ACSF. Can be
+provided as cartesian positions or atomic indices. If no
+positions are defined, the SOAP output will be created for all
+atoms in the system. When calculating SOAP for multiple
+systems, provide the positions as a list for each system.</p></li>
+<li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
+the calculation across samples. Defaults to serial calculation
+with n_jobs=1. If a negative number is given, the used cpus
+will be calculated with, n_cpus + n_jobs, where n_cpus is the
+amount of CPUs as reported by the OS. With only_physical_cores
+you can control which types of CPUs are counted in n_cpus.</p></li>
+<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If a negative n_jobs is given,
+determines which types of CPUs are used in calculating the
+number of jobs. If set to False (default), also virtual CPUs
+are counted.  If set to True, only physical CPUs are counted.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Controls whether to print the progress of each job
+into to the console.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The ACSF output for the given
+systems and positions. The return type depends on the
+‘sparse’-attribute. The first dimension is determined by the amount
+of positions and systems and the second dimension is determined by
+the get_number_of_features()-function. When multiple systems are
+provided the results are ordered by the input order of systems and
+their positions.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray | sparse.COO</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.acsf.ACSF.create_single">
+<code class="sig-name descname">create_single</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">positions</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/acsf.html#ACSF.create_single"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.create_single" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the descriptor for the given system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> | <a class="reference internal" href="dscribe.core.html#dscribe.core.system.System" title="dscribe.core.system.System"><code class="xref py py-class docutils literal notranslate"><span class="pre">System</span></code></a>) – Input system.</p></li>
+<li><p><strong>positions</strong> (<em>iterable</em>) – Indices of the atoms around which the ACSF
+will be returned. If no positions defined, ACSF will be created
+for all atoms in the system.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The ACSF output for the
+given system and positions. The return type depends on the
+‘sparse’-attribute. The first dimension is given by the number of
+positions and the second dimension is determined by the
+get_number_of_features()-function.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray | sparse.COO</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.acsf.ACSF.g2_params">
+<em class="property">property </em><code class="sig-name descname">g2_params</code><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.g2_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.acsf.ACSF.g3_params">
+<em class="property">property </em><code class="sig-name descname">g3_params</code><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.g3_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.acsf.ACSF.g4_params">
+<em class="property">property </em><code class="sig-name descname">g4_params</code><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.g4_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.acsf.ACSF.g5_params">
+<em class="property">property </em><code class="sig-name descname">g5_params</code><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.g5_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.acsf.ACSF.get_number_of_features">
+<code class="sig-name descname">get_number_of_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/acsf.html#ACSF.get_number_of_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.get_number_of_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to inquire the final number of features that this descriptor
+will have.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Number of features for this descriptor.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.acsf.ACSF.rcut">
+<em class="property">property </em><code class="sig-name descname">rcut</code><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.rcut" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.acsf.ACSF.species">
+<em class="property">property </em><code class="sig-name descname">species</code><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.species" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-dscribe.descriptors.coulombmatrix">
+<span id="dscribe-descriptors-coulombmatrix-module"></span><h2>dscribe.descriptors.coulombmatrix module<a class="headerlink" href="#module-dscribe.descriptors.coulombmatrix" title="Permalink to this headline">¶</a></h2>
+<p>Copyright 2019 DScribe developers</p>
+<p>Licensed under the Apache License, Version 2.0 (the “License”);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<blockquote>
+<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+</div></blockquote>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</p>
+<dl class="py class">
+<dt id="dscribe.descriptors.coulombmatrix.CoulombMatrix">
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.descriptors.coulombmatrix.</code><code class="sig-name descname">CoulombMatrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_atoms_max</span></em>, <em class="sig-param"><span class="n">permutation</span><span class="o">=</span><span class="default_value">'sorted_l2'</span></em>, <em class="sig-param"><span class="n">sigma</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">flatten</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">sparse</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/coulombmatrix.html#CoulombMatrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.coulombmatrix.CoulombMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dscribe.descriptors.matrixdescriptor.MatrixDescriptor" title="dscribe.descriptors.matrixdescriptor.MatrixDescriptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.descriptors.matrixdescriptor.MatrixDescriptor</span></code></a></p>
+<p>Calculates the zero padded Coulomb matrix.</p>
+<p>The Coulomb matrix is defined as:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>C_ij = 0.5 Zi**exponent, when i = j</dt><dd><p>= (Zi*Zj)/(Ri-Rj), when i != j</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>The matrix is padded with invisible atoms, which means that the matrix is
+padded with zeros until the maximum allowed size defined by n_max_atoms is
+reached.</p>
+<p>To reach invariance against permutation of atoms, specify a valid option
+for the permutation parameter.</p>
+<dl class="simple">
+<dt>For reference, see:</dt><dd><p>“Fast and Accurate Modeling of Molecular Atomization Energies with
+Machine Learning”, Matthias Rupp, Alexandre Tkatchenko, Klaus-Robert
+Mueller, and O.  Anatole von Lilienfeld, Phys. Rev. Lett, (2012),
+<a class="reference external" href="https://doi.org/10.1103/PhysRevLett.108.058301">https://doi.org/10.1103/PhysRevLett.108.058301</a></p>
+</dd>
+<dt>and</dt><dd><p>“Learning Invariant Representations of Molecules for Atomization Energy
+Prediction”, Gregoire Montavon et. al, Advances in Neural Information
+Processing Systems 25 (NIPS 2012)</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_atoms_max</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The maximum nuber of atoms that any of the
+samples can have. This controls how much zeros need to be
+padded to the final result.</p></li>
+<li><p><strong>permutation</strong> (<em>string</em>) – <p>Defines the method for handling permutational
+invariance. Can be one of the following:</p>
+<blockquote>
+<div><ul>
+<li><p>none: The matrix is returned in the order defined by the
+Atoms.</p></li>
+<li><p>sorted_l2: The rows and columns are sorted by the L2 norm.</p></li>
+<li><p>eigenspectrum: Only the eigenvalues are returned sorted
+by their absolute value in descending order.</p></li>
+<li><p>random: The rows and columns are sorted by their L2 norm
+after applying Gaussian noise to the norms. The standard
+deviation of the noise is determined by the
+sigma-parameter.</p></li>
+</ul>
+</div></blockquote>
+</p></li>
+<li><p><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Provide only when using the <em>random</em>-permutation
+option. Standard deviation of the gaussian distributed noise
+determining how much the rows and columns of the randomly
+sorted matrix are scrambled.</p></li>
+<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Provide only when using the <em>random</em>-permutation
+option. A seed to use for drawing samples from a normal
+distribution.</p></li>
+<li><p><strong>flatten</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether the output of create() should be flattened
+to a 1D array.</p></li>
+<li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
+dense numpy array.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="dscribe.descriptors.coulombmatrix.CoulombMatrix.create">
+<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">only_physical_cores</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/coulombmatrix.html#CoulombMatrix.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.coulombmatrix.CoulombMatrix.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Coulomb matrix for the given systems.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> or list of <code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code>) – One or
+many atomic structures.</p></li>
+<li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
+the calculation across samples. Defaults to serial calculation
+with n_jobs=1. If a negative number is given, the used cpus
+will be calculated with, n_cpus + n_jobs, where n_cpus is the
+amount of CPUs as reported by the OS. With only_physical_cores
+you can control which types of CPUs are counted in n_cpus.</p></li>
+<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If a negative n_jobs is given,
+determines which types of CPUs are used in calculating the
+number of jobs. If set to False (default), also virtual CPUs
+are counted.  If set to True, only physical CPUs are counted.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Controls whether to print the progress of each job
+into to the console.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Coulomb matrix for the given systems. The
+return type depends on the ‘sparse’ and ‘flatten’-attributes. For
+flattened output a single numpy array or sparse.COO is returned.
+The first dimension is determined by the amount of systems.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray | sparse.COO</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.coulombmatrix.CoulombMatrix.get_matrix">
+<code class="sig-name descname">get_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/coulombmatrix.html#CoulombMatrix.get_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.coulombmatrix.CoulombMatrix.get_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the Coulomb matrix for the given system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> | <a class="reference internal" href="dscribe.core.html#dscribe.core.system.System" title="dscribe.core.system.System"><code class="xref py py-class docutils literal notranslate"><span class="pre">System</span></code></a>) – Input system.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Coulomb matrix as a 2D array.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-dscribe.descriptors.descriptor">
+<span id="dscribe-descriptors-descriptor-module"></span><h2>dscribe.descriptors.descriptor module<a class="headerlink" href="#module-dscribe.descriptors.descriptor" title="Permalink to this headline">¶</a></h2>
+<p>Copyright 2019 DScribe developers</p>
+<p>Licensed under the Apache License, Version 2.0 (the “License”);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<blockquote>
+<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+</div></blockquote>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</p>
+<dl class="py class">
+<dt id="dscribe.descriptors.descriptor.Descriptor">
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.descriptors.descriptor.</code><code class="sig-name descname">Descriptor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">periodic</span></em>, <em class="sig-param"><span class="n">flatten</span></em>, <em class="sig-param"><span class="n">sparse</span></em>, <em class="sig-param"><span class="n">dtype</span><span class="o">=</span><span class="default_value">'float64'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/descriptor.html#Descriptor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
+<p>An abstract base class for all descriptors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>flatten</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether the output of create() should be flattened
+to a 1D array.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="dscribe.descriptors.descriptor.Descriptor.check_atomic_numbers">
+<code class="sig-name descname">check_atomic_numbers</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">atomic_numbers</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/descriptor.html#Descriptor.check_atomic_numbers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor.check_atomic_numbers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to check that the given atomic numbers have been defined for
+this descriptor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>species</strong> (<em>iterable</em>) – Atomic numbers to check.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.9)"><strong>ValueError</strong></a> – If the atomic numbers in the given system are not</p></li>
+<li><p><strong>included in the species given to this descriptor.</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.descriptor.Descriptor.create">
+<em class="property">abstract </em><code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/descriptor.html#Descriptor.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the descriptor for the given systems.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>system</strong> (<em>ase.Atoms</em>) – The system for which to create the descriptor.</p></li>
+<li><p><strong>args</strong> – Descriptor specific positional arguments.</p></li>
+<li><p><strong>kwargs</strong> – Descriptor specific keyword arguments.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A descriptor for the system.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.array | scipy.sparse.coo_matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.descriptor.Descriptor.create_parallel">
+<code class="sig-name descname">create_parallel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inp</span></em>, <em class="sig-param"><span class="n">func</span></em>, <em class="sig-param"><span class="n">n_jobs</span></em>, <em class="sig-param"><span class="n">static_size</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">only_physical_cores</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">prefer</span><span class="o">=</span><span class="default_value">'processes'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/descriptor.html#Descriptor.create_parallel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor.create_parallel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to parallelize the descriptor creation across multiple systems.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inp</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – Contains a tuple of input arguments for each processed
+system. These arguments are fed to the function specified by
+“func”.</p></li>
+<li><p><strong>func</strong> (<em>function</em>) – Function that outputs the descriptor when given
+input arguments from “inp”.</p></li>
+<li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
+the calculation across samples. Defaults to serial calculation
+with n_jobs=1. If a negative number is given, the number of jobs
+will be calculated with, n_cpus + n_jobs, where n_cpus is the
+amount of CPUs as reported by the OS. With only_physical_cores
+you can control which types of CPUs are counted in n_cpus.</p></li>
+<li><p><strong>output_sizes</strong> (<em>list of ints</em>) – The size of the output for each job.
+Makes the creation faster by preallocating the correct amount of
+memory beforehand. If not specified, a dynamically created list of
+outputs is used.</p></li>
+<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If a negative n_jobs is given,
+determines which types of CPUs are used in calculating the
+number of jobs. If set to False (default), also virtual CPUs
+are counted.  If set to True, only physical CPUs are counted.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Controls whether to print the progress of each job
+into to the console.</p></li>
+<li><p><strong>prefer</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – <p>The parallelization method. Valid options are:</p>
+<ul>
+<li><p>”processes”: Parallelization based on processes. Uses the
+“loky” backend in joblib to serialize the jobs and run them
+in separate processes. Using separate processes has a bigger
+memory and initialization overhead than threads, but may
+provide better scalability if perfomance is limited by the
+Global Interpreter Lock (GIL).</p></li>
+<li><p>”threads”: Parallelization based on threads. Has bery low
+memory and initialization overhead. Performance is limited by
+the amount of pure python code that needs to run. Ideal when
+most of the calculation time is used by C/C++ extensions that
+release the GIL.</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The descriptor output
+for each given input. The return type depends on the desciptor
+setup.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray | sparse.COO | list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.descriptor.Descriptor.derivatives_parallel">
+<code class="sig-name descname">derivatives_parallel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inp</span></em>, <em class="sig-param"><span class="n">func</span></em>, <em class="sig-param"><span class="n">n_jobs</span></em>, <em class="sig-param"><span class="n">derivatives_shape</span></em>, <em class="sig-param"><span class="n">descriptor_shape</span></em>, <em class="sig-param"><span class="n">return_descriptor</span></em>, <em class="sig-param"><span class="n">only_physical_cores</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">prefer</span><span class="o">=</span><span class="default_value">'processes'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/descriptor.html#Descriptor.derivatives_parallel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor.derivatives_parallel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to parallelize the descriptor creation across multiple systems.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inp</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – Contains a tuple of input arguments for each processed
+system. These arguments are fed to the function specified by
+“func”.</p></li>
+<li><p><strong>func</strong> (<em>function</em>) – Function that outputs the descriptor when given
+input arguments from “inp”.</p></li>
+<li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
+the calculation across samples. Defaults to serial calculation
+with n_jobs=1. If a negative number is given, the number of jobs
+will be calculated with, n_cpus + n_jobs, where n_cpus is the
+amount of CPUs as reported by the OS. With only_physical_cores
+you can control which types of CPUs are counted in n_cpus.</p></li>
+<li><p><strong>derivatives_shape</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – If a fixed size output is produced from
+each job, this contains its shape. For variable size output
+this parameter is set to None</p></li>
+<li><p><strong>derivatives_shape</strong> – If a fixed size output is produced from
+each job, this contains its shape. For variable size output
+this parameter is set to None</p></li>
+<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If a negative n_jobs is given,
+determines which types of CPUs are used in calculating the
+number of jobs. If set to False (default), also virtual CPUs
+are counted.  If set to True, only physical CPUs are counted.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Controls whether to print the progress of each job
+into to the console.</p></li>
+<li><p><strong>prefer</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – <p>The parallelization method. Valid options are:</p>
+<ul>
+<li><p>”processes”: Parallelization based on processes. Uses the
+“loky” backend in joblib to serialize the jobs and run them
+in separate processes. Using separate processes has a bigger
+memory and initialization overhead than threads, but may
+provide better scalability if perfomance is limited by the
+Global Interpreter Lock (GIL).</p></li>
+<li><p>”threads”: Parallelization based on threads. Has bery low
+memory and initialization overhead. Performance is limited by
+the amount of pure python code that needs to run. Ideal when
+most of the calculation time is used by C/C++ extensions that
+release the GIL.</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The descriptor output
+for each given input. The return type depends on the desciptor
+setup.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray | sparse.COO | list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.descriptor.Descriptor.flatten">
+<em class="property">property </em><code class="sig-name descname">flatten</code><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor.flatten" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.descriptor.Descriptor.get_number_of_features">
+<em class="property">abstract </em><code class="sig-name descname">get_number_of_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/descriptor.html#Descriptor.get_number_of_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor.get_number_of_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to inquire the final number of features that this descriptor
+will have.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Number of features for this descriptor.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.descriptor.Descriptor.get_system">
+<code class="sig-name descname">get_system</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/descriptor.html#Descriptor.get_system"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor.get_system" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to convert the given atomic system into a custom System-object
+that is used internally. The System class inherits from ase.Atoms, but
+includes built-in caching for geometric quantities that may be re-used
+by the descriptors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> | <a class="reference internal" href="dscribe.core.html#dscribe.core.system.System" title="dscribe.core.system.System"><code class="xref py py-class docutils literal notranslate"><span class="pre">System</span></code></a>) – Input system.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The given system transformed into a corresponding</dt><dd><p>System-object.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="dscribe.core.html#dscribe.core.system.System" title="dscribe.core.system.System"><code class="xref py py-class docutils literal notranslate"><span class="pre">System</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.descriptor.Descriptor.periodic">
+<em class="property">property </em><code class="sig-name descname">periodic</code><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor.periodic" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.descriptor.Descriptor.sparse">
+<em class="property">property </em><code class="sig-name descname">sparse</code><a class="headerlink" href="#dscribe.descriptors.descriptor.Descriptor.sparse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-dscribe.descriptors.elementaldistribution">
+<span id="dscribe-descriptors-elementaldistribution-module"></span><h2>dscribe.descriptors.elementaldistribution module<a class="headerlink" href="#module-dscribe.descriptors.elementaldistribution" title="Permalink to this headline">¶</a></h2>
+<p>Copyright 2019 DScribe developers</p>
+<p>Licensed under the Apache License, Version 2.0 (the “License”);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<blockquote>
+<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+</div></blockquote>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</p>
+<dl class="py class">
+<dt id="dscribe.descriptors.elementaldistribution.ElementalDistribution">
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.descriptors.elementaldistribution.</code><code class="sig-name descname">ElementalDistribution</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">properties</span></em>, <em class="sig-param"><span class="n">flatten</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">sparse</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/elementaldistribution.html#ElementalDistribution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.elementaldistribution.ElementalDistribution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dscribe.descriptors.descriptor.Descriptor" title="dscribe.descriptors.descriptor.Descriptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.descriptors.descriptor.Descriptor</span></code></a></p>
+<p>Represents a generic distribution on any given grid for any given
+properties. Can create both continuos and discrete distributions.</p>
+<p>Continuous distributions require a standard deviation and the number of
+sampling points. You can also specify the minimum and maximum values for
+the axis. If these are not specified, a limit is selected based
+automatically on the values with:</p>
+<blockquote>
+<div><p>min = values.min() - 3*std
+max = values.max() + 3*std</p>
+</div></blockquote>
+<p>Discrete distributions are assumed to be integer values, and you only need
+to specify the values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>properties</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – <p>Contains a description of the elemental property
+for which a distribution is created. Should contain a dictionary of
+the following form:</p>
+<dl>
+<dt>properties={</dt><dd><dl>
+<dt>“property_name”: {</dt><dd><p>“type”: “continuous”
+“min”: &lt;Distribution minimum value&gt;
+“max”: &lt;Distribution maximum value&gt;
+“std”: &lt;Distribution standard deviation&gt;
+“n”: &lt;Number of discrete samples from distribution&gt;
+“values”: {</p>
+<blockquote>
+<div><p>”H”: &lt;Value for hydrogen&gt;
+…</p>
+</div></blockquote>
+<p>}</p>
+</dd>
+<dt>”property_name2”: {</dt><dd><p>“type”: “discrete”
+“values”: {</p>
+<blockquote>
+<div><p>”H”: &lt;Value for hydrogen&gt;
+…</p>
+</div></blockquote>
+<p>}</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>}</p>
+</p></li>
+<li><p><strong>flatten</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether to flatten out the result.</p></li>
+<li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
+dense numpy array.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="dscribe.descriptors.elementaldistribution.ElementalDistribution.create">
+<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/elementaldistribution.html#ElementalDistribution.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.elementaldistribution.ElementalDistribution.create" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> | <a class="reference internal" href="dscribe.core.html#dscribe.core.system.System" title="dscribe.core.system.System"><code class="xref py py-class docutils literal notranslate"><span class="pre">System</span></code></a>) – Input system.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The concatenated distributions of the</dt><dd><p>specified properties in a sparse array.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>scipy.sparse.lil_matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.elementaldistribution.ElementalDistribution.gaussian_sum">
+<code class="sig-name descname">gaussian_sum</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">centers</span></em>, <em class="sig-param"><span class="n">weights</span></em>, <em class="sig-param"><span class="n">minimum</span></em>, <em class="sig-param"><span class="n">maximum</span></em>, <em class="sig-param"><span class="n">std</span></em>, <em class="sig-param"><span class="n">n</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/elementaldistribution.html#ElementalDistribution.gaussian_sum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.elementaldistribution.ElementalDistribution.gaussian_sum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates a discrete version of a sum of Gaussian distributions.</p>
+<p>The calculation is done through the cumulative distribution function
+that is better at keeping the integral of the probability function
+constant with coarser grids.</p>
+<p>The values are normalized by dividing with the maximum value of a
+gaussian with the given standard deviation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>centers</strong> (<em>1D np.ndarray</em>) – The means of the gaussians.</p></li>
+<li><p><strong>weights</strong> (<em>1D np.ndarray</em>) – The weights for the gaussians.</p></li>
+<li><p><strong>minimum</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – The minimum grid value</p></li>
+<li><p><strong>maximum</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – The maximum grid value</p></li>
+<li><p><strong>std</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Standard deviation of the gaussian</p></li>
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of grid points</p></li>
+<li><p><strong>settings</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – The grid settings. A dictionary
+containing the following information:</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Value of the gaussian sums on the given grid.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.elementaldistribution.ElementalDistribution.get_axis">
+<code class="sig-name descname">get_axis</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">property_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/elementaldistribution.html#ElementalDistribution.get_axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.elementaldistribution.ElementalDistribution.get_axis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to return the used x-axis for the given property.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>property_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The property name that was used in the</p></li>
+<li><p><strong>constructor.</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An array of x-axis values.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.elementaldistribution.ElementalDistribution.get_element_occurrence">
+<code class="sig-name descname">get_element_occurrence</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/elementaldistribution.html#ElementalDistribution.get_element_occurrence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.elementaldistribution.ElementalDistribution.get_element_occurrence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the count of each atomic element in the given system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>system</strong> (<em>ase.Atoms</em>) – The atomic system.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The counts for each element in a list where the index
+of atomic number x is self.atomic_number_to_index[x]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>1D ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.elementaldistribution.ElementalDistribution.get_number_of_features">
+<code class="sig-name descname">get_number_of_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/elementaldistribution.html#ElementalDistribution.get_number_of_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.elementaldistribution.ElementalDistribution.get_number_of_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to inquire the final number of features that this descriptor
+will have.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Number of features for this descriptor.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-dscribe.descriptors.ewaldsummatrix">
+<span id="dscribe-descriptors-ewaldsummatrix-module"></span><h2>dscribe.descriptors.ewaldsummatrix module<a class="headerlink" href="#module-dscribe.descriptors.ewaldsummatrix" title="Permalink to this headline">¶</a></h2>
+<p>Copyright 2019 DScribe developers</p>
+<p>Licensed under the Apache License, Version 2.0 (the “License”);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<blockquote>
+<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+</div></blockquote>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</p>
+<dl class="py class">
+<dt id="dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix">
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.descriptors.ewaldsummatrix.</code><code class="sig-name descname">EwaldSumMatrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_atoms_max</span></em>, <em class="sig-param"><span class="n">permutation</span><span class="o">=</span><span class="default_value">'sorted_l2'</span></em>, <em class="sig-param"><span class="n">sigma</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">flatten</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">sparse</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/ewaldsummatrix.html#EwaldSumMatrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dscribe.descriptors.matrixdescriptor.MatrixDescriptor" title="dscribe.descriptors.matrixdescriptor.MatrixDescriptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.descriptors.matrixdescriptor.MatrixDescriptor</span></code></a></p>
+<p>Calculates an Ewald sum matrix for the a given system.</p>
+<p>Each entry M_ij of the Ewald sum matrix will contain the Coulomb energy
+between atoms i and j calculated with the Ewald summation method. In the
+Ewald method a constant neutralizing background charge has been added to
+counteract the positive net charge.</p>
+<p>The total electrostatic interaction energy in the system can calculated by
+summing the upper diagonal part of the matrix, including the diagonal
+itself.</p>
+<p>A screening parameter a controls the width of the Gaussian charge
+distributions in the Ewald summation, but the final matrix elements will be
+independent of the value of the screening parameter a that is used, as long
+as sufficient cutoff values are used.</p>
+<dl class="simple">
+<dt>For reference, see:</dt><dd><p>“Crystal Structure Representations for Machine Learning Models of
+Formation Energies”, Felix Faber, Alexander Lindmaa, Anatole von
+Lilienfeld, and Rickard Armiento, International Journal of Quantum
+Chemistry, (2015),
+<a class="reference external" href="https://doi.org/10.1002/qua.24917">https://doi.org/10.1002/qua.24917</a></p>
+</dd>
+<dt>and</dt><dd><p>“Ewald summation techniques in perspective: a survey”, Abdulnour Y.
+Toukmaji, John A. Board Jr., Computer Physics Communications, (1996)
+<a class="reference external" href="https://doi.org/10.1016/0010-4655(96)00016-1">https://doi.org/10.1016/0010-4655(96)00016-1</a></p>
+</dd>
+<dt>and</dt><dd><p>“R.A. Jackson and C.R.A. Catlow. Computer simulation studies of zeolite
+structure. Mol. Simul., 1:207-224, 1988,
+<a class="reference external" href="https://doi.org/10.1080/08927022.2013.840898">https://doi.org/10.1080/08927022.2013.840898</a>
+“</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_atoms_max</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The maximum nuber of atoms that any of the
+samples can have. This controls how much zeros need to be
+padded to the final result.</p></li>
+<li><p><strong>permutation</strong> (<em>string</em>) – <p>Defines the method for handling permutational
+invariance. Can be one of the following:</p>
+<blockquote>
+<div><ul>
+<li><p>none: The matrix is returned in the order defined by the
+Atoms.</p></li>
+<li><p>sorted_l2: The rows and columns are sorted by the L2 norm.</p></li>
+<li><p>eigenspectrum: Only the eigenvalues are returned sorted
+by their absolute value in descending order.</p></li>
+<li><p>random: The rows and columns are sorted by their L2 norm
+after applying Gaussian noise to the norms. The standard
+deviation of the noise is determined by the
+sigma-parameter.</p></li>
+</ul>
+</div></blockquote>
+</p></li>
+<li><p><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Provide only when using the <em>random</em>-permutation
+option. Standard deviation of the gaussian distributed noise
+determining how much the rows and columns of the randomly
+sorted matrix are scrambled.</p></li>
+<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Provide only when using the <em>random</em>-permutation
+option. A seed to use for drawing samples from a normal
+distribution.</p></li>
+<li><p><strong>flatten</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether the output of create() should be flattened
+to a 1D array.</p></li>
+<li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
+dense numpy array.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create">
+<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">accuracy</span><span class="o">=</span><span class="default_value">1e-05</span></em>, <em class="sig-param"><span class="n">w</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">rcut</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">gcut</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">a</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">only_physical_cores</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/ewaldsummatrix.html#EwaldSumMatrix.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Ewald sum matrix for the given systems.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> or list of <code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code>) – One or
+many atomic structures.</p></li>
+<li><p><strong>accuracy</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – The accuracy to which the sum is converged to.
+Corresponds to the variable <span class="math notranslate nohighlight">\(A\)</span> in
+<a class="reference external" href="https://doi.org/10.1080/08927022.2013.840898">https://doi.org/10.1080/08927022.2013.840898</a>. Used only if
+gcut, rcut and a have not been specified. Provide either one
+value or a list of values for each system.</p></li>
+<li><p><strong>w</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Weight parameter that represents the relative
+computational expense of calculating a term in real and
+reciprocal space. This has little effect on the total energy,
+but may influence speed of computation in large systems. Note
+that this parameter is used only when the cutoffs and a are set
+to None. Provide either one value or a list of values for each
+system.</p></li>
+<li><p><strong>rcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Real space cutoff radius dictating how many terms are
+used in the real space sum. Provide either one value or a list
+of values for each system.</p></li>
+<li><p><strong>gcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Reciprocal space cutoff radius. Provide either one
+value or a list of values for each system.</p></li>
+<li><p><strong>a</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – The screening parameter that controls the width of the
+Gaussians. If not provided, a default value of <span class="math notranslate nohighlight">\(\alpha =
+\sqrt{\pi}\left(\frac{N}{V^2}\right)^{1/6}\)</span> is used.
+Corresponds to the standard deviation of the Gaussians. Provide
+either one value or a list of values for each system.</p></li>
+<li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
+the calculation across samples. Defaults to serial calculation
+with n_jobs=1. If a negative number is given, the used cpus
+will be calculated with, n_cpus + n_jobs, where n_cpus is the
+amount of CPUs as reported by the OS. With only_physical_cores
+you can control which types of CPUs are counted in n_cpus.</p></li>
+<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If a negative n_jobs is given,
+determines which types of CPUs are used in calculating the
+number of jobs. If set to False (default), also virtual CPUs
+are counted.  If set to True, only physical CPUs are counted.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Controls whether to print the progress of each job
+into to the console.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Ewald sum matrix for the given systems.
+The return type depends on the ‘sparse’ and ‘flatten’-attributes.
+For flattened output a single numpy array or sparse.COO is
+returned. The first dimension is determined by the amount of
+systems.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray | sparse.COO</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create_single">
+<code class="sig-name descname">create_single</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">accuracy</span><span class="o">=</span><span class="default_value">1e-05</span></em>, <em class="sig-param"><span class="n">w</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">rcut</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">gcut</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">a</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/ewaldsummatrix.html#EwaldSumMatrix.create_single"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create_single" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> | <a class="reference internal" href="dscribe.core.html#dscribe.core.system.System" title="dscribe.core.system.System"><code class="xref py py-class docutils literal notranslate"><span class="pre">System</span></code></a>) – Input system.</p></li>
+<li><p><strong>accuracy</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – The accuracy to which the sum is converged to.
+Corresponds to the variable <span class="math notranslate nohighlight">\(A\)</span> in
+<a class="reference external" href="https://doi.org/10.1080/08927022.2013.840898">https://doi.org/10.1080/08927022.2013.840898</a>. Used only if gcut,
+rcut and a have not been specified.</p></li>
+<li><p><strong>w</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Weight parameter that represents the relative
+computational expense of calculating a term in real and
+reciprocal space. This has little effect on the total energy,
+but may influence speed of computation in large systems. Note
+that this parameter is used only when the cutoffs and a are set
+to None.</p></li>
+<li><p><strong>rcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Real space cutoff radius dictating how
+many terms are used in the real space sum.</p></li>
+<li><p><strong>gcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Reciprocal space cutoff radius.</p></li>
+<li><p><strong>a</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – The screening parameter that controls the width of the
+Gaussians. If not provided, a default value of <span class="math notranslate nohighlight">\(\alpha =
+\sqrt{\pi}\left(\frac{N}{V^2}\right)^{1/6}\)</span> is used.
+Corresponds to the standard deviation of the Gaussians.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.get_matrix">
+<code class="sig-name descname">get_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/ewaldsummatrix.html#EwaldSumMatrix.get_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.get_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>The total energy matrix. Each matrix element (i, j) corresponds to the
+total interaction energy in a system with atoms i and j.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> | <a class="reference internal" href="dscribe.core.html#dscribe.core.system.System" title="dscribe.core.system.System"><code class="xref py py-class docutils literal notranslate"><span class="pre">System</span></code></a>) – Input system.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Ewald matrix.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-dscribe.descriptors.lmbtr">
+<span id="dscribe-descriptors-lmbtr-module"></span><h2>dscribe.descriptors.lmbtr module<a class="headerlink" href="#module-dscribe.descriptors.lmbtr" title="Permalink to this headline">¶</a></h2>
+<p>Copyright 2019 DScribe developers</p>
+<p>Licensed under the Apache License, Version 2.0 (the “License”);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<blockquote>
+<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+</div></blockquote>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</p>
+<dl class="py class">
+<dt id="dscribe.descriptors.lmbtr.LMBTR">
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.descriptors.lmbtr.</code><code class="sig-name descname">LMBTR</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">species</span></em>, <em class="sig-param"><span class="n">periodic</span></em>, <em class="sig-param"><span class="n">k2</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">k3</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">normalize_gaussians</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">normalization</span><span class="o">=</span><span class="default_value">'none'</span></em>, <em class="sig-param"><span class="n">flatten</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">sparse</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/lmbtr.html#LMBTR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dscribe.descriptors.mbtr.MBTR" title="dscribe.descriptors.mbtr.MBTR"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.descriptors.mbtr.MBTR</span></code></a></p>
+<p>Implementation of local – per chosen atom – kind of the Many-body
+tensor representation up to k=3.</p>
+<p>Notice that the species of the central atom is not encoded in the output,
+but is instead represented by a chemical species X with atomic number 0.
+This allows LMBTR to be also used on general positions not corresponding to
+real atoms. The surrounding environment is encoded by the two- and
+three-body interactions with neighouring atoms. If there is a need to
+distinguish the central species, one can for example train a different
+model for each central species.</p>
+<p>You can choose which terms to include by providing a dictionary in the k2
+or k3 arguments. The k1 term is not used in the local version. This
+dictionary should contain information under three keys: “geometry”, “grid”
+and “weighting”. See the examples below for how to format these
+dictionaries.</p>
+<p>You can use this descriptor for finite and periodic systems. When dealing
+with periodic systems or when using machine learning models that use the
+Euclidean norm to measure distance between vectors, it is advisable to use
+some form of normalization.</p>
+<p>For the geometry functions the following choices are available:</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(k=2\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>“distance”: Pairwise distance in angstroms.</p></li>
+<li><p>“inverse_distance”: Pairwise inverse distance in 1/angstrom.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><span class="math notranslate nohighlight">\(k=3\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>“angle”: Angle in degrees.</p></li>
+<li><p>“cosine”: Cosine of the angle.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<p>For the weighting the following functions are available:</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(k=2\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>“unity”: No weighting.</p></li>
+<li><p>“exp” or “exponential”: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span></p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><span class="math notranslate nohighlight">\(k=3\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>“unity”: No weighting.</p></li>
+<li><p>“exp” or “exponential”: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span></p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<p>The exponential weighting is motivated by the exponential decay of screened
+Coulombic interactions in solids. In the exponential weighting the
+parameters <strong>cutoff</strong> determines the value of the weighting function after
+which the rest of the terms will be ignored and the parameter <strong>scale</strong>
+corresponds to <span class="math notranslate nohighlight">\(s\)</span>. The meaning of <span class="math notranslate nohighlight">\(x\)</span> changes for different
+terms as follows:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(k=2\)</span>: <span class="math notranslate nohighlight">\(x\)</span> = Distance between A-&gt;B</p></li>
+<li><p><span class="math notranslate nohighlight">\(k=3\)</span>: <span class="math notranslate nohighlight">\(x\)</span> = Distance from A-&gt;B-&gt;C-&gt;A.</p></li>
+</ul>
+<p>In the grid setup <em>min</em> is the minimum value of the axis, <em>max</em> is the
+maximum value of the axis, <em>sigma</em> is the standard deviation of the
+gaussian broadening and <em>n</em> is the number of points sampled on the
+grid.</p>
+<p>If flatten=False, a list of dense np.ndarrays for each k in ascending order
+is returned. These arrays are of dimension (n_elements x n_elements x
+n_grid_points), where the elements are sorted in ascending order by their
+atomic number.</p>
+<p>If flatten=True, a sparse.COO is returned. This sparse matrix
+is of size (n_features,), where n_features is given by
+get_number_of_features(). This vector is ordered so that the different
+k-terms are ordered in ascending order, and within each k-term the
+distributions at each entry (i, j, h) of the tensor are ordered in an
+ascending order by (i * n_elements) + (j * n_elements) + (h * n_elements).</p>
+<p>This implementation does not support the use of a non-identity correlation
+matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>species</strong> (<em>iterable</em>) – The chemical species as a list of atomic
+numbers or as a list of chemical symbols. Notice that this is not
+the atomic numbers that are present for an individual system, but
+should contain all the elements that are ever going to be
+encountered when creating the descriptors for a set of systems.
+Keeping the number of chemical speices as low as possible is
+preferable.</p></li>
+<li><p><strong>periodic</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Set to true if you want the descriptor output to
+respect the periodicity of the atomic systems (see the
+pbc-parameter in the constructor of ase.Atoms).</p></li>
+<li><p><strong>k2</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – <p>Dictionary containing the setup for the k=2 term.
+Contains setup for the used geometry function, discretization and
+weighting function. For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">k2</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;inverse_distance&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">},</span>
+    <span class="s2">&quot;weighting&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exp&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.75</span><span class="p">,</span> <span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="mf">1e-2</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</p></li>
+<li><p><strong>k3</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – <p>Dictionary containing the setup for the k=3 term.
+Contains setup for the used geometry function, discretization and
+weighting function. For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">k3</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;angle&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">180</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">},</span>
+    <span class="s2">&quot;weighting&quot;</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exp&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</p></li>
+<li><p><strong>normalize_gaussians</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Determines whether the gaussians are
+normalized to an area of 1. Defaults to True. If False, the
+normalization factor is dropped and the gaussians have the form.
+<span class="math notranslate nohighlight">\(e^{-(x-\mu)^2/2\sigma^2}\)</span></p></li>
+<li><p><strong>normalization</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – <p>Determines the method for normalizing the
+output. The available options are:</p>
+<ul>
+<li><p>”none”: No normalization.</p></li>
+<li><p>”l2_each”: Normalize the Euclidean length of each k-term
+individually to unity.</p></li>
+</ul>
+</p></li>
+<li><p><strong>flatten</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether the output should be flattened to a 1D
+array. If False, a dictionary of the different tensors is
+provided, containing the values under keys: “k1”, “k2”, and
+“k3”:</p></li>
+<li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
+dense numpy array.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="dscribe.descriptors.lmbtr.LMBTR.create">
+<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">positions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">only_physical_cores</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/lmbtr.html#LMBTR.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the LMBTR output for the given systems and given positions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> or list of <code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code>) – One or
+many atomic structures.</p></li>
+<li><p><strong>positions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – Positions where to calculate LMBTR. Can be
+provided as cartesian positions or atomic indices. If no
+positions are defined, the LMBTR output will be created for all
+atoms in the system. When calculating LMBTR for multiple
+systems, provide the positions as a list for each system.</p></li>
+<li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
+the calculation across samples. Defaults to serial calculation
+with n_jobs=1. If a negative number is given, the used cpus
+will be calculated with, n_cpus + n_jobs, where n_cpus is the
+amount of CPUs as reported by the OS. With only_physical_cores
+you can control which types of CPUs are counted in n_cpus.</p></li>
+<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If a negative n_jobs is given,
+determines which types of CPUs are used in calculating the
+number of jobs. If set to False (default), also virtual CPUs
+are counted.  If set to True, only physical CPUs are counted.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Controls whether to print the progress of each job
+into to the console.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The LMBTR output for the given
+systems and positions. The return type depends on the
+‘sparse’-attribute. The first dimension is determined by the amount
+of positions and systems and the second dimension is determined by
+the get_number_of_features()-function.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray | scipy.sparse.csr_matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.lmbtr.LMBTR.create_single">
+<code class="sig-name descname">create_single</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">positions</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/lmbtr.html#LMBTR.create_single"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.create_single" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the local many-body tensor representation for the given
+system and positions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> | <a class="reference internal" href="dscribe.core.html#dscribe.core.system.System" title="dscribe.core.system.System"><code class="xref py py-class docutils literal notranslate"><span class="pre">System</span></code></a>) – Input system.</p></li>
+<li><p><strong>positions</strong> (<em>iterable</em>) – Positions or atom index of points, from
+which local_mbtr is created. Can be a list of integer numbers
+or a list of xyz-coordinates. If integers provided, the atoms
+at that index are used as centers. If positions provided, new
+atoms are added at that position. If no positions are provided,
+all atoms in the system will be used as centers.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The local many-body tensor representations of given
+positions, for k terms, as an array. These are ordered as given in
+positions.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>1D ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.lmbtr.LMBTR.get_location">
+<code class="sig-name descname">get_location</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">species</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/lmbtr.html#LMBTR.get_location"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.get_location" title="Permalink to this definition">¶</a></dt>
+<dd><p>Can be used to query the location of a species combination in the
+the flattened output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>species</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a>) – A tuple containing a species combination as</p></li>
+<li><p><strong>symbols</strong><strong> or </strong><strong>atomic numbers. The central atom is marked as</strong> (<em>chemical</em>) – </p></li>
+<li><p><strong>&quot;X&quot;. The tuple can be for example</strong> (<em>species</em>) – </p></li>
+<li><p><strong>&quot;H&quot;</strong><strong>)</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>slice containing the location of the specified species
+combination. The location is given as a python slice-object, that
+can be directly used to target ranges in the output.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#slice" title="(in Python v3.9)">slice</a></p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.9)"><strong>ValueError</strong></a> – If the requested species combination is not in the</p></li>
+<li><p><strong>output</strong><strong> or </strong><strong>if invalid species defined.</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.lmbtr.LMBTR.get_number_of_features">
+<code class="sig-name descname">get_number_of_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/lmbtr.html#LMBTR.get_number_of_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.get_number_of_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to inquire the final number of features that this descriptor
+will have.</p>
+<p>The number of features for the LMBTR is calculated as follows:</p>
+<p>For the pair term (k=2), only pairs where at least one of the atom is
+the central atom (in periodic systems the central atom may connect to
+itself) are considered. This means that there are only as many
+combinations as there are different elements to pair the central atom
+with (n_elem). This nmber of combinations is the multiplied by the
+discretization of the k=2 grid.</p>
+<p>For the three-body term (k=3), only triplets where at least one of the
+atoms is the central atom (in periodic systems the central atom may
+connect to itself) and the k &gt;= i (symmetry) are considered. This means
+that as k runs from 0 to n-1, where n is the number of elements, there
+are n + k combinations that fill this rule. This sum becomes:
+<span class="math notranslate nohighlight">\(\sum_{k=0}^{n-1} n + k = n^2+(n-1)*n/2\)</span>. This number of
+combinations is the multiplied by the discretization of the k=3 grid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Number of features for this descriptor.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.lmbtr.LMBTR.normalization">
+<em class="property">property </em><code class="sig-name descname">normalization</code><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.normalization" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.lmbtr.LMBTR.species">
+<em class="property">property </em><code class="sig-name descname">species</code><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.species" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-dscribe.descriptors.matrixdescriptor">
+<span id="dscribe-descriptors-matrixdescriptor-module"></span><h2>dscribe.descriptors.matrixdescriptor module<a class="headerlink" href="#module-dscribe.descriptors.matrixdescriptor" title="Permalink to this headline">¶</a></h2>
+<p>Copyright 2019 DScribe developers</p>
+<p>Licensed under the Apache License, Version 2.0 (the “License”);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<blockquote>
+<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+</div></blockquote>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</p>
+<dl class="py class">
+<dt id="dscribe.descriptors.matrixdescriptor.MatrixDescriptor">
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.descriptors.matrixdescriptor.</code><code class="sig-name descname">MatrixDescriptor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_atoms_max</span></em>, <em class="sig-param"><span class="n">permutation</span><span class="o">=</span><span class="default_value">'sorted_l2'</span></em>, <em class="sig-param"><span class="n">sigma</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">flatten</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">sparse</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/matrixdescriptor.html#MatrixDescriptor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.matrixdescriptor.MatrixDescriptor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dscribe.descriptors.descriptor.Descriptor" title="dscribe.descriptors.descriptor.Descriptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.descriptors.descriptor.Descriptor</span></code></a></p>
+<p>A common base class for two-body matrix-like descriptors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_atoms_max</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The maximum nuber of atoms that any of the
+samples can have. This controls how much zeros need to be
+padded to the final result.</p></li>
+<li><p><strong>permutation</strong> (<em>string</em>) – <p>Defines the method for handling permutational
+invariance. Can be one of the following:</p>
+<blockquote>
+<div><ul>
+<li><p>none: The matrix is returned in the order defined by the
+Atoms.</p></li>
+<li><p>sorted_l2: The rows and columns are sorted by the L2 norm.</p></li>
+<li><p>eigenspectrum: Only the eigenvalues are returned sorted
+by their absolute value in descending order.</p></li>
+<li><p>random: The rows and columns are sorted by their L2 norm
+after applying Gaussian noise to the norms. The standard
+deviation of the noise is determined by the
+sigma-parameter.</p></li>
+</ul>
+</div></blockquote>
+</p></li>
+<li><p><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Provide only when using the <em>random</em>-permutation
+option. Standard deviation of the gaussian distributed noise
+determining how much the rows and columns of the randomly
+sorted matrix are scrambled.</p></li>
+<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Provide only when using the <em>random</em>-permutation
+option. A seed to use for drawing samples from a normal
+distribution.</p></li>
+<li><p><strong>flatten</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether the output of create() should be flattened
+to a 1D array.</p></li>
+<li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
+dense numpy array.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="dscribe.descriptors.matrixdescriptor.MatrixDescriptor.create_single">
+<code class="sig-name descname">create_single</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/matrixdescriptor.html#MatrixDescriptor.create_single"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.create_single" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> | <a class="reference internal" href="dscribe.core.html#dscribe.core.system.System" title="dscribe.core.system.System"><code class="xref py py-class docutils literal notranslate"><span class="pre">System</span></code></a>) – Input system.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The zero padded matrix either as a 2D array or as</dt><dd><p>a 1D array depending on the setting self._flatten.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.matrixdescriptor.MatrixDescriptor.get_eigenspectrum">
+<code class="sig-name descname">get_eigenspectrum</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">matrix</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/matrixdescriptor.html#MatrixDescriptor.get_eigenspectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.get_eigenspectrum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the eigenvalues of the matrix and returns a list of them
+sorted by their descending absolute value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>matrix</strong> (<em>np.ndarray</em>) – The matrix to sort.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of eigenvalues sorted by absolute value.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.matrixdescriptor.MatrixDescriptor.get_matrix">
+<em class="property">abstract </em><code class="sig-name descname">get_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/matrixdescriptor.html#MatrixDescriptor.get_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.get_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to get the final matrix for this descriptor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> | <a class="reference internal" href="dscribe.core.html#dscribe.core.system.System" title="dscribe.core.system.System"><code class="xref py py-class docutils literal notranslate"><span class="pre">System</span></code></a>) – Input system.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The final two-dimensional matrix for this descriptor.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.matrixdescriptor.MatrixDescriptor.get_number_of_features">
+<code class="sig-name descname">get_number_of_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/matrixdescriptor.html#MatrixDescriptor.get_number_of_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.get_number_of_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to inquire the final number of features that this descriptor
+will have.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Number of features for this descriptor.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.matrixdescriptor.MatrixDescriptor.sort">
+<code class="sig-name descname">sort</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">matrix</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/matrixdescriptor.html#MatrixDescriptor.sort"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.sort" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sorts the given matrix by using the L2 norm.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>matrix</strong> (<em>np.ndarray</em>) – The matrix to sort.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The sorted matrix.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.matrixdescriptor.MatrixDescriptor.sort_randomly">
+<code class="sig-name descname">sort_randomly</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">matrix</span></em>, <em class="sig-param"><span class="n">sigma</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/matrixdescriptor.html#MatrixDescriptor.sort_randomly"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.sort_randomly" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a coulomb matrix, it adds random noise to the sorting defined by
+sigma. For sorting, L2-norm is used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>matrix</strong> (<em>np.ndarray</em>) – The matrix to randomly sort.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>sigma:</dt><dd><dl class="simple">
+<dt>float: Width of gaussian distributed noise determining how much the</dt><dd><p>rows and columns of the randomly sorted coulomb matrix are
+scrambled.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The randomly sorted matrix.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.matrixdescriptor.MatrixDescriptor.zero_pad">
+<code class="sig-name descname">zero_pad</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">array</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/matrixdescriptor.html#MatrixDescriptor.zero_pad"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.zero_pad" title="Permalink to this definition">¶</a></dt>
+<dd><p>Zero-pads the given matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>array</strong> (<em>np.ndarray</em>) – The array to pad</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The zero-padded array.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-dscribe.descriptors.mbtr">
+<span id="dscribe-descriptors-mbtr-module"></span><h2>dscribe.descriptors.mbtr module<a class="headerlink" href="#module-dscribe.descriptors.mbtr" title="Permalink to this headline">¶</a></h2>
+<p>Copyright 2019 DScribe developers</p>
+<p>Licensed under the Apache License, Version 2.0 (the “License”);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<blockquote>
+<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+</div></blockquote>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</p>
+<dl class="py class">
+<dt id="dscribe.descriptors.mbtr.MBTR">
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.descriptors.mbtr.</code><code class="sig-name descname">MBTR</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">species</span></em>, <em class="sig-param"><span class="n">periodic</span></em>, <em class="sig-param"><span class="n">k1</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">k2</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">k3</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">normalize_gaussians</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">normalization</span><span class="o">=</span><span class="default_value">'none'</span></em>, <em class="sig-param"><span class="n">flatten</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">sparse</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dscribe.descriptors.descriptor.Descriptor" title="dscribe.descriptors.descriptor.Descriptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.descriptors.descriptor.Descriptor</span></code></a></p>
+<p>Implementation of the Many-body tensor representation up to <span class="math notranslate nohighlight">\(k=3\)</span>.</p>
+<p>You can choose which terms to include by providing a dictionary in the
+k1, k2 or k3 arguments. This dictionary should contain information
+under three keys: “geometry”, “grid” and “weighting”. See the examples
+below for how to format these dictionaries.</p>
+<p>You can use this descriptor for finite and periodic systems. When dealing
+with periodic systems or when using machine learning models that use the
+Euclidean norm to measure distance between vectors, it is advisable to use
+some form of normalization.</p>
+<p>For the geometry functions the following choices are available:</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(k=1\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>“atomic_number”: The atomic numbers.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><span class="math notranslate nohighlight">\(k=2\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>“distance”: Pairwise distance in angstroms.</p></li>
+<li><p>“inverse_distance”: Pairwise inverse distance in 1/angstrom.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><span class="math notranslate nohighlight">\(k=3\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>“angle”: Angle in degrees.</p></li>
+<li><p>“cosine”: Cosine of the angle.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<p>For the weighting the following functions are available:</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(k=1\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>“unity”: No weighting.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><span class="math notranslate nohighlight">\(k=2\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>“unity”: No weighting.</p></li>
+<li><p>“exp” or “exponential”: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span></p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><span class="math notranslate nohighlight">\(k=3\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>“unity”: No weighting.</p></li>
+<li><p>“exp” or “exponential”: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span></p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<p>The exponential weighting is motivated by the exponential decay of screened
+Coulombic interactions in solids. In the exponential weighting the
+parameters <strong>cutoff</strong> determines the value of the weighting function after
+which the rest of the terms will be ignored and the parameter <strong>scale</strong>
+corresponds to <span class="math notranslate nohighlight">\(s\)</span>. The meaning of <span class="math notranslate nohighlight">\(x\)</span> changes for different
+terms as follows:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(k=2\)</span>: <span class="math notranslate nohighlight">\(x\)</span> = Distance between A-&gt;B</p></li>
+<li><p><span class="math notranslate nohighlight">\(k=3\)</span>: <span class="math notranslate nohighlight">\(x\)</span> = Distance from A-&gt;B-&gt;C-&gt;A.</p></li>
+</ul>
+<p>In the grid setup <em>min</em> is the minimum value of the axis, <em>max</em> is the
+maximum value of the axis, <em>sigma</em> is the standard deviation of the
+gaussian broadening and <em>n</em> is the number of points sampled on the
+grid.</p>
+<p>If flatten=False, a list of dense np.ndarrays for each k in ascending order
+is returned. These arrays are of dimension (n_elements x n_elements x
+n_grid_points), where the elements are sorted in ascending order by their
+atomic number.</p>
+<p>If flatten=True, a sparse.COO sparse matrix is returned. This sparse matrix
+is of size (n_features,), where n_features is given by
+get_number_of_features(). This vector is ordered so that the different
+k-terms are ordered in ascending order, and within each k-term the
+distributions at each entry (i, j, h) of the tensor are ordered in an
+ascending order by (i * n_elements) + (j * n_elements) + (h * n_elements).</p>
+<p>This implementation does not support the use of a non-identity correlation
+matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>species</strong> (<em>iterable</em>) – The chemical species as a list of atomic
+numbers or as a list of chemical symbols. Notice that this is not
+the atomic numbers that are present for an individual system, but
+should contain all the elements that are ever going to be
+encountered when creating the descriptors for a set of systems.
+Keeping the number of chemical speices as low as possible is
+preferable.</p></li>
+<li><p><strong>periodic</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Set to true if you want the descriptor output to
+respect the periodicity of the atomic systems (see the
+pbc-parameter in the constructor of ase.Atoms).</p></li>
+<li><p><strong>k1</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – <p>Setup for the k=1 term. For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">k1</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;atomic_number&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</p></li>
+<li><p><strong>k2</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – <p>Dictionary containing the setup for the k=2 term.
+Contains setup for the used geometry function, discretization and
+weighting function. For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">k2</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;inverse_distance&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">},</span>
+    <span class="s2">&quot;weighting&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exp&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.75</span><span class="p">,</span> <span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="mf">1e-2</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</p></li>
+<li><p><strong>k3</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – <p>Dictionary containing the setup for the k=3 term.
+Contains setup for the used geometry function, discretization and
+weighting function. For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">k3</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;angle&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">180</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">},</span>
+    <span class="s2">&quot;weighting&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exp&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</p></li>
+<li><p><strong>normalize_gaussians</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Determines whether the gaussians are
+normalized to an area of 1. Defaults to True. If False, the
+normalization factor is dropped and the gaussians have the form.
+<span class="math notranslate nohighlight">\(e^{-(x-\mu)^2/2\sigma^2}\)</span></p></li>
+<li><p><strong>normalization</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – <p>Determines the method for normalizing the
+output. The available options are:</p>
+<ul>
+<li><p>”none”: No normalization.</p></li>
+<li><p>”l2_each”: Normalize the Euclidean length of each k-term
+individually to unity.</p></li>
+<li><p>”n_atoms”: Normalize the output by dividing it with the number
+of atoms in the system. If the system is periodic, the number
+of atoms is determined from the given unit cell.</p></li>
+</ul>
+</p></li>
+<li><p><strong>flatten</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether the output should be flattened to a 1D
+array. If False, a dictionary of the different tensors is
+provided, containing the values under keys: “k1”, “k2”, and
+“k3”:</p></li>
+<li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
+dense numpy array.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="dscribe.descriptors.mbtr.MBTR.check_grid">
+<code class="sig-name descname">check_grid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">grid</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.check_grid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.check_grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to ensure that the given grid settings are valid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>grid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – Dictionary containing the grid setup.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.mbtr.MBTR.create">
+<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">only_physical_cores</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return MBTR output for the given systems.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> or list of <code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code>) – One or many atomic structures.</p></li>
+<li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
+the calculation across samples. Defaults to serial calculation
+with n_jobs=1. If a negative number is given, the used cpus
+will be calculated with, n_cpus + n_jobs, where n_cpus is the
+amount of CPUs as reported by the OS. With only_physical_cores
+you can control which types of CPUs are counted in n_cpus.</p></li>
+<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If a negative n_jobs is given,
+determines which types of CPUs are used in calculating the
+number of jobs. If set to False (default), also virtual CPUs
+are counted.  If set to True, only physical CPUs are counted.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Controls whether to print the progress of each job
+into to the console.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>MBTR for the
+given systems. The return type depends on the ‘sparse’ and
+‘flatten’-attributes. For flattened output a single numpy array or
+sparse.COO matrix is returned. If the output is not flattened,
+dictionaries containing the MBTR tensors for each k-term are
+returned.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray | sparse.COO | list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.mbtr.MBTR.create_single">
+<code class="sig-name descname">create_single</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.create_single"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.create_single" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the many-body tensor representation for the given system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> | <a class="reference internal" href="dscribe.core.html#dscribe.core.system.System" title="dscribe.core.system.System"><code class="xref py py-class docutils literal notranslate"><span class="pre">System</span></code></a>) – Input system.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The return type is
+specified by the ‘flatten’ and ‘sparse’-parameters. If the output
+is not flattened, a dictionary containing of MBTR outputs as numpy
+arrays is created. Each output is under a “kX” key. If the output
+is flattened, a single concatenated output vector is returned,
+either as a sparse or a dense vector.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict | np.ndarray | sparse.COO</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.mbtr.MBTR.get_k1_axis">
+<code class="sig-name descname">get_k1_axis</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.get_k1_axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.get_k1_axis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to get the discretized axis for geometry function of the k=1
+term.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The discretized axis for the k=1 term.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.mbtr.MBTR.get_k2_axis">
+<code class="sig-name descname">get_k2_axis</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.get_k2_axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.get_k2_axis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to get the discretized axis for geometry function of the k=2
+term.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The discretized axis for the k=2 term.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.mbtr.MBTR.get_k3_axis">
+<code class="sig-name descname">get_k3_axis</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.get_k3_axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.get_k3_axis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to get the discretized axis for geometry function of the k=3
+term.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The discretized axis for the k=3 term.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.mbtr.MBTR.get_location">
+<code class="sig-name descname">get_location</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">species</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.get_location"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.get_location" title="Permalink to this definition">¶</a></dt>
+<dd><p>Can be used to query the location of a species combination in the
+the flattened output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>species</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a>) – A tuple containing a species combination as</p></li>
+<li><p><strong>symbols</strong><strong> or </strong><strong>atomic numbers. The tuple can be for example</strong> (<em>chemical</em>) – </p></li>
+<li><p><strong>(</strong><strong>&quot;H&quot;</strong><strong>)</strong><strong>,</strong> (<em>&quot;H&quot;</em><em>, </em><em>&quot;O&quot;</em><em>) or </em><em>(</em><em>&quot;H&quot;</em><em>, </em><em>&quot;O&quot;</em><em>, </em><em>&quot;H&quot;</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>slice containing the location of the specified species
+combination. The location is given as a python slice-object, that
+can be directly used to target ranges in the output.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#slice" title="(in Python v3.9)">slice</a></p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.9)"><strong>ValueError</strong></a> – If the requested species combination is not in the
+    output or if invalid species defined.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.mbtr.MBTR.get_number_of_features">
+<code class="sig-name descname">get_number_of_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/mbtr.html#MBTR.get_number_of_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.get_number_of_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to inquire the final number of features that this descriptor
+will have.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Number of features for this descriptor.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.mbtr.MBTR.k1">
+<em class="property">property </em><code class="sig-name descname">k1</code><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.k1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.mbtr.MBTR.k2">
+<em class="property">property </em><code class="sig-name descname">k2</code><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.k2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.mbtr.MBTR.k3">
+<em class="property">property </em><code class="sig-name descname">k3</code><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.k3" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.mbtr.MBTR.normalization">
+<em class="property">property </em><code class="sig-name descname">normalization</code><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.normalization" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.mbtr.MBTR.species">
+<em class="property">property </em><code class="sig-name descname">species</code><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.species" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-dscribe.descriptors.sinematrix">
+<span id="dscribe-descriptors-sinematrix-module"></span><h2>dscribe.descriptors.sinematrix module<a class="headerlink" href="#module-dscribe.descriptors.sinematrix" title="Permalink to this headline">¶</a></h2>
+<p>Copyright 2019 DScribe developers</p>
+<p>Licensed under the Apache License, Version 2.0 (the “License”);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<blockquote>
+<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+</div></blockquote>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</p>
+<dl class="py class">
+<dt id="dscribe.descriptors.sinematrix.SineMatrix">
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.descriptors.sinematrix.</code><code class="sig-name descname">SineMatrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_atoms_max</span></em>, <em class="sig-param"><span class="n">permutation</span><span class="o">=</span><span class="default_value">'sorted_l2'</span></em>, <em class="sig-param"><span class="n">sigma</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">flatten</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">sparse</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/sinematrix.html#SineMatrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.sinematrix.SineMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dscribe.descriptors.matrixdescriptor.MatrixDescriptor" title="dscribe.descriptors.matrixdescriptor.MatrixDescriptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.descriptors.matrixdescriptor.MatrixDescriptor</span></code></a></p>
+<p>Calculates the zero padded Sine matrix for different systems.</p>
+<p>The Sine matrix is defined as:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Cij = 0.5 Zi**exponent      | i = j</dt><dd><p>= (Zi*Zj)/phi(Ri, Rj)   | i != j</p>
+</dd>
+</dl>
+<p>where phi(r1, r2) = | B * sum(k = x,y,z)[ek * sin^2(pi * ek * B^-1
+(r2-r1))] | (B is the matrix of basis cell vectors, ek are the unit
+vectors)</p>
+</div></blockquote>
+<p>The matrix is padded with invisible atoms, which means that the matrix is
+padded with zeros until the maximum allowed size defined by n_max_atoms is
+reached.</p>
+<dl class="simple">
+<dt>For reference, see:</dt><dd><p>“Crystal Structure Representations for Machine Learning Models of
+Formation Energies”, Felix Faber, Alexander Lindmaa, Anatole von
+Lilienfeld, and Rickard Armiento, International Journal of Quantum
+Chemistry, (2015),
+<a class="reference external" href="https://doi.org/10.1002/qua.24917">https://doi.org/10.1002/qua.24917</a></p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_atoms_max</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The maximum nuber of atoms that any of the
+samples can have. This controls how much zeros need to be
+padded to the final result.</p></li>
+<li><p><strong>permutation</strong> (<em>string</em>) – <p>Defines the method for handling permutational
+invariance. Can be one of the following:</p>
+<blockquote>
+<div><ul>
+<li><p>none: The matrix is returned in the order defined by the
+Atoms.</p></li>
+<li><p>sorted_l2: The rows and columns are sorted by the L2 norm.</p></li>
+<li><p>eigenspectrum: Only the eigenvalues are returned sorted
+by their absolute value in descending order.</p></li>
+<li><p>random: The rows and columns are sorted by their L2 norm
+after applying Gaussian noise to the norms. The standard
+deviation of the noise is determined by the
+sigma-parameter.</p></li>
+</ul>
+</div></blockquote>
+</p></li>
+<li><p><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Provide only when using the <em>random</em>-permutation
+option. Standard deviation of the gaussian distributed noise
+determining how much the rows and columns of the randomly
+sorted matrix are scrambled.</p></li>
+<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Provide only when using the <em>random</em>-permutation
+option. A seed to use for drawing samples from a normal
+distribution.</p></li>
+<li><p><strong>flatten</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether the output of create() should be flattened
+to a 1D array.</p></li>
+<li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
+dense numpy array.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="dscribe.descriptors.sinematrix.SineMatrix.create">
+<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">only_physical_cores</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/sinematrix.html#SineMatrix.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.sinematrix.SineMatrix.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Sine matrix for the given systems.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> or list of <code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code>) – One or
+many atomic structures.</p></li>
+<li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
+the calculation across samples. Defaults to serial calculation
+with n_jobs=1. If a negative number is given, the used cpus
+will be calculated with, n_cpus + n_jobs, where n_cpus is the
+amount of CPUs as reported by the OS. With only_physical_cores
+you can control which types of CPUs are counted in n_cpus.</p></li>
+<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If a negative n_jobs is given,
+determines which types of CPUs are used in calculating the
+number of jobs. If set to False (default), also virtual CPUs
+are counted.  If set to True, only physical CPUs are counted.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Controls whether to print the progress of each job
+into to the console.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Sine matrix for the given systems. The
+return type depends on the ‘sparse’ and ‘flatten’-attributes. For
+flattened output a single numpy array or sparse.COO is returned.
+The first dimension is determined by the amount of systems.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray | sparse.COO</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.sinematrix.SineMatrix.get_matrix">
+<code class="sig-name descname">get_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/sinematrix.html#SineMatrix.get_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.sinematrix.SineMatrix.get_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the Sine matrix for the given system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> | <a class="reference internal" href="dscribe.core.html#dscribe.core.system.System" title="dscribe.core.system.System"><code class="xref py py-class docutils literal notranslate"><span class="pre">System</span></code></a>) – Input system.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Sine matrix as a 2D array.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-dscribe.descriptors.soap">
+<span id="dscribe-descriptors-soap-module"></span><h2>dscribe.descriptors.soap module<a class="headerlink" href="#module-dscribe.descriptors.soap" title="Permalink to this headline">¶</a></h2>
+<p>Copyright 2019 DScribe developers</p>
+<p>Licensed under the Apache License, Version 2.0 (the “License”);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<blockquote>
+<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+</div></blockquote>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</p>
+<dl class="py class">
+<dt id="dscribe.descriptors.soap.SOAP">
+<em class="property">class </em><code class="sig-prename descclassname">dscribe.descriptors.soap.</code><code class="sig-name descname">SOAP</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rcut</span></em>, <em class="sig-param"><span class="n">nmax</span></em>, <em class="sig-param"><span class="n">lmax</span></em>, <em class="sig-param"><span class="n">sigma</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">rbf</span><span class="o">=</span><span class="default_value">'gto'</span></em>, <em class="sig-param"><span class="n">species</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">periodic</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">crossover</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">average</span><span class="o">=</span><span class="default_value">'off'</span></em>, <em class="sig-param"><span class="n">sparse</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">dtype</span><span class="o">=</span><span class="default_value">'float32'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dscribe.descriptors.descriptor.Descriptor" title="dscribe.descriptors.descriptor.Descriptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.descriptors.descriptor.Descriptor</span></code></a></p>
+<p>Class for generating a partial power spectrum from Smooth Overlap of
+Atomic Orbitals (SOAP). This implementation uses real (tesseral) spherical
+harmonics as the angular basis set and provides two orthonormalized
+alternatives for the radial basis functions: spherical primitive gaussian
+type orbitals (“gto”) or the polynomial basis set (“polynomial”).</p>
+<p>For reference, see:</p>
+<p>“On representing chemical environments, Albert P. Bartók, Risi Kondor, and
+Gábor Csányi, Phys. Rev. B 87, 184115, (2013),
+<a class="reference external" href="https://doi.org/10.1103/PhysRevB.87.184115">https://doi.org/10.1103/PhysRevB.87.184115</a></p>
+<p>“Comparing molecules and solids across structural and alchemical space”,
+Sandip De, Albert P. Bartók, Gábor Csányi and Michele Ceriotti, Phys.
+Chem. Chem. Phys. 18, 13754 (2016), <a class="reference external" href="https://doi.org/10.1039/c6cp00415f">https://doi.org/10.1039/c6cp00415f</a></p>
+<p>“Machine learning hydrogen adsorption on nanoclusters through structural
+descriptors”, Marc O. J. Jäger, Eiaki V. Morooka, Filippo Federici Canova,
+Lauri Himanen &amp; Adam S. Foster, npj Comput. Mater., 4, 37 (2018),
+<a class="reference external" href="https://doi.org/10.1038/s41524-018-0096-5">https://doi.org/10.1038/s41524-018-0096-5</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – A cutoff for local region in angstroms. Should be
+bigger than 1 angstrom.</p></li>
+<li><p><strong>nmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of radial basis functions.</p></li>
+<li><p><strong>lmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The maximum degree of spherical harmonics.</p></li>
+<li><p><strong>species</strong> (<em>iterable</em>) – The chemical species as a list of atomic
+numbers or as a list of chemical symbols. Notice that this is not
+the atomic numbers that are present for an individual system, but
+should contain all the elements that are ever going to be
+encountered when creating the descriptors for a set of systems.
+Keeping the number of chemical species as low as possible is
+preferable.</p></li>
+<li><p><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – The standard deviation of the gaussians used to expand the
+atomic density.</p></li>
+<li><p><strong>rbf</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – <p>The radial basis functions to use. The available options are:</p>
+<ul>
+<li><p>”gto”: Spherical gaussian type orbitals defined as <span class="math notranslate nohighlight">\(g_{nl}(r) = \sum_{n'=1}^{n_\mathrm{max}}\,\beta_{nn'l} r^l e^{-\alpha_{n'l}r^2}\)</span></p></li>
+<li><p>”polynomial”: Polynomial basis defined as <span class="math notranslate nohighlight">\(g_{n}(r) = \sum_{n'=1}^{n_\mathrm{max}}\,\beta_{nn'} (r-r_\mathrm{cut})^{n'+2}\)</span></p></li>
+</ul>
+</p></li>
+<li><p><strong>periodic</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Set to true if you want the descriptor output to
+respect the periodicity of the atomic systems (see the
+pbc-parameter in the constructor of ase.Atoms).</p></li>
+<li><p><strong>crossover</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Determines if crossover of atomic types should
+be included in the power spectrum. If enabled, the power
+spectrum is calculated over all unique species combinations Z
+and Z’. If disabled, the power spectrum does not contain
+cross-species information and is only run over each unique
+species Z. Turned on by default to correspond to the original
+definition</p></li>
+<li><p><strong>average</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – <p>The averaging mode over the centers of interest.
+Valid options are:</p>
+<blockquote>
+<div><ul>
+<li><p>”off”: No averaging.</p></li>
+<li><p>”inner”: Averaging over sites before summing up the magnetic quantum numbers: <span class="math notranslate nohighlight">\(p_{nn'l}^{Z_1,Z_2} \sim \sum_m (\frac{1}{n} \sum_i c_{nlm}^{i, Z_1})^{*} (\frac{1}{n} \sum_i c_{n'lm}^{i, Z_2})\)</span></p></li>
+<li><p>”outer”: Averaging over the power spectrum of different sites: <span class="math notranslate nohighlight">\(p_{nn'l}^{Z_1,Z_2} \sim \frac{1}{n} \sum_i \sum_m (c_{nlm}^{i, Z_1})^{*} (c_{n'lm}^{i, Z_2})\)</span></p></li>
+</ul>
+</div></blockquote>
+</p></li>
+<li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
+dense numpy array.</p></li>
+<li><p><strong>dtype</strong> (<em>string</em>) – <p>The data type of the output. Valid options are:</p>
+<ul>
+<li><p>”float32”: Single precision floating point numbers.</p></li>
+<li><p>”float64”: Double precision floating point numbers.</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="dscribe.descriptors.soap.SOAP.create">
+<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">positions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">only_physical_cores</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the SOAP output for the given systems and given positions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> or list of <code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code>) – One or
+many atomic structures.</p></li>
+<li><p><strong>positions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – Positions where to calculate SOAP. Can be
+provided as cartesian positions or atomic indices. If no
+positions are defined, the SOAP output will be created for all
+atoms in the system. When calculating SOAP for multiple
+systems, provide the positions as a list for each system.</p></li>
+<li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
+the calculation across samples. Defaults to serial calculation
+with n_jobs=1. If a negative number is given, the used cpus
+will be calculated with, n_cpus + n_jobs, where n_cpus is the
+amount of CPUs as reported by the OS. With only_physical_cores
+you can control which types of CPUs are counted in n_cpus.</p></li>
+<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If a negative n_jobs is given,
+determines which types of CPUs are used in calculating the
+number of jobs. If set to False (default), also virtual CPUs
+are counted.  If set to True, only physical CPUs are counted.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Controls whether to print the progress of each job
+into to the console.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The SOAP output for the given systems and
+positions. The return type depends on the ‘sparse’-attribute. The
+first dimension is determined by the amount of positions and
+systems and the second dimension is determined by the
+get_number_of_features()-function. When multiple systems are
+provided the results are ordered by the input order of systems and
+their positions.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray | sparse.COO</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.soap.SOAP.create_single">
+<code class="sig-name descname">create_single</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">positions</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.create_single"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.create_single" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the SOAP output for the given system and given positions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> | <a class="reference internal" href="dscribe.core.html#dscribe.core.system.System" title="dscribe.core.system.System"><code class="xref py py-class docutils literal notranslate"><span class="pre">System</span></code></a>) – Input system.</p></li>
+<li><p><strong>positions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – Cartesian positions or atomic indices. If
+specified, the SOAP spectrum will be created for these points.
+If no positions are defined, the SOAP output will be created
+for all atoms in the system.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The SOAP output for the
+given system and positions. The return type depends on the
+‘sparse’-attribute. The first dimension is given by the number of
+positions and the second dimension is determined by the
+get_number_of_features()-function.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray | sparse.COO</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.soap.SOAP.derivatives">
+<code class="sig-name descname">derivatives</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">positions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">include</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">exclude</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">method</span><span class="o">=</span><span class="default_value">'auto'</span></em>, <em class="sig-param"><span class="n">return_descriptor</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">only_physical_cores</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.derivatives"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.derivatives" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the descriptor derivatives for the given systems and given positions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> or list of <code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code>) – One or
+many atomic structures.</p></li>
+<li><p><strong>positions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – Positions where to calculate the descriptor. Can be
+provided as cartesian positions or atomic indices. If no
+positions are defined, the descriptor output will be created for all
+atoms in the system. When calculating descriptor for multiple
+systems, provide the positions as a list for each system.</p></li>
+<li><p><strong>include</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – Indices of atoms to compute the derivatives on.
+When calculating descriptor for multiple systems, provide
+either a one-dimensional list that if applied to all systems or
+a two-dimensional list of indices. Cannot be provided together
+with ‘exclude’.</p></li>
+<li><p><strong>exclude</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – Indices of atoms not to compute the derivatives on.
+When calculating descriptor for multiple systems, provide
+either a one-dimensional list that if applied to all systems or
+a two-dimensional list of indices. Cannot be provided together
+with ‘include’.</p></li>
+<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The method for calculating the derivatives. Provide
+either ‘numerical’, ‘analytical’ or ‘auto’. If using ‘auto’,
+the most efficient available method is automatically chosen.</p></li>
+<li><p><strong>return_descriptor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether to also calculate the descriptor
+in the same function call. Notice that it typically is faster
+to calculate both in one go.</p></li>
+<li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
+the calculation across samples. Defaults to serial calculation
+with n_jobs=1. If a negative number is given, the number of jobs
+will be calculated with, n_cpus + n_jobs, where n_cpus is the
+amount of CPUs as reported by the OS. With only_physical_cores
+you can control which types of CPUs are counted in n_cpus.</p></li>
+<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If a negative n_jobs is given,
+determines which types of CPUs are used in calculating the
+number of jobs. If set to False (default), also virtual CPUs
+are counted.  If set to True, only physical CPUs are counted.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Controls whether to print the progress of each job
+into to the console.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>If return_descriptor is True, returns a tuple, where the first item
+is the derivative array and the second is the descriptor array.
+Otherwise only returns the derivatives array. The derivatives array
+is a either a 4D or 5D array, depending on whether you have
+provided a single or multiple systems. If the output shape for each
+system is the same, a single monolithic numpy array is returned.
+For variable sized output (e.g. differently sized systems,
+different number of centers or different number of included atoms),
+a regular python list is returned. The dimensions are:
+[(n_systems,) n_positions, n_atoms, 3, n_features]. The first
+dimension goes over the different systems in case multiple were
+given. The second dimension goes over the descriptor centers in
+the same order as they were given in the argument. The third
+dimension goes over the included atoms. The order is same as the
+order of atoms in the given system. The fourth dimension goes over
+the cartesian components, x, y and z. The fifth dimension goes over
+the features in the default order.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.soap.SOAP.derivatives_single">
+<code class="sig-name descname">derivatives_single</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">positions</span></em>, <em class="sig-param"><span class="n">indices</span></em>, <em class="sig-param"><span class="n">method</span><span class="o">=</span><span class="default_value">'numerical'</span></em>, <em class="sig-param"><span class="n">return_descriptor</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.derivatives_single"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.derivatives_single" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the SOAP output for the given system and given positions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code>) – Atomic structure.</p></li>
+<li><p><strong>positions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – Positions where to calculate SOAP. Can be
+provided as cartesian positions or atomic indices. If no
+positions are defined, the SOAP output will be created for all
+atoms in the system. When calculating SOAP for multiple
+systems, provide the positions as a list for each system.</p></li>
+<li><p><strong>indices</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – Indices of atoms for which the derivatives will be
+computed for.</p></li>
+<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – ‘numerical’ or ‘analytical’ derivatives. Numerical
+derivatives are implemented with central finite difference. If
+not specified, analytical derivatives are used when available.</p></li>
+<li><p><strong>return_descriptor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether to also calculate the descriptor
+in the same function call. This is true by default as it
+typically is faster to calculate both in one go.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>If return_descriptor is True, returns a tuple, where the first item
+is the derivative array and the second is the descriptor array.
+Otherwise only returns the derivatives array. The derivatives array
+is a 4D numpy array. The dimensions are: [n_positions, n_atoms, 3,
+n_features]. The first dimension goes over the SOAP centers in the
+same order as they were given in the argument. The second dimension
+goes over the included atoms. The order is same as the order of
+atoms in the given system. The third dimension goes over the
+cartesian components, x, y and z. The last dimension goes over the
+features in the default order.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.soap.SOAP.get_basis_gto">
+<code class="sig-name descname">get_basis_gto</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rcut</span></em>, <em class="sig-param"><span class="n">nmax</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.get_basis_gto"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.get_basis_gto" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to calculate the alpha and beta prefactors for the gto-radial
+basis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Radial cutoff.</p></li>
+<li><p><strong>nmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of gto radial bases.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The alpha and beta prefactors for all bases
+up to a fixed size of l=10.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(np.ndarray, np.ndarray)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.soap.SOAP.get_basis_poly">
+<code class="sig-name descname">get_basis_poly</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rcut</span></em>, <em class="sig-param"><span class="n">nmax</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.get_basis_poly"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.get_basis_poly" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to calculate discrete vectors for the polynomial basis functions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Radial cutoff.</p></li>
+<li><p><strong>nmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of polynomial radial bases.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Tuple containing the evaluation points in
+radial direction as the first item, and the corresponding
+orthonormalized polynomial radial basis set as the second item.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(np.ndarray, np.ndarray)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.soap.SOAP.get_cutoff_padding">
+<code class="sig-name descname">get_cutoff_padding</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.get_cutoff_padding"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.get_cutoff_padding" title="Permalink to this definition">¶</a></dt>
+<dd><p>The radial cutoff is extended by adding a padding that depends on
+the used used sigma value. The padding is chosen so that the gaussians
+decay to the specified threshold value at the cutoff distance.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.soap.SOAP.get_location">
+<code class="sig-name descname">get_location</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">species</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.get_location"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.get_location" title="Permalink to this definition">¶</a></dt>
+<dd><p>Can be used to query the location of a species combination in the
+the flattened output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>species</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a>) – A tuple containing a pair of species as chemical
+symbols or atomic numbers. The tuple can be for example (“H”, “O”).</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>slice containing the location of the specified species
+combination. The location is given as a python slice-object, that
+can be directly used to target ranges in the output.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#slice" title="(in Python v3.9)">slice</a></p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.9)"><strong>ValueError</strong></a> – If the requested species combination is not in the
+    output or if invalid species defined.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.soap.SOAP.get_number_of_features">
+<code class="sig-name descname">get_number_of_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.get_number_of_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.get_number_of_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to inquire the final number of features that this descriptor
+will have.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Number of features for this descriptor.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.soap.SOAP.init_derivatives_array">
+<code class="sig-name descname">init_derivatives_array</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_centers</span></em>, <em class="sig-param"><span class="n">n_atoms</span></em>, <em class="sig-param"><span class="n">n_features</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.init_derivatives_array"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.init_derivatives_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a zero-initialized numpy array for the derivatives.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.soap.SOAP.init_descriptor_array">
+<code class="sig-name descname">init_descriptor_array</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_centers</span></em>, <em class="sig-param"><span class="n">n_features</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.init_descriptor_array"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.init_descriptor_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a zero-initialized numpy array for the descriptor.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.soap.SOAP.init_internal_array">
+<code class="sig-name descname">init_internal_array</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_centers</span></em>, <em class="sig-param"><span class="n">n_types</span></em>, <em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">lMax</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.init_internal_array"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.init_internal_array" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.soap.SOAP.init_internal_dev_array">
+<code class="sig-name descname">init_internal_dev_array</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_centers</span></em>, <em class="sig-param"><span class="n">n_atoms</span></em>, <em class="sig-param"><span class="n">n_types</span></em>, <em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">lMax</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.init_internal_dev_array"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.init_internal_dev_array" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.soap.SOAP.prepare_centers">
+<code class="sig-name descname">prepare_centers</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">cutoff_padding</span></em>, <em class="sig-param"><span class="n">positions</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/soap.html#SOAP.prepare_centers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.prepare_centers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validates and prepares the centers for the C++ extension.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dscribe.descriptors.soap.SOAP.species">
+<em class="property">property </em><code class="sig-name descname">species</code><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.species" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-dscribe.descriptors.test">
+<span id="dscribe-descriptors-test-module"></span><h2>dscribe.descriptors.test module<a class="headerlink" href="#module-dscribe.descriptors.test" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="dscribe.descriptors.test.get_basis_gto">
+<code class="sig-prename descclassname">dscribe.descriptors.test.</code><code class="sig-name descname">get_basis_gto</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rcut</span></em>, <em class="sig-param"><span class="n">nmax</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/test.html#get_basis_gto"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.test.get_basis_gto" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to calculate the alpha and beta prefactors for the gto-radial
+basis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Radial cutoff.</p></li>
+<li><p><strong>nmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of gto radial bases.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The alpha and beta prefactors for all bases
+up to a fixed size of l=10.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(np.ndarray, np.ndarray)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-dscribe.descriptors">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-dscribe.descriptors" title="Permalink to this headline">¶</a></h2>
+<p>Copyright 2019 DScribe developers</p>
+<p>Licensed under the Apache License, Version 2.0 (the “License”);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<blockquote>
+<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+</div></blockquote>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="dscribe.kernels.html" class="btn btn-neutral float-right" title="dscribe.kernels package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="dscribe.core.html" class="btn btn-neutral float-left" title="dscribe.core package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Versions</span>
+      v: 1.0.x
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl id="version-table">
+        <dt>Versions</dt>
+      </dl>
+    </div>
+  </div>
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

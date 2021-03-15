@@ -60,7 +60,7 @@ def get_atomic_numbers(species):
 
     # Determine if the given species are atomic numbers or chemical symbols
     if all(isinstance(x, (int, np.integer)) for x in species):
-        if not np.all(np.array(species) >= 0):
+        if any([x < 0 for x in species]):
             raise ValueError(
                 "The given list of species contains negative integers. Please use only non-negative integers"
             )
@@ -70,8 +70,7 @@ def get_atomic_numbers(species):
     else:
         raise ValueError(
             "The given list of species does not seem to contain strictly "
-            "chemical symbols or atomic numbers, but a mixture. Please use only"
-            " either one."
+            "chemical symbols or atomic numbers. Please use either one."
         )
 
     # Return species as atomic numbers with possible duplicates removed
