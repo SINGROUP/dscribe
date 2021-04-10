@@ -1840,7 +1840,7 @@ void getCD(
     for(int k = 0; k < Ns; k++){
       for(int i = 0; i < Asize; i++){
         double expSholder = aOa[k]*r2[i];
-        if(expSholder > -22 ){ // check point
+        if(expSholder > -22 ) { // check point
         preExp = 1.5707963267948966*exp(expSholder);
         preVal = 2.0*aOa[k]*preExp;
         preValX = preVal*x[i];
@@ -2144,21 +2144,27 @@ void soapGTODevX(
   double* exes = (double*) malloc(sizeof(double)*totalAN);
   // -4 -> no need for l=0, l=1.
   double* preCoef = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN);
-  double* prCofDX = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN);
-  double* prCofDY = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN);
-  double* prCofDZ = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN);
+  double* prCofDX;
+  double* prCofDY;
+  double* prCofDZ;
+  if (return_derivatives) {
+    prCofDX = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN);
+    prCofDY = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN);
+    prCofDZ = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN);
+  }
+
   double* bOa = (double*) malloc((lMax+1)*NsNs*sizeof(double));
   double* aOa = (double*) malloc((lMax+1)*Ns*sizeof(double));
 
-  auto cnnd_u = cnnd.unchecked<4>(); 
-  auto cdevX_u = cdevX.unchecked<5>(); 
-  auto cdevY_u = cdevY.unchecked<5>(); 
-  auto cdevZ_u = cdevZ.unchecked<5>(); 
+  auto cnnd_u = cnnd.unchecked<4>();
+  auto cdevX_u = cdevX.unchecked<5>();
+  auto cdevY_u = cdevY.unchecked<5>();
+  auto cdevZ_u = cdevZ.unchecked<5>();
 
   auto cnnd_mu = cnnd.mutable_unchecked<4>(); 
-  auto cdevX_mu = cdevX.mutable_unchecked<5>(); 
-  auto cdevY_mu = cdevY.mutable_unchecked<5>(); 
-  auto cdevZ_mu = cdevZ.mutable_unchecked<5>(); 
+  auto cdevX_mu = cdevX.mutable_unchecked<5>();
+  auto cdevY_mu = cdevY.mutable_unchecked<5>();
+  auto cdevZ_mu = cdevZ.mutable_unchecked<5>();
 
   // Initialize binning for atoms and centers
   CellList cell_list_atoms(positions, rCut+cutoffPadding);

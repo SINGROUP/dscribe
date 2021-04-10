@@ -486,10 +486,6 @@ class SOAP(Descriptor):
             alphas = self._alphas.flatten()
             betas = self._betas.flatten()
 
-            # Determine shape
-            n_features = self.get_number_of_features()
-            soap_mat = self.init_descriptor_array(n_centers, n_features)
-
             # Calculate with extension
             soap_gto = dscribe.ext.SOAPGTO(
                 self._rcut,
@@ -528,13 +524,19 @@ class SOAP(Descriptor):
                 True,
             )
 
+        # Averaged output is a global descriptor, and thus the first dimension
+        # is squeezed out to keep the output size consistent with the size of
+        # other global descriptors.
+        if self.average != "off":
+            soap_mat = np.squeeze(soap_mat, axis=0)
+
         # Convert to the final output precision.
         if self.dtype == "float32":
             soap_mat = soap_mat.astype(self.dtype)
 
         # Make into a sparse array if requested
-        if self.sparse:
-            soap_mat = coo_matrix(soap_mat)
+        if self._sparse:
+            soap_mat = sp.COO.from_numpy(soap_mat)
 
         return soap_mat
 
