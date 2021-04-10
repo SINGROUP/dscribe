@@ -85,8 +85,15 @@ class SOAP(Descriptor):
             sigma (float): The standard deviation of the gaussians used to expand the
                 atomic density.
             weighting (dict): The parameters of the radial weighting function.
-                TODO
-                1/(r/r0)^m
+                It requires the argument "func" to be one of the following:
+                1) "poly-m"
+                2) "poly-3m"
+                3) "exp"
+
+                Apart from the decay-function-specific parameters, a "threshold" can be
+                specified (default: 1e-3). The threshold is only used if rcut=None in order
+                to infer it.
+
 
             rbf (str): The radial basis functions to use. The available options are:
 
