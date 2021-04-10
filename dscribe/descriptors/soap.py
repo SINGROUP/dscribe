@@ -161,21 +161,36 @@ class SOAP(Descriptor):
                 "Either weighting or rcut need to be defined"
             )
         if weighting:
-            if weighting["c"] < 0:
+            weighting_functions = ["poly-m", "poly-3m", "exp"]
+            if weighting["func"] == "poly-m":
+                if weighting["r0"] < 0:
+                    raise ValueError(
+                        "Define r0 > 0 in dict weighting.")   
+                if weighting["c"] < 0:
+                    raise ValueError(
+                        "Define c >= 0 in dict weighting.")
+
+            elif weighting["func"] == "poly-3m":
+                if weighting["r0"] < 0:
+                    raise ValueError(
+                        "Define r0 > 0 in dict weighting.")            
+
+            elif weighting["func"] == "exp":
+                pass
+            else:
                 raise ValueError(
-                    "Define c >= 0 in dict weighting.")                 
+                    "weighting function not implemented. Please choose among " 
+                    "one of the following {}".format(str(weighting_functions)))
             if weighting["m"] < 0:
                 raise ValueError(
                     "Define m >= 0 in dict weighting.")         
-            if weighting["r0"] < 0:
-                raise ValueError(
-                    "Define r0 > 0 in dict weighting.")
+
             weighting["threshold"] = weighting.get("threshold", 1e-3)
         else:
             weighting = {"m" : 0, "c" : 0, "r0" : 1} # default weighting: no decay
         if not rcut:
             rcut = self.infer_rcut(weighting)
-
+            print(rcut)
 
         # Test that radial basis set specific settings are valid
         if rbf == "gto":
@@ -199,7 +214,7 @@ class SOAP(Descriptor):
                     "cannot currently exceed 20. lmax={}".format(lmax)
                 )
 
-        self._rcut = rcut
+        self._rcut = float(rcut)
         self._weighting = weighting
         self._nmax = nmax
         self._lmax = lmax
@@ -265,16 +280,36 @@ class SOAP(Descriptor):
         return cutoff_padding
 
     def infer_rcut(self, weighting):
-        t = weighting["threshold"]
-        m = weighting["m"]
-        c = weighting["c"]
-        r0 = weighting["r0"]
+        if weighting["func"] == "poly-m":
+            t = weighting["threshold"]
+            m = weighting["m"]
+            c = weighting["c"]
+            r0 = weighting["r0"]
 
-        if c == 0:
-            rcut = r0 * (1 / t) ** (1 / m)
+            if c == 0:
+                rcut = r0 * (1 / t) ** (1 / m)
+            else:
+                rcut = r0 * ((1 -t) * c / t) ** (1 / m)
+            return rcut
+        elif weighting["func"] == "poly-3m":
+            t = weighting["threshold"]
+            m = weighting["m"]
+            r0 = weighting["r0"]
+            
+            t = t ** (1 / m)
+            rcut = 0.5 * ((2 * (r0**6 * t**2 - r0**6 * t)**(1/2) + 2 * r0**3 * t - r0**3)**(1/3) + r0**2/(2 * (r0**6 * t**2 - r0**6 * t)**(1/2) + 2 * r0**3 * t - r0**3)**(1/3) + r0)
+            rcut = np.real(rcut)
+            return rcut
+
+        elif weighting["func"] == "exp":
+            t = weighting["threshold"]
+            m = weighting["m"]            
+
+            rcut = np.log(1 / t) / m
+            return rcut
+
         else:
-            rcut = r0 * ((1 -t) * c / t) ** (1 / m)
-        return rcut
+            return None
 
     def init_descriptor_array(self, n_centers, n_features):
         """Return a zero-initialized numpy array for the descriptor."""
@@ -838,6 +873,7 @@ class SOAP(Descriptor):
                 self._nmax,
                 self._lmax,
                 self._eta,
+                self._weighting,
                 self._atomic_numbers,
                 self.periodic,
                 self.crossover,
