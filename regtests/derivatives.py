@@ -74,7 +74,7 @@ class SoapDerivativeTests(unittest.TestCase):
             species=[1, 8],
             rcut=3,
             nmax=2,
-            lmax=0,
+            lmax=1,
             rbf="polynomial",
             sparse=False,
         )
@@ -591,8 +591,8 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
         soap = SOAP(
             species=["H", "O"],
             rcut=3,
-            nmax=3,
-            lmax=3,
+            nmax=9,
+            lmax=9,
             crossover=True,
         )
         positions = H2O.get_positions()
@@ -696,10 +696,12 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    suites = []
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
-    suites.append(
-        unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests)
-    )
-    alltests = unittest.TestSuite(suites)
-    result = unittest.TextTestRunner(verbosity=0).run(alltests)
+    # suites = []
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
+    # suites.append(
+        # unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests)
+    # )
+    SoapDerivativeComparisonTests().test_descriptor_output()
+    
+    # alltests = unittest.TestSuite(suites)
+    # result = unittest.TextTestRunner(verbosity=0).run(alltests)
