@@ -203,12 +203,6 @@ class SOAP(Descriptor):
         self._weighting = weighting
         self._nmax = nmax
         self._lmax = lmax
-        self._weighting = {
-            "function": "test",
-            "r0": 1.5,
-            "c": 1,
-            "m": 3,
-        }
         self._rbf = rbf
         self.average = average
         self.crossover = crossover
