@@ -14,7 +14,6 @@ limitations under the License.
 */
 #include <iostream>
 #include "soap.h"
-#include "soapGTO.h"
 #include "soapGeneral.h"
 #include "soapGTODevX.h"
 #include "geometry.h"
@@ -103,6 +102,32 @@ void SOAPGTO::create(
         this->crossover,
         this->average,
         cell_list
+    );
+    soapGTODevX(
+        derivatives,
+        out,
+        xd,
+        yd,
+        zd,
+        cd,
+        positions,
+        centers,
+        center_indices,
+        this->alphas,
+        this->betas,
+        atomic_numbers,
+        this->species,
+        this->rcut,
+        this->cutoff_padding,
+        n_atoms,
+        this->nmax,
+        this->lmax,
+        n_centers,
+        this->eta,
+        this->crossover,
+        indices,
+        true,
+        false
     );
 }
 
