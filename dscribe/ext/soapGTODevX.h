@@ -17,6 +17,7 @@ limitations under the License.
 
 #include <vector>
 #include <pybind11/numpy.h>
+#include "celllist.h"
 
 namespace py = pybind11;
 using namespace std;
@@ -34,25 +35,22 @@ void soapGTODevX(
     py::array_t<double> cdevX,
     py::array_t<double> cdevY,
     py::array_t<double> cdevZ,
-    py::array_t<double> cnnd,
     py::array_t<double> positions,
     py::array_t<double> centers,
-    py::array_t<int> center_indices,
     py::array_t<double> alphasArr,
     py::array_t<double> betasArr,
     py::array_t<int> atomicNumbersArr,
     py::array_t<int> orderedSpeciesArr,
     const double rCut,
     const double cutoffPadding,
-    const int totalAN,
     const int Ns,
     const int lMax,
-    const int Hs,
     const double eta,
     const bool crossover,
     py::array_t<int> indices,
     const bool return_descriptor,
-    const bool return_derivatives
+    const bool return_derivatives,
+    CellList cell_list
 );
 
 #endif

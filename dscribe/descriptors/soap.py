@@ -378,7 +378,7 @@ class SOAP(Descriptor):
             get_number_of_features()-function.
         """
         cutoff_padding = self.get_cutoff_padding()
-        centers, _ = self.prepare_centers(system, cutoff_padding, positions)
+        centers, center_indices = self.prepare_centers(system, cutoff_padding, positions)
         n_centers = centers.shape[0]
         n_species = self._atomic_numbers.shape[0]
         pos = system.get_positions()
@@ -412,6 +412,8 @@ class SOAP(Descriptor):
                 alphas,
                 betas,
             )
+
+            # Calculate analytically with extension
             soap_gto.create(
                 soap_mat,
                 pos,
@@ -447,81 +449,6 @@ class SOAP(Descriptor):
                 ase.geometry.cell.complete_cell(system.get_cell()),
                 np.asarray(system.get_pbc(), dtype=bool),
                 centers,
-            )
-
-        # Averaged output is a global descriptor, and thus the first dimension
-        # is squeezed out to keep the output size consistent with the size of
-        # other global descriptors.
-        if self.average != "off":
-            soap_mat = np.squeeze(soap_mat, axis=0)
-
-        # Convert to the final output precision.
-        if self.dtype == "float32":
-            soap_mat = soap_mat.astype(self.dtype)
-
-        # Make into a sparse array if requested
-        if self._sparse:
-            soap_mat = sp.COO.from_numpy(soap_mat)
-
-        return soap_mat
-
-    def _cartesian(self, system, positions=None):
-        """Internal test function."""
-        cutoff_padding = self.get_cutoff_padding()
-        centers, center_indices = self.prepare_centers(
-            system, cutoff_padding, positions
-        )
-        n_centers = centers.shape[0]
-        n_species = self._atomic_numbers.shape[0]
-        pos = system.get_positions()
-        Z = system.get_atomic_numbers()
-        n_features = self.get_number_of_features()
-        n_atoms = Z.shape[0]
-        soap_mat = self.init_descriptor_array(n_centers, n_features)
-
-        # Determine the function to call based on rbf
-        if self._rbf == "gto":
-
-            # Orthonormalized RBF coefficients
-            alphas = self._alphas.flatten()
-            betas = self._betas.flatten()
-
-            # Calculate with extension
-            soap_gto = dscribe.ext.SOAPGTO(
-                self._rcut,
-                self._nmax,
-                self._lmax,
-                self._eta,
-                self._atomic_numbers,
-                self.periodic,
-                self.crossover,
-                self.average,
-                cutoff_padding,
-                alphas,
-                betas,
-            )
-
-            # Calculate analytically with extension
-            xd = np.empty((1, 1, 1, 1, 1))
-            yd = np.empty((1, 1, 1, 1, 1))
-            zd = np.empty((1, 1, 1, 1, 1))
-            cd = self.init_internal_array(n_centers, n_species, self._nmax, self._lmax)
-            d = np.empty((1, 1, 1, 1))
-            soap_gto.create_cartesian(
-                d,
-                soap_mat,
-                xd,
-                yd,
-                zd,
-                cd,
-                pos,
-                Z,
-                ase.geometry.cell.complete_cell(system.get_cell()),
-                np.asarray(system.get_pbc(), dtype=bool),
-                centers,
-                center_indices,
-                [],
-                True,
             )
 
         # Averaged output is a global descriptor, and thus the first dimension
@@ -829,9 +756,6 @@ class SOAP(Descriptor):
                 # that numpy does some kind of lazy allocation that is
                 # highly efficient for zero-initialized arrays. Similar
                 # performace could not be achieved even with calloc.
-                cd = self.init_internal_array(
-                    n_centers, n_species, self._nmax, self._lmax
-                )
                 xd = self.init_internal_dev_array(
                     n_centers, n_atoms, n_species, self._nmax, self._lmax
                 )
@@ -848,7 +772,6 @@ class SOAP(Descriptor):
                     xd,
                     yd,
                     zd,
-                    cd,
                     pos,
                     Z,
                     ase.geometry.cell.complete_cell(system.get_cell()),

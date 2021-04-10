@@ -2152,27 +2152,25 @@ void soapGTODevX(
     py::array_t<double> cdevX,
     py::array_t<double> cdevY,
     py::array_t<double> cdevZ,
-    py::array_t<double> cnnd,
     py::array_t<double> positions,
     py::array_t<double> centers,
-    py::array_t<int> center_indices,
     py::array_t<double> alphasArr,
     py::array_t<double> betasArr,
     py::array_t<int> atomicNumbersArr,
     py::array_t<int> orderedSpeciesArr,
     const double rCut,
     const double cutoffPadding,
-    const int totalAN,
     const int Ns,
     const int lMax,
-    const int Hs,
     const double eta,
     const bool crossover,
     py::array_t<int> indices,
     const bool return_descriptor,
-    const bool return_derivatives
+    const bool return_derivatives,
+    CellList cell_list_atoms
 ) {
-  
+  const int totalAN = atomicNumbersArr.shape(0);
+  const int Hs = centers.shape(0);
   auto derivatives_mu = derivatives.mutable_unchecked<4>();
   auto atomicNumbers = atomicNumbersArr.unchecked<1>();
   auto species = orderedSpeciesArr.unchecked<1>();
@@ -2211,6 +2209,10 @@ void soapGTODevX(
 
   double* bOa = (double*) malloc((lMax+1)*NsNs*sizeof(double));
   double* aOa = (double*) malloc((lMax+1)*Ns*sizeof(double));
+  
+  // Initialize temporary numpy array for storing the coefficients
+  double* dTemp = new double[Hs*nSpecies*Ns*(lMax + 1) * (lMax + 1)]();
+  py::array_t<double> cnnd({Hs, nSpecies, Ns, (lMax + 1) * (lMax + 1)}, dTemp);
 
   auto cnnd_u = cnnd.unchecked<4>();
   auto cdevX_u = cdevX.unchecked<5>();
@@ -2223,7 +2225,6 @@ void soapGTODevX(
   auto cdevZ_mu = cdevZ.mutable_unchecked<5>();
 
   // Initialize binning for atoms and centers
-  CellList cell_list_atoms(positions, rCut+cutoffPadding);
   CellList cell_list_centers(centers, rCut+cutoffPadding);
 
   // Create a mapping between an atomic index and its internal index in the
@@ -2265,7 +2266,7 @@ void soapGTODevX(
   free(dy); free(y2); free(y4); free(y6); free(y8); free(y10); free(y12); free(y14); free(y16); free(y18);
   free(dz); free(z2); free(z4); free(z6); free(z8); free(z10); free(z12); free(z14); free(z16); free(z18);
   free(r2); free(r4); free(r6); free(r8); free(r10); free(r12); free(r14); free(r16); free(r18);
-  free(exes); free(preCoef); free(bOa); free(aOa);
+  free(exes); free(preCoef); free(bOa); free(aOa); free(dTemp);
 
   // Calculate the descriptor value if requested
   if (return_descriptor) {

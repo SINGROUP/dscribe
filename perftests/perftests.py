@@ -103,7 +103,7 @@ def soap_cartesian_vs_imaginary(version):
     ax.set_ylabel("Time (s)")
     system = system_periodic*(5,5,5)
 
-    for method in ["imaginary", "tesseral"]:
+    for method in ["imaginary"]:
 
         N = []
         t = []
