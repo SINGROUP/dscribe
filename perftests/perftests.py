@@ -94,8 +94,8 @@ def soap_derivatives(version):
 def soap_cartesian_vs_imaginary(version):
     """Tests the performance of cartesian SOAP GTO vs. imaginary SOAP GTO.
     """
-    nmax = 6
-    lmax = 6
+    nmax = 9
+    lmax = 9
     fig = mpl.figure(figsize=[9, 7])
     ax = fig.add_subplot(111)
     ax.set_title("SOAP nmax={}, lmax={}, version={}".format(nmax, lmax, version))
@@ -107,7 +107,7 @@ def soap_cartesian_vs_imaginary(version):
 
         N = []
         t = []
-        for ncells in tqdm(range(9, 10)):
+        for ncells in tqdm(range(1, 10)):
             soap_generator = SOAP(
                 rcut=3.0,
                 nmax=nmax,
@@ -130,10 +130,10 @@ def soap_cartesian_vs_imaginary(version):
             N.append(len(i_system))
             t.append(t1 - t0)
 
-        # ax.plot(N, t, "o--", label="{}".format(method))
+        ax.plot(N, t, "o--", label="{}".format(method))
 
-    # mpl.legend()
-    # mpl.show()
+    mpl.legend()
+    mpl.show()
 
 
 def soap_sparse_vs_dense(version):
