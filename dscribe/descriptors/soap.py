@@ -60,6 +60,7 @@ class SOAP(Descriptor):
         nmax,
         lmax,
         sigma=1.0,
+        weighting=None,
         rbf="gto",
         species=None,
         periodic=False,
@@ -83,6 +84,10 @@ class SOAP(Descriptor):
                 preferable.
             sigma (float): The standard deviation of the gaussians used to expand the
                 atomic density.
+            weighting (dict): The parameters of the radial weighting function.
+                TODO
+                1/(r/r0)^m
+
             rbf (str): The radial basis functions to use. The available options are:
 
                 * "gto": Spherical gaussian type orbitals defined as :math:`g_{nl}(r) = \sum_{n'=1}^{n_\mathrm{max}}\,\\beta_{nn'l} r^l e^{-\\alpha_{n'l}r^2}`
@@ -151,6 +156,27 @@ class SOAP(Descriptor):
                 "one of the following: {}".format(average, supported_average)
             )
 
+        if not (weighting or rcut):
+            raise ValueError(
+                "Either weighting or rcut need to be defined"
+            )
+        if weighting:
+            if weighting["c"] < 0:
+                raise ValueError(
+                    "Define c >= 0 in dict weighting.")                 
+            if weighting["m"] < 0:
+                raise ValueError(
+                    "Define m >= 0 in dict weighting.")         
+            if weighting["r0"] < 0:
+                raise ValueError(
+                    "Define r0 > 0 in dict weighting.")
+            weighting["threshold"] = weighting.get("threshold", 1e-3)
+        else:
+            weighting = {"m" : 0, "c" : 0, "r0" : 1} # default weighting: no decay
+        if not rcut:
+            rcut = self.infer_rcut(weighting)
+
+
         # Test that radial basis set specific settings are valid
         if rbf == "gto":
             if rcut <= 1:
@@ -174,6 +200,7 @@ class SOAP(Descriptor):
                 )
 
         self._rcut = rcut
+        self._weighting = weighting
         self._nmax = nmax
         self._lmax = lmax
         self._rbf = rbf
@@ -236,6 +263,18 @@ class SOAP(Descriptor):
         threshold = 0.001
         cutoff_padding = self._sigma * np.sqrt(-2 * np.log(threshold))
         return cutoff_padding
+
+    def infer_rcut(self, weighting):
+        t = weighting["threshold"]
+        m = weighting["m"]
+        c = weighting["c"]
+        r0 = weighting["r0"]
+
+        if c == 0:
+            rcut = r0 * (1 / t) ** (1 / m)
+        else:
+            rcut = r0 * ((1 -t) * c / t) ** (1 / m)
+        return rcut
 
     def init_descriptor_array(self, n_centers, n_features):
         """Return a zero-initialized numpy array for the descriptor."""
