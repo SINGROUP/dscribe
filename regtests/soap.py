@@ -210,6 +210,40 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         self.assertTrue(desc2.dtype == np.float64)
         self.assertTrue(der.dtype == np.float64)
 
+    def test_infer_rcut(self):
+        """Tests that the rcut is correctly inferred from the threshold given in weighting"""
+        weighting = {
+            "c" : 0,
+            "m" : 1,
+            "r0" : 1,
+            "threshold" : 1e-3,
+        }
+        soap = SOAP(
+            species=[1, 8], rcut=None, nmax=1, lmax=1, sparse=True, weighting=weighting
+        )
+        threshold = (1 /(soap._rcut / weighting["r0"])) ** weighting["m"]
+
+        self.assertAlmostEqual(weighting["threshold"], threshold)
+
+        weighting = {
+            "c" : 2,
+            "m" : 1,
+            "r0" : 1,
+            "threshold" : 1e-3,
+        }
+        soap = SOAP(
+            species=[1, 8], rcut=None, nmax=1, lmax=1, sparse=True, weighting=weighting
+        )
+        threshold = (weighting["c"] /( weighting["c"] + (soap._rcut / weighting["r0"])) ** weighting["m"])
+
+        self.assertAlmostEqual(weighting["threshold"], threshold)
+
+
+
+
+        #desc1 = soap.create(H2O)
+
+
     def test_crossover(self):
         """Tests that disabling/enabling crossover works as expected."""
         pos = [[0.1, 0.1, 0.1]]
