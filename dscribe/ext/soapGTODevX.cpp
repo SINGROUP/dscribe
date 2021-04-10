@@ -1836,25 +1836,39 @@ void getCD(
         double  preValX3;
         double  preValY3;
         double  preValZ3;
+        double* preExponentArrya = (double*) malloc(Ns*Asize*sizeof(double));
 // l=0-------------------------------------------------------------------------------------------------
+ int shift = 0;
     for(int k = 0; k < Ns; k++){
       for(int i = 0; i < Asize; i++){
-        double expSholder = aOa[k]*r2[i];
-        if(expSholder > -22 ) { // check point
-        preExp = 1.5707963267948966*exp(expSholder);
+        preExponentArrya[shift] = 1.5707963267948966*exp(aOa[k]*r2[i]);
+        shift++;
+      }}
+
+    shift = 0;
+    for(int k = 0; k < Ns; k++){
+        preExp = preExponentArrya[shift];
+        shift++;
+          for(int n = 0; n < Ns; n++){
+          C_mu(posI, typeJ, n, 0) += bOa[n*Ns + k]*preExp;
+          } 
+    }
+shift = 0;
+           if(return_derivatives){
+    for(int k = 0; k < Ns; k++){
+      for(int i = 0; i < Asize; i++){
+        preExp = preExponentArrya[shift];
+        shift++;
         preVal = 2.0*aOa[k]*preExp;
         preValX = preVal*x[i];
         preValY = preVal*y[i];
         preValZ = preVal*z[i];
           for(int n = 0; n < Ns; n++){
-          C_mu(posI, typeJ, n, 0) += bOa[n*Ns + k]*preExp;
-           if(return_derivatives){
             CDevX_mu(indices[i], posI, typeJ, n, 0) += bOa[n*Ns + k]*preValX;
             CDevY_mu(indices[i], posI, typeJ, n, 0) += bOa[n*Ns + k]*preValY;
             CDevZ_mu(indices[i], posI, typeJ, n, 0) += bOa[n*Ns + k]*preValZ;
             }
           } 
-        }
       }
     }
 // l=1-------------------------------------------------------------------------------------------------
