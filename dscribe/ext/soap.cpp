@@ -26,6 +26,7 @@ SOAPGTO::SOAPGTO(
     int nmax,
     int lmax,
     double eta,
+    py::dict weighting,
     py::array_t<int> species,
     bool periodic,
     bool crossover,
@@ -39,6 +40,7 @@ SOAPGTO::SOAPGTO(
     , nmax(nmax)
     , lmax(lmax)
     , eta(eta)
+    , weighting(weighting)
     , species(species)
     , crossover(crossover)
     , cutoff_padding(cutoff_padding)
@@ -100,6 +102,7 @@ void SOAPGTO::create(
         this->nmax,
         this->lmax,
         this->eta,
+        this->weighting,
         this->crossover,
         this->average,
         cell_list
@@ -156,6 +159,7 @@ void SOAPGTO::create_cartesian(
         this->lmax,
         n_centers,
         this->eta,
+        this->weighting,
         this->crossover,
         indices,
         return_descriptor,
@@ -221,6 +225,7 @@ void SOAPGTO::derivatives_analytical(
         this->lmax,
         n_centers,
         this->eta,
+        this->weighting,
         this->crossover,
         indices,
         return_descriptor,
@@ -233,6 +238,7 @@ SOAPPolynomial::SOAPPolynomial(
     int nmax,
     int lmax,
     double eta,
+    py::dict weighting,
     py::array_t<int> species,
     bool periodic,
     bool crossover,
@@ -246,6 +252,7 @@ SOAPPolynomial::SOAPPolynomial(
     , nmax(nmax)
     , lmax(lmax)
     , eta(eta)
+    , weighting(weighting)
     , species(species)
     , crossover(crossover)
     , cutoff_padding(cutoff_padding)
@@ -305,6 +312,7 @@ void SOAPPolynomial::create(
         this->nmax,
         this->lmax,
         this->eta,
+        this->weighting,
         this->rx,
         this->gss,
         this->crossover,

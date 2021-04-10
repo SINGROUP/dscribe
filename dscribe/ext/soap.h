@@ -37,6 +37,7 @@ class SOAPGTO: public Descriptor {
             int nmax,
             int lmax,
             double eta,
+            py::dict weighting,
             py::array_t<int> species,
             bool periodic,
             bool crossover,
@@ -119,6 +120,7 @@ class SOAPGTO: public Descriptor {
         const int nmax;
         const int lmax;
         const double eta;
+        const py::dict weighting;
         const py::array_t<int> species;
         const bool crossover;
         const float cutoff_padding;
@@ -139,6 +141,7 @@ class SOAPPolynomial: public Descriptor {
             int nmax,
             int lmax,
             double eta,
+            py::dict weighting,
             py::array_t<int> species,
             bool periodic,
             bool crossover,
@@ -184,6 +187,7 @@ class SOAPPolynomial: public Descriptor {
         const int nmax;
         const int lmax;
         const double eta;
+        const py::dict weighting;
         const py::array_t<int> species;
         const bool crossover;
         const float cutoff_padding;

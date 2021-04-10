@@ -180,6 +180,6 @@ def soap_sparse_vs_dense(version):
 version = pkg_resources.get_distribution('dscribe').version
 # soap_gto_vs_polynomial(version)
 # soap_derivatives(version)
-# soap_cartesian_vs_imaginary(version)
+soap_cartesian_vs_imaginary(version)
 # soap_sparse_vs_dense(version)
 

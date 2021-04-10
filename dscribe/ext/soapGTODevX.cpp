@@ -2111,6 +2111,7 @@ void soapGTODevX(
     const int lMax,
     const int Hs,
     const double eta,
+    py::dict weighting,
     const bool crossover,
     py::array_t<int> indices,
     const bool return_descriptor,

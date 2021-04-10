@@ -712,6 +712,7 @@ void soapGTO(
     int nMax,
     int lMax,
     double eta,
+    py::dict weighting,
     bool crossover,
     string average,
     CellList cellList)

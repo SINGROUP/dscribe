@@ -176,6 +176,12 @@ class SOAP(Descriptor):
         self._rcut = rcut
         self._nmax = nmax
         self._lmax = lmax
+        self._weighting = {
+            "function": "test",
+            "r0": 1.5,
+            "c": 1,
+            "m": 3,
+        }
         self._rbf = rbf
         self.average = average
         self.crossover = crossover
@@ -404,6 +410,7 @@ class SOAP(Descriptor):
                 self._nmax,
                 self._lmax,
                 self._eta,
+                self._weighting,
                 self._atomic_numbers,
                 self.periodic,
                 self.crossover,
@@ -432,6 +439,7 @@ class SOAP(Descriptor):
                 self._nmax,
                 self._lmax,
                 self._eta,
+                self._weighting,
                 self._atomic_numbers,
                 self.periodic,
                 self.crossover,
@@ -496,6 +504,7 @@ class SOAP(Descriptor):
                 self._nmax,
                 self._lmax,
                 self._eta,
+                self._weighting,
                 self._atomic_numbers,
                 self.periodic,
                 self.crossover,
