@@ -43,10 +43,11 @@ inline void getDeltaD(double* x, double* y, double* z, const py::array_t<double>
     };
 }
 //================================================================
-inline void getRsZsD(double* x,double* x2,double* x4,double* x6,double* x8,double* x10,double* x12,double* x14,double* x16,double* x18, double* y,double* y2,double* y4,double* y6,double* y8,double* y10,double* y12,double* y14,double* y16,double* y18, double* z,double* r2,double* r4,double* r6,double* r8,double* r10,double* r12,double* r14,double* r16,double* r18,double* z2,double* z4,double* z6,double* z8,double* z10,double* z12,double* z14,double* z16,double* z18, int size, int lMax){
+inline void getRsZsD(double* x,double* x2,double* x4,double* x6,double* x8,double* x10,double* x12,double* x14,double* x16,double* x18, double* y,double* y2,double* y4,double* y6,double* y8,double* y10,double* y12,double* y14,double* y16,double* y18, double* z,double* r2,double* r4,double* r6,double* r8,double* r10,double* r12,double* r14,double* r16,double* r18,double* z2,double* z4,double* z6,double* z8,double* z10,double* z12,double* z14,double* z16,double* z18, int size, int lMax, double* weights){
   for(int i = 0; i < size; i++){
 
     r2[i] = x[i]*x[i] + y[i]*y[i] + z[i]*z[i]; z2[i] = z[i]*z[i]; x2[i] = x[i]*x[i]; y2[i] = y[i]*y[i];
+    weights[i] = 1/r2[i];
 
     if(lMax > 3){ r4[i] = r2[i]*r2[i]; z4[i] = z2[i]*z2[i]; x4[i] = x2[i]*x2[i]; y4[i] = y2[i]*y2[i];
       if(lMax > 5){ r6[i] = r2[i]*r4[i]; z6[i] = z2[i]*z4[i]; x6[i] = x2[i]*x4[i]; y6[i] = y2[i]*y4[i];
@@ -1800,6 +1801,7 @@ void getCD(
     double* y,
     double* z,
     double* r2,
+    double* weights,
     double* bOa,
     double* aOa,
     double* exes,
@@ -1841,7 +1843,7 @@ void getCD(
  int shift = 0;
     for(int k = 0; k < Ns; k++){
       for(int i = 0; i < Asize; i++){
-        preExponentArrya[shift] = 1.5707963267948966*exp(aOa[k]*r2[i]);
+        preExponentArrya[shift] = weights[i]*1.5707963267948966*exp(aOa[k]*r2[i]);
         shift++;
       }}
 
@@ -1881,7 +1883,7 @@ shift = 0;
 
     for(int k = 0; k < Ns; k++){
       for(int i = 0; i < Asize; i++){
-        preExponentArrya[shift] = 2.7206990463849543*exp(aOa[LNs + k]*r2[i]);
+        preExponentArrya[shift] = weights[i]*2.7206990463849543*exp(aOa[LNs + k]*r2[i]);
         shift++;
       }}
     
@@ -1963,7 +1965,7 @@ shift = 0;
       for(int k = 0; k < Ns; k++){
         for(int i = 0; i < Asize; i++){
           double expSholder = aOa[LNs + k]*r2[i];
-          preExponentArrya[shift] = exp(expSholder);
+          preExponentArrya[shift] = weights[i]*exp(expSholder);
           shift++;
         }}
 
@@ -2180,7 +2182,7 @@ void soapGTODevX(
   double oOeta = 1.0/eta; double oOeta3O2 = sqrt(oOeta*oOeta*oOeta); double NsNs = Ns*Ns;
   auto centers_u = centers.unchecked<2>(); 
   auto positions_u = positions.unchecked<2>(); 
-
+  double* weights = (double*) malloc(sizeof(double)*totalAN);
   double* dx  = (double*)malloc(sizeof(double)*totalAN); double* dy  = (double*)malloc(sizeof(double)*totalAN); double* dz  = (double*)malloc(sizeof(double)*totalAN);
   double* x2  = (double*)malloc(sizeof(double)*totalAN); double* x4  = (double*)malloc(sizeof(double)*totalAN); double* x6  = (double*)malloc(sizeof(double)*totalAN);
   double* x8  = (double*)malloc(sizeof(double)*totalAN); double* x10 = (double*)malloc(sizeof(double)*totalAN); double* x12 = (double*)malloc(sizeof(double)*totalAN);
@@ -2256,9 +2258,9 @@ void soapGTODevX(
 
       // Save the neighbour distances into the arrays dx, dy and dz
       getDeltaD(dx, dy, dz, positions, ix, iy, iz, ZIndexPair.second);
-      getRsZsD(dx,x2,x4,x6,x8,x10,x12,x14,x16,x18, dy,y2,y4,y6,y8,y10,y12,y14,y16,y18, dz, r2, r4, r6, r8,r10,r12,r14,r16,r18, z2, z4, z6, z8,z10,z12,z14,z16,z18, n_neighbours,lMax);
+      getRsZsD(dx,x2,x4,x6,x8,x10,x12,x14,x16,x18, dy,y2,y4,y6,y8,y10,y12,y14,y16,y18, dz, r2, r4, r6, r8,r10,r12,r14,r16,r18, z2, z4, z6, z8,z10,z12,z14,z16,z18, n_neighbours,lMax, weights);
       getCfactorsD(preCoef, prCofDX, prCofDY, prCofDZ, n_neighbours, dx,x2, x4, x6, x8,x10,x12,x14,x16,x18, dy,y2, y4, y6, y8,y10,y12,y14,y16,y18, dz, z2, z4, z6, z8,z10,z12,z14,z16,z18, r2, r4, r6, r8,r10,r12,r14,r16,r18, totalAN, lMax, return_derivatives);
-      getCD(cdevX_mu, cdevY_mu, cdevZ_mu, prCofDX, prCofDY, prCofDZ, cnnd_mu, preCoef, dx, dy, dz, r2, bOa, aOa, exes, totalAN, n_neighbours, Ns, nSpecies, lMax, i, j, ZIndexPair.second, return_derivatives);
+      getCD(cdevX_mu, cdevY_mu, cdevZ_mu, prCofDX, prCofDY, prCofDZ, cnnd_mu, preCoef, dx, dy,dz, r2, weights, bOa, aOa, exes, totalAN, n_neighbours, Ns, nSpecies, lMax, i, j, ZIndexPair.second, return_derivatives);
 
     }
   }
