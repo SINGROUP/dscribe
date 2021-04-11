@@ -378,7 +378,9 @@ class SOAP(Descriptor):
             get_number_of_features()-function.
         """
         cutoff_padding = self.get_cutoff_padding()
-        centers, center_indices = self.prepare_centers(system, cutoff_padding, positions)
+        centers, center_indices = self.prepare_centers(
+            system, cutoff_padding, positions
+        )
         n_centers = centers.shape[0]
         n_species = self._atomic_numbers.shape[0]
         pos = system.get_positions()
