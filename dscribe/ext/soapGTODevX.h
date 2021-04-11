@@ -47,6 +47,7 @@ void soapGTODevX(
     const int lMax,
     const double eta,
     const bool crossover,
+    string average,
     py::array_t<int> indices,
     const bool return_descriptor,
     const bool return_derivatives,

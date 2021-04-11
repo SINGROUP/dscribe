@@ -70,7 +70,11 @@ inline void getRsZsD(double* x,double* x2,double* x4,double* x6,double* x8,doubl
 //================================================================
 void getAlphaBetaD(double* aOa, double* bOa, double* alphas, double* betas, int Ns,int lMax, double oOeta, double oOeta3O2){
 
-  int  NsNs = Ns*Ns; double  oneO1alpha; double  oneO1alpha2; double  oneO1alphaSqrt; double  oneO1alphaSqrtX;
+  int NsNs = Ns*Ns;
+  double oneO1alpha;
+  double oneO1alpha2;
+  double oneO1alphaSqrt;
+  double oneO1alphaSqrtX;
 
   for(int myL = 0; myL < lMax + 1 ;myL++){
     for(int k = 0; k < Ns; k++){
@@ -2015,7 +2019,7 @@ void getPD(
   py::detail::unchecked_reference<double, 4> &Cnnd_u,
   int Ns,
   int Ts,
-  int Hs,
+  int nCenters,
   int lMax,
   bool crossover
 ) {
@@ -2029,7 +2033,7 @@ void getPD(
     // chemical environments, Phys. Rev. B 87, 184115 (2013). Here the square
     // root of the prefactor in the dot-product kernel is used, so that after a
     // possible dot-product the full prefactor is recovered.
-    for(int i = 0; i < Hs; i++){
+    for(int i = 0; i < nCenters; i++){
       int shiftAll = 0;
       for(int j = 0; j < Ts; j++){
        int jdLimit = crossover ? Ts : j+1;
@@ -2081,7 +2085,7 @@ void getPD(
     py::detail::unchecked_reference<double, 4> &Cnnd_u,
     int Ns,
     int Ts,
-    int Hs,
+    int nCenters,
     int lMax,
     bool crossover
   ) {
@@ -2160,26 +2164,30 @@ void soapGTODevX(
     py::array_t<int> orderedSpeciesArr,
     const double rCut,
     const double cutoffPadding,
-    const int Ns,
+    const int nMax,
     const int lMax,
     const double eta,
     const bool crossover,
+    string average,
     py::array_t<int> indices,
     const bool return_descriptor,
     const bool return_derivatives,
     CellList cell_list_atoms
 ) {
   const int totalAN = atomicNumbersArr.shape(0);
-  const int Hs = centers.shape(0);
+  const int nCenters = centers.shape(0);
   auto derivatives_mu = derivatives.mutable_unchecked<4>();
   auto atomicNumbers = atomicNumbersArr.unchecked<1>();
   auto species = orderedSpeciesArr.unchecked<1>();
   int nSpecies = orderedSpeciesArr.shape(0);
   auto indices_u = indices.unchecked<1>();
   double *alphas = (double*)alphasArr.request().ptr; double *betas = (double*)betasArr.request().ptr;
-  double oOeta = 1.0/eta; double oOeta3O2 = sqrt(oOeta*oOeta*oOeta); double NsNs = Ns*Ns;
+  double oOeta = 1.0/eta; double oOeta3O2 = sqrt(oOeta*oOeta*oOeta); double nMax2 = nMax*nMax;
   auto centers_u = centers.unchecked<2>(); 
   auto positions_u = positions.unchecked<2>(); 
+  const int nFeatures = crossover
+        ? (nSpecies*nMax)*(nSpecies*nMax+1)/2*(lMax+1) 
+        : nSpecies*(lMax+1)*((nMax+1)*nMax)/2;
 
   double* dx  = (double*)malloc(sizeof(double)*totalAN); double* dy  = (double*)malloc(sizeof(double)*totalAN); double* dz  = (double*)malloc(sizeof(double)*totalAN);
   double* x2  = (double*)malloc(sizeof(double)*totalAN); double* x4  = (double*)malloc(sizeof(double)*totalAN); double* x6  = (double*)malloc(sizeof(double)*totalAN);
@@ -2207,12 +2215,20 @@ void soapGTODevX(
     prCofDZ = (double*) malloc(((lMax+1)*(lMax+1)-4)*sizeof(double)*totalAN);
   }
 
-  double* bOa = (double*) malloc((lMax+1)*NsNs*sizeof(double));
-  double* aOa = (double*) malloc((lMax+1)*Ns*sizeof(double));
+  double* bOa = (double*) malloc((lMax+1)*nMax2*sizeof(double));
+  double* aOa = (double*) malloc((lMax+1)*nMax*sizeof(double));
   
-  // Initialize temporary numpy array for storing the coefficients
-  double* dTemp = new double[Hs*nSpecies*Ns*(lMax + 1) * (lMax + 1)]();
-  py::array_t<double> cnnd({Hs, nSpecies, Ns, (lMax + 1) * (lMax + 1)}, dTemp);
+  // Initialize temporary numpy array for storing the coefficients and the
+  // averaged coefficients if inner averaging was requested.
+  const int n_coeffs = nSpecies*nMax*(lMax + 1) * (lMax + 1);
+  double* cnnd_raw = new double[nCenters*n_coeffs]();
+  py::array_t<double> cnnd({nCenters, nSpecies, nMax, (lMax + 1) * (lMax + 1)}, cnnd_raw);
+  double* cnnd_ave_raw;
+  py::array_t<double> cnnd_ave;
+  if (average == "inner") {
+      cnnd_ave_raw = new double[n_coeffs]();
+      cnnd_ave = py::array_t<double>({1, nSpecies, nMax, (lMax + 1) * (lMax + 1)}, cnnd_ave_raw);
+  }
 
   auto cnnd_u = cnnd.unchecked<4>();
   auto cdevX_u = cdevX.unchecked<5>();
@@ -2234,10 +2250,10 @@ void soapGTODevX(
       ZIndexMap[species(i)] = i;
   }
 
-  getAlphaBetaD(aOa,bOa,alphas,betas,Ns,lMax,oOeta, oOeta3O2);
+  getAlphaBetaD(aOa,bOa,alphas,betas,nMax,lMax,oOeta, oOeta3O2);
 
   // Loop through the centers
-  for (int i = 0; i < Hs; i++) {
+  for (int i = 0; i < nCenters; i++) {
 
     // Get all neighbouring atoms for the center i
     double ix = centers_u(i, 0); double iy = centers_u(i, 1); double iz = centers_u(i, 2);
@@ -2258,7 +2274,7 @@ void soapGTODevX(
       getDeltaD(dx, dy, dz, positions, ix, iy, iz, ZIndexPair.second);
       getRsZsD(dx,x2,x4,x6,x8,x10,x12,x14,x16,x18, dy,y2,y4,y6,y8,y10,y12,y14,y16,y18, dz, r2, r4, r6, r8,r10,r12,r14,r16,r18, z2, z4, z6, z8,z10,z12,z14,z16,z18, n_neighbours,lMax);
       getCfactorsD(preCoef, prCofDX, prCofDY, prCofDZ, n_neighbours, dx,x2, x4, x6, x8,x10,x12,x14,x16,x18, dy,y2, y4, y6, y8,y10,y12,y14,y16,y18, dz, z2, z4, z6, z8,z10,z12,z14,z16,z18, r2, r4, r6, r8,r10,r12,r14,r16,r18, totalAN, lMax, return_derivatives);
-      getCD(cdevX_mu, cdevY_mu, cdevZ_mu, prCofDX, prCofDY, prCofDZ, cnnd_mu, preCoef, dx, dy, dz, r2, bOa, aOa, exes, totalAN, n_neighbours, Ns, nSpecies, lMax, i, j, ZIndexPair.second, return_derivatives);
+      getCD(cdevX_mu, cdevY_mu, cdevZ_mu, prCofDX, prCofDY, prCofDZ, cnnd_mu, preCoef, dx, dy, dz, r2, bOa, aOa, exes, totalAN, n_neighbours, nMax, nSpecies, lMax, i, j, ZIndexPair.second, return_derivatives);
 
     }
   }
@@ -2266,17 +2282,62 @@ void soapGTODevX(
   free(dy); free(y2); free(y4); free(y6); free(y8); free(y10); free(y12); free(y14); free(y16); free(y18);
   free(dz); free(z2); free(z4); free(z6); free(z8); free(z10); free(z12); free(z14); free(z16); free(z18);
   free(r2); free(r4); free(r6); free(r8); free(r10); free(r12); free(r14); free(r16); free(r18);
-  free(exes); free(preCoef); free(bOa); free(aOa); free(dTemp);
+  free(exes); free(preCoef); free(bOa); free(aOa); free(cnnd_raw);
 
   // Calculate the descriptor value if requested
   if (return_descriptor) {
     auto descriptor_mu = descriptor.mutable_unchecked<2>();
-    getPD(descriptor_mu, cnnd_u, Ns, nSpecies, Hs, lMax, crossover);
+
+    // If inner averaging is requested, average the coefficients over the
+    // centers (axis 0) before calculating the power spectrum.
+    if (average == "inner") {
+        auto cnnd_ave_mu = cnnd_ave.mutable_unchecked<4>(); 
+        auto cnnd_ave_u = cnnd_ave.unchecked<4>(); 
+        for (int i = 0; i < nCenters; i++) {
+            for (int j = 0; j < nSpecies; j++) {
+                for (int k = 0; k < nMax; k++) {
+                    for (int l = 0; l < (lMax + 1) * (lMax + 1); l++) {
+                        cnnd_ave_mu(0, j, k, l) += cnnd_u(i, j, k, l);
+                    }
+                }
+            }
+        }
+        for (int j = 0; j < nSpecies; j++) {
+            for (int k = 0; k < nMax; k++) {
+                for (int l = 0; l < (lMax + 1) * (lMax + 1); l++) {
+                    cnnd_ave_mu(0, j, k, l) = cnnd_ave_mu(0, j, k, l) / (double)nCenters;
+                }
+            }
+        }
+        getPD(descriptor_mu, cnnd_ave_u, nMax, nSpecies, 1, lMax, crossover);
+        delete [] cnnd_ave_raw;
+    // If outer averaging is requested, average the power spectrum across the
+    // centers.
+    } else if (average == "outer") {
+        // We allocate the memory and give array_t a pointer to it. This way
+        // the memory is owned and freed by C++.
+        double* ps_temp_raw = new double[nCenters*nFeatures]();
+        py::array_t<double> ps_temp({nCenters, nFeatures}, ps_temp_raw);
+        auto ps_temp_mu = ps_temp.mutable_unchecked<2>();
+        getPD(ps_temp_mu, cnnd_u, nMax, nSpecies, nCenters, lMax, crossover);
+        for (int i = 0; i < nCenters; i++) {
+            for (int j = 0; j < nFeatures; j++) {
+                descriptor_mu(0, j) += ps_temp_mu(i, j);
+            }
+        }
+        for (int j = 0; j < nFeatures; j++) {
+            descriptor_mu(0, j) = descriptor_mu(0, j) / (double)nCenters;
+        }
+        delete [] ps_temp_raw;
+    // Regular power spectrum without averaging
+    } else {
+        getPD(descriptor_mu, cnnd_u, nMax, nSpecies, nCenters, lMax, crossover);
+    }
   }
 
   // Calculate the derivatives
   if (return_derivatives) {
-    getPDev(derivatives_mu, positions_u, indices_u, cell_list_centers, cdevX_u, cdevY_u, cdevZ_u, cnnd_u, Ns, nSpecies, Hs, lMax, crossover);
+    getPDev(derivatives_mu, positions_u, indices_u, cell_list_centers, cdevX_u, cdevY_u, cdevZ_u, cnnd_u, nMax, nSpecies, nCenters, lMax, crossover);
   }
 
   return;

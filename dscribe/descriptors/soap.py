@@ -777,7 +777,6 @@ class SOAP(Descriptor):
                     ase.geometry.cell.complete_cell(system.get_cell()),
                     np.asarray(system.get_pbc(), dtype=bool),
                     centers,
-                    center_indices,
                     indices,
                     return_descriptor,
                 )
