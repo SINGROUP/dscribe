@@ -1510,7 +1510,7 @@ inline void expPs(double* rExpSum, double alpha, double* r, double* ri, int isiz
         }
     }
 }
-int getDeltas(double* dx, double* dy, double* dz, double* ri, double* rw, double rCut, double* oOri, double* oO4arri, double* minExp, double* pluExp, int* isCenter, double alpha, const py::array_t<double> &positions, const double ix, const double iy, const double iz, const vector<int> &indices, int rsize, int Ihpos, int Itype)
+int getDeltas(double* dx, double* dy, double* dz, double* ri, double* rw,double* weights, double rCut, double* oOri, double* oO4arri, double* minExp, double* pluExp, int* isCenter, double alpha, const py::array_t<double> &positions, const double ix, const double iy, const double iz, const vector<int> &indices, int rsize, int Ihpos, int Itype)
 {
     int icount = 0;
     double ri2;
@@ -1525,6 +1525,8 @@ int getDeltas(double* dx, double* dy, double* dz, double* ri, double* rw, double
         Yi = pos(i, 1) - iy;
         Zi = pos(i, 2) - iz;
         ri2 = Xi*Xi + Yi*Yi + Zi*Zi;
+
+        weights[i] = 1/ri2;
 
         if (ri2<=1e-12) {
             isCenter[0] = 1;
@@ -1700,7 +1702,7 @@ double* getYlmi(double* x, double* y, double* z, double* oOri, double* cf, int i
 
     return Ylmi;
 }
-double* getIntegrand(double* Flir, double* Ylmi,int rsize, int icount, int lMax)
+double* getIntegrand(double* Flir, double* Ylmi,int rsize, int icount, int lMax, double* weights)
 {
     double* summed = (double*) malloc(2*sd*(lMax+1)*rsize*(lMax+1));
     double realY;
@@ -1715,8 +1717,8 @@ double* getIntegrand(double* Flir, double* Ylmi,int rsize, int icount, int lMax)
                 realY = Ylmi[2*(lMax+1)*icount*l + 2*icount*m + 2*i    ];
                 imagY = Ylmi[2*(lMax+1)*icount*l + 2*icount*m + 2*i  + 1 ];
                 for (int rw = 0; rw < rsize; rw++) {
-                    summed[2*(lMax+1)*l*rsize + 2*m*rsize + 2*rw    ] += Flir[l*rsize*icount + rsize*i + rw] * realY;
-                    summed[2*(lMax+1)*l*rsize + 2*m*rsize + 2*rw + 1] += Flir[l*rsize*icount + rsize*i + rw] * imagY;
+                    summed[2*(lMax+1)*l*rsize + 2*m*rsize + 2*rw    ] += weights[i]*Flir[l*rsize*icount + rsize*i + rw] * realY;
+                    summed[2*(lMax+1)*l*rsize + 2*m*rsize + 2*rw + 1] += weights[i]*Flir[l*rsize*icount + rsize*i + rw] * imagY;
                 }
             }
         }
@@ -1874,11 +1876,13 @@ void soapGeneral(
     double* minExp = totrs;
     double* pluExp = totrs;
     double* C = (double*) malloc(2*sd*(lMax+1)*(lMax+1)*nMax);
+    
 
     // Initialize arrays for storing the C coefficients.
     int nCoeffs = 2*(lMax+1)*(lMax+1)*nMax*Nt;
     int nCoeffsAll = nCoeffs*Hs;
     double* Cs = (double*) malloc(sizeof(double)*nCoeffsAll);
+    double* weights = (double*) malloc(sizeof(double)*nAtoms);
     double* CsAve;
     memset(Cs, 0.0, nCoeffsAll*sizeof(double));
     if (average == "inner") {
@@ -1922,11 +1926,12 @@ void soapGeneral(
             // Notice that due to the numerical integration the getDeltas
             // function here has special functionality for positions that are
             // centered on an atom.
-            n_neighbours = getDeltas(dx, dy, dz, ris, rw, rCut, oOri, oO4arri, minExp, pluExp, isCenter, alpha, positions, ix, iy, iz, ZIndexPair.second, rsize, i, j);
+            n_neighbours = getDeltas(dx, dy, dz, ris, rw,weights, rCut, oOri, oO4arri, minExp, pluExp, isCenter, alpha, positions, ix, iy, iz, ZIndexPair.second, rsize, i, j);
+            
 
             Flir = getFlir(oO4arri, ris, minExp, pluExp, n_neighbours, rsize, lMax);
             Ylmi = getYlmi(dx, dy, dz, oOri, cf, n_neighbours, lMax);
-            summed = getIntegrand(Flir, Ylmi, rsize, n_neighbours, lMax);
+            summed = getIntegrand(Flir, Ylmi, rsize, n_neighbours, lMax, weights);
 
             getC(C, ws, rw2, gss, summed, rCut, lMax, rsize, nMax, isCenter, alpha);
             accumC(Cs, C, lMax, nMax, j, i, nCoeffs);
