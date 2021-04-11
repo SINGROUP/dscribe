@@ -85,10 +85,25 @@ class SOAP(Descriptor):
             sigma (float): The standard deviation of the gaussians used to expand the
                 atomic density.
             weighting (dict): The parameters of the radial weighting function.
-                It requires the argument "func" to be one of the following:
-                1) "poly-m"
-                2) "poly-3m"
-                3) "exp"
+                It requires the argument "func" to be one of the following
+
+                :"poly-m": :math:`w = \\left\{\\begin{matrix} \\frac{1}{(\\frac{r}{r_0})^{m}} & c = 0 \\ \\frac{1 + c}{c + (\\frac{r}{r_0})^{m}} & c > 0 \\end{matrix}\\right.`
+
+                    For reference see:
+                        "Willatt, M., Musil, F., & Ceriotti, M. (2018). 
+                        Feature optimization for atomistic machine learning yields a data-driven 
+                        construction of the periodic table of the elements. 
+                        Phys. Chem. Chem. Phys., 20, 29661-29668.
+                        "
+
+                :"poly-3m": :math:`w = (1 + 2 (\\frac{r}{r_0})^{3} -3 (\\frac{r}{r_0})^{2}))^{m}`
+
+                    For reference see:
+                        "Caro, M. (2019). Optimizing many-body atomic descriptors for enhanced 
+                        computational performance of machine learning based interatomic potentials. 
+                        Phys. Rev. B, 100, 024112."
+
+                :"exp": :math:`w = exp^{-m r}`
 
                 Apart from the decay-function-specific parameters, a "threshold" can be
                 specified (default: 1e-3). The threshold is only used if rcut=None in order
