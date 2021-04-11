@@ -1510,7 +1510,7 @@ inline void expPs(double* rExpSum, double alpha, double* r, double* ri, int isiz
         }
     }
 }
-int getDeltas(double* dx, double* dy, double* dz, double* ri, double* rw,double* weights, double rCut, double* oOri, double* oO4arri, double* minExp, double* pluExp, int* isCenter, double alpha, const py::array_t<double> &positions, const double ix, const double iy, const double iz, const vector<int> &indices, int rsize, int Ihpos, int Itype)
+int getDeltas(double* dx, double* dy, double* dz, double* ri, double* rw, double* weights, double rCut, double* oOri, double* oO4arri, double* minExp, double* pluExp, int* isCenter, double alpha, const py::array_t<double> &positions, const double ix, const double iy, const double iz, const vector<int> &indices, int rsize, int Ihpos, int Itype)
 {
     int icount = 0;
     double ri2;
@@ -1526,7 +1526,8 @@ int getDeltas(double* dx, double* dy, double* dz, double* ri, double* rw,double*
         Zi = pos(i, 2) - iz;
         ri2 = Xi*Xi + Yi*Yi + Zi*Zi;
 
-        weights[i] = 1/ri2;
+        // No weighting specified: all weights set to 1
+        weights[icount] = 1;
 
         if (ri2<=1e-12) {
             isCenter[0] = 1;
@@ -1926,8 +1927,7 @@ void soapGeneral(
             // Notice that due to the numerical integration the getDeltas
             // function here has special functionality for positions that are
             // centered on an atom.
-            n_neighbours = getDeltas(dx, dy, dz, ris, rw,weights, rCut, oOri, oO4arri, minExp, pluExp, isCenter, alpha, positions, ix, iy, iz, ZIndexPair.second, rsize, i, j);
-            
+            n_neighbours = getDeltas(dx, dy, dz, ris, rw, weights, rCut, oOri, oO4arri, minExp, pluExp, isCenter, alpha, positions, ix, iy, iz, ZIndexPair.second, rsize, i, j);
 
             Flir = getFlir(oO4arri, ris, minExp, pluExp, n_neighbours, rsize, lMax);
             Ylmi = getYlmi(dx, dy, dz, oOri, cf, n_neighbours, lMax);

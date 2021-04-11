@@ -504,6 +504,7 @@ class SoapDerivativeTests(unittest.TestCase):
                         )
 
                         # Test that descriptor values are correct
+                        # print(np.abs(d0-d_cpp).max())
                         self.assertTrue(np.allclose(d0, d_cpp, atol=1e-6))
 
                         # Compare values
