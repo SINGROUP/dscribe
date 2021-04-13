@@ -1482,7 +1482,7 @@ inline double* getrw2(double* r, int rsize)
     }
     return rw2;
 }
-inline void expMs(double* rExpDiff, double alpha, double* r, double* ri, int isize, int rsize)
+inline void expMs(double* rExpDiff, double eta, double* r, double* ri, int isize, int rsize)
 {
     double rDiff;
     for (int i = 0; i < isize; i++) {
@@ -1491,12 +1491,12 @@ inline void expMs(double* rExpDiff, double alpha, double* r, double* ri, int isi
             if (rDiff > 5.0 ) {
                 rExpDiff[rsize*i + w] = 0.0;
             } else {
-                rExpDiff[rsize*i + w] = exp(-alpha*rDiff*rDiff);
+                rExpDiff[rsize*i + w] = exp(-eta*rDiff*rDiff);
             }
         }
     }
 }
-inline void expPs(double* rExpSum, double alpha, double* r, double* ri, int isize, int rsize)
+inline void expPs(double* rExpSum, double eta, double* r, double* ri, int isize, int rsize)
 {
     double rSum;
     for (int i = 0; i < isize; i++) {
@@ -1505,7 +1505,7 @@ inline void expPs(double* rExpSum, double alpha, double* r, double* ri, int isiz
             if (rSum > 5.0 ) {
                 rExpSum[rsize*i + w] = 0.0;
             } else {
-                rExpSum[rsize*i + w] = exp(-alpha*rSum*rSum);
+                rExpSum[rsize*i + w] = exp(-eta*rSum*rSum);
             }
         }
     }
@@ -1514,7 +1514,7 @@ int getDeltas(double* dx, double* dy, double* dz, double* ri, double* rw, double
 {
     int icount = 0;
     double ri2;
-    double oOa = 1/alpha;
+    double oOa = 1/eta;
     double Xi; double Yi; double Zi;
     int nNeighbours = indices.size();
     double* oO4ari = (double*) malloc(sd*nNeighbours);
@@ -1548,18 +1548,18 @@ int getDeltas(double* dx, double* dy, double* dz, double* ri, double* rw, double
             oO4arri[rsize*i + w] = oO4ari[i]*oOr[w];
         }
     }
-    expMs(minExp, alpha, rw, ri, icount, rsize);
-    expPs(pluExp, alpha, rw, ri, icount, rsize);
+    expMs(minExp, eta, rw, ri, icount, rsize);
+    expPs(pluExp, eta, rw, ri, icount, rsize);
 
     free(oO4ari);
     return icount;
 }
-int getFilteredPos(double* xNow, double* yNow, double* zNow, double* ri, double* rw, double rCut, double* oOri, double* oO4arri, double* minExp, double* pluExp,int* isCenter, double alpha, double* Apos, double* Hpos,int* typeNs, int rsize, int Ihpos, int Itype)
+int getFilteredPos(double* xNow, double* yNow, double* zNow, double* ri, double* rw, double rCut, double* oOri, double* oO4arri, double* minExp, double* pluExp,int* isCenter, double eta, double* Apos, double* Hpos,int* typeNs, int rsize, int Ihpos, int Itype)
 {
   int shiftType = 0;
   int icount = 0;
   double ri2;
-  double oOa = 1/alpha;
+  double oOa = 1/eta;
   double Xi; double Yi; double Zi;
   double* oO4ari = (double*) malloc(sd*typeNs[Itype]);
 
@@ -1588,8 +1588,8 @@ int getFilteredPos(double* xNow, double* yNow, double* zNow, double* ri, double*
       oO4arri[rsize*i + w] = oO4ari[i]*oOr[w];
     }
   }
-  expMs(minExp,alpha,rw,ri,icount,rsize);
-  expPs(pluExp,alpha,rw,ri,icount,rsize);
+  expMs(minExp,eta,rw,ri,icount,rsize);
+  expPs(pluExp,eta,rw,ri,icount,rsize);
 
   free(oO4ari);
 
@@ -1726,7 +1726,7 @@ double* getIntegrand(double* Flir, double* Ylmi,int rsize, int icount, int lMax,
     }
     return summed;
 }
-void getC(double* C, double* ws, double* rw2, double * gns, double* summed, double rCut, int lMax, int rsize, int gnsize, int* isCenter, double alpha)
+void getC(double* C, double* ws, double* rw2, double * gns, double* summed, double rCut, int lMax, int rsize, int gnsize, int* isCenter, double eta)
 {
     // Initialize to zero
     memset(C, 0.0, 2*(lMax+1)*(lMax+1)*gnsize*sizeof(double));
@@ -1735,7 +1735,7 @@ void getC(double* C, double* ws, double* rw2, double * gns, double* summed, doub
         //for i0 case
         if (isCenter[0]==1) {
             for (int rw = 0; rw < rsize; rw++) {
-                C[2*(lMax+1)*(lMax+1)*n] += 0.5*0.564189583547756*rw2[rw]*ws[rw]*gns[rsize*n + rw]*exp(-alpha*rw2[rw]);
+                C[2*(lMax+1)*(lMax+1)*n] += 0.5*0.564189583547756*rw2[rw]*ws[rw]*gns[rsize*n + rw]*exp(-eta*rw2[rw]);
             }
         }
         for (int l = 0; l < lMax+1; l++) {
@@ -1843,7 +1843,8 @@ void soapGeneral(
     double cutoffPadding,
     int nMax,
     int lMax,
-    double alpha,
+    double eta,
+    py::dict weighting,
     py::array_t<double> rwArr,
     py::array_t<double> gssArr,
     bool crossover,
@@ -1933,7 +1934,7 @@ void soapGeneral(
             Ylmi = getYlmi(dx, dy, dz, oOri, cf, n_neighbours, lMax);
             summed = getIntegrand(Flir, Ylmi, rsize, n_neighbours, lMax, weights);
 
-            getC(C, ws, rw2, gss, summed, rCut, lMax, rsize, nMax, isCenter, alpha);
+            getC(C, ws, rw2, gss, summed, rCut, lMax, rsize, nMax, isCenter, eta);
             accumC(Cs, C, lMax, nMax, j, i, nCoeffs);
             
             free(Flir);

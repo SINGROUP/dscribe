@@ -210,6 +210,63 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         self.assertTrue(desc2.dtype == np.float64)
         self.assertTrue(der.dtype == np.float64)
 
+    def test_infer_rcut(self):
+        """Tests that the rcut is correctly inferred from the threshold given in weighting"""
+        weighting = {
+            "c" : 0,
+            "m" : 1,
+            "r0" : 1,
+            "threshold" : 1e-3,
+            "func" : "poly-m"
+        }
+        soap = SOAP(
+            species=[1, 8], rcut=None, nmax=1, lmax=1, sparse=True, weighting=weighting
+        )
+        threshold = (1 /(soap._rcut / weighting["r0"])) ** weighting["m"]
+
+        self.assertAlmostEqual(weighting["threshold"], threshold)
+
+        weighting = {
+            "c" : 2,
+            "m" : 1,
+            "r0" : 1,
+            "threshold" : 1e-3,
+            "func" : "poly-m"
+        }
+        soap = SOAP(
+            species=[1, 8], rcut=None, nmax=1, lmax=1, sparse=True, weighting=weighting
+        )
+        threshold = (weighting["c"] /( weighting["c"] + (soap._rcut / weighting["r0"])) ** weighting["m"])
+
+        self.assertAlmostEqual(weighting["threshold"], threshold)
+
+        weighting = {
+            "m" : 1,
+            "r0" : 1,
+            "threshold" : 1e-3,
+            "func" : "poly-3m"
+        }
+        soap = SOAP(
+            species=[1, 8], rcut=None, nmax=1, lmax=1, sparse=True, weighting=weighting
+        )
+        threshold = (1 + 2 * (soap._rcut / weighting["r0"])**3 -3 * (soap._rcut / weighting["r0"]) **2) ** weighting["m"]
+
+        self.assertAlmostEqual(weighting["threshold"], threshold)
+
+
+        weighting = {
+            "m" : 0.5,
+            "threshold" : 1e-3,
+            "func" : "exp"
+        }
+        soap = SOAP(
+            species=[1, 8], rcut=None, nmax=1, lmax=1, sparse=True, weighting=weighting
+        )
+        threshold = np.exp(-weighting["m"] * soap._rcut)
+
+        self.assertAlmostEqual(weighting["threshold"], threshold)
+
+
     def test_crossover(self):
         """Tests that disabling/enabling crossover works as expected."""
         pos = [[0.1, 0.1, 0.1]]
