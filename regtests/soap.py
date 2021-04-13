@@ -75,39 +75,25 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         """Tests different invalid parameters that should raise an
         exception.
         """
-        # Invalid gaussian width
+        # Invalid sigma width
         with self.assertRaises(ValueError):
-            SOAP(species=[-1, 2], rcut=5, sigma=0, nmax=5, lmax=5, periodic=True)
+            SOAP(species=["H", "O"], rcut=5, sigma=0, nmax=5, lmax=5)
         with self.assertRaises(ValueError):
-            SOAP(species=[-1, 2], rcut=5, sigma=-1, nmax=5, lmax=5, periodic=True)
+            SOAP(species=["H", "O"], rcut=5, sigma=-1, nmax=5, lmax=5)
 
         # Invalid rcut
         with self.assertRaises(ValueError):
-            SOAP(species=[-1, 2], rcut=0.5, sigma=0, nmax=5, lmax=5, periodic=True)
+            SOAP(species=["H", "O"], rcut=0.5, sigma=0.5, nmax=5, lmax=5)
 
         # Invalid lmax
         with self.assertRaises(ValueError):
-            SOAP(
-                species=[-1, 2],
-                rcut=0.5,
-                sigma=0,
-                nmax=5,
-                lmax=10,
-                rbf="gto",
-                periodic=True,
-            )
+            SOAP(species=["H", "O"], rcut=0.5, sigma=0.5, nmax=5, lmax=20, rbf="gto")
+        with self.assertRaises(ValueError):
+            SOAP(species=["H", "O"], rcut=0.5, sigma=0.5, nmax=5, lmax=21, rbf="polynomial")
 
         # Invalid nmax
         with self.assertRaises(ValueError):
-            SOAP(
-                species=["H", "O"],
-                rcut=4,
-                sigma=1,
-                nmax=0,
-                lmax=8,
-                rbf="gto",
-                periodic=True,
-            )
+            SOAP(species=["H", "O"], rcut=0.5, sigma=0.5, nmax=0, lmax=21)
 
         # Too high radial basis set density: poly
         with self.assertRaises(ValueError):
@@ -115,7 +101,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                 species=["H", "O"],
                 rcut=10,
                 sigma=0.5,
-                nmax=12,
+                nmax=13,
                 lmax=8,
                 rbf="polynomial",
                 periodic=False,

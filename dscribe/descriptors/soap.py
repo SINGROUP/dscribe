@@ -212,7 +212,6 @@ class SOAP(Descriptor):
             weighting = {"m" : 0, "c" : 0, "r0" : 1} # default weighting: no decay
         if not rcut:
             rcut = self.infer_rcut(weighting)
-            print(rcut)
 
         # Test that radial basis set specific settings are valid
         if rbf == "gto":
@@ -221,10 +220,10 @@ class SOAP(Descriptor):
                     "When using the gaussian radial basis set (gto), the radial "
                     "cutoff should be bigger than 1 angstrom."
                 )
-            if lmax > 9:
+            if lmax > 19:
                 raise ValueError(
                     "When using the gaussian radial basis set (gto), lmax "
-                    "cannot currently exceed 9. lmax={}".format(lmax)
+                    "cannot currently exceed 19. lmax={}".format(lmax)
                 )
             # Precalculate the alpha and beta constants for the GTO basis
             self._alphas, self._betas = self.get_basis_gto(rcut, nmax)
@@ -893,6 +892,7 @@ class SOAP(Descriptor):
                     self._nmax,
                     self._lmax,
                     self._eta,
+                    self._weighting,
                     self._atomic_numbers,
                     self.periodic,
                     self.crossover,
