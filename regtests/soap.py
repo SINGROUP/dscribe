@@ -89,7 +89,14 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         with self.assertRaises(ValueError):
             SOAP(species=["H", "O"], rcut=0.5, sigma=0.5, nmax=5, lmax=20, rbf="gto")
         with self.assertRaises(ValueError):
-            SOAP(species=["H", "O"], rcut=0.5, sigma=0.5, nmax=5, lmax=21, rbf="polynomial")
+            SOAP(
+                species=["H", "O"],
+                rcut=0.5,
+                sigma=0.5,
+                nmax=5,
+                lmax=21,
+                rbf="polynomial",
+            )
 
         # Invalid nmax
         with self.assertRaises(ValueError):
@@ -198,60 +205,44 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
     def test_infer_rcut(self):
         """Tests that the rcut is correctly inferred from the threshold given in weighting"""
-        weighting = {
-            "c" : 0,
-            "m" : 1,
-            "r0" : 1,
-            "threshold" : 1e-3,
-            "func" : "poly-m"
-        }
+        weighting = {"c": 0, "m": 1, "r0": 1, "threshold": 1e-3, "func": "poly-m"}
         soap = SOAP(
             species=[1, 8], rcut=None, nmax=1, lmax=1, sparse=True, weighting=weighting
         )
-        threshold = (1 /(soap._rcut / weighting["r0"])) ** weighting["m"]
+        threshold = (1 / (soap._rcut / weighting["r0"])) ** weighting["m"]
 
         self.assertAlmostEqual(weighting["threshold"], threshold)
 
-        weighting = {
-            "c" : 2,
-            "m" : 1,
-            "r0" : 1,
-            "threshold" : 1e-3,
-            "func" : "poly-m"
-        }
+        weighting = {"c": 2, "m": 1, "r0": 1, "threshold": 1e-3, "func": "poly-m"}
         soap = SOAP(
             species=[1, 8], rcut=None, nmax=1, lmax=1, sparse=True, weighting=weighting
         )
-        threshold = (weighting["c"] /( weighting["c"] + (soap._rcut / weighting["r0"])) ** weighting["m"])
+        threshold = (
+            weighting["c"]
+            / (weighting["c"] + (soap._rcut / weighting["r0"])) ** weighting["m"]
+        )
 
         self.assertAlmostEqual(weighting["threshold"], threshold)
 
-        weighting = {
-            "m" : 1,
-            "r0" : 1,
-            "threshold" : 1e-3,
-            "func" : "poly-3m"
-        }
+        weighting = {"m": 1, "r0": 1, "threshold": 1e-3, "func": "poly-3m"}
         soap = SOAP(
             species=[1, 8], rcut=None, nmax=1, lmax=1, sparse=True, weighting=weighting
         )
-        threshold = (1 + 2 * (soap._rcut / weighting["r0"])**3 -3 * (soap._rcut / weighting["r0"]) **2) ** weighting["m"]
+        threshold = (
+            1
+            + 2 * (soap._rcut / weighting["r0"]) ** 3
+            - 3 * (soap._rcut / weighting["r0"]) ** 2
+        ) ** weighting["m"]
 
         self.assertAlmostEqual(weighting["threshold"], threshold)
 
-
-        weighting = {
-            "m" : 0.5,
-            "threshold" : 1e-3,
-            "func" : "exp"
-        }
+        weighting = {"m": 0.5, "threshold": 1e-3, "func": "exp"}
         soap = SOAP(
             species=[1, 8], rcut=None, nmax=1, lmax=1, sparse=True, weighting=weighting
         )
         threshold = np.exp(-weighting["m"] * soap._rcut)
 
         self.assertAlmostEqual(weighting["threshold"], threshold)
-
 
     def test_crossover(self):
         """Tests that disabling/enabling crossover works as expected."""
