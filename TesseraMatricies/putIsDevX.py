@@ -417,8 +417,8 @@ replace_dict = {
         }
 
 
-f1 = open('finalSoapFunctionsWithoutSqrtPi3DevX.txt', 'r')
-f2 = open('finalSoapFunctionsWithoutSqrtPi3IsDevX.txt', 'w')
+f1 = open('finalSoapFunctionsWithoutSqrtPi3DevZ.txt', 'r')
+f2 = open('finalSoapFunctionsWithoutSqrtPi3IsDevZ.txt', 'w')
 for line in f1:
     text=line
     text = replace_all(text,replace_dict)

@@ -37,7 +37,7 @@ def remove_power_in_matrix(mat):
             no_powXYZ = no_powXY.replace("z**", "z")
             no_powXYZR2 = no_powXYZ.replace("(x2 + y2 + z2)", "rr")
             no_powXYZR2Final = no_powXYZR2.replace("**","" )
-            print(no_powXYZR2Final,"X", "\n")
+            print(no_powXYZR2Final,"Z", "\n")
             print("=== OUTPUT ===", mat[i,j])
             new_mat[i,j] = no_powXYZR2Final
     return new_mat
@@ -46,10 +46,10 @@ def remove_power_in_matrix(mat):
 
 if __name__ == "__main__":
     # dtype large so that string isn't cut off
-    mat = np.loadtxt("tesseralMatDerX.mat", dtype = "U16384")
+    mat = np.loadtxt("tesseralMatDerZ.mat", dtype = "U16384")
 #    mat = np.loadtxt("test.txt", dtype = "U16384") # Change me
     print(mat.shape)
     evalf_mat = evaluate_matrix(mat)
     no_pow_mat = remove_power_in_matrix(evalf_mat)
-    np.savetxt("tesseral_mat_nopowDevX.txt", no_pow_mat, fmt="%s",delimiter=", ")
-    np.save("tesseral_mat_nopowDevX.npy", no_pow_mat)
+    np.savetxt("tesseral_mat_nopowDevZ.txt", no_pow_mat, fmt="%s",delimiter=", ")
+    np.save("tesseral_mat_nopowDevZ.npy", no_pow_mat)
