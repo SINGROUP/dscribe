@@ -60,12 +60,13 @@ class SOAP(Descriptor):
         nmax,
         lmax,
         sigma=1.0,
-        weighting=None,
         rbf="gto",
-        species=None,
-        periodic=False,
+        weighting=None,
         crossover=True,
         average="off",
+        reweight_symmetric=False,
+        species=None,
+        periodic=False,
         sparse=False,
         dtype="float32",
     ):
@@ -75,15 +76,13 @@ class SOAP(Descriptor):
                 bigger than 1 angstrom.
             nmax (int): The number of radial basis functions.
             lmax (int): The maximum degree of spherical harmonics.
-            species (iterable): The chemical species as a list of atomic
-                numbers or as a list of chemical symbols. Notice that this is not
-                the atomic numbers that are present for an individual system, but
-                should contain all the elements that are ever going to be
-                encountered when creating the descriptors for a set of systems.
-                Keeping the number of chemical species as low as possible is
-                preferable.
             sigma (float): The standard deviation of the gaussians used to expand the
                 atomic density.
+            rbf (str): The radial basis functions to use. The available options are:
+
+                * "gto": Spherical gaussian type orbitals defined as :math:`g_{nl}(r) = \sum_{n'=1}^{n_\mathrm{max}}\,\\beta_{nn'l} r^l e^{-\\alpha_{n'l}r^2}`
+                * "polynomial": Polynomial basis defined as :math:`g_{n}(r) = \sum_{n'=1}^{n_\mathrm{max}}\,\\beta_{nn'} (r-r_\mathrm{cut})^{n'+2}`
+
             weighting (dict): The parameters of the radial weighting function.
                 It requires the argument "func" to be one of the following
 
@@ -108,16 +107,6 @@ class SOAP(Descriptor):
                 Apart from the decay-function-specific parameters, a "threshold" can be
                 specified (default: 1e-3). The threshold is only used if rcut=None in order
                 to infer it.
-
-
-            rbf (str): The radial basis functions to use. The available options are:
-
-                * "gto": Spherical gaussian type orbitals defined as :math:`g_{nl}(r) = \sum_{n'=1}^{n_\mathrm{max}}\,\\beta_{nn'l} r^l e^{-\\alpha_{n'l}r^2}`
-                * "polynomial": Polynomial basis defined as :math:`g_{n}(r) = \sum_{n'=1}^{n_\mathrm{max}}\,\\beta_{nn'} (r-r_\mathrm{cut})^{n'+2}`
-
-            periodic (bool): Set to true if you want the descriptor output to
-                respect the periodicity of the atomic systems (see the
-                pbc-parameter in the constructor of ase.Atoms).
             crossover (bool): Determines if crossover of atomic types should
                 be included in the power spectrum. If enabled, the power
                 spectrum is calculated over all unique species combinations Z
@@ -131,10 +120,23 @@ class SOAP(Descriptor):
                     * "off": No averaging.
                     * "inner": Averaging over sites before summing up the magnetic quantum numbers: :math:`p_{nn'l}^{Z_1,Z_2} \sim \sum_m (\\frac{1}{n} \sum_i c_{nlm}^{i, Z_1})^{*} (\\frac{1}{n} \sum_i c_{n'lm}^{i, Z_2})`
                     * "outer": Averaging over the power spectrum of different sites: :math:`p_{nn'l}^{Z_1,Z_2} \sim \\frac{1}{n} \sum_i \sum_m (c_{nlm}^{i, Z_1})^{*} (c_{n'lm}^{i, Z_2})`
-
+            reweight_symmetric (bool): Controls whether the power spectrum
+                terms whose symmetric counterparts were left out should have a
+                doubled weight. This makes the output directly compatible with
+                the original SOAP kernel.
+            species (iterable): The chemical species as a list of atomic
+                numbers or as a list of chemical symbols. Notice that this is not
+                the atomic numbers that are present for an individual system, but
+                should contain all the elements that are ever going to be
+                encountered when creating the descriptors for a set of systems.
+                Keeping the number of chemical species as low as possible is
+                preferable.
+            periodic (bool): Set to true if you want the descriptor output to
+                respect the periodicity of the atomic systems (see the
+                pbc-parameter in the constructor of ase.Atoms).
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
-            dtype (string): The data type of the output. Valid options are:
+            dtype (str): The data type of the output. Valid options are:
 
                     * "float32": Single precision floating point numbers.
                     * "float64": Double precision floating point numbers.
@@ -237,6 +239,7 @@ class SOAP(Descriptor):
         self._rbf = rbf
         self.average = average
         self.crossover = crossover
+        self.reweight_symmetric = reweight_symmetric
 
     def prepare_centers(self, system, cutoff_padding, positions=None):
         """Validates and prepares the centers for the C++ extension."""
@@ -512,13 +515,14 @@ class SOAP(Descriptor):
                 self._lmax,
                 self._eta,
                 self._weighting,
-                self._atomic_numbers,
-                self.periodic,
                 self.crossover,
                 self.average,
+                self.reweight_symmetric,
                 cutoff_padding,
                 alphas,
                 betas,
+                self._atomic_numbers,
+                self.periodic,
             )
 
             # Calculate analytically with extension
@@ -543,13 +547,14 @@ class SOAP(Descriptor):
                 self._lmax,
                 self._eta,
                 self._weighting,
-                self._atomic_numbers,
-                self.periodic,
                 self.crossover,
                 self.average,
+                self.reweight_symmetric,
                 cutoff_padding,
                 rx,
                 gss,
+                self._atomic_numbers,
+                self.periodic,
             )
             soap_poly.create(
                 soap_mat,
@@ -835,13 +840,14 @@ class SOAP(Descriptor):
                 self._lmax,
                 self._eta,
                 self._weighting,
-                self._atomic_numbers,
-                self.periodic,
                 self.crossover,
                 self.average,
+                self.reweight_symmetric,
                 cutoff_padding,
                 alphas,
                 betas,
+                self._atomic_numbers,
+                self.periodic,
             )
 
             # Calculate numerically with extension
@@ -903,13 +909,14 @@ class SOAP(Descriptor):
                     self._lmax,
                     self._eta,
                     self._weighting,
-                    self._atomic_numbers,
-                    self.periodic,
                     self.crossover,
                     self.average,
+                    self.reweight_symmetric,
                     cutoff_padding,
                     rx,
                     gss,
+                    self._atomic_numbers,
+                    self.periodic,
                 )
                 soap_poly.derivatives_numerical(
                     d,

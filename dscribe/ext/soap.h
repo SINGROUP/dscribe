@@ -38,13 +38,14 @@ class SOAPGTO: public Descriptor {
             int lmax,
             double eta,
             py::dict weighting,
-            py::array_t<int> species,
-            bool periodic,
             bool crossover,
             string average,
+            bool reweight_symmetric,
             double cutoff_padding,
             py::array_t<double> alphas,
-            py::array_t<double> betas
+            py::array_t<double> betas,
+            py::array_t<int> species,
+            bool periodic
         );
         /**
          * For creating SOAP output.
@@ -102,11 +103,12 @@ class SOAPGTO: public Descriptor {
         const int lmax;
         const double eta;
         const py::dict weighting;
-        const py::array_t<int> species;
         const bool crossover;
+        const bool reweight_symmetric;
         const float cutoff_padding;
         const py::array_t<double> alphas;
         const py::array_t<double> betas;
+        const py::array_t<int> species;
 };
 
 /**
@@ -123,13 +125,14 @@ class SOAPPolynomial: public Descriptor {
             int lmax,
             double eta,
             py::dict weighting,
-            py::array_t<int> species,
-            bool periodic,
             bool crossover,
             string average,
+            bool reweight_symmetric,
             double cutoff_padding,
             py::array_t<double> rx,
-            py::array_t<double> gss
+            py::array_t<double> gss,
+            py::array_t<int> species,
+            bool periodic
         );
         /**
          * For creating SOAP output.
@@ -169,11 +172,12 @@ class SOAPPolynomial: public Descriptor {
         const int lmax;
         const double eta;
         const py::dict weighting;
-        const py::array_t<int> species;
         const bool crossover;
+        const bool reweight_symmetric;
         const float cutoff_padding;
         const py::array_t<double> rx;
         const py::array_t<double> gss;
+        const py::array_t<int> species;
 };
 
 #endif

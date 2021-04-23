@@ -113,13 +113,13 @@ class LMBTR(MBTR):
 
     def __init__(
         self,
-        species,
-        periodic,
         k2=None,
         k3=None,
         normalize_gaussians=True,
         normalization="none",
         flatten=True,
+        species=None,
+        periodic=False,
         sparse=False,
     ):
         """

@@ -1,5 +1,12 @@
 Changelog
 =========
+ - 1.1.0:
+    - New features:
+        - Added support for lmax <= 20 for the SOAP GTO basis.
+        - Added support for weighting the gaussians contributing to the atomic
+          density. For more details see :doc:`the updated SOAP tutorial. <tutorials/descriptors/soap>`
+        - Added the ':math:`` flag for the SOAP descriptor.
+
  - 1.0.0:
     - New features:
         - Added possibility to calculate the derivatives of the SOAP descriptor

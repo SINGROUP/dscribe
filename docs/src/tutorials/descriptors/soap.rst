@@ -7,10 +7,10 @@ density with orthonormal functions based on spherical harmonics and radial
 basis functions.
 
 The SOAP output from DScribe is the partial power spectrum vector
-:math:`\mathbf{p}(\mathbf{r})`, where the elements are defined as :cite:`soap2`
+:math:`\mathbf{p}`, where the elements are defined as :cite:`soap2`
 
 .. math::
-   p(\mathbf{r})^{Z_1 Z_2}_{n n' l} = \pi \sqrt{\frac{8}{2l+1}}\sum_m c^{Z_1}_{n l m}(\mathbf{r})^*c^{Z_2}_{n' l m}(\mathbf{r})
+   p^{Z_1 Z_2}_{n n' l} = \pi \sqrt{\frac{8}{2l+1}}\sum_m {c^{Z_1}_{n l m}}^*c^{Z_2}_{n' l m}
 
 where :math:`n` and :math:`n'` are indices for the different radial basis
 functions up to :math:`n_\mathrm{max}`, :math:`l` is the angular degree of the
@@ -21,9 +21,9 @@ The coefficients :math:`c^Z_{nlm}` are defined as the following inner
 products:
 
 .. math::
-   c^Z_{nlm}(\mathbf{r}) =\iiint_{\mathcal{R}^3}\mathrm{d}V g_{n}(r)Y_{lm}(\theta, \phi)\rho^Z(\mathbf{r}).
+   c^Z_{nlm} =\iiint_{\mathcal{R}^3}\mathrm{d}V g_{n}(r)Y_{lm}(\theta, \phi)\rho^Z(\mathbf{r}).
 
-where :math:`\mathbf{r}` is a position in space, :math:`\rho^Z(\mathbf{r})` is
+where :math:`\rho^Z(\mathbf{r})` is
 the gaussian smoothed atomic density for atoms with atomic number :math:`Z`,
 :math:`Y_{lm}(\theta, \phi)` are the real spherical harmonics, and
 :math:`g_{n}(r)` is the radial basis function.
@@ -49,6 +49,10 @@ as a normalized polynomial kernel of the partial powers spectrums:
 .. math::
    K^\mathrm{SOAP}(\mathbf{p}, \mathbf{p'}) = \left( \frac{\mathbf{p} \cdot \mathbf{p'}}{\sqrt{\mathbf{p} \cdot \mathbf{p}~\mathbf{p'} \cdot \mathbf{p'}}}\right)^{\xi}
 
+Notice that in order to *exactly* match this original definition, you have to
+use :code:`reweight_symmetric=True` in the SOAP descriptor setup, which will
+double the weight of terms in :math:`\mathbf{p}` for which symmetric
+counterparts are left out by default by DScribe for performance reasons.
 Although this is the original similarity definition, nothing in practice
 prevents the usage of the output in non-kernel based methods or with other
 kernel definitions.

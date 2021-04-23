@@ -26,13 +26,14 @@ SOAPGTO::SOAPGTO(
     int lmax,
     double eta,
     py::dict weighting,
-    py::array_t<int> species,
-    bool periodic,
     bool crossover,
     string average,
+    bool reweight_symmetric,
     double cutoff_padding,
     py::array_t<double> alphas,
-    py::array_t<double> betas
+    py::array_t<double> betas,
+    py::array_t<int> species,
+    bool periodic
 )
     : Descriptor(periodic, average, rcut+cutoff_padding)
     , rcut(rcut)
@@ -40,11 +41,12 @@ SOAPGTO::SOAPGTO(
     , lmax(lmax)
     , eta(eta)
     , weighting(weighting)
-    , species(species)
     , crossover(crossover)
+    , reweight_symmetric(reweight_symmetric)
     , cutoff_padding(cutoff_padding)
     , alphas(alphas)
     , betas(betas)
+    , species(species)
 {
 }
 
@@ -190,13 +192,14 @@ SOAPPolynomial::SOAPPolynomial(
     int lmax,
     double eta,
     py::dict weighting,
-    py::array_t<int> species,
-    bool periodic,
     bool crossover,
     string average,
+    bool reweight_symmetric,
     double cutoff_padding,
     py::array_t<double> rx,
-    py::array_t<double> gss
+    py::array_t<double> gss,
+    py::array_t<int> species,
+    bool periodic
 )
     : Descriptor(periodic, average, rcut+cutoff_padding)
     , rcut(rcut)
@@ -204,11 +207,12 @@ SOAPPolynomial::SOAPPolynomial(
     , lmax(lmax)
     , eta(eta)
     , weighting(weighting)
-    , species(species)
     , crossover(crossover)
+    , reweight_symmetric(reweight_symmetric)
     , cutoff_padding(cutoff_padding)
     , rx(rx)
     , gss(gss)
+    , species(species)
 {
 }
 

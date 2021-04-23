@@ -106,28 +106,18 @@ class MBTR(Descriptor):
 
     def __init__(
         self,
-        species,
-        periodic,
         k1=None,
         k2=None,
         k3=None,
         normalize_gaussians=True,
         normalization="none",
         flatten=True,
+        species=None,
+        periodic=False,
         sparse=False,
     ):
         """
         Args:
-            species (iterable): The chemical species as a list of atomic
-                numbers or as a list of chemical symbols. Notice that this is not
-                the atomic numbers that are present for an individual system, but
-                should contain all the elements that are ever going to be
-                encountered when creating the descriptors for a set of systems.
-                Keeping the number of chemical speices as low as possible is
-                preferable.
-            periodic (bool): Set to true if you want the descriptor output to
-                respect the periodicity of the atomic systems (see the
-                pbc-parameter in the constructor of ase.Atoms).
             k1 (dict): Setup for the k=1 term. For example::
 
                 k1 = {
@@ -173,6 +163,16 @@ class MBTR(Descriptor):
                 array. If False, a dictionary of the different tensors is
                 provided, containing the values under keys: "k1", "k2", and
                 "k3":
+            species (iterable): The chemical species as a list of atomic
+                numbers or as a list of chemical symbols. Notice that this is not
+                the atomic numbers that are present for an individual system, but
+                should contain all the elements that are ever going to be
+                encountered when creating the descriptors for a set of systems.
+                Keeping the number of chemical speices as low as possible is
+                preferable.
+            periodic (bool): Set to true if you want the descriptor output to
+                respect the periodicity of the atomic systems (see the
+                pbc-parameter in the constructor of ase.Atoms).
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
         """
