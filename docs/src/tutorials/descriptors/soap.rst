@@ -23,8 +23,12 @@ products:
 .. math::
    c^Z_{nlm} =\iiint_{\mathcal{R}^3}\mathrm{d}V g_{n}(r)Y_{lm}(\theta, \phi)\rho^Z(\mathbf{r}).
 
-where :math:`\rho^Z(\mathbf{r})` is
-the gaussian smoothed atomic density for atoms with atomic number :math:`Z`,
+where :math:`\rho^Z(\mathbf{r})` is the gaussian smoothed atomic density for
+atoms with atomic number :math:`Z` defined as
+
+.. math::
+   \rho^Z(\mathbf{r}) = \sum_i^{\lvert Z_i \rvert} e^{-1/2\sigma^2 \lvert \mathbf{r} - \mathbf{R}_i \rvert^2}
+
 :math:`Y_{lm}(\theta, \phi)` are the real spherical harmonics, and
 :math:`g_{n}(r)` is the radial basis function.
 
@@ -151,39 +155,60 @@ Weighting
 ~~~~~~~~~
 
 The default SOAP formalism weights the atomic density equally no matter how far
-it is from the the position of interest. Especially in system with uniform
-atomic density, e.g. bulk crystals, this can lead to the unwanted effect of
-farther away regions dominating the SOAP spectrum. It has been shown:cite:`soap2` that
-radially scaling the atomic density can in these cases help in creating a
-suitable balance that gives more importance to the closer-by atoms. This idea
-is similar to the weighting done in the MBTR descriptor.
+it is from the the position of interest. Especially in systems with uniform
+atomic density this can lead to the atoms in farther away regions
+dominating the SOAP spectrum. It has been shown :cite:`soap_weighting` that radially
+scaling the atomic density can help in creating a suitable balance that gives
+more importance to the closer-by atoms. This idea is very similar to the
+weighting done in the MBTR descriptor.
 
-This weighting could be done by directly adding a weighting function
+The weighting could be done by directly adding a weighting function
 :math:`w(r)` in the integrals:
 
 .. math::
    c^Z_{nlm} =\iiint_{\mathcal{R}^3}\mathrm{d}V g_{n}(r)Y_{lm}(\theta, \phi)w(r)\rho^Z(\mathbf{r}).
 
-This can however complicate the calculation of these integrals considerably.
+This can, however, complicate the calculation of these integrals considerably.
 Instead of directly weighting the atomic density, we can weight the
 contribution of individual atoms by scaling the amplitude of their Gaussian
 contributions:
 
+.. math::
+   \rho^Z(\mathbf{r}) = \sum_i^{\lvert Z_i \rvert} w(r)e^{-1/2\sigma^2 \lvert \mathbf{r} - \mathbf{R}_i \rvert^2}
+
+This approximates the "correct" weighting very well as long as the width of the
+atomic Gaussians (as determined by ``sigma``) is small compared to the
+variation in the weighting function :math:`w(r)`.
+
 DScribe currently supports this latter simplified weighting, with different
 weighting functions, and a possibility to also separately weight the central
 atom (sometimes the central atom will not contribute meaningful information and
-you may wish to even leave it out completely by setting w0=0).
+you may wish to even leave it out completely by setting :code:`w0=0`). Three
+different weighting functions are currently supported, and some example
+instances from these functions are plotted below.
 
-Three different weighting functions are currently supported, and their
-characteristic shapes are plotted below.
+.. figure:: /_static/img/soap_weighting.png
+   :width: 700px
+   :alt: SOAP weighting
+   :align: center
+
+   Examples of different weighting function setups.
 
 When using a weighting function, you typically will also want to restrict
 ``rcut`` into a range that lies within the domain in which your weighting
 function is active. You can achieve this by manually tuning rcut to a range
-that fits your weighting function, or use the threshold-parameter to automate
-this procedure. By providing a threshold-value, rcut will automatically set so
-that it corresponds to the distance at which your weighting function will reach
-this threshold value.
+that fits your weighting function, or if you set :code:`rcut=None`, it will be
+set automatically into a sensible range which depends on your weighting
+function. You can see more details and the algegbraic form of the weighting
+functions in the constructor documentation.
+
+The following example illustrates how you would utilize the weighting in the
+SOAP constructor:
+
+.. literalinclude:: ../../../../examples/soap.py
+   :start-after: Weighting
+   :language: python
+   :lines: 1-8
 
 Locating information
 ~~~~~~~~~~~~~~~~~~~~

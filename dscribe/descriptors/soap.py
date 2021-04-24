@@ -73,7 +73,7 @@ class SOAP(Descriptor):
         """
         Args:
             rcut (float): A cutoff for local region in angstroms. Should be
-                bigger than 1 angstrom.
+                bigger than 1 angstrom for the gto-basis.
             nmax (int): The number of radial basis functions.
             lmax (int): The maximum degree of spherical harmonics.
             sigma (float): The standard deviation of the gaussians used to expand the
@@ -83,28 +83,19 @@ class SOAP(Descriptor):
                 * ``"gto"``: Spherical gaussian type orbitals defined as :math:`g_{nl}(r) = \sum_{n'=1}^{n_\mathrm{max}}\,\\beta_{nn'l} r^l e^{-\\alpha_{n'l}r^2}`
                 * ``"polynomial"``: Polynomial basis defined as :math:`g_{n}(r) = \sum_{n'=1}^{n_\mathrm{max}}\,\\beta_{nn'} (r-r_\mathrm{cut})^{n'+2}`
 
-            weighting (dict): Contains the weighting options which control the
+            weighting (dict): Contains the options which control the
                 weighting of the atomic density. Leave unspecified if
                 you do not wish to apply any weighting. The dictionary may
                 contain the following entries:
-                
-                * ``"function"``: The weighting function to use as a string, the
+
+                * ``"function"``: The weighting function to use. The
                   following are currently supported:
 
-                    * ``"poly-m"``: :math:`w = \\left\{\\begin{matrix} \\frac{1}{(\\frac{r}{r_0})^{m}} & c = 0 \\ \\frac{1 + c}{c + (\\frac{r}{r_0})^{m}} & c > 0 \\end{matrix}\\right.`
+                    * ``"poly"``: :math:`w(r) = \left\{ \\begin{array}{ll} (1 + 2 (\\frac{r}{r_0})^{3} -3 (\\frac{r}{r_0})^{2}))^{m}, \\ \\text{for}\\ r \\leq r_0\\\\ 0, \\ \\text{for}\\ r > r_0 \end{array}\\right.`
 
-                      You can provide the parameters ``c``, ``m`` and ``r0`` as
-                      additional dictionary items.
-
-                      For reference see:
-                          "Willatt, M., Musil, F., & Ceriotti, M. (2018).
-                          Feature optimization for atomistic machine learning yields a data-driven
-                          construction of the periodic table of the elements.
-                          Phys. Chem. Chem. Phys., 20, 29661-29668.
-                          "
-
-                    * ``"poly-3m"``: :math:`w = (1 + 2 (\\frac{r}{r_0})^{3} -3 (\\frac{r}{r_0})^{2}))^{m}`
-
+                      This function goes exactly to zero at :math:`r=r_0`. If
+                      you do not explicitly provide ``rcut`` in the
+                      constructor, ``rcut`` is automatically set to ``r0``.
                       You can provide the parameters ``m`` and ``r0`` as
                       additional dictionary items.
 
@@ -113,18 +104,31 @@ class SOAP(Descriptor):
                           computational performance of machine learning based interatomic potentials.
                           Phys. Rev. B, 100, 024112."
 
-                    * ``"exp"`` :math:`w = e^{-m r}`
+                    * ``"pow"``: :math:`w(r) = \\frac{c}{c + (\\frac{r}{r_0})^{m}}`
 
-                      You can provide the parameter ``m`` as an additional
-                      dictionary item.
+                      If you do not explicitly provide ``rcut`` in the
+                      constructor, ``rcut`` will be set as the value at which
+                      this function decays to the value given by the
+                      ``threshold`` entry in the weighting dictionary (defaults
+                      to 1e-2), You can provide the parameters ``m`` and
+                      ``threshold`` as additional dictionary items.
 
-                * ``"threshold"``: An optional value which can be used to
-                  automatically determine a proper ``rcut`` value based on the decay of
-                  the given weighting function. If provided, ``rcut`` will be set
-                  so that it corresponds to the radial distance at which the
-                  weighting function has dropped to this threshold value.
-                  Defaults to 1e-3. Only applied if a weighting function was
-                  specified and ``rcut`` is not given.
+                      For reference see:
+                          "Willatt, M., Musil, F., & Ceriotti, M. (2018).
+                          Feature optimization for atomistic machine learning yields a data-driven
+                          construction of the periodic table of the elements.
+                          Phys. Chem. Chem. Phys., 20, 29661-29668.
+                          "
+
+                    * ``"exp"``: :math:`w(r) = e^{-m r}`
+
+                      If you do not explicitly provide ``rcut`` in the
+                      constructor, ``rcut`` will be set as the value at which
+                      this function decays to the value given by the
+                      ``threshold`` entry in the weighting dictionary (defaults
+                      to 1e-2), You can provide the parameters ``m`` and
+                      ``threshold`` as additional dictionary items.
+
                 * ``"w0"``: Custom floating point weight for the atom that is
                   directly on top of a requested center. Optional, will override
                   other weighting.
@@ -203,16 +207,18 @@ class SOAP(Descriptor):
         if not (weighting or rcut):
             raise ValueError("Either weighting or rcut need to be defined")
         if weighting:
-            weighting_functions = ["poly-m", "poly-3m", "exp"]
-            if weighting["function"] == "poly-m":
+            weighting_functions = ["poly", "pow", "exp"]
+            if weighting["function"] == "pow":
                 if weighting["r0"] < 0:
                     raise ValueError("Define r0 > 0 in weighting.")
                 if weighting["c"] < 0:
                     raise ValueError("Define c >= 0 in weighting.")
+                weighting["threshold"] = weighting.get("threshold", 1e-2)
 
-            elif weighting["function"] == "poly-3m":
+            elif weighting["function"] == "poly":
                 if weighting["r0"] < 0:
                     raise ValueError("Define r0 > 0 in weighting.")
+                weighting["threshold"] = weighting.get("threshold", 1e-2)
 
             elif weighting["function"] == "exp":
                 pass
@@ -223,8 +229,6 @@ class SOAP(Descriptor):
                 )
             if weighting["m"] < 0:
                 raise ValueError("Define m >= 0 in weighting.")
-
-            weighting["threshold"] = weighting.get("threshold", 1e-3)
         else:
             weighting = {"m": 0, "c": 0, "r0": 1}  # default weighting: no decay
         if not rcut:
@@ -316,48 +320,22 @@ class SOAP(Descriptor):
         return cutoff_padding
 
     def _infer_rcut(self, weighting):
-        """Used to calculate an appropriate rcut based on where the given
-        weighting function decays to a give threshold value.
+        """Used to determine an appropriate rcut based on where the given
+        weighting function setup.
         """
-        if weighting["function"] == "poly-m":
+        if weighting["function"] == "pow":
             t = weighting["threshold"]
             m = weighting["m"]
             c = weighting["c"]
             r0 = weighting["r0"]
-
-            if c == 0:
-                rcut = r0 * (1 / t) ** (1 / m)
-            else:
-                rcut = r0 * ((1 - t) * c / t) ** (1 / m)
+            rcut = r0 * (c * (1 / t - 1)) ** (1 / m)
             return rcut
-        elif weighting["function"] == "poly-3m":
-            t = weighting["threshold"]
-            m = weighting["m"]
+        elif weighting["function"] == "poly":
             r0 = weighting["r0"]
-
-            t = t ** (1 / m)
-            rcut = 0.5 * (
-                (
-                    2 * (r0 ** 6 * t ** 2 - r0 ** 6 * t) ** (1 / 2)
-                    + 2 * r0 ** 3 * t
-                    - r0 ** 3
-                )
-                ** (1 / 3)
-                + r0 ** 2
-                / (
-                    2 * (r0 ** 6 * t ** 2 - r0 ** 6 * t) ** (1 / 2)
-                    + 2 * r0 ** 3 * t
-                    - r0 ** 3
-                )
-                ** (1 / 3)
-                + r0
-            )
-            rcut = np.real(rcut)
-            return rcut
+            return r0
         elif weighting["function"] == "exp":
             t = weighting["threshold"]
             m = weighting["m"]
-
             rcut = np.log(1 / t) / m
             return rcut
         else:
