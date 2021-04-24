@@ -174,7 +174,7 @@ contribution of individual atoms by scaling the amplitude of their Gaussian
 contributions:
 
 .. math::
-   \rho^Z(\mathbf{r}) = \sum_i^{\lvert Z_i \rvert} w(r)e^{-1/2\sigma^2 \lvert \mathbf{r} - \mathbf{R}_i \rvert^2}
+   \rho^Z(\mathbf{r}) = \sum_i^{\lvert Z_i \rvert} w(\lvert \mathbf{R}_i \rvert)e^{-1/2\sigma^2 \lvert \mathbf{r} - \mathbf{R}_i \rvert^2}
 
 This approximates the "correct" weighting very well as long as the width of the
 atomic Gaussians (as determined by ``sigma``) is small compared to the
