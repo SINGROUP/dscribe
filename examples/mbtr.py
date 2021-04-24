@@ -11,12 +11,12 @@ mbtr = MBTR(
     k2={
         "geometry": {"function": "inverse_distance"},
         "grid": {"min": 0, "max": 1, "n": 100, "sigma": 0.1},
-        "weighting": {"function": "exponential", "scale": 0.5, "cutoff": 1e-3},
+        "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-3},
     },
     k3={
         "geometry": {"function": "cosine"},
         "grid": {"min": -1, "max": 1, "n": 100, "sigma": 0.1},
-        "weighting": {"function": "exponential", "scale": 0.5, "cutoff": 1e-3},
+        "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-3},
     },
     periodic=False,
     normalization="l2_each",
@@ -59,7 +59,7 @@ mbtr = MBTR(
     k2={
         "geometry": {"function": "inverse_distance"},
         "grid": {"min": 0, "max": 0.5, "sigma": 0.01, "n": 200},
-        "weighting": {"function": "exponential", "scale": decay, "cutoff": 1e-3},
+        "weighting": {"function": "exp", "scale": decay, "threshold": 1e-3},
     },
     periodic=True,
     flatten=False,
@@ -103,7 +103,7 @@ system = molecule("C60")
 output_no_weight = desc.create(system)
 
 # Exponential weighting
-desc.k2["weighting"] = {"function": "exponential", "scale": 1.1, "cutoff": 1e-2}
+desc.k2["weighting"] = {"function": "exp", "scale": 1.1, "threshold": 1e-2}
 output_weight = desc.create(system)
 
 fig, ax = mpl.subplots()
@@ -127,12 +127,12 @@ desc = MBTR(
     k2={
         "geometry": {"function": "inverse_distance"},
         "grid": {"min": 0, "max": 1.0, "sigma": 0.02, "n": 200},
-        "weighting": {"function": "exponential", "scale": 1.0, "cutoff": 1e-3},
+        "weighting": {"function": "exp", "scale": 1.0, "threshold": 1e-3},
     },
     k3={
         "geometry": {"function": "cosine"},
         "grid": {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 200},
-        "weighting": {"function": "exponential", "scale": 1.0, "cutoff": 1e-3},
+        "weighting": {"function": "exp", "scale": 1.0, "threshold": 1e-3},
     },
     flatten=True,
     sparse=False,

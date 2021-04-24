@@ -23,13 +23,13 @@ default_k1 = {
 default_k2 = {
     "geometry": {"function": "inverse_distance"},
     "grid": {"min": 0, "max": 1 / 0.7, "sigma": 0.1, "n": 50},
-    "weighting": {"function": "exponential", "scale": 0.5, "cutoff": 1e-2},
+    "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-2},
 }
 
 default_k3 = {
     "geometry": {"function": "angle"},
     "grid": {"min": 0, "max": 180, "sigma": 2, "n": 50},
-    "weighting": {"function": "exponential", "scale": 0.5, "cutoff": 1e-2},
+    "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-2},
 }
 
 default_desc_k1 = MBTR(
@@ -54,12 +54,12 @@ default_desc_k1_k2_k3 = MBTR(
     k2={
         "geometry": {"function": "inverse_distance"},
         "grid": {"min": 0, "max": 1.0, "sigma": 0.02, "n": 100},
-        "weighting": {"function": "exponential", "scale": 1, "cutoff": 1e-3},
+        "weighting": {"function": "exp", "scale": 1, "threshold": 1e-3},
     },
     k3={
         "geometry": {"function": "cosine"},
         "grid": {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 100},
-        "weighting": {"function": "exponential", "scale": 1, "cutoff": 1e-3},
+        "weighting": {"function": "exp", "scale": 1, "threshold": 1e-3},
     },
     flatten=True,
     sparse=False,
@@ -222,10 +222,10 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
                 periodic=False,
             )
 
-        # Missing cutoff
+        # Missing threshold
         with self.assertRaises(ValueError):
             setup = copy.deepcopy(default_k2)
-            del setup["weighting"]["cutoff"]
+            del setup["weighting"]["threshold"]
             MBTR(
                 species=[1],
                 k2=setup,
@@ -271,7 +271,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             k2={
                 "geometry": {"function": "inverse_distance"},
                 "grid": {"min": 0, "max": 1 / 0.7, "sigma": 0.1, "n": n},
-                "weighting": {"function": "exponential", "scale": 0.5, "cutoff": 1e-2},
+                "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-2},
             },
             periodic=False,
             flatten=True,
@@ -290,12 +290,12 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             k2={
                 "geometry": {"function": "inverse_distance"},
                 "grid": {"min": 0, "max": 1 / 0.7, "sigma": 0.1, "n": n},
-                "weighting": {"function": "exponential", "scale": 0.5, "cutoff": 1e-2},
+                "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-2},
             },
             k3={
                 "geometry": {"function": "cosine"},
                 "grid": {"min": -1, "max": 1, "sigma": 0.1, "n": n},
-                "weighting": {"function": "exponential", "scale": 0.5, "cutoff": 1e-2},
+                "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-2},
             },
             periodic=False,
             flatten=True,
@@ -500,7 +500,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         a.k2 = {
             "geometry": {"function": "distance"},
             "grid": {"min": 0, "max": 10, "sigma": 0.1, "n": 50},
-            "weighting": {"function": "exponential", "scale": 0.6, "cutoff": 1e-2},
+            "weighting": {"function": "exp", "scale": 0.6, "threshold": 1e-2},
         }
         vec4 = a.create(H2O)
         self.assertTrue(not np.allclose(vec3, vec4))
@@ -508,7 +508,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         a.k3 = {
             "geometry": {"function": "angle"},
             "grid": {"min": 0, "max": 180, "sigma": 5, "n": 50},
-            "weighting": {"function": "exponential", "scale": 0.6, "cutoff": 1e-2},
+            "weighting": {"function": "exp", "scale": 0.6, "threshold": 1e-2},
         }
         vec5 = a.create(H2O)
         self.assertTrue(not np.allclose(vec4, vec5))
@@ -629,18 +629,18 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
                 "geometry": {"function": "inverse_distance"},
                 "grid": {"min": 0, "max": 1.0, "sigma": 0.02, "n": 200},
                 "weighting": {
-                    "function": "exponential",
+                    "function": "exp",
                     "scale": decay,
-                    "cutoff": 1e-3,
+                    "threshold": 1e-3,
                 },
             },
             k3={
                 "geometry": {"function": "cosine"},
                 "grid": {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 200},
                 "weighting": {
-                    "function": "exponential",
+                    "function": "exp",
                     "scale": decay,
-                    "cutoff": 1e-3,
+                    "threshold": 1e-3,
                 },
             },
             flatten=True,
@@ -844,7 +844,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             k2={
                 "geometry": {"function": "distance"},
                 "grid": {"min": 0, "max": 10, "sigma": 0.5, "n": 1000},
-                "weighting": {"function": "exp", "scale": 0.8, "cutoff": 1e-3},
+                "weighting": {"function": "exp", "scale": 0.8, "threshold": 1e-3},
             },
             normalize_gaussians=False,
             periodic=True,
@@ -906,7 +906,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         desc = copy.deepcopy(default_desc_k2)
         desc.species = ["H", "C"]
         desc.periodic = True
-        desc.k2["weighting"] = {"function": "exp", "scale": 0.8, "cutoff": 1e-3}
+        desc.k2["weighting"] = {"function": "exp", "scale": 0.8, "threshold": 1e-3}
 
         # The resulting spectra should be indentical
         spectra1 = desc.create(atoms)
@@ -971,7 +971,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             k3={
                 "geometry": {"function": "angle"},
                 "grid": {"min": 0, "max": 180, "sigma": 5, "n": 2000},
-                "weighting": {"function": "exp", "scale": scale, "cutoff": 1e-3},
+                "weighting": {"function": "exp", "scale": scale, "threshold": 1e-3},
             },
             normalize_gaussians=False,
             periodic=True,
@@ -1047,7 +1047,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         atoms2.wrap()
 
         desc = copy.deepcopy(default_desc_k3)
-        desc.k3["weighting"] = {"function": "exp", "scale": 1, "cutoff": 1e-3}
+        desc.k3["weighting"] = {"function": "exp", "scale": 1, "threshold": 1e-3}
         desc.periodic = True
 
         # The resulting spectra should be indentical
@@ -1170,12 +1170,12 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             k2={
                 "geometry": {"function": "inverse_distance"},
                 "grid": {"min": 0, "max": 1.0, "sigma": 0.02, "n": 21},
-                "weighting": {"function": "exp", "scale": decay, "cutoff": 1e-4},
+                "weighting": {"function": "exp", "scale": decay, "threshold": 1e-4},
             },
             k3={
                 "geometry": {"function": "cosine"},
                 "grid": {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 21},
-                "weighting": {"function": "exp", "scale": decay, "cutoff": 1e-4},
+                "weighting": {"function": "exp", "scale": decay, "threshold": 1e-4},
             },
             normalization="l2_each",  # This normalizes the spectrum
             flatten=True,
@@ -1230,7 +1230,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             k3={
                 "geometry": {"function": "cosine"},
                 "grid": {"min": -1.1, "max": 1.1, "sigma": 0.010, "n": 600},
-                "weighting": {"function": "exp", "scale": decay, "cutoff": 1e-4},
+                "weighting": {"function": "exp", "scale": decay, "threshold": 1e-4},
             },
             normalization="l2_each",  # This normalizes the spectrum
             flatten=True,
@@ -1276,7 +1276,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
             k3={
                 "geometry": {"function": "cosine"},
                 "grid": {"min": -1.0, "max": 1.0, "sigma": 0.030, "n": 200},
-                "weighting": {"function": "exp", "scale": 1.5, "cutoff": 1e-4},
+                "weighting": {"function": "exp", "scale": 1.5, "threshold": 1e-4},
             },
             normalization="l2_each",  # This normalizes the spectrum
             flatten=True,

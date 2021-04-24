@@ -17,6 +17,14 @@ similarity analysis, etc. To get started you can check the :doc:`basic tutorial
 <tutorials/basics>`.
 
 .. note::
+   Version **1.1.0** introduces new features and improvements to the SOAP
+   descriptor: increased maximum lmax to 20 and added support for more
+   customized weighting of the atomic density through weighting functions.
+   Please check out the updated :doc:`SOAP tutorial
+   <tutorials/descriptors/soap>` to learn more about these
+   changes.
+
+.. note::
    We are incrementally adding support for calculating the derivatives of
    descriptors with respect to the atom positions. In version **1.0.0** you
    can find an implementation for getting derivatives of non-periodic systems

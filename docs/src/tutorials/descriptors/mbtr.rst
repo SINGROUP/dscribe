@@ -59,7 +59,7 @@ functions are available:
        "inverse_distance": Pairwise inverse distance in 1/angstrom.
      - "unity": No weighting.
 
-       "exp" or "exponential": Weighting of the form :math:`e^{-sx}`,
+       "exp": Weighting of the form :math:`e^{-sx}`,
        where `x` is the distance between the two atoms.
    * - :math:`k=3`
      - "angle": Angle in degrees.
@@ -67,7 +67,7 @@ functions are available:
        "cosine": Cosine of the angle.
      - "unity": No weighting.
 
-       "exp" or "exponential": Weighting of the form :math:`e^{-sx}`,
+       "exp": Weighting of the form :math:`e^{-sx}`,
        where `x` is the perimeter of the triangle formed by the tree atoms.
 
 Creation

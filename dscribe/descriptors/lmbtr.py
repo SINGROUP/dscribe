@@ -73,16 +73,16 @@ class LMBTR(MBTR):
     * :math:`k=2`:
 
        * "unity": No weighting.
-       * "exp" or "exponential": Weighting of the form :math:`e^{-sx}`
+       * "exp": Weighting of the form :math:`e^{-sx}`
 
     * :math:`k=3`:
 
        * "unity": No weighting.
-       * "exp" or "exponential": Weighting of the form :math:`e^{-sx}`
+       * "exp": Weighting of the form :math:`e^{-sx}`
 
     The exponential weighting is motivated by the exponential decay of screened
     Coulombic interactions in solids. In the exponential weighting the
-    parameters **cutoff** determines the value of the weighting function after
+    parameters **threshold** determines the value of the weighting function after
     which the rest of the terms will be ignored and the parameter **scale**
     corresponds to :math:`s`. The meaning of :math:`x` changes for different
     terms as follows:
@@ -141,7 +141,7 @@ class LMBTR(MBTR):
                     k2 = {
                         "geometry": {"function": "inverse_distance"},
                         "grid": {"min": 0.1, "max": 2, "sigma": 0.1, "n": 50},
-                        "weighting": {"function": "exp", "scale": 0.75, "cutoff": 1e-2}
+                        "weighting": {"function": "exp", "scale": 0.75, "threshold": 1e-2}
                     }
 
             k3 (dict): Dictionary containing the setup for the k=3 term.
@@ -151,7 +151,7 @@ class LMBTR(MBTR):
                     k3 = {
                         "geometry": {"function": "angle"},
                         "grid": {"min": 0, "max": 180, "sigma": 5, "n": 50},
-                        "weighting" = {"function": "exp", "scale": 0.5, "cutoff": 1e-3}
+                        "weighting" = {"function": "exp", "scale": 0.5, "threshold": 1e-3}
                     }
             normalize_gaussians (bool): Determines whether the gaussians are
                 normalized to an area of 1. Defaults to True. If False, the
@@ -525,12 +525,12 @@ class LMBTR(MBTR):
             weighting_function = weighting["function"]
             if weighting_function == "exponential" or weighting_function == "exp":
                 scale = weighting["scale"]
-                cutoff = weighting["cutoff"]
+                threshold = weighting["threshold"]
                 if scale != 0:
-                    radial_cutoff = -math.log(cutoff) / scale
+                    radial_cutoff = -math.log(threshold) / scale
                 parameters = {
                     b"scale": weighting["scale"],
-                    b"cutoff": weighting["cutoff"],
+                    b"threshold": weighting["threshold"],
                 }
         else:
             weighting_function = "unity"
@@ -656,10 +656,10 @@ class LMBTR(MBTR):
             weighting_function = weighting["function"]
             if weighting_function == "exponential" or weighting_function == "exp":
                 scale = weighting["scale"]
-                cutoff = weighting["cutoff"]
+                threshold = weighting["threshold"]
                 if scale != 0:
-                    radial_cutoff = -0.5 * math.log(cutoff) / scale
-                parameters = {b"scale": scale, b"cutoff": cutoff}
+                    radial_cutoff = -0.5 * math.log(threshold) / scale
+                parameters = {b"scale": scale, b"threshold": threshold}
         else:
             weighting_function = "unity"
 

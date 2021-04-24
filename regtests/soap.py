@@ -204,29 +204,64 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         self.assertTrue(der.dtype == np.float64)
 
     def test_infer_rcut(self):
-        """Tests that the rcut is correctly inferred from the threshold given in weighting"""
-        weighting = {"c": 0, "m": 1, "r0": 1, "threshold": 1e-3, "func": "poly-m"}
+        """Tests that the rcut is correctly inferred from the threshold given
+        in weighting.
+        """
+        # poly-m
+        weighting = {
+            "function": "poly-m",
+            "c": 0,
+            "m": 1,
+            "r0": 1,
+            "threshold": 1e-3
+        }
         soap = SOAP(
-            species=[1, 8], rcut=None, nmax=1, lmax=1, sparse=True, weighting=weighting
+            species=[1, 8],
+            rcut=None,
+            nmax=1,
+            lmax=1,
+            sparse=True,
+            weighting=weighting
         )
         threshold = (1 / (soap._rcut / weighting["r0"])) ** weighting["m"]
-
         self.assertAlmostEqual(weighting["threshold"], threshold)
 
-        weighting = {"c": 2, "m": 1, "r0": 1, "threshold": 1e-3, "func": "poly-m"}
+        # poly-3m
+        weighting = {
+            "function": "poly-m",
+            "c": 2,
+            "m": 1,
+            "r0": 1,
+            "threshold": 1e-3
+        }
         soap = SOAP(
-            species=[1, 8], rcut=None, nmax=1, lmax=1, sparse=True, weighting=weighting
+            species=[1, 8],
+            rcut=None,
+            nmax=1,
+            lmax=1,
+            sparse=True,
+            weighting=weighting
         )
         threshold = (
             weighting["c"]
             / (weighting["c"] + (soap._rcut / weighting["r0"])) ** weighting["m"]
         )
-
         self.assertAlmostEqual(weighting["threshold"], threshold)
 
-        weighting = {"m": 1, "r0": 1, "threshold": 1e-3, "func": "poly-3m"}
+        # poly-3m
+        weighting = {
+            "m": 1,
+            "r0": 1,
+            "threshold": 1e-3,
+            "function": "poly-3m"
+        }
         soap = SOAP(
-            species=[1, 8], rcut=None, nmax=1, lmax=1, sparse=True, weighting=weighting
+            species=[1, 8],
+            rcut=None,
+            nmax=1,
+            lmax=1,
+            sparse=True,
+            weighting=weighting
         )
         threshold = (
             1
@@ -236,12 +271,21 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
         self.assertAlmostEqual(weighting["threshold"], threshold)
 
-        weighting = {"m": 0.5, "threshold": 1e-3, "func": "exp"}
+        # exp
+        weighting = {
+            "m": 0.5,
+            "threshold": 1e-3,
+            "function": "exp"
+        }
         soap = SOAP(
-            species=[1, 8], rcut=None, nmax=1, lmax=1, sparse=True, weighting=weighting
+            species=[1, 8],
+            rcut=None,
+            nmax=1,
+            lmax=1,
+            sparse=True,
+            weighting=weighting
         )
         threshold = np.exp(-weighting["m"] * soap._rcut)
-
         self.assertAlmostEqual(weighting["threshold"], threshold)
 
     def test_crossover(self):

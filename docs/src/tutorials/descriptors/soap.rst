@@ -135,8 +135,9 @@ try by changing *nmax* and *lmax*.
 Periodic systems
 ~~~~~~~~~~~~~~~~
 
-Crystals can also be SOAPed by simply setting the *periodic* keyword to True.
-In this case a cell needs to be defined for the ase object.
+Crystals can also be SOAPed by simply setting :code:`periodic=True` in the SOAP
+constructor and ensuring that the :code:`ase.Atoms` objects have a unit cell
+and their periodic boundary conditions are set with the :code:`pbc`-option. 
 
 .. literalinclude:: ../../../../examples/soap.py
    :language: python
@@ -145,6 +146,44 @@ In this case a cell needs to be defined for the ase object.
 
 Since the SOAP feature vectors of each of the four copper atoms in the cubic
 unit cell match, they turn out to be equivalent.
+
+Weighting
+~~~~~~~~~
+
+The default SOAP formalism weights the atomic density equally no matter how far
+it is from the the position of interest. Especially in system with uniform
+atomic density, e.g. bulk crystals, this can lead to the unwanted effect of
+farther away regions dominating the SOAP spectrum. It has been shown:cite:`soap2` that
+radially scaling the atomic density can in these cases help in creating a
+suitable balance that gives more importance to the closer-by atoms. This idea
+is similar to the weighting done in the MBTR descriptor.
+
+This weighting could be done by directly adding a weighting function
+:math:`w(r)` in the integrals:
+
+.. math::
+   c^Z_{nlm} =\iiint_{\mathcal{R}^3}\mathrm{d}V g_{n}(r)Y_{lm}(\theta, \phi)w(r)\rho^Z(\mathbf{r}).
+
+This can however complicate the calculation of these integrals considerably.
+Instead of directly weighting the atomic density, we can weight the
+contribution of individual atoms by scaling the amplitude of their Gaussian
+contributions:
+
+DScribe currently supports this latter simplified weighting, with different
+weighting functions, and a possibility to also separately weight the central
+atom (sometimes the central atom will not contribute meaningful information and
+you may wish to even leave it out completely by setting w0=0).
+
+Three different weighting functions are currently supported, and their
+characteristic shapes are plotted below.
+
+When using a weighting function, you typically will also want to restrict
+``rcut`` into a range that lies within the domain in which your weighting
+function is active. You can achieve this by manually tuning rcut to a range
+that fits your weighting function, or use the threshold-parameter to automate
+this procedure. By providing a threshold-value, rcut will automatically set so
+that it corresponds to the distance at which your weighting function will reach
+this threshold value.
 
 Locating information
 ~~~~~~~~~~~~~~~~~~~~
@@ -160,23 +199,14 @@ The following example demonstrates its usage.
 Sparse output
 ~~~~~~~~~~~~~
 
-If the descriptor size is large (this can be the case for instance with a
-myriad of different element types as well as high *nmax* and *lmax*) more often
-than not considerable parts of the features will be zero. In this case saving
-the results in a sparse matrix will save memory. DScribe does so by default
-using the `scipy-library
-<https://docs.scipy.org/doc/scipy/reference/sparse.html>`_. Be aware between
-the different types:
+For more information on the reasoning behind sparse output and its usage check
+our separate :doc:`documentation on sparse output <../sparse>`.
+Enabling sparse output on SOAP is as easy as setting :code:`sparse=True`:
 
 .. literalinclude:: ../../../../examples/soap.py
    :language: python
    :start-after: Sparse output
    :lines: 1-19
-
-Most operations work on sparse matrices as they would on numpy matrices.
-Otherwise, a sparse matrix can simply be converted calling the *.toarray()*
-method. For further information check the `scipy documentation
-<https://docs.scipy.org/doc/scipy/reference/sparse.html>`_ on sparse matrices.
 
 Average output
 ~~~~~~~~~~~~~~

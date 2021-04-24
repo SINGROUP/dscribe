@@ -56,9 +56,9 @@ class SOAP(Descriptor):
 
     def __init__(
         self,
-        rcut,
-        nmax,
-        lmax,
+        rcut=None,
+        nmax=None,
+        lmax=None,
         sigma=1.0,
         rbf="gto",
         weighting=None,
@@ -80,33 +80,55 @@ class SOAP(Descriptor):
                 atomic density.
             rbf (str): The radial basis functions to use. The available options are:
 
-                * "gto": Spherical gaussian type orbitals defined as :math:`g_{nl}(r) = \sum_{n'=1}^{n_\mathrm{max}}\,\\beta_{nn'l} r^l e^{-\\alpha_{n'l}r^2}`
-                * "polynomial": Polynomial basis defined as :math:`g_{n}(r) = \sum_{n'=1}^{n_\mathrm{max}}\,\\beta_{nn'} (r-r_\mathrm{cut})^{n'+2}`
+                * ``"gto"``: Spherical gaussian type orbitals defined as :math:`g_{nl}(r) = \sum_{n'=1}^{n_\mathrm{max}}\,\\beta_{nn'l} r^l e^{-\\alpha_{n'l}r^2}`
+                * ``"polynomial"``: Polynomial basis defined as :math:`g_{n}(r) = \sum_{n'=1}^{n_\mathrm{max}}\,\\beta_{nn'} (r-r_\mathrm{cut})^{n'+2}`
 
-            weighting (dict): The parameters of the radial weighting function.
-                It requires the argument "func" to be one of the following
+            weighting (dict): Contains the weighting options which control the
+                weighting of the atomic density. Leave unspecified if
+                you do not wish to apply any weighting. The dictionary may
+                contain the following entries:
+                
+                * ``"function"``: The weighting function to use as a string, the
+                  following are currently supported:
 
-                :"poly-m": :math:`w = \\left\{\\begin{matrix} \\frac{1}{(\\frac{r}{r_0})^{m}} & c = 0 \\ \\frac{1 + c}{c + (\\frac{r}{r_0})^{m}} & c > 0 \\end{matrix}\\right.`
+                    * ``"poly-m"``: :math:`w = \\left\{\\begin{matrix} \\frac{1}{(\\frac{r}{r_0})^{m}} & c = 0 \\ \\frac{1 + c}{c + (\\frac{r}{r_0})^{m}} & c > 0 \\end{matrix}\\right.`
 
-                    For reference see:
-                        "Willatt, M., Musil, F., & Ceriotti, M. (2018).
-                        Feature optimization for atomistic machine learning yields a data-driven
-                        construction of the periodic table of the elements.
-                        Phys. Chem. Chem. Phys., 20, 29661-29668.
-                        "
+                      You can provide the parameters ``c``, ``m`` and ``r0`` as
+                      additional dictionary items.
 
-                :"poly-3m": :math:`w = (1 + 2 (\\frac{r}{r_0})^{3} -3 (\\frac{r}{r_0})^{2}))^{m}`
+                      For reference see:
+                          "Willatt, M., Musil, F., & Ceriotti, M. (2018).
+                          Feature optimization for atomistic machine learning yields a data-driven
+                          construction of the periodic table of the elements.
+                          Phys. Chem. Chem. Phys., 20, 29661-29668.
+                          "
 
-                    For reference see:
-                        "Caro, M. (2019). Optimizing many-body atomic descriptors for enhanced
-                        computational performance of machine learning based interatomic potentials.
-                        Phys. Rev. B, 100, 024112."
+                    * ``"poly-3m"``: :math:`w = (1 + 2 (\\frac{r}{r_0})^{3} -3 (\\frac{r}{r_0})^{2}))^{m}`
 
-                :"exp": :math:`w = exp^{-m r}`
+                      You can provide the parameters ``m`` and ``r0`` as
+                      additional dictionary items.
 
-                Apart from the decay-function-specific parameters, a "threshold" can be
-                specified (default: 1e-3). The threshold is only used if rcut=None in order
-                to infer it.
+                      For reference see:
+                          "Caro, M. (2019). Optimizing many-body atomic descriptors for enhanced
+                          computational performance of machine learning based interatomic potentials.
+                          Phys. Rev. B, 100, 024112."
+
+                    * ``"exp"`` :math:`w = e^{-m r}`
+
+                      You can provide the parameter ``m`` as an additional
+                      dictionary item.
+
+                * ``"threshold"``: An optional value which can be used to
+                  automatically determine a proper ``rcut`` value based on the decay of
+                  the given weighting function. If provided, ``rcut`` will be set
+                  so that it corresponds to the radial distance at which the
+                  weighting function has dropped to this threshold value.
+                  Defaults to 1e-3. Only applied if a weighting function was
+                  specified and ``rcut`` is not given.
+                * ``"w0"``: Custom floating point weight for the atom that is
+                  directly on top of a requested center. Optional, will override
+                  other weighting.
+
             crossover (bool): Determines if crossover of atomic types should
                 be included in the power spectrum. If enabled, the power
                 spectrum is calculated over all unique species combinations Z
@@ -117,9 +139,9 @@ class SOAP(Descriptor):
             average (str): The averaging mode over the centers of interest.
                 Valid options are:
 
-                    * "off": No averaging.
-                    * "inner": Averaging over sites before summing up the magnetic quantum numbers: :math:`p_{nn'l}^{Z_1,Z_2} \sim \sum_m (\\frac{1}{n} \sum_i c_{nlm}^{i, Z_1})^{*} (\\frac{1}{n} \sum_i c_{n'lm}^{i, Z_2})`
-                    * "outer": Averaging over the power spectrum of different sites: :math:`p_{nn'l}^{Z_1,Z_2} \sim \\frac{1}{n} \sum_i \sum_m (c_{nlm}^{i, Z_1})^{*} (c_{n'lm}^{i, Z_2})`
+                    * ``"off"``: No averaging.
+                    * ``"inner"``: Averaging over sites before summing up the magnetic quantum numbers: :math:`p_{nn'l}^{Z_1,Z_2} \sim \sum_m (\\frac{1}{n} \sum_i c_{nlm}^{i, Z_1})^{*} (\\frac{1}{n} \sum_i c_{n'lm}^{i, Z_2})`
+                    * ``"outer"``: Averaging over the power spectrum of different sites: :math:`p_{nn'l}^{Z_1,Z_2} \sim \\frac{1}{n} \sum_i \sum_m (c_{nlm}^{i, Z_1})^{*} (c_{n'lm}^{i, Z_2})`
             reweight_symmetric (bool): Controls whether the power spectrum
                 terms whose symmetric counterparts were left out should have a
                 doubled weight. This makes the output directly compatible with
@@ -138,8 +160,8 @@ class SOAP(Descriptor):
                 dense numpy array.
             dtype (str): The data type of the output. Valid options are:
 
-                    * "float32": Single precision floating point numbers.
-                    * "float64": Double precision floating point numbers.
+                    * ``"float32"``: Single precision floating point numbers.
+                    * ``"float64"``: Double precision floating point numbers.
 
         """
         supported_dtype = set(("float32", "float64"))
@@ -161,8 +183,6 @@ class SOAP(Descriptor):
         self._eta = 1 / (2 * sigma ** 2)
         self._sigma = sigma
 
-        if lmax < 0:
-            raise ValueError("lmax cannot be negative. lmax={}".format(lmax))
         supported_rbf = set(("gto", "polynomial"))
         if rbf not in supported_rbf:
             raise ValueError(
@@ -184,31 +204,31 @@ class SOAP(Descriptor):
             raise ValueError("Either weighting or rcut need to be defined")
         if weighting:
             weighting_functions = ["poly-m", "poly-3m", "exp"]
-            if weighting["func"] == "poly-m":
+            if weighting["function"] == "poly-m":
                 if weighting["r0"] < 0:
-                    raise ValueError("Define r0 > 0 in dict weighting.")
+                    raise ValueError("Define r0 > 0 in weighting.")
                 if weighting["c"] < 0:
-                    raise ValueError("Define c >= 0 in dict weighting.")
+                    raise ValueError("Define c >= 0 in weighting.")
 
-            elif weighting["func"] == "poly-3m":
+            elif weighting["function"] == "poly-3m":
                 if weighting["r0"] < 0:
-                    raise ValueError("Define r0 > 0 in dict weighting.")
+                    raise ValueError("Define r0 > 0 in weighting.")
 
-            elif weighting["func"] == "exp":
+            elif weighting["function"] == "exp":
                 pass
             else:
                 raise ValueError(
-                    "weighting function not implemented. Please choose among "
+                    "Weighting function not implemented. Please choose among "
                     "one of the following {}".format(str(weighting_functions))
                 )
             if weighting["m"] < 0:
-                raise ValueError("Define m >= 0 in dict weighting.")
+                raise ValueError("Define m >= 0 in weighting.")
 
             weighting["threshold"] = weighting.get("threshold", 1e-3)
         else:
             weighting = {"m": 0, "c": 0, "r0": 1}  # default weighting: no decay
         if not rcut:
-            rcut = self.infer_rcut(weighting)
+            rcut = self._infer_rcut(weighting)
 
         # Test that radial basis set specific settings are valid
         if rbf == "gto":
@@ -217,20 +237,17 @@ class SOAP(Descriptor):
                     "When using the gaussian radial basis set (gto), the radial "
                     "cutoff should be bigger than 1 angstrom."
                 )
-            if lmax > 19:
-                raise ValueError(
-                    "When using the gaussian radial basis set (gto), lmax "
-                    "cannot currently exceed 19. lmax={}".format(lmax)
-                )
             # Precalculate the alpha and beta constants for the GTO basis
             self._alphas, self._betas = self.get_basis_gto(rcut, nmax)
 
-        elif rbf == "polynomial":
-            if lmax > 20:
-                raise ValueError(
-                    "When using the polynomial radial basis set, lmax "
-                    "cannot currently exceed 20. lmax={}".format(lmax)
-                )
+        # Test lmax
+        if lmax < 0:
+            raise ValueError("lmax cannot be negative. lmax={}".format(lmax))
+        elif lmax > 20:
+            raise ValueError(
+                "The maximum available lmax for SOAP is currently 20, you have"
+                " requested lmax={}".format(lmax)
+            )
 
         self._rcut = float(rcut)
         self._weighting = weighting
@@ -298,8 +315,11 @@ class SOAP(Descriptor):
         cutoff_padding = self._sigma * np.sqrt(-2 * np.log(threshold))
         return cutoff_padding
 
-    def infer_rcut(self, weighting):
-        if weighting["func"] == "poly-m":
+    def _infer_rcut(self, weighting):
+        """Used to calculate an appropriate rcut based on where the given
+        weighting function decays to a give threshold value.
+        """
+        if weighting["function"] == "poly-m":
             t = weighting["threshold"]
             m = weighting["m"]
             c = weighting["c"]
@@ -310,7 +330,7 @@ class SOAP(Descriptor):
             else:
                 rcut = r0 * ((1 - t) * c / t) ** (1 / m)
             return rcut
-        elif weighting["func"] == "poly-3m":
+        elif weighting["function"] == "poly-3m":
             t = weighting["threshold"]
             m = weighting["m"]
             r0 = weighting["r0"]
@@ -334,14 +354,12 @@ class SOAP(Descriptor):
             )
             rcut = np.real(rcut)
             return rcut
-
-        elif weighting["func"] == "exp":
+        elif weighting["function"] == "exp":
             t = weighting["threshold"]
             m = weighting["m"]
 
             rcut = np.log(1 / t) / m
             return rcut
-
         else:
             return None
 
