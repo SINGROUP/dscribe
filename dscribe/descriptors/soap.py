@@ -91,43 +91,46 @@ class SOAP(Descriptor):
                 * ``"function"``: The weighting function to use. The
                   following are currently supported:
 
-                    * ``"poly"``: :math:`w(r) = \left\{ \\begin{array}{ll} (1 + 2 (\\frac{r}{r_0})^{3} -3 (\\frac{r}{r_0})^{2}))^{m}, \\ \\text{for}\\ r \\leq r_0\\\\ 0, \\ \\text{for}\\ r > r_0 \end{array}\\right.`
+                    * ``"poly"``: :math:`w(r) = \left\{ \\begin{array}{ll} c(1 + 2 (\\frac{r}{r_0})^{3} -3 (\\frac{r}{r_0})^{2}))^{m}, \\ \\text{for}\\ r \\leq r_0\\\\ 0, \\ \\text{for}\\ r > r_0 \end{array}\\right.`
 
                       This function goes exactly to zero at :math:`r=r_0`. If
                       you do not explicitly provide ``rcut`` in the
                       constructor, ``rcut`` is automatically set to ``r0``.
-                      You can provide the parameters ``m`` and ``r0`` as
+                      You can provide the parameters ``c``, ``m`` and ``r0`` as
                       additional dictionary items.
 
                       For reference see:
-                          "Caro, M. (2019). Optimizing many-body atomic descriptors for enhanced
-                          computational performance of machine learning based interatomic potentials.
-                          Phys. Rev. B, 100, 024112."
+                          "Caro, M. (2019). Optimizing many-body atomic
+                          descriptors for enhanced computational performance of
+                          machine learning based interatomic potentials.  Phys.
+                          Rev. B, 100, 024112."
 
-                    * ``"pow"``: :math:`w(r) = \\frac{c}{c + (\\frac{r}{r_0})^{m}}`
+                    * ``"pow"``: :math:`w(r) = \\frac{c}{d + (\\frac{r}{r_0})^{m}}`
 
                       If you do not explicitly provide ``rcut`` in the
                       constructor, ``rcut`` will be set as the value at which
                       this function decays to the value given by the
                       ``threshold`` entry in the weighting dictionary (defaults
-                      to 1e-2), You can provide the parameters ``m`` and
-                      ``threshold`` as additional dictionary items.
+                      to 1e-2), You can provide the parameters ``c``, ``d``,
+                      ``m``, ``r0`` and ``threshold`` as additional dictionary
+                      items.
 
                       For reference see:
                           "Willatt, M., Musil, F., & Ceriotti, M. (2018).
-                          Feature optimization for atomistic machine learning yields a data-driven
-                          construction of the periodic table of the elements.
-                          Phys. Chem. Chem. Phys., 20, 29661-29668.
+                          Feature optimization for atomistic machine learning
+                          yields a data-driven construction of the periodic
+                          table of the elements.  Phys. Chem. Chem. Phys., 20,
+                          29661-29668.
                           "
 
-                    * ``"exp"``: :math:`w(r) = e^{-m r}`
+                    * ``"exp"``: :math:`w(r) = \\frac{c}{d + e^{-r/r_0}}`
 
                       If you do not explicitly provide ``rcut`` in the
                       constructor, ``rcut`` will be set as the value at which
                       this function decays to the value given by the
                       ``threshold`` entry in the weighting dictionary (defaults
-                      to 1e-2), You can provide the parameters ``m`` and
-                      ``threshold`` as additional dictionary items.
+                      to 1e-2), You can provide the parameters ``c``, ``d``,
+                      ``r0`` and ``threshold`` as additional dictionary items.
 
                 * ``"w0"``: Custom floating point weight for the atom that is
                   directly on top of a requested center. Optional, will override
@@ -187,7 +190,7 @@ class SOAP(Descriptor):
         self._eta = 1 / (2 * sigma ** 2)
         self._sigma = sigma
 
-        supported_rbf = set(("gto", "polynomial"))
+        supported_rbf = {"gto", "polynomial"}
         if rbf not in supported_rbf:
             raise ValueError(
                 "Invalid radial basis function of type '{}' given. Please use "
@@ -207,28 +210,31 @@ class SOAP(Descriptor):
         if not (weighting or rcut):
             raise ValueError("Either weighting or rcut need to be defined")
         if weighting:
-            weighting_functions = ["poly", "pow", "exp"]
-            if weighting["function"] == "pow":
-                if weighting["r0"] < 0:
-                    raise ValueError("Define r0 > 0 in weighting.")
-                if weighting["c"] < 0:
-                    raise ValueError("Define c >= 0 in weighting.")
-                weighting["threshold"] = weighting.get("threshold", 1e-2)
-
-            elif weighting["function"] == "poly":
-                if weighting["r0"] < 0:
-                    raise ValueError("Define r0 > 0 in weighting.")
-                weighting["threshold"] = weighting.get("threshold", 1e-2)
-
-            elif weighting["function"] == "exp":
-                pass
-            else:
+            weighting_functions = {"poly", "pow", "exp"}
+            func = weighting.get("function")
+            if func not in weighting_functions:
                 raise ValueError(
                     "Weighting function not implemented. Please choose among "
-                    "one of the following {}".format(str(weighting_functions))
+                    "one of the following {}".format(weighting_functions)
                 )
-            if weighting["m"] < 0:
-                raise ValueError("Define m >= 0 in weighting.")
+            r0 = weighting.get("r0")
+            if r0 is None or r0 <= 0:
+                raise ValueError("Define r0 > 0 in weighting.")
+            c = weighting.get("c")
+            if c is None or c <= 0:
+                raise ValueError("Define c > 0 in weighting.")
+            if weighting["function"] == "pow":
+                d = weighting.get("d")
+                if d is None or d < 0:
+                    raise ValueError("Define d >= 0 in weighting.")
+                m = weighting.get("m")
+                if m is None or m < 0:
+                    raise ValueError("Define m >= 0 in weighting.")
+                weighting["threshold"] = weighting.get("threshold", 1e-2)
+            elif weighting["function"] == "exp":
+                if weighting["d"] < 0:
+                    raise ValueError("Define d >= 0 in weighting.")
+                weighting["threshold"] = weighting.get("threshold", 1e-2)
         else:
             weighting = {"m": 0, "c": 0, "r0": 1}  # default weighting: no decay
         if not rcut:
@@ -327,16 +333,19 @@ class SOAP(Descriptor):
             t = weighting["threshold"]
             m = weighting["m"]
             c = weighting["c"]
+            d = weighting["d"]
             r0 = weighting["r0"]
-            rcut = r0 * (c * (1 / t - 1)) ** (1 / m)
+            rcut = r0 * (c / t - d) ** (1 / m)
             return rcut
         elif weighting["function"] == "poly":
             r0 = weighting["r0"]
             return r0
         elif weighting["function"] == "exp":
             t = weighting["threshold"]
-            m = weighting["m"]
-            rcut = np.log(1 / t) / m
+            c = weighting["c"]
+            d = weighting["d"]
+            r0 = weighting["r0"]
+            rcut = r0 * np.log(c / t - d)
             return rcut
         else:
             return None

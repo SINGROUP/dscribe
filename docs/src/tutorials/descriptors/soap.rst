@@ -192,7 +192,9 @@ instances from these functions are plotted below.
    :alt: SOAP weighting
    :align: center
 
-   Examples of different weighting function setups.
+   Example instances of weighting functions defined on the interval [0, 1]. The
+   ``poly`` function decays exactly to zero at :math:`r=r_0`, the others
+   decay smoothly towards zero.
 
 When using a weighting function, you typically will also want to restrict
 ``rcut`` into a range that lies within the domain in which your weighting

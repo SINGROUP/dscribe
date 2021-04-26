@@ -128,6 +128,36 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             )
             a.create(H2O)
 
+        # Invalid weighting
+        args = {
+            "rcut": 2,
+            "sigma": 1,
+            "nmax": 5,
+            "lmax": 5,
+            "species": ["H", "O"],
+        }
+        with self.assertRaises(ValueError):
+            args["weighting"] = {"function": "poly", "c": -1, "r0": 1}
+            SOAP(**args)
+        with self.assertRaises(ValueError):
+            args["weighting"] = {"function": "poly", "c": 1, "r0": 0}
+            SOAP(**args)
+        with self.assertRaises(ValueError):
+            args["weighting"] = {"function": "pow", "c": 0, "d": 1, "r0": 1, "m": 1}
+            SOAP(**args)
+        with self.assertRaises(ValueError):
+            args["weighting"] = {"function": "pow", "c": 1, "d": 1, "r0": 0, "m": 1}
+            SOAP(**args)
+        with self.assertRaises(ValueError):
+            args["weighting"] = {"function": "exp", "c": 0, "d": 1, "r0": 1}
+            SOAP(**args)
+        with self.assertRaises(ValueError):
+            args["weighting"] = {"function": "exp", "c": 1, "d": 1, "r0": 0}
+            SOAP(**args)
+        with self.assertRaises(ValueError):
+            args["weighting"] = {"function": "nope", "c": 1, "d": 1, "r0": 1}
+            SOAP(**args)
+
     def test_properties(self):
         """Used to test that changing the setup through properties works as
         intended.
@@ -208,7 +238,12 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         function.
         """
         # poly
-        weighting = {"m": 1, "r0": 2, "function": "poly"}
+        weighting = {
+            "function": "poly",
+            "c": 2,
+            "m": 3,
+            "r0": 4,
+        }
         soap = SOAP(
             nmax=1,
             lmax=1,
@@ -224,6 +259,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             "function": "pow",
             "threshold": 1e-3,
             "c": 1,
+            "d": 1,
             "m": 1,
             "r0": 1,
         }
@@ -239,12 +275,14 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
         # exp
         weighting = {
-            "m": 0.5,
+            "c": 2,
+            "d": 1,
+            "r0": 2,
             "function": "exp",
             "threshold": 1e-3,
         }
         soap = SOAP(species=[1, 8], nmax=1, lmax=1, sparse=True, weighting=weighting)
-        rcut = -np.log(weighting["threshold"]) / weighting["m"]
+        rcut = weighting["r0"] * np.log(weighting["c"]/weighting["threshold"] - weighting["d"])
         self.assertAlmostEqual(soap._rcut, rcut)
 
     def test_crossover(self):

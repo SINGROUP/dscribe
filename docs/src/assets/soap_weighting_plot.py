@@ -18,9 +18,10 @@ for setting in settings:
     m = setting[0]
     r0 = setting[1]
     c = setting[2]
+    d = c
     r = np.arange(rmin, rmax, 0.01)
-    polym = c / (c + (r / r0) ** m)
-    ax2.plot(r, polym, label="m = {}, r0 = {:.3}, c = {}".format(m, r0, c))
+    polym = c / (d + (r / r0) ** m)
+    ax2.plot(r, polym, label="m = {}, r0 = {:.3}, c = d = {}".format(m, r0, c))
 ax2.axvline(rcut, color='k', linestyle='--')
 ax2.text(
     rcut*0.99,
@@ -36,20 +37,21 @@ ax2.set_ylabel("w(r)")
 
 # Plot poly with different settings
 settings = [
-    [rcut, 1],
-    [rcut, 2],
     [rcut, 3],
+    [rcut, 2],
+    [rcut, 1],
 ]
 for setting in settings:
     r0 = setting[0]
     m = setting[1]
+    c = 1
     poly3m = []
     for ri in r:
         if ri < r0:
-            poly3m.append((1 + 2 * (ri / r0) ** 3 - 3 * (ri / r0) ** 2) ** m)
+            poly3m.append(c*(1 + 2 * (ri / r0) ** 3 - 3 * (ri / r0) ** 2) ** m)
         else:
             poly3m.append(0)
-    ax1.plot(r, poly3m, label="m = {}, r0 = {}".format(m, r0))
+    ax1.plot(r, poly3m, label="m = {}, r0 = {}, c={}".format(m, r0, c))
 ax1.axvline(rcut, color='k', linestyle='--')
 ax1.text(
     rcut*0.99,
@@ -65,13 +67,17 @@ ax1.set_ylabel("w(r)")
 
 # Plot exp with different settings
 settings = [
-    [-np.log(t)/rcut],
+    [rcut/np.log(1/t - 0), 1, 0],
+    [rcut/np.log(10/t - 9), 10, 9],
+    [rcut/np.log(100/t - 99), 100, 99],
 ]
 for setting in settings:
-    m = setting[0]
     r = np.arange(rmin, rmax, 0.01)
-    exp = np.exp(-m * r)
-    ax3.plot(r, exp, label="m = {:.3}".format(m))
+    r0 = setting[0]
+    c = setting[1]
+    d = setting[2]
+    exp = c/(d + np.exp(r/r0))
+    ax3.plot(r, exp, label="r0={:.3}, c={}, d={}".format(r0, c, d))
 ax3.axvline(rcut, color='k', linestyle='--')
 ax3.text(
     rcut*0.99,
