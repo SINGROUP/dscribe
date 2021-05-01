@@ -15,7 +15,7 @@ limitations under the License.
 #include <iostream>
 #include "soap.h"
 #include "soapGeneral.h"
-#include "soapGTODevX.h"
+#include "soapGTO.h"
 #include "geometry.h"
 
 using namespace std;
@@ -97,7 +97,7 @@ void SOAPGTO::create(
     py::array_t<double> derivatives({1, 1, 1, 1});
     py::array_t<int> indices({1});
 
-    soapGTODevX(
+    soapGTO(
         derivatives,
         out,
         xd,
@@ -159,7 +159,7 @@ void SOAPGTO::derivatives_analytical(
     // Calculate neighbours with a cell list
     CellList cell_list(positions, this->cutoff);
 
-    soapGTODevX(
+    soapGTO(
         derivatives,
         descriptor,
         xd,
