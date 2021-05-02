@@ -39,18 +39,29 @@ inline void getDeltaD(double* x, double* y, double* z, const py::array_t<double>
 
     int count = 0;
     auto pos = positions.unchecked<2>();
-    for (const int &idx : indices) { x[count] = pos(idx, 0) - ix; y[count] = pos(idx, 1) - iy; z[count] = pos(idx, 2) - iz;
+    for (const int &idx : indices) {
+        x[count] = pos(idx, 0) - ix;
+        y[count] = pos(idx, 1) - iy;
+        z[count] = pos(idx, 2) - iz;
         count++;
     };
 }
 //================================================================
-inline void getRsZsD(double* x, double* x2, double* x4, double* x6, double* x8, double* x10, double* x12, double* x14, double* x16, double* x18, double* y, double* y2, double* y4, double* y6, double* y8, double* y10, double* y12, double* y14, double* y16, double* y18, double* z, double* r2, double* r4, double* r6, double* r8, double* r10, double* r12, double* r14, double* r16, double* r18, double* z2, double* z4, double* z6, double* z8, double* z10, double* z12, double* z14, double* z16, double* z18, double* r20, double* x20, double* y20, double* z20, int size, int lMax, double* weights) {
-  for(int i = 0; i < size; i++){
+inline void getRsZsD(double* x, double* x2, double* x4, double* x6, double* x8, double* x10, double* x12, double* x14, double* x16, double* x18, double* y, double* y2, double* y4, double* y6, double* y8, double* y10, double* y12, double* y14, double* y16, double* y18, double* z, double* r2, double* r4, double* r6, double* r8, double* r10, double* r12, double* r14, double* r16, double* r18, double* z2, double* z4, double* z6, double* z8, double* z10, double* z12, double* z14, double* z16, double* z18, double* r20, double* x20, double* y20, double* z20, int size, int lMax) {
+  double xx;
+  double yy;
+  double zz;
+  double rr;
 
-    r2[i] = x[i]*x[i] + y[i]*y[i] + z[i]*z[i]; z2[i] = z[i]*z[i]; x2[i] = x[i]*x[i]; y2[i] = y[i]*y[i];
-
-    // No weighting specified: all weights set to 1
-    weights[i] = 1;
+  for (int i = 0; i < size; i++) {
+    xx = x[i]*x[i];
+    yy = y[i]*y[i];
+    zz = z[i]*z[i];
+    rr = xx + yy + zz;
+    x2[i] = xx;
+    y2[i] = yy;
+    z2[i] = zz;
+    r2[i] = rr;
 
     if(lMax > 3){ r4[i] = r2[i]*r2[i]; z4[i] = z2[i]*z2[i]; x4[i] = x2[i]*x2[i]; y4[i] = y2[i]*y2[i];
       if(lMax > 5){ r6[i] = r2[i]*r4[i]; z6[i] = z2[i]*z4[i]; x6[i] = x2[i]*x4[i]; y6[i] = y2[i]*y4[i];
@@ -1997,7 +2008,7 @@ void getCD(
     bool return_derivatives){
   if(Asize == 0){return;}
   double sumMe = 0; int NsNs = Ns*Ns;  int NsJ = ((lMax+1)*(lMax+1))*Ns*typeJ; int LNsNs;
-  int LNs; int NsTsI = ((lMax+1)*(lMax+1))*Ns*Ntypes*posI;
+  int LNs;
   double preExp;
   double preVal;
   double preValX;
@@ -2204,7 +2215,6 @@ void getPD(
 ) {
 
     int NsTs100 = Ns*Ts*((lMax+1)*(lMax+1));
-    int Ns100 = Ns*((lMax+1)*(lMax+1));
 
     // The power spectrum is multiplied by an l-dependent prefactor that comes
     // from the normalization of the Wigner D matrices. This prefactor is
@@ -2454,7 +2464,8 @@ void soapGTO(
 
       // Save the neighbour distances into the arrays dx, dy and dz
       getDeltaD(dx, dy, dz, positions, ix, iy, iz, ZIndexPair.second);
-      getRsZsD(dx,x2,x4,x6,x8,x10,x12,x14,x16,x18, dy,y2,y4,y6,y8,y10,y12,y14,y16,y18, dz, r2, r4, r6, r8,r10,r12,r14,r16,r18,  z2, z4, z6, z8,z10,z12,z14,z16,z18,r20,x20,y20,z20, n_neighbours,lMax, weights);
+      getRsZsD(dx, x2, x4, x6, x8, x10, x12, x14, x16, x18, dy, y2, y4, y6, y8, y10, y12, y14, y16, y18, dz, r2, r4, r6, r8, r10, r12, r14, r16, r18,  z2, z4, z6, z8, z10, z12, z14, z16, z18, r20, x20, y20, z20, n_neighbours, lMax);
+      getWeights(n_neighbours, r2, weighting, weights);
       getCfactorsD(preCoef, prCofDX, prCofDY, prCofDZ, n_neighbours, dx,x2, x4, x6, x8,x10,x12,x14,x16,x18, dy,y2, y4, y6, y8,y10,y12,y14,y16,y18, dz, z2, z4, z6, z8,z10,z12,z14,z16,z18, r2, r4, r6, r8,r10,r12,r14,r16,r18,r20, x20,y20,z20, totalAN, lMax, return_derivatives);
       getCD(cdevX_mu, cdevY_mu, cdevZ_mu, prCofDX, prCofDY, prCofDZ, cnnd_mu, preCoef, dx, dy, dz, r2, weights, bOa, aOa, exes, totalAN, n_neighbours, nMax, nSpecies, lMax, i, j, ZIndexPair.second, return_derivatives);
     }

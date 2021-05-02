@@ -157,6 +157,9 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         with self.assertRaises(ValueError):
             args["weighting"] = {"function": "nope", "c": 1, "d": 1, "r0": 1}
             SOAP(**args)
+        with self.assertRaises(ValueError):
+            args["weighting"] = {"function": "poly", "c": 1, "d": 1, "r0": 1, "w0": -1}
+            SOAP(**args)
 
     def test_properties(self):
         """Used to test that changing the setup through properties works as
@@ -1442,6 +1445,76 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                         )
                     )
 
+    def test_weighting_poly_gto(self):
+        """Tests that the polynomial weighting done with C corresponds to the
+        easier-to-code but less performant python version.  """
+        lmax_num = 0
+        nmax_num = 1
+        weighting = {"function": "poly", "r0": 2, "c": 1, "d": 4, "m": 1}
+
+        # Calculate analytically
+        soap = SOAP(
+            lmax=lmax_num,
+            nmax=nmax_num,
+            sigma=sigma_num,
+            rcut=rcut_num,
+            rbf="gto",
+            weighting=weighting,
+            crossover=True,
+            species=species_num,
+            sparse=False,
+        )
+        analytical_power_spectrum = soap.create(system_num, positions=soap_centers_num)
+
+        # Calculate numerically
+        coeffs = self.coefficients_gto(
+            system_num,
+            soap_centers_num,
+            nmax_num,
+            lmax_num,
+            rcut_num,
+            sigma_num,
+            weighting
+        )
+        numerical_power_spectrum = []
+        for i in range(len(soap_centers_num)):
+            i_spectrum = []
+            for zi in range(n_species_num):
+                for zj in range(zi, n_species_num):
+                    if zi == zj:
+                        for l in range(lmax_num + 1):
+                            for ni in range(nmax_num):
+                                for nj in range(ni, nmax_num):
+                                    value = np.dot(
+                                        coeffs[i, zi, ni, l, :], coeffs[i, zj, nj, l, :]
+                                    )
+                                    prefactor = np.pi * np.sqrt(8 / (2 * l + 1))
+                                    value *= prefactor
+                                    i_spectrum.append(value)
+                    else:
+                        for l in range(lmax_num + 1):
+                            for ni in range(nmax_num):
+                                for nj in range(nmax_num):
+                                    value = np.dot(
+                                        coeffs[i, zi, ni, l, :], coeffs[i, zj, nj, l, :]
+                                    )
+                                    prefactor = np.pi * np.sqrt(8 / (2 * l + 1))
+                                    value *= prefactor
+                                    i_spectrum.append(value)
+            numerical_power_spectrum.append(i_spectrum)
+
+        # # print("Numerical: {}".format(numerical_power_spectrum))
+        # # print("Analytical: {}".format(analytical_power_spectrum))
+
+        self.assertTrue(
+            np.allclose(
+                numerical_power_spectrum,
+                analytical_power_spectrum,
+                atol=1e-15,
+                rtol=0.01,
+            )
+        )
+
     def coefficients_poly(self, system, soap_centers, nmax, lmax, rcut, sigma):
         """Used to numerically calculate the inner product coeffientes of SOAP
         with polynomial radial basis.
@@ -1563,11 +1636,29 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         return coeffs
 
     def coefficients_gto(
-        self, system, soap_centers, alphas, betas, nmax, lmax, rcut, sigma
+        self, system, soap_centers, nmax, lmax, rcut, sigma, weighting
     ):
         """Used to numerically calculate the inner product coefficients of SOAP
         with GTO radial basis.
         """
+        # Calculate the analytical power spectrum and the weights and decays of
+        # the radial basis functions.
+        soap = SOAP(
+            species=species_num,
+            lmax=lmax,
+            nmax=nmax,
+            sigma=sigma,
+            rcut=rcut,
+            crossover=True,
+            sparse=False,
+        )
+        analytical_power_spectrum = soap.create(
+            system,
+            positions=soap_centers_num
+        )[0]
+        alphas = np.reshape(soap._alphas, [10, nmax])
+        betas = np.reshape(soap._betas, [10, nmax, nmax])
+
         positions = system.get_positions()
         symbols = system.get_chemical_symbols()
         species = system.get_atomic_numbers()
@@ -1677,29 +1768,10 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         system. Calculating these takes a significant amount of time, so during
         tests these preloaded values are used.
         """
-        # Calculate the analytical power spectrum and the weights and decays of
-        # the radial basis functions.
-        soap = SOAP(
-            species=species_num,
-            lmax=lmax_num,
-            nmax=nmax_num,
-            sigma=sigma_num,
-            rcut=rcut_num,
-            crossover=True,
-            sparse=False,
-        )
-        analytical_power_spectrum = soap.create(system_num, positions=soap_centers_num)[
-            0
-        ]
-        alphagrid = np.reshape(soap._alphas, [10, nmax_num])
-        betagrid = np.reshape(soap._betas, [10, nmax_num, nmax_num])
-
         # Calculate the numerical power spectrum
         coeffs = self.coefficients_gto(
             system_num,
             soap_centers_num,
-            alphagrid,
-            betagrid,
             nmax=nmax_num,
             lmax=lmax_num,
             rcut=rcut_num,
@@ -1761,7 +1833,8 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
 
 if __name__ == "__main__":
-    suites = []
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapTests))
-    alltests = unittest.TestSuite(suites)
-    result = unittest.TextTestRunner(verbosity=0).run(alltests)
+    SoapTests().test_weighting_poly_gto()
+    # suites = []
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapTests))
+    # alltests = unittest.TestSuite(suites)
+    # result = unittest.TextTestRunner(verbosity=0).run(alltests)
