@@ -143,19 +143,19 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             args["weighting"] = {"function": "poly", "c": 1, "r0": 0}
             SOAP(**args)
         with self.assertRaises(ValueError):
-            args["weighting"] = {"function": "pow", "c": 0, "d": 1, "r0": 1, "m": 1}
+            args["weighting"] = {"function": "pow", "c": -1, "d": 1, "r0": 1, "m": 1}
             SOAP(**args)
         with self.assertRaises(ValueError):
             args["weighting"] = {"function": "pow", "c": 1, "d": 1, "r0": 0, "m": 1}
             SOAP(**args)
         with self.assertRaises(ValueError):
-            args["weighting"] = {"function": "exp", "c": 0, "d": 1, "r0": 1}
+            args["weighting"] = {"function": "exp", "c": -1, "d": 1, "r0": 1}
             SOAP(**args)
         with self.assertRaises(ValueError):
             args["weighting"] = {"function": "exp", "c": 1, "d": 1, "r0": 0}
             SOAP(**args)
         with self.assertRaises(ValueError):
-            args["weighting"] = {"function": "nope", "c": 1, "d": 1, "r0": 1}
+            args["weighting"] = {"function": "invalid", "c": 1, "d": 1, "r0": 1}
             SOAP(**args)
         with self.assertRaises(ValueError):
             args["weighting"] = {"function": "poly", "c": 1, "d": 1, "r0": 1, "w0": -1}
@@ -938,165 +938,6 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         # Translational
         self.assertTrue(self.is_translationally_symmetric(create_poly))
 
-    def test_average_outer(self):
-        """Tests the outer averaging (averaging done after calculating power
-        spectrum).
-        """
-        sys = Atoms(
-            symbols=["H", "C"],
-            positions=[[-1, 0, 0], [1, 0, 0]],
-            cell=[2, 2, 2],
-            pbc=True,
-        )
-
-        # Create the average output
-        for rbf in ["gto", "polynomial"]:
-            desc = SOAP(
-                species=[1, 6, 8],
-                rcut=5,
-                nmax=3,
-                lmax=5,
-                periodic=False,
-                rbf=rbf,
-                crossover=True,
-                average="outer",
-                sparse=False,
-            )
-            average = desc.create(sys)
-
-            # Create individual output for both atoms
-            desc = SOAP(
-                species=[1, 6, 8],
-                rcut=5,
-                nmax=3,
-                lmax=5,
-                periodic=False,
-                rbf=rbf,
-                crossover=True,
-                average="off",
-                sparse=False,
-            )
-            first = desc.create(sys, positions=[0])[0, :]
-            second = desc.create(sys, positions=[1])[0, :]
-
-            # Check that the averaging is done correctly
-            assumed_average = (first + second) / 2
-            self.assertTrue(np.allclose(average, assumed_average))
-
-    def test_average_inner_gto(self):
-        """Tests the inner averaging (averaging done before calculating power
-        spectrum).
-        """
-        # Calculate the analytical power spectrum and the weights and decays of
-        # the radial basis functions.
-        soap = SOAP(
-            species=species_num,
-            lmax=lmax_num,
-            nmax=nmax_num,
-            sigma=sigma_num,
-            rcut=rcut_num,
-            rbf="gto",
-            crossover=True,
-            average="inner",
-            sparse=False,
-        )
-        analytical_inner = soap.create(system_num, positions=soap_centers_num)
-        alphagrid = np.reshape(soap._alphas, [10, nmax_num])
-        betagrid = np.reshape(soap._betas, [10, nmax_num, nmax_num])
-
-        # Calculate numerical power spectrum
-        coeffs = self.load_gto_coefficients()
-        numerical_inner = []
-        for zi in range(n_species_num):
-            for zj in range(zi, n_species_num):
-                if zi == zj:
-                    for l in range(lmax_num + 1):
-                        for ni in range(nmax_num):
-                            for nj in range(ni, nmax_num):
-                                # Average the m values over all atoms before doing the sum
-                                value = np.dot(
-                                    coeffs[:, zi, ni, l, :].mean(axis=0),
-                                    coeffs[:, zj, nj, l, :].mean(axis=0),
-                                )
-                                prefactor = np.pi * np.sqrt(8 / (2 * l + 1))
-                                value *= prefactor
-                                numerical_inner.append(value)
-                else:
-                    for l in range(lmax_num + 1):
-                        for ni in range(nmax_num):
-                            for nj in range(nmax_num):
-                                # Average the m values over all atoms before doing the sum
-                                value = np.dot(
-                                    coeffs[:, zi, ni, l, :].mean(axis=0),
-                                    coeffs[:, zj, nj, l, :].mean(axis=0),
-                                )
-                                prefactor = np.pi * np.sqrt(8 / (2 * l + 1))
-                                value *= prefactor
-                                numerical_inner.append(value)
-
-        # print("Numerical: {}".format(numerical_inner))
-        # print("Analytical: {}".format(analytical_inner))
-
-        self.assertTrue(
-            np.allclose(numerical_inner, analytical_inner, atol=1e-15, rtol=0.01)
-        )
-
-    def test_average_inner_poly(self):
-        """Tests the inner averaging (averaging done before calculating power
-        spectrum).
-        """
-        # Calculate mostly analytical (radial part is integrated numerically)
-        # power spectrum
-        soap = SOAP(
-            species=species_num,
-            lmax=lmax_num,
-            nmax=nmax_num,
-            sigma=sigma_num,
-            rcut=rcut_num,
-            rbf="polynomial",
-            crossover=True,
-            average="inner",
-            sparse=False,
-        )
-        analytical_inner = soap.create(system_num, positions=soap_centers_num)
-
-        # Calculate numerical power spectrum
-        coeffs = self.load_poly_coefficients()
-        numerical_inner = []
-        for zi in range(n_species_num):
-            for zj in range(zi, n_species_num):
-                if zi == zj:
-                    for l in range(lmax_num + 1):
-                        for ni in range(nmax_num):
-                            for nj in range(ni, nmax_num):
-                                # Average the m values over all atoms before doing the sum
-                                value = np.dot(
-                                    coeffs[:, zi, ni, l, :].mean(axis=0),
-                                    coeffs[:, zj, nj, l, :].mean(axis=0),
-                                )
-                                prefactor = np.pi * np.sqrt(8 / (2 * l + 1))
-                                value *= prefactor
-                                numerical_inner.append(value)
-                else:
-                    for l in range(lmax_num + 1):
-                        for ni in range(nmax_num):
-                            for nj in range(nmax_num):
-                                # Average the m values over all atoms before doing the sum
-                                value = np.dot(
-                                    coeffs[:, zi, ni, l, :].mean(axis=0),
-                                    coeffs[:, zj, nj, l, :].mean(axis=0),
-                                )
-                                prefactor = np.pi * np.sqrt(8 / (2 * l + 1))
-                                value *= prefactor
-                                numerical_inner.append(value)
-
-        # print("Numerical: {}".format(numerical_inner))
-        # print("Analytical poly: {}".format(analytical_inner))
-
-        self.assertTrue(
-            np.allclose(numerical_inner, analytical_inner, atol=1e-15, rtol=0.01)
-        )
-
     def test_basis(self):
         """Tests that the output vectors for both GTO and polynomial radial
         basis behave correctly.
@@ -1248,6 +1089,80 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             diff = S - np.eye(nmax)
             self.assertTrue(np.allclose(diff, np.zeros((nmax, nmax)), atol=1e-3))
 
+    def test_average_outer(self):
+        """Tests the outer averaging (averaging done after calculating power
+        spectrum).
+        """
+        sys = Atoms(
+            symbols=["H", "C"],
+            positions=[[-1, 0, 0], [1, 0, 0]],
+            cell=[2, 2, 2],
+            pbc=True,
+        )
+
+        # Create the average output
+        for rbf in ["gto", "polynomial"]:
+            desc = SOAP(
+                species=[1, 6, 8],
+                rcut=5,
+                nmax=3,
+                lmax=5,
+                periodic=False,
+                rbf=rbf,
+                crossover=True,
+                average="outer",
+                sparse=False,
+            )
+            average = desc.create(sys)
+
+            # Create individual output for both atoms
+            desc = SOAP(
+                species=[1, 6, 8],
+                rcut=5,
+                nmax=3,
+                lmax=5,
+                periodic=False,
+                rbf=rbf,
+                crossover=True,
+                average="off",
+                sparse=False,
+            )
+            first = desc.create(sys, positions=[0])[0, :]
+            second = desc.create(sys, positions=[1])[0, :]
+
+            # Check that the averaging is done correctly
+            assumed_average = (first + second) / 2
+            self.assertTrue(np.allclose(average, assumed_average))
+
+    def test_average_inner(self):
+        """Tests the inner averaging (averaging done before calculating power
+        spectrum).
+        """
+        for rbf in ["gto", "polynomial"]:
+            # Calculate the analytical power spectrum
+            soap = SOAP(
+                species=species_num,
+                lmax=lmax_num,
+                nmax=nmax_num,
+                sigma=sigma_num,
+                rcut=rcut_num,
+                rbf=rbf,
+                crossover=True,
+                average="inner",
+                sparse=False,
+            )
+            analytical_inner = soap.create(system_num, positions=soap_centers_num)
+
+            # Calculate the numerical power spectrum
+            coeffs = getattr(self, "load_{}_coefficients".format(rbf))()
+            numerical_inner = self.get_power_spectrum(coeffs, average="inner")
+
+            # print("Numerical: {}".format(numerical_inner))
+            # print("Analytical: {}".format(analytical_inner))
+            self.assertTrue(
+                np.allclose(numerical_inner, analytical_inner, atol=1e-15, rtol=0.01)
+            )
+
     def test_gto_integration(self):
         """Tests that the completely analytical partial power spectrum with the
         GTO basis corresponds to the easier-to-code but less performant
@@ -1256,61 +1171,29 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         positions = np.array([[0.0, 0.0, 0.0], [-0.3, 0.5, 0.4]])
         symbols = np.array(["H", "C"])
         system = Atoms(positions=positions, symbols=symbols)
-
-        soap_centers = [
-            [0, 0, 0],
-        ]
         species = system.get_atomic_numbers()
         elements = set(system.get_atomic_numbers())
         n_elems = len(elements)
 
-        # Calculate the analytical power spectrum and the weights and decays of
-        # the radial basis functions.
+        # Calculate the analytical power spectrum
         soap = SOAP(
             species=species,
             lmax=lmax_num,
             nmax=nmax_num,
             sigma=sigma_num,
             rcut=rcut_num,
+            rbf="gto",
             crossover=True,
             sparse=False,
         )
-        analytical_power_spectrum = soap.create(system, positions=soap_centers)[0]
-        alphagrid = np.reshape(soap._alphas, [10, nmax_num])
-        betagrid = np.reshape(soap._betas, [10, nmax_num, nmax_num])
+        analytical_power_spectrum = soap.create(system, positions=soap_centers_num)
 
         # Calculate the numerical power spectrum
         coeffs = self.load_gto_coefficients()
-        numerical_power_spectrum = []
-        for i in range(len(soap_centers)):
-            i_spectrum = []
-            for zi in range(n_elems):
-                for zj in range(zi, n_elems):
-                    if zi == zj:
-                        for l in range(lmax_num + 1):
-                            for ni in range(nmax_num):
-                                for nj in range(ni, nmax_num):
-                                    value = np.dot(
-                                        coeffs[i, zi, ni, l, :], coeffs[i, zj, nj, l, :]
-                                    )
-                                    prefactor = np.pi * np.sqrt(8 / (2 * l + 1))
-                                    value *= prefactor
-                                    i_spectrum.append(value)
-                    else:
-                        for l in range(lmax_num + 1):
-                            for ni in range(nmax_num):
-                                for nj in range(nmax_num):
-                                    value = np.dot(
-                                        coeffs[i, zi, ni, l, :], coeffs[i, zj, nj, l, :]
-                                    )
-                                    prefactor = np.pi * np.sqrt(8 / (2 * l + 1))
-                                    value *= prefactor
-                                    i_spectrum.append(value)
-            numerical_power_spectrum.append(i_spectrum)
+        numerical_power_spectrum = self.get_power_spectrum(coeffs)
 
         # print("Numerical: {}".format(numerical_power_spectrum))
         # print("Analytical: {}".format(analytical_power_spectrum))
-
         self.assertTrue(
             np.allclose(
                 numerical_power_spectrum,
@@ -1340,37 +1223,11 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         analytical_power_spectrum = soap.create(system_num, positions=soap_centers_num)
 
         # Calculate numerical power spectrum
-        coeffs = self.load_poly_coefficients()
-        numerical_power_spectrum = []
-        for i in range(len(soap_centers_num)):
-            i_spectrum = []
-            for zi in range(n_species_num):
-                for zj in range(zi, n_species_num):
-                    if zi == zj:
-                        for l in range(lmax_num + 1):
-                            for ni in range(nmax_num):
-                                for nj in range(ni, nmax_num):
-                                    value = np.dot(
-                                        coeffs[i, zi, ni, l, :], coeffs[i, zj, nj, l, :]
-                                    )
-                                    prefactor = np.pi * np.sqrt(8 / (2 * l + 1))
-                                    value *= prefactor
-                                    i_spectrum.append(value)
-                    else:
-                        for l in range(lmax_num + 1):
-                            for ni in range(nmax_num):
-                                for nj in range(nmax_num):
-                                    value = np.dot(
-                                        coeffs[i, zi, ni, l, :], coeffs[i, zj, nj, l, :]
-                                    )
-                                    prefactor = np.pi * np.sqrt(8 / (2 * l + 1))
-                                    value *= prefactor
-                                    i_spectrum.append(value)
-            numerical_power_spectrum.append(i_spectrum)
+        coeffs = self.load_polynomial_coefficients()
+        numerical_power_spectrum = self.get_power_spectrum(coeffs)
 
         # print("Numerical: {}".format(numerical_power_spectrum))
         # print("Analytical: {}".format(analytical_power_spectrum))
-
         self.assertTrue(
             np.allclose(
                 numerical_power_spectrum,
@@ -1445,75 +1302,98 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                         )
                     )
 
-    def test_weighting_poly_gto(self):
-        """Tests that the polynomial weighting done with C corresponds to the
-        easier-to-code but less performant python version.  """
-        lmax_num = 1
-        nmax_num = 1
-        weighting = {"function": "poly", "r0": 2, "c": 3, "m": 4}
+    # def test_weighting_poly_gto(self):
+        # """Tests that the polynomial weighting done with C corresponds to the
+        # easier-to-code but less performant python version.  """
+        # lmax_num = 0
+        # nmax_num = 1
+        # weighting = {"function": "poly", "r0": 2, "c": 3, "m": 4}
 
-        # Calculate analytically
-        soap = SOAP(
-            lmax=lmax_num,
-            nmax=nmax_num,
-            sigma=sigma_num,
-            rcut=rcut_num,
-            rbf="gto",
-            weighting=weighting,
-            crossover=True,
-            species=species_num,
-            sparse=False,
-        )
-        analytical_power_spectrum = soap.create(system_num, positions=soap_centers_num)
+        # # Calculate analytically
+        # soap = SOAP(
+            # lmax=lmax_num,
+            # nmax=nmax_num,
+            # sigma=sigma_num,
+            # rcut=rcut_num,
+            # rbf="gto",
+            # weighting=weighting,
+            # crossover=True,
+            # species=species_num,
+            # sparse=False,
+        # )
+        # analytical_power_spectrum = soap.create(system_num, positions=soap_centers_num)
 
-        # Calculate numerically
-        coeffs = self.coefficients_gto(
-            system_num,
-            soap_centers_num,
-            nmax_num,
-            lmax_num,
-            rcut_num,
-            sigma_num,
-            weighting,
-        )
+        # # Calculate numerically
+        # coeffs = self.coefficients_gto(
+            # system_num,
+            # soap_centers_num,
+            # nmax_num,
+            # lmax_num,
+            # rcut_num,
+            # sigma_num,
+            # weighting,
+        # )
+        # numerical_power_spectrum = self.get_power_spectrum(coeffs)
+
+        # print("Numerical: {}".format(numerical_power_spectrum))
+        # print("Analytical: {}".format(analytical_power_spectrum))
+
+        # self.assertTrue(
+            # np.allclose(
+                # numerical_power_spectrum,
+                # analytical_power_spectrum,
+                # atol=1e-15,
+                # rtol=0.01,
+            # )
+        # )
+
+    def get_power_spectrum(self, coeffs, average="off"):
+        """Given the expansion coefficients, returns the power spectrum.
+        """
         numerical_power_spectrum = []
-        for i in range(len(soap_centers_num)):
+        shape = coeffs.shape
+        n_centers = 1 if average != "off" else shape[0]
+        n_species = shape[1]
+        nmax = shape[2]
+        lmax = shape[3] - 1
+        for i in range(n_centers):
             i_spectrum = []
-            for zi in range(n_species_num):
-                for zj in range(zi, n_species_num):
+            for zi in range(n_species):
+                for zj in range(zi, n_species):
                     if zi == zj:
-                        for l in range(lmax_num + 1):
-                            for ni in range(nmax_num):
-                                for nj in range(ni, nmax_num):
-                                    value = np.dot(
-                                        coeffs[i, zi, ni, l, :], coeffs[i, zj, nj, l, :]
-                                    )
+                        for l in range(lmax + 1):
+                            for ni in range(nmax):
+                                for nj in range(ni, nmax):
+                                    if average == "inner":
+                                        value = np.dot(
+                                            coeffs[:, zi, ni, l, :].mean(axis=0),
+                                            coeffs[:, zj, nj, l, :].mean(axis=0),
+                                        )
+                                    else:
+                                        value = np.dot(
+                                            coeffs[i, zi, ni, l, :], coeffs[i, zj, nj, l, :]
+                                        )
                                     prefactor = np.pi * np.sqrt(8 / (2 * l + 1))
                                     value *= prefactor
                                     i_spectrum.append(value)
                     else:
-                        for l in range(lmax_num + 1):
-                            for ni in range(nmax_num):
-                                for nj in range(nmax_num):
-                                    value = np.dot(
-                                        coeffs[i, zi, ni, l, :], coeffs[i, zj, nj, l, :]
-                                    )
+                        for l in range(lmax + 1):
+                            for ni in range(nmax):
+                                for nj in range(nmax):
+                                    if average == "inner":
+                                        value = np.dot(
+                                            coeffs[:, zi, ni, l, :].mean(axis=0),
+                                            coeffs[:, zj, nj, l, :].mean(axis=0),
+                                        )
+                                    else:
+                                        value = np.dot(
+                                            coeffs[i, zi, ni, l, :], coeffs[i, zj, nj, l, :]
+                                        )
                                     prefactor = np.pi * np.sqrt(8 / (2 * l + 1))
                                     value *= prefactor
                                     i_spectrum.append(value)
             numerical_power_spectrum.append(i_spectrum)
-
-        print("Numerical: {}".format(numerical_power_spectrum))
-        print("Analytical: {}".format(analytical_power_spectrum))
-
-        self.assertTrue(
-            np.allclose(
-                numerical_power_spectrum,
-                analytical_power_spectrum,
-                atol=1e-15,
-                rtol=0.01,
-            )
-        )
+        return numerical_power_spectrum
 
     def get_weights(self, r, weighting):
         """Calculates the weights given an array of radials distances and the
@@ -1865,7 +1745,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             )
         )
 
-    def load_poly_coefficients(self):
+    def load_polynomial_coefficients(self):
         return np.load(
             "poly_coefficients_{}_{}_{}_{}.npy".format(
                 nmax_num,
@@ -1877,8 +1757,9 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
 
 if __name__ == "__main__":
-    SoapTests().test_weighting_poly_gto()
-    # suites = []
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapTests))
-    # alltests = unittest.TestSuite(suites)
-    # result = unittest.TextTestRunner(verbosity=0).run(alltests)
+    # SoapTests().test_average_inner()
+    # SoapTests().test_weighting_poly_gto()
+    suites = []
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapTests))
+    alltests = unittest.TestSuite(suites)
+    result = unittest.TextTestRunner(verbosity=0).run(alltests)
