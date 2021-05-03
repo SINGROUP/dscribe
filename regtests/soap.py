@@ -1448,9 +1448,9 @@ class SoapTests(TestBaseClass, unittest.TestCase):
     def test_weighting_poly_gto(self):
         """Tests that the polynomial weighting done with C corresponds to the
         easier-to-code but less performant python version.  """
-        lmax_num = 0
+        lmax_num = 1
         nmax_num = 1
-        weighting = {"function": "poly", "r0": 2, "c": 3, "m": 0}
+        weighting = {"function": "poly", "r0": 2, "c": 3, "m": 4}
 
         # Calculate analytically
         soap = SOAP(
@@ -1538,7 +1538,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                     c = weighting["c"]
                     m = weighting["m"]
                     def f(r):
-                        w = c * np.power( + 2 * (r/r0) ** 3 - 3 * (r/r0) ** 2, m)
+                        w = c * np.power(1 + 2 * (r/r0) ** 3 - 3 * (r/r0) ** 2, m)
                         w[r > r0] = 0
                         return w
                     func = f
