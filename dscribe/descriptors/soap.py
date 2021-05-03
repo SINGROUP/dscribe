@@ -227,8 +227,8 @@ class SOAP(Descriptor):
                 raise ValueError("Define r0 > 0 in weighting.")
             weighting["r0"] = float(r0)
             c = weighting.get("c")
-            if c is None or c <= 0:
-                raise ValueError("Define c > 0 in weighting.")
+            if c is None or c < 0:
+                raise ValueError("Define c >= 0 in weighting.")
             weighting["c"] = float(c)
             if weighting["function"] == "pow":
                 d = weighting.get("d")
