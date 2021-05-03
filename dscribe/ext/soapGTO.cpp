@@ -22,8 +22,8 @@ limitations under the License.
 #include <map>
 #include <set>
 #include "soapGTO.h"
-#include "weighting.h"
 #include "celllist.h"
+#include "weighting.h"
 
 #define PI2 9.86960440108936
 #define PI 3.141592653589793238
@@ -2389,6 +2389,7 @@ void soapGTO(
   double* z2  = (double*)malloc(sizeof(double)*totalAN); double* z4  = (double*)malloc(sizeof(double)*totalAN); double* z6  = (double*)malloc(sizeof(double)*totalAN);
   double* z8  = (double*)malloc(sizeof(double)*totalAN); double* z10 = (double*)malloc(sizeof(double)*totalAN); double* z12 = (double*)malloc(sizeof(double)*totalAN);
   double* z14 = (double*)malloc(sizeof(double)*totalAN); double* z16 = (double*)malloc(sizeof(double)*totalAN); double* z18 = (double*)malloc(sizeof(double)*totalAN);
+  double* r1  = (double*)malloc(sizeof(double)*totalAN);
   double* r2  = (double*)malloc(sizeof(double)*totalAN); double* r4  = (double*)malloc(sizeof(double)*totalAN); double* r6  = (double*)malloc(sizeof(double)*totalAN);
   double* r8  = (double*)malloc(sizeof(double)*totalAN); double* r10 = (double*)malloc(sizeof(double)*totalAN); double* r12 = (double*)malloc(sizeof(double)*totalAN);
   double* r14 = (double*)malloc(sizeof(double)*totalAN); double* r16 = (double*)malloc(sizeof(double)*totalAN); double* r18 = (double*)malloc(sizeof(double)*totalAN);
@@ -2465,7 +2466,7 @@ void soapGTO(
       // Save the neighbour distances into the arrays dx, dy and dz
       getDeltaD(dx, dy, dz, positions, ix, iy, iz, ZIndexPair.second);
       getRsZsD(dx, x2, x4, x6, x8, x10, x12, x14, x16, x18, dy, y2, y4, y6, y8, y10, y12, y14, y16, y18, dz, r2, r4, r6, r8, r10, r12, r14, r16, r18,  z2, z4, z6, z8, z10, z12, z14, z16, z18, r20, x20, y20, z20, n_neighbours, lMax);
-      getWeights(n_neighbours, r2, weighting, weights);
+      getWeights(n_neighbours, r1, r2, true, weighting, weights);
       getCfactorsD(preCoef, prCofDX, prCofDY, prCofDZ, n_neighbours, dx,x2, x4, x6, x8,x10,x12,x14,x16,x18, dy,y2, y4, y6, y8,y10,y12,y14,y16,y18, dz, z2, z4, z6, z8,z10,z12,z14,z16,z18, r2, r4, r6, r8,r10,r12,r14,r16,r18,r20, x20,y20,z20, totalAN, lMax, return_derivatives);
       getCD(cdevX_mu, cdevY_mu, cdevZ_mu, prCofDX, prCofDY, prCofDZ, cnnd_mu, preCoef, dx, dy, dz, r2, weights, bOa, aOa, exes, totalAN, n_neighbours, nMax, nSpecies, lMax, i, j, ZIndexPair.second, return_derivatives);
     }

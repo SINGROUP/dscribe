@@ -59,6 +59,7 @@ extensions = [
             "dscribe/ext/acsf.cpp",
             "dscribe/ext/mbtr.cpp",
             "dscribe/ext/geometry.cpp",
+            "dscribe/ext/weighting.cpp",
         ],
         include_dirs=[
             # Path to pybind11 headers

@@ -285,7 +285,9 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             "threshold": 1e-3,
         }
         soap = SOAP(species=[1, 8], nmax=1, lmax=1, sparse=True, weighting=weighting)
-        rcut = weighting["r0"] * np.log(weighting["c"]/weighting["threshold"] - weighting["d"])
+        rcut = weighting["r0"] * np.log(
+            weighting["c"] / weighting["threshold"] - weighting["d"]
+        )
         self.assertAlmostEqual(soap._rcut, rcut)
 
     def test_crossover(self):
@@ -1302,58 +1304,61 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                         )
                     )
 
-    def test_weighting_gto(self):
-        """Tests that the weighting done with C with a GTO radial basis
-        corresponds to the easier-to-code but less performant python version.
+    def test_weighting(self):
+        """Tests that the weighting done with C corresponds to the
+        easier-to-code but less performant python version.
         """
-        for weighting in [
-                {"function": "poly", "r0": 2, "c": 3, "m": 4}
-                {"function": "pow", "r0": 2, "c": 3, "d": 4, "m": 5}
-                {"function": "exp", "r0": 2, "c": 3, "d": 4}
+        # for rbf in ["polynomial"]:
+        for rbf in ["gto"]:
+            for weighting in [
+                {"function": "poly", "r0": 2, "c": 2, "m": 0},
+                {"function": "pow", "r0": 2, "c": 3, "d": 4, "m": 5},
+                {"function": "exp", "r0": 2, "c": 3, "d": 4},
             ]:
-            lmax_num = 0
-            nmax_num = 1
+                lmax_num = 0
+                nmax_num = 1
 
-            # Calculate the analytical power spectrum
-            soap = SOAP(
-                lmax=lmax_num,
-                nmax=nmax_num,
-                sigma=sigma_num,
-                rcut=rcut_num,
-                rbf="gto",
-                weighting=weighting,
-                crossover=True,
-                species=species_num,
-                sparse=False,
-            )
-            analytical_power_spectrum = soap.create(system_num, positions=soap_centers_num)
-
-            # Calculate the numerical power spectrum
-            coeffs = self.coefficients_gto(
-                system_num,
-                soap_centers_num,
-                nmax_num,
-                lmax_num,
-                rcut_num,
-                sigma_num,
-                weighting,
-            )
-            numerical_power_spectrum = self.get_power_spectrum(coeffs)
-
-            # print("Numerical: {}".format(numerical_power_spectrum))
-            # print("Analytical: {}".format(analytical_power_spectrum))
-            self.assertTrue(
-                np.allclose(
-                    numerical_power_spectrum,
-                    analytical_power_spectrum,
-                    atol=1e-15,
-                    rtol=0.01,
+                # Calculate the analytical power spectrum
+                soap = SOAP(
+                    lmax=lmax_num,
+                    nmax=nmax_num,
+                    sigma=sigma_num,
+                    rcut=rcut_num,
+                    rbf=rbf,
+                    weighting=weighting,
+                    crossover=True,
+                    species=species_num,
+                    sparse=False,
                 )
-            )
+                analytical_power_spectrum = soap.create(
+                    system_num, positions=soap_centers_num
+                )
+
+                # Calculate the numerical power spectrum
+                coeffs = getattr(self, "coefficients_{}".format(rbf))(
+                    system_num,
+                    soap_centers_num,
+                    nmax_num,
+                    lmax_num,
+                    rcut_num,
+                    sigma_num,
+                    weighting,
+                )
+                numerical_power_spectrum = self.get_power_spectrum(coeffs)
+
+                print("Numerical: {}".format(numerical_power_spectrum))
+                print("Analytical: {}".format(analytical_power_spectrum))
+                self.assertTrue(
+                    np.allclose(
+                        numerical_power_spectrum,
+                        analytical_power_spectrum,
+                        atol=1e-15,
+                        rtol=0.01,
+                    )
+                )
 
     def get_power_spectrum(self, coeffs, average="off"):
-        """Given the expansion coefficients, returns the power spectrum.
-        """
+        """Given the expansion coefficients, returns the power spectrum."""
         numerical_power_spectrum = []
         shape = coeffs.shape
         n_centers = 1 if average != "off" else shape[0]
@@ -1375,7 +1380,8 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                                         )
                                     else:
                                         value = np.dot(
-                                            coeffs[i, zi, ni, l, :], coeffs[i, zj, nj, l, :]
+                                            coeffs[i, zi, ni, l, :],
+                                            coeffs[i, zj, nj, l, :],
                                         )
                                     prefactor = np.pi * np.sqrt(8 / (2 * l + 1))
                                     value *= prefactor
@@ -1391,7 +1397,8 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                                         )
                                     else:
                                         value = np.dot(
-                                            coeffs[i, zi, ni, l, :], coeffs[i, zj, nj, l, :]
+                                            coeffs[i, zi, ni, l, :],
+                                            coeffs[i, zj, nj, l, :],
                                         )
                                     prefactor = np.pi * np.sqrt(8 / (2 * l + 1))
                                     value *= prefactor
@@ -1421,10 +1428,12 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                     r0 = weighting["r0"]
                     c = weighting["c"]
                     m = weighting["m"]
+
                     def f(r):
-                        w = c * np.power(1 + 2 * (r/r0) ** 3 - 3 * (r/r0) ** 2, m)
+                        w = c * np.power(1 + 2 * (r / r0) ** 3 - 3 * (r / r0) ** 2, m)
                         w[r > r0] = 0
                         return w
+
                     func = f
                 elif fname == "pow":
                     r0 = weighting["r0"]
@@ -1436,10 +1445,10 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                     r0 = weighting["r0"]
                     c = weighting["c"]
                     d = weighting["d"]
-                    func = lambda r: c / (d + np.exp(- r / r0))
+                    func = lambda r: c / (d + np.exp(-r / r0))
 
                 # Weighting function and w0
-                weights = func(r);
+                weights = func(r)
                 if w0 is not None:
                     weights[r == 0] = w0
                 return weights
@@ -1461,10 +1470,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             crossover=True,
             sparse=False,
         )
-        analytical_power_spectrum = soap.create(
-            system,
-            positions=soap_centers_num
-        )[0]
+        analytical_power_spectrum = soap.create(system, positions=soap_centers_num)[0]
         alphas = np.reshape(soap._alphas, [10, nmax])
         betas = np.reshape(soap._betas, [10, nmax, nmax])
 
@@ -1523,7 +1529,9 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                                 # Spherical gaussian type orbital
                                 i_alpha = alphas[l, 0:nmax]
                                 i_beta = betas[l, n, 0:nmax]
-                                gto = (i_beta * r ** l * np.exp(-i_alpha * r ** 2)).sum()
+                                gto = (
+                                    i_beta * r ** l * np.exp(-i_alpha * r ** 2)
+                                ).sum()
 
                                 # Atomic density
                                 rho = 0
@@ -1547,7 +1555,9 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                                     )
                                 )
                                 if weighting:
-                                    weights = self.get_weights(np.sqrt(ri_squared), weighting)
+                                    weights = self.get_weights(
+                                        np.sqrt(ri_squared), weighting
+                                    )
                                     rho *= weights
                                 rho = rho.sum()
 
@@ -1572,7 +1582,9 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
         return coeffs
 
-    def coefficients_poly(self, system, soap_centers, nmax, lmax, rcut, sigma):
+    def coefficients_polynomial(
+            self, system, soap_centers, nmax, lmax, rcut, sigma, weighting
+        ):
         """Used to numerically calculate the inner product coeffientes of SOAP
         with polynomial radial basis.
         """
@@ -1668,7 +1680,13 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                                             + np.cos(theta) * iz
                                         )
                                     )
-                                ).sum()
+                                )
+                                if weighting:
+                                    weights = self.get_weights(
+                                        np.sqrt(ri_squared), weighting
+                                    )
+                                    rho *= weights
+                                rho = rho.sum()
 
                                 # Jacobian
                                 jacobian = np.sin(theta) * r ** 2
@@ -1721,7 +1739,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         tests these preloaded values are used.
         """
         # Calculate the numerical power spectrum
-        coeffs = self.coefficients_poly(
+        coeffs = self.coefficients_polynomial(
             system_num,
             soap_centers_num,
             nmax=nmax_num,
@@ -1761,7 +1779,8 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
 
 if __name__ == "__main__":
-    suites = []
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapTests))
-    alltests = unittest.TestSuite(suites)
-    result = unittest.TextTestRunner(verbosity=0).run(alltests)
+    SoapTests().test_weighting()
+    # suites = []
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapTests))
+    # alltests = unittest.TestSuite(suites)
+    # result = unittest.TextTestRunner(verbosity=0).run(alltests)
