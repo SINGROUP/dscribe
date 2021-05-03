@@ -18,6 +18,7 @@ limitations under the License.
 #include <math.h>
 #include <map>
 #include <set>
+#include <algorithm>
 #include <iostream>
 #include "soapGeneral.h"
 #include "weighting.h"
@@ -1511,9 +1512,10 @@ inline void expPs(double* rExpSum, double eta, double* r, double* ri, int isize,
         }
     }
 }
-int getDeltas(double* dx, double* dy, double* dz, double* ri, double* rw, double rCut, double* oOri, double* oO4arri, double* minExp, double* pluExp, int* isCenter, double eta, const py::array_t<double> &positions, const double ix, const double iy, const double iz, const vector<int> &indices, int rsize, int Ihpos, int Itype)
+pair<int, int> getDeltas(double* dx, double* dy, double* dz, double* ri, double* rw, double rCut, double* oOri, double* oO4arri, double* minExp, double* pluExp, double eta, const py::array_t<double> &positions, const double ix, const double iy, const double iz, const vector<int> &indices, int rsize, int Ihpos, int Itype)
 {
-    int icount = 0;
+    int iNeighbour = 0;
+    int iCenter = 0;
     double ri2;
     double oOa = 1/eta;
     double Xi; double Yi; double Zi;
@@ -1527,30 +1529,41 @@ int getDeltas(double* dx, double* dy, double* dz, double* ri, double* rw, double
         Zi = pos(i, 2) - iz;
         ri2 = Xi*Xi + Yi*Yi + Zi*Zi;
 
+        // When an atom is very close to the center (=approximately on top of
+        // it), we do not add it to the calculations, as the numerical
+        // integration cannot handle these cases. Instead, we gather the number
+        // of such centered atoms and report them back for later correction.
         if (ri2<=1e-12) {
-            isCenter[0] = 1;
+            iCenter++;
         } else {
-            ri[icount] = sqrt(ri2);
-            dx[icount] = Xi;
-            dy[icount] = Yi;
-            dz[icount] = Zi;
-            oOri[icount] = 1/ri[icount];
-            oO4ari[icount] = 0.25*oOa*oOri[icount];
-            icount++;
+            ri[iNeighbour] = sqrt(ri2);
+            dx[iNeighbour] = Xi;
+            dy[iNeighbour] = Yi;
+            dz[iNeighbour] = Zi;
+            oOri[iNeighbour] = 1/ri[iNeighbour];
+            oO4ari[iNeighbour] = 0.25*oOa*oOri[iNeighbour];
+            iNeighbour++;
         }
     }
 
+    // If there is at least one atom at the center, we add a zero element to
+    // the end of ris so that the weights can be calculated. This way they do
+    // not interfere with the calculations for non-centered atoms.
+    if (iCenter > 0) {
+        ri[iNeighbour] = 0;
+    }
+
     double* oOr = getoOr(rw, rsize);
-    for (int i = 0; i < icount; i++) {
+    for (int i = 0; i < iNeighbour; i++) {
         for (int w = 0; w < rsize; w++) {
             oO4arri[rsize*i + w] = oO4ari[i]*oOr[w];
         }
     }
-    expMs(minExp, eta, rw, ri, icount, rsize);
-    expPs(pluExp, eta, rw, ri, icount, rsize);
+    expMs(minExp, eta, rw, ri, iNeighbour, rsize);
+    expPs(pluExp, eta, rw, ri, iNeighbour, rsize);
 
     free(oO4ari);
-    return icount;
+    return make_pair(iNeighbour, iCenter);
 }
 double* getFlir(double* oO4arri,double* ri, double* minExp, double* pluExp, int icount, int rsize, int lMax)
 {
@@ -1683,16 +1696,20 @@ double* getIntegrand(double* Flir, double* Ylmi, int rsize, int icount, int lMax
     }
     return summed;
 }
-void getC(double* C, double* ws, double* rw2, double * gns, double* summed, double rCut, int lMax, int rsize, int gnsize, int* isCenter, double eta)
+void getC(double* C, double* ws, double* rw2, double * gns, double* summed, double rCut, int lMax, int rsize, int gnsize, int nCenters, int nNeighbours, double eta, double* weights)
 {
     // Initialize to zero
     memset(C, 0.0, 2*(lMax+1)*(lMax+1)*gnsize*sizeof(double));
 
     for (int n = 0; n < gnsize; n++) {
-        //for i0 case
-        if (isCenter[0] == 1) {
-            for (int rw = 0; rw < rsize; rw++) {
-                C[2*(lMax+1)*(lMax+1)*n] += 0.5*0.564189583547756*rw2[rw]*ws[rw]*gns[rsize*n + rw]*exp(-eta*rw2[rw]);
+        // For atoms at the center we add a precalculated constant value
+        // because the numerical integration cannot handle them
+        if (nCenters > 0) {
+            double weight = weights[nNeighbours];
+            for (int iCenter = 0; iCenter < nCenters; ++iCenter) {
+                for (int rw = 0; rw < rsize; rw++) {
+                    C[2*(lMax+1)*(lMax+1)*n] += weight * 0.5*0.564189583547756*rw2[rw]*ws[rw]*gns[rsize*n + rw]*exp(-eta*rw2[rw]);
+                }
             }
         }
         for (int l = 0; l < lMax+1; l++) {
@@ -1704,7 +1721,6 @@ void getC(double* C, double* ws, double* rw2, double * gns, double* summed, doub
             }
         }
     }
-    isCenter[0] = 0;
 }
 
 void accumC(double* Cs, double* C, int lMax, int nMax, int typeI, int i, int nCoeffs)
@@ -1819,15 +1835,12 @@ void soapGeneral(
     double *rw = (double*)rwArr.request().ptr;
     double *gss = (double*)gssArr.request().ptr;
     double* cf = factorListSet();
-    int* isCenter = (int*)malloc(sizeof(int));
-    isCenter[0] = 0;
     const int rsize = 100; // The number of points in the radial integration grid
     double rCut2 = rCut*rCut;
     double* dx = tot;
     double* dy = tot;
     double* dz = tot;
     double* ris = tot;
-    double* ri2s = NULL;
     double* weights = tot;
     double* oOri = tot;
     double* ws  = getws();
@@ -1877,22 +1890,22 @@ void soapGeneral(
 
             // j is the internal index for this atomic number
             int j = ZIndexMap[ZIndexPair.first];
-            int n_neighbours = ZIndexPair.second.size();
 
             double* Ylmi; double* Flir; double* summed;
-            isCenter[0] = 0;
 
             // Notice that due to the numerical integration the getDeltas
             // function here has special functionality for positions that are
             // centered on an atom.
-            n_neighbours = getDeltas(dx, dy, dz, ris, rw, rCut, oOri, oO4arri, minExp, pluExp, isCenter, eta, positions, ix, iy, iz, ZIndexPair.second, rsize, i, j);
+            pair<int, int> neighbours = getDeltas(dx, dy, dz, ris, rw, rCut, oOri, oO4arri, minExp, pluExp, eta, positions, ix, iy, iz, ZIndexPair.second, rsize, i, j);
+            int nNeighbours = neighbours.first;
+            int nCenters = neighbours.second;
 
-            getWeights(n_neighbours, ris, ri2s, false, weighting, weights);
-            Flir = getFlir(oO4arri, ris, minExp, pluExp, n_neighbours, rsize, lMax);
-            Ylmi = getYlmi(dx, dy, dz, oOri, cf, n_neighbours, lMax);
-            summed = getIntegrand(Flir, Ylmi, rsize, n_neighbours, lMax, weights);
+            getWeights(nNeighbours + min(nCenters, 1), ris, NULL, false, weighting, weights);
+            Flir = getFlir(oO4arri, ris, minExp, pluExp, nNeighbours, rsize, lMax);
+            Ylmi = getYlmi(dx, dy, dz, oOri, cf, nNeighbours, lMax);
+            summed = getIntegrand(Flir, Ylmi, rsize, nNeighbours, lMax, weights);
 
-            getC(C, ws, rw2, gss, summed, rCut, lMax, rsize, nMax, isCenter, eta);
+            getC(C, ws, rw2, gss, summed, rCut, lMax, rsize, nMax, nCenters, nNeighbours, eta, weights);
             accumC(Cs, C, lMax, nMax, j, i, nCoeffs);
             
             free(Flir);

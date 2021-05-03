@@ -1308,12 +1308,11 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         """Tests that the weighting done with C corresponds to the
         easier-to-code but less performant python version.
         """
-        # for rbf in ["polynomial"]:
-        for rbf in ["gto"]:
+        for rbf in ["gto", "polynomial"]:
             for weighting in [
-                {"function": "poly", "r0": 2, "c": 2, "m": 0},
-                {"function": "pow", "r0": 2, "c": 3, "d": 4, "m": 5},
-                {"function": "exp", "r0": 2, "c": 3, "d": 4},
+                {"function": "poly", "r0": 2, "c": 3, "m": 4},
+                # {"function": "pow", "r0": 2, "c": 3, "d": 4, "m": 5},
+                # {"function": "exp", "r0": 2, "c": 3, "d": 4},
             ]:
                 lmax_num = 0
                 nmax_num = 1
@@ -1583,8 +1582,8 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         return coeffs
 
     def coefficients_polynomial(
-            self, system, soap_centers, nmax, lmax, rcut, sigma, weighting
-        ):
+        self, system, soap_centers, nmax, lmax, rcut, sigma, weighting
+    ):
         """Used to numerically calculate the inner product coeffientes of SOAP
         with polynomial radial basis.
         """
@@ -1779,8 +1778,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
 
 if __name__ == "__main__":
-    SoapTests().test_weighting()
-    # suites = []
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapTests))
-    # alltests = unittest.TestSuite(suites)
-    # result = unittest.TextTestRunner(verbosity=0).run(alltests)
+    suites = []
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapTests))
+    alltests = unittest.TestSuite(suites)
+    result = unittest.TextTestRunner(verbosity=0).run(alltests)

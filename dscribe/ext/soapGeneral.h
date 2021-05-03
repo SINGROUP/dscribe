@@ -16,6 +16,7 @@ limitations under the License.
 #define SOAPGENERAL_H
 
 #include <vector>
+#include <utility>
 #include <pybind11/numpy.h>
 #include <string>
 #include "celllist.h"
@@ -30,13 +31,13 @@ inline double* getoOr(double* r, int rsize);
 inline double* getrw2(double* r, int rsize);
 inline void expMs(double* rExpDiff, double eta, double* r, double* ri, int isize, int rsize);
 inline void expPs(double* rExpSum, double eta, double* r, double* ri, int isize, int rsize);
-int getDeltas(double* xNow, double* yNow, double* zNow, double* ri, double* rw, double rCut, double* oOri, double* oO4arri, double* minExp, double* pluExp,int* isCenter, double eta, const py::array_t<double> &positions, const double ix, const double iy, const double iz, const vector<int> &indices, int rsize, int Ihpos, int Itype);
+pair<int, int> getDeltas(double* xNow, double* yNow, double* zNow, double* ri, double* rw, double rCut, double* oOri, double* oO4arri, double* minExp, double* pluExp,int* isCenter, double eta, const py::array_t<double> &positions, const double ix, const double iy, const double iz, const vector<int> &indices, int rsize, int Ihpos, int Itype);
 int getFilteredPos(double* xNow, double* yNow, double* zNow, double* ri, double* rw, double rCut, double* oOri, double* oO4arri, double* minExp, double* pluExp,int* isCenter, double eta, double* Apos, double* Hpos,int* typeNs, int rsize, int Ihpos, int Itype);
 double* getFlir(double* oO4arri,double* ri, double* minExp, double* pluExp, int icount, int rsize, int lMax);
 double legendre_poly(int l, int m, double x);
 double* getYlmi(double* x, double* y, double* z, double* oOri, double* cf, int icount, int lMax);
 double* getIntegrand(double* Flir, double* Ylmi,int rsize, int icount, int lMax);
-void getC(double* Cs, double* ws, double* rw2, double * gns, double* summed, double rCut,int lMax, int rsize, int gnsize,int* isCenter, double eta);
+void getC(double* Cs, double* ws, double* rw2, double * gns, double* summed, double rCut,int lMax, int rsize, int gnsize, int nCenters, int nNeighbours, double eta, double* weights);
 void accumC(double* Cs, double* C, int lMax, int gnsize, int typeI, int i, int nCoeffs);
 void getP(py::detail::unchecked_mutable_reference<double, 2> &Ps, double* Cts, int Nt, int lMax, int nMax, int Hs, double rCut2, int nFeatures, bool crossover, int nCoeffs);
 void soapGeneral(
