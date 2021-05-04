@@ -1311,11 +1311,11 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         for rbf in ["gto", "polynomial"]:
             for weighting in [
                 {"function": "poly", "r0": 2, "c": 3, "m": 4},
-                # {"function": "pow", "r0": 2, "c": 3, "d": 4, "m": 5},
-                # {"function": "exp", "r0": 2, "c": 3, "d": 4},
+                {"function": "pow", "r0": 2, "c": 3, "d": 4, "m": 5},
+                {"function": "exp", "r0": 2, "c": 3, "d": 4},
             ]:
-                lmax_num = 0
-                nmax_num = 1
+                lmax_num = 2
+                nmax_num = 2
 
                 # Calculate the analytical power spectrum
                 soap = SOAP(
@@ -1333,20 +1333,32 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                     system_num, positions=soap_centers_num
                 )
 
-                # Calculate the numerical power spectrum
-                coeffs = getattr(self, "coefficients_{}".format(rbf))(
-                    system_num,
-                    soap_centers_num,
-                    nmax_num,
-                    lmax_num,
-                    rcut_num,
-                    sigma_num,
-                    weighting,
-                )
+                # Calculate and save the numerical power spectrum to disk
+                filename = "{}_coefficients_{}_{}_{}_{}_{}.npy".format(
+                        rbf,
+                        nmax_num,
+                        lmax_num,
+                        rcut_num,
+                        sigma_num,
+                        weighting["function"],
+                    )
+                # coeffs = getattr(self, "coefficients_{}".format(rbf))(
+                    # system_num,
+                    # soap_centers_num,
+                    # nmax_num,
+                    # lmax_num,
+                    # rcut_num,
+                    # sigma_num,
+                    # weighting,
+                # )
+                # np.save(filename, coeffs)
+
+                # Load coefficients from disk
+                coeffs = np.load(filename)
                 numerical_power_spectrum = self.get_power_spectrum(coeffs)
 
-                print("Numerical: {}".format(numerical_power_spectrum))
-                print("Analytical: {}".format(analytical_power_spectrum))
+                # print("Numerical: {}".format(numerical_power_spectrum))
+                # print("Analytical: {}".format(analytical_power_spectrum))
                 self.assertTrue(
                     np.allclose(
                         numerical_power_spectrum,
