@@ -108,7 +108,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                 species=["H", "O"],
                 rcut=10,
                 sigma=0.5,
-                nmax=13,
+                nmax=15,
                 lmax=8,
                 rbf="polynomial",
                 periodic=False,

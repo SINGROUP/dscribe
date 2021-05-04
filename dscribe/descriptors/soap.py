@@ -64,7 +64,6 @@ class SOAP(Descriptor):
         weighting=None,
         crossover=True,
         average="off",
-        reweight_symmetric=False,
         species=None,
         periodic=False,
         sparse=False,
@@ -132,9 +131,9 @@ class SOAP(Descriptor):
                       to 1e-2), You can provide the parameters ``c``, ``d``,
                       ``r0`` and ``threshold`` as additional dictionary items.
 
-                * ``"w0"``: Custom floating point weight for the atom that is
-                  directly on top of a requested center. Optional, will override
-                  other weighting.
+                * ``"w0"``: Custom floating point weight for atoms that are
+                  directly on top of a requested center. Optional, will
+                  override other weighting.
 
             crossover (bool): Determines if crossover of atomic types should
                 be included in the power spectrum. If enabled, the power
@@ -160,7 +159,7 @@ class SOAP(Descriptor):
                 encountered when creating the descriptors for a set of systems.
                 Keeping the number of chemical species as low as possible is
                 preferable.
-            periodic (bool): Set to true if you want the descriptor output to
+            periodic (bool): Set to True if you want the descriptor output to
                 respect the periodicity of the atomic systems (see the
                 pbc-parameter in the constructor of ase.Atoms).
             sparse (bool): Whether the output should be a sparse matrix or a
@@ -277,7 +276,7 @@ class SOAP(Descriptor):
         self._rbf = rbf
         self.average = average
         self.crossover = crossover
-        self.reweight_symmetric = reweight_symmetric
+        self.reweight_symmetric = False
 
     def prepare_centers(self, system, cutoff_padding, positions=None):
         """Validates and prepares the centers for the C++ extension."""
