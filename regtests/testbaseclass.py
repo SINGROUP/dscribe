@@ -29,11 +29,11 @@ class TestBaseClass(ABC):
 
     @abc.abstractmethod
     def test_exceptions(self):
-        """"""
+        """ """
 
     @abc.abstractmethod
     def test_number_of_features(self):
-        """"""
+        """ """
 
     @abc.abstractmethod
     def test_sparse(self):
@@ -44,7 +44,7 @@ class TestBaseClass(ABC):
 
     @abc.abstractmethod
     def test_symmetries(self):
-        """"""
+        """ """
 
     def is_rotationally_symmetric(self, create):
         """Tests whether the descriptor output is invariant to rotations of the
