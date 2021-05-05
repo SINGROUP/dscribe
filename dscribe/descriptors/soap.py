@@ -220,8 +220,7 @@ class SOAP(Descriptor):
                 if func not in weighting_functions:
                     raise ValueError(
                         "Weighting function not implemented. Please choose "
-                        "among one of the following {}"
-                        .format(weighting_functions)
+                        "among one of the following {}".format(weighting_functions)
                     )
                 r0 = weighting.get("r0")
                 if r0 is None or r0 <= 0:
