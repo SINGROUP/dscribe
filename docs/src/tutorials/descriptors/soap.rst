@@ -201,16 +201,8 @@ When using a weighting function, you typically will also want to restrict
 function is active. You can achieve this by manually tuning rcut to a range
 that fits your weighting function, or if you set :code:`rcut=None`, it will be
 set automatically into a sensible range which depends on your weighting
-function. You can see more details and the algegbraic form of the weighting
+function. You can see more details and the algeraic form of the weighting
 functions in the constructor documentation.
-
-The following example illustrates how you would utilize the weighting in the
-SOAP constructor:
-
-.. literalinclude:: ../../../../examples/soap.py
-   :start-after: Weighting
-   :language: python
-   :lines: 1-8
 
 Locating information
 ~~~~~~~~~~~~~~~~~~~~
