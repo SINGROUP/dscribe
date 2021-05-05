@@ -258,7 +258,7 @@ class SOAP(Descriptor):
                     "cutoff should be bigger than 1 angstrom."
                 )
             # Precalculate the alpha and beta constants for the GTO basis
-            self._alphas, self._betas = self.get_basis_gto(rcut, nmax)
+            self._alphas, self._betas = self.get_basis_gto(rcut, nmax, lmax)
 
         # Test lmax
         if lmax < 0:
@@ -1068,7 +1068,7 @@ class SOAP(Descriptor):
 
         return slice(start, end)
 
-    def get_basis_gto(self, rcut, nmax):
+    def get_basis_gto(self, rcut, nmax, lmax):
         """Used to calculate the alpha and beta prefactors for the gto-radial
         basis.
 
@@ -1084,12 +1084,11 @@ class SOAP(Descriptor):
         # to: evenly space between 1 angstrom and rcut.
         a = np.linspace(1, rcut, nmax)
         threshold = 1e-3  # This is the fixed gaussian decay threshold
-        max_lmax = 21
 
-        alphas_full = np.zeros((max_lmax, nmax))
-        betas_full = np.zeros((max_lmax, nmax, nmax))
+        alphas_full = np.zeros((lmax + 1, nmax))
+        betas_full = np.zeros((lmax + 1, nmax, nmax))
 
-        for l in range(0, max_lmax):
+        for l in range(0, lmax + 1):
             # The alphas are calculated so that the GTOs will decay to the set
             # threshold value at their respective cutoffs
             alphas = -np.log(threshold / np.power(a, l)) / a ** 2
