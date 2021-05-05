@@ -143,10 +143,16 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             args["weighting"] = {"function": "poly", "c": 1, "r0": 0}
             SOAP(**args)
         with self.assertRaises(ValueError):
+            args["weighting"] = {"function": "poly", "c": 1, "r0": 1, "w0": -1}
+            SOAP(**args)
+        with self.assertRaises(ValueError):
             args["weighting"] = {"function": "pow", "c": -1, "d": 1, "r0": 1, "m": 1}
             SOAP(**args)
         with self.assertRaises(ValueError):
             args["weighting"] = {"function": "pow", "c": 1, "d": 1, "r0": 0, "m": 1}
+            SOAP(**args)
+        with self.assertRaises(ValueError):
+            args["weighting"] = {"function": "pow", "c": 1, "d": 1, "r0": 1, "w0": -1}
             SOAP(**args)
         with self.assertRaises(ValueError):
             args["weighting"] = {"function": "exp", "c": -1, "d": 1, "r0": 1}
@@ -155,10 +161,10 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             args["weighting"] = {"function": "exp", "c": 1, "d": 1, "r0": 0}
             SOAP(**args)
         with self.assertRaises(ValueError):
-            args["weighting"] = {"function": "invalid", "c": 1, "d": 1, "r0": 1}
+            args["weighting"] = {"function": "exp", "c": 1, "d": 1, "r0": 1, "w0": -1}
             SOAP(**args)
         with self.assertRaises(ValueError):
-            args["weighting"] = {"function": "poly", "c": 1, "d": 1, "r0": 1, "w0": -1}
+            args["weighting"] = {"function": "invalid", "c": 1, "d": 1, "r0": 1}
             SOAP(**args)
 
     def test_properties(self):

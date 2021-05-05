@@ -209,42 +209,49 @@ class SOAP(Descriptor):
         if not (weighting or rcut):
             raise ValueError("Either weighting or rcut need to be defined")
         if weighting:
-            weighting_functions = {"poly", "pow", "exp"}
-            func = weighting.get("function")
-            if func not in weighting_functions:
-                raise ValueError(
-                    "Weighting function not implemented. Please choose among "
-                    "one of the following {}".format(weighting_functions)
-                )
             w0 = weighting.get("w0")
             if w0 is not None:
                 if w0 < 0:
                     raise ValueError("Define w0 > 0 in weighting.")
                 weighting["w0"] = float(w0)
-            r0 = weighting.get("r0")
-            if r0 is None or r0 <= 0:
-                raise ValueError("Define r0 > 0 in weighting.")
-            weighting["r0"] = float(r0)
-            c = weighting.get("c")
-            if c is None or c < 0:
-                raise ValueError("Define c >= 0 in weighting.")
-            weighting["c"] = float(c)
-            if weighting["function"] == "pow":
-                d = weighting.get("d")
-                if d is None or d < 0:
-                    raise ValueError("Define d >= 0 in weighting.")
-                weighting["d"] = float(d)
-                m = weighting.get("m")
-                if m is None or m < 0:
-                    raise ValueError("Define m >= 0 in weighting.")
-                weighting["m"] = float(m)
-                weighting["threshold"] = float(weighting.get("threshold", 1e-2))
-            elif weighting["function"] == "exp":
-                d = weighting.get("d")
-                if d < 0:
-                    raise ValueError("Define d >= 0 in weighting.")
-                weighting["d"] = float(d)
-                weighting["threshold"] = float(weighting.get("threshold", 1e-2))
+            func = weighting.get("function")
+            if func is not None:
+                weighting_functions = {"poly", "pow", "exp"}
+                if func not in weighting_functions:
+                    raise ValueError(
+                        "Weighting function not implemented. Please choose "
+                        "among one of the following {}"
+                        .format(weighting_functions)
+                    )
+                r0 = weighting.get("r0")
+                if r0 is None or r0 <= 0:
+                    raise ValueError("Define r0 > 0 in weighting.")
+                weighting["r0"] = float(r0)
+                c = weighting.get("c")
+                if c is None or c < 0:
+                    raise ValueError("Define c >= 0 in weighting.")
+                weighting["c"] = float(c)
+                if func == "poly":
+                    m = weighting.get("m")
+                    if m is None or m < 0:
+                        raise ValueError("Define m >= 0 in weighting.")
+                    weighting["m"] = float(m)
+                elif func == "pow":
+                    d = weighting.get("d")
+                    if d is None or d < 0:
+                        raise ValueError("Define d >= 0 in weighting.")
+                    weighting["d"] = float(d)
+                    m = weighting.get("m")
+                    if m is None or m < 0:
+                        raise ValueError("Define m >= 0 in weighting.")
+                    weighting["m"] = float(m)
+                    weighting["threshold"] = float(weighting.get("threshold", 1e-2))
+                elif func == "exp":
+                    d = weighting.get("d")
+                    if d < 0:
+                        raise ValueError("Define d >= 0 in weighting.")
+                    weighting["d"] = float(d)
+                    weighting["threshold"] = float(weighting.get("threshold", 1e-2))
         else:
             weighting = {}
         if not rcut:
