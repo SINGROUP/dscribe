@@ -1335,21 +1335,21 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
                 # Calculate and save the numerical power spectrum to disk
                 filename = "{}_coefficients_{}_{}_{}_{}_{}.npy".format(
-                        rbf,
-                        nmax_num,
-                        lmax_num,
-                        rcut_num,
-                        sigma_num,
-                        weighting["function"],
-                    )
+                    rbf,
+                    nmax_num,
+                    lmax_num,
+                    rcut_num,
+                    sigma_num,
+                    weighting["function"],
+                )
                 # coeffs = getattr(self, "coefficients_{}".format(rbf))(
-                    # system_num,
-                    # soap_centers_num,
-                    # nmax_num,
-                    # lmax_num,
-                    # rcut_num,
-                    # sigma_num,
-                    # weighting,
+                # system_num,
+                # soap_centers_num,
+                # nmax_num,
+                # lmax_num,
+                # rcut_num,
+                # sigma_num,
+                # weighting,
                 # )
                 # np.save(filename, coeffs)
 
