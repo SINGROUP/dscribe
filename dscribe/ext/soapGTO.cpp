@@ -83,7 +83,7 @@ inline void getRsZsD(double* x, double* x2, double* x4, double* x6, double* x8, 
   }
 }}
 //================================================================
-void getAlphaBetaD(double* aOa, double* bOa, double* alphas, double* betas, int Ns,int lMax, double oOeta, double oOeta3O2){
+void getAlphaBetaD(double* aOa, double* bOa, double* alphas, double* betas, int Ns, int lMax, double oOeta, double oOeta3O2) {
 
   int NsNs = Ns*Ns;
   double oneO1alpha;
@@ -96,7 +96,7 @@ void getAlphaBetaD(double* aOa, double* bOa, double* alphas, double* betas, int 
       oneO1alpha = 1.0/(1.0 + oOeta*alphas[myL*Ns + k]);
       oneO1alphaSqrt = sqrt(oneO1alpha);
       aOa[myL*Ns + k] = -alphas[myL*Ns + k]*oneO1alpha; 
-      oneO1alpha2 = pow(oneO1alpha,myL+1);
+      oneO1alpha2 = pow(oneO1alpha, myL+1);
       oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha2;
       for(int n = 0; n < Ns; n++){
             bOa[myL*NsNs + n*Ns + k] = oOeta3O2*betas[myL*NsNs + n*Ns + k]*oneO1alphaSqrtX;
@@ -2371,8 +2371,11 @@ void soapGTO(
   auto species = orderedSpeciesArr.unchecked<1>();
   int nSpecies = orderedSpeciesArr.shape(0);
   auto indices_u = indices.unchecked<1>();
-  double *alphas = (double*)alphasArr.request().ptr; double *betas = (double*)betasArr.request().ptr;
-  double oOeta = 1.0/eta; double oOeta3O2 = sqrt(oOeta*oOeta*oOeta); double nMax2 = nMax*nMax;
+  double *alphas = (double*)alphasArr.request().ptr;
+  double *betas = (double*)betasArr.request().ptr;
+  double oOeta = 1.0/eta;
+  double oOeta3O2 = sqrt(oOeta*oOeta*oOeta);
+  double nMax2 = nMax*nMax;
   auto centers_u = centers.unchecked<2>(); 
   auto positions_u = positions.unchecked<2>(); 
   const int nFeatures = crossover

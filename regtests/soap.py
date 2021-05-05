@@ -1054,8 +1054,8 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             crossover=True,
             sparse=False,
         )
-        alphas = np.reshape(soap._alphas, [10, nmax])
-        betas = np.reshape(soap._betas, [10, nmax, nmax])
+        alphas = np.reshape(soap._alphas, [21, nmax])
+        betas = np.reshape(soap._betas, [21, nmax, nmax])
 
         nr = 10000
         n_basis = 0

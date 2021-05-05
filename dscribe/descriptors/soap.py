@@ -1084,11 +1084,12 @@ class SOAP(Descriptor):
         # to: evenly space between 1 angstrom and rcut.
         a = np.linspace(1, rcut, nmax)
         threshold = 1e-3  # This is the fixed gaussian decay threshold
+        max_lmax = 21
 
-        alphas_full = np.zeros((10, nmax))
-        betas_full = np.zeros((10, nmax, nmax))
+        alphas_full = np.zeros((max_lmax, nmax))
+        betas_full = np.zeros((max_lmax, nmax, nmax))
 
-        for l in range(0, 10):
+        for l in range(0, max_lmax):
             # The alphas are calculated so that the GTOs will decay to the set
             # threshold value at their respective cutoffs
             alphas = -np.log(threshold / np.power(a, l)) / a ** 2
