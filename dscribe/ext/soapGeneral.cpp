@@ -1722,6 +1722,32 @@ void getC(double* C, double* ws, double* rw2, double * gns, double* summed, doub
         }
     }
 }
+void getCl(double* C, double* ws, double* rw2, double * gnl, double* summed, double rCut, int lMax, int rsize, int gnsize, int nCenters, int nNeighbours, double eta, double* weights)
+{
+    // Initialize to zero
+    memset(C, 0.0, 2*(lMax+1)*(lMax+1)*gnsize*sizeof(double));
+
+    for (int n = 0; n < gnsize; n++) {
+        // For atoms at the center we add a precalculated constant value
+        // because the numerical integration cannot handle them
+        if (nCenters > 0) {
+            double weight = weights[nNeighbours];
+            for (int iCenter = 0; iCenter < nCenters; ++iCenter) {
+                for (int rw = 0; rw < rsize; rw++) {
+                    C[2*(lMax+1)*(lMax+1)*n] += weight * 0.5*0.564189583547756*rw2[rw]*ws[rw]*gnl[rsize*gnsize*lMax + rsize*n + rw]*exp(-eta*rw2[rw]);
+                }
+            }
+        }
+        for (int l = 0; l < lMax+1; l++) {
+            for (int m = 0; m < l+1; m++) {
+                for (int rw = 0; rw < rsize; rw++) {
+                    C[2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m    ] += rw2[rw]*ws[rw]*gnl[rsize*n + rw]*summed[2*(lMax+1)*l*rsize + 2*m*rsize + 2*rw    ]; // Re
+                    C[2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m + 1] += rw2[rw]*ws[rw]*gnl[rsize*n + rw]*summed[2*(lMax+1)*l*rsize + 2*m*rsize + 2*rw + 1]; //Im
+                }
+            }
+        }
+    }
+}
 
 void accumC(double* Cs, double* C, int lMax, int nMax, int typeI, int i, int nCoeffs)
 {
@@ -1905,7 +1931,8 @@ void soapGeneral(
             Ylmi = getYlmi(dx, dy, dz, oOri, cf, nNeighbours, lMax);
             summed = getIntegrand(Flir, Ylmi, rsize, nNeighbours, lMax, weights);
 
-            getC(C, ws, rw2, gss, summed, rCut, lMax, rsize, nMax, nCenters, nNeighbours, eta, weights);
+//            getC(C, ws, rw2, gss, summed, rCut, lMax, rsize, nMax, nCenters, nNeighbours, eta, weights);
+            getCl(C, ws, rw2, gsl, summed, rCut, lMax, rsize, nMax, nCenters, nNeighbours, eta, weights);
             accumC(Cs, C, lMax, nMax, j, i, nCoeffs);
             
             free(Flir);
