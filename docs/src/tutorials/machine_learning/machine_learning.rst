@@ -7,3 +7,4 @@ Machine learning
    :maxdepth: 1
 
    forces_and_energies.rst
+   unsupervised_learning.rst

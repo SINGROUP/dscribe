@@ -1,5 +1,5 @@
-Predicting forces and energies a.k.a. training a ML force-field
-===============================================================
+Supervised Learning: Training an ML Force-field
+===============================================
 
 .. note::
    We are incrementally adding support for calculating the derivatives of
@@ -29,8 +29,8 @@ simple setup:
       This is exactly what the :code:`derivatives`-function provided by DScribe
       returns (you will need :code:`dscribe>=1.0.0`).
 
-Principle
----------
+Setup
+-----
 We will use a dataset of feature vectors :math:`\mathbf{D}`, their derivatives
 :math:`\nabla_{\mathbf{r_i}} \mathbf{D}` and the associated system energies :math:`E` and
 forces :math:`\mathbf{F}` for training. We will use a neural network :math:`f`

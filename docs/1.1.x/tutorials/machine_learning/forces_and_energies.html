@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Predicting forces and energies a.k.a. training a ML force-field &mdash; DScribe 1.1.x documentation</title>
+  <title>Supervised Learning: Training an ML Force-field &mdash; DScribe 1.1.x documentation</title>
   
 
   
@@ -40,7 +40,7 @@
     <link rel="author" title="About these documents" href="../../about.html" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Similarity analysis" href="../similarity_analysis/similarity_analysis.html" />
+    <link rel="next" title="Unsupervised Learning: Clustering" href="unsupervised_learning.html" />
     <link rel="prev" title="Machine learning" href="machine_learning.html" /> 
 </head>
 
@@ -101,13 +101,14 @@
 <li class="toctree-l2"><a class="reference internal" href="../derivatives.html">Derivatives</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../sparse.html">Sparse output</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="machine_learning.html">Machine learning</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Predicting forces and energies a.k.a. training a ML force-field</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#principle">Principle</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Supervised Learning: Training an ML Force-field</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#setup">Setup</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#dataset-generation">Dataset generation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#training">Training</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#analysis">Analysis</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="unsupervised_learning.html">Unsupervised Learning: Clustering</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../similarity_analysis/similarity_analysis.html">Similarity analysis</a></li>
@@ -169,7 +170,7 @@
         
           <li><a href="machine_learning.html">Machine learning</a> &raquo;</li>
         
-      <li>Predicting forces and energies a.k.a. training a ML force-field</li>
+      <li>Supervised Learning: Training an ML Force-field</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -188,8 +189,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="predicting-forces-and-energies-a-k-a-training-a-ml-force-field">
-<h1>Predicting forces and energies a.k.a. training a ML force-field<a class="headerlink" href="#predicting-forces-and-energies-a-k-a-training-a-ml-force-field" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="supervised-learning-training-an-ml-force-field">
+<h1>Supervised Learning: Training an ML Force-field<a class="headerlink" href="#supervised-learning-training-an-ml-force-field" title="Permalink to this headline">¶</a></h1>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>We are incrementally adding support for calculating the derivatives of
@@ -221,8 +222,8 @@ This is exactly what the <code class="code docutils literal notranslate"><span c
 returns (you will need <code class="code docutils literal notranslate"><span class="pre">dscribe&gt;=1.0.0</span></code>).</p></li>
 </ul>
 </div></blockquote>
-<div class="section" id="principle">
-<h2>Principle<a class="headerlink" href="#principle" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h2>
 <p>We will use a dataset of feature vectors <span class="math notranslate nohighlight">\(\mathbf{D}\)</span>, their derivatives
 <span class="math notranslate nohighlight">\(\nabla_{\mathbf{r_i}} \mathbf{D}\)</span> and the associated system energies <span class="math notranslate nohighlight">\(E\)</span> and
 forces <span class="math notranslate nohighlight">\(\mathbf{F}\)</span> for training. We will use a neural network <span class="math notranslate nohighlight">\(f\)</span>
@@ -572,7 +573,7 @@ values:</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../similarity_analysis/similarity_analysis.html" class="btn btn-neutral float-right" title="Similarity analysis" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="unsupervised_learning.html" class="btn btn-neutral float-right" title="Unsupervised Learning: Clustering" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="machine_learning.html" class="btn btn-neutral float-left" title="Machine learning" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
