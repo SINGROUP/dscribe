@@ -1715,8 +1715,8 @@ void getC(double* C, double* ws, double* rw2, double * gss, double* summed, doub
         for (int l = 0; l < lMax+1; l++) {
             for (int m = 0; m < l+1; m++) {
                 for (int rw = 0; rw < rsize; rw++) {
-                    C[2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m    ] += rw2[rw]*ws[rw]*gss[rsize*n + rw]*summed[2*(lMax+1)*l*rsize + 2*m*rsize + 2*rw    ]; // Re
-                    C[2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m + 1] += rw2[rw]*ws[rw]*gss[rsize*n + rw]*summed[2*(lMax+1)*l*rsize + 2*m*rsize + 2*rw + 1]; //Im
+                    C[2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m    ] += rw2[rw]*ws[rw]*gss[ rsize*n + rw]*summed[2*(lMax+1)*l*rsize + 2*m*rsize + 2*rw    ]; // Re
+                    C[2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m + 1] += rw2[rw]*ws[rw]*gss[ rsize*n + rw]*summed[2*(lMax+1)*l*rsize + 2*m*rsize + 2*rw + 1]; //Im
                 }
             }
         }
@@ -1735,15 +1735,15 @@ void getCl(double* C, double* ws, double* rw2, double * gnl, double* summed, dou
             double weight = weights[nNeighbours];
             for (int iCenter = 0; iCenter < nCenters; ++iCenter) {
                 for (int rw = 0; rw < rsize; rw++) {
-                    C[2*(lMax+1)*(lMax+1)*n] += weight * 0.5*0.564189583547756*rw2[rw]*ws[rw]*gnl[rsize*gnsize*lMax + rsize*n + rw]*exp(-eta*rw2[rw]);
+                    C[2*(lMax+1)*(lMax+1)*n] += weight * 0.5*0.564189583547756*rw2[rw]*ws[rw]*gnl[rsize*n + rw]*exp(-eta*rw2[rw]);
                 }
             }
         }
         for (int l = 0; l < lMax+1; l++) {
             for (int m = 0; m < l+1; m++) {
                 for (int rw = 0; rw < rsize; rw++) {
-                    C[2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m    ] += rw2[rw]*ws[rw]*gnl[rsize*n + rw]*summed[2*(lMax+1)*l*rsize + 2*m*rsize + 2*rw    ]; // Re
-                    C[2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m + 1] += rw2[rw]*ws[rw]*gnl[rsize*n + rw]*summed[2*(lMax+1)*l*rsize + 2*m*rsize + 2*rw + 1]; //Im
+                    C[2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m    ] += rw2[rw]*ws[rw]*gnl[rsize*gnsize*l + rsize*n + rw]*summed[2*(lMax+1)*l*rsize + 2*m*rsize + 2*rw    ]; // Re
+                    C[2*(lMax+1)*(lMax+1)*n + l*2*(lMax+1) + 2*m + 1] += rw2[rw]*ws[rw]*gnl[rsize*gnsize*l + rsize*n + rw]*summed[2*(lMax+1)*l*rsize + 2*m*rsize + 2*rw + 1]; //Im
                 }
             }
         }
@@ -1877,6 +1877,13 @@ void soapGeneral(
     double* minExp = totrs;
     double* pluExp = totrs;
     double* C = (double*) malloc(2*sd*(lMax+1)*(lMax+1)*nMax);
+
+    int isGTO = 0;
+
+    if(lMax > 99){
+      isGTO = 1;
+      lMax -= 100;
+    }
     
     // Initialize arrays for storing the C coefficients.
     int nCoeffs = 2*(lMax+1)*(lMax+1)*nMax*Nt;
@@ -1931,7 +1938,7 @@ void soapGeneral(
             Flir = getFlir(oO4arri, ris, minExp, pluExp, nNeighbours, rsize, lMax);
             Ylmi = getYlmi(dx, dy, dz, oOri, cf, nNeighbours, lMax);
             summed = getIntegrand(Flir, Ylmi, rsize, nNeighbours, lMax, weights);
-if(lMax>99)
+if(isGTO==1)
             getCl(C, ws, rw2, gss, summed, rCut, lMax, rsize, nMax, nCenters, nNeighbours, eta, weights);
 else 
             getC(C, ws, rw2, gss, summed, rCut, lMax, rsize, nMax, nCenters, nNeighbours, eta, weights);
