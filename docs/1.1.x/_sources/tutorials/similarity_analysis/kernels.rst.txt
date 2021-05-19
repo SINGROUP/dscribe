@@ -35,10 +35,6 @@ metric:
    :language: python
    :lines: 4-26
 
-Best-match kernel
------------------
-TODO
-
 REMatch kernel
 --------------
 The REMatch kernel lets you choose between the best match of local environments

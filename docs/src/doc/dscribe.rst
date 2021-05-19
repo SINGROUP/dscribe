@@ -15,14 +15,10 @@ Subpackages
 Submodules
 ----------
 
-dscribe.ext module
-------------------
+.. toctree::
+   :maxdepth: 4
 
-.. automodule:: dscribe.ext
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
+   dscribe.ext
 
 Module contents
 ---------------

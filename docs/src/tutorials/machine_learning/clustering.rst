@@ -19,19 +19,21 @@ top of the surface. To simplify things, we will only consider a single plane 1
    :align: center
    :width: 50%
 
-   The used copper FCC(111) surface viewed from above.
+   The used copper FCC(111) surface as viewed from above.
 
-This dataset will be used as input for a clustering model. We will use one of the most
-common and simplest models for this: k-means clustering. The goal is to use
+This dataset will be used as input for a clustering model. We will use one of
+the most common and simplest models: k-means clustering. The goal is to use
 this model to categorize all of the sampled sites into a fixed subset of
 clusters. We will fix the number of clusters to ten, but this could be changed
 or even determined dynamically if we used some other clustering algorithm.
 
 As with all forms of unsupervised learning, we do not have the "correct"
-answers that we could optimize our model againsts. There are certain ways to
-measure the clustering model performance even without correctly labeled data,
-but in this simple example we will simply use a setup that provides a
-reasonable result in our opinion: this is essentially biasing our model.
+answers that we could optimize our model againsts. There are certain `ways to
+measure the clustering model performance
+<https://en.wikipedia.org/wiki/Cluster_analysis#Evaluation_and_assessment>`_
+even without correctly labeled data, but in this simple example we will simply
+use a setup that provides a reasonable result in our opinion: this is
+essentially biasing our model.
 
 Dataset generation
 ------------------

@@ -4,22 +4,11 @@ dscribe.core package
 Submodules
 ----------
 
-dscribe.core.lattice module
----------------------------
+.. toctree::
+   :maxdepth: 4
 
-.. automodule:: dscribe.core.lattice
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-dscribe.core.system module
---------------------------
-
-.. automodule:: dscribe.core.system
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
+   dscribe.core.lattice
+   dscribe.core.system
 
 Module contents
 ---------------

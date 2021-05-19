@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>Many-body Tensor Representation &mdash; DScribe 1.1.x documentation</title>
   
@@ -17,7 +17,10 @@
 
   
   
+
   
+  
+
   
 
   
@@ -27,12 +30,12 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
         <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/language_data.js"></script>
         <script src="../../_static/js/versions.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
@@ -96,8 +99,8 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../tutorials.html">Tutorials</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../basics.html">Basic concepts</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="descriptors.html">Descriptors</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../tutorials.html#basics">Basics</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../tutorials.html#descriptors">Descriptors</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="coulomb_matrix.html">Coulomb Matrix</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sine_matrix.html">Sine matrix</a></li>
 <li class="toctree-l3"><a class="reference internal" href="ewald_sum_matrix.html">Ewald sum matrix</a></li>
@@ -112,13 +115,11 @@
 <li class="toctree-l3"><a class="reference internal" href="lmbtr.html">Local Many-body Tensor Representation</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../derivatives.html">Derivatives</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../sparse.html">Sparse output</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../machine_learning/machine_learning.html">Machine learning</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../similarity_analysis/similarity_analysis.html">Similarity analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials.html#machine-learning">Machine Learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials.html#similarity-analysis">Similarity Analysis</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../doc/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../publications.html">Publications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../citing.html">Citing DScribe</a></li>
@@ -164,6 +165,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -172,14 +175,12 @@
         
           <li><a href="../tutorials.html">Tutorials</a> &raquo;</li>
         
-          <li><a href="descriptors.html">Descriptors</a> &raquo;</li>
-        
       <li>Many-body Tensor Representation</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             <a href="../../_sources/tutorials/descriptors/mbtr.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -239,8 +240,8 @@ structure.</p>
 </div>
 <p>The arguments have the following effect:</p>
 <dl class="py method">
-<dt id="dscribe.descriptors.mbtr.MBTR.__init__">
-<code class="sig-prename descclassname">MBTR.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">k1</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">k2</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">k3</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">normalize_gaussians</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">normalization</span><span class="o">=</span><span class="default_value">'none'</span></em>, <em class="sig-param"><span class="n">flatten</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">species</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">periodic</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">sparse</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dscribe/descriptors/mbtr.html#MBTR.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.__init__" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="dscribe.descriptors.mbtr.MBTR.__init__">
+<span class="sig-prename descclassname"><span class="pre">MBTR.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k3</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize_gaussians</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'none'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatten</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dscribe/descriptors/mbtr.html#MBTR.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -361,7 +362,7 @@ where <cite>x</cite> is the perimeter of the triangle formed by the tree atoms.<
 <div class="section" id="creation">
 <h2>Creation<a class="headerlink" href="#creation" title="Permalink to this headline">¶</a></h2>
 <p>After MBTR has been set up, it may be used on atomic structures with the
-<a class="reference internal" href="#dscribe.descriptors.mbtr.MBTR.create" title="dscribe.descriptors.mbtr.MBTR.create"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create()</span></code></a>-method.</p>
+<a class="reference internal" href="../../doc/dscribe.descriptors.mbtr.html#dscribe.descriptors.mbtr.MBTR.create" title="dscribe.descriptors.mbtr.MBTR.create"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create()</span></code></a>-method.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">molecule</span>
 
 <span class="n">water</span> <span class="o">=</span> <span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;H2O&quot;</span><span class="p">)</span>
@@ -375,8 +376,8 @@ where <cite>x</cite> is the perimeter of the triangle formed by the tree atoms.<
 </div>
 <p>The call syntax for the create-function is as follows:</p>
 <dl class="py method">
-<dt id="dscribe.descriptors.mbtr.MBTR.create">
-<code class="sig-prename descclassname">MBTR.</code><code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">n_jobs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">only_physical_cores</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dscribe/descriptors/mbtr.html#MBTR.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.create" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="dscribe.descriptors.mbtr.MBTR.create">
+<span class="sig-prename descclassname"><span class="pre">MBTR.</span></span><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_physical_cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dscribe/descriptors/mbtr.html#MBTR.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.mbtr.MBTR.create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return MBTR output for the given systems.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -412,7 +413,7 @@ returned.</p>
 
 <p>The output will in this case be a numpy array with shape [#positions,
 #features]. The number of features may be requested beforehand with the
-<a class="reference internal" href="../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.get_number_of_features" title="dscribe.descriptors.mbtr.MBTR.get_number_of_features"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_number_of_features()</span></code></a>-method.</p>
+<a class="reference internal" href="../../doc/dscribe.descriptors.mbtr.html#dscribe.descriptors.mbtr.MBTR.get_number_of_features" title="dscribe.descriptors.mbtr.MBTR.get_number_of_features"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_number_of_features()</span></code></a>-method.</p>
 </div>
 <div class="section" id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
@@ -423,7 +424,7 @@ examples are also available in dscribe/examples/mbtr.py.</p>
 <p>If the MBTR setup has been specified with <em>flatten=True</em>, the output is
 flattened into a single vector and it can become difficult to identify which
 parts correspond to which element combinations. To overcome this, the MBTR class
-provides the <a class="reference internal" href="../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.get_location" title="dscribe.descriptors.mbtr.MBTR.get_location"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_location()</span></code></a>-method. This method can be used to
+provides the <a class="reference internal" href="../../doc/dscribe.descriptors.mbtr.html#dscribe.descriptors.mbtr.MBTR.get_location" title="dscribe.descriptors.mbtr.MBTR.get_location"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_location()</span></code></a>-method. This method can be used to
 query for the slice that contains a specific element combination. The following
 example demonstrates its usage.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># The locations of specific element combinations can be retrieved like this.</span>
@@ -665,37 +666,29 @@ of the original cell are involved in forming the pair or triple.</p>
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="lmbtr.html" class="btn btn-neutral float-right" title="Local Many-body Tensor Representation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="soap.html" class="btn btn-neutral float-left" title="Smooth Overlap of Atomic Positions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+        <a href="lmbtr.html" class="btn btn-neutral float-right" title="Local Many-body Tensor Representation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="soap.html" class="btn btn-neutral float-left" title="Smooth Overlap of Atomic Positions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 
+        &#169; Copyright .
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 

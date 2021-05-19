@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>Derivatives &mdash; DScribe 1.1.x documentation</title>
   
@@ -17,7 +17,10 @@
 
   
   
+
   
+  
+
   
 
   
@@ -27,12 +30,11 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
         <script src="../_static/js/versions.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -41,7 +43,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Sparse output" href="sparse.html" />
-    <link rel="prev" title="Local Many-body Tensor Representation" href="descriptors/lmbtr.html" /> 
+    <link rel="prev" title="Basic concepts" href="basics.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -96,19 +98,22 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="tutorials.html">Tutorials</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="basics.html">Basic concepts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="descriptors/descriptors.html">Descriptors</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Derivatives</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#call-signature">Call signature</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#layout">Layout</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="tutorials.html#basics">Basics</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="basics.html">Basic concepts</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Derivatives</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#call-signature">Call signature</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#layout">Layout</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="sparse.html">Sparse output</a></li>
-<li class="toctree-l2"><a class="reference internal" href="machine_learning/machine_learning.html">Machine learning</a></li>
-<li class="toctree-l2"><a class="reference internal" href="similarity_analysis/similarity_analysis.html">Similarity analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sparse.html">Sparse output</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../doc/modules.html">API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials.html#descriptors">Descriptors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials.html#machine-learning">Machine Learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials.html#similarity-analysis">Similarity Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../publications.html">Publications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing DScribe</a></li>
@@ -154,6 +159,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -167,7 +174,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             <a href="../_sources/tutorials/derivatives.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -201,7 +208,7 @@ learning based force-fields, see <a class="reference internal" href="machine_lea
 <div class="section" id="call-signature">
 <h2>Call signature<a class="headerlink" href="#call-signature" title="Permalink to this headline">¶</a></h2>
 <p>The descriptors for which derivatives have been made available have a new
-<code class="code docutils literal notranslate"><span class="pre">derivatives</span></code>-function, see e.g. <a class="reference internal" href="../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.derivatives" title="dscribe.descriptors.soap.SOAP.derivatives"><code class="xref py py-meth docutils literal notranslate"><span class="pre">SOAP.derivatives()</span></code></a>. This function works
+<code class="code docutils literal notranslate"><span class="pre">derivatives</span></code>-function, see e.g. <a class="reference internal" href="../doc/dscribe.descriptors.soap.html#dscribe.descriptors.soap.SOAP.derivatives" title="dscribe.descriptors.soap.SOAP.derivatives"><code class="xref py py-meth docutils literal notranslate"><span class="pre">SOAP.derivatives()</span></code></a>. This function works
 very similarly to the create function and the typical function call signature
 looks like this:</p>
 <blockquote>
@@ -273,37 +280,29 @@ our sparse outputs, see the <a class="reference internal" href="machine_learning
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="sparse.html" class="btn btn-neutral float-right" title="Sparse output" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="descriptors/lmbtr.html" class="btn btn-neutral float-left" title="Local Many-body Tensor Representation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+        <a href="sparse.html" class="btn btn-neutral float-right" title="Sparse output" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="basics.html" class="btn btn-neutral float-left" title="Basic concepts" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 
+        &#169; Copyright .
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 

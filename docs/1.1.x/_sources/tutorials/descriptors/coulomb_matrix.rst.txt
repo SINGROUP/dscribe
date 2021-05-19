@@ -97,8 +97,8 @@ Examples
 The following examples demonstrate usage of the descriptor. These
 examples are also available in dscribe/examples/coulombmatrix.py.
 
-No flattening
-~~~~~~~~~~~~~
+Flattening
+~~~~~~~~~~
 You can control whether the returned array is two-dimensional or
 one-dimensional by using the *flatten*-parameter
 
@@ -107,58 +107,8 @@ one-dimensional by using the *flatten*-parameter
    :start-after: No flattening
    :lines: 1-7
 
-No Sorting
-~~~~~~~~~~~
-By default, CM is sorted by the L2-norm (more on that later). In order to get
-the unsorted CM it is necessary to specify the keyword *permutation = "none"*
-when setting it up.
-
-.. literalinclude:: ../../../../examples/coulombmatrix.py
-   :language: python
-   :start-after: No sorting
-   :lines: 1-8
-
-Zero-padding
-~~~~~~~~~~~~~
-The number of features in CM depends on the size of the system. Since most
-machine learning methods require size-consistent inputs it is convenient to
-define the maximum number of atoms *n_atoms_max* in a dataset. If the structure
-has fewer atoms, the rest of the CM will be zero-padded. One can imagine
-non-interacting ghost atoms as place-holders to ensure the same number of atoms
-in every system.
-
-.. literalinclude:: ../../../../examples/coulombmatrix.py
-   :language: python
-   :start-after: Zero-padding
-   :lines: 1-7
-
-Not meant for periodic systems
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The CM was not designed for periodic systems. If you do add periodic boundary
-conditions, you will see that it does not change the elements.
-
-.. literalinclude:: ../../../../examples/coulombmatrix.py
-   :language: python
-   :start-after: Not meant for periodic systems
-   :lines: 1-12
-
-Instead, the :doc:`Sine Matrix <sine_matrix>` and the `Ewald Matrix
-<ewald_matrix>` have been designed as periodic counterparts to the CM.
-
-Invariance
------------
-A good descriptor should be invariant with respect to translation, rotation and
-permutation. No matter how you translate or rotate it or change the indexing of
-the atoms (not the atom types!), it will still be the same molecule! The
-following lines confirm that this is true for CM.
-
-.. literalinclude:: ../../../../examples/coulombmatrix.py
-   :language: python
-   :start-after: Invariance
-   :lines: 1-20
-
 Options for permutation
------------------------
+~~~~~~~~~~~~~~~~~~~~~~~
 The following snippet introduces the different options for handling permutation
 invariance. See :cite:`cm_versions` for more information on these methods.
 
@@ -190,6 +140,45 @@ invariance. See :cite:`cm_versions` for more information on these methods.
   their absolute value in descending order. On one hand, it is a more compact
   descriptor, but on the other hand, it potentially loses information encoded
   in the CM interactions.
+
+Zero-padding
+~~~~~~~~~~~~~
+The number of features in CM depends on the size of the system. Since most
+machine learning methods require size-consistent inputs it is convenient to
+define the maximum number of atoms *n_atoms_max* in a dataset. If the structure
+has fewer atoms, the rest of the CM will be zero-padded. One can imagine
+non-interacting ghost atoms as place-holders to ensure the same number of atoms
+in every system.
+
+.. literalinclude:: ../../../../examples/coulombmatrix.py
+   :language: python
+   :start-after: Zero-padding
+   :lines: 1-7
+
+Not meant for periodic systems
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The CM was not designed for periodic systems. If you do add periodic boundary
+conditions, you will see that it does not change the elements.
+
+.. literalinclude:: ../../../../examples/coulombmatrix.py
+   :language: python
+   :start-after: Not meant for periodic systems
+   :lines: 1-12
+
+Instead, the :doc:`Sine Matrix <sine_matrix>` and the :doc:`Ewald Sum Matrix
+<ewald_sum_matrix>` have been designed as periodic counterparts to the CM.
+
+Invariance
+~~~~~~~~~~
+A good descriptor should be invariant with respect to translation, rotation and
+permutation. No matter how you translate or rotate it or change the indexing of
+the atoms (not the atom types!), it will still be the same molecule! The
+following lines confirm that this is true for CM.
+
+.. literalinclude:: ../../../../examples/coulombmatrix.py
+   :language: python
+   :start-after: Invariance
+   :lines: 1-20
 
 .. bibliography:: ../../references.bib
    :style: unsrt

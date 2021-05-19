@@ -68,7 +68,7 @@ full source code with examples and regression tests can be explored at `github
 
     install
     tutorials/tutorials
-    API <doc/modules>
+    api
     contributing
     publications
     citing
