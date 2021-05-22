@@ -45,7 +45,7 @@ der, des = soap_desc.derivatives(samples, method="auto", return_descriptor=True)
 
 # Currently implemented descriptors
  | Descriptor                                    |  Spectrum |  Derivatives |
- |-----------------------------------------------|-------------|----------------|
+ |-----------------------------------------------|-----|-------|
  | Coulomb matrix                                | :heavy_check_mark: | |
  | Sine matrix                                   | :heavy_check_mark: | |
  | Ewald matrix                                  | :heavy_check_mark: | |
