@@ -52,7 +52,7 @@ der, des = soap_desc.derivatives(samples, method="auto", return_descriptor=True)
  | Atom-centered Symmetry Functions (ACSF)       | - [x]      | - [ ]         |
  | Smooth Overlap of Atomic Positions (SOAP)     | - [x]      | - [x]         |
  | Many-body Tensor Representation (MBTR)        | - [x]      | - [ ]         |
- | Local Many-body Tensor Representation (LMBTR) | - [x]      | - [ ]         |
+ | Local Many-body Tensor Representation (LMBTR) | - [ ] | - [ ]         |
 
 
 
