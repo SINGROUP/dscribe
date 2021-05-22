@@ -46,13 +46,13 @@ der, des = soap_desc.derivatives(samples, method="auto", return_descriptor=True)
 # Currently implemented descriptors
  | Descriptor                                    |  Spectrum |  Derivatives |
  |-----------------------------------------------|-------------|----------------|
- | Coulomb matrix                                | :heavy_check_mark: | - [ ]         |
- | Sine matrix                                   | - [x]      | - [ ]         |
- | Ewald matrix                                  | - [x]      | - [ ]         |
- | Atom-centered Symmetry Functions (ACSF)       | - [x]      | - [ ]         |
- | Smooth Overlap of Atomic Positions (SOAP)     | - [x]      | - [x]         |
- | Many-body Tensor Representation (MBTR)        | - [x]      | - [ ]         |
- | Local Many-body Tensor Representation (LMBTR) | - [ ] | - [ ]         |
+ | Coulomb matrix                                | :heavy_check_mark: | |
+ | Sine matrix                                   | :heavy_check_mark: | |
+ | Ewald matrix                                  | :heavy_check_mark: | |
+ | Atom-centered Symmetry Functions (ACSF)       | :heavy_check_mark: | |
+ | Smooth Overlap of Atomic Positions (SOAP)     | :heavy_check_mark: |:heavy_check_mark: |
+ | Many-body Tensor Representation (MBTR)        | :heavy_check_mark: | |
+ | Local Many-body Tensor Representation (LMBTR) | :heavy_check_mark: | |
 
 
 
