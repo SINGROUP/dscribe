@@ -44,15 +44,18 @@ der, des = soap_desc.derivatives(samples, method="auto", return_descriptor=True)
 ```
 
 # Currently implemented descriptors
- | Descriptor           | Spectrum | Derivatives |
- | -------------- | -------- | [ ] |
- | Coulomb matrix | [x] | [ ] |
- | Sine matrix    | [x] | [ ] |
- | Ewald matrix   | [x] | [ ] |
- | Atom-centered Symmetry Functions (ACSF) | [x] | [ ] |
- | Smooth Overlap of Atomic Positions (SOAP) | [x] | [x] |
- | Many-body Tensor Representation (MBTR) | [x] | [ ] |
- | Local Many-body Tensor Representation (LMBTR) | [x] | [ ] |
+ | Descriptor                                    | Spectrum | Derivatives |
+ |----------------                               | -------- | [ ]         |
+ | Coulomb matrix                                | [x]      | [ ]         |
+ | Sine matrix                                   | [x]      | [ ]         |
+ | Ewald matrix                                  | [x]      | [ ]         |
+ | Atom-centered Symmetry Functions (ACSF)       | [x]      | [ ]         |
+ | Smooth Overlap of Atomic Positions (SOAP)     | [x]      | [x]         |
+ | Many-body Tensor Representation (MBTR)        | [x]      | [ ]         |
+ | Local Many-body Tensor Representation (LMBTR) | [x]      | [ ]         |
+
+
+
 
 # Installation
 The newest versions of the package are compatible with Python >= 3.6 (tested on
