@@ -56,8 +56,8 @@ H = Atoms(
 
 sigma_num = 0.55
 rcut_num = 2.0
-nmax_num = 2
-lmax_num = 2
+nmax_num = 1
+lmax_num = 1
 pos_num = np.array([[0.0, 0.0, 0.0], [-0.3, 0.5, 0.4]])
 symbols_num = np.array(["H", "C"])
 system_num = Atoms(positions=pos_num, symbols=symbols_num)
@@ -1487,9 +1487,9 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             crossover=True,
             sparse=False,
         )
-        analytical_power_spectrum = soap.create(system, positions=soap_centers_num)[0]
-        alphas = np.reshape(soap._alphas, [10, nmax])
-        betas = np.reshape(soap._betas, [10, nmax, nmax])
+        soap.create(system, positions=soap_centers_num)[0]
+        alphas = np.reshape(soap._alphas, [lmax + 1, nmax])
+        betas = np.reshape(soap._betas, [lmax + 1, nmax, nmax])
 
         positions = system.get_positions()
         symbols = system.get_chemical_symbols()
@@ -1732,20 +1732,40 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         tests these preloaded values are used.
         """
         # Calculate the numerical power spectrum
+        system = Atoms(
+            positions=[
+                [0.0, 0.0, 0.0],
+                [-0.3, 0.5, 0.4],
+                [0.2, 0.2, 0.2],
+                [-0.2, -0.2, -0.2],
+            ],
+            symbols=["H", "C", "H", "C"]
+        )
+        center = [[0, 0, 0]]
+        nmax = 1
+        lmax = 6
+        rcut = 2
+        sigma = 0.35
+
+        import time
+        start = time.time()
         coeffs = self.coefficients_gto(
             system_num,
-            soap_centers_num,
-            nmax=nmax_num,
-            lmax=lmax_num,
-            rcut=rcut_num,
-            sigma=sigma_num,
+            center,
+            nmax=nmax,
+            lmax=lmax,
+            rcut=rcut,
+            sigma=sigma,
+            weighting=None,
         )
+        end = time.time()
+        print(end - start)
         np.save(
             "gto_coefficients_{}_{}_{}_{}.npy".format(
-                nmax_num,
-                lmax_num,
-                rcut_num,
-                sigma_num,
+                nmax,
+                lmax,
+                rcut,
+                sigma,
             ),
             coeffs,
         )
@@ -1796,7 +1816,8 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
 
 if __name__ == "__main__":
-    suites = []
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapTests))
-    alltests = unittest.TestSuite(suites)
-    result = unittest.TextTestRunner(verbosity=0).run(alltests)
+    SoapTests().save_gto_coefficients()
+    # suites = []
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapTests))
+    # alltests = unittest.TestSuite(suites)
+    # result = unittest.TextTestRunner(verbosity=0).run(alltests)
