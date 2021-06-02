@@ -16,7 +16,7 @@ def get_soap_default_setup():
             [0.0, 0.0, 0.0],
             [-0.3, 0.5, 0.4],
         ],
-        symbols=["H", "C"]
+        symbols=["H", "C"],
     )
 
     centers = [
@@ -31,7 +31,7 @@ def get_soap_default_setup():
         "rcut": 2.0,
         "sigma": 0.55,
         "species": ["H", "C"],
-        "crossover": True
+        "crossover": True,
     }
     return [system, centers, soap_arguments]
 
@@ -62,7 +62,7 @@ def get_soap_lmax_setup():
         "rcut": 2.0,
         "sigma": 0.35,
         "species": ["H", "C"],
-        "crossover": True
+        "crossover": True,
     }
     return [system, centers, soap_arguments]
 
@@ -187,9 +187,7 @@ def coefficients_gto(system, centers, args):
                             # Spherical gaussian type orbital
                             i_alpha = alphas[l, 0:nmax]
                             i_beta = betas[l, n, 0:nmax]
-                            gto = (
-                                i_beta * r ** l * np.exp(-i_alpha * r ** 2)
-                            ).sum()
+                            gto = (i_beta * r ** l * np.exp(-i_alpha * r ** 2)).sum()
 
                             # Atomic density
                             rho = 0
@@ -213,9 +211,7 @@ def coefficients_gto(system, centers, args):
                                 )
                             )
                             if weighting:
-                                weights = get_weights(
-                                    np.sqrt(ri_squared), weighting
-                                )
+                                weights = get_weights(np.sqrt(ri_squared), weighting)
                                 rho *= weights
                             rho = rho.sum()
 
@@ -345,9 +341,7 @@ def coefficients_polynomial(system, centers, args):
                                 )
                             )
                             if weighting:
-                                weights = get_weights(
-                                    np.sqrt(ri_squared), weighting
-                                )
+                                weights = get_weights(np.sqrt(ri_squared), weighting)
                                 rho *= weights
                             rho = rho.sum()
 
@@ -404,9 +398,11 @@ def load_gto_coefficients(args):
 
 
 def load_polynomial_coefficients(args):
-    return np.load("polynomial_coefficients_{nmax}_{lmax}_{rcut}_{sigma}.npy".format(**args))
+    return np.load(
+        "polynomial_coefficients_{nmax}_{lmax}_{rcut}_{sigma}.npy".format(**args)
+    )
 
 
 # if __name__ == "__main__":
-    # save_gto_coefficients()
-    # save_poly_coefficients()
+# save_gto_coefficients()
+# save_poly_coefficients()

@@ -35,7 +35,7 @@ from testutils import (
     get_soap_lmax_setup,
     get_soap_default_setup,
     load_gto_coefficients,
-    load_polynomial_coefficients
+    load_polynomial_coefficients,
 )
 
 
@@ -1262,10 +1262,10 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                 analytical_power_spectrum = soap.create(system, positions=centers)
 
                 # Calculate and save the numerical power spectrum to disk
-                filename = "{rbf}_coefficients_{nmax}_{lmax}_{rcut}_{sigma}_{func}.npy".format(
-                    **args,
-                    rbf=rbf,
-                    func=weighting["function"]
+                filename = (
+                    "{rbf}_coefficients_{nmax}_{lmax}_{rcut}_{sigma}_{func}.npy".format(
+                        **args, rbf=rbf, func=weighting["function"]
+                    )
                 )
                 # coeffs = getattr(self, "coefficients_{}".format(rbf))(
                 # system_num,
