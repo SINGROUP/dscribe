@@ -31,6 +31,13 @@ from testbaseclass import TestBaseClass
 from ase import Atoms
 from ase.build import molecule
 
+from testutils import (
+    get_soap_lmax_setup,
+    get_soap_default_setup,
+    load_gto_coefficients,
+    load_polynomial_coefficients
+)
+
 
 H2O = Atoms(
     cell=[[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
@@ -53,21 +60,6 @@ H = Atoms(
     ],
     symbols=["H"],
 )
-
-sigma_num = 0.55
-rcut_num = 2.0
-nmax_num = 1
-lmax_num = 1
-pos_num = np.array([[0.0, 0.0, 0.0], [-0.3, 0.5, 0.4]])
-symbols_num = np.array(["H", "C"])
-system_num = Atoms(positions=pos_num, symbols=symbols_num)
-soap_centers_num = [
-    [0, 0, 0],
-    [1 / 3, 1 / 3, 1 / 3],
-    [2 / 3, 2 / 3, 2 / 3],
-]
-species_num = list(set(system_num.get_atomic_numbers()))
-n_species_num = len(species_num)
 
 
 class SoapTests(TestBaseClass, unittest.TestCase):
@@ -1083,7 +1075,6 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
         # Calculate the overlap integrals
         S = np.zeros((nmax, nmax))
-        l = 0
         for l in range(lmax + 1):
             for i in range(nmax):
                 for j in range(nmax):
@@ -1101,42 +1092,17 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         """Tests the outer averaging (averaging done after calculating power
         spectrum).
         """
-        sys = Atoms(
-            symbols=["H", "C"],
-            positions=[[-1, 0, 0], [1, 0, 0]],
-            cell=[2, 2, 2],
-            pbc=True,
-        )
+        system, centers, args = get_soap_default_setup()
 
         # Create the average output
         for rbf in ["gto", "polynomial"]:
-            desc = SOAP(
-                species=[1, 6, 8],
-                rcut=5,
-                nmax=3,
-                lmax=5,
-                periodic=False,
-                rbf=rbf,
-                crossover=True,
-                average="outer",
-                sparse=False,
-            )
-            average = desc.create(sys)
+            desc = SOAP(**args, rbf=rbf, average="outer")
+            average = desc.create(system, centers[0:2])
 
             # Create individual output for both atoms
-            desc = SOAP(
-                species=[1, 6, 8],
-                rcut=5,
-                nmax=3,
-                lmax=5,
-                periodic=False,
-                rbf=rbf,
-                crossover=True,
-                average="off",
-                sparse=False,
-            )
-            first = desc.create(sys, positions=[0])[0, :]
-            second = desc.create(sys, positions=[1])[0, :]
+            desc = SOAP(**args, rbf=rbf, average="off")
+            first = desc.create(system, [centers[0]])[0, :]
+            second = desc.create(system, [centers[1]])[0, :]
 
             # Check that the averaging is done correctly
             assumed_average = (first + second) / 2
@@ -1146,23 +1112,14 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         """Tests the inner averaging (averaging done before calculating power
         spectrum).
         """
+        system, centers, args = get_soap_lmax_setup()
         for rbf in ["gto", "polynomial"]:
             # Calculate the analytical power spectrum
-            soap = SOAP(
-                species=species_num,
-                lmax=lmax_num,
-                nmax=nmax_num,
-                sigma=sigma_num,
-                rcut=rcut_num,
-                rbf=rbf,
-                crossover=True,
-                average="inner",
-                sparse=False,
-            )
-            analytical_inner = soap.create(system_num, positions=soap_centers_num)
+            soap = SOAP(**args, rbf=rbf, average="inner")
+            analytical_inner = soap.create(system, positions=centers)
 
             # Calculate the numerical power spectrum
-            coeffs = getattr(self, "load_{}_coefficients".format(rbf))()
+            coeffs = globals()["load_{}_coefficients".format(rbf)](args)
             numerical_inner = self.get_power_spectrum(coeffs, average="inner")
 
             # print("Numerical: {}".format(numerical_inner))
@@ -1176,28 +1133,13 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         GTO basis corresponds to the easier-to-code but less performant
         numerical integration done with python.
         """
-        positions = np.array([[0.0, 0.0, 0.0], [-0.3, 0.5, 0.4]])
-        symbols = np.array(["H", "C"])
-        system = Atoms(positions=positions, symbols=symbols)
-        species = system.get_atomic_numbers()
-        elements = set(system.get_atomic_numbers())
-        n_elems = len(elements)
-
         # Calculate the analytical power spectrum
-        soap = SOAP(
-            species=species,
-            lmax=lmax_num,
-            nmax=nmax_num,
-            sigma=sigma_num,
-            rcut=rcut_num,
-            rbf="gto",
-            crossover=True,
-            sparse=False,
-        )
-        analytical_power_spectrum = soap.create(system, positions=soap_centers_num)
+        system, centers, args = get_soap_lmax_setup()
+        soap = SOAP(**args, rbf="gto")
+        analytical_power_spectrum = soap.create(system, positions=centers)
 
-        # Calculate the numerical power spectrum
-        coeffs = self.load_gto_coefficients()
+        # Fetch the precalculated numerical power spectrum
+        coeffs = load_gto_coefficients(args)
         numerical_power_spectrum = self.get_power_spectrum(coeffs)
 
         # print("Numerical: {}".format(numerical_power_spectrum))
@@ -1218,20 +1160,12 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         """
         # Calculate mostly analytical (radial part is integrated numerically)
         # power spectrum
-        soap = SOAP(
-            species=species_num,
-            lmax=lmax_num,
-            nmax=nmax_num,
-            sigma=sigma_num,
-            rcut=rcut_num,
-            rbf="polynomial",
-            crossover=True,
-            sparse=False,
-        )
-        analytical_power_spectrum = soap.create(system_num, positions=soap_centers_num)
+        system, centers, args = get_soap_lmax_setup()
+        soap = SOAP(**args, rbf="polynomial")
+        analytical_power_spectrum = soap.create(system, positions=centers)
 
         # Calculate numerical power spectrum
-        coeffs = self.load_polynomial_coefficients()
+        coeffs = load_polynomial_coefficients(args)
         numerical_power_spectrum = self.get_power_spectrum(coeffs)
 
         # print("Numerical: {}".format(numerical_power_spectrum))
@@ -1314,39 +1248,24 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         """Tests that the weighting done with C corresponds to the
         easier-to-code but less performant python version.
         """
+        system, centers, args = get_soap_default_setup()
+
         for rbf in ["gto", "polynomial"]:
             for weighting in [
                 {"function": "poly", "r0": 2, "c": 3, "m": 4},
                 {"function": "pow", "r0": 2, "c": 3, "d": 4, "m": 5},
                 {"function": "exp", "r0": 2, "c": 3, "d": 4},
             ]:
-                lmax_num = 2
-                nmax_num = 2
 
                 # Calculate the analytical power spectrum
-                soap = SOAP(
-                    lmax=lmax_num,
-                    nmax=nmax_num,
-                    sigma=sigma_num,
-                    rcut=rcut_num,
-                    rbf=rbf,
-                    weighting=weighting,
-                    crossover=True,
-                    species=species_num,
-                    sparse=False,
-                )
-                analytical_power_spectrum = soap.create(
-                    system_num, positions=soap_centers_num
-                )
+                soap = SOAP(**args, rbf=rbf, weighting=weighting)
+                analytical_power_spectrum = soap.create(system, positions=centers)
 
                 # Calculate and save the numerical power spectrum to disk
-                filename = "{}_coefficients_{}_{}_{}_{}_{}.npy".format(
-                    rbf,
-                    nmax_num,
-                    lmax_num,
-                    rcut_num,
-                    sigma_num,
-                    weighting["function"],
+                filename = "{rbf}_coefficients_{nmax}_{lmax}_{rcut}_{sigma}_{func}.npy".format(
+                    **args,
+                    rbf=rbf,
+                    func=weighting["function"]
                 )
                 # coeffs = getattr(self, "coefficients_{}".format(rbf))(
                 # system_num,
@@ -1423,401 +1342,9 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             numerical_power_spectrum.append(i_spectrum)
         return numerical_power_spectrum
 
-    def get_weights(self, r, weighting):
-        """Calculates the weights given an array of radials distances and the
-        weighting function setup.
-        """
-        fname = weighting.get("function")
-        w0 = weighting.get("w0")
-        n = r.shape[0]
-
-        # No weighting specified
-        if fname is None and w0 is None:
-            return np.ones(n)
-        else:
-            # No weighting function, only w0
-            if fname is None and w0 is not None:
-                weights = np.ones(n)
-                weights[r == 0] = w0
-                return weights
-            else:
-                if fname == "poly":
-                    r0 = weighting["r0"]
-                    c = weighting["c"]
-                    m = weighting["m"]
-
-                    def f(r):
-                        w = c * np.power(1 + 2 * (r / r0) ** 3 - 3 * (r / r0) ** 2, m)
-                        w[r > r0] = 0
-                        return w
-
-                    func = f
-                elif fname == "pow":
-                    r0 = weighting["r0"]
-                    c = weighting["c"]
-                    d = weighting["d"]
-                    m = weighting["m"]
-                    func = lambda r: c / (d + np.power(r / r0, m))
-                elif fname == "exp":
-                    r0 = weighting["r0"]
-                    c = weighting["c"]
-                    d = weighting["d"]
-                    func = lambda r: c / (d + np.exp(-r / r0))
-
-                # Weighting function and w0
-                weights = func(r)
-                if w0 is not None:
-                    weights[r == 0] = w0
-                return weights
-
-    def coefficients_gto(
-        self, system, soap_centers, nmax, lmax, rcut, sigma, weighting
-    ):
-        """Used to numerically calculate the inner product coefficients of SOAP
-        with GTO radial basis.
-        """
-        # Calculate the analytical power spectrum and the weights and decays of
-        # the radial basis functions.
-        soap = SOAP(
-            species=species_num,
-            lmax=lmax,
-            nmax=nmax,
-            sigma=sigma,
-            rcut=rcut,
-            crossover=True,
-            sparse=False,
-        )
-        soap.create(system, positions=soap_centers_num)[0]
-        alphas = np.reshape(soap._alphas, [lmax + 1, nmax])
-        betas = np.reshape(soap._betas, [lmax + 1, nmax, nmax])
-
-        positions = system.get_positions()
-        symbols = system.get_chemical_symbols()
-        species = system.get_atomic_numbers()
-        elements = set(system.get_atomic_numbers())
-        n_elems = len(elements)
-
-        # Integration limits for radius
-        r1 = 0.0
-        r2 = rcut + 5
-
-        # Integration limits for theta
-        t1 = 0
-        t2 = np.pi
-
-        # Integration limits for phi
-        p1 = 0
-        p2 = 2 * np.pi
-
-        coeffs = np.zeros((len(soap_centers), n_elems, nmax, lmax + 1, 2 * lmax + 1))
-        for i, ipos in enumerate(soap_centers):
-            for iZ, Z in enumerate(elements):
-                indices = np.argwhere(species == Z)[0]
-                elem_pos = positions[indices]
-                # This centers the coordinate system at the soap center
-                elem_pos -= ipos
-                for n in range(nmax):
-                    for l in range(lmax + 1):
-                        for im, m in enumerate(range(-l, l + 1)):
-
-                            # Calculate numerical coefficients
-                            def soap_coeff(phi, theta, r):
-
-                                # Regular spherical harmonic, notice the abs(m)
-                                # needed for constructing the real form
-                                ylm_comp = scipy.special.sph_harm(
-                                    np.abs(m), l, phi, theta
-                                )  # NOTE: scipy swaps phi and theta
-
-                                # Construct real (tesseral) spherical harmonics for
-                                # easier integration without having to worry about
-                                # the imaginary part. The real spherical harmonics
-                                # span the same space, but are just computationally
-                                # easier.
-                                ylm_real = np.real(ylm_comp)
-                                ylm_imag = np.imag(ylm_comp)
-                                if m < 0:
-                                    ylm = np.sqrt(2) * (-1) ** m * ylm_imag
-                                elif m == 0:
-                                    ylm = ylm_comp
-                                else:
-                                    ylm = np.sqrt(2) * (-1) ** m * ylm_real
-
-                                # Spherical gaussian type orbital
-                                i_alpha = alphas[l, 0:nmax]
-                                i_beta = betas[l, n, 0:nmax]
-                                gto = (
-                                    i_beta * r ** l * np.exp(-i_alpha * r ** 2)
-                                ).sum()
-
-                                # Atomic density
-                                rho = 0
-                                ix = elem_pos[:, 0]
-                                iy = elem_pos[:, 1]
-                                iz = elem_pos[:, 2]
-                                ri_squared = ix ** 2 + iy ** 2 + iz ** 2
-                                rho = np.exp(
-                                    -1
-                                    / (2 * sigma ** 2)
-                                    * (
-                                        r ** 2
-                                        + ri_squared
-                                        - 2
-                                        * r
-                                        * (
-                                            np.sin(theta) * np.cos(phi) * ix
-                                            + np.sin(theta) * np.sin(phi) * iy
-                                            + np.cos(theta) * iz
-                                        )
-                                    )
-                                )
-                                if weighting:
-                                    weights = self.get_weights(
-                                        np.sqrt(ri_squared), weighting
-                                    )
-                                    rho *= weights
-                                rho = rho.sum()
-
-                                # Jacobian
-                                jacobian = np.sin(theta) * r ** 2
-
-                                return gto * ylm * rho * jacobian
-
-                            cnlm = tplquad(
-                                soap_coeff,
-                                r1,
-                                r2,
-                                lambda r: t1,
-                                lambda r: t2,
-                                lambda r, theta: p1,
-                                lambda r, theta: p2,
-                                epsabs=0.001,
-                                epsrel=0.001,
-                            )
-                            integral, error = cnlm
-                            coeffs[i, iZ, n, l, im] = integral
-
-        return coeffs
-
-    def coefficients_polynomial(
-        self, system, soap_centers, nmax, lmax, rcut, sigma, weighting
-    ):
-        """Used to numerically calculate the inner product coeffientes of SOAP
-        with polynomial radial basis.
-        """
-        positions = system.get_positions()
-        symbols = system.get_chemical_symbols()
-        species = system.get_atomic_numbers()
-        elements = set(system.get_atomic_numbers())
-        n_elems = len(elements)
-
-        # Integration limits for radius
-        r1 = 0.0
-        r2 = rcut + 5
-
-        # Integration limits for theta
-        t1 = 0
-        t2 = np.pi
-
-        # Integration limits for phi
-        p1 = 0
-        p2 = 2 * np.pi
-
-        # Calculate the overlap of the different polynomial functions in a
-        # matrix S. These overlaps defined through the dot product over the
-        # radial coordinate are analytically calculable: Integrate[(rc - r)^(a
-        # + 2) (rc - r)^(b + 2) r^2, {r, 0, rc}]. Then the weights B that make
-        # the basis orthonormal are given by B=S^{-1/2}
-        S = np.zeros((nmax, nmax))
-        for i in range(1, nmax + 1):
-            for j in range(1, nmax + 1):
-                S[i - 1, j - 1] = (2 * (rcut) ** (7 + i + j)) / (
-                    (5 + i + j) * (6 + i + j) * (7 + i + j)
-                )
-        betas = sqrtm(np.linalg.inv(S))
-
-        coeffs = np.zeros((len(soap_centers), n_elems, nmax, lmax + 1, 2 * lmax + 1))
-        for i, ipos in enumerate(soap_centers):
-            for iZ, Z in enumerate(elements):
-                indices = np.argwhere(species == Z)[0]
-                elem_pos = positions[indices]
-                # This centers the coordinate system at the soap center
-                elem_pos -= ipos
-                for n in range(nmax):
-                    for l in range(lmax + 1):
-                        for im, m in enumerate(range(-l, l + 1)):
-
-                            # Calculate numerical coefficients
-                            def soap_coeff(phi, theta, r):
-
-                                # Regular spherical harmonic, notice the abs(m)
-                                # needed for constructing the real form
-                                ylm_comp = scipy.special.sph_harm(
-                                    np.abs(m), l, phi, theta
-                                )  # NOTE: scipy swaps phi and theta
-
-                                # Construct real (tesseral) spherical harmonics for
-                                # easier integration without having to worry about
-                                # the imaginary part. The real spherical harmonics
-                                # span the same space, but are just computationally
-                                # easier.
-                                ylm_real = np.real(ylm_comp)
-                                ylm_imag = np.imag(ylm_comp)
-                                if m < 0:
-                                    ylm = np.sqrt(2) * (-1) ** m * ylm_imag
-                                elif m == 0:
-                                    ylm = ylm_comp
-                                else:
-                                    ylm = np.sqrt(2) * (-1) ** m * ylm_real
-
-                                # Polynomial basis
-                                poly = 0
-                                for k in range(1, nmax + 1):
-                                    poly += betas[n, k - 1] * (
-                                        rcut - np.clip(r, 0, rcut)
-                                    ) ** (k + 2)
-
-                                # Atomic density
-                                rho = 0
-                                ix = elem_pos[:, 0]
-                                iy = elem_pos[:, 1]
-                                iz = elem_pos[:, 2]
-                                ri_squared = ix ** 2 + iy ** 2 + iz ** 2
-                                rho = np.exp(
-                                    -1
-                                    / (2 * sigma ** 2)
-                                    * (
-                                        r ** 2
-                                        + ri_squared
-                                        - 2
-                                        * r
-                                        * (
-                                            np.sin(theta) * np.cos(phi) * ix
-                                            + np.sin(theta) * np.sin(phi) * iy
-                                            + np.cos(theta) * iz
-                                        )
-                                    )
-                                )
-                                if weighting:
-                                    weights = self.get_weights(
-                                        np.sqrt(ri_squared), weighting
-                                    )
-                                    rho *= weights
-                                rho = rho.sum()
-
-                                # Jacobian
-                                jacobian = np.sin(theta) * r ** 2
-
-                                return poly * ylm * rho * jacobian
-
-                            cnlm = tplquad(
-                                soap_coeff,
-                                r1,
-                                r2,
-                                lambda r: t1,
-                                lambda r: t2,
-                                lambda r, theta: p1,
-                                lambda r, theta: p2,
-                                epsabs=0.0001,
-                                epsrel=0.0001,
-                            )
-                            integral, error = cnlm
-                            coeffs[i, iZ, n, l, im] = integral
-
-        return coeffs
-
-    def save_gto_coefficients(self):
-        """Used to precalculate the numerical SOAP coefficients for a test
-        system. Calculating these takes a significant amount of time, so during
-        tests these preloaded values are used.
-        """
-        # Calculate the numerical power spectrum
-        system = Atoms(
-            positions=[
-                [0.0, 0.0, 0.0],
-                [-0.3, 0.5, 0.4],
-                [0.2, 0.2, 0.2],
-                [-0.2, -0.2, -0.2],
-            ],
-            symbols=["H", "C", "H", "C"]
-        )
-        center = [[0, 0, 0]]
-        nmax = 1
-        lmax = 6
-        rcut = 2
-        sigma = 0.35
-
-        import time
-        start = time.time()
-        coeffs = self.coefficients_gto(
-            system_num,
-            center,
-            nmax=nmax,
-            lmax=lmax,
-            rcut=rcut,
-            sigma=sigma,
-            weighting=None,
-        )
-        end = time.time()
-        print(end - start)
-        np.save(
-            "gto_coefficients_{}_{}_{}_{}.npy".format(
-                nmax,
-                lmax,
-                rcut,
-                sigma,
-            ),
-            coeffs,
-        )
-
-    def save_poly_coefficients(self):
-        """Used to precalculate the numerical SOAP coefficients for a test
-        system. Calculating these takes a significant amount of time, so during
-        tests these preloaded values are used.
-        """
-        # Calculate the numerical power spectrum
-        coeffs = self.coefficients_polynomial(
-            system_num,
-            soap_centers_num,
-            nmax=nmax_num,
-            lmax=lmax_num,
-            rcut=rcut_num,
-            sigma=sigma_num,
-        )
-        np.save(
-            "poly_coefficients_{}_{}_{}_{}.npy".format(
-                nmax_num,
-                lmax_num,
-                rcut_num,
-                sigma_num,
-            ),
-            coeffs,
-        )
-
-    def load_gto_coefficients(self):
-        return np.load(
-            "gto_coefficients_{}_{}_{}_{}.npy".format(
-                nmax_num,
-                lmax_num,
-                rcut_num,
-                sigma_num,
-            )
-        )
-
-    def load_polynomial_coefficients(self):
-        return np.load(
-            "poly_coefficients_{}_{}_{}_{}.npy".format(
-                nmax_num,
-                lmax_num,
-                rcut_num,
-                sigma_num,
-            )
-        )
-
 
 if __name__ == "__main__":
-    SoapTests().save_gto_coefficients()
-    # suites = []
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapTests))
-    # alltests = unittest.TestSuite(suites)
-    # result = unittest.TextTestRunner(verbosity=0).run(alltests)
+    suites = []
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapTests))
+    alltests = unittest.TestSuite(suites)
+    result = unittest.TextTestRunner(verbosity=0).run(alltests)
