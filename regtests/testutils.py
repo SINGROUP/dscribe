@@ -47,11 +47,10 @@ def get_soap_lmax_setup():
         positions=[
             [0.0, 0.0, 0.0],
             [-0.3, 0.5, 0.4],
-            # [0.2, 0.2, 0.2],
-            # # [-0.2, -0.2, -0.2],
+            [0.2, 0.2, 0.2],
+            [-0.2, -0.2, -0.2],
         ],
-        symbols=["H", "C"]
-        # # symbols=["H", "H", "H", "H"]
+        symbols=["H", "H", "H", "H"]
     )
 
     centers = [[0, 0, 0]]
@@ -61,8 +60,8 @@ def get_soap_lmax_setup():
         "lmax": 2,
         "rcut": 2.0,
         "sigma": 0.35,
-        "species": ["H", "C"],
-        "crossover": True,
+        "species": ["H"],
+        "crossover": False,
     }
     return [system, centers, soap_arguments]
 
@@ -134,107 +133,16 @@ def coefficients_gto(system, centers, args):
 
     positions = system.get_positions()
     symbols = system.get_chemical_symbols()
-    species = system.get_atomic_numbers()
-    elements = set(system.get_atomic_numbers())
-    n_elems = len(elements)
+    atomic_numbers = system.get_atomic_numbers()
+    species_ordered = sorted(list(set(atomic_numbers)))
+    n_elems = len(species_ordered)
 
-    # Integration limits for radius
-    r1 = 0.0
-    r2 = rcut + 5
+    def rbf_gto(r, n, l):
+        i_alpha = alphas[l, 0:nmax]
+        i_beta = betas[l, n, 0:nmax]
+        return (i_beta * r ** l * np.exp(-i_alpha * r ** 2)).sum()
 
-    # Integration limits for theta
-    t1 = 0
-    t2 = np.pi
-
-    # Integration limits for phi
-    p1 = 0
-    p2 = 2 * np.pi
-
-    coeffs = np.zeros((len(centers), n_elems, nmax, lmax + 1, 2 * lmax + 1))
-    for i, ipos in enumerate(centers):
-        for iZ, Z in enumerate(elements):
-            indices = np.argwhere(species == Z)[0]
-            elem_pos = positions[indices]
-            # This centers the coordinate system at the soap center
-            elem_pos -= ipos
-            for n in range(nmax):
-                for l in range(lmax + 1):
-                    for im, m in enumerate(range(-l, l + 1)):
-
-                        # Calculate numerical coefficients
-                        def soap_coeff(phi, theta, r):
-
-                            # Regular spherical harmonic, notice the abs(m)
-                            # needed for constructing the real form
-                            ylm_comp = scipy.special.sph_harm(
-                                np.abs(m), l, phi, theta
-                            )  # NOTE: scipy swaps phi and theta
-
-                            # Construct real (tesseral) spherical harmonics for
-                            # easier integration without having to worry about
-                            # the imaginary part. The real spherical harmonics
-                            # span the same space, but are just computationally
-                            # easier.
-                            ylm_real = np.real(ylm_comp)
-                            ylm_imag = np.imag(ylm_comp)
-                            if m < 0:
-                                ylm = np.sqrt(2) * (-1) ** m * ylm_imag
-                            elif m == 0:
-                                ylm = ylm_comp
-                            else:
-                                ylm = np.sqrt(2) * (-1) ** m * ylm_real
-
-                            # Spherical gaussian type orbital
-                            i_alpha = alphas[l, 0:nmax]
-                            i_beta = betas[l, n, 0:nmax]
-                            gto = (i_beta * r ** l * np.exp(-i_alpha * r ** 2)).sum()
-
-                            # Atomic density
-                            rho = 0
-                            ix = elem_pos[:, 0]
-                            iy = elem_pos[:, 1]
-                            iz = elem_pos[:, 2]
-                            ri_squared = ix ** 2 + iy ** 2 + iz ** 2
-                            rho = np.exp(
-                                -1
-                                / (2 * sigma ** 2)
-                                * (
-                                    r ** 2
-                                    + ri_squared
-                                    - 2
-                                    * r
-                                    * (
-                                        np.sin(theta) * np.cos(phi) * ix
-                                        + np.sin(theta) * np.sin(phi) * iy
-                                        + np.cos(theta) * iz
-                                    )
-                                )
-                            )
-                            if weighting:
-                                weights = get_weights(np.sqrt(ri_squared), weighting)
-                                rho *= weights
-                            rho = rho.sum()
-
-                            # Jacobian
-                            jacobian = np.sin(theta) * r ** 2
-
-                            return gto * ylm * rho * jacobian
-
-                        cnlm = tplquad(
-                            soap_coeff,
-                            r1,
-                            r2,
-                            lambda r: t1,
-                            lambda r: t2,
-                            lambda r, theta: p1,
-                            lambda r, theta: p2,
-                            epsabs=0.001,
-                            epsrel=0.001,
-                        )
-                        integral, error = cnlm
-                        coeffs[i, iZ, n, l, im] = integral
-
-    return coeffs
+    return soap_integration(system, centers, args, rbf_gto)
 
 
 def coefficients_polynomial(system, centers, args):
@@ -249,21 +157,9 @@ def coefficients_polynomial(system, centers, args):
 
     positions = system.get_positions()
     symbols = system.get_chemical_symbols()
-    species = system.get_atomic_numbers()
-    elements = set(system.get_atomic_numbers())
-    n_elems = len(elements)
-
-    # Integration limits for radius
-    r1 = 0.0
-    r2 = rcut + 5
-
-    # Integration limits for theta
-    t1 = 0
-    t2 = np.pi
-
-    # Integration limits for phi
-    p1 = 0
-    p2 = 2 * np.pi
+    atomic_numbers = system.get_atomic_numbers()
+    species_ordered = sorted(list(set(atomic_numbers)))
+    n_elems = len(species_ordered)
 
     # Calculate the overlap of the different polynomial functions in a
     # matrix S. These overlaps defined through the dot product over the
@@ -278,10 +174,49 @@ def coefficients_polynomial(system, centers, args):
             )
     betas = sqrtm(np.linalg.inv(S))
 
+    def rbf_polynomial(r, n, l):
+        poly = 0
+        for k in range(1, nmax + 1):
+            poly += betas[n, k - 1] * (
+                rcut - np.clip(r, 0, rcut)
+            ) ** (k + 2)
+        return poly
+
+    return soap_integration(system, centers, args, rbf_polynomial)
+
+
+def soap_integration(system, centers, args, rbf_function):
+    """Used to numerically calculate the inner product coeffientes of SOAP
+    with polynomial radial basis.
+    """
+    nmax = args["nmax"]
+    lmax = args["lmax"]
+    rcut = args["rcut"]
+    sigma = args["sigma"]
+    weighting = args.get("weighting")
+
+    positions = system.get_positions()
+    symbols = system.get_chemical_symbols()
+    atomic_numbers = system.get_atomic_numbers()
+    species_ordered = sorted(list(set(atomic_numbers)))
+    n_elems = len(species_ordered)
+
+    # Integration limits for radius
+    r1 = 0.0
+    r2 = rcut + 5
+
+    # Integration limits for theta
+    t1 = 0
+    t2 = np.pi
+
+    # Integration limits for phi
+    p1 = 0
+    p2 = 2 * np.pi
+
     coeffs = np.zeros((len(centers), n_elems, nmax, lmax + 1, 2 * lmax + 1))
     for i, ipos in enumerate(centers):
-        for iZ, Z in enumerate(elements):
-            indices = np.argwhere(species == Z)[0]
+        for iZ, Z in enumerate(species_ordered):
+            indices = np.argwhere(atomic_numbers == Z).flatten()
             elem_pos = positions[indices]
             # This centers the coordinate system at the soap center
             elem_pos -= ipos
@@ -312,13 +247,6 @@ def coefficients_polynomial(system, centers, args):
                             else:
                                 ylm = np.sqrt(2) * (-1) ** m * ylm_real
 
-                            # Polynomial basis
-                            poly = 0
-                            for k in range(1, nmax + 1):
-                                poly += betas[n, k - 1] * (
-                                    rcut - np.clip(r, 0, rcut)
-                                ) ** (k + 2)
-
                             # Atomic density
                             rho = 0
                             ix = elem_pos[:, 0]
@@ -348,7 +276,7 @@ def coefficients_polynomial(system, centers, args):
                             # Jacobian
                             jacobian = np.sin(theta) * r ** 2
 
-                            return poly * ylm * rho * jacobian
+                            return rbf_function(r, n, l) * ylm * rho * jacobian
 
                         cnlm = tplquad(
                             soap_coeff,
@@ -404,5 +332,5 @@ def load_polynomial_coefficients(args):
 
 
 # if __name__ == "__main__":
-# save_gto_coefficients()
-# save_poly_coefficients()
+    # save_gto_coefficients()
+    # save_poly_coefficients()

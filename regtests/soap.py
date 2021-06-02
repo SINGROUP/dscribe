@@ -1120,7 +1120,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
             # Calculate the numerical power spectrum
             coeffs = globals()["load_{}_coefficients".format(rbf)](args)
-            numerical_inner = self.get_power_spectrum(coeffs, average="inner")
+            numerical_inner = self.get_power_spectrum(coeffs, crossover=args["crossover"], average="inner")
 
             # print("Numerical: {}".format(numerical_inner))
             # print("Analytical: {}".format(analytical_inner))
@@ -1140,7 +1140,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
         # Fetch the precalculated numerical power spectrum
         coeffs = load_gto_coefficients(args)
-        numerical_power_spectrum = self.get_power_spectrum(coeffs)
+        numerical_power_spectrum = self.get_power_spectrum(coeffs, crossover=args["crossover"])
 
         # print("Numerical: {}".format(numerical_power_spectrum))
         # print("Analytical: {}".format(analytical_power_spectrum))
@@ -1166,7 +1166,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
         # Calculate numerical power spectrum
         coeffs = load_polynomial_coefficients(args)
-        numerical_power_spectrum = self.get_power_spectrum(coeffs)
+        numerical_power_spectrum = self.get_power_spectrum(coeffs, crossover=args["crossover"])
 
         # print("Numerical: {}".format(numerical_power_spectrum))
         # print("Analytical: {}".format(analytical_power_spectrum))
@@ -1280,7 +1280,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
                 # Load coefficients from disk
                 coeffs = np.load(filename)
-                numerical_power_spectrum = self.get_power_spectrum(coeffs)
+                numerical_power_spectrum = self.get_power_spectrum(coeffs, crossover=args["crossover"])
 
                 # print("Numerical: {}".format(numerical_power_spectrum))
                 # print("Analytical: {}".format(analytical_power_spectrum))
@@ -1293,7 +1293,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                     )
                 )
 
-    def get_power_spectrum(self, coeffs, average="off"):
+    def get_power_spectrum(self, coeffs, crossover=True, average="off"):
         """Given the expansion coefficients, returns the power spectrum."""
         numerical_power_spectrum = []
         shape = coeffs.shape
@@ -1304,7 +1304,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         for i in range(n_centers):
             i_spectrum = []
             for zi in range(n_species):
-                for zj in range(zi, n_species):
+                for zj in range(zi, n_species if crossover else zi + 1):
                     if zi == zj:
                         for l in range(lmax + 1):
                             for ni in range(nmax):
