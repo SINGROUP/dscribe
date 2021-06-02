@@ -50,7 +50,7 @@ def get_soap_lmax_setup():
             [0.2, 0.2, 0.2],
             [-0.2, -0.2, -0.2],
         ],
-        symbols=["H", "H", "H", "H"]
+        symbols=["H", "H", "H", "H"],
     )
 
     centers = [[0, 0, 0]]
@@ -177,9 +177,7 @@ def coefficients_polynomial(system, centers, args):
     def rbf_polynomial(r, n, l):
         poly = 0
         for k in range(1, nmax + 1):
-            poly += betas[n, k - 1] * (
-                rcut - np.clip(r, 0, rcut)
-            ) ** (k + 2)
+            poly += betas[n, k - 1] * (rcut - np.clip(r, 0, rcut)) ** (k + 2)
         return poly
 
     return soap_integration(system, centers, args, rbf_polynomial)
@@ -332,5 +330,5 @@ def load_polynomial_coefficients(args):
 
 
 # if __name__ == "__main__":
-    # save_gto_coefficients()
-    # save_poly_coefficients()
+# save_gto_coefficients()
+# save_poly_coefficients()

@@ -1120,7 +1120,9 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
             # Calculate the numerical power spectrum
             coeffs = globals()["load_{}_coefficients".format(rbf)](args)
-            numerical_inner = self.get_power_spectrum(coeffs, crossover=args["crossover"], average="inner")
+            numerical_inner = self.get_power_spectrum(
+                coeffs, crossover=args["crossover"], average="inner"
+            )
 
             # print("Numerical: {}".format(numerical_inner))
             # print("Analytical: {}".format(analytical_inner))
@@ -1140,7 +1142,9 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
         # Fetch the precalculated numerical power spectrum
         coeffs = load_gto_coefficients(args)
-        numerical_power_spectrum = self.get_power_spectrum(coeffs, crossover=args["crossover"])
+        numerical_power_spectrum = self.get_power_spectrum(
+            coeffs, crossover=args["crossover"]
+        )
 
         # print("Numerical: {}".format(numerical_power_spectrum))
         # print("Analytical: {}".format(analytical_power_spectrum))
@@ -1166,7 +1170,9 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
         # Calculate numerical power spectrum
         coeffs = load_polynomial_coefficients(args)
-        numerical_power_spectrum = self.get_power_spectrum(coeffs, crossover=args["crossover"])
+        numerical_power_spectrum = self.get_power_spectrum(
+            coeffs, crossover=args["crossover"]
+        )
 
         # print("Numerical: {}".format(numerical_power_spectrum))
         # print("Analytical: {}".format(analytical_power_spectrum))
@@ -1280,7 +1286,9 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
                 # Load coefficients from disk
                 coeffs = np.load(filename)
-                numerical_power_spectrum = self.get_power_spectrum(coeffs, crossover=args["crossover"])
+                numerical_power_spectrum = self.get_power_spectrum(
+                    coeffs, crossover=args["crossover"]
+                )
 
                 # print("Numerical: {}".format(numerical_power_spectrum))
                 # print("Analytical: {}".format(analytical_power_spectrum))
