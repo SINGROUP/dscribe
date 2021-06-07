@@ -44,7 +44,7 @@ PYBIND11_MODULE(ext, m) {
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double> >()(&SOAPPolynomial::create, py::const_))
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<bool>, py::array_t<double> >()(&SOAPPolynomial::create, py::const_))
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, CellList>()(&SOAPPolynomial::create, py::const_))
-        .def("derivatives_numerical", &SOAPGTO::derivatives_numerical);
+        .def("derivatives_numerical", &SOAPPolynomial::derivatives_numerical);
 
     // ACSF
     py::class_<ACSF>(m, "ACSFWrapper")

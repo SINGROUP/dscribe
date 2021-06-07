@@ -610,6 +610,7 @@ class SOAP(Descriptor):
         exclude=None,
         method="auto",
         return_descriptor=True,
+        attach=False,
         n_jobs=1,
         only_physical_cores=False,
         verbose=False,
@@ -620,10 +621,12 @@ class SOAP(Descriptor):
             system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or
                 many atomic structures.
             positions (list): Positions where to calculate the descriptor. Can be
-                provided as cartesian positions or atomic indices. If no
-                positions are defined, the descriptor output will be created for all
-                atoms in the system. When calculating descriptor for multiple
-                systems, provide the positions as a list for each system.
+                provided as cartesian positions or atomic indices. Also see the
+                "attach"-argument that controls the interperation of locations
+                given as atomic indices. If no positions are defined, the
+                descriptor output will be created for all atoms in the system.
+                When calculating descriptor for multiple systems, provide the
+                positions as a list for each system.
             include (list): Indices of atoms to compute the derivatives on.
                 When calculating descriptor for multiple systems, provide
                 either a one-dimensional list that if applied to all systems or
@@ -637,6 +640,13 @@ class SOAP(Descriptor):
             method (str): The method for calculating the derivatives. Provide
                 either 'numerical', 'analytical' or 'auto'. If using 'auto',
                 the most efficient available method is automatically chosen.
+            attach (bool): Controls the behaviour of positions defined as
+                atomic indices. If True, the positions tied to an atomic index will
+                move together with the atoms with respect to which the derivatives
+                are calculated against. If False, positions defined as atomic
+                indices will be converted into cartesian locations that are
+                completely independent of the atom location during derivative
+                calculation.
             return_descriptor (bool): Whether to also calculate the descriptor
                 in the same function call. Notice that it typically is faster
                 to calculate both in one go.
@@ -690,10 +700,14 @@ class SOAP(Descriptor):
                 "Analytical derivatives not currently available for polynomial "
                 "radial basis set."
             )
+        if attach and method == "analytical":
+            raise ValueError(
+                "Analytical derivatives not currently available when attach=True."
+            )
 
         # Determine the appropriate method if not given explicitly.
         if method == "auto":
-            if self._rbf == "polynomial" or self.average != "off":
+            if self._rbf == "polynomial" or self.average != "off" or attach:
                 method = "numerical"
             else:
                 method = "analytical"
@@ -707,6 +721,7 @@ class SOAP(Descriptor):
                 positions,
                 indices,
                 method=method,
+                attach=attach,
                 return_descriptor=return_descriptor,
             )
 
@@ -755,6 +770,7 @@ class SOAP(Descriptor):
                 positions,
                 indices,
                 [method] * n_samples,
+                [attach] * n_samples,
                 [return_descriptor] * n_samples,
             )
         )
@@ -801,7 +817,7 @@ class SOAP(Descriptor):
         return output
 
     def derivatives_single(
-        self, system, positions, indices, method="numerical", return_descriptor=True
+        self, system, positions, indices, method="numerical", attach=False, return_descriptor=True
     ):
         """Return the SOAP output for the given system and given positions.
 
@@ -817,6 +833,13 @@ class SOAP(Descriptor):
             method (str): 'numerical' or 'analytical' derivatives. Numerical
                 derivatives are implemented with central finite difference. If
                 not specified, analytical derivatives are used when available.
+            attach (bool): Controls the behaviour of positions defined as
+                atomic indices. If True, the positions tied to an atomic index will
+                move together with the atoms with respect to which the derivatives
+                are calculated against. If False, positions defined as atomic
+                indices will be converted into cartesian locations that are
+                completely independent of the atom location during derivative
+                calculation.
             return_descriptor (bool): Whether to also calculate the descriptor
                 in the same function call. This is true by default as it
                 typically is faster to calculate both in one go.
@@ -883,6 +906,7 @@ class SOAP(Descriptor):
                     centers,
                     center_indices,
                     indices,
+                    attach,
                     return_descriptor,
                 )
             # Calculate analytically with extension
@@ -949,6 +973,7 @@ class SOAP(Descriptor):
                     centers,
                     center_indices,
                     indices,
+                    attach,
                     return_descriptor,
                 )
 

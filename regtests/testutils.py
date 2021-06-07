@@ -1,9 +1,12 @@
 import numpy as np
+import numpy.random
 import scipy
 from scipy.integrate import tplquad
 from scipy.linalg import sqrtm
 from ase import Atoms
+from ase.visualize import view
 from dscribe.descriptors import SOAP
+numpy.random.seed(42)
 
 
 def get_soap_default_setup():
@@ -42,24 +45,27 @@ def get_soap_lmax_setup():
     computation is important because the calculating the numerical benchmark
     values is very expensive.
     """
-    # Calculate the numerical power spectrum
+    x, y, z = np.meshgrid(np.arange(-1, 2), np.arange(-1, 2), np.arange(-1, 2))
+    positions = np.column_stack((x.ravel(), y.ravel(), z.ravel())).astype(float)
+    positions *= 0.5
+    positions[1:, :] += np.random.rand(26, 3) - 0.5
+    # One atom needs to be exactly at origin because it is en exceptional
+    # location that needs to be tested.
+    positions[13, :] = [0, 0, 0]
     system = Atoms(
-        positions=[
-            [0.0, 0.0, 0.0],
-            [-0.3, 0.5, 0.4],
-            [0.2, 0.2, 0.2],
-            [-0.2, -0.2, -0.2],
-        ],
-        symbols=["H", "H", "H", "H"],
+        positions=positions,
+        symbols=len(positions) * ["H"],
     )
+    # view(system)
+    # raise
 
     centers = [[0, 0, 0]]
 
     soap_arguments = {
-        "nmax": 2,
-        "lmax": 2,
+        "nmax": 1,
+        "lmax": 4,
         "rcut": 2.0,
-        "sigma": 0.35,
+        "sigma": 0.25,
         "species": ["H"],
         "crossover": False,
     }
@@ -124,18 +130,17 @@ def coefficients_gto(system, centers, args):
     sigma = args["sigma"]
     weighting = args.get("weighting")
 
-    # Calculate the analytical power spectrum and the weights and decays of
-    # the radial basis functions.
-    soap = SOAP(**args)
-    soap.create(system, positions=centers)
-    alphas = np.reshape(soap._alphas, [lmax + 1, nmax])
-    betas = np.reshape(soap._betas, [lmax + 1, nmax, nmax])
-
     positions = system.get_positions()
     symbols = system.get_chemical_symbols()
     atomic_numbers = system.get_atomic_numbers()
     species_ordered = sorted(list(set(atomic_numbers)))
     n_elems = len(species_ordered)
+
+    # Calculate the weights and decays of the radial basis functions.
+    soap = SOAP(**args)
+    soap.create(system, positions=centers)
+    alphas = np.reshape(soap._alphas, [lmax + 1, nmax])
+    betas = np.reshape(soap._betas, [lmax + 1, nmax, nmax])
 
     def rbf_gto(r, n, l):
         i_alpha = alphas[l, 0:nmax]
@@ -284,8 +289,8 @@ def soap_integration(system, centers, args, rbf_function):
                             lambda r: t2,
                             lambda r, theta: p1,
                             lambda r, theta: p2,
-                            epsabs=0.0001,
-                            epsrel=0.0001,
+                            epsabs=1e-6,
+                            epsrel=1e-4
                         )
                         integral, error = cnlm
                         coeffs[i, iZ, n, l, im] = integral
@@ -329,6 +334,6 @@ def load_polynomial_coefficients(args):
     )
 
 
-# if __name__ == "__main__":
-# save_gto_coefficients()
-# save_poly_coefficients()
+if __name__ == "__main__":
+    # save_gto_coefficients()
+    save_poly_coefficients()

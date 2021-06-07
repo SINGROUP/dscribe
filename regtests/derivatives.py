@@ -423,7 +423,7 @@ class SoapDerivativeTests(unittest.TestCase):
         a = 1
         system = (
             Atoms(
-                symbols=["C", "H", "O"],
+                symbols=["C", "C", "C"],
                 cell=[[0, a, a], [a, 0, a], [a, a, 0]],
                 scaled_positions=[
                     [0, 0, 0],
@@ -434,10 +434,10 @@ class SoapDerivativeTests(unittest.TestCase):
             )
             * (3, 3, 3)
         )
-        # view(system)
 
         # Two centers: one in the middle, one on the edge.
-        centers = [np.sum(system.get_cell(), axis=0) / 2, [0, 0, 0]]
+        centers = [np.sum(system.get_cell(), axis=0) / 2, 0]
+        centers_fixed = [system.get_positions()[x] if isinstance(x, int) else x for x in centers]
 
         h = 0.0001
         n_atoms = len(system)
@@ -449,71 +449,73 @@ class SoapDerivativeTests(unittest.TestCase):
         # equal (~1e-5) when the size of the system is increased.
         for periodic in [False]:
             for rbf in ["gto", "polynomial"]:
-                for average in ["off", "outer", "inner"]:
-                    soap = SOAP(
-                        species=[1, 8, 6],
-                        rcut=3,
-                        nmax=4,
-                        lmax=4,
-                        rbf=rbf,
-                        sparse=False,
-                        average=average,
-                        crossover=True,
-                        periodic=periodic,
-                        dtype="float64",  # The numerical derivatives require double precision
-                    )
-                    n_features = soap.get_number_of_features()
-                    if average != "off":
-                        n_centers = 1
-                        derivatives_python = np.zeros((n_atoms, n_comp, n_features))
-                    else:
-                        n_centers = len(centers)
-                        derivatives_python = np.zeros(
-                            (n_centers, n_atoms, n_comp, n_features)
+                for average in ["off"]:
+                # for average in ["off", "outer", "inner"]:
+                    for attach in [False, True]:
+                        soap = SOAP(
+                            species=[6],
+                            rcut=3,
+                            nmax=4,
+                            lmax=4,
+                            rbf=rbf,
+                            sparse=False,
+                            average=average,
+                            crossover=True,
+                            periodic=periodic,
+                            dtype="float64",  # The numerical derivatives require double precision
                         )
-                    d0 = soap.create(system, centers)
-                    coeffs = [-1.0 / 2.0, 1.0 / 2.0]
-                    deltas = [-1.0, 1.0]
-                    for i_atom in range(len(system)):
-                        for i_center in range(n_centers):
-                            for i_comp in range(3):
-                                for i_stencil in range(2):
-                                    if average == "off":
-                                        i_cent = [centers[i_center]]
-                                    else:
-                                        i_cent = centers
-                                    system_disturbed = system.copy()
-                                    i_pos = system_disturbed.get_positions()
-                                    i_pos[i_atom, i_comp] += h * deltas[i_stencil]
-                                    system_disturbed.set_positions(i_pos)
-                                    d1 = soap.create(system_disturbed, i_cent)
-                                    if average != "off":
-                                        derivatives_python[i_atom, i_comp, :] += (
-                                            coeffs[i_stencil] * d1 / h
-                                        )
-                                    else:
-                                        derivatives_python[
-                                            i_center, i_atom, i_comp, :
-                                        ] += (coeffs[i_stencil] * d1[0, :] / h)
+                        n_features = soap.get_number_of_features()
+                        if average != "off":
+                            n_centers = 1
+                            derivatives_python = np.zeros((n_atoms, n_comp, n_features))
+                        else:
+                            n_centers = len(centers)
+                            derivatives_python = np.zeros(
+                                (n_centers, n_atoms, n_comp, n_features)
+                            )
+                        d0 = soap.create(system, centers)
+                        coeffs = [-1.0 / 2.0, 1.0 / 2.0]
+                        deltas = [-1.0, 1.0]
+                        for i_atom in range(len(system)):
+                            for i_center in range(n_centers):
+                                for i_comp in range(3):
+                                    for i_stencil in range(2):
+                                        if average == "off":
+                                            i_cent = [centers[i_center]] if attach else [centers_fixed[i_center]]
+                                        else:
+                                            i_cent = centers if attach else centers_fixed
+                                        system_disturbed = system.copy()
+                                        i_pos = system_disturbed.get_positions()
+                                        i_pos[i_atom, i_comp] += h * deltas[i_stencil]
+                                        system_disturbed.set_positions(i_pos)
+                                        d1 = soap.create(system_disturbed, i_cent)
+                                        if average != "off":
+                                            derivatives_python[i_atom, i_comp, :] += (
+                                                coeffs[i_stencil] * d1 / h
+                                            )
+                                        else:
+                                            derivatives_python[
+                                                i_center, i_atom, i_comp, :
+                                            ] += (coeffs[i_stencil] * d1[0, :] / h)
 
-                    # Calculate with central finite difference implemented in C++.
-                    # Try both cartesian centers and indices.
-                    for c in [centers]:
-                        derivatives_cpp, d_cpp = soap.derivatives(
-                            system, positions=c, method="numerical"
-                        )
+                        # Calculate with central finite difference implemented in C++.
+                        # Try both cartesian centers and indices.
+                        for c in [centers]:
+                            derivatives_cpp, d_cpp = soap.derivatives(
+                                system, positions=c, attach=attach, method="numerical"
+                            )
 
-                        # Test that descriptor values are correct
-                        # print(np.abs(d0-d_cpp).max())
-                        self.assertTrue(np.allclose(d0, d_cpp, atol=1e-6))
+                            # Test that descriptor values are correct
+                            # print(np.abs(d0-d_cpp).max())
+                            self.assertTrue(np.allclose(d0, d_cpp, atol=1e-6))
 
-                        # Compare values
-                        # print(np.abs(derivatives_python).max())
-                        # print(derivatives_python[0,1,:,:])
-                        # print(derivatives_cpp[0,0,:,:])
-                        self.assertTrue(
-                            np.allclose(derivatives_python, derivatives_cpp, atol=2e-5)
-                        )
+                            # Compare values
+                            # print(np.abs(derivatives_python).max())
+                            # print(derivatives_python[0:2, 0:2, 0, 0])
+                            # print(derivatives_cpp[0:2, 0:2, 0, 0])
+                            self.assertTrue(
+                                np.allclose(derivatives_python, derivatives_cpp, atol=2e-5)
+                            )
 
     def test_sparse(self):
         """Test that the sparse values are identical to the dense ones."""
@@ -697,10 +699,11 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    suites = []
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
-    suites.append(
-        unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests)
-    )
-    alltests = unittest.TestSuite(suites)
-    result = unittest.TextTestRunner(verbosity=0).run(alltests)
+    SoapDerivativeTests().test_numerical()
+    # suites = []
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
+    # suites.append(
+        # unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests)
+    # )
+    # alltests = unittest.TestSuite(suites)
+    # result = unittest.TextTestRunner(verbosity=0).run(alltests)
