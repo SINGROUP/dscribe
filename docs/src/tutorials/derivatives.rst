@@ -25,7 +25,8 @@ very similarly to the create function and the typical function call signature
 looks like this:
 
  - :code:`systems`: one or multiple atomic systems
- - :code:`(positions)`: Optional, for local descriptors. 
+ - :code:`positions`: For local descriptors: the positions at which the
+   descriptor is evaluated.
  - :code:`include`: Indices of the atoms which should be included in the
    derivative calculations. If no value is specified, all atoms will be used.
  - :code:`exclude`: Indices of atoms which should be excluded from the
@@ -38,6 +39,12 @@ looks like this:
    available/implemented (check the descriptor documentation). The numerical
    derivatives are implemented with a centered finite difference scheme that
    has a good balance between accuracy and speed.
+ - :code:`attach`: For local descriptors: controls the behaviour of positions
+   defined as atomic indices. If True, the positions tied to an atomic index
+   will move together with the atoms with respect to which the derivatives are
+   calculated against. If False, positions defined as atomic indices will be
+   converted into cartesian locations that are completely independent of the
+   atom location during derivative calculation.
  - :code:`return_descriptor`: Whether or not to return the descriptor as well.
    If you anyways need to compute the descriptor, it is typically faster to use
    this option instead of a separate :code:`create`-call. 
@@ -76,7 +83,7 @@ regular numpy array. Notice that the size of these dense arrays grows very
 quickly with system size. A good way around this is to use sparse arrays
 instead by using the :code:`sparse=True` option in the descriptor constructor.
 In large systems the derivative array will typically become quite sparse,
-giving significant savings in storage space. Since 1.0.x we have opted to use
+giving significant savings in storage space. Since 1.0.0 we have opted to use
 the `sparse <https://sparse.pydata.org/en/stable/>`_-library for all of
 our sparse outputs, see the :doc:`documentation page on sparse output
 <machine_learning/forces_and_energies>`.

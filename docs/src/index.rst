@@ -22,7 +22,8 @@ similarity analysis, etc. To get started you can check the :doc:`basic tutorial
    customized weighting of the atomic density through weighting functions.
    Please check out the updated :doc:`SOAP tutorial
    <tutorials/descriptors/soap>` to learn more about these
-   changes.
+   changes. Also check out :doc:`the new tutorial on using DScribe for clustering
+   <tutorials/machine_learning/clustering>`.
 
 .. note::
    We are incrementally adding support for calculating the derivatives of
@@ -34,7 +35,7 @@ similarity analysis, etc. To get started you can check the :doc:`basic tutorial
    forces using these derivatives.
 
 .. note::
-   Version **1.0.x** introduces some improvements that are not directly
+   Version **1.0.0** introduces some improvements that are not directly
    backwards compatible with previous versions. Check the :doc:`changelog
    <changelog>` for details.
 

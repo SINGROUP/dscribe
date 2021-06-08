@@ -28,7 +28,7 @@ Code style guideline
 --------------------
   - We follow the `Black code style
     <https://black.readthedocs.io/en/stable/?badge=stable>`_,
-    which is a PEP 8 compliant. The good thing about Black is that you can
+    which is PEP 8 compliant. The good thing about Black is that you can
     simply run the autoformatter to ensure that you fullfill the code style.
     Before committing (or using pre-commit hooks), you should simply run the
     automatic formatting. Any unformatted code will be caught by the style

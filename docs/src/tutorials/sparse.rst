@@ -7,7 +7,7 @@ possibility of creating the output in a sparse format. The sparse output simply
 means that only non-zero entries are stored. This can create significant
 savings in both RAM and disk usage.
 
-From version 1.0.x onwards, the sparse output uses the :code:`sparse.COO` class
+From version 1.0.0 onwards, the sparse output uses the :code:`sparse.COO` class
 from the `sparse library <https://sparse.pydata.org/en/stable/>`_. The main
 benefit compared to e.g. the sparse formats provided by scipy is that
 :code:`sparse.COO` supports n-dimensional sparse output with a convenient
