@@ -155,7 +155,8 @@ void Descriptor::derivatives_numerical(
             continue;
         }
 
-        // Find the center(s) that need to be moved together with this atoms.
+        // If attach = true, find the center(s) that need to be moved together
+        // with this atom.
         vector<int> centers_to_move;
         if (attach) {
             auto center_true_indices_u = center_true_indices.unchecked<1>();
@@ -173,9 +174,10 @@ void Descriptor::derivatives_numerical(
         // calculation it is not as simple, so for now we simply use all
         // centers.
         int n_centers;
-        py::array_t<double> centers_local_pos({n_locals, 3});
-        auto centers_local_pos_mu = centers_local_pos.mutable_unchecked<2>();
+        py::array_t<double> centers_local_pos;
         if (this->average == "off") {
+            centers_local_pos = py::array_t<double>({n_locals, 3});
+            auto centers_local_pos_mu = centers_local_pos.mutable_unchecked<2>();
             for (int i_local = 0; i_local < n_locals; ++i_local) {
                 int i_local_idx = centers_local_idx[i_local];
                 for (int i_comp = 0; i_comp < 3; ++i_comp) {
@@ -188,6 +190,7 @@ void Descriptor::derivatives_numerical(
             centers_local_idx = vector<int>{0};
             n_centers = 1;
         }
+        auto centers_local_pos_mu = centers_local_pos.mutable_unchecked<2>();
 
         // Create a copy of the original atom position(s). These will be used
         // to reset the positions after each displacement.

@@ -449,8 +449,7 @@ class SoapDerivativeTests(unittest.TestCase):
         # equal (~1e-5) when the size of the system is increased.
         for periodic in [False]:
             for rbf in ["gto", "polynomial"]:
-                for average in ["off"]:
-                # for average in ["off", "outer", "inner"]:
+                for average in ["off", "outer", "inner"]:
                     for attach in [False, True]:
                         soap = SOAP(
                             species=[6],
@@ -498,24 +497,23 @@ class SoapDerivativeTests(unittest.TestCase):
                                                 i_center, i_atom, i_comp, :
                                             ] += (coeffs[i_stencil] * d1[0, :] / h)
 
-                        # Calculate with central finite difference implemented in C++.
-                        # Try both cartesian centers and indices.
-                        for c in [centers]:
-                            derivatives_cpp, d_cpp = soap.derivatives(
-                                system, positions=c, attach=attach, method="numerical"
-                            )
+                        # Calculate with central finite difference implemented
+                        # in C++.
+                        derivatives_cpp, d_cpp = soap.derivatives(
+                            system, positions=centers, attach=attach, method="numerical"
+                        )
 
-                            # Test that descriptor values are correct
-                            # print(np.abs(d0-d_cpp).max())
-                            self.assertTrue(np.allclose(d0, d_cpp, atol=1e-6))
+                        # Compare descriptor values
+                        # print(np.abs(d0-d_cpp).max())
+                        self.assertTrue(np.allclose(d0, d_cpp, atol=1e-6))
 
-                            # Compare values
-                            # print(np.abs(derivatives_python).max())
-                            # print(derivatives_python[0:2, 0:2, 0, 0])
-                            # print(derivatives_cpp[0:2, 0:2, 0, 0])
-                            self.assertTrue(
-                                np.allclose(derivatives_python, derivatives_cpp, atol=2e-5)
-                            )
+                        # Compare derivative values
+                        # print(np.abs(derivatives_python).max())
+                        # print(derivatives_python[0:2, 0:2, 0, 0])
+                        # print(derivatives_cpp[0:2, 0:2, 0, 0])
+                        self.assertTrue(
+                            np.allclose(derivatives_python, derivatives_cpp, atol=2e-5)
+                        )
 
     def test_sparse(self):
         """Test that the sparse values are identical to the dense ones."""
@@ -699,11 +697,10 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    SoapDerivativeTests().test_numerical()
-    # suites = []
-    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
-    # suites.append(
-        # unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests)
-    # )
-    # alltests = unittest.TestSuite(suites)
-    # result = unittest.TextTestRunner(verbosity=0).run(alltests)
+    suites = []
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeTests))
+    suites.append(
+        unittest.TestLoader().loadTestsFromTestCase(SoapDerivativeComparisonTests)
+    )
+    alltests = unittest.TestSuite(suites)
+    result = unittest.TextTestRunner(verbosity=0).run(alltests)
