@@ -7,6 +7,7 @@ from ase import Atoms
 from ase.visualize import view
 from dscribe.descriptors import SOAP
 from tqdm import tqdm
+
 numpy.random.seed(42)
 
 
@@ -222,7 +223,7 @@ def soap_integration(system, centers, args, rbf_function):
     p2 = 2 * np.pi
 
     coeffs = np.zeros((len(centers), n_elems, nmax, lmax + 1, 2 * lmax + 1))
-    n_steps = len(centers) * len(species_ordered) * nmax * (lmax + 1)**2
+    n_steps = len(centers) * len(species_ordered) * nmax * (lmax + 1) ** 2
     with tqdm(total=n_steps) as pbar:
         for i, ipos in enumerate(centers):
             for iZ, Z in enumerate(species_ordered):
@@ -279,7 +280,9 @@ def soap_integration(system, centers, args, rbf_function):
                                     )
                                 )
                                 if weighting:
-                                    weights = get_weights(np.sqrt(ri_squared), weighting)
+                                    weights = get_weights(
+                                        np.sqrt(ri_squared), weighting
+                                    )
                                     rho *= weights
                                 rho = rho.sum()
 
@@ -297,7 +300,7 @@ def soap_integration(system, centers, args, rbf_function):
                                 lambda r, theta: p1,
                                 lambda r, theta: p2,
                                 epsabs=1e-5,
-                                epsrel=1e-4
+                                epsrel=1e-4,
                             )
                             integral, error = cnlm
                             coeffs[i, iZ, n, l, im] = integral

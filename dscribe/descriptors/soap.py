@@ -817,7 +817,13 @@ class SOAP(Descriptor):
         return output
 
     def derivatives_single(
-        self, system, positions, indices, method="numerical", attach=False, return_descriptor=True
+        self,
+        system,
+        positions,
+        indices,
+        method="numerical",
+        attach=False,
+        return_descriptor=True,
     ):
         """Return the SOAP output for the given system and given positions.
 

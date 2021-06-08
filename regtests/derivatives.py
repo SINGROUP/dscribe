@@ -437,7 +437,9 @@ class SoapDerivativeTests(unittest.TestCase):
 
         # Two centers: one in the middle, one on the edge.
         centers = [np.sum(system.get_cell(), axis=0) / 2, 0]
-        centers_fixed = [system.get_positions()[x] if isinstance(x, int) else x for x in centers]
+        centers_fixed = [
+            system.get_positions()[x] if isinstance(x, int) else x for x in centers
+        ]
 
         h = 0.0001
         n_atoms = len(system)
@@ -480,9 +482,15 @@ class SoapDerivativeTests(unittest.TestCase):
                                 for i_comp in range(3):
                                     for i_stencil in range(2):
                                         if average == "off":
-                                            i_cent = [centers[i_center]] if attach else [centers_fixed[i_center]]
+                                            i_cent = (
+                                                [centers[i_center]]
+                                                if attach
+                                                else [centers_fixed[i_center]]
+                                            )
                                         else:
-                                            i_cent = centers if attach else centers_fixed
+                                            i_cent = (
+                                                centers if attach else centers_fixed
+                                            )
                                         system_disturbed = system.copy()
                                         i_pos = system_disturbed.get_positions()
                                         i_pos[i_atom, i_comp] += h * deltas[i_stencil]
