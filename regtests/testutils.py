@@ -7,6 +7,7 @@ from ase import Atoms
 from ase.visualize import view
 from dscribe.descriptors import SOAP
 from tqdm import tqdm
+from joblib import Parallel, delayed
 
 numpy.random.seed(42)
 
@@ -69,7 +70,7 @@ def get_soap_lmax_setup():
     # screened by big fluffy gaussians.
     soap_arguments = {
         "nmax": 1,
-        "lmax": 12,
+        "lmax": 20,
         "rcut": 2.0,
         "sigma": 0.1,
         "species": ["H"],
@@ -210,6 +211,36 @@ def soap_integration(system, centers, args, rbf_function):
     species_ordered = sorted(list(set(atomic_numbers)))
     n_elems = len(species_ordered)
 
+    n_steps = len(centers) * len(species_ordered) * nmax * (lmax + 1) ** 2
+    p_args = []
+    p_index = []
+    for i, ipos in enumerate(centers):
+        for iZ, Z in enumerate(species_ordered):
+            indices = np.argwhere(atomic_numbers == Z).flatten()
+            elem_pos = positions[indices]
+            # This centers the coordinate system at the soap center
+            elem_pos -= ipos
+            for n in range(nmax):
+                for l in range(lmax + 1):
+                    for im, m in enumerate(range(-l, l + 1)):
+                        p_args.append((args, n, l, m, elem_pos, rbf_function))
+                        p_index.append((i, iZ, n, l, im))
+
+    results = Parallel(n_jobs=4, verbose=1)(delayed(integral)(*a) for a in p_args)
+
+    coeffs = np.zeros((len(centers), n_elems, nmax, lmax + 1, 2 * lmax + 1))
+    for index, value in zip(p_index, results):
+        coeffs[index] = value
+    return coeffs
+
+
+def integral(args, n, l, m, elem_pos, rbf_function):
+    nmax = args["nmax"]
+    lmax = args["lmax"]
+    rcut = args["rcut"]
+    sigma = args["sigma"]
+    weighting = args.get("weighting")
+
     # Integration limits for radius
     r1 = 0.0
     r2 = rcut + 5
@@ -222,91 +253,73 @@ def soap_integration(system, centers, args, rbf_function):
     p1 = 0
     p2 = 2 * np.pi
 
-    coeffs = np.zeros((len(centers), n_elems, nmax, lmax + 1, 2 * lmax + 1))
-    n_steps = len(centers) * len(species_ordered) * nmax * (lmax + 1) ** 2
-    with tqdm(total=n_steps) as pbar:
-        for i, ipos in enumerate(centers):
-            for iZ, Z in enumerate(species_ordered):
-                indices = np.argwhere(atomic_numbers == Z).flatten()
-                elem_pos = positions[indices]
-                # This centers the coordinate system at the soap center
-                elem_pos -= ipos
-                for n in range(nmax):
-                    for l in range(lmax + 1):
-                        for im, m in enumerate(range(-l, l + 1)):
+    def soap_coeff(phi, theta, r):
 
-                            # Calculate numerical coefficients
-                            def soap_coeff(phi, theta, r):
+        # Regular spherical harmonic, notice the abs(m)
+        # needed for constructing the real form
+        ylm_comp = scipy.special.sph_harm(
+            np.abs(m), l, phi, theta
+        )  # NOTE: scipy swaps phi and theta
 
-                                # Regular spherical harmonic, notice the abs(m)
-                                # needed for constructing the real form
-                                ylm_comp = scipy.special.sph_harm(
-                                    np.abs(m), l, phi, theta
-                                )  # NOTE: scipy swaps phi and theta
+        # Construct real (tesseral) spherical harmonics for
+        # easier integration without having to worry about
+        # the imaginary part. The real spherical harmonics
+        # span the same space, but are just computationally
+        # easier.
+        ylm_real = np.real(ylm_comp)
+        ylm_imag = np.imag(ylm_comp)
+        if m < 0:
+            ylm = np.sqrt(2) * (-1) ** m * ylm_imag
+        elif m == 0:
+            ylm = ylm_comp
+        else:
+            ylm = np.sqrt(2) * (-1) ** m * ylm_real
 
-                                # Construct real (tesseral) spherical harmonics for
-                                # easier integration without having to worry about
-                                # the imaginary part. The real spherical harmonics
-                                # span the same space, but are just computationally
-                                # easier.
-                                ylm_real = np.real(ylm_comp)
-                                ylm_imag = np.imag(ylm_comp)
-                                if m < 0:
-                                    ylm = np.sqrt(2) * (-1) ** m * ylm_imag
-                                elif m == 0:
-                                    ylm = ylm_comp
-                                else:
-                                    ylm = np.sqrt(2) * (-1) ** m * ylm_real
+        # Atomic density
+        rho = 0
+        ix = elem_pos[:, 0]
+        iy = elem_pos[:, 1]
+        iz = elem_pos[:, 2]
+        ri_squared = ix ** 2 + iy ** 2 + iz ** 2
+        rho = np.exp(
+            -1
+            / (2 * sigma ** 2)
+            * (
+                r ** 2
+                + ri_squared
+                - 2
+                * r
+                * (
+                    np.sin(theta) * np.cos(phi) * ix
+                    + np.sin(theta) * np.sin(phi) * iy
+                    + np.cos(theta) * iz
+                )
+            )
+        )
+        if weighting:
+            weights = get_weights(np.sqrt(ri_squared), weighting)
+            rho *= weights
+        rho = rho.sum()
 
-                                # Atomic density
-                                rho = 0
-                                ix = elem_pos[:, 0]
-                                iy = elem_pos[:, 1]
-                                iz = elem_pos[:, 2]
-                                ri_squared = ix ** 2 + iy ** 2 + iz ** 2
-                                rho = np.exp(
-                                    -1
-                                    / (2 * sigma ** 2)
-                                    * (
-                                        r ** 2
-                                        + ri_squared
-                                        - 2
-                                        * r
-                                        * (
-                                            np.sin(theta) * np.cos(phi) * ix
-                                            + np.sin(theta) * np.sin(phi) * iy
-                                            + np.cos(theta) * iz
-                                        )
-                                    )
-                                )
-                                if weighting:
-                                    weights = get_weights(
-                                        np.sqrt(ri_squared), weighting
-                                    )
-                                    rho *= weights
-                                rho = rho.sum()
+        # Jacobian
+        jacobian = np.sin(theta) * r ** 2
 
-                                # Jacobian
-                                jacobian = np.sin(theta) * r ** 2
+        return rbf_function(r, n, l) * ylm * rho * jacobian
 
-                                return rbf_function(r, n, l) * ylm * rho * jacobian
+    cnlm = tplquad(
+        soap_coeff,
+        r1,
+        r2,
+        lambda r: t1,
+        lambda r: t2,
+        lambda r, theta: p1,
+        lambda r, theta: p2,
+        epsabs=1e-5,
+        epsrel=1e-4,
+    )
+    integral, error = cnlm
 
-                            cnlm = tplquad(
-                                soap_coeff,
-                                r1,
-                                r2,
-                                lambda r: t1,
-                                lambda r: t2,
-                                lambda r, theta: p1,
-                                lambda r, theta: p2,
-                                epsabs=1e-5,
-                                epsrel=1e-4,
-                            )
-                            integral, error = cnlm
-                            coeffs[i, iZ, n, l, im] = integral
-                            pbar.update(1)
-
-    return coeffs
+    return integral
 
 
 def save_gto_coefficients():
