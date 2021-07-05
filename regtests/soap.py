@@ -1351,9 +1351,9 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
 
 if __name__ == "__main__":
-    # SoapTests().test_gto_integration()
+    SoapTests().test_gto_integration()
     # SoapTests().test_poly_integration()
-    suites = []
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapTests))
-    alltests = unittest.TestSuite(suites)
-    result = unittest.TextTestRunner(verbosity=0).run(alltests)
+    # suites = []
+    # suites.append(unittest.TestLoader().loadTestsFromTestCase(SoapTests))
+    # alltests = unittest.TestSuite(suites)
+    # result = unittest.TextTestRunner(verbosity=0).run(alltests)

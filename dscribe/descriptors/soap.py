@@ -67,7 +67,7 @@ class SOAP(Descriptor):
         species=None,
         periodic=False,
         sparse=False,
-        dtype="float32",
+        dtype="float64",
     ):
         """
         Args:
@@ -593,7 +593,7 @@ class SOAP(Descriptor):
             soap_mat = np.squeeze(soap_mat, axis=0)
 
         # Convert to the final output precision.
-        if self.dtype == "float32":
+        if self.dtype != "float64":
             soap_mat = soap_mat.astype(self.dtype)
 
         # Make into a sparse array if requested

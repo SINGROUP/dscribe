@@ -314,7 +314,7 @@ def integral(args, n, l, m, elem_pos, rbf_function):
         lambda r: t2,
         lambda r, theta: p1,
         lambda r, theta: p2,
-        epsabs=1e-5,
+        epsabs=1e-6,
         epsrel=1e-4,
     )
     integral, error = cnlm
@@ -359,5 +359,5 @@ def load_polynomial_coefficients(args):
 
 
 if __name__ == "__main__":
-    save_gto_coefficients()
-    # save_poly_coefficients()
+    # save_gto_coefficients()
+    save_poly_coefficients()
