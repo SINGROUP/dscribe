@@ -443,7 +443,7 @@ class MBTR(Descriptor):
         Args:
             value(str): The normalization method to use.
         """
-        norm_options = set(("l2_each", "none", "n_atoms"))
+        norm_options = set(("l2_each", "none", "n_atoms", "valle_oganov"))
         if value not in norm_options:
             raise ValueError(
                 "Unknown normalization option given. Please use one of the "
@@ -920,6 +920,28 @@ class MBTR(Descriptor):
                 k2[start:end] = gaussian_sum
             else:
                 k2[i, j, :] = gaussian_sum
+
+            # valle_oganov normalization is calculated separately for each pair
+            if self.normalization == "valle_oganov":
+                S = self.system
+                n_elements = len(self.species)
+                V = S.cell.volume
+                imap = self.index_to_atomic_number
+                # calculate the amount of each element for N_A*N_B term
+                amounts = {}           
+                for index, number in imap.items():
+                    amounts[index] = list(S.get_atomic_numbers()).count(number)
+                y = gaussian_sum
+                if i==j:
+                    NANB = amounts[i] * amounts[j]
+                else:
+                    NANB = 0.5 * amounts[i] * amounts[j]
+                y_normed = (y * V) / (NANB*4*np.pi) -1
+                if self.flatten:
+                    k2[start:end] = y_normed
+                else:
+                    k2[i, j, :] = y_normed
+
         if self.flatten:
             k2 = k2.to_coo()
 
@@ -1038,6 +1060,25 @@ class MBTR(Descriptor):
                 k3[start:end] = gaussian_sum
             else:
                 k3[i, j, k, :] = gaussian_sum
+
+            # valle_oganov normalization is calculated separately for each triplet
+            if self.normalization == "valle_oganov":
+                S = self.system
+                n_elements = len(self.species)
+                V = S.cell.volume
+                imap = self.index_to_atomic_number
+                # calculate the amount of each element for N_A*N_B*N_C term
+                amounts = {}                    
+                for index, number in imap.items():
+                    amounts[index] = list(S.get_atomic_numbers()).count(number)
+                y = gaussian_sum
+                NANBNC = amounts[i] * amounts[j] * amounts[k]
+                y_normed = (y * V)/NANBNC
+                if self.flatten:
+                    k3[start:end] = y_normed
+                else:
+                    k3[i, j, k, :] = y_normed
+
         if self.flatten:
             k3 = k3.to_coo()
 
