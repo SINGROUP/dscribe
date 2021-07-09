@@ -319,7 +319,7 @@ class MBTR(Descriptor):
             # Check the weighting function
             weighting = value.get("weighting")
             if weighting is not None:
-                valid_weight_func = set(("unity", "exponential", "exp"))
+                valid_weight_func = set(("unity", "exponential", "exp", "inverse_square"))
                 weight_func = weighting.get("function")
                 if weight_func not in valid_weight_func:
                     raise ValueError(
@@ -337,6 +337,11 @@ class MBTR(Descriptor):
                                         key
                                     )
                                 )
+                    elif weight_func == "inverse_square":
+                        if weighting.get("r_cutoff") is None:
+                            raise ValueError(
+                                    "Missing value for 'r_cutoff' in the k=2 weighting."
+                                    )
 
             # Check grid
             self.check_grid(value["grid"])
@@ -830,6 +835,8 @@ class MBTR(Descriptor):
                 if scale != 0:
                     radial_cutoff = -math.log(cutoff) / scale
                 parameters = {b"scale": scale, b"cutoff": cutoff}
+            elif weighting_function == "inverse_square":
+                radial_cutoff = weighting["r_cutoff"]
         else:
             weighting_function = "unity"
 
@@ -1024,3 +1031,4 @@ class MBTR(Descriptor):
             k3 = k3.to_coo()
 
         return k3
+

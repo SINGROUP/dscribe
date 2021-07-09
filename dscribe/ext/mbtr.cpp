@@ -101,6 +101,8 @@ map<string, vector<float>> MBTR::getK2(const vector<int> &Z, const vector<vector
                         }
                     } else if (weightFunc == "unity") {
                         weight = k2WeightUnity(i, j, distances);
+                    } else if (weightFunc == "inverse_square") {
+                        weight = k2WeightSquare(i, j, distances);
                     } else {
                         throw invalid_argument("Invalid weighting function.");
                     }
@@ -332,6 +334,13 @@ inline float MBTR::k2WeightExponential(const int &i, const int &j, const vector<
     float dist = distances[i][j];
     float expValue = exp(-scale*dist);
     return expValue;
+}
+
+inline float MBTR::k2WeightSquare(const int &i, const int &j, const vector<vector<float> > &distances)
+{
+    float dist = distances[i][j];
+    float value = 1/(dist*dist);
+    return value;
 }
 
 inline float MBTR::k3GeomCosine(const int &i, const int &j, const int &k, const vector<vector<float> > &distances)

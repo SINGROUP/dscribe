@@ -124,6 +124,17 @@ class MBTR {
          */
         float k2WeightExponential(const int &i, const int &j, const vector<vector<float> > &distances, float scale);
         /**
+         * Weighting defined as 1/(x^2), where x is the distance from
+         * A->B.
+         *
+         * @param i Index of first atom.
+         * @param j Index of second atom.
+         * @param distances Distance matrix.
+         *
+         * @return The inverse of distance squared as weight.
+         */
+        float k2WeightSquare(const int &i, const int &j, const vector<vector<float> > &distances);
+        /**
          * Calculates the cosine geometry function defined for k3.
          *
          * @param i Index of first atom.
