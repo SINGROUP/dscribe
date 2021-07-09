@@ -205,6 +205,10 @@ map<string, vector<float> > MBTR::getK3(const vector<int> &Z, const vector<vecto
                                 if (weight < cutoff) {
                                     continue;
                                 }
+                            } else if (weightFunc == "smooth_cutoff") {
+                                float sharpness = parameters.at("sharpness");
+                                float cutoff = parameters.at("cutoff");
+                                weight = k3WeightSmooth(i, j, k, distances, sharpness, cutoff);
                             } else if (weightFunc == "unity") {
                                 weight = k3WeightUnity(i, j, k, distances);
                             } else {
@@ -378,6 +382,16 @@ inline float MBTR::k3WeightExponential(const int &i, const int &j, const int &k,
     float expValue = exp(-scale*distTotal);
 
     return expValue;
+}
+
+inline float MBTR::k3WeightSmooth(const int &i, const int &j, const int &k, const vector<vector<float> > &distances, float sharpness, float cutoff)
+{
+    float dist1 = distances[i][j];
+    float dist2 = distances[i][k];
+    float f_ij = 1 + sharpness* pow((dist1/cutoff), (sharpness+1)) - (sharpness+1)* pow((dist1/cutoff), sharpness);
+    float f_ik = 1 + sharpness* pow((dist2/cutoff), (sharpness+1)) - (sharpness+1)* pow((dist2/cutoff), sharpness);
+
+    return f_ij*f_ik;
 }
 
 inline float MBTR::k3WeightUnity(const int &i, const int &j, const int &k, const vector<vector<float> > &distances)

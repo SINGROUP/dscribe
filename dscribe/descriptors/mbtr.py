@@ -378,7 +378,7 @@ class MBTR(Descriptor):
             # Check the weighting function
             weighting = value.get("weighting")
             if weighting is not None:
-                valid_weight_func = set(("unity", "exponential", "exp"))
+                valid_weight_func = set(("unity", "exponential", "exp", "smooth_cutoff"))
                 weight_func = weighting.get("function")
                 if weight_func not in valid_weight_func:
                     raise ValueError(
@@ -396,7 +396,11 @@ class MBTR(Descriptor):
                                         key
                                     )
                                 )
-
+                    elif weight_func == "smooth_cutoff":
+                        if weighting.get("r_cutoff") is None:
+                            raise ValueError(
+                                    "Missing value for 'r_cutoff' in the k=3 weighting."
+                                    )
             # Check grid
             self.check_grid(value["grid"])
         self._k3 = value
@@ -945,6 +949,13 @@ class MBTR(Descriptor):
                 if scale != 0:
                     radial_cutoff = -0.5 * math.log(cutoff) / scale
                 parameters = {b"scale": scale, b"cutoff": cutoff}
+            if weighting_function == "smooth_cutoff":
+                try:
+                    sharpness = weighting["sharpness"]
+                except:
+                    sharpness = 2
+                radial_cutoff = weighting["r_cutoff"]
+                parameters = {b"sharpness": sharpness, b"cutoff": radial_cutoff}
         else:
             weighting_function = "unity"
 
