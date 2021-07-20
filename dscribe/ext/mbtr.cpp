@@ -357,7 +357,7 @@ inline float MBTR::k3GeomCosine(const int &i, const int &j, const int &k, const 
     float r_jk_square = r_jk*r_jk;
     float cosine = 0.5/(r_jk*r_ji) * (r_ji_square+r_jk_square-r_ik_square);
 
-    // Due to numerical reasons the cosine might be slighlty under -1 or
+    // Due to numerical reasons the cosine might be slightly under -1 or
     // above 1 degrees. E.g. acos is not defined then so we clip the values
     // to prevent NaN:s
     cosine = max(-1.0f, min(cosine, 1.0f));
@@ -387,11 +387,11 @@ inline float MBTR::k3WeightExponential(const int &i, const int &j, const int &k,
 inline float MBTR::k3WeightSmooth(const int &i, const int &j, const int &k, const vector<vector<float> > &distances, float sharpness, float cutoff)
 {
     float dist1 = distances[i][j];
-    float dist2 = distances[i][k];
+    float dist2 = distances[j][k];
     float f_ij = 1 + sharpness* pow((dist1/cutoff), (sharpness+1)) - (sharpness+1)* pow((dist1/cutoff), sharpness);
-    float f_ik = 1 + sharpness* pow((dist2/cutoff), (sharpness+1)) - (sharpness+1)* pow((dist2/cutoff), sharpness);
+    float f_jk = 1 + sharpness* pow((dist2/cutoff), (sharpness+1)) - (sharpness+1)* pow((dist2/cutoff), sharpness);
 
-    return f_ij*f_ik;
+    return f_ij*f_jk;
 }
 
 inline float MBTR::k3WeightUnity(const int &i, const int &j, const int &k, const vector<vector<float> > &distances)

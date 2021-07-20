@@ -92,10 +92,6 @@ class ValleOganov(MBTR):
 
         if k2 is not None:
             # n = k2["r_cutoff"] / k2["delta"] + 1
-            # kasvata r_cutoff niin että n on int
-            # tai muuta deltaa samalla tavalla
-            # tai sitten deltan on pakko olla sellanen että n on tasaluku?
-            # tai ei deltaa ollenkaan????
             k2_temp = {
                 "geometry": {"function": "distance"},
                 "grid": {"min": 0, "max": k2["r_cutoff"], "sigma": k2["sigma"], "n": k2["n"]},
@@ -114,9 +110,6 @@ class ValleOganov(MBTR):
         else:
             k3_temp = None
         
-        # muista gamma
-        # mieluummin KeyError ku ValueError parametreille?
-
         super().__init__(
             species=species, 
             periodic=periodic, 
