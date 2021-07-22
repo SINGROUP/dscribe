@@ -4,17 +4,21 @@ import math
 class ValleOganov(MBTR):
     """Shortcut for implementing the fingerprint descriptor by Valle and Oganov
     for :math:`k=2` and :math:`k=3` using MBTR. Automatically uses the right
-    weightings and normalizes the output.
+    weightings and normalizes the output, and can only be used for periodic systems.
 
     You can choose which terms to include by providing a dictionary in the
     k2 or k3 arguments. This dictionary should contain information
-    under three keys: "sigma", "n" and "r_cutoff".
+    under three keys: "sigma", "n" and "r_cutoff". See the examples below.
+
+    For more information on the weighting and normalization used here as well
+    as the other parameters and general usage of the descriptor, see the MBTR class.
+
+    mbtr asetukset
     """
 
     def __init__(
         self,
         species,
-        periodic,
         k2=None,
         k3=None,
         flatten=True,
@@ -30,10 +34,6 @@ class ValleOganov(MBTR):
                 encountered when creating the descriptors for a set of systems.
                 Keeping the number of chemical species as low as possible is
                 preferable.
-            periodic (bool): Set to true if you want the descriptor output to
-                respect the periodicity of the atomic systems (see the
-                pbc-parameter in the constructor of ase.Atoms).
-
             k2 (dict): Dictionary containing the setup for the k=2 term.
                 Contains setup for the discretization and radial cutoff.
                 For example::
@@ -112,7 +112,7 @@ class ValleOganov(MBTR):
         
         super().__init__(
             species=species, 
-            periodic=periodic, 
+            periodic=True, 
             k1=None, 
             k2=k2_temp, 
             k3=k3_temp, 

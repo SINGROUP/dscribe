@@ -67,11 +67,14 @@ class MBTR(Descriptor):
 
        * "unity": No weighting.
        * "exp" or "exponential": Weighting of the form :math:`e^{-sx}`
+       * "inverse_square": Weighting of the form :math:`1/(x^2)`
 
     * :math:`k=3`:
 
        * "unity": No weighting.
        * "exp" or "exponential": Weighting of the form :math:`e^{-sx}`
+       * "smooth_cutoff": Weighting of the form :math:`f_{ij}f_{ik}`,
+         where :math:`f = 1+y(x/r_{cutoff})^{y+1}-(y+1)(x/r_{cutoff})^{y}`
 
     The exponential weighting is motivated by the exponential decay of screened
     Coulombic interactions in solids. In the exponential weighting the
@@ -82,6 +85,12 @@ class MBTR(Descriptor):
 
     * :math:`k=2`: :math:`x` = Distance between A->B
     * :math:`k=3`: :math:`x` = Distance from A->B->C->A.
+
+    The inverse square and smooth cutoff function weightings use a cutoff
+    parameter **r_cutoff**, which is a radial distance after which the rest of
+    the atoms will be ignored. For both, :math:`x` means the distance between
+    A->B. For the smooth cutoff function, additional weighting key **sharpness**
+    can be added, which changes the value of :math:`y`. If not, it defaults to `2`.
 
     In the grid setup *min* is the minimum value of the axis, *max* is the
     maximum value of the axis, *sigma* is the standard deviation of the
@@ -123,7 +132,7 @@ class MBTR(Descriptor):
                 the atomic numbers that are present for an individual system, but
                 should contain all the elements that are ever going to be
                 encountered when creating the descriptors for a set of systems.
-                Keeping the number of chemical speices as low as possible is
+                Keeping the number of chemical species as low as possible is
                 preferable.
             periodic (bool): Set to true if you want the descriptor output to
                 respect the periodicity of the atomic systems (see the
@@ -168,6 +177,8 @@ class MBTR(Descriptor):
                 * "n_atoms": Normalize the output by dividing it with the number
                   of atoms in the system. If the system is periodic, the number
                   of atoms is determined from the given unit cell.
+                * "valle_oganov": Use Valle-Oganov descriptor normalization, with
+                  system cell volume and numbers of different atoms in the cell.
 
             flatten (bool): Whether the output should be flattened to a 1D
                 array. If False, a dictionary of the different tensors is
@@ -193,6 +204,11 @@ class MBTR(Descriptor):
 
         self.normalization = normalization
         self.normalize_gaussians = normalize_gaussians
+
+        if self.normalization=="valle_oganov" and periodic is False:
+            raise ValueError(
+                "Valle-Oganov normalization does not support non-periodic systems."
+            )
 
         # Initializing .create() level variables
         self._interaction_limit = None
@@ -936,7 +952,7 @@ class MBTR(Descriptor):
                     NANB = amounts[i] * amounts[j]
                 else:
                     NANB = 0.5 * amounts[i] * amounts[j]
-                y_normed = (y * V) / (NANB*4*np.pi) -1
+                y_normed = (y * V) / (NANB*4*np.pi)
                 if self.flatten:
                     k2[start:end] = y_normed
                 else:

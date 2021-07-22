@@ -44,7 +44,6 @@ class VOTests(TestBaseClass, unittest.TestCase):
             ValleOganov(
                 species=["H"],
                 k2=default_k2,
-                periodic=False,
                 flatten=False,
                 sparse=True,
             )
@@ -57,7 +56,6 @@ class VOTests(TestBaseClass, unittest.TestCase):
                     "sigma": 10**(-0.625),
                     "n": 100,
                     },
-                periodic=True,
             )
         with self.assertRaises(ValueError):
             ValleOganov(
@@ -65,8 +63,7 @@ class VOTests(TestBaseClass, unittest.TestCase):
                 k3={
                     "sigma": 10**(-0.625),
                     "n": 100,
-                    },
-                periodic=True,
+                    }
             )
 
         # Missing n
@@ -77,7 +74,6 @@ class VOTests(TestBaseClass, unittest.TestCase):
                     "sigma": 10**(-0.625),
                     "r_cutoff": 10
                     },
-                periodic=True,
             )
         with self.assertRaises(ValueError):
             ValleOganov(
@@ -86,7 +82,6 @@ class VOTests(TestBaseClass, unittest.TestCase):
                     "sigma": 10**(-0.625),
                     "r_cutoff": 10
                     },
-                periodic=True,
             )
         
         # Missing sigma
@@ -97,7 +92,6 @@ class VOTests(TestBaseClass, unittest.TestCase):
                     "n": 100,
                     "r_cutoff": 10
                     },
-                periodic=True,
             )
         with self.assertRaises(ValueError):
             ValleOganov(
@@ -106,7 +100,6 @@ class VOTests(TestBaseClass, unittest.TestCase):
                     "n": 100,
                     "r_cutoff": 10
                     },
-                periodic=True,
             )
 
     def test_number_of_features(self):
@@ -119,7 +112,6 @@ class VOTests(TestBaseClass, unittest.TestCase):
         vo = ValleOganov(
             species=atomic_numbers,
             k2=default_k2,
-            periodic=False,
             flatten=True,
         )
         n_features = vo.get_number_of_features()
@@ -131,7 +123,6 @@ class VOTests(TestBaseClass, unittest.TestCase):
             species=atomic_numbers,
             k2=default_k2,
             k3=default_k3,
-            periodic=False,
             flatten=True
         )
         n_features = vo.get_number_of_features()
@@ -148,7 +139,6 @@ class VOTests(TestBaseClass, unittest.TestCase):
         vo = ValleOganov(
             species=[1, 8],
             k2=default_k2,
-            periodic=False,
             flatten=True,
             sparse=False
         )
@@ -171,7 +161,6 @@ class VOTests(TestBaseClass, unittest.TestCase):
                 k3=default_k3,
                 flatten=True,
                 sparse=False,
-                periodic=False,
                 species=["H", "O"]
             )
             return desc.create(system)
@@ -199,7 +188,6 @@ class VOTests(TestBaseClass, unittest.TestCase):
                 "n": n,
                 "r_cutoff": 5
             },
-            periodic=False,
             flatten=False,
             sparse=False,
         )
