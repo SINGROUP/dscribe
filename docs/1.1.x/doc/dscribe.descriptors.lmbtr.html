@@ -1,0 +1,541 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>dscribe.descriptors.lmbtr module &mdash; DScribe 1.1.x documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/js/versions.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="dscribe.descriptors.matrixdescriptor module" href="dscribe.descriptors.matrixdescriptor.html" />
+    <link rel="prev" title="dscribe.descriptors.ewaldsummatrix module" href="dscribe.descriptors.ewaldsummatrix.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.1.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing DScribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DScribe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../api.html">API</a> &raquo;</li>
+        
+          <li><a href="dscribe.html">dscribe package</a> &raquo;</li>
+        
+          <li><a href="dscribe.descriptors.html">dscribe.descriptors package</a> &raquo;</li>
+        
+      <li>dscribe.descriptors.lmbtr module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/doc/dscribe.descriptors.lmbtr.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-dscribe.descriptors.lmbtr">
+<span id="dscribe-descriptors-lmbtr-module"></span><h1>dscribe.descriptors.lmbtr module<a class="headerlink" href="#module-dscribe.descriptors.lmbtr" title="Permalink to this headline">¶</a></h1>
+<p>Copyright 2019 DScribe developers</p>
+<p>Licensed under the Apache License, Version 2.0 (the “License”);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<blockquote>
+<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+</div></blockquote>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="dscribe.descriptors.lmbtr.LMBTR">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dscribe.descriptors.lmbtr.</span></span><span class="sig-name descname"><span class="pre">LMBTR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k3</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize_gaussians</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'none'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatten</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/lmbtr.html#LMBTR"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="dscribe.descriptors.mbtr.html#dscribe.descriptors.mbtr.MBTR" title="dscribe.descriptors.mbtr.MBTR"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.descriptors.mbtr.MBTR</span></code></a></p>
+<p>Implementation of local – per chosen atom – kind of the Many-body
+tensor representation up to k=3.</p>
+<p>Notice that the species of the central atom is not encoded in the output,
+but is instead represented by a chemical species X with atomic number 0.
+This allows LMBTR to be also used on general positions not corresponding to
+real atoms. The surrounding environment is encoded by the two- and
+three-body interactions with neighouring atoms. If there is a need to
+distinguish the central species, one can for example train a different
+model for each central species.</p>
+<p>You can choose which terms to include by providing a dictionary in the k2
+or k3 arguments. The k1 term is not used in the local version. This
+dictionary should contain information under three keys: “geometry”, “grid”
+and “weighting”. See the examples below for how to format these
+dictionaries.</p>
+<p>You can use this descriptor for finite and periodic systems. When dealing
+with periodic systems or when using machine learning models that use the
+Euclidean norm to measure distance between vectors, it is advisable to use
+some form of normalization.</p>
+<p>For the geometry functions the following choices are available:</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(k=2\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>“distance”: Pairwise distance in angstroms.</p></li>
+<li><p>“inverse_distance”: Pairwise inverse distance in 1/angstrom.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><span class="math notranslate nohighlight">\(k=3\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>“angle”: Angle in degrees.</p></li>
+<li><p>“cosine”: Cosine of the angle.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<p>For the weighting the following functions are available:</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(k=2\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>“unity”: No weighting.</p></li>
+<li><p>“exp”: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span></p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><span class="math notranslate nohighlight">\(k=3\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>“unity”: No weighting.</p></li>
+<li><p>“exp”: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span></p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<p>The exponential weighting is motivated by the exponential decay of screened
+Coulombic interactions in solids. In the exponential weighting the
+parameters <strong>threshold</strong> determines the value of the weighting function after
+which the rest of the terms will be ignored and the parameter <strong>scale</strong>
+corresponds to <span class="math notranslate nohighlight">\(s\)</span>. The meaning of <span class="math notranslate nohighlight">\(x\)</span> changes for different
+terms as follows:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(k=2\)</span>: <span class="math notranslate nohighlight">\(x\)</span> = Distance between A-&gt;B</p></li>
+<li><p><span class="math notranslate nohighlight">\(k=3\)</span>: <span class="math notranslate nohighlight">\(x\)</span> = Distance from A-&gt;B-&gt;C-&gt;A.</p></li>
+</ul>
+<p>In the grid setup <em>min</em> is the minimum value of the axis, <em>max</em> is the
+maximum value of the axis, <em>sigma</em> is the standard deviation of the
+gaussian broadening and <em>n</em> is the number of points sampled on the
+grid.</p>
+<p>If flatten=False, a list of dense np.ndarrays for each k in ascending order
+is returned. These arrays are of dimension (n_elements x n_elements x
+n_grid_points), where the elements are sorted in ascending order by their
+atomic number.</p>
+<p>If flatten=True, a sparse.COO is returned. This sparse matrix
+is of size (n_features,), where n_features is given by
+get_number_of_features(). This vector is ordered so that the different
+k-terms are ordered in ascending order, and within each k-term the
+distributions at each entry (i, j, h) of the tensor are ordered in an
+ascending order by (i * n_elements) + (j * n_elements) + (h * n_elements).</p>
+<p>This implementation does not support the use of a non-identity correlation
+matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>species</strong> (<em>iterable</em>) – The chemical species as a list of atomic
+numbers or as a list of chemical symbols. Notice that this is not
+the atomic numbers that are present for an individual system, but
+should contain all the elements that are ever going to be
+encountered when creating the descriptors for a set of systems.
+Keeping the number of chemical speices as low as possible is
+preferable.</p></li>
+<li><p><strong>periodic</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Set to true if you want the descriptor output to
+respect the periodicity of the atomic systems (see the
+pbc-parameter in the constructor of ase.Atoms).</p></li>
+<li><p><strong>k2</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – <p>Dictionary containing the setup for the k=2 term.
+Contains setup for the used geometry function, discretization and
+weighting function. For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">k2</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;inverse_distance&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">},</span>
+    <span class="s2">&quot;weighting&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exp&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.75</span><span class="p">,</span> <span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mf">1e-2</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</p></li>
+<li><p><strong>k3</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – <p>Dictionary containing the setup for the k=3 term.
+Contains setup for the used geometry function, discretization and
+weighting function. For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">k3</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;angle&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">180</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">},</span>
+    <span class="s2">&quot;weighting&quot;</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exp&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</p></li>
+<li><p><strong>normalize_gaussians</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Determines whether the gaussians are
+normalized to an area of 1. Defaults to True. If False, the
+normalization factor is dropped and the gaussians have the form.
+<span class="math notranslate nohighlight">\(e^{-(x-\mu)^2/2\sigma^2}\)</span></p></li>
+<li><p><strong>normalization</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – <p>Determines the method for normalizing the
+output. The available options are:</p>
+<ul>
+<li><p>”none”: No normalization.</p></li>
+<li><p>”l2_each”: Normalize the Euclidean length of each k-term
+individually to unity.</p></li>
+</ul>
+</p></li>
+<li><p><strong>flatten</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether the output should be flattened to a 1D
+array. If False, a dictionary of the different tensors is
+provided, containing the values under keys: “k1”, “k2”, and
+“k3”:</p></li>
+<li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
+dense numpy array.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dscribe.descriptors.lmbtr.LMBTR.create">
+<span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_physical_cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/lmbtr.html#LMBTR.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the LMBTR output for the given systems and given positions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> or list of <code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code>) – One or
+many atomic structures.</p></li>
+<li><p><strong>positions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – Positions where to calculate LMBTR. Can be
+provided as cartesian positions or atomic indices. If no
+positions are defined, the LMBTR output will be created for all
+atoms in the system. When calculating LMBTR for multiple
+systems, provide the positions as a list for each system.</p></li>
+<li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
+the calculation across samples. Defaults to serial calculation
+with n_jobs=1. If a negative number is given, the used cpus
+will be calculated with, n_cpus + n_jobs, where n_cpus is the
+amount of CPUs as reported by the OS. With only_physical_cores
+you can control which types of CPUs are counted in n_cpus.</p></li>
+<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If a negative n_jobs is given,
+determines which types of CPUs are used in calculating the
+number of jobs. If set to False (default), also virtual CPUs
+are counted.  If set to True, only physical CPUs are counted.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Controls whether to print the progress of each job
+into to the console.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The LMBTR output for the given
+systems and positions. The return type depends on the
+‘sparse’-attribute. The first dimension is determined by the amount
+of positions and systems and the second dimension is determined by
+the get_number_of_features()-function.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray | scipy.sparse.csr_matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dscribe.descriptors.lmbtr.LMBTR.create_single">
+<span class="sig-name descname"><span class="pre">create_single</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/lmbtr.html#LMBTR.create_single"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.create_single" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the local many-body tensor representation for the given
+system and positions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> | <a class="reference internal" href="dscribe.core.system.html#dscribe.core.system.System" title="dscribe.core.system.System"><code class="xref py py-class docutils literal notranslate"><span class="pre">System</span></code></a>) – Input system.</p></li>
+<li><p><strong>positions</strong> (<em>iterable</em>) – Positions or atom index of points, from
+which local_mbtr is created. Can be a list of integer numbers
+or a list of xyz-coordinates. If integers provided, the atoms
+at that index are used as centers. If positions provided, new
+atoms are added at that position. If no positions are provided,
+all atoms in the system will be used as centers.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The local many-body tensor representations of given
+positions, for k terms, as an array. These are ordered as given in
+positions.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>1D ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dscribe.descriptors.lmbtr.LMBTR.get_location">
+<span class="sig-name descname"><span class="pre">get_location</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">species</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/lmbtr.html#LMBTR.get_location"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.get_location" title="Permalink to this definition">¶</a></dt>
+<dd><p>Can be used to query the location of a species combination in the
+the flattened output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>species</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a>) – A tuple containing a species combination as</p></li>
+<li><p><strong>symbols</strong><strong> or </strong><strong>atomic numbers. The central atom is marked as</strong> (<em>chemical</em>) – </p></li>
+<li><p><strong>&quot;X&quot;. The tuple can be for example</strong> (<em>species</em>) – </p></li>
+<li><p><strong>&quot;H&quot;</strong><strong>)</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>slice containing the location of the specified species
+combination. The location is given as a python slice-object, that
+can be directly used to target ranges in the output.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#slice" title="(in Python v3.9)">slice</a></p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.9)"><strong>ValueError</strong></a> – If the requested species combination is not in the</p></li>
+<li><p><strong>output</strong><strong> or </strong><strong>if invalid species defined.</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dscribe.descriptors.lmbtr.LMBTR.get_number_of_features">
+<span class="sig-name descname"><span class="pre">get_number_of_features</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/lmbtr.html#LMBTR.get_number_of_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.get_number_of_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to inquire the final number of features that this descriptor
+will have.</p>
+<p>The number of features for the LMBTR is calculated as follows:</p>
+<p>For the pair term (k=2), only pairs where at least one of the atom is
+the central atom (in periodic systems the central atom may connect to
+itself) are considered. This means that there are only as many
+combinations as there are different elements to pair the central atom
+with (n_elem). This nmber of combinations is the multiplied by the
+discretization of the k=2 grid.</p>
+<p>For the three-body term (k=3), only triplets where at least one of the
+atoms is the central atom (in periodic systems the central atom may
+connect to itself) and the k &gt;= i (symmetry) are considered. This means
+that as k runs from 0 to n-1, where n is the number of elements, there
+are n + k combinations that fill this rule. This sum becomes:
+<span class="math notranslate nohighlight">\(\sum_{k=0}^{n-1} n + k = n^2+(n-1)*n/2\)</span>. This number of
+combinations is the multiplied by the discretization of the k=3 grid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Number of features for this descriptor.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dscribe.descriptors.lmbtr.LMBTR.normalization">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">normalization</span></span><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.normalization" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dscribe.descriptors.lmbtr.LMBTR.species">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">species</span></span><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.species" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="dscribe.descriptors.matrixdescriptor.html" class="btn btn-neutral float-right" title="dscribe.descriptors.matrixdescriptor module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="dscribe.descriptors.ewaldsummatrix.html" class="btn btn-neutral float-left" title="dscribe.descriptors.ewaldsummatrix module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright .
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Versions</span>
+      v: 1.1.x
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl id="version-table">
+        <dt>Versions</dt>
+      </dl>
+    </div>
+  </div>
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

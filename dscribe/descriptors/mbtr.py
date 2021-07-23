@@ -66,16 +66,16 @@ class MBTR(Descriptor):
     * :math:`k=2`:
 
        * "unity": No weighting.
-       * "exp" or "exponential": Weighting of the form :math:`e^{-sx}`
+       * "exp": Weighting of the form :math:`e^{-sx}`
 
     * :math:`k=3`:
 
        * "unity": No weighting.
-       * "exp" or "exponential": Weighting of the form :math:`e^{-sx}`
+       * "exp": Weighting of the form :math:`e^{-sx}`
 
     The exponential weighting is motivated by the exponential decay of screened
     Coulombic interactions in solids. In the exponential weighting the
-    parameters **cutoff** determines the value of the weighting function after
+    parameters **threshold** determines the value of the weighting function after
     which the rest of the terms will be ignored and the parameter **scale**
     corresponds to :math:`s`. The meaning of :math:`x` changes for different
     terms as follows:
@@ -106,28 +106,18 @@ class MBTR(Descriptor):
 
     def __init__(
         self,
-        species,
-        periodic,
         k1=None,
         k2=None,
         k3=None,
         normalize_gaussians=True,
         normalization="none",
         flatten=True,
+        species=None,
+        periodic=False,
         sparse=False,
     ):
         """
         Args:
-            species (iterable): The chemical species as a list of atomic
-                numbers or as a list of chemical symbols. Notice that this is not
-                the atomic numbers that are present for an individual system, but
-                should contain all the elements that are ever going to be
-                encountered when creating the descriptors for a set of systems.
-                Keeping the number of chemical speices as low as possible is
-                preferable.
-            periodic (bool): Set to true if you want the descriptor output to
-                respect the periodicity of the atomic systems (see the
-                pbc-parameter in the constructor of ase.Atoms).
             k1 (dict): Setup for the k=1 term. For example::
 
                 k1 = {
@@ -142,7 +132,7 @@ class MBTR(Descriptor):
                     k2 = {
                         "geometry": {"function": "inverse_distance"},
                         "grid": {"min": 0.1, "max": 2, "sigma": 0.1, "n": 50},
-                        "weighting": {"function": "exp", "scale": 0.75, "cutoff": 1e-2}
+                        "weighting": {"function": "exp", "scale": 0.75, "threshold": 1e-2}
                     }
 
             k3 (dict): Dictionary containing the setup for the k=3 term.
@@ -152,7 +142,7 @@ class MBTR(Descriptor):
                     k3 = {
                         "geometry": {"function": "angle"},
                         "grid": {"min": 0, "max": 180, "sigma": 5, "n": 50},
-                        "weighting" : {"function": "exp", "scale": 0.5, "cutoff": 1e-3}
+                        "weighting" : {"function": "exp", "scale": 0.5, "threshold": 1e-3}
                     }
 
             normalize_gaussians (bool): Determines whether the gaussians are
@@ -173,6 +163,16 @@ class MBTR(Descriptor):
                 array. If False, a dictionary of the different tensors is
                 provided, containing the values under keys: "k1", "k2", and
                 "k3":
+            species (iterable): The chemical species as a list of atomic
+                numbers or as a list of chemical symbols. Notice that this is not
+                the atomic numbers that are present for an individual system, but
+                should contain all the elements that are ever going to be
+                encountered when creating the descriptors for a set of systems.
+                Keeping the number of chemical speices as low as possible is
+                preferable.
+            periodic (bool): Set to true if you want the descriptor output to
+                respect the periodicity of the atomic systems (see the
+                pbc-parameter in the constructor of ase.Atoms).
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
         """
@@ -319,7 +319,7 @@ class MBTR(Descriptor):
             # Check the weighting function
             weighting = value.get("weighting")
             if weighting is not None:
-                valid_weight_func = set(("unity", "exponential", "exp"))
+                valid_weight_func = set(("unity", "exp", "exponential"))
                 weight_func = weighting.get("function")
                 if weight_func not in valid_weight_func:
                     raise ValueError(
@@ -327,8 +327,13 @@ class MBTR(Descriptor):
                         " the following: {}".format(valid_weight_func)
                     )
                 else:
-                    if weight_func == "exponential" or weight_func == "exp":
-                        needed = ("cutoff", "scale")
+                    if weight_func == "exp" or weight_func == "exponential":
+                        # Support for legacy name "cutoff"
+                        cutoff = weighting.get("cutoff")
+                        if cutoff is not None and weighting.get("threshold") is None:
+                            weighting["threshold"] = cutoff
+
+                        needed = ("threshold", "scale")
                         for pname in needed:
                             param = weighting.get(pname)
                             if param is None:
@@ -373,7 +378,7 @@ class MBTR(Descriptor):
             # Check the weighting function
             weighting = value.get("weighting")
             if weighting is not None:
-                valid_weight_func = set(("unity", "exponential", "exp"))
+                valid_weight_func = set(("unity", "exp", "exponential"))
                 weight_func = weighting.get("function")
                 if weight_func not in valid_weight_func:
                     raise ValueError(
@@ -381,8 +386,13 @@ class MBTR(Descriptor):
                         " the following: {}".format(valid_weight_func)
                     )
                 else:
-                    if weight_func == "exponential" or weight_func == "exp":
-                        needed = ("cutoff", "scale")
+                    if weight_func == "exp" or weight_func == "exponential":
+                        # Support for legacy name "cutoff"
+                        cutoff = weighting.get("cutoff")
+                        if cutoff is not None and weighting.get("threshold") is None:
+                            weighting["threshold"] = cutoff
+
+                        needed = ("threshold", "scale")
                         for pname in needed:
                             param = weighting.get(pname)
                             if param is None:
@@ -818,18 +828,19 @@ class MBTR(Descriptor):
         stop = grid["max"]
         n = grid["n"]
         sigma = grid["sigma"]
+
         # Determine the weighting function and possible radial cutoff
         radial_cutoff = None
         weighting = self.k2.get("weighting")
         parameters = {}
         if weighting is not None:
             weighting_function = weighting["function"]
-            if weighting_function == "exponential" or weighting_function == "exp":
+            if weighting_function == "exp" or weighting_function == "exponential":
                 scale = weighting["scale"]
-                cutoff = weighting["cutoff"]
+                threshold = weighting["threshold"]
                 if scale != 0:
-                    radial_cutoff = -math.log(cutoff) / scale
-                parameters = {b"scale": scale, b"cutoff": cutoff}
+                    radial_cutoff = -math.log(threshold) / scale
+                parameters = {b"scale": scale, b"threshold": threshold}
         else:
             weighting_function = "unity"
 
@@ -932,12 +943,12 @@ class MBTR(Descriptor):
         parameters = {}
         if weighting is not None:
             weighting_function = weighting["function"]
-            if weighting_function == "exponential" or weighting_function == "exp":
+            if weighting_function == "exp" or weighting_function == "exponential":
                 scale = weighting["scale"]
-                cutoff = weighting["cutoff"]
+                threshold = weighting["threshold"]
                 if scale != 0:
-                    radial_cutoff = -0.5 * math.log(cutoff) / scale
-                parameters = {b"scale": scale, b"cutoff": cutoff}
+                    radial_cutoff = -0.5 * math.log(threshold) / scale
+                parameters = {b"scale": scale, b"threshold": threshold}
         else:
             weighting_function = "unity"
 

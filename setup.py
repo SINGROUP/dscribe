@@ -53,13 +53,13 @@ extensions = [
             "dscribe/ext/ext.cpp",
             "dscribe/ext/celllist.cpp",
             "dscribe/ext/descriptor.cpp",
-            "dscribe/ext/soapGTO.cpp",
             "dscribe/ext/soap.cpp",
-            "dscribe/ext/soapGTODevX.cpp",
+            "dscribe/ext/soapGTO.cpp",
             "dscribe/ext/soapGeneral.cpp",
             "dscribe/ext/acsf.cpp",
             "dscribe/ext/mbtr.cpp",
             "dscribe/ext/geometry.cpp",
+            "dscribe/ext/weighting.cpp",
         ],
         include_dirs=[
             # Path to pybind11 headers
@@ -76,7 +76,7 @@ extensions = [
 if __name__ == "__main__":
     setup(
         name="dscribe",
-        version="1.0.0",
+        version="1.1.0",
         url="https://singroup.github.io/dscribe/",
         description="A Python package for creating feature transformations in applications of machine learning to materials science.",
         long_description="A Python package for creating feature transformations in applications of machine learning to materials science.",
@@ -99,7 +99,6 @@ if __name__ == "__main__":
             "Programming Language :: C++",
             "Programming Language :: Python",
             "Programming Language :: Python :: 3",
-            "Programming Language :: Python :: 3.5",
             "Programming Language :: Python :: 3.6",
             "Programming Language :: Python :: 3.7",
             "Programming Language :: Python :: 3.8",

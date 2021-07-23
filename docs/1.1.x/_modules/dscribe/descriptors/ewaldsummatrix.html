@@ -1,0 +1,623 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>dscribe.descriptors.ewaldsummatrix &mdash; DScribe 1.1.x documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/style.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/js/versions.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html">
+          
+
+          
+            
+            <img src="../../../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.1.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../citing.html">Citing DScribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about.html">About</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DScribe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>dscribe.descriptors.ewaldsummatrix</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for dscribe.descriptors.ewaldsummatrix</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;Copyright 2019 DScribe developers</span>
+
+<span class="sd">Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="sd">you may not use this file except in compliance with the License.</span>
+<span class="sd">You may obtain a copy of the License at</span>
+
+<span class="sd">    http://www.apache.org/licenses/LICENSE-2.0</span>
+
+<span class="sd">Unless required by applicable law or agreed to in writing, software</span>
+<span class="sd">distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="sd">WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="sd">See the License for the specific language governing permissions and</span>
+<span class="sd">limitations under the License.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">ase</span> <span class="kn">import</span> <span class="n">Atoms</span>
+
+<span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">erfc</span>
+
+<span class="kn">from</span> <span class="nn">dscribe.core</span> <span class="kn">import</span> <span class="n">System</span>
+<span class="kn">from</span> <span class="nn">dscribe.descriptors.matrixdescriptor</span> <span class="kn">import</span> <span class="n">MatrixDescriptor</span>
+<span class="kn">from</span> <span class="nn">dscribe.core.lattice</span> <span class="kn">import</span> <span class="n">Lattice</span>
+
+
+<div class="viewcode-block" id="EwaldSumMatrix"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.ewaldsummatrix.html#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix">[docs]</a><span class="k">class</span> <span class="nc">EwaldSumMatrix</span><span class="p">(</span><span class="n">MatrixDescriptor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates an Ewald sum matrix for the a given system.</span>
+
+<span class="sd">    Each entry M_ij of the Ewald sum matrix will contain the Coulomb energy</span>
+<span class="sd">    between atoms i and j calculated with the Ewald summation method. In the</span>
+<span class="sd">    Ewald method a constant neutralizing background charge has been added to</span>
+<span class="sd">    counteract the positive net charge.</span>
+
+<span class="sd">    The total electrostatic interaction energy in the system can calculated by</span>
+<span class="sd">    summing the upper diagonal part of the matrix, including the diagonal</span>
+<span class="sd">    itself.</span>
+
+<span class="sd">    A screening parameter a controls the width of the Gaussian charge</span>
+<span class="sd">    distributions in the Ewald summation, but the final matrix elements will be</span>
+<span class="sd">    independent of the value of the screening parameter a that is used, as long</span>
+<span class="sd">    as sufficient cutoff values are used.</span>
+
+<span class="sd">    For reference, see:</span>
+<span class="sd">        &quot;Crystal Structure Representations for Machine Learning Models of</span>
+<span class="sd">        Formation Energies&quot;, Felix Faber, Alexander Lindmaa, Anatole von</span>
+<span class="sd">        Lilienfeld, and Rickard Armiento, International Journal of Quantum</span>
+<span class="sd">        Chemistry, (2015),</span>
+<span class="sd">        https://doi.org/10.1002/qua.24917</span>
+<span class="sd">    and</span>
+<span class="sd">        &quot;Ewald summation techniques in perspective: a survey&quot;, Abdulnour Y.</span>
+<span class="sd">        Toukmaji, John A. Board Jr., Computer Physics Communications, (1996)</span>
+<span class="sd">        https://doi.org/10.1016/0010-4655(96)00016-1</span>
+<span class="sd">    and</span>
+<span class="sd">        &quot;R.A. Jackson and C.R.A. Catlow. Computer simulation studies of zeolite</span>
+<span class="sd">        structure. Mol. Simul., 1:207-224, 1988,</span>
+<span class="sd">        https://doi.org/10.1080/08927022.2013.840898</span>
+<span class="sd">        &quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="EwaldSumMatrix.create"><a class="viewcode-back" href="../../../tutorials/descriptors/ewald_sum_matrix.html#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">system</span><span class="p">,</span>
+        <span class="n">accuracy</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span>
+        <span class="n">w</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">rcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">gcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">a</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">only_physical_cores</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the Ewald sum matrix for the given systems.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or</span>
+<span class="sd">                many atomic structures.</span>
+<span class="sd">            accuracy (float): The accuracy to which the sum is converged to.</span>
+<span class="sd">                Corresponds to the variable :math:`A` in</span>
+<span class="sd">                https://doi.org/10.1080/08927022.2013.840898. Used only if</span>
+<span class="sd">                gcut, rcut and a have not been specified. Provide either one</span>
+<span class="sd">                value or a list of values for each system.</span>
+<span class="sd">            w (float): Weight parameter that represents the relative</span>
+<span class="sd">                computational expense of calculating a term in real and</span>
+<span class="sd">                reciprocal space. This has little effect on the total energy,</span>
+<span class="sd">                but may influence speed of computation in large systems. Note</span>
+<span class="sd">                that this parameter is used only when the cutoffs and a are set</span>
+<span class="sd">                to None. Provide either one value or a list of values for each</span>
+<span class="sd">                system.</span>
+<span class="sd">            rcut (float): Real space cutoff radius dictating how many terms are</span>
+<span class="sd">                used in the real space sum. Provide either one value or a list</span>
+<span class="sd">                of values for each system.</span>
+<span class="sd">            gcut (float): Reciprocal space cutoff radius. Provide either one</span>
+<span class="sd">                value or a list of values for each system.</span>
+<span class="sd">            a (float): The screening parameter that controls the width of the</span>
+<span class="sd">                Gaussians. If not provided, a default value of :math:`\\alpha =</span>
+<span class="sd">                \sqrt{\pi}\left(\\frac{N}{V^2}\\right)^{1/6}` is used.</span>
+<span class="sd">                Corresponds to the standard deviation of the Gaussians. Provide</span>
+<span class="sd">                either one value or a list of values for each system.</span>
+<span class="sd">            n_jobs (int): Number of parallel jobs to instantiate. Parallellizes</span>
+<span class="sd">                the calculation across samples. Defaults to serial calculation</span>
+<span class="sd">                with n_jobs=1. If a negative number is given, the used cpus</span>
+<span class="sd">                will be calculated with, n_cpus + n_jobs, where n_cpus is the</span>
+<span class="sd">                amount of CPUs as reported by the OS. With only_physical_cores</span>
+<span class="sd">                you can control which types of CPUs are counted in n_cpus.</span>
+<span class="sd">            only_physical_cores (bool): If a negative n_jobs is given,</span>
+<span class="sd">                determines which types of CPUs are used in calculating the</span>
+<span class="sd">                number of jobs. If set to False (default), also virtual CPUs</span>
+<span class="sd">                are counted.  If set to True, only physical CPUs are counted.</span>
+<span class="sd">            verbose(bool): Controls whether to print the progress of each job</span>
+<span class="sd">                into to the console.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray | sparse.COO: Ewald sum matrix for the given systems.</span>
+<span class="sd">            The return type depends on the &#39;sparse&#39; and &#39;flatten&#39;-attributes.</span>
+<span class="sd">            For flattened output a single numpy array or sparse.COO is</span>
+<span class="sd">            returned. The first dimension is determined by the amount of</span>
+<span class="sd">            systems.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="p">(</span><span class="n">Atoms</span><span class="p">,</span> <span class="n">System</span><span class="p">)):</span>
+            <span class="n">system</span> <span class="o">=</span> <span class="p">[</span><span class="n">system</span><span class="p">]</span>
+
+        <span class="c1"># Check input validity</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">system</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_atoms_max</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;One of the given systems has more atoms (</span><span class="si">{}</span><span class="s2">) than allowed &quot;</span>
+                    <span class="s2">&quot;by n_atoms_max (</span><span class="si">{}</span><span class="s2">).&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_atoms_max</span><span class="p">)</span>
+                <span class="p">)</span>
+
+        <span class="c1"># If single system given, skip the parallelization</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_single</span><span class="p">(</span><span class="n">system</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">accuracy</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">rcut</span><span class="p">,</span> <span class="n">gcut</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
+
+        <span class="c1"># Combine input arguments</span>
+        <span class="n">n_samples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">accuracy</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">accuracy</span> <span class="o">=</span> <span class="n">n_samples</span> <span class="o">*</span> <span class="p">[</span><span class="n">accuracy</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="n">n_samples</span> <span class="o">*</span> <span class="p">[</span><span class="n">w</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">rcut</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">rcut</span> <span class="o">=</span> <span class="n">n_samples</span> <span class="o">*</span> <span class="p">[</span><span class="n">rcut</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">gcut</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">gcut</span> <span class="o">=</span> <span class="n">n_samples</span> <span class="o">*</span> <span class="p">[</span><span class="n">gcut</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">n_samples</span> <span class="o">*</span> <span class="p">[</span><span class="n">a</span><span class="p">]</span>
+        <span class="n">inp</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="n">i_sys</span><span class="p">,</span> <span class="n">i_accuracy</span><span class="p">,</span> <span class="n">i_w</span><span class="p">,</span> <span class="n">i_rcut</span><span class="p">,</span> <span class="n">i_gcut</span><span class="p">,</span> <span class="n">i_a</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i_sys</span><span class="p">,</span> <span class="n">i_accuracy</span><span class="p">,</span> <span class="n">i_w</span><span class="p">,</span> <span class="n">i_rcut</span><span class="p">,</span> <span class="n">i_gcut</span><span class="p">,</span> <span class="n">i_a</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                <span class="n">system</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">rcut</span><span class="p">,</span> <span class="n">gcut</span><span class="p">,</span> <span class="n">a</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+
+        <span class="c1"># Determine if the outputs have a fixed size</span>
+        <span class="n">n_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_number_of_features</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flatten</span><span class="p">:</span>
+            <span class="n">static_size</span> <span class="o">=</span> <span class="p">[</span><span class="n">n_features</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">permutation</span> <span class="o">==</span> <span class="s2">&quot;eigenspectrum&quot;</span><span class="p">:</span>
+            <span class="n">static_size</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">n_atoms_max</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">static_size</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">n_atoms_max</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_atoms_max</span><span class="p">]</span>
+
+        <span class="c1"># Create in parallel</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_parallel</span><span class="p">(</span>
+            <span class="n">inp</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_single</span><span class="p">,</span>
+            <span class="n">n_jobs</span><span class="p">,</span>
+            <span class="n">static_size</span><span class="p">,</span>
+            <span class="n">only_physical_cores</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">output</span></div>
+
+<div class="viewcode-block" id="EwaldSumMatrix.create_single"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.ewaldsummatrix.html#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create_single">[docs]</a>    <span class="k">def</span> <span class="nf">create_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">rcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            system (:class:`ase.Atoms` | :class:`.System`): Input system.</span>
+<span class="sd">            accuracy (float): The accuracy to which the sum is converged to.</span>
+<span class="sd">                Corresponds to the variable :math:`A` in</span>
+<span class="sd">                https://doi.org/10.1080/08927022.2013.840898. Used only if gcut,</span>
+<span class="sd">                rcut and a have not been specified.</span>
+<span class="sd">            w (float): Weight parameter that represents the relative</span>
+<span class="sd">                computational expense of calculating a term in real and</span>
+<span class="sd">                reciprocal space. This has little effect on the total energy,</span>
+<span class="sd">                but may influence speed of computation in large systems. Note</span>
+<span class="sd">                that this parameter is used only when the cutoffs and a are set</span>
+<span class="sd">                to None.</span>
+<span class="sd">            rcut (float): Real space cutoff radius dictating how</span>
+<span class="sd">                many terms are used in the real space sum.</span>
+<span class="sd">            gcut (float): Reciprocal space cutoff radius.</span>
+<span class="sd">            a (float): The screening parameter that controls the width of the</span>
+<span class="sd">                Gaussians. If not provided, a default value of :math:`\\alpha =</span>
+<span class="sd">                \sqrt{\pi}\left(\\frac{N}{V^2}\\right)^{1/6}` is used.</span>
+<span class="sd">                Corresponds to the standard deviation of the Gaussians.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_squared</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_atoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">volume</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_volume</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sqrt_pi</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+
+        <span class="c1"># If a is not provided, use a default value</span>
+        <span class="k">if</span> <span class="n">a</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_atoms</span> <span class="o">*</span> <span class="n">w</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">volume</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">6</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sqrt_pi</span>
+
+        <span class="c1"># If the real space cutoff, reciprocal space cutoff and a have not been</span>
+        <span class="c1"># specified, use the accuracy and the weighting w to determine default</span>
+        <span class="c1"># similarly as in https://doi.org/10.1080/08927022.2013.840898</span>
+        <span class="k">if</span> <span class="n">rcut</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">gcut</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">accuracy</span><span class="p">))</span>
+            <span class="n">rcut</span> <span class="o">=</span> <span class="n">f</span> <span class="o">/</span> <span class="n">a</span>
+            <span class="n">gcut</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">a</span> <span class="o">*</span> <span class="n">f</span>
+        <span class="k">elif</span> <span class="n">rcut</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">gcut</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;If you do not want to use the default cutoffs, please provide &quot;</span>
+                <span class="s2">&quot;both cutoffs rcut and gcut.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">a</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">a_squared</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gcut</span> <span class="o">=</span> <span class="n">gcut</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rcut</span> <span class="o">=</span> <span class="n">rcut</span>
+
+        <span class="n">matrix</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">create_single</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">matrix</span></div>
+
+<div class="viewcode-block" id="EwaldSumMatrix.get_matrix"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.ewaldsummatrix.html#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.get_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">get_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The total energy matrix. Each matrix element (i, j) corresponds to the</span>
+<span class="sd">        total interaction energy in a system with atoms i and j.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            system (:class:`ase.Atoms` | :class:`.System`): Input system.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: Ewald matrix.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Force the use of periodic boundary conditions</span>
+        <span class="n">system</span><span class="o">.</span><span class="n">set_pbc</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Calculate the regular real and reciprocal space sums of the Ewald sum.</span>
+        <span class="n">ereal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_real</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+        <span class="n">erecip</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_recip</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+        <span class="n">ezero</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_zero</span><span class="p">()</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="n">erecip</span> <span class="o">+</span> <span class="n">ereal</span> <span class="o">+</span> <span class="n">ezero</span>
+
+        <span class="k">return</span> <span class="n">total</span></div>
+
+    <span class="k">def</span> <span class="nf">_calc_zero</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculates the constant part of the Ewald sum matrix.</span>
+
+<span class="sd">        The constant part contains the correction for the self-interaction</span>
+<span class="sd">        between the point charges and the Gaussian charge distribution added on</span>
+<span class="sd">        top of them and the intearction between the point charges and a uniform</span>
+<span class="sd">        neutralizing background charge.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray(): A 2D matrix containing the constant terms for each</span>
+<span class="sd">            i,j pair.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Calculate the self-interaction correction. The self term corresponds</span>
+        <span class="c1"># to the interaction of the point charge with cocentric Gaussian cloud</span>
+        <span class="c1"># introduced in the Ewald method. The correction is only applied to the</span>
+        <span class="c1"># diagonal terms so that the correction is not counted multiple times</span>
+        <span class="c1"># when calculating the total Ewald energy as the sum of diagonal</span>
+        <span class="c1"># element + upper diagonal part.</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span>
+        <span class="n">matself</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">n_atoms</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_atoms</span><span class="p">))</span>
+        <span class="n">diag</span> <span class="o">=</span> <span class="n">q</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">matself</span><span class="p">,</span> <span class="n">diag</span><span class="p">)</span>
+        <span class="n">matself</span> <span class="o">*=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">sqrt_pi</span>
+
+        <span class="c1"># Calculate the interaction energy between constant neutralizing</span>
+        <span class="c1"># background charge. On the diagonal this is defined by</span>
+        <span class="n">matbg</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">q</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">*</span> <span class="n">q</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">matbg</span> <span class="o">*=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">volume</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">a_squared</span><span class="p">)</span>
+
+        <span class="c1"># The diagonal terms are divided by two</span>
+        <span class="n">diag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">matbg</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">matbg</span><span class="p">,</span> <span class="n">diag</span><span class="p">)</span>
+
+        <span class="n">correction_matrix</span> <span class="o">=</span> <span class="n">matself</span> <span class="o">+</span> <span class="n">matbg</span>
+
+        <span class="k">return</span> <span class="n">correction_matrix</span>
+
+    <span class="k">def</span> <span class="nf">_calc_real</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Used to calculate the Ewald real-space sum.</span>
+
+<span class="sd">        Corresponds to equation (5) in</span>
+<span class="sd">        https://doi.org/10.1016/0010-4655(96)00016-1</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            system (:class:`ase.Atoms` | :class:`.System`): Input system.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray(): A 2D matrix containing the real space terms for each</span>
+<span class="sd">            i,j pair.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fcoords</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_scaled_positions</span><span class="p">()</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
+        <span class="n">n_atoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+        <span class="n">ereal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_atoms</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+        <span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_cell</span><span class="p">())</span>
+
+        <span class="c1"># For each atom in the original cell, get the neighbours in the</span>
+        <span class="c1"># infinite system within the real space cutoff and calculate the real</span>
+        <span class="c1"># space portion of the Ewald sum.</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_atoms</span><span class="p">):</span>
+
+            <span class="c1"># Get points that are within the real space cutoff</span>
+            <span class="n">nfcoords</span><span class="p">,</span> <span class="n">rij</span><span class="p">,</span> <span class="n">js</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_points_in_sphere</span><span class="p">(</span>
+                <span class="n">fcoords</span><span class="p">,</span> <span class="n">coords</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">rcut</span><span class="p">,</span> <span class="n">zip_results</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)</span>
+            <span class="c1"># Remove the rii term, because a charge does not interact with</span>
+            <span class="c1"># itself (but does interact with copies of itself).</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">rij</span> <span class="o">&gt;</span> <span class="mf">1e-8</span>
+            <span class="n">js</span> <span class="o">=</span> <span class="n">js</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+            <span class="n">rij</span> <span class="o">=</span> <span class="n">rij</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+            <span class="n">nfcoords</span> <span class="o">=</span> <span class="n">nfcoords</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+
+            <span class="n">qi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">qj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">[</span><span class="n">js</span><span class="p">]</span>
+
+            <span class="n">erfcval</span> <span class="o">=</span> <span class="n">erfc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">*</span> <span class="n">rij</span><span class="p">)</span>
+            <span class="n">new_ereals</span> <span class="o">=</span> <span class="n">erfcval</span> <span class="o">*</span> <span class="n">qi</span> <span class="o">*</span> <span class="n">qj</span> <span class="o">/</span> <span class="n">rij</span>
+
+            <span class="c1"># Insert new_ereals</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_atoms</span><span class="p">):</span>
+                <span class="n">ereal</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">new_ereals</span><span class="p">[</span><span class="n">js</span> <span class="o">==</span> <span class="n">k</span><span class="p">])</span>
+
+        <span class="c1"># The diagonal terms are divided by two</span>
+        <span class="n">diag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">ereal</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">ereal</span><span class="p">,</span> <span class="n">diag</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ereal</span>
+
+    <span class="k">def</span> <span class="nf">_calc_recip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform the reciprocal space summation. Uses the fastest non mesh-based</span>
+<span class="sd">        method described as given by equation (16) in</span>
+<span class="sd">        https://doi.org/10.1016/0010-4655(96)00016-1</span>
+
+<span class="sd">        The term G=0 is neglected, even if the system has nonzero charge.</span>
+<span class="sd">        Physically this would mean that we are adding a constant background</span>
+<span class="sd">        charge to make the cell charge neutral.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            system (:class:`ase.Atoms` | :class:`.System`): Input system.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray(): A 2D matrix containing the real space terms for each</span>
+<span class="sd">            i,j pair.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">n_atoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_atoms</span>
+        <span class="n">erecip</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_atoms</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
+
+        <span class="c1"># Get the reciprocal lattice points within the reciprocal space cutoff</span>
+        <span class="n">rcp_latt</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">system</span><span class="o">.</span><span class="n">get_reciprocal_cell</span><span class="p">()</span>
+        <span class="n">rcp_latt</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span><span class="n">rcp_latt</span><span class="p">)</span>
+        <span class="n">recip_nn</span> <span class="o">=</span> <span class="n">rcp_latt</span><span class="o">.</span><span class="n">get_points_in_sphere</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">gcut</span><span class="p">)</span>
+
+        <span class="c1"># Ignore the terms with G=0.</span>
+        <span class="n">frac_coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">fcoords</span> <span class="k">for</span> <span class="p">(</span><span class="n">fcoords</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="ow">in</span> <span class="n">recip_nn</span> <span class="k">if</span> <span class="n">dist</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">gs</span> <span class="o">=</span> <span class="n">rcp_latt</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">frac_coords</span><span class="p">)</span>
+        <span class="n">g2s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">gs</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">expvals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">g2s</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">a_squared</span><span class="p">))</span>
+        <span class="n">grs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">gs</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">coords</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:],</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">factors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">expvals</span><span class="p">,</span> <span class="n">g2s</span><span class="p">)</span>
+        <span class="n">charges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span>
+
+        <span class="c1"># Create array where q_2[i,j] is qi * qj</span>
+        <span class="n">qiqj</span> <span class="o">=</span> <span class="n">charges</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">*</span> <span class="n">charges</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">gr</span><span class="p">,</span> <span class="n">factor</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">grs</span><span class="p">,</span> <span class="n">factors</span><span class="p">):</span>
+
+            <span class="c1"># Uses the identity sin(x)+cos(x) = 2**0.5 sin(x + pi/4)</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="p">(</span><span class="n">gr</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-</span> <span class="n">gr</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+            <span class="n">m</span> <span class="o">*=</span> <span class="n">factor</span>
+            <span class="n">erecip</span> <span class="o">+=</span> <span class="n">m</span>
+
+        <span class="n">erecip</span> <span class="o">*=</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">volume</span> <span class="o">*</span> <span class="n">qiqj</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">**</span> <span class="mf">0.5</span>
+
+        <span class="c1"># The diagonal terms are divided by two</span>
+        <span class="n">diag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">erecip</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">erecip</span><span class="p">,</span> <span class="n">diag</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">erecip</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright .
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Versions</span>
+      v: 1.1.x
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl id="version-table">
+        <dt>Versions</dt>
+      </dl>
+    </div>
+  </div>
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

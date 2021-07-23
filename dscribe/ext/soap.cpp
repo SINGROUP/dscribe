@@ -1,4 +1,4 @@
-/*Copyright 2019 DScribe developers
+/*Copyright 2019 DScrie developers
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,9 +14,8 @@ limitations under the License.
 */
 #include <iostream>
 #include "soap.h"
-#include "soapGTO.h"
 #include "soapGeneral.h"
-#include "soapGTODevX.h"
+#include "soapGTO.h"
 #include "geometry.h"
 
 using namespace std;
@@ -26,24 +25,26 @@ SOAPGTO::SOAPGTO(
     int nmax,
     int lmax,
     double eta,
-    py::array_t<int> species,
-    bool periodic,
+    py::dict weighting,
     bool crossover,
     string average,
     double cutoff_padding,
     py::array_t<double> alphas,
-    py::array_t<double> betas
+    py::array_t<double> betas,
+    py::array_t<int> species,
+    bool periodic
 )
     : Descriptor(periodic, average, rcut+cutoff_padding)
     , rcut(rcut)
     , nmax(nmax)
     , lmax(lmax)
     , eta(eta)
-    , species(species)
+    , weighting(weighting)
     , crossover(crossover)
     , cutoff_padding(cutoff_padding)
     , alphas(alphas)
     , betas(betas)
+    , species(species)
 {
 }
 
@@ -87,79 +88,37 @@ void SOAPGTO::create(
     CellList cell_list
 ) const
 {
+    // Empty mock arrays since we are not calculating the derivatives
+    py::array_t<double> xd({1, 1, 1, 1, 1});
+    py::array_t<double> yd({1, 1, 1, 1, 1});
+    py::array_t<double> zd({1, 1, 1, 1, 1});
+    py::array_t<double> derivatives({1, 1, 1, 1});
+    py::array_t<int> indices({1});
+
     soapGTO(
-        out,
-        positions,
-        centers,
-        this->alphas,
-        this->betas,
-        atomic_numbers,
-        this->species,
-        this->rcut,
-        this->cutoff_padding,
-        this->nmax,
-        this->lmax,
-        this->eta,
-        this->crossover,
-        this->average,
-        cell_list
-    );
-}
-
-void SOAPGTO::create_cartesian(
-    py::array_t<double> derivatives,
-    py::array_t<double> descriptor,
-    py::array_t<double> xd,
-    py::array_t<double> yd,
-    py::array_t<double> zd,
-    py::array_t<double> cd,
-    py::array_t<double> positions,
-    py::array_t<int> atomic_numbers,
-    py::array_t<double> cell,
-    py::array_t<bool> pbc,
-    py::array_t<double> centers,
-    py::array_t<int> center_indices,
-    py::array_t<int> indices,
-    const bool return_descriptor
-) const
-{
-    int n_atoms = atomic_numbers.shape(0); // Should be saved before extending the system
-    int n_centers = centers.shape(0);
-
-    // Extend system if periodicity is requested.
-    auto pbc_u = pbc.unchecked<1>();
-    bool is_periodic = this->periodic && (pbc_u(0) || pbc_u(1) || pbc_u(2));
-    if (is_periodic) {
-        ExtendedSystem system_extended = extend_system(positions, atomic_numbers, cell, pbc, this->cutoff);
-        positions = system_extended.positions;
-        atomic_numbers = system_extended.atomic_numbers;
-    }
-
-    soapGTODevX(
         derivatives,
-        descriptor,
+        out,
         xd,
         yd,
         zd,
-        cd,
         positions,
         centers,
-        center_indices,
         this->alphas,
         this->betas,
         atomic_numbers,
         this->species,
         this->rcut,
         this->cutoff_padding,
-        n_atoms,
         this->nmax,
         this->lmax,
-        n_centers,
         this->eta,
+        this->weighting,
         this->crossover,
+        this->average,
         indices,
-        return_descriptor,
-        false
+        true,
+        false,
+        cell_list
     );
 }
 
@@ -177,20 +136,15 @@ void SOAPGTO::derivatives_analytical(
     py::array_t<double> xd,
     py::array_t<double> yd,
     py::array_t<double> zd,
-    py::array_t<double> cd,
     py::array_t<double> positions,
     py::array_t<int> atomic_numbers,
     py::array_t<double> cell,
     py::array_t<bool> pbc,
     py::array_t<double> centers,
-    py::array_t<int> center_indices,
     py::array_t<int> indices,
     const bool return_descriptor
 ) const
 {
-    int n_atoms = atomic_numbers.shape(0); // Should be saved before extending the system
-    int n_centers = centers.shape(0);
-
     // Extend system if periodicity is requested.
     auto pbc_u = pbc.unchecked<1>();
     bool is_periodic = this->periodic && (pbc_u(0) || pbc_u(1) || pbc_u(2));
@@ -200,31 +154,33 @@ void SOAPGTO::derivatives_analytical(
         atomic_numbers = system_extended.atomic_numbers;
     }
 
-    soapGTODevX(
+    // Calculate neighbours with a cell list
+    CellList cell_list(positions, this->cutoff);
+
+    soapGTO(
         derivatives,
         descriptor,
         xd,
         yd,
         zd,
-        cd,
         positions,
         centers,
-        center_indices,
         this->alphas,
         this->betas,
         atomic_numbers,
         this->species,
         this->rcut,
         this->cutoff_padding,
-        n_atoms,
         this->nmax,
         this->lmax,
-        n_centers,
         this->eta,
+        this->weighting,
         this->crossover,
+        this->average,
         indices,
         return_descriptor,
-        true
+        true,
+        cell_list
     );
 }
 
@@ -233,24 +189,26 @@ SOAPPolynomial::SOAPPolynomial(
     int nmax,
     int lmax,
     double eta,
-    py::array_t<int> species,
-    bool periodic,
+    py::dict weighting,
     bool crossover,
     string average,
     double cutoff_padding,
     py::array_t<double> rx,
-    py::array_t<double> gss
+    py::array_t<double> gss,
+    py::array_t<int> species,
+    bool periodic
 )
     : Descriptor(periodic, average, rcut+cutoff_padding)
     , rcut(rcut)
     , nmax(nmax)
     , lmax(lmax)
     , eta(eta)
-    , species(species)
+    , weighting(weighting)
     , crossover(crossover)
     , cutoff_padding(cutoff_padding)
     , rx(rx)
     , gss(gss)
+    , species(species)
 {
 }
 
@@ -305,6 +263,7 @@ void SOAPPolynomial::create(
         this->nmax,
         this->lmax,
         this->eta,
+        this->weighting,
         this->rx,
         this->gss,
         this->crossover,

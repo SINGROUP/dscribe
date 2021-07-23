@@ -94,8 +94,8 @@ def soap_derivatives(version):
 def soap_cartesian_vs_imaginary(version):
     """Tests the performance of cartesian SOAP GTO vs. imaginary SOAP GTO.
     """
-    nmax = 4
-    lmax = 4
+    nmax = 9
+    lmax = 9
     fig = mpl.figure(figsize=[9, 7])
     ax = fig.add_subplot(111)
     ax.set_title("SOAP nmax={}, lmax={}, version={}".format(nmax, lmax, version))
@@ -103,7 +103,7 @@ def soap_cartesian_vs_imaginary(version):
     ax.set_ylabel("Time (s)")
     system = system_periodic*(5,5,5)
 
-    for method in ["imaginary", "cartesian"]:
+    for method in ["imaginary"]:
 
         N = []
         t = []
@@ -122,7 +122,7 @@ def soap_cartesian_vs_imaginary(version):
             t0 = time()
             if method == "imaginary":
                 des = soap_generator.create_single(i_system)
-            elif method == "cartesian":
+            elif method == "tesseral":
                 des = soap_generator._cartesian(i_system)
             else:
                 raise
@@ -180,6 +180,6 @@ def soap_sparse_vs_dense(version):
 version = pkg_resources.get_distribution('dscribe').version
 # soap_gto_vs_polynomial(version)
 # soap_derivatives(version)
-# soap_cartesian_vs_imaginary(version)
+soap_cartesian_vs_imaginary(version)
 # soap_sparse_vs_dense(version)
 

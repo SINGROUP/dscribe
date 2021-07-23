@@ -1,0 +1,415 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>dscribe.descriptors.elementaldistribution module &mdash; DScribe 1.1.x documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/js/versions.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="dscribe.descriptors.ewaldsummatrix module" href="dscribe.descriptors.ewaldsummatrix.html" />
+    <link rel="prev" title="dscribe.descriptors.descriptor module" href="dscribe.descriptors.descriptor.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.1.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing DScribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DScribe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../api.html">API</a> &raquo;</li>
+        
+          <li><a href="dscribe.html">dscribe package</a> &raquo;</li>
+        
+          <li><a href="dscribe.descriptors.html">dscribe.descriptors package</a> &raquo;</li>
+        
+      <li>dscribe.descriptors.elementaldistribution module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/doc/dscribe.descriptors.elementaldistribution.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-dscribe.descriptors.elementaldistribution">
+<span id="dscribe-descriptors-elementaldistribution-module"></span><h1>dscribe.descriptors.elementaldistribution module<a class="headerlink" href="#module-dscribe.descriptors.elementaldistribution" title="Permalink to this headline">¶</a></h1>
+<p>Copyright 2019 DScribe developers</p>
+<p>Licensed under the Apache License, Version 2.0 (the “License”);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<blockquote>
+<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+</div></blockquote>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="dscribe.descriptors.elementaldistribution.ElementalDistribution">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dscribe.descriptors.elementaldistribution.</span></span><span class="sig-name descname"><span class="pre">ElementalDistribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">properties</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatten</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/elementaldistribution.html#ElementalDistribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.elementaldistribution.ElementalDistribution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="dscribe.descriptors.descriptor.html#dscribe.descriptors.descriptor.Descriptor" title="dscribe.descriptors.descriptor.Descriptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.descriptors.descriptor.Descriptor</span></code></a></p>
+<p>Represents a generic distribution on any given grid for any given
+properties. Can create both continuos and discrete distributions.</p>
+<p>Continuous distributions require a standard deviation and the number of
+sampling points. You can also specify the minimum and maximum values for
+the axis. If these are not specified, a limit is selected based
+automatically on the values with:</p>
+<blockquote>
+<div><p>min = values.min() - 3*std
+max = values.max() + 3*std</p>
+</div></blockquote>
+<p>Discrete distributions are assumed to be integer values, and you only need
+to specify the values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>properties</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – <p>Contains a description of the elemental property
+for which a distribution is created. Should contain a dictionary of
+the following form:</p>
+<dl>
+<dt>properties={</dt><dd><dl>
+<dt>“property_name”: {</dt><dd><p>“type”: “continuous”
+“min”: &lt;Distribution minimum value&gt;
+“max”: &lt;Distribution maximum value&gt;
+“std”: &lt;Distribution standard deviation&gt;
+“n”: &lt;Number of discrete samples from distribution&gt;
+“values”: {</p>
+<blockquote>
+<div><p>”H”: &lt;Value for hydrogen&gt;
+…</p>
+</div></blockquote>
+<p>}</p>
+</dd>
+<dt>”property_name2”: {</dt><dd><p>“type”: “discrete”
+“values”: {</p>
+<blockquote>
+<div><p>”H”: &lt;Value for hydrogen&gt;
+…</p>
+</div></blockquote>
+<p>}</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>}</p>
+</p></li>
+<li><p><strong>flatten</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether to flatten out the result.</p></li>
+<li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
+dense numpy array.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dscribe.descriptors.elementaldistribution.ElementalDistribution.create">
+<span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/elementaldistribution.html#ElementalDistribution.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.elementaldistribution.ElementalDistribution.create" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> | <a class="reference internal" href="dscribe.core.system.html#dscribe.core.system.System" title="dscribe.core.system.System"><code class="xref py py-class docutils literal notranslate"><span class="pre">System</span></code></a>) – Input system.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The concatenated distributions of the</dt><dd><p>specified properties in a sparse array.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>scipy.sparse.lil_matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dscribe.descriptors.elementaldistribution.ElementalDistribution.gaussian_sum">
+<span class="sig-name descname"><span class="pre">gaussian_sum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">centers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minimum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">std</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/elementaldistribution.html#ElementalDistribution.gaussian_sum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.elementaldistribution.ElementalDistribution.gaussian_sum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates a discrete version of a sum of Gaussian distributions.</p>
+<p>The calculation is done through the cumulative distribution function
+that is better at keeping the integral of the probability function
+constant with coarser grids.</p>
+<p>The values are normalized by dividing with the maximum value of a
+gaussian with the given standard deviation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>centers</strong> (<em>1D np.ndarray</em>) – The means of the gaussians.</p></li>
+<li><p><strong>weights</strong> (<em>1D np.ndarray</em>) – The weights for the gaussians.</p></li>
+<li><p><strong>minimum</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – The minimum grid value</p></li>
+<li><p><strong>maximum</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – The maximum grid value</p></li>
+<li><p><strong>std</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – Standard deviation of the gaussian</p></li>
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Number of grid points</p></li>
+<li><p><strong>settings</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – The grid settings. A dictionary
+containing the following information:</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Value of the gaussian sums on the given grid.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dscribe.descriptors.elementaldistribution.ElementalDistribution.get_axis">
+<span class="sig-name descname"><span class="pre">get_axis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">property_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/elementaldistribution.html#ElementalDistribution.get_axis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.elementaldistribution.ElementalDistribution.get_axis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to return the used x-axis for the given property.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>property_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The property name that was used in the</p></li>
+<li><p><strong>constructor.</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An array of x-axis values.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dscribe.descriptors.elementaldistribution.ElementalDistribution.get_element_occurrence">
+<span class="sig-name descname"><span class="pre">get_element_occurrence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/elementaldistribution.html#ElementalDistribution.get_element_occurrence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.elementaldistribution.ElementalDistribution.get_element_occurrence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the count of each atomic element in the given system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>system</strong> (<em>ase.Atoms</em>) – The atomic system.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The counts for each element in a list where the index
+of atomic number x is self.atomic_number_to_index[x]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>1D ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dscribe.descriptors.elementaldistribution.ElementalDistribution.get_number_of_features">
+<span class="sig-name descname"><span class="pre">get_number_of_features</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/elementaldistribution.html#ElementalDistribution.get_number_of_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.elementaldistribution.ElementalDistribution.get_number_of_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to inquire the final number of features that this descriptor
+will have.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Number of features for this descriptor.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="dscribe.descriptors.ewaldsummatrix.html" class="btn btn-neutral float-right" title="dscribe.descriptors.ewaldsummatrix module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="dscribe.descriptors.descriptor.html" class="btn btn-neutral float-left" title="dscribe.descriptors.descriptor module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright .
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Versions</span>
+      v: 1.1.x
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl id="version-table">
+        <dt>Versions</dt>
+      </dl>
+    </div>
+  </div>
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

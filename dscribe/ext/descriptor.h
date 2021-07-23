@@ -64,6 +64,7 @@ class Descriptor {
             py::array_t<double> center_pos,
             py::array_t<int> center_indices,
             py::array_t<int> indices,
+            bool attach,
             bool return_descriptor
         ) const;
 

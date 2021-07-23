@@ -1,0 +1,319 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Sparse output &mdash; DScribe 1.1.x documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/js/versions.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Coulomb Matrix" href="descriptors/coulomb_matrix.html" />
+    <link rel="prev" title="Derivatives" href="derivatives.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.1.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="tutorials.html#basics">Basics</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="basics.html">Basic concepts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="derivatives.html">Derivatives</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Sparse output</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#persistence">Persistence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#conversion">Conversion</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials.html#descriptors">Descriptors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials.html#machine-learning">Machine Learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials.html#similarity-analysis">Similarity Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing DScribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DScribe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="tutorials.html">Tutorials</a> &raquo;</li>
+        
+      <li>Sparse output</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/tutorials/sparse.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="sparse-output">
+<h1>Sparse output<a class="headerlink" href="#sparse-output" title="Permalink to this headline">¶</a></h1>
+<p>Many of the descriptors become very sparse when using a large chemical space,
+or when calculating derivatives. Because of this, DScribe provides the
+possibility of creating the output in a sparse format. The sparse output simply
+means that only non-zero entries are stored. This can create significant
+savings in both RAM and disk usage.</p>
+<p>From version 1.0.0 onwards, the sparse output uses the <code class="code docutils literal notranslate"><span class="pre">sparse.COO</span></code> class
+from the <a class="reference external" href="https://sparse.pydata.org/en/stable/">sparse library</a>. The main
+benefit compared to e.g. the sparse formats provided by scipy is that
+<code class="code docutils literal notranslate"><span class="pre">sparse.COO</span></code> supports n-dimensional sparse output with a convenient
+slicing syntax.</p>
+<div class="section" id="persistence">
+<h2>Persistence<a class="headerlink" href="#persistence" title="Permalink to this headline">¶</a></h2>
+<p>In order to save/load the sparse output you will need to use the <a class="reference external" href="https://sparse.pydata.org/en/stable/generated/sparse.save_npz.html">sparse.save_npz</a>/<a class="reference external" href="https://sparse.pydata.org/en/stable/generated/sparse.load_npz.html">sparse.load_npz</a>
+functions from the sparse library. The following example demonstrates this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sparse</span>
+<span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">molecule</span>
+<span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">SOAP</span>
+
+<span class="c1"># Let&#39;s create SOAP feature vectors for two structures and all positions. If</span>
+<span class="c1"># the output sizes are the same for each structure, a single 3D array is</span>
+<span class="c1"># created.</span>
+<span class="n">soap</span> <span class="o">=</span> <span class="n">SOAP</span><span class="p">(</span>
+    <span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">],</span>
+    <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">rcut</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">nmax</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+    <span class="n">lmax</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+    <span class="n">average</span><span class="o">=</span><span class="s2">&quot;off&quot;</span><span class="p">,</span>
+    <span class="n">sparse</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+<span class="n">soap_features</span> <span class="o">=</span> <span class="n">soap</span><span class="o">.</span><span class="n">create</span><span class="p">([</span><span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;H2O&quot;</span><span class="p">),</span> <span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;CO2&quot;</span><span class="p">)])</span>
+
+<span class="c1"># Save the output to disk and load it back.</span>
+<span class="n">sparse</span><span class="o">.</span><span class="n">save_npz</span><span class="p">(</span><span class="s2">&quot;soap.npz&quot;</span><span class="p">,</span> <span class="n">soap_features</span><span class="p">)</span>
+<span class="n">soap_features</span> <span class="o">=</span> <span class="n">sparse</span><span class="o">.</span><span class="n">load_npz</span><span class="p">(</span><span class="s2">&quot;soap.npz&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Do not confuse <code class="code docutils literal notranslate"><span class="pre">sparse.save_npz</span></code>/<code class="code docutils literal notranslate"><span class="pre">sparse.load_npz</span></code> with the
+similarly named functions in <code class="code docutils literal notranslate"><span class="pre">scipy.sparse</span></code>.</p>
+</div>
+</div>
+<div class="section" id="conversion">
+<h2>Conversion<a class="headerlink" href="#conversion" title="Permalink to this headline">¶</a></h2>
+<p>Many external libraries still only support either dense numpy arrays or the 2D
+sparse matrices from <code class="code docutils literal notranslate"><span class="pre">scipy.sparse</span></code>. This is mostly due to the efficient
+linear algebra routines that are implemented for them. Whenever you need such
+format, you can simply convert the output provided by DScribe to the needed
+format with <a class="reference external" href="https://sparse.pydata.org/en/stable/generated/sparse.COO.todense.html#sparse.COO.todense">todense()</a>,
+<a class="reference external" href="https://sparse.pydata.org/en/stable/generated/sparse.COO.tocsr.html#sparse.COO.tocsr">tocsr()</a>
+or <a class="reference external" href="https://sparse.pydata.org/en/stable/generated/sparse.COO.tocsc.html#sparse.COO.tocsc">tocsc()</a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dense</span> <span class="o">=</span> <span class="n">soap_features</span><span class="o">.</span><span class="n">todense</span><span class="p">()</span>
+<span class="n">csr</span> <span class="o">=</span> <span class="n">soap_features</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span><span class="o">.</span><span class="n">tocsr</span><span class="p">()</span>
+<span class="n">csc</span> <span class="o">=</span> <span class="n">soap_features</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span><span class="o">.</span><span class="n">tocsc</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Because <code class="code docutils literal notranslate"><span class="pre">scipy.sparse</span></code> only suppports 2D sparse arrays, you can only
+call the <code class="code docutils literal notranslate"><span class="pre">tocsr()</span></code>/<code class="code docutils literal notranslate"><span class="pre">tocsc()</span></code>-functions on 2D slices.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="descriptors/coulomb_matrix.html" class="btn btn-neutral float-right" title="Coulomb Matrix" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="derivatives.html" class="btn btn-neutral float-left" title="Derivatives" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright .
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Versions</span>
+      v: 1.1.x
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl id="version-table">
+        <dt>Versions</dt>
+      </dl>
+    </div>
+  </div>
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

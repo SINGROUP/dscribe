@@ -37,13 +37,14 @@ class SOAPGTO: public Descriptor {
             int nmax,
             int lmax,
             double eta,
-            py::array_t<int> species,
-            bool periodic,
+            py::dict weighting,
             bool crossover,
             string average,
             double cutoff_padding,
             py::array_t<double> alphas,
-            py::array_t<double> betas
+            py::array_t<double> betas,
+            py::array_t<int> species,
+            bool periodic
         );
         /**
          * For creating SOAP output.
@@ -70,23 +71,6 @@ class SOAPGTO: public Descriptor {
             py::array_t<int> atomic_numbers,
             py::array_t<double> centers,
             CellList cell_list
-        ) const;
-
-        void create_cartesian(
-            py::array_t<double> derivatives,
-            py::array_t<double> descriptor,
-            py::array_t<double> xd,
-            py::array_t<double> yd,
-            py::array_t<double> zd,
-            py::array_t<double> cd,
-            py::array_t<double> positions,
-            py::array_t<int> atomic_numbers,
-            py::array_t<double> cell,
-            py::array_t<bool> pbc,
-            py::array_t<double> centers,
-            py::array_t<int> center_indices,
-            py::array_t<int> indices,
-            const bool return_descriptor
         ) const;
 
         /**
@@ -103,13 +87,11 @@ class SOAPGTO: public Descriptor {
             py::array_t<double> xd,
             py::array_t<double> yd,
             py::array_t<double> zd,
-            py::array_t<double> cd,
             py::array_t<double> positions,
             py::array_t<int> atomic_numbers,
             py::array_t<double> cell,
             py::array_t<bool> pbc,
             py::array_t<double> centers,
-            py::array_t<int> center_indices,
             py::array_t<int> indices,
             const bool return_descriptor
         ) const;
@@ -119,11 +101,12 @@ class SOAPGTO: public Descriptor {
         const int nmax;
         const int lmax;
         const double eta;
-        const py::array_t<int> species;
+        const py::dict weighting;
         const bool crossover;
         const float cutoff_padding;
         const py::array_t<double> alphas;
         const py::array_t<double> betas;
+        const py::array_t<int> species;
 };
 
 /**
@@ -139,13 +122,14 @@ class SOAPPolynomial: public Descriptor {
             int nmax,
             int lmax,
             double eta,
-            py::array_t<int> species,
-            bool periodic,
+            py::dict weighting,
             bool crossover,
             string average,
             double cutoff_padding,
             py::array_t<double> rx,
-            py::array_t<double> gss
+            py::array_t<double> gss,
+            py::array_t<int> species,
+            bool periodic
         );
         /**
          * For creating SOAP output.
@@ -184,11 +168,12 @@ class SOAPPolynomial: public Descriptor {
         const int nmax;
         const int lmax;
         const double eta;
-        const py::array_t<int> species;
+        const py::dict weighting;
         const bool crossover;
         const float cutoff_padding;
         const py::array_t<double> rx;
         const py::array_t<double> gss;
+        const py::array_t<int> species;
 };
 
 #endif

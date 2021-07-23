@@ -56,41 +56,87 @@ class SOAP(Descriptor):
 
     def __init__(
         self,
-        rcut,
-        nmax,
-        lmax,
+        rcut=None,
+        nmax=None,
+        lmax=None,
         sigma=1.0,
         rbf="gto",
-        species=None,
-        periodic=False,
+        weighting=None,
         crossover=True,
         average="off",
+        species=None,
+        periodic=False,
         sparse=False,
-        dtype="float32",
+        dtype="float64",
     ):
         """
         Args:
             rcut (float): A cutoff for local region in angstroms. Should be
-                bigger than 1 angstrom.
+                bigger than 1 angstrom for the gto-basis.
             nmax (int): The number of radial basis functions.
             lmax (int): The maximum degree of spherical harmonics.
-            species (iterable): The chemical species as a list of atomic
-                numbers or as a list of chemical symbols. Notice that this is not
-                the atomic numbers that are present for an individual system, but
-                should contain all the elements that are ever going to be
-                encountered when creating the descriptors for a set of systems.
-                Keeping the number of chemical species as low as possible is
-                preferable.
             sigma (float): The standard deviation of the gaussians used to expand the
                 atomic density.
             rbf (str): The radial basis functions to use. The available options are:
 
-                * "gto": Spherical gaussian type orbitals defined as :math:`g_{nl}(r) = \sum_{n'=1}^{n_\mathrm{max}}\,\\beta_{nn'l} r^l e^{-\\alpha_{n'l}r^2}`
-                * "polynomial": Polynomial basis defined as :math:`g_{n}(r) = \sum_{n'=1}^{n_\mathrm{max}}\,\\beta_{nn'} (r-r_\mathrm{cut})^{n'+2}`
+                * ``"gto"``: Spherical gaussian type orbitals defined as :math:`g_{nl}(r) = \sum_{n'=1}^{n_\mathrm{max}}\,\\beta_{nn'l} r^l e^{-\\alpha_{n'l}r^2}`
+                * ``"polynomial"``: Polynomial basis defined as :math:`g_{n}(r) = \sum_{n'=1}^{n_\mathrm{max}}\,\\beta_{nn'} (r-r_\mathrm{cut})^{n'+2}`
 
-            periodic (bool): Set to true if you want the descriptor output to
-                respect the periodicity of the atomic systems (see the
-                pbc-parameter in the constructor of ase.Atoms).
+            weighting (dict): Contains the options which control the
+                weighting of the atomic density. Leave unspecified if
+                you do not wish to apply any weighting. The dictionary may
+                contain the following entries:
+
+                * ``"function"``: The weighting function to use. The
+                  following are currently supported:
+
+                    * ``"poly"``: :math:`w(r) = \left\{ \\begin{array}{ll} c(1 + 2 (\\frac{r}{r_0})^{3} -3 (\\frac{r}{r_0})^{2}))^{m}, \\ \\text{for}\\ r \\leq r_0\\\\ 0, \\ \\text{for}\\ r > r_0 \end{array}\\right.`
+
+                      This function goes exactly to zero at :math:`r=r_0`. If
+                      you do not explicitly provide ``rcut`` in the
+                      constructor, ``rcut`` is automatically set to ``r0``.
+                      You can provide the parameters ``c``, ``m`` and ``r0`` as
+                      additional dictionary items.
+
+                      For reference see:
+                          "Caro, M. (2019). Optimizing many-body atomic
+                          descriptors for enhanced computational performance of
+                          machine learning based interatomic potentials.  Phys.
+                          Rev. B, 100, 024112."
+
+                    * ``"pow"``: :math:`w(r) = \\frac{c}{d + (\\frac{r}{r_0})^{m}}`
+
+                      If you do not explicitly provide ``rcut`` in the
+                      constructor, ``rcut`` will be set as the value at which
+                      this function decays to the value given by the
+                      ``threshold`` entry in the weighting dictionary (defaults
+                      to 1e-2), You can provide the parameters ``c``, ``d``,
+                      ``m``, ``r0`` and ``threshold`` as additional dictionary
+                      items.
+
+                      For reference see:
+                          "Willatt, M., Musil, F., & Ceriotti, M. (2018).
+                          Feature optimization for atomistic machine learning
+                          yields a data-driven construction of the periodic
+                          table of the elements.  Phys. Chem. Chem. Phys., 20,
+                          29661-29668.
+                          "
+
+                    * ``"exp"``: :math:`w(r) = \\frac{c}{d + e^{-r/r_0}}`
+
+                      If you do not explicitly provide ``rcut`` in the
+                      constructor, ``rcut`` will be set as the value at which
+                      this function decays to the value given by the
+                      ``threshold`` entry in the weighting dictionary (defaults
+                      to 1e-2), You can provide the parameters ``c``, ``d``,
+                      ``r0`` and ``threshold`` as additional dictionary items.
+
+                * ``"w0"``: Optional weight for atoms that are directly on top
+                    of a requested center. Setting this value to zero
+                    essentially hides the central atoms from the output. If a
+                    weighting function is also specified, this constant will
+                    override it for the central atoms.
+
             crossover (bool): Determines if crossover of atomic types should
                 be included in the power spectrum. If enabled, the power
                 spectrum is calculated over all unique species combinations Z
@@ -101,16 +147,25 @@ class SOAP(Descriptor):
             average (str): The averaging mode over the centers of interest.
                 Valid options are:
 
-                    * "off": No averaging.
-                    * "inner": Averaging over sites before summing up the magnetic quantum numbers: :math:`p_{nn'l}^{Z_1,Z_2} \sim \sum_m (\\frac{1}{n} \sum_i c_{nlm}^{i, Z_1})^{*} (\\frac{1}{n} \sum_i c_{n'lm}^{i, Z_2})`
-                    * "outer": Averaging over the power spectrum of different sites: :math:`p_{nn'l}^{Z_1,Z_2} \sim \\frac{1}{n} \sum_i \sum_m (c_{nlm}^{i, Z_1})^{*} (c_{n'lm}^{i, Z_2})`
-
+                    * ``"off"``: No averaging.
+                    * ``"inner"``: Averaging over sites before summing up the magnetic quantum numbers: :math:`p_{nn'l}^{Z_1,Z_2} \sim \sum_m (\\frac{1}{n} \sum_i c_{nlm}^{i, Z_1})^{*} (\\frac{1}{n} \sum_i c_{n'lm}^{i, Z_2})`
+                    * ``"outer"``: Averaging over the power spectrum of different sites: :math:`p_{nn'l}^{Z_1,Z_2} \sim \\frac{1}{n} \sum_i \sum_m (c_{nlm}^{i, Z_1})^{*} (c_{n'lm}^{i, Z_2})`
+            species (iterable): The chemical species as a list of atomic
+                numbers or as a list of chemical symbols. Notice that this is not
+                the atomic numbers that are present for an individual system, but
+                should contain all the elements that are ever going to be
+                encountered when creating the descriptors for a set of systems.
+                Keeping the number of chemical species as low as possible is
+                preferable.
+            periodic (bool): Set to True if you want the descriptor output to
+                respect the periodicity of the atomic systems (see the
+                pbc-parameter in the constructor of ase.Atoms).
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
-            dtype (string): The data type of the output. Valid options are:
+            dtype (str): The data type of the output. Valid options are:
 
-                    * "float32": Single precision floating point numbers.
-                    * "float64": Double precision floating point numbers.
+                    * ``"float32"``: Single precision floating point numbers.
+                    * ``"float64"``: Double precision floating point numbers.
 
         """
         supported_dtype = set(("float32", "float64"))
@@ -132,9 +187,7 @@ class SOAP(Descriptor):
         self._eta = 1 / (2 * sigma ** 2)
         self._sigma = sigma
 
-        if lmax < 0:
-            raise ValueError("lmax cannot be negative. lmax={}".format(lmax))
-        supported_rbf = set(("gto", "polynomial"))
+        supported_rbf = {"gto", "polynomial"}
         if rbf not in supported_rbf:
             raise ValueError(
                 "Invalid radial basis function of type '{}' given. Please use "
@@ -151,6 +204,56 @@ class SOAP(Descriptor):
                 "one of the following: {}".format(average, supported_average)
             )
 
+        if not (weighting or rcut):
+            raise ValueError("Either weighting or rcut need to be defined")
+        if weighting:
+            w0 = weighting.get("w0")
+            if w0 is not None:
+                if w0 < 0:
+                    raise ValueError("Define w0 > 0 in weighting.")
+                weighting["w0"] = float(w0)
+            func = weighting.get("function")
+            if func is not None:
+                weighting_functions = {"poly", "pow", "exp"}
+                if func not in weighting_functions:
+                    raise ValueError(
+                        "Weighting function not implemented. Please choose "
+                        "among one of the following {}".format(weighting_functions)
+                    )
+                r0 = weighting.get("r0")
+                if r0 is None or r0 <= 0:
+                    raise ValueError("Define r0 > 0 in weighting.")
+                weighting["r0"] = float(r0)
+                c = weighting.get("c")
+                if c is None or c < 0:
+                    raise ValueError("Define c >= 0 in weighting.")
+                weighting["c"] = float(c)
+                if func == "poly":
+                    m = weighting.get("m")
+                    if m is None or m < 0:
+                        raise ValueError("Define m >= 0 in weighting.")
+                    weighting["m"] = float(m)
+                elif func == "pow":
+                    d = weighting.get("d")
+                    if d is None or d < 0:
+                        raise ValueError("Define d >= 0 in weighting.")
+                    weighting["d"] = float(d)
+                    m = weighting.get("m")
+                    if m is None or m < 0:
+                        raise ValueError("Define m >= 0 in weighting.")
+                    weighting["m"] = float(m)
+                    weighting["threshold"] = float(weighting.get("threshold", 1e-2))
+                elif func == "exp":
+                    d = weighting.get("d")
+                    if d < 0:
+                        raise ValueError("Define d >= 0 in weighting.")
+                    weighting["d"] = float(d)
+                    weighting["threshold"] = float(weighting.get("threshold", 1e-2))
+        else:
+            weighting = {}
+        if not rcut:
+            rcut = self._infer_rcut(weighting)
+
         # Test that radial basis set specific settings are valid
         if rbf == "gto":
             if rcut <= 1:
@@ -158,22 +261,20 @@ class SOAP(Descriptor):
                     "When using the gaussian radial basis set (gto), the radial "
                     "cutoff should be bigger than 1 angstrom."
                 )
-            if lmax > 9:
-                raise ValueError(
-                    "When using the gaussian radial basis set (gto), lmax "
-                    "cannot currently exceed 9. lmax={}".format(lmax)
-                )
             # Precalculate the alpha and beta constants for the GTO basis
-            self._alphas, self._betas = self.get_basis_gto(rcut, nmax)
+            self._alphas, self._betas = self.get_basis_gto(rcut, nmax, lmax)
 
-        elif rbf == "polynomial":
-            if lmax > 20:
-                raise ValueError(
-                    "When using the polynomial radial basis set, lmax "
-                    "cannot currently exceed 20. lmax={}".format(lmax)
-                )
+        # Test lmax
+        if lmax < 0:
+            raise ValueError("lmax cannot be negative. lmax={}".format(lmax))
+        elif lmax > 20:
+            raise ValueError(
+                "The maximum available lmax for SOAP is currently 20, you have"
+                " requested lmax={}".format(lmax)
+            )
 
-        self._rcut = rcut
+        self._rcut = float(rcut)
+        self._weighting = weighting
         self._nmax = nmax
         self._lmax = lmax
         self._rbf = rbf
@@ -236,6 +337,31 @@ class SOAP(Descriptor):
         threshold = 0.001
         cutoff_padding = self._sigma * np.sqrt(-2 * np.log(threshold))
         return cutoff_padding
+
+    def _infer_rcut(self, weighting):
+        """Used to determine an appropriate rcut based on where the given
+        weighting function setup.
+        """
+        if weighting["function"] == "pow":
+            t = weighting["threshold"]
+            m = weighting["m"]
+            c = weighting["c"]
+            d = weighting["d"]
+            r0 = weighting["r0"]
+            rcut = r0 * (c / t - d) ** (1 / m)
+            return rcut
+        elif weighting["function"] == "poly":
+            r0 = weighting["r0"]
+            return r0
+        elif weighting["function"] == "exp":
+            t = weighting["threshold"]
+            c = weighting["c"]
+            d = weighting["d"]
+            r0 = weighting["r0"]
+            rcut = r0 * np.log(c / t - d)
+            return rcut
+        else:
+            return None
 
     def init_descriptor_array(self, n_centers, n_features):
         """Return a zero-initialized numpy array for the descriptor."""
@@ -378,96 +504,6 @@ class SOAP(Descriptor):
             get_number_of_features()-function.
         """
         cutoff_padding = self.get_cutoff_padding()
-        centers, _ = self.prepare_centers(system, cutoff_padding, positions)
-        n_centers = centers.shape[0]
-        n_species = self._atomic_numbers.shape[0]
-        pos = system.get_positions()
-        Z = system.get_atomic_numbers()
-        n_features = self.get_number_of_features()
-        n_atoms = Z.shape[0]
-        soap_mat = self.init_descriptor_array(n_centers, n_features)
-
-        # Determine the function to call based on rbf
-        if self._rbf == "gto":
-
-            # Orthonormalized RBF coefficients
-            alphas = self._alphas.flatten()
-            betas = self._betas.flatten()
-
-            # Determine shape
-            n_features = self.get_number_of_features()
-            soap_mat = self.init_descriptor_array(n_centers, n_features)
-
-            # Calculate with extension
-            soap_gto = dscribe.ext.SOAPGTO(
-                self._rcut,
-                self._nmax,
-                self._lmax,
-                self._eta,
-                self._atomic_numbers,
-                self.periodic,
-                self.crossover,
-                self.average,
-                cutoff_padding,
-                alphas,
-                betas,
-            )
-            soap_gto.create(
-                soap_mat,
-                pos,
-                Z,
-                ase.geometry.cell.complete_cell(system.get_cell()),
-                np.asarray(system.get_pbc(), dtype=bool),
-                centers,
-            )
-        elif self._rbf == "polynomial":
-            # Get the discretized and orthogonalized polynomial radial basis
-            # function values
-            rx, gss = self.get_basis_poly(self._rcut, self._nmax)
-            gss = gss.flatten()
-
-            # Calculate with extension
-            soap_poly = dscribe.ext.SOAPPolynomial(
-                self._rcut,
-                self._nmax,
-                self._lmax,
-                self._eta,
-                self._atomic_numbers,
-                self.periodic,
-                self.crossover,
-                self.average,
-                cutoff_padding,
-                rx,
-                gss,
-            )
-            soap_poly.create(
-                soap_mat,
-                pos,
-                Z,
-                ase.geometry.cell.complete_cell(system.get_cell()),
-                np.asarray(system.get_pbc(), dtype=bool),
-                centers,
-            )
-
-        # Averaged output is a global descriptor, and thus the first dimension
-        # is squeezed out to keep the output size consistent with the size of
-        # other global descriptors.
-        if self.average != "off":
-            soap_mat = np.squeeze(soap_mat, axis=0)
-
-        # Convert to the final output precision.
-        if self.dtype == "float32":
-            soap_mat = soap_mat.astype(self.dtype)
-
-        # Make into a sparse array if requested
-        if self._sparse:
-            soap_mat = sp.COO.from_numpy(soap_mat)
-
-        return soap_mat
-
-    def _cartesian(self, system, positions=None):
-        """Internal test function."""
-        cutoff_padding = self.get_cutoff_padding()
         centers, center_indices = self.prepare_centers(
             system, cutoff_padding, positions
         )
@@ -496,45 +532,68 @@ class SOAP(Descriptor):
                 self._nmax,
                 self._lmax,
                 self._eta,
-                self._atomic_numbers,
-                self.periodic,
+                self._weighting,
                 self.crossover,
                 self.average,
                 cutoff_padding,
                 alphas,
                 betas,
+                self._atomic_numbers,
+                self.periodic,
             )
 
             # Calculate analytically with extension
-            xd = np.empty((1, 1, 1, 1, 1))
-            yd = np.empty((1, 1, 1, 1, 1))
-            zd = np.empty((1, 1, 1, 1, 1))
-            cd = self.init_internal_array(n_centers, n_species, self._nmax, self._lmax)
-            d = np.empty((1, 1, 1, 1))
-            soap_gto.create_cartesian(
-                d,
+            soap_gto.create(
                 soap_mat,
-                xd,
-                yd,
-                zd,
-                cd,
                 pos,
                 Z,
                 ase.geometry.cell.complete_cell(system.get_cell()),
                 np.asarray(system.get_pbc(), dtype=bool),
                 centers,
-                center_indices,
-                [],
-                True,
+            )
+        elif self._rbf == "polynomial":
+            # Get the discretized and orthogonalized polynomial radial basis
+            # function values
+            rx, gss = self.get_basis_poly(self._rcut, self._nmax)
+            gss = gss.flatten()
+
+            # Calculate with extension
+            soap_poly = dscribe.ext.SOAPPolynomial(
+                self._rcut,
+                self._nmax,
+                self._lmax,
+                self._eta,
+                self._weighting,
+                self.crossover,
+                self.average,
+                cutoff_padding,
+                rx,
+                gss,
+                self._atomic_numbers,
+                self.periodic,
+            )
+            soap_poly.create(
+                soap_mat,
+                pos,
+                Z,
+                ase.geometry.cell.complete_cell(system.get_cell()),
+                np.asarray(system.get_pbc(), dtype=bool),
+                centers,
             )
 
+        # Averaged output is a global descriptor, and thus the first dimension
+        # is squeezed out to keep the output size consistent with the size of
+        # other global descriptors.
+        if self.average != "off":
+            soap_mat = np.squeeze(soap_mat, axis=0)
+
         # Convert to the final output precision.
-        if self.dtype == "float32":
+        if self.dtype != "float64":
             soap_mat = soap_mat.astype(self.dtype)
 
         # Make into a sparse array if requested
-        if self.sparse:
-            soap_mat = coo_matrix(soap_mat)
+        if self._sparse:
+            soap_mat = sp.COO.from_numpy(soap_mat)
 
         return soap_mat
 
@@ -546,6 +605,7 @@ class SOAP(Descriptor):
         exclude=None,
         method="auto",
         return_descriptor=True,
+        attach=False,
         n_jobs=1,
         only_physical_cores=False,
         verbose=False,
@@ -556,10 +616,12 @@ class SOAP(Descriptor):
             system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or
                 many atomic structures.
             positions (list): Positions where to calculate the descriptor. Can be
-                provided as cartesian positions or atomic indices. If no
-                positions are defined, the descriptor output will be created for all
-                atoms in the system. When calculating descriptor for multiple
-                systems, provide the positions as a list for each system.
+                provided as cartesian positions or atomic indices. Also see the
+                "attach"-argument that controls the interperation of locations
+                given as atomic indices. If no positions are defined, the
+                descriptor output will be created for all atoms in the system.
+                When calculating descriptor for multiple systems, provide the
+                positions as a list for each system.
             include (list): Indices of atoms to compute the derivatives on.
                 When calculating descriptor for multiple systems, provide
                 either a one-dimensional list that if applied to all systems or
@@ -573,6 +635,13 @@ class SOAP(Descriptor):
             method (str): The method for calculating the derivatives. Provide
                 either 'numerical', 'analytical' or 'auto'. If using 'auto',
                 the most efficient available method is automatically chosen.
+            attach (bool): Controls the behaviour of positions defined as
+                atomic indices. If True, the positions tied to an atomic index will
+                move together with the atoms with respect to which the derivatives
+                are calculated against. If False, positions defined as atomic
+                indices will be converted into cartesian locations that are
+                completely independent of the atom location during derivative
+                calculation.
             return_descriptor (bool): Whether to also calculate the descriptor
                 in the same function call. Notice that it typically is faster
                 to calculate both in one go.
@@ -626,10 +695,14 @@ class SOAP(Descriptor):
                 "Analytical derivatives not currently available for polynomial "
                 "radial basis set."
             )
+        if attach and method == "analytical":
+            raise ValueError(
+                "Analytical derivatives not currently available when attach=True."
+            )
 
         # Determine the appropriate method if not given explicitly.
         if method == "auto":
-            if self._rbf == "polynomial" or self.average != "off":
+            if self._rbf == "polynomial" or self.average != "off" or attach:
                 method = "numerical"
             else:
                 method = "analytical"
@@ -643,6 +716,7 @@ class SOAP(Descriptor):
                 positions,
                 indices,
                 method=method,
+                attach=attach,
                 return_descriptor=return_descriptor,
             )
 
@@ -691,6 +765,7 @@ class SOAP(Descriptor):
                 positions,
                 indices,
                 [method] * n_samples,
+                [attach] * n_samples,
                 [return_descriptor] * n_samples,
             )
         )
@@ -737,7 +812,13 @@ class SOAP(Descriptor):
         return output
 
     def derivatives_single(
-        self, system, positions, indices, method="numerical", return_descriptor=True
+        self,
+        system,
+        positions,
+        indices,
+        method="numerical",
+        attach=False,
+        return_descriptor=True,
     ):
         """Return the SOAP output for the given system and given positions.
 
@@ -753,6 +834,13 @@ class SOAP(Descriptor):
             method (str): 'numerical' or 'analytical' derivatives. Numerical
                 derivatives are implemented with central finite difference. If
                 not specified, analytical derivatives are used when available.
+            attach (bool): Controls the behaviour of positions defined as
+                atomic indices. If True, the positions tied to an atomic index will
+                move together with the atoms with respect to which the derivatives
+                are calculated against. If False, positions defined as atomic
+                indices will be converted into cartesian locations that are
+                completely independent of the atom location during derivative
+                calculation.
             return_descriptor (bool): Whether to also calculate the descriptor
                 in the same function call. This is true by default as it
                 typically is faster to calculate both in one go.
@@ -796,13 +884,14 @@ class SOAP(Descriptor):
                 self._nmax,
                 self._lmax,
                 self._eta,
-                self._atomic_numbers,
-                self.periodic,
+                self._weighting,
                 self.crossover,
                 self.average,
                 cutoff_padding,
                 alphas,
                 betas,
+                self._atomic_numbers,
+                self.periodic,
             )
 
             # Calculate numerically with extension
@@ -817,6 +906,7 @@ class SOAP(Descriptor):
                     centers,
                     center_indices,
                     indices,
+                    attach,
                     return_descriptor,
                 )
             # Calculate analytically with extension
@@ -827,9 +917,6 @@ class SOAP(Descriptor):
                 # that numpy does some kind of lazy allocation that is
                 # highly efficient for zero-initialized arrays. Similar
                 # performace could not be achieved even with calloc.
-                cd = self.init_internal_array(
-                    n_centers, n_species, self._nmax, self._lmax
-                )
                 xd = self.init_internal_dev_array(
                     n_centers, n_atoms, n_species, self._nmax, self._lmax
                 )
@@ -846,13 +933,11 @@ class SOAP(Descriptor):
                     xd,
                     yd,
                     zd,
-                    cd,
                     pos,
                     Z,
                     ase.geometry.cell.complete_cell(system.get_cell()),
                     np.asarray(system.get_pbc(), dtype=bool),
                     centers,
-                    center_indices,
                     indices,
                     return_descriptor,
                 )
@@ -868,13 +953,14 @@ class SOAP(Descriptor):
                     self._nmax,
                     self._lmax,
                     self._eta,
-                    self._atomic_numbers,
-                    self.periodic,
+                    self._weighting,
                     self.crossover,
                     self.average,
                     cutoff_padding,
                     rx,
                     gss,
+                    self._atomic_numbers,
+                    self.periodic,
                 )
                 soap_poly.derivatives_numerical(
                     d,
@@ -886,6 +972,7 @@ class SOAP(Descriptor):
                     centers,
                     center_indices,
                     indices,
+                    attach,
                     return_descriptor,
                 )
 
@@ -1011,7 +1098,7 @@ class SOAP(Descriptor):
 
         return slice(start, end)
 
-    def get_basis_gto(self, rcut, nmax):
+    def get_basis_gto(self, rcut, nmax, lmax):
         """Used to calculate the alpha and beta prefactors for the gto-radial
         basis.
 
@@ -1028,10 +1115,10 @@ class SOAP(Descriptor):
         a = np.linspace(1, rcut, nmax)
         threshold = 1e-3  # This is the fixed gaussian decay threshold
 
-        alphas_full = np.zeros((10, nmax))
-        betas_full = np.zeros((10, nmax, nmax))
+        alphas_full = np.zeros((lmax + 1, nmax))
+        betas_full = np.zeros((lmax + 1, nmax, nmax))
 
-        for l in range(0, 10):
+        for l in range(0, lmax + 1):
             # The alphas are calculated so that the GTOs will decay to the set
             # threshold value at their respective cutoffs
             alphas = -np.log(threshold / np.power(a, l)) / a ** 2

@@ -94,9 +94,9 @@ map<string, vector<float>> MBTR::getK2(const vector<int> &Z, const vector<vector
                     float weight;
                     if (weightFunc == "exponential" || weightFunc == "exp") {
                         float scale = parameters.at("scale");
-                        float cutoff = parameters.at("cutoff");
+                        float threshold = parameters.at("threshold");
                         weight = k2WeightExponential(i, j, distances, scale);
-                        if (weight < cutoff) {
+                        if (weight < threshold) {
                             continue;
                         }
                     } else if (weightFunc == "unity") {
@@ -198,9 +198,9 @@ map<string, vector<float> > MBTR::getK3(const vector<int> &Z, const vector<vecto
                             float weight;
                             if (weightFunc == "exponential" || weightFunc == "exp") {
                                 float scale = parameters.at("scale");
-                                float cutoff = parameters.at("cutoff");
+                                float threshold = parameters.at("threshold");
                                 weight = k3WeightExponential(i, j, k, distances, scale);
-                                if (weight < cutoff) {
+                                if (weight < threshold) {
                                     continue;
                                 }
                             } else if (weightFunc == "unity") {
@@ -413,9 +413,9 @@ vector<map<string, vector<float>>> MBTR::getK2Local(const vector<int> &indices, 
             float weight;
             if (weightFunc == "exponential" || weightFunc == "exp") {
                 float scale = parameters.at("scale");
-                float cutoff = parameters.at("cutoff");
+                float threshold = parameters.at("threshold");
                 weight = k2WeightExponential(i, j, distances, scale);
-                if (weight < cutoff) {
+                if (weight < threshold) {
                     continue;
                 }
             } else if (weightFunc == "unity") {
@@ -499,9 +499,9 @@ vector<map<string, vector<float>>> MBTR::getK3Local(const vector<int> &indices, 
                     float weight;
                     if (weightFunc == "exponential" || weightFunc == "exp") {
                         float scale = parameters.at("scale");
-                        float cutoff = parameters.at("cutoff");
+                        float threshold = parameters.at("threshold");
                         weight = k3WeightExponential(i, j, k, distances, scale);
-                        if (weight < cutoff) {
+                        if (weight < threshold) {
                             continue;
                         }
                     } else if (weightFunc == "unity") {
@@ -563,9 +563,9 @@ vector<map<string, vector<float>>> MBTR::getK3Local(const vector<int> &indices, 
                         float weight;
                         if (weightFunc == "exponential" || weightFunc == "exp") {
                             float scale = parameters.at("scale");
-                            float cutoff = parameters.at("cutoff");
+                            float threshold = parameters.at("threshold");
                             weight = k3WeightExponential(j, i, k, distances, scale);
-                            if (weight < cutoff) {
+                            if (weight < threshold) {
                                 continue;
                             }
                         } else if (weightFunc == "unity") {

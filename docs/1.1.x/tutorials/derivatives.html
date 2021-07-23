@@ -1,0 +1,346 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Derivatives &mdash; DScribe 1.1.x documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/js/versions.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Sparse output" href="sparse.html" />
+    <link rel="prev" title="Basic concepts" href="basics.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.1.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="tutorials.html#basics">Basics</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="basics.html">Basic concepts</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Derivatives</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#call-signature">Call signature</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#layout">Layout</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sparse.html">Sparse output</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials.html#descriptors">Descriptors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials.html#machine-learning">Machine Learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials.html#similarity-analysis">Similarity Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing DScribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DScribe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="tutorials.html">Tutorials</a> &raquo;</li>
+        
+      <li>Derivatives</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/tutorials/derivatives.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="derivatives">
+<h1>Derivatives<a class="headerlink" href="#derivatives" title="Permalink to this headline">¶</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Currently, derivatives are only available for the SOAP descriptor. We will
+incrementally add support for getting the derivatives of other descriptors
+as well.</p>
+</div>
+<p>The descriptor outputs that DScribe provides are typically vectors containing
+multiple features. Each of these features has a dependency on the positions of
+atoms in the system, and in particular each feature has a derivative with
+respect to the x-, y-, and z-components of the position of every atom in the
+system.</p>
+<p>Some of the descriptors included in DScribe allow you to calculate these
+derivatives. The derivatives provide a way to study the effect of different
+atoms on the output, and in particular they can be used to build machine
+learning based force-fields, see <a class="reference internal" href="machine_learning/forces_and_energies.html"><span class="doc">the tutorial on building one</span></a>.</p>
+<div class="section" id="call-signature">
+<h2>Call signature<a class="headerlink" href="#call-signature" title="Permalink to this headline">¶</a></h2>
+<p>The descriptors for which derivatives have been made available have a new
+<code class="code docutils literal notranslate"><span class="pre">derivatives</span></code>-function, see e.g. <a class="reference internal" href="../doc/dscribe.descriptors.soap.html#dscribe.descriptors.soap.SOAP.derivatives" title="dscribe.descriptors.soap.SOAP.derivatives"><code class="xref py py-meth docutils literal notranslate"><span class="pre">SOAP.derivatives()</span></code></a>. This function works
+very similarly to the create function and the typical function call signature
+looks like this:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">systems</span></code>: one or multiple atomic systems</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">positions</span></code>: (only for local descriptors) the positions at which the
+descriptor is evaluated.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">include</span></code>: Indices of the atoms which should be included in the
+derivative calculations. If no value is specified, all atoms will be used.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">exclude</span></code>: Indices of atoms which should be excluded from the
+derivative calculations. Use either <code class="code docutils literal notranslate"><span class="pre">include</span></code> or <code class="code docutils literal notranslate"><span class="pre">exclude</span></code>, not
+both.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">method</span></code>: Possible values are: <code class="code docutils literal notranslate"><span class="pre">analytical</span></code>, <code class="code docutils literal notranslate"><span class="pre">numerical</span></code>
+or <code class="code docutils literal notranslate"><span class="pre">auto</span></code>. Defaults to <code class="code docutils literal notranslate"><span class="pre">auto</span></code>, which means that the most
+efficient available method is used. In general, analytical derivatives are
+preferred, since they are faster to compute. However, they are not always
+available/implemented (check the descriptor documentation). The numerical
+derivatives are implemented with a centered finite difference scheme that
+has a good balance between accuracy and speed.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">attach</span></code>: (only for local descriptors) controls the behaviour of positions
+defined as atomic indices. If True, the positions tied to an atomic index
+will move together with the atoms with respect to which the derivatives are
+calculated against. If False, positions defined as atomic indices will be
+converted into cartesian locations that are completely independent of the
+atom location during derivative calculation.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">return_descriptor</span></code>: Whether or not to return the descriptor as well.
+If you anyways need to compute the descriptor, it is typically faster to use
+this option instead of a separate <code class="code docutils literal notranslate"><span class="pre">create</span></code>-call.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">n_jobs</span></code>: Number of parallel jobs. Only applicable when multiple
+systems are provided, upon which the job is split between multiple processes.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="layout">
+<h2>Layout<a class="headerlink" href="#layout" title="Permalink to this headline">¶</a></h2>
+<p>We have decided to retain as much structure in the derivative output as
+possible. This approach allows you to better understand the different
+components, and you still have the option to re-arrange the output as you wish.
+The derivative output for a single system is organized as follows:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>For global descriptors the output is three-dimensional: <code class="code docutils literal notranslate"><span class="pre">[n_atoms,</span> <span class="pre">3,</span> <span class="pre">n_features]</span></code></p></li>
+<li><p>For local descriptors the output is four-dimensional: <code class="code docutils literal notranslate"><span class="pre">[n_centers,</span> <span class="pre">n_atoms,</span> <span class="pre">3,</span> <span class="pre">n_features]</span></code></p></li>
+</ul>
+</div></blockquote>
+<p>Here the dimension with <code class="code docutils literal notranslate"><span class="pre">n_centers</span></code> loops through the different centers
+used in a local descriptor, <code class="code docutils literal notranslate"><span class="pre">n_atoms</span></code> loops through the atoms for which
+the derivatives were calculated for, the second-to-last dimension with three
+components loops through the x, y and z components, and the last dimension with
+<code class="code docutils literal notranslate"><span class="pre">n_features</span></code> loops through the different features. This layout is
+convenient for calculating the descriptor values, but depending on your
+application, you may need a different layout. You can quite easily rearrange
+these dimension with either <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.moveaxis.html">np.moveaxis</a> or
+<a class="reference external" href="https://sparse.pydata.org/en/stable/generated/sparse.moveaxis.html">sparse.moveaxis</a>, or do
+completely custom layouts with some looping.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Whenever multiple systems are provided, an additional dimension is added
+that runs across the different systems: for systems with the same number of
+atoms the output becomes a five-dimensional array, otherwise the output
+becomes a list of four-dimensional arrays.</p>
+</div>
+<p>If you use the default dense output, the derivatives will be stored in a
+regular numpy array. Notice that the size of these dense arrays grows very
+quickly with system size. A good way around this is to use sparse arrays
+instead by using the <code class="code docutils literal notranslate"><span class="pre">sparse=True</span></code> option in the descriptor constructor.
+In large systems the derivative array will typically become quite sparse,
+giving significant savings in storage space. Since 1.0.0 we have opted to use
+the <a class="reference external" href="https://sparse.pydata.org/en/stable/">sparse</a>-library for all of
+our sparse outputs, see the <a class="reference internal" href="machine_learning/forces_and_energies.html"><span class="doc">documentation page on sparse output</span></a>.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="sparse.html" class="btn btn-neutral float-right" title="Sparse output" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="basics.html" class="btn btn-neutral float-left" title="Basic concepts" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright .
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Versions</span>
+      v: 1.1.x
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl id="version-table">
+        <dt>Versions</dt>
+      </dl>
+    </div>
+  </div>
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,689 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>dscribe.descriptors.acsf &mdash; DScribe 1.1.x documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/style.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/js/versions.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html">
+          
+
+          
+            
+            <img src="../../../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.1.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../citing.html">Citing DScribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about.html">About</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DScribe</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>dscribe.descriptors.acsf</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for dscribe.descriptors.acsf</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;Copyright 2019 DScribe developers</span>
+
+<span class="sd">Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="sd">you may not use this file except in compliance with the License.</span>
+<span class="sd">You may obtain a copy of the License at</span>
+
+<span class="sd">    http://www.apache.org/licenses/LICENSE-2.0</span>
+
+<span class="sd">Unless required by applicable law or agreed to in writing, software</span>
+<span class="sd">distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="sd">WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="sd">See the License for the specific language governing permissions and</span>
+<span class="sd">limitations under the License.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">sparse</span>
+<span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="kn">import</span> <span class="n">coo_matrix</span>
+
+<span class="kn">from</span> <span class="nn">dscribe.descriptors.descriptor</span> <span class="kn">import</span> <span class="n">Descriptor</span>
+<span class="kn">from</span> <span class="nn">dscribe.core</span> <span class="kn">import</span> <span class="n">System</span>
+
+<span class="kn">from</span> <span class="nn">ase</span> <span class="kn">import</span> <span class="n">Atoms</span>
+
+<span class="kn">from</span> <span class="nn">dscribe.ext</span> <span class="kn">import</span> <span class="n">ACSFWrapper</span>
+
+<span class="kn">import</span> <span class="nn">dscribe.utils.geometry</span>
+
+
+<div class="viewcode-block" id="ACSF"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.acsf.html#dscribe.descriptors.acsf.ACSF">[docs]</a><span class="k">class</span> <span class="nc">ACSF</span><span class="p">(</span><span class="n">Descriptor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Implementation of Atom-Centered Symmetry Functions.</span>
+
+<span class="sd">    Notice that the species of the central atom is not encoded in the output,</span>
+<span class="sd">    only the surrounding environment is encoded. In a typical application one</span>
+<span class="sd">    can train a different model for each central species.</span>
+
+<span class="sd">    For reference, see:</span>
+<span class="sd">        &quot;Atom-centered symmetry functions for constructing high-dimensional</span>
+<span class="sd">        neural network potentials&quot;, Jörg Behler, The Journal of Chemical</span>
+<span class="sd">        Physics, 134, 074106 (2011), https://doi.org/10.1063/1.3553717</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ACSF.__init__"><a class="viewcode-back" href="../../../tutorials/descriptors/acsf.html#dscribe.descriptors.acsf.ACSF.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">rcut</span><span class="p">,</span>
+        <span class="n">g2_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">g3_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">g4_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">g5_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">species</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            rcut (float): The smooth cutoff value in angstroms. This cutoff</span>
+<span class="sd">                value is used throughout the calculations for all symmetry</span>
+<span class="sd">                functions.</span>
+<span class="sd">            g2_params (n*2 np.ndarray): A list of pairs of :math:`\eta` and</span>
+<span class="sd">                :math:`R_s` parameters for :math:`G^2` functions.</span>
+<span class="sd">            g3_params (n*1 np.ndarray): A list of :math:`\kappa` parameters for</span>
+<span class="sd">                :math:`G^3` functions.</span>
+<span class="sd">            g4_params (n*3 np.ndarray): A list of triplets of :math:`\eta`,</span>
+<span class="sd">                :math:`\zeta` and  :math:`\lambda` parameters for :math:`G^4` functions.</span>
+<span class="sd">            g5_params (n*3 np.ndarray): A list of triplets of :math:`\eta`,</span>
+<span class="sd">                :math:`\zeta` and  :math:`\lambda` parameters for :math:`G^5` functions.</span>
+<span class="sd">            species (iterable): The chemical species as a list of atomic</span>
+<span class="sd">                numbers or as a list of chemical symbols. Notice that this is not</span>
+<span class="sd">                the atomic numbers that are present for an individual system, but</span>
+<span class="sd">                should contain all the elements that are ever going to be</span>
+<span class="sd">                encountered when creating the descriptors for a set of systems.</span>
+<span class="sd">                Keeping the number of chemical species as low as possible is</span>
+<span class="sd">                preferable.</span>
+<span class="sd">            periodic (bool): Set to true if you want the descriptor output to</span>
+<span class="sd">                respect the periodicity of the atomic systems (see the</span>
+<span class="sd">                pbc-parameter in the constructor of ase.Atoms).</span>
+<span class="sd">            sparse (bool): Whether the output should be a sparse matrix or a</span>
+<span class="sd">                dense numpy array.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">periodic</span><span class="o">=</span><span class="n">periodic</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="n">sparse</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span> <span class="o">=</span> <span class="n">ACSFWrapper</span><span class="p">()</span>
+
+        <span class="c1"># Setup</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">species</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">g2_params</span> <span class="o">=</span> <span class="n">g2_params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">g3_params</span> <span class="o">=</span> <span class="n">g3_params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">g4_params</span> <span class="o">=</span> <span class="n">g4_params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">g5_params</span> <span class="o">=</span> <span class="n">g5_params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rcut</span> <span class="o">=</span> <span class="n">rcut</span></div>
+
+<div class="viewcode-block" id="ACSF.create"><a class="viewcode-back" href="../../../tutorials/descriptors/acsf.html#dscribe.descriptors.acsf.ACSF.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">only_physical_cores</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the ACSF output for the given systems and given positions.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or</span>
+<span class="sd">                many atomic structures.</span>
+<span class="sd">            positions (list): Positions where to calculate ACSF. Can be</span>
+<span class="sd">                provided as cartesian positions or atomic indices. If no</span>
+<span class="sd">                positions are defined, the SOAP output will be created for all</span>
+<span class="sd">                atoms in the system. When calculating SOAP for multiple</span>
+<span class="sd">                systems, provide the positions as a list for each system.</span>
+<span class="sd">            n_jobs (int): Number of parallel jobs to instantiate. Parallellizes</span>
+<span class="sd">                the calculation across samples. Defaults to serial calculation</span>
+<span class="sd">                with n_jobs=1. If a negative number is given, the used cpus</span>
+<span class="sd">                will be calculated with, n_cpus + n_jobs, where n_cpus is the</span>
+<span class="sd">                amount of CPUs as reported by the OS. With only_physical_cores</span>
+<span class="sd">                you can control which types of CPUs are counted in n_cpus.</span>
+<span class="sd">            only_physical_cores (bool): If a negative n_jobs is given,</span>
+<span class="sd">                determines which types of CPUs are used in calculating the</span>
+<span class="sd">                number of jobs. If set to False (default), also virtual CPUs</span>
+<span class="sd">                are counted.  If set to True, only physical CPUs are counted.</span>
+<span class="sd">            verbose(bool): Controls whether to print the progress of each job</span>
+<span class="sd">                into to the console.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray | sparse.COO: The ACSF output for the given</span>
+<span class="sd">            systems and positions. The return type depends on the</span>
+<span class="sd">            &#39;sparse&#39;-attribute. The first dimension is determined by the amount</span>
+<span class="sd">            of positions and systems and the second dimension is determined by</span>
+<span class="sd">            the get_number_of_features()-function. When multiple systems are</span>
+<span class="sd">            provided the results are ordered by the input order of systems and</span>
+<span class="sd">            their positions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># If single system given, skip the parallelization</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="p">(</span><span class="n">Atoms</span><span class="p">,</span> <span class="n">System</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_single</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_system_list</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+
+        <span class="c1"># Combine input arguments</span>
+        <span class="k">if</span> <span class="n">positions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">inp</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i_sys</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i_sys</span> <span class="ow">in</span> <span class="n">system</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">inp</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="p">))</span>
+
+        <span class="c1"># Determine if the outputs have a fixed size</span>
+        <span class="n">n_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_number_of_features</span><span class="p">()</span>
+        <span class="n">static_size</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">positions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">n_centers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">inp</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">first_sample</span><span class="p">,</span> <span class="n">first_pos</span> <span class="o">=</span> <span class="n">inp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">first_pos</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">n_centers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">first_pos</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">n_centers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">first_sample</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">is_static</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">i_job</span> <span class="ow">in</span> <span class="n">inp</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">positions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">i_job</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">!=</span> <span class="n">n_centers</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">i_job</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">i_job</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">!=</span> <span class="n">n_centers</span><span class="p">:</span>
+                            <span class="k">return</span> <span class="kc">False</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">i_job</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">!=</span> <span class="n">n_centers</span><span class="p">:</span>
+                            <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="n">is_static</span><span class="p">():</span>
+            <span class="n">static_size</span> <span class="o">=</span> <span class="p">[</span><span class="n">n_centers</span><span class="p">,</span> <span class="n">n_features</span><span class="p">]</span>
+
+        <span class="c1"># Create in parallel</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_parallel</span><span class="p">(</span>
+            <span class="n">inp</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_single</span><span class="p">,</span>
+            <span class="n">n_jobs</span><span class="p">,</span>
+            <span class="n">static_size</span><span class="p">,</span>
+            <span class="n">only_physical_cores</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">output</span></div>
+
+<div class="viewcode-block" id="ACSF.create_single"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.acsf.html#dscribe.descriptors.acsf.ACSF.create_single">[docs]</a>    <span class="k">def</span> <span class="nf">create_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates the descriptor for the given system.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            system (:class:`ase.Atoms` | :class:`.System`): Input system.</span>
+<span class="sd">            positions (iterable): Indices of the atoms around which the ACSF</span>
+<span class="sd">                will be returned. If no positions defined, ACSF will be created</span>
+<span class="sd">                for all atoms in the system.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray | sparse.COO: The ACSF output for the</span>
+<span class="sd">            given system and positions. The return type depends on the</span>
+<span class="sd">            &#39;sparse&#39;-attribute. The first dimension is given by the number of</span>
+<span class="sd">            positions and the second dimension is determined by the</span>
+<span class="sd">            get_number_of_features()-function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Transform the input system into the internal System-object</span>
+        <span class="n">system</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_system</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+
+        <span class="c1"># Create C-compatible list of atomic indices for which the ACSF is</span>
+        <span class="c1"># calculated</span>
+        <span class="n">calculate_all</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">positions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">calculate_all</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">positions</span>
+
+        <span class="c1"># If periodicity is not requested, and the output is requested for all</span>
+        <span class="c1"># atoms, we skip all the intricate optimizations that will make things</span>
+        <span class="c1"># actually slower for this case.</span>
+        <span class="k">if</span> <span class="n">calculate_all</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">:</span>
+            <span class="n">n_atoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+            <span class="n">all_pos</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
+            <span class="n">dmat</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_adjacency_matrix</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">rcut</span><span class="p">,</span> <span class="n">all_pos</span><span class="p">,</span> <span class="n">all_pos</span>
+            <span class="p">)</span>
+        <span class="c1"># Otherwise the amount of pairwise distances that are calculated is</span>
+        <span class="c1"># kept at minimum. Only distances for the given indices (and possibly</span>
+        <span class="c1"># the secondary neighbours if G4 is specified) are calculated.</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Create the extended system if periodicity is requested. For ACSF only</span>
+            <span class="c1"># the distance from central atom needs to be considered in extending</span>
+            <span class="c1"># the system.</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">:</span>
+                <span class="n">system</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_extended_system</span><span class="p">(</span>
+                    <span class="n">system</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rcut</span><span class="p">,</span> <span class="n">return_cell_indices</span><span class="o">=</span><span class="kc">False</span>
+                <span class="p">)</span>
+
+            <span class="c1"># First calculate distances from specified centers to all other</span>
+            <span class="c1"># atoms. This is already enough for everything else except G4.</span>
+            <span class="n">n_atoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+            <span class="n">all_pos</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
+            <span class="n">central_pos</span> <span class="o">=</span> <span class="n">all_pos</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
+            <span class="n">dmat_primary</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_adjacency_matrix</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">rcut</span><span class="p">,</span> <span class="n">central_pos</span><span class="p">,</span> <span class="n">all_pos</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Create symmetric full matrix</span>
+            <span class="n">col</span> <span class="o">=</span> <span class="n">dmat_primary</span><span class="o">.</span><span class="n">col</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">indices</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dmat_primary</span><span class="o">.</span><span class="n">row</span>
+            <span class="p">]</span>  <span class="c1"># Fix row numbering to refer to original system</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">dmat_primary</span><span class="o">.</span><span class="n">data</span>
+            <span class="n">dmat</span> <span class="o">=</span> <span class="n">coo_matrix</span><span class="p">((</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">)),</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_atoms</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">))</span>
+            <span class="n">dmat_lil</span> <span class="o">=</span> <span class="n">dmat</span><span class="o">.</span><span class="n">tolil</span><span class="p">()</span>
+            <span class="n">dmat_lil</span><span class="p">[</span><span class="n">col</span><span class="p">,</span> <span class="n">row</span><span class="p">]</span> <span class="o">=</span> <span class="n">dmat_lil</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span>
+
+            <span class="c1"># If G4 terms are requested, calculate also secondary neighbour distances</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">g4_params</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">neighbour_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+                <span class="n">neigh_pos</span> <span class="o">=</span> <span class="n">all_pos</span><span class="p">[</span><span class="n">neighbour_indices</span><span class="p">]</span>
+                <span class="n">dmat_secondary</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_adjacency_matrix</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">rcut</span><span class="p">,</span> <span class="n">neigh_pos</span><span class="p">,</span> <span class="n">neigh_pos</span>
+                <span class="p">)</span>
+                <span class="n">col</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">neighbour_indices</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dmat_secondary</span><span class="o">.</span><span class="n">col</span>
+                <span class="p">]</span>  <span class="c1"># Fix col numbering to refer to original system</span>
+                <span class="n">row</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">neighbour_indices</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dmat_secondary</span><span class="o">.</span><span class="n">row</span>
+                <span class="p">]</span>  <span class="c1"># Fix row numbering to refer to original system</span>
+                <span class="n">dmat_lil</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dmat_secondary</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+            <span class="n">dmat</span> <span class="o">=</span> <span class="n">dmat_lil</span><span class="o">.</span><span class="n">tocoo</span><span class="p">()</span>
+
+        <span class="c1"># Get adjancency list and full dense adjancency matrix</span>
+        <span class="n">neighbours</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_adjacency_list</span><span class="p">(</span><span class="n">dmat</span><span class="p">)</span>
+        <span class="n">dmat_dense</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">n_atoms</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">),</span> <span class="n">sys</span><span class="o">.</span><span class="n">float_info</span><span class="o">.</span><span class="n">max</span>
+        <span class="p">)</span>  <span class="c1"># The non-neighbor values are treated as &quot;infinitely far&quot;.</span>
+        <span class="n">dmat_dense</span><span class="p">[</span><span class="n">dmat</span><span class="o">.</span><span class="n">col</span><span class="p">,</span> <span class="n">dmat</span><span class="o">.</span><span class="n">row</span><span class="p">]</span> <span class="o">=</span> <span class="n">dmat</span><span class="o">.</span><span class="n">data</span>
+
+        <span class="c1"># Calculate ACSF with C++</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">(),</span>
+                <span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">(),</span>
+                <span class="n">dmat_dense</span><span class="p">,</span>
+                <span class="n">neighbours</span><span class="p">,</span>
+                <span class="n">indices</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Check if there are types that have not been declared</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_atomic_numbers</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">())</span>
+
+        <span class="c1"># Return sparse matrix if requested</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="n">sparse</span><span class="o">.</span><span class="n">COO</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">output</span></div>
+
+<div class="viewcode-block" id="ACSF.get_number_of_features"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.acsf.html#dscribe.descriptors.acsf.ACSF.get_number_of_features">[docs]</a>    <span class="k">def</span> <span class="nf">get_number_of_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Used to inquire the final number of features that this descriptor</span>
+<span class="sd">        will have.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: Number of features for this descriptor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">wrapper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span>
+        <span class="n">descsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">wrapper</span><span class="o">.</span><span class="n">n_g2</span> <span class="o">+</span> <span class="n">wrapper</span><span class="o">.</span><span class="n">n_g3</span><span class="p">)</span> <span class="o">*</span> <span class="n">wrapper</span><span class="o">.</span><span class="n">n_types</span>
+        <span class="n">descsize</span> <span class="o">+=</span> <span class="p">(</span><span class="n">wrapper</span><span class="o">.</span><span class="n">n_g4</span> <span class="o">+</span> <span class="n">wrapper</span><span class="o">.</span><span class="n">n_g5</span><span class="p">)</span> <span class="o">*</span> <span class="n">wrapper</span><span class="o">.</span><span class="n">n_type_pairs</span>
+
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">descsize</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">species</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_species</span>
+
+    <span class="nd">@species</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Used to check the validity of given atomic numbers and to initialize</span>
+<span class="sd">        the C-memory layout for them.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value(iterable): Chemical species either as a list of atomic</span>
+<span class="sd">                numbers or list of chemical symbols.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># The species are stored as atomic numbers for internal use.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_species</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">atomic_numbers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rcut</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">rcut</span>
+
+    <span class="nd">@rcut</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">rcut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Used to check the validity of given radial cutoff.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value(float): Radial cutoff.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cutoff radius should be positive.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">rcut</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">g2_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">get_g2_params</span><span class="p">()</span>
+
+    <span class="nd">@g2_params</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">g2_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Used to check the validity of given G2 parameters.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value(n*3 array): List of G2 parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Disable case</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Check dimensions</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;g2_params should be a matrix with two columns (eta, Rs).&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;g2_params should be a matrix with two columns (eta, Rs).&quot;</span>
+                <span class="p">)</span>
+
+            <span class="c1"># Check that etas are positive</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">value</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;G2 eta parameters should be positive numbers.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">set_g2_params</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">g3_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">g3_params</span>
+
+    <span class="nd">@g3_params</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">g3_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Used to check the validity of given G3 parameters and to</span>
+<span class="sd">        initialize the C-memory layout for them.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value(array): List of G3 parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Handle the disable case</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Check dimensions</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;g3_params should be a vector.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">g3_params</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">g4_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">g4_params</span>
+
+    <span class="nd">@g4_params</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">g4_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Used to check the validity of given G4 parameters and to</span>
+<span class="sd">        initialize the C-memory layout for them.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value(n*3 array): List of G4 parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Handle the disable case</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Check dimensions</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;g4_params should be a matrix with three columns (eta, zeta, lambda).&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;g4_params should be a matrix with three columns (eta, zeta, lambda).&quot;</span>
+                <span class="p">)</span>
+
+            <span class="c1"># Check that etas are positive</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">value</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;3-body G4 eta parameters should be positive numbers.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">g4_params</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">g5_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">g5_params</span>
+
+    <span class="nd">@g5_params</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">g5_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Used to check the validity of given G5 parameters and to</span>
+<span class="sd">        initialize the C-memory layout for them.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value(n*3 array): List of G5 parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Handle the disable case</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Check dimensions</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;g5_params should be a matrix with three columns (eta, zeta, lambda).&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;g5_params should be a matrix with three columns (eta, zeta, lambda).&quot;</span>
+                <span class="p">)</span>
+
+            <span class="c1"># Check that etas are positive</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">value</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;3-body G5 eta parameters should be positive numbers.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">g5_params</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright .
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Versions</span>
+      v: 1.1.x
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl id="version-table">
+        <dt>Versions</dt>
+      </dl>
+    </div>
+  </div>
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
