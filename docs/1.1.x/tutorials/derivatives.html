@@ -214,7 +214,8 @@ looks like this:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p><code class="code docutils literal notranslate"><span class="pre">systems</span></code>: one or multiple atomic systems</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">(positions)</span></code>: Optional, for local descriptors.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">positions</span></code>: (only for local descriptors) the positions at which the
+descriptor is evaluated.</p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">include</span></code>: Indices of the atoms which should be included in the
 derivative calculations. If no value is specified, all atoms will be used.</p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">exclude</span></code>: Indices of atoms which should be excluded from the
@@ -227,6 +228,12 @@ preferred, since they are faster to compute. However, they are not always
 available/implemented (check the descriptor documentation). The numerical
 derivatives are implemented with a centered finite difference scheme that
 has a good balance between accuracy and speed.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">attach</span></code>: (only for local descriptors) controls the behaviour of positions
+defined as atomic indices. If True, the positions tied to an atomic index
+will move together with the atoms with respect to which the derivatives are
+calculated against. If False, positions defined as atomic indices will be
+converted into cartesian locations that are completely independent of the
+atom location during derivative calculation.</p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">return_descriptor</span></code>: Whether or not to return the descriptor as well.
 If you anyways need to compute the descriptor, it is typically faster to use
 this option instead of a separate <code class="code docutils literal notranslate"><span class="pre">create</span></code>-call.</p></li>
@@ -269,7 +276,7 @@ regular numpy array. Notice that the size of these dense arrays grows very
 quickly with system size. A good way around this is to use sparse arrays
 instead by using the <code class="code docutils literal notranslate"><span class="pre">sparse=True</span></code> option in the descriptor constructor.
 In large systems the derivative array will typically become quite sparse,
-giving significant savings in storage space. Since 1.0.x we have opted to use
+giving significant savings in storage space. Since 1.0.0 we have opted to use
 the <a class="reference external" href="https://sparse.pydata.org/en/stable/">sparse</a>-library for all of
 our sparse outputs, see the <a class="reference internal" href="machine_learning/forces_and_energies.html"><span class="doc">documentation page on sparse output</span></a>.</p>
 </div>

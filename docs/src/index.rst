@@ -20,9 +20,9 @@ similarity analysis, etc. To get started you can check the :doc:`basic tutorial
    Version **1.1.0** introduces new features and improvements to the SOAP
    descriptor: increased maximum lmax to 20 and added support for more
    customized weighting of the atomic density through weighting functions.
-   Please check out the updated :doc:`SOAP tutorial
-   <tutorials/descriptors/soap>` to learn more about these
-   changes. Also check out :doc:`the new tutorial on using DScribe for clustering
+   Please check out the new :ref:`section in the SOAP tutorial
+   <soap-weighting>` to learn more about weighting the atomic density. Also
+   check out :doc:`the new tutorial on using DScribe for clustering
    <tutorials/machine_learning/clustering>`.
 
 .. note::

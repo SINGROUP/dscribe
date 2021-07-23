@@ -184,38 +184,66 @@ similarity analysis, etc. To get started you can check the <a class="reference i
 <p>Version <strong>1.1.0</strong> introduces new features and improvements to the SOAP
 descriptor: increased maximum lmax to 20 and added support for more
 customized weighting of the atomic density through weighting functions.
-Please check out the updated <a class="reference internal" href="tutorials/descriptors/soap.html"><span class="doc">SOAP tutorial</span></a> to learn more about these
-changes.</p>
+Please check out the new <a class="reference internal" href="tutorials/descriptors/soap.html#soap-weighting"><span class="std std-ref">section in the SOAP tutorial</span></a> to learn more about weighting the atomic density. Also
+check out <a class="reference internal" href="tutorials/machine_learning/clustering.html"><span class="doc">the new tutorial on using DScribe for clustering</span></a>.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>We are incrementally adding support for calculating the derivatives of
-descriptors with respect to the atom positions. In version <strong>1.0.0</strong> you
-can find an implementation for getting derivatives of non-periodic systems
-for the SOAP descriptor. Please check the <a class="reference internal" href="tutorials/derivatives.html"><span class="doc">new documentation on
-derivatives</span></a> and the new <a class="reference internal" href="tutorials/machine_learning/forces_and_energies.html"><span class="doc">new tutorial</span></a> on predicting energies and
-forces using these derivatives.</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Version <strong>1.0.x</strong> introduces some improvements that are not directly
-backwards compatible with previous versions. Check the <a class="reference internal" href="changelog.html"><span class="doc">changelog</span></a> for details.</p>
+descriptors with respect to the atom positions. From version <strong>1.0.0</strong>
+upwards you can find an implementation for getting derivatives of
+non-periodic systems for the SOAP descriptor. Please check the <a class="reference internal" href="tutorials/derivatives.html"><span class="doc">new
+documentation on derivatives</span></a> and the new <a class="reference internal" href="tutorials/machine_learning/forces_and_energies.html"><span class="doc">new
+tutorial</span></a> on predicting
+energies and forces using these derivatives.</p>
 </div>
 </div>
 <div class="section" id="capabilities-at-a-glance">
 <h1>Capabilities at a Glance<a class="headerlink" href="#capabilities-at-a-glance" title="Permalink to this headline">¶</a></h1>
 <p>DScribe currently includes the following descriptors:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p><a class="reference internal" href="tutorials/descriptors/coulomb_matrix.html"><span class="doc">Coulomb matrix</span></a></p></li>
-<li><p><a class="reference internal" href="tutorials/descriptors/sine_matrix.html"><span class="doc">Sine matrix</span></a></p></li>
-<li><p><a class="reference internal" href="tutorials/descriptors/ewald_sum_matrix.html"><span class="doc">Ewald sum matrix</span></a></p></li>
-<li><p><a class="reference internal" href="tutorials/descriptors/acsf.html"><span class="doc">Atom-centered Symmetry Functions (ACSF)</span></a></p></li>
-<li><p><a class="reference internal" href="tutorials/descriptors/soap.html"><span class="doc">Smooth Overlap of Atomic Positions (SOAP)</span></a></p></li>
-<li><p><a class="reference internal" href="tutorials/descriptors/mbtr.html"><span class="doc">Many-body Tensor Representation (MBTR)</span></a></p></li>
-<li><p><a class="reference internal" href="tutorials/descriptors/lmbtr.html"><span class="doc">Local Many-body Tensor Representation (LMBTR)</span></a></p></li>
-</ul>
-</div></blockquote>
+<table class="colwidths-given docutils align-default">
+<colgroup>
+<col style="width: 80%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Descriptor name</p></th>
+<th class="head"><p>Features</p></th>
+<th class="head"><p>Derivatives</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="tutorials/descriptors/coulomb_matrix.html"><span class="doc">Coulomb matrix</span></a></p></td>
+<td><p>✓</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="tutorials/descriptors/sine_matrix.html"><span class="doc">Sine matrix</span></a></p></td>
+<td><p>✓</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="tutorials/descriptors/ewald_sum_matrix.html"><span class="doc">Ewald sum matrix</span></a></p></td>
+<td><p>✓</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="tutorials/descriptors/acsf.html"><span class="doc">Atom-centered Symmetry Functions (ACSF)</span></a></p></td>
+<td><p>✓</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="tutorials/descriptors/soap.html"><span class="doc">Smooth Overlap of Atomic Positions (SOAP)</span></a></p></td>
+<td><p>✓</p></td>
+<td><p>✓</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="tutorials/descriptors/mbtr.html"><span class="doc">Many-body Tensor Representation (MBTR)</span></a></p></td>
+<td><p>✓</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="tutorials/descriptors/lmbtr.html"><span class="doc">Local Many-body Tensor Representation (LMBTR)</span></a></p></td>
+<td><p>✓</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
 <p>Check the tutorials for more information.</p>
 </div>
 <div class="section" id="go-deeper">

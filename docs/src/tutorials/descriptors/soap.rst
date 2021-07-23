@@ -154,6 +154,8 @@ and their periodic boundary conditions are set with the :code:`pbc`-option.
 Since the SOAP feature vectors of each of the four copper atoms in the cubic
 unit cell match, they turn out to be equivalent.
 
+.. _soap-weighting:
+
 Weighting
 ~~~~~~~~~
 
@@ -204,7 +206,7 @@ When using a weighting function, you typically will also want to restrict
 function is active. You can achieve this by manually tuning rcut to a range
 that fits your weighting function, or if you set :code:`rcut=None`, it will be
 set automatically into a sensible range which depends on your weighting
-function. You can see more details and the algeraic form of the weighting
+function. You can see more details and the algebraic form of the weighting
 functions in the constructor documentation.
 
 Locating information

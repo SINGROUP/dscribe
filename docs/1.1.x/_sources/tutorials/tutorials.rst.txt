@@ -7,9 +7,9 @@ Basics
 ------
 
 We provide several tutorials that will help you get acquainted with DScribe and
-descriptors in general. If you do not have much experience with working with
-descriptors, or you simply want to refresh your memory, the :doc:`basic
-tutorial <basics>` is a great place to start.
+descriptors in general. If you do not have much experience with descriptors, or
+you simply want to refresh your memory, the tutorial on :doc:`Basic concepts
+<basics>` is a great place to start.
 
 .. toctree::
    :maxdepth: 1

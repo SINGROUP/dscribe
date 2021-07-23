@@ -197,7 +197,7 @@
 <span class="kn">from</span> <span class="nn">joblib</span> <span class="kn">import</span> <span class="n">Parallel</span><span class="p">,</span> <span class="n">delayed</span>
 
 
-<div class="viewcode-block" id="Descriptor"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor">[docs]</a><span class="k">class</span> <span class="nc">Descriptor</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<div class="viewcode-block" id="Descriptor"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.descriptor.html#dscribe.descriptors.descriptor.Descriptor">[docs]</a><span class="k">class</span> <span class="nc">Descriptor</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;An abstract base class for all descriptors.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">periodic</span><span class="p">,</span> <span class="n">flatten</span><span class="p">,</span> <span class="n">sparse</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">):</span>
@@ -214,7 +214,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_atomic_number_set</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_species</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="Descriptor.create"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.create">[docs]</a>    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="Descriptor.create"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.descriptor.html#dscribe.descriptors.descriptor.Descriptor.create">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Creates the descriptor for the given systems.</span>
 
@@ -227,7 +227,7 @@
 <span class="sd">            np.array | scipy.sparse.coo_matrix: A descriptor for the system.</span>
 <span class="sd">        &quot;&quot;&quot;</span></div>
 
-<div class="viewcode-block" id="Descriptor.get_number_of_features"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.get_number_of_features">[docs]</a>    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="Descriptor.get_number_of_features"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.descriptor.html#dscribe.descriptors.descriptor.Descriptor.get_number_of_features">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">get_number_of_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Used to inquire the final number of features that this descriptor</span>
 <span class="sd">        will have.</span>
@@ -236,7 +236,7 @@
 <span class="sd">            int: Number of features for this descriptor.</span>
 <span class="sd">        &quot;&quot;&quot;</span></div>
 
-<div class="viewcode-block" id="Descriptor.get_system"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.get_system">[docs]</a>    <span class="k">def</span> <span class="nf">get_system</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
+<div class="viewcode-block" id="Descriptor.get_system"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.descriptor.html#dscribe.descriptors.descriptor.Descriptor.get_system">[docs]</a>    <span class="k">def</span> <span class="nf">get_system</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Used to convert the given atomic system into a custom System-object</span>
 <span class="sd">        that is used internally. The System class inherits from ase.Atoms, but</span>
 <span class="sd">        includes built-in caching for geometric quantities that may be re-used</span>
@@ -311,7 +311,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_atomic_number_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_species</span> <span class="o">=</span> <span class="n">species</span>
 
-<div class="viewcode-block" id="Descriptor.check_atomic_numbers"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.check_atomic_numbers">[docs]</a>    <span class="k">def</span> <span class="nf">check_atomic_numbers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atomic_numbers</span><span class="p">):</span>
+<div class="viewcode-block" id="Descriptor.check_atomic_numbers"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.descriptor.html#dscribe.descriptors.descriptor.Descriptor.check_atomic_numbers">[docs]</a>    <span class="k">def</span> <span class="nf">check_atomic_numbers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atomic_numbers</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Used to check that the given atomic numbers have been defined for</span>
 <span class="sd">        this descriptor.</span>
 
@@ -331,7 +331,7 @@
                 <span class="s2">&quot;for this descriptor: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">zs</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_number_set</span><span class="p">))</span>
             <span class="p">)</span></div>
 
-<div class="viewcode-block" id="Descriptor.create_parallel"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.create_parallel">[docs]</a>    <span class="k">def</span> <span class="nf">create_parallel</span><span class="p">(</span>
+<div class="viewcode-block" id="Descriptor.create_parallel"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.descriptor.html#dscribe.descriptors.descriptor.Descriptor.create_parallel">[docs]</a>    <span class="k">def</span> <span class="nf">create_parallel</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">inp</span><span class="p">,</span>
         <span class="n">func</span><span class="p">,</span>
@@ -549,7 +549,7 @@
 
         <span class="k">return</span> <span class="n">displaced_indices</span>
 
-<div class="viewcode-block" id="Descriptor.derivatives_parallel"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.derivatives_parallel">[docs]</a>    <span class="k">def</span> <span class="nf">derivatives_parallel</span><span class="p">(</span>
+<div class="viewcode-block" id="Descriptor.derivatives_parallel"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.descriptor.html#dscribe.descriptors.descriptor.Descriptor.derivatives_parallel">[docs]</a>    <span class="k">def</span> <span class="nf">derivatives_parallel</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">inp</span><span class="p">,</span>
         <span class="n">func</span><span class="p">,</span>

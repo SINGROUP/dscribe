@@ -1,7 +1,0 @@
-dscribe.descriptors.test module
-===============================
-
-.. automodule:: dscribe.descriptors.test
-   :members:
-   :undoc-members:
-   :show-inheritance:

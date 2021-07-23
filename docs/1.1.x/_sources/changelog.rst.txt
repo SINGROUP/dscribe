@@ -4,8 +4,12 @@ Changelog
     - New features:
         - Added support for lmax <= 20 for the SOAP GTO basis.
         - Added support for weighting the gaussians contributing to the atomic
-          density. For more details see :doc:`the updated SOAP tutorial. <tutorials/descriptors/soap>`
-        - Added the ':math:`` flag for the SOAP descriptor.
+          density. For more details see :doc:`the updated SOAP tutorial
+          <tutorials/descriptors/soap>` (and issues `#20
+          <https://github.com/SINGROUP/dscribe/issues/20>`_, `#58
+          <https://github.com/SINGROUP/dscribe/issues/58>`_).
+        - Added :code:`attach`-argument for the :code:`derivatives`-function (see issue `#63
+          <https://github.com/SINGROUP/dscribe/issues/63>`_).
 
  - 1.0.0:
     - New features:

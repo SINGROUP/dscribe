@@ -3,9 +3,9 @@ Supervised Learning: Training an ML Force-field
 
 .. note::
    We are incrementally adding support for calculating the derivatives of
-   descriptors with respect to the atom positions. In version **1.0.0** you
-   can find an implementation for getting derivatives of non-periodic systems
-   for the SOAP descriptor.
+   descriptors with respect to the atom positions. From version **1.0.0**
+   upwards you can find an implementation for getting derivatives of
+   non-periodic systems for the SOAP descriptor.
 
 This tutorial covers how descriptors can be effectively used as input for a
 machine learning model that will predict energies and forces. There are several

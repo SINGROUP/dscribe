@@ -53,13 +53,16 @@ as a normalized polynomial kernel of the partial powers spectrums:
 .. math::
    K^\mathrm{SOAP}(\mathbf{p}, \mathbf{p'}) = \left( \frac{\mathbf{p} \cdot \mathbf{p'}}{\sqrt{\mathbf{p} \cdot \mathbf{p}~\mathbf{p'} \cdot \mathbf{p'}}}\right)^{\xi}
 
-Notice that in order to *exactly* match this original definition, you have to
-use :code:`reweight_symmetric=True` in the SOAP descriptor setup, which will
-double the weight of terms in :math:`\mathbf{p}` for which symmetric
-counterparts are left out by default by DScribe for performance reasons.
 Although this is the original similarity definition, nothing in practice
 prevents the usage of the output in non-kernel based methods or with other
 kernel definitions.
+
+.. note::
+   Notice that by default the SOAP output by DScribe only contains unique
+   terms, i.e. some terms that would be repeated multiple times due to symmetry
+   are left out. In order to *exactly* match the original SOAP kernel
+   definition, you have to double the weight of the terms which have a
+   symmetric counter part in :math:`\mathbf{p}`.
 
 The partial SOAP spectrum ensures stratification of the output by species and
 also provides information about cross-species interaction. See the
@@ -151,6 +154,8 @@ and their periodic boundary conditions are set with the :code:`pbc`-option.
 Since the SOAP feature vectors of each of the four copper atoms in the cubic
 unit cell match, they turn out to be equivalent.
 
+.. _soap-weighting:
+
 Weighting
 ~~~~~~~~~
 
@@ -201,7 +206,7 @@ When using a weighting function, you typically will also want to restrict
 function is active. You can achieve this by manually tuning rcut to a range
 that fits your weighting function, or if you set :code:`rcut=None`, it will be
 set automatically into a sensible range which depends on your weighting
-function. You can see more details and the algeraic form of the weighting
+function. You can see more details and the algebraic form of the weighting
 functions in the constructor documentation.
 
 Locating information

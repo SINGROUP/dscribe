@@ -4,8 +4,8 @@ Unsupervised Learning: Clustering
 In this tutorial we take a look at how the descriptors can be used to perform a
 common unsupervised learning task called *clustering*. In clustering we are
 using an unlabeled dataset of input values -- in this case the feature vectors
-that DScribe outputs -- to train a model that separates these inputs into
-informative clusters.
+that DScribe outputs -- to train a model that organizes these inputs into
+meaningful groups/clusters.
 
 Setup
 -----

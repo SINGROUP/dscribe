@@ -234,13 +234,17 @@ this form that does not require complex algebra.</p>
 as a normalized polynomial kernel of the partial powers spectrums:</p>
 <div class="math notranslate nohighlight">
 \[K^\mathrm{SOAP}(\mathbf{p}, \mathbf{p'}) = \left( \frac{\mathbf{p} \cdot \mathbf{p'}}{\sqrt{\mathbf{p} \cdot \mathbf{p}~\mathbf{p'} \cdot \mathbf{p'}}}\right)^{\xi}\]</div>
-<p>Notice that in order to <em>exactly</em> match this original definition, you have to
-use <code class="code docutils literal notranslate"><span class="pre">reweight_symmetric=True</span></code> in the SOAP descriptor setup, which will
-double the weight of terms in <span class="math notranslate nohighlight">\(\mathbf{p}\)</span> for which symmetric
-counterparts are left out by default by DScribe for performance reasons.
-Although this is the original similarity definition, nothing in practice
+<p>Although this is the original similarity definition, nothing in practice
 prevents the usage of the output in non-kernel based methods or with other
 kernel definitions.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Notice that by default the SOAP output by DScribe only contains unique
+terms, i.e. some terms that would be repeated multiple times due to symmetry
+are left out. In order to <em>exactly</em> match the original SOAP kernel
+definition, you have to double the weight of the terms which have a
+symmetric counter part in <span class="math notranslate nohighlight">\(\mathbf{p}\)</span>.</p>
+</div>
 <p>The partial SOAP spectrum ensures stratification of the output by species and
 also provides information about cross-species interaction. See the
 <a class="reference internal" href="../../doc/dscribe.descriptors.soap.html#dscribe.descriptors.soap.SOAP.get_location" title="dscribe.descriptors.soap.SOAP.get_location"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_location()</span></code></a> method for a way of easily accessing parts of the
@@ -278,7 +282,7 @@ ordering of the output vector is as follows:</p>
 <p>The constructor takes the following parameters:</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dscribe.descriptors.soap.SOAP.__init__">
-<span class="sig-prename descclassname"><span class="pre">SOAP.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rcut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rbf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weighting</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crossover</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'off'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'float32'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dscribe/descriptors/soap.html#SOAP.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.__init__" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">SOAP.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rcut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rbf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weighting</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crossover</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'off'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'float64'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dscribe/descriptors/soap.html#SOAP.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -346,9 +350,14 @@ to 1e-2), You can provide the parameters <code class="docutils literal notransla
 </ul>
 </div></blockquote>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">&quot;w0&quot;</span></code>: Custom floating point weight for atoms that are
-directly on top of a requested center. Optional, will
-override other weighting.</p></li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">&quot;w0&quot;</span></code>: Optional weight for atoms that are directly on top</dt><dd><p>of a requested center. Setting this value to zero
+essentially hides the central atoms from the output. If a
+weighting function is also specified, this constant will
+override it for the central atoms.</p>
+</dd>
+</dl>
+</li>
 </ul>
 </p></li>
 <li><p><strong>crossover</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Determines if crossover of atomic types should
@@ -368,10 +377,6 @@ Valid options are:</p>
 </ul>
 </div></blockquote>
 </p></li>
-<li><p><strong>reweight_symmetric</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Controls whether the power spectrum
-terms whose symmetric counterparts were left out should have a
-doubled weight. This makes the output directly compatible with
-the original SOAP kernel.</p></li>
 <li><p><strong>species</strong> (<em>iterable</em>) – The chemical species as a list of atomic
 numbers or as a list of chemical symbols. Notice that this is not
 the atomic numbers that are present for an individual system, but
@@ -401,7 +406,7 @@ increases the number of features.</p>
 <div class="section" id="creation">
 <h2>Creation<a class="headerlink" href="#creation" title="Permalink to this headline">¶</a></h2>
 <p>After SOAP has been set up, it may be used on atomic structures with the
-<a class="reference internal" href="../../doc/dscribe.descriptors.soap.html#dscribe.descriptors.soap.SOAP.create" title="dscribe.descriptors.soap.SOAP.create"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create()</span></code></a>-method.</p>
+<a class="reference internal" href="#dscribe.descriptors.soap.SOAP.create" title="dscribe.descriptors.soap.SOAP.create"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create()</span></code></a>-method.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">molecule</span>
 
 <span class="c1"># Molecule created as an ASE.Atoms</span>
@@ -530,11 +535,11 @@ and their periodic boundary conditions are set with the <code class="code docuti
 unit cell match, they turn out to be equivalent.</p>
 </div>
 <div class="section" id="weighting">
-<h3>Weighting<a class="headerlink" href="#weighting" title="Permalink to this headline">¶</a></h3>
+<span id="soap-weighting"></span><h3>Weighting<a class="headerlink" href="#weighting" title="Permalink to this headline">¶</a></h3>
 <p>The default SOAP formalism weights the atomic density equally no matter how far
 it is from the the position of interest. Especially in systems with uniform
 atomic density this can lead to the atoms in farther away regions
-dominating the SOAP spectrum. It has been shown <a class="bibtex reference internal" href="#soap-weighting" id="id5">[4]</a> that radially
+dominating the SOAP spectrum. It has been shown <a class="bibtex reference internal" href="#id6" id="id5">[4]</a> that radially
 scaling the atomic density can help in creating a suitable balance that gives
 more importance to the closer-by atoms. This idea is very similar to the
 weighting done in the MBTR descriptor.</p>
@@ -557,18 +562,18 @@ atom (sometimes the central atom will not contribute meaningful information and
 you may wish to even leave it out completely by setting <code class="code docutils literal notranslate"><span class="pre">w0=0</span></code>). Three
 different weighting functions are currently supported, and some example
 instances from these functions are plotted below.</p>
-<div class="figure align-center" id="id6">
+<div class="figure align-center" id="id7">
 <a class="reference internal image-reference" href="../../_images/soap_weighting.png"><img alt="SOAP weighting" src="../../_images/soap_weighting.png" style="width: 700px;" /></a>
 <p class="caption"><span class="caption-text">Example instances of weighting functions defined on the interval [0, 1]. The
 <code class="docutils literal notranslate"><span class="pre">poly</span></code> function decays exactly to zero at <span class="math notranslate nohighlight">\(r=r_0\)</span>, the others
-decay smoothly towards zero.</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
+decay smoothly towards zero.</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
 </div>
 <p>When using a weighting function, you typically will also want to restrict
 <code class="docutils literal notranslate"><span class="pre">rcut</span></code> into a range that lies within the domain in which your weighting
 function is active. You can achieve this by manually tuning rcut to a range
 that fits your weighting function, or if you set <code class="code docutils literal notranslate"><span class="pre">rcut=None</span></code>, it will be
 set automatically into a sensible range which depends on your weighting
-function. You can see more details and the algeraic form of the weighting
+function. You can see more details and the algebraic form of the weighting
 functions in the constructor documentation.</p>
 </div>
 <div class="section" id="locating-information">
@@ -672,7 +677,7 @@ for non-linear kernels the order of kernel calculation and averaging matters.</p
 <dt class="bibtex label" id="soap1"><span class="brackets">3</span><span class="fn-backref">(<a href="#id3">1</a>,<a href="#id4">2</a>)</span></dt>
 <dd><p>Albert P. Bartók, Risi Kondor, and Gábor Csányi. On representing chemical environments. <em>Physical Review B - Condensed Matter and Materials Physics</em>, 87(18):1–16, 2013. <a class="reference external" href="https://doi.org/10.1103/PhysRevB.87.184115">doi:10.1103/PhysRevB.87.184115</a>.</p>
 </dd>
-<dt class="bibtex label" id="soap-weighting"><span class="brackets"><a class="fn-backref" href="#id5">4</a></span></dt>
+<dt class="bibtex label" id="id6"><span class="brackets"><a class="fn-backref" href="#id5">4</a></span></dt>
 <dd><p>Michael J. Willatt, Félix Musil, and Michele Ceriotti. Feature optimization for atomistic machine learning yields a data-driven construction of the periodic table of the elements. <em>Phys. Chem. Chem. Phys.</em>, 20:29661–29668, 2018. <a class="reference external" href="https://doi.org/10.1039/C8CP05921G">doi:10.1039/C8CP05921G</a>.</p>
 </dd>
 </dl>
