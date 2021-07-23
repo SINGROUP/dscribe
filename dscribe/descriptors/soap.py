@@ -132,10 +132,10 @@ class SOAP(Descriptor):
                       ``r0`` and ``threshold`` as additional dictionary items.
 
                 * ``"w0"``: Optional weight for atoms that are directly on top
-                    of a requested center. Setting this value to zero
-                    essentially hides the central atoms from the output. If a
-                    weighting function is also specified, this constant will
-                    override it for the central atoms.
+                  of a requested center. Setting this value to zero essentially
+                  hides the central atoms from the output. If a weighting
+                  function is also specified, this constant will override it
+                  for the central atoms.
 
             crossover (bool): Determines if crossover of atomic types should
                 be included in the power spectrum. If enabled, the power
