@@ -131,9 +131,11 @@ class SOAP(Descriptor):
                       to 1e-2), You can provide the parameters ``c``, ``d``,
                       ``r0`` and ``threshold`` as additional dictionary items.
 
-                * ``"w0"``: Custom floating point weight for atoms that are
-                  directly on top of a requested center. Optional, will
-                  override other weighting.
+                * ``"w0"``: Optional weight for atoms that are directly on top
+                    of a requested center. Setting this value to zero
+                    essentially hides the central atoms from the output. If a
+                    weighting function is also specified, this constant will
+                    override it for the central atoms.
 
             crossover (bool): Determines if crossover of atomic types should
                 be included in the power spectrum. If enabled, the power
@@ -148,10 +150,6 @@ class SOAP(Descriptor):
                     * ``"off"``: No averaging.
                     * ``"inner"``: Averaging over sites before summing up the magnetic quantum numbers: :math:`p_{nn'l}^{Z_1,Z_2} \sim \sum_m (\\frac{1}{n} \sum_i c_{nlm}^{i, Z_1})^{*} (\\frac{1}{n} \sum_i c_{n'lm}^{i, Z_2})`
                     * ``"outer"``: Averaging over the power spectrum of different sites: :math:`p_{nn'l}^{Z_1,Z_2} \sim \\frac{1}{n} \sum_i \sum_m (c_{nlm}^{i, Z_1})^{*} (c_{n'lm}^{i, Z_2})`
-            reweight_symmetric (bool): Controls whether the power spectrum
-                terms whose symmetric counterparts were left out should have a
-                doubled weight. This makes the output directly compatible with
-                the original SOAP kernel.
             species (iterable): The chemical species as a list of atomic
                 numbers or as a list of chemical symbols. Notice that this is not
                 the atomic numbers that are present for an individual system, but
@@ -282,7 +280,6 @@ class SOAP(Descriptor):
         self._rbf = rbf
         self.average = average
         self.crossover = crossover
-        self.reweight_symmetric = False
 
     def prepare_centers(self, system, cutoff_padding, positions=None):
         """Validates and prepares the centers for the C++ extension."""
@@ -538,7 +535,6 @@ class SOAP(Descriptor):
                 self._weighting,
                 self.crossover,
                 self.average,
-                self.reweight_symmetric,
                 cutoff_padding,
                 alphas,
                 betas,
@@ -570,7 +566,6 @@ class SOAP(Descriptor):
                 self._weighting,
                 self.crossover,
                 self.average,
-                self.reweight_symmetric,
                 cutoff_padding,
                 rx,
                 gss,
@@ -892,7 +887,6 @@ class SOAP(Descriptor):
                 self._weighting,
                 self.crossover,
                 self.average,
-                self.reweight_symmetric,
                 cutoff_padding,
                 alphas,
                 betas,
@@ -962,7 +956,6 @@ class SOAP(Descriptor):
                     self._weighting,
                     self.crossover,
                     self.average,
-                    self.reweight_symmetric,
                     cutoff_padding,
                     rx,
                     gss,

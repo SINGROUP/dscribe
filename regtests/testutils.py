@@ -1,5 +1,4 @@
 import numpy as np
-import numpy.random
 import scipy
 from scipy.integrate import tplquad
 from scipy.linalg import sqrtm
@@ -8,8 +7,6 @@ from ase.visualize import view
 from dscribe.descriptors import SOAP
 from tqdm import tqdm
 from joblib import Parallel, delayed
-
-numpy.random.seed(42)
 
 
 def get_soap_default_setup():
@@ -42,18 +39,19 @@ def get_soap_default_setup():
     return [system, centers, soap_arguments]
 
 
-def get_soap_lmax_setup():
+def get_soap_gto_lmax_setup():
     """Returns an atomic system and SOAP parameters which are ideal for quickly
-    testing the correctness of SOAP values with large lmax. Minimizing the
-    computation is important because the calculating the numerical benchmark
-    values is very expensive.
+    testing the correctness of SOAP values with large lmax and the GTO basis.
+    Minimizing the computation is important because the calculating the
+    numerical benchmark values is very expensive.
     """
     # We need a lot of atoms in order to make the values at large l-values to
     # be above numerical precision and in order to have good distribution for
     # all l-components.
     x, y, z = np.meshgrid(np.arange(-1, 2), np.arange(-1, 2), np.arange(-1, 2))
     positions = np.column_stack((x.ravel(), y.ravel(), z.ravel())).astype(float)
-    positions += np.random.rand(27, 3) - 0.5
+    rng = np.random.RandomState(42)
+    positions += rng.random((27, 3)) - 0.5
 
     # One atom should be exactly at origin because it is an exceptional
     # location that needs to be tested.
@@ -76,7 +74,45 @@ def get_soap_lmax_setup():
         "species": ["H"],
         "crossover": False,
     }
-    return [system, centers, soap_arguments]
+    return (system, centers, soap_arguments)
+
+
+def get_soap_polynomial_lmax_setup():
+    """Returns an atomic system and SOAP parameters which are ideal for quickly
+    testing the correctness of SOAP values with large lmax and the polynomial
+    basis.  Minimizing the computation is important because the calculating the
+    numerical benchmark values is very expensive.
+    """
+    # We need a lot of atoms in order to make the values at large l-values to
+    # be above numerical precision and in order to have good distribution for
+    # all l-components.
+    x, y, z = np.meshgrid(np.arange(-1, 2), np.arange(-1, 2), np.arange(-1, 2))
+    positions = np.column_stack((x.ravel(), y.ravel(), z.ravel())).astype(float)
+    rng = np.random.RandomState(42)
+    positions += rng.random((27, 3)) - 0.5
+
+    # One atom should be exactly at origin because it is an exceptional
+    # location that needs to be tested.
+    positions[13, :] = [0, 0, 0]
+
+    system = Atoms(
+        positions=positions,
+        symbols=len(positions) * ["H"],
+    )
+
+    centers = [[0, 0, 0]]
+
+    # Making sigma small enough ensures that the smaller l-components are not
+    # screened by big fluffy gaussians.
+    soap_arguments = {
+        "nmax": 1,
+        "lmax": 9,
+        "rcut": 2.0,
+        "sigma": 0.1,
+        "species": ["H"],
+        "crossover": False,
+    }
+    return (system, centers, soap_arguments)
 
 
 def get_weights(r, weighting):
@@ -226,7 +262,7 @@ def soap_integration(system, centers, args, rbf_function):
                         p_args.append((args, n, l, m, elem_pos, rbf_function))
                         p_index.append((i, iZ, n, l, im))
 
-    results = Parallel(n_jobs=4, verbose=1)(delayed(integral)(*a) for a in p_args)
+    results = Parallel(n_jobs=8, verbose=1)(delayed(integral)(*a) for a in p_args)
 
     coeffs = np.zeros((len(centers), n_elems, nmax, lmax + 1, 2 * lmax + 1))
     for index, value in zip(p_index, results):
@@ -327,7 +363,7 @@ def save_gto_coefficients():
     system. Calculating these takes a significant amount of time, so during
     tests these preloaded values are used.
     """
-    system, centers, args = get_soap_lmax_setup()
+    system, centers, args = get_soap_gto_lmax_setup()
     coeffs = coefficients_gto(system, centers, args)
     np.save(
         "gto_coefficients_{nmax}_{lmax}_{rcut}_{sigma}.npy".format(**args),
@@ -340,7 +376,7 @@ def save_poly_coefficients():
     system. Calculating these takes a significant amount of time, so during
     tests these preloaded values are used.
     """
-    system, centers, args = get_soap_lmax_setup()
+    system, centers, args = get_soap_polynomial()
     coeffs = coefficients_polynomial(system, centers, args)
     np.save(
         "polynomial_coefficients_{nmax}_{lmax}_{rcut}_{sigma}.npy".format(**args),

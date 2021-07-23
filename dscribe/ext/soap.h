@@ -40,7 +40,6 @@ class SOAPGTO: public Descriptor {
             py::dict weighting,
             bool crossover,
             string average,
-            bool reweight_symmetric,
             double cutoff_padding,
             py::array_t<double> alphas,
             py::array_t<double> betas,
@@ -104,7 +103,6 @@ class SOAPGTO: public Descriptor {
         const double eta;
         const py::dict weighting;
         const bool crossover;
-        const bool reweight_symmetric;
         const float cutoff_padding;
         const py::array_t<double> alphas;
         const py::array_t<double> betas;
@@ -127,7 +125,6 @@ class SOAPPolynomial: public Descriptor {
             py::dict weighting,
             bool crossover,
             string average,
-            bool reweight_symmetric,
             double cutoff_padding,
             py::array_t<double> rx,
             py::array_t<double> gss,
@@ -173,7 +170,6 @@ class SOAPPolynomial: public Descriptor {
         const double eta;
         const py::dict weighting;
         const bool crossover;
-        const bool reweight_symmetric;
         const float cutoff_padding;
         const py::array_t<double> rx;
         const py::array_t<double> gss;

@@ -28,7 +28,6 @@ SOAPGTO::SOAPGTO(
     py::dict weighting,
     bool crossover,
     string average,
-    bool reweight_symmetric,
     double cutoff_padding,
     py::array_t<double> alphas,
     py::array_t<double> betas,
@@ -42,7 +41,6 @@ SOAPGTO::SOAPGTO(
     , eta(eta)
     , weighting(weighting)
     , crossover(crossover)
-    , reweight_symmetric(reweight_symmetric)
     , cutoff_padding(cutoff_padding)
     , alphas(alphas)
     , betas(betas)
@@ -194,7 +192,6 @@ SOAPPolynomial::SOAPPolynomial(
     py::dict weighting,
     bool crossover,
     string average,
-    bool reweight_symmetric,
     double cutoff_padding,
     py::array_t<double> rx,
     py::array_t<double> gss,
@@ -208,7 +205,6 @@ SOAPPolynomial::SOAPPolynomial(
     , eta(eta)
     , weighting(weighting)
     , crossover(crossover)
-    , reweight_symmetric(reweight_symmetric)
     , cutoff_padding(cutoff_padding)
     , rx(rx)
     , gss(gss)
