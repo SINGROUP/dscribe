@@ -174,7 +174,8 @@ map<string, vector<float> > MBTR::getK3(const vector<int> &Z, const vector<vecto
         // within the neighbourhood
         const vector<int> &i_neighbours = neighbours[i];
         for (const int &j : i_neighbours) {
-            for (const int &k : i_neighbours) {
+            const vector<int> &j_neighbours = neighbours[j];
+            for (const int &k : j_neighbours) {
                 // Only consider triplets that have one atom in the original
                 // cell
                 if (i < this->interactionLimit || j < this->interactionLimit || k < this->interactionLimit) {
