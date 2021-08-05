@@ -42,6 +42,7 @@ DScribe currently includes the following descriptors:
   - :doc:`Smooth Overlap of Atomic Positions (SOAP) <tutorials/descriptors/soap>`
   - :doc:`Many-body Tensor Representation (MBTR) <tutorials/descriptors/mbtr>`
   - :doc:`Local Many-body Tensor Representation (LMBTR) <tutorials/descriptors/lmbtr>`
+  - :doc:`Valle-Oganov descriptor <tutorials/descriptors/valleoganov>`
 
 Check the tutorials for more information.
 

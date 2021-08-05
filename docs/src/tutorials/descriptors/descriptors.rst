@@ -13,3 +13,4 @@ Descriptors
    soap
    mbtr
    lmbtr
+   valleoganov

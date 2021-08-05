@@ -12,8 +12,6 @@ class ValleOganov(MBTR):
 
     For more information on the weighting and normalization used here as well
     as the other parameters and general usage of the descriptor, see the MBTR class.
-
-    mbtr asetukset
     """
 
     def __init__(
