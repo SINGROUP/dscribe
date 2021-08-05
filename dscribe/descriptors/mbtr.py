@@ -949,9 +949,9 @@ class MBTR(Descriptor):
                     amounts[index] = list(S.get_atomic_numbers()).count(number)
                 y = gaussian_sum
                 if i==j:
-                    NANB = amounts[i] * amounts[j]
-                else:
                     NANB = 0.5 * amounts[i] * amounts[j]
+                else:
+                    NANB = amounts[i] * amounts[j]
                 y_normed = (y * V) / (NANB*4*np.pi)
                 if self.flatten:
                     k2[start:end] = y_normed
