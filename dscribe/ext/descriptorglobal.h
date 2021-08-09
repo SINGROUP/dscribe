@@ -13,8 +13,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef DESCRIPTOR_H
-#define DESCRIPTOR_H
+#ifndef DESCRIPTORGLOBAL_H
+#define DESCRIPTORGLOBAL_H
 
 #include <pybind11/numpy.h>
 #include <string>
@@ -26,27 +26,17 @@ using namespace std;
 /**
  * Descriptor base class.
  */
-class Descriptor {
+class DescriptorGlobal {
     public:
         /**
-         * Creation for local descriptors: no precalculated CellList.
+         * Creation for global descriptors.
          */
         virtual void create(
             py::array_t<double> out, 
             py::array_t<double> positions,
             py::array_t<int> atomic_numbers,
-            py::array_t<double> centers
-        ) const = 0; 
-
-        /**
-         * Creation for local descriptors: with precalculated CellList.
-         */
-        virtual void create(
-            py::array_t<double> out, 
-            py::array_t<double> positions,
-            py::array_t<int> atomic_numbers,
-            py::array_t<double> centers,
-            CellList cellList
+            py::array_t<double> cell,
+            py::array_t<bool> pbc
         ) const = 0; 
 
         /**
@@ -55,7 +45,7 @@ class Descriptor {
         virtual int get_number_of_features() const = 0; 
 
         /**
-         * Derivatives for local descriptors.
+         * Derivatives for global descriptors.
          */
         void derivatives_numerical(
             py::array_t<double> out_d,
@@ -64,15 +54,13 @@ class Descriptor {
             py::array_t<int> atomic_numbers,
             py::array_t<double> cell,
             py::array_t<bool> pbc,
-            py::array_t<double> center_pos,
-            py::array_t<int> center_indices,
             py::array_t<int> indices,
             bool attach,
             bool return_descriptor
         ) const;
 
     protected:
-        Descriptor(bool periodic, string average="", double cutoff=0);
+        DescriptorGlobal(bool periodic, string average="", double cutoff=0);
         const bool periodic;
         const string average;
         const double cutoff;

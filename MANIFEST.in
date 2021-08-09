@@ -1,7 +1,3 @@
 # Include the license file
 include LICENSE
 recursive-include dscribe/ext *.h
-recursive-include dscribe/libmbtr *.h
-recursive-include dscribe/libmbtr *.cpp
-recursive-include dscribe/libacsf *.h
-recursive-include dscribe/libacsf *.cpp

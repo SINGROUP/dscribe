@@ -17,6 +17,7 @@ limitations under the License.
 #include <pybind11/numpy.h>  // Enables easy access to numpy arrays
 #include <pybind11/stl.h>    // Enables automatic type conversion from C++ containers to python
 #include "celllist.h"
+#include "cm.h"
 #include "soap.h"
 #include "acsf.h"
 #include "mbtr.h"
@@ -31,6 +32,12 @@ using overload_cast_ = pybind11::detail::overload_cast_impl<Args...>;
 // Notice that the name of the first argument to the module macro needs to
 // correspond to the file name!
 PYBIND11_MODULE(ext, m) {
+    // CoulombMatrix
+    py::class_<CoulombMatrix>(m, "CoulombMatrixWrapper")
+        .def(py::init<unsigned int, string, double, int, bool>())
+        .def("create", &CoulombMatrix::create)
+        .def("derivatives_numerical", &CoulombMatrix::derivatives_numerical);
+
     // SOAP
     py::class_<SOAPGTO>(m, "SOAPGTO")
         .def(py::init<double, int, int, double, py::dict, bool, string, double, py::array_t<double>, py::array_t<double>, py::array_t<int>, bool>())

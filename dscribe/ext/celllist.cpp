@@ -26,7 +26,9 @@ CellList::CellList(py::array_t<double> positions, double cutoff)
     , cutoff(cutoff)
     , cutoffSquared(cutoff*cutoff)
 {
-    this->init();
+    if (cutoff > 0) {
+        this->init();
+    }
 }
 
 void CellList::init() {
@@ -159,4 +161,22 @@ CellListResult CellList::getNeighboursForIndex(const int idx) const
         }
     }
     return result;
+}
+
+py::array_t<double> CellList::getAllDistances() const
+{
+    int n_atoms = this->positions.shape(0);
+    py::array_t<double> distances({n_atoms, n_atoms});
+    auto distances_mu = distances.mutable_unchecked<2>();
+    for (int i = 0; i < n_atoms; ++i) {
+        for (int j = i; j < n_atoms; ++j) {
+            double dx = this->positions(i, 0) - this->positions(j, 0);
+            double dy = this->positions(i, 1) - this->positions(j, 1);
+            double dz = this->positions(i, 2) - this->positions(j, 2);
+            double distance = sqrt(dx*dx + dy*dy + dz*dz);
+            distances_mu(i, j) = distance;
+            distances_mu(j, i) = distance;
+        }
+    }
+    return distances;
 }
