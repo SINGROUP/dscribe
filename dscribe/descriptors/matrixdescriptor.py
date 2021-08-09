@@ -86,13 +86,13 @@ class MatrixDescriptor(Descriptor):
                 "as 'random'."
             )
 
+        self.seed = seed
         self.random_state = RandomState(seed)
         self.n_atoms_max = n_atoms_max
         self.permutation = permutation
         self._norm_vector = None
         self.sigma = sigma
 
-    @abstractmethod
     def get_matrix(self, system):
         """Used to get the final matrix for this descriptor.
 

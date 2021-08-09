@@ -17,8 +17,12 @@ import numpy as np
 
 from ase import Atoms
 
+import sparse
+
 from dscribe.core import System
 from dscribe.descriptors.matrixdescriptor import MatrixDescriptor
+
+import dscribe.ext
 
 
 class CoulombMatrix(MatrixDescriptor):
@@ -46,6 +50,23 @@ class CoulombMatrix(MatrixDescriptor):
         Prediction", Gregoire Montavon et. al, Advances in Neural Information
         Processing Systems 25 (NIPS 2012)
     """
+    def __init__(
+        self,
+        n_atoms_max,
+        permutation="sorted_l2",
+        sigma=None,
+        seed=None,
+        flatten=True,
+        sparse=False,
+    ):
+        super().__init__(
+            n_atoms_max,
+            permutation,
+            sigma,
+            seed,
+            flatten,
+            sparse,
+        )
 
     def create(self, system, n_jobs=1, only_physical_cores=False, verbose=False):
         """Return the Coulomb matrix for the given systems.
@@ -72,7 +93,7 @@ class CoulombMatrix(MatrixDescriptor):
             flattened output a single numpy array or sparse.COO is returned.
             The first dimension is determined by the amount of systems.
         """
-        if isinstance(system, (Atoms, System)):
+        if isinstance(system, Atoms):
             system = [system]
 
         # Check input validity
@@ -111,26 +132,39 @@ class CoulombMatrix(MatrixDescriptor):
 
         return output
 
-    def get_matrix(self, system):
-        """Creates the Coulomb matrix for the given system.
-
+    def create_single(self, system):
+        """
         Args:
-            system (:class:`ase.Atoms` | :class:`.System`): Input system.
+            system (:class:`ase.Atoms`): Input system.
 
         Returns:
-            np.ndarray: Coulomb matrix as a 2D array.
+            ndarray: The zero padded matrix either as a 2D array or as
+                a 1D array depending on the setting self._flatten.
         """
-        # Make sure that the system is non-periodic
-        system.set_pbc(False)
+        # Initialize output array in dense format.
+        if self.permutation == "eigenspectrum" or self._flatten:
+            out_des = np.zeros((1, self.get_number_of_features()), dtype=np.float64)
+        else:
+            out_des = np.zeros((self.n_atoms_max, self.n_atoms_max), dtype=np.float64)
 
-        # Calculate offdiagonals
-        q = system.get_atomic_numbers()
-        qiqj = q[None, :] * q[:, None]
-        idmat = system.get_inverse_distance_matrix()
-        np.fill_diagonal(idmat, 0)
-        cmat = qiqj * idmat
+        # Calculate with C++ extension
+        wrapper = dscribe.ext.CoulombMatrix(
+            self.n_atoms_max,
+            self.permutation,
+            0 if self.sigma is None else self.sigma,
+            0 if self.seed is None else self.seed,
+            self.flatten,
+        )
+        wrapper.create(
+            out_des,
+            system.get_positions(),
+            system.get_atomic_numbers(),
+            system.get_cell(),
+            system.get_pbc(),
+        )
 
-        # Set diagonal
-        np.fill_diagonal(cmat, 0.5 * q ** 2.4)
+        # If a sparse matrix is requested, convert to sparse.COO
+        if self._sparse:
+            out_des = sparse.COO.from_numpy(out_des)
 
-        return cmat
+        return out_des

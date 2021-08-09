@@ -71,6 +71,12 @@ void CoulombMatrix::create(
         this->sort(out, distances);
     } else if (this->permutation == "random") {
         this->sortRandomly(out, distances);
+    } else if (this->permutation == "none") {
+        for (int i = 0; i < n_atoms; ++i) {
+            for (int j = 0; j < n_atoms; ++j) {
+                out_mu(i, j) = distances_mu(i, j);
+            }
+        }
     }
 }
 

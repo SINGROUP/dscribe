@@ -33,7 +33,7 @@ using overload_cast_ = pybind11::detail::overload_cast_impl<Args...>;
 // correspond to the file name!
 PYBIND11_MODULE(ext, m) {
     // CoulombMatrix
-    py::class_<CoulombMatrix>(m, "CoulombMatrixWrapper")
+    py::class_<CoulombMatrix>(m, "CoulombMatrix")
         .def(py::init<unsigned int, string, double, int, bool>())
         .def("create", &CoulombMatrix::create)
         .def("derivatives_numerical", &CoulombMatrix::derivatives_numerical);
