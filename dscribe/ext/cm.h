@@ -35,14 +35,13 @@ class CoulombMatrix: public DescriptorGlobal {
             unsigned int n_atoms_max,
             string permutation,
             double sigma,
-            int seed,
-            bool flatten
+            int seed
         );
 
         /**
          * For creating feature vectors.
          */
-        void create(
+        void create_raw(
             py::array_t<double> out, 
             py::array_t<double> positions,
             py::array_t<int> atomic_numbers,
@@ -81,6 +80,5 @@ class CoulombMatrix: public DescriptorGlobal {
         string permutation;
         double sigma;
         int seed;
-        bool flatten;
 };
 #endif

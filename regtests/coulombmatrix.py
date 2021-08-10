@@ -153,7 +153,6 @@ class CoulombMatrixTests(TestBaseClass, unittest.TestCase):
 
     def test_parallel_sparse(self):
         """Tests creating sparse output parallelly."""
-        # Test indices
         samples = [molecule("CO"), molecule("N2O")]
         desc = CoulombMatrix(
             n_atoms_max=5, permutation="none", flatten=True, sparse=True

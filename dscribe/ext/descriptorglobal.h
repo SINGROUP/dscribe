@@ -43,7 +43,7 @@ class DescriptorGlobal {
          * Called internally. The system should already be extended
          * periodically and CellList should be available.
          */
-        virtual void create(
+        virtual void create_raw(
             py::array_t<double> out, 
             py::array_t<double> positions,
             py::array_t<int> atomic_numbers,

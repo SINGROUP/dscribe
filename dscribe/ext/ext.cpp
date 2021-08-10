@@ -34,8 +34,7 @@ using overload_cast_ = pybind11::detail::overload_cast_impl<Args...>;
 PYBIND11_MODULE(ext, m) {
     // CoulombMatrix
     py::class_<CoulombMatrix>(m, "CoulombMatrix")
-        .def(py::init<unsigned int, string, double, int, bool>())
-        //.def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<bool> >()(&CoulombMatrix::create, py::const_))
+        .def(py::init<unsigned int, string, double, int>())
         .def("create", &CoulombMatrix::create)
         .def("derivatives_numerical", &CoulombMatrix::derivatives_numerical);
 

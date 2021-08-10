@@ -56,8 +56,8 @@ class CoulombMatrix(MatrixDescriptor):
         permutation="sorted_l2",
         sigma=None,
         seed=None,
-        flatten=True,
         sparse=False,
+        flatten=True,
     ):
         super().__init__(
             n_atoms_max,
@@ -89,9 +89,8 @@ class CoulombMatrix(MatrixDescriptor):
 
         Returns:
             np.ndarray | sparse.COO: Coulomb matrix for the given systems. The
-            return type depends on the 'sparse' and 'flatten'-attributes. For
-            flattened output a single numpy array or sparse.COO is returned.
-            The first dimension is determined by the amount of systems.
+            return type depends on the 'sparse'-attribute. The first dimension
+            is determined by the amount of systems.
         """
         if isinstance(system, Atoms):
             system = [system]
@@ -106,31 +105,51 @@ class CoulombMatrix(MatrixDescriptor):
 
         # If single system given, skip the parallelization
         if len(system) == 1:
-            return self.create_single(system[0])
-
-        # Combine input arguments
-        inp = [(i_sys,) for i_sys in system]
-
-        # Determine if the outputs have a fixed size
-        n_features = self.get_number_of_features()
-        if self._flatten:
-            static_size = [n_features]
-        elif self.permutation == "eigenspectrum":
-            static_size = [self.n_atoms_max]
+            output = self.create_single(system[0])
         else:
-            static_size = [self.n_atoms_max, self.n_atoms_max]
+            # Combine input arguments
+            inp = [(i_sys,) for i_sys in system]
 
-        # Create in parallel
-        output = self.create_parallel(
-            inp,
-            self.create_single,
-            n_jobs,
-            static_size,
-            only_physical_cores,
-            verbose=verbose,
-        )
+            # Create in parallel
+            output = self.create_parallel(
+                inp,
+                self.create_single,
+                n_jobs,
+                [self.get_number_of_features()],
+                only_physical_cores,
+                verbose=verbose,
+            )
+
+        # Unflatten output if so requested
+        if not self.flatten and self.permutation != "eigenspectrum":
+            output = self.unflatten(output, system)
 
         return output
+
+    def unflatten(self, output, systems):
+        n_systems = len(systems)
+        if self.sparse:
+            if n_systems != 1:
+                full = sparse.zeros((n_systems, self.n_atoms_max, self.n_atoms_max), format="dok")
+                for i_sys, system in enumerate(systems):
+                    n_atoms = len(system)
+                    full[i_sys, 0:n_atoms, 0:n_atoms] = output[i_sys, 0:n_atoms * n_atoms].reshape((n_atoms, n_atoms)).todense()
+            else:
+                full = sparse.zeros((self.n_atoms_max, self.n_atoms_max), format="dok")
+                n_atoms = len(systems[0])
+                full[0:n_atoms, 0:n_atoms] = output[0:n_atoms * n_atoms].reshape((n_atoms, n_atoms)).todense()
+            full = full.to_coo()
+        else:
+            if n_systems != 1:
+                full = np.zeros((n_systems, self.n_atoms_max, self.n_atoms_max))
+                for i_sys, system in enumerate(systems):
+                    n_atoms = len(system)
+                    full[i_sys, 0:n_atoms, 0:n_atoms] = output[i_sys, 0:n_atoms * n_atoms].reshape((n_atoms, n_atoms))
+            else:
+                full = np.zeros((self.n_atoms_max, self.n_atoms_max))
+                n_atoms = len(systems[0])
+                full[0:n_atoms, 0:n_atoms] = output[0:n_atoms * n_atoms].reshape((n_atoms, n_atoms))
+        return full
 
     def create_single(self, system):
         """
@@ -138,14 +157,10 @@ class CoulombMatrix(MatrixDescriptor):
             system (:class:`ase.Atoms`): Input system.
 
         Returns:
-            ndarray: The zero padded matrix either as a 2D array or as
-                a 1D array depending on the setting self._flatten.
+            ndarray: The zero padded matrix as a flattened 1D array.
         """
         # Initialize output array in dense format.
-        if self.permutation == "eigenspectrum" or self._flatten:
-            out_des = np.zeros((1, self.get_number_of_features()), dtype=np.float64)
-        else:
-            out_des = np.zeros((self.n_atoms_max, self.n_atoms_max), dtype=np.float64)
+        out_des = np.zeros((self.get_number_of_features()), dtype=np.float64)
 
         # Calculate with C++ extension
         wrapper = dscribe.ext.CoulombMatrix(
@@ -153,7 +168,6 @@ class CoulombMatrix(MatrixDescriptor):
             self.permutation,
             0 if self.sigma is None else self.sigma,
             0 if self.seed is None else self.seed,
-            self.flatten,
         )
         wrapper.create(
             out_des,
@@ -162,12 +176,6 @@ class CoulombMatrix(MatrixDescriptor):
             system.get_cell(),
             system.get_pbc(),
         )
-
-        # The first dimension is squeezed out. It is used only as a convenience
-        # for the C++ wrapper (same function calls for both flattened and
-        # non-flattened output).
-        if self.permutation == "eigenspectrum" or self._flatten:
-            out_des = np.squeeze(out_des, axis=0)
 
         # If a sparse matrix is requested, convert to sparse.COO
         if self._sparse:

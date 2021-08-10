@@ -22,19 +22,17 @@ CoulombMatrix::CoulombMatrix(
     unsigned int n_atoms_max,
     string permutation,
     double sigma,
-    int seed,
-    bool flatten
+    int seed
 )
     : DescriptorGlobal(true)
     , n_atoms_max(n_atoms_max)
     , permutation(permutation)
     , sigma(sigma)
     , seed(seed)
-    , flatten(flatten)
 {
 }
 
-void CoulombMatrix::create(
+void CoulombMatrix::create_raw(
     py::array_t<double> out, 
     py::array_t<double> positions,
     py::array_t<int> atomic_numbers,
@@ -45,7 +43,7 @@ void CoulombMatrix::create(
     // can calculate distances even if no cutoff is available.
     py::array_t<double> matrix = cell_list.getAllDistances();
     auto matrix_mu = matrix.mutable_unchecked<2>();
-    auto out_mu = out.mutable_unchecked<2>();
+    auto out_mu = out.mutable_unchecked<1>();
     auto atomic_numbers_u = atomic_numbers.unchecked<1>();
 
     // Construct matrix
@@ -71,21 +69,12 @@ void CoulombMatrix::create(
         } else if (this->permutation == "random") {
             this->sortRandomly(matrix);
         }
-        // Flattened
-        if (this->flatten) {
-            int k = 0;
-            for (int i = 0; i < n_atoms; ++i) {
-                for (int j = 0; j < n_atoms; ++j) {
-                    out_mu(0, k) = matrix_mu(i, j);
-                    ++k;
-                }
-            }
-        // Full matrix
-        } else {
-            for (int i = 0; i < n_atoms; ++i) {
-                for (int j = 0; j < n_atoms; ++j) {
-                    out_mu(i, j) = matrix_mu(i, j);
-                }
+        // Flatten
+        int k = 0;
+        for (int i = 0; i < n_atoms; ++i) {
+            for (int j = 0; j < n_atoms; ++j) {
+                out_mu(k) = matrix_mu(i, j);
+                ++k;
             }
         }
     }
