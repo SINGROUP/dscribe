@@ -29,14 +29,25 @@ using namespace std;
 class DescriptorGlobal {
     public:
         /**
-         * Creation for global descriptors.
+         * Nothing precalculated, called by python.
          */
-        virtual void create(
+        void create(
             py::array_t<double> out, 
             py::array_t<double> positions,
             py::array_t<int> atomic_numbers,
             py::array_t<double> cell,
             py::array_t<bool> pbc
+        ) const;
+
+        /**
+         * Called internally. The system should already be extended
+         * periodically and CellList should be available.
+         */
+        virtual void create(
+            py::array_t<double> out, 
+            py::array_t<double> positions,
+            py::array_t<int> atomic_numbers,
+            CellList &cell_list
         ) const = 0; 
 
         /**

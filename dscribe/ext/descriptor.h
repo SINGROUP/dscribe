@@ -29,7 +29,7 @@ using namespace std;
 class Descriptor {
     public:
         /**
-         * Creation for local descriptors: no precalculated CellList.
+         * No precalculated CellList.
          */
         virtual void create(
             py::array_t<double> out, 
@@ -39,7 +39,7 @@ class Descriptor {
         ) const = 0; 
 
         /**
-         * Creation for local descriptors: with precalculated CellList.
+         * With precalculated CellList.
          */
         virtual void create(
             py::array_t<double> out, 

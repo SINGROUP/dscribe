@@ -38,13 +38,11 @@ void CoulombMatrix::create(
     py::array_t<double> out, 
     py::array_t<double> positions,
     py::array_t<int> atomic_numbers,
-    py::array_t<double> cell,
-    py::array_t<bool> pbc
+    CellList &cell_list
 ) const
 {
     // Calculate all pairwise distances. CellList is the generic container that
     // can calculate distances even if no cutoff is available.
-    CellList cell_list(positions, 0);
     py::array_t<double> matrix = cell_list.getAllDistances();
     auto matrix_mu = matrix.mutable_unchecked<2>();
     auto out_mu = out.mutable_unchecked<2>();

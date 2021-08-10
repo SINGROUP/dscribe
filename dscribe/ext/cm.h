@@ -46,8 +46,7 @@ class CoulombMatrix: public DescriptorGlobal {
             py::array_t<double> out, 
             py::array_t<double> positions,
             py::array_t<int> atomic_numbers,
-            py::array_t<double> cell,
-            py::array_t<bool> pbc
+            CellList &cell_list
         ) const;
 
         /**
