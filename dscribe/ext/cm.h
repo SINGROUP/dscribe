@@ -55,18 +55,25 @@ class CoulombMatrix: public DescriptorGlobal {
          */
         int get_number_of_features() const;
 
+        /**
+         * Calculate sorted eigenvalues.
+         */
         void getEigenspectrum(
-            py::array_t<double> out,
-            py::array_t<double> matrix
+            py::array_t<double> matrix,
+            py::array_t<double> out
         ) const;
 
+        /**
+         * Sort by row norm.
+         */
         void sort(
-            py::array_t<double> out,
             py::array_t<double> matrix
         ) const;
 
+        /**
+         * Introduce random noise and sort.
+         */
         void sortRandomly(
-            py::array_t<double> out,
             py::array_t<double> matrix
         ) const;
 

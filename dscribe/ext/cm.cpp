@@ -45,8 +45,8 @@ void CoulombMatrix::create(
     // Calculate all pairwise distances. CellList is the generic container that
     // can calculate distances even if no cutoff is available.
     CellList cell_list(positions, 0);
-    py::array_t<double> distances = cell_list.getAllDistances();
-    auto distances_mu = distances.mutable_unchecked<2>();
+    py::array_t<double> matrix = cell_list.getAllDistances();
+    auto matrix_mu = matrix.mutable_unchecked<2>();
     auto out_mu = out.mutable_unchecked<2>();
     auto atomic_numbers_u = atomic_numbers.unchecked<1>();
 
@@ -55,47 +55,58 @@ void CoulombMatrix::create(
     for (int i = 0; i < n_atoms; ++i) {
         for (int j = i; j < n_atoms; ++j) {
             if (j == i) {
-                distances_mu(i, j) = 0.5 * pow(atomic_numbers_u(i), 2.4);
+                matrix_mu(i, j) = 0.5 * pow(atomic_numbers_u(i), 2.4);
             } else {
-                double value = atomic_numbers_u(i) * atomic_numbers_u(j) / distances_mu(i, j);
-                distances_mu(i, j) = value;
-                distances_mu(j, i) = value;
+                double value = atomic_numbers_u(i) * atomic_numbers_u(j) / matrix_mu(i, j);
+                matrix_mu(i, j) = value;
+                matrix_mu(j, i) = value;
             }
         }
     }
 
     // Handle the permutation option
     if (this->permutation == "eigenspectrum") {
-        this->getEigenspectrum(out, distances);
-    } else if (this->permutation == "sorted") {
-        this->sort(out, distances);
-    } else if (this->permutation == "random") {
-        this->sortRandomly(out, distances);
-    } else if (this->permutation == "none") {
-        for (int i = 0; i < n_atoms; ++i) {
-            for (int j = 0; j < n_atoms; ++j) {
-                out_mu(i, j) = distances_mu(i, j);
+        this->getEigenspectrum(matrix, out);
+    } else {
+        if (this->permutation == "sorted") {
+            this->sort(matrix);
+        } else if (this->permutation == "random") {
+            this->sortRandomly(matrix);
+        }
+        // Flattened
+        if (this->flatten) {
+            int k = 0;
+            for (int i = 0; i < n_atoms; ++i) {
+                for (int j = 0; j < n_atoms; ++j) {
+                    out_mu(0, k) = matrix_mu(i, j);
+                    ++k;
+                }
+            }
+        // Full matrix
+        } else {
+            for (int i = 0; i < n_atoms; ++i) {
+                for (int j = 0; j < n_atoms; ++j) {
+                    out_mu(i, j) = matrix_mu(i, j);
+                }
             }
         }
     }
 }
 
 void CoulombMatrix::getEigenspectrum(
-    py::array_t<double> out,
-    py::array_t<double> matrix
+    py::array_t<double> matrix,
+    py::array_t<double> out
 ) const
 {
 }
 
 void CoulombMatrix::sort(
-    py::array_t<double> out,
     py::array_t<double> matrix
 ) const
 {
 }
 
 void CoulombMatrix::sortRandomly(
-    py::array_t<double> out,
     py::array_t<double> matrix
 ) const
 {

@@ -163,6 +163,12 @@ class CoulombMatrix(MatrixDescriptor):
             system.get_pbc(),
         )
 
+        # The first dimension is squeezed out. It is used only as a convenience
+        # for the C++ wrapper (same function calls for both flattened and
+        # non-flattened output).
+        if self.permutation == "eigenspectrum" or self._flatten:
+            out_des = np.squeeze(out_des, axis=0)
+
         # If a sparse matrix is requested, convert to sparse.COO
         if self._sparse:
             out_des = sparse.COO.from_numpy(out_des)
