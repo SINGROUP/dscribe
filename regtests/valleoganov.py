@@ -1,4 +1,4 @@
-from dscribe.descriptors import ValleOganov
+from dscribe.descriptors import ValleOganov, MBTR
 from testbaseclass import TestBaseClass
 import unittest
 import numpy as np
@@ -199,6 +199,45 @@ class VOTests(TestBaseClass, unittest.TestCase):
         desc.flatten = True
         feat = desc.create(system)
         self.assertEqual(feat.shape, (n_features,))
+
+    def test_subclass(self):
+        """Tests that the ValleOganov subclass gives the same output as
+        MBTR with the corresponding parameters"""
+        desc = ValleOganov(
+            species=[1, 8],
+            k2={
+                "sigma": 0.1,
+                "n": 20,
+                "r_cutoff": 5
+            },
+            k3={
+                "sigma": 0.1,
+                "n": 20,
+                "r_cutoff": 5
+            }
+        )
+        feat = desc.create(H2O)
+
+        desc2 = MBTR(
+            species=[1, 8],
+            periodic=True,
+            k2={
+                "geometry": {"function": "distance"},
+                "grid": {"min": 0, "max": 5, "sigma": 0.1, "n": 20},
+                "weighting": {"function": "inverse_square", "r_cutoff": 5},
+            },
+            k3={
+                "geometry": {"function": "angle"},
+                "grid": {"min": 0, "max": 180, "sigma": 0.1, "n": 20},
+                "weighting": {"function": "smooth_cutoff", "r_cutoff": 5},
+            },
+            normalization="valle_oganov",
+            flatten=True,
+            sparse=False
+        )
+        feat2 = desc2.create(H2O)
+
+        self.assertTrue(np.array_equal(feat, feat2))
 
 
 if __name__ == "__main__":
