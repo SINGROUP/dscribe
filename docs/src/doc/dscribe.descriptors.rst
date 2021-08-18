@@ -17,6 +17,7 @@ Submodules
    dscribe.descriptors.mbtr
    dscribe.descriptors.sinematrix
    dscribe.descriptors.soap
+   dscribe.descriptors.valleoganov
 
 Module contents
 ---------------

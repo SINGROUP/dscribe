@@ -92,7 +92,7 @@ map<string, vector<float>> MBTR::getK2(const vector<int> &Z, const vector<vector
 
                     // Calculate weight value
                     float weight;
-                    if (weightFunc == "exponential" || weightFunc == "exp") {
+                    if (weightFunc == "exp") {
                         float scale = parameters.at("scale");
                         float threshold = parameters.at("threshold");
                         weight = k2WeightExponential(i, j, distances, scale);
@@ -101,6 +101,8 @@ map<string, vector<float>> MBTR::getK2(const vector<int> &Z, const vector<vector
                         }
                     } else if (weightFunc == "unity") {
                         weight = k2WeightUnity(i, j, distances);
+                    } else if (weightFunc == "inverse_square") {
+                        weight = k2WeightSquare(i, j, distances);
                     } else {
                         throw invalid_argument("Invalid weighting function.");
                     }
@@ -172,7 +174,8 @@ map<string, vector<float> > MBTR::getK3(const vector<int> &Z, const vector<vecto
         // within the neighbourhood
         const vector<int> &i_neighbours = neighbours[i];
         for (const int &j : i_neighbours) {
-            for (const int &k : i_neighbours) {
+            const vector<int> &j_neighbours = neighbours[j];
+            for (const int &k : j_neighbours) {
                 // Only consider triplets that have one atom in the original
                 // cell
                 if (i < this->interactionLimit || j < this->interactionLimit || k < this->interactionLimit) {
@@ -196,13 +199,17 @@ map<string, vector<float> > MBTR::getK3(const vector<int> &Z, const vector<vecto
 
                             // Calculate weight value
                             float weight;
-                            if (weightFunc == "exponential" || weightFunc == "exp") {
+                            if (weightFunc == "exp") {
                                 float scale = parameters.at("scale");
                                 float threshold = parameters.at("threshold");
                                 weight = k3WeightExponential(i, j, k, distances, scale);
                                 if (weight < threshold) {
                                     continue;
                                 }
+                            } else if (weightFunc == "smooth_cutoff") {
+                                float sharpness = parameters.at("sharpness");
+                                float cutoff = parameters.at("cutoff");
+                                weight = k3WeightSmooth(i, j, k, distances, sharpness, cutoff);
                             } else if (weightFunc == "unity") {
                                 weight = k3WeightUnity(i, j, k, distances);
                             } else {
@@ -334,6 +341,13 @@ inline float MBTR::k2WeightExponential(const int &i, const int &j, const vector<
     return expValue;
 }
 
+inline float MBTR::k2WeightSquare(const int &i, const int &j, const vector<vector<float> > &distances)
+{
+    float dist = distances[i][j];
+    float value = 1/(dist*dist);
+    return value;
+}
+
 inline float MBTR::k3GeomCosine(const int &i, const int &j, const int &k, const vector<vector<float> > &distances)
 {
     float r_ji = distances[j][i];
@@ -344,7 +358,7 @@ inline float MBTR::k3GeomCosine(const int &i, const int &j, const int &k, const 
     float r_jk_square = r_jk*r_jk;
     float cosine = 0.5/(r_jk*r_ji) * (r_ji_square+r_jk_square-r_ik_square);
 
-    // Due to numerical reasons the cosine might be slighlty under -1 or
+    // Due to numerical reasons the cosine might be slightly under -1 or
     // above 1 degrees. E.g. acos is not defined then so we clip the values
     // to prevent NaN:s
     cosine = max(-1.0f, min(cosine, 1.0f));
@@ -369,6 +383,16 @@ inline float MBTR::k3WeightExponential(const int &i, const int &j, const int &k,
     float expValue = exp(-scale*distTotal);
 
     return expValue;
+}
+
+inline float MBTR::k3WeightSmooth(const int &i, const int &j, const int &k, const vector<vector<float> > &distances, float sharpness, float cutoff)
+{
+    float dist1 = distances[i][j];
+    float dist2 = distances[j][k];
+    float f_ij = 1 + sharpness* pow((dist1/cutoff), (sharpness+1)) - (sharpness+1)* pow((dist1/cutoff), sharpness);
+    float f_jk = 1 + sharpness* pow((dist2/cutoff), (sharpness+1)) - (sharpness+1)* pow((dist2/cutoff), sharpness);
+
+    return f_ij*f_jk;
 }
 
 inline float MBTR::k3WeightUnity(const int &i, const int &j, const int &k, const vector<vector<float> > &distances)
@@ -411,7 +435,7 @@ vector<map<string, vector<float>>> MBTR::getK2Local(const vector<int> &indices, 
 
             // Calculate weight value
             float weight;
-            if (weightFunc == "exponential" || weightFunc == "exp") {
+            if (weightFunc == "exp") {
                 float scale = parameters.at("scale");
                 float threshold = parameters.at("threshold");
                 weight = k2WeightExponential(i, j, distances, scale);
@@ -497,7 +521,7 @@ vector<map<string, vector<float>>> MBTR::getK3Local(const vector<int> &indices, 
 
                     // Calculate weight value
                     float weight;
-                    if (weightFunc == "exponential" || weightFunc == "exp") {
+                    if (weightFunc == "exp") {
                         float scale = parameters.at("scale");
                         float threshold = parameters.at("threshold");
                         weight = k3WeightExponential(i, j, k, distances, scale);
@@ -561,7 +585,7 @@ vector<map<string, vector<float>>> MBTR::getK3Local(const vector<int> &indices, 
 
                         // Calculate weight value
                         float weight;
-                        if (weightFunc == "exponential" || weightFunc == "exp") {
+                        if (weightFunc == "exp") {
                             float scale = parameters.at("scale");
                             float threshold = parameters.at("threshold");
                             weight = k3WeightExponential(j, i, k, distances, scale);

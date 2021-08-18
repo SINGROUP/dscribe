@@ -124,6 +124,17 @@ class MBTR {
          */
         float k2WeightExponential(const int &i, const int &j, const vector<vector<float> > &distances, float scale);
         /**
+         * Weighting defined as 1/(x^2), where x is the distance from
+         * A->B.
+         *
+         * @param i Index of first atom.
+         * @param j Index of second atom.
+         * @param distances Distance matrix.
+         *
+         * @return The inverse of distance squared as weight.
+         */
+        float k2WeightSquare(const int &i, const int &j, const vector<vector<float> > &distances);
+        /**
          * Calculates the cosine geometry function defined for k3.
          *
          * @param i Index of first atom.
@@ -172,6 +183,21 @@ class MBTR {
          * @return Exponential weight.
          */
         float k3WeightExponential(const int &i, const int &j, const int &k, const vector<vector<float>> &distances, float scale);
+        /**
+         * Weighting defined by smooth cutoff function f(r) = 1 + y * (r/R)^(y+1)
+         * - (y+1) * (r/R)^y, where r is the distance between atoms, y is
+         * sharpness and R is the cutoff distance.
+         *
+         * @param i Index of first atom.
+         * @param j Index of second atom.
+         * @param k Index of third atom.
+         * @param distances Distance matrix.
+         * @param sharpness Sharpness of the function.
+         * @param cutoff Cutoff distance of the weighting.
+         *
+         * @return Weight defined by smooth cutoff function.
+         */
+        float k3WeightSmooth(const int &i, const int &j, const int &k, const vector<vector<float> > &distances, float sharpness, float cutoff);
 };
 
 #endif

@@ -61,6 +61,9 @@ functions are available:
 
        "exp": Weighting of the form :math:`e^{-sx}`,
        where `x` is the distance between the two atoms.
+
+       "inverse_square": Weighting of the form :math:`1/(x^2)`,
+       where `x` is the distance between the two atoms.
    * - :math:`k=3`
      - "angle": Angle in degrees.
 
@@ -69,6 +72,11 @@ functions are available:
 
        "exp": Weighting of the form :math:`e^{-sx}`,
        where `x` is the perimeter of the triangle formed by the tree atoms.
+
+       "smooth_cutoff": Weighting of the form :math:`f_{ij}f_{ik}` defined by
+       :math:`f = 1+y(x/r_{cutoff})^{y+1}-(y+1)(x/r_{cutoff})^{y}`, where `x`
+       is the distance between two atoms, :math:`r_{cutoff}` is the radial
+       cutoff distance and y is a sharpness parameter which defaults to `2`.
 
 Creation
 --------
@@ -130,9 +138,10 @@ demonstrates how the output for :math:`k=2` can be visualized with matplotlib.
 
 Finite systems
 ~~~~~~~~~~~~~~
-For finite systems we have to specify *periodic=False* in the constructor. The
-need to apply weighting depends on the size of the system: for small systems,
-such as small molecules, the benefits are small. However for larger systems,
+For finite systems we have to specify *periodic=False* in the constructor. Finite
+systems can not have Valle-Oganov normalization, and an exception is raised if that is
+given. The need to apply weighting depends on the size of the system: for small 
+systems, such as small molecules, the benefits are small. However for larger systems,
 such as clusters and bigger molecules, adding weighting will help in removing
 "noise" coming from atom combinations that are physically very far apart and do
 not have any meaningful direct interaction in the system. The following code
@@ -153,6 +162,8 @@ demonstrates both approaches.
    The MBTR output for C60 without weighting and with exponential weighting for
    :math:`k=2`. Without the weighting the carbon pairs that are far away will
    have the highest intensity and dominate the output.
+
+.. _norm-label:
 
 Normalization
 ~~~~~~~~~~~~~
@@ -183,6 +194,13 @@ The different normalization options provided in the MBTR constructor are:
    the given system cell. This form of normalization does also make the output
    for different crystal supercells equal, but does not equalize the norm of
    different k-terms.
+ * **"valle_oganov"**: Normalization of Valle-Oganov descriptor is applied. 
+   Each pair in :math:`k=2` is multiplied by :math:`V/4\pi N_{A}N_{B}`, where `V`
+   is the volume of the current system and :math:`N_{A}` and :math:`N_{B}` are the
+   numbers of each of the pair's elements in the cell. This normalization chosen
+   so that the descriptor output of each pair converges at 1 (when created with
+   reasonable values of :math:`sigma`). In a similar fashion, each triplet in
+   :math:`k=3` is multiplied by :math:`V/N_{A}N_{B}N_{C}`.
 
 Periodic systems
 ~~~~~~~~~~~~~~~~

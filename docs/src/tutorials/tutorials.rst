@@ -36,6 +36,7 @@ of the use cases.
    descriptors/soap
    descriptors/mbtr
    descriptors/lmbtr
+   descriptors/valleoganov
 
 
 Machine Learning

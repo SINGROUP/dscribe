@@ -16,6 +16,7 @@ limitations under the License.
 from dscribe.descriptors.descriptor import Descriptor
 from dscribe.descriptors.acsf import ACSF
 from dscribe.descriptors.mbtr import MBTR
+from dscribe.descriptors.valleoganov import ValleOganov
 from dscribe.descriptors.lmbtr import LMBTR
 from dscribe.descriptors.ewaldsummatrix import EwaldSumMatrix
 from dscribe.descriptors.coulombmatrix import CoulombMatrix

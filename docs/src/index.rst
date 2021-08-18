@@ -67,7 +67,9 @@ DScribe currently includes the following descriptors:
    * - :doc:`Local Many-body Tensor Representation (LMBTR) <tutorials/descriptors/lmbtr>`
      - ✓
      - 
-
+   * - :doc:`Valle-Oganov descriptor<tutorials/descriptors/valleoganov>`
+     - ✓
+     - 
 Check the tutorials for more information.
 
 Go Deeper

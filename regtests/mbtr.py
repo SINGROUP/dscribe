@@ -733,6 +733,48 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         feat = desc.create(H2O).todense()
         self.assertTrue(np.allclose(feat, feat_flat / n_atoms, atol=1e-7, rtol=0))
 
+        # Test normalization with valle_oganov
+        # For k2 term, test for one pair of different atoms and one pair
+        # of the same atom (since the normalization differs)
+        desc = copy.deepcopy(default_desc_k2)
+        desc.species = ("H", "O")
+        desc.normalization = "none"
+        desc.periodic = True
+        desc.flatten = False
+        desc.sparse = False
+
+        # Calculate normalized output
+        feat = desc.create(H2O)
+        V = H2O.cell.volume
+        feat["k2"][0, 0, :] = feat["k2"][0, 0, :] * V / (2 * 2 * 2 * np.pi)
+        feat["k2"][0, 1, :] = feat["k2"][0, 1, :] * V / (2 * 1 * 4 * np.pi)
+
+        # Create normalized output
+        desc.normalization = "valle_oganov"
+        feat2 = desc.create(H2O)
+
+        self.assertTrue(np.array_equal(feat["k2"][0, 0, :], feat2["k2"][0, 0, :]))
+        self.assertTrue(np.array_equal(feat["k2"][0, 1, :], feat2["k2"][0, 1, :]))
+
+        # Test again for k3 term, here one triplet is enough
+        desc = copy.deepcopy(default_desc_k3)
+        desc.species = ("H", "O")
+        desc.normalization = "none"
+        desc.periodic = True
+        desc.flatten = False
+        desc.sparse = False
+
+        # Calculate normalized output
+        feat = desc.create(H2O)
+        V = H2O.cell.volume
+        feat["k3"][0, 0, 1, :] = feat["k3"][0, 0, 1, :] * V / (2 * 2 * 1)
+
+        # Create normalized output
+        desc.normalization = "valle_oganov"
+        feat2 = desc.create(H2O)
+
+        self.assertTrue(np.array_equal(feat["k3"][0, 0, 1, :], feat2["k3"][0, 0, 1, :]))
+
     def test_k1_peaks_finite(self):
         """Tests the correct peak locations and intensities are found for the
         k=1 term.

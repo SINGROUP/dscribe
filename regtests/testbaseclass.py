@@ -92,7 +92,7 @@ class TestBaseClass(ABC):
         features = create(finite_system)
         is_perm_sym = True
 
-        for permutation in ([0, 2, 1], [1, 0, 2], [1, 0, 2], [2, 1, 0], [2, 0, 1]):
+        for permutation in ([0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 1, 0], [2, 0, 1]):
             i_system = finite_system[permutation]
             i_features = create(i_system)
             deviation = np.max(np.abs(features - i_features))

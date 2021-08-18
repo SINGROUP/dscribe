@@ -60,6 +60,8 @@ extensions = [
     'sphinxcontrib.bibtex',
 ]
 
+bibtex_bibfiles = ["references.bib"]
+
 # Makes sure that __init__ is documented
 autoclass_content = 'both'
 

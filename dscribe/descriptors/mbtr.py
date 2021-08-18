@@ -67,21 +67,32 @@ class MBTR(Descriptor):
 
        * "unity": No weighting.
        * "exp": Weighting of the form :math:`e^{-sx}`
+       * "inverse_square": Weighting of the form :math:`1/(x^2)`
 
     * :math:`k=3`:
 
        * "unity": No weighting.
        * "exp": Weighting of the form :math:`e^{-sx}`
+       * "smooth_cutoff": Weighting of the form :math:`f_{ij}f_{ik}`,
+         where :math:`f = 1+y(x/r_{cut})^{y+1}-(y+1)(x/r_{cut})^{y}`
 
     The exponential weighting is motivated by the exponential decay of screened
     Coulombic interactions in solids. In the exponential weighting the
     parameters **threshold** determines the value of the weighting function after
-    which the rest of the terms will be ignored and the parameter **scale**
-    corresponds to :math:`s`. The meaning of :math:`x` changes for different
-    terms as follows:
+    which the rest of the terms will be ignored. Either the parameter **scale**
+    or **r_cut** can be used to determine the parameter :math:`s`: **scale**
+    directly corresponds to this value whereas **r_cut** can be used to
+    indirectly determine it through :math:`s=-\log()`:. The meaning of
+    :math:`x` changes for different terms as follows:
 
     * :math:`k=2`: :math:`x` = Distance between A->B
     * :math:`k=3`: :math:`x` = Distance from A->B->C->A.
+
+    The inverse square and smooth cutoff function weightings use a cutoff
+    parameter **r_cut**, which is a radial distance after which the rest of
+    the atoms will be ignored. For both, :math:`x` means the distance between
+    A->B. For the smooth cutoff function, additional weighting key **sharpness**
+    can be added, which changes the value of :math:`y`. If not, it defaults to `2`.
 
     In the grid setup *min* is the minimum value of the axis, *max* is the
     maximum value of the axis, *sigma* is the standard deviation of the
@@ -132,7 +143,7 @@ class MBTR(Descriptor):
                     k2 = {
                         "geometry": {"function": "inverse_distance"},
                         "grid": {"min": 0.1, "max": 2, "sigma": 0.1, "n": 50},
-                        "weighting": {"function": "exp", "scale": 0.75, "threshold": 1e-2}
+                        "weighting": {"function": "exp", "r_cut": 10, "threshold": 1e-2}
                     }
 
             k3 (dict): Dictionary containing the setup for the k=3 term.
@@ -142,7 +153,7 @@ class MBTR(Descriptor):
                     k3 = {
                         "geometry": {"function": "angle"},
                         "grid": {"min": 0, "max": 180, "sigma": 5, "n": 50},
-                        "weighting" : {"function": "exp", "scale": 0.5, "threshold": 1e-3}
+                        "weighting" : {"function": "exp", "r_cut": 10, "threshold": 1e-3}
                     }
 
             normalize_gaussians (bool): Determines whether the gaussians are
@@ -158,6 +169,8 @@ class MBTR(Descriptor):
                 * "n_atoms": Normalize the output by dividing it with the number
                   of atoms in the system. If the system is periodic, the number
                   of atoms is determined from the given unit cell.
+                * "valle_oganov": Use Valle-Oganov descriptor normalization, with
+                  system cell volume and numbers of different atoms in the cell.
 
             flatten (bool): Whether the output should be flattened to a 1D
                 array. If False, a dictionary of the different tensors is
@@ -193,6 +206,11 @@ class MBTR(Descriptor):
 
         self.normalization = normalization
         self.normalize_gaussians = normalize_gaussians
+
+        if self.normalization == "valle_oganov" and not periodic:
+            raise ValueError(
+                "Valle-Oganov normalization does not support non-periodic systems."
+            )
 
         # Initializing .create() level variables
         self._interaction_limit = None
@@ -319,7 +337,7 @@ class MBTR(Descriptor):
             # Check the weighting function
             weighting = value.get("weighting")
             if weighting is not None:
-                valid_weight_func = set(("unity", "exp", "exponential"))
+                valid_weight_func = set(("unity", "exp", "inverse_square"))
                 weight_func = weighting.get("function")
                 if weight_func not in valid_weight_func:
                     raise ValueError(
@@ -327,12 +345,7 @@ class MBTR(Descriptor):
                         " the following: {}".format(valid_weight_func)
                     )
                 else:
-                    if weight_func == "exp" or weight_func == "exponential":
-                        # Support for legacy name "cutoff"
-                        cutoff = weighting.get("cutoff")
-                        if cutoff is not None and weighting.get("threshold") is None:
-                            weighting["threshold"] = cutoff
-
+                    if weight_func == "exp":
                         needed = ("threshold", "scale")
                         for pname in needed:
                             param = weighting.get(pname)
@@ -342,6 +355,11 @@ class MBTR(Descriptor):
                                         key
                                     )
                                 )
+                    elif weight_func == "inverse_square":
+                        if weighting.get("r_cut") is None:
+                            raise ValueError(
+                                "Missing value for 'r_cut' in the k=2 weighting."
+                            )
 
             # Check grid
             self.check_grid(value["grid"])
@@ -378,7 +396,7 @@ class MBTR(Descriptor):
             # Check the weighting function
             weighting = value.get("weighting")
             if weighting is not None:
-                valid_weight_func = set(("unity", "exp", "exponential"))
+                valid_weight_func = set(("unity", "exp", "smooth_cutoff"))
                 weight_func = weighting.get("function")
                 if weight_func not in valid_weight_func:
                     raise ValueError(
@@ -386,12 +404,7 @@ class MBTR(Descriptor):
                         " the following: {}".format(valid_weight_func)
                     )
                 else:
-                    if weight_func == "exp" or weight_func == "exponential":
-                        # Support for legacy name "cutoff"
-                        cutoff = weighting.get("cutoff")
-                        if cutoff is not None and weighting.get("threshold") is None:
-                            weighting["threshold"] = cutoff
-
+                    if weight_func == "exp":
                         needed = ("threshold", "scale")
                         for pname in needed:
                             param = weighting.get(pname)
@@ -401,7 +414,11 @@ class MBTR(Descriptor):
                                         key
                                     )
                                 )
-
+                    elif weight_func == "smooth_cutoff":
+                        if weighting.get("r_cut") is None:
+                            raise ValueError(
+                                "Missing value for 'r_cut' in the k=3 weighting."
+                            )
             # Check grid
             self.check_grid(value["grid"])
         self._k3 = value
@@ -444,7 +461,7 @@ class MBTR(Descriptor):
         Args:
             value(str): The normalization method to use.
         """
-        norm_options = set(("l2_each", "none", "n_atoms"))
+        norm_options = set(("l2_each", "none", "n_atoms", "valle_oganov"))
         if value not in norm_options:
             raise ValueError(
                 "Unknown normalization option given. Please use one of the "
@@ -830,17 +847,22 @@ class MBTR(Descriptor):
         sigma = grid["sigma"]
 
         # Determine the weighting function and possible radial cutoff
-        radial_cutoff = None
+        r_cut = None
         weighting = self.k2.get("weighting")
         parameters = {}
         if weighting is not None:
             weighting_function = weighting["function"]
-            if weighting_function == "exp" or weighting_function == "exponential":
-                scale = weighting["scale"]
+            if weighting_function == "exp":
                 threshold = weighting["threshold"]
-                if scale != 0:
-                    radial_cutoff = -math.log(threshold) / scale
+                r_cut = weighting.get("r_cut")
+                scale = weighting.get("scale")
+                if scale is not None and r_cut is None:
+                    r_cut = -math.log(threshold) / scale
+                elif scale is None and r_cut is not None:
+                    scale = -math.log(threshold) / r_cut
                 parameters = {b"scale": scale, b"threshold": threshold}
+            elif weighting_function == "inverse_square":
+                r_cut = weighting["r_cut"]
         else:
             weighting_function = "unity"
 
@@ -851,7 +873,7 @@ class MBTR(Descriptor):
         if self.periodic:
             centers = system.get_positions()
             ext_system, cell_indices = dscribe.utils.geometry.get_extended_system(
-                system, radial_cutoff, centers, return_cell_indices=True
+                system, r_cut, centers, return_cell_indices=True
             )
             ext_system = System.from_atoms(ext_system)
         else:
@@ -866,8 +888,8 @@ class MBTR(Descriptor):
         # distance matrix to reduce computational complexity from O(n^2) to
         # O(n log(n))
         n_atoms = len(ext_system)
-        if radial_cutoff is not None:
-            dmat = ext_system.get_distance_matrix_within_radius(radial_cutoff)
+        if r_cut is not None:
+            dmat = ext_system.get_distance_matrix_within_radius(r_cut)
             adj_list = dscribe.utils.geometry.get_adjacency_list(dmat)
             dmat_dense = np.full(
                 (n_atoms, n_atoms), sys.float_info.max
@@ -920,6 +942,28 @@ class MBTR(Descriptor):
                 k2[start:end] = gaussian_sum
             else:
                 k2[i, j, :] = gaussian_sum
+
+            # Valle-Oganov normalization is calculated separately for each pair
+            if self.normalization == "valle_oganov":
+                S = self.system
+                n_elements = len(self.species)
+                V = S.cell.volume
+                imap = self.index_to_atomic_number
+                # Calculate the amount of each element for N_A*N_B term
+                counts = {}
+                for index, number in imap.items():
+                    counts[index] = list(S.get_atomic_numbers()).count(number)
+                y = gaussian_sum
+                if i == j:
+                    count_product = 0.5 * counts[i] * counts[j]
+                else:
+                    count_product = counts[i] * counts[j]
+                y_normed = (y * V) / (count_product * 4 * np.pi)
+                if self.flatten:
+                    k2[start:end] = y_normed
+                else:
+                    k2[i, j, :] = y_normed
+
         if self.flatten:
             k2 = k2.to_coo()
 
@@ -938,17 +982,29 @@ class MBTR(Descriptor):
         sigma = grid["sigma"]
 
         # Determine the weighting function and possible radial cutoff
-        radial_cutoff = None
+        r_cut = None
         weighting = self.k3.get("weighting")
         parameters = {}
         if weighting is not None:
             weighting_function = weighting["function"]
-            if weighting_function == "exp" or weighting_function == "exponential":
-                scale = weighting["scale"]
+            if weighting_function == "exp":
                 threshold = weighting["threshold"]
-                if scale != 0:
-                    radial_cutoff = -0.5 * math.log(threshold) / scale
+                r_cut = weighting.get("r_cut")
+                scale = weighting.get("scale")
+                # If we want to limit the triplets to a distance r_cut, we need
+                # to allow x=2*r_cut in the case of k=3.
+                if scale is not None and r_cut is None:
+                    r_cut = -0.5 * math.log(threshold) / scale
+                elif scale is None and r_cut is not None:
+                    scale = -0.5 * math.log(threshold) / r_cut
                 parameters = {b"scale": scale, b"threshold": threshold}
+            if weighting_function == "smooth_cutoff":
+                try:
+                    sharpness = weighting["sharpness"]
+                except Exception:
+                    sharpness = 2
+                r_cut = weighting["r_cut"]
+                parameters = {b"sharpness": sharpness, b"cutoff": r_cut}
         else:
             weighting_function = "unity"
 
@@ -959,7 +1015,7 @@ class MBTR(Descriptor):
         if self.periodic:
             centers = system.get_positions()
             ext_system, cell_indices = dscribe.utils.geometry.get_extended_system(
-                system, radial_cutoff, centers, return_cell_indices=True
+                system, r_cut, centers, return_cell_indices=True
             )
             ext_system = System.from_atoms(ext_system)
         else:
@@ -974,8 +1030,8 @@ class MBTR(Descriptor):
         # distance matrix to reduce computational complexity from O(n^2) to
         # O(n log(n))
         n_atoms = len(ext_system)
-        if radial_cutoff is not None:
-            dmat = ext_system.get_distance_matrix_within_radius(radial_cutoff)
+        if r_cut is not None:
+            dmat = ext_system.get_distance_matrix_within_radius(r_cut)
             adj_list = dscribe.utils.geometry.get_adjacency_list(dmat)
             dmat_dense = np.full(
                 (n_atoms, n_atoms), sys.float_info.max
@@ -1031,6 +1087,25 @@ class MBTR(Descriptor):
                 k3[start:end] = gaussian_sum
             else:
                 k3[i, j, k, :] = gaussian_sum
+
+            # Valle-Oganov normalization is calculated separately for each triplet
+            if self.normalization == "valle_oganov":
+                S = self.system
+                n_elements = len(self.species)
+                V = S.cell.volume
+                imap = self.index_to_atomic_number
+                # Calculate the amount of each element for N_A*N_B*N_C term
+                counts = {}
+                for index, number in imap.items():
+                    counts[index] = list(S.get_atomic_numbers()).count(number)
+                y = gaussian_sum
+                count_product = counts[i] * counts[j] * counts[k]
+                y_normed = (y * V) / count_product
+                if self.flatten:
+                    k3[start:end] = y_normed
+                else:
+                    k3[i, j, k, :] = y_normed
+
         if self.flatten:
             k3 = k3.to_coo()
 
