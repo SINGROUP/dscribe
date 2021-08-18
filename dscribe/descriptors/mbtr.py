@@ -348,10 +348,14 @@ class MBTR(Descriptor):
                     if weight_func == "exp":
                         threshold = weighting.get("threshold")
                         if threshold is None:
-                            raise ValueError("Missing value for 'threshold' in the k=2 weighting.")
+                            raise ValueError(
+                                "Missing value for 'threshold' in the k=2 weighting."
+                            )
                         param = weighting.get("scale", weighting.get("r_cut"))
                         if param is None:
-                            raise ValueError("Provide either 'scale' or 'r_cut' in the k=2 weighting.")
+                            raise ValueError(
+                                "Provide either 'scale' or 'r_cut' in the k=2 weighting."
+                            )
                     elif weight_func == "inverse_square":
                         if weighting.get("r_cut") is None:
                             raise ValueError(
@@ -404,10 +408,14 @@ class MBTR(Descriptor):
                     if weight_func == "exp":
                         threshold = weighting.get("threshold")
                         if threshold is None:
-                            raise ValueError("Missing value for 'threshold' in the k=3 weighting.")
+                            raise ValueError(
+                                "Missing value for 'threshold' in the k=3 weighting."
+                            )
                         param = weighting.get("scale", weighting.get("r_cut"))
                         if param is None:
-                            raise ValueError("Provide either 'scale' or 'r_cut' in the k=3 weighting.")
+                            raise ValueError(
+                                "Provide either 'scale' or 'r_cut' in the k=3 weighting."
+                            )
                     elif weight_func == "smooth_cutoff":
                         if weighting.get("r_cut") is None:
                             raise ValueError(

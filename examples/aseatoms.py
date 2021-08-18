@@ -38,13 +38,13 @@ mbtr = MBTR(
     k2 = {
         "geometry": {"function": "inverse_distance"},
         "grid": {"min": 0.1, "max": 2, "sigma": 0.1, "n": 50},
-        "weighting": {"function": "exp", "scale": 0.75, "cutoff": 1e-2}
+        "weighting": {"function": "exp", "scale": 0.75, "threshold": 1e-2}
         },
 
     k3 = {
         "geometry": {"function": "angle"},
         "grid": {"min": 0, "max": 180, "sigma": 5, "n": 50},
-        "weighting" : {"function": "exp", "scale": 0.5, "cutoff": 1e-3}
+        "weighting" : {"function": "exp", "scale": 0.5, "threshold": 1e-3}
          },
     periodic=True,
 ).create(atoms)
