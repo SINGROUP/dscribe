@@ -346,15 +346,12 @@ class MBTR(Descriptor):
                     )
                 else:
                     if weight_func == "exp":
-                        needed = ("threshold", "scale")
-                        for pname in needed:
-                            param = weighting.get(pname)
-                            if param is None:
-                                raise ValueError(
-                                    "Missing value for '{}' in the k=2 weighting.".format(
-                                        key
-                                    )
-                                )
+                        threshold = weighting.get("threshold")
+                        if threshold is None:
+                            raise ValueError("Missing value for 'threshold' in the k=2 weighting.")
+                        param = weighting.get("scale", weighting.get("r_cut"))
+                        if param is None:
+                            raise ValueError("Provide either 'scale' or 'r_cut' in the k=2 weighting.")
                     elif weight_func == "inverse_square":
                         if weighting.get("r_cut") is None:
                             raise ValueError(
@@ -405,15 +402,12 @@ class MBTR(Descriptor):
                     )
                 else:
                     if weight_func == "exp":
-                        needed = ("threshold", "scale")
-                        for pname in needed:
-                            param = weighting.get(pname)
-                            if param is None:
-                                raise ValueError(
-                                    "Missing value for '{}' in the k=3 weighting.".format(
-                                        key
-                                    )
-                                )
+                        threshold = weighting.get("threshold")
+                        if threshold is None:
+                            raise ValueError("Missing value for 'threshold' in the k=3 weighting.")
+                        param = weighting.get("scale", weighting.get("r_cut"))
+                        if param is None:
+                            raise ValueError("Provide either 'scale' or 'r_cut' in the k=3 weighting.")
                     elif weight_func == "smooth_cutoff":
                         if weighting.get("r_cut") is None:
                             raise ValueError(

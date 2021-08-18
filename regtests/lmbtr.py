@@ -72,13 +72,13 @@ nk2 = 50
 default_k2 = {
     "geometry": {"function": "inverse_distance"},
     "grid": {"min": 0, "max": 1 / 0.7, "sigma": 0.1, "n": nk2},
-    "weighting": {"function": "exponential", "scale": 0.5, "cutoff": 1e-2},
+    "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-2},
 }
 
 default_k3 = {
     "geometry": {"function": "angle"},
     "grid": {"min": 0, "max": 180, "sigma": 2, "n": 50},
-    "weighting": {"function": "exponential", "scale": 0.5, "cutoff": 1e-2},
+    "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-2},
 }
 
 default_desc_k2 = LMBTR(
@@ -577,7 +577,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
             k2={
                 "geometry": {"function": "distance"},
                 "grid": {"min": 0, "max": 10, "sigma": 0.5, "n": 1000},
-                "weighting": {"function": "exp", "scale": 0.8, "cutoff": 1e-3},
+                "weighting": {"function": "exp", "scale": 0.8, "threshold": 1e-3},
             },
             normalize_gaussians=False,
             periodic=True,
@@ -668,7 +668,7 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
             k3={
                 "geometry": {"function": "angle"},
                 "grid": {"min": 0, "max": 180, "sigma": 5, "n": 2000},
-                "weighting": {"function": "exp", "scale": scale, "cutoff": 1e-3},
+                "weighting": {"function": "exp", "scale": scale, "threshold": 1e-3},
             },
             normalize_gaussians=False,
             periodic=True,
