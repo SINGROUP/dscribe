@@ -53,6 +53,7 @@ der, des = soap_desc.derivatives(samples, method="auto", return_descriptor=True)
  | Smooth Overlap of Atomic Positions (SOAP)     | :heavy_check_mark: |:heavy_check_mark: |
  | Many-body Tensor Representation (MBTR)        | :heavy_check_mark: | |
  | Local Many-body Tensor Representation (LMBTR) | :heavy_check_mark: | |
+ | Valle-Oganov descriptor                       | :heavy_check_mark: | |
 
 
 
