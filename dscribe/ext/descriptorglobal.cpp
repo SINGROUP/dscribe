@@ -58,7 +58,6 @@ void DescriptorGlobal::derivatives_numerical(
     py::array_t<double> cell,
     py::array_t<bool> pbc,
     py::array_t<int> indices,
-    bool attach,
     bool return_descriptor
 ) const
 {
