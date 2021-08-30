@@ -151,6 +151,6 @@ def test_symmetries():
 
 def test_derivatives():
     methods = ["numerical"]
-    check_derivatives_include(descriptor_for_system, methods)
-    check_derivatives_exclude(descriptor_for_system, methods)
-    # check_derivatives_numerical(descriptor_for_system)
+    # check_derivatives_include(descriptor_for_system, methods)
+    # check_derivatives_exclude(descriptor_for_system, methods)
+    check_derivatives_numerical(descriptor_for_system)

@@ -161,8 +161,8 @@ def check_derivatives_exclude(descriptor_func, methods):
 
 def check_derivatives_numerical(descriptor_func):
     """Test numerical values against a naive python implementation."""
-    # Elaborate test system with multiple species, non-cubic cell, and
-    # close-by atoms.
+    # Elaborate test system with multiple species, non-cubic cell, and close-by
+    # atoms.
     a = 1
     system = (
         Atoms(
@@ -175,7 +175,7 @@ def check_derivatives_numerical(descriptor_func):
             ],
             pbc=[True, True, True],
         )
-        * (3, 3, 3)
+        # * (2, 1, 1)
     )
 
     h = 0.0001
@@ -183,32 +183,32 @@ def check_derivatives_numerical(descriptor_func):
     n_comp = 3
     descriptor = descriptor_func([system])
 
-    # The maximum error depends on how big the system is. With a small
-    # system the error is smaller for non-periodic systems than the
-    # corresponding error when periodicity is turned on. The errors become
-    # equal (~1e-5) when the size of the system is increased.
-    for periodic in [False]:
-        n_features = descriptor.get_number_of_features()
-        derivatives_python = np.zeros((n_atoms, n_comp, n_features))
-        d0 = descriptor.create(system)
-        coeffs = [-1.0 / 2.0, 1.0 / 2.0]
-        deltas = [-1.0, 1.0]
-        for i_atom in range(len(system)):
-            for i_comp in range(3):
-                for i_stencil in range(2):
-                    system_disturbed = system.copy()
-                    i_pos = system_disturbed.get_positions()
-                    i_pos[i_atom, i_comp] += h * deltas[i_stencil]
-                    system_disturbed.set_positions(i_pos)
-                    d1 = descriptor.create(system_disturbed)
-                    derivatives_python[i_atom, :] += coeffs[i_stencil] * d1 / h
+    # The maximum error depends on how big the system is. With a small system
+    # the error is smaller for non-periodic systems than the corresponding
+    # error when periodicity is turned on. The errors become equal (~1e-5) when
+    # the size of the system is increased.
+    n_features = descriptor.get_number_of_features()
+    derivatives_python = np.zeros((n_atoms, n_comp, n_features))
+    d0 = descriptor.create(system)
+    coeffs = [-1.0 / 2.0, 1.0 / 2.0]
+    deltas = [-1.0, 1.0]
+    for i_atom in range(len(system)):
+        for i_comp in range(3):
+            for i_stencil in range(2):
+                system_disturbed = system.copy()
+                i_pos = system_disturbed.get_positions()
+                i_pos[i_atom, i_comp] += h * deltas[i_stencil]
+                system_disturbed.set_positions(i_pos)
+                d1 = descriptor.create(system_disturbed)
+                derivatives_python[i_atom, :] += coeffs[i_stencil] * d1 / h
 
-        # Calculate with central finite difference implemented
-        # in C++.
-        derivatives_cpp, d_cpp = descriptor.derivatives(system, method="numerical")
+    # Calculate with central finite difference implemented in C++.
+    derivatives_cpp, d_cpp = descriptor.derivatives(system, method="numerical")
 
-        # Compare descriptor values
-        assert np.allclose(d0, d_cpp, atol=1e-6)
+    # Compare descriptor values
+    assert np.allclose(d0, d_cpp, atol=1e-6)
 
-        # Compare derivative values
-        assert np.allclose(derivatives_python, derivatives_cpp, atol=2e-5)
+    # Compare derivative values
+    print(derivatives_python[0])
+    print(derivatives_cpp[0] * 3)
+    assert np.allclose(derivatives_python, derivatives_cpp * 3, atol=2e-5)
