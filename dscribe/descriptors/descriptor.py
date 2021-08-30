@@ -455,7 +455,9 @@ class Descriptor(ABC):
             """This is the function that is called by each job but with
             different parts of the data.
             """
-            # Initialize output
+            # Initialize output. If a fixed size is given, a dense/sparse array
+            # is initialized. For variable size output a regular list is
+            # returned.
             n_samples = len(arguments)
             if derivatives_shape:
                 shape_der = [n_samples]

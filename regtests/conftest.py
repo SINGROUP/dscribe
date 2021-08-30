@@ -100,6 +100,7 @@ def check_symmetry_permutation(create):
 
 def check_derivatives_include(descriptor, methods):
     H2O = molecule("H2O")
+    CO2 = molecule("CO2")
     for method in methods:
         # Invalid include options
         with pytest.raises(ValueError):
@@ -112,14 +113,20 @@ def check_derivatives_include(descriptor, methods):
         # Test that correct atoms are included and in the correct order
         D1, d1 = descriptor.derivatives(H2O, include=[2, 0], method=method)
         D2, d2 = descriptor.derivatives(H2O, method=method)
-        assert np.array_equal(D1[:, 0], D2[:, 2])
-        assert np.array_equal(D1[:, 1], D2[:, 0])
+        assert np.array_equal(D1[0, :], D2[2, :])
+        assert np.array_equal(D1[1, :], D2[0, :])
 
-        # Test that using single list and multiple samples works
+        # Test that using multiple samples and single include works
         D1, d1 = descriptor.derivatives([H2O, CO2], include=[1, 0], method=method)
         D2, d2 = descriptor.derivatives([H2O, CO2], method=method)
-        assert np.array_equal(D1[:, :, 0], D2[:, :, 1])
-        assert np.array_equal(D1[:, :, 1], D2[:, :, 0])
+        assert np.array_equal(D1[:, 0, :], D2[:, 1, :])
+        assert np.array_equal(D1[:, 1, :], D2[:, 0, :])
+
+        # Test that using multiple samples and multiple includes
+        D1, d1 = descriptor.derivatives([H2O, CO2], include=[[0], [1]], method=method)
+        D2, d2 = descriptor.derivatives([H2O, CO2], method=method)
+        assert np.array_equal(D1[0, 0, :], D2[0, 0, :])
+        assert np.array_equal(D1[1, 0, :], D2[1, 1, :])
 
 
 def check_derivatives_exclude():

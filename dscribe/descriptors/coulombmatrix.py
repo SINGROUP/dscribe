@@ -22,6 +22,7 @@ import sparse
 
 from dscribe.core import System
 from dscribe.descriptors.matrixdescriptor import MatrixDescriptor
+from dscribe.utils.dimensionality import is1d
 
 import dscribe.ext
 
@@ -302,7 +303,6 @@ class CoulombMatrix(MatrixDescriptor):
                 system,
                 indices,
                 [method] * n_samples,
-                [attach] * n_samples,
                 [return_descriptor] * n_samples,
             )
         )
@@ -313,8 +313,8 @@ class CoulombMatrix(MatrixDescriptor):
         n_features = self.get_number_of_features()
 
         def get_shapes(job):
-            n_indices = len(job[2])
-            return (n_indices, 3, n_features), (n_features)
+            n_indices = len(job[1])
+            return (n_indices, 3, n_features), (n_features,)
 
         derivatives_shape, descriptor_shape = get_shapes(inp[0])
 
