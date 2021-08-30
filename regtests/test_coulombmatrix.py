@@ -56,28 +56,27 @@ def test_flatten(H2O):
 
 def test_sparse(H2O):
     # Dense
-    desc = CoulombMatrix(
-        n_atoms_max=5, permutation="none", flatten=False, sparse=False
-    )
+    desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=False, sparse=False)
     vec = desc.create(H2O)
     assert type(vec) == np.ndarray
 
     # Sparse
-    desc = CoulombMatrix(
-        n_atoms_max=5, permutation="none", flatten=True, sparse=True
-    )
+    desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=True, sparse=True)
     vec = desc.create(H2O)
     assert type(vec) == sparse.COO
 
 
-@pytest.mark.parametrize("n_jobs, flatten, sparse", [
-    (1, True, False),   # Serial job, flattened, dense
-    (2, True, False),   # Parallel job, flattened, dense
-    (2, False, False),  # Unflattened output, dense
-    (1, True, True),    # Serial job, flattened, sparse
-    (2, True, True),    # Parallel job, flattened, sparse
-    (2, False, True),   # Unflattened output, sparse
-])
+@pytest.mark.parametrize(
+    "n_jobs, flatten, sparse",
+    [
+        (1, True, False),  # Serial job, flattened, dense
+        (2, True, False),  # Parallel job, flattened, dense
+        (2, False, False),  # Unflattened output, dense
+        (1, True, True),  # Serial job, flattened, sparse
+        (2, True, True),  # Parallel job, flattened, sparse
+        (2, False, True),  # Unflattened output, sparse
+    ],
+)
 def test_parallel(n_jobs, flatten, sparse):
     """Tests creating dense output parallelly."""
     samples = [molecule("CO"), molecule("N2O")]
@@ -88,7 +87,11 @@ def test_parallel(n_jobs, flatten, sparse):
     n_features = desc.get_number_of_features()
 
     output = desc.create(system=samples, n_jobs=n_jobs)
-    assumed = np.empty((2, n_features)) if flatten else np.empty((2, n_atoms_max, n_atoms_max))
+    assumed = (
+        np.empty((2, n_features))
+        if flatten
+        else np.empty((2, n_atoms_max, n_atoms_max))
+    )
     a = desc.create(samples[0])
     b = desc.create(samples[1])
     if sparse:
@@ -134,18 +137,20 @@ def test_features(H2O):
     assert np.array_equal(cm, assumed)
 
 
+def descriptor_for_system(systems):
+    n_atoms_max = max([len(s) for s in systems])
+    desc = CoulombMatrix(n_atoms_max=n_atoms_max, permutation="none", flatten=True)
+    return desc
+
+
 def test_symmetries():
     """Tests the symmetries of the descriptor."""
-    def create(system):
-        desc = CoulombMatrix(n_atoms_max=3, permutation="none", flatten=True)
-        return desc.create(system)
-    check_symmetry_translation(create)
-    check_symmetry_rotation(create)
+    check_symmetry_translation(descriptor_for_system)
+    check_symmetry_rotation(descriptor_for_system)
 
 
 def test_derivatives():
-    desc = CoulombMatrix(n_atoms_max=3, permutation="none", flatten=True)
     methods = ["numerical"]
-    check_derivatives_include(desc, methods)
-    # check_derivatives_exclude()
-    # check_derivatives_numerical()
+    check_derivatives_include(descriptor_for_system, methods)
+    check_derivatives_exclude(descriptor_for_system, methods)
+    # check_derivatives_numerical(descriptor_for_system)

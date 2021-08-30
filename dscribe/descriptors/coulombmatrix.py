@@ -52,6 +52,7 @@ class CoulombMatrix(MatrixDescriptor):
         Prediction", Gregoire Montavon et. al, Advances in Neural Information
         Processing Systems 25 (NIPS 2012)
     """
+
     def __init__(
         self,
         n_atoms_max,
@@ -156,25 +157,37 @@ class CoulombMatrix(MatrixDescriptor):
         n_systems = len(systems)
         if self.sparse:
             if n_systems != 1:
-                full = sparse.zeros((n_systems, self.n_atoms_max, self.n_atoms_max), format="dok")
+                full = sparse.zeros(
+                    (n_systems, self.n_atoms_max, self.n_atoms_max), format="dok"
+                )
                 for i_sys, system in enumerate(systems):
                     n_atoms = len(system)
-                    full[i_sys, 0:n_atoms, 0:n_atoms] = output[i_sys, 0:n_atoms * n_atoms].reshape((n_atoms, n_atoms)).todense()
+                    full[i_sys, 0:n_atoms, 0:n_atoms] = (
+                        output[i_sys, 0 : n_atoms * n_atoms]
+                        .reshape((n_atoms, n_atoms))
+                        .todense()
+                    )
             else:
                 full = sparse.zeros((self.n_atoms_max, self.n_atoms_max), format="dok")
                 n_atoms = len(systems[0])
-                full[0:n_atoms, 0:n_atoms] = output[0:n_atoms * n_atoms].reshape((n_atoms, n_atoms)).todense()
+                full[0:n_atoms, 0:n_atoms] = (
+                    output[0 : n_atoms * n_atoms].reshape((n_atoms, n_atoms)).todense()
+                )
             full = full.to_coo()
         else:
             if n_systems != 1:
                 full = np.zeros((n_systems, self.n_atoms_max, self.n_atoms_max))
                 for i_sys, system in enumerate(systems):
                     n_atoms = len(system)
-                    full[i_sys, 0:n_atoms, 0:n_atoms] = output[i_sys, 0:n_atoms * n_atoms].reshape((n_atoms, n_atoms))
+                    full[i_sys, 0:n_atoms, 0:n_atoms] = output[
+                        i_sys, 0 : n_atoms * n_atoms
+                    ].reshape((n_atoms, n_atoms))
             else:
                 full = np.zeros((self.n_atoms_max, self.n_atoms_max))
                 n_atoms = len(systems[0])
-                full[0:n_atoms, 0:n_atoms] = output[0:n_atoms * n_atoms].reshape((n_atoms, n_atoms))
+                full[0:n_atoms, 0:n_atoms] = output[0 : n_atoms * n_atoms].reshape(
+                    (n_atoms, n_atoms)
+                )
         return full
 
     def derivatives(
