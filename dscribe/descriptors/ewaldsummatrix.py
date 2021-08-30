@@ -120,20 +120,14 @@ class EwaldSumMatrix(MatrixDescriptor):
             returned. The first dimension is determined by the amount of
             systems.
         """
-        if isinstance(system, (Atoms, System)):
-            system = [system]
-
-        # Check input validity
+        # Combine input arguments / check input validity
+        system = [system] if isinstance(system, Atoms) else system
         for s in system:
             if len(s) > self.n_atoms_max:
                 raise ValueError(
                     "One of the given systems has more atoms ({}) than allowed "
                     "by n_atoms_max ({}).".format(len(s), self.n_atoms_max)
                 )
-
-        # If single system given, skip the parallelization
-        if len(system) == 1:
-            return self.create_single(system[0], accuracy, w, rcut, gcut, a)
 
         # Combine input arguments
         n_samples = len(system)
@@ -360,7 +354,7 @@ class EwaldSumMatrix(MatrixDescriptor):
         coords = system.get_positions()
 
         # Get the reciprocal lattice points within the reciprocal space cutoff
-        rcp_latt = 2 * np.pi * system.get_reciprocal_cell()
+        rcp_latt = 2 * np.pi * system.cell.reciprocal()
         rcp_latt = Lattice(rcp_latt)
         recip_nn = rcp_latt.get_points_in_sphere([[0, 0, 0]], [0, 0, 0], self.gcut)
 

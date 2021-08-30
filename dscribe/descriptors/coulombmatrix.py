@@ -94,64 +94,31 @@ class CoulombMatrix(MatrixDescriptor):
             return type depends on the 'sparse'-attribute. The first dimension
             is determined by the amount of systems.
         """
-        if isinstance(system, Atoms):
-            system = [system]
-
-        # Check input validity
+        # Combine input arguments / check input validity
+        system = [system] if isinstance(system, Atoms) else system
         for s in system:
             if len(s) > self.n_atoms_max:
                 raise ValueError(
                     "One of the given systems has more atoms ({}) than allowed "
                     "by n_atoms_max ({}).".format(len(s), self.n_atoms_max)
                 )
+        inp = [(i_sys,) for i_sys in system]
 
-        # If single system given, skip the parallelization
-        if len(system) == 1:
-            output = self.create_single(system[0])
-        else:
-            # Combine input arguments
-            inp = [(i_sys,) for i_sys in system]
-
-            # Create in parallel
-            output = self.create_parallel(
-                inp,
-                self.create_single,
-                n_jobs,
-                [self.get_number_of_features()],
-                only_physical_cores,
-                verbose=verbose,
-            )
+        # Create in parallel
+        output = self.create_parallel(
+            inp,
+            self.create_single,
+            n_jobs,
+            [self.get_number_of_features()],
+            only_physical_cores,
+            verbose=verbose,
+        )
 
         # Unflatten output if so requested
         if not self.flatten and self.permutation != "eigenspectrum":
             output = self.unflatten(output, system)
 
         return output
-
-    def unflatten(self, output, systems):
-        n_systems = len(systems)
-        if self.sparse:
-            if n_systems != 1:
-                full = sparse.zeros((n_systems, self.n_atoms_max, self.n_atoms_max), format="dok")
-                for i_sys, system in enumerate(systems):
-                    n_atoms = len(system)
-                    full[i_sys, 0:n_atoms, 0:n_atoms] = output[i_sys, 0:n_atoms * n_atoms].reshape((n_atoms, n_atoms)).todense()
-            else:
-                full = sparse.zeros((self.n_atoms_max, self.n_atoms_max), format="dok")
-                n_atoms = len(systems[0])
-                full[0:n_atoms, 0:n_atoms] = output[0:n_atoms * n_atoms].reshape((n_atoms, n_atoms)).todense()
-            full = full.to_coo()
-        else:
-            if n_systems != 1:
-                full = np.zeros((n_systems, self.n_atoms_max, self.n_atoms_max))
-                for i_sys, system in enumerate(systems):
-                    n_atoms = len(system)
-                    full[i_sys, 0:n_atoms, 0:n_atoms] = output[i_sys, 0:n_atoms * n_atoms].reshape((n_atoms, n_atoms))
-            else:
-                full = np.zeros((self.n_atoms_max, self.n_atoms_max))
-                n_atoms = len(systems[0])
-                full[0:n_atoms, 0:n_atoms] = output[0:n_atoms * n_atoms].reshape((n_atoms, n_atoms))
-        return full
 
     def create_single(self, system):
         """
@@ -184,6 +151,31 @@ class CoulombMatrix(MatrixDescriptor):
             out_des = sparse.COO.from_numpy(out_des)
 
         return out_des
+
+    def unflatten(self, output, systems):
+        n_systems = len(systems)
+        if self.sparse:
+            if n_systems != 1:
+                full = sparse.zeros((n_systems, self.n_atoms_max, self.n_atoms_max), format="dok")
+                for i_sys, system in enumerate(systems):
+                    n_atoms = len(system)
+                    full[i_sys, 0:n_atoms, 0:n_atoms] = output[i_sys, 0:n_atoms * n_atoms].reshape((n_atoms, n_atoms)).todense()
+            else:
+                full = sparse.zeros((self.n_atoms_max, self.n_atoms_max), format="dok")
+                n_atoms = len(systems[0])
+                full[0:n_atoms, 0:n_atoms] = output[0:n_atoms * n_atoms].reshape((n_atoms, n_atoms)).todense()
+            full = full.to_coo()
+        else:
+            if n_systems != 1:
+                full = np.zeros((n_systems, self.n_atoms_max, self.n_atoms_max))
+                for i_sys, system in enumerate(systems):
+                    n_atoms = len(system)
+                    full[i_sys, 0:n_atoms, 0:n_atoms] = output[i_sys, 0:n_atoms * n_atoms].reshape((n_atoms, n_atoms))
+            else:
+                full = np.zeros((self.n_atoms_max, self.n_atoms_max))
+                n_atoms = len(systems[0])
+                full[0:n_atoms, 0:n_atoms] = output[0:n_atoms * n_atoms].reshape((n_atoms, n_atoms))
+        return full
 
     def derivatives(
         self,
@@ -246,29 +238,17 @@ class CoulombMatrix(MatrixDescriptor):
             dimension goes over the cartesian components, x, y and z. The
             fourth dimension goes over the features in the default order.
         """
+        # Validate/determine the appropriate calculation method.
         methods = {"numerical", "auto"}
         if method not in methods:
             raise ValueError(
                 "Invalid method specified. Please choose from: {}".format(methods)
             )
-
-        # Determine the appropriate method if not given explicitly.
         if method == "auto":
             method = "numerical"
 
-        # If single system given, skip the parallelization
-        if isinstance(system, (Atoms, System)):
-            n_atoms = len(system)
-            indices = self._get_indices(n_atoms, include, exclude)
-            return self.derivatives_single(
-                system,
-                indices,
-                method=method,
-                return_descriptor=return_descriptor,
-            )
-
         # Check input validity
-        self._check_system_list(system)
+        system = [system] if isinstance(system, Atoms) else system
         n_samples = len(system)
         if include is None:
             include = [None] * n_samples
@@ -307,9 +287,7 @@ class CoulombMatrix(MatrixDescriptor):
             )
         )
 
-        # For the descriptor, the output size for each job depends on the exact
-        # arguments. Here we precalculate the size for each job to preallocate
-        # memory and make the process faster.
+        # Determine a fixed output size if possible
         n_features = self.get_number_of_features()
 
         def get_shapes(job):

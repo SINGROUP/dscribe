@@ -237,13 +237,10 @@ class LMBTR(MBTR):
             of positions and systems and the second dimension is determined by
             the get_number_of_features()-function.
         """
-        # If single system given, skip the parallelization
-        if isinstance(system, (Atoms, System)):
-            return self.create_single(system, positions)
-        else:
-            self._check_system_list(system)
-
         # Combine input arguments
+        if isinstance(system, Atoms):
+            system = [system]
+            positions = [positions]
         n_samples = len(system)
         if positions is None:
             inp = [(i_sys,) for i_sys in system]
@@ -319,9 +316,6 @@ class LMBTR(MBTR):
             positions, for k terms, as an array. These are ordered as given in
             positions.
         """
-        # Transform the input system into the internal System-object
-        system = self.get_system(system)
-
         # Check that the system does not have elements that are not in the list
         # of atomic numbers
         atomic_number_set = set(system.get_atomic_numbers())
@@ -549,7 +543,7 @@ class LMBTR(MBTR):
             )
             ext_system = System.from_atoms(ext_system)
         else:
-            ext_system = system
+            ext_system = System.from_atoms(system)
             cell_indices = np.zeros((len(system), 3), dtype=int)
 
         cmbtr = MBTRWrapper(
@@ -679,7 +673,7 @@ class LMBTR(MBTR):
             )
             ext_system = System.from_atoms(ext_system)
         else:
-            ext_system = system
+            ext_system = System.from_atoms(system)
             cell_indices = np.zeros((len(system), 3), dtype=int)
 
         cmbtr = MBTRWrapper(

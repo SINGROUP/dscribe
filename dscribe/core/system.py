@@ -123,7 +123,7 @@ class System(Atoms):
         return fractional
 
     def to_cartesian(self, scaled_positions, wrap=False):
-        """Used to transofrm a set of relative positions to the cartesian basis
+        """Used to transform a set of relative positions to the cartesian basis
         defined by the cell of this system.
 
         Args:

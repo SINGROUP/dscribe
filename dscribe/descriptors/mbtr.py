@@ -536,13 +536,8 @@ class MBTR(Descriptor):
             dictionaries containing the MBTR tensors for each k-term are
             returned.
         """
-        # If single system given, skip the parallelization
-        if isinstance(system, (Atoms, System)):
-            return self.create_single(system)
-        else:
-            self._check_system_list(system)
-
         # Combine input arguments
+        system = [system] if isinstance(system, Atoms) else system
         inp = [(i_sys,) for i_sys in system]
 
         # Determine if the outputs have a fixed size
@@ -577,9 +572,6 @@ class MBTR(Descriptor):
             is flattened, a single concatenated output vector is returned,
             either as a sparse or a dense vector.
         """
-        # Transform the input system into the internal System-object
-        system = self.get_system(system)
-
         # Ensuring variables are re-initialized when a new system is introduced
         self.system = system
         self._interaction_limit = len(system)
@@ -879,7 +871,7 @@ class MBTR(Descriptor):
             )
             ext_system = System.from_atoms(ext_system)
         else:
-            ext_system = system
+            ext_system = System.from_atoms(system)
             cell_indices = np.zeros((len(system), 3), dtype=int)
 
         cmbtr = MBTRWrapper(
@@ -1021,7 +1013,7 @@ class MBTR(Descriptor):
             )
             ext_system = System.from_atoms(ext_system)
         else:
-            ext_system = system
+            ext_system = System.from_atoms(system)
             cell_indices = np.zeros((len(system), 3), dtype=int)
 
         cmbtr = MBTRWrapper(

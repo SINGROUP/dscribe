@@ -112,9 +112,6 @@ class MatrixDescriptor(Descriptor):
             ndarray: The zero padded matrix either as a 2D array or as
                 a 1D array depending on the setting self._flatten.
         """
-        # Transform the input system into the internal System-object
-        system = self.get_system(system)
-
         # Remove the old norm vector for the new system
         self._norm_vector = None
 

@@ -127,13 +127,10 @@ class ACSF(Descriptor):
             provided the results are ordered by the input order of systems and
             their positions.
         """
-        # If single system given, skip the parallelization
-        if isinstance(system, (Atoms, System)):
-            return self.create_single(system, positions)
-        else:
-            self._check_system_list(system)
-
-        # Combine input arguments
+        # Validate input / combine input arguments
+        if isinstance(system, Atoms):
+            system = [system]
+            positions = [positions]
         if positions is None:
             inp = [(i_sys,) for i_sys in system]
         else:
@@ -196,9 +193,6 @@ class ACSF(Descriptor):
             positions and the second dimension is determined by the
             get_number_of_features()-function.
         """
-        # Transform the input system into the internal System-object
-        system = self.get_system(system)
-
         # Create C-compatible list of atomic indices for which the ACSF is
         # calculated
         calculate_all = False
