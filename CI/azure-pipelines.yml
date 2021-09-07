@@ -2,6 +2,7 @@
 trigger:
 - master
 - v1.2.0
+- cm-derivatives
 
 # Jobs
 jobs:
