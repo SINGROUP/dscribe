@@ -42,21 +42,46 @@ def test_periodicity(bulk):
     assert cm[0, 1] == assumed
 
 
+def test_permutations(H2O):
+    # No permutation handling
+    desc = CoulombMatrix(n_atoms_max=5, permutation="none")
+    n_features = desc.get_number_of_features()
+    cm = desc.create(H2O)
+    assert n_features == 25
+
+    # Eigen spectrum
+    desc = CoulombMatrix(n_atoms_max=5, permutation="eigenspectrum")
+    n_features = desc.get_number_of_features()
+    cm = desc.create(H2O)
+    assert n_features == 5
+
+    # Random
+    desc = CoulombMatrix(n_atoms_max=5, permutation="random", sigma=0.1, seed=42)
+    n_features = desc.get_number_of_features()
+    assert n_features == 25
+
+
 def test_flatten(H2O):
     # Unflattened
     desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=False)
-    cm = desc.create(H2O)
-    assert cm.shape == (5, 5)
+    cm_unflattened = desc.create(H2O)
+    assert cm_unflattened.shape == (5, 5)
 
     # Flattened
     desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=True)
-    cm = desc.create(H2O)
-    assert cm.shape == (25,)
+    cm_flattened = desc.create(H2O)
+    assert cm_flattened.shape == (25,)
+
+    # Check that flattened and unflattened versions contain same values
+    assert np.array_equal(cm_flattened[:9], cm_unflattened[:3, :3].ravel())
+    assert np.all((cm_flattened[9:] == 0))
+    cm_unflattened[:3, :3] = 0
+    assert np.all((cm_unflattened == 0))
 
 
 def test_sparse(H2O):
     # Dense
-    desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=False, sparse=False)
+    desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=True, sparse=False)
     vec = desc.create(H2O)
     assert type(vec) == np.ndarray
 
