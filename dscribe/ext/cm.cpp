@@ -14,6 +14,7 @@ limitations under the License.
 */
 #include "cm.h"
 #include "celllist.h"
+#include "geometry.h"
 #include <math.h>
 
 using namespace std;
@@ -24,7 +25,7 @@ CoulombMatrix::CoulombMatrix(
     double sigma,
     int seed
 )
-    : DescriptorGlobal(true)
+    : DescriptorGlobal(false)
     , n_atoms_max(n_atoms_max)
     , permutation(permutation)
     , sigma(sigma)
@@ -39,9 +40,8 @@ void CoulombMatrix::create_raw(
     CellList &cell_list
 ) const
 {
-    // Calculate all pairwise distances. CellList is the generic container that
-    // can calculate distances even if no cutoff is available.
-    py::array_t<double> matrix = cell_list.getAllDistances();
+    // Calculate all pairwise distances.
+    py::array_t<double> matrix = distances(positions);
     auto matrix_mu = matrix.mutable_unchecked<2>();
     auto out_mu = out.mutable_unchecked<1>();
     auto atomic_numbers_u = atomic_numbers.unchecked<1>();

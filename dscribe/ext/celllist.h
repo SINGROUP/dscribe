@@ -57,11 +57,6 @@ class CellList {
          * @param i Index of the atom for which neighbours are queried for.
          */
         CellListResult getNeighboursForIndex(const int i) const;
-        /**
-         * Get all all pairwise distances as a full matrix. Use only if cutoff
-         * is not available.
-         */
-        py::array_t<double> getAllDistances() const;
 
     private:
         /**

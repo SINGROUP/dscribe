@@ -175,7 +175,7 @@ def check_derivatives_numerical(descriptor_func):
             ],
             pbc=[True, True, True],
         )
-        # * (2, 1, 1)
+        * (3, 3, 3)
     )
 
     h = 0.0001
@@ -200,7 +200,7 @@ def check_derivatives_numerical(descriptor_func):
                 i_pos[i_atom, i_comp] += h * deltas[i_stencil]
                 system_disturbed.set_positions(i_pos)
                 d1 = descriptor.create(system_disturbed)
-                derivatives_python[i_atom, :] += coeffs[i_stencil] * d1 / h
+                derivatives_python[i_atom, i_comp, :] += coeffs[i_stencil] * d1 / h
 
     # Calculate with central finite difference implemented in C++.
     derivatives_cpp, d_cpp = descriptor.derivatives(system, method="numerical")
@@ -209,6 +209,4 @@ def check_derivatives_numerical(descriptor_func):
     assert np.allclose(d0, d_cpp, atol=1e-6)
 
     # Compare derivative values
-    print(derivatives_python[0])
-    print(derivatives_cpp[0] * 3)
-    assert np.allclose(derivatives_python, derivatives_cpp * 3, atol=2e-5)
+    assert np.allclose(derivatives_python, derivatives_cpp, atol=2e-5)

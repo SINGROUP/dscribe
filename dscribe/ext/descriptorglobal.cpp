@@ -16,6 +16,7 @@ limitations under the License.
 #include <set>
 #include <unordered_map>
 #include <cmath>
+#include <iostream>
 #include "descriptorglobal.h"
 #include "geometry.h"
 
@@ -130,8 +131,12 @@ void DescriptorGlobal::derivatives_numerical(
                 py::array_t<double> d({n_features}, dTemp);
 
                 // Calculate descriptor value
+                //cout << positions_mu(0, 0) << ", " << positions_mu(0, 1) << ", " << positions_mu(0, 2) << endl;
+                //cout << positions_mu(1, 0) << ", " << positions_mu(1, 1) << ", " << positions_mu(1, 2) << endl;
+                //cout << atomic_numbers_u(0) << ", " << atomic_numbers_u(1) << endl;
                 this->create_raw(d, positions, atomic_numbers, cell_list_atoms);
                 auto d_u = d.unchecked<1>();
+                cout << d_u(0) << ", " << d_u(1) << ", " << d_u(2) << ", " << d_u(3) << endl;
 
                 // Add value to final derivative array
                 double coeff = coefficients[i_stencil];

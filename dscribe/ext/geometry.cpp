@@ -139,3 +139,22 @@ ExtendedSystem extend_system(
 
     return ExtendedSystem{ext_pos, ext_atomic_numbers, ext_indices};
 }
+
+py::array_t<double> distances(py::array_t<double> positions)
+{
+    int n_atoms = positions.shape(0);
+    auto positions_u = positions.unchecked<2>();
+    py::array_t<double> distances({n_atoms, n_atoms});
+    auto distances_mu = distances.mutable_unchecked<2>();
+    for (int i = 0; i < n_atoms; ++i) {
+        for (int j = i; j < n_atoms; ++j) {
+            double dx = positions_u(i, 0) - positions_u(j, 0);
+            double dy = positions_u(i, 1) - positions_u(j, 1);
+            double dz = positions_u(i, 2) - positions_u(j, 2);
+            double distance = sqrt(dx*dx + dy*dy + dz*dz);
+            distances_mu(i, j) = distance;
+            distances_mu(j, i) = distance;
+        }
+    }
+    return distances;
+}

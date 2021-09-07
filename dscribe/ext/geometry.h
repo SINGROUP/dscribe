@@ -52,4 +52,13 @@ ExtendedSystem extend_system(
     py::array_t<bool> pbc,
     double cutoff);
 
+/**
+ * Used to calculate the full distance matrix for the given positions.
+ * 
+ * @param positions Cartesian positions in a <n_atoms, 3> array.
+ *
+ * @return Pairwise distances in an <n_atoms, n_atoms> array.
+ */
+py::array_t<double> distances(py::array_t<double> positions);
+
 #endif
