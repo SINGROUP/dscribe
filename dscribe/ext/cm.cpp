@@ -82,8 +82,8 @@ void CoulombMatrix::create_raw(
 }
 
 void CoulombMatrix::getEigenspectrum(
-    py::array_t<double> matrix,
-    py::array_t<double> out,
+    py::array_t<double> &matrix,
+    py::array_t<double> &out,
     int n_atoms
 ) const
 {
@@ -118,13 +118,13 @@ void CoulombMatrix::getEigenspectrum(
 }
 
 void CoulombMatrix::sort(
-    py::array_t<double> matrix
+    py::array_t<double> &matrix
 ) const
 {
 }
 
 void CoulombMatrix::sortRandomly(
-    py::array_t<double> matrix
+    py::array_t<double> &matrix
 ) const
 {
 }
