@@ -16,6 +16,7 @@ limitations under the License.
 #include "celllist.h"
 #include "geometry.h"
 #include <math.h>
+#include "jacobi_pd.h"
 
 using namespace std;
 
@@ -62,7 +63,7 @@ void CoulombMatrix::create_raw(
 
     // Handle the permutation option
     if (this->permutation == "eigenspectrum") {
-        this->getEigenspectrum(matrix, out);
+        this->getEigenspectrum(matrix, out, n_atoms);
     } else {
         if (this->permutation == "sorted") {
             this->sort(matrix);
@@ -82,9 +83,38 @@ void CoulombMatrix::create_raw(
 
 void CoulombMatrix::getEigenspectrum(
     py::array_t<double> matrix,
-    py::array_t<double> out
+    py::array_t<double> out,
+    int n_atoms
 ) const
 {
+    // Calculate eigenvalues using the jacobi_pd library: it is a very
+    // lightweight, open-source library for solving eigenvalue problems.
+    vector<double> eigenvalues(n_atoms);
+    auto matrix_mu = matrix.mutable_unchecked<2>();
+    vector<vector<double>> eigenvectors(n_atoms, vector<double>(n_atoms));
+    vector<vector<double>> matrix_cpp(n_atoms, vector<double>(n_atoms));
+    for (int i = 0; i < n_atoms; ++i) {
+        for (int j = i; j < n_atoms; ++j) {
+            matrix_cpp[i][j] = matrix_mu(i, j);
+        }
+    }
+    jacobi_pd::Jacobi<double, vector<double>&, vector<vector<double>>&, const vector<vector<double>>&> eigen_calc(n_atoms);
+    eigen_calc.Diagonalize(matrix_cpp, eigenvalues, eigenvectors);
+
+    // Sort the values in descending order by absolute value
+    std::sort(
+        eigenvalues.begin(),
+        eigenvalues.end(),
+        [ ]( const double& lhs, const double& rhs ) {
+            return abs(lhs) > abs(rhs);
+        }
+    );
+
+    // Copy to output
+    auto out_mu = out.mutable_unchecked<1>();
+    for (int i = 0; i < n_atoms; ++i) {
+        out_mu[i] = eigenvalues[i];
+    }
 }
 
 void CoulombMatrix::sort(

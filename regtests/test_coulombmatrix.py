@@ -12,6 +12,37 @@ from conftest import (
 from dscribe.descriptors import CoulombMatrix
 
 
+def cm_python(system, n_atoms_max, permutation, flatten):
+    """Calculates a python reference value for the Coulomb matrix.
+    """
+    Z = system.get_atomic_numbers()
+    pos = system.get_positions()
+    distances = np.linalg.norm(pos[:, None, :] - pos[None, :, :], axis=-1)
+    n = len(system)
+    cm = np.zeros((n, n))
+    for i in range(n):
+        for j in range(n):
+            if i == j:
+                cm[i, j] = 0.5 * Z[i]**2.4
+            else:
+                cm[i, j] = Z[i] * Z[j] / distances[i, j]
+    if permutation == "eigenspectrum":
+        eigenvalues = np.linalg.eigvalsh(cm)
+        abs_values = np.absolute(eigenvalues)
+        sorted_indices = np.argsort(abs_values)[::-1]
+        eigenvalues = eigenvalues[sorted_indices]
+        padded = np.zeros((n_atoms_max))
+        padded[:n] = eigenvalues
+    elif flatten:
+        cm = cm.flatten()
+        padded = np.zeros((n_atoms_max**2))
+        padded[:n**2] = cm
+    else:
+        padded = np.zeros((n_atoms_max, n_atoms_max))
+        padded[:n, :n] = cm
+    return padded
+
+
 def test_exceptions(H2O):
     # Unknown permutation option
     with pytest.raises(ValueError):
@@ -42,23 +73,28 @@ def test_periodicity(bulk):
     assert cm[0, 1] == assumed
 
 
-def test_permutations(H2O):
+def test_features(H2O):
     # No permutation handling
-    desc = CoulombMatrix(n_atoms_max=5, permutation="none")
+    n_atoms_max = 5
+    desc = CoulombMatrix(n_atoms_max=n_atoms_max, permutation="none")
     n_features = desc.get_number_of_features()
     cm = desc.create(H2O)
-    assert n_features == 25
+    assert n_features == n_atoms_max**2
+    cm_assumed = cm_python(H2O, n_atoms_max, "none", True)
+    assert np.allclose(cm, cm_assumed)
 
     # Eigen spectrum
-    desc = CoulombMatrix(n_atoms_max=5, permutation="eigenspectrum")
+    desc = CoulombMatrix(n_atoms_max=n_atoms_max, permutation="eigenspectrum")
     n_features = desc.get_number_of_features()
     cm = desc.create(H2O)
-    assert n_features == 5
+    assert n_features == n_atoms_max
+    cm_assumed = cm_python(H2O, n_atoms_max, "eigenspectrum", True)
+    assert np.allclose(cm, cm_assumed)
 
     # Random
-    desc = CoulombMatrix(n_atoms_max=5, permutation="random", sigma=0.1, seed=42)
+    desc = CoulombMatrix(n_atoms_max=n_atoms_max, permutation="random", sigma=0.1, seed=42)
     n_features = desc.get_number_of_features()
-    assert n_features == 25
+    assert n_features == n_atoms_max**2
 
 
 def test_flatten(H2O):
@@ -126,40 +162,6 @@ def test_parallel(n_jobs, flatten, sparse):
     assumed[0, :] = a
     assumed[1, :] = b
     assert np.allclose(output, assumed)
-
-
-def test_features(H2O):
-    """Tests that the correct features are present in the desciptor."""
-    desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=False)
-    cm = desc.create(H2O)
-
-    # Test against assumed values
-    q = H2O.get_atomic_numbers()
-    p = H2O.get_positions()
-    norm = np.linalg.norm
-    assumed = np.array(
-        [
-            [
-                0.5 * q[0] ** 2.4,
-                q[0] * q[1] / (norm(p[0] - p[1])),
-                q[0] * q[2] / (norm(p[0] - p[2])),
-            ],
-            [
-                q[1] * q[0] / (norm(p[1] - p[0])),
-                0.5 * q[1] ** 2.4,
-                q[1] * q[2] / (norm(p[1] - p[2])),
-            ],
-            [
-                q[2] * q[0] / (norm(p[2] - p[0])),
-                q[2] * q[1] / (norm(p[2] - p[1])),
-                0.5 * q[2] ** 2.4,
-            ],
-        ]
-    )
-    zeros = np.zeros((5, 5))
-    zeros[:3, :3] = assumed
-    assumed = zeros
-    assert np.array_equal(cm, assumed)
 
 
 def descriptor_for_system(systems):

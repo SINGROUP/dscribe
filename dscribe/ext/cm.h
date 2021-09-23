@@ -58,7 +58,8 @@ class CoulombMatrix: public DescriptorGlobal {
          */
         void getEigenspectrum(
             py::array_t<double> matrix,
-            py::array_t<double> out
+            py::array_t<double> out,
+            int n_atoms
         ) const;
 
         /**
