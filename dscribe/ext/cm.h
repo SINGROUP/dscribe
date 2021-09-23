@@ -42,9 +42,9 @@ class CoulombMatrix: public DescriptorGlobal {
          * For creating feature vectors.
          */
         void create_raw(
-            py::array_t<double> out, 
-            py::array_t<double> positions,
-            py::array_t<int> atomic_numbers,
+            py::detail::unchecked_mutable_reference<double, 1> &out_mu, 
+            py::detail::unchecked_reference<double, 2> &positions_u,
+            py::detail::unchecked_reference<int, 1> &atomic_numbers_u,
             CellList &cell_list
         ) const;
 
@@ -57,8 +57,8 @@ class CoulombMatrix: public DescriptorGlobal {
          * Calculate sorted eigenvalues.
          */
         void getEigenspectrum(
-            py::array_t<double> &matrix,
-            py::array_t<double> &out,
+            py::detail::unchecked_mutable_reference<double, 2> &matrix_mu,
+            py::detail::unchecked_mutable_reference<double, 1> &out_mu,
             int n_atoms
         ) const;
 

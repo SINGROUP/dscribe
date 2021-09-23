@@ -59,6 +59,6 @@ ExtendedSystem extend_system(
  *
  * @return Pairwise distances in an <n_atoms, n_atoms> array.
  */
-py::array_t<double> distances(py::array_t<double> positions);
+py::array_t<double> distances(py::detail::unchecked_reference<double, 2> &positions_u);
 
 #endif

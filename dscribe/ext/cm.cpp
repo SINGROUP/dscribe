@@ -35,20 +35,18 @@ CoulombMatrix::CoulombMatrix(
 }
 
 void CoulombMatrix::create_raw(
-    py::array_t<double> out, 
-    py::array_t<double> positions,
-    py::array_t<int> atomic_numbers,
+    py::detail::unchecked_mutable_reference<double, 1> &out_mu, 
+    py::detail::unchecked_reference<double, 2> &positions_u,
+    py::detail::unchecked_reference<int, 1> &atomic_numbers_u,
     CellList &cell_list
 ) const
 {
     // Calculate all pairwise distances.
-    py::array_t<double> matrix = distances(positions);
+    py::array_t<double> matrix = distances(positions_u);
     auto matrix_mu = matrix.mutable_unchecked<2>();
-    auto out_mu = out.mutable_unchecked<1>();
-    auto atomic_numbers_u = atomic_numbers.unchecked<1>();
 
     // Construct matrix
-    int n_atoms = atomic_numbers.shape(0);
+    int n_atoms = atomic_numbers_u.shape(0);
     for (int i = 0; i < n_atoms; ++i) {
         for (int j = i; j < n_atoms; ++j) {
             if (j == i) {
@@ -63,7 +61,7 @@ void CoulombMatrix::create_raw(
 
     // Handle the permutation option
     if (this->permutation == "eigenspectrum") {
-        this->getEigenspectrum(matrix, out, n_atoms);
+        this->getEigenspectrum(matrix_mu, out_mu, n_atoms);
     } else {
         if (this->permutation == "sorted") {
             this->sort(matrix);
@@ -82,15 +80,14 @@ void CoulombMatrix::create_raw(
 }
 
 void CoulombMatrix::getEigenspectrum(
-    py::array_t<double> &matrix,
-    py::array_t<double> &out,
+    py::detail::unchecked_mutable_reference<double, 2> &matrix_mu,
+    py::detail::unchecked_mutable_reference<double, 1> &out_mu,
     int n_atoms
 ) const
 {
     // Calculate eigenvalues using the jacobi_pd library: it is a very
     // lightweight, open-source library for solving eigenvalue problems.
     vector<double> eigenvalues(n_atoms);
-    auto matrix_mu = matrix.mutable_unchecked<2>();
     vector<vector<double>> eigenvectors(n_atoms, vector<double>(n_atoms));
     vector<vector<double>> matrix_cpp(n_atoms, vector<double>(n_atoms));
     for (int i = 0; i < n_atoms; ++i) {
@@ -111,7 +108,6 @@ void CoulombMatrix::getEigenspectrum(
     );
 
     // Copy to output
-    auto out_mu = out.mutable_unchecked<1>();
     for (int i = 0; i < n_atoms; ++i) {
         out_mu[i] = eigenvalues[i];
     }

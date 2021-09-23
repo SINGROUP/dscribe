@@ -48,7 +48,10 @@ void DescriptorGlobal::create(
 
     // Calculate neighbours with a cell list
     CellList cell_list(positions, this->cutoff);
-    this->create_raw(out, positions, atomic_numbers, cell_list);
+    auto out_mu = out.mutable_unchecked<1>();
+    auto positions_u = positions.unchecked<2>();
+    auto atomic_numbers_u = atomic_numbers.unchecked<1>();
+    this->create_raw(out_mu, positions_u, atomic_numbers_u, cell_list);
 }
 
 void DescriptorGlobal::derivatives_numerical(
@@ -66,6 +69,7 @@ void DescriptorGlobal::derivatives_numerical(
     int n_atoms = atomic_numbers.size();
     int n_features = this->get_number_of_features();
     auto derivatives_mu = derivatives.mutable_unchecked<3>();
+    auto descriptor_mu = descriptor.mutable_unchecked<1>();
     auto indices_u = indices.unchecked<1>();
     auto pbc_u = pbc.unchecked<1>();
 
@@ -78,6 +82,7 @@ void DescriptorGlobal::derivatives_numerical(
         atomic_numbers = system_extension.atomic_numbers;
     }
     auto positions_mu = positions.mutable_unchecked<2>();
+    auto positions_u = positions.unchecked<2>();
     auto atomic_numbers_u = atomic_numbers.unchecked<1>();
 
     // Pre-calculate cell list for atoms
@@ -85,7 +90,7 @@ void DescriptorGlobal::derivatives_numerical(
 
     // Calculate the desciptor value if requested
     if (return_descriptor) {
-        this->create_raw(descriptor, positions, atomic_numbers, cell_list_atoms);
+        this->create_raw(descriptor_mu, positions_u, atomic_numbers_u, cell_list_atoms);
     }
 
     // Central finite difference with error O(h^2)
@@ -129,19 +134,15 @@ void DescriptorGlobal::derivatives_numerical(
                 // for this stencil point
                 double* dTemp = new double[n_features]();
                 py::array_t<double> d({n_features}, dTemp);
+                auto d_mu = d.mutable_unchecked<1>();
 
                 // Calculate descriptor value
-                //cout << positions_mu(0, 0) << ", " << positions_mu(0, 1) << ", " << positions_mu(0, 2) << endl;
-                //cout << positions_mu(1, 0) << ", " << positions_mu(1, 1) << ", " << positions_mu(1, 2) << endl;
-                //cout << atomic_numbers_u(0) << ", " << atomic_numbers_u(1) << endl;
-                this->create_raw(d, positions, atomic_numbers, cell_list_atoms);
-                auto d_u = d.unchecked<1>();
-                cout << d_u(0) << ", " << d_u(1) << ", " << d_u(2) << ", " << d_u(3) << endl;
+                this->create_raw(d_mu, positions_u, atomic_numbers_u, cell_list_atoms);
 
                 // Add value to final derivative array
                 double coeff = coefficients[i_stencil];
                 for (int i_feature=0; i_feature < n_features; ++i_feature) {
-                    double value = coeff*d_u(i_feature);
+                    double value = coeff*d_mu(i_feature);
                     derivatives_mu(i_pos, i_comp, i_feature) = derivatives_mu(i_pos, i_comp, i_feature) + value;
                 }
 
