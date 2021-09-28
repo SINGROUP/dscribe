@@ -16,9 +16,10 @@ limitations under the License.
 #include "celllist.h"
 #include "geometry.h"
 #include <math.h>
-#include "jacobi_pd.h"
+#include <Eigen/Dense>
 
 using namespace std;
+using namespace Eigen;
 
 CoulombMatrix::CoulombMatrix(
     unsigned int n_atoms_max,
@@ -85,23 +86,21 @@ void CoulombMatrix::getEigenspectrum(
     int n_atoms
 ) const
 {
-    // Calculate eigenvalues using the jacobi_pd library: it is a very
-    // lightweight, open-source library for solving eigenvalue problems.
-    vector<double> eigenvalues(n_atoms);
-    vector<vector<double>> eigenvectors(n_atoms, vector<double>(n_atoms));
-    vector<vector<double>> matrix_cpp(n_atoms, vector<double>(n_atoms));
+    // Calculate eigenvalues with Eigen
+    MatrixXd A(n_atoms, n_atoms);
     for (int i = 0; i < n_atoms; ++i) {
         for (int j = i; j < n_atoms; ++j) {
-            matrix_cpp[i][j] = matrix_mu(i, j);
+            // Only the lower triangular part is referenced
+            A(j, i) = matrix_mu(i, j);
         }
     }
-    jacobi_pd::Jacobi<double, vector<double>&, vector<vector<double>>&, const vector<vector<double>>&> eigen_calc(n_atoms);
-    eigen_calc.Diagonalize(matrix_cpp, eigenvalues, eigenvectors);
+    SelfAdjointEigenSolver<MatrixXd> eigensolver(A, EigenvaluesOnly);
+    Eigen::VectorXd eigenvalues = eigensolver.eigenvalues();
 
     // Sort the values in descending order by absolute value
     std::sort(
-        eigenvalues.begin(),
-        eigenvalues.end(),
+        eigenvalues.data(),
+        eigenvalues.data()+eigenvalues.size(),
         [ ]( const double& lhs, const double& rhs ) {
             return abs(lhs) > abs(rhs);
         }
@@ -109,7 +108,7 @@ void CoulombMatrix::getEigenspectrum(
 
     // Copy to output
     for (int i = 0; i < n_atoms; ++i) {
-        out_mu[i] = eigenvalues[i];
+        out_mu[i] = eigenvalues(i);
     }
 }
 

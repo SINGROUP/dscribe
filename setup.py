@@ -35,7 +35,7 @@ class get_pybind_include(object):
 
 
 cpp_extra_link_args = []
-cpp_extra_compile_args = ["-std=c++11", "-O3"]
+cpp_extra_compile_args = ["-std=c++11", "-O3", "-I dscribe/ext/Eigen/"]
 
 # Needed to specify C++ runtime library on OSX. This solution is replicated
 # from the setup.py of mdanalysis

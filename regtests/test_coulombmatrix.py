@@ -1,13 +1,16 @@
 import pytest
 import numpy as np
+import time
 import sparse
 from ase.build import molecule
 from conftest import (
-    check_symmetry_rotation,
-    check_symmetry_translation,
-    check_derivatives_include,
-    check_derivatives_exclude,
-    check_derivatives_numerical,
+    assert_symmetry_rotation,
+    assert_symmetry_translation,
+    assert_symmetry_permutation,
+    assert_derivatives_include,
+    assert_derivatives_exclude,
+    assert_derivatives_numerical,
+    big_system,
 )
 from dscribe.descriptors import CoulombMatrix
 
@@ -15,17 +18,15 @@ from dscribe.descriptors import CoulombMatrix
 def cm_python(system, n_atoms_max, permutation, flatten):
     """Calculates a python reference value for the Coulomb matrix.
     """
-    Z = system.get_atomic_numbers()
     pos = system.get_positions()
-    distances = np.linalg.norm(pos[:, None, :] - pos[None, :, :], axis=-1)
     n = len(system)
-    cm = np.zeros((n, n))
-    for i in range(n):
-        for j in range(n):
-            if i == j:
-                cm[i, j] = 0.5 * Z[i]**2.4
-            else:
-                cm[i, j] = Z[i] * Z[j] / distances[i, j]
+    distances = np.linalg.norm(pos[:, None, :] - pos[None, :, :], axis=-1)
+    q = system.get_atomic_numbers()
+    qiqj = q[None, :] * q[:, None]
+    np.fill_diagonal(distances, 1)
+    cm = qiqj / distances
+    np.fill_diagonal(cm, 0.5 * q ** 2.4)
+
     if permutation == "eigenspectrum":
         eigenvalues = np.linalg.eigvalsh(cm)
         abs_values = np.absolute(eigenvalues)
@@ -164,20 +165,78 @@ def test_parallel(n_jobs, flatten, sparse):
     assert np.allclose(output, assumed)
 
 
-def descriptor_for_system(systems):
-    n_atoms_max = max([len(s) for s in systems])
-    desc = CoulombMatrix(n_atoms_max=n_atoms_max, permutation="none", flatten=True)
-    return desc
+def descriptor_func(permutation):
+    """Returns a function which produces a descriptor object when given a
+    dataset to work on.
+    """
+    def descriptor(systems):
+        n_atoms_max = max([len(s) for s in systems])
+        return CoulombMatrix(n_atoms_max=n_atoms_max, permutation=permutation, flatten=True)
+    return descriptor
 
 
-def test_symmetries():
+@pytest.mark.parametrize(
+    "permutation, test_permutation",
+    [
+        ("none", False),
+        ("eigenspectrum", True),
+    ],
+)
+def test_symmetries(permutation, test_permutation):
     """Tests the symmetries of the descriptor."""
-    check_symmetry_translation(descriptor_for_system)
-    check_symmetry_rotation(descriptor_for_system)
+    func = descriptor_func(permutation)
+    assert_symmetry_translation(func)
+    assert_symmetry_rotation(func)
+    if test_permutation:
+        assert_symmetry_permutation(func)
 
 
-def test_derivatives():
-    methods = ["numerical"]
-    check_derivatives_include(descriptor_for_system, methods)
-    check_derivatives_exclude(descriptor_for_system, methods)
-    check_derivatives_numerical(descriptor_for_system)
+@pytest.mark.parametrize(
+    "permutation, method",
+    [
+        ("none", "numerical"),
+        ("eigenspectrum", "numerical"),
+    ],
+)
+def test_derivatives(permutation, method):
+    func = descriptor_func(permutation)
+    assert_derivatives_include(func, method)
+    assert_derivatives_exclude(func, method)
+    if method == "numerical":
+        assert_derivatives_numerical(func)
+    else:
+        raise Exception("Not implemented yet")
+
+
+@pytest.mark.parametrize(
+    "permutation",
+    [
+        # "none",
+        "eigenspectrum"
+    ],
+)
+def test_performance(permutation):
+    """Tests that the C++ code performs better than the numpy version.
+    """
+    n_iter = 10
+    system = big_system()
+    times = []
+    start = time
+    n_atoms_max = len(system)
+    descriptor = descriptor_func(permutation)([system])
+
+    # Measure C++ time
+    start = time.time()
+    for i in range(n_iter):
+        descriptor.create(system)
+    end = time.time()
+    elapsed_cpp = end - start
+
+    # Measure Python time
+    start = time.time()
+    for i in range(n_iter):
+        cm_python(system, n_atoms_max, permutation, True)
+    end = time.time()
+    elapsed_python = end - start
+
+    assert elapsed_python > elapsed_cpp
