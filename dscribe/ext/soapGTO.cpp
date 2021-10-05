@@ -2199,7 +2199,9 @@ shift = 0;
       }
     }
   }
-}}
+}
+free(preExponentArrya);
+}
 //================================================================================================
 /**
  * Used to calculate the partial power spectrum.
@@ -2482,7 +2484,11 @@ void soapGTO(
   free(x20);
   free(y20);
   free(z20);
-  free(exes); free(preCoef); free(bOa); free(aOa); free(cnnd_raw);
+  free(exes); free(preCoef); free(bOa); free(aOa); free(cnnd_raw); free(weights);
+
+  if (return_derivatives) {
+  free(prCofDX); free(prCofDY); free(prCofDZ);
+  }
 
   // Calculate the descriptor value if requested
   if (return_descriptor) {
