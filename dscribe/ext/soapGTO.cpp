@@ -2479,6 +2479,7 @@ void soapGTO(
   free(dx); free(x2); free(x4); free(x6); free(x8); free(x10); free(x12); free(x14); free(x16); free(x18);
   free(dy); free(y2); free(y4); free(y6); free(y8); free(y10); free(y12); free(y14); free(y16); free(y18);
   free(dz); free(z2); free(z4); free(z6); free(z8); free(z10); free(z12); free(z14); free(z16); free(z18);
+  free(r1);
   free(r2); free(r4); free(r6); free(r8); free(r10); free(r12); free(r14); free(r16); free(r18);
   free(r20);
   free(x20);
