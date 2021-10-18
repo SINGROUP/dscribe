@@ -1,4 +1,4 @@
 # Include the license file
 include LICENSE
 recursive-include dscribe/ext *.h
-recursive-include dependencies/eigen/Eigen
+recursive-include dependencies/eigen/Eigen *

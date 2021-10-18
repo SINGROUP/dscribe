@@ -16,12 +16,14 @@ limitations under the License.
 #ifndef CM_H
 #define CM_H
 
-#include <pybind11/numpy.h>
 #include <string>
+#include <pybind11/numpy.h>
+#include <Eigen/Dense>
 #include "descriptorglobal.h"
 
 namespace py = pybind11;
 using namespace std;
+using namespace Eigen;
 
 /**
  * Coulomb matrix descriptor.
@@ -43,7 +45,7 @@ class CoulombMatrix: public DescriptorGlobal {
          */
         void create_raw(
             py::detail::unchecked_mutable_reference<double, 1> &out_mu, 
-            py::detail::unchecked_reference<double, 2> &positions_u,
+            py::detail::unchecked_reference<double, 2> &positions_u, 
             py::detail::unchecked_reference<int, 1> &atomic_numbers_u,
             CellList &cell_list
         ) const;
@@ -57,23 +59,22 @@ class CoulombMatrix: public DescriptorGlobal {
          * Calculate sorted eigenvalues.
          */
         void getEigenspectrum(
-            py::detail::unchecked_mutable_reference<double, 2> &matrix_mu,
-            py::detail::unchecked_mutable_reference<double, 1> &out_mu,
-            int n_atoms
+            const Ref<const MatrixXd> &matrix,
+            py::detail::unchecked_mutable_reference<double, 1> &out_mu
         ) const;
 
         /**
-         * Sort by row norm.
+         * Sort by row L2 norm.
          */
         void sort(
-            py::array_t<double> &matrix
+            const Ref<const MatrixXd> &matrix
         ) const;
 
         /**
          * Introduce random noise and sort.
          */
         void sortRandomly(
-            py::array_t<double> &matrix
+            const Ref<const MatrixXd> &matrix
         ) const;
 
     private:

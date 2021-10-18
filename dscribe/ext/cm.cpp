@@ -16,7 +16,6 @@ limitations under the License.
 #include "celllist.h"
 #include "geometry.h"
 #include <math.h>
-#include <Eigen/Dense>
 
 using namespace std;
 using namespace Eigen;
@@ -37,34 +36,41 @@ CoulombMatrix::CoulombMatrix(
 
 void CoulombMatrix::create_raw(
     py::detail::unchecked_mutable_reference<double, 1> &out_mu, 
-    py::detail::unchecked_reference<double, 2> &positions_u,
+    py::detail::unchecked_reference<double, 2> &positions_u, 
     py::detail::unchecked_reference<int, 1> &atomic_numbers_u,
     CellList &cell_list
 ) const
 {
-    // Calculate all pairwise distances.
-    py::array_t<double> matrix = distances(positions_u);
-    auto matrix_mu = matrix.mutable_unchecked<2>();
+    // Calculate all pairwise distances and copy into an Eigen matrix.
+    int n_atoms = atomic_numbers_u.shape(0);
+    MatrixXd matrix(n_atoms, n_atoms);
+    py::array_t<double> dist = distances(positions_u);
+    auto dist_mu = dist.mutable_unchecked<2>();
+    for (int i = 0; i < n_atoms; ++i) {
+        for (int j = i; j < n_atoms; ++j) {
+            matrix(j, i) = dist_mu(i, j);
+            matrix(i, j) = dist_mu(i, j);
+        }
+    }
 
     // Construct matrix
-    int n_atoms = atomic_numbers_u.shape(0);
     for (int i = 0; i < n_atoms; ++i) {
         for (int j = i; j < n_atoms; ++j) {
             if (j == i) {
-                matrix_mu(i, j) = 0.5 * pow(atomic_numbers_u(i), 2.4);
+                matrix(i, j) = 0.5 * pow(atomic_numbers_u(i), 2.4);
             } else {
-                double value = atomic_numbers_u(i) * atomic_numbers_u(j) / matrix_mu(i, j);
-                matrix_mu(i, j) = value;
-                matrix_mu(j, i) = value;
+                double value = atomic_numbers_u(i) * atomic_numbers_u(j) / matrix(i, j);
+                matrix(i, j) = value;
+                matrix(j, i) = value;
             }
         }
     }
 
     // Handle the permutation option
     if (this->permutation == "eigenspectrum") {
-        this->getEigenspectrum(matrix_mu, out_mu, n_atoms);
+        this->getEigenspectrum(matrix, out_mu);
     } else {
-        if (this->permutation == "sorted") {
+        if (this->permutation == "sorted_l2") {
             this->sort(matrix);
         } else if (this->permutation == "random") {
             this->sortRandomly(matrix);
@@ -73,7 +79,7 @@ void CoulombMatrix::create_raw(
         int k = 0;
         for (int i = 0; i < n_atoms; ++i) {
             for (int j = 0; j < n_atoms; ++j) {
-                out_mu(k) = matrix_mu(i, j);
+                out_mu(k) = matrix(i, j);
                 ++k;
             }
         }
@@ -81,20 +87,12 @@ void CoulombMatrix::create_raw(
 }
 
 void CoulombMatrix::getEigenspectrum(
-    py::detail::unchecked_mutable_reference<double, 2> &matrix_mu,
-    py::detail::unchecked_mutable_reference<double, 1> &out_mu,
-    int n_atoms
+    const Ref<const MatrixXd> &matrix,
+    py::detail::unchecked_mutable_reference<double, 1> &out_mu
 ) const
 {
     // Calculate eigenvalues with Eigen
-    MatrixXd A(n_atoms, n_atoms);
-    for (int i = 0; i < n_atoms; ++i) {
-        for (int j = i; j < n_atoms; ++j) {
-            // Only the lower triangular part is referenced
-            A(j, i) = matrix_mu(i, j);
-        }
-    }
-    SelfAdjointEigenSolver<MatrixXd> eigensolver(A, EigenvaluesOnly);
+    SelfAdjointEigenSolver<MatrixXd> eigensolver(matrix, EigenvaluesOnly);
     Eigen::VectorXd eigenvalues = eigensolver.eigenvalues();
 
     // Sort the values in descending order by absolute value
@@ -107,19 +105,19 @@ void CoulombMatrix::getEigenspectrum(
     );
 
     // Copy to output
-    for (int i = 0; i < n_atoms; ++i) {
+    for (int i = 0; i < matrix.cols(); ++i) {
         out_mu[i] = eigenvalues(i);
     }
 }
 
 void CoulombMatrix::sort(
-    py::array_t<double> &matrix
+    const Ref<const MatrixXd> &matrix
 ) const
 {
 }
 
 void CoulombMatrix::sortRandomly(
-    py::array_t<double> &matrix
+    const Ref<const MatrixXd> &matrix
 ) const
 {
 }

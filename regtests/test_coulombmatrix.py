@@ -26,6 +26,7 @@ def cm_python(system, n_atoms_max, permutation, flatten):
     cm = qiqj / distances
     np.fill_diagonal(cm, 0.5 * q ** 2.4)
 
+    # Permutation option
     if permutation == "eigenspectrum":
         eigenvalues = np.linalg.eigvalsh(cm)
         abs_values = np.absolute(eigenvalues)
@@ -33,13 +34,21 @@ def cm_python(system, n_atoms_max, permutation, flatten):
         eigenvalues = eigenvalues[sorted_indices]
         padded = np.zeros((n_atoms_max))
         padded[:n] = eigenvalues
-    elif flatten:
-        cm = cm.flatten()
-        padded = np.zeros((n_atoms_max ** 2))
-        padded[: n ** 2] = cm
     else:
-        padded = np.zeros((n_atoms_max, n_atoms_max))
-        padded[:n, :n] = cm
+        if permutation == "sorted_l2":
+            norms = np.linalg.norm(cm, axis=1)
+            sorted_indices = np.argsort(norms, axis=0)[::-1]
+            cm = cm[sorted_indices]
+            cm = cm[:, sorted_indices]
+        # Flattening
+        if flatten:
+            cm = cm.flatten()
+            padded = np.zeros((n_atoms_max ** 2))
+            padded[: n ** 2] = cm
+        else:
+            padded = np.zeros((n_atoms_max, n_atoms_max))
+            padded[:n, :n] = cm
+
     return padded
 
 
@@ -56,10 +65,17 @@ def test_exceptions(H2O):
         cm.create([H2O])
 
 
-def test_number_of_features():
-    desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=False)
-    n_features = desc.get_number_of_features()
-    assert n_features == 25
+@pytest.mark.parametrize(
+    "permutation, n_features",
+    [
+        ("none", 25),
+        ("eigenspectrum", 5),
+        ("sorted_l2", 25),
+    ],
+)
+def test_number_of_features(permutation, n_features):
+    desc = CoulombMatrix(n_atoms_max=5, permutation=permutation, flatten=False)
+    assert n_features == desc.get_number_of_features()
 
 
 def test_periodicity(bulk):
@@ -73,30 +89,20 @@ def test_periodicity(bulk):
     assert cm[0, 1] == assumed
 
 
-def test_features(H2O):
-    # No permutation handling
+@pytest.mark.parametrize(
+    "permutation",
+    [
+        ("none"),
+        ("eigenspectrum"),
+    ],
+)
+def test_features(permutation, H2O):
     n_atoms_max = 5
-    desc = CoulombMatrix(n_atoms_max=n_atoms_max, permutation="none")
+    desc = CoulombMatrix(n_atoms_max=n_atoms_max, permutation=permutation)
     n_features = desc.get_number_of_features()
     cm = desc.create(H2O)
-    assert n_features == n_atoms_max ** 2
-    cm_assumed = cm_python(H2O, n_atoms_max, "none", True)
+    cm_assumed = cm_python(H2O, n_atoms_max, permutation, True)
     assert np.allclose(cm, cm_assumed)
-
-    # Eigen spectrum
-    desc = CoulombMatrix(n_atoms_max=n_atoms_max, permutation="eigenspectrum")
-    n_features = desc.get_number_of_features()
-    cm = desc.create(H2O)
-    assert n_features == n_atoms_max
-    cm_assumed = cm_python(H2O, n_atoms_max, "eigenspectrum", True)
-    assert np.allclose(cm, cm_assumed)
-
-    # Random
-    desc = CoulombMatrix(
-        n_atoms_max=n_atoms_max, permutation="random", sigma=0.1, seed=42
-    )
-    n_features = desc.get_number_of_features()
-    assert n_features == n_atoms_max ** 2
 
 
 def test_flatten(H2O):
@@ -216,7 +222,7 @@ def test_derivatives(permutation, method):
 @pytest.mark.parametrize(
     "permutation",
     [
-        # "none",
+        "none",
         "eigenspectrum"
     ],
 )
