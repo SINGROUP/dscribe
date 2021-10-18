@@ -6,21 +6,23 @@ from ase.build import molecule
 
 
 def big_system():
-    """"Elaborate test system with multiple species, non-cubic cell, and
+    """ "Elaborate test system with multiple species, non-cubic cell, and
     close-by atoms.
     """
     a = 1
-    return (Atoms(
-        symbols=["C", "C", "C"],
-        cell=[[0, a, a], [a, 0, a], [a, a, 0]],
-        scaled_positions=[
-            [0, 0, 0],
-            [1 / 3, 1 / 3, 1 / 3],
-            [2 / 3, 2 / 3, 2 / 3],
-        ],
-        pbc=[True, True, True],
+    return (
+        Atoms(
+            symbols=["C", "C", "C"],
+            cell=[[0, a, a], [a, 0, a], [a, a, 0]],
+            scaled_positions=[
+                [0, 0, 0],
+                [1 / 3, 1 / 3, 1 / 3],
+                [2 / 3, 2 / 3, 2 / 3],
+            ],
+            pbc=[True, True, True],
+        )
+        * (3, 3, 3)
     )
-    * (3, 3, 3))
 
 
 @pytest.fixture()

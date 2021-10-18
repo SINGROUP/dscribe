@@ -16,8 +16,7 @@ from dscribe.descriptors import CoulombMatrix
 
 
 def cm_python(system, n_atoms_max, permutation, flatten):
-    """Calculates a python reference value for the Coulomb matrix.
-    """
+    """Calculates a python reference value for the Coulomb matrix."""
     pos = system.get_positions()
     n = len(system)
     distances = np.linalg.norm(pos[:, None, :] - pos[None, :, :], axis=-1)
@@ -36,8 +35,8 @@ def cm_python(system, n_atoms_max, permutation, flatten):
         padded[:n] = eigenvalues
     elif flatten:
         cm = cm.flatten()
-        padded = np.zeros((n_atoms_max**2))
-        padded[:n**2] = cm
+        padded = np.zeros((n_atoms_max ** 2))
+        padded[: n ** 2] = cm
     else:
         padded = np.zeros((n_atoms_max, n_atoms_max))
         padded[:n, :n] = cm
@@ -80,7 +79,7 @@ def test_features(H2O):
     desc = CoulombMatrix(n_atoms_max=n_atoms_max, permutation="none")
     n_features = desc.get_number_of_features()
     cm = desc.create(H2O)
-    assert n_features == n_atoms_max**2
+    assert n_features == n_atoms_max ** 2
     cm_assumed = cm_python(H2O, n_atoms_max, "none", True)
     assert np.allclose(cm, cm_assumed)
 
@@ -93,9 +92,11 @@ def test_features(H2O):
     assert np.allclose(cm, cm_assumed)
 
     # Random
-    desc = CoulombMatrix(n_atoms_max=n_atoms_max, permutation="random", sigma=0.1, seed=42)
+    desc = CoulombMatrix(
+        n_atoms_max=n_atoms_max, permutation="random", sigma=0.1, seed=42
+    )
     n_features = desc.get_number_of_features()
-    assert n_features == n_atoms_max**2
+    assert n_features == n_atoms_max ** 2
 
 
 def test_flatten(H2O):
@@ -169,9 +170,13 @@ def descriptor_func(permutation):
     """Returns a function which produces a descriptor object when given a
     dataset to work on.
     """
+
     def descriptor(systems):
         n_atoms_max = max([len(s) for s in systems])
-        return CoulombMatrix(n_atoms_max=n_atoms_max, permutation=permutation, flatten=True)
+        return CoulombMatrix(
+            n_atoms_max=n_atoms_max, permutation=permutation, flatten=True
+        )
+
     return descriptor
 
 
@@ -216,8 +221,7 @@ def test_derivatives(permutation, method):
     ],
 )
 def test_performance(permutation):
-    """Tests that the C++ code performs better than the numpy version.
-    """
+    """Tests that the C++ code performs better than the numpy version."""
     n_iter = 10
     system = big_system()
     times = []
