@@ -221,10 +221,7 @@ def test_derivatives(permutation, method):
 
 @pytest.mark.parametrize(
     "permutation",
-    [
-        "none",
-        "eigenspectrum"
-    ],
+    ["none", "eigenspectrum"],
 )
 def test_performance(permutation):
     """Tests that the C++ code performs better than the numpy version."""
