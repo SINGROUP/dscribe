@@ -40,6 +40,10 @@ def cm_python(system, n_atoms_max, permutation, flatten):
             sorted_indices = np.argsort(norms, axis=0)[::-1]
             cm = cm[sorted_indices]
             cm = cm[:, sorted_indices]
+        elif permutation == "none":
+            pass
+        else:
+            raise ValueError("Unkown permutation option")
         # Flattening
         if flatten:
             cm = cm.flatten()
@@ -94,14 +98,15 @@ def test_periodicity(bulk):
     [
         ("none"),
         ("eigenspectrum"),
+        ("sorted_l2"),
     ],
 )
 def test_features(permutation, H2O):
     n_atoms_max = 5
-    desc = CoulombMatrix(n_atoms_max=n_atoms_max, permutation=permutation)
+    desc = CoulombMatrix(n_atoms_max=n_atoms_max, permutation=permutation, flatten=False)
     n_features = desc.get_number_of_features()
     cm = desc.create(H2O)
-    cm_assumed = cm_python(H2O, n_atoms_max, permutation, True)
+    cm_assumed = cm_python(H2O, n_atoms_max, permutation, False)
     assert np.allclose(cm, cm_assumed)
 
 
@@ -191,6 +196,7 @@ def descriptor_func(permutation):
     [
         ("none", False),
         ("eigenspectrum", True),
+        ("sorted_l2", False),
     ],
 )
 def test_symmetries(permutation, test_permutation):
@@ -207,6 +213,7 @@ def test_symmetries(permutation, test_permutation):
     [
         ("none", "numerical"),
         ("eigenspectrum", "numerical"),
+        ("sorted_l2", "numerical"),
     ],
 )
 def test_derivatives(permutation, method):
@@ -221,7 +228,11 @@ def test_derivatives(permutation, method):
 
 @pytest.mark.parametrize(
     "permutation",
-    ["none", "eigenspectrum"],
+    [
+        "none",
+        "eigenspectrum",
+        "sorted_l2",
+    ],
 )
 def test_performance(permutation):
     """Tests that the C++ code performs better than the numpy version."""

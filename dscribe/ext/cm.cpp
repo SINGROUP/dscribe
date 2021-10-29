@@ -16,6 +16,8 @@ limitations under the License.
 #include "celllist.h"
 #include "geometry.h"
 #include <math.h>
+#include <numeric>
+#include <iostream>
 
 using namespace std;
 using namespace Eigen;
@@ -41,17 +43,9 @@ void CoulombMatrix::create_raw(
     CellList &cell_list
 ) const
 {
-    // Calculate all pairwise distances and copy into an Eigen matrix.
+    // Calculate all pairwise distances.
     int n_atoms = atomic_numbers_u.shape(0);
-    MatrixXd matrix(n_atoms, n_atoms);
-    py::array_t<double> dist = distances(positions_u);
-    auto dist_mu = dist.mutable_unchecked<2>();
-    for (int i = 0; i < n_atoms; ++i) {
-        for (int j = i; j < n_atoms; ++j) {
-            matrix(j, i) = dist_mu(i, j);
-            matrix(i, j) = dist_mu(i, j);
-        }
-    }
+    MatrixXd matrix = distancesEigen(positions_u);
 
     // Construct matrix
     for (int i = 0; i < n_atoms; ++i) {
@@ -110,15 +104,26 @@ void CoulombMatrix::getEigenspectrum(
     }
 }
 
-void CoulombMatrix::sort(
-    const Ref<const MatrixXd> &matrix
-) const
+void CoulombMatrix::sort(Ref<MatrixXd> matrix) const
 {
+    // Calculate row norms
+    VectorXd norms = matrix.rowwise().squaredNorm();
+
+    // Calculate row permutations that order the matrix.
+    int n_atoms = matrix.rows();
+    VectorXi indices(n_atoms);
+    iota(indices.begin(), indices.end(), 0);
+    std::sort(indices.data(), indices.data() + indices.size(), [&](int i1, int i2) { return norms(i1) > norms(i2); } );
+    PermutationMatrix<Dynamic> P(indices);
+
+    // Sort matrix in place. Notice that we sort both rows and columns. This
+    // way the interpretation of the matrix as pairwise interaction of atoms is
+    // still valid.
+    matrix = matrix * P;
+    matrix = P * matrix;
 }
 
-void CoulombMatrix::sortRandomly(
-    const Ref<const MatrixXd> &matrix
-) const
+void CoulombMatrix::sortRandomly(Ref<MatrixXd> matrix) const
 {
 }
 

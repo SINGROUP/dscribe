@@ -140,7 +140,7 @@ ExtendedSystem extend_system(
     return ExtendedSystem{ext_pos, ext_atomic_numbers, ext_indices};
 }
 
-py::array_t<double> distances(py::detail::unchecked_reference<double, 2> &positions_u)
+py::array_t<double> distancesNumpy(py::detail::unchecked_reference<double, 2> &positions_u)
 {
     int n_atoms = positions_u.shape(0);
     py::array_t<double> distances({n_atoms, n_atoms});
@@ -153,6 +153,23 @@ py::array_t<double> distances(py::detail::unchecked_reference<double, 2> &positi
             double distance = sqrt(dx*dx + dy*dy + dz*dz);
             distances_mu(i, j) = distance;
             distances_mu(j, i) = distance;
+        }
+    }
+    return distances;
+}
+
+MatrixXd distancesEigen(py::detail::unchecked_reference<double, 2> &positions_u)
+{
+    int n_atoms = positions_u.shape(0);
+    MatrixXd distances(n_atoms, n_atoms);
+    for (int i = 0; i < n_atoms; ++i) {
+        for (int j = i; j < n_atoms; ++j) {
+            double dx = positions_u(i, 0) - positions_u(j, 0);
+            double dy = positions_u(i, 1) - positions_u(j, 1);
+            double dz = positions_u(i, 2) - positions_u(j, 2);
+            double distance = sqrt(dx*dx + dy*dy + dz*dz);
+            distances(i, j) = distance;
+            distances(j, i) = distance;
         }
     }
     return distances;

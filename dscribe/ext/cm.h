@@ -66,16 +66,12 @@ class CoulombMatrix: public DescriptorGlobal {
         /**
          * Sort by row L2 norm.
          */
-        void sort(
-            const Ref<const MatrixXd> &matrix
-        ) const;
+        void sort(Ref<MatrixXd> matrix) const;
 
         /**
          * Introduce random noise and sort.
          */
-        void sortRandomly(
-            const Ref<const MatrixXd> &matrix
-        ) const;
+        void sortRandomly(Ref<MatrixXd> matrix) const;
 
     private:
         unsigned int n_atoms_max;

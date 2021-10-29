@@ -29,8 +29,14 @@ using namespace std;
 class DescriptorGlobal {
     public:
         /**
-         * Nothing precalculated, called by python.
-         */
+        * Calculates the feature vector.
+        *
+        * @param out Numpy output array for the descriptor.
+        * @param positions Atomic positions as [n_atoms, 3] numpy array.
+        * @param atomic_numbers Atomic numbers as [n_atoms] numpy array.
+        * @param cell Simulation cell as [3, 3] numpy array.
+        * @param pbc Simulation cell periodicity as [3] numpy array.
+        */
         void create(
             py::array_t<double> out, 
             py::array_t<double> positions,
@@ -56,8 +62,17 @@ class DescriptorGlobal {
         virtual int get_number_of_features() const = 0; 
 
         /**
-         * Derivatives for global descriptors.
-         */
+        * Calculates the numerical derivates with central finite difference.
+        *
+        * @param derivatives Numpy output array for the derivatives.
+        * @param descriptor Numpy output array for the descriptor.
+        * @param positions Atomic positions as [n_atoms, 3] numpy array.
+        * @param atomic_numbers Atomic numbers as [n_atoms] numpy array.
+        * @param cell Simulation cell as [3, 3] numpy array.
+        * @param pbc Simulation cell periodicity as [3] numpy array.
+        * @param indices Indices of the atoms for which derivatives are calculated for.
+        * @param return_descriptor Determines whether descriptors are calculated or not.
+        */
         void derivatives_numerical(
             py::array_t<double> out_d,
             py::array_t<double> out,
