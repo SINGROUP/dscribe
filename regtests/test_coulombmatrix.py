@@ -103,7 +103,9 @@ def test_periodicity(bulk):
 )
 def test_features(permutation, H2O):
     n_atoms_max = 5
-    desc = CoulombMatrix(n_atoms_max=n_atoms_max, permutation=permutation, flatten=False)
+    desc = CoulombMatrix(
+        n_atoms_max=n_atoms_max, permutation=permutation, flatten=False
+    )
     n_features = desc.get_number_of_features()
     cm = desc.create(H2O)
     cm_assumed = cm_python(H2O, n_atoms_max, permutation, False)
