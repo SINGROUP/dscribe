@@ -36,7 +36,23 @@ PYBIND11_MODULE(ext, m) {
     py::class_<CoulombMatrix>(m, "CoulombMatrix")
         .def(py::init<unsigned int, string, double, int>())
         .def("create", &CoulombMatrix::create)
-        .def("derivatives_numerical", &CoulombMatrix::derivatives_numerical);
+        .def("derivatives_numerical", &CoulombMatrix::derivatives_numerical)
+        .def(py::pickle(
+            [](const CoulombMatrix &p) {
+                return py::make_tuple(p.n_atoms_max, p.permutation, p.sigma, p.seed);
+            },
+            [](py::tuple t) {
+                if (t.size() != 4)
+                    throw std::runtime_error("Invalid state!");
+                CoulombMatrix p(
+                    t[0].cast<unsigned int>(),
+                    t[1].cast<string>(),
+                    t[2].cast<double>(),
+                    t[3].cast<int>()
+                );
+                return p;
+            }
+        ));
 
     // SOAP
     py::class_<SOAPGTO>(m, "SOAPGTO")
@@ -72,22 +88,23 @@ PYBIND11_MODULE(ext, m) {
         .def_property("g5_params", &ACSF::getG5Params, &ACSF::setG5Params)
         .def_property("atomic_numbers", &ACSF::getAtomicNumbers, &ACSF::setAtomicNumbers)
 
-       .def(py::pickle(
-        [](const ACSF &p) { // __getstate__
-            /* Return a tuple that fully encodes the state of the object */
-            return py::make_tuple(p.rCut, p.g2Params, p.g3Params, p.g4Params, p.g5Params, p.atomicNumbers);
-        },
-        [](py::tuple t) { // __setstate__
-            if (t.size() != 6)
-                throw std::runtime_error("Invalid state!");
-
-            /* Create a new C++ instance */
-            ACSF p(t[0].cast<float>(), t[1].cast<vector<vector<float> >>(), t[2].cast<vector<float>>(), t[3].cast<vector<vector<float> >>(), t[4].cast<vector<vector<float> >>(), t[5].cast<vector<int>>());
-            /* Assign any additional state */
-            //p.setExtra(t[1].cast<int>());
-
-            return p;
-        }
+        .def(py::pickle(
+            [](const ACSF &p) {
+                return py::make_tuple(p.rCut, p.g2Params, p.g3Params, p.g4Params, p.g5Params, p.atomicNumbers);
+            },
+            [](py::tuple t) {
+                if (t.size() != 6)
+                    throw std::runtime_error("Invalid state!");
+                ACSF p(
+                    t[0].cast<float>(),
+                    t[1].cast<vector<vector<float> >>(),
+                    t[2].cast<vector<float>>(),
+                    t[3].cast<vector<vector<float> >>(),
+                    t[4].cast<vector<vector<float> >>(),
+                    t[5].cast<vector<int>>()
+                );
+                return p;
+            }
         ));
  
     // MBTR

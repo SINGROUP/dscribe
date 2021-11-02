@@ -70,6 +70,12 @@ class CoulombMatrix(MatrixDescriptor):
             flatten,
             sparse,
         )
+        self.wrapper = dscribe.ext.CoulombMatrix(
+            n_atoms_max,
+            permutation,
+            0 if sigma is None else sigma,
+            0 if seed is None else seed,
+        )
 
     def create(self, system, n_jobs=1, only_physical_cores=False, verbose=False):
         """Return the Coulomb matrix for the given systems.
@@ -133,13 +139,7 @@ class CoulombMatrix(MatrixDescriptor):
         out_des = np.zeros((self.get_number_of_features()), dtype=np.float64)
 
         # Calculate with C++ extension
-        wrapper = dscribe.ext.CoulombMatrix(
-            self.n_atoms_max,
-            self.permutation,
-            0 if self.sigma is None else self.sigma,
-            0 if self.seed is None else self.seed,
-        )
-        wrapper.create(
+        self.wrapper.create(
             out_des,
             system.get_positions(),
             system.get_atomic_numbers(),
@@ -377,15 +377,8 @@ class CoulombMatrix(MatrixDescriptor):
         d = np.zeros((n_indices, 3, n_features), dtype=np.float64)
 
         # Calculate numerically with extension
-        wrapper = dscribe.ext.CoulombMatrix(
-            self.n_atoms_max,
-            self.permutation,
-            0 if self.sigma is None else self.sigma,
-            0 if self.seed is None else self.seed,
-        )
-
         if method == "numerical":
-            wrapper.derivatives_numerical(
+            self.wrapper.derivatives_numerical(
                 d,
                 c,
                 pos,

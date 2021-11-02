@@ -35,7 +35,7 @@ void DescriptorGlobal::create(
     py::array_t<int> atomic_numbers,
     py::array_t<double> cell,
     py::array_t<bool> pbc
-) const
+)
 {
     // Extend system if periodicity is requested.
     auto pbc_u = pbc.unchecked<1>();
@@ -63,7 +63,7 @@ void DescriptorGlobal::derivatives_numerical(
     py::array_t<bool> pbc,
     py::array_t<int> indices,
     bool return_descriptor
-) const
+)
 {
     int n_copies = 1;
     int n_atoms = atomic_numbers.size();

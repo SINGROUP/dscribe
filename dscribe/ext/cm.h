@@ -17,6 +17,7 @@ limitations under the License.
 #define CM_H
 
 #include <string>
+#include <random>
 #include <pybind11/numpy.h>
 #include <Eigen/Dense>
 #include "descriptorglobal.h"
@@ -48,7 +49,7 @@ class CoulombMatrix: public DescriptorGlobal {
             py::detail::unchecked_reference<double, 2> &positions_u, 
             py::detail::unchecked_reference<int, 1> &atomic_numbers_u,
             CellList &cell_list
-        ) const;
+        );
 
         /**
          * Get the number of features.
@@ -58,25 +59,23 @@ class CoulombMatrix: public DescriptorGlobal {
         /**
          * Calculate sorted eigenvalues.
          */
-        void getEigenspectrum(
+        void get_eigenspectrum(
             const Ref<const MatrixXd> &matrix,
             py::detail::unchecked_mutable_reference<double, 1> &out_mu
-        ) const;
+        );
 
         /**
-         * Sort by row L2 norm.
+         * Sort by row L2 norm, possibly introducing noise.
          */
-        void sort(Ref<MatrixXd> matrix) const;
+        void sort(Ref<MatrixXd> matrix, bool noise);
 
-        /**
-         * Introduce random noise and sort.
-         */
-        void sortRandomly(Ref<MatrixXd> matrix) const;
 
-    private:
         unsigned int n_atoms_max;
         string permutation;
         double sigma;
         int seed;
+
+    private:
+        mt19937 generator;
 };
 #endif

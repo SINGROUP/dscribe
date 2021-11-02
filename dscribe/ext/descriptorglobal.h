@@ -43,7 +43,7 @@ class DescriptorGlobal {
             py::array_t<int> atomic_numbers,
             py::array_t<double> cell,
             py::array_t<bool> pbc
-        ) const;
+        );
 
         /**
          * Called internally. The system should already be extended
@@ -54,7 +54,7 @@ class DescriptorGlobal {
             py::detail::unchecked_reference<double, 2> &positions_u,
             py::detail::unchecked_reference<int, 1> &atomic_numbers_u,
             CellList &cell_list
-        ) const = 0; 
+        ) = 0; 
 
         /**
          * Pure virtual function for getting the number of features.
@@ -82,7 +82,7 @@ class DescriptorGlobal {
             py::array_t<bool> pbc,
             py::array_t<int> indices,
             bool return_descriptor
-        ) const;
+        );
 
     protected:
         DescriptorGlobal(bool periodic, string average="", double cutoff=0);

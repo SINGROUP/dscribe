@@ -1,8 +1,11 @@
 import pytest
 import numpy as np
+import scipy
+from numpy.random import RandomState
 import time
 import sparse
 from ase.build import molecule
+from ase import Atoms
 from conftest import (
     assert_symmetry_rotation,
     assert_symmetry_translation,
@@ -14,8 +17,10 @@ from conftest import (
 )
 from dscribe.descriptors import CoulombMatrix
 
+random_state = RandomState(42)
 
-def cm_python(system, n_atoms_max, permutation, flatten):
+
+def cm_python(system, n_atoms_max, permutation, flatten, sigma=None):
     """Calculates a python reference value for the Coulomb matrix."""
     pos = system.get_positions()
     n = len(system)
@@ -40,6 +45,12 @@ def cm_python(system, n_atoms_max, permutation, flatten):
             sorted_indices = np.argsort(norms, axis=0)[::-1]
             cm = cm[sorted_indices]
             cm = cm[:, sorted_indices]
+        elif permutation == "random":
+            norms = np.linalg.norm(cm, axis=1)
+            noise_norm_vector = random_state.normal(norms, sigma)
+            indexlist = np.argsort(noise_norm_vector)
+            indexlist = indexlist[::-1]  # Order highest to lowest
+            cm = cm[indexlist][:, indexlist]
         elif permutation == "none":
             pass
         else:
@@ -110,6 +121,60 @@ def test_features(permutation, H2O):
     cm = desc.create(H2O)
     cm_assumed = cm_python(H2O, n_atoms_max, permutation, False)
     assert np.allclose(cm, cm_assumed)
+
+
+def test_random():
+    """Tests if the random sorting obeys a gaussian distribution. Could
+    possibly fail even though everything is OK.
+
+    Measures how many times the two rows with biggest norm exchange place when
+    random noise is added. This should correspond to the probability P(X > Y),
+    where X = N(\mu_1, \sigma^2), Y = N(\mu_2, \sigma^2). This probability can
+    be reduced to P(X > Y) = P(X-Y > 0) = P(N(\mu_1 - \mu_2, \sigma^2 +
+    sigma^2) > 0). See e.g.
+    https://en.wikipedia.org/wiki/Sum_of_normally_distributed_random_variables
+    """
+    HHe = Atoms(
+        cell=[[5.0, 0.0, 0.0], [0.0, 5.0, 0.0], [0.0, 0.0, 5.0]],
+        positions=[
+            [0, 0, 0],
+            [0.71, 0, 0],
+        ],
+        symbols=["H", "He"],
+    )
+
+    # Get the mean value to compare to
+    sigma = 5
+    n_atoms_max = 2
+    desc = CoulombMatrix(
+        n_atoms_max=n_atoms_max, permutation="sorted_l2", flatten=False
+    )
+    cm = desc.create(HHe)
+    means = np.linalg.norm(cm, axis=1)
+    mu2 = means[0]
+    mu1 = means[1]
+
+    desc = CoulombMatrix(
+        n_atoms_max=n_atoms_max,
+        permutation="random",
+        sigma=sigma,
+        seed=42,
+        flatten=False,
+    )
+    count = 0
+    rand_instances = 20000
+    for i in range(0, rand_instances):
+        cm = desc.create(HHe)
+        i_means = np.linalg.norm(cm, axis=1)
+        if i_means[0] < i_means[1]:
+            count += 1
+
+    # The expected probability is calculated from the cumulative
+    # distribution function.
+    expected = 1 - scipy.stats.norm.cdf(0, mu1 - mu2, np.sqrt(sigma ** 2 + sigma ** 2))
+    observed = count / rand_instances
+
+    assert abs(expected - observed) <= 1e-2
 
 
 def test_flatten(H2O):
@@ -186,8 +251,9 @@ def descriptor_func(permutation):
 
     def descriptor(systems):
         n_atoms_max = max([len(s) for s in systems])
+        sigma = 2 if permutation == "random" else None
         return CoulombMatrix(
-            n_atoms_max=n_atoms_max, permutation=permutation, flatten=True
+            n_atoms_max=n_atoms_max, permutation=permutation, flatten=True, sigma=sigma
         )
 
     return descriptor
@@ -234,6 +300,7 @@ def test_derivatives(permutation, method):
         "none",
         "eigenspectrum",
         "sorted_l2",
+        "random",
     ],
 )
 def test_performance(permutation):

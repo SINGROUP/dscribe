@@ -33,6 +33,7 @@ CoulombMatrix::CoulombMatrix(
     , permutation(permutation)
     , sigma(sigma)
     , seed(seed)
+    , generator(seed)
 {
 }
 
@@ -41,7 +42,7 @@ void CoulombMatrix::create_raw(
     py::detail::unchecked_reference<double, 2> &positions_u, 
     py::detail::unchecked_reference<int, 1> &atomic_numbers_u,
     CellList &cell_list
-) const
+)
 {
     // Calculate all pairwise distances.
     int n_atoms = atomic_numbers_u.shape(0);
@@ -62,12 +63,12 @@ void CoulombMatrix::create_raw(
 
     // Handle the permutation option
     if (this->permutation == "eigenspectrum") {
-        this->getEigenspectrum(matrix, out_mu);
+        this->get_eigenspectrum(matrix, out_mu);
     } else {
         if (this->permutation == "sorted_l2") {
-            this->sort(matrix);
+            this->sort(matrix, false);
         } else if (this->permutation == "random") {
-            this->sortRandomly(matrix);
+            this->sort(matrix, true);
         }
         // Flatten
         int k = 0;
@@ -80,10 +81,10 @@ void CoulombMatrix::create_raw(
     }
 }
 
-void CoulombMatrix::getEigenspectrum(
+void CoulombMatrix::get_eigenspectrum(
     const Ref<const MatrixXd> &matrix,
     py::detail::unchecked_mutable_reference<double, 1> &out_mu
-) const
+)
 {
     // Calculate eigenvalues with Eigen
     SelfAdjointEigenSolver<MatrixXd> eigensolver(matrix, EigenvaluesOnly);
@@ -104,10 +105,18 @@ void CoulombMatrix::getEigenspectrum(
     }
 }
 
-void CoulombMatrix::sort(Ref<MatrixXd> matrix) const
+void CoulombMatrix::sort(Ref<MatrixXd> matrix, bool noise)
 {
     // Calculate row norms
-    VectorXd norms = matrix.rowwise().squaredNorm();
+    VectorXd norms = matrix.rowwise().norm();
+
+    // Introduce noise with norm as mean and sigma as standard deviation.
+    if (noise) {
+        for (int i = 0; i < norms.size(); ++i) {
+            normal_distribution<double> distribution(norms(i), this->sigma);
+            norms(i) = distribution(this->generator);
+        }
+    }
 
     // Calculate row permutations that order the matrix.
     int n_atoms = matrix.rows();
@@ -121,10 +130,6 @@ void CoulombMatrix::sort(Ref<MatrixXd> matrix) const
     // still valid.
     matrix = matrix * P;
     matrix = P * matrix;
-}
-
-void CoulombMatrix::sortRandomly(Ref<MatrixXd> matrix) const
-{
 }
 
 int CoulombMatrix::get_number_of_features() const
