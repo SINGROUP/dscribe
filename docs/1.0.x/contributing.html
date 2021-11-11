@@ -97,10 +97,7 @@
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/tutorials.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="doc/modules.html">API</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Contributing</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#code-style-guideline">Code style guideline</a></li>
-</ul>
-</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="publications.html">Publications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="citing.html">Citing DScribe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
@@ -172,46 +169,9 @@
             
   <div class="section" id="contributing">
 <h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h1>
-<p>Follow these general instructions if you wish to contribute a new descriptor
-implementation to DScribe:</p>
-<blockquote>
-<div><ol class="arabic simple">
-<li><p>Contact the authors to discuss your idea for a new descriptor
-implementation.</p></li>
-<li><p>Read the code style guideline (below).</p></li>
-<li><p>Fork the repository and do all modifications within it.</p></li>
-<li><p>Implement the descriptor as a class within a new module in
-<em>dsribe/descriptors/</em>. The descriptor class should inherit from the
-<a class="reference internal" href="doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor" title="dscribe.descriptors.descriptor.Descriptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Descriptor</span></code></a>-class.</p></li>
-<li><p>Create new test module for the descriptor with the same module name, but
-in <em>dscribe/regtests/</em>. The tests should be implemented within a new
-class that inherits from the <code class="xref py py-class docutils literal notranslate"><span class="pre">TestBaseClass</span></code>-class found in
-<em>dscribe/regtests/</em>. Add the new tests as part of
-<em>dscribe/regtests/testrunner.py</em>.</p></li>
-<li><p>Ensure that your new tests and the existing tests run succesfully. You
-can run the tests by first installing the developer dependencies by
-running <code class="code docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">dscribe/devrequirements.txt</span></code>, and then
-running <em>dscribe/regtests/testrunner.py</em>.</p></li>
-<li><p>Create tutorial for the descriptor in <em>dscribe/docs/src/tutorials</em>.
-Follow the structure of the existing tutorials.</p></li>
-<li><p>Create a pull request in GitHub.</p></li>
-</ol>
-</div></blockquote>
-<div class="section" id="code-style-guideline">
-<h2>Code style guideline<a class="headerlink" href="#code-style-guideline" title="Permalink to this headline">¶</a></h2>
-<blockquote>
-<div><ul class="simple">
-<li><p>We follow the <a class="reference external" href="https://black.readthedocs.io/en/stable/?badge=stable">Black code style</a>,
-which is a PEP 8 compliant. The good thing about Black is that you can
-simply run the autoformatter to ensure that you fullfill the code style.
-Before committing (or using pre-commit hooks), you should simply run the
-automatic formatting. Any unformatted code will be caught by the style
-checks in CI.</p></li>
-<li><p>Classes and functions should be documented by following the <a class="reference external" href="http://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings">Google style guide</a>
-that can be interpreted by the <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html">sphinx Napoleon-extension</a></p></li>
-</ul>
-</div></blockquote>
-</div>
+<p>You are viewing an old version of the documentation. Please refer to the
+<a class="reference external" href="https://singroup.github.io/dscribe/latest/">newest documentation</a> for this
+information.</p>
 </div>
 
 
