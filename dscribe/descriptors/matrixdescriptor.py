@@ -86,13 +86,13 @@ class MatrixDescriptor(Descriptor):
                 "as 'random'."
             )
 
+        self.seed = seed
         self.random_state = RandomState(seed)
         self.n_atoms_max = n_atoms_max
         self.permutation = permutation
         self._norm_vector = None
         self.sigma = sigma
 
-    @abstractmethod
     def get_matrix(self, system):
         """Used to get the final matrix for this descriptor.
 
@@ -112,9 +112,6 @@ class MatrixDescriptor(Descriptor):
             ndarray: The zero padded matrix either as a 2D array or as
                 a 1D array depending on the setting self._flatten.
         """
-        # Transform the input system into the internal System-object
-        system = self.get_system(system)
-
         # Remove the old norm vector for the new system
         self._norm_vector = None
 

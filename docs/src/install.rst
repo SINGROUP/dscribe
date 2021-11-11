@@ -13,20 +13,34 @@ install. On Linux-based systems the compilation tools are typically installed
 by default, on MacOS you may need to install additional command line tools if
 facing issues during setup (see common issues below).
 
-The latest stable release is available through pip: (add the *-\\-user* flag if
-root access is not available)
+pip
+---
+The latest stable release is available through pip:
 
 .. code-block:: sh
 
     pip install dscribe
 
-To install the latest development version, clone the source code from
-github and install with pip from local file:
+conda
+-----
+We also provide a conda package through the `conda-forge
+<https://conda-forge.org/>`_ project. To install the package with conda, use
+the following command:
+
+.. code-block:: sh
+
+   conda install -c conda-forge dscribe
+
+From source
+-----------
+To install the latest development version from source, clone the source code
+from github and install with pip from local file:
 
 .. code-block:: sh
 
     git clone https://github.com/SINGROUP/dscribe.git
     cd dscribe
+    git submodule update --init
     pip install .
 
 Common issues

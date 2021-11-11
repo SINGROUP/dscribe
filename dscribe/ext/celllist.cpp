@@ -26,7 +26,9 @@ CellList::CellList(py::array_t<double> positions, double cutoff)
     , cutoff(cutoff)
     , cutoffSquared(cutoff*cutoff)
 {
-    this->init();
+    if (cutoff > 0) {
+        this->init();
+    }
 }
 
 void CellList::init() {

@@ -283,9 +283,6 @@ class SOAP(Descriptor):
 
     def prepare_centers(self, system, cutoff_padding, positions=None):
         """Validates and prepares the centers for the C++ extension."""
-        # Transform the input system into the internal System-object
-        system = self.get_system(system)
-
         # Check that the system does not have elements that are not in the list
         # of atomic numbers
         self.check_atomic_numbers(system.get_atomic_numbers())
@@ -371,12 +368,12 @@ class SOAP(Descriptor):
             c = np.zeros((n_centers, n_features), dtype=np.float64)
         return c
 
-    def init_derivatives_array(self, n_centers, n_atoms, n_features):
+    def init_derivatives_array(self, n_centers, n_indices, n_features):
         """Return a zero-initialized numpy array for the derivatives."""
         if self.average == "inner" or self.average == "outer":
-            return np.zeros((1, n_atoms, 3, n_features), dtype=np.float64)
+            return np.zeros((1, n_indices, 3, n_features), dtype=np.float64)
         else:
-            return np.zeros((n_centers, n_atoms, 3, n_features), dtype=np.float64)
+            return np.zeros((n_centers, n_indices, 3, n_features), dtype=np.float64)
 
     def init_internal_dev_array(self, n_centers, n_atoms, n_types, n, lMax):
         d = np.zeros(
@@ -423,13 +420,10 @@ class SOAP(Descriptor):
             provided the results are ordered by the input order of systems and
             their positions.
         """
-        # If single system given, skip the parallelization
-        if isinstance(system, (Atoms, System)):
-            return self.create_single(system, positions)
-        else:
-            self._check_system_list(system)
-
-        # Combine input arguments
+        # Validate input / combine input arguments
+        if isinstance(system, Atoms):
+            system = [system]
+            positions = [positions]
         n_samples = len(system)
         if positions is None:
             inp = [(i_sys,) for i_sys in system]
@@ -437,7 +431,7 @@ class SOAP(Descriptor):
             n_pos = len(positions)
             if n_pos != n_samples:
                 raise ValueError(
-                    "The given number of positions does not match the given"
+                    "The given number of positions does not match the given "
                     "number of systems."
                 )
             inp = list(zip(system, positions))

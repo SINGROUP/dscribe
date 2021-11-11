@@ -2,6 +2,7 @@
 trigger:
 - master
 - v1.2.0
+- cm-derivatives
 
 # Jobs
 jobs:
@@ -21,6 +22,7 @@ jobs:
   steps:
   - checkout: self
     displayName: 'Checking out git repository'
+    submodules: true
     persistCredentials: true
     clean: true
     

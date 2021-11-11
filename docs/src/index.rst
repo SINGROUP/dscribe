@@ -48,7 +48,7 @@ DScribe currently includes the following descriptors:
      - Derivatives
    * - :doc:`Coulomb matrix <tutorials/descriptors/coulomb_matrix>`
      - ✓
-     - 
+     - ✓
    * - :doc:`Sine matrix <tutorials/descriptors/sine_matrix>`
      - ✓
      - 

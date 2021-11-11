@@ -29,7 +29,7 @@ using namespace std;
 class Descriptor {
     public:
         /**
-         * Pure virtual function for creating.
+         * No precalculated CellList.
          */
         virtual void create(
             py::array_t<double> out, 
@@ -38,6 +38,9 @@ class Descriptor {
             py::array_t<double> centers
         ) const = 0; 
 
+        /**
+         * With precalculated CellList.
+         */
         virtual void create(
             py::array_t<double> out, 
             py::array_t<double> positions,
@@ -52,7 +55,7 @@ class Descriptor {
         virtual int get_number_of_features() const = 0; 
 
         /**
-         * For creating derivatives.
+         * Derivatives for local descriptors.
          */
         void derivatives_numerical(
             py::array_t<double> out_d,
@@ -69,7 +72,7 @@ class Descriptor {
         ) const;
 
     protected:
-        Descriptor(bool periodic, string average, double cutoff=0);
+        Descriptor(bool periodic, string average="", double cutoff=0);
         const bool periodic;
         const string average;
         const double cutoff;

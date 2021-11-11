@@ -66,27 +66,6 @@ class Descriptor(ABC):
             int: Number of features for this descriptor.
         """
 
-    def get_system(self, system):
-        """Used to convert the given atomic system into a custom System-object
-        that is used internally. The System class inherits from ase.Atoms, but
-        includes built-in caching for geometric quantities that may be re-used
-        by the descriptors.
-
-        Args:
-            system (:class:`ase.Atoms` | :class:`.System`): Input system.
-
-        Returns:
-            :class:`.System`: The given system transformed into a corresponding
-                System-object.
-        """
-        if isinstance(system, Atoms):
-            if type(system) == System:
-                return system
-            else:
-                return System.from_atoms(system)
-        else:
-            raise ValueError("Invalid system with type: '{}'.".format(type(system)))
-
     @property
     def sparse(self):
         return self._sparse
@@ -215,6 +194,10 @@ class Descriptor(ABC):
             for each given input. The return type depends on the desciptor
             setup.
         """
+        # If single system given, skip the parallelization overhead
+        if len(inp) == 1:
+            return func(*inp[0])
+
         # Determine the number of jobs
         if n_jobs < 0:
             n_jobs = joblib.cpu_count(only_physical_cores) + n_jobs
@@ -320,23 +303,6 @@ class Descriptor(ABC):
 
         return results
 
-    def _check_system_list(self, lst):
-        def iterable(obj):
-            try:
-                iter(obj)
-            except Exception:
-                return False
-            else:
-                return True
-
-        if iterable(lst):
-            self.get_system(lst[0])
-        else:
-            raise ValueError(
-                "Input is neither System, nor ase.Atoms object nor is it iterable"
-            )
-        return
-
     def _get_indices(self, n_atoms, include, exclude):
         """Given the number of atoms and which indices to include or exclude,
         returns a list of final indices that will be used. If not includes or
@@ -437,6 +403,10 @@ class Descriptor(ABC):
             for each given input. The return type depends on the desciptor
             setup.
         """
+        # If single system given, skip the parallelization overhead
+        if len(inp) == 1:
+            return func(*inp[0])
+
         # Determine the number of jobs
         if n_jobs < 0:
             n_jobs = joblib.cpu_count(only_physical_cores) + n_jobs
@@ -455,7 +425,9 @@ class Descriptor(ABC):
             """This is the function that is called by each job but with
             different parts of the data.
             """
-            # Initialize output
+            # Initialize output. If a fixed size is given, a dense/sparse array
+            # is initialized. For variable size output a regular list is
+            # returned.
             n_samples = len(arguments)
             if derivatives_shape:
                 shape_der = [n_samples]

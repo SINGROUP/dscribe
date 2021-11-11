@@ -9,3 +9,4 @@ sphinxcontrib-bibtex
 pybind11
 torch
 torchvision
+pytest

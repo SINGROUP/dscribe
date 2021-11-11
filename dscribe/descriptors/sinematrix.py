@@ -70,22 +70,14 @@ class SineMatrix(MatrixDescriptor):
             flattened output a single numpy array or sparse.COO is returned.
             The first dimension is determined by the amount of systems.
         """
-        if isinstance(system, (Atoms, System)):
-            system = [system]
-
-        # Check input validity
+        # Combine input arguments / check input validity
+        system = [system] if isinstance(system, Atoms) else system
         for s in system:
             if len(s) > self.n_atoms_max:
                 raise ValueError(
                     "One of the given systems has more atoms ({}) than allowed "
                     "by n_atoms_max ({}).".format(len(s), self.n_atoms_max)
                 )
-
-        # If single system given, skip the parallelization
-        if len(system) == 1:
-            return self.create_single(system[0])
-
-        # Combine input arguments
         inp = [(i_sys,) for i_sys in system]
 
         # Determine if the outputs have a fixed size
@@ -119,6 +111,7 @@ class SineMatrix(MatrixDescriptor):
             np.ndarray: Sine matrix as a 2D array.
         """
         # Force the use of periodic boundary conditions
+        system = System.from_atoms(system)
         system.set_pbc(True)
 
         # Cell and inverse cell
