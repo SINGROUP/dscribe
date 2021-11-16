@@ -177,8 +177,227 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="dscribe-descriptors-coulombmatrix-module">
-<h1>dscribe.descriptors.coulombmatrix module<a class="headerlink" href="#dscribe-descriptors-coulombmatrix-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-dscribe.descriptors.coulombmatrix">
+<span id="dscribe-descriptors-coulombmatrix-module"></span><h1>dscribe.descriptors.coulombmatrix module<a class="headerlink" href="#module-dscribe.descriptors.coulombmatrix" title="Permalink to this headline">¶</a></h1>
+<p>Copyright 2019 DScribe developers</p>
+<p>Licensed under the Apache License, Version 2.0 (the “License”);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<blockquote>
+<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+</div></blockquote>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="dscribe.descriptors.coulombmatrix.CoulombMatrix">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dscribe.descriptors.coulombmatrix.</span></span><span class="sig-name descname"><span class="pre">CoulombMatrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_atoms_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">permutation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sorted_l2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatten</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/coulombmatrix.html#CoulombMatrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.coulombmatrix.CoulombMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="dscribe.descriptors.matrixdescriptor.html#dscribe.descriptors.matrixdescriptor.MatrixDescriptor" title="dscribe.descriptors.matrixdescriptor.MatrixDescriptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.descriptors.matrixdescriptor.MatrixDescriptor</span></code></a></p>
+<p>Calculates the zero padded Coulomb matrix.</p>
+<p>The Coulomb matrix is defined as:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>C_ij = 0.5 Zi**exponent, when i = j</dt><dd><p>= (Zi*Zj)/(Ri-Rj), when i != j</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>The matrix is padded with invisible atoms, which means that the matrix is
+padded with zeros until the maximum allowed size defined by n_max_atoms is
+reached.</p>
+<p>To reach invariance against permutation of atoms, specify a valid option
+for the permutation parameter.</p>
+<dl class="simple">
+<dt>For reference, see:</dt><dd><p>“Fast and Accurate Modeling of Molecular Atomization Energies with
+Machine Learning”, Matthias Rupp, Alexandre Tkatchenko, Klaus-Robert
+Mueller, and O.  Anatole von Lilienfeld, Phys. Rev. Lett, (2012),
+<a class="reference external" href="https://doi.org/10.1103/PhysRevLett.108.058301">https://doi.org/10.1103/PhysRevLett.108.058301</a></p>
+</dd>
+<dt>and</dt><dd><p>“Learning Invariant Representations of Molecules for Atomization Energy
+Prediction”, Gregoire Montavon et. al, Advances in Neural Information
+Processing Systems 25 (NIPS 2012)</p>
+</dd>
+</dl>
+<p>Args:
+n_atoms_max (int): The maximum nuber of atoms that any of the</p>
+<blockquote>
+<div><p>samples can have. This controls how much zeros need to be
+padded to the final result.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>permutation (string): Defines the method for handling permutational</dt><dd><dl class="simple">
+<dt>invariance. Can be one of the following:</dt><dd><ul class="simple">
+<li><p>none: The matrix is returned in the order defined by the
+Atoms.</p></li>
+<li><p>sorted_l2: The rows and columns are sorted by the L2 norm.</p></li>
+<li><p>eigenspectrum: Only the eigenvalues are returned sorted
+by their absolute value in descending order.</p></li>
+<li><p>random: The rows and columns are sorted by their L2 norm
+after applying Gaussian noise to the norms. The standard
+deviation of the noise is determined by the
+sigma-parameter.</p></li>
+</ul>
+</dd>
+</dl>
+</dd>
+<dt>sigma (float): Provide only when using the <em>random</em>-permutation</dt><dd><p>option. Standard deviation of the gaussian distributed noise
+determining how much the rows and columns of the randomly
+sorted matrix are scrambled.</p>
+</dd>
+<dt>seed (int): Provide only when using the <em>random</em>-permutation</dt><dd><p>option. A seed to use for drawing samples from a normal
+distribution.</p>
+</dd>
+<dt>flatten (bool): Whether the output of create() should be flattened</dt><dd><p>to a 1D array.</p>
+</dd>
+<dt>sparse (bool): Whether the output should be a sparse matrix or a</dt><dd><p>dense numpy array.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dscribe.descriptors.coulombmatrix.CoulombMatrix.create">
+<span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_physical_cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/coulombmatrix.html#CoulombMatrix.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.coulombmatrix.CoulombMatrix.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Coulomb matrix for the given systems.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> or list of <code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code>) – One or
+many atomic structures.</p></li>
+<li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
+the calculation across samples. Defaults to serial calculation
+with n_jobs=1. If a negative number is given, the used cpus
+will be calculated with, n_cpus + n_jobs, where n_cpus is the
+amount of CPUs as reported by the OS. With only_physical_cores
+you can control which types of CPUs are counted in n_cpus.</p></li>
+<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – If a negative n_jobs is given,
+determines which types of CPUs are used in calculating the
+number of jobs. If set to False (default), also virtual CPUs
+are counted.  If set to True, only physical CPUs are counted.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Controls whether to print the progress of each job
+into to the console.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Coulomb matrix for the given systems. The
+return type depends on the ‘sparse’-attribute. The first dimension
+is determined by the amount of systems.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray | sparse.COO</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dscribe.descriptors.coulombmatrix.CoulombMatrix.create_single">
+<span class="sig-name descname"><span class="pre">create_single</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/coulombmatrix.html#CoulombMatrix.create_single"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.coulombmatrix.CoulombMatrix.create_single" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code>) – Input system.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The zero padded matrix as a flattened 1D array.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dscribe.descriptors.coulombmatrix.CoulombMatrix.derivatives">
+<span class="sig-name descname"><span class="pre">derivatives</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_descriptor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_physical_cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/coulombmatrix.html#CoulombMatrix.derivatives"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.coulombmatrix.CoulombMatrix.derivatives" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the descriptor derivatives for the given system(s).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> or list of <code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code>) – One or
+many atomic structures.</p></li>
+<li><p><strong>include</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a>) – Indices of atoms to compute the derivatives on.
+When calculating descriptor for multiple systems, provide
+either a one-dimensional list that if applied to all systems or
+a two-dimensional list of indices. Cannot be provided together
+with ‘exclude’.</p></li>
+<li><p><strong>exclude</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a>) – Indices of atoms not to compute the derivatives on.
+When calculating descriptor for multiple systems, provide
+either a one-dimensional list that if applied to all systems or
+a two-dimensional list of indices. Cannot be provided together
+with ‘include’.</p></li>
+<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – The method for calculating the derivatives. Supports
+‘numerical’ and ‘auto’. Defaults to using ‘auto’ which corresponds
+to the the most efficient available method.</p></li>
+<li><p><strong>return_descriptor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Whether to also calculate the descriptor
+in the same function call. Notice that it typically is faster
+to calculate both in one go.</p></li>
+<li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
+the calculation across samples. Defaults to serial calculation
+with n_jobs=1. If a negative number is given, the number of jobs
+will be calculated with, n_cpus + n_jobs, where n_cpus is the
+amount of CPUs as reported by the OS. With only_physical_cores
+you can control which types of CPUs are counted in n_cpus.</p></li>
+<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – If a negative n_jobs is given,
+determines which types of CPUs are used in calculating the
+number of jobs. If set to False (default), also virtual CPUs
+are counted.  If set to True, only physical CPUs are counted.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Controls whether to print the progress of each job
+into to the console.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>If return_descriptor is True, returns a tuple, where the first item
+is the derivative array and the second is the descriptor array.
+Otherwise only returns the derivatives array. The derivatives array
+is a either a 3D or 4D array, depending on whether you have
+provided a single or multiple systems. If the output shape for each
+system is the same, a single monolithic numpy array is returned.
+For variable sized output (e.g. differently sized systems,different
+number of included atoms), a regular python list is returned. The
+dimensions are: [(n_systems,) n_atoms, 3, n_features]. The first
+dimension goes over the different systems in case multiple were
+given. The second dimension goes over the included atoms. The order
+is same as the order of atoms in the given system. The third
+dimension goes over the cartesian components, x, y and z. The
+fourth dimension goes over the features in the default order.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dscribe.descriptors.coulombmatrix.CoulombMatrix.derivatives_single">
+<span class="sig-name descname"><span class="pre">derivatives_single</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'numerical'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_descriptor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/coulombmatrix.html#CoulombMatrix.derivatives_single"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.coulombmatrix.CoulombMatrix.derivatives_single" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the derivatives for the given system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code>) – Atomic structure.</p></li>
+<li><p><strong>indices</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a>) – Indices of atoms for which the derivatives will be
+computed for.</p></li>
+<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – The method for calculating the derivatives. Supports
+‘numerical’.</p></li>
+<li><p><strong>return_descriptor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Whether to also calculate the descriptor
+in the same function call. This is true by default as it
+typically is faster to calculate both in one go.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>If return_descriptor is True, returns a tuple, where the first item
+is the derivative array and the second is the descriptor array.
+Otherwise only returns the derivatives array. The derivatives array
+is a 3D numpy array. The dimensions are: [n_atoms, 3, n_features].
+The first dimension goes over the included atoms. The order is same
+as the order of atoms in the given system. The second dimension
+goes over the cartesian components, x, y and z. The last dimension
+goes over the features in the default order.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dscribe.descriptors.coulombmatrix.CoulombMatrix.unflatten">
+<span class="sig-name descname"><span class="pre">unflatten</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">systems</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/coulombmatrix.html#CoulombMatrix.unflatten"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.coulombmatrix.CoulombMatrix.unflatten" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
 
 

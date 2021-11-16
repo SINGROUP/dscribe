@@ -190,12 +190,6 @@
             
   <div class="section" id="derivatives">
 <h1>Derivatives<a class="headerlink" href="#derivatives" title="Permalink to this headline">¶</a></h1>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Currently, derivatives are only available for the SOAP descriptor. We will
-incrementally add support for getting the derivatives of other descriptors
-as well.</p>
-</div>
 <p>The descriptor outputs that DScribe provides are typically vectors containing
 multiple features. Each of these features has a dependency on the positions of
 atoms in the system, and in particular each feature has a derivative with
@@ -208,7 +202,7 @@ learning based force-fields, see <a class="reference internal" href="machine_lea
 <div class="section" id="call-signature">
 <h2>Call signature<a class="headerlink" href="#call-signature" title="Permalink to this headline">¶</a></h2>
 <p>The descriptors for which derivatives have been made available have a new
-<code class="code docutils literal notranslate"><span class="pre">derivatives</span></code>-function, see e.g. <code class="xref py py-meth docutils literal notranslate"><span class="pre">SOAP.derivatives()</span></code>. This function works
+<code class="code docutils literal notranslate"><span class="pre">derivatives</span></code>-function, see e.g. <a class="reference internal" href="../doc/dscribe.descriptors.soap.html#dscribe.descriptors.soap.SOAP.derivatives" title="dscribe.descriptors.soap.SOAP.derivatives"><code class="xref py py-meth docutils literal notranslate"><span class="pre">SOAP.derivatives()</span></code></a>. This function works
 very similarly to the create function and the typical function call signature
 looks like this:</p>
 <blockquote>

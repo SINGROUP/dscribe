@@ -1,5 +1,5 @@
 import numpy as np
-from dscribe.descriptors import ValleOganov, MBTR
+from dscribe.descriptors import ValleOganov
 
 # Setup
 vo = ValleOganov(
@@ -15,8 +15,6 @@ vo = ValleOganov(
         "r_cut": 5
     },
 )
-
-
 
 # Create
 from ase import Atoms
@@ -35,7 +33,7 @@ water = Atoms(
     symbols=["H", "O", "H"],
 )
 
-# Create MBTR output for the system
+# Create ValleOganov output for the system
 vo_water = vo.create(water)
 
 print(vo_water)
@@ -46,7 +44,7 @@ import matplotlib.pyplot as plt
 import ase.data
 from ase.build import bulk
 
-# The MBTR-object is configured with flatten=False so that we can easily
+# The ValleOganov-object is configured with flatten=False so that we can easily
 # visualize the different terms.
 nacl = bulk("NaCl", "rocksalt", a=5.64)
 vo = ValleOganov(

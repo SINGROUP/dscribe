@@ -17,22 +17,9 @@ similarity analysis, etc. To get started you can check the :doc:`basic tutorial
 <tutorials/basics>`.
 
 .. note::
-   Version **1.1.0** introduces new features and improvements to the SOAP
-   descriptor: increased maximum lmax to 20 and added support for more
-   customized weighting of the atomic density through weighting functions.
-   Please check out the new :ref:`section in the SOAP tutorial
-   <soap-weighting>` to learn more about weighting the atomic density. Also
-   check out :doc:`the new tutorial on using DScribe for clustering
-   <tutorials/machine_learning/clustering>`.
-
-.. note::
-   We are incrementally adding support for calculating the derivatives of
-   descriptors with respect to the atom positions. From version **1.0.0**
-   upwards you can find an implementation for getting derivatives of
-   non-periodic systems for the SOAP descriptor. Please check the :doc:`new
-   documentation on derivatives <tutorials/derivatives>` and the new :doc:`new
-   tutorial <tutorials/machine_learning/forces_and_energies>` on predicting
-   energies and forces using these derivatives.
+   Version **1.2.0** adds :doc:`the Valle-Oganov descriptor
+   <tutorials/descriptors/valleoganov>` and derivatives for the Coulomb matrix.
+   Check the :doc:`changelog <changelog>` for more details.
 
 Capabilities at a Glance
 ========================

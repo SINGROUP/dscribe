@@ -17,27 +17,27 @@ class ACSF {
     public:
         ACSF() {};
         ACSF(
-            float rCut,
-            vector<vector<float> > g2Params,
-            vector<float> g3Params,
-            vector<vector<float> > g4Params,
-            vector<vector<float> > g5Params,
+            double rCut,
+            vector<vector<double> > g2Params,
+            vector<double> g3Params,
+            vector<vector<double> > g4Params,
+            vector<vector<double> > g5Params,
             vector<int> atomicNumbers
         );
 
-        vector<vector<float> > create(vector<vector<float> > &positions, vector<int> &atomicNumbers, const vector<vector<float> > &distances, const vector<vector<int> > &neighbours, vector<int> &indices);
-        void setRCut(float rCut);
-        void setG2Params(vector<vector<float> > g2Params);
-        void setG3Params(vector<float> g3Params);
-        void setG4Params(vector<vector<float> > g4Params);
-        void setG5Params(vector<vector<float> > g5Params);
+        vector<vector<double> > create(vector<vector<double> > &positions, vector<int> &atomicNumbers, const vector<vector<double> > &distances, const vector<vector<int> > &neighbours, vector<int> &indices);
+        void setRCut(double rCut);
+        void setG2Params(vector<vector<double> > g2Params);
+        void setG3Params(vector<double> g3Params);
+        void setG4Params(vector<vector<double> > g4Params);
+        void setG5Params(vector<vector<double> > g5Params);
         void setAtomicNumbers(vector<int> atomicNumbers);
 
-        float getRCut();
-        vector<vector<float> > getG2Params();
-        vector<float> getG3Params();
-        vector<vector<float> > getG4Params();
-        vector<vector<float> > getG5Params();
+        double getRCut();
+        vector<vector<double> > getG2Params();
+        vector<double> getG3Params();
+        vector<vector<double> > getG4Params();
+        vector<vector<double> > getG5Params();
         vector<int> getAtomicNumbers();
         int nTypes;
         int nTypePairs;
@@ -45,20 +45,20 @@ class ACSF {
         int nG3;
         int nG4;
         int nG5;
-        float rCut;
-        vector<vector<float> > g2Params;
-        vector<float> g3Params;
-        vector<vector<float> > g4Params;
-        vector<vector<float> > g5Params;
+        double rCut;
+        vector<vector<double> > g2Params;
+        vector<double> g3Params;
+        vector<vector<double> > g4Params;
+        vector<vector<double> > g5Params;
         vector<int> atomicNumbers;
 
     private:
-        float computeCutoff(float r_ij);
-        void computeG1(vector<float> &output, int &offset, float &fc_ij);
-        void computeG2(vector<float> &output, int &offset, float &r_ij, float &fc_ij);
-        void computeG3(vector<float> &output, int &offset, float &r_ij, float &fc_ij);
-        void computeG4(vector<float> &output, int &offset, float &costheta, float &r_jk, float &r_ij_square, float &r_ik_square, float &r_jk_square, float &fc_ij, float &fc_ik);
-        void computeG5(vector<float> &output, int &offset, float &costheta, float &r_ij_square, float &r_ik_square, float &fc_ij, float &fc_ik);
+        double computeCutoff(double r_ij);
+        void computeG1(vector<double> &output, int &offset, double &fc_ij);
+        void computeG2(vector<double> &output, int &offset, double &r_ij, double &fc_ij);
+        void computeG3(vector<double> &output, int &offset, double &r_ij, double &fc_ij);
+        void computeG4(vector<double> &output, int &offset, double &costheta, double &r_jk, double &r_ij_square, double &r_ik_square, double &r_jk_square, double &fc_ij, double &fc_ik);
+        void computeG5(vector<double> &output, int &offset, double &costheta, double &r_ij_square, double &r_ik_square, double &fc_ij, double &fc_ik);
         unordered_map<int, int> atomicNumberToIndexMap;
 };
 

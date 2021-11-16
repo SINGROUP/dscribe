@@ -1,5 +1,18 @@
 Changelog
 =========
+ - 1.2.0:
+    - New features:
+        - Added the :doc:`Valle-Oganov descriptor <tutorials/descriptors/valleoganov>`
+        - Added numerical derivatives for the Coulomb matrix
+        - Added a tensorflow implementation of :doc:`the force-field training
+          tutorial <tutorials/machine_learning/forces_and_energies>`, courtesy
+          of `xScoschx <https://github.com/xScoschx>`_
+    - Fixes:
+        - Fixed a memory leak with the SOAP descriptor. See issue `#69
+          <https://github.com/SINGROUP/dscribe/issues/69>`_.
+        - Increased the numerical precision used for ACSF. See issue `#70
+          <https://github.com/SINGROUP/dscribe/issues/70>`_.
+
  - 1.1.0:
     - New features:
         - Added support for lmax <= 20 for the SOAP GTO basis.

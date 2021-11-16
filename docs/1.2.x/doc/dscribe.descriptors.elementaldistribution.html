@@ -177,8 +177,178 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="dscribe-descriptors-elementaldistribution-module">
-<h1>dscribe.descriptors.elementaldistribution module<a class="headerlink" href="#dscribe-descriptors-elementaldistribution-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-dscribe.descriptors.elementaldistribution">
+<span id="dscribe-descriptors-elementaldistribution-module"></span><h1>dscribe.descriptors.elementaldistribution module<a class="headerlink" href="#module-dscribe.descriptors.elementaldistribution" title="Permalink to this headline">¶</a></h1>
+<p>Copyright 2019 DScribe developers</p>
+<p>Licensed under the Apache License, Version 2.0 (the “License”);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<blockquote>
+<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+</div></blockquote>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="dscribe.descriptors.elementaldistribution.ElementalDistribution">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dscribe.descriptors.elementaldistribution.</span></span><span class="sig-name descname"><span class="pre">ElementalDistribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">properties</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatten</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/elementaldistribution.html#ElementalDistribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.elementaldistribution.ElementalDistribution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="dscribe.descriptors.descriptor.html#dscribe.descriptors.descriptor.Descriptor" title="dscribe.descriptors.descriptor.Descriptor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.descriptors.descriptor.Descriptor</span></code></a></p>
+<p>Represents a generic distribution on any given grid for any given
+properties. Can create both continuos and discrete distributions.</p>
+<p>Continuous distributions require a standard deviation and the number of
+sampling points. You can also specify the minimum and maximum values for
+the axis. If these are not specified, a limit is selected based
+automatically on the values with:</p>
+<blockquote>
+<div><p>min = values.min() - 3*std
+max = values.max() + 3*std</p>
+</div></blockquote>
+<p>Discrete distributions are assumed to be integer values, and you only need
+to specify the values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>properties</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a>) – <p>Contains a description of the elemental property
+for which a distribution is created. Should contain a dictionary of
+the following form:</p>
+<dl>
+<dt>properties={</dt><dd><dl>
+<dt>“property_name”: {</dt><dd><p>“type”: “continuous”
+“min”: &lt;Distribution minimum value&gt;
+“max”: &lt;Distribution maximum value&gt;
+“std”: &lt;Distribution standard deviation&gt;
+“n”: &lt;Number of discrete samples from distribution&gt;
+“values”: {</p>
+<blockquote>
+<div><p>”H”: &lt;Value for hydrogen&gt;
+…</p>
+</div></blockquote>
+<p>}</p>
+</dd>
+<dt>”property_name2”: {</dt><dd><p>“type”: “discrete”
+“values”: {</p>
+<blockquote>
+<div><p>”H”: &lt;Value for hydrogen&gt;
+…</p>
+</div></blockquote>
+<p>}</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>}</p>
+</p></li>
+<li><p><strong>flatten</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Whether to flatten out the result.</p></li>
+<li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
+dense numpy array.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dscribe.descriptors.elementaldistribution.ElementalDistribution.create">
+<span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/elementaldistribution.html#ElementalDistribution.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.elementaldistribution.ElementalDistribution.create" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> | <a class="reference internal" href="dscribe.core.system.html#dscribe.core.system.System" title="dscribe.core.system.System"><code class="xref py py-class docutils literal notranslate"><span class="pre">System</span></code></a>) – Input system.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The concatenated distributions of the</dt><dd><p>specified properties in a sparse array.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>scipy.sparse.lil_matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dscribe.descriptors.elementaldistribution.ElementalDistribution.gaussian_sum">
+<span class="sig-name descname"><span class="pre">gaussian_sum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">centers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minimum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">std</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/elementaldistribution.html#ElementalDistribution.gaussian_sum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.elementaldistribution.ElementalDistribution.gaussian_sum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates a discrete version of a sum of Gaussian distributions.</p>
+<p>The calculation is done through the cumulative distribution function
+that is better at keeping the integral of the probability function
+constant with coarser grids.</p>
+<p>The values are normalized by dividing with the maximum value of a
+gaussian with the given standard deviation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>centers</strong> (<em>1D np.ndarray</em>) – The means of the gaussians.</p></li>
+<li><p><strong>weights</strong> (<em>1D np.ndarray</em>) – The weights for the gaussians.</p></li>
+<li><p><strong>minimum</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – The minimum grid value</p></li>
+<li><p><strong>maximum</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – The maximum grid value</p></li>
+<li><p><strong>std</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Standard deviation of the gaussian</p></li>
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Number of grid points</p></li>
+<li><p><strong>settings</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a>) – The grid settings. A dictionary
+containing the following information:</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Value of the gaussian sums on the given grid.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dscribe.descriptors.elementaldistribution.ElementalDistribution.get_axis">
+<span class="sig-name descname"><span class="pre">get_axis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">property_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/elementaldistribution.html#ElementalDistribution.get_axis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.elementaldistribution.ElementalDistribution.get_axis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to return the used x-axis for the given property.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>property_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – The property name that was used in the</p></li>
+<li><p><strong>constructor.</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An array of x-axis values.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dscribe.descriptors.elementaldistribution.ElementalDistribution.get_element_occurrence">
+<span class="sig-name descname"><span class="pre">get_element_occurrence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/elementaldistribution.html#ElementalDistribution.get_element_occurrence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.elementaldistribution.ElementalDistribution.get_element_occurrence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the count of each atomic element in the given system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>system</strong> (<em>ase.Atoms</em>) – The atomic system.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The counts for each element in a list where the index
+of atomic number x is self.atomic_number_to_index[x]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>1D ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dscribe.descriptors.elementaldistribution.ElementalDistribution.get_number_of_features">
+<span class="sig-name descname"><span class="pre">get_number_of_features</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/elementaldistribution.html#ElementalDistribution.get_number_of_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.elementaldistribution.ElementalDistribution.get_number_of_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to inquire the final number of features that this descriptor
+will have.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Number of features for this descriptor.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 

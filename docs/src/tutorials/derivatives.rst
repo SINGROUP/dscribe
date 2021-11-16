@@ -1,10 +1,5 @@
 Derivatives
 ===========
-.. note::
-   Currently, derivatives are only available for the SOAP descriptor. We will
-   incrementally add support for getting the derivatives of other descriptors
-   as well.
-
 The descriptor outputs that DScribe provides are typically vectors containing
 multiple features. Each of these features has a dependency on the positions of
 atoms in the system, and in particular each feature has a derivative with

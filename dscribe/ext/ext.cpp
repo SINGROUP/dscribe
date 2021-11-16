@@ -71,7 +71,7 @@ PYBIND11_MODULE(ext, m) {
 
     // ACSF
     py::class_<ACSF>(m, "ACSFWrapper")
-        .def(py::init<float , vector<vector<float> > , vector<float> , vector<vector<float> > , vector<vector<float> > , vector<int> >())
+        .def(py::init<double , vector<vector<double> > , vector<double> , vector<vector<double> > , vector<vector<double> > , vector<int> >())
         .def(py::init<>())
         .def("create", &ACSF::create)
         .def("set_g2_params", &ACSF::setG2Params)
@@ -96,11 +96,11 @@ PYBIND11_MODULE(ext, m) {
                 if (t.size() != 6)
                     throw std::runtime_error("Invalid state!");
                 ACSF p(
-                    t[0].cast<float>(),
-                    t[1].cast<vector<vector<float> >>(),
-                    t[2].cast<vector<float>>(),
-                    t[3].cast<vector<vector<float> >>(),
-                    t[4].cast<vector<vector<float> >>(),
+                    t[0].cast<double>(),
+                    t[1].cast<vector<vector<double> >>(),
+                    t[2].cast<vector<double>>(),
+                    t[3].cast<vector<vector<double> >>(),
+                    t[4].cast<vector<vector<double> >>(),
                     t[5].cast<vector<int>>()
                 );
                 return p;

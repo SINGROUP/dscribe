@@ -252,11 +252,50 @@ follows:</p>
 </pre></div>
 </div>
 <p>The constructor takes the following parameters:</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="dscribe.descriptors.coulombmatrix.CoulombMatrix.__init__">
+<span class="sig-prename descclassname"><span class="pre">CoulombMatrix.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_atoms_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">permutation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sorted_l2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatten</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dscribe/descriptors/coulombmatrix.html#CoulombMatrix.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.coulombmatrix.CoulombMatrix.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Args:
+n_atoms_max (int): The maximum nuber of atoms that any of the</p>
+<blockquote>
+<div><p>samples can have. This controls how much zeros need to be
+padded to the final result.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>permutation (string): Defines the method for handling permutational</dt><dd><dl class="simple">
+<dt>invariance. Can be one of the following:</dt><dd><ul class="simple">
+<li><p>none: The matrix is returned in the order defined by the
+Atoms.</p></li>
+<li><p>sorted_l2: The rows and columns are sorted by the L2 norm.</p></li>
+<li><p>eigenspectrum: Only the eigenvalues are returned sorted
+by their absolute value in descending order.</p></li>
+<li><p>random: The rows and columns are sorted by their L2 norm
+after applying Gaussian noise to the norms. The standard
+deviation of the noise is determined by the
+sigma-parameter.</p></li>
+</ul>
+</dd>
+</dl>
+</dd>
+<dt>sigma (float): Provide only when using the <em>random</em>-permutation</dt><dd><p>option. Standard deviation of the gaussian distributed noise
+determining how much the rows and columns of the randomly
+sorted matrix are scrambled.</p>
+</dd>
+<dt>seed (int): Provide only when using the <em>random</em>-permutation</dt><dd><p>option. A seed to use for drawing samples from a normal
+distribution.</p>
+</dd>
+<dt>flatten (bool): Whether the output of create() should be flattened</dt><dd><p>to a 1D array.</p>
+</dd>
+<dt>sparse (bool): Whether the output should be a sparse matrix or a</dt><dd><p>dense numpy array.</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 <div class="section" id="creation">
 <h2>Creation<a class="headerlink" href="#creation" title="Permalink to this headline">¶</a></h2>
 <p>After CM has been set up, it may be used on atomic structures with the
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">create()</span></code>-method.</p>
+<a class="reference internal" href="#dscribe.descriptors.coulombmatrix.CoulombMatrix.create" title="dscribe.descriptors.coulombmatrix.CoulombMatrix.create"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create()</span></code></a>-method.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">molecule</span>
 
 <span class="c1"># Molecule created as an ASE.Atoms</span>
@@ -275,11 +314,45 @@ follows:</p>
 </pre></div>
 </div>
 <p>The call syntax for the create-function is as follows:</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="dscribe.descriptors.coulombmatrix.CoulombMatrix.create">
+<span class="sig-prename descclassname"><span class="pre">CoulombMatrix.</span></span><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_physical_cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dscribe/descriptors/coulombmatrix.html#CoulombMatrix.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.coulombmatrix.CoulombMatrix.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Coulomb matrix for the given systems.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> or list of <code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code>) – One or
+many atomic structures.</p></li>
+<li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
+the calculation across samples. Defaults to serial calculation
+with n_jobs=1. If a negative number is given, the used cpus
+will be calculated with, n_cpus + n_jobs, where n_cpus is the
+amount of CPUs as reported by the OS. With only_physical_cores
+you can control which types of CPUs are counted in n_cpus.</p></li>
+<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – If a negative n_jobs is given,
+determines which types of CPUs are used in calculating the
+number of jobs. If set to False (default), also virtual CPUs
+are counted.  If set to True, only physical CPUs are counted.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Controls whether to print the progress of each job
+into to the console.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Coulomb matrix for the given systems. The
+return type depends on the ‘sparse’-attribute. The first dimension
+is determined by the amount of systems.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray | sparse.COO</p>
+</dd>
+</dl>
+</dd></dl>
+
 <p>Note that if you specify in <em>n_atoms_max</em> a lower number than atoms in your
 structure it will cause an error. The output will in this case be a flattened
 matrix, specifically a numpy array with size #atoms * #atoms. The number of
 features may be requested beforehand with the
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">get_number_of_features()</span></code>-method.</p>
+<a class="reference internal" href="../../doc/dscribe.descriptors.matrixdescriptor.html#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.get_number_of_features" title="dscribe.descriptors.matrixdescriptor.MatrixDescriptor.get_number_of_features"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_number_of_features()</span></code></a>-method.</p>
 <p>In the case of multiple samples, the creation can also be parallellized by using the
 <em>n_jobs</em>-parameter. This splits the list of structures into equally sized parts
 and spaws a separate process to handle each part.</p>

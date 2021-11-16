@@ -93,7 +93,7 @@ the MBTR class, would look like the following.
 Side by side with MBTR output
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A graph of the output for the same structure created with different descriptors. Also demonstrates how the Valle-Oganov :ref:`norm-label` for k2 term converges at 1.
+A graph of the output for the same structure created with different descriptors. Also demonstrates how the Valle-Oganov :ref:`normalization <norm-label>` for k2 term converges at 1.
 
 .. literalinclude:: ../../../../examples/valleoganov.py
    :start-after: Comparing to MBTR output

@@ -13,7 +13,7 @@
 
 using namespace std;
 
-ACSF::ACSF(float rCut, vector<vector<float> > g2Params, vector<float> g3Params, vector<vector<float> > g4Params, vector<vector<float> > g5Params, vector<int> atomicNumbers)
+ACSF::ACSF(double rCut, vector<vector<double> > g2Params, vector<double> g3Params, vector<vector<double> > g4Params, vector<vector<double> > g5Params, vector<int> atomicNumbers)
 {
     setRCut(rCut);
     setG2Params(g2Params);
@@ -23,55 +23,55 @@ ACSF::ACSF(float rCut, vector<vector<float> > g2Params, vector<float> g3Params, 
     setAtomicNumbers(atomicNumbers);
 }
 
-void ACSF::setRCut(float rCut)
+void ACSF::setRCut(double rCut)
 {
     this->rCut = rCut;
 }
-float ACSF::getRCut()
+double ACSF::getRCut()
 {
 return this->rCut;
 }
 
-void ACSF::setG2Params(vector<vector<float> > g2Params)
+void ACSF::setG2Params(vector<vector<double> > g2Params)
 {
     this->g2Params = g2Params;
     nG2 = g2Params.size();
 }
 
-vector<vector<float> > ACSF::getG2Params()
+vector<vector<double> > ACSF::getG2Params()
 {
 return this->g2Params;
 }
 
 
-void ACSF::setG3Params(vector<float> g3Params)
+void ACSF::setG3Params(vector<double> g3Params)
 {
     this->g3Params = g3Params;
     nG3 = g3Params.size();
 }
-vector<float> ACSF::getG3Params()
+vector<double> ACSF::getG3Params()
 {
 return this->g3Params;
 }
 
 
-void ACSF::setG4Params(vector<vector<float> > g4Params)
+void ACSF::setG4Params(vector<vector<double> > g4Params)
 {
     this->g4Params = g4Params;
     nG4 = g4Params.size();
 }
-vector<vector<float> > ACSF::getG4Params()
+vector<vector<double> > ACSF::getG4Params()
 {
 return this->g4Params;
 }
 
 
-void ACSF::setG5Params(vector<vector<float> > g5Params)
+void ACSF::setG5Params(vector<vector<double> > g5Params)
 {
     this->g5Params = g5Params;
     nG5 = g5Params.size();
 }
-vector<vector<float> > ACSF::getG5Params()
+vector<vector<double> > ACSF::getG5Params()
 {
 return this->g5Params;
 }
@@ -96,12 +96,12 @@ return this->atomicNumbers;
 }
 
 
-vector<vector<float> > ACSF::create(vector<vector<float> > &positions, vector<int> &atomicNumbers, const vector<vector<float> > &distances, const vector<vector<int> > &neighbours, vector<int> &indices)
+vector<vector<double> > ACSF::create(vector<vector<double> > &positions, vector<int> &atomicNumbers, const vector<vector<double> > &distances, const vector<vector<int> > &neighbours, vector<int> &indices)
 {
 
     // Allocate memory
     int nIndices = indices.size();
-    vector<vector<float> > output(nIndices, vector<float>((1+nG2+nG3)*nTypes+(nG4+nG5)*nTypePairs, 0));
+    vector<vector<double> > output(nIndices, vector<double>((1+nG2+nG3)*nTypes+(nG4+nG5)*nTypePairs, 0));
 
     // Calculate the symmetry function values for every specified atom
     int index = 0;
@@ -109,15 +109,15 @@ vector<vector<float> > ACSF::create(vector<vector<float> > &positions, vector<in
 
         // Compute pairwise terms only for neighbors within cutoff
         const vector<int> &i_neighbours = neighbours[i];
-        vector<float> &row = output[index];
+        vector<double> &row = output[index];
         for (const int &j : i_neighbours) {
             if (i == j) {
                 continue;
             }
 
             // Precompute some values
-            float r_ij = distances[i][j];
-            float fc_ij = computeCutoff(r_ij);
+            double r_ij = distances[i][j];
+            double fc_ij = computeCutoff(r_ij);
             int index_j = atomicNumberToIndexMap[atomicNumbers[j]];
             int offset = index_j * (1+nG2+nG3);  // Skip G1, G2, G3 types that are not the ones of atom bi
 
@@ -138,14 +138,14 @@ vector<vector<float> > ACSF::create(vector<vector<float> > &positions, vector<in
                     }
 
                     // Precompute some values that are used by both G4 and G5
-                    float r_ik = distances[i][k];
-                    float r_jk = distances[j][k];
-                    float fc_ik = computeCutoff(r_ik);
-                    float r_ij_square = r_ij*r_ij;
-                    float r_ik_square = r_ik*r_ik;
-                    float r_jk_square = r_jk*r_jk;
+                    double r_ik = distances[i][k];
+                    double r_jk = distances[j][k];
+                    double fc_ik = computeCutoff(r_ik);
+                    double r_ij_square = r_ij*r_ij;
+                    double r_ik_square = r_ik*r_ik;
+                    double r_jk_square = r_jk*r_jk;
                     int index_k = atomicNumberToIndexMap[atomicNumbers[k]];
-                    float costheta = 0.5/(r_ij*r_ik) * (r_ij_square+r_ik_square-r_jk_square);
+                    double costheta = 0.5/(r_ij*r_ik) * (r_ij_square+r_ik_square-r_jk_square);
 
                     // Determine the location for this triplet of species
                     int its;
@@ -173,20 +173,20 @@ vector<vector<float> > ACSF::create(vector<vector<float> > &positions, vector<in
 
 /*! \brief Computes the value of the cutoff fuction at a specific distance.
  * */
-inline float ACSF::computeCutoff(float r_ij) {
+inline double ACSF::computeCutoff(double r_ij) {
 	return 0.5*(cos(r_ij*PI/rCut)+1);
 }
 
-inline void ACSF::computeG1(vector<float> &output, int &offset, float &fc_ij) {
+inline void ACSF::computeG1(vector<double> &output, int &offset, double &fc_ij) {
     output[offset] += fc_ij;
     offset += 1;
 }
 
-inline void ACSF::computeG2(vector<float> &output, int &offset, float &r_ij, float &fc_ij) {
+inline void ACSF::computeG2(vector<double> &output, int &offset, double &r_ij, double &fc_ij) {
 
 	// Compute G2 - gaussian types
-    float eta;
-    float Rs;
+    double eta;
+    double Rs;
 	for (auto params : g2Params) {
         eta = params[0];
         Rs = params[1];
@@ -195,7 +195,7 @@ inline void ACSF::computeG2(vector<float> &output, int &offset, float &r_ij, flo
 	}
 }
 
-inline void ACSF::computeG3(vector<float> &output, int &offset, float &r_ij, float &fc_ij) {
+inline void ACSF::computeG3(vector<double> &output, int &offset, double &r_ij, double &fc_ij) {
 	// Compute G3 - cosine type
 	for (auto param : g3Params) {
         output[offset] += cos(r_ij*param)*fc_ij;
@@ -203,18 +203,18 @@ inline void ACSF::computeG3(vector<float> &output, int &offset, float &r_ij, flo
     }
 }
 
-inline void ACSF::computeG4(vector<float> &output, int &offset, float &costheta, float &r_jk, float &r_ij_square, float &r_ik_square, float &r_jk_square, float &fc_ij, float &fc_ik) {
+inline void ACSF::computeG4(vector<double> &output, int &offset, double &costheta, double &r_jk, double &r_ij_square, double &r_ik_square, double &r_jk_square, double &fc_ij, double &fc_ik) {
 	// Compute G4
     if (r_jk > rCut) {
         offset += g4Params.size();
         return;
     }
-    float cutoff_jk = computeCutoff(r_jk);
-	float fc4 = fc_ij*fc_ik*cutoff_jk;
-	float eta;
-	float zeta;
-	float lambda;
-	float gauss;
+    double cutoff_jk = computeCutoff(r_jk);
+	double fc4 = fc_ij*fc_ik*cutoff_jk;
+	double eta;
+	double zeta;
+	double lambda;
+	double gauss;
 	for (auto params : g4Params) {
 		eta = params[0];
 		zeta = params[1];
@@ -225,13 +225,13 @@ inline void ACSF::computeG4(vector<float> &output, int &offset, float &costheta,
 	}
 }
 
-inline void ACSF::computeG5(vector<float> &output, int &offset, float &costheta, float &r_ij_square, float &r_ik_square, float &fc_ij, float &fc_ik) {
+inline void ACSF::computeG5(vector<double> &output, int &offset, double &costheta, double &r_ij_square, double &r_ik_square, double &fc_ij, double &fc_ik) {
 	// Compute G5
-	float eta;
-	float zeta;
-	float lambda;
-	float gauss;
-	float fc5 = fc_ij*fc_ik;
+	double eta;
+	double zeta;
+	double lambda;
+	double gauss;
+	double fc5 = fc_ij*fc_ik;
 	for (auto params : g5Params) {
 		eta = params[0];
 		zeta = params[1];

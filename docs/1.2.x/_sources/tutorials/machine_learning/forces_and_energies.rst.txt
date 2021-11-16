@@ -1,12 +1,6 @@
 Supervised Learning: Training an ML Force-field
 ===============================================
 
-.. note::
-   We are incrementally adding support for calculating the derivatives of
-   descriptors with respect to the atom positions. From version **1.0.0**
-   upwards you can find an implementation for getting derivatives of
-   non-periodic systems for the SOAP descriptor.
-
 This tutorial covers how descriptors can be effectively used as input for a
 machine learning model that will predict energies and forces. There are several
 design choices that you have to make when building a ML force-field: which ML
@@ -27,7 +21,8 @@ simple setup:
       from which we will automatically get the forces as long as we also know
       the derivatives of the descriptor with respect to the atomic positions.
       This is exactly what the :code:`derivatives`-function provided by DScribe
-      returns (you will need :code:`dscribe>=1.0.0`).
+      returns (notice that DScribe does not yet provide these derivatives for
+      all descriptors).
 
 Setup
 -----
@@ -70,12 +65,9 @@ variance in the training set.
 
 Dataset generation
 ------------------
-.. note::
-   The code for this tutorial can be found under
-   *examples/forces_and_energies/*. Notice that if you want to run the training
-   yourself, you will need to install `pytorch <https://pytorch.org/>`_.
 
-The following script generates our training dataset:
+The following script generates our training dataset (full script in the GitHub
+repository: *examples/forces_and_energies/dataset.py*):
 
 .. literalinclude:: ../../../../examples/forces_and_energies/dataset.py
     :language: python
@@ -89,38 +81,55 @@ The energies will look like this:
 
 Training
 --------
-Let us first load and prepare the dataset:
+.. note::
+   The training code shown in this tutorial uses `pytorch
+   <https://pytorch.org/>`_, which you need to install if you wish to run this
+   example. You can find the full script at
+   *examples/forces_and_energies/training_pytorch.py*. Notice that there is
+   also an identical implementation using `tensorflow
+   <https://www.tensorflow.org/>`_, kindly provided by `xScoschx
+   <https://github.com/xScoschx>`_. It can be found under
+   *examples/forces_and_energies/training_tensorflow.py*.
 
-.. literalinclude:: ../../../../examples/forces_and_energies/training.py
+Let us first load and prepare the dataset (full script in the GitHub
+repository: *examples/forces_and_energies/training_pytorch.py*):
+
+.. literalinclude:: ../../../../examples/forces_and_energies/training_pytorch.py
     :language: python
-    :lines: 1-59
+    :lines: 1-57
 
 Then let us define our model and loss function:
 
-.. literalinclude:: ../../../../examples/forces_and_energies/training.py
+.. literalinclude:: ../../../../examples/forces_and_energies/training_pytorch.py
     :start-at: class FFNet
     :language: python
-    :lines: 1-32
+    :lines: 1-33
 
 Now we can define the training loop that uses batches and early stopping to
 prevent overfitting:
 
-.. literalinclude:: ../../../../examples/forces_and_energies/training.py
+.. literalinclude:: ../../../../examples/forces_and_energies/training_pytorch.py
     :start-at: # Train!
     :language: python
     :lines: 1-76
 
-Analysis
---------
-When the training is done (takes around thirty seconds), we can enter the evaluation
-phase and see how well the model performs. We will simply plot the model
-response in the whole dataset input domain and compare it to the correct
-values:
+Once the model is trained (takes around thirty seconds), we can load the best
+model and produce predicted data that is saved on disk for later analysis:
 
-.. literalinclude:: ../../../../examples/forces_and_energies/training.py
+.. literalinclude:: ../../../../examples/forces_and_energies/training_pytorch.py
    :start-at: # Way to tell
    :language: python
    :lines: 1-
+
+Analysis
+--------
+In order to quickly assess the model performance, we will simply plot the model
+response in the whole dataset input domain and compare it to the correct values
+(full script in the GitHub repository:
+*examples/forces_and_energies/analysis.py*):
+
+.. literalinclude:: ../../../../examples/forces_and_energies/analysis.py
+   :language: python
 
 The plots look something like this:
 

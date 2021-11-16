@@ -192,13 +192,6 @@
             
   <div class="section" id="supervised-learning-training-an-ml-force-field">
 <h1>Supervised Learning: Training an ML Force-field<a class="headerlink" href="#supervised-learning-training-an-ml-force-field" title="Permalink to this headline">¶</a></h1>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>We are incrementally adding support for calculating the derivatives of
-descriptors with respect to the atom positions. From version <strong>1.0.0</strong>
-upwards you can find an implementation for getting derivatives of
-non-periodic systems for the SOAP descriptor.</p>
-</div>
 <p>This tutorial covers how descriptors can be effectively used as input for a
 machine learning model that will predict energies and forces. There are several
 design choices that you have to make when building a ML force-field: which ML
@@ -220,7 +213,8 @@ respect to the input. This allows us to train an energy prediction model
 from which we will automatically get the forces as long as we also know
 the derivatives of the descriptor with respect to the atomic positions.
 This is exactly what the <code class="code docutils literal notranslate"><span class="pre">derivatives</span></code>-function provided by DScribe
-returns (you will need <code class="code docutils literal notranslate"><span class="pre">dscribe&gt;=1.0.0</span></code>).</p></li>
+returns (notice that DScribe does not yet provide these derivatives for
+all descriptors).</p></li>
 </ul>
 </div></blockquote>
 <div class="section" id="setup">
@@ -261,13 +255,8 @@ variance in the training set.</p>
 </div>
 <div class="section" id="dataset-generation">
 <h2>Dataset generation<a class="headerlink" href="#dataset-generation" title="Permalink to this headline">¶</a></h2>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The code for this tutorial can be found under
-<em>examples/forces_and_energies/</em>. Notice that if you want to run the training
-yourself, you will need to install <a class="reference external" href="https://pytorch.org/">pytorch</a>.</p>
-</div>
-<p>The following script generates our training dataset:</p>
+<p>The following script generates our training dataset (full script in the GitHub
+repository: <em>examples/forces_and_energies/dataset.py</em>):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">ase</span>
 <span class="kn">from</span> <span class="nn">ase.calculators.lj</span> <span class="kn">import</span> <span class="n">LennardJones</span>
@@ -327,21 +316,28 @@ yourself, you will need to install <a class="reference external" href="https://p
 </div>
 <div class="section" id="training">
 <h2>Training<a class="headerlink" href="#training" title="Permalink to this headline">¶</a></h2>
-<p>Let us first load and prepare the dataset:</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The training code shown in this tutorial uses <a class="reference external" href="https://pytorch.org/">pytorch</a>, which you need to install if you wish to run this
+example. You can find the full script at
+<em>examples/forces_and_energies/training_pytorch.py</em>. Notice that there is
+also an identical implementation using <a class="reference external" href="https://www.tensorflow.org/">tensorflow</a>, kindly provided by <a class="reference external" href="https://github.com/xScoschx">xScoschx</a>. It can be found under
+<em>examples/forces_and_energies/training_tensorflow.py</em>.</p>
+</div>
+<p>Let us first load and prepare the dataset (full script in the GitHub
+repository: <em>examples/forces_and_energies/training_pytorch.py</em>):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
 <span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
 <span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
-<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_absolute_error</span>
 <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
 
 <span class="c1"># Load the dataset</span>
-<span class="n">D_numpy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;D.npy&quot;</span><span class="p">)[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>  <span class="c1"># We only have one SOAP center </span>
+<span class="n">D_numpy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;D.npy&quot;</span><span class="p">)[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>  <span class="c1"># We only have one SOAP center</span>
 <span class="n">n_samples</span><span class="p">,</span> <span class="n">n_features</span> <span class="o">=</span> <span class="n">D_numpy</span><span class="o">.</span><span class="n">shape</span>
 <span class="n">E_numpy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;E.npy&quot;</span><span class="p">)])</span><span class="o">.</span><span class="n">T</span>
 <span class="n">F_numpy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;F.npy&quot;</span><span class="p">)</span>
-<span class="n">dD_dr_numpy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;dD_dr.npy&quot;</span><span class="p">)[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:</span> <span class="p">]</span>  <span class="c1"># We only have one SOAP center </span>
+<span class="n">dD_dr_numpy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;dD_dr.npy&quot;</span><span class="p">)[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span>  <span class="c1"># We only have one SOAP center</span>
 <span class="n">r_numpy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;r.npy&quot;</span><span class="p">)</span>
 
 <span class="c1"># Select equally spaced points for training</span>
@@ -417,6 +413,7 @@ yourself, you will need to install <a class="reference external" href="https://p
     <span class="n">force_loss</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">F_pred</span> <span class="o">-</span> <span class="n">F_train</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">var_force_train</span>
     <span class="k">return</span> <span class="n">energy_loss</span> <span class="o">+</span> <span class="n">force_loss</span>
 
+
 <span class="c1"># Initialize model</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">FFNet</span><span class="p">(</span><span class="n">n_features</span><span class="p">,</span> <span class="n">n_hidden</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">n_out</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
@@ -445,7 +442,7 @@ prevent overfitting:</p>
     <span class="n">permutation</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randperm</span><span class="p">(</span><span class="n">D_train</span><span class="o">.</span><span class="n">size</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">D_train</span><span class="o">.</span><span class="n">size</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">batch_size</span><span class="p">):</span>
 
-        <span class="n">indices</span> <span class="o">=</span> <span class="n">permutation</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="n">batch_size</span><span class="p">]</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">permutation</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="n">batch_size</span><span class="p">]</span>
         <span class="n">D_train_batch</span><span class="p">,</span> <span class="n">E_train_batch</span> <span class="o">=</span> <span class="n">D_train</span><span class="p">[</span><span class="n">indices</span><span class="p">],</span> <span class="n">E_train</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
         <span class="n">D_train_batch</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="n">F_train_batch</span><span class="p">,</span> <span class="n">dD_dr_train_batch</span> <span class="o">=</span> <span class="n">F_train</span><span class="p">[</span><span class="n">indices</span><span class="p">],</span> <span class="n">dD_dr_train</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
@@ -477,7 +474,7 @@ prevent overfitting:</p>
         <span class="n">loss</span> <span class="o">=</span> <span class="n">energy_force_loss</span><span class="p">(</span><span class="n">E_train_pred_batch</span><span class="p">,</span> <span class="n">E_train_batch</span><span class="p">,</span> <span class="n">F_train_pred_batch</span><span class="p">,</span> <span class="n">F_train_batch</span><span class="p">)</span>
         <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
         <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
-            
+
     <span class="c1"># Check early stopping criterion and save best model</span>
     <span class="n">E_valid_pred</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">D_valid</span><span class="p">)</span>
     <span class="n">df_dD_valid</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span>
@@ -504,13 +501,8 @@ prevent overfitting:</p>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  Finished epoch: </span><span class="si">{}</span><span class="s2"> with loss: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i_epoch</span><span class="p">,</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">()))</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="analysis">
-<h2>Analysis<a class="headerlink" href="#analysis" title="Permalink to this headline">¶</a></h2>
-<p>When the training is done (takes around thirty seconds), we can enter the evaluation
-phase and see how well the model performs. We will simply plot the model
-response in the whole dataset input domain and compare it to the correct
-values:</p>
+<p>Once the model is trained (takes around thirty seconds), we can load the best
+model and produce predicted data that is saved on disk for later analysis:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Way to tell pytorch that we are entering the evaluation phase</span>
 <span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;best_model.pt&quot;</span><span class="p">))</span>
 <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
@@ -519,7 +511,6 @@ values:</p>
 <span class="n">E_whole</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">E_numpy</span><span class="p">)</span>
 <span class="n">F_whole</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">F_numpy</span><span class="p">)</span>
 <span class="n">dD_dr_whole</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">dD_dr_whole</span><span class="p">)</span>
-<span class="n">r_whole</span> <span class="o">=</span> <span class="n">r_numpy</span>
 <span class="n">D_whole</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="n">E_whole_pred</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">D_whole</span><span class="p">)</span>
 <span class="n">df_dD_whole</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span>
@@ -528,10 +519,43 @@ values:</p>
     <span class="n">grad_outputs</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">E_whole_pred</span><span class="p">),</span>
 <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">F_whole_pred</span> <span class="o">=</span> <span class="o">-</span><span class="n">torch</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ijkl,il-&gt;ijk&#39;</span><span class="p">,</span> <span class="n">dD_dr_whole</span><span class="p">,</span> <span class="n">df_dD_whole</span><span class="p">)</span>
-
-<span class="c1"># Plot energies for the whole range</span>
 <span class="n">E_whole_pred</span> <span class="o">=</span> <span class="n">E_whole_pred</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
 <span class="n">E_whole</span> <span class="o">=</span> <span class="n">E_whole</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+<span class="c1"># Save results for later analysis</span>
+<span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;r_train_full.npy&quot;</span><span class="p">,</span> <span class="n">r_train_full</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;E_train_full.npy&quot;</span><span class="p">,</span> <span class="n">E_train_full</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;F_train_full.npy&quot;</span><span class="p">,</span> <span class="n">F_train_full</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;E_whole_pred.npy&quot;</span><span class="p">,</span> <span class="n">E_whole_pred</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;F_whole_pred.npy&quot;</span><span class="p">,</span> <span class="n">F_whole_pred</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="analysis">
+<h2>Analysis<a class="headerlink" href="#analysis" title="Permalink to this headline">¶</a></h2>
+<p>In order to quickly assess the model performance, we will simply plot the model
+response in the whole dataset input domain and compare it to the correct values
+(full script in the GitHub repository:
+<em>examples/forces_and_energies/analysis.py</em>):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_absolute_error</span>
+
+<span class="c1"># Load data as produded by the trained model</span>
+<span class="n">r_whole</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;r.npy&quot;</span><span class="p">)</span>
+<span class="n">r_train_full</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;r_train_full.npy&quot;</span><span class="p">)</span>
+<span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">r_whole</span><span class="p">)</span>
+<span class="n">E_whole</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;E.npy&quot;</span><span class="p">)</span>
+<span class="n">E_train_full</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;E_train_full.npy&quot;</span><span class="p">)</span>
+<span class="n">E_whole_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;E_whole_pred.npy&quot;</span><span class="p">)</span>
+<span class="n">F_whole</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;F.npy&quot;</span><span class="p">)</span>
+<span class="n">F_train_full</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;F_train_full.npy&quot;</span><span class="p">)</span>
+<span class="n">F_whole_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;F_whole_pred.npy&quot;</span><span class="p">)</span>
+<span class="n">F_x_whole_pred</span> <span class="o">=</span> <span class="n">F_whole_pred</span><span class="p">[</span><span class="n">order</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="n">F_x_whole</span> <span class="o">=</span> <span class="n">F_whole</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">][</span><span class="n">order</span><span class="p">]</span>
+<span class="n">F_x_train_full</span> <span class="o">=</span> <span class="n">F_train_full</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># Plot energies for the whole range</span>
 <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">r_whole</span><span class="p">)</span>
 <span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
 <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r_whole</span><span class="p">[</span><span class="n">order</span><span class="p">],</span> <span class="n">E_whole</span><span class="p">[</span><span class="n">order</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;True&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
@@ -541,8 +565,6 @@ values:</p>
 <span class="n">ax1</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.95</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;MAE: </span><span class="si">{:.2}</span><span class="s2"> eV&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mae_energy</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">horizontalalignment</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">verticalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">ax1</span><span class="o">.</span><span class="n">transAxes</span><span class="p">)</span>
 
 <span class="c1"># Plot forces for whole range</span>
-<span class="n">F_x_whole_pred</span> <span class="o">=</span> <span class="n">F_whole_pred</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="n">order</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
-<span class="n">F_x_whole</span> <span class="o">=</span> <span class="n">F_whole</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">][</span><span class="n">order</span><span class="p">]</span>
 <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r_whole</span><span class="p">[</span><span class="n">order</span><span class="p">],</span> <span class="n">F_x_whole</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;True&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
 <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">r_whole</span><span class="p">[</span><span class="n">order</span><span class="p">],</span> <span class="n">F_x_whole_pred</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Predicted&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
 <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Distance&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
@@ -551,7 +573,6 @@ values:</p>
 <span class="n">ax2</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.95</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;MAE: </span><span class="si">{:.2}</span><span class="s2"> eV/Å&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mae_force</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">horizontalalignment</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">verticalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">ax2</span><span class="o">.</span><span class="n">transAxes</span><span class="p">)</span>
 
 <span class="c1"># Plot training points</span>
-<span class="n">F_x_train_full</span> <span class="o">=</span> <span class="n">F_train_full</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
 <span class="n">ax1</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">r_train_full</span><span class="p">,</span> <span class="n">E_train_full</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Training points&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 <span class="n">ax2</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">r_train_full</span><span class="p">,</span> <span class="n">F_x_train_full</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Training points&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 

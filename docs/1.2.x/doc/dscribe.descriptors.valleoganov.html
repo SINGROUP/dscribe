@@ -35,6 +35,7 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/js/versions.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -177,8 +178,64 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="dscribe-descriptors-valleoganov-module">
-<h1>dscribe.descriptors.valleoganov module<a class="headerlink" href="#dscribe-descriptors-valleoganov-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-dscribe.descriptors.valleoganov">
+<span id="dscribe-descriptors-valleoganov-module"></span><h1>dscribe.descriptors.valleoganov module<a class="headerlink" href="#module-dscribe.descriptors.valleoganov" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="dscribe.descriptors.valleoganov.ValleOganov">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dscribe.descriptors.valleoganov.</span></span><span class="sig-name descname"><span class="pre">ValleOganov</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">species</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k3</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatten</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/descriptors/valleoganov.html#ValleOganov"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.valleoganov.ValleOganov" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="dscribe.descriptors.mbtr.html#dscribe.descriptors.mbtr.MBTR" title="dscribe.descriptors.mbtr.MBTR"><code class="xref py py-class docutils literal notranslate"><span class="pre">dscribe.descriptors.mbtr.MBTR</span></code></a></p>
+<p>Shortcut for implementing the fingerprint descriptor by Valle and Oganov
+for <span class="math notranslate nohighlight">\(k=2\)</span> and <span class="math notranslate nohighlight">\(k=3\)</span> using MBTR. Automatically uses the right
+weighting and normalizes the output, and can only be used for periodic
+systems.</p>
+<p>You can choose which terms to include by providing a dictionary in the
+k2 or k3 arguments. This dictionary should contain information
+under three keys: “sigma”, “n” and “r_cut”. See the examples below.</p>
+<p>For more information on the weighting and normalization used here as well
+as the other parameters and general usage of the descriptor, see the MBTR class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>species</strong> (<em>iterable</em>) – The chemical species as a list of atomic
+numbers or as a list of chemical symbols. Notice that this is not
+the atomic numbers that are present for an individual system, but
+should contain all the elements that are ever going to be
+encountered when creating the descriptors for a set of systems.
+Keeping the number of chemical species as low as possible is
+preferable.</p></li>
+<li><p><strong>k2</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a>) – <p>Dictionary containing the setup for the k=2 term.
+Contains setup for the discretization and radial cutoff.
+For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">k2</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+    <span class="s2">&quot;r_cut&quot;</span><span class="p">:</span> <span class="mi">10</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</p></li>
+<li><p><strong>k3</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a>) – <p>Dictionary containing the setup for the k=3 term.
+Contains setup for the discretization and radial cutoff.
+For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">k3</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+    <span class="s2">&quot;r_cut&quot;</span><span class="p">:</span> <span class="mi">10</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</p></li>
+<li><p><strong>flatten</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Whether the output should be flattened to a 1D
+array. If False, a dictionary of the different tensors is
+provided, containing the values under keys: “k1”, “k2”, and
+“k3”:</p></li>
+<li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
+dense numpy array.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 
 

@@ -177,8 +177,155 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="dscribe-core-lattice-module">
-<h1>dscribe.core.lattice module<a class="headerlink" href="#dscribe-core-lattice-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-dscribe.core.lattice">
+<span id="dscribe-core-lattice-module"></span><h1>dscribe.core.lattice module<a class="headerlink" href="#module-dscribe.core.lattice" title="Permalink to this headline">¶</a></h1>
+<p>Copyright 2019 DScribe developers</p>
+<p>Licensed under the Apache License, Version 2.0 (the “License”);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<blockquote>
+<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+</div></blockquote>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="dscribe.core.lattice.Lattice">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dscribe.core.lattice.</span></span><span class="sig-name descname"><span class="pre">Lattice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/lattice.html#Lattice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.core.lattice.Lattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>A lattice object.  Essentially a matrix with conversion matrices. In
+general, it is assumed that length units are in Angstroms and angles are in
+degrees unless otherwise stated.</p>
+<p>Create a lattice from any sequence of 9 numbers. Note that the sequence
+is assumed to be read one row at a time. Each row represents one
+lattice vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>matrix</strong> – Sequence of numbers in any form. Examples of acceptable
+input.
+i) An actual numpy array.
+ii) [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+iii) [1, 0, 0 , 0, 1, 0, 0, 0, 1]
+iv) (1, 0, 0, 0, 1, 0, 0, 0, 1)
+Each row should correspond to a lattice vector.
+E.g., [[10, 0, 0], [20, 10, 0], [0, 0, 30]] specifies a lattice
+with lattice vectors [10, 0, 0], [20, 10, 0] and [0, 0, 30].</p>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="dscribe.core.lattice.Lattice.abc">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">abc</span></span><a class="headerlink" href="#dscribe.core.lattice.Lattice.abc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lengths of the lattice vectors, i.e. (a, b, c)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dscribe.core.lattice.Lattice.get_cartesian_coords">
+<span class="sig-name descname"><span class="pre">get_cartesian_coords</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fractional_coords</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/lattice.html#Lattice.get_cartesian_coords"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.core.lattice.Lattice.get_cartesian_coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the cartesian coordinates given fractional coordinates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>fractional_coords</strong> (<em>3x1 array</em>) – Fractional coords.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Cartesian coordinates</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dscribe.core.lattice.Lattice.get_fractional_coords">
+<span class="sig-name descname"><span class="pre">get_fractional_coords</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cart_coords</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/lattice.html#Lattice.get_fractional_coords"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.core.lattice.Lattice.get_fractional_coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the fractional coordinates given cartesian coordinates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cart_coords</strong> (<em>3x1 array</em>) – Cartesian coords.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Fractional coordinates.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dscribe.core.lattice.Lattice.get_points_in_sphere">
+<span class="sig-name descname"><span class="pre">get_points_in_sphere</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frac_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zip_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/lattice.html#Lattice.get_points_in_sphere"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.core.lattice.Lattice.get_points_in_sphere" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find all points within a sphere from the point taking into account
+periodic boundary conditions. This includes sites in other periodic
+images.</p>
+<p>Algorithm:</p>
+<ol class="arabic">
+<li><p>place sphere of radius r in crystal and determine minimum supercell
+(parallelpiped) which would contain a sphere of radius r. for this
+we need the projection of a_1 on a unit vector perpendicular
+to a_2 &amp; a_3 (i.e. the unit vector in the direction b_1) to
+determine how many a_1”s it will take to contain the sphere.</p>
+<p>Nxmax = r * length_of_b_1 / (2 Pi)</p>
+</li>
+<li><p>keep points falling within r.</p></li>
+</ol>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frac_points</strong> – All points in the lattice in fractional coordinates.</p></li>
+<li><p><strong>center</strong> – Cartesian coordinates of center of sphere.</p></li>
+<li><p><strong>r</strong> – radius of sphere.</p></li>
+<li><p><strong>zip_results</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Whether to zip the results together to group by
+point, or return the raw fcoord, dist, index arrays</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>[(fcoord, dist, index) …] since most of the time, subsequent</dt><dd><p>processing requires the distance.</p>
+</dd>
+<dt>else:</dt><dd><p>fcoords, dists, inds</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>if zip_results</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dscribe.core.lattice.Lattice.inv_matrix">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">inv_matrix</span></span><a class="headerlink" href="#dscribe.core.lattice.Lattice.inv_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inverse of lattice matrix.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dscribe.core.lattice.Lattice.lengths">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">lengths</span></span><a class="headerlink" href="#dscribe.core.lattice.Lattice.lengths" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dscribe.core.lattice.Lattice.matrix">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">matrix</span></span><a class="headerlink" href="#dscribe.core.lattice.Lattice.matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy of matrix representing the Lattice</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dscribe.core.lattice.Lattice.reciprocal_lattice">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">reciprocal_lattice</span></span><a class="headerlink" href="#dscribe.core.lattice.Lattice.reciprocal_lattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the reciprocal lattice. Note that this is the standard
+reciprocal lattice used for solid state physics with a factor of 2 *
+pi. If you are looking for the crystallographic reciprocal lattice,
+use the reciprocal_lattice_crystallographic property.
+The property is lazily generated for efficiency.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dscribe.core.lattice.Lattice.reciprocal_lattice_crystallographic">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">reciprocal_lattice_crystallographic</span></span><a class="headerlink" href="#dscribe.core.lattice.Lattice.reciprocal_lattice_crystallographic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the <em>crystallographic</em> reciprocal lattice, i.e., no factor of
+2 * pi.</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 

@@ -1,17 +1,15 @@
 import numpy as np
 import torch
-from matplotlib import pyplot as plt
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_absolute_error
 torch.manual_seed(7)
 
 # Load the dataset
-D_numpy = np.load("D.npy")[:, 0, :]  # We only have one SOAP center 
+D_numpy = np.load("D.npy")[:, 0, :]  # We only have one SOAP center
 n_samples, n_features = D_numpy.shape
 E_numpy = np.array([np.load("E.npy")]).T
 F_numpy = np.load("F.npy")
-dD_dr_numpy = np.load("dD_dr.npy")[:, 0, :, :, : ]  # We only have one SOAP center 
+dD_dr_numpy = np.load("dD_dr.npy")[:, 0, :, :, :]  # We only have one SOAP center
 r_numpy = np.load("r.npy")
 
 # Select equally spaced points for training
@@ -58,6 +56,7 @@ F_valid = torch.Tensor(F_valid)
 dD_dr_train = torch.Tensor(dD_dr_train)
 dD_dr_valid = torch.Tensor(dD_dr_valid)
 
+
 class FFNet(torch.nn.Module):
     """A simple feed-forward network with one hidden layer, randomly
     initialized weights, sigmoid activation and a linear output layer.
@@ -85,6 +84,7 @@ def energy_force_loss(E_pred, E_train, F_pred, F_train):
     force_loss = torch.mean((F_pred - F_train)**2) / var_force_train
     return energy_loss + force_loss
 
+
 # Initialize model
 model = FFNet(n_features, n_hidden=5, n_out=1)
 
@@ -110,7 +110,7 @@ for i_epoch in range(n_max_epochs):
     permutation = torch.randperm(D_train.size()[0])
     for i in range(0, D_train.size()[0], batch_size):
 
-        indices = permutation[i:i+batch_size]
+        indices = permutation[i:i + batch_size]
         D_train_batch, E_train_batch = D_train[indices], E_train[indices]
         D_train_batch.requires_grad = True
         F_train_batch, dD_dr_train_batch = F_train[indices], dD_dr_train[indices]
@@ -142,7 +142,7 @@ for i_epoch in range(n_max_epochs):
         loss = energy_force_loss(E_train_pred_batch, E_train_batch, F_train_pred_batch, F_train_batch)
         loss.backward()
         optimizer.step()
-            
+
     # Check early stopping criterion and save best model
     E_valid_pred = model(D_valid)
     df_dD_valid = torch.autograd.grad(
@@ -176,7 +176,6 @@ model.eval()
 E_whole = torch.Tensor(E_numpy)
 F_whole = torch.Tensor(F_numpy)
 dD_dr_whole = torch.Tensor(dD_dr_whole)
-r_whole = r_numpy
 D_whole.requires_grad = True
 E_whole_pred = model(D_whole)
 df_dD_whole = torch.autograd.grad(
@@ -185,34 +184,12 @@ df_dD_whole = torch.autograd.grad(
     grad_outputs=torch.ones_like(E_whole_pred),
 )[0]
 F_whole_pred = -torch.einsum('ijkl,il->ijk', dD_dr_whole, df_dD_whole)
-
-# Plot energies for the whole range
 E_whole_pred = E_whole_pred.detach().numpy()
 E_whole = E_whole.detach().numpy()
-order = np.argsort(r_whole)
-fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True, figsize=(10, 10))
-ax1.plot(r_whole[order], E_whole[order], label="True", linewidth=3, linestyle="-")
-ax1.plot(r_whole[order], E_whole_pred[order], label="Predicted", linewidth=3, linestyle="-")
-ax1.set_ylabel('Energy', size=15)
-mae_energy = mean_absolute_error(E_whole_pred, E_whole)
-ax1.text(0.95, 0.5, "MAE: {:.2} eV".format(mae_energy), size=16, horizontalalignment='right', verticalalignment='center', transform=ax1.transAxes)
 
-# Plot forces for whole range
-F_x_whole_pred = F_whole_pred.detach().numpy()[order, 0, 0]
-F_x_whole = F_whole[:, 0, 0][order]
-ax2.plot(r_whole[order], F_x_whole, label="True", linewidth=3, linestyle="-")
-ax2.plot(r_whole[order], F_x_whole_pred, label="Predicted", linewidth=3, linestyle="-")
-ax2.set_xlabel('Distance', size=15)
-ax2.set_ylabel('Forces', size=15)
-mae_force = mean_absolute_error(F_x_whole_pred, F_x_whole)
-ax2.text(0.95, 0.5, "MAE: {:.2} eV/Å".format(mae_force), size=16, horizontalalignment='right', verticalalignment='center', transform=ax2.transAxes)
-
-# Plot training points
-F_x_train_full = F_train_full[:, 0, 0]
-ax1.scatter(r_train_full, E_train_full, marker="o", color="k", s=20, label="Training points", zorder=3)
-ax2.scatter(r_train_full, F_x_train_full, marker="o", color="k", s=20, label="Training points", zorder=3)
-
-# Show plot
-ax1.legend(fontsize=12)
-plt.subplots_adjust(left=0.08, right=0.97, top=0.97, bottom=0.08, hspace=0)
-plt.show()
+# Save results for later analysis
+np.save("r_train_full.npy", r_train_full)
+np.save("E_train_full.npy", E_train_full)
+np.save("F_train_full.npy", F_train_full)
+np.save("E_whole_pred.npy", E_whole_pred)
+np.save("F_whole_pred.npy", F_whole_pred)

@@ -177,8 +177,47 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="dscribe-utils-stats-module">
-<h1>dscribe.utils.stats module<a class="headerlink" href="#dscribe-utils-stats-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-dscribe.utils.stats">
+<span id="dscribe-utils-stats-module"></span><h1>dscribe.utils.stats module<a class="headerlink" href="#module-dscribe.utils.stats" title="Permalink to this headline">¶</a></h1>
+<p>Copyright 2019 DScribe developers</p>
+<p>Licensed under the Apache License, Version 2.0 (the “License”);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<blockquote>
+<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+</div></blockquote>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="dscribe.utils.stats.system_stats">
+<span class="sig-prename descclassname"><span class="pre">dscribe.utils.stats.</span></span><span class="sig-name descname"><span class="pre">system_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system_iterator</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/utils/stats.html#system_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.utils.stats.system_stats" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>system_stats</strong> (<em>iterable containing ASE.Atoms</em><em> or </em><a class="reference internal" href="dscribe.core.system.html#dscribe.core.system.System" title="dscribe.core.system.System"><em>System</em></a>) – The atomic
+systems for which to gather statistics.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>A dictionary of different statistics for the system. The
+dictionary will contain:</p>
+<blockquote>
+<div><p>n_atoms_max: The maximum number of atoms in a system.
+max_atomic_number: The highest atomic number
+min_atomic_number: The lowest atomic number
+atomic_numbers: List of present atomic numbers
+element_symbols: List of present atomic symbols
+min_distance: Minimum distance in the system</p>
+</div></blockquote>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 
 
