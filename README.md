@@ -46,7 +46,7 @@ der, des = soap_desc.derivatives(samples, method="auto", return_descriptor=True)
 # Currently implemented descriptors
  | Descriptor                                    |  Spectrum |  Derivatives |
  |-----------------------------------------------|-----|-------|
- | Coulomb matrix                                | :heavy_check_mark: | |
+ | Coulomb matrix                                | :heavy_check_mark: | :heavy_check_mark: |
  | Sine matrix                                   | :heavy_check_mark: | |
  | Ewald matrix                                  | :heavy_check_mark: | |
  | Atom-centered Symmetry Functions (ACSF)       | :heavy_check_mark: | |
@@ -55,34 +55,25 @@ der, des = soap_desc.derivatives(samples, method="auto", return_descriptor=True)
  | Local Many-body Tensor Representation (LMBTR) | :heavy_check_mark: | |
  | Valle-Oganov descriptor                       | :heavy_check_mark: | |
 
-
-
 # Installation
-The newest versions of the package are compatible with Python >= 3.6 (tested on
-3.6, 3.7 and 3.8). DScribe versions <= 0.2.7 also support Python 2.7. We
-currently only support Unix-based systems, including Linux and macOS. For
-Windows-machines we suggest using the [Windows Subsystem for Linux (WSL)](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux).
-The exact list of dependencies are given in setup.py and all of them will be
-automatically installed during setup.
+In-depth installation instructions can be found ([in the
+documentation](https://singroup.github.io/dscribe/latest/install.html), but in
+short:
 
-The package contains C++ extensions that are automatically compiled during
-install. On Linux-based systems the compilation tools are typically installed
-by default, on MacOS you may need to install additional command line tools if
-facing issues during setup ([see common issues in the
-documentation](https://singroup.github.io/dscribe/latest/install.html).
-
-The latest stable release is available through pip: (add the `--user` flag if
-root access is not available)
-
+## pip
 ```sh
 pip install dscribe
 ```
 
-To install the latest development version, clone the source code from github
-and install with pip from local file:
+## conda
+```sh
+conda install -c conda-forge dscribe
+```
 
+## From source
 ```sh
 git clone https://github.com/SINGROUP/dscribe.git
 cd dscribe
+git submodule update --init
 pip install .
 ```
