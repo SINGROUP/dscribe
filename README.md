@@ -56,7 +56,7 @@ der, des = soap_desc.derivatives(samples, method="auto", return_descriptor=True)
  | Valle-Oganov descriptor                       | :heavy_check_mark: | |
 
 # Installation
-In-depth installation instructions can be found ([in the
+In-depth installation instructions can be found [in the
 documentation](https://singroup.github.io/dscribe/latest/install.html), but in
 short:
 
