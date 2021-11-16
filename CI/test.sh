@@ -2,4 +2,4 @@
 cd ../regtests
 export COVERAGE_FILE="../.coverage"
 coverage run --source="dscribe" testrunner.py
-pytest
+coverage run -m --source="dscribe" --append pytest
