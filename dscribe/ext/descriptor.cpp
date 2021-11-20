@@ -69,7 +69,6 @@ void Descriptor::derivatives_numerical(
     int n_features = this->get_number_of_features();
     auto derivatives_mu = derivatives.mutable_unchecked<4>();
     auto indices_u = indices.unchecked<1>();
-    auto center_indices_u = center_indices.unchecked<1>();
     auto pbc_u = pbc.unchecked<1>();
     py::array_t<int> center_true_indices;
     py::array_t<double> centers_extended;
@@ -83,7 +82,6 @@ void Descriptor::derivatives_numerical(
         atomic_numbers = system_extension.atomic_numbers;
     }
     auto positions_mu = positions.mutable_unchecked<2>();
-    auto atomic_numbers_u = atomic_numbers.unchecked<1>();
 
     // Pre-calculate cell list for atoms
     CellList cell_list_atoms(positions, this->cutoff);
