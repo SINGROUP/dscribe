@@ -139,7 +139,7 @@ void Descriptor::derivatives_numerical(
         if (is_periodic) {
             auto center_true_indices_u = center_true_indices.unchecked<1>();
             set<int> centers_set;
-            for (int i=0; i < centers_local_idx.size(); ++i) {
+            for (size_t i=0; i < centers_local_idx.size(); ++i) {
                 int ext_index = centers_local_idx[i];
                 int true_index = center_true_indices_u(ext_index);
                 centers_set.insert(true_index);
@@ -195,7 +195,7 @@ void Descriptor::derivatives_numerical(
         // to reset the positions after each displacement.
         py::array_t<double> pos({n_copies, 3});
         auto pos_mu = pos.mutable_unchecked<2>();
-        for (int i_copy = 0; i_copy < i_atom_indices.size(); ++i_copy) {
+        for (size_t i_copy = 0; i_copy < i_atom_indices.size(); ++i_copy) {
             int j_copy = i_atom_indices[i_copy];
             for (int i = 0; i < 3; ++i) {
                 pos_mu(i_copy, i) = positions_mu(j_copy, i);
@@ -208,7 +208,7 @@ void Descriptor::derivatives_numerical(
         py::array_t<double> centers_moved({(int)centers_to_move.size(), 3});
         auto centers_moved_mu = centers_moved.mutable_unchecked<2>();
         if (attach) {
-            for (int i_copy = 0; i_copy < centers_to_move.size(); ++i_copy) {
+            for (size_t i_copy = 0; i_copy < centers_to_move.size(); ++i_copy) {
                 int j_copy = centers_to_move[i_copy];
                 for (int i = 0; i < 3; ++i) {
                     centers_moved_mu(i_copy, i) = centers_local_pos_mu(j_copy, i);
@@ -221,7 +221,7 @@ void Descriptor::derivatives_numerical(
 
                 // Introduce the displacement(s). Displacement are done for all
                 // periodic copies as well.
-                for (int i_copy = 0; i_copy < i_atom_indices.size(); ++i_copy) {
+                for (size_t i_copy = 0; i_copy < i_atom_indices.size(); ++i_copy) {
                     int j_copy = i_atom_indices[i_copy];
                     positions_mu(j_copy, i_comp) = pos_mu(i_copy, i_comp) + h*displacement[i_stencil];
                 }
@@ -229,7 +229,7 @@ void Descriptor::derivatives_numerical(
                 // If attach = true, we also move the center(s) that are
                 // attached to this atom.
                 if (attach) {
-                    for (int i_copy = 0; i_copy < centers_to_move.size(); ++i_copy) {
+                    for (size_t i_copy = 0; i_copy < centers_to_move.size(); ++i_copy) {
                         int j_copy = centers_to_move[i_copy];
                         centers_local_pos_mu(j_copy, i_comp) = centers_moved_mu(i_copy, i_comp) + h*displacement[i_stencil];
                     }
@@ -265,7 +265,7 @@ void Descriptor::derivatives_numerical(
             }
 
             // Return position(s) back to original value for next component.
-            for (int i_copy = 0; i_copy < i_atom_indices.size(); ++i_copy) {
+            for (size_t i_copy = 0; i_copy < i_atom_indices.size(); ++i_copy) {
                 int j_copy = i_atom_indices[i_copy];
                 positions_mu(j_copy, i_comp) = pos_mu(i_copy, i_comp);
             }
@@ -273,7 +273,7 @@ void Descriptor::derivatives_numerical(
             // If attach = true, return center(s) back to original value for
             // next component.
             if (attach) {
-                for (int i_copy = 0; i_copy < centers_to_move.size(); ++i_copy) {
+                for (size_t i_copy = 0; i_copy < centers_to_move.size(); ++i_copy) {
                     int j_copy = centers_to_move[i_copy];
                     centers_local_pos_mu(j_copy, i_comp) = centers_moved_mu(i_copy, i_comp);
                 }

@@ -28,7 +28,7 @@ inline double dot(const vector<double>& a, const vector<double>& b) {
 
 inline double norm(const vector<double>& a) {
     double accum = 0.0;
-    for (int i = 0; i < a.size(); ++i) {
+    for (size_t i = 0; i < a.size(); ++i) {
         accum += a[i] * a[i];
     }
     return sqrt(accum);

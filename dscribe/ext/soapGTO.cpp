@@ -2294,7 +2294,7 @@ void getPD(
     vector<int> indices = result.indices;
 
     // Loop through all neighbouring centers
-    for (int j_idx = 0; j_idx < indices.size(); ++j_idx) {
+    for (size_t j_idx = 0; j_idx < indices.size(); ++j_idx) {
         int i_center = indices[j_idx];
         int shiftAll = 0;
         for(int j = 0; j < Ts; j++) {
