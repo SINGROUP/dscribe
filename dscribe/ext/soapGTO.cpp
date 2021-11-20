@@ -2007,7 +2007,7 @@ void getCD(
     const vector<int> &indices,
     bool return_derivatives){
   if(Asize == 0){return;}
-  double sumMe = 0; int NsNs = Ns*Ns;  int NsJ = ((lMax+1)*(lMax+1))*Ns*typeJ; int LNsNs;
+  double sumMe = 0; int NsNs = Ns*Ns; int LNsNs;
   int LNs;
   double preExp;
   double preVal;
@@ -2215,8 +2215,6 @@ void getPD(
   int lMax,
   bool crossover
 ) {
-
-    int NsTs100 = Ns*Ts*((lMax+1)*(lMax+1));
 
     // The power spectrum is multiplied by an l-dependent prefactor that comes
     // from the normalization of the Wigner D matrices. This prefactor is
