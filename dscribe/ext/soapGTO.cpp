@@ -2007,7 +2007,7 @@ void getCD(
     const vector<int> &indices,
     bool return_derivatives){
   if(Asize == 0){return;}
-  double sumMe = 0; int NsNs = Ns*Ns;  int NsJ = ((lMax+1)*(lMax+1))*Ns*typeJ; int LNsNs;
+  double sumMe = 0; int NsNs = Ns*Ns; int LNsNs;
   int LNs;
   double preExp;
   double preVal;
@@ -2216,8 +2216,6 @@ void getPD(
   bool crossover
 ) {
 
-    int NsTs100 = Ns*Ts*((lMax+1)*(lMax+1));
-
     // The power spectrum is multiplied by an l-dependent prefactor that comes
     // from the normalization of the Wigner D matrices. This prefactor is
     // mentioned in the arrata of the original SOAP paper: On representing
@@ -2294,7 +2292,7 @@ void getPD(
     vector<int> indices = result.indices;
 
     // Loop through all neighbouring centers
-    for (int j_idx = 0; j_idx < indices.size(); ++j_idx) {
+    for (size_t j_idx = 0; j_idx < indices.size(); ++j_idx) {
         int i_center = indices[j_idx];
         int shiftAll = 0;
         for(int j = 0; j < Ts; j++) {

@@ -113,7 +113,7 @@ void DescriptorGlobal::derivatives_numerical(
         // to reset the positions after each displacement.
         py::array_t<double> pos({n_copies, 3});
         auto pos_mu = pos.mutable_unchecked<2>();
-        for (int i_copy = 0; i_copy < i_atom_indices.size(); ++i_copy) {
+        for (size_t i_copy = 0; i_copy < i_atom_indices.size(); ++i_copy) {
             int j_copy = i_atom_indices[i_copy];
             for (int i = 0; i < 3; ++i) {
                 pos_mu(i_copy, i) = positions_mu(j_copy, i);
@@ -125,7 +125,7 @@ void DescriptorGlobal::derivatives_numerical(
 
                 // Introduce the displacement(s). Displacement are done for all
                 // periodic copies as well.
-                for (int i_copy = 0; i_copy < i_atom_indices.size(); ++i_copy) {
+                for (size_t i_copy = 0; i_copy < i_atom_indices.size(); ++i_copy) {
                     int j_copy = i_atom_indices[i_copy];
                     positions_mu(j_copy, i_comp) = pos_mu(i_copy, i_comp) + h*displacement[i_stencil];
                 }
@@ -154,7 +154,7 @@ void DescriptorGlobal::derivatives_numerical(
             }
 
             // Return position(s) back to original value for next component.
-            for (int i_copy = 0; i_copy < i_atom_indices.size(); ++i_copy) {
+            for (size_t i_copy = 0; i_copy < i_atom_indices.size(); ++i_copy) {
                 int j_copy = i_atom_indices[i_copy];
                 positions_mu(j_copy, i_comp) = pos_mu(i_copy, i_comp);
             }

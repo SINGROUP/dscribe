@@ -152,7 +152,7 @@ CellListResult CellList::getNeighboursForIndex(const int idx) const
     CellListResult result = this->getNeighboursForPosition(x, y, z);
 
     // Remove self from neighbours
-    for (int i=0; i < result.indices.size(); ++i) {
+    for (size_t i=0; i < result.indices.size(); ++i) {
         if (result.indices[i] == idx) {
             result.indices.erase(result.indices.begin() + i);
             result.distances.erase(result.distances.begin() + i);
