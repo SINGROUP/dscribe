@@ -548,35 +548,6 @@ class DescriptorTests(unittest.TestCase):
 
         vec = desc.create([H2O, H2O], verbose=True)
 
-    def test_invalid_system(self):
-        """Tests that an invalid input type throws the appropriate error."""
-        lmax = 5
-        nmax = 5
-        n_elems = 2
-        desc = SOAP(species=[1, 8], rcut=3, nmax=nmax, lmax=lmax, periodic=True)
-        with self.assertRaises(ValueError):
-            vec = desc.create("invalid input")
-
-        with self.assertRaises(ValueError):
-            vec = desc.create([1, 2, 3])
-
-        with self.assertRaises(ValueError):
-            vec = desc.create([dict(foo=1, bar=2), set([5, 4]), [1, 2, 3]])
-
-        with self.assertRaises(ValueError):
-            vec = desc.create(desc)
-
-    def test_system_input(self):
-        """Tests that create takes internal system object."""
-        system = System.from_atoms(H2O)
-
-        lmax = 5
-        nmax = 5
-        n_elems = 2
-        desc = SOAP(species=[1, 8], rcut=3, nmax=nmax, lmax=lmax, periodic=True)
-
-        vec = desc.create(system)
-
 
 if __name__ == "__main__":
 

@@ -9,7 +9,7 @@ import scipy.stats
 
 from ase import Atoms
 
-from dscribe.descriptors import CoulombMatrix
+from dscribe.descriptors import SineMatrix
 
 from testbaseclass import TestBaseClass
 
@@ -40,7 +40,7 @@ HHe = Atoms(
 
 class SortedMatrixTests(TestBaseClass, unittest.TestCase):
     """Tests that getting rid of permutational symmetry by sorting rows and
-    columns by L2-norm works properly. Uses Coulomb matrix as an example, but
+    columns by L2-norm works properly. Uses Sine matrix as an example, but
     the functionality is the same for all other descriptors that are subclasses
     of MatrixDescriptor.
     """
@@ -52,33 +52,33 @@ class SortedMatrixTests(TestBaseClass, unittest.TestCase):
 
     def test_number_of_features(self):
         """Tests that the reported number of features is correct."""
-        desc = CoulombMatrix(n_atoms_max=5, permutation="sorted_l2", flatten=False)
+        desc = SineMatrix(n_atoms_max=5, permutation="sorted_l2", flatten=False)
         n_features = desc.get_number_of_features()
         self.assertEqual(n_features, 25)
 
     def test_flatten(self):
         """Tests the flattening."""
         # Unflattened
-        desc = CoulombMatrix(n_atoms_max=5, permutation="sorted_l2", flatten=False)
+        desc = SineMatrix(n_atoms_max=5, permutation="sorted_l2", flatten=False)
         cm = desc.create(H2O)
         self.assertEqual(cm.shape, (5, 5))
 
         # Flattened
-        desc = CoulombMatrix(n_atoms_max=5, permutation="sorted_l2", flatten=True)
+        desc = SineMatrix(n_atoms_max=5, permutation="sorted_l2", flatten=True)
         cm = desc.create(H2O)
         self.assertEqual(cm.shape, (25,))
 
     def test_sparse(self):
         """Tests the sparse matrix creation."""
         # Dense
-        desc = CoulombMatrix(
+        desc = SineMatrix(
             n_atoms_max=5, permutation="sorted_l2", flatten=False, sparse=False
         )
         vec = desc.create(H2O)
         self.assertTrue(type(vec) == np.ndarray)
 
         # Sparse
-        desc = CoulombMatrix(
+        desc = SineMatrix(
             n_atoms_max=5, permutation="sorted_l2", flatten=True, sparse=True
         )
         vec = desc.create(H2O)
@@ -86,7 +86,7 @@ class SortedMatrixTests(TestBaseClass, unittest.TestCase):
 
     def test_features(self):
         """Tests that the correct features are present in the desciptor."""
-        desc = CoulombMatrix(n_atoms_max=5, permutation="sorted_l2", flatten=False)
+        desc = SineMatrix(n_atoms_max=5, permutation="sorted_l2", flatten=False)
         cm = desc.create(H2O)
 
         lens = np.linalg.norm(cm, axis=1)
@@ -99,7 +99,7 @@ class SortedMatrixTests(TestBaseClass, unittest.TestCase):
         """Tests the symmetries of the descriptor."""
 
         def create(system):
-            desc = CoulombMatrix(n_atoms_max=3, permutation="sorted_l2", flatten=True)
+            desc = SineMatrix(n_atoms_max=3, permutation="sorted_l2", flatten=True)
             return desc.create(system)
 
         # Rotational
@@ -126,13 +126,13 @@ class EigenSpectrumTests(TestBaseClass, unittest.TestCase):
 
     def test_number_of_features(self):
         """Tests that the reported number of features is correct."""
-        desc = CoulombMatrix(n_atoms_max=5, permutation="eigenspectrum")
+        desc = SineMatrix(n_atoms_max=5, permutation="eigenspectrum")
         n_features = desc.get_number_of_features()
         self.assertEqual(n_features, 5)
 
     def test_features(self):
         """Tests that the correct features are present in the desciptor."""
-        desc = CoulombMatrix(n_atoms_max=5, permutation="eigenspectrum")
+        desc = SineMatrix(n_atoms_max=5, permutation="eigenspectrum")
         cm = desc.create(H2O)
 
         self.assertEqual(cm.shape, (5,))
@@ -149,27 +149,27 @@ class EigenSpectrumTests(TestBaseClass, unittest.TestCase):
     def test_flatten(self):
         """Tests the flattening."""
         # Unflattened
-        desc = CoulombMatrix(n_atoms_max=5, permutation="eigenspectrum", flatten=False)
+        desc = SineMatrix(n_atoms_max=5, permutation="eigenspectrum", flatten=False)
         cm = desc.create(H2O)
         # print(cm)
         self.assertEqual(cm.shape, (5,))
 
         # Flattened
-        desc = CoulombMatrix(n_atoms_max=5, permutation="eigenspectrum", flatten=True)
+        desc = SineMatrix(n_atoms_max=5, permutation="eigenspectrum", flatten=True)
         cm = desc.create(H2O)
         self.assertEqual(cm.shape, (5,))
 
     def test_sparse(self):
         """Tests the sparse matrix creation."""
         # Dense
-        desc = CoulombMatrix(
+        desc = SineMatrix(
             n_atoms_max=5, permutation="eigenspectrum", flatten=False, sparse=False
         )
         vec = desc.create(H2O)
         self.assertTrue(type(vec) == np.ndarray)
 
         # Sparse
-        desc = CoulombMatrix(
+        desc = SineMatrix(
             n_atoms_max=5, permutation="eigenspectrum", flatten=True, sparse=True
         )
         vec = desc.create(H2O)
@@ -179,7 +179,7 @@ class EigenSpectrumTests(TestBaseClass, unittest.TestCase):
         """Tests the symmetries of the descriptor."""
 
         def create(system):
-            desc = CoulombMatrix(
+            desc = SineMatrix(
                 n_atoms_max=3, permutation="eigenspectrum", flatten=True
             )
             return desc.create(system)
@@ -206,31 +206,31 @@ class RandomMatrixTests(TestBaseClass, unittest.TestCase):
         exception.
         """
         with self.assertRaises(ValueError):
-            CoulombMatrix(n_atoms_max=5, permutation="random", sigma=None)
+            SineMatrix(n_atoms_max=5, permutation="random", sigma=None)
         with self.assertRaises(ValueError):
-            CoulombMatrix(n_atoms_max=5, permutation="sorted_l2", sigma=3)
+            SineMatrix(n_atoms_max=5, permutation="sorted_l2", sigma=3)
         with self.assertRaises(ValueError):
-            CoulombMatrix(n_atoms_max=5, permutation="none", sigma=3)
+            SineMatrix(n_atoms_max=5, permutation="none", sigma=3)
         with self.assertRaises(ValueError):
-            CoulombMatrix(n_atoms_max=5, permutation="eigenspectrum", sigma=3)
+            SineMatrix(n_atoms_max=5, permutation="eigenspectrum", sigma=3)
 
     def test_number_of_features(self):
         """Tests that the reported number of features is correct."""
-        desc = CoulombMatrix(n_atoms_max=5, permutation="random", sigma=100)
+        desc = SineMatrix(n_atoms_max=5, permutation="random", sigma=100)
         n_features = desc.get_number_of_features()
         self.assertEqual(n_features, 25)
 
     def test_flatten(self):
         """Tests the flattening."""
         # Unflattened
-        desc = CoulombMatrix(
+        desc = SineMatrix(
             n_atoms_max=5, permutation="random", sigma=100, flatten=False
         )
         cm = desc.create(H2O)
         self.assertEqual(cm.shape, (5, 5))
 
         # Flattened
-        desc = CoulombMatrix(
+        desc = SineMatrix(
             n_atoms_max=5, permutation="random", sigma=100, flatten=True
         )
         cm = desc.create(H2O)
@@ -239,14 +239,14 @@ class RandomMatrixTests(TestBaseClass, unittest.TestCase):
     def test_sparse(self):
         """Tests the sparse matrix creation."""
         # Dense
-        desc = CoulombMatrix(
+        desc = SineMatrix(
             n_atoms_max=5, permutation="random", sigma=100, flatten=False, sparse=False
         )
         vec = desc.create(H2O)
         self.assertTrue(type(vec) == np.ndarray)
 
         # Sparse
-        desc = CoulombMatrix(
+        desc = SineMatrix(
             n_atoms_max=5, permutation="random", sigma=100, flatten=True, sparse=True
         )
         vec = desc.create(H2O)
@@ -254,7 +254,7 @@ class RandomMatrixTests(TestBaseClass, unittest.TestCase):
 
     def test_norm_vector(self):
         """Tests if the attribute _norm_vector is written and used correctly"""
-        desc = CoulombMatrix(
+        desc = SineMatrix(
             n_atoms_max=5, permutation="random", sigma=100, flatten=False
         )
         cm = desc.create(H2O)
@@ -272,7 +272,7 @@ class RandomMatrixTests(TestBaseClass, unittest.TestCase):
         """
         # Get the mean value to compare to
         sigma = 5
-        desc = CoulombMatrix(n_atoms_max=5, permutation="sorted_l2", flatten=False)
+        desc = SineMatrix(n_atoms_max=5, permutation="sorted_l2", flatten=False)
         cm = desc.create(HHe)
         means = sorted(np.linalg.norm(cm, axis=1))
         means = np.linalg.norm(cm, axis=1)
@@ -285,7 +285,7 @@ class RandomMatrixTests(TestBaseClass, unittest.TestCase):
         # probability can be reduced to P(X > Y) = P(X-Y > 0) = P(N(\mu_1 -
         # \mu_2, \sigma^2 + sigma^2) > 0). See e.g.
         # https://en.wikipedia.org/wiki/Sum_of_normally_distributed_random_variables
-        desc = CoulombMatrix(
+        desc = SineMatrix(
             n_atoms_max=5, permutation="random", sigma=sigma, flatten=False
         )
         count = 0
@@ -308,14 +308,14 @@ class RandomMatrixTests(TestBaseClass, unittest.TestCase):
         """Tests if sorting the random coulomb matrix results in the same as
         the sorted coulomb matrix
         """
-        desc = CoulombMatrix(
+        desc = SineMatrix(
             n_atoms_max=5, permutation="random", sigma=100, flatten=False
         )
         rcm = desc.create(H2O)
 
         srcm = desc.sort(rcm)
 
-        desc = CoulombMatrix(n_atoms_max=5, permutation="sorted_l2", flatten=False)
+        desc = SineMatrix(n_atoms_max=5, permutation="sorted_l2", flatten=False)
 
         scm = desc.create(H2O)
 
@@ -327,7 +327,7 @@ class RandomMatrixTests(TestBaseClass, unittest.TestCase):
         # values. With higer sigma values this descriptor is no longer
         # symmetric.
         def create(system):
-            desc = CoulombMatrix(
+            desc = SineMatrix(
                 n_atoms_max=3, permutation="random", sigma=0.000001, flatten=True
             )
             return desc.create(system)
