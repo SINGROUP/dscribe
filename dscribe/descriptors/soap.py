@@ -715,7 +715,6 @@ class SOAP(Descriptor):
             )
 
         # Check input validity
-        self._check_system_list(system)
         n_samples = len(system)
         if positions is None:
             positions = [None] * n_samples
