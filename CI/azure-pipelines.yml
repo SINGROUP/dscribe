@@ -1,8 +1,7 @@
 # Defines when the pipeline is triggered
 trigger:
 - master
-- v1.2.0
-- cm-derivatives
+- v1.2.1
 
 # Jobs
 jobs:
