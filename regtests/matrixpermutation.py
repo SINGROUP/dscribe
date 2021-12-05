@@ -114,7 +114,7 @@ class SortedMatrixTests(TestBaseClass, unittest.TestCase):
 
 class EigenSpectrumTests(TestBaseClass, unittest.TestCase):
     """Tests that getting rid of permutational symmetry with matrix
-    eigenspectrum works properly. Uses Coulomb matrix as an example, but the
+    eigenspectrum works properly. Uses Sine matrix as an example, but the
     functionality is the same for all other descriptors that are subclasses of
     MatrixDescriptor.
     """
@@ -179,9 +179,7 @@ class EigenSpectrumTests(TestBaseClass, unittest.TestCase):
         """Tests the symmetries of the descriptor."""
 
         def create(system):
-            desc = SineMatrix(
-                n_atoms_max=3, permutation="eigenspectrum", flatten=True
-            )
+            desc = SineMatrix(n_atoms_max=3, permutation="eigenspectrum", flatten=True)
             return desc.create(system)
 
         # Rotational
@@ -196,7 +194,7 @@ class EigenSpectrumTests(TestBaseClass, unittest.TestCase):
 
 class RandomMatrixTests(TestBaseClass, unittest.TestCase):
     """Tests that the sorting of matrix columns by row norm with added random
-    noise works properly. Uses Coulomb matrix as an example, but the
+    noise works properly. Uses Sine matrix as an example, but the
     functionality is the same for all other descriptors that are subclasses of
     MatrixDescriptor.
     """
@@ -223,16 +221,12 @@ class RandomMatrixTests(TestBaseClass, unittest.TestCase):
     def test_flatten(self):
         """Tests the flattening."""
         # Unflattened
-        desc = SineMatrix(
-            n_atoms_max=5, permutation="random", sigma=100, flatten=False
-        )
+        desc = SineMatrix(n_atoms_max=5, permutation="random", sigma=100, flatten=False)
         cm = desc.create(H2O)
         self.assertEqual(cm.shape, (5, 5))
 
         # Flattened
-        desc = SineMatrix(
-            n_atoms_max=5, permutation="random", sigma=100, flatten=True
-        )
+        desc = SineMatrix(n_atoms_max=5, permutation="random", sigma=100, flatten=True)
         cm = desc.create(H2O)
         self.assertEqual(cm.shape, (25,))
 
@@ -254,9 +248,7 @@ class RandomMatrixTests(TestBaseClass, unittest.TestCase):
 
     def test_norm_vector(self):
         """Tests if the attribute _norm_vector is written and used correctly"""
-        desc = SineMatrix(
-            n_atoms_max=5, permutation="random", sigma=100, flatten=False
-        )
+        desc = SineMatrix(n_atoms_max=5, permutation="random", sigma=100, flatten=False)
         cm = desc.create(H2O)
         self.assertEqual(len(cm), 5)
 
@@ -308,9 +300,7 @@ class RandomMatrixTests(TestBaseClass, unittest.TestCase):
         """Tests if sorting the random coulomb matrix results in the same as
         the sorted coulomb matrix
         """
-        desc = SineMatrix(
-            n_atoms_max=5, permutation="random", sigma=100, flatten=False
-        )
+        desc = SineMatrix(n_atoms_max=5, permutation="random", sigma=100, flatten=False)
         rcm = desc.create(H2O)
 
         srcm = desc.sort(rcm)

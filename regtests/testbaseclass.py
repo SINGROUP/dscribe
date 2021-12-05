@@ -53,13 +53,13 @@ class TestBaseClass(ABC):
         features = create(finite_system)
         is_rot_sym = True
 
-        # Rotational Check
         for rotation in ["x", "y", "z"]:
             i_system = finite_system.copy()
             i_system.rotate(45, rotation, rotate_cell=True)
             i_features = create(i_system)
             deviation = np.max(np.abs(features - i_features))
-            if deviation > 2e-4:
+            print(deviation)
+            if deviation > 1e-4:
                 is_rot_sym = False
         return is_rot_sym
 
@@ -74,7 +74,6 @@ class TestBaseClass(ABC):
         features = create(finite_system)
         is_trans_sym = True
 
-        # Rotational Check
         for translation in [[1.0, 1.0, 1.0], [-5.0, 5.0, -5.0], [1.0, 1.0, -10.0]]:
             i_system = finite_system.copy()
             i_system.translate(translation)
