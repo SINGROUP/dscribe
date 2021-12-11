@@ -90,7 +90,9 @@ def assert_no_system_modification(descriptor_func):
     assert np.array_equal(symbols, system.get_chemical_symbols())
 
 
-def assert_symmetries(descriptor_func, translation=True, rotation=True, permutation=True):
+def assert_symmetries(
+    descriptor_func, translation=True, rotation=True, permutation=True
+):
     if translation:
         assert_symmetry_translation(descriptor_func)
     if rotation:
@@ -266,8 +268,7 @@ def assert_derivatives_numerical(descriptor_func):
 
 
 def assert_sparse(descriptor_func):
-    """Test that sparse output is created upon request in the correct format.
-    """
+    """Test that sparse output is created upon request in the correct format."""
     system = water()
 
     # Dense
@@ -283,7 +284,7 @@ def assert_sparse(descriptor_func):
 
 def assert_parallellization(descriptor_func, n_jobs, flatten, sparse):
     """Tests creating output parallelly."""
-    samples = [bulk('NaCl', 'rocksalt', a=5.64), bulk('Fe', 'bcc', a=3.8)]
+    samples = [bulk("NaCl", "rocksalt", a=5.64), bulk("Fe", "bcc", a=3.8)]
     desc = descriptor_func(flatten=flatten, sparse=sparse)(samples)
     n_features = desc.get_number_of_features()
 
@@ -302,7 +303,7 @@ def assert_no_system_modification(descriptor_func):
     """Tests that the descriptor does not modify the system that is given as
     input.
     """
-    system = bulk('Cu', 'fcc', a=3.6)
+    system = bulk("Cu", "fcc", a=3.6)
     cell = np.array(system.get_cell())
     pos = np.array(system.get_positions())
     pbc = np.array(system.get_pbc())
@@ -385,7 +386,7 @@ def assert_matrix_descriptor_eigenspectrum(descriptor_func):
         prev_eig = eigenvalue
 
     # Test that array is zero-padded
-    assert np.array_equal(features[len(system):], [0, 0])
+    assert np.array_equal(features[len(system) :], [0, 0])
 
 
 def assert_matrix_descriptor_random(descriptor_func):

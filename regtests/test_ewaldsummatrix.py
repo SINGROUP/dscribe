@@ -18,7 +18,7 @@ from conftest import (
     assert_symmetries,
     assert_derivatives,
     big_system,
-    water
+    water,
 )
 from dscribe.descriptors import EwaldSumMatrix
 
@@ -37,7 +37,10 @@ def ewald_sum_matrix(**kwargs):
             "flatten": True,
         }
         final_kwargs.update(kwargs)
-        if final_kwargs["permutation"] == "random" and final_kwargs.get("sigma") is None:
+        if (
+            final_kwargs["permutation"] == "random"
+            and final_kwargs.get("sigma") is None
+        ):
             final_kwargs["sigma"] = 2
         return EwaldSumMatrix(**final_kwargs)
 
@@ -101,7 +104,12 @@ def test_symmetries(permutation_option, translation, rotation, permutation):
     """Tests the symmetries of the descriptor. Notice that sorted_l2 is not
     guaranteed to have any of the symmetries due to numerical issues with rows
     that have nearly equal norm."""
-    assert_symmetries(ewald_sum_matrix(permutation=permutation_option), translation, rotation, permutation)
+    assert_symmetries(
+        ewald_sum_matrix(permutation=permutation_option),
+        translation,
+        rotation,
+        permutation,
+    )
 
 
 # =============================================================================
@@ -183,9 +191,7 @@ def test_electrostatics():
                 energy_matrix[i, j] = matrix[i, j] + matrix[i, i] + matrix[j, j]
 
     # Converts unit of q*q/r into eV
-    conversion = (
-        1e10 * scipy.constants.e / (4 * math.pi * scipy.constants.epsilon_0)
-    )
+    conversion = 1e10 * scipy.constants.e / (4 * math.pi * scipy.constants.epsilon_0)
     energy_matrix *= conversion
 
     # The value in each matrix element should correspond to the Coulomb
@@ -249,9 +255,7 @@ def test_electrostatics_automatic():
                 energy_matrix[i, j] = matrix[i, j] + matrix[i, i] + matrix[j, j]
 
     # Converts unit of q*q/r into eV
-    conversion = (
-        1e10 * scipy.constants.e / (4 * math.pi * scipy.constants.epsilon_0)
-    )
+    conversion = 1e10 * scipy.constants.e / (4 * math.pi * scipy.constants.epsilon_0)
     energy_matrix *= conversion
 
     # The value in each matrix element should correspond to the Coulomb

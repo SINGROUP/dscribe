@@ -162,7 +162,11 @@ class CoulombMatrix(MatrixDescriptor):
                 )
                 for i_sys, system in enumerate(systems):
                     n_atoms = len(system)
-                    full[i_sys] = output[i_sys].reshape((self.n_atoms_max, self.n_atoms_max)).todense()
+                    full[i_sys] = (
+                        output[i_sys]
+                        .reshape((self.n_atoms_max, self.n_atoms_max))
+                        .todense()
+                    )
                 full = full.to_coo()
             else:
                 full = output.reshape((self.n_atoms_max, self.n_atoms_max))
@@ -171,7 +175,9 @@ class CoulombMatrix(MatrixDescriptor):
                 full = np.zeros((n_systems, self.n_atoms_max, self.n_atoms_max))
                 for i_sys, system in enumerate(systems):
                     n_atoms = len(system)
-                    full[i_sys] = output[i_sys].reshape((self.n_atoms_max, self.n_atoms_max))
+                    full[i_sys] = output[i_sys].reshape(
+                        (self.n_atoms_max, self.n_atoms_max)
+                    )
             else:
                 full = output.reshape((self.n_atoms_max, self.n_atoms_max))
         return full

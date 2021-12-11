@@ -72,6 +72,7 @@ def coulomb_matrix(**kwargs):
     """Returns a function that can be used to create a valid CoulombMatrix
     descriptor for a dataset.
     """
+
     def func(systems=None):
         n_atoms_max = None if systems is None else max([len(s) for s in systems])
         final_kwargs = {
@@ -80,7 +81,10 @@ def coulomb_matrix(**kwargs):
             "flatten": True,
         }
         final_kwargs.update(kwargs)
-        if final_kwargs["permutation"] == "random" and final_kwargs.get("sigma") is None:
+        if (
+            final_kwargs["permutation"] == "random"
+            and final_kwargs.get("sigma") is None
+        ):
             final_kwargs["sigma"] = 2
         return CoulombMatrix(**final_kwargs)
 
@@ -144,7 +148,12 @@ def test_symmetries(permutation_option, translation, rotation, permutation):
     """Tests the symmetries of the descriptor. Notice that sorted_l2 is not
     guaranteed to have any of the symmetries due to numerical issues with rows
     that have nearly equal norm."""
-    assert_symmetries(coulomb_matrix(permutation=permutation_option), translation, rotation, permutation)
+    assert_symmetries(
+        coulomb_matrix(permutation=permutation_option),
+        translation,
+        rotation,
+        permutation,
+    )
 
 
 @pytest.mark.parametrize(

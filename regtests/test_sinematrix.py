@@ -14,7 +14,7 @@ from conftest import (
     assert_symmetries,
     assert_derivatives,
     big_system,
-    water
+    water,
 )
 from dscribe.descriptors import SineMatrix
 
@@ -30,7 +30,10 @@ def sine_matrix(**kwargs):
             "flatten": True,
         }
         final_kwargs.update(kwargs)
-        if final_kwargs["permutation"] == "random" and final_kwargs.get("sigma") is None:
+        if (
+            final_kwargs["permutation"] == "random"
+            and final_kwargs.get("sigma") is None
+        ):
             final_kwargs["sigma"] = 2
         return SineMatrix(**final_kwargs)
 
@@ -94,7 +97,9 @@ def test_symmetries(permutation_option, translation, rotation, permutation):
     """Tests the symmetries of the descriptor. Notice that sorted_l2 is not
     guaranteed to have any of the symmetries due to numerical issues with rows
     that have nearly equal norm."""
-    assert_symmetries(sine_matrix(permutation=permutation_option), translation, rotation, permutation)
+    assert_symmetries(
+        sine_matrix(permutation=permutation_option), translation, rotation, permutation
+    )
 
 
 # =============================================================================
