@@ -3,9 +3,6 @@ import sys
 
 # Import the test modules
 import generaltests
-import ewaldsummatrix
-import sinematrix
-import matrixpermutation
 import acsf
 import mbtr
 import lmbtr
@@ -22,9 +19,6 @@ suite = unittest.TestSuite()
 
 # Add tests to the test suite
 suite.addTests(loader.loadTestsFromModule(generaltests))
-suite.addTests(loader.loadTestsFromModule(matrixpermutation))
-suite.addTests(loader.loadTestsFromModule(ewaldsummatrix))
-suite.addTests(loader.loadTestsFromModule(sinematrix))
 suite.addTests(loader.loadTestsFromModule(acsf))
 suite.addTests(loader.loadTestsFromModule(mbtr))
 suite.addTests(loader.loadTestsFromModule(lmbtr))
