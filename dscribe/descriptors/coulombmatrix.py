@@ -162,32 +162,18 @@ class CoulombMatrix(MatrixDescriptor):
                 )
                 for i_sys, system in enumerate(systems):
                     n_atoms = len(system)
-                    full[i_sys, 0:n_atoms, 0:n_atoms] = (
-                        output[i_sys, 0 : n_atoms * n_atoms]
-                        .reshape((n_atoms, n_atoms))
-                        .todense()
-                    )
+                    full[i_sys] = output[i_sys].reshape((self.n_atoms_max, self.n_atoms_max)).todense()
+                full = full.to_coo()
             else:
-                full = sparse.zeros((self.n_atoms_max, self.n_atoms_max), format="dok")
-                n_atoms = len(systems[0])
-                full[0:n_atoms, 0:n_atoms] = (
-                    output[0 : n_atoms * n_atoms].reshape((n_atoms, n_atoms)).todense()
-                )
-            full = full.to_coo()
+                full = output.reshape((self.n_atoms_max, self.n_atoms_max))
         else:
             if n_systems != 1:
                 full = np.zeros((n_systems, self.n_atoms_max, self.n_atoms_max))
                 for i_sys, system in enumerate(systems):
                     n_atoms = len(system)
-                    full[i_sys, 0:n_atoms, 0:n_atoms] = output[
-                        i_sys, 0 : n_atoms * n_atoms
-                    ].reshape((n_atoms, n_atoms))
+                    full[i_sys] = output[i_sys].reshape((self.n_atoms_max, self.n_atoms_max))
             else:
-                full = np.zeros((self.n_atoms_max, self.n_atoms_max))
-                n_atoms = len(systems[0])
-                full[0:n_atoms, 0:n_atoms] = output[0 : n_atoms * n_atoms].reshape(
-                    (n_atoms, n_atoms)
-                )
+                full = output.reshape((self.n_atoms_max, self.n_atoms_max))
         return full
 
     def derivatives(

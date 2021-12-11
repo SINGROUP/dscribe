@@ -1,25 +1,25 @@
+import time
 import pytest
 import numpy as np
-import scipy
 from numpy.random import RandomState
-import time
-import sparse
-from ase.build import molecule
-from ase import Atoms
 from conftest import (
-    assert_symmetry_rotation,
-    assert_symmetry_translation,
-    assert_symmetry_permutation,
-    assert_derivatives_include,
-    assert_derivatives_exclude,
-    assert_derivatives_numerical,
+    assert_matrix_descriptor_exceptions,
+    assert_matrix_descriptor_flatten,
+    assert_matrix_descriptor_sorted,
+    assert_matrix_descriptor_eigenspectrum,
+    assert_matrix_descriptor_random,
+    assert_no_system_modification,
+    assert_sparse,
+    assert_parallellization,
+    assert_symmetries,
+    assert_derivatives,
     big_system,
 )
 from dscribe.descriptors import CoulombMatrix
 
-random_state = RandomState(42)
 
-
+# =============================================================================
+# Utilities
 def cm_python(system, n_atoms_max, permutation, flatten, sigma=None):
     """Calculates a python reference value for the Coulomb matrix."""
     pos = system.get_positions()
@@ -30,6 +30,7 @@ def cm_python(system, n_atoms_max, permutation, flatten, sigma=None):
     np.fill_diagonal(distances, 1)
     cm = qiqj / distances
     np.fill_diagonal(cm, 0.5 * q ** 2.4)
+    random_state = RandomState(42)
 
     # Permutation option
     if permutation == "eigenspectrum":
@@ -67,19 +68,99 @@ def cm_python(system, n_atoms_max, permutation, flatten, sigma=None):
     return padded
 
 
-def test_exceptions(H2O):
-    # Unknown permutation option
-    with pytest.raises(ValueError):
-        CoulombMatrix(n_atoms_max=5, permutation="unknown")
-    # Negative n_atom_max
-    with pytest.raises(ValueError):
-        CoulombMatrix(n_atoms_max=-1)
-    # System has more atoms that the specifed maximum
-    with pytest.raises(ValueError):
-        cm = CoulombMatrix(n_atoms_max=2)
-        cm.create([H2O])
+def coulomb_matrix(**kwargs):
+    """Returns a function that can be used to create a valid CoulombMatrix
+    descriptor for a dataset.
+    """
+    def func(systems=None):
+        n_atoms_max = None if systems is None else max([len(s) for s in systems])
+        final_kwargs = {
+            "n_atoms_max": n_atoms_max,
+            "permutation": "none",
+            "flatten": True,
+        }
+        final_kwargs.update(kwargs)
+        if final_kwargs["permutation"] == "random" and final_kwargs.get("sigma") is None:
+            final_kwargs["sigma"] = 2
+        return CoulombMatrix(**final_kwargs)
+
+    return func
 
 
+# =============================================================================
+# Common tests with parametrizations that may be specific to this descriptor
+def test_matrix_descriptor_exceptions():
+    assert_matrix_descriptor_exceptions(coulomb_matrix)
+
+
+def test_matrix_descriptor_flatten():
+    assert_matrix_descriptor_flatten(coulomb_matrix)
+
+
+def test_matrix_descriptor_sorted():
+    assert_matrix_descriptor_sorted(coulomb_matrix)
+
+
+def test_matrix_descriptor_eigenspectrum():
+    assert_matrix_descriptor_eigenspectrum(coulomb_matrix)
+
+
+def test_matrix_descriptor_random():
+    assert_matrix_descriptor_random(coulomb_matrix)
+
+
+@pytest.mark.parametrize(
+    "n_jobs, flatten, sparse",
+    [
+        (1, True, False),  # Serial job, flattened, dense
+        (2, True, False),  # Parallel job, flattened, dense
+        (2, False, False),  # Unflattened output, dense
+        (1, True, True),  # Serial job, flattened, sparse
+        (2, True, True),  # Parallel job, flattened, sparse
+        (2, False, True),  # Unflattened output, sparse
+    ],
+)
+def test_parallellization(n_jobs, flatten, sparse):
+    assert_parallellization(coulomb_matrix, n_jobs, flatten, sparse)
+
+
+def test_no_system_modification():
+    assert_no_system_modification(coulomb_matrix)
+
+
+def test_sparse():
+    assert_sparse(coulomb_matrix)
+
+
+@pytest.mark.parametrize(
+    "permutation_option, translation, rotation, permutation",
+    [
+        ("none", True, True, False),
+        ("eigenspectrum", True, True, True),
+        ("sorted_l2", False, False, False),
+    ],
+)
+def test_symmetries(permutation_option, translation, rotation, permutation):
+    """Tests the symmetries of the descriptor. Notice that sorted_l2 is not
+    guaranteed to have any of the symmetries due to numerical issues with rows
+    that have nearly equal norm."""
+    assert_symmetries(coulomb_matrix(permutation=permutation_option), translation, rotation, permutation)
+
+
+@pytest.mark.parametrize(
+    "permutation, method",
+    [
+        ("none", "numerical"),
+        ("eigenspectrum", "numerical"),
+        ("sorted_l2", "numerical"),
+    ],
+)
+def test_derivatives(permutation, method):
+    assert_derivatives(coulomb_matrix(permutation=permutation), method)
+
+
+# =============================================================================
+# Tests that are specific to this descriptor.
 @pytest.mark.parametrize(
     "permutation, n_features",
     [
@@ -91,17 +172,6 @@ def test_exceptions(H2O):
 def test_number_of_features(permutation, n_features):
     desc = CoulombMatrix(n_atoms_max=5, permutation=permutation, flatten=False)
     assert n_features == desc.get_number_of_features()
-
-
-def test_periodicity(bulk):
-    """Tests that periodicity is not taken into account in Coulomb matrix
-    even if the system is set as periodic.
-    """
-    desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=False)
-    cm = desc.create(bulk)
-    pos = bulk.get_positions()
-    assumed = 1 * 1 / np.linalg.norm((pos[0] - pos[1]))
-    assert cm[0, 1] == assumed
 
 
 @pytest.mark.parametrize(
@@ -123,175 +193,15 @@ def test_features(permutation, H2O):
     assert np.allclose(cm, cm_assumed)
 
 
-def test_random():
-    """Tests if the random sorting obeys a gaussian distribution. Could
-    possibly fail even though everything is OK.
-
-    Measures how many times the two rows with biggest norm exchange place when
-    random noise is added. This should correspond to the probability P(X > Y),
-    where X = N(\mu_1, \sigma^2), Y = N(\mu_2, \sigma^2). This probability can
-    be reduced to P(X > Y) = P(X-Y > 0) = P(N(\mu_1 - \mu_2, \sigma^2 +
-    sigma^2) > 0). See e.g.
-    https://en.wikipedia.org/wiki/Sum_of_normally_distributed_random_variables
+def test_periodicity(bulk_system):
+    """Tests that periodicity is not taken into account in Coulomb matrix
+    even if the system is set as periodic.
     """
-    HHe = Atoms(
-        cell=[[5.0, 0.0, 0.0], [0.0, 5.0, 0.0], [0.0, 0.0, 5.0]],
-        positions=[
-            [0, 0, 0],
-            [0.71, 0, 0],
-        ],
-        symbols=["H", "He"],
-    )
-
-    # Get the mean value to compare to
-    sigma = 5
-    n_atoms_max = 2
-    desc = CoulombMatrix(
-        n_atoms_max=n_atoms_max, permutation="sorted_l2", flatten=False
-    )
-    cm = desc.create(HHe)
-    means = np.linalg.norm(cm, axis=1)
-    mu2 = means[0]
-    mu1 = means[1]
-
-    desc = CoulombMatrix(
-        n_atoms_max=n_atoms_max,
-        permutation="random",
-        sigma=sigma,
-        seed=42,
-        flatten=False,
-    )
-    count = 0
-    rand_instances = 20000
-    for i in range(0, rand_instances):
-        cm = desc.create(HHe)
-        i_means = np.linalg.norm(cm, axis=1)
-        if i_means[0] < i_means[1]:
-            count += 1
-
-    # The expected probability is calculated from the cumulative
-    # distribution function.
-    expected = 1 - scipy.stats.norm.cdf(0, mu1 - mu2, np.sqrt(sigma ** 2 + sigma ** 2))
-    observed = count / rand_instances
-
-    assert abs(expected - observed) <= 1e-2
-
-
-def test_flatten(H2O):
-    # Unflattened
     desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=False)
-    cm_unflattened = desc.create(H2O)
-    assert cm_unflattened.shape == (5, 5)
-
-    # Flattened
-    desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=True)
-    cm_flattened = desc.create(H2O)
-    assert cm_flattened.shape == (25,)
-
-    # Check that flattened and unflattened versions contain same values
-    assert np.array_equal(cm_flattened[:9], cm_unflattened[:3, :3].ravel())
-    assert np.all((cm_flattened[9:] == 0))
-    cm_unflattened[:3, :3] = 0
-    assert np.all((cm_unflattened == 0))
-
-
-def test_sparse(H2O):
-    # Dense
-    desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=True, sparse=False)
-    vec = desc.create(H2O)
-    assert type(vec) == np.ndarray
-
-    # Sparse
-    desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=True, sparse=True)
-    vec = desc.create(H2O)
-    assert type(vec) == sparse.COO
-
-
-@pytest.mark.parametrize(
-    "n_jobs, flatten, sparse",
-    [
-        (1, True, False),  # Serial job, flattened, dense
-        (2, True, False),  # Parallel job, flattened, dense
-        (2, False, False),  # Unflattened output, dense
-        (1, True, True),  # Serial job, flattened, sparse
-        (2, True, True),  # Parallel job, flattened, sparse
-        (2, False, True),  # Unflattened output, sparse
-    ],
-)
-def test_parallel(n_jobs, flatten, sparse):
-    """Tests creating dense output parallelly."""
-    samples = [molecule("CO"), molecule("N2O")]
-    n_atoms_max = 5
-    desc = CoulombMatrix(
-        n_atoms_max=n_atoms_max, permutation="none", flatten=flatten, sparse=sparse
-    )
-    n_features = desc.get_number_of_features()
-
-    output = desc.create(system=samples, n_jobs=n_jobs)
-    assumed = (
-        np.empty((2, n_features))
-        if flatten
-        else np.empty((2, n_atoms_max, n_atoms_max))
-    )
-    a = desc.create(samples[0])
-    b = desc.create(samples[1])
-    if sparse:
-        output = output.todense()
-        a = a.todense()
-        b = b.todense()
-    assumed[0, :] = a
-    assumed[1, :] = b
-    assert np.allclose(output, assumed)
-
-
-def descriptor_func(permutation):
-    """Returns a function which produces a descriptor object when given a
-    dataset to work on.
-    """
-
-    def descriptor(systems):
-        n_atoms_max = max([len(s) for s in systems])
-        sigma = 2 if permutation == "random" else None
-        return CoulombMatrix(
-            n_atoms_max=n_atoms_max, permutation=permutation, flatten=True, sigma=sigma
-        )
-
-    return descriptor
-
-
-@pytest.mark.parametrize(
-    "permutation, test_permutation",
-    [
-        ("none", False),
-        ("eigenspectrum", True),
-        ("sorted_l2", False),
-    ],
-)
-def test_symmetries(permutation, test_permutation):
-    """Tests the symmetries of the descriptor."""
-    func = descriptor_func(permutation)
-    assert_symmetry_translation(func)
-    assert_symmetry_rotation(func)
-    if test_permutation:
-        assert_symmetry_permutation(func)
-
-
-@pytest.mark.parametrize(
-    "permutation, method",
-    [
-        ("none", "numerical"),
-        ("eigenspectrum", "numerical"),
-        ("sorted_l2", "numerical"),
-    ],
-)
-def test_derivatives(permutation, method):
-    func = descriptor_func(permutation)
-    assert_derivatives_include(func, method)
-    assert_derivatives_exclude(func, method)
-    if method == "numerical":
-        assert_derivatives_numerical(func)
-    else:
-        raise Exception("Not implemented yet")
+    cm = desc.create(bulk_system)
+    pos = bulk_system.get_positions()
+    assumed = 1 * 1 / np.linalg.norm((pos[0] - pos[1]))
+    assert cm[0, 1] == assumed
 
 
 @pytest.mark.parametrize(
@@ -310,7 +220,7 @@ def test_performance(permutation):
     times = []
     start = time
     n_atoms_max = len(system)
-    descriptor = descriptor_func(permutation)([system])
+    descriptor = coulomb_matrix(permutation=permutation)([system])
 
     # Measure C++ time
     start = time.time()

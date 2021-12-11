@@ -70,13 +70,16 @@ void CoulombMatrix::create_raw(
         } else if (this->permutation == "random") {
             this->sort(matrix, true);
         }
-        // Flatten
+        // Flatten. Notice that we have to flatten in a way that takes into
+        // account the size of the entire matrix.
         int k = 0;
+        int diff = this->n_atoms_max - n_atoms;
         for (int i = 0; i < n_atoms; ++i) {
             for (int j = 0; j < n_atoms; ++j) {
                 out_mu(k) = matrix(i, j);
                 ++k;
             }
+            k += diff;
         }
     }
 }

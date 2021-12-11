@@ -1,8 +1,15 @@
 import math
 import numpy as np
+import sparse
 import pytest
+import scipy
 from ase import Atoms
-from ase.build import molecule
+from ase.build import molecule, bulk
+from dscribe.descriptors import CoulombMatrix, SineMatrix, EwaldSumMatrix
+
+"""
+Contains a set of shared test functions.
+"""
 
 
 def big_system():
@@ -28,6 +35,11 @@ def big_system():
 @pytest.fixture()
 def H2O():
     """The H2O molecule."""
+    return water()
+
+
+def water():
+    """The H2O molecule in a cell."""
     return Atoms(
         cell=[[5.0, 0.0, 0.0], [0.0, 5.0, 0.0], [0.0, 0.0, 5.0]],
         positions=[
@@ -44,7 +56,7 @@ def H2O():
 
 
 @pytest.fixture()
-def bulk():
+def bulk_system():
     """Simple bulk system."""
     return Atoms(
         cell=[5, 5, 5],
@@ -57,11 +69,41 @@ def bulk():
     )
 
 
+def assert_no_system_modification(descriptor_func):
+    """Tests that the descriptor does not modify the system that is given as
+    input.
+    """
+    system = water()
+    cell = np.array(system.get_cell())
+    pos = np.array(system.get_positions())
+    pbc = np.array(system.get_pbc())
+    atomic_numbers = np.array(system.get_atomic_numbers())
+    symbols = np.array(system.get_chemical_symbols())
+
+    descriptor = descriptor_func([system])
+    features = descriptor.create(system)
+
+    assert np.array_equal(cell, system.get_cell())
+    assert np.array_equal(pos, system.get_positions())
+    assert np.array_equal(pbc, system.get_pbc())
+    assert np.array_equal(atomic_numbers, system.get_atomic_numbers())
+    assert np.array_equal(symbols, system.get_chemical_symbols())
+
+
+def assert_symmetries(descriptor_func, translation=True, rotation=True, permutation=True):
+    if translation:
+        assert_symmetry_translation(descriptor_func)
+    if rotation:
+        assert_symmetry_rotation(descriptor_func)
+    if permutation:
+        assert_symmetry_permutation(descriptor_func)
+
+
 def assert_symmetry_rotation(descriptor_func):
     """Tests whether the descriptor output is invariant to rotations of the
     original system.
     """
-    system = molecule("H2O")
+    system = water()
     descriptor = descriptor_func([system])
     features = descriptor.create(system)
     is_rot_sym = True
@@ -85,7 +127,7 @@ def assert_symmetry_translation(descriptor_func):
         create(function): A function that when given an Atoms object
         returns a final descriptor vector for it.
     """
-    system = molecule("H2O")
+    system = water()
     descriptor = descriptor_func([system])
     features = descriptor.create(system)
     is_trans_sym = True
@@ -106,7 +148,7 @@ def assert_symmetry_permutation(descriptor_func):
     """Tests whether the descriptor output is invariant to permutation of
     atom indexing.
     """
-    system = molecule("H2O")
+    system = water()
     descriptor = descriptor_func([system])
     features = descriptor.create(system)
     is_perm_sym = True
@@ -119,6 +161,13 @@ def assert_symmetry_permutation(descriptor_func):
             is_perm_sym = False
 
     assert is_perm_sym
+
+
+def assert_derivatives(descriptor_func, method):
+    assert_derivatives_include(descriptor_func, method)
+    assert_derivatives_exclude(descriptor_func, method)
+    if method == "numerical":
+        assert_derivatives_numerical(descriptor_func)
 
 
 def assert_derivatives_include(descriptor_func, method):
@@ -214,3 +263,177 @@ def assert_derivatives_numerical(descriptor_func):
 
     # Compare derivative values
     assert np.allclose(derivatives_python, derivatives_cpp, atol=2e-5)
+
+
+def assert_sparse(descriptor_func):
+    """Test that sparse output is created upon request in the correct format.
+    """
+    system = water()
+
+    # Dense
+    desc = descriptor_func(flatten=True, sparse=False)([system])
+    features = desc.create(system)
+    assert type(features) == np.ndarray
+
+    # Sparse
+    desc = descriptor_func(flatten=True, sparse=True)([system])
+    features = desc.create(system)
+    assert type(features) == sparse.COO
+
+
+def assert_parallellization(descriptor_func, n_jobs, flatten, sparse):
+    """Tests creating output parallelly."""
+    samples = [bulk('NaCl', 'rocksalt', a=5.64), bulk('Fe', 'bcc', a=3.8)]
+    desc = descriptor_func(flatten=flatten, sparse=sparse)(samples)
+    n_features = desc.get_number_of_features()
+
+    output = desc.create(system=samples, n_jobs=n_jobs)
+    a = desc.create(samples[0])
+    b = desc.create(samples[1])
+    if sparse:
+        output = output.todense()
+        a = a.todense()
+        b = b.todense()
+    assumed = np.array([a, b])
+    assert np.allclose(output, assumed)
+
+
+def assert_no_system_modification(descriptor_func):
+    """Tests that the descriptor does not modify the system that is given as
+    input.
+    """
+    system = bulk('Cu', 'fcc', a=3.6)
+    cell = np.array(system.get_cell())
+    pos = np.array(system.get_positions())
+    pbc = np.array(system.get_pbc())
+    atomic_numbers = np.array(system.get_atomic_numbers())
+    symbols = np.array(system.get_chemical_symbols())
+
+    descriptor = descriptor_func()([system])
+    features = descriptor.create(system)
+
+    assert np.array_equal(cell, system.get_cell())
+    assert np.array_equal(pos, system.get_positions())
+    assert np.array_equal(pbc, system.get_pbc())
+    assert np.array_equal(atomic_numbers, system.get_atomic_numbers())
+    assert np.array_equal(symbols, system.get_chemical_symbols())
+
+
+def assert_matrix_descriptor_exceptions(descriptor_func):
+    system = water()
+
+    # Unknown permutation option
+    with pytest.raises(ValueError):
+        descriptor_func(n_atoms_max=5, permutation="unknown")()
+    # Negative n_atom_max
+    with pytest.raises(ValueError):
+        descriptor_func(n_atoms_max=-1)()
+    # System has more atoms than the specified maximum
+    with pytest.raises(ValueError):
+        cm = descriptor_func(n_atoms_max=2)()
+        cm.create([system])
+
+
+def assert_matrix_descriptor_flatten(descriptor_func):
+    system = water()
+
+    # Unflattened
+    desc = descriptor_func(n_atoms_max=5, flatten=False)([system])
+    unflattened = desc.create(system)
+    assert unflattened.shape == (5, 5)
+
+    # Flattened
+    desc = descriptor_func(n_atoms_max=5, flatten=True)([system])
+    flattened = desc.create(system)
+    assert flattened.shape == (25,)
+
+    # Check that flattened and unflattened versions contain same values
+    assert np.array_equal(flattened.reshape((5, 5)), unflattened)
+
+    # Check that the arrays are zero-padded correctly
+    unflattened[:3, :3] = 0
+    assert np.all((unflattened == 0))
+
+
+def assert_matrix_descriptor_sorted(descriptor_func):
+    """Tests that sorting using row norm works as expected"""
+    system = water()
+    desc = descriptor_func(permutation="sorted_l2", flatten=False)([system])
+    features = desc.create(system)
+
+    lens = np.linalg.norm(features, axis=1)
+    old_len = lens[0]
+    for length in lens[1:]:
+        assert length <= old_len
+        old_len = length
+
+
+def assert_matrix_descriptor_eigenspectrum(descriptor_func):
+    """Tests that the eigenvalues are sorted correctly and that the output is
+    zero-padded.
+    """
+    system = water()
+    desc = descriptor_func(n_atoms_max=5, permutation="eigenspectrum")([system])
+    features = desc.create(system)
+
+    assert features.shape == (5,)
+
+    # Test that eigenvalues are in decreasing order when looking at absolute value
+    prev_eig = float("Inf")
+    for eigenvalue in features[: len(system)]:
+        assert abs(eigenvalue) <= abs(prev_eig)
+        prev_eig = eigenvalue
+
+    # Test that array is zero-padded
+    assert np.array_equal(features[len(system):], [0, 0])
+
+
+def assert_matrix_descriptor_random(descriptor_func):
+    """Tests if the random sorting obeys a gaussian distribution. Could
+    possibly fail even though everything is OK.
+
+    Measures how many times the two rows with biggest norm exchange place when
+    random noise is added. This should correspond to the probability P(X > Y),
+    where X = N(\mu_1, \sigma^2), Y = N(\mu_2, \sigma^2). This probability can
+    be reduced to P(X > Y) = P(X-Y > 0) = P(N(\mu_1 - \mu_2, \sigma^2 +
+    sigma^2) > 0). See e.g.
+    https://en.wikipedia.org/wiki/Sum_of_normally_distributed_random_variables
+    """
+    HHe = Atoms(
+        cell=[[5.0, 0.0, 0.0], [0.0, 5.0, 0.0], [0.0, 0.0, 5.0]],
+        positions=[
+            [0, 0, 0],
+            [0.71, 0, 0],
+        ],
+        symbols=["H", "He"],
+    )
+
+    # Get the mean value to compare to
+    sigma = 5
+    n_atoms_max = 2
+    desc = descriptor_func(permutation="sorted_l2", flatten=False)([HHe])
+    features = desc.create(HHe)
+    means = np.linalg.norm(features, axis=1)
+    mu2 = means[0]
+    mu1 = means[1]
+
+    desc = descriptor_func(
+        permutation="random",
+        sigma=sigma,
+        seed=42,
+        flatten=False,
+    )([HHe])
+    count = 0
+    rand_instances = 20000
+    for i in range(0, rand_instances):
+        features = desc.create(HHe)
+        i_means = np.linalg.norm(features, axis=1)
+        if i_means[0] < i_means[1]:
+            count += 1
+
+    # The expected probability is calculated from the cumulative
+    # distribution function.
+    expected = 1 - scipy.stats.norm.cdf(0, mu1 - mu2, np.sqrt(sigma ** 2 + sigma ** 2))
+    observed = count / rand_instances
+
+    assert abs(expected - observed) <= 1e-2
