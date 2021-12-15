@@ -47,7 +47,6 @@ jobs:
       cd $(Build.Repository.LocalPath)/CI && ./test.sh
     displayName: 'Run regression tests'
     condition: always()
-    failOnStderr: true
 
   - script: |
       cd $(Build.Repository.LocalPath)/CI && ./updatecoverage.sh
