@@ -69,27 +69,6 @@ def bulk_system():
     )
 
 
-def assert_no_system_modification(descriptor_func):
-    """Tests that the descriptor does not modify the system that is given as
-    input.
-    """
-    system = water()
-    cell = np.array(system.get_cell())
-    pos = np.array(system.get_positions())
-    pbc = np.array(system.get_pbc())
-    atomic_numbers = np.array(system.get_atomic_numbers())
-    symbols = np.array(system.get_chemical_symbols())
-
-    descriptor = descriptor_func([system])
-    features = descriptor.create(system)
-
-    assert np.array_equal(cell, system.get_cell())
-    assert np.array_equal(pos, system.get_positions())
-    assert np.array_equal(pbc, system.get_pbc())
-    assert np.array_equal(atomic_numbers, system.get_atomic_numbers())
-    assert np.array_equal(symbols, system.get_chemical_symbols())
-
-
 def assert_symmetries(
     descriptor_func, translation=True, rotation=True, permutation=True
 ):
@@ -303,21 +282,23 @@ def assert_no_system_modification(descriptor_func):
     """Tests that the descriptor does not modify the system that is given as
     input.
     """
-    system = bulk("Cu", "fcc", a=3.6)
-    cell = np.array(system.get_cell())
-    pos = np.array(system.get_positions())
-    pbc = np.array(system.get_pbc())
-    atomic_numbers = np.array(system.get_atomic_numbers())
-    symbols = np.array(system.get_chemical_symbols())
+    def check_modifications(system):
+        cell = np.array(system.get_cell())
+        pos = np.array(system.get_positions())
+        pbc = np.array(system.get_pbc())
+        atomic_numbers = np.array(system.get_atomic_numbers())
+        symbols = np.array(system.get_chemical_symbols())
+        descriptor = descriptor_func()([system])
+        features = descriptor.create(system)
+        assert np.array_equal(cell, system.get_cell())
+        assert np.array_equal(pos, system.get_positions())
+        assert np.array_equal(pbc, system.get_pbc())
+        assert np.array_equal(atomic_numbers, system.get_atomic_numbers())
+        assert np.array_equal(symbols, system.get_chemical_symbols())
 
-    descriptor = descriptor_func()([system])
-    features = descriptor.create(system)
-
-    assert np.array_equal(cell, system.get_cell())
-    assert np.array_equal(pos, system.get_positions())
-    assert np.array_equal(pbc, system.get_pbc())
-    assert np.array_equal(atomic_numbers, system.get_atomic_numbers())
-    assert np.array_equal(symbols, system.get_chemical_symbols())
+    # Try separately for periodic and non-periodic systems
+    check_modifications(bulk("Cu", "fcc", a=3.6))
+    check_modifications(water())
 
 
 def assert_matrix_descriptor_exceptions(descriptor_func):
