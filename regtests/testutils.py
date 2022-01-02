@@ -4,8 +4,9 @@ from scipy.integrate import tplquad
 from scipy.linalg import sqrtm
 from ase import Atoms
 from ase.visualize import view
-from pymatgen.analysis.ewald import EwaldSummation
-from pymatgen.core.structure import Structure
+
+# from pymatgen.analysis.ewald import EwaldSummation
+# from pymatgen.core.structure import Structure
 from dscribe.descriptors import SOAP
 from tqdm import tqdm
 from joblib import Parallel, delayed
