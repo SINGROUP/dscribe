@@ -6,7 +6,6 @@ import generaltests
 import acsf
 import mbtr
 import lmbtr
-import valleoganov
 import soap
 import elementaldistribution
 import kernels
@@ -22,7 +21,6 @@ suite.addTests(loader.loadTestsFromModule(generaltests))
 suite.addTests(loader.loadTestsFromModule(acsf))
 suite.addTests(loader.loadTestsFromModule(mbtr))
 suite.addTests(loader.loadTestsFromModule(lmbtr))
-suite.addTests(loader.loadTestsFromModule(valleoganov))
 suite.addTests(loader.loadTestsFromModule(soap))
 suite.addTests(loader.loadTestsFromModule(elementaldistribution))
 suite.addTests(loader.loadTestsFromModule(kernels))
