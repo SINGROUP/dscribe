@@ -2,7 +2,6 @@ coverage
 tqdm
 black
 coveralls
-pymatgen
 sphinx
 sphinx_rtd_theme
 sphinxcontrib-bibtex

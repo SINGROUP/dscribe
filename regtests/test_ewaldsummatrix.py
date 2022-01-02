@@ -2,10 +2,13 @@ import math
 import pytest
 import numpy as np
 import scipy.constants
-from pymatgen.analysis.ewald import EwaldSummation
-from pymatgen.core.structure import Structure
 from numpy.random import RandomState
 from ase import Atoms
+from testutils import (
+    get_ewald_sum_matrix_default_setup,
+    get_ewald_sum_matrix_automatic_setup,
+    load_ewald,
+)
 from conftest import (
     assert_matrix_descriptor_exceptions,
     assert_matrix_descriptor_flatten,
@@ -168,20 +171,26 @@ def test_a_independence():
         prev_array = matrix
 
 
-def test_electrostatics():
+@pytest.mark.parametrize(
+    "setup",
+    [
+        (get_ewald_sum_matrix_default_setup),
+        (get_ewald_sum_matrix_automatic_setup),
+    ],
+)
+def test_electrostatics(setup):
     """Tests that the results are consistent with the electrostatic
     interpretation. Each matrix [i, j] element should correspond to the
     Coulomb energy of a system consisting of the pair of atoms i, j.
     """
-    system = water()
+    system, desc_args, create_args = setup()
+    desc = EwaldSumMatrix(**desc_args)
     n_atoms = len(system)
-    a = 0.5
-    desc = EwaldSumMatrix(n_atoms_max=3, permutation="none", flatten=False)
 
     # The Ewald matrix contains the electrostatic interaction between atoms
     # i and j. Here we construct the total electrostatic energy for a
     # system consisting of atoms i and j.
-    matrix = desc.create(system, a=a, rcut=rcut, gcut=gcut)
+    matrix = desc.create(system, **create_args)
     energy_matrix = np.zeros(matrix.shape)
     for i in range(n_atoms):
         for j in range(n_atoms):
@@ -198,103 +207,8 @@ def test_electrostatics():
     # energy of a system with with only those atoms. Here the energies from
     # the Ewald matrix are compared against the Ewald energy calculated
     # with pymatgen.
-    positions = system.get_positions()
-    atomic_num = system.get_atomic_numbers()
-    for i in range(n_atoms):
-        for j in range(n_atoms):
-            if i == j:
-                pos = [positions[i]]
-                sym = [atomic_num[i]]
-            else:
-                pos = [positions[i], positions[j]]
-                sym = [atomic_num[i], atomic_num[j]]
-
-            i_sys = Atoms(
-                cell=system.get_cell(),
-                positions=pos,
-                symbols=sym,
-                pbc=True,
-            )
-
-            structure = Structure(
-                lattice=i_sys.get_cell(),
-                species=i_sys.get_atomic_numbers(),
-                coords=i_sys.get_scaled_positions(),
-            )
-            structure.add_oxidation_state_by_site(i_sys.get_atomic_numbers())
-            ewald = EwaldSummation(
-                structure, eta=a, real_space_cut=rcut, recip_space_cut=gcut
-            )
-            energy = ewald.total_energy
-
-            # Check that the energy given by the pymatgen implementation is
-            # the same as given by the descriptor
-            assert np.allclose(energy_matrix[i, j], energy, atol=0.00001, rtol=0)
-
-
-def test_electrostatics_automatic():
-    """Tests that the results are consistent with the electrostatic
-    interpretation when using automatically determined parameters. Each
-    matrix [i, j] element should correspond to the Coulomb energy of a
-    system consisting of the pair of atoms i, j.
-    """
-    system = water()
-    n_atoms = len(system)
-    desc = EwaldSumMatrix(n_atoms_max=3, permutation="none", flatten=False)
-
-    # The Ewald matrix contains the electrostatic interaction between atoms i
-    # and j. Here we construct the total electrostatic energy from this matrix.
-    accuracy = 1e-6
-    matrix = desc.create(system, accuracy=accuracy)
-    energy_matrix = np.zeros(matrix.shape)
-    for i in range(n_atoms):
-        for j in range(n_atoms):
-            if i == j:
-                energy_matrix[i, j] = matrix[i, j]
-            else:
-                energy_matrix[i, j] = matrix[i, j] + matrix[i, i] + matrix[j, j]
-
-    # Converts unit of q*q/r into eV
-    conversion = 1e10 * scipy.constants.e / (4 * math.pi * scipy.constants.epsilon_0)
-    energy_matrix *= conversion
-
-    # The value in each matrix element should correspond to the Coulomb
-    # energy of a system with with only those atoms. Here the energies from
-    # the Ewald matrix are compared against the Ewald energy calculated
-    # with pymatgen.
-    positions = system.get_positions()
-    atomic_num = system.get_atomic_numbers()
-    for i in range(n_atoms):
-        for j in range(n_atoms):
-            if i == j:
-                pos = [positions[i]]
-                sym = [atomic_num[i]]
-            else:
-                pos = [positions[i], positions[j]]
-                sym = [atomic_num[i], atomic_num[j]]
-
-            i_sys = Atoms(
-                cell=system.get_cell(),
-                positions=pos,
-                symbols=sym,
-                pbc=True,
-            )
-
-            structure = Structure(
-                lattice=i_sys.get_cell(),
-                species=i_sys.get_atomic_numbers(),
-                coords=i_sys.get_scaled_positions(),
-            )
-            structure.add_oxidation_state_by_site(i_sys.get_atomic_numbers())
-
-            # Pymatgen uses a different definition for the accuracy: there
-            # accuracy is determined as the number of significant digits.
-            ewald = EwaldSummation(structure, acc_factor=-np.log(accuracy))
-            energy = ewald.total_energy
-
-            # Check that the energy given by the pymatgen implementation is
-            # the same as given by the descriptor
-            assert np.allclose(energy_matrix[i, j], energy, atol=0.00001, rtol=0)
+    energy_pymatgen = load_ewald(create_args)
+    assert np.allclose(energy_matrix, energy_pymatgen, atol=1e-5, rtol=0)
 
 
 def test_unit_cells():

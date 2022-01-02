@@ -4,9 +4,12 @@ from scipy.integrate import tplquad
 from scipy.linalg import sqrtm
 from ase import Atoms
 from ase.visualize import view
+from pymatgen.analysis.ewald import EwaldSummation
+from pymatgen.core.structure import Structure
 from dscribe.descriptors import SOAP
 from tqdm import tqdm
 from joblib import Parallel, delayed
+from conftest import water
 
 
 def get_soap_default_setup():
@@ -113,6 +116,34 @@ def get_soap_polynomial_lmax_setup():
         "crossover": False,
     }
     return (system, centers, soap_arguments)
+
+
+def get_ewald_sum_matrix_default_setup():
+    """Returns an atomic system and Ewald sum matrix parameters for testing."""
+    system = water()
+    ewald_arguments = {"n_atoms_max": 3, "permutation": "none", "flatten": False}
+    create_arguments = {
+        "a": 0.5,
+        "rcut": 30,
+        "gcut": 20,
+        "accuracy": None,
+    }
+    return (system, ewald_arguments, create_arguments)
+
+
+def get_ewald_sum_matrix_automatic_setup():
+    """Returns an atomic system and Ewald sum matrix parameters using accuracy
+    to determine parameters.
+    """
+    system = water()
+    ewald_arguments = {"n_atoms_max": 3, "permutation": "none", "flatten": False}
+    create_arguments = {
+        "a": None,
+        "rcut": None,
+        "gcut": None,
+        "accuracy": 1e-6,
+    }
+    return (system, ewald_arguments, create_arguments)
 
 
 def get_weights(r, weighting):
@@ -394,6 +425,58 @@ def load_polynomial_coefficients(args):
     )
 
 
+def calculate_ewald(system, a=None, rcut=None, gcut=None, accuracy=None):
+    """Used to precalculate the Ewald summation results using pymatgen."""
+    positions = system.get_positions()
+    atomic_num = system.get_atomic_numbers()
+    n_atoms = len(system)
+    energy = np.zeros((n_atoms, n_atoms))
+    for i in range(n_atoms):
+        for j in range(n_atoms):
+            if i == j:
+                pos = [positions[i]]
+                sym = [atomic_num[i]]
+            else:
+                pos = [positions[i], positions[j]]
+                sym = [atomic_num[i], atomic_num[j]]
+
+            i_sys = Atoms(
+                cell=system.get_cell(),
+                positions=pos,
+                symbols=sym,
+                pbc=True,
+            )
+
+            structure = Structure(
+                lattice=i_sys.get_cell(),
+                species=i_sys.get_atomic_numbers(),
+                coords=i_sys.get_scaled_positions(),
+            )
+            structure.add_oxidation_state_by_site(i_sys.get_atomic_numbers())
+            ewald = EwaldSummation(
+                structure,
+                eta=a,
+                real_space_cut=rcut,
+                recip_space_cut=gcut,
+                acc_factor=-np.log(accuracy) if accuracy else 12.0,
+            )
+            energy[i, j] = ewald.total_energy
+    return energy
+
+
+def save_ewald(system, args):
+    coeffs = calculate_ewald(system, **args)
+    np.save("ewald_{a}_{rcut}_{gcut}_{accuracy}.npy".format(**args), coeffs)
+
+
+def load_ewald(args):
+    return np.load("ewald_{a}_{rcut}_{gcut}_{accuracy}.npy".format(**args))
+
+
 if __name__ == "__main__":
     # save_gto_coefficients()
-    save_poly_coefficients()
+    # save_poly_coefficients()
+    system, _, create_args = get_ewald_sum_matrix_default_setup()
+    save_ewald(system, create_args)
+    system, _, create_args = get_ewald_sum_matrix_automatic_setup()
+    save_ewald(system, create_args)
