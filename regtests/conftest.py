@@ -282,6 +282,7 @@ def assert_no_system_modification(descriptor_func):
     """Tests that the descriptor does not modify the system that is given as
     input.
     """
+
     def check_modifications(system):
         cell = np.array(system.get_cell())
         pos = np.array(system.get_positions())
