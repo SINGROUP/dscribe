@@ -96,15 +96,3 @@ contained in the Ewald sum matrix.
    :start-after: Energy
    :language: python
    :lines: 2-21
-
-We can compare the result against the Ewald summation implementation in
-pymatgen:
-
-.. literalinclude:: ../../../../examples/ewaldsummatrix.py
-   :start-after: Energy
-   :language: python
-   :lines: 24-32
-
-.. bibliography:: ../../references.bib
-   :style: unsrt
-   :filter: docname in docnames

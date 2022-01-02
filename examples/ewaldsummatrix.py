@@ -1,9 +1,6 @@
 import math
 import scipy
 
-from pymatgen.analysis.ewald import EwaldSummation
-from pymatgen.core.structure import Structure
-
 from dscribe.descriptors import EwaldSumMatrix
 
 atomic_numbers = [1, 8]
@@ -64,14 +61,3 @@ total_energy = ems_out[0, 0] + ems_out[1, 1] + ems_out[0, 1]
 conversion = 1e10 * scipy.constants.e / (4 * math.pi * scipy.constants.epsilon_0)
 total_energy *= conversion
 print(total_energy)
-
-# Test against implementation in pymatgen
-structure = Structure(
-    lattice=al.get_cell(),
-    species=al.get_atomic_numbers(),
-    coords=al.get_scaled_positions(),
-)
-structure.add_oxidation_state_by_site(al.get_atomic_numbers())
-ewald = EwaldSummation(structure, eta=a, real_space_cut=rcut, recip_space_cut=gcut)
-energy = ewald.total_energy
-print(energy)

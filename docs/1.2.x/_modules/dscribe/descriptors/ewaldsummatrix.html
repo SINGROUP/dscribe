@@ -403,9 +403,6 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            np.ndarray: Ewald matrix.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Force the use of periodic boundary conditions</span>
-        <span class="n">system</span><span class="o">.</span><span class="n">set_pbc</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-
         <span class="c1"># Calculate the regular real and reciprocal space sums of the Ewald sum.</span>
         <span class="n">ereal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_real</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
         <span class="n">erecip</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_recip</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>

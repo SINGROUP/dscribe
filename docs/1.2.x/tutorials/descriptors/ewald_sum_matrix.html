@@ -220,10 +220,7 @@ term is non-zero and additionally depends on the screening parameter
 <h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h2>
 <p>Instantiating the object that is used to create Ewald sum matrices can be done as
 follows:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">EwaldSumMatrix</span>
-
-<span class="n">atomic_numbers</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span>
-<span class="n">rcut</span> <span class="o">=</span> <span class="mf">6.0</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rcut</span> <span class="o">=</span> <span class="mf">6.0</span>
 <span class="n">nmax</span> <span class="o">=</span> <span class="mi">8</span>
 <span class="n">lmax</span> <span class="o">=</span> <span class="mi">6</span>
 
@@ -231,6 +228,9 @@ follows:</p>
 <span class="n">esm</span> <span class="o">=</span> <span class="n">EwaldSumMatrix</span><span class="p">(</span>
     <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
 <span class="p">)</span>
+
+<span class="c1"># Creation</span>
+<span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">bulk</span>
 </pre></div>
 </div>
 <p>The constructor takes the following parameters:</p>
@@ -408,25 +408,6 @@ contained in the Ewald sum matrix.</p>
 <span class="nb">print</span><span class="p">(</span><span class="n">total_energy</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>We can compare the result against the Ewald summation implementation in
-pymatgen:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span>
-    <span class="n">lattice</span><span class="o">=</span><span class="n">al</span><span class="o">.</span><span class="n">get_cell</span><span class="p">(),</span>
-    <span class="n">species</span><span class="o">=</span><span class="n">al</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">(),</span>
-    <span class="n">coords</span><span class="o">=</span><span class="n">al</span><span class="o">.</span><span class="n">get_scaled_positions</span><span class="p">(),</span>
-<span class="p">)</span>
-<span class="n">structure</span><span class="o">.</span><span class="n">add_oxidation_state_by_site</span><span class="p">(</span><span class="n">al</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">())</span>
-<span class="n">ewald</span> <span class="o">=</span> <span class="n">EwaldSummation</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="n">a</span><span class="p">,</span> <span class="n">real_space_cut</span><span class="o">=</span><span class="n">rcut</span><span class="p">,</span> <span class="n">recip_space_cut</span><span class="o">=</span><span class="n">gcut</span><span class="p">)</span>
-<span class="n">energy</span> <span class="o">=</span> <span class="n">ewald</span><span class="o">.</span><span class="n">total_energy</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
-</pre></div>
-</div>
-<p id="bibtex-bibliography-tutorials/descriptors/ewald_sum_matrix-0"><dl class="citation">
-<dt class="bibtex label" id="sm"><span class="brackets">1</span><span class="fn-backref">(<a href="#id1">1</a>,<a href="#id2">2</a>)</span></dt>
-<dd><p>Felix Faber, Alexander Lindmaa, O. Anatole von Lilienfeld, and Rickard Armiento. Crystal structure representations for machine learning models of formation energies. <em>International Journal of Quantum Chemistry</em>, 115(16):1094–1101, 8 2015. <a class="reference external" href="https://doi.org/10.1002/qua.24917">doi:10.1002/qua.24917</a>.</p>
-</dd>
-</dl>
-</p>
 </div>
 </div>
 </div>
