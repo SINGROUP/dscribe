@@ -389,8 +389,8 @@ class CoulombMatrix(MatrixDescriptor):
         # Convert to sparse here. Currently everything up to this point is
         # calculated with dense matrices. This imposes some memory limitations.
         if self.sparse:
-            d = sp.COO.from_numpy(d)
-            c = sp.COO.from_numpy(c)
+            d = sparse.COO.from_numpy(d)
+            c = sparse.COO.from_numpy(c)
 
         if return_descriptor:
             return (d, c)

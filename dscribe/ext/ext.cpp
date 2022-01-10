@@ -108,13 +108,43 @@ PYBIND11_MODULE(ext, m) {
         ));
  
     // MBTR
-    py::class_<MBTR>(m, "MBTRWrapper")
-        .def(py::init< map<int,int>, int , vector<vector<int>>  >())
-        .def("get_k1", &MBTR::getK1)
-        .def("get_k2", &MBTR::getK2)
-        .def("get_k3", &MBTR::getK3)
-        .def("get_k2_local", &MBTR::getK2Local)
-        .def("get_k3_local", &MBTR::getK3Local);
+    py::class_<MBTR>(m, "MBTR")
+        .def(py::init<py::dict, py::dict, py::dict, bool, string, py::array_t<int>, bool>())
+        .def("create", &MBTR::create)
+        .def("get_number_of_features", &MBTR::get_number_of_features)
+        .def_property("k1", &MBTR::get_k1, &MBTR::set_k1)
+        .def_property("k2", &MBTR::get_k2, &MBTR::set_k2)
+        .def_property("k3", &MBTR::get_k3, &MBTR::set_k3)
+        .def_property("species", &MBTR::get_species, &MBTR::set_species)
+        .def("derivatives_numerical", &MBTR::derivatives_numerical)
+        .def(py::pickle(
+            [](const MBTR &p) {
+                return py::make_tuple(p.k1, p.k2, p.k3, p.normalize_gaussians, p.normalization, p.species, p.periodic);
+            },
+            [](py::tuple t) {
+                if (t.size() != 4)
+                    throw std::runtime_error("Invalid state!");
+                MBTR p(
+                    t[0].cast<py::dict>(),
+                    t[1].cast<py::dict>(),
+                    t[2].cast<py::dict>(),
+                    t[3].cast<bool>(),
+                    t[3].cast<string>(),
+                    t[3].cast<py::array_t<int>>(),
+                    t[3].cast<bool>()
+                );
+                return p;
+            }
+        ));
+
+    // MBTR
+    // py::class_<MBTR>(m, "MBTRWrapper")
+    //     .def(py::init< map<int,int>, int , vector<vector<int>>  >())
+    //     .def("get_k1", &MBTR::getK1)
+    //     .def("get_k2", &MBTR::getK2)
+    //     .def("get_k3", &MBTR::getK3)
+    //     .def("get_k2_local", &MBTR::getK2Local)
+    //     .def("get_k3_local", &MBTR::getK3Local);
 
     // CellList
     py::class_<CellList>(m, "CellList")

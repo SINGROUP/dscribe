@@ -24,7 +24,7 @@ namespace py = pybind11;
 using namespace std;
 
 /**
- * Descriptor base class.
+ * Global descriptor base class.
  */
 class DescriptorGlobal {
     public:

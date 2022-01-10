@@ -30,7 +30,7 @@ using namespace std;
 class SOAPGTO: public Descriptor {
     public:
         /**
-         *
+         * Constructor, see the python docs for more details about variables.
          */
         SOAPGTO(
             double rcut,
@@ -46,6 +46,7 @@ class SOAPGTO: public Descriptor {
             py::array_t<int> species,
             bool periodic
         );
+
         /**
          * For creating SOAP output.
          */

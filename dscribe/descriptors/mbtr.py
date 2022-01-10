@@ -24,8 +24,8 @@ import ase.data
 
 from dscribe.core import System
 from dscribe.descriptors import Descriptor
-from dscribe.ext import MBTRWrapper
 import dscribe.utils.geometry
+import dscribe.ext
 
 
 class MBTR(Descriptor):
@@ -126,6 +126,7 @@ class MBTR(Descriptor):
         species=None,
         periodic=False,
         sparse=False,
+        dtype="float64",
     ):
         """
         Args:
@@ -188,6 +189,10 @@ class MBTR(Descriptor):
                 pbc-parameter in the constructor of ase.Atoms).
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
+            dtype (str): The data type of the output. Valid options are:
+
+                    * ``"float32"``: Single precision floating point numbers.
+                    * ``"float64"``: Double precision floating point numbers.
         """
         if sparse and not flatten:
             raise ValueError(
@@ -195,31 +200,13 @@ class MBTR(Descriptor):
                 "you want a non-flattened output, please specify sparse=False "
                 "in the MBTR constructor."
             )
-        super().__init__(periodic=periodic, flatten=flatten, sparse=sparse)
-        self.system = None
-        self.k1 = k1
-        self.k2 = k2
-        self.k3 = k3
-
-        # Setup the involved chemical species
-        self.species = species
-
-        self.normalization = normalization
-        self.normalize_gaussians = normalize_gaussians
-
-        if self.normalization == "valle_oganov" and not periodic:
-            raise ValueError(
-                "Valle-Oganov normalization does not support non-periodic systems."
-            )
-
-        # Initializing .create() level variables
-        self._interaction_limit = None
+        super().__init__(periodic=periodic, flatten=flatten, sparse=sparse, dtype=dtype)
 
         # Check that weighting function is specified for periodic systems
-        if self.periodic:
-            if self.k2 is not None:
+        if periodic:
+            if k2 is not None:
                 valid = False
-                weighting = self.k2.get("weighting")
+                weighting = k2.get("weighting")
                 if weighting is not None:
                     function = weighting.get("function")
                     if function is not None:
@@ -230,9 +217,9 @@ class MBTR(Descriptor):
                         "Periodic systems need to have a weighting function."
                     )
 
-            if self.k3 is not None:
+            if k3 is not None:
                 valid = False
-                weighting = self.k3.get("weighting")
+                weighting = k3.get("weighting")
                 if weighting is not None:
                     function = weighting.get("function")
                     if function is not None:
@@ -244,271 +231,15 @@ class MBTR(Descriptor):
                         "Periodic systems need to have a weighting function."
                     )
 
-    def check_grid(self, grid):
-        """Used to ensure that the given grid settings are valid.
-
-        Args:
-            grid(dict): Dictionary containing the grid setup.
-        """
-        msg = "The grid information is missing the value for {}"
-        val_names = ["min", "max", "sigma", "n"]
-        for val_name in val_names:
-            try:
-                grid[val_name]
-            except Exception:
-                raise KeyError(msg.format(val_name))
-
-        # Make the n into integer
-        grid["n"] = int(grid["n"])
-        if grid["min"] >= grid["max"]:
-            raise ValueError("The min value should be smaller than the max value.")
-
-    @property
-    def k1(self):
-        return self._k1
-
-    @k1.setter
-    def k1(self, value):
-        if value is not None:
-
-            # Check that only valid keys are used in the setups
-            for key in value.keys():
-                valid_keys = set(("geometry", "grid", "weighting"))
-                if key not in valid_keys:
-                    raise ValueError(
-                        "The given setup contains the following invalid key: {}".format(
-                            key
-                        )
-                    )
-
-            # Check the geometry function
-            geom_func = value["geometry"].get("function")
-            if geom_func is not None:
-                valid_geom_func = set(("atomic_number",))
-                if geom_func not in valid_geom_func:
-                    raise ValueError(
-                        "Unknown geometry function specified for k=1. Please use one of"
-                        " the following: {}".format(valid_geom_func)
-                    )
-
-            # Check the weighting function
-            weighting = value.get("weighting")
-            if weighting is not None:
-                valid_weight_func = set(("unity",))
-                weight_func = weighting.get("function")
-                if weight_func not in valid_weight_func:
-                    raise ValueError(
-                        "Unknown weighting function specified for k=1. Please use one of"
-                        " the following: {}".format(valid_weight_func)
-                    )
-
-            # Check grid
-            self.check_grid(value["grid"])
-        self._k1 = value
-
-    @property
-    def k2(self):
-        return self._k2
-
-    @k2.setter
-    def k2(self, value):
-        if value is not None:
-
-            # Check that only valid keys are used in the setups
-            for key in value.keys():
-                valid_keys = set(("geometry", "grid", "weighting"))
-                if key not in valid_keys:
-                    raise ValueError(
-                        "The given setup contains the following invalid key: {}".format(
-                            key
-                        )
-                    )
-
-            # Check the geometry function
-            geom_func = value["geometry"].get("function")
-            if geom_func is not None:
-                valid_geom_func = set(("distance", "inverse_distance"))
-                if geom_func not in valid_geom_func:
-                    raise ValueError(
-                        "Unknown geometry function specified for k=2. Please use one of"
-                        " the following: {}".format(valid_geom_func)
-                    )
-
-            # Check the weighting function
-            weighting = value.get("weighting")
-            if weighting is not None:
-                valid_weight_func = set(("unity", "exp", "inverse_square"))
-                weight_func = weighting.get("function")
-                if weight_func not in valid_weight_func:
-                    raise ValueError(
-                        "Unknown weighting function specified for k=2. Please use one of"
-                        " the following: {}".format(valid_weight_func)
-                    )
-                else:
-                    if weight_func == "exp":
-                        threshold = weighting.get("threshold")
-                        if threshold is None:
-                            raise ValueError(
-                                "Missing value for 'threshold' in the k=2 weighting."
-                            )
-                        param = weighting.get("scale", weighting.get("r_cut"))
-                        if param is None:
-                            raise ValueError(
-                                "Provide either 'scale' or 'r_cut' in the k=2 weighting."
-                            )
-                    elif weight_func == "inverse_square":
-                        if weighting.get("r_cut") is None:
-                            raise ValueError(
-                                "Missing value for 'r_cut' in the k=2 weighting."
-                            )
-
-            # Check grid
-            self.check_grid(value["grid"])
-        self._k2 = value
-
-    @property
-    def k3(self):
-        return self._k3
-
-    @k3.setter
-    def k3(self, value):
-        if value is not None:
-
-            # Check that only valid keys are used in the setups
-            for key in value.keys():
-                valid_keys = set(("geometry", "grid", "weighting"))
-                if key not in valid_keys:
-                    raise ValueError(
-                        "The given setup contains the following invalid key: {}".format(
-                            key
-                        )
-                    )
-
-            # Check the geometry function
-            geom_func = value["geometry"].get("function")
-            if geom_func is not None:
-                valid_geom_func = set(("angle", "cosine"))
-                if geom_func not in valid_geom_func:
-                    raise ValueError(
-                        "Unknown geometry function specified for k=2. Please use one of"
-                        " the following: {}".format(valid_geom_func)
-                    )
-
-            # Check the weighting function
-            weighting = value.get("weighting")
-            if weighting is not None:
-                valid_weight_func = set(("unity", "exp", "smooth_cutoff"))
-                weight_func = weighting.get("function")
-                if weight_func not in valid_weight_func:
-                    raise ValueError(
-                        "Unknown weighting function specified for k=2. Please use one of"
-                        " the following: {}".format(valid_weight_func)
-                    )
-                else:
-                    if weight_func == "exp":
-                        threshold = weighting.get("threshold")
-                        if threshold is None:
-                            raise ValueError(
-                                "Missing value for 'threshold' in the k=3 weighting."
-                            )
-                        param = weighting.get("scale", weighting.get("r_cut"))
-                        if param is None:
-                            raise ValueError(
-                                "Provide either 'scale' or 'r_cut' in the k=3 weighting."
-                            )
-                    elif weight_func == "smooth_cutoff":
-                        if weighting.get("r_cut") is None:
-                            raise ValueError(
-                                "Missing value for 'r_cut' in the k=3 weighting."
-                            )
-            # Check grid
-            self.check_grid(value["grid"])
-        self._k3 = value
-
-    @property
-    def species(self):
-        return self._species
-
-    @species.setter
-    def species(self, value):
-        """Used to check the validity of given atomic numbers and to initialize
-        the C-memory layout for them.
-
-        Args:
-            value(iterable): Chemical species either as a list of atomic
-                numbers or list of chemical symbols.
-        """
-        # The species are stored as atomic numbers for internal use.
-        self._set_species(value)
-
-        # Setup mappings between atom indices and types together with some
-        # statistics
-        self.atomic_number_to_index = {}
-        self.index_to_atomic_number = {}
-        for i_atom, atomic_number in enumerate(self._atomic_numbers):
-            self.atomic_number_to_index[atomic_number] = i_atom
-            self.index_to_atomic_number[i_atom] = atomic_number
-        self.n_elements = len(self._atomic_numbers)
-        self.max_atomic_number = max(self._atomic_numbers)
-        self.min_atomic_number = min(self._atomic_numbers)
-
-    @property
-    def normalization(self):
-        return self._normalization
-
-    @normalization.setter
-    def normalization(self, value):
-        """Checks that the given normalization is valid.
-
-        Args:
-            value(str): The normalization method to use.
-        """
-        norm_options = set(("l2_each", "none", "n_atoms", "valle_oganov"))
-        if value not in norm_options:
-            raise ValueError(
-                "Unknown normalization option given. Please use one of the "
-                "following: {}.".format(", ".join([str(x) for x in norm_options]))
-            )
-        self._normalization = value
-
-    def get_k1_axis(self):
-        """Used to get the discretized axis for geometry function of the k=1
-        term.
-
-        Returns:
-            np.ndarray: The discretized axis for the k=1 term.
-        """
-        start = self.k1["grid"]["min"]
-        stop = self.k1["grid"]["max"]
-        n = self.k1["grid"]["n"]
-
-        return np.linspace(start, stop, n)
-
-    def get_k2_axis(self):
-        """Used to get the discretized axis for geometry function of the k=2
-        term.
-
-        Returns:
-            np.ndarray: The discretized axis for the k=2 term.
-        """
-        start = self.k2["grid"]["min"]
-        stop = self.k2["grid"]["max"]
-        n = self.k2["grid"]["n"]
-
-        return np.linspace(start, stop, n)
-
-    def get_k3_axis(self):
-        """Used to get the discretized axis for geometry function of the k=3
-        term.
-
-        Returns:
-            np.ndarray: The discretized axis for the k=3 term.
-        """
-        start = self.k3["grid"]["min"]
-        stop = self.k3["grid"]["max"]
-        n = self.k3["grid"]["n"]
-
-        return np.linspace(start, stop, n)
+        self.wrapper = dscribe.ext.MBTR(
+            {} if k1 is None else k1,
+            {} if k2 is None else k2,
+            {} if k3 is None else k3,
+            normalize_gaussians,
+            normalization,
+            species,
+            periodic
+        )
 
     def create(self, system, n_jobs=1, only_physical_cores=False, verbose=False):
         """Return MBTR output for the given systems.
@@ -562,7 +293,7 @@ class MBTR(Descriptor):
         """Return the many-body tensor representation for the given system.
 
         Args:
-            system (:class:`ase.Atoms` | :class:`.System`): Input system.
+            system (:class:`ase.Atoms`): Input system.
 
         Returns:
             dict | np.ndarray | sparse.COO: The return type is
@@ -572,56 +303,76 @@ class MBTR(Descriptor):
             is flattened, a single concatenated output vector is returned,
             either as a sparse or a dense vector.
         """
+        # Calculate with extension
+        output = np.zeros((self.get_number_of_features()), dtype=np.float64)
+        self.wrapper.create(
+            output,
+            system.get_positions(),
+            system.get_atomic_numbers(),
+            ase.geometry.cell.complete_cell(system.get_cell()),
+            np.asarray(system.get_pbc(), dtype=bool),
+        )
+
+        # Convert to the final output precision.
+        if self.dtype != "float64":
+            output = output.astype(self.dtype)
+
+        # Make into a sparse array if requested
+        if self._sparse:
+            output = sparse.COO.from_numpy(output)
+
+        return output
+
         # Ensuring variables are re-initialized when a new system is introduced
-        self.system = system
-        self._interaction_limit = len(system)
+        # self.system = system
+        # self._interaction_limit = len(system)
 
-        # Check that the system does not have elements that are not in the list
-        # of atomic numbers
-        self.check_atomic_numbers(system.get_atomic_numbers())
+        # # Check that the system does not have elements that are not in the list
+        # # of atomic numbers
+        # self.check_atomic_numbers(system.get_atomic_numbers())
 
-        mbtr = {}
-        if self.k1 is not None:
-            mbtr["k1"] = self._get_k1(system)
-        if self.k2 is not None:
-            mbtr["k2"] = self._get_k2(system)
-        if self.k3 is not None:
-            mbtr["k3"] = self._get_k3(system)
+        # mbtr = {}
+        # if self.k1 is not None:
+        #     mbtr["k1"] = self._get_k1(system)
+        # if self.k2 is not None:
+        #     mbtr["k2"] = self._get_k2(system)
+        # if self.k3 is not None:
+        #     mbtr["k3"] = self._get_k3(system)
 
-        # Handle normalization
-        if self.normalization == "l2_each":
-            if self.flatten is True:
-                for key, value in mbtr.items():
-                    i_data = np.array(value.data)
-                    i_norm = np.linalg.norm(i_data)
-                    mbtr[key] = value / i_norm
-            else:
-                for key, value in mbtr.items():
-                    i_data = value.ravel()
-                    i_norm = np.linalg.norm(i_data)
-                    mbtr[key] = value / i_norm
-        elif self.normalization == "n_atoms":
-            n_atoms = len(self.system)
-            if self.flatten is True:
-                for key, value in mbtr.items():
-                    mbtr[key] = value / n_atoms
-            else:
-                for key, value in mbtr.items():
-                    mbtr[key] = value / n_atoms
+        # # Handle normalization
+        # if self.normalization == "l2_each":
+        #     if self.flatten is True:
+        #         for key, value in mbtr.items():
+        #             i_data = np.array(value.data)
+        #             i_norm = np.linalg.norm(i_data)
+        #             mbtr[key] = value / i_norm
+        #     else:
+        #         for key, value in mbtr.items():
+        #             i_data = value.ravel()
+        #             i_norm = np.linalg.norm(i_data)
+        #             mbtr[key] = value / i_norm
+        # elif self.normalization == "n_atoms":
+        #     n_atoms = len(self.system)
+        #     if self.flatten is True:
+        #         for key, value in mbtr.items():
+        #             mbtr[key] = value / n_atoms
+        #     else:
+        #         for key, value in mbtr.items():
+        #             mbtr[key] = value / n_atoms
 
         # Flatten output if requested
-        if self.flatten:
-            keys = sorted(mbtr.keys())
-            if len(keys) > 1:
-                mbtr = sparse.concatenate([mbtr[key] for key in keys], axis=0)
-            else:
-                mbtr = mbtr[keys[0]]
+        # if self.flatten:
+        #     keys = sorted(mbtr.keys())
+        #     if len(keys) > 1:
+        #         mbtr = sparse.concatenate([mbtr[key] for key in keys], axis=0)
+        #     else:
+        #         mbtr = mbtr[keys[0]]
 
-            # Make into a dense array if requested
-            if not self.sparse:
-                mbtr = mbtr.todense()
+        #     # Make into a dense array if requested
+        #     if not self.sparse:
+        #         mbtr = mbtr.todense()
 
-        return mbtr
+        # return mbtr
 
     def get_number_of_features(self):
         """Used to inquire the final number of features that this descriptor
@@ -630,23 +381,24 @@ class MBTR(Descriptor):
         Returns:
             int: Number of features for this descriptor.
         """
-        n_features = 0
-        n_elem = self.n_elements
+        return self.wrapper.get_number_of_features()
+        # n_features = 0
+        # n_elem = self.n_elements
 
-        if self.k1 is not None:
-            n_k1_grid = self.k1["grid"]["n"]
-            n_k1 = n_elem * n_k1_grid
-            n_features += n_k1
-        if self.k2 is not None:
-            n_k2_grid = self.k2["grid"]["n"]
-            n_k2 = (n_elem * (n_elem + 1) / 2) * n_k2_grid
-            n_features += n_k2
-        if self.k3 is not None:
-            n_k3_grid = self.k3["grid"]["n"]
-            n_k3 = (n_elem * n_elem * (n_elem + 1) / 2) * n_k3_grid
-            n_features += n_k3
+        # if self.k1 is not None:
+        #     n_k1_grid = self.k1["grid"]["n"]
+        #     n_k1 = n_elem * n_k1_grid
+        #     n_features += n_k1
+        # if self.k2 is not None:
+        #     n_k2_grid = self.k2["grid"]["n"]
+        #     n_k2 = (n_elem * (n_elem + 1) / 2) * n_k2_grid
+        #     n_features += n_k2
+        # if self.k3 is not None:
+        #     n_k3_grid = self.k3["grid"]["n"]
+        #     n_k3 = (n_elem * n_elem * (n_elem + 1) / 2) * n_k3_grid
+        #     n_features += n_k3
 
-        return int(n_features)
+        # return int(n_features)
 
     def get_location(self, species):
         """Can be used to query the location of a species combination in the
@@ -746,361 +498,679 @@ class MBTR(Descriptor):
 
         return slice(start, end)
 
-    def _make_new_k1map(self, kx_map):
-        kx_map = dict(kx_map)
-        new_kx_map = {}
+    @property
+    def k1(self):
+        return self.wrapper.k1
 
-        for key, value in kx_map.items():
-            new_key = tuple([int(key)])
-            new_kx_map[new_key] = np.array(value, dtype=np.float32)
+    @k1.setter
+    def k1(self, value):
+        self.wrapper.k1 = value
 
-        return new_kx_map
+    @property
+    def k2(self):
+        return self.wrapper.get_k2()
 
-    def _make_new_kmap(self, kx_map):
-        kx_map = dict(kx_map)
-        new_kx_map = {}
+    @k2.setter
+    def k2(self, value):
+        self.wrapper.k2 = value
 
-        for key, value in kx_map.items():
-            new_key = tuple(int(x) for x in key.split(","))
-            new_kx_map[new_key] = np.array(value, dtype=np.float32)
+    @property
+    def k3(self):
+        return self.wrapper.get_k3()
 
-        return new_kx_map
+    @k3.setter
+    def k3(self, value):
+        self.wrapper.k2 = value
 
-    def _get_k1(self, system):
-        """Calculates the second order terms where the scalar mapping is the
-        inverse distance between atoms.
+    @property
+    def species(self):
+        return self.wrapper.species
 
-        Returns:
-            1D ndarray: flattened K2 values.
+    @species.setter
+    def species(self, value):
+        """Used to check the validity of given atomic numbers and to initialize
+        the C-memory layout for them.
+
+        Args:
+            value(iterable): Chemical species either as a list of atomic
+                numbers or list of chemical symbols.
         """
-        grid = self.k1["grid"]
-        start = grid["min"]
-        stop = grid["max"]
-        n = grid["n"]
-        sigma = grid["sigma"]
+        # The species are stored as atomic numbers for internal use.
+        self._set_species(value)
+        self.wrapper.species = self._atomic_numbers
 
-        # Determine the geometry function
-        geom_func_name = self.k1["geometry"]["function"]
+        # Setup mappings between atom indices and types together with some
+        # statistics
+        self.atomic_number_to_index = {}
+        self.index_to_atomic_number = {}
+        for i_atom, atomic_number in enumerate(self._atomic_numbers):
+            self.atomic_number_to_index[atomic_number] = i_atom
+            self.index_to_atomic_number[i_atom] = atomic_number
+        self.n_elements = len(self._atomic_numbers)
+        self.max_atomic_number = max(self._atomic_numbers)
+        self.min_atomic_number = min(self._atomic_numbers)
 
-        cmbtr = MBTRWrapper(
-            self.atomic_number_to_index,
-            self._interaction_limit,
-            np.zeros((len(system), 3), dtype=int),
-        )
+    # def check_grid(self, grid):
+    #     """Used to ensure that the given grid settings are valid.
 
-        k1_map = cmbtr.get_k1(
-            system.get_atomic_numbers(),
-            geom_func_name.encode(),
-            b"unity",
-            {},
-            start,
-            stop,
-            sigma,
-            n,
-        )
+    #     Args:
+    #         grid(dict): Dictionary containing the grid setup.
+    #     """
+    #     msg = "The grid information is missing the value for {}"
+    #     val_names = ["min", "max", "sigma", "n"]
+    #     for val_name in val_names:
+    #         try:
+    #             grid[val_name]
+    #         except Exception:
+    #             raise KeyError(msg.format(val_name))
 
-        k1_map = self._make_new_k1map(k1_map)
+    #     # Make the n into integer
+    #     grid["n"] = int(grid["n"])
+    #     if grid["min"] >= grid["max"]:
+    #         raise ValueError("The min value should be smaller than the max value.")
 
-        # Depending on flattening, use either a sparse matrix or a dense one.
-        n_elem = self.n_elements
-        if self.flatten:
-            k1 = sparse.DOK((n_elem * n), dtype=np.float32)
-        else:
-            k1 = np.zeros((n_elem, n), dtype=np.float32)
+    # @property
+    # def k1(self):
+    #     return self._k1
 
-        for key, gaussian_sum in k1_map.items():
-            i = key[0]
+    # @k1.setter
+    # def k1(self, value):
+    #     if value is not None:
 
-            # Denormalize if requested
-            if not self.normalize_gaussians:
-                max_val = 1 / (sigma * math.sqrt(2 * math.pi))
-                gaussian_sum /= max_val
+    #         # Check that only valid keys are used in the setups
+    #         for key in value.keys():
+    #             valid_keys = set(("geometry", "grid", "weighting"))
+    #             if key not in valid_keys:
+    #                 raise ValueError(
+    #                     "The given setup contains the following invalid key: {}".format(
+    #                         key
+    #                     )
+    #                 )
 
-            if self.flatten:
-                start = i * n
-                end = (i + 1) * n
-                k1[start:end] = gaussian_sum
-            else:
-                k1[i, :] = gaussian_sum
-        if self.flatten:
-            k1 = k1.to_coo()
+    #         # Check the geometry function
+    #         geom_func = value["geometry"].get("function")
+    #         if geom_func is not None:
+    #             valid_geom_func = set(("atomic_number",))
+    #             if geom_func not in valid_geom_func:
+    #                 raise ValueError(
+    #                     "Unknown geometry function specified for k=1. Please use one of"
+    #                     " the following: {}".format(valid_geom_func)
+    #                 )
 
-        return k1
+    #         # Check the weighting function
+    #         weighting = value.get("weighting")
+    #         if weighting is not None:
+    #             valid_weight_func = set(("unity",))
+    #             weight_func = weighting.get("function")
+    #             if weight_func not in valid_weight_func:
+    #                 raise ValueError(
+    #                     "Unknown weighting function specified for k=1. Please use one of"
+    #                     " the following: {}".format(valid_weight_func)
+    #                 )
 
-    def _get_k2(self, system):
-        """Calculates the second order terms where the scalar mapping is the
-        inverse distance between atoms.
+    #         # Check grid
+    #         self.check_grid(value["grid"])
+    #     self._k1 = value
 
-        Returns:
-            1D ndarray: flattened K2 values.
-        """
-        grid = self.k2["grid"]
-        start = grid["min"]
-        stop = grid["max"]
-        n = grid["n"]
-        sigma = grid["sigma"]
+    # @property
+    # def k2(self):
+    #     return self._k2
 
-        # Determine the weighting function and possible radial cutoff
-        r_cut = None
-        weighting = self.k2.get("weighting")
-        parameters = {}
-        if weighting is not None:
-            weighting_function = weighting["function"]
-            if weighting_function == "exp":
-                threshold = weighting["threshold"]
-                r_cut = weighting.get("r_cut")
-                scale = weighting.get("scale")
-                if scale is not None and r_cut is None:
-                    r_cut = -math.log(threshold) / scale
-                elif scale is None and r_cut is not None:
-                    scale = -math.log(threshold) / r_cut
-                parameters = {b"scale": scale, b"threshold": threshold}
-            elif weighting_function == "inverse_square":
-                r_cut = weighting["r_cut"]
-        else:
-            weighting_function = "unity"
+    # @k2.setter
+    # def k2(self, value):
+    #     if value is not None:
 
-        # Determine the geometry function
-        geom_func_name = self.k2["geometry"]["function"]
+    #         # Check that only valid keys are used in the setups
+    #         for key in value.keys():
+    #             valid_keys = set(("geometry", "grid", "weighting"))
+    #             if key not in valid_keys:
+    #                 raise ValueError(
+    #                     "The given setup contains the following invalid key: {}".format(
+    #                         key
+    #                     )
+    #                 )
 
-        # If needed, create the extended system
-        if self.periodic:
-            centers = system.get_positions()
-            ext_system, cell_indices = dscribe.utils.geometry.get_extended_system(
-                system, r_cut, centers, return_cell_indices=True
-            )
-            ext_system = System.from_atoms(ext_system)
-        else:
-            ext_system = System.from_atoms(system)
-            cell_indices = np.zeros((len(system), 3), dtype=int)
+    #         # Check the geometry function
+    #         geom_func = value["geometry"].get("function")
+    #         if geom_func is not None:
+    #             valid_geom_func = set(("distance", "inverse_distance"))
+    #             if geom_func not in valid_geom_func:
+    #                 raise ValueError(
+    #                     "Unknown geometry function specified for k=2. Please use one of"
+    #                     " the following: {}".format(valid_geom_func)
+    #                 )
 
-        cmbtr = MBTRWrapper(
-            self.atomic_number_to_index, self._interaction_limit, cell_indices
-        )
+    #         # Check the weighting function
+    #         weighting = value.get("weighting")
+    #         if weighting is not None:
+    #             valid_weight_func = set(("unity", "exp", "inverse_square"))
+    #             weight_func = weighting.get("function")
+    #             if weight_func not in valid_weight_func:
+    #                 raise ValueError(
+    #                     "Unknown weighting function specified for k=2. Please use one of"
+    #                     " the following: {}".format(valid_weight_func)
+    #                 )
+    #             else:
+    #                 if weight_func == "exp":
+    #                     threshold = weighting.get("threshold")
+    #                     if threshold is None:
+    #                         raise ValueError(
+    #                             "Missing value for 'threshold' in the k=2 weighting."
+    #                         )
+    #                     param = weighting.get("scale", weighting.get("r_cut"))
+    #                     if param is None:
+    #                         raise ValueError(
+    #                             "Provide either 'scale' or 'r_cut' in the k=2 weighting."
+    #                         )
+    #                 elif weight_func == "inverse_square":
+    #                     if weighting.get("r_cut") is None:
+    #                         raise ValueError(
+    #                             "Missing value for 'r_cut' in the k=2 weighting."
+    #                         )
 
-        # If radial cutoff is finite, use it to calculate the sparse
-        # distance matrix to reduce computational complexity from O(n^2) to
-        # O(n log(n))
-        n_atoms = len(ext_system)
-        if r_cut is not None:
-            dmat = ext_system.get_distance_matrix_within_radius(r_cut)
-            adj_list = dscribe.utils.geometry.get_adjacency_list(dmat)
-            dmat_dense = np.full(
-                (n_atoms, n_atoms), sys.float_info.max
-            )  # The non-neighbor values are treated as "infinitely far".
-            dmat_dense[dmat.row, dmat.col] = dmat.data
-        # If no weighting is used, the full distance matrix is calculated
-        else:
-            dmat_dense = ext_system.get_distance_matrix()
-            adj_list = np.tile(np.arange(n_atoms), (n_atoms, 1))
+    #         # Check grid
+    #         self.check_grid(value["grid"])
+    #     self._k2 = value
 
-        k2_map = cmbtr.get_k2(
-            ext_system.get_atomic_numbers(),
-            dmat_dense,
-            adj_list,
-            geom_func_name.encode(),
-            weighting_function.encode(),
-            parameters,
-            start,
-            stop,
-            sigma,
-            n,
-        )
+    # @property
+    # def k3(self):
+    #     return self._k3
 
-        k2_map = self._make_new_kmap(k2_map)
+    # @k3.setter
+    # def k3(self, value):
+    #     if value is not None:
 
-        # Depending of flattening, use either a sparse matrix or a dense one.
-        n_elem = self.n_elements
-        if self.flatten:
-            k2 = sparse.DOK((int(n_elem * (n_elem + 1) / 2 * n)), dtype=np.float32)
-        else:
-            k2 = np.zeros((self.n_elements, self.n_elements, n), dtype=np.float32)
+    #         # Check that only valid keys are used in the setups
+    #         for key in value.keys():
+    #             valid_keys = set(("geometry", "grid", "weighting"))
+    #             if key not in valid_keys:
+    #                 raise ValueError(
+    #                     "The given setup contains the following invalid key: {}".format(
+    #                         key
+    #                     )
+    #                 )
 
-        for key, gaussian_sum in k2_map.items():
-            i = key[0]
-            j = key[1]
+    #         # Check the geometry function
+    #         geom_func = value["geometry"].get("function")
+    #         if geom_func is not None:
+    #             valid_geom_func = set(("angle", "cosine"))
+    #             if geom_func not in valid_geom_func:
+    #                 raise ValueError(
+    #                     "Unknown geometry function specified for k=2. Please use one of"
+    #                     " the following: {}".format(valid_geom_func)
+    #                 )
 
-            # This is the index of the spectrum. It is given by enumerating the
-            # elements of an upper triangular matrix from left to right and top
-            # to bottom.
-            m = int(j + i * n_elem - i * (i + 1) / 2)
+    #         # Check the weighting function
+    #         weighting = value.get("weighting")
+    #         if weighting is not None:
+    #             valid_weight_func = set(("unity", "exp", "smooth_cutoff"))
+    #             weight_func = weighting.get("function")
+    #             if weight_func not in valid_weight_func:
+    #                 raise ValueError(
+    #                     "Unknown weighting function specified for k=2. Please use one of"
+    #                     " the following: {}".format(valid_weight_func)
+    #                 )
+    #             else:
+    #                 if weight_func == "exp":
+    #                     threshold = weighting.get("threshold")
+    #                     if threshold is None:
+    #                         raise ValueError(
+    #                             "Missing value for 'threshold' in the k=3 weighting."
+    #                         )
+    #                     param = weighting.get("scale", weighting.get("r_cut"))
+    #                     if param is None:
+    #                         raise ValueError(
+    #                             "Provide either 'scale' or 'r_cut' in the k=3 weighting."
+    #                         )
+    #                 elif weight_func == "smooth_cutoff":
+    #                     if weighting.get("r_cut") is None:
+    #                         raise ValueError(
+    #                             "Missing value for 'r_cut' in the k=3 weighting."
+    #                         )
+    #         # Check grid
+    #         self.check_grid(value["grid"])
+    #     self._k3 = value
 
-            # Denormalize if requested
-            if not self.normalize_gaussians:
-                max_val = 1 / (sigma * math.sqrt(2 * math.pi))
-                gaussian_sum /= max_val
+    # @property
+    # def species(self):
+    #     return self._species
 
-            if self.flatten:
-                start = m * n
-                end = (m + 1) * n
-                k2[start:end] = gaussian_sum
-            else:
-                k2[i, j, :] = gaussian_sum
+    # @species.setter
+    # def species(self, value):
+    #     """Used to check the validity of given atomic numbers and to initialize
+    #     the C-memory layout for them.
 
-            # Valle-Oganov normalization is calculated separately for each pair
-            if self.normalization == "valle_oganov":
-                S = self.system
-                n_elements = len(self.species)
-                V = S.cell.volume
-                imap = self.index_to_atomic_number
-                # Calculate the amount of each element for N_A*N_B term
-                counts = {}
-                for index, number in imap.items():
-                    counts[index] = list(S.get_atomic_numbers()).count(number)
-                y = gaussian_sum
-                if i == j:
-                    count_product = 0.5 * counts[i] * counts[j]
-                else:
-                    count_product = counts[i] * counts[j]
-                y_normed = (y * V) / (count_product * 4 * np.pi)
-                if self.flatten:
-                    k2[start:end] = y_normed
-                else:
-                    k2[i, j, :] = y_normed
+    #     Args:
+    #         value(iterable): Chemical species either as a list of atomic
+    #             numbers or list of chemical symbols.
+    #     """
+    #     # The species are stored as atomic numbers for internal use.
+    #     self._set_species(value)
 
-        if self.flatten:
-            k2 = k2.to_coo()
+    #     # Setup mappings between atom indices and types together with some
+    #     # statistics
+    #     self.atomic_number_to_index = {}
+    #     self.index_to_atomic_number = {}
+    #     for i_atom, atomic_number in enumerate(self._atomic_numbers):
+    #         self.atomic_number_to_index[atomic_number] = i_atom
+    #         self.index_to_atomic_number[i_atom] = atomic_number
+    #     self.n_elements = len(self._atomic_numbers)
+    #     self.max_atomic_number = max(self._atomic_numbers)
+    #     self.min_atomic_number = min(self._atomic_numbers)
 
-        return k2
+    # @property
+    # def normalization(self):
+    #     return self._normalization
 
-    def _get_k3(self, system):
-        """Calculates the third order terms.
+    # @normalization.setter
+    # def normalization(self, value):
+    #     """Checks that the given normalization is valid.
 
-        Returns:
-            1D ndarray: flattened K3 values.
-        """
-        grid = self.k3["grid"]
-        start = grid["min"]
-        stop = grid["max"]
-        n = grid["n"]
-        sigma = grid["sigma"]
+    #     Args:
+    #         value(str): The normalization method to use.
+    #     """
+    #     norm_options = set(("l2_each", "none", "n_atoms", "valle_oganov"))
+    #     if value not in norm_options:
+    #         raise ValueError(
+    #             "Unknown normalization option given. Please use one of the "
+    #             "following: {}.".format(", ".join([str(x) for x in norm_options]))
+    #         )
+    #     self._normalization = value
 
-        # Determine the weighting function and possible radial cutoff
-        r_cut = None
-        weighting = self.k3.get("weighting")
-        parameters = {}
-        if weighting is not None:
-            weighting_function = weighting["function"]
-            if weighting_function == "exp":
-                threshold = weighting["threshold"]
-                r_cut = weighting.get("r_cut")
-                scale = weighting.get("scale")
-                # If we want to limit the triplets to a distance r_cut, we need
-                # to allow x=2*r_cut in the case of k=3.
-                if scale is not None and r_cut is None:
-                    r_cut = -0.5 * math.log(threshold) / scale
-                elif scale is None and r_cut is not None:
-                    scale = -0.5 * math.log(threshold) / r_cut
-                parameters = {b"scale": scale, b"threshold": threshold}
-            if weighting_function == "smooth_cutoff":
-                try:
-                    sharpness = weighting["sharpness"]
-                except Exception:
-                    sharpness = 2
-                r_cut = weighting["r_cut"]
-                parameters = {b"sharpness": sharpness, b"cutoff": r_cut}
-        else:
-            weighting_function = "unity"
+    # def get_k1_axis(self):
+    #     """Used to get the discretized axis for geometry function of the k=1
+    #     term.
 
-        # Determine the geometry function
-        geom_func_name = self.k3["geometry"]["function"]
+    #     Returns:
+    #         np.ndarray: The discretized axis for the k=1 term.
+    #     """
+    #     start = self.k1["grid"]["min"]
+    #     stop = self.k1["grid"]["max"]
+    #     n = self.k1["grid"]["n"]
 
-        # If needed, create the extended system
-        if self.periodic:
-            centers = system.get_positions()
-            ext_system, cell_indices = dscribe.utils.geometry.get_extended_system(
-                system, r_cut, centers, return_cell_indices=True
-            )
-            ext_system = System.from_atoms(ext_system)
-        else:
-            ext_system = System.from_atoms(system)
-            cell_indices = np.zeros((len(system), 3), dtype=int)
+    #     return np.linspace(start, stop, n)
 
-        cmbtr = MBTRWrapper(
-            self.atomic_number_to_index, self._interaction_limit, cell_indices
-        )
+    # def get_k2_axis(self):
+    #     """Used to get the discretized axis for geometry function of the k=2
+    #     term.
 
-        # If radial cutoff is finite, use it to calculate the sparse
-        # distance matrix to reduce computational complexity from O(n^2) to
-        # O(n log(n))
-        n_atoms = len(ext_system)
-        if r_cut is not None:
-            dmat = ext_system.get_distance_matrix_within_radius(r_cut)
-            adj_list = dscribe.utils.geometry.get_adjacency_list(dmat)
-            dmat_dense = np.full(
-                (n_atoms, n_atoms), sys.float_info.max
-            )  # The non-neighbor values are treated as "infinitely far".
-            dmat_dense[dmat.col, dmat.row] = dmat.data
-        # If no weighting is used, the full distance matrix is calculated
-        else:
-            dmat_dense = ext_system.get_distance_matrix()
-            adj_list = np.tile(np.arange(n_atoms), (n_atoms, 1))
+    #     Returns:
+    #         np.ndarray: The discretized axis for the k=2 term.
+    #     """
+    #     start = self.k2["grid"]["min"]
+    #     stop = self.k2["grid"]["max"]
+    #     n = self.k2["grid"]["n"]
 
-        k3_map = cmbtr.get_k3(
-            ext_system.get_atomic_numbers(),
-            dmat_dense,
-            adj_list,
-            geom_func_name.encode(),
-            weighting_function.encode(),
-            parameters,
-            start,
-            stop,
-            sigma,
-            n,
-        )
+    #     return np.linspace(start, stop, n)
 
-        k3_map = self._make_new_kmap(k3_map)
-        # Depending of flattening, use either a sparse matrix or a dense one.
-        n_elem = self.n_elements
-        if self.flatten:
-            k3 = sparse.DOK(
-                (int(n_elem * n_elem * (n_elem + 1) / 2 * n)), dtype=np.float32
-            )
-        else:
-            k3 = np.zeros((n_elem, n_elem, n_elem, n), dtype=np.float32)
+    # def get_k3_axis(self):
+    #     """Used to get the discretized axis for geometry function of the k=3
+    #     term.
 
-        for key, gaussian_sum in k3_map.items():
-            i = key[0]
-            j = key[1]
-            k = key[2]
+    #     Returns:
+    #         np.ndarray: The discretized axis for the k=3 term.
+    #     """
+    #     start = self.k3["grid"]["min"]
+    #     stop = self.k3["grid"]["max"]
+    #     n = self.k3["grid"]["n"]
 
-            # This is the index of the spectrum. It is given by enumerating the
-            # elements of a three-dimensional array where for valid elements
-            # k>=i. The enumeration begins from [0, 0, 0], and ends at [n_elem,
-            # n_elem, n_elem], looping the elements in the order j, i, k.
-            m = int(j * n_elem * (n_elem + 1) / 2 + k + i * n_elem - i * (i + 1) / 2)
+    #     return np.linspace(start, stop, n)
 
-            # Denormalize if requested
-            if not self.normalize_gaussians:
-                max_val = 1 / (sigma * math.sqrt(2 * math.pi))
-                gaussian_sum /= max_val
+    # def _make_new_k1map(self, kx_map):
+    #     kx_map = dict(kx_map)
+    #     new_kx_map = {}
 
-            if self.flatten:
-                start = m * n
-                end = (m + 1) * n
-                k3[start:end] = gaussian_sum
-            else:
-                k3[i, j, k, :] = gaussian_sum
+    #     for key, value in kx_map.items():
+    #         new_key = tuple([int(key)])
+    #         new_kx_map[new_key] = np.array(value, dtype=np.float32)
 
-            # Valle-Oganov normalization is calculated separately for each triplet
-            if self.normalization == "valle_oganov":
-                S = self.system
-                n_elements = len(self.species)
-                V = S.cell.volume
-                imap = self.index_to_atomic_number
-                # Calculate the amount of each element for N_A*N_B*N_C term
-                counts = {}
-                for index, number in imap.items():
-                    counts[index] = list(S.get_atomic_numbers()).count(number)
-                y = gaussian_sum
-                count_product = counts[i] * counts[j] * counts[k]
-                y_normed = (y * V) / count_product
-                if self.flatten:
-                    k3[start:end] = y_normed
-                else:
-                    k3[i, j, k, :] = y_normed
+    #     return new_kx_map
 
-        if self.flatten:
-            k3 = k3.to_coo()
+    # def _make_new_kmap(self, kx_map):
+    #     kx_map = dict(kx_map)
+    #     new_kx_map = {}
 
-        return k3
+    #     for key, value in kx_map.items():
+    #         new_key = tuple(int(x) for x in key.split(","))
+    #         new_kx_map[new_key] = np.array(value, dtype=np.float32)
+
+    #     return new_kx_map
+
+    # def _get_k1(self, system):
+    #     """Calculates the second order terms where the scalar mapping is the
+    #     inverse distance between atoms.
+
+    #     Returns:
+    #         1D ndarray: flattened K2 values.
+    #     """
+    #     grid = self.k1["grid"]
+    #     start = grid["min"]
+    #     stop = grid["max"]
+    #     n = grid["n"]
+    #     sigma = grid["sigma"]
+
+    #     # Determine the geometry function
+    #     geom_func_name = self.k1["geometry"]["function"]
+
+    #     cmbtr = MBTRWrapper(
+    #         self.atomic_number_to_index,
+    #         self._interaction_limit,
+    #         np.zeros((len(system), 3), dtype=int),
+    #     )
+
+    #     k1_map = cmbtr.get_k1(
+    #         system.get_atomic_numbers(),
+    #         geom_func_name.encode(),
+    #         b"unity",
+    #         {},
+    #         start,
+    #         stop,
+    #         sigma,
+    #         n,
+    #     )
+
+    #     k1_map = self._make_new_k1map(k1_map)
+
+    #     # Depending on flattening, use either a sparse matrix or a dense one.
+    #     n_elem = self.n_elements
+    #     if self.flatten:
+    #         k1 = sparse.DOK((n_elem * n), dtype=np.float32)
+    #     else:
+    #         k1 = np.zeros((n_elem, n), dtype=np.float32)
+
+    #     for key, gaussian_sum in k1_map.items():
+    #         i = key[0]
+
+    #         # Denormalize if requested
+    #         if not self.normalize_gaussians:
+    #             max_val = 1 / (sigma * math.sqrt(2 * math.pi))
+    #             gaussian_sum /= max_val
+
+    #         if self.flatten:
+    #             start = i * n
+    #             end = (i + 1) * n
+    #             k1[start:end] = gaussian_sum
+    #         else:
+    #             k1[i, :] = gaussian_sum
+    #     if self.flatten:
+    #         k1 = k1.to_coo()
+
+    #     return k1
+
+    # def _get_k2(self, system):
+    #     """Calculates the second order terms where the scalar mapping is the
+    #     inverse distance between atoms.
+
+    #     Returns:
+    #         1D ndarray: flattened K2 values.
+    #     """
+    #     grid = self.k2["grid"]
+    #     start = grid["min"]
+    #     stop = grid["max"]
+    #     n = grid["n"]
+    #     sigma = grid["sigma"]
+
+    #     # Determine the weighting function and possible radial cutoff
+    #     r_cut = None
+    #     weighting = self.k2.get("weighting")
+    #     parameters = {}
+    #     if weighting is not None:
+    #         weighting_function = weighting["function"]
+    #         if weighting_function == "exp":
+    #             threshold = weighting["threshold"]
+    #             r_cut = weighting.get("r_cut")
+    #             scale = weighting.get("scale")
+    #             if scale is not None and r_cut is None:
+    #                 r_cut = -math.log(threshold) / scale
+    #             elif scale is None and r_cut is not None:
+    #                 scale = -math.log(threshold) / r_cut
+    #             parameters = {b"scale": scale, b"threshold": threshold}
+    #         elif weighting_function == "inverse_square":
+    #             r_cut = weighting["r_cut"]
+    #     else:
+    #         weighting_function = "unity"
+
+    #     # Determine the geometry function
+    #     geom_func_name = self.k2["geometry"]["function"]
+
+    #     # If needed, create the extended system
+    #     if self.periodic:
+    #         centers = system.get_positions()
+    #         ext_system, cell_indices = dscribe.utils.geometry.get_extended_system(
+    #             system, r_cut, centers, return_cell_indices=True
+    #         )
+    #         ext_system = System.from_atoms(ext_system)
+    #     else:
+    #         ext_system = System.from_atoms(system)
+    #         cell_indices = np.zeros((len(system), 3), dtype=int)
+
+    #     cmbtr = MBTRWrapper(
+    #         self.atomic_number_to_index, self._interaction_limit, cell_indices
+    #     )
+
+    #     # If radial cutoff is finite, use it to calculate the sparse
+    #     # distance matrix to reduce computational complexity from O(n^2) to
+    #     # O(n log(n))
+    #     n_atoms = len(ext_system)
+    #     if r_cut is not None:
+    #         dmat = ext_system.get_distance_matrix_within_radius(r_cut)
+    #         adj_list = dscribe.utils.geometry.get_adjacency_list(dmat)
+    #         dmat_dense = np.full(
+    #             (n_atoms, n_atoms), sys.float_info.max
+    #         )  # The non-neighbor values are treated as "infinitely far".
+    #         dmat_dense[dmat.row, dmat.col] = dmat.data
+    #     # If no weighting is used, the full distance matrix is calculated
+    #     else:
+    #         dmat_dense = ext_system.get_distance_matrix()
+    #         adj_list = np.tile(np.arange(n_atoms), (n_atoms, 1))
+
+    #     k2_map = cmbtr.get_k2(
+    #         ext_system.get_atomic_numbers(),
+    #         dmat_dense,
+    #         adj_list,
+    #         geom_func_name.encode(),
+    #         weighting_function.encode(),
+    #         parameters,
+    #         start,
+    #         stop,
+    #         sigma,
+    #         n,
+    #     )
+
+    #     k2_map = self._make_new_kmap(k2_map)
+
+    #     # Depending of flattening, use either a sparse matrix or a dense one.
+    #     n_elem = self.n_elements
+    #     if self.flatten:
+    #         k2 = sparse.DOK((int(n_elem * (n_elem + 1) / 2 * n)), dtype=np.float32)
+    #     else:
+    #         k2 = np.zeros((self.n_elements, self.n_elements, n), dtype=np.float32)
+
+    #     for key, gaussian_sum in k2_map.items():
+    #         i = key[0]
+    #         j = key[1]
+
+    #         # This is the index of the spectrum. It is given by enumerating the
+    #         # elements of an upper triangular matrix from left to right and top
+    #         # to bottom.
+    #         m = int(j + i * n_elem - i * (i + 1) / 2)
+
+    #         # Denormalize if requested
+    #         if not self.normalize_gaussians:
+    #             max_val = 1 / (sigma * math.sqrt(2 * math.pi))
+    #             gaussian_sum /= max_val
+
+    #         if self.flatten:
+    #             start = m * n
+    #             end = (m + 1) * n
+    #             k2[start:end] = gaussian_sum
+    #         else:
+    #             k2[i, j, :] = gaussian_sum
+
+    #         # Valle-Oganov normalization is calculated separately for each pair
+    #         if self.normalization == "valle_oganov":
+    #             S = self.system
+    #             n_elements = len(self.species)
+    #             V = S.cell.volume
+    #             imap = self.index_to_atomic_number
+    #             # Calculate the amount of each element for N_A*N_B term
+    #             counts = {}
+    #             for index, number in imap.items():
+    #                 counts[index] = list(S.get_atomic_numbers()).count(number)
+    #             y = gaussian_sum
+    #             if i == j:
+    #                 count_product = 0.5 * counts[i] * counts[j]
+    #             else:
+    #                 count_product = counts[i] * counts[j]
+    #             y_normed = (y * V) / (count_product * 4 * np.pi)
+    #             if self.flatten:
+    #                 k2[start:end] = y_normed
+    #             else:
+    #                 k2[i, j, :] = y_normed
+
+    #     if self.flatten:
+    #         k2 = k2.to_coo()
+
+    #     return k2
+
+    # def _get_k3(self, system):
+    #     """Calculates the third order terms.
+
+    #     Returns:
+    #         1D ndarray: flattened K3 values.
+    #     """
+    #     grid = self.k3["grid"]
+    #     start = grid["min"]
+    #     stop = grid["max"]
+    #     n = grid["n"]
+    #     sigma = grid["sigma"]
+
+    #     # Determine the weighting function and possible radial cutoff
+    #     r_cut = None
+    #     weighting = self.k3.get("weighting")
+    #     parameters = {}
+    #     if weighting is not None:
+    #         weighting_function = weighting["function"]
+    #         if weighting_function == "exp":
+    #             threshold = weighting["threshold"]
+    #             r_cut = weighting.get("r_cut")
+    #             scale = weighting.get("scale")
+    #             # If we want to limit the triplets to a distance r_cut, we need
+    #             # to allow x=2*r_cut in the case of k=3.
+    #             if scale is not None and r_cut is None:
+    #                 r_cut = -0.5 * math.log(threshold) / scale
+    #             elif scale is None and r_cut is not None:
+    #                 scale = -0.5 * math.log(threshold) / r_cut
+    #             parameters = {b"scale": scale, b"threshold": threshold}
+    #         if weighting_function == "smooth_cutoff":
+    #             try:
+    #                 sharpness = weighting["sharpness"]
+    #             except Exception:
+    #                 sharpness = 2
+    #             r_cut = weighting["r_cut"]
+    #             parameters = {b"sharpness": sharpness, b"cutoff": r_cut}
+    #     else:
+    #         weighting_function = "unity"
+
+    #     # Determine the geometry function
+    #     geom_func_name = self.k3["geometry"]["function"]
+
+    #     # If needed, create the extended system
+    #     if self.periodic:
+    #         centers = system.get_positions()
+    #         ext_system, cell_indices = dscribe.utils.geometry.get_extended_system(
+    #             system, r_cut, centers, return_cell_indices=True
+    #         )
+    #         ext_system = System.from_atoms(ext_system)
+    #     else:
+    #         ext_system = System.from_atoms(system)
+    #         cell_indices = np.zeros((len(system), 3), dtype=int)
+
+    #     cmbtr = MBTRWrapper(
+    #         self.atomic_number_to_index, self._interaction_limit, cell_indices
+    #     )
+
+    #     # If radial cutoff is finite, use it to calculate the sparse
+    #     # distance matrix to reduce computational complexity from O(n^2) to
+    #     # O(n log(n))
+    #     n_atoms = len(ext_system)
+    #     if r_cut is not None:
+    #         dmat = ext_system.get_distance_matrix_within_radius(r_cut)
+    #         adj_list = dscribe.utils.geometry.get_adjacency_list(dmat)
+    #         dmat_dense = np.full(
+    #             (n_atoms, n_atoms), sys.float_info.max
+    #         )  # The non-neighbor values are treated as "infinitely far".
+    #         dmat_dense[dmat.col, dmat.row] = dmat.data
+    #     # If no weighting is used, the full distance matrix is calculated
+    #     else:
+    #         dmat_dense = ext_system.get_distance_matrix()
+    #         adj_list = np.tile(np.arange(n_atoms), (n_atoms, 1))
+
+    #     k3_map = cmbtr.get_k3(
+    #         ext_system.get_atomic_numbers(),
+    #         dmat_dense,
+    #         adj_list,
+    #         geom_func_name.encode(),
+    #         weighting_function.encode(),
+    #         parameters,
+    #         start,
+    #         stop,
+    #         sigma,
+    #         n,
+    #     )
+
+    #     k3_map = self._make_new_kmap(k3_map)
+    #     # Depending of flattening, use either a sparse matrix or a dense one.
+    #     n_elem = self.n_elements
+    #     if self.flatten:
+    #         k3 = sparse.DOK(
+    #             (int(n_elem * n_elem * (n_elem + 1) / 2 * n)), dtype=np.float32
+    #         )
+    #     else:
+    #         k3 = np.zeros((n_elem, n_elem, n_elem, n), dtype=np.float32)
+
+    #     for key, gaussian_sum in k3_map.items():
+    #         i = key[0]
+    #         j = key[1]
+    #         k = key[2]
+
+    #         # This is the index of the spectrum. It is given by enumerating the
+    #         # elements of a three-dimensional array where for valid elements
+    #         # k>=i. The enumeration begins from [0, 0, 0], and ends at [n_elem,
+    #         # n_elem, n_elem], looping the elements in the order j, i, k.
+    #         m = int(j * n_elem * (n_elem + 1) / 2 + k + i * n_elem - i * (i + 1) / 2)
+
+    #         # Denormalize if requested
+    #         if not self.normalize_gaussians:
+    #             max_val = 1 / (sigma * math.sqrt(2 * math.pi))
+    #             gaussian_sum /= max_val
+
+    #         if self.flatten:
+    #             start = m * n
+    #             end = (m + 1) * n
+    #             k3[start:end] = gaussian_sum
+    #         else:
+    #             k3[i, j, k, :] = gaussian_sum
+
+    #         # Valle-Oganov normalization is calculated separately for each triplet
+    #         if self.normalization == "valle_oganov":
+    #             S = self.system
+    #             n_elements = len(self.species)
+    #             V = S.cell.volume
+    #             imap = self.index_to_atomic_number
+    #             # Calculate the amount of each element for N_A*N_B*N_C term
+    #             counts = {}
+    #             for index, number in imap.items():
+    #                 counts[index] = list(S.get_atomic_numbers()).count(number)
+    #             y = gaussian_sum
+    #             count_product = counts[i] * counts[j] * counts[k]
+    #             y_normed = (y * V) / count_product
+    #             if self.flatten:
+    #                 k3[start:end] = y_normed
+    #             else:
+    #                 k3[i, j, k, :] = y_normed
+
+    #     if self.flatten:
+    #         k3 = k3.to_coo()
+
+    #     return k3

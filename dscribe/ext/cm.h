@@ -56,6 +56,13 @@ class CoulombMatrix: public DescriptorGlobal {
          */
         int get_number_of_features() const;
 
+        unsigned int n_atoms_max;
+        string permutation;
+        double sigma;
+        int seed;
+        mt19937 generator;
+
+    private:
         /**
          * Calculate sorted eigenvalues.
          */
@@ -68,14 +75,5 @@ class CoulombMatrix: public DescriptorGlobal {
          * Sort by row L2 norm, possibly introducing noise.
          */
         void sort(Ref<MatrixXd> matrix, bool noise);
-
-
-        unsigned int n_atoms_max;
-        string permutation;
-        double sigma;
-        int seed;
-
-    private:
-        mt19937 generator;
 };
 #endif
