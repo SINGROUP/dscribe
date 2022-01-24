@@ -58,6 +58,40 @@ int MBTR::get_number_of_features() const {
     return n_features;
 }
 
+void MBTR::create(
+    py::array_t<double> &out, 
+    py::array_t<double> &positions,
+    py::array_t<int> &atomic_numbers,
+    CellList &cell_list
+) {
+    return;
+};
+
+void MBTR::set_k1(py::dict k1) {this->k1 = k1;};
+void MBTR::set_k2(py::dict k2) {this->k2 = k2;};
+void MBTR::set_k3(py::dict k3) {this->k3 = k3;};
+void MBTR::set_normalize_gaussians(bool normalize_gaussians) {};
+void MBTR::set_normalization(string normalization) {
+    this->normalization = normalization;
+    assert_valle();
+};
+void MBTR::set_species(py::array_t<int> species) {this->species = species;};
+void MBTR::set_periodic(bool periodic) {
+    this->periodic = periodic;
+    assert_valle();
+};
+void MBTR::assert_valle() {
+    if (this->normalization == "valle_oganov" && !this->periodic) {
+        throw std::invalid_argument("Valle-Oganov normalization does not support non-periodic systems.");
+    };
+};
+
+py::dict MBTR::get_k1() {return k1;};
+py::dict MBTR::get_k2() {return k2;};
+py::dict MBTR::get_k3() {return k3;};
+py::array_t<int> MBTR::get_species() {return this->species;};
+
+
 // void MBTR::get_k1(py::detail::unchecked_mutable_reference<double, 1> &out_mu, py::detail::unchecked_reference<int, 1> &atomic_numbers_u) {
 //     int n_atoms = Z.size();
 //     float dx = (max-min)/(n-1);
@@ -96,36 +130,3 @@ int MBTR::get_number_of_features() const {
 //         transform(old.begin(), old.end(), gauss.begin(), old.begin(), plus<double>());
 //     }
 // }
-
-void MBTR::create_raw(
-    py::detail::unchecked_mutable_reference<double, 1> &out_mu,
-    py::detail::unchecked_reference<double, 2> &positions_u,
-    py::detail::unchecked_reference<int, 1> &atomic_numbers_u,
-    CellList &cell_list
-) {
-    return;
-};
-
-void MBTR::set_k1(py::dict k1) {this->k1 = k1;};
-void MBTR::set_k2(py::dict k2) {this->k2 = k2;};
-void MBTR::set_k3(py::dict k3) {this->k3 = k3;};
-void MBTR::set_normalize_gaussians(bool normalize_gaussians) {};
-void MBTR::set_normalization(string normalization) {
-    this->normalization = normalization;
-    assert_valle();
-};
-void MBTR::set_species(py::array_t<int> species) {this->species = species;};
-void MBTR::set_periodic(bool periodic) {
-    this->periodic = periodic;
-    assert_valle();
-};
-void MBTR::assert_valle() {
-    if (this->normalization == "valle_oganov" && !this->periodic) {
-        throw std::invalid_argument("Valle-Oganov normalization does not support non-periodic systems.");
-    };
-};
-
-py::dict MBTR::get_k1() {return k1;};
-py::dict MBTR::get_k2() {return k2;};
-py::dict MBTR::get_k3() {return k3;};
-py::array_t<int> MBTR::get_species() {return this->species;};

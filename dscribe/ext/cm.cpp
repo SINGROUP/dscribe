@@ -37,13 +37,18 @@ CoulombMatrix::CoulombMatrix(
 {
 }
 
-void CoulombMatrix::create_raw(
-    py::detail::unchecked_mutable_reference<double, 1> &out_mu, 
-    py::detail::unchecked_reference<double, 2> &positions_u, 
-    py::detail::unchecked_reference<int, 1> &atomic_numbers_u,
+void CoulombMatrix::create(
+    py::array_t<double> &out, 
+    py::array_t<double> &positions,
+    py::array_t<int> &atomic_numbers,
     CellList &cell_list
 )
 {
+    // Create mutable and unchecked versions
+    auto out_mu = out.mutable_unchecked<1>();
+    auto positions_u = positions.unchecked<2>();
+    auto atomic_numbers_u = atomic_numbers.unchecked<1>();
+
     // Calculate all pairwise distances.
     int n_atoms = atomic_numbers_u.shape(0);
     MatrixXd matrix = distancesEigen(positions_u);

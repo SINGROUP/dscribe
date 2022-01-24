@@ -43,10 +43,10 @@ class MBTR: public DescriptorGlobal {
         /**
          * For creating feature vectors.
          */
-        void create_raw(
-            py::detail::unchecked_mutable_reference<double, 1> &out_mu,
-            py::detail::unchecked_reference<double, 2> &positions_u,
-            py::detail::unchecked_reference<int, 1> &atomic_numbers_u,
+        void create(
+            py::array_t<double> &out, 
+            py::array_t<double> &positions,
+            py::array_t<int> &atomic_numbers,
             CellList &cell_list
         );
 

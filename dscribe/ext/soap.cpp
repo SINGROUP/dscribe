@@ -33,7 +33,7 @@ SOAPGTO::SOAPGTO(
     py::array_t<int> species,
     bool periodic
 )
-    : Descriptor(periodic, average, rcut+cutoff_padding)
+    : DescriptorLocal(periodic, average, rcut+cutoff_padding)
     , rcut(rcut)
     , nmax(nmax)
     , lmax(lmax)
@@ -46,46 +46,13 @@ SOAPGTO::SOAPGTO(
     , species(species)
 {
 }
-
 void SOAPGTO::create(
-    py::array_t<double> out, 
-    py::array_t<double> positions,
-    py::array_t<int> atomic_numbers,
-    py::array_t<double> cell,
-    py::array_t<bool> pbc,
-    py::array_t<double> centers
-) const
-{
-    // Extend system if periodicity is requested.
-    auto pbc_u = pbc.unchecked<1>();
-    bool is_periodic = this->periodic && (pbc_u(0) || pbc_u(1) || pbc_u(2));
-    if (is_periodic) {
-        ExtendedSystem system_extended = extend_system(positions, atomic_numbers, cell, pbc, this->cutoff);
-        positions = system_extended.positions;
-        atomic_numbers = system_extended.atomic_numbers;
-    }
-    this->create(out, positions, atomic_numbers, centers);
-}
-
-void SOAPGTO::create(
-    py::array_t<double> out, 
-    py::array_t<double> positions,
-    py::array_t<int> atomic_numbers,
-    py::array_t<double> centers
-) const
-{
-    // Calculate neighbours with a cell list
-    CellList cell_list(positions, this->cutoff);
-    this->create(out, positions, atomic_numbers, centers, cell_list);
-}
-
-void SOAPGTO::create(
-    py::array_t<double> out, 
-    py::array_t<double> positions,
-    py::array_t<int> atomic_numbers,
-    py::array_t<double> centers,
-    CellList cell_list
-) const
+    py::array_t<double> &out, 
+    py::array_t<double> &positions,
+    py::array_t<int> &atomic_numbers,
+    py::array_t<double> &centers,
+    CellList &cell_list
+)
 {
     // Empty mock arrays since we are not calculating the derivatives
     py::array_t<double> xd({1, 1, 1, 1, 1});
@@ -142,7 +109,7 @@ void SOAPGTO::derivatives_analytical(
     py::array_t<double> centers,
     py::array_t<int> indices,
     const bool return_descriptor
-) const
+)
 {
     // Extend system if periodicity is requested.
     auto pbc_u = pbc.unchecked<1>();
@@ -197,7 +164,7 @@ SOAPPolynomial::SOAPPolynomial(
     py::array_t<int> species,
     bool periodic
 )
-    : Descriptor(periodic, average, rcut+cutoff_padding)
+    : DescriptorLocal(periodic, average, rcut+cutoff_padding)
     , rcut(rcut)
     , nmax(nmax)
     , lmax(lmax)
@@ -212,44 +179,12 @@ SOAPPolynomial::SOAPPolynomial(
 }
 
 void SOAPPolynomial::create(
-    py::array_t<double> out, 
-    py::array_t<double> positions,
-    py::array_t<int> atomic_numbers,
-    py::array_t<double> cell,
-    py::array_t<bool> pbc,
-    py::array_t<double> centers
-) const
-{
-    // Extend system if periodicity is requested.
-    auto pbc_u = pbc.unchecked<1>();
-    bool is_periodic = this->periodic && (pbc_u(0) || pbc_u(1) || pbc_u(2));
-    if (is_periodic) {
-        ExtendedSystem system_extended = extend_system(positions, atomic_numbers, cell, pbc, this->cutoff);
-        positions = system_extended.positions;
-        atomic_numbers = system_extended.atomic_numbers;
-    }
-    this->create(out, positions, atomic_numbers, centers);
-}
-
-void SOAPPolynomial::create(
-    py::array_t<double> out, 
-    py::array_t<double> positions,
-    py::array_t<int> atomic_numbers,
-    py::array_t<double> centers
-) const
-{
-    // Calculate neighbours with a cell list
-    CellList cell_list(positions, this->cutoff);
-    this->create(out, positions, atomic_numbers, centers, cell_list);
-}
-
-void SOAPPolynomial::create(
-    py::array_t<double> out, 
-    py::array_t<double> positions,
-    py::array_t<int> atomic_numbers,
-    py::array_t<double> centers,
-    CellList cell_list
-) const
+    py::array_t<double> &out, 
+    py::array_t<double> &positions,
+    py::array_t<int> &atomic_numbers,
+    py::array_t<double> &centers,
+    CellList &cell_list
+)
 {
     soapGeneral(
         out,

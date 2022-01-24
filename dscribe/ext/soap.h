@@ -18,7 +18,7 @@ limitations under the License.
 
 #include <pybind11/numpy.h>
 #include <string>
-#include "descriptor.h"
+#include "descriptorlocal.h"
 #include "celllist.h"
 
 namespace py = pybind11;
@@ -27,7 +27,7 @@ using namespace std;
 /**
  * SOAP descriptor with GTO radial basis.
  */
-class SOAPGTO: public Descriptor {
+class SOAPGTO: public DescriptorLocal {
     public:
         /**
          * Constructor, see the python docs for more details about variables.
@@ -51,28 +51,12 @@ class SOAPGTO: public Descriptor {
          * For creating SOAP output.
          */
         void create(
-            py::array_t<double> out, 
-            py::array_t<double> positions,
-            py::array_t<int> atomic_numbers,
-            py::array_t<double> cell,
-            py::array_t<bool> pbc,
-            py::array_t<double> centers
-        ) const;
-
-        void create(
-            py::array_t<double> out, 
-            py::array_t<double> positions,
-            py::array_t<int> atomic_numbers,
-            py::array_t<double> centers
-        ) const;
-
-        void create(
-            py::array_t<double> out, 
-            py::array_t<double> positions,
-            py::array_t<int> atomic_numbers,
-            py::array_t<double> centers,
-            CellList cell_list
-        ) const;
+            py::array_t<double> &out, 
+            py::array_t<double> &positions,
+            py::array_t<int> &atomic_numbers,
+            py::array_t<double> &centers,
+            CellList &cell_list
+        );
 
         /**
          * Get the number of features.
@@ -95,7 +79,7 @@ class SOAPGTO: public Descriptor {
             py::array_t<double> centers,
             py::array_t<int> indices,
             const bool return_descriptor
-        ) const;
+        );
 
     private:
         const double rcut;
@@ -113,7 +97,7 @@ class SOAPGTO: public Descriptor {
 /**
  * SOAP descriptor with polynomial radial basis.
  */
-class SOAPPolynomial: public Descriptor {
+class SOAPPolynomial: public DescriptorLocal {
     public:
         /**
          *
@@ -136,28 +120,12 @@ class SOAPPolynomial: public Descriptor {
          * For creating SOAP output.
          */
         void create(
-            py::array_t<double> out, 
-            py::array_t<double> positions,
-            py::array_t<int> atomic_numbers,
-            py::array_t<double> cell,
-            py::array_t<bool> pbc,
-            py::array_t<double> centers
-        ) const;
-
-        void create(
-            py::array_t<double> out, 
-            py::array_t<double> positions,
-            py::array_t<int> atomic_numbers,
-            py::array_t<double> centers
-        ) const;
-
-        void create(
-            py::array_t<double> out, 
-            py::array_t<double> positions,
-            py::array_t<int> atomic_numbers,
-            py::array_t<double> centers,
-            CellList cell_list
-        ) const;
+            py::array_t<double> &out, 
+            py::array_t<double> &positions,
+            py::array_t<int> &atomic_numbers,
+            py::array_t<double> &centers,
+            CellList &cell_list
+        );
 
         /**
          * Get the number of features.

@@ -565,9 +565,9 @@ class SOAP(Descriptor):
                 soap_mat,
                 pos,
                 Z,
+                centers,
                 ase.geometry.cell.complete_cell(system.get_cell()),
                 np.asarray(system.get_pbc(), dtype=bool),
-                centers,
             )
         elif self._rbf == "polynomial":
             # Get the discretized and orthogonalized polynomial radial basis
@@ -594,9 +594,9 @@ class SOAP(Descriptor):
                 soap_mat,
                 pos,
                 Z,
+                centers,
                 ase.geometry.cell.complete_cell(system.get_cell()),
                 np.asarray(system.get_pbc(), dtype=bool),
-                centers,
             )
 
         # Averaged output is a global descriptor, and thus the first dimension

@@ -16,16 +16,48 @@ limitations under the License.
 #include <set>
 #include <unordered_map>
 #include <cmath>
-#include "descriptor.h"
+#include "descriptorlocal.h"
 #include "geometry.h"
 
 using namespace std;
 
-Descriptor::Descriptor(bool periodic, string average, double cutoff)
+DescriptorLocal::DescriptorLocal(bool periodic, string average, double cutoff)
     : periodic(periodic)
     , average(average)
     , cutoff(cutoff)
 {
+}
+
+void DescriptorLocal::create(
+    py::array_t<double> out, 
+    py::array_t<double> positions,
+    py::array_t<int> atomic_numbers,
+    py::array_t<double> centers,
+    py::array_t<double> cell,
+    py::array_t<bool> pbc
+)
+{
+    // Extend system if periodicity is requested.
+    auto pbc_u = pbc.unchecked<1>();
+    bool is_periodic = this->periodic && (pbc_u(0) || pbc_u(1) || pbc_u(2));
+    if (is_periodic) {
+        ExtendedSystem system_extended = extend_system(positions, atomic_numbers, cell, pbc, this->cutoff);
+        positions = system_extended.positions;
+        atomic_numbers = system_extended.atomic_numbers;
+    }
+    this->create(out, positions, atomic_numbers, centers);
+}
+
+void DescriptorLocal::create(
+    py::array_t<double> out, 
+    py::array_t<double> positions,
+    py::array_t<int> atomic_numbers,
+    py::array_t<double> centers
+)
+{
+    // Calculate neighbours with a cell list
+    CellList cell_list(positions, this->cutoff);
+    this->create(out, positions, atomic_numbers, centers, cell_list);
 }
 
 /**
@@ -50,7 +82,7 @@ Descriptor::Descriptor(bool periodic, string average, double cutoff)
  *  - Self-derivatives are NOT always zero, only zero for l=0. The shape of
  *    the atomic density changes as atoms move around.
  */
-void Descriptor::derivatives_numerical(
+void DescriptorLocal::derivatives_numerical(
     py::array_t<double> derivatives, 
     py::array_t<double> descriptor, 
     py::array_t<double> positions,
@@ -62,7 +94,7 @@ void Descriptor::derivatives_numerical(
     py::array_t<int> indices,
     bool attach,
     bool return_descriptor
-) const
+)
 {
     int n_copies = 1;
     int n_atoms = atomic_numbers.size();

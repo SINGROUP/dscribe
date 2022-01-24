@@ -2,7 +2,7 @@ import math
 import numpy as np
 import sparse
 import pytest
-import scipy
+import scipy.stats
 from ase import Atoms
 from ase.build import molecule, bulk
 from ase.visualize import view

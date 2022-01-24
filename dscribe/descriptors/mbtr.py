@@ -25,6 +25,7 @@ import ase.data
 from dscribe.core import System
 from dscribe.descriptors import Descriptor
 import dscribe.utils.geometry
+from dscribe.utils.species import get_atomic_numbers
 import dscribe.ext
 
 
@@ -237,7 +238,7 @@ class MBTR(Descriptor):
             {} if k3 is None else k3,
             normalize_gaussians,
             normalization,
-            species,
+            get_atomic_numbers(species),
             periodic
         )
 
@@ -323,57 +324,6 @@ class MBTR(Descriptor):
 
         return output
 
-        # Ensuring variables are re-initialized when a new system is introduced
-        # self.system = system
-        # self._interaction_limit = len(system)
-
-        # # Check that the system does not have elements that are not in the list
-        # # of atomic numbers
-        # self.check_atomic_numbers(system.get_atomic_numbers())
-
-        # mbtr = {}
-        # if self.k1 is not None:
-        #     mbtr["k1"] = self._get_k1(system)
-        # if self.k2 is not None:
-        #     mbtr["k2"] = self._get_k2(system)
-        # if self.k3 is not None:
-        #     mbtr["k3"] = self._get_k3(system)
-
-        # # Handle normalization
-        # if self.normalization == "l2_each":
-        #     if self.flatten is True:
-        #         for key, value in mbtr.items():
-        #             i_data = np.array(value.data)
-        #             i_norm = np.linalg.norm(i_data)
-        #             mbtr[key] = value / i_norm
-        #     else:
-        #         for key, value in mbtr.items():
-        #             i_data = value.ravel()
-        #             i_norm = np.linalg.norm(i_data)
-        #             mbtr[key] = value / i_norm
-        # elif self.normalization == "n_atoms":
-        #     n_atoms = len(self.system)
-        #     if self.flatten is True:
-        #         for key, value in mbtr.items():
-        #             mbtr[key] = value / n_atoms
-        #     else:
-        #         for key, value in mbtr.items():
-        #             mbtr[key] = value / n_atoms
-
-        # Flatten output if requested
-        # if self.flatten:
-        #     keys = sorted(mbtr.keys())
-        #     if len(keys) > 1:
-        #         mbtr = sparse.concatenate([mbtr[key] for key in keys], axis=0)
-        #     else:
-        #         mbtr = mbtr[keys[0]]
-
-        #     # Make into a dense array if requested
-        #     if not self.sparse:
-        #         mbtr = mbtr.todense()
-
-        # return mbtr
-
     def get_number_of_features(self):
         """Used to inquire the final number of features that this descriptor
         will have.
@@ -382,23 +332,38 @@ class MBTR(Descriptor):
             int: Number of features for this descriptor.
         """
         return self.wrapper.get_number_of_features()
-        # n_features = 0
-        # n_elem = self.n_elements
 
-        # if self.k1 is not None:
-        #     n_k1_grid = self.k1["grid"]["n"]
-        #     n_k1 = n_elem * n_k1_grid
-        #     n_features += n_k1
-        # if self.k2 is not None:
-        #     n_k2_grid = self.k2["grid"]["n"]
-        #     n_k2 = (n_elem * (n_elem + 1) / 2) * n_k2_grid
-        #     n_features += n_k2
-        # if self.k3 is not None:
-        #     n_k3_grid = self.k3["grid"]["n"]
-        #     n_k3 = (n_elem * n_elem * (n_elem + 1) / 2) * n_k3_grid
-        #     n_features += n_k3
+    @property
+    def k1(self):
+        return self.wrapper.k1
 
-        # return int(n_features)
+    @k1.setter
+    def k1(self, value):
+        self.wrapper.k1 = value
+
+    @property
+    def k2(self):
+        return self.wrapper.get_k2()
+
+    @k2.setter
+    def k2(self, value):
+        self.wrapper.k2 = value
+
+    @property
+    def k3(self):
+        return self.wrapper.get_k3()
+
+    @k3.setter
+    def k3(self, value):
+        self.wrapper.k2 = value
+
+    @property
+    def species(self):
+        return self.wrapper.species
+
+    @species.setter
+    def species(self, value):
+        self.wrapper.species = get_atomic_numbers(value)
 
     def get_location(self, species):
         """Can be used to query the location of a species combination in the
@@ -497,58 +462,6 @@ class MBTR(Descriptor):
             end = int(offset + (m + 1) * n3)
 
         return slice(start, end)
-
-    @property
-    def k1(self):
-        return self.wrapper.k1
-
-    @k1.setter
-    def k1(self, value):
-        self.wrapper.k1 = value
-
-    @property
-    def k2(self):
-        return self.wrapper.get_k2()
-
-    @k2.setter
-    def k2(self, value):
-        self.wrapper.k2 = value
-
-    @property
-    def k3(self):
-        return self.wrapper.get_k3()
-
-    @k3.setter
-    def k3(self, value):
-        self.wrapper.k2 = value
-
-    @property
-    def species(self):
-        return self.wrapper.species
-
-    @species.setter
-    def species(self, value):
-        """Used to check the validity of given atomic numbers and to initialize
-        the C-memory layout for them.
-
-        Args:
-            value(iterable): Chemical species either as a list of atomic
-                numbers or list of chemical symbols.
-        """
-        # The species are stored as atomic numbers for internal use.
-        self._set_species(value)
-        self.wrapper.species = self._atomic_numbers
-
-        # Setup mappings between atom indices and types together with some
-        # statistics
-        self.atomic_number_to_index = {}
-        self.index_to_atomic_number = {}
-        for i_atom, atomic_number in enumerate(self._atomic_numbers):
-            self.atomic_number_to_index[atomic_number] = i_atom
-            self.index_to_atomic_number[i_atom] = atomic_number
-        self.n_elements = len(self._atomic_numbers)
-        self.max_atomic_number = max(self._atomic_numbers)
-        self.min_atomic_number = min(self._atomic_numbers)
 
     # def check_grid(self, grid):
     #     """Used to ensure that the given grid settings are valid.

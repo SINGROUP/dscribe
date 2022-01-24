@@ -13,8 +13,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef DESCRIPTORGLOBAL_H
-#define DESCRIPTORGLOBAL_H
+#ifndef DESCRIPTORLOCAL_H
+#define DESCRIPTORLOCAL_H
 
 #include <pybind11/numpy.h>
 #include <string>
@@ -24,9 +24,9 @@ namespace py = pybind11;
 using namespace std;
 
 /**
- * Global descriptor base class.
+ * Local descriptor base class.
  */
-class DescriptorGlobal {
+class DescriptorLocal {
     public:
         /**
         * Calculates the feature vector for a periodic system with no
@@ -35,6 +35,7 @@ class DescriptorGlobal {
         * @param out Numpy output array for the descriptor.
         * @param positions Atomic positions as [n_atoms, 3] numpy array.
         * @param atomic_numbers Atomic numbers as [n_atoms] numpy array.
+        * @param centers Positions of the local centers as [n_centers, 3] numpy array.
         * @param cell Simulation cell as [3, 3] numpy array.
         * @param pbc Simulation cell periodicity as [3] numpy array.
         */
@@ -42,6 +43,7 @@ class DescriptorGlobal {
             py::array_t<double> out, 
             py::array_t<double> positions,
             py::array_t<int> atomic_numbers,
+            py::array_t<double> centers,
             py::array_t<double> cell,
             py::array_t<bool> pbc
         ); 
@@ -53,24 +55,34 @@ class DescriptorGlobal {
         * @param out Numpy output array for the descriptor.
         * @param positions Atomic positions as [n_atoms, 3] numpy array.
         * @param atomic_numbers Atomic numbers as [n_atoms] numpy array.
+        * @param centers Positions of the local centers as [n_centers, 3] numpy array.
         * @param cell Simulation cell as [3, 3] numpy array.
         * @param pbc Simulation cell periodicity as [3] numpy array.
         */
         void create(
             py::array_t<double> out, 
             py::array_t<double> positions,
-            py::array_t<int> atomic_numbers
-        ); 
+            py::array_t<int> atomic_numbers,
+            py::array_t<double> centers
+        );
 
         /**
         * Calculates the feature vector for a finite system with a
         * precalculated cell list.
+        *
+        * @param out Numpy output array for the descriptor.
+        * @param positions Atomic positions as [n_atoms, 3] numpy array.
+        * @param atomic_numbers Atomic numbers as [n_atoms] numpy array.
+        * @param centers Positions of the local centers as [n_centers, 3] numpy array.
+        * @param cell Simulation cell as [3, 3] numpy array.
+        * @param pbc Simulation cell periodicity as [3] numpy array.
         */
         virtual void create(
             py::array_t<double> &out, 
             py::array_t<double> &positions,
             py::array_t<int> &atomic_numbers,
-            CellList &cell_list
+            py::array_t<double> &centers,
+            CellList &cellList
         ) = 0; 
 
         /**
@@ -87,6 +99,7 @@ class DescriptorGlobal {
         * @param atomic_numbers Atomic numbers as [n_atoms] numpy array.
         * @param cell Simulation cell as [3, 3] numpy array.
         * @param pbc Simulation cell periodicity as [3] numpy array.
+        * @param centers Positions of the local centers as [n_centers, 3] numpy array.
         * @param indices Indices of the atoms for which derivatives are calculated for.
         * @param return_descriptor Determines whether descriptors are calculated or not.
         */
@@ -97,12 +110,15 @@ class DescriptorGlobal {
             py::array_t<int> atomic_numbers,
             py::array_t<double> cell,
             py::array_t<bool> pbc,
+            py::array_t<double> centers,
+            py::array_t<int> center_indices,
             py::array_t<int> indices,
+            bool attach,
             bool return_descriptor
         );
 
     protected:
-        DescriptorGlobal(bool periodic, string average="", double cutoff=0);
+        DescriptorLocal(bool periodic, string average="", double cutoff=0);
         const bool periodic;
         const string average;
         const double cutoff;

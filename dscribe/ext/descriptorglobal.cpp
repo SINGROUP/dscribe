@@ -16,7 +16,6 @@ limitations under the License.
 #include <set>
 #include <unordered_map>
 #include <cmath>
-#include <iostream>
 #include "descriptorglobal.h"
 #include "geometry.h"
 
@@ -45,13 +44,18 @@ void DescriptorGlobal::create(
         positions = system_extended.positions;
         atomic_numbers = system_extended.atomic_numbers;
     }
+    this->create(out, positions, atomic_numbers);
+}
 
+void DescriptorGlobal::create(
+    py::array_t<double> out, 
+    py::array_t<double> positions,
+    py::array_t<int> atomic_numbers
+)
+{
     // Calculate neighbours with a cell list
     CellList cell_list(positions, this->cutoff);
-    auto out_mu = out.mutable_unchecked<1>();
-    auto positions_u = positions.unchecked<2>();
-    auto atomic_numbers_u = atomic_numbers.unchecked<1>();
-    this->create_raw(out_mu, positions_u, atomic_numbers_u, cell_list);
+    this->create(out, positions, atomic_numbers, cell_list);
 }
 
 void DescriptorGlobal::derivatives_numerical(
@@ -90,7 +94,7 @@ void DescriptorGlobal::derivatives_numerical(
 
     // Calculate the desciptor value if requested
     if (return_descriptor) {
-        this->create_raw(descriptor_mu, positions_u, atomic_numbers_u, cell_list_atoms);
+        this->create(descriptor, positions, atomic_numbers, cell_list_atoms);
     }
 
     // Central finite difference with error O(h^2)
@@ -133,11 +137,11 @@ void DescriptorGlobal::derivatives_numerical(
                 // Initialize temporary numpy array for storing the descriptor
                 // for this stencil point
                 double* dTemp = new double[n_features]();
-                py::array_t<double> d({n_features}, dTemp);
+                py::array_t<double> d({(unsigned long)(n_features)}, dTemp);
                 auto d_mu = d.mutable_unchecked<1>();
 
                 // Calculate descriptor value
-                this->create_raw(d_mu, positions_u, atomic_numbers_u, cell_list_atoms);
+                this->create(d, positions, atomic_numbers, cell_list_atoms);
 
                 // Add value to final derivative array
                 double coeff = coefficients[i_stencil];

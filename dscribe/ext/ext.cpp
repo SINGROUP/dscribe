@@ -35,7 +35,8 @@ PYBIND11_MODULE(ext, m) {
     // CoulombMatrix
     py::class_<CoulombMatrix>(m, "CoulombMatrix")
         .def(py::init<unsigned int, string, double, int>())
-        .def("create", &CoulombMatrix::create)
+        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<bool> >()(&DescriptorGlobal::create))
+        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int> >()(&DescriptorGlobal::create))
         .def("derivatives_numerical", &CoulombMatrix::derivatives_numerical)
         .def(py::pickle(
             [](const CoulombMatrix &p) {
@@ -57,16 +58,14 @@ PYBIND11_MODULE(ext, m) {
     // SOAP
     py::class_<SOAPGTO>(m, "SOAPGTO")
         .def(py::init<double, int, int, double, py::dict, bool, string, double, py::array_t<double>, py::array_t<double>, py::array_t<int>, bool>())
-        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double> >()(&SOAPGTO::create, py::const_))
-        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<bool>, py::array_t<double> >()(&SOAPGTO::create, py::const_))
-        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, CellList>()(&SOAPGTO::create, py::const_))
+        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<double>, py::array_t<bool> >()(&DescriptorLocal::create))
+        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double> >()(&DescriptorLocal::create))
         .def("derivatives_numerical", &SOAPGTO::derivatives_numerical)
         .def("derivatives_analytical", &SOAPGTO::derivatives_analytical);
     py::class_<SOAPPolynomial>(m, "SOAPPolynomial")
         .def(py::init<double, int, int, double, py::dict, bool, string, double, py::array_t<double>, py::array_t<double>, py::array_t<int>, bool >())
-        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double> >()(&SOAPPolynomial::create, py::const_))
-        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<bool>, py::array_t<double> >()(&SOAPPolynomial::create, py::const_))
-        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, CellList>()(&SOAPPolynomial::create, py::const_))
+        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<double>, py::array_t<bool> >()(&DescriptorLocal::create))
+        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double> >()(&DescriptorLocal::create))
         .def("derivatives_numerical", &SOAPPolynomial::derivatives_numerical);
 
     // ACSF
@@ -110,7 +109,8 @@ PYBIND11_MODULE(ext, m) {
     // MBTR
     py::class_<MBTR>(m, "MBTR")
         .def(py::init<py::dict, py::dict, py::dict, bool, string, py::array_t<int>, bool>())
-        .def("create", &MBTR::create)
+        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<bool> >()(&DescriptorGlobal::create))
+        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int> >()(&DescriptorGlobal::create))
         .def("get_number_of_features", &MBTR::get_number_of_features)
         .def_property("k1", &MBTR::get_k1, &MBTR::set_k1)
         .def_property("k2", &MBTR::get_k2, &MBTR::set_k2)
@@ -122,16 +122,16 @@ PYBIND11_MODULE(ext, m) {
                 return py::make_tuple(p.k1, p.k2, p.k3, p.normalize_gaussians, p.normalization, p.species, p.periodic);
             },
             [](py::tuple t) {
-                if (t.size() != 4)
+                if (t.size() != 7)
                     throw std::runtime_error("Invalid state!");
                 MBTR p(
                     t[0].cast<py::dict>(),
                     t[1].cast<py::dict>(),
                     t[2].cast<py::dict>(),
                     t[3].cast<bool>(),
-                    t[3].cast<string>(),
-                    t[3].cast<py::array_t<int>>(),
-                    t[3].cast<bool>()
+                    t[4].cast<string>(),
+                    t[5].cast<py::array_t<int>>(),
+                    t[6].cast<bool>()
                 );
                 return p;
             }
