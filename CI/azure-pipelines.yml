@@ -1,7 +1,7 @@
 # Defines when the pipeline is triggered
 trigger:
 - master
-- v1.2.1
+- v1.2.2
 
 # Jobs
 jobs:
@@ -20,6 +20,8 @@ jobs:
         python.version: '3.8'
       python39:
         python.version: '3.9'
+      python310:
+        python.version: '3.10'
   steps:
   - checkout: self
     displayName: 'Checking out git repository'
