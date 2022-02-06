@@ -192,14 +192,14 @@ class EwaldSumMatrix(MatrixDescriptor):
                 Corresponds to the standard deviation of the Gaussians.
         """
         self.q = system.get_atomic_numbers()
-        self.q_squared = self.q ** 2
+        self.q_squared = self.q**2
         self.n_atoms = len(system)
         self.volume = system.get_volume()
         self.sqrt_pi = math.sqrt(np.pi)
 
         # If a is not provided, use a default value
         if a is None:
-            a = (self.n_atoms * w / (self.volume ** 2)) ** (1 / 6) * self.sqrt_pi
+            a = (self.n_atoms * w / (self.volume**2)) ** (1 / 6) * self.sqrt_pi
 
         # If the real space cutoff, reciprocal space cutoff and a have not been
         # specified, use the accuracy and the weighting w to determine default
@@ -215,7 +215,7 @@ class EwaldSumMatrix(MatrixDescriptor):
             )
 
         self.a = a
-        self.a_squared = self.a ** 2
+        self.a_squared = self.a**2
         self.gcut = gcut
         self.rcut = rcut
 
@@ -261,7 +261,7 @@ class EwaldSumMatrix(MatrixDescriptor):
         # element + upper diagonal part.
         q = self.q
         matself = np.zeros((self.n_atoms, self.n_atoms))
-        diag = q ** 2
+        diag = q**2
         np.fill_diagonal(matself, diag)
         matself *= -self.a / self.sqrt_pi
 
@@ -359,7 +359,7 @@ class EwaldSumMatrix(MatrixDescriptor):
         frac_coords = [fcoords for (fcoords, dist, i) in recip_nn if dist != 0]
 
         gs = rcp_latt.get_cartesian_coords(frac_coords)
-        g2s = np.sum(gs ** 2, 1)
+        g2s = np.sum(gs**2, 1)
         expvals = np.exp(-g2s / (4 * self.a_squared))
         grs = np.sum(gs[:, None] * coords[None, :], 2)
         factors = np.divide(expvals, g2s)
@@ -376,7 +376,7 @@ class EwaldSumMatrix(MatrixDescriptor):
             m *= factor
             erecip += m
 
-        erecip *= 4 * math.pi / self.volume * qiqj * 2 ** 0.5
+        erecip *= 4 * math.pi / self.volume * qiqj * 2**0.5
 
         # The diagonal terms are divided by two
         diag = np.diag(erecip) / 2

@@ -207,7 +207,7 @@ class MatrixDescriptor(Descriptor):
         if self.permutation == "eigenspectrum":
             return int(self.n_atoms_max)
         else:
-            return int(self.n_atoms_max ** 2)
+            return int(self.n_atoms_max**2)
 
     def sort_randomly(self, matrix, sigma):
         """

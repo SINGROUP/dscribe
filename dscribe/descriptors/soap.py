@@ -184,7 +184,7 @@ class SOAP(Descriptor):
             raise ValueError(
                 "Only positive gaussian width parameters 'sigma' are allowed."
             )
-        self._eta = 1 / (2 * sigma ** 2)
+        self._eta = 1 / (2 * sigma**2)
         self._sigma = sigma
 
         supported_rbf = {"gto", "polynomial"}
@@ -1114,7 +1114,7 @@ class SOAP(Descriptor):
         for l in range(0, lmax + 1):
             # The alphas are calculated so that the GTOs will decay to the set
             # threshold value at their respective cutoffs
-            alphas = -np.log(threshold / np.power(a, l)) / a ** 2
+            alphas = -np.log(threshold / np.power(a, l)) / a**2
 
             # Calculate the overlap matrix
             m = np.zeros((alphas.shape[0], alphas.shape[0]))

@@ -1068,8 +1068,8 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                 for k in range(nmax):
                     gto += (
                         betas[l, n, k]
-                        * rspace ** l
-                        * np.exp(-alphas[l, k] * rspace ** 2)
+                        * rspace**l
+                        * np.exp(-alphas[l, k] * rspace**2)
                     )
                 n_basis += 1
                 functions[n, l, :] = gto
@@ -1080,7 +1080,7 @@ class SoapTests(TestBaseClass, unittest.TestCase):
             for i in range(nmax):
                 for j in range(nmax):
                     overlap = np.trapz(
-                        rspace ** 2 * functions[i, l, :] * functions[j, l, :],
+                        rspace**2 * functions[i, l, :] * functions[j, l, :],
                         dx=(rcut + 5) / nr,
                     )
                     S[i, j] = overlap

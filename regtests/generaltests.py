@@ -389,8 +389,8 @@ class GaussianTests(unittest.TestCase):
             # Calculate with probability density function (pdf)
             dist2 = axis[np.newaxis, :] - centers[:, np.newaxis]
             dist2 *= dist2
-            f = np.sum(np.exp(-dist2 / (2 * sigma ** 2)), axis=0)
-            f *= 1 / math.sqrt(2 * sigma ** 2 * math.pi)
+            f = np.sum(np.exp(-dist2 / (2 * sigma**2)), axis=0)
+            f *= 1 / math.sqrt(2 * sigma**2 * math.pi)
             pdf_pdf = f
 
             # Calculate differences

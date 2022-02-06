@@ -17,19 +17,16 @@ def big_system():
     close-by atoms.
     """
     a = 1
-    return (
-        Atoms(
-            symbols=["C", "C", "C"],
-            cell=[[0, a, a], [a, 0, a], [a, a, 0]],
-            scaled_positions=[
-                [0, 0, 0],
-                [1 / 3, 1 / 3, 1 / 3],
-                [2 / 3, 2 / 3, 2 / 3],
-            ],
-            pbc=[True, True, True],
-        )
-        * (3, 3, 3)
-    )
+    return Atoms(
+        symbols=["C", "C", "C"],
+        cell=[[0, a, a], [a, 0, a], [a, a, 0]],
+        scaled_positions=[
+            [0, 0, 0],
+            [1 / 3, 1 / 3, 1 / 3],
+            [2 / 3, 2 / 3, 2 / 3],
+        ],
+        pbc=[True, True, True],
+    ) * (3, 3, 3)
 
 
 @pytest.fixture()
@@ -416,7 +413,7 @@ def assert_matrix_descriptor_random(descriptor_func):
 
     # The expected probability is calculated from the cumulative
     # distribution function.
-    expected = 1 - scipy.stats.norm.cdf(0, mu1 - mu2, np.sqrt(sigma ** 2 + sigma ** 2))
+    expected = 1 - scipy.stats.norm.cdf(0, mu1 - mu2, np.sqrt(sigma**2 + sigma**2))
     observed = count / rand_instances
 
     assert abs(expected - observed) <= 1e-2

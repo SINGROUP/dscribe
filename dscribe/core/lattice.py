@@ -41,7 +41,7 @@ class Lattice(object):
                 with lattice vectors [10, 0, 0], [20, 10, 0] and [0, 0, 30].
         """
         m = np.array(matrix, dtype=np.float64).reshape((3, 3))
-        lengths = np.sqrt(np.sum(m ** 2, axis=1))
+        lengths = np.sqrt(np.sum(m**2, axis=1))
         self._lengths = lengths
         self._matrix = m
         self._inv_matrix = None
@@ -184,7 +184,7 @@ class Lattice(object):
         coords **= 2
         d_2 = np.sum(coords, axis=4)
 
-        within_r = np.where(d_2 <= r ** 2)
+        within_r = np.where(d_2 <= r**2)
         if zip_results:
             return list(
                 zip(

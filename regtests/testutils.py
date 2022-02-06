@@ -220,7 +220,7 @@ def coefficients_gto(system, centers, args):
     def rbf_gto(r, n, l):
         i_alpha = alphas[l, 0:nmax]
         i_beta = betas[l, n, 0:nmax]
-        return (i_beta * r ** l * np.exp(-i_alpha * r ** 2)).sum()
+        return (i_beta * r**l * np.exp(-i_alpha * r**2)).sum()
 
     return soap_integration(system, centers, args, rbf_gto)
 
@@ -348,12 +348,12 @@ def integral(args, n, l, m, elem_pos, rbf_function):
         ix = elem_pos[:, 0]
         iy = elem_pos[:, 1]
         iz = elem_pos[:, 2]
-        ri_squared = ix ** 2 + iy ** 2 + iz ** 2
+        ri_squared = ix**2 + iy**2 + iz**2
         rho = np.exp(
             -1
-            / (2 * sigma ** 2)
+            / (2 * sigma**2)
             * (
-                r ** 2
+                r**2
                 + ri_squared
                 - 2
                 * r
@@ -370,7 +370,7 @@ def integral(args, n, l, m, elem_pos, rbf_function):
         rho = rho.sum()
 
         # Jacobian
-        jacobian = np.sin(theta) * r ** 2
+        jacobian = np.sin(theta) * r**2
 
         return rbf_function(r, n, l) * ylm * rho * jacobian
 

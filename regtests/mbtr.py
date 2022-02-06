@@ -1121,7 +1121,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         gaussian = (
             lambda x, mean, sigma: 1
             / (sigma * np.sqrt(2 * np.pi))
-            * np.exp(-((x - mean) ** 2) / (2 * sigma ** 2))
+            * np.exp(-((x - mean) ** 2) / (2 * sigma**2))
         )
         self.assertTrue(
             np.allclose(peak1_y, 2 * gaussian(1, 1, std), rtol=0, atol=0.001)
@@ -1152,7 +1152,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         peak2_y = y[1, peak2_x]
 
         # Check against the analytical value
-        gaussian = lambda x, mean, sigma: np.exp(-((x - mean) ** 2) / (2 * sigma ** 2))
+        gaussian = lambda x, mean, sigma: np.exp(-((x - mean) ** 2) / (2 * sigma**2))
         self.assertTrue(
             np.allclose(peak1_y, 2 * gaussian(1, 1, std), rtol=0, atol=0.001)
         )
@@ -1162,7 +1162,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         pdf = y[0, :]
         dx = (stop - start) / (n - 1)
         sum_cum = np.sum(0.5 * dx * (pdf[:-1] + pdf[1:]))
-        exp = 2 / (1 / math.sqrt(2 * math.pi * std ** 2))
+        exp = 2 / (1 / math.sqrt(2 * math.pi * std**2))
         self.assertTrue(np.allclose(sum_cum, exp, rtol=0, atol=0.001))
 
     def test_symmetries(self):

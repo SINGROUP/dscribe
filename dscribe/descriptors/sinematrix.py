@@ -142,6 +142,6 @@ class SineMatrix(MatrixDescriptor):
         smat = qiqj * phi
 
         # Set diagonal
-        np.fill_diagonal(smat, 0.5 * q ** 2.4)
+        np.fill_diagonal(smat, 0.5 * q**2.4)
 
         return smat
