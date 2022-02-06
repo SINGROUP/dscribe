@@ -84,7 +84,7 @@ extensions = [
 if __name__ == "__main__":
     setup(
         name="dscribe",
-        version="1.2.1",
+        version="1.2.2",
         url="https://singroup.github.io/dscribe/",
         description="A Python package for creating feature transformations in applications of machine learning to materials science.",
         long_description="A Python package for creating feature transformations in applications of machine learning to materials science.",
@@ -111,6 +111,7 @@ if __name__ == "__main__":
             "Programming Language :: Python :: 3.7",
             "Programming Language :: Python :: 3.8",
             "Programming Language :: Python :: 3.9",
+            "Programming Language :: Python :: 3.10",
             "Programming Language :: Python :: 3 :: Only",
         ],
         keywords="descriptor machine learning atomistic structure materials science",
