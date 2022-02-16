@@ -16,6 +16,7 @@ limitations under the License.
 #define MBTR_H
 
 #include <string>
+#include <map>
 #include <pybind11/numpy.h>
 #include "descriptorglobal.h"
 
@@ -73,6 +74,7 @@ class MBTR: public DescriptorGlobal {
         py::dict get_k2();
         py::dict get_k3();
         py::array_t<int> get_species();
+        map<int, int> get_species_index_map();
 
         py::dict k1;
         py::dict k2;
@@ -83,12 +85,14 @@ class MBTR: public DescriptorGlobal {
         bool periodic;
 
     private:
-
+        map<int, int> species_index_map;
+        map<int, int> index_species_map;
         /**
          * Assertions
          */
         void assert_valle();
-        // void get_k1(py::detail::unchecked_mutable_reference<double, 1> &out_mu, py::detail::unchecked_reference<int, 1> &atomic_numbers_u);
+        inline vector<double> gaussian(double center, double weight, double start, double dx, double sigmasqrt2, int n);
+        void calculate_k1(py::array_t<double> &out, py::array_t<int> &atomic_numbers);
         // void get_k1(py::detail::unchecked_mutable_reference<double, 1> &out_mu, py::detail::unchecked_reference<int, 1> &atomic_numbers_u);
         // void get_k2(py::detail::unchecked_mutable_reference<double, 1> &out_mu, py::detail::unchecked_reference<int, 1> &atomic_numbers_u, CellList &cell_list);
         // void get_k3(py::detail::unchecked_mutable_reference<double, 1> &out_mu, py::detail::unchecked_reference<int, 1> &atomic_numbers_u, CellList &cell_list);

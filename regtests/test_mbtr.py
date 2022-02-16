@@ -119,39 +119,43 @@ def test_number_of_features(k1, k2, k3):
     assert n_features == (expected_k1 if k1 else 0) + (expected_k2 if k2 else 0) + (expected_k3 if k3 else 0)
 
 
-# def test_k1_peaks_finite():
-    # """Tests the correct peak locations and intensities are found for the
-    # k=1 term.
-    # """
-    # system = water()
-    # k1 = {
-        # "geometry": {"function": "atomic_number"},
-        # "grid": {"min": 0, "max": 9, "sigma": 0.5, "n": 1000},
-    # }
-    # desc = MBTR(
-        # species=[1, 8],
-        # k1=k1,
-        # normalize_gaussians=False,
-        # periodic=False,
-        # flatten=True,
-        # sparse=False,
-    # )
-    # features = desc.create(system)
+def test_k1_peaks_finite():
+    """Tests the correct peak locations and intensities are found for the
+    k=1 term.
+    """
+    system = water()
+    k1 = {
+        "geometry": {"function": "atomic_number"},
+        "grid": {"min": 0, "max": 9, "sigma": 0.5, "n": 1000},
+    }
+    desc = MBTR(
+        species=[1, 8],
+        k1=k1,
+        normalize_gaussians=False,
+        periodic=False,
+        flatten=True,
+        sparse=False,
+    )
+    features = desc.create(system)
 
-    # start = k1["grid"]["min"]
-    # stop = k1["grid"]["max"]
-    # n = k1["grid"]["n"]
-    # x = np.linspace(start, stop, n)
+    start = k1["grid"]["min"]
+    stop = k1["grid"]["max"]
+    n = k1["grid"]["n"]
+    x = np.linspace(start, stop, n)
 
-    # # Check the H peaks
-    # h_feat = features[desc.get_location(("H"))]
-    # h_peak_indices = find_peaks(h_feat, prominence=1)[0]
-    # h_peak_locs = x[h_peak_indices]
-    # h_peak_ints = h_feat[h_peak_indices]
-    # assert np.allclose(h_peak_locs, [1], rtol=0, atol=1e-2)
-    # assert np.allclose(h_peak_ints, [2], rtol=0, atol=1e-2)
+    import matplotlib.pyplot as mpl
+    mpl.plot(np.arange(len(features)), features)
+    mpl.show()
 
-    # # Check the O peaks
+    # Check the H peaks
+    h_feat = features[desc.get_location(("H"))]
+    h_peak_indices = find_peaks(h_feat, prominence=1)[0]
+    h_peak_locs = x[h_peak_indices]
+    h_peak_ints = h_feat[h_peak_indices]
+    assert np.allclose(h_peak_locs, [1], rtol=0, atol=1e-2)
+    assert np.allclose(h_peak_ints, [2], rtol=0, atol=1e-2)
+
+    # Check the O peaks
     # o_feat = features[desc.get_location(("O"))]
     # o_peak_indices = find_peaks(o_feat, prominence=1)[0]
     # o_peak_locs = x[o_peak_indices]

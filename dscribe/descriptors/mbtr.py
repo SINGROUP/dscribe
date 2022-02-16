@@ -403,8 +403,8 @@ class MBTR(Descriptor):
             numbers.append(specie)
 
         # Change into internal indexing
-        numbers = [self.atomic_number_to_index[x] for x in numbers]
-        n_elem = self.n_elements
+        numbers = [self.wrapper.species_index_map[x] for x in numbers]
+        n_elem = len(self.wrapper.species)
 
         # k=1
         if len(numbers) == 1:

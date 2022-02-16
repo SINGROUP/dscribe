@@ -31,8 +31,8 @@ MBTR::MBTR(
     , k3(k3)
     , normalize_gaussians(normalize_gaussians)
     , normalization(normalization)
-    , species(species)
 {
+    this->set_species(species);
 }
 
 int MBTR::get_number_of_features() const {
@@ -59,11 +59,12 @@ int MBTR::get_number_of_features() const {
 }
 
 void MBTR::create(
-    py::array_t<double> &out, 
+    py::array_t<double> &out,
     py::array_t<double> &positions,
     py::array_t<int> &atomic_numbers,
     CellList &cell_list
 ) {
+    this->calculate_k1(out, atomic_numbers);
     return;
 };
 
@@ -75,7 +76,30 @@ void MBTR::set_normalization(string normalization) {
     this->normalization = normalization;
     assert_valle();
 };
-void MBTR::set_species(py::array_t<int> species) {this->species = species;};
+void MBTR::set_species(py::array_t<int> species) {
+    this->species = species;
+    // Setup mappings between atom indices and types together with some
+    // statistics
+    map<int, int> species_index_map;
+    map<int, int> index_species_map;
+    auto species_u = species.unchecked<1>();
+    int max_atomic_number = species_u(0);
+    int min_atomic_number = species_u(0);
+    int n_elements = species_u.size();
+    for (int i = 0; i < n_elements; ++i) {
+        int atomic_number = species_u(i);
+        if (atomic_number > max_atomic_number) {
+            max_atomic_number = atomic_number;
+        }
+        if (atomic_number < min_atomic_number) {
+            min_atomic_number = atomic_number;
+        }
+        species_index_map[atomic_number] = i;
+        index_species_map[i] = atomic_number;
+    }
+    this->species_index_map = species_index_map;
+    this->index_species_map = index_species_map;
+};
 void MBTR::set_periodic(bool periodic) {
     this->periodic = periodic;
     assert_valle();
@@ -90,43 +114,78 @@ py::dict MBTR::get_k1() {return k1;};
 py::dict MBTR::get_k2() {return k2;};
 py::dict MBTR::get_k3() {return k3;};
 py::array_t<int> MBTR::get_species() {return this->species;};
+map<int, int> MBTR::get_species_index_map() {return this->species_index_map;};
 
 
-// void MBTR::get_k1(py::detail::unchecked_mutable_reference<double, 1> &out_mu, py::detail::unchecked_reference<int, 1> &atomic_numbers_u) {
-//     int n_atoms = Z.size();
-//     float dx = (max-min)/(n-1);
-//     float sigmasqrt2 = sigma*sqrt(2.0);
-//     float start = min-dx/2;
+inline vector<double> MBTR::gaussian(double center, double weight, double start, double dx, double sigmasqrt2, int n) {
+    // We first calculate the cumulative distribution function for a normal
+    // distribution.
+    vector<double> cdf(n+1);
+    double x = start;
+    for (auto &it : cdf) {
+        it = weight*1.0/2.0*(1.0 + erf((x-center)/sigmasqrt2));
+        x += dx;
+    }
 
-//     // Determine the geometry function to use
-//     string geom_func_name = ...;
-//     if (geom_func_name == "atomic_number") {
-//         geom_func = k1GeomAtomicNumber(i, Z);
-//     } else {
-//         throw invalid_argument("Invalid geometry function.");
-//     }
+    // The normal distribution is calculated as a derivative of the cumulative
+    // distribution, as with coarse discretization this methods preserves the
+    // norm better.
+    vector<double> pdf(n);
+    int i = 0;
+    for (auto &it : pdf) {
+        it = (cdf[i+1]-cdf[i])/dx;
+        ++i;
+    }
 
-//     // Determine the weighting function to use
-//     string weight_func_name = ...;
-//     if (weight_func_name == "atomic_number") {
-//         weight_func = k1GeomAtomicNumber(i, Z);
-//     } else {
-//         throw invalid_argument("Invalid geometry function.");
-//     }
+    return pdf;
+}
 
-//     // Loop through all the atoms in the original, non-extended cell
-//     for (int i=0; i < nAtoms; ++i) {
-//         float geom = geom_func(i, Z);
-//         float weight = weight_func(i, Z);
+void MBTR::calculate_k1(py::array_t<double> &out, py::array_t<int> &atomic_numbers) {
+    // Create mutable and unchecked versions
+    auto out_mu = out.mutable_unchecked<1>();
+    auto atomic_numbers_u = atomic_numbers.unchecked<1>();
 
-//         // Calculate gaussian
-//         vector<double> gauss = gaussian(geom, weight, start, dx, sigmasqrt2, n);
+    double sigma = this->k1["grid"]["sigma"].cast<double>();
+    double min = this->k1["grid"]["min"].cast<double>();
+    double max = this->k1["grid"]["max"].cast<double>();
+    int n = this->k1["grid"]["n"].cast<int>();
+    double dx = (max - min) / (n - 1);
+    double sigmasqrt2 = sigma * sqrt(2.0);
+    double start = min - dx/2;
 
-//         // Get the index of the present elements in the final vector
-//         int i_elem = Z[i];
-//         int i_index = this->atomicNumberToIndexMap.at(i_elem);
+    // // Determine the geometry function to use
+    // string geom_func_name = ...;
+    // if (geom_func_name == "atomic_number") {
+    //     geom_func = k1GeomAtomicNumber(i, Z);
+    // } else {
+    //     throw invalid_argument("Invalid geometry function.");
+    // }
 
-//         // Sum gaussian into output
-//         transform(old.begin(), old.end(), gauss.begin(), old.begin(), plus<double>());
-//     }
-// }
+    // // Determine the weighting function to use
+    // string weight_func_name = ...;
+    // if (weight_func_name == "atomic_number") {
+    //     weight_func = k1GeomAtomicNumber(i, Z);
+    // } else {
+    //     throw invalid_argument("Invalid geometry function.");
+    // }
+
+    // Loop through all the atoms in the original, non-extended cell
+    int n_atoms = atomic_numbers.size();
+    for (int i=0; i < n_atoms; ++i) {
+        int i_z = atomic_numbers_u(i);
+        // double geom = geom_func(i, i_z);
+        // double weight = weight_func(i, i_z);
+
+        // Calculate gaussian
+        // vector<double> gauss = gaussian(geom, weight, start, dx, sigmasqrt2, n);
+        vector<double> gauss = gaussian(1, 1, start, dx, sigmasqrt2, n);
+
+        // Get the index of the present elements in the final vector
+        int i_index = this->species_index_map.at(i_z);
+
+        // Sum gaussian into output
+        for (int j=0; j < gauss.size(); ++j) {
+            out_mu[i_index * n + j] += gauss[j];
+        }
+    }
+}
