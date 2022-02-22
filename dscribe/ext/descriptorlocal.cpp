@@ -21,13 +21,6 @@ limitations under the License.
 
 using namespace std;
 
-DescriptorLocal::DescriptorLocal(bool periodic, string average, double cutoff)
-    : periodic(periodic)
-    , average(average)
-    , cutoff(cutoff)
-{
-}
-
 void DescriptorLocal::create(
     py::array_t<double> out, 
     py::array_t<double> positions,

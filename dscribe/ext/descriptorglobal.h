@@ -18,6 +18,7 @@ limitations under the License.
 
 #include <pybind11/numpy.h>
 #include <string>
+#include "descriptor.h"
 #include "celllist.h"
 
 namespace py = pybind11;
@@ -26,7 +27,11 @@ using namespace std;
 /**
  * Global descriptor base class.
  */
-class DescriptorGlobal {
+class DescriptorGlobal : public Descriptor {
+    protected:
+        DescriptorGlobal(bool periodic, string average="", double cutoff=0)
+        : Descriptor(periodic, average, cutoff) {};
+
     public:
         /**
         * Calculates the feature vector for a periodic system with no
@@ -100,12 +105,6 @@ class DescriptorGlobal {
             py::array_t<int> indices,
             bool return_descriptor
         );
-
-    protected:
-        DescriptorGlobal(bool periodic, string average="", double cutoff=0);
-        const bool periodic;
-        const string average;
-        const double cutoff;
 };
 
 #endif

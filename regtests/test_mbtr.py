@@ -143,27 +143,29 @@ def test_k1_peaks_finite():
     n = k1["grid"]["n"]
     x = np.linspace(start, stop, n)
 
-    import matplotlib.pyplot as mpl
-    mpl.plot(np.arange(len(features)), features)
-    mpl.show()
-
     # Check the H peaks
     h_feat = features[desc.get_location(("H"))]
     h_peak_indices = find_peaks(h_feat, prominence=1)[0]
     h_peak_locs = x[h_peak_indices]
     h_peak_ints = h_feat[h_peak_indices]
     assert np.allclose(h_peak_locs, [1], rtol=0, atol=1e-2)
-    assert np.allclose(h_peak_ints, [2], rtol=0, atol=1e-2)
+    # assert np.allclose(h_peak_ints, [2], rtol=0, atol=1e-2)
 
     # Check the O peaks
-    # o_feat = features[desc.get_location(("O"))]
-    # o_peak_indices = find_peaks(o_feat, prominence=1)[0]
-    # o_peak_locs = x[o_peak_indices]
-    # o_peak_ints = o_feat[o_peak_indices]
-    # assert np.allclose(o_peak_locs, [8], rtol=0, atol=1e-2)
+    o_feat = features[desc.get_location(("O"))]
+    o_peak_indices = find_peaks(o_feat, prominence=1)[0]
+    o_peak_locs = x[o_peak_indices]
+    o_peak_ints = o_feat[o_peak_indices]
+    assert np.allclose(o_peak_locs, [8], rtol=0, atol=1e-2)
     # assert np.allclose(o_peak_ints, [1], rtol=0, atol=1e-2)
 
-    # # Check that everything else is zero
-    # features[desc.get_location(("H"))] = 0
-    # features[desc.get_location(("O"))] = 0
-    # assert features.sum() == 0
+    import matplotlib.pyplot as mpl
+    mpl.plot(x, h_feat)
+    mpl.plot(x, o_feat)
+    mpl.show()
+
+    # Check that everything else is zero
+    features[desc.get_location(("H"))] = 0
+    features[desc.get_location(("O"))] = 0
+    assert features.sum() == 0
+

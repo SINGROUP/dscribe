@@ -12,9 +12,105 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+#include <functional>
 #include "mbtr.h"
+#include "constants.h"
 
 using namespace std;
+
+inline double weight_unity_k1(const int &atomic_number)
+{
+    return 1;
+}
+
+inline double weight_unity_k2(const int &i, const int &j, const vector<vector<double> > &distances)
+{
+    return 1;
+}
+
+inline double weight_unity_k3(const int &i, const int &j, const int &k, const vector<vector<double> > &distances)
+{
+    return 1;
+}
+
+inline double weight_exponential_k2(const int &i, const int &j, const vector<vector<double> > &distances, double scale)
+{
+    double dist = distances[i][j];
+    double expValue = exp(-scale*dist);
+    return expValue;
+}
+
+inline double weight_exponential_k3(const int &i, const int &j, const int &k, const vector<vector<double> > &distances, double scale)
+{
+    double dist1 = distances[i][j];
+    double dist2 = distances[j][k];
+    double dist3 = distances[k][i];
+    double distTotal = dist1 + dist2 + dist3;
+    double expValue = exp(-scale*distTotal);
+
+    return expValue;
+}
+
+inline double weight_square_k2(const int &i, const int &j, const vector<vector<double> > &distances)
+{
+    double dist = distances[i][j];
+    double value = 1/(dist*dist);
+    return value;
+}
+
+inline double weight_smooth_k3(const int &i, const int &j, const int &k, const vector<vector<double> > &distances, double sharpness, double cutoff)
+{
+    double dist1 = distances[i][j];
+    double dist2 = distances[j][k];
+    double f_ij = 1 + sharpness* pow((dist1/cutoff), (sharpness+1)) - (sharpness+1)* pow((dist1/cutoff), sharpness);
+    double f_jk = 1 + sharpness* pow((dist2/cutoff), (sharpness+1)) - (sharpness+1)* pow((dist2/cutoff), sharpness);
+
+    return f_ij*f_jk;
+}
+
+inline double geom_atomic_number(const int &atomic_number)
+{
+    return (double)atomic_number;
+}
+
+inline double geom_distance(const int &i, const int &j, const vector<vector<double> > &distances)
+{
+    double dist = distances[i][j];
+    return dist;
+}
+
+inline double geom_inverse_distance(const int &i, const int &j, const vector<vector<double> > &distances)
+{
+    double dist = geom_distance(i, j, distances);
+    double invDist = 1/dist;
+    return invDist;
+}
+
+inline double geom_cosine(const int &i, const int &j, const int &k, const vector<vector<double> > &distances)
+{
+    double r_ji = distances[j][i];
+    double r_ik = distances[i][k];
+    double r_jk = distances[j][k];
+    double r_ji_square = r_ji*r_ji;
+    double r_ik_square = r_ik*r_ik;
+    double r_jk_square = r_jk*r_jk;
+    double cosine = 0.5/(r_jk*r_ji) * (r_ji_square+r_jk_square-r_ik_square);
+
+    // Due to numerical reasons the cosine might be slightly under -1 or above 1
+    // degrees. E.g. acos is not defined then so we clip the values to prevent
+    // NaN:s
+    cosine = max(-1.0, min(cosine, 1.0));
+
+    return cosine;
+}
+
+inline double geom_angle(const int &i, const int &j, const int &k, const vector<vector<double> > &distances)
+{
+    double cosine = geom_cosine(i, j, k, distances);
+    double angle = acos(cosine) * 180.0 / PI;
+
+    return angle;
+}
 
 MBTR::MBTR(
     const py::dict k1,
@@ -26,13 +122,13 @@ MBTR::MBTR(
     bool periodic
 )
     : DescriptorGlobal(periodic)
-    , k1(k1)
     , k2(k2)
     , k3(k3)
     , normalize_gaussians(normalize_gaussians)
     , normalization(normalization)
 {
     this->set_species(species);
+    this->set_k1(k1);
 }
 
 int MBTR::get_number_of_features() const {
@@ -68,10 +164,22 @@ void MBTR::create(
     return;
 };
 
-void MBTR::set_k1(py::dict k1) {this->k1 = k1;};
+void MBTR::set_k1(py::dict k1) {
+    // Default weighting: unity
+    if (k1.size() != 0) {
+        if (!k1.contains("weighting")) {
+            py::dict weighting;
+            weighting["function"] = "unity";
+            k1["weighting"] = weighting;
+        } else if (!k1["weighting"].contains("function")) {
+            k1["weighting"]["function"] = "unity";
+        }
+    }
+    this->k1 = k1;
+};
 void MBTR::set_k2(py::dict k2) {this->k2 = k2;};
 void MBTR::set_k3(py::dict k3) {this->k3 = k3;};
-void MBTR::set_normalize_gaussians(bool normalize_gaussians) {};
+void MBTR::set_normalize_gaussians(bool normalize_gaussians) {this->normalize_gaussians = normalize_gaussians;};
 void MBTR::set_normalization(string normalization) {
     this->normalization = normalization;
     assert_valle();
@@ -122,8 +230,11 @@ inline vector<double> MBTR::gaussian(double center, double weight, double start,
     // distribution.
     vector<double> cdf(n+1);
     double x = start;
+    double normalization = this->normalize_gaussians
+      ? 1.0/2.0
+      : 1.0/2.0 * sigmasqrt2 * SQRT2;
     for (auto &it : cdf) {
-        it = weight*1.0/2.0*(1.0 + erf((x-center)/sigmasqrt2));
+        it = weight * normalization * (1.0 + erf((x-center)/sigmasqrt2));
         x += dx;
     }
 
@@ -145,6 +256,7 @@ void MBTR::calculate_k1(py::array_t<double> &out, py::array_t<int> &atomic_numbe
     auto out_mu = out.mutable_unchecked<1>();
     auto atomic_numbers_u = atomic_numbers.unchecked<1>();
 
+    // Get k1 grid setup
     double sigma = this->k1["grid"]["sigma"].cast<double>();
     double min = this->k1["grid"]["min"].cast<double>();
     double max = this->k1["grid"]["max"].cast<double>();
@@ -153,32 +265,33 @@ void MBTR::calculate_k1(py::array_t<double> &out, py::array_t<int> &atomic_numbe
     double sigmasqrt2 = sigma * sqrt(2.0);
     double start = min - dx/2;
 
-    // // Determine the geometry function to use
-    // string geom_func_name = ...;
-    // if (geom_func_name == "atomic_number") {
-    //     geom_func = k1GeomAtomicNumber(i, Z);
-    // } else {
-    //     throw invalid_argument("Invalid geometry function.");
-    // }
+    // Determine the geometry function to use
+    string geom_func_name = this->k1["geometry"]["function"].cast<string>();
+    function<double(int)> geom_func;
+    if (geom_func_name == "atomic_number") {
+        geom_func = geom_atomic_number;
+    } else {
+        throw invalid_argument("Invalid geometry function.");
+    }
 
-    // // Determine the weighting function to use
-    // string weight_func_name = ...;
-    // if (weight_func_name == "atomic_number") {
-    //     weight_func = k1GeomAtomicNumber(i, Z);
-    // } else {
-    //     throw invalid_argument("Invalid geometry function.");
-    // }
+    // Determine the weighting function to use
+    string weight_func_name = this->k1["weighting"]["function"].cast<string>();
+    function<double(int)> weight_func;
+    if (weight_func_name == "unity") {
+        weight_func = weight_unity_k1;
+    } else {
+        throw invalid_argument("Invalid geometry function.");
+    }
 
     // Loop through all the atoms in the original, non-extended cell
     int n_atoms = atomic_numbers.size();
     for (int i=0; i < n_atoms; ++i) {
         int i_z = atomic_numbers_u(i);
-        // double geom = geom_func(i, i_z);
-        // double weight = weight_func(i, i_z);
+        double geom = geom_func(i_z);
+        double weight = weight_func(i_z);
 
         // Calculate gaussian
-        // vector<double> gauss = gaussian(geom, weight, start, dx, sigmasqrt2, n);
-        vector<double> gauss = gaussian(1, 1, start, dx, sigmasqrt2, n);
+        vector<double> gauss = gaussian(geom, weight, start, dx, sigmasqrt2, n);
 
         // Get the index of the present elements in the final vector
         int i_index = this->species_index_map.at(i_z);

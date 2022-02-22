@@ -21,13 +21,6 @@ limitations under the License.
 
 using namespace std;
 
-DescriptorGlobal::DescriptorGlobal(bool periodic, string average, double cutoff)
-    : periodic(periodic)
-    , average(average)
-    , cutoff(cutoff)
-{
-}
-
 void DescriptorGlobal::create(
     py::array_t<double> out, 
     py::array_t<double> positions,
