@@ -59,21 +59,24 @@ class MBTR: public DescriptorGlobal {
         /**
          * Setters
          */
+        void set_species(py::array_t<int> species);
+        void set_periodic(bool periodic);
         void set_k1(py::dict k1);
         void set_k2(py::dict k2);
         void set_k3(py::dict k3);
         void set_normalize_gaussians(bool normalize_gaussians);
         void set_normalization(string normalization);
-        void set_species(py::array_t<int> species);
-        void set_periodic(bool periodic);
 
         /**
          * Getters
          */
+        py::array_t<int> get_species();
+        bool get_periodic();
         py::dict get_k1();
         py::dict get_k2();
         py::dict get_k3();
-        py::array_t<int> get_species();
+        bool get_normalize_gaussians();
+        string get_normalization();
         map<int, int> get_species_index_map();
 
         py::dict k1;
@@ -88,10 +91,14 @@ class MBTR: public DescriptorGlobal {
         map<int, int> species_index_map;
         map<int, int> index_species_map;
         void assert_valle();
-        inline vector<double> gaussian(double center, double weight, double start, double dx, double sigmasqrt2, int n);
+        inline vector<double> gaussian(double center, double weight, double start, double dx, double sigma, int n);
         void calculate_k1(py::array_t<double> &out, py::array_t<int> &atomic_numbers);
         // void get_k2(py::detail::unchecked_mutable_reference<double, 1> &out_mu, py::detail::unchecked_reference<int, 1> &atomic_numbers_u, CellList &cell_list);
         // void get_k3(py::detail::unchecked_mutable_reference<double, 1> &out_mu, py::detail::unchecked_reference<int, 1> &atomic_numbers_u, CellList &cell_list);
+        int get_number_of_k1_features() const;
+        int get_number_of_k2_features() const;
+        int get_number_of_k3_features() const;
+        void normalize_output(py::array_t<double> &out);
 };
 
 #endif

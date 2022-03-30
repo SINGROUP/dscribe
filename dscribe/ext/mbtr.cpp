@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 #include <functional>
+#include <iostream>
 #include "mbtr.h"
 #include "constants.h"
 
@@ -125,13 +126,19 @@ MBTR::MBTR(
     , k2(k2)
     , k3(k3)
     , normalize_gaussians(normalize_gaussians)
-    , normalization(normalization)
 {
     this->set_species(species);
+    this->set_normalization(normalization);
     this->set_k1(k1);
 }
 
 int MBTR::get_number_of_features() const {
+    return get_number_of_k1_features()
+      + get_number_of_k2_features()
+      + get_number_of_k3_features();
+}
+
+int MBTR::get_number_of_k1_features() const {
     int n_features = 0;
     int n_species = this->species.size();
 
@@ -140,11 +147,27 @@ int MBTR::get_number_of_features() const {
         int n_k1 = n_species * n_k1_grid;
         n_features += n_k1;
     }
+
+    return n_features;
+}
+
+int MBTR::get_number_of_k2_features() const {
+    int n_features = 0;
+    int n_species = this->species.size();
+
     if (this->k2.size() > 0) {
         int n_k2_grid = this->k2["grid"]["n"].cast<int>();
         int n_k2 = (n_species * (n_species + 1) / 2) * n_k2_grid;
         n_features += n_k2;
     }
+
+    return n_features;
+}
+
+int MBTR::get_number_of_k3_features() const {
+    int n_features = 0;
+    int n_species = this->species.size();
+
     if (this->k3.size() > 0) {
         int n_k3_grid = this->k3["grid"]["n"].cast<int>();
         int n_k3 = (n_species * n_species * (n_species + 1) / 2) * n_k3_grid;
@@ -161,8 +184,50 @@ void MBTR::create(
     CellList &cell_list
 ) {
     this->calculate_k1(out, atomic_numbers);
+    this->normalize_output(out);
     return;
 };
+
+
+/**
+ * @brief Used to normalize part of the given one-dimensional py::array
+ * in-place.
+ * 
+ * @param out The array to normalize
+ * @param start Start index, defaults to 0
+ * @param end End index, defaults to -1 = end of array
+ */
+void normalize(py::array_t<double> &out, int start = 0, int end = -1) {
+    // Gather magnitude
+    auto out_mu = out.mutable_unchecked<1>();
+    if (end == -1) {
+        end = out.size();
+    }
+    double norm = 0;
+    for (int i = start; i < end; ++i) {
+        norm += out_mu[i] * out_mu[i];
+    }
+
+    // Divide by L2 norm
+    double factor = 1 / sqrt(norm);
+    for (int i = start; i < end; ++i) {
+        out_mu[i] *= factor;
+    }
+}
+
+void MBTR::normalize_output(py::array_t<double> &out) {
+    if (normalization == "l2_each") {
+        int n_k1_features = get_number_of_k1_features();
+        int n_k2_features = get_number_of_k2_features();
+        int n_k3_features = get_number_of_k3_features();
+        int start = 0;
+        normalize(out, 0, n_k1_features);
+        normalize(out, n_k1_features, n_k1_features+n_k2_features);
+        normalize(out, n_k1_features+n_k2_features, n_k1_features+n_k2_features+n_k3_features);
+    } else if (normalization == "l2") {
+        normalize(out, 0, -1);
+    }
+}
 
 void MBTR::set_k1(py::dict k1) {
     // Default weighting: unity
@@ -179,7 +244,9 @@ void MBTR::set_k1(py::dict k1) {
 };
 void MBTR::set_k2(py::dict k2) {this->k2 = k2;};
 void MBTR::set_k3(py::dict k3) {this->k3 = k3;};
-void MBTR::set_normalize_gaussians(bool normalize_gaussians) {this->normalize_gaussians = normalize_gaussians;};
+void MBTR::set_normalize_gaussians(bool normalize_gaussians) {
+    this->normalize_gaussians = normalize_gaussians;
+};
 void MBTR::set_normalization(string normalization) {
     this->normalization = normalization;
     assert_valle();
@@ -212,39 +279,42 @@ void MBTR::set_periodic(bool periodic) {
     this->periodic = periodic;
     assert_valle();
 };
+
 void MBTR::assert_valle() {
     if (this->normalization == "valle_oganov" && !this->periodic) {
         throw std::invalid_argument("Valle-Oganov normalization does not support non-periodic systems.");
     };
 };
 
+py::array_t<int> MBTR::get_species() {return this->species;};
+bool MBTR::get_periodic() {return this->periodic;};
+map<int, int> MBTR::get_species_index_map() {return this->species_index_map;};
 py::dict MBTR::get_k1() {return k1;};
 py::dict MBTR::get_k2() {return k2;};
 py::dict MBTR::get_k3() {return k3;};
-py::array_t<int> MBTR::get_species() {return this->species;};
-map<int, int> MBTR::get_species_index_map() {return this->species_index_map;};
+string MBTR::get_normalization() {return normalization;};
+bool MBTR::get_normalize_gaussians() {return normalize_gaussians;};
 
-
-inline vector<double> MBTR::gaussian(double center, double weight, double start, double dx, double sigmasqrt2, int n) {
+inline vector<double> MBTR::gaussian(double center, double weight, double start, double dx, double sigma, int n) {
     // We first calculate the cumulative distribution function for a normal
     // distribution.
     vector<double> cdf(n+1);
     double x = start;
-    double normalization = this->normalize_gaussians
-      ? 1.0/2.0
-      : 1.0/2.0 * sigmasqrt2 * SQRT2;
     for (auto &it : cdf) {
-        it = weight * normalization * (1.0 + erf((x-center)/sigmasqrt2));
+        it = 0.5 * (1.0 + erf((x-center)/(sigma * SQRT2)));
         x += dx;
     }
 
     // The normal distribution is calculated as a derivative of the cumulative
     // distribution, as with coarse discretization this methods preserves the
     // norm better.
+    double normalization = weight * (this->normalize_gaussians
+      ? 1
+      : sigma * SQRT2PI);
     vector<double> pdf(n);
     int i = 0;
     for (auto &it : pdf) {
-        it = (cdf[i+1]-cdf[i])/dx;
+        it = normalization * (cdf[i+1]-cdf[i])/dx;
         ++i;
     }
 
@@ -262,7 +332,6 @@ void MBTR::calculate_k1(py::array_t<double> &out, py::array_t<int> &atomic_numbe
     double max = this->k1["grid"]["max"].cast<double>();
     int n = this->k1["grid"]["n"].cast<int>();
     double dx = (max - min) / (n - 1);
-    double sigmasqrt2 = sigma * sqrt(2.0);
     double start = min - dx/2;
 
     // Determine the geometry function to use
@@ -291,7 +360,7 @@ void MBTR::calculate_k1(py::array_t<double> &out, py::array_t<int> &atomic_numbe
         double weight = weight_func(i_z);
 
         // Calculate gaussian
-        vector<double> gauss = gaussian(geom, weight, start, dx, sigmasqrt2, n);
+        vector<double> gauss = gaussian(geom, weight, start, dx, sigma, n);
 
         // Get the index of the present elements in the final vector
         int i_index = this->species_index_map.at(i_z);

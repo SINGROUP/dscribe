@@ -149,7 +149,7 @@ def test_k1_peaks_finite():
     h_peak_locs = x[h_peak_indices]
     h_peak_ints = h_feat[h_peak_indices]
     assert np.allclose(h_peak_locs, [1], rtol=0, atol=1e-2)
-    # assert np.allclose(h_peak_ints, [2], rtol=0, atol=1e-2)
+    assert np.allclose(h_peak_ints, [2], rtol=0, atol=1e-2)
 
     # Check the O peaks
     o_feat = features[desc.get_location(("O"))]
@@ -157,15 +157,38 @@ def test_k1_peaks_finite():
     o_peak_locs = x[o_peak_indices]
     o_peak_ints = o_feat[o_peak_indices]
     assert np.allclose(o_peak_locs, [8], rtol=0, atol=1e-2)
-    # assert np.allclose(o_peak_ints, [1], rtol=0, atol=1e-2)
+    assert np.allclose(o_peak_ints, [1], rtol=0, atol=1e-2)
 
-    import matplotlib.pyplot as mpl
-    mpl.plot(x, h_feat)
-    mpl.plot(x, o_feat)
-    mpl.show()
+    # import matplotlib.pyplot as mpl
+    # mpl.plot(x, h_feat)
+    # mpl.plot(x, o_feat)
+    # mpl.show()
 
     # Check that everything else is zero
     features[desc.get_location(("H"))] = 0
     features[desc.get_location(("O"))] = 0
     assert features.sum() == 0
 
+
+@pytest.mark.parametrize(
+    "k1, k2, k3, normalization, norm",
+    [
+        (True, False, False, "l2_each", 1),
+        (True, False, False, "l2", 1)
+    ]
+)
+def test_normalization(k1, k2, k3, normalization, norm):
+    """Tests that the normalization works correctly."""
+    system = water()
+    atomic_numbers = [1, 8]
+    desc = MBTR(
+        species=atomic_numbers,
+        k1=default_k1 if k1 else None,
+        k2=default_k2 if k2 else None,
+        k3=default_k3 if k3 else None,
+        flatten=True,
+        normalization=normalization
+    )
+
+    feat_normalized = desc.create(system)
+    assert np.linalg.norm(feat_normalized) == pytest.approx(norm, abs=1e-8)

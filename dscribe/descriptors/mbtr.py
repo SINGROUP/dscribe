@@ -365,6 +365,14 @@ class MBTR(Descriptor):
     def species(self, value):
         self.wrapper.species = get_atomic_numbers(value)
 
+    @property
+    def normalize_gaussians(self):
+        return self.wrapper.normalize_gaussians
+
+    @normalize_gaussians.setter
+    def normalize_gaussians(self, value):
+        self.wrapper.normalize_gaussians = value
+
     def get_location(self, species):
         """Can be used to query the location of a species combination in the
         the flattened output.

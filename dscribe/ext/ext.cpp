@@ -116,6 +116,8 @@ PYBIND11_MODULE(ext, m) {
         .def_property("k2", &MBTR::get_k2, &MBTR::set_k2)
         .def_property("k3", &MBTR::get_k3, &MBTR::set_k3)
         .def_property("species", &MBTR::get_species, &MBTR::set_species)
+        .def_property("normalization", &MBTR::get_normalization, &MBTR::set_normalization)
+        .def_property("normalize_gaussians", &MBTR::get_normalize_gaussians, &MBTR::set_normalize_gaussians)
         .def_property_readonly("species_index_map", &MBTR::get_species_index_map)
         .def("derivatives_numerical", &MBTR::derivatives_numerical)
         .def(py::pickle(
