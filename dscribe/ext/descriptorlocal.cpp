@@ -34,7 +34,8 @@ void DescriptorLocal::create(
     auto pbc_u = pbc.unchecked<1>();
     bool is_periodic = this->periodic && (pbc_u(0) || pbc_u(1) || pbc_u(2));
     if (is_periodic) {
-        ExtendedSystem system_extended = extend_system(positions, atomic_numbers, cell, pbc, this->cutoff);
+        System system = System(positions, atomic_numbers, cell, pbc);
+        System system_extended = extend_system(system, this->cutoff);
         positions = system_extended.positions;
         atomic_numbers = system_extended.atomic_numbers;
     }
@@ -101,7 +102,8 @@ void DescriptorLocal::derivatives_numerical(
     // Extend the system if it is periodic
     bool is_periodic = this->periodic && (pbc_u(0) || pbc_u(1) || pbc_u(2));
     if (is_periodic) {
-        ExtendedSystem system_extension = extend_system(positions, atomic_numbers, cell, pbc, this->cutoff);
+        System system = System(positions, atomic_numbers, cell, pbc);
+        System system_extension = extend_system(system, this->cutoff);
         n_copies = system_extension.atomic_numbers.size()/atomic_numbers.size();
         positions = system_extension.positions;
         atomic_numbers = system_extension.atomic_numbers;
@@ -119,7 +121,8 @@ void DescriptorLocal::derivatives_numerical(
 
     // Create the extended centers for periodic systems.
     if (is_periodic) {
-        ExtendedSystem center_extension = extend_system(centers, center_indices, cell, pbc, this->cutoff);
+        System center = System(centers, center_indices, cell, pbc);
+        System center_extension = extend_system(center, this->cutoff);
         centers_extended = center_extension.positions;
         center_true_indices = center_extension.indices;
     } else {

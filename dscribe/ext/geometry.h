@@ -25,10 +25,20 @@ namespace py = pybind11;
 using namespace Eigen;
 using namespace std;
 
-struct ExtendedSystem {
-    py::array_t<double> positions;
-    py::array_t<int> atomic_numbers;
-    py::array_t<int> indices;
+class System {
+    public:
+        System(
+            py::array_t<double> positions,
+            py::array_t<int> atomic_numbers,
+            py::array_t<double> cell,
+            py::array_t<bool> pbc
+        );
+        py::array_t<double> positions;
+        py::array_t<int> atomic_numbers;
+        py::array_t<double> cell;
+        py::array_t<bool> pbc;
+        py::array_t<int> indices;
+        py::array_t<int> cell_indices;
 };
 
 inline vector<double> cross(const vector<double>& a, const vector<double>& b);
@@ -45,14 +55,9 @@ inline double norm(const vector<double>& a);
  * @param pbc Periodic boundary conditions (array of three booleans) of the original system.
  * @param cutoff Radial cutoff value for determining extension size.
  *
- * @return Instance of ExtendedSystem.
+ * @return Instance of System.
  */
-ExtendedSystem extend_system(
-    py::array_t<double> positions,
-    py::array_t<int> atomic_numbers,
-    py::array_t<double> cell,
-    py::array_t<bool> pbc,
-    double cutoff);
+System extend_system(System &system, double cutoff);
 
 /**
  * Used to calculate the full distance matrix (numpy) for the given positions.

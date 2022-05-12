@@ -162,9 +162,6 @@ PYBIND11_MODULE(ext, m) {
 
     // Geometry
     m.def("extend_system", &extend_system, "Create a periodically extended system.");
-    py::class_<ExtendedSystem>(m, "ExtendedSystem")
-        .def(py::init<>())
-        .def_readonly("positions", &ExtendedSystem::positions)
-        .def_readonly("atomic_numbers", &ExtendedSystem::atomic_numbers)
-        .def_readonly("indices", &ExtendedSystem::indices);
+    py::class_<System>(m, "System")
+        .def(py::init<py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<bool>>());
 }

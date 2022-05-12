@@ -33,7 +33,8 @@ void DescriptorGlobal::create(
     auto pbc_u = pbc.unchecked<1>();
     bool is_periodic = this->periodic && (pbc_u(0) || pbc_u(1) || pbc_u(2));
     if (is_periodic) {
-        ExtendedSystem system_extended = extend_system(positions, atomic_numbers, cell, pbc, this->cutoff);
+        System system = System(positions, atomic_numbers, cell, pbc);
+        System system_extended = extend_system(system, this->cutoff);
         positions = system_extended.positions;
         atomic_numbers = system_extended.atomic_numbers;
     }
@@ -66,21 +67,19 @@ void DescriptorGlobal::derivatives_numerical(
     int n_atoms = atomic_numbers.size();
     int n_features = this->get_number_of_features();
     auto derivatives_mu = derivatives.mutable_unchecked<3>();
-    auto descriptor_mu = descriptor.mutable_unchecked<1>();
     auto indices_u = indices.unchecked<1>();
     auto pbc_u = pbc.unchecked<1>();
 
     // Extend the system if it is periodic
     bool is_periodic = this->periodic && (pbc_u(0) || pbc_u(1) || pbc_u(2));
     if (is_periodic) {
-        ExtendedSystem system_extension = extend_system(positions, atomic_numbers, cell, pbc, this->cutoff);
+        System system = System(positions, atomic_numbers, cell, pbc);
+        System system_extension = extend_system(system, this->cutoff);
         n_copies = system_extension.atomic_numbers.size()/atomic_numbers.size();
         positions = system_extension.positions;
         atomic_numbers = system_extension.atomic_numbers;
     }
     auto positions_mu = positions.mutable_unchecked<2>();
-    auto positions_u = positions.unchecked<2>();
-    auto atomic_numbers_u = atomic_numbers.unchecked<1>();
 
     // Pre-calculate cell list for atoms
     CellList cell_list_atoms(positions, this->cutoff);

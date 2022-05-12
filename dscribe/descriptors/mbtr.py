@@ -166,6 +166,7 @@ class MBTR(Descriptor):
                 output. The available options are:
 
                 * "none": No normalization.
+                * "l2": Normalize the Euclidean length of the output to unity.
                 * "l2_each": Normalize the Euclidean length of each k-term
                   individually to unity.
                 * "n_atoms": Normalize the output by dividing it with the number

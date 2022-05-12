@@ -34,11 +34,21 @@ inline double norm(const vector<double>& a) {
     return sqrt(accum);
 };
 
-ExtendedSystem extend_system(
+System::System(
     py::array_t<double> positions,
     py::array_t<int> atomic_numbers,
     py::array_t<double> cell,
-    py::array_t<bool> pbc,
+    py::array_t<bool> pbc
+)
+    : positions(positions)
+    , atomic_numbers(atomic_numbers)
+    , cell(cell)
+    , pbc(pbc)
+{
+}
+
+System extend_system(
+    System &system,
     double cutoff)
 {
     if (cutoff < 0) {
@@ -49,10 +59,10 @@ ExtendedSystem extend_system(
     // Notice that we need to use vectors that are perpendicular to the cell
     // vectors to ensure that the correct atoms are included for non-cubic
     // cells.
-    auto positions_u = positions.unchecked<2>();
-    auto atomic_numbers_u = atomic_numbers.unchecked<1>();
-    auto cell_u = cell.unchecked<2>();
-    auto pbc_u = pbc.unchecked<1>();
+    auto positions_u = system.positions.unchecked<2>();
+    auto atomic_numbers_u = system.atomic_numbers.unchecked<1>();
+    auto cell_u = system.cell.unchecked<2>();
+    auto pbc_u = system.pbc.unchecked<1>();
     vector<double> a = {cell_u(0, 0), cell_u(0, 1), cell_u(0, 2)};
     vector<double> b = {cell_u(1, 0), cell_u(1, 1), cell_u(1, 2)};
     vector<double> c = {cell_u(2, 0), cell_u(2, 1), cell_u(2, 2)};
@@ -99,13 +109,15 @@ ExtendedSystem extend_system(
 
     // Calculate the extended system positions.
     int n_rep = (2*n_copies_axis[0]+1)*(2*n_copies_axis[1]+1)*(2*n_copies_axis[2]+1);
-    int n_atoms = atomic_numbers.size();
+    int n_atoms = system.atomic_numbers.size();
     py::array_t<double> ext_pos({n_atoms*n_rep, 3});
-    py::array_t<int> ext_atomic_numbers({n_atoms*n_rep});
-    py::array_t<int> ext_indices({n_atoms*n_rep});
+    py::array_t<int> ext_atomic_numbers({uint(n_atoms*n_rep)});
+    py::array_t<int> ext_indices({uint(n_atoms*n_rep)});
+    py::array_t<int> ext_cell_indices({n_atoms*n_rep, 3});
     auto ext_pos_mu = ext_pos.mutable_unchecked<2>();
     auto ext_atomic_numbers_mu = ext_atomic_numbers.mutable_unchecked<1>();
     auto ext_indices_mu = ext_indices.mutable_unchecked<1>();
+    auto ext_cell_indices_mu = ext_cell_indices.mutable_unchecked<2>();
     int i_copy = 0;
     int a_limit = multipliers[0].size();
     int b_limit = multipliers[1].size();
@@ -128,6 +140,9 @@ ExtendedSystem extend_system(
                     int index = i_copy*n_atoms + l;
                     ext_atomic_numbers_mu(index) = atomic_numbers_u(l);
                     ext_indices_mu(index) = l;
+                    ext_cell_indices_mu(index, 0) = i;
+                    ext_cell_indices_mu(index, 1) = j;
+                    ext_cell_indices_mu(index, 3) = k;
                     for (int m=0; m < 3; ++m) {
                         ext_pos_mu(index, m) = positions_u(l, m) + addition[m];
                     }
@@ -137,7 +152,10 @@ ExtendedSystem extend_system(
         }
     }
 
-    return ExtendedSystem{ext_pos, ext_atomic_numbers, ext_indices};
+    System ext_system = System(ext_pos, ext_atomic_numbers, system.cell, system.pbc);
+    ext_system.indices = ext_indices;
+    ext_system.cell_indices = ext_cell_indices;
+    return ext_system;
 }
 
 py::array_t<double> distancesNumpy(py::detail::unchecked_reference<double, 2> &positions_u)

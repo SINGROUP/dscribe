@@ -173,8 +173,8 @@ def test_k1_peaks_finite():
 @pytest.mark.parametrize(
     "k1, k2, k3, normalization, norm",
     [
+        (True, False, False, "l2", 1),
         (True, False, False, "l2_each", 1),
-        (True, False, False, "l2", 1)
     ]
 )
 def test_normalization(k1, k2, k3, normalization, norm):
