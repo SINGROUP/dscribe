@@ -307,13 +307,13 @@ class MBTR(Descriptor):
         """
         # Calculate with extension
         output = np.zeros((self.get_number_of_features()), dtype=np.float64)
-        self.wrapper.create(
-            output,
+        system_cpp = dscribe.ext.System(
             system.get_positions(),
             system.get_atomic_numbers(),
             ase.geometry.cell.complete_cell(system.get_cell()),
             np.asarray(system.get_pbc(), dtype=bool),
         )
+        self.wrapper.create(output, system_cpp)
 
         # Convert to the final output precision.
         if self.dtype != "float64":

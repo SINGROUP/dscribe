@@ -44,12 +44,7 @@ class CoulombMatrix: public DescriptorGlobal {
         /**
          * For creating feature vectors.
          */
-        void create(
-            py::array_t<double> &out, 
-            py::array_t<double> &positions,
-            py::array_t<int> &atomic_numbers,
-            CellList &cell_list
-        );
+        void create(py::array_t<double> &out, System &system, CellList &cell_list);
 
         /**
          * Get the number of features.

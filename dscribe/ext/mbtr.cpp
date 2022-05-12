@@ -173,14 +173,10 @@ int MBTR::get_number_of_k3_features() const {
     return n_features;
 }
 
-void MBTR::create(
-    py::array_t<double> &out,
-    py::array_t<double> &positions,
-    py::array_t<int> &atomic_numbers,
-    CellList &cell_list
-) {
-    this->calculate_k1(out, atomic_numbers);
-    this->calculate_k2(out, atomic_numbers, cell_list);
+void MBTR::create(py::array_t<double> &out, System &system, CellList &cell_list)
+{
+    this->calculate_k1(out, system.atomic_numbers);
+    this->calculate_k2(out, system.atomic_numbers, cell_list);
     this->normalize_output(out);
     return;
 };
