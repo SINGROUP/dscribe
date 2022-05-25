@@ -60,10 +60,10 @@ def mbtr(**kwargs):
 @pytest.mark.parametrize(
     "n_jobs, flatten, sparse",
     [
-        # (1, True, False),  # Serial job, flattened, dense
+        (1, True, False),  # Serial job, flattened, dense
         (2, True, False),  # Parallel job, flattened, dense
-        # (1, True, True),  # Serial job, flattened, sparse
-        # (2, True, True),  # Parallel job, flattened, sparse
+        (1, True, True),  # Serial job, flattened, sparse
+        (2, True, True),  # Parallel job, flattened, sparse
     ],
 )
 def test_parallellization(n_jobs, flatten, sparse):

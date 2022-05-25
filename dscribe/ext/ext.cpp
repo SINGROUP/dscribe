@@ -138,15 +138,6 @@ PYBIND11_MODULE(ext, m) {
             }
         ));
 
-    // MBTR
-    // py::class_<MBTR>(m, "MBTRWrapper")
-    //     .def(py::init< map<int,int>, int , vector<vector<int>>  >())
-    //     .def("get_k1", &MBTR::getK1)
-    //     .def("get_k2", &MBTR::getK2)
-    //     .def("get_k3", &MBTR::getK3)
-    //     .def("get_k2_local", &MBTR::getK2Local)
-    //     .def("get_k3_local", &MBTR::getK3Local);
-
     // CellList
     py::class_<CellList>(m, "CellList")
         .def(py::init<py::array_t<double>, double>())

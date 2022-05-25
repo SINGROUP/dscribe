@@ -39,30 +39,25 @@ void DescriptorGlobal::create(py::array_t<double> out, System system)
 void DescriptorGlobal::derivatives_numerical(
     py::array_t<double> derivatives, 
     py::array_t<double> descriptor, 
-    py::array_t<double> positions,
-    py::array_t<int> atomic_numbers,
-    py::array_t<double> cell,
-    py::array_t<bool> pbc,
+    System &system,
     py::array_t<int> indices,
     bool return_descriptor
 )
 {
     int n_copies = 1;
-    int n_atoms = atomic_numbers.size();
+    int n_atoms = system.atomic_numbers.size();
     int n_features = this->get_number_of_features();
     auto derivatives_mu = derivatives.mutable_unchecked<3>();
     auto indices_u = indices.unchecked<1>();
-    auto pbc_u = pbc.unchecked<1>();
+    auto pbc_u = system.pbc.unchecked<1>();
 
     // Extend the system if it is periodic
     bool is_periodic = this->periodic && (pbc_u(0) || pbc_u(1) || pbc_u(2));
-    System system = System(positions, atomic_numbers, cell, pbc);
     if (is_periodic) {
         system = extend_system(system, this->cutoff);
-        n_copies = system.atomic_numbers.size()/atomic_numbers.size();
-        positions = system.positions;
-        atomic_numbers = system.atomic_numbers;
+        n_copies = system.atomic_numbers.size()/n_atoms;
     }
+    auto positions = system.positions;
     auto positions_mu = positions.mutable_unchecked<2>();
 
     // Pre-calculate cell list for atoms

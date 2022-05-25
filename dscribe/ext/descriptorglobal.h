@@ -62,20 +62,14 @@ class DescriptorGlobal : public Descriptor {
         *
         * @param out_d Numpy output array for the derivatives.
         * @param out Numpy output array for the descriptor.
-        * @param positions Atomic positions as [n_atoms, 3] numpy array.
-        * @param atomic_numbers Atomic numbers as [n_atoms] numpy array.
-        * @param cell Simulation cell as [3, 3] numpy array.
-        * @param pbc Simulation cell periodicity as [3] numpy array.
+        * @param system The final atomic system.
         * @param indices Indices of the atoms for which derivatives are calculated for.
         * @param return_descriptor Determines whether descriptors are calculated or not.
         */
         void derivatives_numerical(
             py::array_t<double> out_d,
             py::array_t<double> out,
-            py::array_t<double> positions,
-            py::array_t<int> atomic_numbers,
-            py::array_t<double> cell,
-            py::array_t<bool> pbc,
+            System &system,
             py::array_t<int> indices,
             bool return_descriptor
         );

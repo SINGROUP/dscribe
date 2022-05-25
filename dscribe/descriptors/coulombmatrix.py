@@ -370,13 +370,16 @@ class CoulombMatrix(MatrixDescriptor):
 
         # Calculate numerically with extension
         if method == "numerical":
-            self.wrapper.derivatives_numerical(
-                d,
-                c,
+            system_cpp = dscribe.ext.System(
                 pos,
                 Z,
                 ase.geometry.cell.complete_cell(system.get_cell()),
                 np.asarray(system.get_pbc(), dtype=bool),
+            )
+            self.wrapper.derivatives_numerical(
+                d,
+                c,
+                system_cpp,
                 indices,
                 return_descriptor,
             )
