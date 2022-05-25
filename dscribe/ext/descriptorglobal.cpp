@@ -16,6 +16,7 @@ limitations under the License.
 #include <set>
 #include <unordered_map>
 #include <cmath>
+#include <iostream>
 #include "descriptorglobal.h"
 #include "geometry.h"
 

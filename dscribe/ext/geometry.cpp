@@ -142,7 +142,7 @@ System extend_system(
                     ext_indices_mu(index) = l;
                     ext_cell_indices_mu(index, 0) = i;
                     ext_cell_indices_mu(index, 1) = j;
-                    ext_cell_indices_mu(index, 3) = k;
+                    ext_cell_indices_mu(index, 2) = k;
                     for (int m=0; m < 3; ++m) {
                         ext_pos_mu(index, m) = positions_u(l, m) + addition[m];
                     }
