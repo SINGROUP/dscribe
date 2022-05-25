@@ -119,13 +119,14 @@ MBTR::MBTR(
     bool periodic
 )
     : DescriptorGlobal(periodic)
-    , k2(k2)
-    , k3(k3)
     , normalize_gaussians(normalize_gaussians)
 {
     this->set_species(species);
     this->set_normalization(normalization);
     this->set_k1(k1);
+    this->set_k2(k2);
+    this->set_k3(k3);
+    this->set_periodic(periodic);
 }
 
 int MBTR::get_number_of_features() const {
@@ -175,11 +176,11 @@ int MBTR::get_number_of_k3_features() const {
 
 void MBTR::create(py::array_t<double> &out, System &system, CellList &cell_list)
 {
-    this->calculate_k1(out, system.atomic_numbers);
-    this->calculate_k2(out, system.atomic_numbers, cell_list);
+    this->calculate_k1(out, system);
+    this->calculate_k2(out, system, cell_list);
     this->normalize_output(out);
     return;
-};
+}
 
 
 /**
@@ -234,16 +235,27 @@ void MBTR::set_k1(py::dict k1) {
         }
     }
     this->k1 = k1;
-};
-void MBTR::set_k2(py::dict k2) {this->k2 = k2;};
-void MBTR::set_k3(py::dict k3) {this->k3 = k3;};
+}
+
+void MBTR::set_k2(py::dict k2) {
+    this->k2 = k2;
+    this->assert_weighting_k2();
+}
+
+void MBTR::set_k3(py::dict k3) {
+    this->k3 = k3;
+    this->assert_weighting_k3();
+}
+
 void MBTR::set_normalize_gaussians(bool normalize_gaussians) {
     this->normalize_gaussians = normalize_gaussians;
-};
+}
+
 void MBTR::set_normalization(string normalization) {
     this->normalization = normalization;
     assert_valle();
-};
+}
+
 void MBTR::set_species(py::array_t<int> species) {
     this->species = species;
     // Setup mappings between atom indices and types together with some
@@ -267,17 +279,60 @@ void MBTR::set_species(py::array_t<int> species) {
     }
     this->species_index_map = species_index_map;
     this->index_species_map = index_species_map;
-};
+}
+
 void MBTR::set_periodic(bool periodic) {
     this->periodic = periodic;
     assert_valle();
-};
+    assert_weighting_k2();
+    assert_weighting_k3();
+}
 
 void MBTR::assert_valle() {
     if (this->normalization == "valle_oganov" && !this->periodic) {
-        throw std::invalid_argument("Valle-Oganov normalization does not support non-periodic systems.");
-    };
-};
+        throw invalid_argument("Valle-Oganov normalization does not support non-periodic systems.");
+    }
+}
+
+void MBTR::assert_weighting_k2() {
+    if (this->periodic) {
+        if (this->k2.size() != 0) {
+            bool valid = false;
+            if (this->k2.contains("weighting")) {
+                py::dict weighting = this->k2["weighting"];
+                if (weighting.contains("function")) {
+                    string function = weighting["function"].cast<string>();
+                    if (function != "unity") {
+                        valid = true;
+                    }
+                }
+            }
+            if (!valid) {
+                throw invalid_argument("Periodic systems need to have a weighting function.");
+            }
+        }
+    }
+}
+
+void MBTR::assert_weighting_k3() {
+    if (this->periodic) {
+        if (this->k3.size() != 0) {
+            bool valid = false;
+            if (this->k3.contains("weighting")) {
+                py::dict weighting = this->k3["weighting"];
+                if (weighting.contains("function")) {
+                    string function = weighting["function"].cast<string>();
+                    if (function != "unity") {
+                        valid = true;
+                    }
+                }
+            }
+            if (!valid) {
+                throw invalid_argument("Periodic systems need to have a weighting function.");
+            }
+        }
+    }
+}
 
 py::array_t<int> MBTR::get_species() {return this->species;};
 bool MBTR::get_periodic() {return this->periodic;};
@@ -314,8 +369,12 @@ inline vector<double> MBTR::gaussian(double center, double weight, double start,
     return pdf;
 }
 
-void MBTR::calculate_k1(py::array_t<double> &out, py::array_t<int> &atomic_numbers) {
+void MBTR::calculate_k1(py::array_t<double> &out, System &system) {
+    if (this->k1.size() == 0) {
+        return;
+    }
     // Create mutable and unchecked versions
+    py::array_t<int> atomic_numbers = system.atomic_numbers;
     auto out_mu = out.mutable_unchecked<1>();
     auto atomic_numbers_u = atomic_numbers.unchecked<1>();
 
@@ -365,84 +424,103 @@ void MBTR::calculate_k1(py::array_t<double> &out, py::array_t<int> &atomic_numbe
     }
 }
 
-void MBTR::calculate_k2(py::array_t<double> &out, py::array_t<int> &atomic_numbers, CellList &cell_list) {
+void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell_list) {
+    if (this->k2.size() == 0) {
+        return;
+    }
     // Create mutable and unchecked versions
-    // auto out_mu = out.mutable_unchecked<1>();
-    // auto atomic_numbers_u = atomic_numbers.unchecked<1>();
+    auto out_mu = out.mutable_unchecked<1>();
+    auto atomic_numbers = system.atomic_numbers;
+    auto atomic_numbers_u = atomic_numbers.unchecked<1>();
 
-    // // Get k2 grid setup
-    // double sigma = this->k2["grid"]["sigma"].cast<double>();
-    // double min = this->k2["grid"]["min"].cast<double>();
-    // double max = this->k2["grid"]["max"].cast<double>();
-    // int n = this->k2["grid"]["n"].cast<int>();
-    // double dx = (max - min) / (n - 1);
-    // double start = min - dx/2;
+    // Get k2 grid setup
+    double sigma = this->k2["grid"]["sigma"].cast<double>();
+    double min = this->k2["grid"]["min"].cast<double>();
+    double max = this->k2["grid"]["max"].cast<double>();
+    int n = this->k2["grid"]["n"].cast<int>();
+    double dx = (max - min) / (n - 1);
+    double start = min - dx/2;
 
-    // // Determine the geometry function to use
-    // string geom_func_name = this->k2["geometry"]["function"].cast<string>();
-    // function<double(double)> geom_func;
-    // if (geom_func_name == "distance") {
-    //     geom_func = geom_distance;
-    // } else if (geom_func_name == "inverse_distance") {
-    //     geom_func = geom_inverse_distance;
-    // } else {
-    //     throw invalid_argument("Invalid geometry function.");
-    // }
+    // Determine the geometry function to use
+    string geom_func_name = this->k2["geometry"]["function"].cast<string>();
+    function<double(double)> geom_func;
+    if (geom_func_name == "distance") {
+        geom_func = geom_distance;
+    } else if (geom_func_name == "inverse_distance") {
+        geom_func = geom_inverse_distance;
+    } else {
+        throw invalid_argument("Invalid geometry function.");
+    }
 
-    // // Determine the weighting function to use
-    // string weight_func_name = this->k2["weighting"]["function"].cast<string>();
-    // function<double(double)> weight_func;
-    // if (weight_func_name == "unity") {
-    //     weight_func = weight_unity_k2;
-    // } else {
-    //     throw invalid_argument("Invalid geometry function.");
-    // }
+    // Determine the weighting function to use
+    string weight_func_name = this->k2["weighting"]["function"].cast<string>();
+    function<double(double)> weight_func;
+    if (weight_func_name == "unity") {
+        weight_func = weight_unity_k2;
+    } else if (weight_func_name == "exp" || weight_func_name == "exponential") {
+        double scale = this->k2["weighting"]["scale"].cast<double>();
+        weight_func = bind(weight_exponential_k2, std::placeholders::_1, scale);
+    } else {
+        throw invalid_argument("Invalid geometry function.");
+    }
 
-    // // Loop over all atoms in the system
-    // int n_atoms = atomic_numbers.size();
-    // for (int i=0; i < n_atoms; ++i) {
+    // Loop over all atoms in the system
+    int n_atoms = atomic_numbers.size();
+    auto cell_indices_u = system.cell_indices.unchecked<2>();
+    for (int i=0; i < n_atoms; ++i) {
 
-    //     // For each atom we loop only over the neighbours
-    //     CellListResult neighbours = cell_list.getNeighboursForIndex(i);
-    //     int n_neighbours = neighbours.indices.size();
-    //     for (int i_neighbour = 0; i_neighbour < n_neighbours; ++i_neighbour) {
-    //         int j = neighbours.indices[i_neighbour];
-    //         double distance = neighbours.distances[i_neighbour];
-    //         if (j > i) {
+        // For each atom we loop only over the neighbours
+        CellListResult neighbours = cell_list.getNeighboursForIndex(i);
+        int n_neighbours = neighbours.indices.size();
+        for (int i_neighbour = 0; i_neighbour < n_neighbours; ++i_neighbour) {
+            int j = neighbours.indices[i_neighbour];
+            double distance = neighbours.distances[i_neighbour];
+            if (j > i) {
 
-    //             // Only consider pairs that have one atom in the original cell
-    //             if (i < this->interaction_limit || j < this->interaction_limit) {
-    //                 double geom = geom_func(distance);
-    //                 double weight = weight_func(distance);
+                // Only consider pairs that have one atom in the 'interaction
+                // subset', typically the original cell but can also be another
+                // local region.
+                bool i_interactive = system.interactive_atoms.find(i) != system.interactive_atoms.end();
+                bool j_interactive = system.interactive_atoms.find(j) != system.interactive_atoms.end();
+                if (i_interactive || j_interactive) {
+                    double geom = geom_func(distance);
+                    double weight = weight_func(distance);
 
-    //                 // When the pair of atoms are in different copies of the
-    //                 // cell, the weight is halved. This is done in order to
-    //                 // avoid double counting the same distance in the opposite
-    //                 // direction. This correction makes periodic cells with
-    //                 // different translations equal and also supercells equal to
-    //                 // the primitive cell within a constant that is given by the
-    //                 // number of repetitions of the primitive cell in the
-    //                 // supercell.
-    //                 vector<int> i_copy = this->cell_indices[i];
-    //                 vector<int> j_copy = this->cell_indices[j];
-    //                 if (i_copy != j_copy) {
-    //                     weight /= 2;
-    //                 }
+                    // When the pair of atoms are in different copies of the
+                    // cell, the weight is halved. This is done in order to
+                    // avoid double counting the same distance in the opposite
+                    // direction. This correction makes periodic cells with
+                    // different translations equal and also supercells equal to
+                    // the primitive cell within a constant that is given by the
+                    // number of repetitions of the primitive cell in the
+                    // supercell.
+                    bool same_cell = true;
+                    for (int k = 0; k < 3; ++k) {
+                        if (cell_indices_u(i, k) != cell_indices_u(j, k)) {
+                            same_cell = false;
+                            break;
+                        }
+                    }
+                    if (!same_cell) {
+                        weight /= 2;
+                    }
 
-    //                 // Calculate gaussian
-    //                 vector<double> gauss = gaussian(geom, weight, start, dx, sigma, n);
+                    // Calculate gaussian
+                    vector<double> gauss = gaussian(geom, weight, start, dx, sigma, n);
 
-    //                 // Get the index of the present elements in the final vector
-    //                 int i_z = atomic_numbers_u[i];
-    //                 int j_z = atomic_numbers_u[j];
+                    // Get the index of the present elements in the final vector
+                    int i_z = atomic_numbers_u[i];
+                    int j_z = atomic_numbers_u[j];
 
-    //                 // Get the starting index of the species pair in the final vector
-    //                 int i_index = get_location(i_z, j_z)[0];
+                    // Get the starting index of the species pair in the final vector
+                    // int i_index = get_location(i_z, j_z)[0];
 
-    //                 // Sum gaussian into output
-    //                 for (int j=0; j < gauss.size(); ++j) {
-    //                     out_mu[i_index + j] += gauss[j];
-    //                 }
-    //     }
-    // }
+                    // // Sum gaussian into output
+                    // for (int j=0; j < gauss.size(); ++j) {
+                    //     out_mu[i_index + j] += gauss[j];
+                    // }
+                }
+            }
+        }
+    }
 }

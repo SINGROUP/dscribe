@@ -86,9 +86,11 @@ class MBTR: public DescriptorGlobal {
         map<int, int> species_index_map;
         map<int, int> index_species_map;
         void assert_valle();
+        void assert_weighting_k2();
+        void assert_weighting_k3();
         inline vector<double> gaussian(double center, double weight, double start, double dx, double sigma, int n);
-        void calculate_k1(py::array_t<double> &out, py::array_t<int> &atomic_numbers);
-        void calculate_k2(py::array_t<double> &out, py::array_t<int> &atomic_numbers, CellList &cell_list);
+        void calculate_k1(py::array_t<double> &out, System &system);
+        void calculate_k2(py::array_t<double> &out, System &system, CellList &cell_list);
         // void get_k3(py::detail::unchecked_mutable_reference<double, 1> &out_mu, py::detail::unchecked_reference<int, 1> &atomic_numbers_u, CellList &cell_list);
         int get_number_of_k1_features() const;
         int get_number_of_k2_features() const;

@@ -20,6 +20,7 @@ limitations under the License.
 #include <stdexcept>
 #include <pybind11/numpy.h>
 #include <Eigen/Dense>
+#include <unordered_set>
 
 namespace py = pybind11;
 using namespace Eigen;
@@ -33,12 +34,20 @@ class System {
             py::array_t<double> cell,
             py::array_t<bool> pbc
         );
+        System(
+            py::array_t<double> positions,
+            py::array_t<int> atomic_numbers,
+            py::array_t<double> cell,
+            py::array_t<bool> pbc,
+            unordered_set<int> interactive_atoms
+        );
         py::array_t<double> positions;
         py::array_t<int> atomic_numbers;
         py::array_t<double> cell;
         py::array_t<bool> pbc;
         py::array_t<int> indices;
         py::array_t<int> cell_indices;
+        unordered_set<int> interactive_atoms;
 };
 
 inline vector<double> cross(const vector<double>& a, const vector<double>& b);

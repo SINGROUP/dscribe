@@ -45,6 +45,27 @@ System::System(
     , cell(cell)
     , pbc(pbc)
 {
+    unordered_set<int> interactive_atoms = unordered_set<int>();
+    int n_atoms = atomic_numbers.size();
+    for (int i = 0; i < n_atoms; ++i) {
+        interactive_atoms.insert(i);
+    }
+    this->interactive_atoms = interactive_atoms;
+}
+
+System::System(
+    py::array_t<double> positions,
+    py::array_t<int> atomic_numbers,
+    py::array_t<double> cell,
+    py::array_t<bool> pbc,
+    unordered_set<int> interactive_atoms
+)
+    : positions(positions)
+    , atomic_numbers(atomic_numbers)
+    , cell(cell)
+    , pbc(pbc)
+    , interactive_atoms(interactive_atoms)
+{
 }
 
 System extend_system(
@@ -152,7 +173,11 @@ System extend_system(
         }
     }
 
-    System ext_system = System(ext_pos, ext_atomic_numbers, system.cell, system.pbc);
+    unordered_set<int> interactive_atoms = unordered_set<int>();
+    for (int i = 0; i < n_atoms; ++i) {
+        interactive_atoms.insert(i);
+    }
+    System ext_system = System(ext_pos, ext_atomic_numbers, system.cell, system.pbc, interactive_atoms);
     ext_system.indices = ext_indices;
     ext_system.cell_indices = ext_cell_indices;
     return ext_system;

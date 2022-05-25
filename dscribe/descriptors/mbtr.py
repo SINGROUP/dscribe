@@ -206,19 +206,6 @@ class MBTR(Descriptor):
 
         # Check that weighting function is specified for periodic systems
         if periodic:
-            if k2 is not None:
-                valid = False
-                weighting = k2.get("weighting")
-                if weighting is not None:
-                    function = weighting.get("function")
-                    if function is not None:
-                        if function != "unity":
-                            valid = True
-                if not valid:
-                    raise ValueError(
-                        "Periodic systems need to have a weighting function."
-                    )
-
             if k3 is not None:
                 valid = False
                 weighting = k3.get("weighting")
