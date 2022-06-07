@@ -52,6 +52,21 @@ class MBTR: public DescriptorGlobal {
         int get_number_of_features() const;
 
         /**
+         * Get location of k1 features.
+         */
+        pair<int, int> get_location(int z1);
+
+        /**
+         * Get location of k2 features.
+         */
+        pair<int, int> get_location(int z1, int z2);
+
+        /**
+         * Get location of k3 features.
+         */
+        pair<int, int> get_location(int z1, int z2, int z3);
+
+        /**
          * Setters
          */
         void set_species(py::array_t<int> species);

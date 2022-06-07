@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 #include <functional>
+#include <algorithm>
 #include <iostream>
 #include "mbtr.h"
 #include "constants.h"
@@ -182,41 +183,97 @@ void MBTR::create(py::array_t<double> &out, System &system, CellList &cell_list)
     return;
 }
 
-// void MBTR::get_location(int z1)
-// {
-//     // Check that the corresponding part is calculated
-//     k = len(species)
-//     term = getattr(self, "k{}".format(k))
-//     if term is None:
-//         raise ValueError(
-//             "Cannot retrieve the location for {}, as the term k{} has not "
-//             "been specied.".format(species, k)
-//         )
+pair<int, int> MBTR::get_location(int z1)
+{
+    // Check that the corresponding part is calculated
+    if (this->k1.size() == 0) {
+        throw invalid_argument(
+            "Cannot retrieve the location for {}, as the term k1 has not "
+            "been specified."
+        );
+    }
 
-//     // Change chemical elements into atomic numbers
-//     numbers = []
-//     for specie in species:
-//         if isinstance(specie, str):
-//             try:
-//                 specie = ase.data.atomic_numbers[specie]
-//             except KeyError:
-//                 raise ValueError("Invalid chemical species: {}".format(specie))
-//         numbers.append(specie)
+    // Change into internal indexing
+    int m = this->species_index_map[z1];
 
-//     // Change into internal indexing
-//     numbers = [self.wrapper.species_index_map[x] for x in numbers]
-//     n_elem = len(self.wrapper.species)
+    // Get the start and end index
+    int n = this->k1["grid"]["n"].cast<int>();
+    int start = m * n;
+    int end = (m + 1) * n;
 
-//     // k=1
-//     if len(numbers) == 1:
-//         n1 = self.k1["grid"]["n"]
-//         i = numbers[0]
-//         m = i
-//         start = int(m * n1)
-//         end = int((m + 1) * n1)
+    return make_pair(start, end);
+};
 
-//     return slice(start, end)
-// }
+
+pair<int, int> MBTR::get_location(int z1, int z2)
+{
+    // Check that the corresponding part is calculated
+    if (this->k2.size() == 0) {
+        throw invalid_argument(
+            "Cannot retrieve the location for {}, as the term k2 has not "
+            "been specified."
+        );
+    }
+
+    // Change into internal indexing
+    int i = this->species_index_map[z1];
+    int j = this->species_index_map[z2];
+
+    // Sort
+    vector<int> numbers = {i, j};
+    sort(numbers.begin(), numbers.end());
+    i = numbers[0];
+    j = numbers[1];
+
+    // This is the index of the spectrum. It is given by enumerating the
+    // elements of an upper triangular matrix from left to right and top
+    // to bottom.
+    int n = this->k2["grid"]["n"].cast<int>();
+    int n_elem = this->species.size();
+    int m = j + i * n_elem - i * (i + 1) / 2;
+    int offset = get_number_of_k1_features();
+    int start = offset + m * n;
+    int end = offset + (m + 1) * n;
+
+    return make_pair(start, end);
+};
+
+pair<int, int> MBTR::get_location(int z1, int z2, int z3)
+{
+    // Check that the corresponding part is calculated
+    if (this->k3.size() == 0) {
+        throw invalid_argument(
+            "Cannot retrieve the location for {}, as the term k3 has not "
+            "been specified."
+        );
+    }
+
+    // Change into internal indexing
+    int i = this->species_index_map[z1];
+    int j = this->species_index_map[z2];
+    int k = this->species_index_map[z3];
+
+    // Sort
+    vector<int> numbers = {i, j, k};
+    sort(numbers.begin(), numbers.end());
+    i = numbers[0];
+    j = numbers[1];
+    k = numbers[2];
+
+    // This is the index of the spectrum. It is given by enumerating the
+    // elements of a three-dimensional array where for valid elements
+    // k>=i. The enumeration begins from [0, 0, 0], and ends at [n_elem,
+    // n_elem, n_elem], looping the elements in the order k, i, j.
+    int n = this->k3["grid"]["n"].cast<int>();
+    int n_elem = this->species.size();
+    int m = j * n_elem * (n_elem + 1) / 2 + k + i * n_elem - i * (i + 1) / 2;
+
+    int offset = get_number_of_k1_features() + get_number_of_k2_features();
+    int start = offset + m * n;
+    int end = offset + (m + 1) * n;
+
+    return make_pair(start, end);
+};
 
 
 /**
@@ -441,8 +498,7 @@ void MBTR::calculate_k1(py::array_t<double> &out, System &system) {
     }
 
     // Loop through all the atoms in the original, non-extended cell
-    int n_atoms = atomic_numbers.size();
-    for (int i=0; i < n_atoms; ++i) {
+    for (auto &i : system.interactive_atoms) {
         int i_z = atomic_numbers_u(i);
         double geom = geom_func(i_z);
         double weight = weight_func(i_z);
@@ -451,11 +507,12 @@ void MBTR::calculate_k1(py::array_t<double> &out, System &system) {
         vector<double> gauss = gaussian(geom, weight, start, dx, sigma, n);
 
         // Get the index of the present elements in the final vector
-        int i_index = this->species_index_map.at(i_z);
+        pair<int, int> location = get_location(i_z);
+        int start = location.first;
 
         // Sum gaussian into output
         for (int j=0; j < gauss.size(); ++j) {
-            out_mu[i_index * n + j] += gauss[j];
+            out_mu[start + j] += gauss[j];
         }
     }
 }
@@ -506,57 +563,58 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
     for (int i=0; i < n_atoms; ++i) {
 
         // For each atom we loop only over the neighbours
-        CellListResult neighbours = cell_list.getNeighboursForIndex(i);
-        int n_neighbours = neighbours.indices.size();
-        for (int i_neighbour = 0; i_neighbour < n_neighbours; ++i_neighbour) {
-            int j = neighbours.indices[i_neighbour];
-            double distance = neighbours.distances[i_neighbour];
-            if (j > i) {
+        // CellListResult neighbours = cell_list.getNeighboursForIndex(i);
+        // int n_neighbours = neighbours.indices.size();
+        // for (int i_neighbour = 0; i_neighbour < n_neighbours; ++i_neighbour) {
+    //         int j = neighbours.indices[i_neighbour];
+    //         double distance = neighbours.distances[i_neighbour];
+    //         if (j > i) {
 
-                // Only consider pairs that have one atom in the 'interaction
-                // subset', typically the original cell but can also be another
-                // local region.
-                bool i_interactive = system.interactive_atoms.find(i) != system.interactive_atoms.end();
-                bool j_interactive = system.interactive_atoms.find(j) != system.interactive_atoms.end();
-                if (i_interactive || j_interactive) {
-                    double geom = geom_func(distance);
-                    double weight = weight_func(distance);
+    //             // Only consider pairs that have one atom in the 'interaction
+    //             // subset', typically the original cell but can also be another
+    //             // local region.
+    //             bool i_interactive = system.interactive_atoms.find(i) != system.interactive_atoms.end();
+    //             bool j_interactive = system.interactive_atoms.find(j) != system.interactive_atoms.end();
+    //             if (i_interactive || j_interactive) {
+    //                 double geom = geom_func(distance);
+    //                 double weight = weight_func(distance);
 
-                    // When the pair of atoms are in different copies of the
-                    // cell, the weight is halved. This is done in order to
-                    // avoid double counting the same distance in the opposite
-                    // direction. This correction makes periodic cells with
-                    // different translations equal and also supercells equal to
-                    // the primitive cell within a constant that is given by the
-                    // number of repetitions of the primitive cell in the
-                    // supercell.
-                    bool same_cell = true;
-                    for (int k = 0; k < 3; ++k) {
-                        if (cell_indices_u(i, k) != cell_indices_u(j, k)) {
-                            same_cell = false;
-                            break;
-                        }
-                    }
-                    if (!same_cell) {
-                        weight /= 2;
-                    }
+    //                 // When the pair of atoms are in different copies of the
+    //                 // cell, the weight is halved. This is done in order to
+    //                 // avoid double counting the same distance in the opposite
+    //                 // direction. This correction makes periodic cells with
+    //                 // different translations equal and also supercells equal to
+    //                 // the primitive cell within a constant that is given by the
+    //                 // number of repetitions of the primitive cell in the
+    //                 // supercell.
+    //                 bool same_cell = true;
+    //                 for (int k = 0; k < 3; ++k) {
+    //                     if (cell_indices_u(i, k) != cell_indices_u(j, k)) {
+    //                         same_cell = false;
+    //                         break;
+    //                     }
+    //                 }
+    //                 if (!same_cell) {
+    //                     weight /= 2;
+    //                 }
 
-                    // Calculate gaussian
-                    vector<double> gauss = gaussian(geom, weight, start, dx, sigma, n);
+    //                 // Calculate gaussian
+    //                 vector<double> gauss = gaussian(geom, weight, start, dx, sigma, n);
 
-                    // Get the index of the present elements in the final vector
-                    int i_z = atomic_numbers_u(i);
-                    int j_z = atomic_numbers_u(j);
+    //                 // Get the index of the present elements in the final vector
+    //                 int i_z = atomic_numbers_u(i);
+    //                 int j_z = atomic_numbers_u(j);
 
-                    // Get the starting index of the species pair in the final vector
-                    // int i_index = get_location(i_z, j_z)[0];
+    //                 // Get the starting index of the species pair in the final vector
+    //                 // pair<int, int> loc = get_location(i_z, j_z);
+                       // int start = loc.first;
 
-                    // // Sum gaussian into output
-                    // for (int j=0; j < gauss.size(); ++j) {
-                    //     out_mu[i_index + j] += gauss[j];
-                    // }
-                }
-            }
-        }
+    //                 // // Sum gaussian into output
+    //                 // for (int j=0; j < gauss.size(); ++j) {
+    //                 //     out_mu[start + j] += gauss[j];
+    //                 // }
+    //             }
+    //         }
+        // }
     }
 }
