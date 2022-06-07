@@ -39,14 +39,31 @@ class System {
             py::array_t<int> atomic_numbers,
             py::array_t<double> cell,
             py::array_t<bool> pbc,
+            py::array_t<int> indices,
+            py::array_t<int> cell_indices,
             unordered_set<int> interactive_atoms
         );
         py::array_t<double> positions;
         py::array_t<int> atomic_numbers;
         py::array_t<double> cell;
         py::array_t<bool> pbc;
+        /**
+         * Indices is a one-dimensional array that links each atom in the system
+         * into an index in the original, non-repeated system.
+         */
         py::array_t<int> indices;
+        /**
+         * Cell indices is a {n_atoms, 3} array that links each atom in the
+         * system into the index of a repeated cell. For non-extended systems
+         * all atoms are always tied to cell with index (0, 0, 0), but for
+         * extended atoms the index will vary.
+         */
         py::array_t<int> cell_indices;
+        /**
+         * Interactive atoms contains the indices of the interacting atoms in
+         * the system. Interacting atoms are the ones which will act as local
+         * centers when creating a descriptor.
+         */
         unordered_set<int> interactive_atoms;
 };
 

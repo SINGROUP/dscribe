@@ -45,12 +45,32 @@ System::System(
     , cell(cell)
     , pbc(pbc)
 {
+    // Create the default set of interactive atoms, which encompasses the whole
+    // system
     unordered_set<int> interactive_atoms = unordered_set<int>();
     int n_atoms = atomic_numbers.size();
     for (int i = 0; i < n_atoms; ++i) {
         interactive_atoms.insert(i);
     }
     this->interactive_atoms = interactive_atoms;
+
+    // Create the default cell indices
+    py::array_t<int> cell_indices({n_atoms, 3});
+    auto cell_indices_mu = cell_indices.mutable_unchecked<2>();
+    for (int i = 0; i < n_atoms; ++i) {
+        cell_indices_mu(i, 0) = 0;
+        cell_indices_mu(i, 1) = 0;
+        cell_indices_mu(i, 2) = 0;
+    }
+    this->cell_indices = cell_indices;
+
+    // Create the default indices
+    py::array_t<int> indices({uint(n_atoms)});
+    auto indices_mu = indices.mutable_unchecked<1>();
+    for (int i = 0; i < n_atoms; ++i) {
+        indices_mu(i) = i;
+    }
+    this->indices = indices;
 }
 
 System::System(
@@ -58,12 +78,16 @@ System::System(
     py::array_t<int> atomic_numbers,
     py::array_t<double> cell,
     py::array_t<bool> pbc,
+    py::array_t<int> indices,
+    py::array_t<int> cell_indices,
     unordered_set<int> interactive_atoms
 )
     : positions(positions)
     , atomic_numbers(atomic_numbers)
     , cell(cell)
     , pbc(pbc)
+    , indices(indices)
+    , cell_indices(cell_indices)
     , interactive_atoms(interactive_atoms)
 {
 }
@@ -173,13 +197,20 @@ System extend_system(
         }
     }
 
+    // In extended systems only the original system is marked as interactive
     unordered_set<int> interactive_atoms = unordered_set<int>();
     for (int i = 0; i < n_atoms; ++i) {
         interactive_atoms.insert(i);
     }
-    System ext_system = System(ext_pos, ext_atomic_numbers, system.cell, system.pbc, interactive_atoms);
-    ext_system.indices = ext_indices;
-    ext_system.cell_indices = ext_cell_indices;
+    System ext_system = System(
+        ext_pos,
+        ext_atomic_numbers,
+        system.cell,
+        system.pbc,
+        ext_indices,
+        ext_cell_indices,
+        interactive_atoms
+    );
     return ext_system;
 }
 

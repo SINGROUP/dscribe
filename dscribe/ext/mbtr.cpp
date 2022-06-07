@@ -182,6 +182,42 @@ void MBTR::create(py::array_t<double> &out, System &system, CellList &cell_list)
     return;
 }
 
+// void MBTR::get_location(int z1)
+// {
+//     // Check that the corresponding part is calculated
+//     k = len(species)
+//     term = getattr(self, "k{}".format(k))
+//     if term is None:
+//         raise ValueError(
+//             "Cannot retrieve the location for {}, as the term k{} has not "
+//             "been specied.".format(species, k)
+//         )
+
+//     // Change chemical elements into atomic numbers
+//     numbers = []
+//     for specie in species:
+//         if isinstance(specie, str):
+//             try:
+//                 specie = ase.data.atomic_numbers[specie]
+//             except KeyError:
+//                 raise ValueError("Invalid chemical species: {}".format(specie))
+//         numbers.append(specie)
+
+//     // Change into internal indexing
+//     numbers = [self.wrapper.species_index_map[x] for x in numbers]
+//     n_elem = len(self.wrapper.species)
+
+//     // k=1
+//     if len(numbers) == 1:
+//         n1 = self.k1["grid"]["n"]
+//         i = numbers[0]
+//         m = i
+//         start = int(m * n1)
+//         end = int((m + 1) * n1)
+
+//     return slice(start, end)
+// }
+
 
 /**
  * @brief Used to normalize part of the given one-dimensional py::array
@@ -509,8 +545,8 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
                     vector<double> gauss = gaussian(geom, weight, start, dx, sigma, n);
 
                     // Get the index of the present elements in the final vector
-                    int i_z = atomic_numbers_u[i];
-                    int j_z = atomic_numbers_u[j];
+                    int i_z = atomic_numbers_u(i);
+                    int j_z = atomic_numbers_u(j);
 
                     // Get the starting index of the species pair in the final vector
                     // int i_index = get_location(i_z, j_z)[0];
