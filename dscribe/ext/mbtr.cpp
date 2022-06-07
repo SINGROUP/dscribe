@@ -561,60 +561,61 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
     int n_atoms = atomic_numbers.size();
     auto cell_indices_u = system.cell_indices.unchecked<2>();
     for (int i=0; i < n_atoms; ++i) {
-
         // For each atom we loop only over the neighbours
+
+        // TODO: This is causing an intermittent segmentation fault
         // CellListResult neighbours = cell_list.getNeighboursForIndex(i);
+
         // int n_neighbours = neighbours.indices.size();
         // for (int i_neighbour = 0; i_neighbour < n_neighbours; ++i_neighbour) {
-    //         int j = neighbours.indices[i_neighbour];
-    //         double distance = neighbours.distances[i_neighbour];
-    //         if (j > i) {
+        //     int j = neighbours.indices[i_neighbour];
+        //     double distance = neighbours.distances[i_neighbour];
+        //     if (j > i) {
+        //         // Only consider pairs that have one atom in the 'interaction
+        //         // subset', typically the original cell but can also be another
+        //         // local region.
+        //         bool i_interactive = system.interactive_atoms.find(i) != system.interactive_atoms.end();
+        //         bool j_interactive = system.interactive_atoms.find(j) != system.interactive_atoms.end();
+        //         if (i_interactive || j_interactive) {
+        //             double geom = geom_func(distance);
+        //             double weight = weight_func(distance);
 
-    //             // Only consider pairs that have one atom in the 'interaction
-    //             // subset', typically the original cell but can also be another
-    //             // local region.
-    //             bool i_interactive = system.interactive_atoms.find(i) != system.interactive_atoms.end();
-    //             bool j_interactive = system.interactive_atoms.find(j) != system.interactive_atoms.end();
-    //             if (i_interactive || j_interactive) {
-    //                 double geom = geom_func(distance);
-    //                 double weight = weight_func(distance);
+        //             // When the pair of atoms are in different copies of the
+        //             // cell, the weight is halved. This is done in order to
+        //             // avoid double counting the same distance in the opposite
+        //             // direction. This correction makes periodic cells with
+        //             // different translations equal and also supercells equal to
+        //             // the primitive cell within a constant that is given by the
+        //             // number of repetitions of the primitive cell in the
+        //             // supercell.
+        //             bool same_cell = true;
+        //             for (int k = 0; k < 3; ++k) {
+        //                 if (cell_indices_u(i, k) != cell_indices_u(j, k)) {
+        //                     same_cell = false;
+        //                     break;
+        //                 }
+        //             }
+        //             if (!same_cell) {
+        //                 weight /= 2;
+        //             }
 
-    //                 // When the pair of atoms are in different copies of the
-    //                 // cell, the weight is halved. This is done in order to
-    //                 // avoid double counting the same distance in the opposite
-    //                 // direction. This correction makes periodic cells with
-    //                 // different translations equal and also supercells equal to
-    //                 // the primitive cell within a constant that is given by the
-    //                 // number of repetitions of the primitive cell in the
-    //                 // supercell.
-    //                 bool same_cell = true;
-    //                 for (int k = 0; k < 3; ++k) {
-    //                     if (cell_indices_u(i, k) != cell_indices_u(j, k)) {
-    //                         same_cell = false;
-    //                         break;
-    //                     }
-    //                 }
-    //                 if (!same_cell) {
-    //                     weight /= 2;
-    //                 }
+        //             // Calculate gaussian
+        //             vector<double> gauss = gaussian(geom, weight, start, dx, sigma, n);
 
-    //                 // Calculate gaussian
-    //                 vector<double> gauss = gaussian(geom, weight, start, dx, sigma, n);
+        //             // Get the index of the present elements in the final vector
+        //             int i_z = atomic_numbers_u(i);
+        //             int j_z = atomic_numbers_u(j);
 
-    //                 // Get the index of the present elements in the final vector
-    //                 int i_z = atomic_numbers_u(i);
-    //                 int j_z = atomic_numbers_u(j);
+        //             // Get the starting index of the species pair in the final vector
+        //             pair<int, int> loc = get_location(i_z, j_z);
+        //             int start = loc.first;
 
-    //                 // Get the starting index of the species pair in the final vector
-    //                 // pair<int, int> loc = get_location(i_z, j_z);
-                       // int start = loc.first;
-
-    //                 // // Sum gaussian into output
-    //                 // for (int j=0; j < gauss.size(); ++j) {
-    //                 //     out_mu[start + j] += gauss[j];
-    //                 // }
-    //             }
-    //         }
+        //             // Sum gaussian into output
+        //             for (int j=0; j < gauss.size(); ++j) {
+        //                 out_mu[start + j] += gauss[j];
+        //             }
+        //         }
+        //     }
         // }
     }
 }

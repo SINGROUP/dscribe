@@ -398,64 +398,21 @@ class MBTR(Descriptor):
                     raise ValueError("Invalid chemical species: {}".format(specie))
             numbers.append(specie)
 
-        # Change into internal indexing
-        numbers = [self.wrapper.species_index_map[x] for x in numbers]
-        n_elem = len(self.wrapper.species)
-
         # k=1
         if len(numbers) == 1:
-            n1 = self.k1["grid"]["n"]
-            i = numbers[0]
-            m = i
-            start = int(m * n1)
-            end = int((m + 1) * n1)
-
+            loc = self.wrapper.get_location(numbers[0])
+            start = loc[0]
+            end = loc[1]
         # k=2
         if len(numbers) == 2:
-            if numbers[0] > numbers[1]:
-                numbers = list(reversed(numbers))
-
-            n2 = self.k2["grid"]["n"]
-            i = numbers[0]
-            j = numbers[1]
-
-            # This is the index of the spectrum. It is given by enumerating the
-            # elements of an upper triangular matrix from left to right and top
-            # to bottom.
-            m = j + i * n_elem - i * (i + 1) / 2
-
-            offset = 0
-            if self.k1 is not None:
-                n1 = self.k1["grid"]["n"]
-                offset += n_elem * n1
-            start = int(offset + m * n2)
-            end = int(offset + (m + 1) * n2)
-
+            loc = self.wrapper.get_location(numbers[0], numbers[1])
+            start = loc[0]
+            end = loc[1]
         # k=3
         if len(numbers) == 3:
-            if numbers[0] > numbers[2]:
-                numbers = list(reversed(numbers))
-
-            n3 = self.k3["grid"]["n"]
-            i = numbers[0]
-            j = numbers[1]
-            k = numbers[2]
-
-            # This is the index of the spectrum. It is given by enumerating the
-            # elements of a three-dimensional array where for valid elements
-            # k>=i. The enumeration begins from [0, 0, 0], and ends at [n_elem,
-            # n_elem, n_elem], looping the elements in the order k, i, j.
-            m = j * n_elem * (n_elem + 1) / 2 + k + i * n_elem - i * (i + 1) / 2
-
-            offset = 0
-            if self.k1 is not None:
-                n1 = self.k1["grid"]["n"]
-                offset += n_elem * n1
-            if self.k2 is not None:
-                n2 = self.k2["grid"]["n"]
-                offset += (n_elem * (n_elem + 1) / 2) * n2
-            start = int(offset + m * n3)
-            end = int(offset + (m + 1) * n3)
+            loc = self.wrapper.get_location(numbers[0], numbers[1], numbers[2])
+            start = loc[0]
+            end = loc[1]
 
         return slice(start, end)
 
