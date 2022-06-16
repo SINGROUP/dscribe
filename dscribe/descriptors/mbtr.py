@@ -331,7 +331,7 @@ class MBTR(Descriptor):
 
     @property
     def k2(self):
-        return self.wrapper.get_k2()
+        return self.wrapper.k2
 
     @k2.setter
     def k2(self, value):
@@ -339,7 +339,7 @@ class MBTR(Descriptor):
 
     @property
     def k3(self):
-        return self.wrapper.get_k3()
+        return self.wrapper.k3
 
     @k3.setter
     def k3(self, value):

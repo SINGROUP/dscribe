@@ -98,11 +98,25 @@ class MBTR: public DescriptorGlobal {
         bool periodic;
 
     private:
+        double cutoff_k2;
+        double cutoff_k3;
         map<int, int> species_index_map;
         map<int, int> index_species_map;
         void assert_valle();
-        void assert_weighting_k2();
-        void assert_weighting_k3();
+        /**
+         * Gets the radial cutoff value from the given configuration dict.
+         */
+        double get_cutoff(py::dict &k);
+        /**
+         * Checks that the weighting is defined correctly when periodicity is
+         * taken into account.
+         */
+        void assert_periodic_weighting(py::dict &k);
+        /**
+         * Checks that the weighting is defined correctly in the given
+         * configuration dict.
+         */
+        void assert_weighting(py::dict &k);
         inline vector<double> gaussian(double center, double weight, double start, double dx, double sigma, int n);
         void calculate_k1(py::array_t<double> &out, System &system);
         void calculate_k2(py::array_t<double> &out, System &system, CellList &cell_list);

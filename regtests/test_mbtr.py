@@ -169,12 +169,64 @@ def test_k1_peaks_finite():
     features[desc.get_location(("O"))] = 0
     assert features.sum() == 0
 
+def test_k2_peaks_finite():
+    """Tests the correct peak locations and intensities are found for the
+    k=2 term in finite systems.
+    """
+    system = water()
+    k2 = {
+        "geometry": {"function": "distance"},
+        "grid": {"min": -1, "max": 3, "sigma": 0.5, "n": 1000},
+        "weighting": {"function": "unity"},
+    }
+    desc = MBTR(
+        species=[1, 8],
+        k2=k2,
+        normalize_gaussians=False,
+        periodic=False,
+        flatten=True,
+        sparse=False,
+    )
+    features = desc.create(system)
+    pos = system.get_positions()
+    start = k2["grid"]["min"]
+    stop = k2["grid"]["max"]
+    n = k2["grid"]["n"]
+    x = np.linspace(start, stop, n)
+
+    # Check the H-H peaks
+    hh_feat = features[desc.get_location(("H", "H"))]
+    hh_peak_indices = find_peaks(hh_feat, prominence=0.5)[0]
+    hh_peak_locs = x[hh_peak_indices]
+    hh_peak_ints = hh_feat[hh_peak_indices]
+    assert len(hh_peak_locs) > 0
+    assert np.allclose(hh_peak_locs, [np.linalg.norm(pos[0] - pos[2])], rtol=0, atol=1e-2)
+    assert np.allclose(hh_peak_ints, [1], rtol=0, atol=1e-2)
+
+    # Check the O-H peaks
+    ho_feat = features[desc.get_location(("H", "O"))]
+    ho_peak_indices = find_peaks(ho_feat, prominence=0.5)[0]
+    ho_peak_locs = x[ho_peak_indices]
+    ho_peak_ints = ho_feat[ho_peak_indices]
+    assert len(ho_peak_locs) > 0
+    assert np.allclose(ho_peak_locs, np.linalg.norm(pos[0] - pos[1]), rtol=0, atol=1e-2)
+    assert np.allclose(ho_peak_ints, [2], rtol=0, atol=1e-2)
+
+    # Check that everything else is zero
+    features[desc.get_location(("H", "H"))] = 0
+    features[desc.get_location(("H", "O"))] = 0
+    assert features.sum() == 0
+
 
 @pytest.mark.parametrize(
     "k1, k2, k3, normalization, norm",
     [
-        (True, False, False, "l2", 1),
-        (True, False, False, "l2_each", 1),
+        (True, False, False, "l2", 1),       # K1
+        (True, False, False, "l2_each", 1),  # K1
+        (False, True, False, "l2", 1),       # K2
+        (False, True, False, "l2_each", 1),  # K2
+        (True, True, False, "l2", 1),        # K1 + K2
+        # (True, True, False, "l2_each", 2),   # K1 + K2
     ]
 )
 def test_normalization(k1, k2, k3, normalization, norm):

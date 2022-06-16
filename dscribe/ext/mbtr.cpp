@@ -15,8 +15,10 @@ limitations under the License.
 #include <functional>
 #include <algorithm>
 #include <iostream>
+#include <unordered_set>
 #include "mbtr.h"
 #include "constants.h"
+
 
 using namespace std;
 
@@ -121,6 +123,8 @@ MBTR::MBTR(
 )
     : DescriptorGlobal(periodic)
     , normalize_gaussians(normalize_gaussians)
+    , cutoff_k2(0)
+    , cutoff_k3(0)
 {
     this->set_species(species);
     this->set_normalization(normalization);
@@ -307,7 +311,6 @@ void MBTR::normalize_output(py::array_t<double> &out) {
         int n_k1_features = get_number_of_k1_features();
         int n_k2_features = get_number_of_k2_features();
         int n_k3_features = get_number_of_k3_features();
-        int start = 0;
         normalize(out, 0, n_k1_features);
         normalize(out, n_k1_features, n_k1_features+n_k2_features);
         normalize(out, n_k1_features+n_k2_features, n_k1_features+n_k2_features+n_k3_features);
@@ -332,12 +335,22 @@ void MBTR::set_k1(py::dict k1) {
 
 void MBTR::set_k2(py::dict k2) {
     this->k2 = k2;
-    this->assert_weighting_k2();
+    this->assert_periodic_weighting(k2);
+    this->assert_weighting(k2);
+    double cutoff = this->get_cutoff(k2);
+    this->cutoff_k2 = cutoff;
+    this->cutoff = max(this->cutoff_k2, this->cutoff_k3);
 }
 
 void MBTR::set_k3(py::dict k3) {
     this->k3 = k3;
-    this->assert_weighting_k3();
+    this->assert_periodic_weighting(k3);
+    this->assert_weighting(k3);
+    // In k3, the distance is defined as the perimeter, thus we half the
+    // distance to get the actual cutoff.
+    double cutoff = 0.5 * this->get_cutoff(k3);
+    this->cutoff_k3 = cutoff;
+    this->cutoff = max(this->cutoff_k2, this->cutoff_k3);
 }
 
 void MBTR::set_normalize_gaussians(bool normalize_gaussians) {
@@ -377,8 +390,8 @@ void MBTR::set_species(py::array_t<int> species) {
 void MBTR::set_periodic(bool periodic) {
     this->periodic = periodic;
     assert_valle();
-    assert_weighting_k2();
-    assert_weighting_k3();
+    assert_periodic_weighting(this->k2);
+    assert_periodic_weighting(this->k3);
 }
 
 void MBTR::assert_valle() {
@@ -387,12 +400,38 @@ void MBTR::assert_valle() {
     }
 }
 
-void MBTR::assert_weighting_k2() {
+double MBTR::get_cutoff(py::dict &k) {
+    double cutoff = 0;
+    if (k.size() != 0) {
+        if (k.contains("weighting")) {
+            py::dict weighting = k["weighting"];
+            if (weighting.contains("function")) {
+                string function = weighting["function"].cast<string>();
+                if (function == "exp" || function == "exponential") {
+                    if (weighting.contains("r_cut")) {
+                        cutoff = weighting["r_cut"].cast<double>();
+                    } else if (weighting.contains("scale")) {
+                        double scale = weighting["scale"].cast<double>();
+                        double threshold = weighting["threshold"].cast<double>();
+                        cutoff = -log(threshold) / scale;
+                    }
+                } else if (function == "inverse_square") {
+                    if (weighting.contains("r_cut")) {
+                        cutoff = weighting["r_cut"].cast<double>();
+                    }
+                }
+            }
+        }
+    }
+    return cutoff;
+}
+
+void MBTR::assert_periodic_weighting(py::dict &k) {
     if (this->periodic) {
-        if (this->k2.size() != 0) {
+        if (k.size() != 0) {
             bool valid = false;
-            if (this->k2.contains("weighting")) {
-                py::dict weighting = this->k2["weighting"];
+            if (k.contains("weighting")) {
+                py::dict weighting = k["weighting"];
                 if (weighting.contains("function")) {
                     string function = weighting["function"].cast<string>();
                     if (function != "unity") {
@@ -407,21 +446,29 @@ void MBTR::assert_weighting_k2() {
     }
 }
 
-void MBTR::assert_weighting_k3() {
-    if (this->periodic) {
-        if (this->k3.size() != 0) {
-            bool valid = false;
-            if (this->k3.contains("weighting")) {
-                py::dict weighting = this->k3["weighting"];
-                if (weighting.contains("function")) {
-                    string function = weighting["function"].cast<string>();
-                    if (function != "unity") {
-                        valid = true;
+void MBTR::assert_weighting(py::dict &k) {
+    if (k.size() != 0) {
+        if (k.contains("weighting")) {
+            py::dict weighting = k["weighting"];
+            if (weighting.contains("function")) {
+                string function = weighting["function"].cast<string>();
+                unordered_set<string> valid_functions( {"unity", "exp", "exponential", "inverse_square"} );
+                if (valid_functions.find(function) == valid_functions.end()) {
+                    throw invalid_argument("Unknown weighting function specified.");
+                } else {
+                    if (function == "exp" || function == "exponential") {
+                        if (!weighting.contains("threshold")) {
+                            throw invalid_argument("Missing value for 'threshold'.");
+                        }
+                        if (!weighting.contains("scale") && !weighting.contains("r_cut")) {
+                            throw invalid_argument("Provide either 'scale' or 'r_cut'.");
+                        }
+                    } else if (function == "inverse_square") {
+                        if (!weighting.contains("r_cut")) {
+                            throw invalid_argument("Missing value for 'r_cut'.");
+                        }
                     }
                 }
-            }
-            if (!valid) {
-                throw invalid_argument("Periodic systems need to have a weighting function.");
             }
         }
     }
@@ -553,6 +600,8 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
     } else if (weight_func_name == "exp" || weight_func_name == "exponential") {
         double scale = this->k2["weighting"]["scale"].cast<double>();
         weight_func = bind(weight_exponential_k2, std::placeholders::_1, scale);
+    } else if (weight_func_name == "inverse_square") {
+        weight_func = weight_square_k2;
     } else {
         throw invalid_argument("Invalid geometry function.");
     }
@@ -562,60 +611,58 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
     auto cell_indices_u = system.cell_indices.unchecked<2>();
     for (int i=0; i < n_atoms; ++i) {
         // For each atom we loop only over the neighbours
+        CellListResult neighbours = cell_list.getNeighboursForIndex(i);
 
-        // TODO: This is causing an intermittent segmentation fault
-        // CellListResult neighbours = cell_list.getNeighboursForIndex(i);
+        int n_neighbours = neighbours.indices.size();
+        for (int i_neighbour = 0; i_neighbour < n_neighbours; ++i_neighbour) {
+            int j = neighbours.indices[i_neighbour];
+            double distance = neighbours.distances[i_neighbour];
+            if (j > i) {
+                // Only consider pairs that have one atom in the 'interaction
+                // subset', typically the original cell but can also be another
+                // local region.
+                bool i_interactive = system.interactive_atoms.find(i) != system.interactive_atoms.end();
+                bool j_interactive = system.interactive_atoms.find(j) != system.interactive_atoms.end();
+                if (i_interactive || j_interactive) {
+                    double geom = geom_func(distance);
+                    double weight = weight_func(distance);
 
-        // int n_neighbours = neighbours.indices.size();
-        // for (int i_neighbour = 0; i_neighbour < n_neighbours; ++i_neighbour) {
-        //     int j = neighbours.indices[i_neighbour];
-        //     double distance = neighbours.distances[i_neighbour];
-        //     if (j > i) {
-        //         // Only consider pairs that have one atom in the 'interaction
-        //         // subset', typically the original cell but can also be another
-        //         // local region.
-        //         bool i_interactive = system.interactive_atoms.find(i) != system.interactive_atoms.end();
-        //         bool j_interactive = system.interactive_atoms.find(j) != system.interactive_atoms.end();
-        //         if (i_interactive || j_interactive) {
-        //             double geom = geom_func(distance);
-        //             double weight = weight_func(distance);
+                    // When the pair of atoms are in different copies of the
+                    // cell, the weight is halved. This is done in order to
+                    // avoid double counting the same distance in the opposite
+                    // direction. This correction makes periodic cells with
+                    // different translations equal and also supercells equal to
+                    // the primitive cell within a constant that is given by the
+                    // number of repetitions of the primitive cell in the
+                    // supercell.
+                    bool same_cell = true;
+                    for (int k = 0; k < 3; ++k) {
+                        if (cell_indices_u(i, k) != cell_indices_u(j, k)) {
+                            same_cell = false;
+                            break;
+                        }
+                    }
+                    if (!same_cell) {
+                        weight /= 2;
+                    }
 
-        //             // When the pair of atoms are in different copies of the
-        //             // cell, the weight is halved. This is done in order to
-        //             // avoid double counting the same distance in the opposite
-        //             // direction. This correction makes periodic cells with
-        //             // different translations equal and also supercells equal to
-        //             // the primitive cell within a constant that is given by the
-        //             // number of repetitions of the primitive cell in the
-        //             // supercell.
-        //             bool same_cell = true;
-        //             for (int k = 0; k < 3; ++k) {
-        //                 if (cell_indices_u(i, k) != cell_indices_u(j, k)) {
-        //                     same_cell = false;
-        //                     break;
-        //                 }
-        //             }
-        //             if (!same_cell) {
-        //                 weight /= 2;
-        //             }
+                    // Calculate gaussian
+                    vector<double> gauss = gaussian(geom, weight, start, dx, sigma, n);
 
-        //             // Calculate gaussian
-        //             vector<double> gauss = gaussian(geom, weight, start, dx, sigma, n);
+                    // Get the index of the present elements in the final vector
+                    int i_z = atomic_numbers_u(i);
+                    int j_z = atomic_numbers_u(j);
 
-        //             // Get the index of the present elements in the final vector
-        //             int i_z = atomic_numbers_u(i);
-        //             int j_z = atomic_numbers_u(j);
+                    // Get the starting index of the species pair in the final vector
+                    pair<int, int> loc = get_location(i_z, j_z);
+                    int start = loc.first;
 
-        //             // Get the starting index of the species pair in the final vector
-        //             pair<int, int> loc = get_location(i_z, j_z);
-        //             int start = loc.first;
-
-        //             // Sum gaussian into output
-        //             for (int j=0; j < gauss.size(); ++j) {
-        //                 out_mu[start + j] += gauss[j];
-        //             }
-        //         }
-        //     }
-        // }
+                    // Sum gaussian into output
+                    for (int j=0; j < gauss.size(); ++j) {
+                        out_mu[start + j] += gauss[j];
+                    }
+                }
+            }
+        }
     }
 }

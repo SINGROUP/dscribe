@@ -34,7 +34,7 @@ class Descriptor {
         Descriptor(bool periodic, string average="", double cutoff=0);
         const bool periodic;
         const string average;
-        const double cutoff;
+        double cutoff;
         int n_atoms_non_extended;
 };
 
