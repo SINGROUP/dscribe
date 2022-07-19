@@ -112,6 +112,7 @@ void CoulombMatrix::sort(Ref<MatrixXd> matrix, bool noise)
 {
     // Calculate row norms
     VectorXd norms = matrix.rowwise().norm();
+    int n_atoms = matrix.rows();
 
     // Introduce noise with norm as mean and sigma as standard deviation.
     if (noise) {
@@ -121,18 +122,18 @@ void CoulombMatrix::sort(Ref<MatrixXd> matrix, bool noise)
         }
     }
 
-    // Calculate row permutations that order the matrix.
-    int n_atoms = matrix.rows();
+    // Sort the pairs by norm.
     VectorXi indices(n_atoms);
     iota(indices.begin(), indices.end(), 0);
-    std::sort(indices.data(), indices.data() + indices.size(), [&](int i1, int i2) { return norms(i1) > norms(i2); } );
-    PermutationMatrix<Dynamic> P(indices);
+    std::stable_sort(indices.begin(), indices.end(), [&norms](int a, int b) { return norms(a) > norms(b); } );
 
-    // Sort matrix in place. Notice that we sort both rows and columns. This
-    // way the interpretation of the matrix as pairwise interaction of atoms is
-    // still valid.
-    matrix = matrix * P;
-    matrix = P * matrix;
+    // Sort matrix in place. Notice that we sort both rows and columns. This way
+    // the interpretation of the matrix as pairwise interaction of atoms is
+    // still valid. NOTE: Getting eigen to correctly sort both columns and rows
+    // with the same order was non-trivial, but the following syntax seems to
+    // work fine.
+    PermutationMatrix<Dynamic> P(indices);
+    matrix = P.transpose() * matrix * P;
 }
 
 int CoulombMatrix::get_number_of_features() const
