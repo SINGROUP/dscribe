@@ -294,7 +294,7 @@ class EwaldSumMatrix(MatrixDescriptor):
         fcoords = system.get_scaled_positions()
         coords = system.get_positions()
         n_atoms = len(system)
-        ereal = np.zeros((n_atoms, n_atoms), dtype=np.float)
+        ereal = np.zeros((n_atoms, n_atoms), dtype=np.float64)
         lattice = Lattice(system.get_cell())
 
         # For each atom in the original cell, get the neighbours in the
@@ -347,7 +347,7 @@ class EwaldSumMatrix(MatrixDescriptor):
             i,j pair.
         """
         n_atoms = self.n_atoms
-        erecip = np.zeros((n_atoms, n_atoms), dtype=np.float)
+        erecip = np.zeros((n_atoms, n_atoms), dtype=np.float64)
         coords = system.get_positions()
 
         # Get the reciprocal lattice points within the reciprocal space cutoff

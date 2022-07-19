@@ -5,6 +5,7 @@ import pytest
 import scipy
 from ase import Atoms
 from ase.build import molecule, bulk
+from ase.visualize import view
 from dscribe.descriptors import CoulombMatrix, SineMatrix, EwaldSumMatrix
 
 """
@@ -52,8 +53,12 @@ def water():
     )
 
 def molecule_complex():
-    """Acetyl fluoride molecule without with no periodicity."""
-    return molecule("CH3COF")
+    """Acetyl fluoride molecule in a cell with no periodicity."""
+    mol = molecule("CH3COF")
+    mol.set_cell([5, 5, 5])
+    mol.center()
+    return mol
+
 
 @pytest.fixture()
 def bulk_system():
@@ -352,7 +357,7 @@ def assert_matrix_descriptor_sorted(descriptor_func):
         old_len = length
 
     # Check that the matrix is symmetric
-    assert np.array_equal(features, features.T)
+    assert np.allclose(features, features.T, rtol=0, atol=1e-13)
 
 
 def assert_matrix_descriptor_eigenspectrum(descriptor_func):
