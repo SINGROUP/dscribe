@@ -52,6 +52,7 @@ def water():
         symbols=["H", "O", "H"],
     )
 
+
 def molecule_complex():
     """Acetyl fluoride molecule in a cell with no periodicity."""
     mol = molecule("CH3COF")
