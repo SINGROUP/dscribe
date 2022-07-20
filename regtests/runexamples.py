@@ -5,13 +5,17 @@ from importlib import import_module
 
 class ExampleTests(unittest.TestCase):
     def test_examples(self):
-        # Walks through the examples folder and tests each example by
-        # dynamically importing them which will also run their code.
-        # These examples are excluded
+        """Walks through the examples folder and tests each example by
+        dynamically importing them which will also run their code.
+        """
+        # The training and analysis examples are not included since they require
+        # installing quite large libraries and can take a significant amount of
+        # time.
         exclude = {
             "./forces_and_energies/training_pytorch.py",
             "./forces_and_energies/training_tensorflow.py",
             "./forces_and_energies/analysis.py",
+            "./clustering/training.py",
         }
         old_cwd = os.getcwd()
         os.chdir("../examples")
