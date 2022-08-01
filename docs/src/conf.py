@@ -31,7 +31,9 @@ author = 'Lauri Himanen, Eiaki Morooka, F. Federici Canova, Marc Jäger, Y. Rana
 
 def setup(app):
     app.add_css_file('css/style.css')
-    app.add_js_file('js/versions.js')
+    # The versions script needs to be loaded in defer mode in order to load the
+    # version information into the page
+    app.add_js_file('js/versions.js', loading_method='defer')
     app.connect('config-inited', on_config_inited)
 
 
