@@ -388,9 +388,9 @@ def assert_matrix_descriptor_random(descriptor_func):
 
     Measures how many times the two rows with biggest norm exchange place when
     random noise is added. This should correspond to the probability P(X > Y),
-    where X = N(\mu_1, \sigma^2), Y = N(\mu_2, \sigma^2). This probability can
-    be reduced to P(X > Y) = P(X-Y > 0) = P(N(\mu_1 - \mu_2, \sigma^2 +
-    sigma^2) > 0). See e.g.
+    where X = N(\\mu_1, \\sigma^2), Y = N(\\mu_2, \\sigma^2). This probability can
+    be reduced to P(X > Y) = P(X-Y > 0) = P(N(\\mu_1 - \\mu_2, \\sigma^2 +
+    \\sigma^2) > 0). See e.g.
     https://en.wikipedia.org/wiki/Sum_of_normally_distributed_random_variables
     """
     HHe = Atoms(
