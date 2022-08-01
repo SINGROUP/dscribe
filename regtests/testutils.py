@@ -417,7 +417,9 @@ def save_poly_coefficients():
 
 
 def load_gto_coefficients(args):
-    return np.load("gto_coefficients_{n_max}_{l_max}_{r_cut}_{sigma}.npy".format(**args))
+    return np.load(
+        "gto_coefficients_{n_max}_{l_max}_{r_cut}_{sigma}.npy".format(**args)
+    )
 
 
 def load_polynomial_coefficients(args):

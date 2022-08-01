@@ -178,16 +178,16 @@ class SOAP(Descriptor):
             loc = locals()
             var_old = "".join(var_new.split("_"))
             if loc.get(var_old) is not None:
-                var_dict[var_new] =  loc[var_old]
+                var_dict[var_new] = loc[var_old]
                 if loc.get(var_new) is not None:
                     raise ValueError(
                         "Please provide only either {} or {}.".format(var_new, var_old)
                     )
             else:
                 var_dict[var_new] = loc[var_new]
-        r_cut = var_dict['r_cut']
-        n_max = var_dict['n_max']
-        l_max = var_dict['l_max']
+        r_cut = var_dict["r_cut"]
+        n_max = var_dict["n_max"]
+        l_max = var_dict["l_max"]
 
         supported_dtype = set(("float32", "float64"))
         if dtype not in supported_dtype:
@@ -398,12 +398,15 @@ class SOAP(Descriptor):
 
     def init_internal_dev_array(self, n_centers, n_atoms, n_types, n, l_max):
         d = np.zeros(
-            (n_atoms, n_centers, n_types, n, (l_max + 1) * (l_max + 1)), dtype=np.float64
+            (n_atoms, n_centers, n_types, n, (l_max + 1) * (l_max + 1)),
+            dtype=np.float64,
         )
         return d
 
     def init_internal_array(self, n_centers, n_types, n, l_max):
-        d = np.zeros((n_centers, n_types, n, (l_max + 1) * (l_max + 1)), dtype=np.float64)
+        d = np.zeros(
+            (n_centers, n_types, n, (l_max + 1) * (l_max + 1)), dtype=np.float64
+        )
         return d
 
     def create(

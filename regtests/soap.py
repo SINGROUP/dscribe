@@ -512,19 +512,28 @@ class SoapTests(TestBaseClass, unittest.TestCase):
     def test_sparse(self):
         """Tests the sparse matrix creation."""
         # Dense
-        desc = SOAP(species=[1, 8], r_cut=5, n_max=5, l_max=5, periodic=True, sparse=False)
+        desc = SOAP(
+            species=[1, 8], r_cut=5, n_max=5, l_max=5, periodic=True, sparse=False
+        )
         vec = desc.create(H2O)
         self.assertTrue(type(vec) == np.ndarray)
 
         # Sparse
-        desc = SOAP(species=[1, 8], r_cut=5, n_max=5, l_max=5, periodic=True, sparse=True)
+        desc = SOAP(
+            species=[1, 8], r_cut=5, n_max=5, l_max=5, periodic=True, sparse=True
+        )
         vec = desc.create(H2O)
         self.assertTrue(type(vec) == sparse.COO)
 
     def test_positions(self):
         """Tests that different positions are handled correctly."""
         desc = SOAP(
-            species=[1, 6, 8], r_cut=10.0, n_max=2, l_max=0, periodic=False, crossover=True
+            species=[1, 6, 8],
+            r_cut=10.0,
+            n_max=2,
+            l_max=0,
+            periodic=False,
+            crossover=True,
         )
         n_feat = desc.get_number_of_features()
         self.assertEqual(
@@ -798,7 +807,12 @@ class SoapTests(TestBaseClass, unittest.TestCase):
     def test_unit_cells(self):
         """Tests if arbitrary unit cells are accepted"""
         desc = SOAP(
-            species=[1, 6, 8], r_cut=10.0, n_max=2, l_max=0, periodic=False, crossover=True
+            species=[1, 6, 8],
+            r_cut=10.0,
+            n_max=2,
+            l_max=0,
+            periodic=False,
+            crossover=True,
         )
 
         molecule = H2O.copy()
@@ -859,7 +873,12 @@ class SoapTests(TestBaseClass, unittest.TestCase):
         system.set_pbc(True)
         system.set_cell([[2.0, 0.0, 0.0], [0.0, 2.0, 0.0], [0.0, 0.0, 2.0]])
         desc = SOAP(
-            species=[1, 6, 8], r_cut=10.0, n_max=2, l_max=0, periodic=True, crossover=True
+            species=[1, 6, 8],
+            r_cut=10.0,
+            n_max=2,
+            l_max=0,
+            periodic=True,
+            crossover=True,
         )
 
         cubic_cell = desc.create(system, positions=[[0, 0, 0]])
@@ -869,7 +888,12 @@ class SoapTests(TestBaseClass, unittest.TestCase):
     def test_periodic_images(self):
         """Tests the periodic images seen by the descriptor"""
         desc = SOAP(
-            species=[1, 6, 8], r_cut=10.0, n_max=2, l_max=0, periodic=False, crossover=True
+            species=[1, 6, 8],
+            r_cut=10.0,
+            n_max=2,
+            l_max=0,
+            periodic=False,
+            crossover=True,
         )
 
         molecule = H2O.copy()
@@ -880,7 +904,12 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
         # Make periodic
         desc = SOAP(
-            species=[1, 6, 8], r_cut=10.0, n_max=2, l_max=0, periodic=True, crossover=True
+            species=[1, 6, 8],
+            r_cut=10.0,
+            n_max=2,
+            l_max=0,
+            periodic=True,
+            crossover=True,
         )
         molecule.set_pbc(True)
 
@@ -1268,10 +1297,8 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                 analytical_power_spectrum = soap.create(system, positions=centers)
 
                 # Calculate and save the numerical power spectrum to disk
-                filename = (
-                    "{rbf}_coefficients_{n_max}_{l_max}_{r_cut}_{sigma}_{func}.npy".format(
-                        **args, rbf=rbf, func=weighting["function"]
-                    )
+                filename = "{rbf}_coefficients_{n_max}_{l_max}_{r_cut}_{sigma}_{func}.npy".format(
+                    **args, rbf=rbf, func=weighting["function"]
                 )
                 # coeffs = getattr(self, "coefficients_{}".format(rbf))(
                 # system_num,
