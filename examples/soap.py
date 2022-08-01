@@ -1,17 +1,17 @@
 from dscribe.descriptors import SOAP
 
 species = ["H", "C", "O", "N"]
-rcut = 6.0
-nmax = 8
-lmax = 6
+r_cut = 6.0
+n_max = 8
+l_max = 6
 
 # Setting up the SOAP descriptor
 soap = SOAP(
     species=species,
     periodic=False,
-    rcut=rcut,
-    nmax=nmax,
-    lmax=lmax,
+    r_cut=r_cut,
+    n_max=n_max,
+    l_max=l_max,
 )
 
 # Creation
@@ -33,8 +33,8 @@ coulomb_matrices = soap.create(samples, positions)            # Serial
 coulomb_matrices = soap.create(samples, positions, n_jobs=2)  # Parallel
 
 # Lets change the SOAP setup and see how the number of features changes
-small_soap = SOAP(species=species, rcut=rcut, nmax=2, lmax=0)
-big_soap = SOAP(species=species, rcut=rcut, nmax=9, lmax=9)
+small_soap = SOAP(species=species, r_cut=r_cut, n_max=2, l_max=0)
+big_soap = SOAP(species=species, r_cut=r_cut, n_max=9, l_max=9)
 n_feat1 = small_soap.get_number_of_features()
 n_feat2 = big_soap.get_number_of_features()
 print(n_feat1, n_feat2)
@@ -46,9 +46,9 @@ copper = bulk('Cu', 'fcc', a=3.6, cubic=True)
 print(copper.get_pbc())
 periodic_soap = SOAP(
     species=[29],
-    rcut=rcut,
-    nmax=nmax,
-    lmax=nmax,
+    r_cut=r_cut,
+    n_max=n_max,
+    l_max=n_max,
     periodic=True,
     sparse=False
 )
@@ -71,9 +71,9 @@ soap_water[0, ho_loc]
 # Sparse output
 soap = SOAP(
     species=species,
-    rcut=rcut,
-    nmax=nmax,
-    lmax=lmax,
+    r_cut=r_cut,
+    n_max=n_max,
+    l_max=l_max,
     sparse=True
 )
 soap_water = soap.create(water)
@@ -81,9 +81,9 @@ print(type(soap_water))
 
 soap = SOAP(
     species=species,
-    rcut=rcut,
-    nmax=nmax,
-    lmax=lmax,
+    r_cut=r_cut,
+    n_max=n_max,
+    l_max=l_max,
     sparse=False
 )
 soap_water = soap.create(water)
@@ -92,9 +92,9 @@ print(type(soap_water))
 # Average output
 average_soap = SOAP(
     species=species,
-    rcut=rcut,
-    nmax=nmax,
-    lmax=lmax,
+    r_cut=r_cut,
+    n_max=n_max,
+    l_max=l_max,
     average="inner",
     sparse=False
 )

@@ -203,9 +203,9 @@ instances from these functions are plotted below.
    decay smoothly towards zero.
 
 When using a weighting function, you typically will also want to restrict
-``rcut`` into a range that lies within the domain in which your weighting
-function is active. You can achieve this by manually tuning rcut to a range
-that fits your weighting function, or if you set :code:`rcut=None`, it will be
+``r_cut`` into a range that lies within the domain in which your weighting
+function is active. You can achieve this by manually tuning r_cut to a range
+that fits your weighting function, or if you set :code:`r_cut=None`, it will be
 set automatically into a sensible range which depends on your weighting
 function. You can see more details and the algebraic form of the weighting
 functions in the constructor documentation.
