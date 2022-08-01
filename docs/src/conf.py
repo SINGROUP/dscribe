@@ -39,9 +39,9 @@ def on_config_inited(app, config):
     config.html_context["current_version"] = config.version
 
 
-html_context = {
-    'css_files': ['_static/css/style.css'],
-}
+# html_context = {
+#     'css_files': ['_static/css/style.css'],
+# }
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -56,11 +56,16 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
+    'sphinx_rtd_theme',
     'sphinx.ext.githubpages',
     'sphinxcontrib.bibtex',
 ]
 
-bibtex_bibfiles = ["references.bib"]
+bibtex_bibfiles = [
+    'references.bib',
+    'publications_2019.bib',
+    'publications_2020.bib'
+]
 
 # Makes sure that __init__ is documented
 autoclass_content = 'both'
@@ -82,7 +87,7 @@ master_doc = 'index'
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'en'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.

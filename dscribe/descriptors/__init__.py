@@ -21,6 +21,5 @@ from dscribe.descriptors.lmbtr import LMBTR
 from dscribe.descriptors.ewaldsummatrix import EwaldSumMatrix
 from dscribe.descriptors.coulombmatrix import CoulombMatrix
 from dscribe.descriptors.sinematrix import SineMatrix
-from dscribe.descriptors.elementaldistribution import ElementalDistribution
 from dscribe.descriptors.matrixdescriptor import MatrixDescriptor
 from dscribe.descriptors.soap import SOAP

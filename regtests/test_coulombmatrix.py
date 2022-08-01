@@ -29,7 +29,7 @@ def cm_python(system, n_atoms_max, permutation, flatten, sigma=None):
     qiqj = q[None, :] * q[:, None]
     np.fill_diagonal(distances, 1)
     cm = qiqj / distances
-    np.fill_diagonal(cm, 0.5 * q ** 2.4)
+    np.fill_diagonal(cm, 0.5 * q**2.4)
     random_state = RandomState(42)
 
     # Permutation option
@@ -59,8 +59,8 @@ def cm_python(system, n_atoms_max, permutation, flatten, sigma=None):
         # Flattening
         if flatten:
             cm = cm.flatten()
-            padded = np.zeros((n_atoms_max ** 2))
-            padded[: n ** 2] = cm
+            padded = np.zeros((n_atoms_max**2))
+            padded[: n**2] = cm
         else:
             padded = np.zeros((n_atoms_max, n_atoms_max))
             padded[:n, :n] = cm

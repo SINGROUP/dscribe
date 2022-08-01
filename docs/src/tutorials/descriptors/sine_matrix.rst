@@ -48,6 +48,7 @@ structures with the :meth:`~.SineMatrix.create`-method.
 The call syntax for the create-function is as follows:
 
 .. automethod:: dscribe.descriptors.sinematrix.SineMatrix.create
+   :noindex:
 
 Note that if you specify in *n_atoms_max* a lower number than atoms in your
 structure it will cause an error. The output will in this case be a flattened

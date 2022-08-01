@@ -70,7 +70,7 @@ Creation
 --------
 
 After CM has been set up, it may be used on atomic structures with the
-:meth:`~.CoulombMatrix.create`-method.
+:meth:`create <dscribe.descriptors.coulombmatrix.CoulombMatrix.create>`-method.
 
 .. literalinclude:: ../../../../examples/coulombmatrix.py
    :start-after: Creation
@@ -80,6 +80,7 @@ After CM has been set up, it may be used on atomic structures with the
 The call syntax for the create-function is as follows:
 
 .. automethod:: dscribe.descriptors.coulombmatrix.CoulombMatrix.create
+   :noindex:
 
 Note that if you specify in *n_atoms_max* a lower number than atoms in your
 structure it will cause an error. The output will in this case be a flattened

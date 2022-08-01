@@ -654,13 +654,13 @@ class MBTR(Descriptor):
 
         Args:
             species(tuple): A tuple containing a species combination as
-            chemical symbols or atomic numbers. The tuple can be for example
-            ("H"), ("H", "O") or ("H", "O", "H").
+                chemical symbols or atomic numbers. The tuple can be for example
+                ("H"), ("H", "O") or ("H", "O", "H").
 
         Returns:
             slice: slice containing the location of the specified species
-            combination. The location is given as a python slice-object, that
-            can be directly used to target ranges in the output.
+                combination. The location is given as a python slice-object, that
+                can be directly used to target ranges in the output.
 
         Raises:
             ValueError: If the requested species combination is not in the

@@ -66,12 +66,15 @@ class EwaldSumMatrix(MatrixDescriptor):
         system,
         accuracy=1e-5,
         w=1,
-        rcut=None,
-        gcut=None,
+        r_cut=None,
+        g_cut=None,
         a=None,
         n_jobs=1,
         only_physical_cores=False,
         verbose=False,
+        # For backwards compatibility with < v1.2.2
+        rcut=None,
+        gcut=None,
     ):
         """Return the Ewald sum matrix for the given systems.
 
@@ -81,7 +84,7 @@ class EwaldSumMatrix(MatrixDescriptor):
             accuracy (float): The accuracy to which the sum is converged to.
                 Corresponds to the variable :math:`A` in
                 https://doi.org/10.1080/08927022.2013.840898. Used only if
-                gcut, rcut and a have not been specified. Provide either one
+                g_cut, r_cut and a have not been specified. Provide either one
                 value or a list of values for each system.
             w (float): Weight parameter that represents the relative
                 computational expense of calculating a term in real and
@@ -90,14 +93,14 @@ class EwaldSumMatrix(MatrixDescriptor):
                 that this parameter is used only when the cutoffs and a are set
                 to None. Provide either one value or a list of values for each
                 system.
-            rcut (float): Real space cutoff radius dictating how many terms are
+            r_cut (float): Real space cutoff radius dictating how many terms are
                 used in the real space sum. Provide either one value or a list
                 of values for each system.
-            gcut (float): Reciprocal space cutoff radius. Provide either one
+            g_cut (float): Reciprocal space cutoff radius. Provide either one
                 value or a list of values for each system.
             a (float): The screening parameter that controls the width of the
                 Gaussians. If not provided, a default value of :math:`\\alpha =
-                \sqrt{\pi}\left(\\frac{N}{V^2}\\right)^{1/6}` is used.
+                \\sqrt{\\pi}\\left(\\frac{N}{V^2}\\right)^{1/6}` is used.
                 Corresponds to the standard deviation of the Gaussians. Provide
                 either one value or a list of values for each system.
             n_jobs (int): Number of parallel jobs to instantiate. Parallellizes
@@ -120,6 +123,21 @@ class EwaldSumMatrix(MatrixDescriptor):
             returned. The first dimension is determined by the amount of
             systems.
         """
+        var_dict = {}
+        for var_new in ["r_cut", "g_cut"]:
+            loc = locals()
+            var_old = "".join(var_new.split("_"))
+            if loc.get(var_old) is not None:
+                var_dict[var_new] = loc[var_old]
+                if loc.get(var_new) is not None:
+                    raise ValueError(
+                        "Please provide only either {} or {}.".format(var_new, var_old)
+                    )
+            else:
+                var_dict[var_new] = loc[var_new]
+        r_cut = var_dict["r_cut"]
+        g_cut = var_dict["g_cut"]
+
         # Combine input arguments / check input validity
         system = [system] if isinstance(system, Atoms) else system
         for s in system:
@@ -135,16 +153,16 @@ class EwaldSumMatrix(MatrixDescriptor):
             accuracy = n_samples * [accuracy]
         if np.ndim(w) == 0:
             w = n_samples * [w]
-        if np.ndim(rcut) == 0:
-            rcut = n_samples * [rcut]
-        if np.ndim(gcut) == 0:
-            gcut = n_samples * [gcut]
+        if np.ndim(r_cut) == 0:
+            r_cut = n_samples * [r_cut]
+        if np.ndim(g_cut) == 0:
+            g_cut = n_samples * [g_cut]
         if np.ndim(a) == 0:
             a = n_samples * [a]
         inp = [
-            (i_sys, i_accuracy, i_w, i_rcut, i_gcut, i_a)
-            for i_sys, i_accuracy, i_w, i_rcut, i_gcut, i_a in zip(
-                system, accuracy, w, rcut, gcut, a
+            (i_sys, i_accuracy, i_w, i_r_cut, i_g_cut, i_a)
+            for i_sys, i_accuracy, i_w, i_r_cut, i_g_cut, i_a in zip(
+                system, accuracy, w, r_cut, g_cut, a
             )
         ]
 
@@ -169,55 +187,55 @@ class EwaldSumMatrix(MatrixDescriptor):
 
         return output
 
-    def create_single(self, system, accuracy=1e-5, w=1, rcut=None, gcut=None, a=None):
+    def create_single(self, system, accuracy=1e-5, w=1, r_cut=None, g_cut=None, a=None):
         """
         Args:
             system (:class:`ase.Atoms` | :class:`.System`): Input system.
             accuracy (float): The accuracy to which the sum is converged to.
                 Corresponds to the variable :math:`A` in
-                https://doi.org/10.1080/08927022.2013.840898. Used only if gcut,
-                rcut and a have not been specified.
+                https://doi.org/10.1080/08927022.2013.840898. Used only if g_cut,
+                r_cut and a have not been specified.
             w (float): Weight parameter that represents the relative
                 computational expense of calculating a term in real and
                 reciprocal space. This has little effect on the total energy,
                 but may influence speed of computation in large systems. Note
                 that this parameter is used only when the cutoffs and a are set
                 to None.
-            rcut (float): Real space cutoff radius dictating how
+            r_cut (float): Real space cutoff radius dictating how
                 many terms are used in the real space sum.
-            gcut (float): Reciprocal space cutoff radius.
+            g_cut (float): Reciprocal space cutoff radius.
             a (float): The screening parameter that controls the width of the
                 Gaussians. If not provided, a default value of :math:`\\alpha =
-                \sqrt{\pi}\left(\\frac{N}{V^2}\\right)^{1/6}` is used.
+                \\sqrt{\\pi}\\left(\\frac{N}{V^2}\\right)^{1/6}` is used.
                 Corresponds to the standard deviation of the Gaussians.
         """
         self.q = system.get_atomic_numbers()
-        self.q_squared = self.q ** 2
+        self.q_squared = self.q**2
         self.n_atoms = len(system)
         self.volume = system.get_volume()
         self.sqrt_pi = math.sqrt(np.pi)
 
         # If a is not provided, use a default value
         if a is None:
-            a = (self.n_atoms * w / (self.volume ** 2)) ** (1 / 6) * self.sqrt_pi
+            a = (self.n_atoms * w / (self.volume**2)) ** (1 / 6) * self.sqrt_pi
 
         # If the real space cutoff, reciprocal space cutoff and a have not been
         # specified, use the accuracy and the weighting w to determine default
         # similarly as in https://doi.org/10.1080/08927022.2013.840898
-        if rcut is None and gcut is None:
+        if r_cut is None and g_cut is None:
             f = np.sqrt(-np.log(accuracy))
-            rcut = f / a
-            gcut = 2 * a * f
-        elif rcut is None or gcut is None:
+            r_cut = f / a
+            g_cut = 2 * a * f
+        elif r_cut is None or g_cut is None:
             raise ValueError(
                 "If you do not want to use the default cutoffs, please provide "
-                "both cutoffs rcut and gcut."
+                "both cutoffs r_cut and g_cut."
             )
 
         self.a = a
-        self.a_squared = self.a ** 2
-        self.gcut = gcut
-        self.rcut = rcut
+        self.a_squared = self.a**2
+        self.g_cut = g_cut
+        self.r_cut = r_cut
 
         matrix = super().create_single(system)
         return matrix
@@ -261,7 +279,7 @@ class EwaldSumMatrix(MatrixDescriptor):
         # element + upper diagonal part.
         q = self.q
         matself = np.zeros((self.n_atoms, self.n_atoms))
-        diag = q ** 2
+        diag = q**2
         np.fill_diagonal(matself, diag)
         matself *= -self.a / self.sqrt_pi
 
@@ -294,7 +312,7 @@ class EwaldSumMatrix(MatrixDescriptor):
         fcoords = system.get_scaled_positions()
         coords = system.get_positions()
         n_atoms = len(system)
-        ereal = np.zeros((n_atoms, n_atoms), dtype=np.float)
+        ereal = np.zeros((n_atoms, n_atoms), dtype=np.float64)
         lattice = Lattice(system.get_cell())
 
         # For each atom in the original cell, get the neighbours in the
@@ -304,7 +322,7 @@ class EwaldSumMatrix(MatrixDescriptor):
 
             # Get points that are within the real space cutoff
             nfcoords, rij, js = lattice.get_points_in_sphere(
-                fcoords, coords[i], self.rcut, zip_results=False
+                fcoords, coords[i], self.r_cut, zip_results=False
             )
             # Remove the rii term, because a charge does not interact with
             # itself (but does interact with copies of itself).
@@ -347,19 +365,19 @@ class EwaldSumMatrix(MatrixDescriptor):
             i,j pair.
         """
         n_atoms = self.n_atoms
-        erecip = np.zeros((n_atoms, n_atoms), dtype=np.float)
+        erecip = np.zeros((n_atoms, n_atoms), dtype=np.float64)
         coords = system.get_positions()
 
         # Get the reciprocal lattice points within the reciprocal space cutoff
         rcp_latt = 2 * np.pi * system.cell.reciprocal()
         rcp_latt = Lattice(rcp_latt)
-        recip_nn = rcp_latt.get_points_in_sphere([[0, 0, 0]], [0, 0, 0], self.gcut)
+        recip_nn = rcp_latt.get_points_in_sphere([[0, 0, 0]], [0, 0, 0], self.g_cut)
 
         # Ignore the terms with G=0.
         frac_coords = [fcoords for (fcoords, dist, i) in recip_nn if dist != 0]
 
         gs = rcp_latt.get_cartesian_coords(frac_coords)
-        g2s = np.sum(gs ** 2, 1)
+        g2s = np.sum(gs**2, 1)
         expvals = np.exp(-g2s / (4 * self.a_squared))
         grs = np.sum(gs[:, None] * coords[None, :], 2)
         factors = np.divide(expvals, g2s)
@@ -376,7 +394,7 @@ class EwaldSumMatrix(MatrixDescriptor):
             m *= factor
             erecip += m
 
-        erecip *= 4 * math.pi / self.volume * qiqj * 2 ** 0.5
+        erecip *= 4 * math.pi / self.volume * qiqj * 2**0.5
 
         # The diagonal terms are divided by two
         diag = np.diag(erecip) / 2

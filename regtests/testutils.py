@@ -33,9 +33,9 @@ def get_soap_default_setup():
     ]
 
     soap_arguments = {
-        "nmax": 2,
-        "lmax": 2,
-        "rcut": 2.0,
+        "n_max": 2,
+        "l_max": 2,
+        "r_cut": 2.0,
         "sigma": 0.55,
         "species": ["H", "C"],
         "crossover": True,
@@ -43,9 +43,9 @@ def get_soap_default_setup():
     return [system, centers, soap_arguments]
 
 
-def get_soap_gto_lmax_setup():
+def get_soap_gto_l_max_setup():
     """Returns an atomic system and SOAP parameters which are ideal for quickly
-    testing the correctness of SOAP values with large lmax and the GTO basis.
+    testing the correctness of SOAP values with large l_max and the GTO basis.
     Minimizing the computation is important because the calculating the
     numerical benchmark values is very expensive.
     """
@@ -71,9 +71,9 @@ def get_soap_gto_lmax_setup():
     # Making sigma small enough ensures that the smaller l-components are not
     # screened by big fluffy gaussians.
     soap_arguments = {
-        "nmax": 1,
-        "lmax": 20,
-        "rcut": 2.0,
+        "n_max": 1,
+        "l_max": 20,
+        "r_cut": 2.0,
         "sigma": 0.1,
         "species": ["H"],
         "crossover": False,
@@ -81,9 +81,9 @@ def get_soap_gto_lmax_setup():
     return (system, centers, soap_arguments)
 
 
-def get_soap_polynomial_lmax_setup():
+def get_soap_polynomial_l_max_setup():
     """Returns an atomic system and SOAP parameters which are ideal for quickly
-    testing the correctness of SOAP values with large lmax and the polynomial
+    testing the correctness of SOAP values with large l_max and the polynomial
     basis.  Minimizing the computation is important because the calculating the
     numerical benchmark values is very expensive.
     """
@@ -109,9 +109,9 @@ def get_soap_polynomial_lmax_setup():
     # Making sigma small enough ensures that the smaller l-components are not
     # screened by big fluffy gaussians.
     soap_arguments = {
-        "nmax": 1,
-        "lmax": 9,
-        "rcut": 2.0,
+        "n_max": 1,
+        "l_max": 9,
+        "r_cut": 2.0,
         "sigma": 0.1,
         "species": ["H"],
         "crossover": False,
@@ -125,8 +125,8 @@ def get_ewald_sum_matrix_default_setup():
     ewald_arguments = {"n_atoms_max": 3, "permutation": "none", "flatten": False}
     create_arguments = {
         "a": 0.5,
-        "rcut": 30,
-        "gcut": 20,
+        "r_cut": 30,
+        "g_cut": 20,
         "accuracy": None,
     }
     return (system, ewald_arguments, create_arguments)
@@ -140,8 +140,8 @@ def get_ewald_sum_matrix_automatic_setup():
     ewald_arguments = {"n_atoms_max": 3, "permutation": "none", "flatten": False}
     create_arguments = {
         "a": None,
-        "rcut": None,
-        "gcut": None,
+        "r_cut": None,
+        "g_cut": None,
         "accuracy": 1e-6,
     }
     return (system, ewald_arguments, create_arguments)
@@ -199,9 +199,9 @@ def coefficients_gto(system, centers, args):
     """Used to numerically calculate the inner product coefficients of SOAP
     with GTO radial basis.
     """
-    nmax = args["nmax"]
-    lmax = args["lmax"]
-    rcut = args["rcut"]
+    n_max = args["n_max"]
+    l_max = args["l_max"]
+    r_cut = args["r_cut"]
     sigma = args["sigma"]
     weighting = args.get("weighting")
 
@@ -214,13 +214,13 @@ def coefficients_gto(system, centers, args):
     # Calculate the weights and decays of the radial basis functions.
     soap = SOAP(**args)
     soap.create(system, positions=centers)
-    alphas = np.reshape(soap._alphas, [lmax + 1, nmax])
-    betas = np.reshape(soap._betas, [lmax + 1, nmax, nmax])
+    alphas = np.reshape(soap._alphas, [l_max + 1, n_max])
+    betas = np.reshape(soap._betas, [l_max + 1, n_max, n_max])
 
     def rbf_gto(r, n, l):
-        i_alpha = alphas[l, 0:nmax]
-        i_beta = betas[l, n, 0:nmax]
-        return (i_beta * r ** l * np.exp(-i_alpha * r ** 2)).sum()
+        i_alpha = alphas[l, 0:n_max]
+        i_beta = betas[l, n, 0:n_max]
+        return (i_beta * r**l * np.exp(-i_alpha * r**2)).sum()
 
     return soap_integration(system, centers, args, rbf_gto)
 
@@ -229,9 +229,9 @@ def coefficients_polynomial(system, centers, args):
     """Used to numerically calculate the inner product coeffientes of SOAP
     with polynomial radial basis.
     """
-    nmax = args["nmax"]
-    lmax = args["lmax"]
-    rcut = args["rcut"]
+    n_max = args["n_max"]
+    l_max = args["l_max"]
+    r_cut = args["r_cut"]
     sigma = args["sigma"]
     weighting = args.get("weighting")
 
@@ -246,18 +246,18 @@ def coefficients_polynomial(system, centers, args):
     # radial coordinate are analytically calculable: Integrate[(rc - r)^(a
     # + 2) (rc - r)^(b + 2) r^2, {r, 0, rc}]. Then the weights B that make
     # the basis orthonormal are given by B=S^{-1/2}
-    S = np.zeros((nmax, nmax))
-    for i in range(1, nmax + 1):
-        for j in range(1, nmax + 1):
-            S[i - 1, j - 1] = (2 * (rcut) ** (7 + i + j)) / (
+    S = np.zeros((n_max, n_max))
+    for i in range(1, n_max + 1):
+        for j in range(1, n_max + 1):
+            S[i - 1, j - 1] = (2 * (r_cut) ** (7 + i + j)) / (
                 (5 + i + j) * (6 + i + j) * (7 + i + j)
             )
     betas = sqrtm(np.linalg.inv(S))
 
     def rbf_polynomial(r, n, l):
         poly = 0
-        for k in range(1, nmax + 1):
-            poly += betas[n, k - 1] * (rcut - np.clip(r, 0, rcut)) ** (k + 2)
+        for k in range(1, n_max + 1):
+            poly += betas[n, k - 1] * (r_cut - np.clip(r, 0, r_cut)) ** (k + 2)
         return poly
 
     return soap_integration(system, centers, args, rbf_polynomial)
@@ -267,9 +267,9 @@ def soap_integration(system, centers, args, rbf_function):
     """Used to numerically calculate the inner product coeffientes of SOAP
     with polynomial radial basis.
     """
-    nmax = args["nmax"]
-    lmax = args["lmax"]
-    rcut = args["rcut"]
+    n_max = args["n_max"]
+    l_max = args["l_max"]
+    r_cut = args["r_cut"]
     sigma = args["sigma"]
     weighting = args.get("weighting")
 
@@ -279,7 +279,7 @@ def soap_integration(system, centers, args, rbf_function):
     species_ordered = sorted(list(set(atomic_numbers)))
     n_elems = len(species_ordered)
 
-    n_steps = len(centers) * len(species_ordered) * nmax * (lmax + 1) ** 2
+    n_steps = len(centers) * len(species_ordered) * n_max * (l_max + 1) ** 2
     p_args = []
     p_index = []
     for i, ipos in enumerate(centers):
@@ -288,30 +288,30 @@ def soap_integration(system, centers, args, rbf_function):
             elem_pos = positions[indices]
             # This centers the coordinate system at the soap center
             elem_pos -= ipos
-            for n in range(nmax):
-                for l in range(lmax + 1):
+            for n in range(n_max):
+                for l in range(l_max + 1):
                     for im, m in enumerate(range(-l, l + 1)):
                         p_args.append((args, n, l, m, elem_pos, rbf_function))
                         p_index.append((i, iZ, n, l, im))
 
     results = Parallel(n_jobs=8, verbose=1)(delayed(integral)(*a) for a in p_args)
 
-    coeffs = np.zeros((len(centers), n_elems, nmax, lmax + 1, 2 * lmax + 1))
+    coeffs = np.zeros((len(centers), n_elems, n_max, l_max + 1, 2 * l_max + 1))
     for index, value in zip(p_index, results):
         coeffs[index] = value
     return coeffs
 
 
 def integral(args, n, l, m, elem_pos, rbf_function):
-    nmax = args["nmax"]
-    lmax = args["lmax"]
-    rcut = args["rcut"]
+    n_max = args["n_max"]
+    l_max = args["l_max"]
+    r_cut = args["r_cut"]
     sigma = args["sigma"]
     weighting = args.get("weighting")
 
     # Integration limits for radius
     r1 = 0.0
-    r2 = rcut + 5
+    r2 = r_cut + 5
 
     # Integration limits for theta
     t1 = 0
@@ -348,12 +348,12 @@ def integral(args, n, l, m, elem_pos, rbf_function):
         ix = elem_pos[:, 0]
         iy = elem_pos[:, 1]
         iz = elem_pos[:, 2]
-        ri_squared = ix ** 2 + iy ** 2 + iz ** 2
+        ri_squared = ix**2 + iy**2 + iz**2
         rho = np.exp(
             -1
-            / (2 * sigma ** 2)
+            / (2 * sigma**2)
             * (
-                r ** 2
+                r**2
                 + ri_squared
                 - 2
                 * r
@@ -370,7 +370,7 @@ def integral(args, n, l, m, elem_pos, rbf_function):
         rho = rho.sum()
 
         # Jacobian
-        jacobian = np.sin(theta) * r ** 2
+        jacobian = np.sin(theta) * r**2
 
         return rbf_function(r, n, l) * ylm * rho * jacobian
 
@@ -395,10 +395,10 @@ def save_gto_coefficients():
     system. Calculating these takes a significant amount of time, so during
     tests these preloaded values are used.
     """
-    system, centers, args = get_soap_gto_lmax_setup()
+    system, centers, args = get_soap_gto_l_max_setup()
     coeffs = coefficients_gto(system, centers, args)
     np.save(
-        "gto_coefficients_{nmax}_{lmax}_{rcut}_{sigma}.npy".format(**args),
+        "gto_coefficients_{n_max}_{l_max}_{r_cut}_{sigma}.npy".format(**args),
         coeffs,
     )
 
@@ -411,22 +411,24 @@ def save_poly_coefficients():
     system, centers, args = get_soap_polynomial()
     coeffs = coefficients_polynomial(system, centers, args)
     np.save(
-        "polynomial_coefficients_{nmax}_{lmax}_{rcut}_{sigma}.npy".format(**args),
+        "polynomial_coefficients_{n_max}_{l_max}_{r_cut}_{sigma}.npy".format(**args),
         coeffs,
     )
 
 
 def load_gto_coefficients(args):
-    return np.load("gto_coefficients_{nmax}_{lmax}_{rcut}_{sigma}.npy".format(**args))
+    return np.load(
+        "gto_coefficients_{n_max}_{l_max}_{r_cut}_{sigma}.npy".format(**args)
+    )
 
 
 def load_polynomial_coefficients(args):
     return np.load(
-        "polynomial_coefficients_{nmax}_{lmax}_{rcut}_{sigma}.npy".format(**args)
+        "polynomial_coefficients_{n_max}_{l_max}_{r_cut}_{sigma}.npy".format(**args)
     )
 
 
-def calculate_ewald(system, a=None, rcut=None, gcut=None, accuracy=None):
+def calculate_ewald(system, a=None, r_cut=None, g_cut=None, accuracy=None):
     """Used to precalculate the Ewald summation results using pymatgen."""
     positions = system.get_positions()
     atomic_num = system.get_atomic_numbers()
@@ -457,8 +459,8 @@ def calculate_ewald(system, a=None, rcut=None, gcut=None, accuracy=None):
             ewald = EwaldSummation(
                 structure,
                 eta=a,
-                real_space_cut=rcut,
-                recip_space_cut=gcut,
+                real_space_cut=r_cut,
+                recip_space_cut=g_cut,
                 acc_factor=-np.log(accuracy) if accuracy else 12.0,
             )
             energy[i, j] = ewald.total_energy
@@ -467,11 +469,11 @@ def calculate_ewald(system, a=None, rcut=None, gcut=None, accuracy=None):
 
 def save_ewald(system, args):
     coeffs = calculate_ewald(system, **args)
-    np.save("ewald_{a}_{rcut}_{gcut}_{accuracy}.npy".format(**args), coeffs)
+    np.save("ewald_{a}_{r_cut}_{g_cut}_{accuracy}.npy".format(**args), coeffs)
 
 
 def load_ewald(args):
-    return np.load("ewald_{a}_{rcut}_{gcut}_{accuracy}.npy".format(**args))
+    return np.load("ewald_{a}_{r_cut}_{g_cut}_{accuracy}.npy".format(**args))
 
 
 if __name__ == "__main__":

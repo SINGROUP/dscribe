@@ -53,11 +53,12 @@ After ACSF has been set up, it may be used on atomic structures with the
 
 .. literalinclude:: ../../../../examples/acsf.py
    :language: python
-   :lines: 12-21
+   :lines: 12-20
 
 The call syntax for the create-function is as follows:
 
 .. automethod:: dscribe.descriptors.acsf.ACSF.create
+   :noindex:
 
 The output will in this case be a numpy array with shape [#positions,
 #features]. The number of features may be requested beforehand with the

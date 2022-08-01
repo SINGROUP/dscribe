@@ -430,7 +430,7 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
             2 ** (1 - zeta)
             * 12
             * (1 + lambd * np.cos(theta)) ** zeta
-            * np.e ** (-eta * (R_ij ** 2 + R_ik ** 2 + R_jk ** 2))
+            * np.e ** (-eta * (R_ij**2 + R_ik**2 + R_jk**2))
             * cutoff(R_ij, rcut)
             * cutoff(R_ik, rcut)
             * cutoff(R_jk, rcut)
@@ -446,7 +446,7 @@ class ACSFTests(TestBaseClass, unittest.TestCase):
             2 ** (1 - zeta)
             * 24
             * (1 + lambd * np.cos(theta)) ** zeta
-            * np.e ** (-eta * (R_ij ** 2 + R_ik ** 2 + R_jk ** 2))
+            * np.e ** (-eta * (R_ij**2 + R_ik**2 + R_jk**2))
             * cutoff(R_ij, rcut)
             * cutoff(R_ik, rcut)
             * cutoff(R_jk, rcut)

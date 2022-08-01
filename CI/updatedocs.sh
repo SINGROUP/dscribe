@@ -4,5 +4,12 @@ version=1.2.x
 cd ../docs/src
 sphinx-apidoc -o ./doc ../../dscribe
 make html SPHINXOPTS="-D version=$version -D release=$version"
-cp -a build/html/. ../latest
+rm -r ../$version
+mkdir ../$version
+cp -a build/html/. ../$version
 rm -r build
+cd ..
+rm stable
+rm latest
+ln -s $version stable
+ln -s $version latest

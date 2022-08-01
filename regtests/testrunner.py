@@ -7,7 +7,6 @@ import acsf
 import mbtr
 import lmbtr
 import soap
-import elementaldistribution
 import kernels
 import derivatives
 import runexamples
@@ -22,7 +21,6 @@ suite.addTests(loader.loadTestsFromModule(acsf))
 suite.addTests(loader.loadTestsFromModule(mbtr))
 suite.addTests(loader.loadTestsFromModule(lmbtr))
 suite.addTests(loader.loadTestsFromModule(soap))
-suite.addTests(loader.loadTestsFromModule(elementaldistribution))
 suite.addTests(loader.loadTestsFromModule(kernels))
 suite.addTests(loader.loadTestsFromModule(derivatives))
 suite.addTests(loader.loadTestsFromModule(runexamples))

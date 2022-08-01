@@ -421,19 +421,16 @@ class SoapDerivativeTests(unittest.TestCase):
         # Elaborate test system with multiple species, non-cubic cell, and
         # close-by atoms.
         a = 1
-        system = (
-            Atoms(
-                symbols=["C", "C", "C"],
-                cell=[[0, a, a], [a, 0, a], [a, a, 0]],
-                scaled_positions=[
-                    [0, 0, 0],
-                    [1 / 3, 1 / 3, 1 / 3],
-                    [2 / 3, 2 / 3, 2 / 3],
-                ],
-                pbc=[True, True, True],
-            )
-            * (3, 3, 3)
-        )
+        system = Atoms(
+            symbols=["C", "C", "C"],
+            cell=[[0, a, a], [a, 0, a], [a, a, 0]],
+            scaled_positions=[
+                [0, 0, 0],
+                [1 / 3, 1 / 3, 1 / 3],
+                [2 / 3, 2 / 3, 2 / 3],
+            ],
+            pbc=[True, True, True],
+        ) * (3, 3, 3)
 
         # Two centers: one in the middle, one on the edge.
         centers = [np.sum(system.get_cell(), axis=0) / 2, 0]
@@ -638,19 +635,16 @@ class SoapDerivativeComparisonTests(unittest.TestCase):
         # Elaborate test system with multiple species, non-cubic cell, and
         # close-by atoms.
         a = 1
-        system = (
-            Atoms(
-                symbols=["C", "C", "C"],
-                cell=[[0, a, a], [a, 0, a], [a, a, 0]],
-                scaled_positions=[
-                    [0, 0, 0],
-                    [1 / 3, 1 / 3, 1 / 3],
-                    [2 / 3, 2 / 3, 2 / 3],
-                ],
-                pbc=[True, True, True],
-            )
-            * (3, 3, 3)
-        )
+        system = Atoms(
+            symbols=["C", "C", "C"],
+            cell=[[0, a, a], [a, 0, a], [a, a, 0]],
+            scaled_positions=[
+                [0, 0, 0],
+                [1 / 3, 1 / 3, 1 / 3],
+                [2 / 3, 2 / 3, 2 / 3],
+            ],
+            pbc=[True, True, True],
+        ) * (3, 3, 3)
 
         soap = SOAP(
             species=[6],

@@ -15,6 +15,7 @@ limitations under the License.
 """
 import time
 import numpy as np
+from warnings import warn
 
 from scipy.special import gamma
 from scipy.linalg import sqrtm, inv
@@ -56,9 +57,9 @@ class SOAP(Descriptor):
 
     def __init__(
         self,
-        rcut=None,
-        nmax=None,
-        lmax=None,
+        r_cut=None,
+        n_max=None,
+        l_max=None,
         sigma=1.0,
         rbf="gto",
         weighting=None,
@@ -68,13 +69,17 @@ class SOAP(Descriptor):
         periodic=False,
         sparse=False,
         dtype="float64",
+        # For backwards compatibility with < v1.2.2
+        rcut=None,
+        nmax=None,
+        lmax=None,
     ):
         """
         Args:
-            rcut (float): A cutoff for local region in angstroms. Should be
+            r_cut (float): A cutoff for local region in angstroms. Should be
                 bigger than 1 angstrom for the gto-basis.
-            nmax (int): The number of radial basis functions.
-            lmax (int): The maximum degree of spherical harmonics.
+            n_max (int): The number of radial basis functions.
+            l_max (int): The maximum degree of spherical harmonics.
             sigma (float): The standard deviation of the gaussians used to expand the
                 atomic density.
             rbf (str): The radial basis functions to use. The available options are:
@@ -93,8 +98,8 @@ class SOAP(Descriptor):
                     * ``"poly"``: :math:`w(r) = \left\{ \\begin{array}{ll} c(1 + 2 (\\frac{r}{r_0})^{3} -3 (\\frac{r}{r_0})^{2}))^{m}, \\ \\text{for}\\ r \\leq r_0\\\\ 0, \\ \\text{for}\\ r > r_0 \end{array}\\right.`
 
                       This function goes exactly to zero at :math:`r=r_0`. If
-                      you do not explicitly provide ``rcut`` in the
-                      constructor, ``rcut`` is automatically set to ``r0``.
+                      you do not explicitly provide ``r_cut`` in the
+                      constructor, ``r_cut`` is automatically set to ``r0``.
                       You can provide the parameters ``c``, ``m`` and ``r0`` as
                       additional dictionary items.
 
@@ -106,8 +111,8 @@ class SOAP(Descriptor):
 
                     * ``"pow"``: :math:`w(r) = \\frac{c}{d + (\\frac{r}{r_0})^{m}}`
 
-                      If you do not explicitly provide ``rcut`` in the
-                      constructor, ``rcut`` will be set as the value at which
+                      If you do not explicitly provide ``r_cut`` in the
+                      constructor, ``r_cut`` will be set as the value at which
                       this function decays to the value given by the
                       ``threshold`` entry in the weighting dictionary (defaults
                       to 1e-2), You can provide the parameters ``c``, ``d``,
@@ -124,8 +129,8 @@ class SOAP(Descriptor):
 
                     * ``"exp"``: :math:`w(r) = \\frac{c}{d + e^{-r/r_0}}`
 
-                      If you do not explicitly provide ``rcut`` in the
-                      constructor, ``rcut`` will be set as the value at which
+                      If you do not explicitly provide ``r_cut`` in the
+                      constructor, ``r_cut`` will be set as the value at which
                       this function decays to the value given by the
                       ``threshold`` entry in the weighting dictionary (defaults
                       to 1e-2), You can provide the parameters ``c``, ``d``,
@@ -168,6 +173,22 @@ class SOAP(Descriptor):
                     * ``"float64"``: Double precision floating point numbers.
 
         """
+        var_dict = {}
+        for var_new in ["r_cut", "n_max", "l_max"]:
+            loc = locals()
+            var_old = "".join(var_new.split("_"))
+            if loc.get(var_old) is not None:
+                var_dict[var_new] = loc[var_old]
+                if loc.get(var_new) is not None:
+                    raise ValueError(
+                        "Please provide only either {} or {}.".format(var_new, var_old)
+                    )
+            else:
+                var_dict[var_new] = loc[var_new]
+        r_cut = var_dict["r_cut"]
+        n_max = var_dict["n_max"]
+        l_max = var_dict["l_max"]
+
         supported_dtype = set(("float32", "float64"))
         if dtype not in supported_dtype:
             raise ValueError(
@@ -184,7 +205,7 @@ class SOAP(Descriptor):
             raise ValueError(
                 "Only positive gaussian width parameters 'sigma' are allowed."
             )
-        self._eta = 1 / (2 * sigma ** 2)
+        self._eta = 1 / (2 * sigma**2)
         self._sigma = sigma
 
         supported_rbf = {"gto", "polynomial"}
@@ -193,9 +214,9 @@ class SOAP(Descriptor):
                 "Invalid radial basis function of type '{}' given. Please use "
                 "one of the following: {}".format(rbf, supported_rbf)
             )
-        if nmax < 1:
+        if n_max < 1:
             raise ValueError(
-                "Must have at least one radial basis function." "nmax={}".format(nmax)
+                "Must have at least one radial basis function." "n_max={}".format(n_max)
             )
         supported_average = set(("off", "inner", "outer"))
         if average not in supported_average:
@@ -204,8 +225,8 @@ class SOAP(Descriptor):
                 "one of the following: {}".format(average, supported_average)
             )
 
-        if not (weighting or rcut):
-            raise ValueError("Either weighting or rcut need to be defined")
+        if not (weighting or r_cut):
+            raise ValueError("Either weighting or r_cut need to be defined")
         if weighting:
             w0 = weighting.get("w0")
             if w0 is not None:
@@ -251,32 +272,32 @@ class SOAP(Descriptor):
                     weighting["threshold"] = float(weighting.get("threshold", 1e-2))
         else:
             weighting = {}
-        if not rcut:
-            rcut = self._infer_rcut(weighting)
+        if not r_cut:
+            r_cut = self._infer_r_cut(weighting)
 
         # Test that radial basis set specific settings are valid
         if rbf == "gto":
-            if rcut <= 1:
+            if r_cut <= 1:
                 raise ValueError(
                     "When using the gaussian radial basis set (gto), the radial "
                     "cutoff should be bigger than 1 angstrom."
                 )
             # Precalculate the alpha and beta constants for the GTO basis
-            self._alphas, self._betas = self.get_basis_gto(rcut, nmax, lmax)
+            self._alphas, self._betas = self.get_basis_gto(r_cut, n_max, l_max)
 
-        # Test lmax
-        if lmax < 0:
-            raise ValueError("lmax cannot be negative. lmax={}".format(lmax))
-        elif lmax > 20:
+        # Test l_max
+        if l_max < 0:
+            raise ValueError("l_max cannot be negative. l_max={}".format(l_max))
+        elif l_max > 20:
             raise ValueError(
-                "The maximum available lmax for SOAP is currently 20, you have"
-                " requested lmax={}".format(lmax)
+                "The maximum available l_max for SOAP is currently 20, you have"
+                " requested l_max={}".format(l_max)
             )
 
-        self._rcut = float(rcut)
+        self._r_cut = float(r_cut)
         self._weighting = weighting
-        self._nmax = nmax
-        self._lmax = lmax
+        self._n_max = n_max
+        self._l_max = l_max
         self._rbf = rbf
         self.average = average
         self.crossover = crossover
@@ -335,8 +356,8 @@ class SOAP(Descriptor):
         cutoff_padding = self._sigma * np.sqrt(-2 * np.log(threshold))
         return cutoff_padding
 
-    def _infer_rcut(self, weighting):
-        """Used to determine an appropriate rcut based on where the given
+    def _infer_r_cut(self, weighting):
+        """Used to determine an appropriate r_cut based on where the given
         weighting function setup.
         """
         if weighting["function"] == "pow":
@@ -345,8 +366,8 @@ class SOAP(Descriptor):
             c = weighting["c"]
             d = weighting["d"]
             r0 = weighting["r0"]
-            rcut = r0 * (c / t - d) ** (1 / m)
-            return rcut
+            r_cut = r0 * (c / t - d) ** (1 / m)
+            return r_cut
         elif weighting["function"] == "poly":
             r0 = weighting["r0"]
             return r0
@@ -355,8 +376,8 @@ class SOAP(Descriptor):
             c = weighting["c"]
             d = weighting["d"]
             r0 = weighting["r0"]
-            rcut = r0 * np.log(c / t - d)
-            return rcut
+            r_cut = r0 * np.log(c / t - d)
+            return r_cut
         else:
             return None
 
@@ -375,14 +396,17 @@ class SOAP(Descriptor):
         else:
             return np.zeros((n_centers, n_indices, 3, n_features), dtype=np.float64)
 
-    def init_internal_dev_array(self, n_centers, n_atoms, n_types, n, lMax):
+    def init_internal_dev_array(self, n_centers, n_atoms, n_types, n, l_max):
         d = np.zeros(
-            (n_atoms, n_centers, n_types, n, (lMax + 1) * (lMax + 1)), dtype=np.float64
+            (n_atoms, n_centers, n_types, n, (l_max + 1) * (l_max + 1)),
+            dtype=np.float64,
         )
         return d
 
-    def init_internal_array(self, n_centers, n_types, n, lMax):
-        d = np.zeros((n_centers, n_types, n, (lMax + 1) * (lMax + 1)), dtype=np.float64)
+    def init_internal_array(self, n_centers, n_types, n, l_max):
+        d = np.zeros(
+            (n_centers, n_types, n, (l_max + 1) * (l_max + 1)), dtype=np.float64
+        )
         return d
 
     def create(
@@ -522,9 +546,9 @@ class SOAP(Descriptor):
 
             # Calculate with extension
             soap_gto = dscribe.ext.SOAPGTO(
-                self._rcut,
-                self._nmax,
-                self._lmax,
+                self._r_cut,
+                self._n_max,
+                self._l_max,
                 self._eta,
                 self._weighting,
                 self.crossover,
@@ -548,14 +572,14 @@ class SOAP(Descriptor):
         elif self._rbf == "polynomial":
             # Get the discretized and orthogonalized polynomial radial basis
             # function values
-            rx, gss = self.get_basis_poly(self._rcut, self._nmax)
+            rx, gss = self.get_basis_poly(self._r_cut, self._n_max)
             gss = gss.flatten()
 
             # Calculate with extension
             soap_poly = dscribe.ext.SOAPPolynomial(
-                self._rcut,
-                self._nmax,
-                self._lmax,
+                self._r_cut,
+                self._n_max,
+                self._l_max,
                 self._eta,
                 self._weighting,
                 self.crossover,
@@ -873,9 +897,9 @@ class SOAP(Descriptor):
             alphas = self._alphas.flatten()
             betas = self._betas.flatten()
             soap_gto = dscribe.ext.SOAPGTO(
-                self._rcut,
-                self._nmax,
-                self._lmax,
+                self._r_cut,
+                self._n_max,
+                self._l_max,
                 self._eta,
                 self._weighting,
                 self.crossover,
@@ -911,13 +935,13 @@ class SOAP(Descriptor):
                 # highly efficient for zero-initialized arrays. Similar
                 # performace could not be achieved even with calloc.
                 xd = self.init_internal_dev_array(
-                    n_centers, n_atoms, n_species, self._nmax, self._lmax
+                    n_centers, n_atoms, n_species, self._n_max, self._l_max
                 )
                 yd = self.init_internal_dev_array(
-                    n_centers, n_atoms, n_species, self._nmax, self._lmax
+                    n_centers, n_atoms, n_species, self._n_max, self._l_max
                 )
                 zd = self.init_internal_dev_array(
-                    n_centers, n_atoms, n_species, self._nmax, self._lmax
+                    n_centers, n_atoms, n_species, self._n_max, self._l_max
                 )
 
                 soap_gto.derivatives_analytical(
@@ -936,15 +960,15 @@ class SOAP(Descriptor):
                 )
 
         elif self._rbf == "polynomial":
-            rx, gss = self.get_basis_poly(self._rcut, self._nmax)
+            rx, gss = self.get_basis_poly(self._r_cut, self._n_max)
             gss = gss.flatten()
 
             # Calculate numerically with extension
             if method == "numerical":
                 soap_poly = dscribe.ext.SOAPPolynomial(
-                    self._rcut,
-                    self._nmax,
-                    self._lmax,
+                    self._r_cut,
+                    self._n_max,
+                    self._l_max,
                     self._eta,
                     self._weighting,
                     self.crossover,
@@ -1017,10 +1041,10 @@ class SOAP(Descriptor):
         """
         n_elem = len(self._atomic_numbers)
         if self.crossover:
-            n_elem_radial = n_elem * self._nmax
-            return int((n_elem_radial) * (n_elem_radial + 1) / 2 * (self._lmax + 1))
+            n_elem_radial = n_elem * self._n_max
+            return int((n_elem_radial) * (n_elem_radial + 1) / 2 * (self._l_max + 1))
         else:
-            return int(n_elem * self._nmax * (self._nmax + 1) / 2 * (self._lmax + 1))
+            return int(n_elem * self._n_max * (self._n_max + 1) / 2 * (self._l_max + 1))
 
     def get_location(self, species):
         """Can be used to query the location of a species combination in the
@@ -1068,10 +1092,10 @@ class SOAP(Descriptor):
             numbers = list(reversed(numbers))
         i = numbers[0]
         j = numbers[1]
-        n_elem_feat_symm = self._nmax * (self._nmax + 1) / 2 * (self._lmax + 1)
+        n_elem_feat_symm = self._n_max * (self._n_max + 1) / 2 * (self._l_max + 1)
 
         if self.crossover:
-            n_elem_feat_unsymm = self._nmax * self._nmax * (self._lmax + 1)
+            n_elem_feat_unsymm = self._n_max * self._n_max * (self._l_max + 1)
             n_elem_feat = n_elem_feat_symm if i == j else n_elem_feat_unsymm
 
             # The diagonal terms are symmetric and off-diagonal terms are
@@ -1091,30 +1115,30 @@ class SOAP(Descriptor):
 
         return slice(start, end)
 
-    def get_basis_gto(self, rcut, nmax, lmax):
+    def get_basis_gto(self, r_cut, n_max, l_max):
         """Used to calculate the alpha and beta prefactors for the gto-radial
         basis.
 
         Args:
-            rcut(float): Radial cutoff.
-            nmax(int): Number of gto radial bases.
+            r_cut(float): Radial cutoff.
+            n_max(int): Number of gto radial bases.
 
         Returns:
             (np.ndarray, np.ndarray): The alpha and beta prefactors for all bases
             up to a fixed size of l=10.
         """
         # These are the values for where the different basis functions should decay
-        # to: evenly space between 1 angstrom and rcut.
-        a = np.linspace(1, rcut, nmax)
+        # to: evenly space between 1 angstrom and r_cut.
+        a = np.linspace(1, r_cut, n_max)
         threshold = 1e-3  # This is the fixed gaussian decay threshold
 
-        alphas_full = np.zeros((lmax + 1, nmax))
-        betas_full = np.zeros((lmax + 1, nmax, nmax))
+        alphas_full = np.zeros((l_max + 1, n_max))
+        betas_full = np.zeros((l_max + 1, n_max, n_max))
 
-        for l in range(0, lmax + 1):
+        for l in range(0, l_max + 1):
             # The alphas are calculated so that the GTOs will decay to the set
             # threshold value at their respective cutoffs
-            alphas = -np.log(threshold / np.power(a, l)) / a ** 2
+            alphas = -np.log(threshold / np.power(a, l)) / a**2
 
             # Calculate the overlap matrix
             m = np.zeros((alphas.shape[0], alphas.shape[0]))
@@ -1131,8 +1155,8 @@ class SOAP(Descriptor):
                 raise ValueError(
                     "Could not calculate normalization factors for the radial "
                     "basis in the domain of real numbers. Lowering the number of "
-                    "radial basis functions (nmax) or increasing the radial "
-                    "cutoff (rcut) is advised."
+                    "radial basis functions (n_max) or increasing the radial "
+                    "cutoff (r_cut) is advised."
                 )
 
             alphas_full[l, :] = alphas
@@ -1140,12 +1164,12 @@ class SOAP(Descriptor):
 
         return alphas_full, betas_full
 
-    def get_basis_poly(self, rcut, nmax):
+    def get_basis_poly(self, r_cut, n_max):
         """Used to calculate discrete vectors for the polynomial basis functions.
 
         Args:
-            rcut(float): Radial cutoff.
-            nmax(int): Number of polynomial radial bases.
+            r_cut(float): Radial cutoff.
+            n_max(int): Number of polynomial radial bases.
 
         Returns:
             (np.ndarray, np.ndarray): Tuple containing the evaluation points in
@@ -1157,10 +1181,10 @@ class SOAP(Descriptor):
         # radial coordinate are analytically calculable: Integrate[(rc - r)^(a
         # + 2) (rc - r)^(b + 2) r^2, {r, 0, rc}]. Then the weights B that make
         # the basis orthonormal are given by B=S^{-1/2}
-        S = np.zeros((nmax, nmax), dtype=np.float64)
-        for i in range(1, nmax + 1):
-            for j in range(1, nmax + 1):
-                S[i - 1, j - 1] = (2 * (rcut) ** (7 + i + j)) / (
+        S = np.zeros((n_max, n_max), dtype=np.float64)
+        for i in range(1, n_max + 1):
+            for j in range(1, n_max + 1):
+                S[i - 1, j - 1] = (2 * (r_cut) ** (7 + i + j)) / (
                     (5 + i + j) * (6 + i + j) * (7 + i + j)
                 )
 
@@ -1173,8 +1197,8 @@ class SOAP(Descriptor):
             raise ValueError(
                 "Could not calculate normalization factors for the radial "
                 "basis in the domain of real numbers. Lowering the number of "
-                "radial basis functions (nmax) or increasing the radial "
-                "cutoff (rcut) is advised."
+                "radial basis functions (n_max) or increasing the radial "
+                "cutoff (r_cut) is advised."
             )
 
         # The radial basis is integrated in a very specific nonlinearly spaced
@@ -1281,13 +1305,13 @@ class SOAP(Descriptor):
         x[98] = 0.998491950639595818
         x[99] = 0.99971372677344123
 
-        rx = rcut * 0.5 * (x + 1)
+        rx = r_cut * 0.5 * (x + 1)
 
         # Calculate the value of the orthonormalized polynomial basis at the rx
         # values
-        fs = np.zeros([nmax, len(x)])
-        for n in range(1, nmax + 1):
-            fs[n - 1, :] = (rcut - np.clip(rx, 0, rcut)) ** (n + 2)
+        fs = np.zeros([n_max, len(x)])
+        for n in range(1, n_max + 1):
+            fs[n - 1, :] = (r_cut - np.clip(rx, 0, r_cut)) ** (n + 2)
 
         gss = np.dot(betas, fs)
 

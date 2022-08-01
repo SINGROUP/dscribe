@@ -152,7 +152,7 @@ class MatrixDescriptor(Descriptor):
         # Sort the atoms such that the norms of the rows are in descending
         # order
         norms = np.linalg.norm(matrix, axis=1)
-        sorted_indices = np.argsort(norms, axis=0)[::-1]
+        sorted_indices = np.argsort(-norms, kind="stable", axis=0)
         sorted_matrix = matrix[sorted_indices]
         sorted_matrix = sorted_matrix[:, sorted_indices]
 
@@ -207,7 +207,7 @@ class MatrixDescriptor(Descriptor):
         if self.permutation == "eigenspectrum":
             return int(self.n_atoms_max)
         else:
-            return int(self.n_atoms_max ** 2)
+            return int(self.n_atoms_max**2)
 
     def sort_randomly(self, matrix, sigma):
         """

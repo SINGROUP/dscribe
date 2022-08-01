@@ -5,6 +5,7 @@ import pytest
 import scipy
 from ase import Atoms
 from ase.build import molecule, bulk
+from ase.visualize import view
 from dscribe.descriptors import CoulombMatrix, SineMatrix, EwaldSumMatrix
 
 """
@@ -17,19 +18,16 @@ def big_system():
     close-by atoms.
     """
     a = 1
-    return (
-        Atoms(
-            symbols=["C", "C", "C"],
-            cell=[[0, a, a], [a, 0, a], [a, a, 0]],
-            scaled_positions=[
-                [0, 0, 0],
-                [1 / 3, 1 / 3, 1 / 3],
-                [2 / 3, 2 / 3, 2 / 3],
-            ],
-            pbc=[True, True, True],
-        )
-        * (3, 3, 3)
-    )
+    return Atoms(
+        symbols=["C", "C", "C"],
+        cell=[[0, a, a], [a, 0, a], [a, a, 0]],
+        scaled_positions=[
+            [0, 0, 0],
+            [1 / 3, 1 / 3, 1 / 3],
+            [2 / 3, 2 / 3, 2 / 3],
+        ],
+        pbc=[True, True, True],
+    ) * (3, 3, 3)
 
 
 @pytest.fixture()
@@ -53,6 +51,14 @@ def water():
         ],
         symbols=["H", "O", "H"],
     )
+
+
+def molecule_complex():
+    """Acetyl fluoride molecule in a cell with no periodicity."""
+    mol = molecule("CH3COF")
+    mol.set_cell([5, 5, 5])
+    mol.center()
+    return mol
 
 
 @pytest.fixture()
@@ -340,15 +346,19 @@ def assert_matrix_descriptor_flatten(descriptor_func):
 
 def assert_matrix_descriptor_sorted(descriptor_func):
     """Tests that sorting using row norm works as expected"""
-    system = water()
+    system = molecule_complex()
     desc = descriptor_func(permutation="sorted_l2", flatten=False)([system])
     features = desc.create(system)
 
+    # Check that norms are ordered correctly
     lens = np.linalg.norm(features, axis=1)
     old_len = lens[0]
     for length in lens[1:]:
         assert length <= old_len
         old_len = length
+
+    # Check that the matrix is symmetric
+    assert np.allclose(features, features.T, rtol=0, atol=1e-13)
 
 
 def assert_matrix_descriptor_eigenspectrum(descriptor_func):
@@ -361,7 +371,8 @@ def assert_matrix_descriptor_eigenspectrum(descriptor_func):
 
     assert features.shape == (5,)
 
-    # Test that eigenvalues are in decreasing order when looking at absolute value
+    # Test that eigenvalues are in decreasing order when looking at absolute
+    # value
     prev_eig = float("Inf")
     for eigenvalue in features[: len(system)]:
         assert abs(eigenvalue) <= abs(prev_eig)
@@ -377,9 +388,9 @@ def assert_matrix_descriptor_random(descriptor_func):
 
     Measures how many times the two rows with biggest norm exchange place when
     random noise is added. This should correspond to the probability P(X > Y),
-    where X = N(\mu_1, \sigma^2), Y = N(\mu_2, \sigma^2). This probability can
-    be reduced to P(X > Y) = P(X-Y > 0) = P(N(\mu_1 - \mu_2, \sigma^2 +
-    sigma^2) > 0). See e.g.
+    where X = N(\\mu_1, \\sigma^2), Y = N(\\mu_2, \\sigma^2). This probability can
+    be reduced to P(X > Y) = P(X-Y > 0) = P(N(\\mu_1 - \\mu_2, \\sigma^2 +
+    \\sigma^2) > 0). See e.g.
     https://en.wikipedia.org/wiki/Sum_of_normally_distributed_random_variables
     """
     HHe = Atoms(
@@ -416,7 +427,7 @@ def assert_matrix_descriptor_random(descriptor_func):
 
     # The expected probability is calculated from the cumulative
     # distribution function.
-    expected = 1 - scipy.stats.norm.cdf(0, mu1 - mu2, np.sqrt(sigma ** 2 + sigma ** 2))
+    expected = 1 - scipy.stats.norm.cdf(0, mu1 - mu2, np.sqrt(sigma**2 + sigma**2))
     observed = count / rand_instances
 
     assert abs(expected - observed) <= 1e-2

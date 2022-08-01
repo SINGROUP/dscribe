@@ -4,13 +4,37 @@ dscribe.utils package
 Submodules
 ----------
 
-.. toctree::
-   :maxdepth: 4
+dscribe.utils.dimensionality module
+-----------------------------------
 
-   dscribe.utils.dimensionality
-   dscribe.utils.geometry
-   dscribe.utils.species
-   dscribe.utils.stats
+.. automodule:: dscribe.utils.dimensionality
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+dscribe.utils.geometry module
+-----------------------------
+
+.. automodule:: dscribe.utils.geometry
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+dscribe.utils.species module
+----------------------------
+
+.. automodule:: dscribe.utils.species
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+dscribe.utils.stats module
+--------------------------
+
+.. automodule:: dscribe.utils.stats
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------

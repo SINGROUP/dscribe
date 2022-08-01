@@ -3,17 +3,10 @@ import pytest
 import numpy as np
 from numpy.random import RandomState
 from conftest import (
-    assert_matrix_descriptor_exceptions,
-    assert_matrix_descriptor_flatten,
-    assert_matrix_descriptor_sorted,
-    assert_matrix_descriptor_eigenspectrum,
-    assert_matrix_descriptor_random,
     assert_no_system_modification,
     assert_sparse,
     assert_parallellization,
     assert_symmetries,
-    assert_derivatives,
-    big_system,
     water,
 )
 from dscribe.descriptors import ValleOganov, MBTR

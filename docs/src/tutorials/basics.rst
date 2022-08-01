@@ -27,7 +27,7 @@ Terminology
    positions and optionally a unit cell for periodic structures.
  - *descriptor*: A particular method for transforming a structure into a
    constant sized vector. There are various options which are suitable for
-   different use cases. DScribe currently provides the following descriptors: :doc:`Coulomb matrix <coulomb_matrix>`, :doc:`Sine matrix <sine_matrix>`, :doc:`Ewald sum matrix <ewald_sum_matrix>`, :doc:`Atom-centered Symmetry Functions (ACSF) <acsf>`, :doc:`Smooth Overlap of Atomic Positions (SOAP) <soap>`, :doc:`Many-body Tensor Representation (MBTR) <mbtr>` and :doc:`Local Many-body Tensor Representation (LMBTR) <lmbtr>`.
+   different use cases.
  - *descriptor object*: In DScribe there is a single python class for each
    descriptor. The object that is instantiated from this class is called a
    descriptor object.

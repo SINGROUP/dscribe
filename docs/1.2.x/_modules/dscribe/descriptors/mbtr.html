@@ -1,79 +1,39 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
-  
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>dscribe.descriptors.mbtr &mdash; DScribe 1.2.x documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/css/style.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/style.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
         <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
         <script src="../../../_static/jquery.js"></script>
         <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../../_static/doctools.js"></script>
         <script src="../../../_static/js/versions.js"></script>
-    
-    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
-    
+    <script src="../../../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../../../about.html" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../../../index.html">
-          
-
-          
-            
             <img src="../../../_static/logo.png" class="logo" alt="Logo"/>
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 1.2.x
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -81,18 +41,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorials.html">Tutorials</a></li>
@@ -104,69 +53,30 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../about.html">About</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../index.html">DScribe</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
-        
           <li><a href="../../index.html">Module code</a> &raquo;</li>
-        
       <li>dscribe.descriptors.mbtr</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <h1>Source code for dscribe.descriptors.mbtr</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="sd">&quot;&quot;&quot;Copyright 2019 DScribe developers</span>
@@ -198,7 +108,7 @@
 <span class="kn">import</span> <span class="nn">dscribe.utils.geometry</span>
 
 
-<div class="viewcode-block" id="MBTR"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.mbtr.html#dscribe.descriptors.mbtr.MBTR">[docs]</a><span class="k">class</span> <span class="nc">MBTR</span><span class="p">(</span><span class="n">Descriptor</span><span class="p">):</span>
+<div class="viewcode-block" id="MBTR"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR">[docs]</a><span class="k">class</span> <span class="nc">MBTR</span><span class="p">(</span><span class="n">Descriptor</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Implementation of the Many-body tensor representation up to :math:`k=3`.</span>
 
 <span class="sd">    You can choose which terms to include by providing a dictionary in the</span>
@@ -414,7 +324,7 @@
                         <span class="s2">&quot;Periodic systems need to have a weighting function.&quot;</span>
                     <span class="p">)</span></div>
 
-<div class="viewcode-block" id="MBTR.check_grid"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.mbtr.html#dscribe.descriptors.mbtr.MBTR.check_grid">[docs]</a>    <span class="k">def</span> <span class="nf">check_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid</span><span class="p">):</span>
+<div class="viewcode-block" id="MBTR.check_grid"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.check_grid">[docs]</a>    <span class="k">def</span> <span class="nf">check_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Used to ensure that the given grid settings are valid.</span>
 
 <span class="sd">        Args:</span>
@@ -641,7 +551,7 @@
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_normalization</span> <span class="o">=</span> <span class="n">value</span>
 
-<div class="viewcode-block" id="MBTR.get_k1_axis"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.mbtr.html#dscribe.descriptors.mbtr.MBTR.get_k1_axis">[docs]</a>    <span class="k">def</span> <span class="nf">get_k1_axis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MBTR.get_k1_axis"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.get_k1_axis">[docs]</a>    <span class="k">def</span> <span class="nf">get_k1_axis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Used to get the discretized axis for geometry function of the k=1</span>
 <span class="sd">        term.</span>
 
@@ -654,7 +564,7 @@
 
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MBTR.get_k2_axis"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.mbtr.html#dscribe.descriptors.mbtr.MBTR.get_k2_axis">[docs]</a>    <span class="k">def</span> <span class="nf">get_k2_axis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MBTR.get_k2_axis"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.get_k2_axis">[docs]</a>    <span class="k">def</span> <span class="nf">get_k2_axis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Used to get the discretized axis for geometry function of the k=2</span>
 <span class="sd">        term.</span>
 
@@ -667,7 +577,7 @@
 
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MBTR.get_k3_axis"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.mbtr.html#dscribe.descriptors.mbtr.MBTR.get_k3_axis">[docs]</a>    <span class="k">def</span> <span class="nf">get_k3_axis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MBTR.get_k3_axis"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.get_k3_axis">[docs]</a>    <span class="k">def</span> <span class="nf">get_k3_axis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Used to get the discretized axis for geometry function of the k=3</span>
 <span class="sd">        term.</span>
 
@@ -728,7 +638,7 @@
 
         <span class="k">return</span> <span class="n">output</span></div>
 
-<div class="viewcode-block" id="MBTR.create_single"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.mbtr.html#dscribe.descriptors.mbtr.MBTR.create_single">[docs]</a>    <span class="k">def</span> <span class="nf">create_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
+<div class="viewcode-block" id="MBTR.create_single"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.create_single">[docs]</a>    <span class="k">def</span> <span class="nf">create_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the many-body tensor representation for the given system.</span>
 
 <span class="sd">        Args:</span>
@@ -793,7 +703,7 @@
 
         <span class="k">return</span> <span class="n">mbtr</span></div>
 
-<div class="viewcode-block" id="MBTR.get_number_of_features"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.mbtr.html#dscribe.descriptors.mbtr.MBTR.get_number_of_features">[docs]</a>    <span class="k">def</span> <span class="nf">get_number_of_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MBTR.get_number_of_features"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.get_number_of_features">[docs]</a>    <span class="k">def</span> <span class="nf">get_number_of_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Used to inquire the final number of features that this descriptor</span>
 <span class="sd">        will have.</span>
 
@@ -818,19 +728,19 @@
 
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_features</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MBTR.get_location"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.mbtr.html#dscribe.descriptors.mbtr.MBTR.get_location">[docs]</a>    <span class="k">def</span> <span class="nf">get_location</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
+<div class="viewcode-block" id="MBTR.get_location"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.get_location">[docs]</a>    <span class="k">def</span> <span class="nf">get_location</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Can be used to query the location of a species combination in the</span>
 <span class="sd">        the flattened output.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            species(tuple): A tuple containing a species combination as</span>
-<span class="sd">            chemical symbols or atomic numbers. The tuple can be for example</span>
-<span class="sd">            (&quot;H&quot;), (&quot;H&quot;, &quot;O&quot;) or (&quot;H&quot;, &quot;O&quot;, &quot;H&quot;).</span>
+<span class="sd">                chemical symbols or atomic numbers. The tuple can be for example</span>
+<span class="sd">                (&quot;H&quot;), (&quot;H&quot;, &quot;O&quot;) or (&quot;H&quot;, &quot;O&quot;, &quot;H&quot;).</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            slice: slice containing the location of the specified species</span>
-<span class="sd">            combination. The location is given as a python slice-object, that</span>
-<span class="sd">            can be directly used to target ranges in the output.</span>
+<span class="sd">                combination. The location is given as a python slice-object, that</span>
+<span class="sd">                can be directly used to target ranges in the output.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError: If the requested species combination is not in the</span>
@@ -1277,33 +1187,24 @@
 </pre></div>
 
            </div>
-           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright .
-
-    </p>
+    <p>&#169; Copyright .</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
   
   <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
@@ -1318,18 +1219,11 @@
       </dl>
     </div>
   </div>
-
-
-  <script type="text/javascript">
+<script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>
