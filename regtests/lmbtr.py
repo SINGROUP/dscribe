@@ -187,8 +187,8 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         feat4 = desc.create(H2O, [0])
         k2_each = feat4[0, k2_slice].todense()
         k3_each = feat4[0, k3_slice].todense()
-        self.assertTrue(np.allclose(k2 / k2_norm, k2_each, rtol=0, atol=1e-11))
-        self.assertTrue(np.allclose(k3 / k3_norm, k3_each, rtol=0, atol=1e-11))
+        self.assertTrue(np.allclose(k2 / k2_norm, k2_each, rtol=0, atol=1e-10))
+        self.assertTrue(np.allclose(k3 / k3_norm, k3_each, rtol=0, atol=1e-10))
 
     def test_number_of_features(self):
         """LMBTR: Tests that the reported number of features is correct."""
