@@ -116,7 +116,7 @@ global similarity measure. This average kernel <span class="math notranslate noh
 number of atoms in structure <span class="math notranslate nohighlight">\(B\)</span> and the similarity between local atomic
 environments <span class="math notranslate nohighlight">\(C_{ij}\)</span> can in general be calculated with any pairwise
 metric (e.g.  linear, gaussian).</p>
-<p>The class <a class="reference internal" href="../../doc/dscribe.kernels.averagekernel.html#dscribe.kernels.averagekernel.AverageKernel" title="dscribe.kernels.averagekernel.AverageKernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">AverageKernel</span></code></a> can be used to calculate
+<p>The class <a class="reference internal" href="../../doc/dscribe.kernels.html#dscribe.kernels.averagekernel.AverageKernel" title="dscribe.kernels.averagekernel.AverageKernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">AverageKernel</span></code></a> can be used to calculate
 this similarity.  Here is an example of calculating an average kernel for two
 relatively similar molecules by using SOAP and a linear and Gaussian similarity
 metric:</p>
@@ -159,7 +159,7 @@ the best matching local environments is taken into account and <span class="math
 K(A, B) &amp;= \mathrm{Tr} \mathbf{P}^\alpha \mathbf{C}(A, B)\\\mathbf{P}^\alpha &amp;= \argmax_{\mathbf{P} \in \mathcal{U}(N, N)} \sum_{ij} P_{ij} (1-C_{ij} +\alpha \ln P_{ij})\end{aligned}\end{align} \]</div>
 <p>where the similarity between local atomic environments <span class="math notranslate nohighlight">\(C_{ij}\)</span> can once
 again be calculated with any pairwise metric (e.g. linear, gaussian).</p>
-<p>The class <a class="reference internal" href="../../doc/dscribe.kernels.rematchkernel.html#dscribe.kernels.rematchkernel.REMatchKernel" title="dscribe.kernels.rematchkernel.REMatchKernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">REMatchKernel</span></code></a> can be used to calculate this similarity:</p>
+<p>The class <a class="reference internal" href="../../doc/dscribe.kernels.html#dscribe.kernels.rematchkernel.REMatchKernel" title="dscribe.kernels.rematchkernel.REMatchKernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">REMatchKernel</span></code></a> can be used to calculate this similarity:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Demostrates how global similarity kernels can be built from local atomic</span>
 <span class="sd">environments.</span>
 <span class="sd">&quot;&quot;&quot;</span>

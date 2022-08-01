@@ -91,6 +91,7 @@ After MBTR has been set up, it may be used on atomic structures with the
 The call syntax for the create-function is as follows:
 
 .. automethod:: dscribe.descriptors.mbtr.MBTR.create
+   :noindex:
 
 The output will in this case be a numpy array with shape [#positions,
 #features]. The number of features may be requested beforehand with the

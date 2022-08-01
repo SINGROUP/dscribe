@@ -16,11 +16,6 @@ they can be used in various tasks, including machine learning, visualization,
 similarity analysis, etc. To get started you can check the :doc:`basic tutorial
 <tutorials/basics>`.
 
-.. note::
-   Version **1.2.0** adds :doc:`the Valle-Oganov descriptor
-   <tutorials/descriptors/valleoganov>` and derivatives for the Coulomb matrix.
-   Check the :doc:`changelog <changelog>` for more details.
-
 Capabilities at a Glance
 ========================
 
@@ -57,6 +52,7 @@ DScribe currently includes the following descriptors:
    * - :doc:`Valle-Oganov descriptor<tutorials/descriptors/valleoganov>`
      - ✓
      - 
+
 Check the tutorials for more information.
 
 Go Deeper

@@ -101,7 +101,7 @@
 <span class="kn">from</span> <span class="nn">ase</span> <span class="kn">import</span> <span class="n">Atoms</span>
 
 
-<div class="viewcode-block" id="get_adjacency_matrix"><a class="viewcode-back" href="../../../doc/dscribe.utils.geometry.html#dscribe.utils.geometry.get_adjacency_matrix">[docs]</a><span class="k">def</span> <span class="nf">get_adjacency_matrix</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_type</span><span class="o">=</span><span class="s2">&quot;coo_matrix&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="get_adjacency_matrix"><a class="viewcode-back" href="../../../doc/dscribe.utils.html#dscribe.utils.geometry.get_adjacency_matrix">[docs]</a><span class="k">def</span> <span class="nf">get_adjacency_matrix</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_type</span><span class="o">=</span><span class="s2">&quot;coo_matrix&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Calculates a sparse adjacency matrix by only considering distances</span>
 <span class="sd">    within a certain cutoff. Uses a k-d tree to reach O(n log(N)) time</span>
 <span class="sd">    complexity.</span>
@@ -143,7 +143,7 @@
     <span class="k">return</span> <span class="n">dmat</span></div>
 
 
-<div class="viewcode-block" id="get_adjacency_list"><a class="viewcode-back" href="../../../doc/dscribe.utils.geometry.html#dscribe.utils.geometry.get_adjacency_list">[docs]</a><span class="k">def</span> <span class="nf">get_adjacency_list</span><span class="p">(</span><span class="n">adjacency_matrix</span><span class="p">):</span>
+<div class="viewcode-block" id="get_adjacency_list"><a class="viewcode-back" href="../../../doc/dscribe.utils.html#dscribe.utils.geometry.get_adjacency_list">[docs]</a><span class="k">def</span> <span class="nf">get_adjacency_list</span><span class="p">(</span><span class="n">adjacency_matrix</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Used to transform an adjacency matrix into an adjacency list. The</span>
 <span class="sd">    adjacency list provides much faster access to the neighbours of a node.</span>
 
@@ -168,7 +168,7 @@
     <span class="k">return</span> <span class="n">adjacency_list</span></div>
 
 
-<div class="viewcode-block" id="get_extended_system"><a class="viewcode-back" href="../../../doc/dscribe.utils.geometry.html#dscribe.utils.geometry.get_extended_system">[docs]</a><span class="k">def</span> <span class="nf">get_extended_system</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">radial_cutoff</span><span class="p">,</span> <span class="n">centers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_cell_indices</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="get_extended_system"><a class="viewcode-back" href="../../../doc/dscribe.utils.html#dscribe.utils.geometry.get_extended_system">[docs]</a><span class="k">def</span> <span class="nf">get_extended_system</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">radial_cutoff</span><span class="p">,</span> <span class="n">centers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_cell_indices</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Used to create a periodically extended system. If centers are not</span>
 <span class="sd">    specified, simply takes returns the original system multiplied by an</span>
 <span class="sd">    integer amount of times in each direction to cover the radial cutoff. If</span>

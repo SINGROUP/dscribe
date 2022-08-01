@@ -113,7 +113,7 @@
 <span class="kn">import</span> <span class="nn">dscribe.utils.geometry</span>
 
 
-<div class="viewcode-block" id="LMBTR"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.lmbtr.html#dscribe.descriptors.lmbtr.LMBTR">[docs]</a><span class="k">class</span> <span class="nc">LMBTR</span><span class="p">(</span><span class="n">MBTR</span><span class="p">):</span>
+<div class="viewcode-block" id="LMBTR"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.lmbtr.LMBTR">[docs]</a><span class="k">class</span> <span class="nc">LMBTR</span><span class="p">(</span><span class="n">MBTR</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Implementation of local -- per chosen atom -- kind of the Many-body</span>
 <span class="sd">    tensor representation up to k=3.</span>
 
@@ -374,7 +374,7 @@
 
         <span class="k">return</span> <span class="n">output</span></div>
 
-<div class="viewcode-block" id="LMBTR.create_single"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.lmbtr.html#dscribe.descriptors.lmbtr.LMBTR.create_single">[docs]</a>    <span class="k">def</span> <span class="nf">create_single</span><span class="p">(</span>
+<div class="viewcode-block" id="LMBTR.create_single"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.lmbtr.LMBTR.create_single">[docs]</a>    <span class="k">def</span> <span class="nf">create_single</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">system</span><span class="p">,</span>
         <span class="n">positions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -525,7 +525,7 @@
 
         <span class="k">return</span> <span class="n">result</span></div>
 
-<div class="viewcode-block" id="LMBTR.get_number_of_features"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.lmbtr.html#dscribe.descriptors.lmbtr.LMBTR.get_number_of_features">[docs]</a>    <span class="k">def</span> <span class="nf">get_number_of_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="LMBTR.get_number_of_features"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.lmbtr.LMBTR.get_number_of_features">[docs]</a>    <span class="k">def</span> <span class="nf">get_number_of_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Used to inquire the final number of features that this descriptor</span>
 <span class="sd">        will have.</span>
 
@@ -901,7 +901,7 @@
                     <span class="n">k3</span><span class="p">[</span><span class="n">i_loc</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">gaussian_sum</span>
         <span class="k">return</span> <span class="n">k3</span>
 
-<div class="viewcode-block" id="LMBTR.get_location"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.lmbtr.html#dscribe.descriptors.lmbtr.LMBTR.get_location">[docs]</a>    <span class="k">def</span> <span class="nf">get_location</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
+<div class="viewcode-block" id="LMBTR.get_location"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.lmbtr.LMBTR.get_location">[docs]</a>    <span class="k">def</span> <span class="nf">get_location</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Can be used to query the location of a species combination in the</span>
 <span class="sd">        the flattened output.</span>
 

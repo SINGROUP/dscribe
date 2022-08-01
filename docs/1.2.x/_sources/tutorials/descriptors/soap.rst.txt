@@ -112,6 +112,7 @@ or positions. If no such positions are defined, SOAP will be created for each
 atom in the system. The call syntax for the create-method is as follows:
 
 .. automethod:: dscribe.descriptors.soap.SOAP.create
+   :noindex:
 
 The output will in this case be a numpy array with shape [#positions,
 #features]. The number of features may be requested beforehand with the

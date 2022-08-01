@@ -181,7 +181,7 @@ dense numpy array.</p></li>
 <div class="section" id="creation">
 <h2>Creation<a class="headerlink" href="#creation" title="Permalink to this heading"></a></h2>
 <p>After the Sine matrix has been set up, it may be used on periodic atomic
-structures with the <a class="reference internal" href="#dscribe.descriptors.sinematrix.SineMatrix.create" title="dscribe.descriptors.sinematrix.SineMatrix.create"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create()</span></code></a>-method.</p>
+structures with the <a class="reference internal" href="../../doc/dscribe.descriptors.html#dscribe.descriptors.sinematrix.SineMatrix.create" title="dscribe.descriptors.sinematrix.SineMatrix.create"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create()</span></code></a>-method.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">bulk</span>
 
 <span class="c1"># NaCl crystal created as an ASE.Atoms</span>
@@ -200,8 +200,8 @@ structures with the <a class="reference internal" href="#dscribe.descriptors.sin
 </div>
 <p>The call syntax for the create-function is as follows:</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="dscribe.descriptors.sinematrix.SineMatrix.create">
-<span class="sig-prename descclassname"><span class="pre">SineMatrix.</span></span><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_physical_cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dscribe/descriptors/sinematrix.html#SineMatrix.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.sinematrix.SineMatrix.create" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">SineMatrix.</span></span><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_physical_cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dscribe/descriptors/sinematrix.html#SineMatrix.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Return the Sine matrix for the given systems.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -238,7 +238,7 @@ The first dimension is determined by the amount of systems.</p>
 structure it will cause an error. The output will in this case be a flattened
 matrix, specifically a numpy array with size #atoms * #atoms. The number of
 features may be requested beforehand with the
-<a class="reference internal" href="../../doc/dscribe.descriptors.matrixdescriptor.html#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.get_number_of_features" title="dscribe.descriptors.matrixdescriptor.MatrixDescriptor.get_number_of_features"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_number_of_features()</span></code></a>-method.</p>
+<a class="reference internal" href="../../doc/dscribe.descriptors.html#dscribe.descriptors.matrixdescriptor.MatrixDescriptor.get_number_of_features" title="dscribe.descriptors.matrixdescriptor.MatrixDescriptor.get_number_of_features"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_number_of_features()</span></code></a>-method.</p>
 <p>In the case of multiple samples, the creation can also be parallellized by using the
 <em>n_jobs</em>-parameter. This splits the list of structures into equally sized parts
 and spaws a separate process to handle each part.</p>

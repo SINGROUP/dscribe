@@ -96,7 +96,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 
-<div class="viewcode-block" id="Lattice"><a class="viewcode-back" href="../../../doc/dscribe.core.lattice.html#dscribe.core.lattice.Lattice">[docs]</a><span class="k">class</span> <span class="nc">Lattice</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Lattice"><a class="viewcode-back" href="../../../doc/dscribe.core.html#dscribe.core.lattice.Lattice">[docs]</a><span class="k">class</span> <span class="nc">Lattice</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A lattice object.  Essentially a matrix with conversion matrices. In</span>
 <span class="sd">    general, it is assumed that length units are in Angstroms and angles are in</span>
@@ -140,7 +140,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_inv_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inv_matrix</span>
 
-<div class="viewcode-block" id="Lattice.get_cartesian_coords"><a class="viewcode-back" href="../../../doc/dscribe.core.lattice.html#dscribe.core.lattice.Lattice.get_cartesian_coords">[docs]</a>    <span class="k">def</span> <span class="nf">get_cartesian_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fractional_coords</span><span class="p">):</span>
+<div class="viewcode-block" id="Lattice.get_cartesian_coords"><a class="viewcode-back" href="../../../doc/dscribe.core.html#dscribe.core.lattice.Lattice.get_cartesian_coords">[docs]</a>    <span class="k">def</span> <span class="nf">get_cartesian_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fractional_coords</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the cartesian coordinates given fractional coordinates.</span>
 
@@ -152,7 +152,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">fractional_coords</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Lattice.get_fractional_coords"><a class="viewcode-back" href="../../../doc/dscribe.core.lattice.html#dscribe.core.lattice.Lattice.get_fractional_coords">[docs]</a>    <span class="k">def</span> <span class="nf">get_fractional_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cart_coords</span><span class="p">):</span>
+<div class="viewcode-block" id="Lattice.get_fractional_coords"><a class="viewcode-back" href="../../../doc/dscribe.core.html#dscribe.core.lattice.Lattice.get_fractional_coords">[docs]</a>    <span class="k">def</span> <span class="nf">get_fractional_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cart_coords</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the fractional coordinates given cartesian coordinates.</span>
 
@@ -202,7 +202,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Lattice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reciprocal_lattice</span><span class="o">.</span><span class="n">matrix</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
 
-<div class="viewcode-block" id="Lattice.get_points_in_sphere"><a class="viewcode-back" href="../../../doc/dscribe.core.lattice.html#dscribe.core.lattice.Lattice.get_points_in_sphere">[docs]</a>    <span class="k">def</span> <span class="nf">get_points_in_sphere</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frac_points</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">zip_results</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="Lattice.get_points_in_sphere"><a class="viewcode-back" href="../../../doc/dscribe.core.html#dscribe.core.lattice.Lattice.get_points_in_sphere">[docs]</a>    <span class="k">def</span> <span class="nf">get_points_in_sphere</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frac_points</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">zip_results</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find all points within a sphere from the point taking into account</span>
 <span class="sd">        periodic boundary conditions. This includes sites in other periodic</span>

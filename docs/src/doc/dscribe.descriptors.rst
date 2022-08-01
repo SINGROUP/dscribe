@@ -4,20 +4,85 @@ dscribe.descriptors package
 Submodules
 ----------
 
-.. toctree::
-   :maxdepth: 4
+dscribe.descriptors.acsf module
+-------------------------------
 
-   dscribe.descriptors.acsf
-   dscribe.descriptors.coulombmatrix
-   dscribe.descriptors.descriptor
-   dscribe.descriptors.elementaldistribution
-   dscribe.descriptors.ewaldsummatrix
-   dscribe.descriptors.lmbtr
-   dscribe.descriptors.matrixdescriptor
-   dscribe.descriptors.mbtr
-   dscribe.descriptors.sinematrix
-   dscribe.descriptors.soap
-   dscribe.descriptors.valleoganov
+.. automodule:: dscribe.descriptors.acsf
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+dscribe.descriptors.coulombmatrix module
+----------------------------------------
+
+.. automodule:: dscribe.descriptors.coulombmatrix
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+dscribe.descriptors.descriptor module
+-------------------------------------
+
+.. automodule:: dscribe.descriptors.descriptor
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+dscribe.descriptors.ewaldsummatrix module
+-----------------------------------------
+
+.. automodule:: dscribe.descriptors.ewaldsummatrix
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+dscribe.descriptors.lmbtr module
+--------------------------------
+
+.. automodule:: dscribe.descriptors.lmbtr
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+dscribe.descriptors.matrixdescriptor module
+-------------------------------------------
+
+.. automodule:: dscribe.descriptors.matrixdescriptor
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+dscribe.descriptors.mbtr module
+-------------------------------
+
+.. automodule:: dscribe.descriptors.mbtr
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+dscribe.descriptors.sinematrix module
+-------------------------------------
+
+.. automodule:: dscribe.descriptors.sinematrix
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+dscribe.descriptors.soap module
+-------------------------------
+
+.. automodule:: dscribe.descriptors.soap
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+dscribe.descriptors.valleoganov module
+--------------------------------------
+
+.. automodule:: dscribe.descriptors.valleoganov
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------

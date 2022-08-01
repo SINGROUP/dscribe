@@ -106,7 +106,7 @@
 <span class="kn">from</span> <span class="nn">dscribe.core.lattice</span> <span class="kn">import</span> <span class="n">Lattice</span>
 
 
-<div class="viewcode-block" id="EwaldSumMatrix"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.ewaldsummatrix.html#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix">[docs]</a><span class="k">class</span> <span class="nc">EwaldSumMatrix</span><span class="p">(</span><span class="n">MatrixDescriptor</span><span class="p">):</span>
+<div class="viewcode-block" id="EwaldSumMatrix"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix">[docs]</a><span class="k">class</span> <span class="nc">EwaldSumMatrix</span><span class="p">(</span><span class="n">MatrixDescriptor</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates an Ewald sum matrix for the a given system.</span>
 
@@ -249,7 +249,7 @@
 
         <span class="k">return</span> <span class="n">output</span></div>
 
-<div class="viewcode-block" id="EwaldSumMatrix.create_single"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.ewaldsummatrix.html#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create_single">[docs]</a>    <span class="k">def</span> <span class="nf">create_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">rcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="EwaldSumMatrix.create_single"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create_single">[docs]</a>    <span class="k">def</span> <span class="nf">create_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">rcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            system (:class:`ase.Atoms` | :class:`.System`): Input system.</span>
@@ -302,7 +302,7 @@
         <span class="n">matrix</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">create_single</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">matrix</span></div>
 
-<div class="viewcode-block" id="EwaldSumMatrix.get_matrix"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.ewaldsummatrix.html#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.get_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">get_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
+<div class="viewcode-block" id="EwaldSumMatrix.get_matrix"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.get_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">get_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The total energy matrix. Each matrix element (i, j) corresponds to the</span>
 <span class="sd">        total interaction energy in a system with atoms i and j.</span>

@@ -1,5 +1,10 @@
 Changelog
 =========
+ - 1.2.2:
+    - Fixes:
+        - Fixed an issue with Coulomb matrix ordering using :code:`sorted_l2`
+          that was introduced in version 1.2.0. See issue `#89 <https://github.com/SINGROUP/dscribe/issues/89>`_.
+
  - 1.2.0:
     - New features:
         - Added the :doc:`Valle-Oganov descriptor <tutorials/descriptors/valleoganov>`

@@ -4,12 +4,29 @@ dscribe.kernels package
 Submodules
 ----------
 
-.. toctree::
-   :maxdepth: 4
+dscribe.kernels.averagekernel module
+------------------------------------
 
-   dscribe.kernels.averagekernel
-   dscribe.kernels.localsimilaritykernel
-   dscribe.kernels.rematchkernel
+.. automodule:: dscribe.kernels.averagekernel
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+dscribe.kernels.localsimilaritykernel module
+--------------------------------------------
+
+.. automodule:: dscribe.kernels.localsimilaritykernel
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+dscribe.kernels.rematchkernel module
+------------------------------------
+
+.. automodule:: dscribe.kernels.rematchkernel
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------

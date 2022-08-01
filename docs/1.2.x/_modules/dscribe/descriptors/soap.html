@@ -111,7 +111,7 @@
 <span class="kn">import</span> <span class="nn">dscribe.ext</span>
 
 
-<div class="viewcode-block" id="SOAP"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.soap.html#dscribe.descriptors.soap.SOAP">[docs]</a><span class="k">class</span> <span class="nc">SOAP</span><span class="p">(</span><span class="n">Descriptor</span><span class="p">):</span>
+<div class="viewcode-block" id="SOAP"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP">[docs]</a><span class="k">class</span> <span class="nc">SOAP</span><span class="p">(</span><span class="n">Descriptor</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Class for generating a partial power spectrum from Smooth Overlap of</span>
 <span class="sd">    Atomic Orbitals (SOAP). This implementation uses real (tesseral) spherical</span>
 <span class="sd">    harmonics as the angular basis set and provides two orthonormalized</span>
@@ -361,7 +361,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">average</span> <span class="o">=</span> <span class="n">average</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">crossover</span> <span class="o">=</span> <span class="n">crossover</span></div>
 
-<div class="viewcode-block" id="SOAP.prepare_centers"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.soap.html#dscribe.descriptors.soap.SOAP.prepare_centers">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_centers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">cutoff_padding</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="SOAP.prepare_centers"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.prepare_centers">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_centers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">cutoff_padding</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Validates and prepares the centers for the C++ extension.&quot;&quot;&quot;</span>
         <span class="c1"># Check that the system does not have elements that are not in the list</span>
         <span class="c1"># of atomic numbers</span>
@@ -406,7 +406,7 @@
 
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">list_positions</span><span class="p">),</span> <span class="n">indices</span></div>
 
-<div class="viewcode-block" id="SOAP.get_cutoff_padding"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.soap.html#dscribe.descriptors.soap.SOAP.get_cutoff_padding">[docs]</a>    <span class="k">def</span> <span class="nf">get_cutoff_padding</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SOAP.get_cutoff_padding"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_cutoff_padding">[docs]</a>    <span class="k">def</span> <span class="nf">get_cutoff_padding</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The radial cutoff is extended by adding a padding that depends on</span>
 <span class="sd">        the used used sigma value. The padding is chosen so that the gaussians</span>
 <span class="sd">        decay to the specified threshold value at the cutoff distance.</span>
@@ -440,7 +440,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="SOAP.init_descriptor_array"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.soap.html#dscribe.descriptors.soap.SOAP.init_descriptor_array">[docs]</a>    <span class="k">def</span> <span class="nf">init_descriptor_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_centers</span><span class="p">,</span> <span class="n">n_features</span><span class="p">):</span>
+<div class="viewcode-block" id="SOAP.init_descriptor_array"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.init_descriptor_array">[docs]</a>    <span class="k">def</span> <span class="nf">init_descriptor_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_centers</span><span class="p">,</span> <span class="n">n_features</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a zero-initialized numpy array for the descriptor.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">average</span> <span class="o">==</span> <span class="s2">&quot;inner&quot;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">average</span> <span class="o">==</span> <span class="s2">&quot;outer&quot;</span><span class="p">:</span>
             <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_features</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
@@ -448,20 +448,20 @@
             <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_centers</span><span class="p">,</span> <span class="n">n_features</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">c</span></div>
 
-<div class="viewcode-block" id="SOAP.init_derivatives_array"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.soap.html#dscribe.descriptors.soap.SOAP.init_derivatives_array">[docs]</a>    <span class="k">def</span> <span class="nf">init_derivatives_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_centers</span><span class="p">,</span> <span class="n">n_indices</span><span class="p">,</span> <span class="n">n_features</span><span class="p">):</span>
+<div class="viewcode-block" id="SOAP.init_derivatives_array"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.init_derivatives_array">[docs]</a>    <span class="k">def</span> <span class="nf">init_derivatives_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_centers</span><span class="p">,</span> <span class="n">n_indices</span><span class="p">,</span> <span class="n">n_features</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a zero-initialized numpy array for the derivatives.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">average</span> <span class="o">==</span> <span class="s2">&quot;inner&quot;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">average</span> <span class="o">==</span> <span class="s2">&quot;outer&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_indices</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">n_features</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_centers</span><span class="p">,</span> <span class="n">n_indices</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">n_features</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SOAP.init_internal_dev_array"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.soap.html#dscribe.descriptors.soap.SOAP.init_internal_dev_array">[docs]</a>    <span class="k">def</span> <span class="nf">init_internal_dev_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_centers</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">,</span> <span class="n">n_types</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">lMax</span><span class="p">):</span>
+<div class="viewcode-block" id="SOAP.init_internal_dev_array"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.init_internal_dev_array">[docs]</a>    <span class="k">def</span> <span class="nf">init_internal_dev_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_centers</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">,</span> <span class="n">n_types</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">lMax</span><span class="p">):</span>
         <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
             <span class="p">(</span><span class="n">n_atoms</span><span class="p">,</span> <span class="n">n_centers</span><span class="p">,</span> <span class="n">n_types</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="p">(</span><span class="n">lMax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">lMax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">d</span></div>
 
-<div class="viewcode-block" id="SOAP.init_internal_array"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.soap.html#dscribe.descriptors.soap.SOAP.init_internal_array">[docs]</a>    <span class="k">def</span> <span class="nf">init_internal_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_centers</span><span class="p">,</span> <span class="n">n_types</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">lMax</span><span class="p">):</span>
+<div class="viewcode-block" id="SOAP.init_internal_array"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.init_internal_array">[docs]</a>    <span class="k">def</span> <span class="nf">init_internal_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_centers</span><span class="p">,</span> <span class="n">n_types</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">lMax</span><span class="p">):</span>
         <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_centers</span><span class="p">,</span> <span class="n">n_types</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="p">(</span><span class="n">lMax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">lMax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">d</span></div>
 
@@ -560,7 +560,7 @@
 
         <span class="k">return</span> <span class="n">output</span></div>
 
-<div class="viewcode-block" id="SOAP.create_single"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.soap.html#dscribe.descriptors.soap.SOAP.create_single">[docs]</a>    <span class="k">def</span> <span class="nf">create_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="SOAP.create_single"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.create_single">[docs]</a>    <span class="k">def</span> <span class="nf">create_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the SOAP output for the given system and given positions.</span>
 
 <span class="sd">        Args:</span>
@@ -671,7 +671,7 @@
 
         <span class="k">return</span> <span class="n">soap_mat</span></div>
 
-<div class="viewcode-block" id="SOAP.derivatives"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.soap.html#dscribe.descriptors.soap.SOAP.derivatives">[docs]</a>    <span class="k">def</span> <span class="nf">derivatives</span><span class="p">(</span>
+<div class="viewcode-block" id="SOAP.derivatives"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.derivatives">[docs]</a>    <span class="k">def</span> <span class="nf">derivatives</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">system</span><span class="p">,</span>
         <span class="n">positions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -884,7 +884,7 @@
 
         <span class="k">return</span> <span class="n">output</span></div>
 
-<div class="viewcode-block" id="SOAP.derivatives_single"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.soap.html#dscribe.descriptors.soap.SOAP.derivatives_single">[docs]</a>    <span class="k">def</span> <span class="nf">derivatives_single</span><span class="p">(</span>
+<div class="viewcode-block" id="SOAP.derivatives_single"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.derivatives_single">[docs]</a>    <span class="k">def</span> <span class="nf">derivatives_single</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">system</span><span class="p">,</span>
         <span class="n">positions</span><span class="p">,</span>
@@ -1088,7 +1088,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">index_to_atomic_number</span><span class="p">[</span><span class="n">i_atom</span><span class="p">]</span> <span class="o">=</span> <span class="n">atomic_number</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_elements</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">)</span>
 
-<div class="viewcode-block" id="SOAP.get_number_of_features"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.soap.html#dscribe.descriptors.soap.SOAP.get_number_of_features">[docs]</a>    <span class="k">def</span> <span class="nf">get_number_of_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SOAP.get_number_of_features"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_number_of_features">[docs]</a>    <span class="k">def</span> <span class="nf">get_number_of_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Used to inquire the final number of features that this descriptor</span>
 <span class="sd">        will have.</span>
 
@@ -1102,7 +1102,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_elem</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nmax</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="SOAP.get_location"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.soap.html#dscribe.descriptors.soap.SOAP.get_location">[docs]</a>    <span class="k">def</span> <span class="nf">get_location</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
+<div class="viewcode-block" id="SOAP.get_location"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_location">[docs]</a>    <span class="k">def</span> <span class="nf">get_location</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Can be used to query the location of a species combination in the</span>
 <span class="sd">        the flattened output.</span>
 
@@ -1171,7 +1171,7 @@
 
         <span class="k">return</span> <span class="nb">slice</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SOAP.get_basis_gto"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.soap.html#dscribe.descriptors.soap.SOAP.get_basis_gto">[docs]</a>    <span class="k">def</span> <span class="nf">get_basis_gto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rcut</span><span class="p">,</span> <span class="n">nmax</span><span class="p">,</span> <span class="n">lmax</span><span class="p">):</span>
+<div class="viewcode-block" id="SOAP.get_basis_gto"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_basis_gto">[docs]</a>    <span class="k">def</span> <span class="nf">get_basis_gto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rcut</span><span class="p">,</span> <span class="n">nmax</span><span class="p">,</span> <span class="n">lmax</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Used to calculate the alpha and beta prefactors for the gto-radial</span>
 <span class="sd">        basis.</span>
 
@@ -1220,7 +1220,7 @@
 
         <span class="k">return</span> <span class="n">alphas_full</span><span class="p">,</span> <span class="n">betas_full</span></div>
 
-<div class="viewcode-block" id="SOAP.get_basis_poly"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.soap.html#dscribe.descriptors.soap.SOAP.get_basis_poly">[docs]</a>    <span class="k">def</span> <span class="nf">get_basis_poly</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rcut</span><span class="p">,</span> <span class="n">nmax</span><span class="p">):</span>
+<div class="viewcode-block" id="SOAP.get_basis_poly"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_basis_poly">[docs]</a>    <span class="k">def</span> <span class="nf">get_basis_poly</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rcut</span><span class="p">,</span> <span class="n">nmax</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Used to calculate discrete vectors for the polynomial basis functions.</span>
 
 <span class="sd">        Args:</span>

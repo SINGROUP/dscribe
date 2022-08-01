@@ -61,7 +61,11 @@ extensions = [
     'sphinxcontrib.bibtex',
 ]
 
-bibtex_bibfiles = ["references.bib"]
+bibtex_bibfiles = [
+    'references.bib',
+    'publications_2019.bib',
+    'publications_2020.bib'
+]
 
 # Makes sure that __init__ is documented
 autoclass_content = 'both'

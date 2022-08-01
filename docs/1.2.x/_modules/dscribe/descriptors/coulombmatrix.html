@@ -107,7 +107,7 @@
 <span class="kn">import</span> <span class="nn">dscribe.ext</span>
 
 
-<div class="viewcode-block" id="CoulombMatrix"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.coulombmatrix.html#dscribe.descriptors.coulombmatrix.CoulombMatrix">[docs]</a><span class="k">class</span> <span class="nc">CoulombMatrix</span><span class="p">(</span><span class="n">MatrixDescriptor</span><span class="p">):</span>
+<div class="viewcode-block" id="CoulombMatrix"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.coulombmatrix.CoulombMatrix">[docs]</a><span class="k">class</span> <span class="nc">CoulombMatrix</span><span class="p">(</span><span class="n">MatrixDescriptor</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Calculates the zero padded Coulomb matrix.</span>
 
 <span class="sd">    The Coulomb matrix is defined as:</span>
@@ -207,7 +207,7 @@
 
         <span class="k">return</span> <span class="n">output</span></div>
 
-<div class="viewcode-block" id="CoulombMatrix.create_single"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.coulombmatrix.html#dscribe.descriptors.coulombmatrix.CoulombMatrix.create_single">[docs]</a>    <span class="k">def</span> <span class="nf">create_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
+<div class="viewcode-block" id="CoulombMatrix.create_single"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.coulombmatrix.CoulombMatrix.create_single">[docs]</a>    <span class="k">def</span> <span class="nf">create_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            system (:class:`ase.Atoms`): Input system.</span>
@@ -233,7 +233,7 @@
 
         <span class="k">return</span> <span class="n">out_des</span></div>
 
-<div class="viewcode-block" id="CoulombMatrix.unflatten"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.coulombmatrix.html#dscribe.descriptors.coulombmatrix.CoulombMatrix.unflatten">[docs]</a>    <span class="k">def</span> <span class="nf">unflatten</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">systems</span><span class="p">):</span>
+<div class="viewcode-block" id="CoulombMatrix.unflatten"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.coulombmatrix.CoulombMatrix.unflatten">[docs]</a>    <span class="k">def</span> <span class="nf">unflatten</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">systems</span><span class="p">):</span>
         <span class="n">n_systems</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">systems</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sparse</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">n_systems</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
@@ -262,7 +262,7 @@
                 <span class="n">full</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">n_atoms_max</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_atoms_max</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">full</span></div>
 
-<div class="viewcode-block" id="CoulombMatrix.derivatives"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.coulombmatrix.html#dscribe.descriptors.coulombmatrix.CoulombMatrix.derivatives">[docs]</a>    <span class="k">def</span> <span class="nf">derivatives</span><span class="p">(</span>
+<div class="viewcode-block" id="CoulombMatrix.derivatives"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.coulombmatrix.CoulombMatrix.derivatives">[docs]</a>    <span class="k">def</span> <span class="nf">derivatives</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">system</span><span class="p">,</span>
         <span class="n">include</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -406,7 +406,7 @@
 
         <span class="k">return</span> <span class="n">output</span></div>
 
-<div class="viewcode-block" id="CoulombMatrix.derivatives_single"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.coulombmatrix.html#dscribe.descriptors.coulombmatrix.CoulombMatrix.derivatives_single">[docs]</a>    <span class="k">def</span> <span class="nf">derivatives_single</span><span class="p">(</span>
+<div class="viewcode-block" id="CoulombMatrix.derivatives_single"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.coulombmatrix.CoulombMatrix.derivatives_single">[docs]</a>    <span class="k">def</span> <span class="nf">derivatives_single</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">system</span><span class="p">,</span>
         <span class="n">indices</span><span class="p">,</span>

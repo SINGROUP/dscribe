@@ -108,7 +108,7 @@
 <span class="kn">import</span> <span class="nn">dscribe.utils.geometry</span>
 
 
-<div class="viewcode-block" id="MBTR"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.mbtr.html#dscribe.descriptors.mbtr.MBTR">[docs]</a><span class="k">class</span> <span class="nc">MBTR</span><span class="p">(</span><span class="n">Descriptor</span><span class="p">):</span>
+<div class="viewcode-block" id="MBTR"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR">[docs]</a><span class="k">class</span> <span class="nc">MBTR</span><span class="p">(</span><span class="n">Descriptor</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Implementation of the Many-body tensor representation up to :math:`k=3`.</span>
 
 <span class="sd">    You can choose which terms to include by providing a dictionary in the</span>
@@ -324,7 +324,7 @@
                         <span class="s2">&quot;Periodic systems need to have a weighting function.&quot;</span>
                     <span class="p">)</span></div>
 
-<div class="viewcode-block" id="MBTR.check_grid"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.mbtr.html#dscribe.descriptors.mbtr.MBTR.check_grid">[docs]</a>    <span class="k">def</span> <span class="nf">check_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid</span><span class="p">):</span>
+<div class="viewcode-block" id="MBTR.check_grid"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.check_grid">[docs]</a>    <span class="k">def</span> <span class="nf">check_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Used to ensure that the given grid settings are valid.</span>
 
 <span class="sd">        Args:</span>
@@ -551,7 +551,7 @@
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_normalization</span> <span class="o">=</span> <span class="n">value</span>
 
-<div class="viewcode-block" id="MBTR.get_k1_axis"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.mbtr.html#dscribe.descriptors.mbtr.MBTR.get_k1_axis">[docs]</a>    <span class="k">def</span> <span class="nf">get_k1_axis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MBTR.get_k1_axis"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.get_k1_axis">[docs]</a>    <span class="k">def</span> <span class="nf">get_k1_axis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Used to get the discretized axis for geometry function of the k=1</span>
 <span class="sd">        term.</span>
 
@@ -564,7 +564,7 @@
 
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MBTR.get_k2_axis"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.mbtr.html#dscribe.descriptors.mbtr.MBTR.get_k2_axis">[docs]</a>    <span class="k">def</span> <span class="nf">get_k2_axis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MBTR.get_k2_axis"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.get_k2_axis">[docs]</a>    <span class="k">def</span> <span class="nf">get_k2_axis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Used to get the discretized axis for geometry function of the k=2</span>
 <span class="sd">        term.</span>
 
@@ -577,7 +577,7 @@
 
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MBTR.get_k3_axis"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.mbtr.html#dscribe.descriptors.mbtr.MBTR.get_k3_axis">[docs]</a>    <span class="k">def</span> <span class="nf">get_k3_axis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MBTR.get_k3_axis"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.get_k3_axis">[docs]</a>    <span class="k">def</span> <span class="nf">get_k3_axis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Used to get the discretized axis for geometry function of the k=3</span>
 <span class="sd">        term.</span>
 
@@ -638,7 +638,7 @@
 
         <span class="k">return</span> <span class="n">output</span></div>
 
-<div class="viewcode-block" id="MBTR.create_single"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.mbtr.html#dscribe.descriptors.mbtr.MBTR.create_single">[docs]</a>    <span class="k">def</span> <span class="nf">create_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
+<div class="viewcode-block" id="MBTR.create_single"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.create_single">[docs]</a>    <span class="k">def</span> <span class="nf">create_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the many-body tensor representation for the given system.</span>
 
 <span class="sd">        Args:</span>
@@ -703,7 +703,7 @@
 
         <span class="k">return</span> <span class="n">mbtr</span></div>
 
-<div class="viewcode-block" id="MBTR.get_number_of_features"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.mbtr.html#dscribe.descriptors.mbtr.MBTR.get_number_of_features">[docs]</a>    <span class="k">def</span> <span class="nf">get_number_of_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MBTR.get_number_of_features"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.get_number_of_features">[docs]</a>    <span class="k">def</span> <span class="nf">get_number_of_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Used to inquire the final number of features that this descriptor</span>
 <span class="sd">        will have.</span>
 
@@ -728,19 +728,19 @@
 
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_features</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MBTR.get_location"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.mbtr.html#dscribe.descriptors.mbtr.MBTR.get_location">[docs]</a>    <span class="k">def</span> <span class="nf">get_location</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
+<div class="viewcode-block" id="MBTR.get_location"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.get_location">[docs]</a>    <span class="k">def</span> <span class="nf">get_location</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Can be used to query the location of a species combination in the</span>
 <span class="sd">        the flattened output.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            species(tuple): A tuple containing a species combination as</span>
-<span class="sd">            chemical symbols or atomic numbers. The tuple can be for example</span>
-<span class="sd">            (&quot;H&quot;), (&quot;H&quot;, &quot;O&quot;) or (&quot;H&quot;, &quot;O&quot;, &quot;H&quot;).</span>
+<span class="sd">                chemical symbols or atomic numbers. The tuple can be for example</span>
+<span class="sd">                (&quot;H&quot;), (&quot;H&quot;, &quot;O&quot;) or (&quot;H&quot;, &quot;O&quot;, &quot;H&quot;).</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            slice: slice containing the location of the specified species</span>
-<span class="sd">            combination. The location is given as a python slice-object, that</span>
-<span class="sd">            can be directly used to target ranges in the output.</span>
+<span class="sd">                combination. The location is given as a python slice-object, that</span>
+<span class="sd">                can be directly used to target ranges in the output.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError: If the requested species combination is not in the</span>

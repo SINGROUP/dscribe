@@ -96,7 +96,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 
-<div class="viewcode-block" id="is1d"><a class="viewcode-back" href="../../../doc/dscribe.utils.dimensionality.html#dscribe.utils.dimensionality.is1d">[docs]</a><span class="k">def</span> <span class="nf">is1d</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
+<div class="viewcode-block" id="is1d"><a class="viewcode-back" href="../../../doc/dscribe.utils.html#dscribe.utils.dimensionality.is1d">[docs]</a><span class="k">def</span> <span class="nf">is1d</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">array</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">dtype</span><span class="p">):</span>
@@ -106,7 +106,7 @@
     <span class="k">return</span> <span class="kc">True</span></div>
 
 
-<div class="viewcode-block" id="is2d"><a class="viewcode-back" href="../../../doc/dscribe.utils.dimensionality.html#dscribe.utils.dimensionality.is2d">[docs]</a><span class="k">def</span> <span class="nf">is2d</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
+<div class="viewcode-block" id="is2d"><a class="viewcode-back" href="../../../doc/dscribe.utils.html#dscribe.utils.dimensionality.is2d">[docs]</a><span class="k">def</span> <span class="nf">is2d</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">array</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">i</span><span class="p">:</span>
