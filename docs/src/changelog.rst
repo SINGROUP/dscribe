@@ -1,6 +1,10 @@
 Changelog
 =========
  - 1.2.2:
+    - New features:
+        - Changed the default naming of some descriptor input parameters. E.g.
+          radial cutoffs are now always called :code:`r_cut` in all descriptors.
+          The old names can still be used but the new ones are preferred.
     - Fixes:
         - Fixed an issue with Coulomb matrix ordering using :code:`sorted_l2`
           that was introduced in version 1.2.0. See issue `#89 <https://github.com/SINGROUP/dscribe/issues/89>`_.
