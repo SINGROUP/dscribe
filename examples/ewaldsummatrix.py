@@ -4,7 +4,7 @@ import scipy
 from dscribe.descriptors import EwaldSumMatrix
 
 atomic_numbers = [1, 8]
-rcut = 6.0
+r_cut = 6.0
 nmax = 8
 lmax = 6
 
@@ -37,13 +37,13 @@ ewald_1 = esm.create(nacl, accuracy=1e-3)
 ewald_2 = esm.create(nacl, accuracy=1e-5)
 
 # Another option is to directly use the real- and reciprocal space cutoffs.
-ewald_3 = esm.create(nacl, rcut=10, gcut=10)
+ewald_3 = esm.create(nacl, r_cut=10, g_cut=10)
 
 # Energy
 
 # Ewald summation parameters
-rcut = 40
-gcut = 40
+r_cut = 40
+g_cut = 40
 a = 3
 
 # Calculate Ewald sum matrix with DScribe
@@ -52,7 +52,7 @@ ems = EwaldSumMatrix(
     permutation="none",
     flatten=False
 )
-ems_out = ems.create(al, a=a, rcut=rcut, gcut=gcut)
+ems_out = ems.create(al, a=a, r_cut=r_cut, g_cut=g_cut)
 
 # Calculate the total electrostatic energy of the crystal
 total_energy = ems_out[0, 0] + ems_out[1, 1] + ems_out[0, 1]

@@ -173,31 +173,31 @@ ordering of the output vector is as follows:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">SOAP</span>
 
 <span class="n">species</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="s2">&quot;N&quot;</span><span class="p">]</span>
-<span class="n">rcut</span> <span class="o">=</span> <span class="mf">6.0</span>
-<span class="n">nmax</span> <span class="o">=</span> <span class="mi">8</span>
-<span class="n">lmax</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="n">r_cut</span> <span class="o">=</span> <span class="mf">6.0</span>
+<span class="n">n_max</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="n">l_max</span> <span class="o">=</span> <span class="mi">6</span>
 
 <span class="c1"># Setting up the SOAP descriptor</span>
 <span class="n">soap</span> <span class="o">=</span> <span class="n">SOAP</span><span class="p">(</span>
     <span class="n">species</span><span class="o">=</span><span class="n">species</span><span class="p">,</span>
     <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">rcut</span><span class="o">=</span><span class="n">rcut</span><span class="p">,</span>
-    <span class="n">nmax</span><span class="o">=</span><span class="n">nmax</span><span class="p">,</span>
-    <span class="n">lmax</span><span class="o">=</span><span class="n">lmax</span><span class="p">,</span>
+    <span class="n">r_cut</span><span class="o">=</span><span class="n">r_cut</span><span class="p">,</span>
+    <span class="n">n_max</span><span class="o">=</span><span class="n">n_max</span><span class="p">,</span>
+    <span class="n">l_max</span><span class="o">=</span><span class="n">l_max</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 <p>The constructor takes the following parameters:</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dscribe.descriptors.soap.SOAP.__init__">
-<span class="sig-prename descclassname"><span class="pre">SOAP.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rcut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rbf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weighting</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crossover</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'off'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'float64'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dscribe/descriptors/soap.html#SOAP.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.__init__" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">SOAP.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_cut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rbf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weighting</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crossover</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'off'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'float64'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rcut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dscribe/descriptors/soap.html#SOAP.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.soap.SOAP.__init__" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>rcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – A cutoff for local region in angstroms. Should be
+<li><p><strong>r_cut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – A cutoff for local region in angstroms. Should be
 bigger than 1 angstrom for the gto-basis.</p></li>
-<li><p><strong>nmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The number of radial basis functions.</p></li>
-<li><p><strong>lmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The maximum degree of spherical harmonics.</p></li>
+<li><p><strong>n_max</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The number of radial basis functions.</p></li>
+<li><p><strong>l_max</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – The maximum degree of spherical harmonics.</p></li>
 <li><p><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – The standard deviation of the gaussians used to expand the
 atomic density.</p></li>
 <li><p><strong>rbf</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – <p>The radial basis functions to use. The available options are:</p>
@@ -217,8 +217,8 @@ following are currently supported:</p>
 <div><ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">&quot;poly&quot;</span></code>: <span class="math notranslate nohighlight">\(w(r) = \left\{ \begin{array}{ll} c(1 + 2 (\frac{r}{r_0})^{3} -3 (\frac{r}{r_0})^{2}))^{m}, \ \text{for}\ r \leq r_0\\ 0, \ \text{for}\ r &gt; r_0 \end{array}\right.\)</span></p>
 <p>This function goes exactly to zero at <span class="math notranslate nohighlight">\(r=r_0\)</span>. If
-you do not explicitly provide <code class="docutils literal notranslate"><span class="pre">rcut</span></code> in the
-constructor, <code class="docutils literal notranslate"><span class="pre">rcut</span></code> is automatically set to <code class="docutils literal notranslate"><span class="pre">r0</span></code>.
+you do not explicitly provide <code class="docutils literal notranslate"><span class="pre">r_cut</span></code> in the
+constructor, <code class="docutils literal notranslate"><span class="pre">r_cut</span></code> is automatically set to <code class="docutils literal notranslate"><span class="pre">r0</span></code>.
 You can provide the parameters <code class="docutils literal notranslate"><span class="pre">c</span></code>, <code class="docutils literal notranslate"><span class="pre">m</span></code> and <code class="docutils literal notranslate"><span class="pre">r0</span></code> as
 additional dictionary items.</p>
 <dl class="simple">
@@ -230,8 +230,8 @@ Rev. B, 100, 024112.”</p>
 </dl>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">&quot;pow&quot;</span></code>: <span class="math notranslate nohighlight">\(w(r) = \frac{c}{d + (\frac{r}{r_0})^{m}}\)</span></p>
-<p>If you do not explicitly provide <code class="docutils literal notranslate"><span class="pre">rcut</span></code> in the
-constructor, <code class="docutils literal notranslate"><span class="pre">rcut</span></code> will be set as the value at which
+<p>If you do not explicitly provide <code class="docutils literal notranslate"><span class="pre">r_cut</span></code> in the
+constructor, <code class="docutils literal notranslate"><span class="pre">r_cut</span></code> will be set as the value at which
 this function decays to the value given by the
 <code class="docutils literal notranslate"><span class="pre">threshold</span></code> entry in the weighting dictionary (defaults
 to 1e-2), You can provide the parameters <code class="docutils literal notranslate"><span class="pre">c</span></code>, <code class="docutils literal notranslate"><span class="pre">d</span></code>,
@@ -248,8 +248,8 @@ table of the elements.  Phys. Chem. Chem. Phys., 20,
 </dl>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">&quot;exp&quot;</span></code>: <span class="math notranslate nohighlight">\(w(r) = \frac{c}{d + e^{-r/r_0}}\)</span></p>
-<p>If you do not explicitly provide <code class="docutils literal notranslate"><span class="pre">rcut</span></code> in the
-constructor, <code class="docutils literal notranslate"><span class="pre">rcut</span></code> will be set as the value at which
+<p>If you do not explicitly provide <code class="docutils literal notranslate"><span class="pre">r_cut</span></code> in the
+constructor, <code class="docutils literal notranslate"><span class="pre">r_cut</span></code> will be set as the value at which
 this function decays to the value given by the
 <code class="docutils literal notranslate"><span class="pre">threshold</span></code> entry in the weighting dictionary (defaults
 to 1e-2), You can provide the parameters <code class="docutils literal notranslate"><span class="pre">c</span></code>, <code class="docutils literal notranslate"><span class="pre">d</span></code>,
@@ -404,8 +404,8 @@ one atom of the molecule. The length of the feature vector depends on the
 number of species defined in <em>species</em> as well as <em>nmax</em> and <em>lmax</em>. You can
 try by changing <em>nmax</em> and <em>lmax</em>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Lets change the SOAP setup and see how the number of features changes</span>
-<span class="n">small_soap</span> <span class="o">=</span> <span class="n">SOAP</span><span class="p">(</span><span class="n">species</span><span class="o">=</span><span class="n">species</span><span class="p">,</span> <span class="n">rcut</span><span class="o">=</span><span class="n">rcut</span><span class="p">,</span> <span class="n">nmax</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">lmax</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="n">big_soap</span> <span class="o">=</span> <span class="n">SOAP</span><span class="p">(</span><span class="n">species</span><span class="o">=</span><span class="n">species</span><span class="p">,</span> <span class="n">rcut</span><span class="o">=</span><span class="n">rcut</span><span class="p">,</span> <span class="n">nmax</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">lmax</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+<span class="n">small_soap</span> <span class="o">=</span> <span class="n">SOAP</span><span class="p">(</span><span class="n">species</span><span class="o">=</span><span class="n">species</span><span class="p">,</span> <span class="n">r_cut</span><span class="o">=</span><span class="n">r_cut</span><span class="p">,</span> <span class="n">n_max</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">l_max</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">big_soap</span> <span class="o">=</span> <span class="n">SOAP</span><span class="p">(</span><span class="n">species</span><span class="o">=</span><span class="n">species</span><span class="p">,</span> <span class="n">r_cut</span><span class="o">=</span><span class="n">r_cut</span><span class="p">,</span> <span class="n">n_max</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">l_max</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
 <span class="n">n_feat1</span> <span class="o">=</span> <span class="n">small_soap</span><span class="o">.</span><span class="n">get_number_of_features</span><span class="p">()</span>
 <span class="n">n_feat2</span> <span class="o">=</span> <span class="n">big_soap</span><span class="o">.</span><span class="n">get_number_of_features</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">n_feat1</span><span class="p">,</span> <span class="n">n_feat2</span><span class="p">)</span>
@@ -423,9 +423,9 @@ and their periodic boundary conditions are set with the <code class="code docuti
 <span class="nb">print</span><span class="p">(</span><span class="n">copper</span><span class="o">.</span><span class="n">get_pbc</span><span class="p">())</span>
 <span class="n">periodic_soap</span> <span class="o">=</span> <span class="n">SOAP</span><span class="p">(</span>
     <span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="mi">29</span><span class="p">],</span>
-    <span class="n">rcut</span><span class="o">=</span><span class="n">rcut</span><span class="p">,</span>
-    <span class="n">nmax</span><span class="o">=</span><span class="n">nmax</span><span class="p">,</span>
-    <span class="n">lmax</span><span class="o">=</span><span class="n">nmax</span><span class="p">,</span>
+    <span class="n">r_cut</span><span class="o">=</span><span class="n">r_cut</span><span class="p">,</span>
+    <span class="n">n_max</span><span class="o">=</span><span class="n">n_max</span><span class="p">,</span>
+    <span class="n">l_max</span><span class="o">=</span><span class="n">n_max</span><span class="p">,</span>
     <span class="n">periodic</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span>
 <span class="p">)</span>
@@ -474,9 +474,9 @@ instances from these functions are plotted below.</p>
 decay smoothly towards zero.</span><a class="headerlink" href="#id20" title="Permalink to this image"></a></p>
 </div>
 <p>When using a weighting function, you typically will also want to restrict
-<code class="docutils literal notranslate"><span class="pre">rcut</span></code> into a range that lies within the domain in which your weighting
-function is active. You can achieve this by manually tuning rcut to a range
-that fits your weighting function, or if you set <code class="code docutils literal notranslate"><span class="pre">rcut=None</span></code>, it will be
+<code class="docutils literal notranslate"><span class="pre">r_cut</span></code> into a range that lies within the domain in which your weighting
+function is active. You can achieve this by manually tuning r_cut to a range
+that fits your weighting function, or if you set <code class="code docutils literal notranslate"><span class="pre">r_cut=None</span></code>, it will be
 set automatically into a sensible range which depends on your weighting
 function. You can see more details and the algebraic form of the weighting
 functions in the constructor documentation.</p>
@@ -504,9 +504,9 @@ our separate <a class="reference internal" href="../sparse.html"><span class="do
 Enabling sparse output on SOAP is as easy as setting <code class="code docutils literal notranslate"><span class="pre">sparse=True</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">soap</span> <span class="o">=</span> <span class="n">SOAP</span><span class="p">(</span>
     <span class="n">species</span><span class="o">=</span><span class="n">species</span><span class="p">,</span>
-    <span class="n">rcut</span><span class="o">=</span><span class="n">rcut</span><span class="p">,</span>
-    <span class="n">nmax</span><span class="o">=</span><span class="n">nmax</span><span class="p">,</span>
-    <span class="n">lmax</span><span class="o">=</span><span class="n">lmax</span><span class="p">,</span>
+    <span class="n">r_cut</span><span class="o">=</span><span class="n">r_cut</span><span class="p">,</span>
+    <span class="n">n_max</span><span class="o">=</span><span class="n">n_max</span><span class="p">,</span>
+    <span class="n">l_max</span><span class="o">=</span><span class="n">l_max</span><span class="p">,</span>
     <span class="n">sparse</span><span class="o">=</span><span class="kc">True</span>
 <span class="p">)</span>
 <span class="n">soap_water</span> <span class="o">=</span> <span class="n">soap</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">water</span><span class="p">)</span>
@@ -514,9 +514,9 @@ Enabling sparse output on SOAP is as easy as setting <code class="code docutils 
 
 <span class="n">soap</span> <span class="o">=</span> <span class="n">SOAP</span><span class="p">(</span>
     <span class="n">species</span><span class="o">=</span><span class="n">species</span><span class="p">,</span>
-    <span class="n">rcut</span><span class="o">=</span><span class="n">rcut</span><span class="p">,</span>
-    <span class="n">nmax</span><span class="o">=</span><span class="n">nmax</span><span class="p">,</span>
-    <span class="n">lmax</span><span class="o">=</span><span class="n">lmax</span><span class="p">,</span>
+    <span class="n">r_cut</span><span class="o">=</span><span class="n">r_cut</span><span class="p">,</span>
+    <span class="n">n_max</span><span class="o">=</span><span class="n">n_max</span><span class="p">,</span>
+    <span class="n">l_max</span><span class="o">=</span><span class="n">l_max</span><span class="p">,</span>
     <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span>
 <span class="p">)</span>
 <span class="n">soap_water</span> <span class="o">=</span> <span class="n">soap</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">water</span><span class="p">)</span>
@@ -535,9 +535,9 @@ preserve the configurational information better but you can experiment with
 both versions.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">average_soap</span> <span class="o">=</span> <span class="n">SOAP</span><span class="p">(</span>
     <span class="n">species</span><span class="o">=</span><span class="n">species</span><span class="p">,</span>
-    <span class="n">rcut</span><span class="o">=</span><span class="n">rcut</span><span class="p">,</span>
-    <span class="n">nmax</span><span class="o">=</span><span class="n">nmax</span><span class="p">,</span>
-    <span class="n">lmax</span><span class="o">=</span><span class="n">lmax</span><span class="p">,</span>
+    <span class="n">r_cut</span><span class="o">=</span><span class="n">r_cut</span><span class="p">,</span>
+    <span class="n">n_max</span><span class="o">=</span><span class="n">n_max</span><span class="p">,</span>
+    <span class="n">l_max</span><span class="o">=</span><span class="n">l_max</span><span class="p">,</span>
     <span class="n">average</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">,</span>
     <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span>
 <span class="p">)</span>

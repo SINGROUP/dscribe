@@ -127,7 +127,7 @@ term is non-zero and additionally depends on the screening parameter
 <h2>Setup<a class="headerlink" href="#setup" title="Permalink to this heading"></a></h2>
 <p>Instantiating the object that is used to create Ewald sum matrices can be done as
 follows:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rcut</span> <span class="o">=</span> <span class="mf">6.0</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">r_cut</span> <span class="o">=</span> <span class="mf">6.0</span>
 <span class="n">nmax</span> <span class="o">=</span> <span class="mi">8</span>
 <span class="n">lmax</span> <span class="o">=</span> <span class="mi">6</span>
 
@@ -206,7 +206,7 @@ structures with the <a class="reference internal" href="../../doc/dscribe.descri
 <p>The call syntax for the create-function is as follows:</p>
 <dl class="py method">
 <dt class="sig sig-object py">
-<span class="sig-prename descclassname"><span class="pre">EwaldSumMatrix.</span></span><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accuracy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rcut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gcut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_physical_cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dscribe/descriptors/ewaldsummatrix.html#EwaldSumMatrix.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<span class="sig-prename descclassname"><span class="pre">EwaldSumMatrix.</span></span><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accuracy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_cut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g_cut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_physical_cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rcut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gcut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dscribe/descriptors/ewaldsummatrix.html#EwaldSumMatrix.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Return the Ewald sum matrix for the given systems.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -216,7 +216,7 @@ many atomic structures.</p></li>
 <li><p><strong>accuracy</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – The accuracy to which the sum is converged to.
 Corresponds to the variable <span class="math notranslate nohighlight">\(A\)</span> in
 <a class="reference external" href="https://doi.org/10.1080/08927022.2013.840898">https://doi.org/10.1080/08927022.2013.840898</a>. Used only if
-gcut, rcut and a have not been specified. Provide either one
+g_cut, r_cut and a have not been specified. Provide either one
 value or a list of values for each system.</p></li>
 <li><p><strong>w</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Weight parameter that represents the relative
 computational expense of calculating a term in real and
@@ -225,10 +225,10 @@ but may influence speed of computation in large systems. Note
 that this parameter is used only when the cutoffs and a are set
 to None. Provide either one value or a list of values for each
 system.</p></li>
-<li><p><strong>rcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Real space cutoff radius dictating how many terms are
+<li><p><strong>r_cut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Real space cutoff radius dictating how many terms are
 used in the real space sum. Provide either one value or a list
 of values for each system.</p></li>
-<li><p><strong>gcut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Reciprocal space cutoff radius. Provide either one
+<li><p><strong>g_cut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Reciprocal space cutoff radius. Provide either one
 value or a list of values for each system.</p></li>
 <li><p><strong>a</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – The screening parameter that controls the width of the
 Gaussians. If not provided, a default value of <span class="math notranslate nohighlight">\(\alpha =
@@ -285,7 +285,7 @@ convergence criteria and better accuracy.</p>
 </pre></div>
 </div>
 <p>Another option is to directly provide the real- and reciprocal space cutoffs:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ewald_3</span> <span class="o">=</span> <span class="n">esm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">nacl</span><span class="p">,</span> <span class="n">rcut</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">gcut</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ewald_3</span> <span class="o">=</span> <span class="n">esm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">nacl</span><span class="p">,</span> <span class="n">r_cut</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">g_cut</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -294,8 +294,8 @@ convergence criteria and better accuracy.</p>
 <p>Let’s calculate the electrostatic energy of a crystal by using the information
 contained in the Ewald sum matrix.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Ewald summation parameters</span>
-<span class="n">rcut</span> <span class="o">=</span> <span class="mi">40</span>
-<span class="n">gcut</span> <span class="o">=</span> <span class="mi">40</span>
+<span class="n">r_cut</span> <span class="o">=</span> <span class="mi">40</span>
+<span class="n">g_cut</span> <span class="o">=</span> <span class="mi">40</span>
 <span class="n">a</span> <span class="o">=</span> <span class="mi">3</span>
 
 <span class="c1"># Calculate Ewald sum matrix with DScribe</span>
@@ -304,7 +304,7 @@ contained in the Ewald sum matrix.</p>
     <span class="n">permutation</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
     <span class="n">flatten</span><span class="o">=</span><span class="kc">False</span>
 <span class="p">)</span>
-<span class="n">ems_out</span> <span class="o">=</span> <span class="n">ems</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">al</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="n">a</span><span class="p">,</span> <span class="n">rcut</span><span class="o">=</span><span class="n">rcut</span><span class="p">,</span> <span class="n">gcut</span><span class="o">=</span><span class="n">gcut</span><span class="p">)</span>
+<span class="n">ems_out</span> <span class="o">=</span> <span class="n">ems</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">al</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="n">a</span><span class="p">,</span> <span class="n">r_cut</span><span class="o">=</span><span class="n">r_cut</span><span class="p">,</span> <span class="n">g_cut</span><span class="o">=</span><span class="n">g_cut</span><span class="p">)</span>
 
 <span class="c1"># Calculate the total electrostatic energy of the crystal</span>
 <span class="n">total_energy</span> <span class="o">=</span> <span class="n">ems_out</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">ems_out</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">ems_out</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>

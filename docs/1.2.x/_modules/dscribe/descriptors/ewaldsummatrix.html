@@ -146,12 +146,15 @@
         <span class="n">system</span><span class="p">,</span>
         <span class="n">accuracy</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span>
         <span class="n">w</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-        <span class="n">rcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">gcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">r_cut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">g_cut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">a</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="n">only_physical_cores</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="c1"># For backwards compatibility with &lt; v1.2.2</span>
+        <span class="n">rcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">gcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the Ewald sum matrix for the given systems.</span>
 
@@ -161,7 +164,7 @@
 <span class="sd">            accuracy (float): The accuracy to which the sum is converged to.</span>
 <span class="sd">                Corresponds to the variable :math:`A` in</span>
 <span class="sd">                https://doi.org/10.1080/08927022.2013.840898. Used only if</span>
-<span class="sd">                gcut, rcut and a have not been specified. Provide either one</span>
+<span class="sd">                g_cut, r_cut and a have not been specified. Provide either one</span>
 <span class="sd">                value or a list of values for each system.</span>
 <span class="sd">            w (float): Weight parameter that represents the relative</span>
 <span class="sd">                computational expense of calculating a term in real and</span>
@@ -170,14 +173,14 @@
 <span class="sd">                that this parameter is used only when the cutoffs and a are set</span>
 <span class="sd">                to None. Provide either one value or a list of values for each</span>
 <span class="sd">                system.</span>
-<span class="sd">            rcut (float): Real space cutoff radius dictating how many terms are</span>
+<span class="sd">            r_cut (float): Real space cutoff radius dictating how many terms are</span>
 <span class="sd">                used in the real space sum. Provide either one value or a list</span>
 <span class="sd">                of values for each system.</span>
-<span class="sd">            gcut (float): Reciprocal space cutoff radius. Provide either one</span>
+<span class="sd">            g_cut (float): Reciprocal space cutoff radius. Provide either one</span>
 <span class="sd">                value or a list of values for each system.</span>
 <span class="sd">            a (float): The screening parameter that controls the width of the</span>
 <span class="sd">                Gaussians. If not provided, a default value of :math:`\\alpha =</span>
-<span class="sd">                \sqrt{\pi}\left(\\frac{N}{V^2}\\right)^{1/6}` is used.</span>
+<span class="sd">                \\sqrt{\\pi}\\left(\\frac{N}{V^2}\\right)^{1/6}` is used.</span>
 <span class="sd">                Corresponds to the standard deviation of the Gaussians. Provide</span>
 <span class="sd">                either one value or a list of values for each system.</span>
 <span class="sd">            n_jobs (int): Number of parallel jobs to instantiate. Parallellizes</span>
@@ -200,6 +203,21 @@
 <span class="sd">            returned. The first dimension is determined by the amount of</span>
 <span class="sd">            systems.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">var_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">var_new</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;r_cut&quot;</span><span class="p">,</span> <span class="s2">&quot;g_cut&quot;</span><span class="p">]:</span>
+            <span class="n">loc</span> <span class="o">=</span> <span class="nb">locals</span><span class="p">()</span>
+            <span class="n">var_old</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">var_new</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">loc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">var_old</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">var_dict</span><span class="p">[</span><span class="n">var_new</span><span class="p">]</span> <span class="o">=</span> <span class="n">loc</span><span class="p">[</span><span class="n">var_old</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">loc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">var_new</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;Please provide only either </span><span class="si">{}</span><span class="s2"> or </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">var_new</span><span class="p">,</span> <span class="n">var_old</span><span class="p">)</span>
+                    <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">var_dict</span><span class="p">[</span><span class="n">var_new</span><span class="p">]</span> <span class="o">=</span> <span class="n">loc</span><span class="p">[</span><span class="n">var_new</span><span class="p">]</span>
+        <span class="n">r_cut</span> <span class="o">=</span> <span class="n">var_dict</span><span class="p">[</span><span class="s2">&quot;r_cut&quot;</span><span class="p">]</span>
+        <span class="n">g_cut</span> <span class="o">=</span> <span class="n">var_dict</span><span class="p">[</span><span class="s2">&quot;g_cut&quot;</span><span class="p">]</span>
+
         <span class="c1"># Combine input arguments / check input validity</span>
         <span class="n">system</span> <span class="o">=</span> <span class="p">[</span><span class="n">system</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">Atoms</span><span class="p">)</span> <span class="k">else</span> <span class="n">system</span>
         <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">system</span><span class="p">:</span>
@@ -215,16 +233,16 @@
             <span class="n">accuracy</span> <span class="o">=</span> <span class="n">n_samples</span> <span class="o">*</span> <span class="p">[</span><span class="n">accuracy</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">w</span> <span class="o">=</span> <span class="n">n_samples</span> <span class="o">*</span> <span class="p">[</span><span class="n">w</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">rcut</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">rcut</span> <span class="o">=</span> <span class="n">n_samples</span> <span class="o">*</span> <span class="p">[</span><span class="n">rcut</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">gcut</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">gcut</span> <span class="o">=</span> <span class="n">n_samples</span> <span class="o">*</span> <span class="p">[</span><span class="n">gcut</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">r_cut</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">r_cut</span> <span class="o">=</span> <span class="n">n_samples</span> <span class="o">*</span> <span class="p">[</span><span class="n">r_cut</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">g_cut</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">g_cut</span> <span class="o">=</span> <span class="n">n_samples</span> <span class="o">*</span> <span class="p">[</span><span class="n">g_cut</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">a</span> <span class="o">=</span> <span class="n">n_samples</span> <span class="o">*</span> <span class="p">[</span><span class="n">a</span><span class="p">]</span>
         <span class="n">inp</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="p">(</span><span class="n">i_sys</span><span class="p">,</span> <span class="n">i_accuracy</span><span class="p">,</span> <span class="n">i_w</span><span class="p">,</span> <span class="n">i_rcut</span><span class="p">,</span> <span class="n">i_gcut</span><span class="p">,</span> <span class="n">i_a</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">i_sys</span><span class="p">,</span> <span class="n">i_accuracy</span><span class="p">,</span> <span class="n">i_w</span><span class="p">,</span> <span class="n">i_rcut</span><span class="p">,</span> <span class="n">i_gcut</span><span class="p">,</span> <span class="n">i_a</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
-                <span class="n">system</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">rcut</span><span class="p">,</span> <span class="n">gcut</span><span class="p">,</span> <span class="n">a</span>
+            <span class="p">(</span><span class="n">i_sys</span><span class="p">,</span> <span class="n">i_accuracy</span><span class="p">,</span> <span class="n">i_w</span><span class="p">,</span> <span class="n">i_r_cut</span><span class="p">,</span> <span class="n">i_g_cut</span><span class="p">,</span> <span class="n">i_a</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i_sys</span><span class="p">,</span> <span class="n">i_accuracy</span><span class="p">,</span> <span class="n">i_w</span><span class="p">,</span> <span class="n">i_r_cut</span><span class="p">,</span> <span class="n">i_g_cut</span><span class="p">,</span> <span class="n">i_a</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                <span class="n">system</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">r_cut</span><span class="p">,</span> <span class="n">g_cut</span><span class="p">,</span> <span class="n">a</span>
             <span class="p">)</span>
         <span class="p">]</span>
 
@@ -249,26 +267,26 @@
 
         <span class="k">return</span> <span class="n">output</span></div>
 
-<div class="viewcode-block" id="EwaldSumMatrix.create_single"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create_single">[docs]</a>    <span class="k">def</span> <span class="nf">create_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">rcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="EwaldSumMatrix.create_single"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create_single">[docs]</a>    <span class="k">def</span> <span class="nf">create_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">r_cut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">g_cut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            system (:class:`ase.Atoms` | :class:`.System`): Input system.</span>
 <span class="sd">            accuracy (float): The accuracy to which the sum is converged to.</span>
 <span class="sd">                Corresponds to the variable :math:`A` in</span>
-<span class="sd">                https://doi.org/10.1080/08927022.2013.840898. Used only if gcut,</span>
-<span class="sd">                rcut and a have not been specified.</span>
+<span class="sd">                https://doi.org/10.1080/08927022.2013.840898. Used only if g_cut,</span>
+<span class="sd">                r_cut and a have not been specified.</span>
 <span class="sd">            w (float): Weight parameter that represents the relative</span>
 <span class="sd">                computational expense of calculating a term in real and</span>
 <span class="sd">                reciprocal space. This has little effect on the total energy,</span>
 <span class="sd">                but may influence speed of computation in large systems. Note</span>
 <span class="sd">                that this parameter is used only when the cutoffs and a are set</span>
 <span class="sd">                to None.</span>
-<span class="sd">            rcut (float): Real space cutoff radius dictating how</span>
+<span class="sd">            r_cut (float): Real space cutoff radius dictating how</span>
 <span class="sd">                many terms are used in the real space sum.</span>
-<span class="sd">            gcut (float): Reciprocal space cutoff radius.</span>
+<span class="sd">            g_cut (float): Reciprocal space cutoff radius.</span>
 <span class="sd">            a (float): The screening parameter that controls the width of the</span>
 <span class="sd">                Gaussians. If not provided, a default value of :math:`\\alpha =</span>
-<span class="sd">                \sqrt{\pi}\left(\\frac{N}{V^2}\\right)^{1/6}` is used.</span>
+<span class="sd">                \\sqrt{\\pi}\\left(\\frac{N}{V^2}\\right)^{1/6}` is used.</span>
 <span class="sd">                Corresponds to the standard deviation of the Gaussians.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">q</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">()</span>
@@ -284,20 +302,20 @@
         <span class="c1"># If the real space cutoff, reciprocal space cutoff and a have not been</span>
         <span class="c1"># specified, use the accuracy and the weighting w to determine default</span>
         <span class="c1"># similarly as in https://doi.org/10.1080/08927022.2013.840898</span>
-        <span class="k">if</span> <span class="n">rcut</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">gcut</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">r_cut</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">g_cut</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">accuracy</span><span class="p">))</span>
-            <span class="n">rcut</span> <span class="o">=</span> <span class="n">f</span> <span class="o">/</span> <span class="n">a</span>
-            <span class="n">gcut</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">a</span> <span class="o">*</span> <span class="n">f</span>
-        <span class="k">elif</span> <span class="n">rcut</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">gcut</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">r_cut</span> <span class="o">=</span> <span class="n">f</span> <span class="o">/</span> <span class="n">a</span>
+            <span class="n">g_cut</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">a</span> <span class="o">*</span> <span class="n">f</span>
+        <span class="k">elif</span> <span class="n">r_cut</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">g_cut</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;If you do not want to use the default cutoffs, please provide &quot;</span>
-                <span class="s2">&quot;both cutoffs rcut and gcut.&quot;</span>
+                <span class="s2">&quot;both cutoffs r_cut and g_cut.&quot;</span>
             <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">a</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">a_squared</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="o">**</span><span class="mi">2</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">gcut</span> <span class="o">=</span> <span class="n">gcut</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rcut</span> <span class="o">=</span> <span class="n">rcut</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">g_cut</span> <span class="o">=</span> <span class="n">g_cut</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">r_cut</span> <span class="o">=</span> <span class="n">r_cut</span>
 
         <span class="n">matrix</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">create_single</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">matrix</span></div>
@@ -384,7 +402,7 @@
 
             <span class="c1"># Get points that are within the real space cutoff</span>
             <span class="n">nfcoords</span><span class="p">,</span> <span class="n">rij</span><span class="p">,</span> <span class="n">js</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_points_in_sphere</span><span class="p">(</span>
-                <span class="n">fcoords</span><span class="p">,</span> <span class="n">coords</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">rcut</span><span class="p">,</span> <span class="n">zip_results</span><span class="o">=</span><span class="kc">False</span>
+                <span class="n">fcoords</span><span class="p">,</span> <span class="n">coords</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">r_cut</span><span class="p">,</span> <span class="n">zip_results</span><span class="o">=</span><span class="kc">False</span>
             <span class="p">)</span>
             <span class="c1"># Remove the rii term, because a charge does not interact with</span>
             <span class="c1"># itself (but does interact with copies of itself).</span>
@@ -433,7 +451,7 @@
         <span class="c1"># Get the reciprocal lattice points within the reciprocal space cutoff</span>
         <span class="n">rcp_latt</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">system</span><span class="o">.</span><span class="n">cell</span><span class="o">.</span><span class="n">reciprocal</span><span class="p">()</span>
         <span class="n">rcp_latt</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span><span class="n">rcp_latt</span><span class="p">)</span>
-        <span class="n">recip_nn</span> <span class="o">=</span> <span class="n">rcp_latt</span><span class="o">.</span><span class="n">get_points_in_sphere</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">gcut</span><span class="p">)</span>
+        <span class="n">recip_nn</span> <span class="o">=</span> <span class="n">rcp_latt</span><span class="o">.</span><span class="n">get_points_in_sphere</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">g_cut</span><span class="p">)</span>
 
         <span class="c1"># Ignore the terms with G=0.</span>
         <span class="n">frac_coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">fcoords</span> <span class="k">for</span> <span class="p">(</span><span class="n">fcoords</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="ow">in</span> <span class="n">recip_nn</span> <span class="k">if</span> <span class="n">dist</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span>

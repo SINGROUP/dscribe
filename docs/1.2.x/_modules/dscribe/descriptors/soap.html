@@ -95,6 +95,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
 
 <span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">gamma</span>
 <span class="kn">from</span> <span class="nn">scipy.linalg</span> <span class="kn">import</span> <span class="n">sqrtm</span><span class="p">,</span> <span class="n">inv</span>
@@ -136,9 +137,9 @@
 
 <div class="viewcode-block" id="SOAP.__init__"><a class="viewcode-back" href="../../../tutorials/descriptors/soap.html#dscribe.descriptors.soap.SOAP.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">rcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">nmax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">lmax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">r_cut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">n_max</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">l_max</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">sigma</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
         <span class="n">rbf</span><span class="o">=</span><span class="s2">&quot;gto&quot;</span><span class="p">,</span>
         <span class="n">weighting</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -148,13 +149,17 @@
         <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">,</span>
+        <span class="c1"># For backwards compatibility with &lt; v1.2.2</span>
+        <span class="n">rcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">nmax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">lmax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
-<span class="sd">            rcut (float): A cutoff for local region in angstroms. Should be</span>
+<span class="sd">            r_cut (float): A cutoff for local region in angstroms. Should be</span>
 <span class="sd">                bigger than 1 angstrom for the gto-basis.</span>
-<span class="sd">            nmax (int): The number of radial basis functions.</span>
-<span class="sd">            lmax (int): The maximum degree of spherical harmonics.</span>
+<span class="sd">            n_max (int): The number of radial basis functions.</span>
+<span class="sd">            l_max (int): The maximum degree of spherical harmonics.</span>
 <span class="sd">            sigma (float): The standard deviation of the gaussians used to expand the</span>
 <span class="sd">                atomic density.</span>
 <span class="sd">            rbf (str): The radial basis functions to use. The available options are:</span>
@@ -173,8 +178,8 @@
 <span class="sd">                    * ``&quot;poly&quot;``: :math:`w(r) = \left\{ \\begin{array}{ll} c(1 + 2 (\\frac{r}{r_0})^{3} -3 (\\frac{r}{r_0})^{2}))^{m}, \\ \\text{for}\\ r \\leq r_0\\\\ 0, \\ \\text{for}\\ r &gt; r_0 \end{array}\\right.`</span>
 
 <span class="sd">                      This function goes exactly to zero at :math:`r=r_0`. If</span>
-<span class="sd">                      you do not explicitly provide ``rcut`` in the</span>
-<span class="sd">                      constructor, ``rcut`` is automatically set to ``r0``.</span>
+<span class="sd">                      you do not explicitly provide ``r_cut`` in the</span>
+<span class="sd">                      constructor, ``r_cut`` is automatically set to ``r0``.</span>
 <span class="sd">                      You can provide the parameters ``c``, ``m`` and ``r0`` as</span>
 <span class="sd">                      additional dictionary items.</span>
 
@@ -186,8 +191,8 @@
 
 <span class="sd">                    * ``&quot;pow&quot;``: :math:`w(r) = \\frac{c}{d + (\\frac{r}{r_0})^{m}}`</span>
 
-<span class="sd">                      If you do not explicitly provide ``rcut`` in the</span>
-<span class="sd">                      constructor, ``rcut`` will be set as the value at which</span>
+<span class="sd">                      If you do not explicitly provide ``r_cut`` in the</span>
+<span class="sd">                      constructor, ``r_cut`` will be set as the value at which</span>
 <span class="sd">                      this function decays to the value given by the</span>
 <span class="sd">                      ``threshold`` entry in the weighting dictionary (defaults</span>
 <span class="sd">                      to 1e-2), You can provide the parameters ``c``, ``d``,</span>
@@ -204,8 +209,8 @@
 
 <span class="sd">                    * ``&quot;exp&quot;``: :math:`w(r) = \\frac{c}{d + e^{-r/r_0}}`</span>
 
-<span class="sd">                      If you do not explicitly provide ``rcut`` in the</span>
-<span class="sd">                      constructor, ``rcut`` will be set as the value at which</span>
+<span class="sd">                      If you do not explicitly provide ``r_cut`` in the</span>
+<span class="sd">                      constructor, ``r_cut`` will be set as the value at which</span>
 <span class="sd">                      this function decays to the value given by the</span>
 <span class="sd">                      ``threshold`` entry in the weighting dictionary (defaults</span>
 <span class="sd">                      to 1e-2), You can provide the parameters ``c``, ``d``,</span>
@@ -248,6 +253,22 @@
 <span class="sd">                    * ``&quot;float64&quot;``: Double precision floating point numbers.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">var_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">var_new</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;r_cut&quot;</span><span class="p">,</span> <span class="s2">&quot;n_max&quot;</span><span class="p">,</span> <span class="s2">&quot;l_max&quot;</span><span class="p">]:</span>
+            <span class="n">loc</span> <span class="o">=</span> <span class="nb">locals</span><span class="p">()</span>
+            <span class="n">var_old</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">var_new</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">loc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">var_old</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">var_dict</span><span class="p">[</span><span class="n">var_new</span><span class="p">]</span> <span class="o">=</span> <span class="n">loc</span><span class="p">[</span><span class="n">var_old</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">loc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">var_new</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;Please provide only either </span><span class="si">{}</span><span class="s2"> or </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">var_new</span><span class="p">,</span> <span class="n">var_old</span><span class="p">)</span>
+                    <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">var_dict</span><span class="p">[</span><span class="n">var_new</span><span class="p">]</span> <span class="o">=</span> <span class="n">loc</span><span class="p">[</span><span class="n">var_new</span><span class="p">]</span>
+        <span class="n">r_cut</span> <span class="o">=</span> <span class="n">var_dict</span><span class="p">[</span><span class="s2">&quot;r_cut&quot;</span><span class="p">]</span>
+        <span class="n">n_max</span> <span class="o">=</span> <span class="n">var_dict</span><span class="p">[</span><span class="s2">&quot;n_max&quot;</span><span class="p">]</span>
+        <span class="n">l_max</span> <span class="o">=</span> <span class="n">var_dict</span><span class="p">[</span><span class="s2">&quot;l_max&quot;</span><span class="p">]</span>
+
         <span class="n">supported_dtype</span> <span class="o">=</span> <span class="nb">set</span><span class="p">((</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span> <span class="s2">&quot;float64&quot;</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">dtype</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">supported_dtype</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -273,9 +294,9 @@
                 <span class="s2">&quot;Invalid radial basis function of type &#39;</span><span class="si">{}</span><span class="s2">&#39; given. Please use &quot;</span>
                 <span class="s2">&quot;one of the following: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rbf</span><span class="p">,</span> <span class="n">supported_rbf</span><span class="p">)</span>
             <span class="p">)</span>
-        <span class="k">if</span> <span class="n">nmax</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">n_max</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Must have at least one radial basis function.&quot;</span> <span class="s2">&quot;nmax=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nmax</span><span class="p">)</span>
+                <span class="s2">&quot;Must have at least one radial basis function.&quot;</span> <span class="s2">&quot;n_max=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n_max</span><span class="p">)</span>
             <span class="p">)</span>
         <span class="n">supported_average</span> <span class="o">=</span> <span class="nb">set</span><span class="p">((</span><span class="s2">&quot;off&quot;</span><span class="p">,</span> <span class="s2">&quot;inner&quot;</span><span class="p">,</span> <span class="s2">&quot;outer&quot;</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">average</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">supported_average</span><span class="p">:</span>
@@ -284,8 +305,8 @@
                 <span class="s2">&quot;one of the following: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">average</span><span class="p">,</span> <span class="n">supported_average</span><span class="p">)</span>
             <span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">weighting</span> <span class="ow">or</span> <span class="n">rcut</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Either weighting or rcut need to be defined&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">weighting</span> <span class="ow">or</span> <span class="n">r_cut</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Either weighting or r_cut need to be defined&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">weighting</span><span class="p">:</span>
             <span class="n">w0</span> <span class="o">=</span> <span class="n">weighting</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;w0&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">w0</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -331,32 +352,32 @@
                     <span class="n">weighting</span><span class="p">[</span><span class="s2">&quot;threshold&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">weighting</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;threshold&quot;</span><span class="p">,</span> <span class="mf">1e-2</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">weighting</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">rcut</span><span class="p">:</span>
-            <span class="n">rcut</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_infer_rcut</span><span class="p">(</span><span class="n">weighting</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">r_cut</span><span class="p">:</span>
+            <span class="n">r_cut</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_infer_r_cut</span><span class="p">(</span><span class="n">weighting</span><span class="p">)</span>
 
         <span class="c1"># Test that radial basis set specific settings are valid</span>
         <span class="k">if</span> <span class="n">rbf</span> <span class="o">==</span> <span class="s2">&quot;gto&quot;</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">rcut</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">r_cut</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="s2">&quot;When using the gaussian radial basis set (gto), the radial &quot;</span>
                     <span class="s2">&quot;cutoff should be bigger than 1 angstrom.&quot;</span>
                 <span class="p">)</span>
             <span class="c1"># Precalculate the alpha and beta constants for the GTO basis</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_alphas</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_betas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_basis_gto</span><span class="p">(</span><span class="n">rcut</span><span class="p">,</span> <span class="n">nmax</span><span class="p">,</span> <span class="n">lmax</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_alphas</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_betas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_basis_gto</span><span class="p">(</span><span class="n">r_cut</span><span class="p">,</span> <span class="n">n_max</span><span class="p">,</span> <span class="n">l_max</span><span class="p">)</span>
 
-        <span class="c1"># Test lmax</span>
-        <span class="k">if</span> <span class="n">lmax</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;lmax cannot be negative. lmax=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lmax</span><span class="p">))</span>
-        <span class="k">elif</span> <span class="n">lmax</span> <span class="o">&gt;</span> <span class="mi">20</span><span class="p">:</span>
+        <span class="c1"># Test l_max</span>
+        <span class="k">if</span> <span class="n">l_max</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;l_max cannot be negative. l_max=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">l_max</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">l_max</span> <span class="o">&gt;</span> <span class="mi">20</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;The maximum available lmax for SOAP is currently 20, you have&quot;</span>
-                <span class="s2">&quot; requested lmax=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+                <span class="s2">&quot;The maximum available l_max for SOAP is currently 20, you have&quot;</span>
+                <span class="s2">&quot; requested l_max=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">l_max</span><span class="p">)</span>
             <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_rcut</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">rcut</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_r_cut</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">r_cut</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_weighting</span> <span class="o">=</span> <span class="n">weighting</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_nmax</span> <span class="o">=</span> <span class="n">nmax</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_lmax</span> <span class="o">=</span> <span class="n">lmax</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_n_max</span> <span class="o">=</span> <span class="n">n_max</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_l_max</span> <span class="o">=</span> <span class="n">l_max</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rbf</span> <span class="o">=</span> <span class="n">rbf</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">average</span> <span class="o">=</span> <span class="n">average</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">crossover</span> <span class="o">=</span> <span class="n">crossover</span></div>
@@ -415,8 +436,8 @@
         <span class="n">cutoff_padding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sigma</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">threshold</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">cutoff_padding</span></div>
 
-    <span class="k">def</span> <span class="nf">_infer_rcut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weighting</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Used to determine an appropriate rcut based on where the given</span>
+    <span class="k">def</span> <span class="nf">_infer_r_cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weighting</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Used to determine an appropriate r_cut based on where the given</span>
 <span class="sd">        weighting function setup.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">weighting</span><span class="p">[</span><span class="s2">&quot;function&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;pow&quot;</span><span class="p">:</span>
@@ -425,8 +446,8 @@
             <span class="n">c</span> <span class="o">=</span> <span class="n">weighting</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
             <span class="n">d</span> <span class="o">=</span> <span class="n">weighting</span><span class="p">[</span><span class="s2">&quot;d&quot;</span><span class="p">]</span>
             <span class="n">r0</span> <span class="o">=</span> <span class="n">weighting</span><span class="p">[</span><span class="s2">&quot;r0&quot;</span><span class="p">]</span>
-            <span class="n">rcut</span> <span class="o">=</span> <span class="n">r0</span> <span class="o">*</span> <span class="p">(</span><span class="n">c</span> <span class="o">/</span> <span class="n">t</span> <span class="o">-</span> <span class="n">d</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">m</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">rcut</span>
+            <span class="n">r_cut</span> <span class="o">=</span> <span class="n">r0</span> <span class="o">*</span> <span class="p">(</span><span class="n">c</span> <span class="o">/</span> <span class="n">t</span> <span class="o">-</span> <span class="n">d</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">m</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">r_cut</span>
         <span class="k">elif</span> <span class="n">weighting</span><span class="p">[</span><span class="s2">&quot;function&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;poly&quot;</span><span class="p">:</span>
             <span class="n">r0</span> <span class="o">=</span> <span class="n">weighting</span><span class="p">[</span><span class="s2">&quot;r0&quot;</span><span class="p">]</span>
             <span class="k">return</span> <span class="n">r0</span>
@@ -435,8 +456,8 @@
             <span class="n">c</span> <span class="o">=</span> <span class="n">weighting</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
             <span class="n">d</span> <span class="o">=</span> <span class="n">weighting</span><span class="p">[</span><span class="s2">&quot;d&quot;</span><span class="p">]</span>
             <span class="n">r0</span> <span class="o">=</span> <span class="n">weighting</span><span class="p">[</span><span class="s2">&quot;r0&quot;</span><span class="p">]</span>
-            <span class="n">rcut</span> <span class="o">=</span> <span class="n">r0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">c</span> <span class="o">/</span> <span class="n">t</span> <span class="o">-</span> <span class="n">d</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">rcut</span>
+            <span class="n">r_cut</span> <span class="o">=</span> <span class="n">r0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">c</span> <span class="o">/</span> <span class="n">t</span> <span class="o">-</span> <span class="n">d</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">r_cut</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
@@ -455,14 +476,17 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_centers</span><span class="p">,</span> <span class="n">n_indices</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">n_features</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SOAP.init_internal_dev_array"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.init_internal_dev_array">[docs]</a>    <span class="k">def</span> <span class="nf">init_internal_dev_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_centers</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">,</span> <span class="n">n_types</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">lMax</span><span class="p">):</span>
+<div class="viewcode-block" id="SOAP.init_internal_dev_array"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.init_internal_dev_array">[docs]</a>    <span class="k">def</span> <span class="nf">init_internal_dev_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_centers</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">,</span> <span class="n">n_types</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">l_max</span><span class="p">):</span>
         <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
-            <span class="p">(</span><span class="n">n_atoms</span><span class="p">,</span> <span class="n">n_centers</span><span class="p">,</span> <span class="n">n_types</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="p">(</span><span class="n">lMax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">lMax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span>
+            <span class="p">(</span><span class="n">n_atoms</span><span class="p">,</span> <span class="n">n_centers</span><span class="p">,</span> <span class="n">n_types</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="p">(</span><span class="n">l_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">l_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">d</span></div>
 
-<div class="viewcode-block" id="SOAP.init_internal_array"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.init_internal_array">[docs]</a>    <span class="k">def</span> <span class="nf">init_internal_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_centers</span><span class="p">,</span> <span class="n">n_types</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">lMax</span><span class="p">):</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_centers</span><span class="p">,</span> <span class="n">n_types</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="p">(</span><span class="n">lMax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">lMax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+<div class="viewcode-block" id="SOAP.init_internal_array"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.init_internal_array">[docs]</a>    <span class="k">def</span> <span class="nf">init_internal_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_centers</span><span class="p">,</span> <span class="n">n_types</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">l_max</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">n_centers</span><span class="p">,</span> <span class="n">n_types</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="p">(</span><span class="n">l_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">l_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="n">d</span></div>
 
 <div class="viewcode-block" id="SOAP.create"><a class="viewcode-back" href="../../../tutorials/descriptors/soap.html#dscribe.descriptors.soap.SOAP.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span>
@@ -602,9 +626,9 @@
 
             <span class="c1"># Calculate with extension</span>
             <span class="n">soap_gto</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">ext</span><span class="o">.</span><span class="n">SOAPGTO</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_rcut</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_nmax</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_lmax</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_r_cut</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_n_max</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_l_max</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_eta</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_weighting</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">crossover</span><span class="p">,</span>
@@ -628,14 +652,14 @@
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rbf</span> <span class="o">==</span> <span class="s2">&quot;polynomial&quot;</span><span class="p">:</span>
             <span class="c1"># Get the discretized and orthogonalized polynomial radial basis</span>
             <span class="c1"># function values</span>
-            <span class="n">rx</span><span class="p">,</span> <span class="n">gss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_basis_poly</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rcut</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nmax</span><span class="p">)</span>
+            <span class="n">rx</span><span class="p">,</span> <span class="n">gss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_basis_poly</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_r_cut</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_max</span><span class="p">)</span>
             <span class="n">gss</span> <span class="o">=</span> <span class="n">gss</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
 
             <span class="c1"># Calculate with extension</span>
             <span class="n">soap_poly</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">ext</span><span class="o">.</span><span class="n">SOAPPolynomial</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_rcut</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_nmax</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_lmax</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_r_cut</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_n_max</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_l_max</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_eta</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_weighting</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">crossover</span><span class="p">,</span>
@@ -953,9 +977,9 @@
             <span class="n">alphas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_alphas</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
             <span class="n">betas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_betas</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
             <span class="n">soap_gto</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">ext</span><span class="o">.</span><span class="n">SOAPGTO</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_rcut</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_nmax</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_lmax</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_r_cut</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_n_max</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_l_max</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_eta</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_weighting</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">crossover</span><span class="p">,</span>
@@ -991,13 +1015,13 @@
                 <span class="c1"># highly efficient for zero-initialized arrays. Similar</span>
                 <span class="c1"># performace could not be achieved even with calloc.</span>
                 <span class="n">xd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_internal_dev_array</span><span class="p">(</span>
-                    <span class="n">n_centers</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">,</span> <span class="n">n_species</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nmax</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lmax</span>
+                    <span class="n">n_centers</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">,</span> <span class="n">n_species</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_max</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_l_max</span>
                 <span class="p">)</span>
                 <span class="n">yd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_internal_dev_array</span><span class="p">(</span>
-                    <span class="n">n_centers</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">,</span> <span class="n">n_species</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nmax</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lmax</span>
+                    <span class="n">n_centers</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">,</span> <span class="n">n_species</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_max</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_l_max</span>
                 <span class="p">)</span>
                 <span class="n">zd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_internal_dev_array</span><span class="p">(</span>
-                    <span class="n">n_centers</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">,</span> <span class="n">n_species</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nmax</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lmax</span>
+                    <span class="n">n_centers</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">,</span> <span class="n">n_species</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_max</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_l_max</span>
                 <span class="p">)</span>
 
                 <span class="n">soap_gto</span><span class="o">.</span><span class="n">derivatives_analytical</span><span class="p">(</span>
@@ -1016,15 +1040,15 @@
                 <span class="p">)</span>
 
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rbf</span> <span class="o">==</span> <span class="s2">&quot;polynomial&quot;</span><span class="p">:</span>
-            <span class="n">rx</span><span class="p">,</span> <span class="n">gss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_basis_poly</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rcut</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nmax</span><span class="p">)</span>
+            <span class="n">rx</span><span class="p">,</span> <span class="n">gss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_basis_poly</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_r_cut</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_max</span><span class="p">)</span>
             <span class="n">gss</span> <span class="o">=</span> <span class="n">gss</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
 
             <span class="c1"># Calculate numerically with extension</span>
             <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;numerical&quot;</span><span class="p">:</span>
                 <span class="n">soap_poly</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">ext</span><span class="o">.</span><span class="n">SOAPPolynomial</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_rcut</span><span class="p">,</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_nmax</span><span class="p">,</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_lmax</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_r_cut</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_n_max</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_l_max</span><span class="p">,</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_eta</span><span class="p">,</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_weighting</span><span class="p">,</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">crossover</span><span class="p">,</span>
@@ -1097,10 +1121,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">n_elem</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crossover</span><span class="p">:</span>
-            <span class="n">n_elem_radial</span> <span class="o">=</span> <span class="n">n_elem</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nmax</span>
-            <span class="k">return</span> <span class="nb">int</span><span class="p">((</span><span class="n">n_elem_radial</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">n_elem_radial</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">n_elem_radial</span> <span class="o">=</span> <span class="n">n_elem</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_max</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">((</span><span class="n">n_elem_radial</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">n_elem_radial</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_l_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_elem</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nmax</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span></div>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_elem</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_max</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_l_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="SOAP.get_location"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_location">[docs]</a>    <span class="k">def</span> <span class="nf">get_location</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Can be used to query the location of a species combination in the</span>
@@ -1148,10 +1172,10 @@
             <span class="n">numbers</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">numbers</span><span class="p">))</span>
         <span class="n">i</span> <span class="o">=</span> <span class="n">numbers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">j</span> <span class="o">=</span> <span class="n">numbers</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">n_elem_feat_symm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nmax</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">n_elem_feat_symm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_max</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_l_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crossover</span><span class="p">:</span>
-            <span class="n">n_elem_feat_unsymm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nmax</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nmax</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">n_elem_feat_unsymm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_max</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_max</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_l_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
             <span class="n">n_elem_feat</span> <span class="o">=</span> <span class="n">n_elem_feat_symm</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">j</span> <span class="k">else</span> <span class="n">n_elem_feat_unsymm</span>
 
             <span class="c1"># The diagonal terms are symmetric and off-diagonal terms are</span>
@@ -1171,27 +1195,27 @@
 
         <span class="k">return</span> <span class="nb">slice</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SOAP.get_basis_gto"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_basis_gto">[docs]</a>    <span class="k">def</span> <span class="nf">get_basis_gto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rcut</span><span class="p">,</span> <span class="n">nmax</span><span class="p">,</span> <span class="n">lmax</span><span class="p">):</span>
+<div class="viewcode-block" id="SOAP.get_basis_gto"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_basis_gto">[docs]</a>    <span class="k">def</span> <span class="nf">get_basis_gto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r_cut</span><span class="p">,</span> <span class="n">n_max</span><span class="p">,</span> <span class="n">l_max</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Used to calculate the alpha and beta prefactors for the gto-radial</span>
 <span class="sd">        basis.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            rcut(float): Radial cutoff.</span>
-<span class="sd">            nmax(int): Number of gto radial bases.</span>
+<span class="sd">            r_cut(float): Radial cutoff.</span>
+<span class="sd">            n_max(int): Number of gto radial bases.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            (np.ndarray, np.ndarray): The alpha and beta prefactors for all bases</span>
 <span class="sd">            up to a fixed size of l=10.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># These are the values for where the different basis functions should decay</span>
-        <span class="c1"># to: evenly space between 1 angstrom and rcut.</span>
-        <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">rcut</span><span class="p">,</span> <span class="n">nmax</span><span class="p">)</span>
+        <span class="c1"># to: evenly space between 1 angstrom and r_cut.</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">r_cut</span><span class="p">,</span> <span class="n">n_max</span><span class="p">)</span>
         <span class="n">threshold</span> <span class="o">=</span> <span class="mf">1e-3</span>  <span class="c1"># This is the fixed gaussian decay threshold</span>
 
-        <span class="n">alphas_full</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nmax</span><span class="p">))</span>
-        <span class="n">betas_full</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nmax</span><span class="p">,</span> <span class="n">nmax</span><span class="p">))</span>
+        <span class="n">alphas_full</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">l_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n_max</span><span class="p">))</span>
+        <span class="n">betas_full</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">l_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n_max</span><span class="p">,</span> <span class="n">n_max</span><span class="p">))</span>
 
-        <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">l_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
             <span class="c1"># The alphas are calculated so that the GTOs will decay to the set</span>
             <span class="c1"># threshold value at their respective cutoffs</span>
             <span class="n">alphas</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">threshold</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">l</span><span class="p">))</span> <span class="o">/</span> <span class="n">a</span><span class="o">**</span><span class="mi">2</span>
@@ -1211,8 +1235,8 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="s2">&quot;Could not calculate normalization factors for the radial &quot;</span>
                     <span class="s2">&quot;basis in the domain of real numbers. Lowering the number of &quot;</span>
-                    <span class="s2">&quot;radial basis functions (nmax) or increasing the radial &quot;</span>
-                    <span class="s2">&quot;cutoff (rcut) is advised.&quot;</span>
+                    <span class="s2">&quot;radial basis functions (n_max) or increasing the radial &quot;</span>
+                    <span class="s2">&quot;cutoff (r_cut) is advised.&quot;</span>
                 <span class="p">)</span>
 
             <span class="n">alphas_full</span><span class="p">[</span><span class="n">l</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">alphas</span>
@@ -1220,12 +1244,12 @@
 
         <span class="k">return</span> <span class="n">alphas_full</span><span class="p">,</span> <span class="n">betas_full</span></div>
 
-<div class="viewcode-block" id="SOAP.get_basis_poly"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_basis_poly">[docs]</a>    <span class="k">def</span> <span class="nf">get_basis_poly</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rcut</span><span class="p">,</span> <span class="n">nmax</span><span class="p">):</span>
+<div class="viewcode-block" id="SOAP.get_basis_poly"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_basis_poly">[docs]</a>    <span class="k">def</span> <span class="nf">get_basis_poly</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r_cut</span><span class="p">,</span> <span class="n">n_max</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Used to calculate discrete vectors for the polynomial basis functions.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            rcut(float): Radial cutoff.</span>
-<span class="sd">            nmax(int): Number of polynomial radial bases.</span>
+<span class="sd">            r_cut(float): Radial cutoff.</span>
+<span class="sd">            n_max(int): Number of polynomial radial bases.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            (np.ndarray, np.ndarray): Tuple containing the evaluation points in</span>
@@ -1237,10 +1261,10 @@
         <span class="c1"># radial coordinate are analytically calculable: Integrate[(rc - r)^(a</span>
         <span class="c1"># + 2) (rc - r)^(b + 2) r^2, {r, 0, rc}]. Then the weights B that make</span>
         <span class="c1"># the basis orthonormal are given by B=S^{-1/2}</span>
-        <span class="n">S</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nmax</span><span class="p">,</span> <span class="n">nmax</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-                <span class="n">S</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">rcut</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">7</span> <span class="o">+</span> <span class="n">i</span> <span class="o">+</span> <span class="n">j</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span>
+        <span class="n">S</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_max</span><span class="p">,</span> <span class="n">n_max</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">S</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">r_cut</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">7</span> <span class="o">+</span> <span class="n">i</span> <span class="o">+</span> <span class="n">j</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span>
                     <span class="p">(</span><span class="mi">5</span> <span class="o">+</span> <span class="n">i</span> <span class="o">+</span> <span class="n">j</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">6</span> <span class="o">+</span> <span class="n">i</span> <span class="o">+</span> <span class="n">j</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">7</span> <span class="o">+</span> <span class="n">i</span> <span class="o">+</span> <span class="n">j</span><span class="p">)</span>
                 <span class="p">)</span>
 
@@ -1253,8 +1277,8 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;Could not calculate normalization factors for the radial &quot;</span>
                 <span class="s2">&quot;basis in the domain of real numbers. Lowering the number of &quot;</span>
-                <span class="s2">&quot;radial basis functions (nmax) or increasing the radial &quot;</span>
-                <span class="s2">&quot;cutoff (rcut) is advised.&quot;</span>
+                <span class="s2">&quot;radial basis functions (n_max) or increasing the radial &quot;</span>
+                <span class="s2">&quot;cutoff (r_cut) is advised.&quot;</span>
             <span class="p">)</span>
 
         <span class="c1"># The radial basis is integrated in a very specific nonlinearly spaced</span>
@@ -1361,13 +1385,13 @@
         <span class="n">x</span><span class="p">[</span><span class="mi">98</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.998491950639595818</span>
         <span class="n">x</span><span class="p">[</span><span class="mi">99</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.99971372677344123</span>
 
-        <span class="n">rx</span> <span class="o">=</span> <span class="n">rcut</span> <span class="o">*</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">rx</span> <span class="o">=</span> <span class="n">r_cut</span> <span class="o">*</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
 
         <span class="c1"># Calculate the value of the orthonormalized polynomial basis at the rx</span>
         <span class="c1"># values</span>
-        <span class="n">fs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">nmax</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)])</span>
-        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="n">fs</span><span class="p">[</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="p">(</span><span class="n">rcut</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">rx</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">rcut</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">fs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">n_max</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)])</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">fs</span><span class="p">[</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="p">(</span><span class="n">r_cut</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">rx</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">r_cut</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span>
 
         <span class="n">gss</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">betas</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
 

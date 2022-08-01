@@ -25,8 +25,8 @@ from conftest import (
 )
 from dscribe.descriptors import EwaldSumMatrix
 
-rcut = 30
-gcut = 20
+r_cut = 30
+g_cut = 20
 
 
 # =============================================================================
@@ -137,10 +137,10 @@ def test_create():
     system = water()
     with pytest.raises(ValueError):
         desc = EwaldSumMatrix(n_atoms_max=5)
-        desc.create(system, rcut=10)
+        desc.create(system, r_cut=10)
     with pytest.raises(ValueError):
         desc = EwaldSumMatrix(n_atoms_max=5)
-        desc.create(system, gcut=10)
+        desc.create(system, g_cut=10)
 
     # Providing a only is valid
     desc = EwaldSumMatrix(n_atoms_max=5)
@@ -158,13 +158,13 @@ def test_a_independence():
     this to be true, as 'a' controls the width of the Gaussian charge
     distribution.
     """
-    rcut = 40
-    gcut = 30
+    r_cut = 40
+    g_cut = 30
     system = water()
     prev_array = None
     for i, a in enumerate([0.1, 0.5, 1, 2, 3]):
         desc = EwaldSumMatrix(n_atoms_max=5, permutation="none", flatten=False)
-        matrix = desc.create(system, a=a, rcut=rcut, gcut=gcut)
+        matrix = desc.create(system, a=a, r_cut=r_cut, g_cut=g_cut)
 
         if i > 0:
             assert np.allclose(prev_array, matrix, atol=0.001, rtol=0)
@@ -219,17 +219,17 @@ def test_unit_cells():
     # A system without cell should produce an error
     molecule.set_cell([[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]])
     with pytest.raises(ValueError):
-        nocell = desc.create(molecule, a=0.5, rcut=rcut, gcut=gcut)
+        nocell = desc.create(molecule, a=0.5, r_cut=r_cut, g_cut=g_cut)
 
     # Large cell
     molecule.set_pbc(True)
     molecule.set_cell([[20.0, 0.0, 0.0], [0.0, 30.0, 0.0], [0.0, 0.0, 40.0]])
-    largecell = desc.create(molecule, a=0.5, rcut=rcut, gcut=gcut)
+    largecell = desc.create(molecule, a=0.5, r_cut=r_cut, g_cut=g_cut)
 
     # Cubic cell
     molecule.set_cell([[2.0, 0.0, 0.0], [0.0, 2.0, 0.0], [0.0, 0.0, 2.0]])
-    cubic_cell = desc.create(molecule, a=0.5, rcut=rcut, gcut=gcut)
+    cubic_cell = desc.create(molecule, a=0.5, r_cut=r_cut, g_cut=g_cut)
 
     # Triclinic cell
     molecule.set_cell([[0.0, 2.0, 2.0], [2.0, 0.0, 2.0], [2.0, 2.0, 0.0]])
-    triclinic_smallcell = desc.create(molecule, a=0.5, rcut=rcut, gcut=gcut)
+    triclinic_smallcell = desc.create(molecule, a=0.5, r_cut=r_cut, g_cut=g_cut)

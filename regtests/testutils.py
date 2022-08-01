@@ -126,7 +126,7 @@ def get_ewald_sum_matrix_default_setup():
     create_arguments = {
         "a": 0.5,
         "r_cut": 30,
-        "gcut": 20,
+        "g_cut": 20,
         "accuracy": None,
     }
     return (system, ewald_arguments, create_arguments)
@@ -141,7 +141,7 @@ def get_ewald_sum_matrix_automatic_setup():
     create_arguments = {
         "a": None,
         "r_cut": None,
-        "gcut": None,
+        "g_cut": None,
         "accuracy": 1e-6,
     }
     return (system, ewald_arguments, create_arguments)
@@ -428,7 +428,7 @@ def load_polynomial_coefficients(args):
     )
 
 
-def calculate_ewald(system, a=None, r_cut=None, gcut=None, accuracy=None):
+def calculate_ewald(system, a=None, r_cut=None, g_cut=None, accuracy=None):
     """Used to precalculate the Ewald summation results using pymatgen."""
     positions = system.get_positions()
     atomic_num = system.get_atomic_numbers()
@@ -460,7 +460,7 @@ def calculate_ewald(system, a=None, r_cut=None, gcut=None, accuracy=None):
                 structure,
                 eta=a,
                 real_space_cut=r_cut,
-                recip_space_cut=gcut,
+                recip_space_cut=g_cut,
                 acc_factor=-np.log(accuracy) if accuracy else 12.0,
             )
             energy[i, j] = ewald.total_energy
@@ -469,11 +469,11 @@ def calculate_ewald(system, a=None, r_cut=None, gcut=None, accuracy=None):
 
 def save_ewald(system, args):
     coeffs = calculate_ewald(system, **args)
-    np.save("ewald_{a}_{r_cut}_{gcut}_{accuracy}.npy".format(**args), coeffs)
+    np.save("ewald_{a}_{r_cut}_{g_cut}_{accuracy}.npy".format(**args), coeffs)
 
 
 def load_ewald(args):
-    return np.load("ewald_{a}_{r_cut}_{gcut}_{accuracy}.npy".format(**args))
+    return np.load("ewald_{a}_{r_cut}_{g_cut}_{accuracy}.npy".format(**args))
 
 
 if __name__ == "__main__":
