@@ -32,6 +32,8 @@ void DescriptorGlobal::create(py::array_t<double> out, System system)
     }
 
     // Calculate neighbours with a cell list
+    cout << "======= CUTOFF ========" << endl;
+    cout << this->cutoff << endl;
     CellList cell_list(system.positions, this->cutoff);
     this->create(out, system, cell_list);
 }

@@ -86,21 +86,12 @@ inline double norm(const vector<double>& a);
 System extend_system(System &system, double cutoff);
 
 /**
- * Used to calculate the full distance matrix (numpy) for the given positions.
- *
- * @param positions Cartesian positions in a <n_atoms, 3> array.
- *
- * @return Pairwise distances in an <n_atoms, n_atoms> array.
- */
-py::array_t<double> distancesNumpy(py::detail::unchecked_reference<double, 2> &positions_u);
-
-/**
  * Used to calculate the full distance matrix (eigen) for the given positions.
  *
  * @param positions Cartesian positions in a <n_atoms, 3> array.
  *
  * @return Pairwise distances in an <n_atoms, n_atoms> array.
  */
-MatrixXd distancesEigen(py::detail::unchecked_reference<double, 2> &positions_u);
+MatrixXd distances_eigen(py::detail::unchecked_reference<double, 2> &positions_u);
 
 #endif

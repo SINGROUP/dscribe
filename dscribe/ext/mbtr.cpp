@@ -15,6 +15,7 @@ limitations under the License.
 #include <functional>
 #include <algorithm>
 #include <iostream>
+#include <limits>
 #include <unordered_set>
 #include "mbtr.h"
 #include "constants.h"
@@ -123,8 +124,8 @@ MBTR::MBTR(
 )
     : DescriptorGlobal(periodic)
     , normalize_gaussians(normalize_gaussians)
-    , cutoff_k2(0)
-    , cutoff_k3(0)
+    , cutoff_k2(numeric_limits<double>::infinity())
+    , cutoff_k3(numeric_limits<double>::infinity())
 {
     this->set_species(species);
     this->set_normalization(normalization);
@@ -132,6 +133,7 @@ MBTR::MBTR(
     this->set_k2(k2);
     this->set_k3(k3);
     this->set_periodic(periodic);
+    this->validate();
 }
 
 int MBTR::get_number_of_features() const {
@@ -335,21 +337,23 @@ void MBTR::set_k1(py::dict k1) {
 
 void MBTR::set_k2(py::dict k2) {
     this->k2 = k2;
-    this->assert_periodic_weighting(k2);
-    this->assert_weighting(k2);
     double cutoff = this->get_cutoff(k2);
     this->cutoff_k2 = cutoff;
+    cout << "======= CUTOFF K2 ========" << endl;
+    cout << this->cutoff_k2 << endl;
+    cout << this->cutoff_k3 << endl;
     this->cutoff = max(this->cutoff_k2, this->cutoff_k3);
 }
 
 void MBTR::set_k3(py::dict k3) {
     this->k3 = k3;
-    this->assert_periodic_weighting(k3);
-    this->assert_weighting(k3);
     // In k3, the distance is defined as the perimeter, thus we half the
     // distance to get the actual cutoff.
     double cutoff = 0.5 * this->get_cutoff(k3);
     this->cutoff_k3 = cutoff;
+    cout << "======= CUTOFF K3 ========" << endl;
+    cout << this->cutoff_k2 << endl;
+    cout << this->cutoff_k3 << endl;
     this->cutoff = max(this->cutoff_k2, this->cutoff_k3);
 }
 
@@ -359,7 +363,6 @@ void MBTR::set_normalize_gaussians(bool normalize_gaussians) {
 
 void MBTR::set_normalization(string normalization) {
     this->normalization = normalization;
-    assert_valle();
 }
 
 void MBTR::set_species(py::array_t<int> species) {
@@ -389,19 +392,10 @@ void MBTR::set_species(py::array_t<int> species) {
 
 void MBTR::set_periodic(bool periodic) {
     this->periodic = periodic;
-    assert_valle();
-    assert_periodic_weighting(this->k2);
-    assert_periodic_weighting(this->k3);
-}
-
-void MBTR::assert_valle() {
-    if (this->normalization == "valle_oganov" && !this->periodic) {
-        throw invalid_argument("Valle-Oganov normalization does not support non-periodic systems.");
-    }
 }
 
 double MBTR::get_cutoff(py::dict &k) {
-    double cutoff = 0;
+    double cutoff = numeric_limits<double>::infinity();
     if (k.size() != 0) {
         if (k.contains("weighting")) {
             py::dict weighting = k["weighting"];
@@ -424,6 +418,20 @@ double MBTR::get_cutoff(py::dict &k) {
         }
     }
     return cutoff;
+}
+
+void MBTR::validate() {
+    this->assert_valle();
+    this->assert_weighting(this->k2);
+    this->assert_weighting(this->k3);
+    this->assert_periodic_weighting(this->k2);
+    this->assert_periodic_weighting(this->k3);
+}
+
+void MBTR::assert_valle() {
+    if (this->normalization == "valle_oganov" && !this->periodic) {
+        throw invalid_argument("Valle-Oganov normalization does not support non-periodic systems.");
+    }
 }
 
 void MBTR::assert_periodic_weighting(py::dict &k) {
@@ -609,23 +617,33 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
     // Loop over all atoms in the system
     int n_atoms = atomic_numbers.size();
     auto cell_indices_u = system.cell_indices.unchecked<2>();
+    cout << "======= N_ATOMS ========" << endl;
+    cout << n_atoms << endl;
+
+    // TODO: There may be a more efficent way of looping through the atoms.
+    // Maybe looping over the interactive atoms only? Also maybe iterating over
+    // the cells only in the positive lattice vector direction?
     for (int i=0; i < n_atoms; ++i) {
         // For each atom we loop only over the neighbours
         CellListResult neighbours = cell_list.getNeighboursForIndex(i);
 
         int n_neighbours = neighbours.indices.size();
+        cout << "======= NEIGHBOURS ========" << endl;
+        cout << n_neighbours << endl;
         for (int i_neighbour = 0; i_neighbour < n_neighbours; ++i_neighbour) {
             int j = neighbours.indices[i_neighbour];
             double distance = neighbours.distances[i_neighbour];
             if (j > i) {
-                // Only consider pairs that have one atom in the 'interaction
-                // subset', typically the original cell but can also be another
-                // local region.
+                // Only consider pairs that have at least one atom in the
+                // 'interaction subset', typically the original cell but can
+                // also be another local region.
                 bool i_interactive = system.interactive_atoms.find(i) != system.interactive_atoms.end();
                 bool j_interactive = system.interactive_atoms.find(j) != system.interactive_atoms.end();
                 if (i_interactive || j_interactive) {
                     double geom = geom_func(distance);
                     double weight = weight_func(distance);
+                    cout << "======= GEOM, WEIGHT ========" << endl;
+                    cout << geom << ", " << weight << endl;
 
                     // When the pair of atoms are in different copies of the
                     // cell, the weight is halved. This is done in order to
@@ -655,11 +673,13 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
 
                     // Get the starting index of the species pair in the final vector
                     pair<int, int> loc = get_location(i_z, j_z);
+                    cout << "======= LOCATION ========" << endl;
+                    cout << loc.first << ", " << loc.second << endl;
                     int start = loc.first;
 
                     // Sum gaussian into output
-                    for (int j=0; j < gauss.size(); ++j) {
-                        out_mu[start + j] += gauss[j];
+                    for (int k=0; k < gauss.size(); ++k) {
+                        out_mu[start + k] += gauss[k];
                     }
                 }
             }

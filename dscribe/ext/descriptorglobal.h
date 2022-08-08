@@ -18,6 +18,7 @@ limitations under the License.
 
 #include <pybind11/numpy.h>
 #include <string>
+#include <limits>
 #include "descriptor.h"
 #include "celllist.h"
 #include "geometry.h"
@@ -30,7 +31,7 @@ using namespace std;
  */
 class DescriptorGlobal : public Descriptor {
     protected:
-        DescriptorGlobal(bool periodic, string average="", double cutoff=0)
+        DescriptorGlobal(bool periodic, string average="", double cutoff=numeric_limits<double>::infinity())
         : Descriptor(periodic, average, cutoff) {};
 
     public:

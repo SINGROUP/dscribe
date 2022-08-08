@@ -102,11 +102,14 @@ class MBTR: public DescriptorGlobal {
         double cutoff_k3;
         map<int, int> species_index_map;
         map<int, int> index_species_map;
-        void assert_valle();
         /**
-         * Gets the radial cutoff value from the given configuration dict.
+         * Performs all assertions.
          */
-        double get_cutoff(py::dict &k);
+        void validate();
+        /**
+         * Checks that the configuration is valid for valle-oganoff.
+         */
+        void assert_valle();
         /**
          * Checks that the weighting is defined correctly when periodicity is
          * taken into account.
@@ -117,6 +120,10 @@ class MBTR: public DescriptorGlobal {
          * configuration dict.
          */
         void assert_weighting(py::dict &k);
+        /**
+         * Gets the radial cutoff value from the given configuration dict.
+         */
+        double get_cutoff(py::dict &k);
         inline vector<double> gaussian(double center, double weight, double start, double dx, double sigma, int n);
         void calculate_k1(py::array_t<double> &out, System &system);
         void calculate_k2(py::array_t<double> &out, System &system, CellList &cell_list);

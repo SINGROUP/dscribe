@@ -46,7 +46,7 @@ void CoulombMatrix::create(py::array_t<double> &out, System &system, CellList &c
 
     // Calculate all pairwise distances.
     int n_atoms = atomic_numbers_u.shape(0);
-    MatrixXd matrix = distancesEigen(positions_u);
+    MatrixXd matrix = distances_eigen(positions_u);
 
     // Construct matrix
     for (int i = 0; i < n_atoms; ++i) {

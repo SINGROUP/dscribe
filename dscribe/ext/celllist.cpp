@@ -13,7 +13,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 #include "celllist.h"
+#include "geometry.h"
 #include <algorithm>
+#include <limits>
 #include <utility>
 #include <map>
 #include <utility>
@@ -22,24 +24,27 @@ limitations under the License.
 using namespace std;
 
 CellList::CellList(py::array_t<double> positions, double cutoff)
-    : positions(positions.unchecked<2>())
+    : positions(positions)
     , cutoff(cutoff)
     , cutoffSquared(cutoff*cutoff)
 {
-    if (cutoff > 0) {
-        this->init();
+    if (cutoff < numeric_limits<double>::infinity()) {
+        this->init_cell_list();
+    } else if (cutoff < 0) {
+        this->init_distances();
     }
 }
 
-void CellList::init() {
+void CellList::init_cell_list() {
     // Find cell limits
-    this->xmin = this->xmax = this->positions(0, 0);
-    this->ymin = this->ymax = this->positions(0, 1);
-    this->zmin = this->zmax = this->positions(0, 2);
-    for (ssize_t i = 0; i < this->positions.shape(0); i++) {
-        double x = this->positions(i, 0);
-        double y = this->positions(i, 1);
-        double z = this->positions(i, 2);
+    auto pos_u = this->positions.unchecked<2>();
+    this->xmin = this->xmax = pos_u(0, 0);
+    this->ymin = this->ymax = pos_u(0, 1);
+    this->zmin = this->zmax = pos_u(0, 2);
+    for (ssize_t i = 0; i < pos_u.shape(0); i++) {
+        double x = pos_u(i, 0);
+        double y = pos_u(i, 1);
+        double z = pos_u(i, 2);
         if (x < this->xmin) {
             this->xmin = x;
         };
@@ -82,10 +87,10 @@ void CellList::init() {
     this->bins = vector<vector<vector<vector<int>>>>(this->nx, vector<vector<vector<int>>>(this->ny, vector<vector<int>>(this->nz, vector<int>())));
 
     // Fill the bins with atom indices
-    for (ssize_t idx = 0; idx < this->positions.shape(0); idx++) {
-        double x = this->positions(idx, 0);
-        double y = this->positions(idx, 1);
-        double z = this->positions(idx, 2);
+    for (ssize_t idx = 0; idx < pos_u.shape(0); idx++) {
+        double x = pos_u(idx, 0);
+        double y = pos_u(idx, 1);
+        double z = pos_u(idx, 2);
 
         // Get bin index
         int i = (x - this->xmin)/this->dx;
@@ -97,60 +102,112 @@ void CellList::init() {
     };
 }
 
+void CellList::init_distances() {
+    auto pos_u = positions.unchecked<2>();
+    int n_atoms = pos_u.shape(0);
+    auto distances = vector<vector<double>>(n_atoms, vector<double>(n_atoms));
+    auto distances_squared = vector<vector<double>>(n_atoms, vector<double>(n_atoms));
+    auto neighbours = vector<vector<int>>();
+    for (int i = 0; i < n_atoms; ++i) {
+        vector<int> row(n_atoms);
+        iota(row.begin(), row.end(), 0);
+        neighbours.push_back(row);
+        for (int j = i; j < n_atoms; ++j) {
+            double dx = pos_u(i, 0) - pos_u(j, 0);
+            double dy = pos_u(i, 1) - pos_u(j, 1);
+            double dz = pos_u(i, 2) - pos_u(j, 2);
+            double distance_squared = dx*dx + dy*dy + dz*dz;
+            double distance = sqrt(distance_squared);
+            distances[i][j] = distance;
+            distances[j][i] = distance;
+            distances_squared[i][j] = distance_squared;
+            distances_squared[j][i] = distance_squared;
+        }
+    }
+    this->distances = distances;
+    this->distances_squared = distances_squared;
+    this->neighbours = neighbours;
+}
+
 CellListResult CellList::getNeighboursForPosition(const double x, const double y, const double z) const
 {
-    // The indices of the neighbouring atoms
     vector<int> neighbours;
     vector<double> distances;
-    vector<double> distancesSquared;
+    vector<double> distances_squared;
+    auto pos_u = this->positions.unchecked<2>();
 
-    // Find bin for the given position
-    int i0 = (x - this->xmin)/this->dx;
-    int j0 = (y - this->ymin)/this->dy;
-    int k0 = (z - this->zmin)/this->dz;
+    // Get distances to all atoms if cutoff is infinite
+    if (cutoff == numeric_limits<double>::infinity()) {
+        int n_atoms = pos_u.shape(0);
+        for (int i = 0; i < n_atoms; ++i) {
+            double dx = x - pos_u(i, 0);
+            double dy = y - pos_u(i, 1);
+            double dz = z - pos_u(i, 2);
+            double distance_squared = dx*dx + dy*dy + dz*dz;
+            double distance = sqrt(distance_squared);
+            distances.push_back(distance);
+            distances_squared.push_back(distance_squared);
+            neighbours.push_back(i);
+        }
+    // Otherwise use cell list to retrieve neighbours
+    } else {
+        // Find bin for the given position
+        int i0 = (x - this->xmin)/this->dx;
+        int j0 = (y - this->ymin)/this->dy;
+        int k0 = (z - this->zmin)/this->dz;
 
-    // Get the bin ranges to check for each dimension.
-    int istart = max(i0-1, 0);
-    int iend = min(i0+1, this->nx-1);
-    int jstart = max(j0-1, 0);
-    int jend = min(j0+1, this->ny-1);
-    int kstart = max(k0-1, 0);
-    int kend = min(k0+1, this->nz-1);
+        // Get the bin ranges to check for each dimension.
+        int istart = max(i0-1, 0);
+        int iend = min(i0+1, this->nx-1);
+        int jstart = max(j0-1, 0);
+        int jend = min(j0+1, this->ny-1);
+        int kstart = max(k0-1, 0);
+        int kend = min(k0+1, this->nz-1);
 
-    // Loop over neighbouring bins
-    for (int i = istart; i <= iend; i++){
-        for (int j = jstart; j <= jend; j++){
-            for (int k = kstart; k <= kend; k++){
+        // Loop over neighbouring bins
+        for (int i = istart; i <= iend; i++){
+            for (int j = jstart; j <= jend; j++){
+                for (int k = kstart; k <= kend; k++){
 
-                // For each atom in the current bin, calculate the actual distance
-                vector<int> binIndices = this->bins[i][j][k];
-                for (auto &idx : binIndices) {
-                    double ix = this->positions(idx, 0);
-                    double iy = this->positions(idx, 1);
-                    double iz = this->positions(idx, 2);
-                    double deltax = x - ix;
-                    double deltay = y - iy;
-                    double deltaz = z - iz;
-                    double distanceSquared = deltax*deltax + deltay*deltay + deltaz*deltaz;
-                    if (distanceSquared <= this->cutoffSquared) {
-                        neighbours.push_back(idx);
-                        distancesSquared.push_back(distanceSquared);
-                        distances.push_back(sqrt(distanceSquared));
+                    // For each atom in the current bin, calculate the actual distance
+                    vector<int> binIndices = this->bins[i][j][k];
+                    for (auto &idx : binIndices) {
+                        double ix = pos_u(idx, 0);
+                        double iy = pos_u(idx, 1);
+                        double iz = pos_u(idx, 2);
+                        double deltax = x - ix;
+                        double deltay = y - iy;
+                        double deltaz = z - iz;
+                        double distanceSquared = deltax*deltax + deltay*deltay + deltaz*deltaz;
+                        if (distanceSquared <= this->cutoffSquared) {
+                            neighbours.push_back(idx);
+                            distances_squared.push_back(distanceSquared);
+                            distances.push_back(sqrt(distanceSquared));
+                        }
                     }
                 }
             }
         }
     }
-    return CellListResult{neighbours, distances, distancesSquared};
+    return CellListResult{neighbours, distances, distances_squared};
 }
 
 CellListResult CellList::getNeighboursForIndex(const int idx) const
 {
-    double x = this->positions(idx, 0);
-    double y = this->positions(idx, 1);
-    double z = this->positions(idx, 2);
-    CellListResult result = this->getNeighboursForPosition(x, y, z);
+    CellListResult result;
 
+    // Get distances to all atoms if cutoff is infinite
+    if (cutoff == numeric_limits<double>::infinity()) {
+        result = CellListResult{this->neighbours[idx], this->distances[idx], this->distances_squared[idx]};
+    // Otherwise use cell list to retrieve neighbours
+    } else {
+        auto pos_u = this->positions.unchecked<2>();
+        double x = pos_u(idx, 0);
+        double y = (idx, 1);
+        double z = (idx, 2);
+        result = this->getNeighboursForPosition(x, y, z);
+
+    }
     // Remove self from neighbours
     for (size_t i=0; i < result.indices.size(); ++i) {
         if (result.indices[i] == idx) {
