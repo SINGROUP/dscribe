@@ -22,7 +22,7 @@ limitations under the License.
 
 using namespace std;
 
-inline double weight_unity_k1(const int &atomic_number)
+inline double weight_unity_k1(int atomic_number)
 {
     return 1;
 }
@@ -32,7 +32,7 @@ inline double weight_unity_k2(double distance)
     return 1;
 }
 
-inline double weight_unity_k3(const int &i, const int &j, const int &k, const vector<vector<double> > &distances)
+inline double weight_unity_k3(double distance_ij, double distance_jk, double distance_ki)
 {
     return 1;
 }
@@ -43,14 +43,10 @@ inline double weight_exponential_k2(double distance, double scale)
     return expValue;
 }
 
-inline double weight_exponential_k3(const int &i, const int &j, const int &k, const vector<vector<double> > &distances, double scale)
+inline double weight_exponential_k3(double distance_ij, double distance_jk, double distance_ki, double scale)
 {
-    double dist1 = distances[i][j];
-    double dist2 = distances[j][k];
-    double dist3 = distances[k][i];
-    double distTotal = dist1 + dist2 + dist3;
+    double distTotal = distance_ij + distance_jk + distance_ki;
     double expValue = exp(-scale*distTotal);
-
     return expValue;
 }
 
@@ -60,17 +56,14 @@ inline double weight_square_k2(double distance)
     return value;
 }
 
-inline double weight_smooth_k3(const int &i, const int &j, const int &k, const vector<vector<double> > &distances, double sharpness, double cutoff)
+inline double weight_smooth_k3(double distance_ij, double distance_jk, double distance_ki, double sharpness, double cutoff)
 {
-    double dist1 = distances[i][j];
-    double dist2 = distances[j][k];
-    double f_ij = 1 + sharpness* pow((dist1/cutoff), (sharpness+1)) - (sharpness+1)* pow((dist1/cutoff), sharpness);
-    double f_jk = 1 + sharpness* pow((dist2/cutoff), (sharpness+1)) - (sharpness+1)* pow((dist2/cutoff), sharpness);
-
+    double f_ij = 1 + sharpness * pow((distance_ij/cutoff), (sharpness+1)) - (sharpness+1)* pow((distance_ij/cutoff), sharpness);
+    double f_jk = 1 + sharpness * pow((distance_jk/cutoff), (sharpness+1)) - (sharpness+1)* pow((distance_jk/cutoff), sharpness);
     return f_ij*f_jk;
 }
 
-inline double geom_atomic_number(const int &atomic_number)
+inline double geom_atomic_number(int atomic_number)
 {
     return (double)atomic_number;
 }
@@ -86,29 +79,24 @@ inline double geom_inverse_distance(double distance)
     return invDist;
 }
 
-inline double geom_cosine(const int &i, const int &j, const int &k, const vector<vector<double> > &distances)
+inline double geom_cosine(double distance_ij, double distance_jk, double distance_ki)
 {
-    double r_ji = distances[j][i];
-    double r_ik = distances[i][k];
-    double r_jk = distances[j][k];
-    double r_ji_square = r_ji*r_ji;
-    double r_ik_square = r_ik*r_ik;
-    double r_jk_square = r_jk*r_jk;
-    double cosine = 0.5/(r_jk*r_ji) * (r_ji_square+r_jk_square-r_ik_square);
+    double distance_ji_square = distance_ij*distance_ij;
+    double distance_ik_square = distance_ki*distance_ki;
+    double distance_jk_square = distance_jk*distance_jk;
+    double cosine = 0.5/(distance_jk*distance_ij) * (distance_ji_square+distance_jk_square-distance_ik_square);
 
     // Due to numerical reasons the cosine might be slightly under -1 or above 1
     // degrees. E.g. acos is not defined then so we clip the values to prevent
     // NaN:s
     cosine = max(-1.0, min(cosine, 1.0));
-
     return cosine;
 }
 
-inline double geom_angle(const int &i, const int &j, const int &k, const vector<vector<double> > &distances)
+inline double geom_angle(double distance_ij, double distance_jk, double distance_ki)
 {
-    double cosine = geom_cosine(i, j, k, distances);
+    double cosine = geom_cosine(distance_ij, distance_jk, distance_ki);
     double angle = acos(cosine) * 180.0 / PI;
-
     return angle;
 }
 
@@ -342,12 +330,25 @@ void MBTR::set_k2(py::dict k2) {
 }
 
 void MBTR::set_k3(py::dict k3) {
+    // Default sharpness = 2
+    if (k3.size() != 0 && k3.contains("weighting")) {
+        py::dict weighting = k3["weighting"];
+        if (weighting.contains("function")) {
+            string function = weighting["function"].cast<string>();
+            if (function == "smooth_cutoff" && !weighting.contains("sharpness")) {
+                weighting["sharpness"] = 2;
+            }
+        }
+    }
+
     this->k3 = k3;
+
     // In k3, the distance is defined as the perimeter, thus we half the
     // distance to get the actual cutoff.
     double cutoff = 0.5 * this->get_cutoff(k3);
     this->cutoff_k3 = cutoff;
     this->cutoff = max(this->cutoff_k2, this->cutoff_k3);
+
 }
 
 void MBTR::set_normalize_gaussians(bool normalize_gaussians) {
@@ -468,6 +469,10 @@ void MBTR::assert_weighting(py::dict &k) {
                         if (!weighting.contains("r_cut")) {
                             throw invalid_argument("Missing value for 'r_cut'.");
                         }
+                    } else if (function == "smooth_cutoff") {
+                        if (!weighting.contains("r_cut")) {
+                            throw invalid_argument("Missing value for 'r_cut'.");
+                        }
                     }
                 }
             }
@@ -519,7 +524,7 @@ void MBTR::calculate_k1(py::array_t<double> &out, System &system) {
     auto out_mu = out.mutable_unchecked<1>();
     auto atomic_numbers_u = atomic_numbers.unchecked<1>();
 
-    // Get k1 grid setup
+    // Get grid setup
     double sigma = this->k1["grid"]["sigma"].cast<double>();
     double min = this->k1["grid"]["min"].cast<double>();
     double max = this->k1["grid"]["max"].cast<double>();
@@ -533,7 +538,7 @@ void MBTR::calculate_k1(py::array_t<double> &out, System &system) {
     if (geom_func_name == "atomic_number") {
         geom_func = geom_atomic_number;
     } else {
-        throw invalid_argument("Invalid geometry function.");
+        throw invalid_argument("Invalid geometry function for k=1.");
     }
 
     // Determine the weighting function to use
@@ -542,7 +547,7 @@ void MBTR::calculate_k1(py::array_t<double> &out, System &system) {
     if (weight_func_name == "unity") {
         weight_func = weight_unity_k1;
     } else {
-        throw invalid_argument("Invalid geometry function.");
+        throw invalid_argument("Invalid weighting function for k=1.");
     }
 
     // Loop through all the atoms in the original, non-extended cell
@@ -574,7 +579,7 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
     auto atomic_numbers = system.atomic_numbers;
     auto atomic_numbers_u = atomic_numbers.unchecked<1>();
 
-    // Get k2 grid setup
+    // Get grid setup
     double sigma = this->k2["grid"]["sigma"].cast<double>();
     double min = this->k2["grid"]["min"].cast<double>();
     double max = this->k2["grid"]["max"].cast<double>();
@@ -590,7 +595,7 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
     } else if (geom_func_name == "inverse_distance") {
         geom_func = geom_inverse_distance;
     } else {
-        throw invalid_argument("Invalid geometry function.");
+        throw invalid_argument("Invalid geometry function for k=2.");
     }
 
     // Determine the weighting function to use
@@ -604,7 +609,7 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
     } else if (weight_func_name == "inverse_square") {
         weight_func = weight_square_k2;
     } else {
-        throw invalid_argument("Invalid geometry function.");
+        throw invalid_argument("Invalid wighting function for k=2.");
     }
 
     // Loop over all atoms in the system
@@ -669,5 +674,63 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
                 }
             }
         }
+    }
+}
+
+void MBTR::calculate_k3(py::array_t<double> &out, System &system, CellList &cell_list) {
+    if (this->k3.size() == 0) {
+        return;
+    }
+    // Create mutable and unchecked versions
+    auto out_mu = out.mutable_unchecked<1>();
+    auto atomic_numbers = system.atomic_numbers;
+    auto atomic_numbers_u = atomic_numbers.unchecked<1>();
+
+    // Get grid setup
+    double sigma = this->k3["grid"]["sigma"].cast<double>();
+    double min = this->k3["grid"]["min"].cast<double>();
+    double max = this->k3["grid"]["max"].cast<double>();
+    int n = this->k3["grid"]["n"].cast<int>();
+    double dx = (max - min) / (n - 1);
+    double start = min - dx/2;
+
+    // Determine the geometry function to use
+    string geom_func_name = this->k3["geometry"]["function"].cast<string>();
+    function<double(double)> geom_func;
+    if (geom_func_name == "distance") {
+        geom_func = geom_distance;
+    } else if (geom_func_name == "inverse_distance") {
+        geom_func = geom_inverse_distance;
+    } else {
+        throw invalid_argument("Invalid geometry function for k=3.");
+    }
+
+    // Determine the weighting function to use
+    string weight_func_name = this->k3["weighting"]["function"].cast<string>();
+    function<double(double, double, double)> weight_func;
+    if (weight_func_name == "unity") {
+        weight_func = weight_unity_k3;
+    } else if (weight_func_name == "exp" || weight_func_name == "exponential") {
+        double scale = this->k3["weighting"]["scale"].cast<double>();
+        weight_func = bind(
+            weight_exponential_k3,
+            std::placeholders::_1,
+            std::placeholders::_2,
+            std::placeholders::_3,
+            scale
+        );
+    } else if (weight_func_name == "smooth_cutoff") {
+        double sharpness = this->k3["weighting"]["sharpness"].cast<double>();
+        double r_cut = this->k3["weighting"]["r_cut"].cast<double>();
+        weight_func = bind(
+            weight_smooth_k3,
+            std::placeholders::_1,
+            std::placeholders::_2,
+            std::placeholders::_3,
+            sharpness,
+            r_cut
+        );
+    } else {
+        throw invalid_argument("Invalid weighting function for k=3.");
     }
 }

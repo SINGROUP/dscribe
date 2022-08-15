@@ -222,6 +222,57 @@ def test_k2_peaks_finite():
     features[desc.get_location(("H", "O"))] = 0
     assert features.sum() == 0
 
+def test_k3_peaks_finite():
+    """Tests that all the correct angles are present in finite systems.
+    There should be n*(n-1)*(n-2)/2 unique angles where the division by two
+    gets rid of duplicate angles.
+    """
+    system = water()
+    k3 = {
+        "geometry": {"function": "angle"},
+        "grid": {"min": -10, "max": 180, "sigma": 5, "n": 2000},
+        "weighting": {"function": "unity"},
+    }
+    desc = MBTR(
+        species=["H", "O"],
+        k3=k3,
+        normalize_gaussians=False,
+        periodic=False,
+        flatten=True,
+        sparse=False,
+    )
+    features = desc.create(system)
+
+    start = k3["grid"]["min"]
+    stop = k3["grid"]["max"]
+    n = k3["grid"]["n"]
+    x = np.linspace(start, stop, n)
+
+    # Check the H-H-O peaks
+    hho_assumed_locs = np.array([38])
+    hho_assumed_ints = np.array([2])
+    hho_feat = features[desc.get_location(("H", "H", "O"))]
+    hho_peak_indices = find_peaks(hho_feat, prominence=0.5)[0]
+    hho_peak_locs = x[hho_peak_indices]
+    hho_peak_ints = hho_feat[hho_peak_indices]
+    assert np.allclose(hho_peak_locs, hho_assumed_locs, rtol=0, atol=5e-2)
+    assert np.allclose(hho_peak_ints, hho_assumed_ints, rtol=0, atol=5e-2)
+
+    # Check the H-O-H peaks
+    hoh_assumed_locs = np.array([104])
+    hoh_assumed_ints = np.array([1])
+    hoh_feat = features[desc.get_location(("H", "O", "H"))]
+    hoh_peak_indices = find_peaks(hoh_feat, prominence=0.5)[0]
+    hoh_peak_locs = x[hoh_peak_indices]
+    hoh_peak_ints = hoh_feat[hoh_peak_indices]
+    assert np.allclose(hoh_peak_locs, hoh_assumed_locs, rtol=0, atol=5e-2)
+    assert np.allclose(hoh_peak_ints, hoh_assumed_ints, rtol=0, atol=5e-2)
+
+    # Check that everything else is zero
+    features[desc.get_location(("H", "H", "O"))] = 0
+    features[desc.get_location(("H", "O", "H"))] = 0
+    assert features.sum() == 0
+
 
 @pytest.mark.parametrize(
     "k1, k2, k3, normalization, norm",
