@@ -28,10 +28,12 @@ CellList::CellList(py::array_t<double> positions, double cutoff)
     , cutoff(cutoff)
     , cutoffSquared(cutoff*cutoff)
 {
-    if (cutoff < numeric_limits<double>::infinity()) {
-        this->init_cell_list();
-    } else if (cutoff < 0) {
+    // For "infinite" cutoff we simply initialize a pairwise distance matrix.
+    if (cutoff == numeric_limits<double>::infinity()) {
         this->init_distances();
+    // For finite cutoff we initialize a cell list.
+    } else {
+        this->init_cell_list();
     }
 }
 
@@ -137,7 +139,7 @@ CellListResult CellList::getNeighboursForPosition(const double x, const double y
     auto pos_u = this->positions.unchecked<2>();
 
     // Get distances to all atoms if cutoff is infinite
-    if (cutoff == numeric_limits<double>::infinity()) {
+    if (this->cutoff == numeric_limits<double>::infinity()) {
         int n_atoms = pos_u.shape(0);
         for (int i = 0; i < n_atoms; ++i) {
             double dx = x - pos_u(i, 0);
@@ -195,9 +197,9 @@ CellListResult CellList::getNeighboursForPosition(const double x, const double y
 CellListResult CellList::getNeighboursForIndex(const int idx) const
 {
     CellListResult result;
-
+    
     // Get distances to all atoms if cutoff is infinite
-    if (cutoff == numeric_limits<double>::infinity()) {
+    if (this->cutoff == numeric_limits<double>::infinity()) {
         result = CellListResult{this->neighbours[idx], this->distances[idx], this->distances_squared[idx]};
     // Otherwise use cell list to retrieve neighbours
     } else {
@@ -206,7 +208,6 @@ CellListResult CellList::getNeighboursForIndex(const int idx) const
         double y = (idx, 1);
         double z = (idx, 2);
         result = this->getNeighboursForPosition(x, y, z);
-
     }
     // Remove self from neighbours
     for (size_t i=0; i < result.indices.size(); ++i) {

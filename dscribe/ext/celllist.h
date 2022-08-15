@@ -37,10 +37,9 @@ class CellList {
          * Constructor
          *
          * @param positions Atomic positions in cartesian coordinates.
-         * @param cutoff The cutoff in angstroms. A cutoff value of zero means
-         * that no neighbours will be taken into account. A value of
-         * numeric_limits<double>::infinity() means that all neighbours will be
-         * taken into account.
+         * @param cutoff The cutoff in angstroms. A value of
+         * numeric_limits<double>::infinity() means that all atoms will be taken
+         * into account by simply calculating a pairwise distance matrix.
          */
         CellList(py::array_t<double> positions, double cutoff);
         /**
@@ -68,8 +67,8 @@ class CellList {
          */
         void init_cell_list();
         /**
-         * Used to initialize all pairwise distances. Only used when no cutoff
-         * radius can be defined, or when it is essentially infinite.
+         * Used to initialize all pairwise distances. Only used when cutoff
+         * radius is infinite.
          */
         void init_distances();
 

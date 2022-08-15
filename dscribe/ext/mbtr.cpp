@@ -14,7 +14,6 @@ limitations under the License.
 */
 #include <functional>
 #include <algorithm>
-#include <iostream>
 #include <limits>
 #include <unordered_set>
 #include "mbtr.h"
@@ -339,9 +338,6 @@ void MBTR::set_k2(py::dict k2) {
     this->k2 = k2;
     double cutoff = this->get_cutoff(k2);
     this->cutoff_k2 = cutoff;
-    cout << "======= CUTOFF K2 ========" << endl;
-    cout << this->cutoff_k2 << endl;
-    cout << this->cutoff_k3 << endl;
     this->cutoff = max(this->cutoff_k2, this->cutoff_k3);
 }
 
@@ -351,9 +347,6 @@ void MBTR::set_k3(py::dict k3) {
     // distance to get the actual cutoff.
     double cutoff = 0.5 * this->get_cutoff(k3);
     this->cutoff_k3 = cutoff;
-    cout << "======= CUTOFF K3 ========" << endl;
-    cout << this->cutoff_k2 << endl;
-    cout << this->cutoff_k3 << endl;
     this->cutoff = max(this->cutoff_k2, this->cutoff_k3);
 }
 
@@ -617,8 +610,6 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
     // Loop over all atoms in the system
     int n_atoms = atomic_numbers.size();
     auto cell_indices_u = system.cell_indices.unchecked<2>();
-    cout << "======= N_ATOMS ========" << endl;
-    cout << n_atoms << endl;
 
     // TODO: There may be a more efficent way of looping through the atoms.
     // Maybe looping over the interactive atoms only? Also maybe iterating over
@@ -628,8 +619,6 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
         CellListResult neighbours = cell_list.getNeighboursForIndex(i);
 
         int n_neighbours = neighbours.indices.size();
-        cout << "======= NEIGHBOURS ========" << endl;
-        cout << n_neighbours << endl;
         for (int i_neighbour = 0; i_neighbour < n_neighbours; ++i_neighbour) {
             int j = neighbours.indices[i_neighbour];
             double distance = neighbours.distances[i_neighbour];
@@ -642,8 +631,6 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
                 if (i_interactive || j_interactive) {
                     double geom = geom_func(distance);
                     double weight = weight_func(distance);
-                    cout << "======= GEOM, WEIGHT ========" << endl;
-                    cout << geom << ", " << weight << endl;
 
                     // When the pair of atoms are in different copies of the
                     // cell, the weight is halved. This is done in order to
@@ -673,8 +660,6 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
 
                     // Get the starting index of the species pair in the final vector
                     pair<int, int> loc = get_location(i_z, j_z);
-                    cout << "======= LOCATION ========" << endl;
-                    cout << loc.first << ", " << loc.second << endl;
                     int start = loc.first;
 
                     // Sum gaussian into output
