@@ -26,7 +26,7 @@ using namespace std;
 CellList::CellList(py::array_t<double> positions, double cutoff)
     : positions(positions)
     , cutoff(cutoff)
-    , cutoffSquared(cutoff*cutoff)
+    , cutoff_squared(cutoff*cutoff)
 {
     // For "infinite" cutoff we simply initialize a pairwise distance matrix.
     if (cutoff == numeric_limits<double>::infinity()) {
@@ -107,35 +107,25 @@ void CellList::init_cell_list() {
 void CellList::init_distances() {
     auto pos_u = positions.unchecked<2>();
     int n_atoms = pos_u.shape(0);
-    auto distances = vector<vector<double>>(n_atoms, vector<double>(n_atoms));
-    auto distances_squared = vector<vector<double>>(n_atoms, vector<double>(n_atoms));
-    auto neighbours = vector<vector<int>>();
+
+    vector<unordered_map<int, pair<double, double>>> results(n_atoms);
     for (int i = 0; i < n_atoms; ++i) {
-        vector<int> row(n_atoms);
-        iota(row.begin(), row.end(), 0);
-        neighbours.push_back(row);
-        for (int j = i; j < n_atoms; ++j) {
+        for (int j = i + 1; j < n_atoms; ++j) {
             double dx = pos_u(i, 0) - pos_u(j, 0);
             double dy = pos_u(i, 1) - pos_u(j, 1);
             double dz = pos_u(i, 2) - pos_u(j, 2);
             double distance_squared = dx*dx + dy*dy + dz*dz;
             double distance = sqrt(distance_squared);
-            distances[i][j] = distance;
-            distances[j][i] = distance;
-            distances_squared[i][j] = distance_squared;
-            distances_squared[j][i] = distance_squared;
+            results[i][j] = make_pair(distance, distance_squared);
+            results[j][i] = make_pair(distance, distance_squared);
         }
     }
-    this->distances = distances;
-    this->distances_squared = distances_squared;
-    this->neighbours = neighbours;
+    this->results = results;
 }
 
-CellListResult CellList::getNeighboursForPosition(const double x, const double y, const double z) const
+unordered_map<int, pair<double, double>> CellList::getNeighboursForPosition(const double x, const double y, const double z) const
 {
-    vector<int> neighbours;
-    vector<double> distances;
-    vector<double> distances_squared;
+    unordered_map<int, pair<double, double>> result;
     auto pos_u = this->positions.unchecked<2>();
 
     // Get distances to all atoms if cutoff is infinite
@@ -147,9 +137,7 @@ CellListResult CellList::getNeighboursForPosition(const double x, const double y
             double dz = z - pos_u(i, 2);
             double distance_squared = dx*dx + dy*dy + dz*dz;
             double distance = sqrt(distance_squared);
-            distances.push_back(distance);
-            distances_squared.push_back(distance_squared);
-            neighbours.push_back(i);
+            result[i] = make_pair(distance, distance_squared);
         }
     // Otherwise use cell list to retrieve neighbours
     } else {
@@ -180,43 +168,35 @@ CellListResult CellList::getNeighboursForPosition(const double x, const double y
                         double deltax = x - ix;
                         double deltay = y - iy;
                         double deltaz = z - iz;
-                        double distanceSquared = deltax*deltax + deltay*deltay + deltaz*deltaz;
-                        if (distanceSquared <= this->cutoffSquared) {
-                            neighbours.push_back(idx);
-                            distances_squared.push_back(distanceSquared);
-                            distances.push_back(sqrt(distanceSquared));
+                        double distance_squared = deltax*deltax + deltay*deltay + deltaz*deltaz;
+                        if (distance_squared <= this->cutoff_squared) {
+                            result[idx] = make_pair(sqrt(distance_squared), distance_squared);
                         }
                     }
                 }
             }
         }
     }
-    return CellListResult{neighbours, distances, distances_squared};
+    return result;
 }
 
-CellListResult CellList::getNeighboursForIndex(const int idx) const
+unordered_map<int, pair<double, double>> CellList::getNeighboursForIndex(const int idx) const
 {
-    CellListResult result;
+    unordered_map<int, pair<double, double>> result;
     
     // Get distances to all atoms if cutoff is infinite
     if (this->cutoff == numeric_limits<double>::infinity()) {
-        result = CellListResult{this->neighbours[idx], this->distances[idx], this->distances_squared[idx]};
+        result = this->results[idx];
     // Otherwise use cell list to retrieve neighbours
     } else {
         auto pos_u = this->positions.unchecked<2>();
         double x = pos_u(idx, 0);
-        double y = (idx, 1);
-        double z = (idx, 2);
+        double y = pos_u(idx, 1);
+        double z = pos_u(idx, 2);
         result = this->getNeighboursForPosition(x, y, z);
-    }
-    // Remove self from neighbours
-    for (size_t i=0; i < result.indices.size(); ++i) {
-        if (result.indices[i] == idx) {
-            result.indices.erase(result.indices.begin() + i);
-            result.distances.erase(result.distances.begin() + i);
-            result.distancesSquared.erase(result.distancesSquared.begin() + i);
-            break;
-        }
+
+        // Remove self from neighbours
+        result.erase(idx);
     }
     return result;
 }

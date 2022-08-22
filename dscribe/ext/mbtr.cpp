@@ -100,6 +100,17 @@ inline double geom_angle(double distance_ij, double distance_jk, double distance
     return angle;
 }
 
+inline bool same_cell(const py::array_t<int> &cell_indices, int i, int j)
+{
+    auto cell_indices_u = cell_indices.unchecked<2>();
+    for (int k = 0; k < 3; ++k) {
+        if (cell_indices_u(i, k) != cell_indices_u(j, k)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 MBTR::MBTR(
     const py::dict k1,
     const py::dict k2,
@@ -172,6 +183,7 @@ void MBTR::create(py::array_t<double> &out, System &system, CellList &cell_list)
 {
     this->calculate_k1(out, system);
     this->calculate_k2(out, system, cell_list);
+    this->calculate_k3(out, system, cell_list);
     this->normalize_output(out);
     return;
 }
@@ -212,9 +224,12 @@ pair<int, int> MBTR::get_location(int z1, int z2)
     int i = this->species_index_map[z1];
     int j = this->species_index_map[z2];
 
+
     // Sort
     vector<int> numbers = {i, j};
-    sort(numbers.begin(), numbers.end());
+    if (numbers[0] > numbers[1]) {
+        reverse(numbers.begin(), numbers.end());
+    }
     i = numbers[0];
     j = numbers[1];
 
@@ -246,9 +261,11 @@ pair<int, int> MBTR::get_location(int z1, int z2, int z3)
     int j = this->species_index_map[z2];
     int k = this->species_index_map[z3];
 
-    // Sort
+    // Reverse if order is not correct
     vector<int> numbers = {i, j, k};
-    sort(numbers.begin(), numbers.end());
+    if (numbers[0] > numbers[2]) {
+        reverse(numbers.begin(), numbers.end());
+    }
     i = numbers[0];
     j = numbers[1];
     k = numbers[2];
@@ -489,7 +506,7 @@ py::dict MBTR::get_k3() {return k3;};
 string MBTR::get_normalization() {return normalization;};
 bool MBTR::get_normalize_gaussians() {return normalize_gaussians;};
 
-inline vector<double> MBTR::gaussian(double center, double weight, double start, double dx, double sigma, int n) {
+inline void MBTR::add_gaussian(double center, double weight, double start, double dx, double sigma, int n, const pair<int, int> &loc, py::detail::unchecked_mutable_reference<double, 1> &out_mu) {
     // We first calculate the cumulative distribution function for a normal
     // distribution.
     vector<double> cdf(n+1);
@@ -506,13 +523,11 @@ inline vector<double> MBTR::gaussian(double center, double weight, double start,
       ? 1
       : sigma * SQRT2PI);
     vector<double> pdf(n);
-    int i = 0;
-    for (auto &it : pdf) {
-        it = normalization * (cdf[i+1]-cdf[i])/dx;
-        ++i;
-    }
 
-    return pdf;
+    int output_start = loc.first;
+    for (int i=0; i < n; ++i) {
+        out_mu[output_start + i] += normalization * (cdf[i+1]-cdf[i]) / dx;
+    }
 }
 
 void MBTR::calculate_k1(py::array_t<double> &out, System &system) {
@@ -556,17 +571,11 @@ void MBTR::calculate_k1(py::array_t<double> &out, System &system) {
         double geom = geom_func(i_z);
         double weight = weight_func(i_z);
 
-        // Calculate gaussian
-        vector<double> gauss = gaussian(geom, weight, start, dx, sigma, n);
-
         // Get the index of the present elements in the final vector
-        pair<int, int> location = get_location(i_z);
-        int start = location.first;
+        pair<int, int> loc = get_location(i_z);
 
-        // Sum gaussian into output
-        for (int j=0; j < gauss.size(); ++j) {
-            out_mu[start + j] += gauss[j];
-        }
+        // Add gaussian to output
+        add_gaussian(geom, weight, start, dx, sigma, n, loc, out_mu);
     }
 }
 
@@ -614,19 +623,17 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
 
     // Loop over all atoms in the system
     int n_atoms = atomic_numbers.size();
-    auto cell_indices_u = system.cell_indices.unchecked<2>();
+    // auto cell_indices_u = system.cell_indices.unchecked<2>();
 
     // TODO: There may be a more efficent way of looping through the atoms.
     // Maybe looping over the interactive atoms only? Also maybe iterating over
     // the cells only in the positive lattice vector direction?
     for (int i=0; i < n_atoms; ++i) {
         // For each atom we loop only over the neighbours
-        CellListResult neighbours = cell_list.getNeighboursForIndex(i);
-
-        int n_neighbours = neighbours.indices.size();
-        for (int i_neighbour = 0; i_neighbour < n_neighbours; ++i_neighbour) {
-            int j = neighbours.indices[i_neighbour];
-            double distance = neighbours.distances[i_neighbour];
+        unordered_map<int, pair<double, double>> neighbours_i = cell_list.getNeighboursForIndex(i);
+        for (auto& it: neighbours_i) {
+            int j = it.first;
+            double distance = it.second.first;
             if (j > i) {
                 // Only consider pairs that have at least one atom in the
                 // 'interaction subset', typically the original cell but can
@@ -645,32 +652,17 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
                     // the primitive cell within a constant that is given by the
                     // number of repetitions of the primitive cell in the
                     // supercell.
-                    bool same_cell = true;
-                    for (int k = 0; k < 3; ++k) {
-                        if (cell_indices_u(i, k) != cell_indices_u(j, k)) {
-                            same_cell = false;
-                            break;
-                        }
-                    }
-                    if (!same_cell) {
+                    if (!same_cell(system.cell_indices, i, j)) {
                         weight /= 2;
                     }
 
-                    // Calculate gaussian
-                    vector<double> gauss = gaussian(geom, weight, start, dx, sigma, n);
-
-                    // Get the index of the present elements in the final vector
+                    // Get the starting index of the species pair in the final vector
                     int i_z = atomic_numbers_u(i);
                     int j_z = atomic_numbers_u(j);
-
-                    // Get the starting index of the species pair in the final vector
                     pair<int, int> loc = get_location(i_z, j_z);
-                    int start = loc.first;
 
-                    // Sum gaussian into output
-                    for (int k=0; k < gauss.size(); ++k) {
-                        out_mu[start + k] += gauss[k];
-                    }
+                    // Add gaussian to output
+                    add_gaussian(geom, weight, start, dx, sigma, n, loc, out_mu);
                 }
             }
         }
@@ -696,11 +688,11 @@ void MBTR::calculate_k3(py::array_t<double> &out, System &system, CellList &cell
 
     // Determine the geometry function to use
     string geom_func_name = this->k3["geometry"]["function"].cast<string>();
-    function<double(double)> geom_func;
-    if (geom_func_name == "distance") {
-        geom_func = geom_distance;
-    } else if (geom_func_name == "inverse_distance") {
-        geom_func = geom_inverse_distance;
+    function<double(double, double, double)> geom_func;
+    if (geom_func_name == "angle") {
+        geom_func = geom_angle;
+    } else if (geom_func_name == "cosine") {
+        geom_func = geom_cosine;
     } else {
         throw invalid_argument("Invalid geometry function for k=3.");
     }
@@ -732,5 +724,74 @@ void MBTR::calculate_k3(py::array_t<double> &out, System &system, CellList &cell
         );
     } else {
         throw invalid_argument("Invalid weighting function for k=3.");
+    }
+
+    // For each atom we loop only over the atoms triplets that are within the
+    // neighbourhood
+    int n_atoms = atomic_numbers.size();
+    auto cell_indices = system.cell_indices;
+    for (int i=0; i < n_atoms; ++i) {
+        unordered_map<int, pair<double, double>> neighbours_i = cell_list.getNeighboursForIndex(i);
+        for (auto& it_i: neighbours_i) {
+            int j = it_i.first;
+            unordered_map<int, pair<double, double>> neighbours_j = cell_list.getNeighboursForIndex(j);
+            for (auto& it_j: neighbours_j) {
+                int k = it_j.first;
+                // Only consider triples that have at least one atom in the
+                // 'interaction subset', typically the original cell but can
+                // also be another local region.
+                bool i_interactive = system.interactive_atoms.find(i) != system.interactive_atoms.end();
+                bool j_interactive = system.interactive_atoms.find(j) != system.interactive_atoms.end();
+                bool k_interactive = system.interactive_atoms.find(k) != system.interactive_atoms.end();
+                if (i_interactive || j_interactive || k_interactive) {
+                    // Calculate angle for all index permutations from choosing
+                    // three out of n_atoms. The same atom cannot be present
+                    // twice in the permutation.
+                    if (j != i && k != j && k != i) {
+                        // The angles are symmetric: ijk = kji. The value is
+                        // calculated only for the triplet where k > i.
+                        if (k > i) {
+                            double distance_ij = neighbours_i[j].first;
+                            double distance_jk = neighbours_j[k].first;
+                            double distance_ki = neighbours_i[k].first;
+
+                            // Calculate geometry value
+                            double geom = geom_func(distance_ij, distance_jk, distance_ki);
+
+                            // Calculate weight value
+                            double weight = weight_func(distance_ij, distance_jk, distance_ki);
+
+                            // The contributions are weighted by their multiplicity arising from
+                            // the translational symmetry. Each triple of atoms is repeated N
+                            // times in the extended system through translational symmetry. The
+                            // weight for the angles is thus divided by N so that the
+                            // multiplication from symmetry is countered. This makes the final
+                            // spectrum invariant to the selected supercell size and shape
+                            // after normalization. The number of repetitions N is given by how
+                            // many unique cell indices (the index of the repeated cell with
+                            // respect to the original cell at index [0, 0, 0]) are present for
+                            // the atoms in the triple.
+                            int diff_sum =
+                                (int)!same_cell(cell_indices, i, j)
+                              + (int)!same_cell(cell_indices, i, k)
+                              + (int)!same_cell(cell_indices, j, k);
+                            if (diff_sum > 1) {
+                                weight /= diff_sum;
+                            }
+
+                            // Get the starting index of the species triple in
+                            // the final vector
+                            int i_z = atomic_numbers_u(i);
+                            int j_z = atomic_numbers_u(j);
+                            int k_z = atomic_numbers_u(k);
+                            pair<int, int> loc = get_location(i_z, j_z, k_z);
+
+                            // Add gaussian to output
+                            add_gaussian(geom, weight, start, dx, sigma, n, loc, out_mu);
+                        }
+                    }
+                }
+            }
+        }
     }
 }

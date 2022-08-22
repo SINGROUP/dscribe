@@ -2288,12 +2288,11 @@ void getPD(
     double ix = positions_u(i_atom, 0);
     double iy = positions_u(i_atom, 1);
     double iz = positions_u(i_atom, 2);
-    CellListResult result = cell_list.getNeighboursForPosition(ix, iy, iz);
-    vector<int> indices = result.indices;
+    unordered_map<int, pair<double, double>> neighbours = cell_list.getNeighboursForPosition(ix, iy, iz);
 
     // Loop through all neighbouring centers
-    for (size_t j_idx = 0; j_idx < indices.size(); ++j_idx) {
-        int i_center = indices[j_idx];
+    for (auto& it: neighbours) {
+        int i_center = it.first;
         int shiftAll = 0;
         for(int j = 0; j < Ts; j++) {
             int jdLimit = crossover ? Ts : j+1;
@@ -2453,11 +2452,14 @@ void soapGTO(
 
     // Get all neighbouring atoms for the center i
     double ix = centers_u(i, 0); double iy = centers_u(i, 1); double iz = centers_u(i, 2);
-    CellListResult result = cell_list_atoms.getNeighboursForPosition(ix, iy, iz);
+    unordered_map<int, pair<double, double>> neighbours = cell_list_atoms.getNeighboursForPosition(ix, iy, iz);
 
     // Sort the neighbours by type
     map<int, vector<int>> atomicTypeMap;
-    for (const int &idx : result.indices) {int Z = atomicNumbers(idx); atomicTypeMap[Z].push_back(idx);};
+    for (auto &it : neighbours) {
+      int Z = atomicNumbers(it.first);
+      atomicTypeMap[Z].push_back(it.first);
+    }
 
     // Loop through neighbours sorted by type
     for (const auto &ZIndexPair : atomicTypeMap) {

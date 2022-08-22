@@ -1876,13 +1876,14 @@ void soapGeneral(
         double ix = Hpos[3*i];
         double iy = Hpos[3*i+1];
         double iz = Hpos[3*i+2];
-        CellListResult result = cellList.getNeighboursForPosition(ix, iy, iz);
+        // CellListResult result = cellList.getNeighboursForPosition(ix, iy, iz);
+        unordered_map<int, pair<double, double>> neighbours = cellList.getNeighboursForPosition(ix, iy, iz);
 
         // Sort the neighbours by type
         map<int, vector<int>> atomicTypeMap;
-        for (const int &idx : result.indices) {
-            int Z = atomicNumbers(idx);
-            atomicTypeMap[Z].push_back(idx);
+        for (auto &it : neighbours) {
+            int Z = atomicNumbers(it.first);
+            atomicTypeMap[Z].push_back(it.first);
         };
 
         // Loop through neighbours sorted by type

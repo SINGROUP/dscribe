@@ -124,7 +124,16 @@ class MBTR: public DescriptorGlobal {
          * Gets the radial cutoff value from the given configuration dict.
          */
         double get_cutoff(py::dict &k);
-        inline vector<double> gaussian(double center, double weight, double start, double dx, double sigma, int n);
+        inline void add_gaussian(
+            double center,
+            double weight,
+            double start,
+            double dx,
+            double sigma,
+            int n,
+            const pair<int, int> &loc,
+            py::detail::unchecked_mutable_reference<double, 1> &out
+        );
         void calculate_k1(py::array_t<double> &out, System &system);
         void calculate_k2(py::array_t<double> &out, System &system, CellList &cell_list);
         void calculate_k3(py::array_t<double> &out, System &system, CellList &cell_list);

@@ -155,7 +155,11 @@ void DescriptorLocal::derivatives_numerical(
         double ix = positions_mu(i_atom, 0);
         double iy = positions_mu(i_atom, 1);
         double iz = positions_mu(i_atom, 2);
-        vector<int> centers_local_idx = cell_list_centers.getNeighboursForPosition(ix, iy, iz).indices;
+        vector<int> centers_local_idx;
+        unordered_map<int, pair<double, double>> neighbours = cell_list_centers.getNeighboursForPosition(ix, iy, iz);
+        for (auto &it: neighbours) {
+            centers_local_idx.push_back(it.first);
+        }
 
         // The periodically repeated centers are already correctly found from
         // the extended center list. They just need to be mapped into the

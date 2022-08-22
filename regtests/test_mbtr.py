@@ -255,6 +255,7 @@ def test_k3_peaks_finite():
     hho_peak_indices = find_peaks(hho_feat, prominence=0.5)[0]
     hho_peak_locs = x[hho_peak_indices]
     hho_peak_ints = hho_feat[hho_peak_indices]
+
     assert np.allclose(hho_peak_locs, hho_assumed_locs, rtol=0, atol=5e-2)
     assert np.allclose(hho_peak_ints, hho_assumed_ints, rtol=0, atol=5e-2)
 

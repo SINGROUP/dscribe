@@ -18,15 +18,10 @@ limitations under the License.
 
 #include <pybind11/numpy.h>
 #include <vector>
+#include <unordered_map>
 
 namespace py = pybind11;
 using namespace std;
-
-struct CellListResult {
-    vector<int> indices;
-    vector<double> distances;
-    vector<double> distancesSquared;
-};
 
 /**
  * For calculating pairwise distances using a cell list.
@@ -50,7 +45,7 @@ class CellList {
          * @param y Cartesian y-coordinate.
          * @param z Cartesian z-coordinate.
          */
-        CellListResult getNeighboursForPosition(const double x, const double y, const double z) const;
+        unordered_map<int, pair<double, double>> getNeighboursForPosition(const double x, const double y, const double z) const;
         /**
          * Get the indices of atoms within the radial cutoff distance from the
          * given atomic index. The given index is not included in the returned
@@ -58,7 +53,7 @@ class CellList {
          *
          * @param i Index of the atom for which neighbours are queried for.
          */
-        CellListResult getNeighboursForIndex(const int i) const;
+        unordered_map<int, pair<double, double>> getNeighboursForIndex(const int i) const;
 
     private:
         /**
@@ -73,11 +68,9 @@ class CellList {
         void init_distances();
 
         py::array_t<double> positions;
-        vector<vector<int>> neighbours;
-        vector<vector<double>> distances;
-        vector<vector<double>> distances_squared;
+        vector<unordered_map<int, pair<double, double>>> results;
         const double cutoff;
-        const double cutoffSquared;
+        const double cutoff_squared;
         double xmin;
         double xmax;
         double ymin;
