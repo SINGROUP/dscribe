@@ -27,6 +27,214 @@ from dscribe.descriptors import Descriptor
 from dscribe.ext import MBTRWrapper
 import dscribe.utils.geometry
 
+@np.vectorize
+def vec_erf(x):
+    return math.erf(x)
+
+# Generate MBTR_k2^{Z_1,Z_2} map and its derivative. Replaces getK2() c++
+# function for calculating the derivatives. The passed parameters are the same
+# except for passing atom positions instead of distances. Additionally the last
+# three parameters here are passed to c++ throught constructor.
+def get_k2_maps(Z, positions, neighbours, geom_func, weight_func, parameters, x_min, x_max, sigma, n, atomic_number_to_index, interaction_limit, cell_indices):
+
+    k2_map = {}
+    k2_diff_map = {}
+
+    dx = (x_max-x_min)/(n-1)
+    x = x_min - dx/2 + dx*np.arange(n+1)
+    n_atoms = len(Z)
+
+    # Loop over all atoms in the system
+    for i in range(n_atoms):
+        # For each atom we loop only over the neighbours
+        for j in  neighbours[i]:
+            if j <= i: continue
+
+            # Only consider pairs that have one atom in the original cell
+            if (i >= interaction_limit and j >= interaction_limit):
+                continue
+            
+            d_vec = positions[i]-positions[j]
+            dist = np.sum(d_vec**2)**0.5
+
+            # Calculate geometry value
+            if geom_func == "inverse_distance":
+                g = 1/dist
+                g_d = -d_vec/dist**3
+            elif geom_func == "distance":
+                g = dist
+                g_d = d_vec/dist
+            
+            # Calculate weight value
+            if (weight_func == "exponential" or weight_func == "exp"):
+                scale = parameters[b"scale"]
+                cutoff = parameters[b"threshold"]
+                w = np.exp(-scale*dist)
+                w_d = -scale/dist*d_vec
+                if w < cutoff: continue
+            elif (weight_func == "unity"):
+                w = 1.0
+                w_d = 0*d_vec
+            
+            # Calculate gaussian
+            cdf = w/2*(1 + vec_erf((x-g)/(sigma*2**0.5)))
+            gauss = (cdf[1:]-cdf[:-1])/dx
+            
+            # Calculate x*gaussian distribution 
+            x_gauss_cdf = g*cdf - w*sigma/(2*np.pi)**0.5*(np.exp(-(g-x)**2/(2*sigma**2)) - 1)
+            x_gauss = (x_gauss_cdf[1:]-x_gauss_cdf[:-1])/dx
+            
+            # Derivative of the gaussian 
+            gauss_d =  (- np.outer(g_d, gauss*sigma**(-2)*g)
+                        + np.outer(g_d, x_gauss*sigma**(-2))
+                        + np.outer(w_d, gauss))
+            
+            # Rescale if the atoms are in different periodic images
+            if np.any(cell_indices[i] != cell_indices[j]):
+                gauss /= 2
+            
+            # Get the index of the present elements in the final vector
+            i_index = atomic_number_to_index[Z[i]]
+            j_index = atomic_number_to_index[Z[j]]
+
+            # Save information in the part where j_index >= i_index
+            #key = tuple(sorted([i_index, j_index]))
+            key = (i_index, j_index) if i_index<j_index else (j_index,i_index)
+
+            # Sum gaussian into output
+            if  key in k2_map:
+                k2_map[key] = k2_map[key] + gauss
+            else:
+                k2_map[key] = gauss
+                k2_diff_map[key] = np.zeros((interaction_limit, 3, n))
+
+            # Add derivative contribution to derivatives that it affects.
+            # Derivatives are antisymmetric.
+            for index, sign in zip([i,j],[1,-1]):
+                if index < interaction_limit:
+                    k2_diff_map[key][index] = k2_diff_map[key][index] + sign*gauss_d
+    
+    return k2_map, k2_diff_map 
+
+
+# Generate MBTR_k3^{Z_1,Z_2,Z_3} map and its derivative. Replaces getK3() c++
+# function for calculating the derivatives. The passed parameters are the same
+# except for passing atom positions instead of distances. Additionally the last
+# three parameters here are passed to c++ throught constructor.
+def get_k3_maps(Z, positions, neighbours, geom_func, weight_func, parameters, x_min, x_max, sigma, n, atomic_number_to_index, interaction_limit, cell_indices):
+    k3_map = {}
+    k3_diff_map = {}
+    
+    dx = (x_max-x_min)/(n-1)
+    x = x_min - dx/2 + dx*np.arange(n+1)
+    n_atoms = len(Z)
+
+    for i in range(n_atoms):
+        for j in  neighbours[i]:
+            for k in neighbours[i]:
+                if i>=interaction_limit and j>=interaction_limit and  k>=interaction_limit: continue
+                if j==i or k==j or k==i: continue
+                if k<=i: continue
+
+                # Find distance vectors
+                r_ji = positions[j] - positions[i]
+                r_ik = positions[i] - positions[k]
+                r_jk = positions[j] - positions[k]
+                
+                # Calculate distances
+                d_ji = np.sum(r_ji**2)**0.5
+                d_ik = np.sum(r_ik**2)**0.5
+                d_jk = np.sum(r_jk**2)**0.5
+
+                # Calculate geometry value
+                top = d_ji**2+d_jk**2-d_ik**2
+                bot = d_jk*d_ji
+
+                cosine = 0.5*top/bot
+                cosine = np.maximum(-1.0, np.minimum(cosine, 1.0))
+                
+                top_d = 2*np.array([-r_ji-r_ik,
+                                    r_ji+r_jk,
+                                    -r_jk+r_ik])
+                bot_d = np.array([  -d_jk/d_ji*r_ji,
+                                    d_ji/d_jk*r_jk + d_jk/d_ji*r_ji,
+                                    -d_ji/d_jk*r_jk])
+                
+                cosine_d = 0.5*(top_d*bot - top*bot_d)/bot**2
+
+                if geom_func == "cosine":
+                    g = cosine
+                    g_d = cosine_d
+                elif geom_func == "angle":
+                    # arccos is not differentiable at -1 or 1, which causes
+                    # problems.
+                    g = np.arccos(cosine)*180.0/np.pi
+                    g_d = -cosine_d/(1-cosine**2)**0.5*180.0/np.pi
+
+                # Calculate weight value
+                if weight_func in ["exponential", "exp"]:
+                    scale = parameters[b"scale"]
+                    cutoff = parameters[b"threshold"]
+                    dist_total = d_ji + d_ik + d_jk
+                    w = np.exp(-scale*dist_total)
+                    if w < cutoff: continue
+                    w_d = -scale*np.array([ -r_ji/d_ji + r_ik/d_ik,
+                                            r_ji/d_ji + r_jk/d_jk,
+                                            -r_jk/d_jk - r_ik/d_ik])
+
+                elif weight_func == "unity":
+                    w = 1
+                    w_d = np.zeros((3,3))
+
+                # Calculate gaussian
+                cdf = w/2*(1 + vec_erf((x-g)/(sigma*2**0.5)))
+                gauss = (cdf[1:]-cdf[:-1])/dx
+            
+                # Calculate x*gaussian distribution 
+                x_gauss_cdf = g*cdf - w*sigma/(2*np.pi)**0.5*(np.exp(-(g-x)**2/(2*sigma**2)) - 1)
+                x_gauss = (x_gauss_cdf[1:]-x_gauss_cdf[:-1])/dx
+                
+                # Derivative of the gaussian
+                gauss_d = []
+                for ind in [0,1,2]:
+                    gauss_d.append( - np.outer(g_d[ind], gauss*sigma**(-2)*g)
+                                    + np.outer(g_d[ind], x_gauss*sigma**(-2))
+                                    + np.outer(w_d[ind], gauss))
+
+                # Rescale if the atoms are in different periodic images
+                i_copy = cell_indices[i]
+                j_copy = cell_indices[j]
+                k_copy = cell_indices[k]
+                ij_diff = np.any(i_copy != j_copy)
+                ik_diff = np.any(i_copy != k_copy)
+                jk_diff = np.any(j_copy != k_copy)
+                diff_sum = int(ij_diff) + int(ik_diff) + int(jk_diff)
+                if diff_sum > 1:
+                    gauss /= diff_sum
+                
+                # Get the index of the present elements in the final vector
+                i_index = atomic_number_to_index[Z[i]]
+                j_index = atomic_number_to_index[Z[j]]
+                k_index = atomic_number_to_index[Z[k]]
+
+                # Save information in the part where k_index >= i_index
+                key = (k_index, j_index, i_index) if k_index<i_index else (i_index, j_index, k_index)
+
+                # Sum gaussian into output
+                if key in k3_map:
+                    k3_map[key] = k3_map[key] + gauss
+                else:
+                    k3_map[key] = gauss
+                    k3_diff_map[key] = np.zeros((interaction_limit, 3, n))
+    
+                # Add derivative contribution to derivatives that it affects.
+                # Derivatives are antisymmetric.
+                for index, gauss_d_i in zip([i,j,k], gauss_d):
+                    if index < interaction_limit:
+                        k3_diff_map[key][index] = k3_diff_map[key][index] + gauss_d_i
+    
+    return k3_map, k3_diff_map
+
 
 class MBTR(Descriptor):
     """Implementation of the Many-body tensor representation up to :math:`k=3`.
@@ -1104,3 +1312,399 @@ class MBTR(Descriptor):
             k3 = k3.to_coo()
 
         return k3
+
+    # Still missing the insclude/exclude system. Only works with flatten=True.
+    def derivatives(
+        self,
+        system,
+        return_descriptor=True,
+        n_jobs=1,
+        only_physical_cores=False,
+        verbose=False,
+    ):
+        """Return the descriptor derivatives for the given system.
+
+        Args:
+            system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or
+                many atomic structures.
+            return_descriptor (bool): Whether to also calculate the descriptor
+                in the same function call. Notice that it typically is faster
+                to calculate both in one go.
+            n_jobs (int): Number of parallel jobs to instantiate. Parallellizes
+                the calculation across samples. Defaults to serial calculation
+                with n_jobs=1. If a negative number is given, the number of jobs
+                will be calculated with, n_cpus + n_jobs, where n_cpus is the
+                amount of CPUs as reported by the OS. With only_physical_cores
+                you can control which types of CPUs are counted in n_cpus.
+            only_physical_cores (bool): If a negative n_jobs is given,
+                determines which types of CPUs are used in calculating the
+                number of jobs. If set to False (default), also virtual CPUs
+                are counted.  If set to True, only physical CPUs are counted.
+            verbose(bool): Controls whether to print the progress of each job
+                into to the console.
+
+        Returns:
+            If return_descriptor is True, returns a tuple, where the first item
+            is the derivative array and the second is the descriptor array.
+            Otherwise only returns the derivatives array. The derivatives array
+            is a either a 4D or 5D array, depending on whether you have
+            provided a single or multiple systems. If the output shape for each
+            system is the same, a single monolithic numpy array is returned.
+            For variable sized output (e.g. differently sized systems,
+            different number of centers or different number of included atoms),
+            a regular python list is returned. The dimensions are:
+            [(n_systems,) n_positions, n_atoms, 3, n_features]. The first
+            dimension goes over the different systems in case multiple were
+            given. The second dimension goes over the descriptor centers in
+            the same order as they were given in the argument. The third
+            dimension goes over the included atoms. The order is same as the
+            order of atoms in the given system. The fourth dimension goes over
+            the cartesian components, x, y and z. The fifth dimension goes over
+            the features in the default order.
+        """
+
+
+        # If single system given, skip the parallelization
+        if isinstance(system, (Atoms, System)):
+            return self.derivatives_single(
+                system,
+                return_descriptor=return_descriptor,
+            )
+
+        n_samples = len(system)
+
+        # Combine input arguments
+        inp = list(
+            zip(
+                system,
+                [return_descriptor] * n_samples,
+            )
+        )
+
+        n_features = self.get_number_of_features()
+        n_atoms = self._interaction_limit
+
+        derivatives_shape = (n_atoms, 3, n_features)
+        descriptor_shape = (n_features,)
+
+        # Create in parallel
+        output = self.derivatives_parallel(
+            inp,
+            self.derivatives_single,
+            n_jobs,
+            derivatives_shape,
+            descriptor_shape,
+            return_descriptor,
+            only_physical_cores,
+            verbose=verbose,
+        )
+
+        return output
+
+    # Still missing the insclude/exclude system. Only works with flatten=True.
+    # Modeled after create_single() function but uses _get_k1_derivatives(),
+    # _get_k2_derivatives(), and _get_k3_derivatives() functions instead of
+    # _get_k1(), _get_k2(), and _get_k3() to also calculate the derivatives.
+    def derivatives_single(self, system, return_descriptor=True):
+        """Calculate the MBTR derivatives for the given system.
+
+        Args:
+            system (:class:`ase.Atoms`): Atomic structure.
+            return_descriptor (bool): Whether to also calculate the descriptor
+                in the same function call. This is true by default as it
+                typically is faster to calculate both in one go.
+
+        Returns:
+            If return_descriptor is True, returns a tuple, where the first item
+            is the derivative array and the second is the descriptor array.
+            Otherwise only returns the derivatives array. The derivatives array
+            is a 3D numpy array. The dimensions are: [n_atoms, 3, n_features].
+            The first dimension goes over all the atoms in the system. The
+            second dimension goes over the cartesian components, x, y and z.
+            The last dimension goes over the features in the default order.
+        """
+
+        # Ensuring variables are re-initialized when a new system is introduced
+        self.system = system
+        self._interaction_limit = len(system)
+
+        # Check that the system does not have elements that are not in the list
+        # of atomic numbers
+        self.check_atomic_numbers(system.get_atomic_numbers())
+
+        mbtr = {}
+        mbtr_d = {}
+        if self.k1 is not None:
+            k1, k1_d = self._get_k1_derivatives(system)
+            mbtr["k1"] = k1
+            mbtr_d["k1"] = k1_d
+        if self.k2 is not None:
+            k2, k2_d = self._get_k2_derivatives(system)
+            mbtr["k2"] = k2
+            mbtr_d["k2"] = k2_d
+        if self.k3 is not None:
+            k3, k3_d = self._get_k3_derivatives(system)
+            mbtr["k3"] = k3
+            mbtr_d["k3"] = k3_d
+
+        # Handle normalization
+        if self.normalization == "l2_each":
+            if self.flatten is True:
+                for key, value in mbtr.items():
+                    i_data = np.array(value.data)
+                    i_norm = np.linalg.norm(i_data)
+                    mbtr[key] = value / i_norm
+                    mbtr_d[key] /= i_norm
+            else:
+                for key, value in mbtr.items():
+                    i_data = value.ravel()
+                    i_norm = np.linalg.norm(i_data)
+                    mbtr[key] = value / i_norm
+                    mbtr_d[key] /= i_norm
+        elif self.normalization == "n_atoms":
+            n_atoms = len(self.system)
+            if self.flatten is True:
+                for key, value in mbtr.items():
+                    mbtr[key] = value / n_atoms
+                    mbtr_d[key] /= n_atoms
+            else:
+                for key, value in mbtr.items():
+                    mbtr[key] = value / n_atoms
+                    mbtr_d[key] /= n_atoms
+
+        keys = sorted(mbtr.keys())
+        if len(keys) > 1:
+            mbtr = np.concatenate([mbtr[key] for key in keys], axis=0)
+            mbtr_d = np.concatenate([mbtr_d[key] for key in keys], axis=2)
+        else:
+            mbtr = mbtr[keys[0]]
+            mbtr_d = mbtr_d[keys[0]]
+
+        if self.sparse:
+            mbtr = sparse.COO.from_numpy(mbtr)
+            mbtr_d = sparse.COO.from_numpy(mbtr_d)
+        
+        if return_descriptor:
+            return (mbtr_d, mbtr)
+        return mbtr_d
+
+    # Like _get_k1() but also calculates the derivatives with regards to all
+    # atoms in the system.
+    def _get_k1_derivatives(self, system):
+        k1 = self._get_k1(system)
+        if self.flatten: k1 = k1.todense()
+        k1_d = np.zeros((self._interaction_limit, 3, len(k1)))
+        return (k1, k1_d)
+
+    # Like _get_k2() but also calculates the derivatives with regards to all
+    # atoms in the system.
+    def _get_k2_derivatives(self, system):
+        
+        grid = self.k2["grid"]
+        start = grid["min"]
+        stop = grid["max"]
+        n = grid["n"]
+        sigma = grid["sigma"]
+        
+        # Determine the weighting function and possible radial cutoff
+        r_cut = None
+        weighting = self.k2.get("weighting")
+        parameters = {}
+        if weighting is not None:
+            weighting_function = weighting["function"]
+            if weighting_function == "exp":
+                threshold = weighting["threshold"]
+                r_cut = weighting.get("r_cut")
+                scale = weighting.get("scale")
+                if scale is not None and r_cut is None:
+                    r_cut = -math.log(threshold) / scale
+                elif scale is None and r_cut is not None:
+                    scale = -math.log(threshold) / r_cut
+                parameters = {b"scale": scale, b"threshold": threshold}
+            elif weighting_function == "inverse_square":
+                r_cut = weighting["r_cut"]
+        else:
+            weighting_function = "unity"
+        
+        # Determine the geometry function
+        geom_func_name = self.k2["geometry"]["function"]
+        
+        # If needed, create the extended system
+        if self.periodic:
+            centers = system.get_positions()
+            ext_system, cell_indices = dscribe.utils.geometry.get_extended_system(
+                system,
+                r_cut,
+                centers,
+                return_cell_indices=True
+            )
+            ext_system = System.from_atoms(ext_system)
+        else:
+            ext_system = System.from_atoms(system)
+            cell_indices = np.zeros((len(system), 3), dtype=int)
+
+        n_atoms = len(ext_system)
+        if r_cut is not None:
+            dmat = ext_system.get_distance_matrix_within_radius(r_cut)
+            adj_list = dscribe.utils.geometry.get_adjacency_list(dmat)
+        else:
+            dmat_dense = ext_system.get_distance_matrix()
+            adj_list = np.tile(np.arange(n_atoms), (n_atoms, 1))
+                
+        # Generate MBTR_k2^{Z_1,Z_2} map and its derivative 
+        k2_map, k2_diff_map = get_k2_maps(  ext_system.get_atomic_numbers(),
+                                            ext_system.get_positions(),
+                                            adj_list,
+                                            geom_func_name,
+                                            weighting_function,
+                                            parameters,
+                                            start,
+                                            stop,
+                                            sigma,
+                                            n,
+                                            self.atomic_number_to_index,
+                                            self._interaction_limit,
+                                            cell_indices,
+                                            )
+        
+        n_elem = self.n_elements
+        n_features = int((n_elem * (n_elem + 1) / 2) * n)
+        n_atoms = self._interaction_limit
+
+        k2 = np.zeros((n_features), dtype=np.float32)
+        k2_d = np.zeros((n_atoms, 3, n_features), dtype=np.float32)
+
+        for key, gaussian_sum in sorted(k2_map.items()):
+            i = key[0]
+            j = key[1]
+
+            # This is the index of the spectrum. It is given by enumerating the
+            # elements of an upper triangular matrix from left to right and top
+            # to bottom.
+            m = int(j + i*n_elem - i*(i+1)/2)
+
+            # Denormalize if requested
+            if not self.normalize_gaussians:
+                max_val = 1/(sigma*math.sqrt(2*math.pi))
+                gaussian_sum /= max_val
+                k2_diff_map[key] /= max_val
+        
+            if self.flatten:
+                start = m * n
+                end = (m + 1) * n
+                k2[start:end] = gaussian_sum
+                k2_d[:,:,start:end] = k2_diff_map[key]
+            #else:
+            #    k2[i, j, :] = gaussian_sum
+
+        return (k2, k2_d)
+
+
+    # Like _get_k3() but also calculates the derivatives with regards to all
+    # atoms in the system.
+    def _get_k3_derivatives(self, system):
+        
+        grid = self.k3["grid"]
+        start = grid["min"]
+        stop = grid["max"]
+        n = grid["n"]
+        sigma = grid["sigma"]
+  
+        # Determine the weighting function and possible radial cutoff
+        r_cut = None
+        weighting = self.k3.get("weighting")
+        parameters = {}
+        if weighting is not None:
+            weighting_function = weighting["function"]
+            if weighting_function == "exp":
+                threshold = weighting["threshold"]
+                r_cut = weighting.get("r_cut")
+                scale = weighting.get("scale")
+                # If we want to limit the triplets to a distance r_cut, we need
+                # to allow x=2*r_cut in the case of k=3.
+                if scale is not None and r_cut is None:
+                    r_cut = -0.5 * math.log(threshold) / scale
+                elif scale is None and r_cut is not None:
+                    scale = -0.5 * math.log(threshold) / r_cut
+                parameters = {b"scale": scale, b"threshold": threshold}
+            if weighting_function == "smooth_cutoff":
+                try:
+                    sharpness = weighting["sharpness"]
+                except Exception:
+                    sharpness = 2
+                r_cut = weighting["r_cut"]
+                parameters = {b"sharpness": sharpness, b"cutoff": r_cut}
+        else:
+            weighting_function = "unity"       
+
+        # Determine the geometry function
+        geom_func_name = self.k3["geometry"]["function"]
+        
+        # If needed, create the extended system
+        if self.periodic:
+            centers = system.get_positions()
+            ext_system, cell_indices = dscribe.utils.geometry.get_extended_system(
+                system, r_cut, centers, return_cell_indices=True
+            )
+            ext_system = System.from_atoms(ext_system)
+        else:
+            ext_system = System.from_atoms(system)
+            cell_indices = np.zeros((len(system), 3), dtype=int)
+
+        n_atoms = len(ext_system)
+        if r_cut is not None:
+            dmat = ext_system.get_distance_matrix_within_radius(r_cut)
+            adj_list = dscribe.utils.geometry.get_adjacency_list(dmat)
+        else:
+            adj_list = np.tile(np.arange(n_atoms), (n_atoms, 1))
+
+        # Generate MBTR_k3^{Z_1,Z_2,Z_3} map and its derivative 
+        k3_map, k3_diff_map = get_k3_maps(
+            ext_system.get_atomic_numbers(),
+            ext_system.get_positions(),
+            adj_list,
+            geom_func_name,
+            weighting_function,
+            parameters,
+            start,
+            stop,
+            sigma,
+            n,
+            self.atomic_number_to_index,
+            self._interaction_limit,
+            cell_indices,
+            )
+        
+        n_elem = self.n_elements
+        n_features = int((n_elem * n_elem * (n_elem + 1) / 2) * n)
+        n_atoms = self._interaction_limit
+    
+        k3 = np.zeros((n_features), dtype=np.float32)
+        k3_d = np.zeros((n_atoms, 3, n_features), dtype=np.float32)
+
+        for key, gaussian_sum in sorted(k3_map.items()):
+            i = key[0]
+            j = key[1]
+            k = key[2]
+
+            # This is the index of the spectrum. It is given by enumerating the
+            # elements of a three-dimensional array where for valid elements
+            # k>=i. The enumeration begins from [0, 0, 0], and ends at [n_elem,
+            # n_elem, n_elem], looping the elements in the order j, i, k.
+            m = int(j * n_elem * (n_elem + 1) / 2 + k + i * n_elem - i * (i + 1) / 2)
+
+            # Denormalize if requested
+            if not self.normalize_gaussians:
+                max_val = 1 / (sigma * math.sqrt(2 * math.pi))
+                gaussian_sum /= max_val
+                k3_diff_map[key] /= max_val
+
+            if self.flatten:
+                start = m * n
+                end = (m + 1) * n
+                k3[start:end] = gaussian_sum
+                k3_d[:,:,start:end] = k3_diff_map[key]
+            #else:
+            #    k3[i, j, k, :] = gaussian_sum
+
+        return (k3, k3_d)
