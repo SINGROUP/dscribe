@@ -25,6 +25,7 @@ import ase.data
 from dscribe.core import System
 from dscribe.descriptors import Descriptor
 from dscribe.ext import MBTRWrapper
+from dscribe.utils.dimensionality import is1d
 import dscribe.utils.geometry
 
 @np.vectorize
@@ -1317,6 +1318,9 @@ class MBTR(Descriptor):
     def derivatives(
         self,
         system,
+        include=None,
+        exclude=None,
+        method="auto",
         return_descriptor=True,
         n_jobs=1,
         only_physical_cores=False,
@@ -1327,6 +1331,16 @@ class MBTR(Descriptor):
         Args:
             system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or
                 many atomic structures.
+            include (list): Indices of atoms to compute the derivatives on.
+                When calculating descriptor for multiple systems, provide
+                either a one-dimensional list that if applied to all systems or
+                a two-dimensional list of indices. Cannot be provided together
+                with 'exclude'.
+            exclude (list): Indices of atoms not to compute the derivatives on.
+                When calculating descriptor for multiple systems, provide
+                either a one-dimensional list that if applied to all systems or
+                a two-dimensional list of indices. Cannot be provided together
+                with 'include'.
             return_descriptor (bool): Whether to also calculate the descriptor
                 in the same function call. Notice that it typically is faster
                 to calculate both in one go.
@@ -1362,30 +1376,74 @@ class MBTR(Descriptor):
             the cartesian components, x, y and z. The fifth dimension goes over
             the features in the default order.
         """
+        # Validate/determine the appropriate calculation method.
+        methods = {"analytical", "auto"}
+        if method not in methods:
+            raise ValueError(
+                "Invalid method specified. Please choose from: {}".format(methods)
+            )
+        if method == "auto":
+            method = "analytical"
 
-
-        # If single system given, skip the parallelization
-        if isinstance(system, (Atoms, System)):
-            return self.derivatives_single(
-                system,
-                return_descriptor=return_descriptor,
+        # Check input validity
+        system = [system] if isinstance(system, Atoms) else system
+        n_samples = len(system)
+        if include is None:
+            include = [None] * n_samples
+        elif is1d(include, np.integer):
+            include = [include] * n_samples
+        if exclude is None:
+            exclude = [None] * n_samples
+        elif is1d(exclude, np.integer):
+            exclude = [exclude] * n_samples
+        n_inc = len(include)
+        if n_inc != n_samples:
+            raise ValueError(
+                "The given number of includes does not match the given "
+                "number of systems."
+            )
+        n_exc = len(exclude)
+        if n_exc != n_samples:
+            raise ValueError(
+                "The given number of excludes does not match the given "
+                "number of systems."
             )
 
-        n_samples = len(system)
-
+        # Determine the atom indices that are displaced
+        indices = []
+        for sys, inc, exc in zip(system, include, exclude):
+            n_atoms = len(sys)
+            indices.append(self._get_indices(n_atoms, inc, exc))
+        
         # Combine input arguments
         inp = list(
             zip(
                 system,
+                indices,
+                [method] * n_samples,
                 [return_descriptor] * n_samples,
             )
         )
 
+        # Determine a fixed output size if possible
         n_features = self.get_number_of_features()
-        n_atoms = self._interaction_limit
 
-        derivatives_shape = (n_atoms, 3, n_features)
-        descriptor_shape = (n_features,)
+        def get_shapes(job):
+            n_indices = len(job[1])
+            return (n_indices, 3, n_features), (n_features,)
+
+        derivatives_shape, descriptor_shape = get_shapes(inp[0])
+
+        def is_variable(inp):
+            for job in inp[1:]:
+                i_der_shape, i_desc_shape = get_shapes(job)
+                if i_der_shape != derivatives_shape or i_desc_shape != descriptor_shape:
+                    return True
+            return False
+
+        if is_variable(inp):
+            derivatives_shape = None
+            descriptor_shape = None
 
         # Create in parallel
         output = self.derivatives_parallel(
@@ -1401,15 +1459,24 @@ class MBTR(Descriptor):
 
         return output
 
-    # Still missing the insclude/exclude system. Only works with flatten=True.
     # Modeled after create_single() function but uses _get_k1_derivatives(),
     # _get_k2_derivatives(), and _get_k3_derivatives() functions instead of
     # _get_k1(), _get_k2(), and _get_k3() to also calculate the derivatives.
-    def derivatives_single(self, system, return_descriptor=True):
-        """Calculate the MBTR derivatives for the given system.
+    def derivatives_single(
+        self,
+        system,
+        indices,
+        method="analytical",
+        return_descriptor=True,
+    ):
+        """Return the derivatives for the given system.
 
         Args:
             system (:class:`ase.Atoms`): Atomic structure.
+            indices (list): Indices of atoms for which the derivatives will be
+                computed for.
+            method (str): The method for calculating the derivatives. Supports
+                'numerical'.
             return_descriptor (bool): Whether to also calculate the descriptor
                 in the same function call. This is true by default as it
                 typically is faster to calculate both in one go.
@@ -1423,7 +1490,6 @@ class MBTR(Descriptor):
             second dimension goes over the cartesian components, x, y and z.
             The last dimension goes over the features in the default order.
         """
-
         # Ensuring variables are re-initialized when a new system is introduced
         self.system = system
         self._interaction_limit = len(system)
@@ -1449,18 +1515,9 @@ class MBTR(Descriptor):
 
         # Handle normalization
         if self.normalization == "l2_each":
-            if self.flatten is True:
-                for key, value in mbtr.items():
-                    i_data = np.array(value.data)
-                    i_norm = np.linalg.norm(i_data)
-                    mbtr[key] = value / i_norm
-                    mbtr_d[key] /= i_norm
-            else:
-                for key, value in mbtr.items():
-                    i_data = value.ravel()
-                    i_norm = np.linalg.norm(i_data)
-                    mbtr[key] = value / i_norm
-                    mbtr_d[key] /= i_norm
+            # Normalization factor is a function of atomic positions.
+            # Not implemented
+            pass
         elif self.normalization == "n_atoms":
             n_atoms = len(self.system)
             if self.flatten is True:
@@ -1480,6 +1537,10 @@ class MBTR(Descriptor):
             mbtr = mbtr[keys[0]]
             mbtr_d = mbtr_d[keys[0]]
 
+        # For now, the derivatives are calculated with regard to all atomic
+        # positions. The desired indices are extracted here at the end.
+        mbtr_d = mbtr_d[indices]
+
         if self.sparse:
             mbtr = sparse.COO.from_numpy(mbtr)
             mbtr_d = sparse.COO.from_numpy(mbtr_d)
@@ -1488,7 +1549,7 @@ class MBTR(Descriptor):
             return (mbtr_d, mbtr)
         return mbtr_d
 
-    # Like _get_k1() but also calculates the derivatives with regards to all
+    # Like _get_k1() but also calculates the derivatives with regard to all
     # atoms in the system.
     def _get_k1_derivatives(self, system):
         k1 = self._get_k1(system)
@@ -1496,7 +1557,7 @@ class MBTR(Descriptor):
         k1_d = np.zeros((self._interaction_limit, 3, len(k1)))
         return (k1, k1_d)
 
-    # Like _get_k2() but also calculates the derivatives with regards to all
+    # Like _get_k2() but also calculates the derivatives with regard to all
     # atoms in the system.
     def _get_k2_derivatives(self, system):
         
@@ -1600,7 +1661,7 @@ class MBTR(Descriptor):
         return (k2, k2_d)
 
 
-    # Like _get_k3() but also calculates the derivatives with regards to all
+    # Like _get_k3() but also calculates the derivatives with regard to all
     # atoms in the system.
     def _get_k3_derivatives(self, system):
         
