@@ -32,18 +32,13 @@ import dscribe.utils.geometry
 def vec_erf(x):
     return math.erf(x)
 
-# Generate MBTR_k2^{Z_1,Z_2} map and its derivative. Replaces getK2() c++
-# function for calculating the derivatives. The passed parameters are the same
-# except for passing atom positions instead of distances. Additionally the last
-# three parameters here are passed to c++ throught constructor.
-def get_k2_maps(Z, positions, neighbours, geom_func, weight_func, parameters, x_min, x_max, sigma, n, atomic_number_to_index, interaction_limit, cell_indices):
-
-    k2_map = {}
-    k2_diff_map = {}
+# Placeholder for a c++ function that calculates the k=2 term derivatives and descriptor
+def k2_derivatives_compute(derivatives, descriptor, Z, positions, neighbours, geom_func, weight_func, parameters, x_min, x_max, sigma, n, atomic_number_to_index, interaction_limit, cell_indices):
 
     dx = (x_max-x_min)/(n-1)
     x = x_min - dx/2 + dx*np.arange(n+1)
     n_atoms = len(Z)
+    n_elem = len(set(Z))
 
     # Loop over all atoms in the system
     for i in range(n_atoms):
@@ -98,37 +93,30 @@ def get_k2_maps(Z, positions, neighbours, geom_func, weight_func, parameters, x_
             i_index = atomic_number_to_index[Z[i]]
             j_index = atomic_number_to_index[Z[j]]
 
-            # Save information in the part where j_index >= i_index
-            #key = tuple(sorted([i_index, j_index]))
-            key = (i_index, j_index) if i_index<j_index else (j_index,i_index)
+            i_index, j_index = sorted((i_index, j_index))
 
-            # Sum gaussian into output
-            if  key in k2_map:
-                k2_map[key] = k2_map[key] + gauss
-            else:
-                k2_map[key] = gauss
-                k2_diff_map[key] = np.zeros((interaction_limit, 3, n))
+            # This is the index of the spectrum. It is given by enumerating the
+            # elements of an upper triangular matrix from left to right and top
+            # to bottom.
+            m = int(j_index + i_index * n_elem - i_index * (i_index + 1) / 2)
+            start = m * n
+            end = (m + 1) * n
+
+            descriptor[start:end] += gauss
 
             # Add derivative contribution to derivatives that it affects.
             # Derivatives are antisymmetric.
             for index, sign in zip([i,j],[1,-1]):
                 if index < interaction_limit:
-                    k2_diff_map[key][index] = k2_diff_map[key][index] + sign*gauss_d
-    
-    return k2_map, k2_diff_map 
+                    derivatives[index,:,start:end] += sign*gauss_d
 
-
-# Generate MBTR_k3^{Z_1,Z_2,Z_3} map and its derivative. Replaces getK3() c++
-# function for calculating the derivatives. The passed parameters are the same
-# except for passing atom positions instead of distances. Additionally the last
-# three parameters here are passed to c++ throught constructor.
-def get_k3_maps(Z, positions, neighbours, geom_func, weight_func, parameters, x_min, x_max, sigma, n, atomic_number_to_index, interaction_limit, cell_indices):
-    k3_map = {}
-    k3_diff_map = {}
+# Placeholder for a c++ function that calculates the k=3 term derivatives and descriptor
+def k3_derivatives_compute(derivatives, descriptor, Z, positions, neighbours, geom_func, weight_func, parameters, x_min, x_max, sigma, n, atomic_number_to_index, interaction_limit, cell_indices):
     
     dx = (x_max-x_min)/(n-1)
     x = x_min - dx/2 + dx*np.arange(n+1)
     n_atoms = len(Z)
+    n_elem = len(set(Z))
 
     for i in range(n_atoms):
         for j in  neighbours[i]:
@@ -201,6 +189,7 @@ def get_k3_maps(Z, positions, neighbours, geom_func, weight_func, parameters, x_
                     gauss_d.append( - np.outer(g_d[ind], gauss*sigma**(-2)*g)
                                     + np.outer(g_d[ind], x_gauss*sigma**(-2))
                                     + np.outer(w_d[ind], gauss))
+                gauss_d = np.array(gauss_d)
 
                 # Rescale if the atoms are in different periodic images
                 i_copy = cell_indices[i]
@@ -218,24 +207,24 @@ def get_k3_maps(Z, positions, neighbours, geom_func, weight_func, parameters, x_
                 j_index = atomic_number_to_index[Z[j]]
                 k_index = atomic_number_to_index[Z[k]]
 
-                # Save information in the part where k_index >= i_index
-                key = (k_index, j_index, i_index) if k_index<i_index else (i_index, j_index, k_index)
+                i_index, k_index = sorted((i_index, k_index))
+            
+                # This is the index of the spectrum. It is given by enumerating the
+                # elements of a three-dimensional array where for valid elements
+                # k>=i. The enumeration begins from [0, 0, 0], and ends at [n_elem,
+                # n_elem, n_elem], looping the elements in the order j, i, k.
+                m = int(j_index * n_elem * (n_elem + 1) / 2 + k_index + i_index * n_elem - i_index * (i_index + 1) / 2)
 
-                # Sum gaussian into output
-                if key in k3_map:
-                    k3_map[key] = k3_map[key] + gauss
-                else:
-                    k3_map[key] = gauss
-                    k3_diff_map[key] = np.zeros((interaction_limit, 3, n))
-    
+                start = m * n
+                end = (m + 1) * n
+                
+                descriptor[start:end] += gauss
+
                 # Add derivative contribution to derivatives that it affects.
                 # Derivatives are antisymmetric.
-                for index, gauss_d_i in zip([i,j,k], gauss_d):
+                for index, gauss_d_i in zip([i,j,k],gauss_d):
                     if index < interaction_limit:
-                        k3_diff_map[key][index] = k3_diff_map[key][index] + gauss_d_i
-    
-    return k3_map, k3_diff_map
-
+                        derivatives[index,:,start:end] += gauss_d_i
 
 class MBTR(Descriptor):
     """Implementation of the Many-body tensor representation up to :math:`k=3`.
@@ -1611,55 +1600,39 @@ class MBTR(Descriptor):
         else:
             dmat_dense = ext_system.get_distance_matrix()
             adj_list = np.tile(np.arange(n_atoms), (n_atoms, 1))
-                
-        # Generate MBTR_k2^{Z_1,Z_2} map and its derivative 
-        k2_map, k2_diff_map = get_k2_maps(  ext_system.get_atomic_numbers(),
-                                            ext_system.get_positions(),
-                                            adj_list,
-                                            geom_func_name,
-                                            weighting_function,
-                                            parameters,
-                                            start,
-                                            stop,
-                                            sigma,
-                                            n,
-                                            self.atomic_number_to_index,
-                                            self._interaction_limit,
-                                            cell_indices,
-                                            )
         
         n_elem = self.n_elements
         n_features = int((n_elem * (n_elem + 1) / 2) * n)
         n_atoms = self._interaction_limit
-
+        
         k2 = np.zeros((n_features), dtype=np.float32)
         k2_d = np.zeros((n_atoms, 3, n_features), dtype=np.float32)
 
-        for key, gaussian_sum in sorted(k2_map.items()):
-            i = key[0]
-            j = key[1]
+        # Generate derivatives for k=2 term
+        k2_derivatives_compute( k2_d,
+                                k2,
+                                ext_system.get_atomic_numbers(),
+                                ext_system.get_positions(),
+                                adj_list,
+                                geom_func_name,
+                                weighting_function,
+                                parameters,
+                                start,
+                                stop,
+                                sigma,
+                                n,
+                                self.atomic_number_to_index,
+                                self._interaction_limit,
+                                cell_indices,
+                                )
 
-            # This is the index of the spectrum. It is given by enumerating the
-            # elements of an upper triangular matrix from left to right and top
-            # to bottom.
-            m = int(j + i*n_elem - i*(i+1)/2)
-
-            # Denormalize if requested
-            if not self.normalize_gaussians:
-                max_val = 1/(sigma*math.sqrt(2*math.pi))
-                gaussian_sum /= max_val
-                k2_diff_map[key] /= max_val
-        
-            if self.flatten:
-                start = m * n
-                end = (m + 1) * n
-                k2[start:end] = gaussian_sum
-                k2_d[:,:,start:end] = k2_diff_map[key]
-            #else:
-            #    k2[i, j, :] = gaussian_sum
+        # Denormalize if requested
+        if not self.normalize_gaussians:
+            max_val = 1/(sigma*math.sqrt(2*math.pi))
+            k2 /= max_val
+            k2_d /= max_val
 
         return (k2, k2_d)
-
 
     # Like _get_k3() but also calculates the derivatives with regard to all
     # atoms in the system.
@@ -1719,53 +1692,37 @@ class MBTR(Descriptor):
         else:
             adj_list = np.tile(np.arange(n_atoms), (n_atoms, 1))
 
-        # Generate MBTR_k3^{Z_1,Z_2,Z_3} map and its derivative 
-        k3_map, k3_diff_map = get_k3_maps(
-            ext_system.get_atomic_numbers(),
-            ext_system.get_positions(),
-            adj_list,
-            geom_func_name,
-            weighting_function,
-            parameters,
-            start,
-            stop,
-            sigma,
-            n,
-            self.atomic_number_to_index,
-            self._interaction_limit,
-            cell_indices,
-            )
-        
         n_elem = self.n_elements
         n_features = int((n_elem * n_elem * (n_elem + 1) / 2) * n)
         n_atoms = self._interaction_limit
     
         k3 = np.zeros((n_features), dtype=np.float32)
         k3_d = np.zeros((n_atoms, 3, n_features), dtype=np.float32)
+        
+        # Compute the k=3 term and its derivative 
+        k3_derivatives_compute(
+                k3_d,
+                k3,
+                ext_system.get_atomic_numbers(),
+                ext_system.get_positions(),
+                adj_list,
+                geom_func_name,
+                weighting_function,
+                parameters,
+                start,
+                stop,
+                sigma,
+                n,
+                self.atomic_number_to_index,
+                self._interaction_limit,
+                cell_indices,
+            )
+        
 
-        for key, gaussian_sum in sorted(k3_map.items()):
-            i = key[0]
-            j = key[1]
-            k = key[2]
-
-            # This is the index of the spectrum. It is given by enumerating the
-            # elements of a three-dimensional array where for valid elements
-            # k>=i. The enumeration begins from [0, 0, 0], and ends at [n_elem,
-            # n_elem, n_elem], looping the elements in the order j, i, k.
-            m = int(j * n_elem * (n_elem + 1) / 2 + k + i * n_elem - i * (i + 1) / 2)
-
-            # Denormalize if requested
-            if not self.normalize_gaussians:
-                max_val = 1 / (sigma * math.sqrt(2 * math.pi))
-                gaussian_sum /= max_val
-                k3_diff_map[key] /= max_val
-
-            if self.flatten:
-                start = m * n
-                end = (m + 1) * n
-                k3[start:end] = gaussian_sum
-                k3_d[:,:,start:end] = k3_diff_map[key]
-            #else:
-            #    k3[i, j, k, :] = gaussian_sum
+        # Denormalize if requested
+        if not self.normalize_gaussians:
+            max_val = 1 / (sigma * math.sqrt(2 * math.pi))
+            k3 /= max_val
+            k3_d /= max_val
 
         return (k3, k3_d)
