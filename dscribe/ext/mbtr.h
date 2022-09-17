@@ -13,7 +13,10 @@
 #include <algorithm>
 #include <sstream>
 #include <stdexcept>
+#include <numeric>
+#include <pybind11/numpy.h>
 
+namespace py = pybind11;
 using namespace std;
 #define PI 3.1415926535897932384626433832795028841971693993751058209749445923078164062
 
@@ -48,6 +51,9 @@ class MBTR {
         vector<map<string, vector<float>>> getK2Local(const vector<int> &indices, const vector<int> &Z, const vector<vector<float>> &distances, const vector<vector<int>> &neighbours, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n);
         vector<map<string, vector<float>>> getK3Local(const vector<int> &indices, const vector<int> &Z, const vector<vector<float>> &distances, const vector<vector<int>> &neighbours, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n);
         vector<float> gaussian(float center, float weight, float start, float dx, float sigmasqrt2, int n);
+        vector<float> xgaussian(float center, float weight, float start, float dx, float sigma, int n);
+        
+        void getK2Derivatives(py::array_t<float> &derivatives, py::array_t<float> &descriptor, const vector<int> &Z, const vector<vector<float>> &positions, const vector<vector<float>> &distances, const vector<vector<int>> &neighbours, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n);
 
 
     private:

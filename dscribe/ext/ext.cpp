@@ -114,7 +114,8 @@ PYBIND11_MODULE(ext, m) {
         .def("get_k2", &MBTR::getK2)
         .def("get_k3", &MBTR::getK3)
         .def("get_k2_local", &MBTR::getK2Local)
-        .def("get_k3_local", &MBTR::getK3Local);
+        .def("get_k3_local", &MBTR::getK3Local)
+        .def("get_k2_derivatives", &MBTR::getK2Derivatives);
 
     // CellList
     py::class_<CellList>(m, "CellList")

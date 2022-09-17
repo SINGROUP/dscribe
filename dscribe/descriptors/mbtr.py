@@ -32,84 +32,6 @@ import dscribe.utils.geometry
 def vec_erf(x):
     return math.erf(x)
 
-# Placeholder for a c++ function that calculates the k=2 term derivatives and descriptor
-def k2_derivatives_compute(derivatives, descriptor, Z, positions, neighbours, geom_func, weight_func, parameters, x_min, x_max, sigma, n, atomic_number_to_index, interaction_limit, cell_indices):
-
-    dx = (x_max-x_min)/(n-1)
-    x = x_min - dx/2 + dx*np.arange(n+1)
-    n_atoms = len(Z)
-    n_elem = len(set(Z))
-
-    # Loop over all atoms in the system
-    for i in range(n_atoms):
-        # For each atom we loop only over the neighbours
-        for j in  neighbours[i]:
-            if j <= i: continue
-
-            # Only consider pairs that have one atom in the original cell
-            if (i >= interaction_limit and j >= interaction_limit):
-                continue
-            
-            d_vec = positions[i]-positions[j]
-            dist = np.sum(d_vec**2)**0.5
-
-            # Calculate geometry value
-            if geom_func == "inverse_distance":
-                g = 1/dist
-                g_d = -d_vec/dist**3
-            elif geom_func == "distance":
-                g = dist
-                g_d = d_vec/dist
-            
-            # Calculate weight value
-            if (weight_func == "exponential" or weight_func == "exp"):
-                scale = parameters[b"scale"]
-                cutoff = parameters[b"threshold"]
-                w = np.exp(-scale*dist)
-                w_d = -scale/dist*d_vec
-                if w < cutoff: continue
-            elif (weight_func == "unity"):
-                w = 1.0
-                w_d = 0*d_vec
-            
-            # Calculate gaussian
-            cdf = w/2*(1 + vec_erf((x-g)/(sigma*2**0.5)))
-            gauss = (cdf[1:]-cdf[:-1])/dx
-            
-            # Calculate x*gaussian distribution 
-            x_gauss_cdf = g*cdf - w*sigma/(2*np.pi)**0.5*(np.exp(-(g-x)**2/(2*sigma**2)) - 1)
-            x_gauss = (x_gauss_cdf[1:]-x_gauss_cdf[:-1])/dx
-            
-            # Derivative of the gaussian 
-            gauss_d =  (- np.outer(g_d, gauss*sigma**(-2)*g)
-                        + np.outer(g_d, x_gauss*sigma**(-2))
-                        + np.outer(w_d, gauss))
-            
-            # Rescale if the atoms are in different periodic images
-            if np.any(cell_indices[i] != cell_indices[j]):
-                gauss /= 2
-            
-            # Get the index of the present elements in the final vector
-            i_index = atomic_number_to_index[Z[i]]
-            j_index = atomic_number_to_index[Z[j]]
-
-            i_index, j_index = sorted((i_index, j_index))
-
-            # This is the index of the spectrum. It is given by enumerating the
-            # elements of an upper triangular matrix from left to right and top
-            # to bottom.
-            m = int(j_index + i_index * n_elem - i_index * (i_index + 1) / 2)
-            start = m * n
-            end = (m + 1) * n
-
-            descriptor[start:end] += gauss
-
-            # Add derivative contribution to derivatives that it affects.
-            # Derivatives are antisymmetric.
-            for index, sign in zip([i,j],[1,-1]):
-                if index < interaction_limit:
-                    derivatives[index,:,start:end] += sign*gauss_d
-
 # Placeholder for a c++ function that calculates the k=3 term derivatives and descriptor
 def k3_derivatives_compute(derivatives, descriptor, Z, positions, neighbours, geom_func, weight_func, parameters, x_min, x_max, sigma, n, atomic_number_to_index, interaction_limit, cell_indices):
     
@@ -1593,38 +1515,49 @@ class MBTR(Descriptor):
             ext_system = System.from_atoms(system)
             cell_indices = np.zeros((len(system), 3), dtype=int)
 
-        n_atoms = len(ext_system)
-        if r_cut is not None:
-            dmat = ext_system.get_distance_matrix_within_radius(r_cut)
-            adj_list = dscribe.utils.geometry.get_adjacency_list(dmat)
-        else:
-            dmat_dense = ext_system.get_distance_matrix()
-            adj_list = np.tile(np.arange(n_atoms), (n_atoms, 1))
-        
         n_elem = self.n_elements
         n_features = int((n_elem * (n_elem + 1) / 2) * n)
         n_atoms = self._interaction_limit
         
+        cmbtr = MBTRWrapper(
+            self.atomic_number_to_index, self._interaction_limit, cell_indices
+        )
+
+        # If radial cutoff is finite, use it to calculate the sparse
+        # distance matrix to reduce computational complexity from O(n^2) to
+        # O(n log(n))
+        n_atoms = len(ext_system)
+        if r_cut is not None:
+            dmat = ext_system.get_distance_matrix_within_radius(r_cut)
+            adj_list = dscribe.utils.geometry.get_adjacency_list(dmat)
+            dmat_dense = np.full(
+                (n_atoms, n_atoms), sys.float_info.max
+            )  # The non-neighbor values are treated as "infinitely far".
+            dmat_dense[dmat.row, dmat.col] = dmat.data
+        # If no weighting is used, the full distance matrix is calculated
+        else:
+            dmat_dense = ext_system.get_distance_matrix()
+            adj_list = np.tile(np.arange(n_atoms), (n_atoms, 1))
+
         k2 = np.zeros((n_features), dtype=np.float32)
         k2_d = np.zeros((n_atoms, 3, n_features), dtype=np.float32)
-
+        
         # Generate derivatives for k=2 term
-        k2_derivatives_compute( k2_d,
-                                k2,
-                                ext_system.get_atomic_numbers(),
-                                ext_system.get_positions(),
-                                adj_list,
-                                geom_func_name,
-                                weighting_function,
-                                parameters,
-                                start,
-                                stop,
-                                sigma,
-                                n,
-                                self.atomic_number_to_index,
-                                self._interaction_limit,
-                                cell_indices,
-                                )
+        cmbtr.get_k2_derivatives(
+            k2_d,
+            k2,
+            ext_system.get_atomic_numbers(),
+            ext_system.get_positions(),
+            dmat_dense,
+            adj_list,
+            geom_func_name.encode(),
+            weighting_function.encode(),
+            parameters,
+            start,
+            stop,
+            sigma,
+            n,
+        )
 
         # Denormalize if requested
         if not self.normalize_gaussians:
