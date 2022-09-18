@@ -28,125 +28,6 @@ from dscribe.ext import MBTRWrapper
 from dscribe.utils.dimensionality import is1d
 import dscribe.utils.geometry
 
-@np.vectorize
-def vec_erf(x):
-    return math.erf(x)
-
-# Placeholder for a c++ function that calculates the k=3 term derivatives and descriptor
-def k3_derivatives_compute(derivatives, descriptor, Z, positions, neighbours, geom_func, weight_func, parameters, x_min, x_max, sigma, n, atomic_number_to_index, interaction_limit, cell_indices):
-    
-    dx = (x_max-x_min)/(n-1)
-    x = x_min - dx/2 + dx*np.arange(n+1)
-    n_atoms = len(Z)
-    n_elem = len(set(Z))
-
-    for i in range(n_atoms):
-        for j in  neighbours[i]:
-            for k in neighbours[i]:
-                if i>=interaction_limit and j>=interaction_limit and  k>=interaction_limit: continue
-                if j==i or k==j or k==i: continue
-                if k<=i: continue
-
-                # Find distance vectors
-                r_ji = positions[j] - positions[i]
-                r_ik = positions[i] - positions[k]
-                r_jk = positions[j] - positions[k]
-                
-                # Calculate distances
-                d_ji = np.sum(r_ji**2)**0.5
-                d_ik = np.sum(r_ik**2)**0.5
-                d_jk = np.sum(r_jk**2)**0.5
-
-                # Calculate geometry value
-                top = d_ji**2+d_jk**2-d_ik**2
-                bot = d_jk*d_ji
-
-                cosine = 0.5*top/bot
-                cosine = np.maximum(-1.0, np.minimum(cosine, 1.0))
-                
-                top_d = 2*np.array([-r_ji-r_ik,
-                                    r_ji+r_jk,
-                                    -r_jk+r_ik])
-                bot_d = np.array([  -d_jk/d_ji*r_ji,
-                                    d_ji/d_jk*r_jk + d_jk/d_ji*r_ji,
-                                    -d_ji/d_jk*r_jk])
-                
-                cosine_d = 0.5*(top_d*bot - top*bot_d)/bot**2
-
-                if geom_func == "cosine":
-                    g = cosine
-                    g_d = cosine_d
-                elif geom_func == "angle":
-                    # arccos is not differentiable at -1 or 1, which causes
-                    # problems.
-                    g = np.arccos(cosine)*180.0/np.pi
-                    g_d = -cosine_d/(1-cosine**2)**0.5*180.0/np.pi
-
-                # Calculate weight value
-                if weight_func in ["exponential", "exp"]:
-                    scale = parameters[b"scale"]
-                    cutoff = parameters[b"threshold"]
-                    dist_total = d_ji + d_ik + d_jk
-                    w = np.exp(-scale*dist_total)
-                    if w < cutoff: continue
-                    w_d = -scale*np.array([ -r_ji/d_ji + r_ik/d_ik,
-                                            r_ji/d_ji + r_jk/d_jk,
-                                            -r_jk/d_jk - r_ik/d_ik])
-
-                elif weight_func == "unity":
-                    w = 1
-                    w_d = np.zeros((3,3))
-
-                # Calculate gaussian
-                cdf = w/2*(1 + vec_erf((x-g)/(sigma*2**0.5)))
-                gauss = (cdf[1:]-cdf[:-1])/dx
-            
-                # Calculate x*gaussian distribution 
-                x_gauss_cdf = g*cdf - w*sigma/(2*np.pi)**0.5*(np.exp(-(g-x)**2/(2*sigma**2)) - 1)
-                x_gauss = (x_gauss_cdf[1:]-x_gauss_cdf[:-1])/dx
-                
-                # Derivative of the gaussian
-                gauss_d = []
-                for ind in [0,1,2]:
-                    gauss_d.append( - np.outer(g_d[ind], gauss*sigma**(-2)*g)
-                                    + np.outer(g_d[ind], x_gauss*sigma**(-2))
-                                    + np.outer(w_d[ind], gauss))
-                gauss_d = np.array(gauss_d)
-
-                # Rescale if the atoms are in different periodic images
-                i_copy = cell_indices[i]
-                j_copy = cell_indices[j]
-                k_copy = cell_indices[k]
-                ij_diff = np.any(i_copy != j_copy)
-                ik_diff = np.any(i_copy != k_copy)
-                jk_diff = np.any(j_copy != k_copy)
-                diff_sum = int(ij_diff) + int(ik_diff) + int(jk_diff)
-                if diff_sum > 1:
-                    gauss /= diff_sum
-                
-                # Get the index of the present elements in the final vector
-                i_index = atomic_number_to_index[Z[i]]
-                j_index = atomic_number_to_index[Z[j]]
-                k_index = atomic_number_to_index[Z[k]]
-
-                i_index, k_index = sorted((i_index, k_index))
-            
-                # This is the index of the spectrum. It is given by enumerating the
-                # elements of a three-dimensional array where for valid elements
-                # k>=i. The enumeration begins from [0, 0, 0], and ends at [n_elem,
-                # n_elem, n_elem], looping the elements in the order j, i, k.
-                m = int(j_index * n_elem * (n_elem + 1) / 2 + k_index + i_index * n_elem - i_index * (i_index + 1) / 2)
-
-                start = m * n
-                end = (m + 1) * n
-                
-                descriptor[start:end] += gauss
-
-                # Add derivative contribution to derivatives that it affects.
-                # Derivatives are antisymmetric.
-                for index, gauss_d_i in zip([i,j,k],gauss_d):
-                    if index < interaction_limit:
-                        derivatives[index,:,start:end] += gauss_d_i
 
 class MBTR(Descriptor):
     """Implementation of the Many-body tensor representation up to :math:`k=3`.
@@ -1450,7 +1331,8 @@ class MBTR(Descriptor):
 
         # For now, the derivatives are calculated with regard to all atomic
         # positions. The desired indices are extracted here at the end.
-        mbtr_d = mbtr_d[indices]
+        if len(indices) < len(self.system):
+            mbtr_d = mbtr_d[indices]
 
         if self.sparse:
             mbtr = sparse.COO.from_numpy(mbtr)
@@ -1515,10 +1397,6 @@ class MBTR(Descriptor):
             ext_system = System.from_atoms(system)
             cell_indices = np.zeros((len(system), 3), dtype=int)
 
-        n_elem = self.n_elements
-        n_features = int((n_elem * (n_elem + 1) / 2) * n)
-        n_atoms = self._interaction_limit
-        
         cmbtr = MBTRWrapper(
             self.atomic_number_to_index, self._interaction_limit, cell_indices
         )
@@ -1539,8 +1417,11 @@ class MBTR(Descriptor):
             dmat_dense = ext_system.get_distance_matrix()
             adj_list = np.tile(np.arange(n_atoms), (n_atoms, 1))
 
+        n_elem = self.n_elements
+        n_features = int((n_elem * (n_elem + 1) / 2) * n)
+        
         k2 = np.zeros((n_features), dtype=np.float32)
-        k2_d = np.zeros((n_atoms, 3, n_features), dtype=np.float32)
+        k2_d = np.zeros((self._interaction_limit, 3, n_features), dtype=np.float32)
         
         # Generate derivatives for k=2 term
         cmbtr.get_k2_derivatives(
@@ -1618,39 +1499,45 @@ class MBTR(Descriptor):
             ext_system = System.from_atoms(system)
             cell_indices = np.zeros((len(system), 3), dtype=int)
 
+        cmbtr = MBTRWrapper(
+            self.atomic_number_to_index, self._interaction_limit, cell_indices
+        )
+
         n_atoms = len(ext_system)
         if r_cut is not None:
             dmat = ext_system.get_distance_matrix_within_radius(r_cut)
             adj_list = dscribe.utils.geometry.get_adjacency_list(dmat)
+            dmat_dense = np.full(
+                (n_atoms, n_atoms), sys.float_info.max
+            )  # The non-neighbor values are treated as "infinitely far".
+            dmat_dense[dmat.col, dmat.row] = dmat.data
+        # If no weighting is used, the full distance matrix is calculated
         else:
+            dmat_dense = ext_system.get_distance_matrix()
             adj_list = np.tile(np.arange(n_atoms), (n_atoms, 1))
 
         n_elem = self.n_elements
         n_features = int((n_elem * n_elem * (n_elem + 1) / 2) * n)
-        n_atoms = self._interaction_limit
     
         k3 = np.zeros((n_features), dtype=np.float32)
-        k3_d = np.zeros((n_atoms, 3, n_features), dtype=np.float32)
+        k3_d = np.zeros((self._interaction_limit, 3, n_features), dtype=np.float32)
         
         # Compute the k=3 term and its derivative 
-        k3_derivatives_compute(
-                k3_d,
-                k3,
-                ext_system.get_atomic_numbers(),
-                ext_system.get_positions(),
-                adj_list,
-                geom_func_name,
-                weighting_function,
-                parameters,
-                start,
-                stop,
-                sigma,
-                n,
-                self.atomic_number_to_index,
-                self._interaction_limit,
-                cell_indices,
-            )
-        
+        cmbtr.get_k3_derivatives(
+            k3_d,
+            k3,
+            ext_system.get_atomic_numbers(),
+            ext_system.get_positions(),
+            dmat_dense,
+            adj_list,
+            geom_func_name.encode(),
+            weighting_function.encode(),
+            parameters,
+            start,
+            stop,
+            sigma,
+            n,
+        )
 
         # Denormalize if requested
         if not self.normalize_gaussians:

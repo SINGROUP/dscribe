@@ -54,6 +54,7 @@ class MBTR {
         vector<float> xgaussian(float center, float weight, float start, float dx, float sigma, int n);
         
         void getK2Derivatives(py::array_t<float> &derivatives, py::array_t<float> &descriptor, const vector<int> &Z, const vector<vector<float>> &positions, const vector<vector<float>> &distances, const vector<vector<int>> &neighbours, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n);
+        void getK3Derivatives(py::array_t<float> &derivatives, py::array_t<float> &descriptor, const vector<int> &Z, const vector<vector<float>> &positions, const vector<vector<float>> &distances, const vector<vector<int>> &neighbours, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n);
 
 
     private:
