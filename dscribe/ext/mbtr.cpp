@@ -726,7 +726,7 @@ void MBTR::getK2Derivatives(py::array_t<float> &derivatives, py::array_t<float> 
 
                     // Calculate weight value
                     float weight;
-                    vector<float> weight_d(3, 0.0);
+                    vector<float> weight_d(3, 0.0); // Weight derivatives divided by weight!
                     if (weightFunc == "exp") {
                         float scale = parameters.at("scale");
                         float threshold = parameters.at("threshold");
@@ -742,7 +742,9 @@ void MBTR::getK2Derivatives(py::array_t<float> &derivatives, py::array_t<float> 
                         // weight_d = [0,0,0]
                     } else if (weightFunc == "inverse_square") {
                         weight = k2WeightSquare(i, j, distances);
-                        // Not implemented
+                        for (int dim=0; dim<3; ++dim){
+                            weight_d[dim] = -2.0/(dist*dist)*dist_vec[dim];
+                        }
                     } else {
                         throw invalid_argument("Invalid weighting function.");
                     }
