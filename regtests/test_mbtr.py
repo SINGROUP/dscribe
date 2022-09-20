@@ -103,6 +103,123 @@ def test_exceptions():
             sparse=True,
         )
 
+    # Weighting needs to be provided for periodic system and terms k>1
+    with pytest.raises(ValueError):
+        MBTR(
+            species=["H"],
+            k2={"geometry": default_k2["geometry"], "grid": default_k2["grid"]},
+            periodic=True,
+        )
+
+    with pytest.raises(ValueError):
+        MBTR(
+            species=["H"],
+            k2={
+                "geometry": default_k2["geometry"],
+                "grid": default_k2["grid"],
+                "weighting": {"function": "unity"},
+            },
+            periodic=True,
+        )
+
+    # with self.assertRaises(ValueError):
+    #     MBTR(
+    #         species=["H"],
+    #         k3={"geometry": default_k3["geometry"], "grid": default_k3["grid"]},
+    #         periodic=True,
+    #     )
+    #     MBTR(
+    #         species=["H"],
+    #         k3={
+    #             "geometry": default_k3["geometry"],
+    #             "grid": default_k3["grid"],
+    #             "weighting": {"function": "unity"},
+    #         },
+    #         periodic=True,
+    #     )
+
+    # # Invalid weighting function
+    # with self.assertRaises(ValueError):
+    #     MBTR(
+    #         species=[1],
+    #         k1={
+    #             "geometry": default_k1["geometry"],
+    #             "grid": default_k1["grid"],
+    #             "weighting": {"function": "none"},
+    #         },
+    #         periodic=True,
+    #     )
+
+    # with self.assertRaises(ValueError):
+    #     MBTR(
+    #         species=[1],
+    #         k2={
+    #             "geometry": default_k2["geometry"],
+    #             "grid": default_k2["grid"],
+    #             "weighting": {"function": "none"},
+    #         },
+    #         periodic=True,
+    #     )
+    # with self.assertRaises(ValueError):
+    #     MBTR(
+    #         species=[1],
+    #         k3={
+    #             "geometry": default_k3["geometry"],
+    #             "grid": default_k3["grid"],
+    #             "weighting": {"function": "none"},
+    #         },
+    #         periodic=True,
+    #     )
+
+    # # Invalid geometry function
+    # with self.assertRaises(ValueError):
+    #     MBTR(
+    #         species=[1],
+    #         k1={
+    #             "geometry": {"function": "none"},
+    #             "grid": {"min": 0, "max": 1, "n": 10, "sigma": 0.1},
+    #         },
+    #         periodic=False,
+    #     )
+    # with self.assertRaises(ValueError):
+    #     MBTR(
+    #         species=[1],
+    #         k2={
+    #             "geometry": {"function": "none"},
+    #             "grid": {"min": 0, "max": 1, "n": 10, "sigma": 0.1},
+    #         },
+    #         periodic=False,
+    #     )
+    # with self.assertRaises(ValueError):
+    #     MBTR(
+    #         species=[1],
+    #         k3={
+    #             "geometry": {"function": "none"},
+    #             "grid": {"min": 0, "max": 1, "n": 10, "sigma": 0.1},
+    #         },
+    #         periodic=False,
+    #     )
+
+    # # Missing threshold
+    # with self.assertRaises(ValueError):
+    #     setup = copy.deepcopy(default_k2)
+    #     del setup["weighting"]["threshold"]
+    #     MBTR(
+    #         species=[1],
+    #         k2=setup,
+    #         periodic=True,
+    #     )
+
+    # # Missing scale
+    # with self.assertRaises(ValueError):
+    #     setup = copy.deepcopy(default_k2)
+    #     del setup["weighting"]["scale"]
+    #     MBTR(
+    #         species=[1],
+    #         k2=setup,
+    #         periodic=True,
+    #     )
+
 
 @pytest.mark.parametrize(
     "k1, k2, k3",
