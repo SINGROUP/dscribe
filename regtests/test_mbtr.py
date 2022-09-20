@@ -8,6 +8,7 @@ from conftest import (
     assert_sparse,
     assert_parallellization,
     assert_symmetries,
+    assert_derivatives,
     water,
 )
 from dscribe.descriptors import MBTR
@@ -68,6 +69,22 @@ def mbtr(**kwargs):
 )
 def test_parallellization(n_jobs, flatten, sparse):
     assert_parallellization(mbtr, n_jobs, flatten, sparse)
+
+
+def test_no_system_modification():
+    assert_no_system_modification(mbtr)
+
+
+def test_sparse():
+    assert_sparse(mbtr)
+
+
+def test_symmetries():
+    assert_symmetries(mbtr(), True, True, True)
+
+
+# def test_derivatives():
+#     assert_derivatives(mbtr(), 'numerical')
 
 
 # =============================================================================
@@ -159,11 +176,6 @@ def test_k1_peaks_finite():
     assert np.allclose(o_peak_locs, [8], rtol=0, atol=1e-2)
     assert np.allclose(o_peak_ints, [1], rtol=0, atol=1e-2)
 
-    import matplotlib.pyplot as mpl
-    mpl.plot(x, h_feat)
-    mpl.plot(x, o_feat)
-    mpl.show()
-
     # Check that everything else is zero
     features[desc.get_location(("H"))] = 0
     features[desc.get_location(("O"))] = 0
@@ -188,10 +200,6 @@ def test_k2_peaks_finite():
         sparse=False,
     )
     features = desc.create(system)
-
-    # import matplotlib.pyplot as mpl
-    # mpl.plot(np.arange(len(features)), features)
-    # mpl.show()
 
     pos = system.get_positions()
     start = k2["grid"]["min"]
@@ -282,8 +290,10 @@ def test_k3_peaks_finite():
         (True, False, False, "l2_each", 1),  # K1
         (False, True, False, "l2", 1),       # K2
         (False, True, False, "l2_each", 1),  # K2
-        (True, True, False, "l2", 1),        # K1 + K2
-        (True, True, False, "l2_each", np.sqrt(2)),   # K1 + K2
+        (False, False, True, "l2", 1),       # K3
+        (False, False, True, "l2_each", 1),  # K3
+        (True, True, True, "l2", 1),        # K1 + K2 + K3
+        (True, True, True, "l2_each", np.sqrt(3)),   # K1 + K2 + K3
     ]
 )
 def test_normalization(k1, k2, k3, normalization, norm):
