@@ -15,6 +15,7 @@ limitations under the License.
 #include <functional>
 #include <algorithm>
 #include <limits>
+#include <sstream>
 #include <unordered_set>
 #include "mbtr.h"
 #include "constants.h"
@@ -22,65 +23,54 @@ limitations under the License.
 
 using namespace std;
 
-inline double weight_unity_k1(int atomic_number)
-{
+inline double weight_unity_k1(int atomic_number) {
     return 1;
 }
 
-inline double weight_unity_k2(double distance)
-{
+inline double weight_unity_k2(double distance) {
     return 1;
 }
 
-inline double weight_unity_k3(double distance_ij, double distance_jk, double distance_ki)
-{
+inline double weight_unity_k3(double distance_ij, double distance_jk, double distance_ki) {
     return 1;
 }
 
-inline double weight_exponential_k2(double distance, double scale)
-{
+inline double weight_exponential_k2(double distance, double scale) {
     double expValue = exp(-scale*distance);
     return expValue;
 }
 
-inline double weight_exponential_k3(double distance_ij, double distance_jk, double distance_ki, double scale)
-{
+inline double weight_exponential_k3(double distance_ij, double distance_jk, double distance_ki, double scale) {
     double distTotal = distance_ij + distance_jk + distance_ki;
     double expValue = exp(-scale*distTotal);
     return expValue;
 }
 
-inline double weight_square_k2(double distance)
-{
+inline double weight_square_k2(double distance) {
     double value = 1/(distance*distance);
     return value;
 }
 
-inline double weight_smooth_k3(double distance_ij, double distance_jk, double distance_ki, double sharpness, double cutoff)
-{
+inline double weight_smooth_k3(double distance_ij, double distance_jk, double distance_ki, double sharpness, double cutoff) {
     double f_ij = 1 + sharpness * pow((distance_ij/cutoff), (sharpness+1)) - (sharpness+1)* pow((distance_ij/cutoff), sharpness);
     double f_jk = 1 + sharpness * pow((distance_jk/cutoff), (sharpness+1)) - (sharpness+1)* pow((distance_jk/cutoff), sharpness);
     return f_ij*f_jk;
 }
 
-inline double geom_atomic_number(int atomic_number)
-{
+inline double geom_atomic_number(int atomic_number) {
     return (double)atomic_number;
 }
 
-inline double geom_distance(double distance)
-{
+inline double geom_distance(double distance) {
     return distance;
 }
 
-inline double geom_inverse_distance(double distance)
-{
+inline double geom_inverse_distance(double distance) {
     double invDist = 1/distance;
     return invDist;
 }
 
-inline double geom_cosine(double distance_ij, double distance_jk, double distance_ki)
-{
+inline double geom_cosine(double distance_ij, double distance_jk, double distance_ki) {
     double distance_ji_square = distance_ij*distance_ij;
     double distance_ik_square = distance_ki*distance_ki;
     double distance_jk_square = distance_jk*distance_jk;
@@ -93,15 +83,13 @@ inline double geom_cosine(double distance_ij, double distance_jk, double distanc
     return cosine;
 }
 
-inline double geom_angle(double distance_ij, double distance_jk, double distance_ki)
-{
+inline double geom_angle(double distance_ij, double distance_jk, double distance_ki) {
     double cosine = geom_cosine(distance_ij, distance_jk, distance_ki);
     double angle = acos(cosine) * 180.0 / PI;
     return angle;
 }
 
-inline bool same_cell(const py::array_t<int> &cell_indices, int i, int j)
-{
+inline bool same_cell(const py::array_t<int> &cell_indices, int i, int j) {
     auto cell_indices_u = cell_indices.unchecked<2>();
     for (int k = 0; k < 3; ++k) {
         if (cell_indices_u(i, k) != cell_indices_u(j, k)) {
@@ -179,8 +167,7 @@ int MBTR::get_number_of_k3_features() const {
     return n_features;
 }
 
-void MBTR::create(py::array_t<double> &out, System &system, CellList &cell_list)
-{
+void MBTR::create(py::array_t<double> &out, System &system, CellList &cell_list) {
     this->calculate_k1(out, system);
     this->calculate_k2(out, system, cell_list);
     this->calculate_k3(out, system, cell_list);
@@ -188,8 +175,7 @@ void MBTR::create(py::array_t<double> &out, System &system, CellList &cell_list)
     return;
 }
 
-pair<int, int> MBTR::get_location(int z1)
-{
+pair<int, int> MBTR::get_location(int z1) {
     // Check that the corresponding part is calculated
     if (this->k1.size() == 0) {
         throw invalid_argument(
@@ -210,8 +196,7 @@ pair<int, int> MBTR::get_location(int z1)
 };
 
 
-pair<int, int> MBTR::get_location(int z1, int z2)
-{
+pair<int, int> MBTR::get_location(int z1, int z2) {
     // Check that the corresponding part is calculated
     if (this->k2.size() == 0) {
         throw invalid_argument(
@@ -246,8 +231,7 @@ pair<int, int> MBTR::get_location(int z1, int z2)
     return make_pair(start, end);
 };
 
-pair<int, int> MBTR::get_location(int z1, int z2, int z3)
-{
+pair<int, int> MBTR::get_location(int z1, int z2, int z3) {
     // Check that the corresponding part is calculated
     if (this->k3.size() == 0) {
         throw invalid_argument(
@@ -365,7 +349,6 @@ void MBTR::set_k3(py::dict k3) {
     double cutoff = 0.5 * this->get_cutoff(k3);
     this->cutoff_k3 = cutoff;
     this->cutoff = max(this->cutoff_k2, this->cutoff_k3);
-
 }
 
 void MBTR::set_normalize_gaussians(bool normalize_gaussians) {
@@ -417,6 +400,9 @@ double MBTR::get_cutoff(py::dict &k) {
                         cutoff = weighting["r_cut"].cast<double>();
                     } else if (weighting.contains("scale")) {
                         double scale = weighting["scale"].cast<double>();
+                        if (!weighting.contains("threshold")) {
+                            throw invalid_argument("Missing value for 'threshold'.");
+                        }
                         double threshold = weighting["threshold"].cast<double>();
                         cutoff = -log(threshold) / scale;
                     }
@@ -433,10 +419,14 @@ double MBTR::get_cutoff(py::dict &k) {
 
 void MBTR::validate() {
     this->assert_valle();
-    this->assert_weighting(this->k2);
-    this->assert_weighting(this->k3);
+    this->assert_weighting(this->k1, 1, unordered_set<string>({"unity"}));
+    this->assert_weighting(this->k2, 2, unordered_set<string>({"unity", "exp", "exponential", "inverse_square"}));
+    this->assert_weighting(this->k3, 3, unordered_set<string>({"unity", "exp", "exponential", "inverse_square"}));
     this->assert_periodic_weighting(this->k2);
     this->assert_periodic_weighting(this->k3);
+    this->assert_geometry(this->k1, 1, unordered_set<string>({"atomic_number"}));
+    this->assert_geometry(this->k2, 2, unordered_set<string>({"distance", "inverse_distance"}));
+    this->assert_geometry(this->k3, 3, unordered_set<string>({"angle", "cosine"}));
 }
 
 void MBTR::assert_valle() {
@@ -465,15 +455,16 @@ void MBTR::assert_periodic_weighting(py::dict &k) {
     }
 }
 
-void MBTR::assert_weighting(py::dict &k) {
+void MBTR::assert_weighting(py::dict &k, int degree, unordered_set<string> valid_functions) {
+    ostringstream os;
     if (k.size() != 0) {
         if (k.contains("weighting")) {
             py::dict weighting = k["weighting"];
             if (weighting.contains("function")) {
                 string function = weighting["function"].cast<string>();
-                unordered_set<string> valid_functions( {"unity", "exp", "exponential", "inverse_square"} );
                 if (valid_functions.find(function) == valid_functions.end()) {
-                    throw invalid_argument("Unknown weighting function specified.");
+                    os << "Unknown weighting function specified for k" << degree << ".";
+                    throw invalid_argument(os.str());
                 } else {
                     if (function == "exp" || function == "exponential") {
                         if (!weighting.contains("threshold")) {
@@ -491,6 +482,22 @@ void MBTR::assert_weighting(py::dict &k) {
                             throw invalid_argument("Missing value for 'r_cut'.");
                         }
                     }
+                }
+            }
+        }
+    }
+}
+
+void MBTR::assert_geometry(py::dict &k, int degree, unordered_set<string> valid_functions) {
+    ostringstream os;
+    if (k.size() != 0) {
+        if (k.contains("geometry")) {
+            py::dict weighting = k["geometry"];
+            if (weighting.contains("function")) {
+                string function = weighting["function"].cast<string>();
+                if (valid_functions.find(function) == valid_functions.end()) {
+                    os << "Unknown geometry function specified for k" << degree << ".";
+                    throw invalid_argument(os.str());
                 }
             }
         }

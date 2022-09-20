@@ -119,7 +119,12 @@ class MBTR: public DescriptorGlobal {
          * Checks that the weighting is defined correctly in the given
          * configuration dict.
          */
-        void assert_weighting(py::dict &k);
+        void assert_weighting(py::dict &k, int degree, unordered_set<string> valid_functions);
+        /**
+         * Checks that the geometry is defined correctly in the given
+         * configuration dict.
+         */
+        void assert_geometry(py::dict &k, int degree, unordered_set<string> valid_functions);
         /**
          * Gets the radial cutoff value from the given configuration dict.
          */
