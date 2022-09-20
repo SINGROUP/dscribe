@@ -15,6 +15,7 @@ limitations under the License.
 #include <functional>
 #include <algorithm>
 #include <limits>
+#include <iostream>
 #include <sstream>
 #include <unordered_set>
 #include "mbtr.h"
@@ -324,31 +325,37 @@ void MBTR::set_k1(py::dict k1) {
 }
 
 void MBTR::set_k2(py::dict k2) {
+    if (k2.size() != 0) {
+        this->cutoff_k2 = this->get_cutoff(k2);
+        this->cutoff = this->k3.size()
+            ? max(this->cutoff_k2, this->cutoff_k3)
+            : this->cutoff_k2;
+    }
+
     this->k2 = k2;
-    double cutoff = this->get_cutoff(k2);
-    this->cutoff_k2 = cutoff;
-    this->cutoff = max(this->cutoff_k2, this->cutoff_k3);
 }
 
 void MBTR::set_k3(py::dict k3) {
-    // Default sharpness = 2
-    if (k3.size() != 0 && k3.contains("weighting")) {
-        py::dict weighting = k3["weighting"];
-        if (weighting.contains("function")) {
-            string function = weighting["function"].cast<string>();
-            if (function == "smooth_cutoff" && !weighting.contains("sharpness")) {
-                weighting["sharpness"] = 2;
+    if (k3.size() != 0) {
+        // Default sharpness = 2
+        if (k3.contains("weighting")) {
+            py::dict weighting = k3["weighting"];
+            if (weighting.contains("function")) {
+                string function = weighting["function"].cast<string>();
+                if (function == "smooth_cutoff" && !weighting.contains("sharpness")) {
+                    weighting["sharpness"] = 2;
+                }
             }
         }
+
+        // In k3, the distance is defined as the perimeter, thus we half the
+        // distance to get the actual cutoff.
+        this->cutoff_k3 = 0.5 * this->get_cutoff(k3);
+        this->cutoff = this->k2.size()
+            ? max(this->cutoff_k2, this->cutoff_k3)
+            : this->cutoff_k3;
     }
-
     this->k3 = k3;
-
-    // In k3, the distance is defined as the perimeter, thus we half the
-    // distance to get the actual cutoff.
-    double cutoff = 0.5 * this->get_cutoff(k3);
-    this->cutoff_k3 = cutoff;
-    this->cutoff = max(this->cutoff_k2, this->cutoff_k3);
 }
 
 void MBTR::set_normalize_gaussians(bool normalize_gaussians) {
@@ -590,6 +597,7 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
     if (this->k2.size() == 0) {
         return;
     }
+
     // Create mutable and unchecked versions
     auto out_mu = out.mutable_unchecked<1>();
     auto atomic_numbers = system.atomic_numbers;
@@ -625,16 +633,14 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
     } else if (weight_func_name == "inverse_square") {
         weight_func = weight_square_k2;
     } else {
-        throw invalid_argument("Invalid wighting function for k=2.");
+        throw invalid_argument("Invalid weighting function for k=2.");
     }
 
     // Loop over all atoms in the system
-    int n_atoms = atomic_numbers.size();
-    // auto cell_indices_u = system.cell_indices.unchecked<2>();
-
     // TODO: There may be a more efficent way of looping through the atoms.
     // Maybe looping over the interactive atoms only? Also maybe iterating over
     // the cells only in the positive lattice vector direction?
+    int n_atoms = atomic_numbers.size();
     for (int i=0; i < n_atoms; ++i) {
         // For each atom we loop only over the neighbours
         unordered_map<int, pair<double, double>> neighbours_i = cell_list.getNeighboursForIndex(i);
@@ -643,7 +649,7 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
             double distance = it.second.first;
             if (j > i) {
                 // Only consider pairs that have at least one atom in the
-                // 'interaction subset', typically the original cell but can
+                // 'interactive subset', typically the original cell but can
                 // also be another local region.
                 bool i_interactive = system.interactive_atoms.find(i) != system.interactive_atoms.end();
                 bool j_interactive = system.interactive_atoms.find(j) != system.interactive_atoms.end();

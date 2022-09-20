@@ -593,20 +593,25 @@ def test_k2_peaks_periodic():
         pbc=True,
     )
 
+    k2 = {
+        "geometry": {"function": "distance"},
+        "grid": {"min": 0, "max": 10, "sigma": 0.5, "n": 1000},
+        "weighting": {"function": "exp", "scale": 0.8, "threshold": 1e-3},
+    }
     desc = MBTR(
         species=["H", "C"],
-        k2={
-            "geometry": {"function": "distance"},
-            "grid": {"min": 0, "max": 10, "sigma": 0.5, "n": 1000},
-            "weighting": {"function": "exp", "scale": 0.8, "threshold": 1e-3},
-        },
+        k2=k2,
         normalize_gaussians=False,
         periodic=True,
         flatten=True,
         sparse=False,
     )
     features = desc.create(atoms)
-    x = desc.get_k2_axis()
+
+    start = k2["grid"]["min"]
+    stop = k2["grid"]["max"]
+    n = k2["grid"]["n"]
+    x = np.linspace(start, stop, n)
 
     # Calculate assumed locations and intensities.
     assumed_locs = np.array([2, 8])
