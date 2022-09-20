@@ -12,6 +12,7 @@ from conftest import (
     assert_derivatives,
     water,
 )
+from ase import Atoms
 from ase.build import molecule
 from dscribe.descriptors import MBTR
 
@@ -571,6 +572,62 @@ def test_k3_peaks_finite():
     # Check that everything else is zero
     features[desc.get_location(("H", "H", "O"))] = 0
     features[desc.get_location(("H", "O", "H"))] = 0
+    assert features.sum() == 0
+
+
+def test_k2_peaks_periodic():
+    """Tests the correct peak locations and intensities are found for the
+    k=2 term in periodic systems.
+    """
+    atoms = Atoms(
+        cell=[
+            [10, 0, 0],
+            [10, 10, 0],
+            [10, 0, 10],
+        ],
+        symbols=["H", "C"],
+        scaled_positions=[
+            [0.1, 0.5, 0.5],
+            [0.9, 0.5, 0.5],
+        ],
+        pbc=True,
+    )
+
+    desc = MBTR(
+        species=["H", "C"],
+        k2={
+            "geometry": {"function": "distance"},
+            "grid": {"min": 0, "max": 10, "sigma": 0.5, "n": 1000},
+            "weighting": {"function": "exp", "scale": 0.8, "threshold": 1e-3},
+        },
+        normalize_gaussians=False,
+        periodic=True,
+        flatten=True,
+        sparse=False,
+    )
+    features = desc.create(atoms)
+    x = desc.get_k2_axis()
+
+    # Calculate assumed locations and intensities.
+    assumed_locs = np.array([2, 8])
+    assumed_ints = np.exp(-0.8 * np.array([2, 8]))
+    assumed_ints[0] *= 2  # There are two periodic distances at 2Å
+    assumed_ints[
+        0
+    ] /= (
+        2  # The periodic distances ar halved because they belong to different cells
+    )
+
+    # Check the H-C peaks
+    hc_feat = features[desc.get_location(("H", "C"))]
+    hc_peak_indices = find_peaks(hc_feat, prominence=0.001)[0]
+    hc_peak_locs = x[hc_peak_indices]
+    hc_peak_ints = hc_feat[hc_peak_indices]
+    assert np.allclose(hc_peak_locs, assumed_locs, rtol=0, atol=1e-2)
+    assert np.allclose(hc_peak_ints, assumed_ints, rtol=0, atol=1e-2)
+
+    # Check that everything else is zero
+    features[desc.get_location(("H", "C"))] = 0
     assert features.sum() == 0
 
 
