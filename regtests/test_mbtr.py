@@ -1,4 +1,5 @@
 import time
+import itertools
 import math
 import copy
 import pytest
@@ -376,130 +377,32 @@ def test_gaussian_distribution(normalize_gaussians, H2O):
     assert np.allclose(sum_cum, 2*exp, rtol=0, atol=0.001)
 
 
-def test_locations_k1():
-    """Tests that the function used to query combination locations for k=1
-    in the output works.
+@pytest.mark.parametrize(
+    "system",
+    [
+        (molecule("CO2")),
+        (molecule("H2O")),
+    ],
+)
+def test_locations(system):
+    """Tests that the function used to query combination locations in the output
+    works.
     """
-    CO2 = molecule("CO2")
-    H2O = molecule("H2O")
+    species = ["H", "O", "C"]
+    system_species = system.get_chemical_symbols()
+    desc = mbtr(periodic=False, species=species)([])
+    feat = desc.create(system)
 
-    desc = mbtr(periodic = False, species = ["H", "O", "C"])([])
-
-    co2_out = desc.create(CO2)[:]
-    h2o_out = desc.create(H2O)[:]
-
-    loc_h = desc.get_location(("H"))
-    loc_c = desc.get_location(("C"))
-    loc_o = desc.get_location(("O"))
-
-    # H
-    assert co2_out[loc_h].sum() == 0
-    assert h2o_out[loc_h].sum() != 0
-
-    # C
-    assert co2_out[loc_c].sum() != 0
-    assert h2o_out[loc_c].sum() == 0
-
-    # O
-    assert co2_out[loc_o].sum() != 0
-    assert h2o_out[loc_o].sum() != 0
-
-def test_locations_k2():
-    """Tests that the function used to query combination locations for k=2
-    in the output works.
-    """
-    CO2 = molecule("CO2")
-    H2O = molecule("H2O")
-
-    desc = mbtr(periodic = False, species = ["H", "O", "C"])([])
-
-    co2_out = desc.create(CO2)[:]
-    h2o_out = desc.create(H2O)[:]
-
-    loc_hh = desc.get_location(("H", "H"))
-    loc_hc = desc.get_location(("H", "C"))
-    loc_ho = desc.get_location(("H", "O"))
-    loc_co = desc.get_location(("C", "O"))
-    loc_cc = desc.get_location(("C", "C"))
-    loc_oo = desc.get_location(("O", "O"))
-
-    # H-H
-    assert co2_out[loc_hh].sum() == 0
-    assert h2o_out[loc_hh].sum() != 0
-
-    # H-C
-    assert co2_out[loc_hc].sum() == 0
-    assert h2o_out[loc_hc].sum() == 0
-
-    # H-O
-    assert co2_out[loc_ho].sum() == 0
-    assert h2o_out[loc_ho].sum() != 0
-
-    # C-O
-    assert co2_out[loc_co].sum() != 0
-    assert h2o_out[loc_co].sum() == 0
-
-    # C-C
-    assert co2_out[loc_cc].sum() == 0
-    assert h2o_out[loc_cc].sum() == 0
-
-    # O-O
-    assert co2_out[loc_oo].sum() != 0
-    assert h2o_out[loc_oo].sum() == 0
-
-
-def test_locations_k3():
-    """Tests that the function used to query combination locations for k=2
-    in the output works.
-    """
-    CO2 = molecule("CO2")
-    H2O = molecule("H2O")
-
-    desc = mbtr(periodic = False, species = ["H", "O", "C"])([])
-
-    co2_out = desc.create(CO2)[:]
-    h2o_out = desc.create(H2O)[:]
-
-    loc_hhh = desc.get_location(("H", "H", "H"))
-    loc_hho = desc.get_location(("H", "H", "O"))
-    loc_hoo = desc.get_location(("H", "O", "O"))
-    loc_hoh = desc.get_location(("H", "O", "H"))
-    loc_ooo = desc.get_location(("O", "O", "O"))
-    loc_ooh = desc.get_location(("O", "O", "H"))
-    loc_oho = desc.get_location(("O", "H", "O"))
-    loc_ohh = desc.get_location(("O", "H", "H"))
-
-    # H-H-H
-    assert co2_out[loc_hhh].sum() == 0
-    assert h2o_out[loc_hhh].sum() == 0
-
-    # H-H-O
-    assert co2_out[loc_hho].sum() == 0
-    assert h2o_out[loc_hho].sum() != 0
-
-    # H-O-O
-    assert co2_out[loc_hoo].sum() == 0
-    assert h2o_out[loc_hoo].sum() == 0
-
-    # H-O-H
-    assert co2_out[loc_hoh].sum() == 0
-    assert h2o_out[loc_hoh].sum() != 0
-
-    # O-O-O
-    assert co2_out[loc_ooo].sum() == 0
-    assert h2o_out[loc_ooo].sum() == 0
-
-    # O-O-H
-    assert co2_out[loc_ooh].sum() == 0
-    assert h2o_out[loc_ooh].sum() == 0
-
-    # O-H-O
-    assert co2_out[loc_oho].sum() == 0
-    assert h2o_out[loc_oho].sum() == 0
-
-    # O-H-H
-    assert co2_out[loc_ohh].sum() == 0
-    assert h2o_out[loc_ohh].sum() != 0
+    for k in range(1, 4):
+        combinations = itertools.combinations_with_replacement(species, k)
+        for combination in combinations:
+            loc = desc.get_location(combination)
+            atom_combinations = itertools.permutations(system_species, k)
+            exists = combination in atom_combinations
+            if exists:
+                assert feat[loc].sum() != 0
+            else:
+                assert feat[loc].sum() == 0
 
 
 def test_k1_peaks_finite():
