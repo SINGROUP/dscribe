@@ -547,6 +547,7 @@ def test_peaks(system, k1, k2, k3, periodic, peaks, prominence):
 
     import matplotlib.pyplot as mpl
 
+    # Check that the correct peaks can be found
     for (location, peak_x, peak_y) in peaks:
         feat = features[desc.get_location(location)]
         peak_indices = find_peaks(feat, prominence=prominence)[0]
