@@ -1,19 +1,22 @@
 import time
+import math
 import copy
 import pytest
 import numpy as np
 from numpy.random import RandomState
 from scipy.signal import find_peaks_cwt, find_peaks
 from conftest import (
+    assert_basis,
     assert_no_system_modification,
     assert_sparse,
     assert_parallellization,
     assert_symmetries,
     assert_derivatives,
+    assert_systems,
     water,
 )
-from ase import Atoms
-from ase.build import molecule
+from ase import Atoms, geometry
+from ase.build import molecule, bulk
 from dscribe.descriptors import MBTR
 
 
@@ -76,6 +79,24 @@ def test_parallellization(n_jobs, flatten, sparse):
 
 def test_no_system_modification():
     assert_no_system_modification(mbtr)
+
+
+@pytest.mark.parametrize(
+    "pbc, cell",
+    [
+        ([True, True, True], [5, 5, 5]),  # Fully periodic system with cell
+        ([False, False, False], None),  # Unperiodic system with no cell
+        ([False, False, False], [0, 0, 0]),  # Unperiodic system with no cell
+        ([True, False, False], [5, 5, 5]),  # Partially periodic system with cell
+        ([True, True, True], [[0.0, 5.0, 5.0], [5.0, 0.0, 5.0], [5.0, 5.0, 0.0]]),  # Fully periodic system with non-cubic cell
+    ],
+)
+def test_systems(pbc, cell):
+    assert_systems(mbtr(periodic=True), pbc, cell)
+
+
+# def test_basis():
+#     assert_basis(mbtr(periodic=True))
 
 
 def test_sparse():
@@ -301,6 +322,59 @@ def test_number_of_features(k1, k2, k3):
     expected_k3 = n_elem * default_k3["grid"]["n"] * 1 / 2 * (n_elem + 1) * n_elem
 
     assert n_features == (expected_k1 if k1 else 0) + (expected_k2 if k2 else 0) + (expected_k3 if k3 else 0)
+
+
+@pytest.mark.parametrize(
+    "normalize_gaussians",
+    [
+        (True),
+        (False),
+    ],
+)
+def test_gaussian_distribution(normalize_gaussians, H2O):
+    """Check that the broadening follows gaussian distribution."""
+    # Check with normalization
+    std = 1
+    start = -3
+    stop = 11
+    n = 500
+    desc = MBTR(
+        species=["H", "O"],
+        k1={
+            "geometry": {"function": "atomic_number"},
+            "grid": {"min": start, "max": stop, "sigma": std, "n": n} 
+        },
+        normalize_gaussians = normalize_gaussians
+    )
+    y = desc.create(H2O)
+    x = np.linspace(start, stop, n)
+
+    # Find the location of the peaks
+    h_loc = desc.get_location(["H"])
+    peak1_x = np.searchsorted(x, 1)
+    h_feat =  y[h_loc]
+    peak1_y = h_feat[peak1_x]
+    o_loc = desc.get_location(["O"])
+    peak2_x = np.searchsorted(x, 8)
+    o_feat =  y[o_loc]
+    peak2_y = o_feat[peak2_x]
+
+    # Check against the analytical value
+    prefactor = 1 / np.sqrt(2 * np.pi) if normalize_gaussians else 1
+    gaussian = (
+        lambda x, mean: 1 / std * prefactor
+        * np.exp(-((x - mean) ** 2) / (2 * std**2))
+    )
+    assert np.allclose(peak1_y, 2 * gaussian(1, 1), rtol=0, atol=0.001)
+    assert np.allclose(peak2_y, gaussian(8, 8), rtol=0, atol=0.001)
+
+    # Check the integral
+    pdf = y[h_loc]
+    dx = (stop - start) / (n - 1)
+    sum_cum = np.sum(0.5 * dx * (pdf[:-1] + pdf[1:]))
+    exp = 1 if normalize_gaussians else 1 / (1 / math.sqrt(2 * math.pi * std**2))
+    assert np.allclose(sum_cum, 2*exp, rtol=0, atol=0.001)
+
 
 def test_locations_k1():
     """Tests that the function used to query combination locations for k=1
@@ -637,6 +711,113 @@ def test_k2_peaks_periodic():
 
 
 @pytest.mark.parametrize(
+    "k2, k3",
+    [
+        (True, False),  # K2
+        (False, True),  # K3
+    ]
+)
+def test_periodic_translation(k2, k3):
+    """Tests that the final spectra does not change when translating atoms
+    in a periodic cell. This is not trivially true unless the weight of
+    distances between periodic neighbours are not halfed. Notice that the
+    values of the geometry and weight functions are not equal before
+    summing them up in the final graph.
+    """
+    # Original system with atoms separated by a cell wall
+    atoms = Atoms(
+        cell=[
+            [10, 0, 0],
+            [10, 10, 0],
+            [10, 0, 10],
+        ],
+        symbols=["H", "H", "H", "H"],
+        scaled_positions=[
+            [0.1, 0.50, 0.5],
+            [0.1, 0.60, 0.5],
+            [0.9, 0.50, 0.5],
+            [0.9, 0.60, 0.5],
+        ],
+        pbc=True,
+    )
+
+    # Translated system with atoms next to each other
+    atoms2 = atoms.copy()
+    atoms2.translate([5, 0, 0])
+    atoms2.wrap()
+
+    desc = MBTR(
+        species=["H", "C"],
+        k2=default_k2 if k2 else None,
+        k3=default_k3 if k3 else None,
+        periodic=True
+    )
+
+    # The resulting spectra should be identical
+    spectra1 = desc.create(atoms)
+    spectra2 = desc.create(atoms2)
+    assert np.allclose(spectra1, spectra2, rtol=0, atol=1e-10)
+
+
+def test_k3_peaks_periodic():
+    scale = 0.85
+    k3 = {
+        "geometry": {"function": "angle"},
+        "grid": {"min": 0, "max": 180, "sigma": 5, "n": 2000},
+        "weighting": {"function": "exp", "scale": scale, "threshold": 1e-3},
+    }
+    desc = MBTR(
+        species=["H"],
+        k3=k3,
+        normalize_gaussians=False,
+        periodic=True,
+        flatten=True,
+        sparse=False,
+    )
+
+    atoms = Atoms(
+        cell=[
+            [10, 0, 0],
+            [0, 10, 0],
+            [0, 0, 10],
+        ],
+        symbols=3 * ["H"],
+        scaled_positions=[
+            [0.05, 0.40, 0.5],
+            [0.05, 0.60, 0.5],
+            [0.95, 0.5, 0.5],
+        ],
+        pbc=True,
+    )
+    features = desc.create(atoms)
+    start = k3["grid"]["min"]
+    stop = k3["grid"]["max"]
+    n = k3["grid"]["n"]
+    x = np.linspace(start, stop, n)
+
+    # Calculate assumed locations and intensities.
+    assumed_locs = np.array([45, 90])
+    dist = 2 + 2 * np.sqrt(2)  # The total distance around the three atoms
+    weight = np.exp(-scale * dist)
+    assumed_ints = np.array([4 * weight, 2 * weight])
+    assumed_ints /= (
+        2  # The periodic distances ar halved because they belong to different cells
+    )
+
+    # Check the H-H-H peaks
+    hhh_feat = features[desc.get_location(("H", "H", "H"))]
+    hhh_peak_indices = find_peaks(hhh_feat, prominence=0.01)[0]
+    hhh_peak_locs = x[hhh_peak_indices]
+    hhh_peak_ints = hhh_feat[hhh_peak_indices]
+    assert np.allclose(hhh_peak_locs, assumed_locs, rtol=0, atol=1e-1)
+    assert np.allclose(hhh_peak_ints, assumed_ints, rtol=0, atol=1e-1)
+
+    # Check that everything else is zero
+    features[desc.get_location(("H", "H", "H"))] = 0
+    assert features.sum() == 0
+
+
+@pytest.mark.parametrize(
     "k1, k2, k3, normalization, norm",
     [
         (True, False, False, "l2", 1),       # K1
@@ -664,3 +845,204 @@ def test_normalization(k1, k2, k3, normalization, norm):
 
     feat_normalized = desc.create(system)
     assert np.linalg.norm(feat_normalized) == pytest.approx(norm, abs=1e-8)
+
+
+# def test_periodic_supercell_similarity():
+#     """Tests that the output spectrum of various supercells of the same
+#     crystal is identical after it is normalized.
+#     """
+#     decay = 1
+#     desc = MBTR(
+#         species=["H"],
+#         periodic=True,
+#         k1={
+#             "geometry": {"function": "atomic_number"},
+#             "grid": {"min": 0, "max": 2, "sigma": 0.1, "n": 100},
+#         },
+#         k2={
+#             "geometry": {"function": "inverse_distance"},
+#             "grid": {"min": 0, "max": 1.0, "sigma": 0.02, "n": 200},
+#             "weighting": {
+#                 "function": "exp",
+#                 "scale": decay,
+#                 "threshold": 1e-3,
+#             },
+#         },
+#         k3={
+#             "geometry": {"function": "cosine"},
+#             "grid": {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 200},
+#             "weighting": {
+#                 "function": "exp",
+#                 "scale": decay,
+#                 "threshold": 1e-3,
+#             },
+#         },
+#         flatten=True,
+#         sparse=False,
+#         normalization="l2_each",
+#     )
+
+#     # Create various supercells for the FCC structure
+#     a1 = bulk("H", "fcc", a=2.0)  # Primitive
+#     a2 = a1 * [2, 2, 2]  # Supercell
+#     a3 = bulk("H", "fcc", a=2.0, orthorhombic=True)  # Orthorhombic
+#     a4 = bulk("H", "fcc", a=2.0, cubic=True)  # Conventional cubic
+
+#     output = desc.create([a1, a2, a3, a4])
+
+#     # Test for equality
+#     assert np.allclose(output[0, :], output[0, :], atol=1e-5, rtol=0)
+#     assert np.allclose(output[0, :], output[1, :], atol=1e-5, rtol=0)
+#     assert np.allclose(output[0, :], output[2, :], atol=1e-5, rtol=0)
+#     assert np.allclose(output[0, :], output[3, :], atol=1e-5, rtol=0)
+
+
+# def test_periodic_images():
+#     """Tests that periodic images are handled correctly."""
+#     decay = 1
+#     desc = MBTR(
+#         species=[1],
+#         periodic=True,
+#         k1={
+#             "geometry": {"function": "atomic_number"},
+#             "grid": {"min": 0, "max": 2, "sigma": 0.1, "n": 21},
+#         },
+#         k2={
+#             "geometry": {"function": "inverse_distance"},
+#             "grid": {"min": 0, "max": 1.0, "sigma": 0.02, "n": 21},
+#             "weighting": {"function": "exp", "scale": decay, "threshold": 1e-4},
+#         },
+#         k3={
+#             "geometry": {"function": "cosine"},
+#             "grid": {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 21},
+#             "weighting": {"function": "exp", "scale": decay, "threshold": 1e-4},
+#         },
+#         normalization="l2_each",  # This normalizes the spectrum
+#         flatten=True,
+#     )
+
+#     # Tests that a system has the same spectrum as the supercell of the same
+#     # system.
+#     molecule = Atoms(
+#         cell=[[5.0, 0.0, 0.0], [0.0, 5.0, 0.0], [0.0, 0.0, 5.0]],
+#         positions=[
+#             [0, 0, 0],
+#         ],
+#         symbols=["H"],
+#     )
+
+#     a = 1.5
+#     molecule.set_cell([[a, 0.0, 0.0], [0.0, a, 0.0], [0.0, 0.0, a]])
+#     molecule.set_pbc(True)
+#     cubic_cell = desc.create(molecule)
+#     suce = molecule * (2, 1, 1)
+#     cubic_suce = desc.create(suce)
+
+#     diff = abs(np.sum(cubic_cell - cubic_suce))
+#     cubic_sum = abs(np.sum(cubic_cell))
+#     assert diff / cubic_sum < 0.05  # A 5% error is tolerated
+
+#     # Same test but for triclinic cell
+#     molecule.set_cell([[0.0, 2.0, 1.0], [1.0, 0.0, 1.0], [1.0, 2.0, 0.0]])
+
+#     triclinic_cell = desc.create(molecule)
+#     suce = molecule * (2, 1, 1)
+#     triclinic_suce = desc.create(suce)
+
+#     diff = abs(np.sum(triclinic_cell - triclinic_suce))
+#     tricl_sum = abs(np.sum(triclinic_cell))
+#     assert diff / tricl_sum < 0.05
+
+#     # Testing that the same crystal, but different unit cells will have a
+#     # similar spectrum when they are normalized. There will be small differences
+#     # in the shape (due to not double counting distances)
+#     a1 = bulk("H", "fcc", a=2.0)
+#     a2 = bulk("H", "fcc", a=2.0, orthorhombic=True)
+#     a3 = bulk("H", "fcc", a=2.0, cubic=True)
+
+#     triclinic_cell = desc.create(a1)
+#     orthorhombic_cell = desc.create(a2)
+#     cubic_cell = desc.create(a3)
+
+#     diff1 = abs(np.sum(triclinic_cell - orthorhombic_cell))
+#     diff2 = abs(np.sum(triclinic_cell - cubic_cell))
+#     tricl_sum = abs(np.sum(triclinic_cell))
+#     assert diff1 / tricl_sum < 0.05
+#     assert diff2 / tricl_sum < 0.05
+
+#     # Tests that the correct peak locations are present in a cubic periodic
+#     desc = MBTR(
+#         species=["H"],
+#         periodic=True,
+#         k3={
+#             "geometry": {"function": "cosine"},
+#             "grid": {"min": -1.1, "max": 1.1, "sigma": 0.010, "n": 600},
+#             "weighting": {"function": "exp", "scale": decay, "threshold": 1e-4},
+#         },
+#         normalization="l2_each",  # This normalizes the spectrum
+#         flatten=True,
+#     )
+#     a = 2.2
+#     system = Atoms(
+#         cell=[[a, 0.0, 0.0], [0.0, a, 0.0], [0.0, 0.0, a]],
+#         positions=[
+#             [0, 0, 0],
+#         ],
+#         symbols=["H"],
+#         pbc=True,
+#     )
+#     cubic_spectrum = desc.create(system)
+#     x3 = desc.get_k3_axis()
+
+#     peak_ids = find_peaks_cwt(cubic_spectrum, [2])
+#     peak_locs = x3[peak_ids]
+
+#     assumed_peaks = np.cos(
+#         np.array(
+#             [
+#                 180,
+#                 90,
+#                 np.arctan(np.sqrt(2)) * 180 / np.pi,
+#                 45,
+#                 np.arctan(np.sqrt(2) / 2) * 180 / np.pi,
+#                 0,
+#             ]
+#         )
+#         * np.pi
+#         / 180
+#     )
+#     assert np.allclose(peak_locs, assumed_peaks, rtol=0, atol=5 * np.pi / 180)
+
+#     # Tests that the correct peak locations are present in a system with a
+#     # non-cubic basis
+#     desc = MBTR(
+#         species=["H"],
+#         periodic=True,
+#         k3={
+#             "geometry": {"function": "cosine"},
+#             "grid": {"min": -1.0, "max": 1.0, "sigma": 0.030, "n": 200},
+#             "weighting": {"function": "exp", "scale": 1.5, "threshold": 1e-4},
+#         },
+#         normalization="l2_each",  # This normalizes the spectrum
+#         flatten=True,
+#         sparse=False,
+#     )
+#     a = 2.2
+#     angle = 30
+#     system = Atoms(
+#         cell=geometry.cellpar_to_cell([3 * a, a, a, angle, 90, 90]),
+#         positions=[
+#             [0, 0, 0],
+#         ],
+#         symbols=["H"],
+#         pbc=True,
+#     )
+#     tricl_spectrum = desc.create(system)
+#     x3 = desc.get_k3_axis()
+
+#     peak_ids = find_peaks_cwt(tricl_spectrum, [3])
+#     peak_locs = x3[peak_ids]
+
+#     angle = (6) / (np.sqrt(5) * np.sqrt(8))
+#     assumed_peaks = np.cos(np.array([180, 105, 75, 51.2, 30, 0]) * np.pi / 180)
+#     assert np.allclose(peak_locs, assumed_peaks, rtol=0, atol=5 * np.pi / 180)

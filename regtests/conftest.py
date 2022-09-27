@@ -74,7 +74,6 @@ def bulk_system():
         pbc=True,
     )
 
-
 def assert_symmetries(
     descriptor_func, translation=True, rotation=True, permutation=True
 ):
@@ -306,6 +305,45 @@ def assert_no_system_modification(descriptor_func):
     # Try separately for periodic and non-periodic systems
     check_modifications(bulk("Cu", "fcc", a=3.6))
     check_modifications(water())
+
+
+def assert_systems(descriptor_func, pbc, cell):
+    """Tests that the descriptor can correctly handle differently described
+    systems
+    """
+    system = water()
+    system.set_pbc(pbc)
+    system.set_cell(cell)
+    descriptor = descriptor_func([system])
+    descriptor.create(system)
+
+
+def assert_basis(descriptor_func):
+    """Tests that the output vectors behave correctly as a basis."""
+    sys1 = Atoms(symbols=["H"], positions=[[0, 0, 0]], cell=[2, 2, 2], pbc=True)
+    sys2 = Atoms(symbols=["O"], positions=[[0, 0, 0]], cell=[2, 2, 2], pbc=True)
+    sys3 = sys2 * [2, 2, 2]
+
+    desc = descriptor_func([sys1, sys2, sys3])
+
+    # Create normalized vectors for each system
+    vec1 = desc.create(sys1)
+    vec1 /= np.linalg.norm(vec1)
+
+    vec2 = desc.create(sys2)
+    vec2 /= np.linalg.norm(vec2)
+
+    vec3 = desc.create(sys3)
+    vec3 /= np.linalg.norm(vec3)
+
+    # The dot-product should be zero when there are no overlapping elements
+    dot = np.dot(vec1, vec2)
+    assert dot == 0
+
+    # After normalization, the dot-product should be roughly one for a primitive
+    # cell and a supercell
+    dot = np.dot(vec2, vec3)
+    assert abs(dot - 1) < 1e-3
 
 
 def assert_matrix_descriptor_exceptions(descriptor_func):
