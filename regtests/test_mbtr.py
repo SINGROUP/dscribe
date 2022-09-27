@@ -404,212 +404,163 @@ def test_locations(system):
             else:
                 assert feat[loc].sum() == 0
 
+@pytest.mark.parametrize(
+    "system,k1,k2,k3,periodic,peaks,prominence",
+    [
+        pytest.param(
+            water(),
+            {"geometry": {"function": "atomic_number"}, "grid": {"min": 0, "max": 9, "sigma": 0.5, "n": 1000}},
+            None,
+            None,
+            False,
+            [(("H"), [1], [2]), (("O"), [8], [1])],
+            0.5,
+            id="k1 finite"
+        ),
+        pytest.param(
+            water(),
+            {"geometry": {"function": "atomic_number"}, "grid": {"min": 0, "max": 9, "sigma": 0.5, "n": 1000}},
+            None,
+            None,
+            True,
+            [(("H"), [1], [2]), (("O"), [8], [1])],
+            0.5,
+            id="k1 periodic"
+        ),
+        pytest.param(
+            water(),
+            None,
+            {
+                "geometry": {"function": "distance"},
+                "grid": {"min": -1, "max": 3, "sigma": 0.5, "n": 1000},
+                "weighting": {"function": "unity"},
+            },
+            None,
+            False,
+            [(("H", "H"), [1.4972204318527715], [1]), (("H", "O"), [0.95], [2])],
+            0.5,
+            id="k2 finite"
+        ),
+        pytest.param(
+            Atoms(
+                cell=[
+                    [10, 0, 0],
+                    [10, 10, 0],
+                    [10, 0, 10],
+                ],
+                symbols=["H", "C"],
+                scaled_positions=[
+                    [0.1, 0.5, 0.5],
+                    [0.9, 0.5, 0.5],
+                ],
+                pbc=True,
+            ),
+            None,
+            {
+                "geometry": {"function": "distance"},
+                "grid": {"min": 0, "max": 10, "sigma": 0.5, "n": 1000},
+                "weighting": {"function": "exp", "scale": 0.8, "threshold": 1e-3},
+            },
+            None,
+            True,
+            [(("H", "C"), [2, 8], np.exp(-0.8 * np.array([2, 8])))],
+            0.001,
+            id="k2 periodic"
+        ),
+        pytest.param(
+            water(),
+            None,
+            None,
+            {
+                "geometry": {"function": "angle"},
+                "grid": {"min": -10, "max": 180, "sigma": 5, "n": 2000},
+                "weighting": {"function": "unity"},
+            },
+            False,
+            [(("H", "H", "O"), [38], [2]), (("H", "O", "H"), [104], [1])],
+            0.5,
+            id="k3 finite"
+        ),
+        pytest.param(
+            Atoms(
+                cell=[
+                    [10, 0, 0],
+                    [0, 10, 0],
+                    [0, 0, 10],
+                ],
+                symbols=3 * ["H"],
+                scaled_positions=[
+                    [0.05, 0.40, 0.5],
+                    [0.05, 0.60, 0.5],
+                    [0.95, 0.5, 0.5],
+                ],
+                pbc=True,
+            ),
+            None,
+            None,
+            {
+                "geometry": {"function": "angle"},
+                "grid": {"min": 0, "max": 180, "sigma": 5, "n": 2000},
+                "weighting": {"function": "exp", "scale": 0.85, "threshold": 1e-3},
+            },
+            True,
+            [(("H", "H", "H"), [45, 90], [2 * np.exp(-0.85 * (2 + 2 * np.sqrt(2))), np.exp(-0.85 * (2 + 2 * np.sqrt(2)))])],
+            0.01,
+            id="k3 periodic"
+        )
+    ]
+)
+def test_peaks(system, k1, k2, k3, periodic, peaks, prominence):
+    """Tests the correct peak locations and intensities are found.
 
-def test_k1_peaks_finite():
-    """Tests the correct peak locations and intensities are found for the
-    k=1 term.
+    Args:
+        system: The system to test
+        k1: k1 config
+        k2: k2 config
+        k3: k3 config
+        periodic: Whether to enable periodicity
+        peaks: List of assumed peak locations and intensities
+        prominence: How prominent peaks should be considered
     """
-    system = water()
-    k1 = {
-        "geometry": {"function": "atomic_number"},
-        "grid": {"min": 0, "max": 9, "sigma": 0.5, "n": 1000},
-    }
     desc = MBTR(
-        species=[1, 8],
+        species=system.get_atomic_numbers(),
         k1=k1,
-        normalize_gaussians=False,
-        periodic=False,
-        flatten=True,
-        sparse=False,
-    )
-    features = desc.create(system)
-
-    start = k1["grid"]["min"]
-    stop = k1["grid"]["max"]
-    n = k1["grid"]["n"]
-    x = np.linspace(start, stop, n)
-
-    # Check the H peaks
-    h_feat = features[desc.get_location(("H"))]
-    h_peak_indices = find_peaks(h_feat, prominence=1)[0]
-    h_peak_locs = x[h_peak_indices]
-    h_peak_ints = h_feat[h_peak_indices]
-    assert np.allclose(h_peak_locs, [1], rtol=0, atol=1e-2)
-    assert np.allclose(h_peak_ints, [2], rtol=0, atol=1e-2)
-
-    # Check the O peaks
-    o_feat = features[desc.get_location(("O"))]
-    o_peak_indices = find_peaks(o_feat, prominence=1)[0]
-    o_peak_locs = x[o_peak_indices]
-    o_peak_ints = o_feat[o_peak_indices]
-    assert np.allclose(o_peak_locs, [8], rtol=0, atol=1e-2)
-    assert np.allclose(o_peak_ints, [1], rtol=0, atol=1e-2)
-
-    # Check that everything else is zero
-    features[desc.get_location(("H"))] = 0
-    features[desc.get_location(("O"))] = 0
-    assert features.sum() == 0
-
-def test_k2_peaks_finite():
-    """Tests the correct peak locations and intensities are found for the k=2
-    term in finite systems.
-    """
-    system = water()
-    k2 = {
-        "geometry": {"function": "distance"},
-        "grid": {"min": -1, "max": 3, "sigma": 0.5, "n": 1000},
-        "weighting": {"function": "unity"},
-    }
-    desc = MBTR(
-        species=[1, 8],
         k2=k2,
-        normalize_gaussians=False,
-        periodic=False,
-        flatten=True,
-        sparse=False,
-    )
-    features = desc.create(system)
-
-    pos = system.get_positions()
-    start = k2["grid"]["min"]
-    stop = k2["grid"]["max"]
-    n = k2["grid"]["n"]
-    x = np.linspace(start, stop, n)
-
-    # Check the H-H peaks
-    hh_feat = features[desc.get_location(("H", "H"))]
-    hh_peak_indices = find_peaks(hh_feat, prominence=0.5)[0]
-    hh_peak_locs = x[hh_peak_indices]
-    hh_peak_ints = hh_feat[hh_peak_indices]
-    assert len(hh_peak_locs) > 0
-    assert np.allclose(hh_peak_locs, [np.linalg.norm(pos[0] - pos[2])], rtol=0, atol=1e-2)
-    assert np.allclose(hh_peak_ints, [1], rtol=0, atol=1e-2)
-
-    # Check the O-H peaks
-    ho_feat = features[desc.get_location(("H", "O"))]
-    ho_peak_indices = find_peaks(ho_feat, prominence=0.5)[0]
-    ho_peak_locs = x[ho_peak_indices]
-    ho_peak_ints = ho_feat[ho_peak_indices]
-    assert len(ho_peak_locs) > 0
-    assert np.allclose(ho_peak_locs, np.linalg.norm(pos[0] - pos[1]), rtol=0, atol=1e-2)
-    assert np.allclose(ho_peak_ints, [2], rtol=0, atol=1e-2)
-
-    # Check that everything else is zero
-    features[desc.get_location(("H", "H"))] = 0
-    features[desc.get_location(("H", "O"))] = 0
-    assert features.sum() == 0
-
-def test_k3_peaks_finite():
-    """Tests that all the correct angles are present in finite systems.
-    There should be n*(n-1)*(n-2)/2 unique angles where the division by two
-    gets rid of duplicate angles.
-    """
-    system = water()
-    k3 = {
-        "geometry": {"function": "angle"},
-        "grid": {"min": -10, "max": 180, "sigma": 5, "n": 2000},
-        "weighting": {"function": "unity"},
-    }
-    desc = MBTR(
-        species=["H", "O"],
         k3=k3,
         normalize_gaussians=False,
-        periodic=False,
+        periodic=periodic,
         flatten=True,
         sparse=False,
     )
     features = desc.create(system)
 
-    start = k3["grid"]["min"]
-    stop = k3["grid"]["max"]
-    n = k3["grid"]["n"]
+    if k1 is not None:
+        config = k1
+    if k2 is not None:
+        config = k2
+    if k3 is not None:
+        config = k3
+    start = config["grid"]["min"]
+    stop = config["grid"]["max"]
+    n = config["grid"]["n"]
     x = np.linspace(start, stop, n)
 
-    # Check the H-H-O peaks
-    hho_assumed_locs = np.array([38])
-    hho_assumed_ints = np.array([2])
-    hho_feat = features[desc.get_location(("H", "H", "O"))]
-    hho_peak_indices = find_peaks(hho_feat, prominence=0.5)[0]
-    hho_peak_locs = x[hho_peak_indices]
-    hho_peak_ints = hho_feat[hho_peak_indices]
+    import matplotlib.pyplot as mpl
 
-    assert np.allclose(hho_peak_locs, hho_assumed_locs, rtol=0, atol=5e-2)
-    assert np.allclose(hho_peak_ints, hho_assumed_ints, rtol=0, atol=5e-2)
-
-    # Check the H-O-H peaks
-    hoh_assumed_locs = np.array([104])
-    hoh_assumed_ints = np.array([1])
-    hoh_feat = features[desc.get_location(("H", "O", "H"))]
-    hoh_peak_indices = find_peaks(hoh_feat, prominence=0.5)[0]
-    hoh_peak_locs = x[hoh_peak_indices]
-    hoh_peak_ints = hoh_feat[hoh_peak_indices]
-    assert np.allclose(hoh_peak_locs, hoh_assumed_locs, rtol=0, atol=5e-2)
-    assert np.allclose(hoh_peak_ints, hoh_assumed_ints, rtol=0, atol=5e-2)
+    for (location, peak_x, peak_y) in peaks:
+        feat = features[desc.get_location(location)]
+        peak_indices = find_peaks(feat, prominence=prominence)[0]
+        mpl.plot(x, feat)
+        assert len(peak_indices) > 0
+        peak_locs = x[peak_indices]
+        peak_ints = feat[peak_indices]
+        assert np.allclose(peak_locs, peak_x, rtol=0, atol=5e-2)
+        assert np.allclose(peak_ints, peak_y, rtol=0, atol=5e-2)
+    mpl.show()
 
     # Check that everything else is zero
-    features[desc.get_location(("H", "H", "O"))] = 0
-    features[desc.get_location(("H", "O", "H"))] = 0
-    assert features.sum() == 0
-
-
-def test_k2_peaks_periodic():
-    """Tests the correct peak locations and intensities are found for the
-    k=2 term in periodic systems.
-    """
-    atoms = Atoms(
-        cell=[
-            [10, 0, 0],
-            [10, 10, 0],
-            [10, 0, 10],
-        ],
-        symbols=["H", "C"],
-        scaled_positions=[
-            [0.1, 0.5, 0.5],
-            [0.9, 0.5, 0.5],
-        ],
-        pbc=True,
-    )
-
-    k2 = {
-        "geometry": {"function": "distance"},
-        "grid": {"min": 0, "max": 10, "sigma": 0.5, "n": 1000},
-        "weighting": {"function": "exp", "scale": 0.8, "threshold": 1e-3},
-    }
-    desc = MBTR(
-        species=["H", "C"],
-        k2=k2,
-        normalize_gaussians=False,
-        periodic=True,
-        flatten=True,
-        sparse=False,
-    )
-    features = desc.create(atoms)
-
-    start = k2["grid"]["min"]
-    stop = k2["grid"]["max"]
-    n = k2["grid"]["n"]
-    x = np.linspace(start, stop, n)
-
-    # Calculate assumed locations and intensities.
-    assumed_locs = np.array([2, 8])
-    assumed_ints = np.exp(-0.8 * np.array([2, 8]))
-    assumed_ints[0] *= 2  # There are two periodic distances at 2Å
-    assumed_ints[
-        0
-    ] /= (
-        2  # The periodic distances ar halved because they belong to different cells
-    )
-
-    # Check the H-C peaks
-    hc_feat = features[desc.get_location(("H", "C"))]
-    hc_peak_indices = find_peaks(hc_feat, prominence=0.001)[0]
-    hc_peak_locs = x[hc_peak_indices]
-    hc_peak_ints = hc_feat[hc_peak_indices]
-    assert np.allclose(hc_peak_locs, assumed_locs, rtol=0, atol=1e-2)
-    assert np.allclose(hc_peak_ints, assumed_ints, rtol=0, atol=1e-2)
-
-    # Check that everything else is zero
-    features[desc.get_location(("H", "C"))] = 0
+    for peak in peaks:
+        features[desc.get_location(peak[0])] = 0
     assert features.sum() == 0
 
 
@@ -660,64 +611,6 @@ def test_periodic_translation(k2, k3):
     spectra1 = desc.create(atoms)
     spectra2 = desc.create(atoms2)
     assert np.allclose(spectra1, spectra2, rtol=0, atol=1e-10)
-
-
-def test_k3_peaks_periodic():
-    scale = 0.85
-    k3 = {
-        "geometry": {"function": "angle"},
-        "grid": {"min": 0, "max": 180, "sigma": 5, "n": 2000},
-        "weighting": {"function": "exp", "scale": scale, "threshold": 1e-3},
-    }
-    desc = MBTR(
-        species=["H"],
-        k3=k3,
-        normalize_gaussians=False,
-        periodic=True,
-        flatten=True,
-        sparse=False,
-    )
-
-    atoms = Atoms(
-        cell=[
-            [10, 0, 0],
-            [0, 10, 0],
-            [0, 0, 10],
-        ],
-        symbols=3 * ["H"],
-        scaled_positions=[
-            [0.05, 0.40, 0.5],
-            [0.05, 0.60, 0.5],
-            [0.95, 0.5, 0.5],
-        ],
-        pbc=True,
-    )
-    features = desc.create(atoms)
-    start = k3["grid"]["min"]
-    stop = k3["grid"]["max"]
-    n = k3["grid"]["n"]
-    x = np.linspace(start, stop, n)
-
-    # Calculate assumed locations and intensities.
-    assumed_locs = np.array([45, 90])
-    dist = 2 + 2 * np.sqrt(2)  # The total distance around the three atoms
-    weight = np.exp(-scale * dist)
-    assumed_ints = np.array([4 * weight, 2 * weight])
-    assumed_ints /= (
-        2  # The periodic distances ar halved because they belong to different cells
-    )
-
-    # Check the H-H-H peaks
-    hhh_feat = features[desc.get_location(("H", "H", "H"))]
-    hhh_peak_indices = find_peaks(hhh_feat, prominence=0.01)[0]
-    hhh_peak_locs = x[hhh_peak_indices]
-    hhh_peak_ints = hhh_feat[hhh_peak_indices]
-    assert np.allclose(hhh_peak_locs, assumed_locs, rtol=0, atol=1e-1)
-    assert np.allclose(hhh_peak_ints, assumed_ints, rtol=0, atol=1e-1)
-
-    # Check that everything else is zero
-    features[desc.get_location(("H", "H", "H"))] = 0
-    assert features.sum() == 0
 
 
 @pytest.mark.parametrize(
