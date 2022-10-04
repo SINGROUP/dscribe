@@ -292,6 +292,30 @@ def test_exceptions():
         )
     assert msg in str(excinfo.value)
 
+    # Both scale and r_cut provided
+    with pytest.raises(ValueError) as excinfo:
+        setup = copy.deepcopy(default_k2)
+        setup["weighting"]["scale"] = 1
+        setup["weighting"]["r_cut"] = 1
+        MBTR(
+            species=[1],
+            k2=setup,
+            periodic=True,
+        )
+    msg = "Provide only 'scale' or 'r_cut', not both."
+    assert msg in str(excinfo.value)
+
+    with pytest.raises(ValueError) as excinfo:
+        setup = copy.deepcopy(default_k3)
+        setup["weighting"]["scale"] = 1
+        setup["weighting"]["r_cut"] = 1
+        MBTR(
+            species=[1],
+            k3=setup,
+            periodic=True,
+        )
+    assert msg in str(excinfo.value)
+
 
 @pytest.mark.parametrize(
     "k1, k2, k3",
@@ -545,19 +569,15 @@ def test_peaks(system, k1, k2, k3, periodic, peaks, prominence):
     n = config["grid"]["n"]
     x = np.linspace(start, stop, n)
 
-    import matplotlib.pyplot as mpl
-
     # Check that the correct peaks can be found
     for (location, peak_x, peak_y) in peaks:
         feat = features[desc.get_location(location)]
         peak_indices = find_peaks(feat, prominence=prominence)[0]
-        mpl.plot(x, feat)
         assert len(peak_indices) > 0
         peak_locs = x[peak_indices]
         peak_ints = feat[peak_indices]
         assert np.allclose(peak_locs, peak_x, rtol=0, atol=5e-2)
         assert np.allclose(peak_ints, peak_y, rtol=0, atol=5e-2)
-    mpl.show()
 
     # Check that everything else is zero
     for peak in peaks:

@@ -24,6 +24,18 @@ limitations under the License.
 
 using namespace std;
 
+inline double get_scale(py::dict k) {
+    double scale;
+    if (k["weighting"].contains("scale")) {
+        scale = k["weighting"]["scale"].cast<double>();
+    } else {
+        double threshold = k["weighting"]["threshold"].cast<double>();
+        double r_cut = k["weighting"]["r_cut"].cast<double>();
+        scale = - log(threshold) / r_cut;
+    }
+    return scale;
+}
+
 inline double weight_unity_k1(int atomic_number) {
     return 1;
 }
@@ -480,6 +492,9 @@ void MBTR::assert_weighting(py::dict &k, int degree, unordered_set<string> valid
                         if (!weighting.contains("scale") && !weighting.contains("r_cut")) {
                             throw invalid_argument("Provide either 'scale' or 'r_cut'.");
                         }
+                        if (weighting.contains("scale") && weighting.contains("r_cut")) {
+                            throw invalid_argument("Provide only 'scale' or 'r_cut', not both.");
+                        }
                     } else if (function == "inverse_square") {
                         if (!weighting.contains("r_cut")) {
                             throw invalid_argument("Missing value for 'r_cut'.");
@@ -628,7 +643,7 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
     if (weight_func_name == "unity") {
         weight_func = weight_unity_k2;
     } else if (weight_func_name == "exp" || weight_func_name == "exponential") {
-        double scale = this->k2["weighting"]["scale"].cast<double>();
+        double scale = get_scale(this->k2);
         weight_func = bind(weight_exponential_k2, std::placeholders::_1, scale);
     } else if (weight_func_name == "inverse_square") {
         weight_func = weight_square_k2;
@@ -716,7 +731,7 @@ void MBTR::calculate_k3(py::array_t<double> &out, System &system, CellList &cell
     if (weight_func_name == "unity") {
         weight_func = weight_unity_k3;
     } else if (weight_func_name == "exp" || weight_func_name == "exponential") {
-        double scale = this->k3["weighting"]["scale"].cast<double>();
+        double scale = get_scale(this->k3);
         weight_func = bind(
             weight_exponential_k3,
             std::placeholders::_1,
