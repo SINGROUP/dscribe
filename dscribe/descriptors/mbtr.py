@@ -1106,7 +1106,6 @@ class MBTR(Descriptor):
 
         return k3
 
-    # Still missing the insclude/exclude system. Only works with flatten=True.
     def derivatives(
         self,
         system,
@@ -1463,7 +1462,7 @@ class MBTR(Descriptor):
     # Like _get_k3() but also calculates the derivatives with regard to all
     # atoms in the system.
     def _get_k3_derivatives(self, system):
-    
+
         grid = self.k3["grid"]
         start = grid["min"]
         stop = grid["max"]
@@ -1496,17 +1495,21 @@ class MBTR(Descriptor):
                 parameters = {b"sharpness": sharpness, b"cutoff": r_cut}
 
                 # Derivatives not implemented
-                raise ValueError("Derivatives not implemented for k3 weighting function 'smooth_cutoff'.")
+                raise ValueError(
+                    "Derivatives not implemented for k3 weighting function 'smooth_cutoff'."
+                )
 
         else:
             weighting_function = "unity"
 
         # Determine the geometry function
         geom_func_name = self.k3["geometry"]["function"]
-        
+
         # "angle" function is not differentiable
         if geom_func_name == "angle":
-            raise ValueError("Derivatives not implemented for k3 geometry function 'angle'.")
+            raise ValueError(
+                "Derivatives not implemented for k3 geometry function 'angle'."
+            )
 
         # If needed, create the extended system
         if self.periodic:
