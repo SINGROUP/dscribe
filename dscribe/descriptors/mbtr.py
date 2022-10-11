@@ -1206,7 +1206,7 @@ class MBTR(Descriptor):
         for sys, inc, exc in zip(system, include, exclude):
             n_atoms = len(sys)
             indices.append(self._get_indices(n_atoms, inc, exc))
-        
+
         # Combine input arguments
         inp = list(
             zip(
@@ -1282,6 +1282,20 @@ class MBTR(Descriptor):
             second dimension goes over the cartesian components, x, y and z.
             The last dimension goes over the features in the default order.
         """
+
+        # Check that the derivative calculations are supported for the used
+        # MBTR parameters
+        supported_normalization = ["none", "n_atoms"]
+        if self.normalization not in supported_normalization:
+            raise ValueError(
+                "Derivatives not implemented for normalization option '{}'. Please choose from: {}".format(
+                    self.normalization, supported_normalization
+                )
+            )
+
+        if self.flatten == False:
+            raise ValueError("Derivatives not implemented for flatten=False.")
+
         # Ensuring variables are re-initialized when a new system is introduced
         self.system = system
         self._interaction_limit = len(system)
@@ -1337,7 +1351,7 @@ class MBTR(Descriptor):
         if self.sparse:
             mbtr = sparse.COO.from_numpy(mbtr)
             mbtr_d = sparse.COO.from_numpy(mbtr_d)
-        
+
         if return_descriptor:
             return (mbtr_d, mbtr)
         return mbtr_d
@@ -1346,20 +1360,21 @@ class MBTR(Descriptor):
     # atoms in the system.
     def _get_k1_derivatives(self, system):
         k1 = self._get_k1(system)
-        if self.flatten: k1 = k1.todense()
+        if self.flatten:
+            k1 = k1.todense()
         k1_d = np.zeros((self._interaction_limit, 3, len(k1)))
         return (k1, k1_d)
 
     # Like _get_k2() but also calculates the derivatives with regard to all
     # atoms in the system.
     def _get_k2_derivatives(self, system):
-        
+
         grid = self.k2["grid"]
         start = grid["min"]
         stop = grid["max"]
         n = grid["n"]
         sigma = grid["sigma"]
-        
+
         # Determine the weighting function and possible radial cutoff
         r_cut = None
         weighting = self.k2.get("weighting")
@@ -1379,18 +1394,15 @@ class MBTR(Descriptor):
                 r_cut = weighting["r_cut"]
         else:
             weighting_function = "unity"
-        
+
         # Determine the geometry function
         geom_func_name = self.k2["geometry"]["function"]
-        
+
         # If needed, create the extended system
         if self.periodic:
             centers = system.get_positions()
             ext_system, cell_indices = dscribe.utils.geometry.get_extended_system(
-                system,
-                r_cut,
-                centers,
-                return_cell_indices=True
+                system, r_cut, centers, return_cell_indices=True
             )
             ext_system = System.from_atoms(ext_system)
         else:
@@ -1419,10 +1431,10 @@ class MBTR(Descriptor):
 
         n_elem = self.n_elements
         n_features = int((n_elem * (n_elem + 1) / 2) * n)
-        
+
         k2 = np.zeros((n_features), dtype=np.float32)
         k2_d = np.zeros((self._interaction_limit, 3, n_features), dtype=np.float32)
-        
+
         # Generate derivatives for k=2 term
         cmbtr.get_k2_derivatives(
             k2_d,
@@ -1442,7 +1454,7 @@ class MBTR(Descriptor):
 
         # Denormalize if requested
         if not self.normalize_gaussians:
-            max_val = 1/(sigma*math.sqrt(2*math.pi))
+            max_val = 1 / (sigma * math.sqrt(2 * math.pi))
             k2 /= max_val
             k2_d /= max_val
 
@@ -1451,13 +1463,13 @@ class MBTR(Descriptor):
     # Like _get_k3() but also calculates the derivatives with regard to all
     # atoms in the system.
     def _get_k3_derivatives(self, system):
-        
+    
         grid = self.k3["grid"]
         start = grid["min"]
         stop = grid["max"]
         n = grid["n"]
         sigma = grid["sigma"]
-  
+
         # Determine the weighting function and possible radial cutoff
         r_cut = None
         weighting = self.k3.get("weighting")
@@ -1482,12 +1494,20 @@ class MBTR(Descriptor):
                     sharpness = 2
                 r_cut = weighting["r_cut"]
                 parameters = {b"sharpness": sharpness, b"cutoff": r_cut}
+
+                # Derivatives not implemented
+                raise ValueError("Derivatives not implemented for k3 weighting function 'smooth_cutoff'.")
+
         else:
-            weighting_function = "unity"       
+            weighting_function = "unity"
 
         # Determine the geometry function
         geom_func_name = self.k3["geometry"]["function"]
         
+        # "angle" function is not differentiable
+        if geom_func_name == "angle":
+            raise ValueError("Derivatives not implemented for k3 geometry function 'angle'.")
+
         # If needed, create the extended system
         if self.periodic:
             centers = system.get_positions()
@@ -1518,11 +1538,11 @@ class MBTR(Descriptor):
 
         n_elem = self.n_elements
         n_features = int((n_elem * n_elem * (n_elem + 1) / 2) * n)
-    
+
         k3 = np.zeros((n_features), dtype=np.float32)
         k3_d = np.zeros((self._interaction_limit, 3, n_features), dtype=np.float32)
-        
-        # Compute the k=3 term and its derivative 
+
+        # Compute the k=3 term and its derivative
         cmbtr.get_k3_derivatives(
             k3_d,
             k3,

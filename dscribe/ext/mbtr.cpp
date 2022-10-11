@@ -861,7 +861,7 @@ void MBTR::getK3Derivatives(py::array_t<float> &derivatives, py::array_t<float> 
                             float d_ji = distances[j][i];
                             float d_ik = distances[i][k];
                             float d_jk = distances[j][k];
-
+                            
                             // Calculate geometry value and its derivatives.
                             // "angle" is not supported because it is not differentiable.
                             float geom;
@@ -894,7 +894,7 @@ void MBTR::getK3Derivatives(py::array_t<float> &derivatives, py::array_t<float> 
 
                             // Calculate weight value and its derivatives.
                             float weight;
-                            vector<vector<float>> weight_d(3);
+                            vector<vector<float>> weight_d(3); // Weight derivatives divided by weight!
                             if (weightFunc == "exp") {
                                 float scale = parameters.at("scale");
                                 float threshold = parameters.at("threshold");
@@ -907,11 +907,6 @@ void MBTR::getK3Derivatives(py::array_t<float> &derivatives, py::array_t<float> 
                                     weight_d[1].push_back(scale*(-r_ji[dim]/d_ji - r_jk[dim]/d_jk));
                                     weight_d[2].push_back(scale*( r_jk[dim]/d_jk + r_ik[dim]/d_ik));
                                 }
-                            } else if (weightFunc == "smooth_cutoff") {
-                                float sharpness = parameters.at("sharpness");
-                                float cutoff = parameters.at("cutoff");
-                                weight = k3WeightSmooth(i, j, k, distances, sharpness, cutoff);
-                                // weight_d not implemented
                             } else if (weightFunc == "unity") {
                                 weight = k3WeightUnity(i, j, k, distances);
                                 weight_d[0] = vector<float>(3,0.0);
@@ -988,7 +983,7 @@ void MBTR::getK3Derivatives(py::array_t<float> &derivatives, py::array_t<float> 
                                         // Counteracting the weight halving
                                         gauss_d *= derivative_correction;
                                         derivatives_mu(atom, dim, start+index) += gauss_d;
-                                    }                        
+                                    }
                                 }
                             }
                         }
