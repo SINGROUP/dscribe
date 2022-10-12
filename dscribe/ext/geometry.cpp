@@ -99,6 +99,18 @@ System extend_system(
     if (cutoff < 0) {
         throw invalid_argument("Cutoff must be positive.");
     }
+
+    // Infinite cutoff signals that the system is finite and does not need to be
+    // extended.
+    if (cutoff == numeric_limits<double>::infinity()) {
+        return System(
+            system.positions,
+            system.atomic_numbers,
+            system.cell,
+            system.pbc
+        );
+    }
+
     // Determine the upper limit of how many copies we need in each cell vector
     // direction. We take as many copies as needed to reach the radial cutoff.
     // Notice that we need to use vectors that are perpendicular to the cell
@@ -153,8 +165,8 @@ System extend_system(
     }
 
     // Calculate the extended system positions.
-    int n_rep = (2*n_copies_axis[0]+1)*(2*n_copies_axis[1]+1)*(2*n_copies_axis[2]+1);
     int n_atoms = system.atomic_numbers.size();
+    int n_rep = (2*n_copies_axis[0]+1)*(2*n_copies_axis[1]+1)*(2*n_copies_axis[2]+1);
     py::array_t<double> ext_pos({n_atoms*n_rep, 3});
     py::array_t<int> ext_atomic_numbers({uint(n_atoms*n_rep)});
     py::array_t<int> ext_indices({uint(n_atoms*n_rep)});
@@ -202,6 +214,7 @@ System extend_system(
     for (int i = 0; i < n_atoms; ++i) {
         interactive_atoms.insert(i);
     }
+
     System ext_system = System(
         ext_pos,
         ext_atomic_numbers,

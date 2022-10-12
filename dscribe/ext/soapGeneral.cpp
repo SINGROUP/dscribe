@@ -13,13 +13,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 #include <stdio.h>
-#include <iostream>
 #include <stdlib.h>
 #include <math.h>
 #include <map>
 #include <set>
 #include <algorithm>
-#include <iostream>
 #include "soapGeneral.h"
 #include "weighting.h"
 

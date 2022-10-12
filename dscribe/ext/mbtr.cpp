@@ -15,7 +15,6 @@ limitations under the License.
 #include <functional>
 #include <algorithm>
 #include <limits>
-#include <iostream>
 #include <sstream>
 #include <unordered_set>
 #include "mbtr.h"
@@ -343,7 +342,6 @@ void MBTR::set_k2(py::dict k2) {
             ? max(this->cutoff_k2, this->cutoff_k3)
             : this->cutoff_k2;
     }
-
     this->k2 = k2;
 }
 
@@ -639,6 +637,8 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
 
     // Determine the weighting function to use
     string weight_func_name = this->k2["weighting"]["function"].cast<string>();
+    double threshold = 0;
+    double cutoff = get_cutoff(this->k2);
     function<double(double)> weight_func;
     if (weight_func_name == "unity") {
         weight_func = weight_unity_k2;
@@ -662,6 +662,15 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
         for (auto& it: neighbours_i) {
             int j = it.first;
             double distance = it.second.first;
+
+            // Notice that we need to explicitly ignore values where the
+            // distance is above the cutoff: the final system may have distance
+            // that go above it due to the fact that it is extended based on the
+            // largest cutoff.
+            if (distance > cutoff) {
+                continue;
+            }
+
             if (j > i) {
                 // Only consider pairs that have at least one atom in the
                 // 'interactive subset', typically the original cell but can
@@ -669,6 +678,7 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
                 bool i_interactive = system.interactive_atoms.find(i) != system.interactive_atoms.end();
                 bool j_interactive = system.interactive_atoms.find(j) != system.interactive_atoms.end();
                 if (i_interactive || j_interactive) {
+
                     double geom = geom_func(distance);
                     double weight = weight_func(distance);
 
@@ -701,6 +711,7 @@ void MBTR::calculate_k3(py::array_t<double> &out, System &system, CellList &cell
     if (this->k3.size() == 0) {
         return;
     }
+
     // Create mutable and unchecked versions
     auto out_mu = out.mutable_unchecked<1>();
     auto atomic_numbers = system.atomic_numbers;
@@ -727,6 +738,7 @@ void MBTR::calculate_k3(py::array_t<double> &out, System &system, CellList &cell
 
     // Determine the weighting function to use
     string weight_func_name = this->k3["weighting"]["function"].cast<string>();
+    double cutoff = get_cutoff(this->k3);
     function<double(double, double, double)> weight_func;
     if (weight_func_name == "unity") {
         weight_func = weight_unity_k3;
@@ -783,10 +795,19 @@ void MBTR::calculate_k3(py::array_t<double> &out, System &system, CellList &cell
                             double distance_jk = neighbours_j[k].first;
                             double distance_ki = neighbours_i[k].first;
 
+                            // Notice that we need to explicitly ignore values
+                            // where the distance is above the cutoff: the final
+                            // system may have distance that go above it due to
+                            // the fact that it is extended based on the largest
+                            // cutoff.
+                            if (distance_ij + distance_jk + distance_ki > cutoff) {
+                                continue;
+                            }
+
                             // Calculate geometry value
                             double geom = geom_func(distance_ij, distance_jk, distance_ki);
 
-                            // Calculate weight value
+                            // Calculate weight value.
                             double weight = weight_func(distance_ij, distance_jk, distance_ki);
 
                             // The contributions are weighted by their multiplicity arising from

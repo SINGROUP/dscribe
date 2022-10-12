@@ -17,7 +17,6 @@ limitations under the License.
 #include "geometry.h"
 #include <math.h>
 #include <numeric>
-#include <iostream>
 
 using namespace std;
 using namespace Eigen;

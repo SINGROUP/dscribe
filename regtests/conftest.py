@@ -30,12 +30,6 @@ def big_system():
     ) * (3, 3, 3)
 
 
-@pytest.fixture()
-def H2O():
-    """The H2O molecule."""
-    return water()
-
-
 def water():
     """The H2O molecule in a cell."""
     return Atoms(
@@ -73,6 +67,7 @@ def bulk_system():
         symbols=["H", "H"],
         pbc=True,
     )
+
 
 def assert_symmetries(
     descriptor_func, translation=True, rotation=True, permutation=True
@@ -320,20 +315,26 @@ def assert_systems(descriptor_func, pbc, cell):
 
 def assert_basis(descriptor_func):
     """Tests that the output vectors behave correctly as a basis."""
-    sys1 = Atoms(symbols=["H"], positions=[[0, 0, 0]], cell=[2, 2, 2], pbc=True)
-    sys2 = Atoms(symbols=["O"], positions=[[0, 0, 0]], cell=[2, 2, 2], pbc=True)
+    sys1 = Atoms(symbols=["H"], positions=[[0, 0, 0]], cell=[4, 4, 4], pbc=True)
+    sys2 = Atoms(symbols=["O"], positions=[[0, 0, 0]], cell=[4, 4, 4], pbc=True)
     sys3 = sys2 * [2, 2, 2]
 
     desc = descriptor_func([sys1, sys2, sys3])
 
     # Create normalized vectors for each system
     vec1 = desc.create(sys1)
-    vec1 /= np.linalg.norm(vec1)
 
     vec2 = desc.create(sys2)
-    vec2 /= np.linalg.norm(vec2)
 
     vec3 = desc.create(sys3)
+
+    import matplotlib.pyplot as mpl 
+    mpl.plot(vec2)
+    mpl.plot(vec3)
+    mpl.show()
+
+    vec1 /= np.linalg.norm(vec1)
+    vec2 /= np.linalg.norm(vec2)
     vec3 /= np.linalg.norm(vec3)
 
     # The dot-product should be zero when there are no overlapping elements

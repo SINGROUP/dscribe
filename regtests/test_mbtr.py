@@ -96,8 +96,8 @@ def test_systems(pbc, cell):
     assert_systems(mbtr(periodic=True), pbc, cell)
 
 
-# def test_basis():
-#     assert_basis(mbtr(periodic=True))
+def test_basis():
+    assert_basis(mbtr(periodic=True))
 
 
 def test_sparse():
@@ -356,7 +356,7 @@ def test_number_of_features(k1, k2, k3):
         (False),
     ],
 )
-def test_gaussian_distribution(normalize_gaussians, H2O):
+def test_gaussian_distribution(normalize_gaussians):
     """Check that the broadening follows gaussian distribution."""
     # Check with normalization
     std = 1
@@ -371,7 +371,8 @@ def test_gaussian_distribution(normalize_gaussians, H2O):
         },
         normalize_gaussians = normalize_gaussians
     )
-    y = desc.create(H2O)
+    system = water()
+    y = desc.create(system)
     x = np.linspace(start, stop, n)
 
     # Find the location of the peaks
@@ -428,6 +429,8 @@ def test_locations(system):
             else:
                 assert feat[loc].sum() == 0
 
+water_periodic = water()
+water_periodic.set_pbc(True)
 @pytest.mark.parametrize(
     "system,k1,k2,k3,periodic,peaks,prominence",
     [
@@ -442,7 +445,7 @@ def test_locations(system):
             id="k1 finite"
         ),
         pytest.param(
-            water(),
+            water_periodic,
             {"geometry": {"function": "atomic_number"}, "grid": {"min": 0, "max": 9, "sigma": 0.5, "n": 1000}},
             None,
             None,
@@ -664,54 +667,54 @@ def test_normalization(k1, k2, k3, normalization, norm):
     assert np.linalg.norm(feat_normalized) == pytest.approx(norm, abs=1e-8)
 
 
-# def test_periodic_supercell_similarity():
-#     """Tests that the output spectrum of various supercells of the same
-#     crystal is identical after it is normalized.
-#     """
-#     decay = 1
-#     desc = MBTR(
-#         species=["H"],
-#         periodic=True,
-#         k1={
-#             "geometry": {"function": "atomic_number"},
-#             "grid": {"min": 0, "max": 2, "sigma": 0.1, "n": 100},
-#         },
-#         k2={
-#             "geometry": {"function": "inverse_distance"},
-#             "grid": {"min": 0, "max": 1.0, "sigma": 0.02, "n": 200},
-#             "weighting": {
-#                 "function": "exp",
-#                 "scale": decay,
-#                 "threshold": 1e-3,
-#             },
-#         },
-#         k3={
-#             "geometry": {"function": "cosine"},
-#             "grid": {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 200},
-#             "weighting": {
-#                 "function": "exp",
-#                 "scale": decay,
-#                 "threshold": 1e-3,
-#             },
-#         },
-#         flatten=True,
-#         sparse=False,
-#         normalization="l2_each",
-#     )
+def test_periodic_supercell_similarity():
+    """Tests that the output spectrum of various supercells of the same
+    crystal is identical after it is normalized.
+    """
+    decay = 1
+    desc = MBTR(
+        species=["H"],
+        periodic=True,
+        k1={
+            "geometry": {"function": "atomic_number"},
+            "grid": {"min": 0, "max": 2, "sigma": 0.1, "n": 100},
+        },
+        # k2={
+        #     "geometry": {"function": "inverse_distance"},
+        #     "grid": {"min": 0, "max": 1.0, "sigma": 0.02, "n": 200},
+        #     "weighting": {
+        #         "function": "exp",
+        #         "scale": decay,
+        #         "threshold": 1e-3,
+        #     },
+        # },
+        k3={
+            "geometry": {"function": "cosine"},
+            "grid": {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 200},
+            "weighting": {
+                "function": "exp",
+                "scale": decay,
+                "threshold": 1e-3,
+            },
+        },
+        flatten=True,
+        sparse=False,
+        normalization="l2_each",
+    )
 
-#     # Create various supercells for the FCC structure
-#     a1 = bulk("H", "fcc", a=2.0)  # Primitive
-#     a2 = a1 * [2, 2, 2]  # Supercell
-#     a3 = bulk("H", "fcc", a=2.0, orthorhombic=True)  # Orthorhombic
-#     a4 = bulk("H", "fcc", a=2.0, cubic=True)  # Conventional cubic
+    # Create various supercells for the FCC structure
+    a1 = bulk("H", "fcc", a=2.0)  # Primitive
+    a2 = a1 * [2, 2, 2]  # Supercell
+    a3 = bulk("H", "fcc", a=2.0, orthorhombic=True)  # Orthorhombic
+    a4 = bulk("H", "fcc", a=2.0, cubic=True)  # Conventional cubic
 
-#     output = desc.create([a1, a2, a3, a4])
+    output = desc.create([a1, a2, a3, a4])
 
-#     # Test for equality
-#     assert np.allclose(output[0, :], output[0, :], atol=1e-5, rtol=0)
-#     assert np.allclose(output[0, :], output[1, :], atol=1e-5, rtol=0)
-#     assert np.allclose(output[0, :], output[2, :], atol=1e-5, rtol=0)
-#     assert np.allclose(output[0, :], output[3, :], atol=1e-5, rtol=0)
+    # Test for equality
+    assert np.allclose(output[0, :], output[0, :], atol=1e-5, rtol=0)
+    assert np.allclose(output[0, :], output[1, :], atol=1e-5, rtol=0)
+    assert np.allclose(output[0, :], output[2, :], atol=1e-5, rtol=0)
+    assert np.allclose(output[0, :], output[3, :], atol=1e-5, rtol=0)
 
 
 # def test_periodic_images():

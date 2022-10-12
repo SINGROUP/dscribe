@@ -16,7 +16,7 @@ limitations under the License.
 #include <set>
 #include <unordered_map>
 #include <cmath>
-#include <iostream>
+#include <limits>
 #include "descriptorglobal.h"
 #include "geometry.h"
 
@@ -24,7 +24,8 @@ using namespace std;
 
 void DescriptorGlobal::create(py::array_t<double> out, System system)
 {
-    // Extend system if periodicity is requested.
+    // Extend system if periodicity is requested and cutoff is not set to
+    // infinity (a special value reserved for finite systems).
     auto pbc_u = system.pbc.unchecked<1>();
     bool is_periodic = this->periodic && (pbc_u(0) || pbc_u(1) || pbc_u(2));
     if (is_periodic) {
