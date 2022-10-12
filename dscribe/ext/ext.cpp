@@ -113,9 +113,9 @@ PYBIND11_MODULE(ext, m) {
         .def("get_location", overload_cast_<int>()(&MBTR::get_location))
         .def("get_location", overload_cast_<int, int>()(&MBTR::get_location))
         .def("get_location", overload_cast_<int, int, int>()(&MBTR::get_location))
-        .def_property("k1", &MBTR::get_k1, &MBTR::set_k1)
-        .def_property("k2", &MBTR::get_k2, &MBTR::set_k2)
-        .def_property("k3", &MBTR::get_k3, &MBTR::set_k3)
+        .def_property("geometry", &MBTR::get_geometry, &MBTR::set_geometry)
+        .def_property("grid", &MBTR::get_grid, &MBTR::set_grid)
+        .def_property("weighting", &MBTR::get_weighting, &MBTR::set_weighting)
         .def_property("species", &MBTR::get_species, &MBTR::set_species)
         .def_property("normalization", &MBTR::get_normalization, &MBTR::set_normalization)
         .def_property("normalize_gaussians", &MBTR::get_normalize_gaussians, &MBTR::set_normalize_gaussians)
@@ -123,7 +123,7 @@ PYBIND11_MODULE(ext, m) {
         .def("derivatives_numerical", &MBTR::derivatives_numerical)
         .def(py::pickle(
             [](const MBTR &p) {
-                return py::make_tuple(p.k1, p.k2, p.k3, p.normalize_gaussians, p.normalization, p.species, p.periodic);
+                return py::make_tuple(p.geometry, p.grid, p.weighting, p.normalize_gaussians, p.normalization, p.species, p.periodic);
             },
             [](py::tuple t) {
                 if (t.size() != 7)

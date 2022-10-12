@@ -26,6 +26,7 @@ from dscribe.descriptors import MBTR
 default_k1 = {
     "geometry": {"function": "atomic_number"},
     "grid": {"min": 1, "max": 8, "sigma": 0.1, "n": 50},
+    "weighting": {"function": "unity"}
 }
 
 default_k2 = {
@@ -52,10 +53,9 @@ def mbtr(**kwargs):
             species.update(system.get_atomic_numbers())
         final_kwargs = {
             "species": species,
-            "k1": default_k1,
-            "k2": default_k2,
-            "k3": default_k3,
-            "flatten": True,
+            "geometry": default_k2["geometry"],
+            "grid": default_k2["grid"],
+            "weighting": default_k2["weighting"]
         }
         final_kwargs.update(kwargs)
         return MBTR(**final_kwargs)
@@ -118,36 +118,14 @@ def test_exceptions():
     """Tests different invalid parameters that should raise an
     exception.
     """
-    # Cannot create a sparse and non-flattened output.
-    with pytest.raises(ValueError) as excinfo:
-        MBTR(
-            species=["H"],
-            k1=default_k1,
-            periodic=False,
-            flatten=False,
-            sparse=True,
-        )
-    msg = "Sparse, non-flattened output is currently not supported. If you want a non-flattened output, please specify sparse=False in the MBTR constructor."
-    assert msg in str(excinfo.value)
-
     # Weighting needs to be provided for periodic system and terms k>1
-    with pytest.raises(ValueError) as excinfo:
-        MBTR(
-            species=["H"],
-            k2={"geometry": default_k2["geometry"], "grid": default_k2["grid"]},
-            periodic=True,
-        )
     msg = "Periodic systems need to have a weighting function."
-    assert msg in str(excinfo.value)
-
     with pytest.raises(ValueError) as excinfo:
         MBTR(
             species=["H"],
-            k2={
-                "geometry": default_k2["geometry"],
-                "grid": default_k2["grid"],
-                "weighting": {"function": "unity"},
-            },
+            geometry=default_k2["geometry"],
+            grid=default_k2["grid"],
+            weighting={},
             periodic=True,
         )
     assert msg in str(excinfo.value)
@@ -155,199 +133,167 @@ def test_exceptions():
     with pytest.raises(ValueError) as excinfo:
         MBTR(
             species=["H"],
-            k3={"geometry": default_k3["geometry"], "grid": default_k3["grid"]},
-            periodic=True,
-        )
-    assert msg in str(excinfo.value)
-    with pytest.raises(ValueError) as excinfo:
-        MBTR(
-            species=["H"],
-            k3={
-                "geometry": default_k3["geometry"],
-                "grid": default_k3["grid"],
-                "weighting": {"function": "unity"},
-            },
+            geometry=default_k2["geometry"],
+            grid=default_k2["grid"],
+            weighting={"function": "unity"},
             periodic=True,
         )
     assert msg in str(excinfo.value)
 
     # Invalid weighting function
+    msg = "Unknown weighting function."
     with pytest.raises(ValueError) as excinfo:
         MBTR(
             species=[1],
-            k1={
-                "geometry": default_k1["geometry"],
-                "grid": default_k1["grid"],
-                "weighting": {"function": "none"},
-            },
-            periodic=True,
-        )
-    msg = "Unknown weighting function specified for k1."
-    assert msg in str(excinfo.value)
-
-    with pytest.raises(ValueError) as excinfo:
-        MBTR(
-            species=[1],
-            k2={
-                "geometry": default_k2["geometry"],
-                "grid": default_k2["grid"],
-                "weighting": {"function": "none"},
-            },
-            periodic=True,
-        )
-    msg = "Unknown weighting function specified for k2."
-    assert msg in str(excinfo.value)
-
-    with pytest.raises(ValueError) as excinfo:
-        MBTR(
-            species=[1],
-            k3={
-                "geometry": default_k3["geometry"],
-                "grid": default_k3["grid"],
-                "weighting": {"function": "none"},
-            },
-            periodic=True,
-        )
-    msg = "Unknown weighting function specified for k3."
-    assert msg in str(excinfo.value)
-
-    # Invalid geometry function
-    with pytest.raises(ValueError) as excinfo:
-        MBTR(
-            species=[1],
-            k1={
-                "geometry": {"function": "none"},
-                "grid": {"min": 0, "max": 1, "n": 10, "sigma": 0.1},
-            },
-            periodic=False,
-        )
-    msg = "Unknown geometry function specified for k1."
-    assert msg in str(excinfo.value)
-
-    with pytest.raises(ValueError) as excinfo:
-        MBTR(
-            species=[1],
-            k2={
-                "geometry": {"function": "none"},
-                "grid": {"min": 0, "max": 1, "n": 10, "sigma": 0.1},
-            },
-            periodic=False,
-        )
-    msg = "Unknown geometry function specified for k2."
-    assert msg in str(excinfo.value)
-
-    with pytest.raises(ValueError) as excinfo:
-        MBTR(
-            species=[1],
-            k3={
-                "geometry": {"function": "none"},
-                "grid": {"min": 0, "max": 1, "n": 10, "sigma": 0.1},
-            },
-            periodic=False,
-        )
-    msg = "Unknown geometry function specified for k3."
-    assert msg in str(excinfo.value)
-
-    # Missing threshold
-    with pytest.raises(ValueError) as excinfo:
-        setup = copy.deepcopy(default_k2)
-        del setup["weighting"]["threshold"]
-        MBTR(
-            species=[1],
-            k2=setup,
-            periodic=True,
-        )
-    msg = "Missing value for 'threshold'"
-    assert msg in str(excinfo.value)
-
-    with pytest.raises(ValueError) as excinfo:
-        setup = copy.deepcopy(default_k3)
-        del setup["weighting"]["threshold"]
-        MBTR(
-            species=[1],
-            k3=setup,
+            geometry=default_k1["geometry"],
+            grid=default_k1["grid"],
+            weighting={"function": "exp", "threshold": 1, "scale": 1},
             periodic=True,
         )
     assert msg in str(excinfo.value)
 
-    # Missing scale or r_cut
     with pytest.raises(ValueError) as excinfo:
-        setup = copy.deepcopy(default_k2)
-        del setup["weighting"]["scale"]
         MBTR(
             species=[1],
-            k2=setup,
-            periodic=True,
-        )
-    msg = "Provide either 'scale' or 'r_cut'."
-    assert msg in str(excinfo.value)
-
-    with pytest.raises(ValueError) as excinfo:
-        setup = copy.deepcopy(default_k3)
-        del setup["weighting"]["scale"]
-        MBTR(
-            species=[1],
-            k3=setup,
+            geometry=default_k2["geometry"],
+            grid=default_k2["grid"],
+            weighting={"function": "none"},
             periodic=True,
         )
     assert msg in str(excinfo.value)
 
-    # Both scale and r_cut provided
-    with pytest.raises(ValueError) as excinfo:
-        setup = copy.deepcopy(default_k2)
-        setup["weighting"]["scale"] = 1
-        setup["weighting"]["r_cut"] = 1
-        MBTR(
-            species=[1],
-            k2=setup,
-            periodic=True,
-        )
-    msg = "Provide only 'scale' or 'r_cut', not both."
-    assert msg in str(excinfo.value)
+    # with pytest.raises(ValueError) as excinfo:
+    #     MBTR(
+    #         species=[1],
+    #         k3={
+    #             "geometry": default_k3["geometry"],
+    #             "grid": default_k3["grid"],
+    #             "weighting": {"function": "none"},
+    #         },
+    #         periodic=True,
+    #     )
+    # msg = "Unknown weighting function specified for k3."
+    # assert msg in str(excinfo.value)
 
-    with pytest.raises(ValueError) as excinfo:
-        setup = copy.deepcopy(default_k3)
-        setup["weighting"]["scale"] = 1
-        setup["weighting"]["r_cut"] = 1
-        MBTR(
-            species=[1],
-            k3=setup,
-            periodic=True,
-        )
-    assert msg in str(excinfo.value)
+    # # Invalid geometry function
+    # with pytest.raises(ValueError) as excinfo:
+    #     MBTR(
+    #         species=[1],
+    #         k1={
+    #             "geometry": {"function": "none"},
+    #             "grid": {"min": 0, "max": 1, "n": 10, "sigma": 0.1},
+    #         },
+    #         periodic=False,
+    #     )
+    # msg = "Unknown geometry function specified for k1."
+    # assert msg in str(excinfo.value)
+
+    # with pytest.raises(ValueError) as excinfo:
+    #     MBTR(
+    #         species=[1],
+    #         k2={
+    #             "geometry": {"function": "none"},
+    #             "grid": {"min": 0, "max": 1, "n": 10, "sigma": 0.1},
+    #         },
+    #         periodic=False,
+    #     )
+    # msg = "Unknown geometry function specified for k2."
+    # assert msg in str(excinfo.value)
+
+    # with pytest.raises(ValueError) as excinfo:
+    #     MBTR(
+    #         species=[1],
+    #         k3={
+    #             "geometry": {"function": "none"},
+    #             "grid": {"min": 0, "max": 1, "n": 10, "sigma": 0.1},
+    #         },
+    #         periodic=False,
+    #     )
+    # msg = "Unknown geometry function specified for k3."
+    # assert msg in str(excinfo.value)
+
+    # # Missing threshold
+    # with pytest.raises(ValueError) as excinfo:
+    #     setup = copy.deepcopy(default_k2)
+    #     del setup["weighting"]["threshold"]
+    #     MBTR(
+    #         species=[1],
+    #         k2=setup,
+    #         periodic=True,
+    #     )
+    # msg = "Missing value for 'threshold'"
+    # assert msg in str(excinfo.value)
+
+    # with pytest.raises(ValueError) as excinfo:
+    #     setup = copy.deepcopy(default_k3)
+    #     del setup["weighting"]["threshold"]
+    #     MBTR(
+    #         species=[1],
+    #         k3=setup,
+    #         periodic=True,
+    #     )
+    # assert msg in str(excinfo.value)
+
+    # # Missing scale or r_cut
+    # with pytest.raises(ValueError) as excinfo:
+    #     setup = copy.deepcopy(default_k2)
+    #     del setup["weighting"]["scale"]
+    #     MBTR(
+    #         species=[1],
+    #         k2=setup,
+    #         periodic=True,
+    #     )
+    # msg = "Provide either 'scale' or 'r_cut'."
+    # assert msg in str(excinfo.value)
+
+    # with pytest.raises(ValueError) as excinfo:
+    #     setup = copy.deepcopy(default_k3)
+    #     del setup["weighting"]["scale"]
+    #     MBTR(
+    #         species=[1],
+    #         k3=setup,
+    #         periodic=True,
+    #     )
+    # assert msg in str(excinfo.value)
+
+    # # Both scale and r_cut provided
+    # with pytest.raises(ValueError) as excinfo:
+    #     setup = copy.deepcopy(default_k2)
+    #     setup["weighting"]["scale"] = 1
+    #     setup["weighting"]["r_cut"] = 1
+    #     MBTR(
+    #         species=[1],
+    #         k2=setup,
+    #         periodic=True,
+    #     )
+    # msg = "Provide only 'scale' or 'r_cut', not both."
+    # assert msg in str(excinfo.value)
+
+    # with pytest.raises(ValueError) as excinfo:
+    #     setup = copy.deepcopy(default_k3)
+    #     setup["weighting"]["scale"] = 1
+    #     setup["weighting"]["r_cut"] = 1
+    #     MBTR(
+    #         species=[1],
+    #         k3=setup,
+    #         periodic=True,
+    #     )
+    # assert msg in str(excinfo.value)
 
 
 @pytest.mark.parametrize(
-    "k1, k2, k3",
+    "setup, n_features",
     [
-        (True, False, False),  # K1
-        (False, True, False),  # K2
-        (False, False, True),  # K3
-        (True, True, False),  # K1 + K2
-        (True, False, True),  # K1 + K3
-        (False, True, True),  # K2 + K3
-        (True, True, True),  # K1 + K2 + K3
+        (default_k1, 2 * default_k1["grid"]["n"]),  # K1
+        (default_k2, 2 * default_k2["grid"]["n"] * 1 / 2 * (2 + 1)),  # K2
+        (default_k3, 2 * default_k3["grid"]["n"] * 1 / 2 * (2 + 1) * 2),  # K3
     ],
 )
-def test_number_of_features(k1, k2, k3):
+def test_number_of_features(setup, n_features):
     atomic_numbers = [1, 8]
-    n_elem = len(atomic_numbers)
-
-    desc = MBTR(
-        species=atomic_numbers,
-        k1=default_k1 if k1 else None,
-        k2=default_k2 if k2 else None,
-        k3=default_k3 if k3 else None,
-        flatten=True,
-    )
+    desc = MBTR(species=atomic_numbers, **setup)
     n_features = desc.get_number_of_features()
-
-    expected_k1 = n_elem * default_k1["grid"]["n"]
-    expected_k2 = n_elem * default_k2["grid"]["n"] * 1 / 2 * (n_elem + 1)
-    expected_k3 = n_elem * default_k3["grid"]["n"] * 1 / 2 * (n_elem + 1) * n_elem
-
-    assert n_features == (expected_k1 if k1 else 0) + (expected_k2 if k2 else 0) + (expected_k3 if k3 else 0)
-
+    assert n_features == n_features
 
 @pytest.mark.parametrize(
     "normalize_gaussians",

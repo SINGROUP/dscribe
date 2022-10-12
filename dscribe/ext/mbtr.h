@@ -32,9 +32,9 @@ class MBTR: public DescriptorGlobal {
          * Constructor, see the python docs for more details about variables.
          */
         MBTR(
-            const py::dict k1,
-            const py::dict k2,
-            const py::dict k3,
+            const py::dict geometry,
+            const py::dict grid,
+            const py::dict weighting,
             bool normalize_gaussians,
             string normalization,
             py::array_t<int> species,
@@ -71,9 +71,9 @@ class MBTR: public DescriptorGlobal {
          */
         void set_species(py::array_t<int> species);
         void set_periodic(bool periodic);
-        void set_k1(py::dict k1);
-        void set_k2(py::dict k2);
-        void set_k3(py::dict k3);
+        void set_geometry(py::dict geometry);
+        void set_grid(py::dict grid);
+        void set_weighting(py::dict weighting);
         void set_normalize_gaussians(bool normalize_gaussians);
         void set_normalization(string normalization);
 
@@ -82,24 +82,23 @@ class MBTR: public DescriptorGlobal {
          */
         py::array_t<int> get_species();
         bool get_periodic();
-        py::dict get_k1();
-        py::dict get_k2();
-        py::dict get_k3();
+        py::dict get_geometry();
+        py::dict get_grid();
+        py::dict get_weighting();
         bool get_normalize_gaussians();
         string get_normalization();
         map<int, int> get_species_index_map();
 
-        py::dict k1;
-        py::dict k2;
-        py::dict k3;
+        py::dict geometry;
+        py::dict grid;
+        py::dict weighting;
         bool normalize_gaussians;
         string normalization;
         py::array_t<int> species;
         bool periodic;
 
     private:
-        double cutoff_k2;
-        double cutoff_k3;
+        int k;
         map<int, int> species_index_map;
         map<int, int> index_species_map;
         /**
@@ -114,21 +113,23 @@ class MBTR: public DescriptorGlobal {
          * Checks that the weighting is defined correctly when periodicity is
          * taken into account.
          */
-        void assert_periodic_weighting(py::dict &k);
+        void assert_periodic_weighting();
         /**
-         * Checks that the weighting is defined correctly in the given
-         * configuration dict.
+         * Checks that the weighting is defined correctly.
          */
-        void assert_weighting(py::dict &k, int degree, unordered_set<string> valid_functions);
+        void assert_weighting();
         /**
-         * Checks that the geometry is defined correctly in the given
-         * configuration dict.
+         * Checks that the geometry is defined correctly.
          */
-        void assert_geometry(py::dict &k, int degree, unordered_set<string> valid_functions);
+        void assert_geometry();
         /**
-         * Gets the radial cutoff value from the given configuration dict.
+         * Gets the radial cutoff value.
          */
-        double get_cutoff(py::dict &k);
+        double get_cutoff();
+        /**
+         * Gets the exponential scaling factor.
+         */
+        double get_scale();
         inline void add_gaussian(
             double center,
             double weight,
@@ -145,7 +146,7 @@ class MBTR: public DescriptorGlobal {
         int get_number_of_k1_features() const;
         int get_number_of_k2_features() const;
         int get_number_of_k3_features() const;
-        void normalize_output(py::array_t<double> &out);
+        void normalize_output(py::array_t<double> &out, int start = 0, int end = -1);
 };
 
 #endif

@@ -15,7 +15,6 @@ limitations under the License.
 #include <functional>
 #include <algorithm>
 #include <limits>
-#include <sstream>
 #include <unordered_set>
 #include "mbtr.h"
 #include "constants.h"
@@ -23,13 +22,13 @@ limitations under the License.
 
 using namespace std;
 
-inline double get_scale(py::dict k) {
+inline double MBTR::get_scale() {
     double scale;
-    if (k["weighting"].contains("scale")) {
-        scale = k["weighting"]["scale"].cast<double>();
+    if (this->weighting.contains("scale")) {
+        scale = this->weighting["scale"].cast<double>();
     } else {
-        double threshold = k["weighting"]["threshold"].cast<double>();
-        double r_cut = k["weighting"]["r_cut"].cast<double>();
+        double threshold = this->weighting["threshold"].cast<double>();
+        double r_cut = this->weighting["r_cut"].cast<double>();
         scale = - log(threshold) / r_cut;
     }
     return scale;
@@ -112,9 +111,9 @@ inline bool same_cell(const py::array_t<int> &cell_indices, int i, int j) {
 }
 
 MBTR::MBTR(
-    const py::dict k1,
-    const py::dict k2,
-    const py::dict k3,
+    const py::dict geometry,
+    const py::dict grid,
+    const py::dict weighting,
     bool normalize_gaussians,
     string normalization,
     py::array_t<int> species,
@@ -122,74 +121,74 @@ MBTR::MBTR(
 )
     : DescriptorGlobal(periodic)
     , normalize_gaussians(normalize_gaussians)
-    , cutoff_k2(numeric_limits<double>::infinity())
-    , cutoff_k3(numeric_limits<double>::infinity())
 {
     this->set_species(species);
     this->set_normalization(normalization);
-    this->set_k1(k1);
-    this->set_k2(k2);
-    this->set_k3(k3);
+    this->set_geometry(geometry);
+    this->set_grid(grid);
+    this->set_weighting(weighting);
     this->set_periodic(periodic);
     this->validate();
 }
 
 int MBTR::get_number_of_features() const {
-    return get_number_of_k1_features()
-      + get_number_of_k2_features()
-      + get_number_of_k3_features();
-}
-
-int MBTR::get_number_of_k1_features() const {
-    int n_features = 0;
     int n_species = this->species.size();
+    int n_features = 0;
+    int n_grid = this->grid["n"].cast<int>();
 
-    if (this->k1.size() > 0) {
-        int n_k1_grid = this->k1["grid"]["n"].cast<int>();
-        int n_k1 = n_species * n_k1_grid;
-        n_features += n_k1;
+    if (this->k == 1) {
+        n_features = n_species * n_grid;
+    } else if (this->k == 2) {
+        n_features = (n_species * (n_species + 1) / 2) * n_grid;
+    } else if (this->k == 3) {
+        n_features = (n_species * n_species * (n_species + 1) / 2) * n_grid;
     }
-
     return n_features;
 }
 
-int MBTR::get_number_of_k2_features() const {
-    int n_features = 0;
-    int n_species = this->species.size();
+/**
+ * @brief Used to normalize part of the given one-dimensional py::array
+ * in-place.
+ * 
+ * @param out The array to normalize
+ * @param start Start index, defaults to 0
+ * @param end End index, defaults to -1 = end of array
+ */
+void MBTR::normalize_output(py::array_t<double> &out, int start, int end) {
+    if (this->normalization == "l2") {
+        // Gather magnitude
+        auto out_mu = out.mutable_unchecked<1>();
+        if (end == -1) {
+            end = out.size();
+        }
+        double norm = 0;
+        for (int i = start; i < end; ++i) {
+            norm += out_mu[i] * out_mu[i];
+        }
 
-    if (this->k2.size() > 0) {
-        int n_k2_grid = this->k2["grid"]["n"].cast<int>();
-        int n_k2 = (n_species * (n_species + 1) / 2) * n_k2_grid;
-        n_features += n_k2;
+        // Divide by L2 norm
+        double factor = 1 / sqrt(norm);
+        for (int i = start; i < end; ++i) {
+            out_mu[i] *= factor;
+        }
     }
-
-    return n_features;
-}
-
-int MBTR::get_number_of_k3_features() const {
-    int n_features = 0;
-    int n_species = this->species.size();
-
-    if (this->k3.size() > 0) {
-        int n_k3_grid = this->k3["grid"]["n"].cast<int>();
-        int n_k3 = (n_species * n_species * (n_species + 1) / 2) * n_k3_grid;
-        n_features += n_k3;
-    }
-
-    return n_features;
 }
 
 void MBTR::create(py::array_t<double> &out, System &system, CellList &cell_list) {
-    this->calculate_k1(out, system);
-    this->calculate_k2(out, system, cell_list);
-    this->calculate_k3(out, system, cell_list);
+    if (this->k == 1) {
+      this->calculate_k1(out, system);
+    } else if (this->k == 2) {
+        this->calculate_k2(out, system, cell_list);
+    } else if (this->k == 3) {
+        this->calculate_k3(out, system, cell_list);
+    }
     this->normalize_output(out);
     return;
 }
 
 pair<int, int> MBTR::get_location(int z1) {
     // Check that the corresponding part is calculated
-    if (this->k1.size() == 0) {
+    if (this->k != 1) {
         throw invalid_argument(
             "Cannot retrieve the location for {}, as the term k1 has not "
             "been specified."
@@ -200,7 +199,7 @@ pair<int, int> MBTR::get_location(int z1) {
     int m = this->species_index_map[z1];
 
     // Get the start and end index
-    int n = this->k1["grid"]["n"].cast<int>();
+    int n = this->grid["n"].cast<int>();
     int start = m * n;
     int end = (m + 1) * n;
 
@@ -210,7 +209,7 @@ pair<int, int> MBTR::get_location(int z1) {
 
 pair<int, int> MBTR::get_location(int z1, int z2) {
     // Check that the corresponding part is calculated
-    if (this->k2.size() == 0) {
+    if (this->k != 2) {
         throw invalid_argument(
             "Cannot retrieve the location for {}, as the term k2 has not "
             "been specified."
@@ -233,19 +232,18 @@ pair<int, int> MBTR::get_location(int z1, int z2) {
     // This is the index of the spectrum. It is given by enumerating the
     // elements of an upper triangular matrix from left to right and top
     // to bottom.
-    int n = this->k2["grid"]["n"].cast<int>();
+    int n = this->grid["n"].cast<int>();
     int n_elem = this->species.size();
     int m = j + i * n_elem - i * (i + 1) / 2;
-    int offset = get_number_of_k1_features();
-    int start = offset + m * n;
-    int end = offset + (m + 1) * n;
+    int start = m * n;
+    int end = (m + 1) * n;
 
     return make_pair(start, end);
 };
 
 pair<int, int> MBTR::get_location(int z1, int z2, int z3) {
     // Check that the corresponding part is calculated
-    if (this->k3.size() == 0) {
+    if (this->k != 3) {
         throw invalid_argument(
             "Cannot retrieve the location for {}, as the term k3 has not "
             "been specified."
@@ -270,102 +268,53 @@ pair<int, int> MBTR::get_location(int z1, int z2, int z3) {
     // elements of a three-dimensional array where for valid elements
     // k>=i. The enumeration begins from [0, 0, 0], and ends at [n_elem,
     // n_elem, n_elem], looping the elements in the order k, i, j.
-    int n = this->k3["grid"]["n"].cast<int>();
+    int n = this->grid["n"].cast<int>();
     int n_elem = this->species.size();
     int m = j * n_elem * (n_elem + 1) / 2 + k + i * n_elem - i * (i + 1) / 2;
 
-    int offset = get_number_of_k1_features() + get_number_of_k2_features();
-    int start = offset + m * n;
-    int end = offset + (m + 1) * n;
+    int start = m * n;
+    int end = (m + 1) * n;
 
     return make_pair(start, end);
 };
 
-
-/**
- * @brief Used to normalize part of the given one-dimensional py::array
- * in-place.
- * 
- * @param out The array to normalize
- * @param start Start index, defaults to 0
- * @param end End index, defaults to -1 = end of array
- */
-void normalize(py::array_t<double> &out, int start = 0, int end = -1) {
-    // Gather magnitude
-    auto out_mu = out.mutable_unchecked<1>();
-    if (end == -1) {
-        end = out.size();
-    }
-    double norm = 0;
-    for (int i = start; i < end; ++i) {
-        norm += out_mu[i] * out_mu[i];
-    }
-
-    // Divide by L2 norm
-    double factor = 1 / sqrt(norm);
-    for (int i = start; i < end; ++i) {
-        out_mu[i] *= factor;
-    }
-}
-
-void MBTR::normalize_output(py::array_t<double> &out) {
-    if (normalization == "l2_each") {
-        int n_k1_features = get_number_of_k1_features();
-        int n_k2_features = get_number_of_k2_features();
-        int n_k3_features = get_number_of_k3_features();
-        normalize(out, 0, n_k1_features);
-        normalize(out, n_k1_features, n_k1_features+n_k2_features);
-        normalize(out, n_k1_features+n_k2_features, n_k1_features+n_k2_features+n_k3_features);
-    } else if (normalization == "l2") {
-        normalize(out, 0, -1);
-    }
-}
-
-void MBTR::set_k1(py::dict k1) {
-    // Default weighting: unity
-    if (k1.size() != 0) {
-        if (!k1.contains("weighting")) {
-            py::dict weighting;
-            weighting["function"] = "unity";
-            k1["weighting"] = weighting;
-        } else if (!k1["weighting"].contains("function")) {
-            k1["weighting"]["function"] = "unity";
+void MBTR::set_geometry(py::dict geometry) {
+    this->geometry = geometry;
+    if (geometry.contains("function")) {
+        string function = geometry["function"].cast<string>();
+        unordered_set<string> k1({"atomic_number"});
+        unordered_set<string> k2({"distance", "inverse_distance"});
+        unordered_set<string> k3({"angle", "cosine"});
+        if (k1.find(function) != k1.end()) {
+            this->k = 1;
+        } else if (k2.find(function) != k2.end()) {
+            this->k = 2;
+        } else if (k3.find(function) != k3.end()) {
+            this->k = 3;
         }
+    } else {
+        throw invalid_argument("Please specify a geometry function.");
     }
-    this->k1 = k1;
 }
 
-void MBTR::set_k2(py::dict k2) {
-    if (k2.size() != 0) {
-        this->cutoff_k2 = this->get_cutoff(k2);
-        this->cutoff = this->k3.size()
-            ? max(this->cutoff_k2, this->cutoff_k3)
-            : this->cutoff_k2;
-    }
-    this->k2 = k2;
+void MBTR::set_grid(py::dict grid) {
+    this->grid = grid;
 }
 
-void MBTR::set_k3(py::dict k3) {
-    if (k3.size() != 0) {
-        // Default sharpness = 2
-        if (k3.contains("weighting")) {
-            py::dict weighting = k3["weighting"];
-            if (weighting.contains("function")) {
-                string function = weighting["function"].cast<string>();
-                if (function == "smooth_cutoff" && !weighting.contains("sharpness")) {
-                    weighting["sharpness"] = 2;
-                }
-            }
-        }
-
-        // In k3, the distance is defined as the perimeter, thus we half the
-        // distance to get the actual cutoff.
-        this->cutoff_k3 = 0.5 * this->get_cutoff(k3);
-        this->cutoff = this->k2.size()
-            ? max(this->cutoff_k2, this->cutoff_k3)
-            : this->cutoff_k3;
+void MBTR::set_weighting(py::dict weighting) {
+    // Default weighting unity
+    if (!weighting.contains("function")) {
+        weighting["function"] = "unity";
     }
-    this->k3 = k3;
+
+    // Default sharpness=2 for smooth cutoff
+    string function = weighting["function"].cast<string>();
+    if (function == "smooth_cutoff" && !weighting.contains("sharpness")) {
+        weighting["sharpness"] = 2;
+    }
+
+    this->weighting = weighting;
+    this->cutoff = this->get_cutoff();
 }
 
 void MBTR::set_normalize_gaussians(bool normalize_gaussians) {
@@ -405,45 +354,41 @@ void MBTR::set_periodic(bool periodic) {
     this->periodic = periodic;
 }
 
-double MBTR::get_cutoff(py::dict &k) {
+double MBTR::get_cutoff() {
     double cutoff = numeric_limits<double>::infinity();
-    if (k.size() != 0) {
-        if (k.contains("weighting")) {
-            py::dict weighting = k["weighting"];
-            if (weighting.contains("function")) {
-                string function = weighting["function"].cast<string>();
-                if (function == "exp" || function == "exponential") {
-                    if (weighting.contains("r_cut")) {
-                        cutoff = weighting["r_cut"].cast<double>();
-                    } else if (weighting.contains("scale")) {
-                        double scale = weighting["scale"].cast<double>();
-                        if (!weighting.contains("threshold")) {
-                            throw invalid_argument("Missing value for 'threshold'.");
-                        }
-                        double threshold = weighting["threshold"].cast<double>();
-                        cutoff = -log(threshold) / scale;
-                    }
-                } else if (function == "inverse_square") {
-                    if (weighting.contains("r_cut")) {
-                        cutoff = weighting["r_cut"].cast<double>();
-                    }
+    if (weighting.contains("function")) {
+        string function = weighting["function"].cast<string>();
+        if (function == "exp" || function == "exponential") {
+            if (weighting.contains("r_cut")) {
+                cutoff = weighting["r_cut"].cast<double>();
+            } else if (weighting.contains("scale")) {
+                double scale = weighting["scale"].cast<double>();
+                if (!weighting.contains("threshold")) {
+                    throw invalid_argument("Missing value for 'threshold'.");
                 }
+                double threshold = weighting["threshold"].cast<double>();
+                cutoff = -log(threshold) / scale;
+            }
+        } else if (function == "inverse_square") {
+            if (weighting.contains("r_cut")) {
+                cutoff = weighting["r_cut"].cast<double>();
             }
         }
+    }
+
+    // In k3, the distance is defined as the perimeter, thus we half the
+    // distance to get the actual cutoff.
+    if (this->k == 3) {
+        cutoff *= 0.5;
     }
     return cutoff;
 }
 
 void MBTR::validate() {
     this->assert_valle();
-    this->assert_weighting(this->k1, 1, unordered_set<string>({"unity"}));
-    this->assert_weighting(this->k2, 2, unordered_set<string>({"unity", "exp", "exponential", "inverse_square"}));
-    this->assert_weighting(this->k3, 3, unordered_set<string>({"unity", "exp", "exponential", "inverse_square"}));
-    this->assert_periodic_weighting(this->k2);
-    this->assert_periodic_weighting(this->k3);
-    this->assert_geometry(this->k1, 1, unordered_set<string>({"atomic_number"}));
-    this->assert_geometry(this->k2, 2, unordered_set<string>({"distance", "inverse_distance"}));
-    this->assert_geometry(this->k3, 3, unordered_set<string>({"angle", "cosine"}));
+    this->assert_weighting();
+    this->assert_periodic_weighting();
+    this->assert_geometry();
 }
 
 void MBTR::assert_valle() {
@@ -452,84 +397,69 @@ void MBTR::assert_valle() {
     }
 }
 
-void MBTR::assert_periodic_weighting(py::dict &k) {
+void MBTR::assert_periodic_weighting() {
     if (this->periodic) {
-        if (k.size() != 0) {
-            bool valid = false;
-            if (k.contains("weighting")) {
-                py::dict weighting = k["weighting"];
-                if (weighting.contains("function")) {
-                    string function = weighting["function"].cast<string>();
-                    if (function != "unity") {
-                        valid = true;
-                    }
-                }
+        bool valid = false;
+        if (weighting.contains("function")) {
+            string function = weighting["function"].cast<string>();
+            if (function != "unity") {
+                valid = true;
             }
-            if (!valid) {
-                throw invalid_argument("Periodic systems need to have a weighting function.");
+        }
+        if (!valid) {
+            throw invalid_argument("Periodic systems need to have a weighting function.");
+        }
+    }
+}
+
+void MBTR::assert_weighting() {
+    unordered_set<string> valid_functions;
+    if (this->k == 1) {
+        valid_functions = unordered_set<string>({"unity"});
+    } else {
+        valid_functions = unordered_set<string>({"unity", "exp", "exponential", "inverse_square"});
+    }
+    ostringstream os;
+    string function = weighting["function"].cast<string>();
+    if (valid_functions.find(function) == valid_functions.end()) {
+        throw invalid_argument("Unknown weighting function.");
+    } else {
+        if (function == "exp" || function == "exponential") {
+            if (!weighting.contains("threshold")) {
+                throw invalid_argument("Missing value for 'threshold'.");
+            }
+            if (!weighting.contains("scale") && !weighting.contains("r_cut")) {
+                throw invalid_argument("Provide either 'scale' or 'r_cut'.");
+            }
+            if (weighting.contains("scale") && weighting.contains("r_cut")) {
+                throw invalid_argument("Provide only 'scale' or 'r_cut', not both.");
+            }
+        } else if (function == "inverse_square") {
+            if (!weighting.contains("r_cut")) {
+                throw invalid_argument("Missing value for 'r_cut'.");
+            }
+        } else if (function == "smooth_cutoff") {
+            if (!weighting.contains("r_cut")) {
+                throw invalid_argument("Missing value for 'r_cut'.");
             }
         }
     }
 }
 
-void MBTR::assert_weighting(py::dict &k, int degree, unordered_set<string> valid_functions) {
-    ostringstream os;
-    if (k.size() != 0) {
-        if (k.contains("weighting")) {
-            py::dict weighting = k["weighting"];
-            if (weighting.contains("function")) {
-                string function = weighting["function"].cast<string>();
-                if (valid_functions.find(function) == valid_functions.end()) {
-                    os << "Unknown weighting function specified for k" << degree << ".";
-                    throw invalid_argument(os.str());
-                } else {
-                    if (function == "exp" || function == "exponential") {
-                        if (!weighting.contains("threshold")) {
-                            throw invalid_argument("Missing value for 'threshold'.");
-                        }
-                        if (!weighting.contains("scale") && !weighting.contains("r_cut")) {
-                            throw invalid_argument("Provide either 'scale' or 'r_cut'.");
-                        }
-                        if (weighting.contains("scale") && weighting.contains("r_cut")) {
-                            throw invalid_argument("Provide only 'scale' or 'r_cut', not both.");
-                        }
-                    } else if (function == "inverse_square") {
-                        if (!weighting.contains("r_cut")) {
-                            throw invalid_argument("Missing value for 'r_cut'.");
-                        }
-                    } else if (function == "smooth_cutoff") {
-                        if (!weighting.contains("r_cut")) {
-                            throw invalid_argument("Missing value for 'r_cut'.");
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-void MBTR::assert_geometry(py::dict &k, int degree, unordered_set<string> valid_functions) {
-    ostringstream os;
-    if (k.size() != 0) {
-        if (k.contains("geometry")) {
-            py::dict weighting = k["geometry"];
-            if (weighting.contains("function")) {
-                string function = weighting["function"].cast<string>();
-                if (valid_functions.find(function) == valid_functions.end()) {
-                    os << "Unknown geometry function specified for k" << degree << ".";
-                    throw invalid_argument(os.str());
-                }
-            }
-        }
+void MBTR::assert_geometry() {
+    unordered_set<string> valid_functions({"atomic_number", "distance", "inverse_distance", "angle", "cosine"});
+    string function = geometry["function"].cast<string>();
+    if (valid_functions.find(function) == valid_functions.end()) {
+        throw invalid_argument("Unknown geometry function.");
     }
 }
 
 py::array_t<int> MBTR::get_species() {return this->species;};
 bool MBTR::get_periodic() {return this->periodic;};
 map<int, int> MBTR::get_species_index_map() {return this->species_index_map;};
-py::dict MBTR::get_k1() {return k1;};
-py::dict MBTR::get_k2() {return k2;};
-py::dict MBTR::get_k3() {return k3;};
+py::dict MBTR::get_geometry() {return geometry;};
+py::dict MBTR::get_grid() {return grid;};
+py::dict MBTR::get_weighting() {return weighting;};
 string MBTR::get_normalization() {return normalization;};
 bool MBTR::get_normalize_gaussians() {return normalize_gaussians;};
 
@@ -558,24 +488,21 @@ inline void MBTR::add_gaussian(double center, double weight, double start, doubl
 }
 
 void MBTR::calculate_k1(py::array_t<double> &out, System &system) {
-    if (this->k1.size() == 0) {
-        return;
-    }
     // Create mutable and unchecked versions
     py::array_t<int> atomic_numbers = system.atomic_numbers;
     auto out_mu = out.mutable_unchecked<1>();
     auto atomic_numbers_u = atomic_numbers.unchecked<1>();
 
     // Get grid setup
-    double sigma = this->k1["grid"]["sigma"].cast<double>();
-    double min = this->k1["grid"]["min"].cast<double>();
-    double max = this->k1["grid"]["max"].cast<double>();
-    int n = this->k1["grid"]["n"].cast<int>();
+    double sigma = this->grid["sigma"].cast<double>();
+    double min = this->grid["min"].cast<double>();
+    double max = this->grid["max"].cast<double>();
+    int n = this->grid["n"].cast<int>();
     double dx = (max - min) / (n - 1);
     double start = min - dx/2;
 
     // Determine the geometry function to use
-    string geom_func_name = this->k1["geometry"]["function"].cast<string>();
+    string geom_func_name = this->geometry["function"].cast<string>();
     function<double(int)> geom_func;
     if (geom_func_name == "atomic_number") {
         geom_func = geom_atomic_number;
@@ -584,7 +511,7 @@ void MBTR::calculate_k1(py::array_t<double> &out, System &system) {
     }
 
     // Determine the weighting function to use
-    string weight_func_name = this->k1["weighting"]["function"].cast<string>();
+    string weight_func_name = this->weighting["function"].cast<string>();
     function<double(int)> weight_func;
     if (weight_func_name == "unity") {
         weight_func = weight_unity_k1;
@@ -607,25 +534,21 @@ void MBTR::calculate_k1(py::array_t<double> &out, System &system) {
 }
 
 void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell_list) {
-    if (this->k2.size() == 0) {
-        return;
-    }
-
     // Create mutable and unchecked versions
     auto out_mu = out.mutable_unchecked<1>();
     auto atomic_numbers = system.atomic_numbers;
     auto atomic_numbers_u = atomic_numbers.unchecked<1>();
 
     // Get grid setup
-    double sigma = this->k2["grid"]["sigma"].cast<double>();
-    double min = this->k2["grid"]["min"].cast<double>();
-    double max = this->k2["grid"]["max"].cast<double>();
-    int n = this->k2["grid"]["n"].cast<int>();
+    double sigma = this->grid["sigma"].cast<double>();
+    double min = this->grid["min"].cast<double>();
+    double max = this->grid["max"].cast<double>();
+    int n = this->grid["n"].cast<int>();
     double dx = (max - min) / (n - 1);
     double start = min - dx/2;
 
     // Determine the geometry function to use
-    string geom_func_name = this->k2["geometry"]["function"].cast<string>();
+    string geom_func_name = this->geometry["function"].cast<string>();
     function<double(double)> geom_func;
     if (geom_func_name == "distance") {
         geom_func = geom_distance;
@@ -636,14 +559,12 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
     }
 
     // Determine the weighting function to use
-    string weight_func_name = this->k2["weighting"]["function"].cast<string>();
-    double threshold = 0;
-    double cutoff = get_cutoff(this->k2);
+    string weight_func_name = this->weighting["function"].cast<string>();
     function<double(double)> weight_func;
     if (weight_func_name == "unity") {
         weight_func = weight_unity_k2;
     } else if (weight_func_name == "exp" || weight_func_name == "exponential") {
-        double scale = get_scale(this->k2);
+        double scale = get_scale();
         weight_func = bind(weight_exponential_k2, std::placeholders::_1, scale);
     } else if (weight_func_name == "inverse_square") {
         weight_func = weight_square_k2;
@@ -667,7 +588,7 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
             // distance is above the cutoff: the final system may have distance
             // that go above it due to the fact that it is extended based on the
             // largest cutoff.
-            if (distance > cutoff) {
+            if (distance > this->cutoff) {
                 continue;
             }
 
@@ -708,25 +629,21 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
 }
 
 void MBTR::calculate_k3(py::array_t<double> &out, System &system, CellList &cell_list) {
-    if (this->k3.size() == 0) {
-        return;
-    }
-
     // Create mutable and unchecked versions
     auto out_mu = out.mutable_unchecked<1>();
     auto atomic_numbers = system.atomic_numbers;
     auto atomic_numbers_u = atomic_numbers.unchecked<1>();
 
     // Get grid setup
-    double sigma = this->k3["grid"]["sigma"].cast<double>();
-    double min = this->k3["grid"]["min"].cast<double>();
-    double max = this->k3["grid"]["max"].cast<double>();
-    int n = this->k3["grid"]["n"].cast<int>();
+    double sigma = this->grid["sigma"].cast<double>();
+    double min =this->grid["min"].cast<double>();
+    double max = this->grid["max"].cast<double>();
+    int n = this->grid["n"].cast<int>();
     double dx = (max - min) / (n - 1);
     double start = min - dx/2;
 
     // Determine the geometry function to use
-    string geom_func_name = this->k3["geometry"]["function"].cast<string>();
+    string geom_func_name = this->geometry["function"].cast<string>();
     function<double(double, double, double)> geom_func;
     if (geom_func_name == "angle") {
         geom_func = geom_angle;
@@ -737,13 +654,12 @@ void MBTR::calculate_k3(py::array_t<double> &out, System &system, CellList &cell
     }
 
     // Determine the weighting function to use
-    string weight_func_name = this->k3["weighting"]["function"].cast<string>();
-    double cutoff = get_cutoff(this->k3);
+    string weight_func_name = this->weighting["function"].cast<string>();
     function<double(double, double, double)> weight_func;
     if (weight_func_name == "unity") {
         weight_func = weight_unity_k3;
     } else if (weight_func_name == "exp" || weight_func_name == "exponential") {
-        double scale = get_scale(this->k3);
+        double scale = get_scale();
         weight_func = bind(
             weight_exponential_k3,
             std::placeholders::_1,
@@ -752,8 +668,8 @@ void MBTR::calculate_k3(py::array_t<double> &out, System &system, CellList &cell
             scale
         );
     } else if (weight_func_name == "smooth_cutoff") {
-        double sharpness = this->k3["weighting"]["sharpness"].cast<double>();
-        double r_cut = this->k3["weighting"]["r_cut"].cast<double>();
+        double sharpness = this->weighting["sharpness"].cast<double>();
+        double r_cut = this->weighting["r_cut"].cast<double>();
         weight_func = bind(
             weight_smooth_k3,
             std::placeholders::_1,
@@ -800,7 +716,7 @@ void MBTR::calculate_k3(py::array_t<double> &out, System &system, CellList &cell
                             // system may have distance that go above it due to
                             // the fact that it is extended based on the largest
                             // cutoff.
-                            if (distance_ij + distance_jk + distance_ki > cutoff) {
+                            if (distance_ij + distance_jk + distance_ki > this->cutoff) {
                                 continue;
                             }
 
