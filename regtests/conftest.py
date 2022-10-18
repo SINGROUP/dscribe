@@ -321,21 +321,20 @@ def assert_basis(descriptor_func):
 
     desc = descriptor_func([sys1, sys2, sys3])
 
-    # Create normalized vectors for each system
+    # Create vectors for each system
     vec1 = desc.create(sys1)
-
     vec2 = desc.create(sys2)
-
     vec3 = desc.create(sys3)
 
-    import matplotlib.pyplot as mpl 
-    mpl.plot(vec2)
-    mpl.plot(vec3)
-    mpl.show()
-
+    # Create normalized vectors
     vec1 /= np.linalg.norm(vec1)
     vec2 /= np.linalg.norm(vec2)
     vec3 /= np.linalg.norm(vec3)
+
+    # import matplotlib.pyplot as mpl 
+    # mpl.plot(vec2)
+    # mpl.plot(vec3)
+    # mpl.show()
 
     # The dot-product should be zero when there are no overlapping elements
     dot = np.dot(vec1, vec2)

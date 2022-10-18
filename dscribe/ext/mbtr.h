@@ -85,6 +85,7 @@ class MBTR: public DescriptorGlobal {
         py::dict get_geometry();
         py::dict get_grid();
         py::dict get_weighting();
+        int get_k();
         bool get_normalize_gaussians();
         string get_normalization();
         map<int, int> get_species_index_map();
@@ -118,10 +119,6 @@ class MBTR: public DescriptorGlobal {
          * Checks that the weighting is defined correctly.
          */
         void assert_weighting();
-        /**
-         * Checks that the geometry is defined correctly.
-         */
-        void assert_geometry();
         /**
          * Gets the radial cutoff value.
          */

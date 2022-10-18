@@ -46,7 +46,6 @@ def mbtr(**kwargs):
     """Returns a function that can be used to create a valid MBTR
     descriptor for a dataset.
     """
-
     def func(systems=None):
         species = set()
         for system in systems or []:
@@ -85,19 +84,27 @@ def test_no_system_modification():
 @pytest.mark.parametrize(
     "pbc, cell",
     [
-        ([True, True, True], [5, 5, 5]),  # Fully periodic system with cell
-        ([False, False, False], None),  # Unperiodic system with no cell
-        ([False, False, False], [0, 0, 0]),  # Unperiodic system with no cell
-        ([True, False, False], [5, 5, 5]),  # Partially periodic system with cell
-        ([True, True, True], [[0.0, 5.0, 5.0], [5.0, 0.0, 5.0], [5.0, 5.0, 0.0]]),  # Fully periodic system with non-cubic cell
-    ],
+        pytest.param([True, True, True], [5, 5, 5], id="Fully periodic system with cell"),
+        pytest.param([False, False, False], None, id="Unperiodic system with no cell"),
+        pytest.param([False, False, False], [0, 0, 0], id="Unperiodic system with no cell"),
+        pytest.param([True, False, False], [5, 5, 5], id=" Partially periodic system with cell"),
+        pytest.param([True, True, True], [[0.0, 5.0, 5.0], [5.0, 0.0, 5.0], [5.0, 5.0, 0.0]], id="Fully periodic system with non-cubic cell"),
+    ]
 )
 def test_systems(pbc, cell):
     assert_systems(mbtr(periodic=True), pbc, cell)
 
 
-def test_basis():
-    assert_basis(mbtr(periodic=True))
+@pytest.mark.parametrize(
+    "setup",
+    [
+        pytest.param(default_k1, id="K1"),
+        pytest.param(default_k2, id="K2"),
+        pytest.param(default_k3, id="K3"),
+    ],
+)
+def test_basis(setup):
+    assert_basis(mbtr(**setup, periodic=True))
 
 
 def test_sparse():
@@ -128,7 +135,7 @@ def test_exceptions():
             weighting={},
             periodic=True,
         )
-    assert msg in str(excinfo.value)
+    assert msg == str(excinfo.value)
 
     with pytest.raises(ValueError) as excinfo:
         MBTR(
@@ -138,7 +145,7 @@ def test_exceptions():
             weighting={"function": "unity"},
             periodic=True,
         )
-    assert msg in str(excinfo.value)
+    assert msg == str(excinfo.value)
 
     # Invalid weighting function
     msg = "Unknown weighting function."
@@ -150,7 +157,7 @@ def test_exceptions():
             weighting={"function": "exp", "threshold": 1, "scale": 1},
             periodic=True,
         )
-    assert msg in str(excinfo.value)
+    assert msg == str(excinfo.value)
 
     with pytest.raises(ValueError) as excinfo:
         MBTR(
@@ -160,133 +167,109 @@ def test_exceptions():
             weighting={"function": "none"},
             periodic=True,
         )
-    assert msg in str(excinfo.value)
+    assert msg == str(excinfo.value)
 
-    # with pytest.raises(ValueError) as excinfo:
-    #     MBTR(
-    #         species=[1],
-    #         k3={
-    #             "geometry": default_k3["geometry"],
-    #             "grid": default_k3["grid"],
-    #             "weighting": {"function": "none"},
-    #         },
-    #         periodic=True,
-    #     )
-    # msg = "Unknown weighting function specified for k3."
-    # assert msg in str(excinfo.value)
+    with pytest.raises(ValueError) as excinfo:
+        MBTR(
+            species=[1],
+            geometry=default_k3["geometry"],
+            grid=default_k3["grid"],
+            weighting={"function": "none"},
+            periodic=True,
+        )
+    assert msg == str(excinfo.value)
 
-    # # Invalid geometry function
-    # with pytest.raises(ValueError) as excinfo:
-    #     MBTR(
-    #         species=[1],
-    #         k1={
-    #             "geometry": {"function": "none"},
-    #             "grid": {"min": 0, "max": 1, "n": 10, "sigma": 0.1},
-    #         },
-    #         periodic=False,
-    #     )
-    # msg = "Unknown geometry function specified for k1."
-    # assert msg in str(excinfo.value)
+    # Invalid geometry function
+    with pytest.raises(ValueError) as excinfo:
+        MBTR(
+            species=[1],
+            geometry={"function": "none"},
+            grid={"min": 0, "max": 1, "n": 10, "sigma": 0.1},
+            periodic=False,
+        )
+    msg = "Unknown geometry function."
+    assert msg == str(excinfo.value)
 
-    # with pytest.raises(ValueError) as excinfo:
-    #     MBTR(
-    #         species=[1],
-    #         k2={
-    #             "geometry": {"function": "none"},
-    #             "grid": {"min": 0, "max": 1, "n": 10, "sigma": 0.1},
-    #         },
-    #         periodic=False,
-    #     )
-    # msg = "Unknown geometry function specified for k2."
-    # assert msg in str(excinfo.value)
+    # Missing threshold
+    with pytest.raises(ValueError) as excinfo:
+        setup = copy.deepcopy(default_k2)
+        del setup["weighting"]["threshold"]
+        MBTR(
+            species=[1],
+            geometry=setup["geometry"],
+            grid=setup["grid"],
+            weighting=setup["weighting"],
+            periodic=True,
+        )
+    msg = "Missing value for 'threshold'."
+    assert msg == str(excinfo.value)
 
-    # with pytest.raises(ValueError) as excinfo:
-    #     MBTR(
-    #         species=[1],
-    #         k3={
-    #             "geometry": {"function": "none"},
-    #             "grid": {"min": 0, "max": 1, "n": 10, "sigma": 0.1},
-    #         },
-    #         periodic=False,
-    #     )
-    # msg = "Unknown geometry function specified for k3."
-    # assert msg in str(excinfo.value)
+    # Missing scale or r_cut
+    with pytest.raises(ValueError) as excinfo:
+        setup = copy.deepcopy(default_k2)
+        del setup["weighting"]["scale"]
+        MBTR(
+            species=[1],
+            geometry=setup["geometry"],
+            grid=setup["grid"],
+            weighting=setup["weighting"],
+            periodic=True,
+        )
+    msg = "Provide either 'scale' or 'r_cut'."
+    assert msg == str(excinfo.value)
 
-    # # Missing threshold
-    # with pytest.raises(ValueError) as excinfo:
-    #     setup = copy.deepcopy(default_k2)
-    #     del setup["weighting"]["threshold"]
-    #     MBTR(
-    #         species=[1],
-    #         k2=setup,
-    #         periodic=True,
-    #     )
-    # msg = "Missing value for 'threshold'"
-    # assert msg in str(excinfo.value)
+    # Both scale and r_cut provided
+    with pytest.raises(ValueError) as excinfo:
+        setup = copy.deepcopy(default_k2)
+        setup["weighting"]["scale"] = 1
+        setup["weighting"]["r_cut"] = 1
+        MBTR(
+            species=[1],
+            geometry=setup["geometry"],
+            grid=setup["grid"],
+            weighting=setup["weighting"],
+            periodic=True,
+        )
+    msg = "Provide only 'scale' or 'r_cut', not both."
+    assert msg == str(excinfo.value)
 
-    # with pytest.raises(ValueError) as excinfo:
-    #     setup = copy.deepcopy(default_k3)
-    #     del setup["weighting"]["threshold"]
-    #     MBTR(
-    #         species=[1],
-    #         k3=setup,
-    #         periodic=True,
-    #     )
-    # assert msg in str(excinfo.value)
+    # Term location not available
+    desc = MBTR(
+        species=[1],
+        geometry=default_k2["geometry"],
+        grid=default_k2["grid"],
+        weighting=default_k2["weighting"],
+        periodic=True,
+    )
+    with pytest.raises(ValueError) as excinfo:
+        desc.get_location(("H"))
+    msg = "Cannot retrieve the location for ('H'), as the used geometry function does not match the order k=1."
+    assert msg == str(excinfo.value)
+    with pytest.raises(ValueError) as excinfo:
+        desc.get_location(("H", "H", "H"))
+    msg = "Cannot retrieve the location for ('H', 'H', 'H'), as the used geometry function does not match the order k=3."
+    assert msg == str(excinfo.value)
 
-    # # Missing scale or r_cut
-    # with pytest.raises(ValueError) as excinfo:
-    #     setup = copy.deepcopy(default_k2)
-    #     del setup["weighting"]["scale"]
-    #     MBTR(
-    #         species=[1],
-    #         k2=setup,
-    #         periodic=True,
-    #     )
-    # msg = "Provide either 'scale' or 'r_cut'."
-    # assert msg in str(excinfo.value)
-
-    # with pytest.raises(ValueError) as excinfo:
-    #     setup = copy.deepcopy(default_k3)
-    #     del setup["weighting"]["scale"]
-    #     MBTR(
-    #         species=[1],
-    #         k3=setup,
-    #         periodic=True,
-    #     )
-    # assert msg in str(excinfo.value)
-
-    # # Both scale and r_cut provided
-    # with pytest.raises(ValueError) as excinfo:
-    #     setup = copy.deepcopy(default_k2)
-    #     setup["weighting"]["scale"] = 1
-    #     setup["weighting"]["r_cut"] = 1
-    #     MBTR(
-    #         species=[1],
-    #         k2=setup,
-    #         periodic=True,
-    #     )
-    # msg = "Provide only 'scale' or 'r_cut', not both."
-    # assert msg in str(excinfo.value)
-
-    # with pytest.raises(ValueError) as excinfo:
-    #     setup = copy.deepcopy(default_k3)
-    #     setup["weighting"]["scale"] = 1
-    #     setup["weighting"]["r_cut"] = 1
-    #     MBTR(
-    #         species=[1],
-    #         k3=setup,
-    #         periodic=True,
-    #     )
-    # assert msg in str(excinfo.value)
+    # Unknown normalization
+    with pytest.raises(ValueError) as excinfo:
+        MBTR(
+            species=[1],
+            geometry=default_k2["geometry"],
+            grid=default_k2["grid"],
+            weighting=default_k2["weighting"],
+            normalization="l2_test",
+            periodic=True,
+        )
+    msg = "Unknown normalization option."
+    assert msg == str(excinfo.value)
 
 
 @pytest.mark.parametrize(
     "setup, n_features",
     [
-        (default_k1, 2 * default_k1["grid"]["n"]),  # K1
-        (default_k2, 2 * default_k2["grid"]["n"] * 1 / 2 * (2 + 1)),  # K2
-        (default_k3, 2 * default_k3["grid"]["n"] * 1 / 2 * (2 + 1) * 2),  # K3
+        pytest.param(default_k1, 2 * default_k1["grid"]["n"], id="K1"),
+        pytest.param(default_k2, 2 * default_k2["grid"]["n"] * 1 / 2 * (2 + 1), id="K2"),
+        pytest.param(default_k3, 2 * default_k3["grid"]["n"] * 1 / 2 * (2 + 1) * 2, id="K3"),
     ],
 )
 def test_number_of_features(setup, n_features):
@@ -298,8 +281,8 @@ def test_number_of_features(setup, n_features):
 @pytest.mark.parametrize(
     "normalize_gaussians",
     [
-        (True),
-        (False),
+        pytest.param(True, id="normalized"),
+        pytest.param(False, id="unnormalized"),
     ],
 )
 def test_gaussian_distribution(normalize_gaussians):
@@ -311,10 +294,8 @@ def test_gaussian_distribution(normalize_gaussians):
     n = 500
     desc = MBTR(
         species=["H", "O"],
-        k1={
-            "geometry": {"function": "atomic_number"},
-            "grid": {"min": start, "max": stop, "sigma": std, "n": n} 
-        },
+        geometry={"function": "atomic_number"},
+        grid={"min": start, "max": stop, "sigma": std, "n": n},
         normalize_gaussians = normalize_gaussians
     )
     system = water()
@@ -351,8 +332,8 @@ def test_gaussian_distribution(normalize_gaussians):
 @pytest.mark.parametrize(
     "system",
     [
-        (molecule("CO2")),
-        (molecule("H2O")),
+        pytest.param(molecule("CO2"), id="CO2"),
+        pytest.param(molecule("H2O"), id="H2O"),
     ],
 )
 def test_locations(system):
@@ -361,10 +342,11 @@ def test_locations(system):
     """
     species = ["H", "O", "C"]
     system_species = system.get_chemical_symbols()
-    desc = mbtr(periodic=False, species=species)([])
-    feat = desc.create(system)
 
     for k in range(1, 4):
+        setup = globals()[f"default_k{k}"]
+        desc = mbtr(**setup, periodic=False, species=species)([])
+        feat = desc.create(system)
         combinations = itertools.combinations_with_replacement(species, k)
         for combination in combinations:
             loc = desc.get_location(combination)
@@ -378,12 +360,12 @@ def test_locations(system):
 water_periodic = water()
 water_periodic.set_pbc(True)
 @pytest.mark.parametrize(
-    "system,k1,k2,k3,periodic,peaks,prominence",
+    "system,geometry,grid,weighting,periodic,peaks,prominence",
     [
         pytest.param(
             water(),
-            {"geometry": {"function": "atomic_number"}, "grid": {"min": 0, "max": 9, "sigma": 0.5, "n": 1000}},
-            None,
+            {"function": "atomic_number"},
+            {"min": 0, "max": 9, "sigma": 0.5, "n": 1000},
             None,
             False,
             [(("H"), [1], [2]), (("O"), [8], [1])],
@@ -392,8 +374,8 @@ water_periodic.set_pbc(True)
         ),
         pytest.param(
             water_periodic,
-            {"geometry": {"function": "atomic_number"}, "grid": {"min": 0, "max": 9, "sigma": 0.5, "n": 1000}},
-            None,
+            {"function": "atomic_number"},
+            {"min": 0, "max": 9, "sigma": 0.5, "n": 1000},
             None,
             True,
             [(("H"), [1], [2]), (("O"), [8], [1])],
@@ -402,13 +384,9 @@ water_periodic.set_pbc(True)
         ),
         pytest.param(
             water(),
-            None,
-            {
-                "geometry": {"function": "distance"},
-                "grid": {"min": -1, "max": 3, "sigma": 0.5, "n": 1000},
-                "weighting": {"function": "unity"},
-            },
-            None,
+            {"function": "distance"},
+            {"min": -1, "max": 3, "sigma": 0.5, "n": 1000},
+            {"function": "unity"},
             False,
             [(("H", "H"), [1.4972204318527715], [1]), (("H", "O"), [0.95], [2])],
             0.5,
@@ -428,13 +406,9 @@ water_periodic.set_pbc(True)
                 ],
                 pbc=True,
             ),
-            None,
-            {
-                "geometry": {"function": "distance"},
-                "grid": {"min": 0, "max": 10, "sigma": 0.5, "n": 1000},
-                "weighting": {"function": "exp", "scale": 0.8, "threshold": 1e-3},
-            },
-            None,
+            {"function": "distance"},
+            {"min": 0, "max": 10, "sigma": 0.5, "n": 1000},
+            {"function": "exp", "scale": 0.8, "threshold": 1e-3},
             True,
             [(("H", "C"), [2, 8], np.exp(-0.8 * np.array([2, 8])))],
             0.001,
@@ -442,13 +416,9 @@ water_periodic.set_pbc(True)
         ),
         pytest.param(
             water(),
-            None,
-            None,
-            {
-                "geometry": {"function": "angle"},
-                "grid": {"min": -10, "max": 180, "sigma": 5, "n": 2000},
-                "weighting": {"function": "unity"},
-            },
+            {"function": "angle"},
+            {"min": -10, "max": 180, "sigma": 5, "n": 2000},
+            {"function": "unity"},
             False,
             [(("H", "H", "O"), [38], [2]), (("H", "O", "H"), [104], [1])],
             0.5,
@@ -469,13 +439,9 @@ water_periodic.set_pbc(True)
                 ],
                 pbc=True,
             ),
-            None,
-            None,
-            {
-                "geometry": {"function": "angle"},
-                "grid": {"min": 0, "max": 180, "sigma": 5, "n": 2000},
-                "weighting": {"function": "exp", "scale": 0.85, "threshold": 1e-3},
-            },
+            {"function": "angle"},
+            {"min": 0, "max": 180, "sigma": 5, "n": 2000},
+            {"function": "exp", "scale": 0.85, "threshold": 1e-3},
             True,
             [(("H", "H", "H"), [45, 90], [2 * np.exp(-0.85 * (2 + 2 * np.sqrt(2))), np.exp(-0.85 * (2 + 2 * np.sqrt(2)))])],
             0.01,
@@ -483,23 +449,23 @@ water_periodic.set_pbc(True)
         )
     ]
 )
-def test_peaks(system, k1, k2, k3, periodic, peaks, prominence):
+def test_peaks(system, geometry, grid, weighting, periodic, peaks, prominence):
     """Tests the correct peak locations and intensities are found.
 
     Args:
         system: The system to test
-        k1: k1 config
-        k2: k2 config
-        k3: k3 config
+        geometry: geometry config
+        grid: grid config
+        weighting: weighting config
         periodic: Whether to enable periodicity
         peaks: List of assumed peak locations and intensities
         prominence: How prominent peaks should be considered
     """
     desc = MBTR(
         species=system.get_atomic_numbers(),
-        k1=k1,
-        k2=k2,
-        k3=k3,
+        geometry=geometry,
+        grid=grid,
+        weighting=weighting,
         normalize_gaussians=False,
         periodic=periodic,
         flatten=True,
@@ -507,15 +473,9 @@ def test_peaks(system, k1, k2, k3, periodic, peaks, prominence):
     )
     features = desc.create(system)
 
-    if k1 is not None:
-        config = k1
-    if k2 is not None:
-        config = k2
-    if k3 is not None:
-        config = k3
-    start = config["grid"]["min"]
-    stop = config["grid"]["max"]
-    n = config["grid"]["n"]
+    start = grid["min"]
+    stop = grid["max"]
+    n = grid["n"]
     x = np.linspace(start, stop, n)
 
     # Check that the correct peaks can be found
@@ -535,13 +495,13 @@ def test_peaks(system, k1, k2, k3, periodic, peaks, prominence):
 
 
 @pytest.mark.parametrize(
-    "k2, k3",
+    "setup",
     [
-        (True, False),  # K2
-        (False, True),  # K3
+        pytest.param(default_k2, id="K2"),
+        pytest.param(default_k3, id="K3"),
     ]
 )
-def test_periodic_translation(k2, k3):
+def test_periodic_translation(setup):
     """Tests that the final spectra does not change when translating atoms
     in a periodic cell. This is not trivially true unless the weight of
     distances between periodic neighbours are not halfed. Notice that the
@@ -572,8 +532,7 @@ def test_periodic_translation(k2, k3):
 
     desc = MBTR(
         species=["H", "C"],
-        k2=default_k2 if k2 else None,
-        k3=default_k3 if k3 else None,
+        **setup,
         periodic=True
     )
 
@@ -584,27 +543,20 @@ def test_periodic_translation(k2, k3):
 
 
 @pytest.mark.parametrize(
-    "k1, k2, k3, normalization, norm",
+    "setup, normalization, norm",
     [
-        (True, False, False, "l2", 1),       # K1
-        (True, False, False, "l2_each", 1),  # K1
-        (False, True, False, "l2", 1),       # K2
-        (False, True, False, "l2_each", 1),  # K2
-        (False, False, True, "l2", 1),       # K3
-        (False, False, True, "l2_each", 1),  # K3
-        (True, True, True, "l2", 1),        # K1 + K2 + K3
-        (True, True, True, "l2_each", np.sqrt(3)),   # K1 + K2 + K3
+        pytest.param(default_k1, "l2", 1, id="K1"),
+        pytest.param(default_k2, "l2", 1, id="K2"),
+        pytest.param(default_k3, "l2", 1, id="K3"),
     ]
 )
-def test_normalization(k1, k2, k3, normalization, norm):
+def test_normalization(setup, normalization, norm):
     """Tests that the normalization works correctly."""
     system = water()
     atomic_numbers = [1, 8]
     desc = MBTR(
         species=atomic_numbers,
-        k1=default_k1 if k1 else None,
-        k2=default_k2 if k2 else None,
-        k3=default_k3 if k3 else None,
+        **setup,
         flatten=True,
         normalization=normalization
     )
@@ -613,39 +565,53 @@ def test_normalization(k1, k2, k3, normalization, norm):
     assert np.linalg.norm(feat_normalized) == pytest.approx(norm, abs=1e-8)
 
 
-def test_periodic_supercell_similarity():
+@pytest.mark.parametrize(
+    "setup",
+    [
+        pytest.param(
+            {
+                "geometry": {"function": "atomic_number"},
+                "grid": {"min": 0, "max": 2, "sigma": 0.1, "n": 100},
+            },
+            id="K1"
+        ),
+        pytest.param(
+            {
+                "geometry": {"function": "inverse_distance"},
+                "grid": {"min": 0, "max": 1.0, "sigma": 0.02, "n": 200},
+                "weighting": {
+                    "function": "exp",
+                    "scale": 1,
+                    "threshold": 1e-3,
+                },
+            },
+            id="K2"
+        ),
+        pytest.param(
+            {
+                "geometry": {"function": "cosine"},
+                "grid": {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 200},
+                "weighting": {
+                    "function": "exp",
+                    "scale": 1,
+                    "threshold": 1e-3,
+                }
+            },
+            id="K3"
+        ),
+    ]
+)
+def test_periodic_supercell_similarity(setup):
     """Tests that the output spectrum of various supercells of the same
     crystal is identical after it is normalized.
     """
-    decay = 1
     desc = MBTR(
         species=["H"],
         periodic=True,
-        k1={
-            "geometry": {"function": "atomic_number"},
-            "grid": {"min": 0, "max": 2, "sigma": 0.1, "n": 100},
-        },
-        # k2={
-        #     "geometry": {"function": "inverse_distance"},
-        #     "grid": {"min": 0, "max": 1.0, "sigma": 0.02, "n": 200},
-        #     "weighting": {
-        #         "function": "exp",
-        #         "scale": decay,
-        #         "threshold": 1e-3,
-        #     },
-        # },
-        k3={
-            "geometry": {"function": "cosine"},
-            "grid": {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 200},
-            "weighting": {
-                "function": "exp",
-                "scale": decay,
-                "threshold": 1e-3,
-            },
-        },
+        **setup,
         flatten=True,
         sparse=False,
-        normalization="l2_each",
+        normalization="l2",
     )
 
     # Create various supercells for the FCC structure
@@ -656,159 +622,185 @@ def test_periodic_supercell_similarity():
 
     output = desc.create([a1, a2, a3, a4])
 
+    # import matplotlib.pyplot as mpl 
+    # mpl.plot(output[0, :])
+    # mpl.plot(output[1, :])
+    # mpl.plot(output[2, :])
+    # mpl.plot(output[3, :])
+    # mpl.show()
+
     # Test for equality
-    assert np.allclose(output[0, :], output[0, :], atol=1e-5, rtol=0)
     assert np.allclose(output[0, :], output[1, :], atol=1e-5, rtol=0)
     assert np.allclose(output[0, :], output[2, :], atol=1e-5, rtol=0)
     assert np.allclose(output[0, :], output[3, :], atol=1e-5, rtol=0)
 
 
-# def test_periodic_images():
-#     """Tests that periodic images are handled correctly."""
-#     decay = 1
-#     desc = MBTR(
-#         species=[1],
-#         periodic=True,
-#         k1={
-#             "geometry": {"function": "atomic_number"},
-#             "grid": {"min": 0, "max": 2, "sigma": 0.1, "n": 21},
-#         },
-#         k2={
-#             "geometry": {"function": "inverse_distance"},
-#             "grid": {"min": 0, "max": 1.0, "sigma": 0.02, "n": 21},
-#             "weighting": {"function": "exp", "scale": decay, "threshold": 1e-4},
-#         },
-#         k3={
-#             "geometry": {"function": "cosine"},
-#             "grid": {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 21},
-#             "weighting": {"function": "exp", "scale": decay, "threshold": 1e-4},
-#         },
-#         normalization="l2_each",  # This normalizes the spectrum
-#         flatten=True,
-#     )
+@pytest.mark.parametrize(
+    "setup",
+    [
+        pytest.param(
+            {
+                "geometry": {"function": "atomic_number"},
+                "grid": {"min": 0, "max": 2, "sigma": 0.1, "n": 21},
+            },
+            id="K1"
+        ),
+        pytest.param(
+            {
+                "geometry": {"function": "inverse_distance"},
+                "grid": {"min": 0, "max": 1.0, "sigma": 0.02, "n": 21},
+                "weighting": {"function": "exp", "scale": 1, "threshold": 1e-4},
+            },
+            id="K2"
+        ),
+        pytest.param(
+            {
+                "geometry": {"function": "cosine"},
+                "grid": {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 21},
+                "weighting": {"function": "exp", "scale": 1, "threshold": 1e-4},
+            },
+            id="K3"
+        ),
+    ]
+)
+def test_periodic_images_1(setup):
+    """Tests that periodic images are handled correctly."""
+    decay = 1
+    desc = MBTR(
+        species=[1],
+        periodic=True,
+        **setup,
+        normalization="l2",
+        flatten=True,
+    )
 
-#     # Tests that a system has the same spectrum as the supercell of the same
-#     # system.
-#     molecule = Atoms(
-#         cell=[[5.0, 0.0, 0.0], [0.0, 5.0, 0.0], [0.0, 0.0, 5.0]],
-#         positions=[
-#             [0, 0, 0],
-#         ],
-#         symbols=["H"],
-#     )
+    # Tests that a system has the same spectrum as the supercell of the same
+    # system.
+    molecule = Atoms(
+        cell=[[5.0, 0.0, 0.0], [0.0, 5.0, 0.0], [0.0, 0.0, 5.0]],
+        positions=[
+            [0, 0, 0],
+        ],
+        symbols=["H"],
+    )
 
-#     a = 1.5
-#     molecule.set_cell([[a, 0.0, 0.0], [0.0, a, 0.0], [0.0, 0.0, a]])
-#     molecule.set_pbc(True)
-#     cubic_cell = desc.create(molecule)
-#     suce = molecule * (2, 1, 1)
-#     cubic_suce = desc.create(suce)
+    a = 1.5
+    molecule.set_cell([[a, 0.0, 0.0], [0.0, a, 0.0], [0.0, 0.0, a]])
+    molecule.set_pbc(True)
+    cubic_cell = desc.create(molecule)
+    suce = molecule * (2, 1, 1)
+    cubic_suce = desc.create(suce)
 
-#     diff = abs(np.sum(cubic_cell - cubic_suce))
-#     cubic_sum = abs(np.sum(cubic_cell))
-#     assert diff / cubic_sum < 0.05  # A 5% error is tolerated
+    diff = abs(np.sum(cubic_cell - cubic_suce))
+    cubic_sum = abs(np.sum(cubic_cell))
+    assert diff / cubic_sum < 0.05  # A 5% error is tolerated
 
-#     # Same test but for triclinic cell
-#     molecule.set_cell([[0.0, 2.0, 1.0], [1.0, 0.0, 1.0], [1.0, 2.0, 0.0]])
+    # Same test but for triclinic cell
+    molecule.set_cell([[0.0, 2.0, 1.0], [1.0, 0.0, 1.0], [1.0, 2.0, 0.0]])
 
-#     triclinic_cell = desc.create(molecule)
-#     suce = molecule * (2, 1, 1)
-#     triclinic_suce = desc.create(suce)
+    triclinic_cell = desc.create(molecule)
+    suce = molecule * (2, 1, 1)
+    triclinic_suce = desc.create(suce)
 
-#     diff = abs(np.sum(triclinic_cell - triclinic_suce))
-#     tricl_sum = abs(np.sum(triclinic_cell))
-#     assert diff / tricl_sum < 0.05
+    diff = abs(np.sum(triclinic_cell - triclinic_suce))
+    tricl_sum = abs(np.sum(triclinic_cell))
+    assert diff / tricl_sum < 0.05
 
-#     # Testing that the same crystal, but different unit cells will have a
-#     # similar spectrum when they are normalized. There will be small differences
-#     # in the shape (due to not double counting distances)
-#     a1 = bulk("H", "fcc", a=2.0)
-#     a2 = bulk("H", "fcc", a=2.0, orthorhombic=True)
-#     a3 = bulk("H", "fcc", a=2.0, cubic=True)
+    # Testing that the same crystal, but different unit cells will have a
+    # similar spectrum when they are normalized. There will be small differences
+    # in the shape (due to not double counting distances)
+    a1 = bulk("H", "fcc", a=2.0)
+    a2 = bulk("H", "fcc", a=2.0, orthorhombic=True)
+    a3 = bulk("H", "fcc", a=2.0, cubic=True)
 
-#     triclinic_cell = desc.create(a1)
-#     orthorhombic_cell = desc.create(a2)
-#     cubic_cell = desc.create(a3)
+    triclinic_cell = desc.create(a1)
+    orthorhombic_cell = desc.create(a2)
+    cubic_cell = desc.create(a3)
 
-#     diff1 = abs(np.sum(triclinic_cell - orthorhombic_cell))
-#     diff2 = abs(np.sum(triclinic_cell - cubic_cell))
-#     tricl_sum = abs(np.sum(triclinic_cell))
-#     assert diff1 / tricl_sum < 0.05
-#     assert diff2 / tricl_sum < 0.05
+    diff1 = abs(np.sum(triclinic_cell - orthorhombic_cell))
+    diff2 = abs(np.sum(triclinic_cell - cubic_cell))
+    tricl_sum = abs(np.sum(triclinic_cell))
+    assert diff1 / tricl_sum < 0.05
+    assert diff2 / tricl_sum < 0.05
 
-#     # Tests that the correct peak locations are present in a cubic periodic
-#     desc = MBTR(
-#         species=["H"],
-#         periodic=True,
-#         k3={
-#             "geometry": {"function": "cosine"},
-#             "grid": {"min": -1.1, "max": 1.1, "sigma": 0.010, "n": 600},
-#             "weighting": {"function": "exp", "scale": decay, "threshold": 1e-4},
-#         },
-#         normalization="l2_each",  # This normalizes the spectrum
-#         flatten=True,
-#     )
-#     a = 2.2
-#     system = Atoms(
-#         cell=[[a, 0.0, 0.0], [0.0, a, 0.0], [0.0, 0.0, a]],
-#         positions=[
-#             [0, 0, 0],
-#         ],
-#         symbols=["H"],
-#         pbc=True,
-#     )
-#     cubic_spectrum = desc.create(system)
-#     x3 = desc.get_k3_axis()
 
-#     peak_ids = find_peaks_cwt(cubic_spectrum, [2])
-#     peak_locs = x3[peak_ids]
+def test_periodic_images_2():
+    # Tests that the correct peak locations are present in a cubic periodic
+    start = -1.1
+    stop = 1.1
+    n = 600
+    desc = MBTR(
+        species=["H"],
+        periodic=True,
+        geometry={"function": "cosine"},
+        grid={"min": start, "max": stop, "sigma": 0.010, "n": n},
+        weighting={"function": "exp", "scale": 1, "threshold": 1e-4},
+        normalization="l2",
+        flatten=True,
+    )
+    a = 2.2
+    system = Atoms(
+        cell=[[a, 0.0, 0.0], [0.0, a, 0.0], [0.0, 0.0, a]],
+        positions=[
+            [0, 0, 0],
+        ],
+        symbols=["H"],
+        pbc=True,
+    )
+    cubic_spectrum = desc.create(system)
+    x3 = np.linspace(start, stop, n)
 
-#     assumed_peaks = np.cos(
-#         np.array(
-#             [
-#                 180,
-#                 90,
-#                 np.arctan(np.sqrt(2)) * 180 / np.pi,
-#                 45,
-#                 np.arctan(np.sqrt(2) / 2) * 180 / np.pi,
-#                 0,
-#             ]
-#         )
-#         * np.pi
-#         / 180
-#     )
-#     assert np.allclose(peak_locs, assumed_peaks, rtol=0, atol=5 * np.pi / 180)
+    peak_ids = find_peaks_cwt(cubic_spectrum, [2])
+    peak_locs = x3[peak_ids]
 
-#     # Tests that the correct peak locations are present in a system with a
-#     # non-cubic basis
-#     desc = MBTR(
-#         species=["H"],
-#         periodic=True,
-#         k3={
-#             "geometry": {"function": "cosine"},
-#             "grid": {"min": -1.0, "max": 1.0, "sigma": 0.030, "n": 200},
-#             "weighting": {"function": "exp", "scale": 1.5, "threshold": 1e-4},
-#         },
-#         normalization="l2_each",  # This normalizes the spectrum
-#         flatten=True,
-#         sparse=False,
-#     )
-#     a = 2.2
-#     angle = 30
-#     system = Atoms(
-#         cell=geometry.cellpar_to_cell([3 * a, a, a, angle, 90, 90]),
-#         positions=[
-#             [0, 0, 0],
-#         ],
-#         symbols=["H"],
-#         pbc=True,
-#     )
-#     tricl_spectrum = desc.create(system)
-#     x3 = desc.get_k3_axis()
+    assumed_peaks = np.cos(
+        np.array(
+            [
+                180,
+                90,
+                np.arctan(np.sqrt(2)) * 180 / np.pi,
+                45,
+                np.arctan(np.sqrt(2) / 2) * 180 / np.pi,
+                0,
+            ]
+        )
+        * np.pi
+        / 180
+    )
+    assert np.allclose(peak_locs, assumed_peaks, rtol=0, atol=5 * np.pi / 180)
 
-#     peak_ids = find_peaks_cwt(tricl_spectrum, [3])
-#     peak_locs = x3[peak_ids]
+def test_periodic_images_3():
+    # Tests that the correct peak locations are present in a system with a
+    # non-cubic basis
+    start = -1.0
+    stop = 1.0
+    n = 200
+    desc = MBTR(
+        species=["H"],
+        periodic=True,
+        geometry={"function": "cosine"},
+        grid={"min": start, "max": stop, "sigma": 0.030, "n": n},
+        weighting={"function": "exp", "scale": 1.5, "threshold": 1e-4},
+        normalization="l2",
+        flatten=True,
+        sparse=False,
+    )
+    a = 2.2
+    angle = 30
+    system = Atoms(
+        cell=geometry.cellpar_to_cell([3 * a, a, a, angle, 90, 90]),
+        positions=[
+            [0, 0, 0],
+        ],
+        symbols=["H"],
+        pbc=True,
+    )
+    tricl_spectrum = desc.create(system)
+    x3 = np.linspace(start, stop, n)
 
-#     angle = (6) / (np.sqrt(5) * np.sqrt(8))
-#     assumed_peaks = np.cos(np.array([180, 105, 75, 51.2, 30, 0]) * np.pi / 180)
-#     assert np.allclose(peak_locs, assumed_peaks, rtol=0, atol=5 * np.pi / 180)
+    peak_ids = find_peaks_cwt(tricl_spectrum, [3])
+    peak_locs = x3[peak_ids]
+
+    angle = (6) / (np.sqrt(5) * np.sqrt(8))
+    assumed_peaks = np.cos(np.array([180, 105, 75, 51.2, 30, 0]) * np.pi / 180)
+    assert np.allclose(peak_locs, assumed_peaks, rtol=0, atol=5 * np.pi / 180)

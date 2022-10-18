@@ -140,9 +140,9 @@ class MBTR(Descriptor):
         """
         super().__init__(periodic=periodic, flatten=flatten, sparse=sparse, dtype=dtype)
         self.wrapper = dscribe.ext.MBTR(
-            geometry,
-            grid,
-            weighting,
+            {} if geometry is None else geometry,
+            {} if grid is None else grid,
+            {} if weighting is None else weighting,
             normalize_gaussians,
             normalization,
             get_atomic_numbers(species),
@@ -241,28 +241,32 @@ class MBTR(Descriptor):
         return self.wrapper.get_number_of_features()
 
     @property
-    def k1(self):
-        return self.wrapper.k1
+    def geometry(self):
+        return self.wrapper.geometry
 
-    @k1.setter
-    def k1(self, value):
-        self.wrapper.k1 = value
-
-    @property
-    def k2(self):
-        return self.wrapper.k2
-
-    @k2.setter
-    def k2(self, value):
-        self.wrapper.k2 = value
+    @geometry.setter
+    def geometry(self, value):
+        self.wrapper.geometry = value
 
     @property
-    def k3(self):
-        return self.wrapper.k3
+    def grid(self):
+        return self.wrapper.grid
 
-    @k3.setter
-    def k3(self, value):
-        self.wrapper.k3 = value
+    @grid.setter
+    def grid(self, value):
+        self.wrapper.grid = value
+
+    @property
+    def weighting(self):
+        return self.wrapper.weighting
+
+    @weighting.setter
+    def weighting(self, value):
+        self.wrapper.weighting = value
+
+    @property
+    def k(self):
+        return self.wrapper.k
 
     @property
     def species(self):
@@ -271,6 +275,14 @@ class MBTR(Descriptor):
     @species.setter
     def species(self, value):
         self.wrapper.species = get_atomic_numbers(value)
+
+    @property
+    def normalization(self):
+        return self.wrapper.normalization
+
+    @normalization.setter
+    def normalization(self, value):
+        self.wrapper.normalization = value
 
     @property
     def normalize_gaussians(self):
@@ -300,11 +312,11 @@ class MBTR(Descriptor):
         """
         # Check that the corresponding part is calculated
         k = len(species)
-        term = getattr(self, "k{}".format(k))
-        if term is None:
+        if k != self.k:
+            species_string = ", ".join([f"'{x}'" for x in species])
             raise ValueError(
-                "Cannot retrieve the location for {}, as the term k{} has not "
-                "been specied.".format(species, k)
+                f"Cannot retrieve the location for ({species_string}), as the used" +
+                f" geometry function does not match the order k={k}."
             )
 
         # Change chemical elements into atomic numbers

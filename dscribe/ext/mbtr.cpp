@@ -291,6 +291,8 @@ void MBTR::set_geometry(py::dict geometry) {
             this->k = 2;
         } else if (k3.find(function) != k3.end()) {
             this->k = 3;
+        } else {
+            throw invalid_argument("Unknown geometry function.");
         }
     } else {
         throw invalid_argument("Please specify a geometry function.");
@@ -322,6 +324,10 @@ void MBTR::set_normalize_gaussians(bool normalize_gaussians) {
 }
 
 void MBTR::set_normalization(string normalization) {
+    unordered_set<string> options({"l2", "none"});
+    if (options.find(normalization) == options.end()) {
+        throw invalid_argument("Unknown normalization option.");
+    }
     this->normalization = normalization;
 }
 
@@ -388,7 +394,6 @@ void MBTR::validate() {
     this->assert_valle();
     this->assert_weighting();
     this->assert_periodic_weighting();
-    this->assert_geometry();
 }
 
 void MBTR::assert_valle() {
@@ -398,7 +403,7 @@ void MBTR::assert_valle() {
 }
 
 void MBTR::assert_periodic_weighting() {
-    if (this->periodic) {
+    if (this->periodic && this->k != 1) {
         bool valid = false;
         if (weighting.contains("function")) {
             string function = weighting["function"].cast<string>();
@@ -446,20 +451,13 @@ void MBTR::assert_weighting() {
     }
 }
 
-void MBTR::assert_geometry() {
-    unordered_set<string> valid_functions({"atomic_number", "distance", "inverse_distance", "angle", "cosine"});
-    string function = geometry["function"].cast<string>();
-    if (valid_functions.find(function) == valid_functions.end()) {
-        throw invalid_argument("Unknown geometry function.");
-    }
-}
-
 py::array_t<int> MBTR::get_species() {return this->species;};
 bool MBTR::get_periodic() {return this->periodic;};
 map<int, int> MBTR::get_species_index_map() {return this->species_index_map;};
 py::dict MBTR::get_geometry() {return geometry;};
 py::dict MBTR::get_grid() {return grid;};
 py::dict MBTR::get_weighting() {return weighting;};
+int MBTR::get_k() {return k;};
 string MBTR::get_normalization() {return normalization;};
 bool MBTR::get_normalize_gaussians() {return normalize_gaussians;};
 
@@ -584,10 +582,9 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
             int j = it.first;
             double distance = it.second.first;
 
-            // Notice that we need to explicitly ignore values where the
-            // distance is above the cutoff: the final system may have distance
-            // that go above it due to the fact that it is extended based on the
-            // largest cutoff.
+            // Explicitly ignore values where the distance is above the cutoff.
+            // TODO: Does this cause problems when positions are offset during
+            // numerical derivatives calculation?
             if (distance > this->cutoff) {
                 continue;
             }
@@ -711,12 +708,11 @@ void MBTR::calculate_k3(py::array_t<double> &out, System &system, CellList &cell
                             double distance_jk = neighbours_j[k].first;
                             double distance_ki = neighbours_i[k].first;
 
-                            // Notice that we need to explicitly ignore values
-                            // where the distance is above the cutoff: the final
-                            // system may have distance that go above it due to
-                            // the fact that it is extended based on the largest
-                            // cutoff.
-                            if (distance_ij + distance_jk + distance_ki > this->cutoff) {
+                            // Explicitly ignore values where the distance is
+                            // above the cutoff. TODO: Does this cause problems
+                            // when positions are offset during numerical
+                            // derivatives calculation?
+                            if ((distance_ij + distance_jk + distance_ki) / 2.0 > this->cutoff) {
                                 continue;
                             }
 

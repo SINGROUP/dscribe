@@ -116,6 +116,7 @@ PYBIND11_MODULE(ext, m) {
         .def_property("geometry", &MBTR::get_geometry, &MBTR::set_geometry)
         .def_property("grid", &MBTR::get_grid, &MBTR::set_grid)
         .def_property("weighting", &MBTR::get_weighting, &MBTR::set_weighting)
+        .def_property_readonly("k", &MBTR::get_k)
         .def_property("species", &MBTR::get_species, &MBTR::set_species)
         .def_property("normalization", &MBTR::get_normalization, &MBTR::set_normalization)
         .def_property("normalize_gaussians", &MBTR::get_normalize_gaussians, &MBTR::set_normalize_gaussians)
