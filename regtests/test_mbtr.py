@@ -87,7 +87,7 @@ def test_no_system_modification():
         pytest.param([True, True, True], [5, 5, 5], id="Fully periodic system with cell"),
         pytest.param([False, False, False], None, id="Unperiodic system with no cell"),
         pytest.param([False, False, False], [0, 0, 0], id="Unperiodic system with no cell"),
-        pytest.param([True, False, False], [5, 5, 5], id=" Partially periodic system with cell"),
+        pytest.param([True, False, False], [5, 5, 5], id="Partially periodic system with cell"),
         pytest.param([True, True, True], [[0.0, 5.0, 5.0], [5.0, 0.0, 5.0], [5.0, 5.0, 0.0]], id="Fully periodic system with non-cubic cell"),
     ]
 )
@@ -781,7 +781,7 @@ def test_periodic_images_3():
         geometry={"function": "cosine"},
         grid={"min": start, "max": stop, "sigma": 0.030, "n": n},
         weighting={"function": "exp", "scale": 1.5, "threshold": 1e-4},
-        normalization="l2",
+        normalization="none",
         flatten=True,
         sparse=False,
     )
@@ -797,6 +797,10 @@ def test_periodic_images_3():
     )
     tricl_spectrum = desc.create(system)
     x3 = np.linspace(start, stop, n)
+
+    import matplotlib.pyplot as mpl 
+    mpl.plot(x3, tricl_spectrum)
+    mpl.show()
 
     peak_ids = find_peaks_cwt(tricl_spectrum, [3])
     peak_locs = x3[peak_ids]
