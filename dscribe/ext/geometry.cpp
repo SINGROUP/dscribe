@@ -55,12 +55,10 @@ System::System(
     this->interactive_atoms = interactive_atoms;
 
     // Create the default cell indices
-    py::array_t<int> cell_indices({n_atoms, 3});
-    auto cell_indices_mu = cell_indices.mutable_unchecked<2>();
+    py::array_t<int> cell_indices({n_atoms});
+    auto cell_indices_mu = cell_indices.mutable_unchecked<1>();
     for (int i = 0; i < n_atoms; ++i) {
-        cell_indices_mu(i, 0) = 0;
-        cell_indices_mu(i, 1) = 0;
-        cell_indices_mu(i, 2) = 0;
+        cell_indices_mu(i) = 0;
     }
     this->cell_indices = cell_indices;
 
@@ -170,11 +168,11 @@ System extend_system(
     py::array_t<double> ext_pos({n_atoms*n_rep, 3});
     py::array_t<int> ext_atomic_numbers({uint(n_atoms*n_rep)});
     py::array_t<int> ext_indices({uint(n_atoms*n_rep)});
-    py::array_t<int> ext_cell_indices({n_atoms*n_rep, 3});
+    py::array_t<int> ext_cell_indices({n_atoms*n_rep});
     auto ext_pos_mu = ext_pos.mutable_unchecked<2>();
     auto ext_atomic_numbers_mu = ext_atomic_numbers.mutable_unchecked<1>();
     auto ext_indices_mu = ext_indices.mutable_unchecked<1>();
-    auto ext_cell_indices_mu = ext_cell_indices.mutable_unchecked<2>();
+    auto ext_cell_indices_mu = ext_cell_indices.mutable_unchecked<1>();
     int i_copy = 0;
     int a_limit = multipliers[0].size();
     int b_limit = multipliers[1].size();
@@ -197,9 +195,7 @@ System extend_system(
                     int index = i_copy*n_atoms + l;
                     ext_atomic_numbers_mu(index) = atomic_numbers_u(l);
                     ext_indices_mu(index) = l;
-                    ext_cell_indices_mu(index, 0) = i;
-                    ext_cell_indices_mu(index, 1) = j;
-                    ext_cell_indices_mu(index, 2) = k;
+                    ext_cell_indices_mu(index) = i_copy;
                     for (int m=0; m < 3; ++m) {
                         ext_pos_mu(index, m) = positions_u(l, m) + addition[m];
                     }

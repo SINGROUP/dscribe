@@ -65,6 +65,14 @@ class System {
          * centers when creating a descriptor.
          */
         unordered_set<int> interactive_atoms;
+
+        py::array_t<double> get_positions() {return this->positions;};
+        py::array_t<int> get_atomic_numbers() {return this->atomic_numbers;};
+        py::array_t<double> get_cell() {return this->cell;};
+        py::array_t<bool> get_pbc() {return this->pbc;};
+        py::array_t<int> get_indices() {return this->indices;};
+        py::array_t<int> get_cell_indices() {return this->cell_indices;};
+        unordered_set<int> get_interactive_atoms() {return this->interactive_atoms;};
 };
 
 inline vector<double> cross(const vector<double>& a, const vector<double>& b);

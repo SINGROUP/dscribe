@@ -481,6 +481,11 @@ def test_peaks(system, geometry, grid, weighting, periodic, peaks, prominence):
     # Check that the correct peaks can be found
     for (location, peak_x, peak_y) in peaks:
         feat = features[desc.get_location(location)]
+
+        # import matplotlib.pyplot as mpl 
+        # mpl.plot(np.arange(len(feat)), feat)
+        # mpl.show()
+
         peak_indices = find_peaks(feat, prominence=prominence)[0]
         assert len(peak_indices) > 0
         peak_locs = x[peak_indices]
@@ -748,6 +753,13 @@ def test_periodic_images_2():
         pbc=True,
     )
     cubic_spectrum = desc.create(system)
+
+    # from ase.visualize import view
+    # view(system)
+    # import matplotlib.pyplot as mpl 
+    # mpl.plot(np.arange(len(cubic_spectrum)), cubic_spectrum)
+    # mpl.show()
+
     x3 = np.linspace(start, stop, n)
 
     peak_ids = find_peaks_cwt(cubic_spectrum, [2])
@@ -797,10 +809,6 @@ def test_periodic_images_3():
     )
     tricl_spectrum = desc.create(system)
     x3 = np.linspace(start, stop, n)
-
-    import matplotlib.pyplot as mpl 
-    mpl.plot(x3, tricl_spectrum)
-    mpl.show()
 
     peak_ids = find_peaks_cwt(tricl_spectrum, [3])
     peak_locs = x3[peak_ids]

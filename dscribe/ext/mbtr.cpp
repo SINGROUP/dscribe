@@ -100,14 +100,8 @@ inline double geom_angle(double distance_ij, double distance_jk, double distance
     return angle;
 }
 
-inline bool same_cell(const py::array_t<int> &cell_indices, int i, int j) {
-    auto cell_indices_u = cell_indices.unchecked<2>();
-    for (int k = 0; k < 3; ++k) {
-        if (cell_indices_u(i, k) != cell_indices_u(j, k)) {
-            return false;
-        }
-    }
-    return true;
+inline bool same_cell(py::detail::unchecked_reference<int, 1> &cell_indices_u, int i, int j) {
+    return cell_indices_u(i) == cell_indices_u(j);
 }
 
 MBTR::MBTR(
@@ -575,6 +569,7 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
     // Maybe looping over the interactive atoms only? Also maybe iterating over
     // the cells only in the positive lattice vector direction?
     int n_atoms = atomic_numbers.size();
+    auto cell_indices_u = system.cell_indices.unchecked<1>();
     for (int i=0; i < n_atoms; ++i) {
         // For each atom we loop only over the neighbours
         unordered_map<int, pair<double, double>> neighbours_i = cell_list.getNeighboursForIndex(i);
@@ -608,7 +603,7 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
                     // the primitive cell within a constant that is given by the
                     // number of repetitions of the primitive cell in the
                     // supercell.
-                    if (!same_cell(system.cell_indices, i, j)) {
+                    if (!same_cell(cell_indices_u, i, j)) {
                         weight /= 2;
                     }
 
@@ -682,7 +677,7 @@ void MBTR::calculate_k3(py::array_t<double> &out, System &system, CellList &cell
     // For each atom we loop only over the atoms triplets that are within the
     // neighbourhood
     int n_atoms = atomic_numbers.size();
-    auto cell_indices = system.cell_indices;
+    auto cell_indices_u = system.cell_indices.unchecked<1>();
     for (int i=0; i < n_atoms; ++i) {
         unordered_map<int, pair<double, double>> neighbours_i = cell_list.getNeighboursForIndex(i);
         for (auto& it_i: neighbours_i) {
@@ -733,9 +728,9 @@ void MBTR::calculate_k3(py::array_t<double> &out, System &system, CellList &cell
                             // respect to the original cell at index [0, 0, 0]) are present for
                             // the atoms in the triple.
                             int diff_sum =
-                                (int)!same_cell(cell_indices, i, j)
-                              + (int)!same_cell(cell_indices, i, k)
-                              + (int)!same_cell(cell_indices, j, k);
+                                (int)!same_cell(cell_indices_u, i, j)
+                              + (int)!same_cell(cell_indices_u, i, k)
+                              + (int)!same_cell(cell_indices_u, j, k);
                             if (diff_sum > 1) {
                                 weight /= diff_sum;
                             }
