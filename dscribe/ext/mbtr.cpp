@@ -577,13 +577,6 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
             int j = it.first;
             double distance = it.second.first;
 
-            // Explicitly ignore values where the distance is above the cutoff.
-            // TODO: Does this cause problems when positions are offset during
-            // numerical derivatives calculation?
-            if (distance > this->cutoff) {
-                continue;
-            }
-
             if (j > i) {
                 // Only consider pairs that have at least one atom in the
                 // 'interactive subset', typically the original cell but can
@@ -702,14 +695,6 @@ void MBTR::calculate_k3(py::array_t<double> &out, System &system, CellList &cell
                             double distance_ij = neighbours_i[j].first;
                             double distance_jk = neighbours_j[k].first;
                             double distance_ki = neighbours_i[k].first;
-
-                            // Explicitly ignore values where the distance is
-                            // above the cutoff. TODO: Does this cause problems
-                            // when positions are offset during numerical
-                            // derivatives calculation?
-                            if ((distance_ij + distance_jk + distance_ki) / 2.0 > this->cutoff) {
-                                continue;
-                            }
 
                             // Calculate geometry value
                             double geom = geom_func(distance_ij, distance_jk, distance_ki);
