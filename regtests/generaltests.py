@@ -228,131 +228,6 @@ class GeometryTests(unittest.TestCase):
         self.assertTrue(np.allclose(result.positions, ext_system.get_positions()))
 
 
-class DistanceTests(unittest.TestCase):
-    def test_cell_list(self):
-        """Tests that the cell list implementation returns identical results
-        with the naive calculation.
-        """
-        # Cubic system: different cutoffs, smaller and larger than the system.
-        a = 5.64
-        n_copies = 3
-        system = bulk("NaCl", crystalstructure="rocksalt", a=a, cubic=True)
-        system *= (n_copies, n_copies, n_copies)
-        pos = system.get_positions()
-        all_distances_naive = system.get_all_distances()
-        for cutoff in np.array([0.5, 1, 1.5, 2]) * a * n_copies:
-            cell_list = dscribe.ext.CellList(pos, cutoff)
-            for idx in range(len(system)):
-                result = cell_list.get_neighbours_for_index(idx)
-                indices = result.indices
-                distances = result.distances
-                sort_order = np.argsort(indices)
-                indices = np.array(indices)[sort_order]
-                distances = np.array(distances)[sort_order]
-                indices_naive = np.where(
-                    np.linalg.norm(pos - pos[idx], axis=1) <= cutoff
-                )[0]
-                indices_naive = indices_naive[indices_naive != idx]
-                distances_naive = all_distances_naive[idx, indices_naive]
-                self.assertTrue(np.array_equal(indices, indices_naive))
-                self.assertTrue(
-                    np.allclose(distances, distances_naive, atol=1e-16, rtol=1e-16)
-                )
-
-        # Triclinic finite system: cell > cutoff
-        system = Atoms(
-            cell=[[0.0, 2.0, 2.0], [2.0, 0.0, 2.0], [2.0, 2.0, 0.0]],
-            positions=[
-                [0, 0, 0],
-                [0.95, 0, 0],
-                [
-                    0.95 * (1 + math.cos(76 / 180 * math.pi)),
-                    0.95 * math.sin(76 / 180 * math.pi),
-                    0.0,
-                ],
-            ],
-            symbols=["H", "O", "H"],
-        )
-        system *= (3, 3, 3)
-        pos = system.get_positions()
-        all_distances_naive = system.get_all_distances()
-        for cutoff in np.arange(1, 5):
-            cell_list = dscribe.ext.CellList(pos, cutoff)
-            for idx in range(len(system)):
-                result = cell_list.get_neighbours_for_index(idx)
-                indices = result.indices
-                distances = result.distances
-                sort_order = np.argsort(indices)
-                indices = np.array(indices)[sort_order]
-                distances = np.array(distances)[sort_order]
-                indices_naive = np.where(
-                    np.linalg.norm(pos - pos[idx], axis=1) <= cutoff
-                )[0]
-                indices_naive = indices_naive[indices_naive != idx]
-                distances_naive = all_distances_naive[idx, indices_naive]
-                self.assertTrue(np.array_equal(indices, indices_naive))
-                self.assertTrue(
-                    np.allclose(distances, distances_naive, atol=1e-16, rtol=1e-16)
-                )
-
-        # System smaller than cutoff
-        system = Atoms(
-            positions=[[0, 0, 0]],
-            symbols=["H"],
-        )
-        pos = system.get_positions()
-        cutoff = 5
-        cell_list = dscribe.ext.CellList(pos, cutoff)
-        result = cell_list.get_neighbours_for_position(4, 3, 0)
-        indices = result.indices
-        distances = result.distances
-        self.assertEqual(indices, [0])
-        self.assertAlmostEqual(distances[0], 5.0, places=7)
-        result = cell_list.get_neighbours_for_position(4, 3, 0.001)
-        indices = result.indices
-        distances = result.distances
-        self.assertEqual(indices, [])
-        self.assertEqual(distances, [])
-
-        # Position way outside bins
-        system = Atoms(
-            positions=[[0, 0, 0], [1, 1, 1]],
-            symbols=["H", "H"],
-        )
-        pos = system.get_positions()
-        cutoff = 0.2
-        cell_list = dscribe.ext.CellList(pos, cutoff)
-        result = cell_list.get_neighbours_for_position(500, 500, 500)
-        indices = result.indices
-        distances = result.distances
-        self.assertEqual(indices, [])
-        self.assertEqual(distances, [])
-        result = cell_list.get_neighbours_for_position(-500, -500, -500)
-        indices = result.indices
-        distances = result.distances
-        self.assertEqual(indices, [])
-        self.assertEqual(distances, [])
-
-        # Position at the brink of bins
-        system = Atoms(
-            positions=[[0, 0, 0], [1, 1, 1]],
-            symbols=["H", "H"],
-        )
-        pos = system.get_positions()
-        cutoff = 0.2
-        cell_list = dscribe.ext.CellList(pos, cutoff)
-        result = cell_list.get_neighbours_for_position(-0.2, 0, 0)
-        indices = result.indices
-        distances = result.distances
-        self.assertEqual(indices, [0])
-        self.assertAlmostEqual(distances[0], 0.2, places=7)
-        result = cell_list.get_neighbours_for_position(1, 1.2, 1)
-        indices = result.indices
-        distances = result.distances
-        self.assertEqual(indices, [1])
-        self.assertAlmostEqual(distances[0], 0.2, places=7)
-
-
 class GaussianTests(unittest.TestCase):
     def test_cdf(self):
         """Test that the implementation of the gaussian value through the
@@ -553,7 +428,6 @@ if __name__ == "__main__":
 
     suites = []
     suites.append(unittest.TestLoader().loadTestsFromTestCase(ASETests))
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(DistanceTests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(GeometryTests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(GaussianTests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(SpeciesTests))

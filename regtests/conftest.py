@@ -315,8 +315,8 @@ def assert_systems(descriptor_func, pbc, cell):
 
 def assert_basis(descriptor_func):
     """Tests that the output vectors behave correctly as a basis."""
-    sys1 = Atoms(symbols=["H"], positions=[[0, 0, 0]], cell=[4, 4, 4], pbc=True)
-    sys2 = Atoms(symbols=["O"], positions=[[0, 0, 0]], cell=[4, 4, 4], pbc=True)
+    sys1 = Atoms(symbols=["H"], positions=[[0, 0, 0]], cell=[2, 2, 2], pbc=True)
+    sys2 = Atoms(symbols=["O"], positions=[[0, 0, 0]], cell=[2, 2, 2], pbc=True)
     sys3 = sys2 * [2, 2, 2]
 
     desc = descriptor_func([sys1, sys2, sys3])

@@ -19,6 +19,7 @@ from conftest import (
 from ase import Atoms, geometry
 from ase.build import molecule, bulk
 from dscribe.descriptors import MBTR
+import dscribe.ext
 
 
 # =============================================================================
@@ -445,7 +446,49 @@ water_periodic.set_pbc(True)
             True,
             [(("H", "H", "H"), [45, 90], [2 * np.exp(-0.85 * (2 + 2 * np.sqrt(2))), np.exp(-0.85 * (2 + 2 * np.sqrt(2)))])],
             0.01,
-            id="k3 periodic"
+            id="k3 periodic cubic 1"
+        ),
+        pytest.param(
+            Atoms(
+                cell=[[2.2, 0.0, 0.0], [0.0, 2.2, 0.0], [0.0, 0.0, 2.2]],
+                positions=[
+                    [0, 0, 0],
+                ],
+                symbols=["H"],
+                pbc=True,
+            ),
+            {"function": "cosine"},
+            {"min": -1.1, "max": 1.1, "sigma": 0.010, "n": 2000},
+            {"function": "exp", "scale": 1, "threshold": 1e-4},
+            True,
+            [(
+                ("H", "H", "H"),
+                np.cos(np.array([180, 90, np.arctan(np.sqrt(2)) * 180 / np.pi, 45, np.arctan(np.sqrt(2) / 2) * 180 / np.pi, 0]) * np.pi / 180),
+                [0.00044947, 0.00911117, 0.00261005, 0.01304592, 0.00261256, 0.00089893]
+            )],
+            0.0001,
+            id="k3 periodic cubic 2"
+        ),
+        pytest.param(
+            Atoms(
+                cell=geometry.cellpar_to_cell([3 * 2.2, 2.2, 2.2, 30, 90, 90]),
+                positions=[
+                    [0, 0, 0],
+                ],
+                symbols=["H"],
+                pbc=True,
+            ),
+            {"function": "cosine"},
+            {"min": -1.1, "max": 1.1, "sigma": 0.01, "n": 2000},
+            {"function": "exp", "scale": 1.5, "threshold": 1e-4},
+            True,
+            [(
+                ("H", "H", "H"),
+                np.cos(np.array([180, 105, 75, 51.2, 30, 23.8, 0]) * np.pi / 180),
+                [0.00107715, 0.00044707, 0.00098481, 0.00044723, 0.00049224, 0.00044734, 0.00215429]
+            )],
+            0.00001,
+            id="k3 periodic non-cubic"
         )
     ]
 )
@@ -483,15 +526,15 @@ def test_peaks(system, geometry, grid, weighting, periodic, peaks, prominence):
         feat = features[desc.get_location(location)]
 
         # import matplotlib.pyplot as mpl 
-        # mpl.plot(np.arange(len(feat)), feat)
+        # mpl.plot(x, feat)
         # mpl.show()
 
         peak_indices = find_peaks(feat, prominence=prominence)[0]
         assert len(peak_indices) > 0
         peak_locs = x[peak_indices]
         peak_ints = feat[peak_indices]
-        assert np.allclose(peak_locs, peak_x, rtol=0, atol=5e-2)
-        assert np.allclose(peak_ints, peak_y, rtol=0, atol=5e-2)
+        assert np.allclose(peak_locs, peak_x, rtol=1e-3, atol=1e-3)
+        assert np.allclose(peak_ints, peak_y, rtol=1e-3, atol=1e-3)
 
     # Check that everything else is zero
     for peak in peaks:
@@ -727,92 +770,3 @@ def test_periodic_images_1(setup):
     tricl_sum = abs(np.sum(triclinic_cell))
     assert diff1 / tricl_sum < 0.05
     assert diff2 / tricl_sum < 0.05
-
-
-def test_periodic_images_2():
-    # Tests that the correct peak locations are present in a cubic periodic
-    start = -1.1
-    stop = 1.1
-    n = 600
-    desc = MBTR(
-        species=["H"],
-        periodic=True,
-        geometry={"function": "cosine"},
-        grid={"min": start, "max": stop, "sigma": 0.010, "n": n},
-        weighting={"function": "exp", "scale": 1, "threshold": 1e-4},
-        normalization="l2",
-        flatten=True,
-    )
-    a = 2.2
-    system = Atoms(
-        cell=[[a, 0.0, 0.0], [0.0, a, 0.0], [0.0, 0.0, a]],
-        positions=[
-            [0, 0, 0],
-        ],
-        symbols=["H"],
-        pbc=True,
-    )
-    cubic_spectrum = desc.create(system)
-
-    # from ase.visualize import view
-    # view(system)
-    # import matplotlib.pyplot as mpl 
-    # mpl.plot(np.arange(len(cubic_spectrum)), cubic_spectrum)
-    # mpl.show()
-
-    x3 = np.linspace(start, stop, n)
-
-    peak_ids = find_peaks_cwt(cubic_spectrum, [2])
-    peak_locs = x3[peak_ids]
-
-    assumed_peaks = np.cos(
-        np.array(
-            [
-                180,
-                90,
-                np.arctan(np.sqrt(2)) * 180 / np.pi,
-                45,
-                np.arctan(np.sqrt(2) / 2) * 180 / np.pi,
-                0,
-            ]
-        )
-        * np.pi
-        / 180
-    )
-    assert np.allclose(peak_locs, assumed_peaks, rtol=0, atol=5 * np.pi / 180)
-
-def test_periodic_images_3():
-    # Tests that the correct peak locations are present in a system with a
-    # non-cubic basis
-    start = -1.0
-    stop = 1.0
-    n = 200
-    desc = MBTR(
-        species=["H"],
-        periodic=True,
-        geometry={"function": "cosine"},
-        grid={"min": start, "max": stop, "sigma": 0.030, "n": n},
-        weighting={"function": "exp", "scale": 1.5, "threshold": 1e-4},
-        normalization="none",
-        flatten=True,
-        sparse=False,
-    )
-    a = 2.2
-    angle = 30
-    system = Atoms(
-        cell=geometry.cellpar_to_cell([3 * a, a, a, angle, 90, 90]),
-        positions=[
-            [0, 0, 0],
-        ],
-        symbols=["H"],
-        pbc=True,
-    )
-    tricl_spectrum = desc.create(system)
-    x3 = np.linspace(start, stop, n)
-
-    peak_ids = find_peaks_cwt(tricl_spectrum, [3])
-    peak_locs = x3[peak_ids]
-
-    angle = (6) / (np.sqrt(5) * np.sqrt(8))
-    assumed_peaks = np.cos(np.array([180, 105, 75, 51.2, 30, 0]) * np.pi / 180)
-    assert np.allclose(peak_locs, assumed_peaks, rtol=0, atol=5 * np.pi / 180)

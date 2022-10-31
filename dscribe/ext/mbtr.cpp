@@ -83,9 +83,9 @@ inline double geom_inverse_distance(double distance) {
 
 inline double geom_cosine(double distance_ij, double distance_jk, double distance_ki) {
     double distance_ji_square = distance_ij*distance_ij;
-    double distance_ik_square = distance_ki*distance_ki;
+    double distance_ki_square = distance_ki*distance_ki;
     double distance_jk_square = distance_jk*distance_jk;
-    double cosine = 0.5/(distance_jk*distance_ij) * (distance_ji_square+distance_jk_square-distance_ik_square);
+    double cosine = 0.5/(distance_jk*distance_ij) * (distance_ji_square+distance_jk_square-distance_ki_square);
 
     // Due to numerical reasons the cosine might be slightly under -1 or above 1
     // degrees. E.g. acos is not defined then so we clip the values to prevent
@@ -568,6 +568,7 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
     // TODO: There may be a more efficent way of looping through the atoms.
     // Maybe looping over the interactive atoms only? Also maybe iterating over
     // the cells only in the positive lattice vector direction?
+    double cutoff_k2 = this->cutoff;
     int n_atoms = atomic_numbers.size();
     auto cell_indices_u = system.cell_indices.unchecked<1>();
     for (int i=0; i < n_atoms; ++i) {
@@ -576,6 +577,9 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
         for (auto& it: neighbours_i) {
             int j = it.first;
             double distance = it.second.first;
+            if (distance > cutoff_k2) {
+                continue;
+            }
 
             if (j > i) {
                 // Only consider pairs that have at least one atom in the
@@ -669,14 +673,16 @@ void MBTR::calculate_k3(py::array_t<double> &out, System &system, CellList &cell
 
     // For each atom we loop only over the atoms triplets that are within the
     // neighbourhood
+    double cutoff_k3 = this->cutoff * 2;
     int n_atoms = atomic_numbers.size();
+    auto pos_u = system.positions.unchecked<2>();
     auto cell_indices_u = system.cell_indices.unchecked<1>();
     for (int i=0; i < n_atoms; ++i) {
         unordered_map<int, pair<double, double>> neighbours_i = cell_list.getNeighboursForIndex(i);
-        for (auto& it_i: neighbours_i) {
+        for (auto it_i: neighbours_i) {
             int j = it_i.first;
             unordered_map<int, pair<double, double>> neighbours_j = cell_list.getNeighboursForIndex(j);
-            for (auto& it_j: neighbours_j) {
+            for (auto it_j: neighbours_j) {
                 int k = it_j.first;
                 // Only consider triples that have at least one atom in the
                 // 'interaction subset', typically the original cell but can
@@ -692,11 +698,24 @@ void MBTR::calculate_k3(py::array_t<double> &out, System &system, CellList &cell
                         // The angles are symmetric: ijk = kji. The value is
                         // calculated only for the triplet where k > i.
                         if (k > i) {
-                            double distance_ij = neighbours_i[j].first;
-                            double distance_jk = neighbours_j[k].first;
-                            double distance_ki = neighbours_i[k].first;
+                            // Note here the two first distances are quaranteed
+                            // to exist, but the third one may not exist due to
+                            // cutoff. If it does not exist then the triplet is
+                            // skipped. Also we need to skip any triplets where
+                            // the distance is greater than the desired cutoff.
+                            double distance_ij = neighbours_i.at(j).first;
+                            double distance_jk = neighbours_j.at(k).first;
+                            double distance_ki = 0;
+                            try {
+                                distance_ki = neighbours_i.at(k).first;
+                            } catch (const out_of_range& e) {
+                                continue;
+                            }
+                            if (distance_ij + distance_jk + distance_ki > cutoff_k3) {
+                                continue;
+                            }
 
-                            // Calculate geometry value
+                            // Calculate geometry value.
                             double geom = geom_func(distance_ij, distance_jk, distance_ki);
 
                             // Calculate weight value.
@@ -710,7 +729,7 @@ void MBTR::calculate_k3(py::array_t<double> &out, System &system, CellList &cell
                             // spectrum invariant to the selected supercell size and shape
                             // after normalization. The number of repetitions N is given by how
                             // many unique cell indices (the index of the repeated cell with
-                            // respect to the original cell at index [0, 0, 0]) are present for
+                            // respect to the original cell at index 0) are present for
                             // the atoms in the triple.
                             int diff_sum =
                                 (int)!same_cell(cell_indices_u, i, j)
