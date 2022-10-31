@@ -13,17 +13,17 @@ import dscribe.ext
         pytest.param(
             bulk("NaCl", crystalstructure="rocksalt", a=5.64, cubic=True) * [3, 3, 3],
             0.5 * 3 * 5.64,
-            id="cubic, cutoff < cell"
+            id="cubic, cutoff < cell",
         ),
         pytest.param(
             bulk("NaCl", crystalstructure="rocksalt", a=5.64, cubic=True) * [3, 3, 3],
             1 * 3 * 5.64,
-            id="cubic, cutoff == cell"
+            id="cubic, cutoff == cell",
         ),
         pytest.param(
             bulk("NaCl", crystalstructure="rocksalt", a=5.64, cubic=True) * [3, 3, 3],
             1.5 * 3 * 5.64,
-            id="cubic, cutoff > cell"
+            id="cubic, cutoff > cell",
         ),
         pytest.param(
             Atoms(
@@ -38,11 +38,16 @@ import dscribe.ext
                     ],
                 ],
                 symbols=["H", "O", "H"],
-            ) * [3,3,3,],
+            )
+            * [
+                3,
+                3,
+                3,
+            ],
             2,
-            id="triclinic, cutoff < cell"
+            id="triclinic, cutoff < cell",
         ),
-    ]
+    ],
 )
 def test_cell_list_index(system, cutoff):
     """Tests that the cell list implementation returns identical results
@@ -81,7 +86,7 @@ def test_cell_list_index(system, cutoff):
             ),
             5,
             [([4, 3, 0], [(0, 5.0)]), ([4, 3, 0.001], [])],
-            id="system < cutoff"
+            id="system < cutoff",
         ),
         pytest.param(
             Atoms(
@@ -90,7 +95,7 @@ def test_cell_list_index(system, cutoff):
             ),
             0.2,
             [([500, 500, 500], []), ([-500, -500, -500], [])],
-            id="position outside bins"
+            id="position outside bins",
         ),
         pytest.param(
             Atoms(
@@ -99,9 +104,9 @@ def test_cell_list_index(system, cutoff):
             ),
             0.2,
             [([-0.2, 0, 0], [(0, 0.2)]), ([1, 1.2, 1], [(1, 0.2)])],
-            id="position at the edge of bins"
+            id="position at the edge of bins",
         ),
-    ]
+    ],
 )
 def test_cell_list_position(system, cutoff, positions):
     """Tests that the cell list implementation returns identical results

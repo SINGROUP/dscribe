@@ -27,7 +27,7 @@ import dscribe.ext
 default_k1 = {
     "geometry": {"function": "atomic_number"},
     "grid": {"min": 1, "max": 8, "sigma": 0.1, "n": 50},
-    "weighting": {"function": "unity"}
+    "weighting": {"function": "unity"},
 }
 
 default_k2 = {
@@ -47,6 +47,7 @@ def mbtr(**kwargs):
     """Returns a function that can be used to create a valid MBTR
     descriptor for a dataset.
     """
+
     def func(systems=None):
         species = set()
         for system in systems or []:
@@ -55,7 +56,7 @@ def mbtr(**kwargs):
             "species": species,
             "geometry": default_k2["geometry"],
             "grid": default_k2["grid"],
-            "weighting": default_k2["weighting"]
+            "weighting": default_k2["weighting"],
         }
         final_kwargs.update(kwargs)
         return MBTR(**final_kwargs)
@@ -85,12 +86,22 @@ def test_no_system_modification():
 @pytest.mark.parametrize(
     "pbc, cell",
     [
-        pytest.param([True, True, True], [5, 5, 5], id="Fully periodic system with cell"),
+        pytest.param(
+            [True, True, True], [5, 5, 5], id="Fully periodic system with cell"
+        ),
         pytest.param([False, False, False], None, id="Unperiodic system with no cell"),
-        pytest.param([False, False, False], [0, 0, 0], id="Unperiodic system with no cell"),
-        pytest.param([True, False, False], [5, 5, 5], id="Partially periodic system with cell"),
-        pytest.param([True, True, True], [[0.0, 5.0, 5.0], [5.0, 0.0, 5.0], [5.0, 5.0, 0.0]], id="Fully periodic system with non-cubic cell"),
-    ]
+        pytest.param(
+            [False, False, False], [0, 0, 0], id="Unperiodic system with no cell"
+        ),
+        pytest.param(
+            [True, False, False], [5, 5, 5], id="Partially periodic system with cell"
+        ),
+        pytest.param(
+            [True, True, True],
+            [[0.0, 5.0, 5.0], [5.0, 0.0, 5.0], [5.0, 5.0, 0.0]],
+            id="Fully periodic system with non-cubic cell",
+        ),
+    ],
 )
 def test_systems(pbc, cell):
     assert_systems(mbtr(periodic=True), pbc, cell)
@@ -269,8 +280,12 @@ def test_exceptions():
     "setup, n_features",
     [
         pytest.param(default_k1, 2 * default_k1["grid"]["n"], id="K1"),
-        pytest.param(default_k2, 2 * default_k2["grid"]["n"] * 1 / 2 * (2 + 1), id="K2"),
-        pytest.param(default_k3, 2 * default_k3["grid"]["n"] * 1 / 2 * (2 + 1) * 2, id="K3"),
+        pytest.param(
+            default_k2, 2 * default_k2["grid"]["n"] * 1 / 2 * (2 + 1), id="K2"
+        ),
+        pytest.param(
+            default_k3, 2 * default_k3["grid"]["n"] * 1 / 2 * (2 + 1) * 2, id="K3"
+        ),
     ],
 )
 def test_number_of_features(setup, n_features):
@@ -278,6 +293,7 @@ def test_number_of_features(setup, n_features):
     desc = MBTR(species=atomic_numbers, **setup)
     n_features = desc.get_number_of_features()
     assert n_features == n_features
+
 
 @pytest.mark.parametrize(
     "normalize_gaussians",
@@ -297,7 +313,7 @@ def test_gaussian_distribution(normalize_gaussians):
         species=["H", "O"],
         geometry={"function": "atomic_number"},
         grid={"min": start, "max": stop, "sigma": std, "n": n},
-        normalize_gaussians = normalize_gaussians
+        normalize_gaussians=normalize_gaussians,
     )
     system = water()
     y = desc.create(system)
@@ -306,17 +322,19 @@ def test_gaussian_distribution(normalize_gaussians):
     # Find the location of the peaks
     h_loc = desc.get_location(["H"])
     peak1_x = np.searchsorted(x, 1)
-    h_feat =  y[h_loc]
+    h_feat = y[h_loc]
     peak1_y = h_feat[peak1_x]
     o_loc = desc.get_location(["O"])
     peak2_x = np.searchsorted(x, 8)
-    o_feat =  y[o_loc]
+    o_feat = y[o_loc]
     peak2_y = o_feat[peak2_x]
 
     # Check against the analytical value
     prefactor = 1 / np.sqrt(2 * np.pi) if normalize_gaussians else 1
     gaussian = (
-        lambda x, mean: 1 / std * prefactor
+        lambda x, mean: 1
+        / std
+        * prefactor
         * np.exp(-((x - mean) ** 2) / (2 * std**2))
     )
     assert np.allclose(peak1_y, 2 * gaussian(1, 1), rtol=0, atol=0.001)
@@ -327,7 +345,7 @@ def test_gaussian_distribution(normalize_gaussians):
     dx = (stop - start) / (n - 1)
     sum_cum = np.sum(0.5 * dx * (pdf[:-1] + pdf[1:]))
     exp = 1 if normalize_gaussians else 1 / (1 / math.sqrt(2 * math.pi * std**2))
-    assert np.allclose(sum_cum, 2*exp, rtol=0, atol=0.001)
+    assert np.allclose(sum_cum, 2 * exp, rtol=0, atol=0.001)
 
 
 @pytest.mark.parametrize(
@@ -358,8 +376,11 @@ def test_locations(system):
             else:
                 assert feat[loc].sum() == 0
 
+
 water_periodic = water()
 water_periodic.set_pbc(True)
+
+
 @pytest.mark.parametrize(
     "system,geometry,grid,weighting,periodic,peaks,prominence",
     [
@@ -371,7 +392,7 @@ water_periodic.set_pbc(True)
             False,
             [(("H"), [1], [2]), (("O"), [8], [1])],
             0.5,
-            id="k1 finite"
+            id="k1 finite",
         ),
         pytest.param(
             water_periodic,
@@ -381,7 +402,7 @@ water_periodic.set_pbc(True)
             True,
             [(("H"), [1], [2]), (("O"), [8], [1])],
             0.5,
-            id="k1 periodic"
+            id="k1 periodic",
         ),
         pytest.param(
             water(),
@@ -391,7 +412,7 @@ water_periodic.set_pbc(True)
             False,
             [(("H", "H"), [1.4972204318527715], [1]), (("H", "O"), [0.95], [2])],
             0.5,
-            id="k2 finite"
+            id="k2 finite",
         ),
         pytest.param(
             Atoms(
@@ -413,7 +434,7 @@ water_periodic.set_pbc(True)
             True,
             [(("H", "C"), [2, 8], np.exp(-0.8 * np.array([2, 8])))],
             0.001,
-            id="k2 periodic"
+            id="k2 periodic",
         ),
         pytest.param(
             water(),
@@ -423,7 +444,7 @@ water_periodic.set_pbc(True)
             False,
             [(("H", "H", "O"), [38], [2]), (("H", "O", "H"), [104], [1])],
             0.5,
-            id="k3 finite"
+            id="k3 finite",
         ),
         pytest.param(
             Atoms(
@@ -444,9 +465,18 @@ water_periodic.set_pbc(True)
             {"min": 0, "max": 180, "sigma": 5, "n": 2000},
             {"function": "exp", "scale": 0.85, "threshold": 1e-3},
             True,
-            [(("H", "H", "H"), [45, 90], [2 * np.exp(-0.85 * (2 + 2 * np.sqrt(2))), np.exp(-0.85 * (2 + 2 * np.sqrt(2)))])],
+            [
+                (
+                    ("H", "H", "H"),
+                    [45, 90],
+                    [
+                        2 * np.exp(-0.85 * (2 + 2 * np.sqrt(2))),
+                        np.exp(-0.85 * (2 + 2 * np.sqrt(2))),
+                    ],
+                )
+            ],
             0.01,
-            id="k3 periodic cubic 1"
+            id="k3 periodic cubic 1",
         ),
         pytest.param(
             Atoms(
@@ -461,13 +491,35 @@ water_periodic.set_pbc(True)
             {"min": -1.1, "max": 1.1, "sigma": 0.010, "n": 2000},
             {"function": "exp", "scale": 1, "threshold": 1e-4},
             True,
-            [(
-                ("H", "H", "H"),
-                np.cos(np.array([180, 90, np.arctan(np.sqrt(2)) * 180 / np.pi, 45, np.arctan(np.sqrt(2) / 2) * 180 / np.pi, 0]) * np.pi / 180),
-                [0.00044947, 0.00911117, 0.00261005, 0.01304592, 0.00261256, 0.00089893]
-            )],
+            [
+                (
+                    ("H", "H", "H"),
+                    np.cos(
+                        np.array(
+                            [
+                                180,
+                                90,
+                                np.arctan(np.sqrt(2)) * 180 / np.pi,
+                                45,
+                                np.arctan(np.sqrt(2) / 2) * 180 / np.pi,
+                                0,
+                            ]
+                        )
+                        * np.pi
+                        / 180
+                    ),
+                    [
+                        0.00044947,
+                        0.00911117,
+                        0.00261005,
+                        0.01304592,
+                        0.00261256,
+                        0.00089893,
+                    ],
+                )
+            ],
             0.0001,
-            id="k3 periodic cubic 2"
+            id="k3 periodic cubic 2",
         ),
         pytest.param(
             Atoms(
@@ -482,15 +534,25 @@ water_periodic.set_pbc(True)
             {"min": -1.1, "max": 1.1, "sigma": 0.01, "n": 2000},
             {"function": "exp", "scale": 1.5, "threshold": 1e-4},
             True,
-            [(
-                ("H", "H", "H"),
-                np.cos(np.array([180, 105, 75, 51.2, 30, 23.8, 0]) * np.pi / 180),
-                [0.00107715, 0.00044707, 0.00098481, 0.00044723, 0.00049224, 0.00044734, 0.00215429]
-            )],
+            [
+                (
+                    ("H", "H", "H"),
+                    np.cos(np.array([180, 105, 75, 51.2, 30, 23.8, 0]) * np.pi / 180),
+                    [
+                        0.00107715,
+                        0.00044707,
+                        0.00098481,
+                        0.00044723,
+                        0.00049224,
+                        0.00044734,
+                        0.00215429,
+                    ],
+                )
+            ],
             0.00001,
-            id="k3 periodic non-cubic"
-        )
-    ]
+            id="k3 periodic non-cubic",
+        ),
+    ],
 )
 def test_peaks(system, geometry, grid, weighting, periodic, peaks, prominence):
     """Tests the correct peak locations and intensities are found.
@@ -525,7 +587,7 @@ def test_peaks(system, geometry, grid, weighting, periodic, peaks, prominence):
     for (location, peak_x, peak_y) in peaks:
         feat = features[desc.get_location(location)]
 
-        # import matplotlib.pyplot as mpl 
+        # import matplotlib.pyplot as mpl
         # mpl.plot(x, feat)
         # mpl.show()
 
@@ -547,7 +609,7 @@ def test_peaks(system, geometry, grid, weighting, periodic, peaks, prominence):
     [
         pytest.param(default_k2, id="K2"),
         pytest.param(default_k3, id="K3"),
-    ]
+    ],
 )
 def test_periodic_translation(setup):
     """Tests that the final spectra does not change when translating atoms
@@ -578,11 +640,7 @@ def test_periodic_translation(setup):
     atoms2.translate([5, 0, 0])
     atoms2.wrap()
 
-    desc = MBTR(
-        species=["H", "C"],
-        **setup,
-        periodic=True
-    )
+    desc = MBTR(species=["H", "C"], **setup, periodic=True)
 
     # The resulting spectra should be identical
     spectra1 = desc.create(atoms)
@@ -596,17 +654,14 @@ def test_periodic_translation(setup):
         pytest.param(default_k1, "l2", 1, id="K1"),
         pytest.param(default_k2, "l2", 1, id="K2"),
         pytest.param(default_k3, "l2", 1, id="K3"),
-    ]
+    ],
 )
 def test_normalization(setup, normalization, norm):
     """Tests that the normalization works correctly."""
     system = water()
     atomic_numbers = [1, 8]
     desc = MBTR(
-        species=atomic_numbers,
-        **setup,
-        flatten=True,
-        normalization=normalization
+        species=atomic_numbers, **setup, flatten=True, normalization=normalization
     )
 
     feat_normalized = desc.create(system)
@@ -621,7 +676,7 @@ def test_normalization(setup, normalization, norm):
                 "geometry": {"function": "atomic_number"},
                 "grid": {"min": 0, "max": 2, "sigma": 0.1, "n": 100},
             },
-            id="K1"
+            id="K1",
         ),
         pytest.param(
             {
@@ -633,7 +688,7 @@ def test_normalization(setup, normalization, norm):
                     "threshold": 1e-3,
                 },
             },
-            id="K2"
+            id="K2",
         ),
         pytest.param(
             {
@@ -643,11 +698,11 @@ def test_normalization(setup, normalization, norm):
                     "function": "exp",
                     "scale": 1,
                     "threshold": 1e-3,
-                }
+                },
             },
-            id="K3"
+            id="K3",
         ),
-    ]
+    ],
 )
 def test_periodic_supercell_similarity(setup):
     """Tests that the output spectrum of various supercells of the same
@@ -670,7 +725,7 @@ def test_periodic_supercell_similarity(setup):
 
     output = desc.create([a1, a2, a3, a4])
 
-    # import matplotlib.pyplot as mpl 
+    # import matplotlib.pyplot as mpl
     # mpl.plot(output[0, :])
     # mpl.plot(output[1, :])
     # mpl.plot(output[2, :])
@@ -691,7 +746,7 @@ def test_periodic_supercell_similarity(setup):
                 "geometry": {"function": "atomic_number"},
                 "grid": {"min": 0, "max": 2, "sigma": 0.1, "n": 21},
             },
-            id="K1"
+            id="K1",
         ),
         pytest.param(
             {
@@ -699,7 +754,7 @@ def test_periodic_supercell_similarity(setup):
                 "grid": {"min": 0, "max": 1.0, "sigma": 0.02, "n": 21},
                 "weighting": {"function": "exp", "scale": 1, "threshold": 1e-4},
             },
-            id="K2"
+            id="K2",
         ),
         pytest.param(
             {
@@ -707,9 +762,9 @@ def test_periodic_supercell_similarity(setup):
                 "grid": {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 21},
                 "weighting": {"function": "exp", "scale": 1, "threshold": 1e-4},
             },
-            id="K3"
+            id="K3",
         ),
-    ]
+    ],
 )
 def test_periodic_images_1(setup):
     """Tests that periodic images are handled correctly."""

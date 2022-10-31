@@ -38,6 +38,7 @@ class MBTR(Descriptor):
     some form of normalization. This implementation does not support the use of
     a non-identity correlation matrix.
     """
+
     def __init__(
         self,
         geometry=None,
@@ -147,7 +148,7 @@ class MBTR(Descriptor):
             normalize_gaussians,
             normalization,
             get_atomic_numbers(species),
-            periodic
+            periodic,
         )
 
     def create(self, system, n_jobs=1, only_physical_cores=False, verbose=False):
@@ -316,8 +317,8 @@ class MBTR(Descriptor):
         if k != self.k:
             species_string = ", ".join([f"'{x}'" for x in species])
             raise ValueError(
-                f"Cannot retrieve the location for ({species_string}), as the used" +
-                f" geometry function does not match the order k={k}."
+                f"Cannot retrieve the location for ({species_string}), as the used"
+                + f" geometry function does not match the order k={k}."
             )
 
         # Change chemical elements into atomic numbers

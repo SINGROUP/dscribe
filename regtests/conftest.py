@@ -331,7 +331,7 @@ def assert_basis(descriptor_func):
     vec2 /= np.linalg.norm(vec2)
     vec3 /= np.linalg.norm(vec3)
 
-    # import matplotlib.pyplot as mpl 
+    # import matplotlib.pyplot as mpl
     # mpl.plot(vec2)
     # mpl.plot(vec3)
     # mpl.show()
