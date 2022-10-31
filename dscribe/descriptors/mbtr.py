@@ -35,51 +35,9 @@ class MBTR(Descriptor):
     You can use this descriptor for finite and periodic systems. When dealing
     with periodic systems or when using machine learning models that use the
     Euclidean norm to measure distance between vectors, it is advisable to use
-    some form of normalization.
-
-    For geometry the following functions are available:
-
-    * "atomic_number": The atomic number.
-    * "distance": Pairwise distance in angstroms.
-    * "inverse_distance": Pairwise inverse distance in 1/angstrom.
-    * "angle": Angle in degrees.
-    * "cosine": Cosine of the angle.
-
-    For weighting the following functions are available:
-
-    * "unity": No weighting.
-    * "exp": Weighting of the form :math:`e^{-sx}`
-    * "inverse_square": Weighting of the form :math:`1/(x^2)`
-    * "smooth_cutoff": Weighting of the form :math:`f_{ij}f_{ik}`,
-        where :math:`f = 1+y(x/r_{cut})^{y+1}-(y+1)(x/r_{cut})^{y}`
-
-    The exponential weighting is motivated by the exponential decay of screened
-    Coulombic interactions in solids. In the exponential weighting the
-    parameters **threshold** determines the value of the weighting function after
-    which the rest of the terms will be ignored. Either the parameter **scale**
-    or **r_cut** can be used to determine the parameter :math:`s`: **scale**
-    directly corresponds to this value whereas **r_cut** can be used to
-    indirectly determine it through :math:`s=-\log()`:. The meaning of
-    :math:`x` changes for different terms as follows:
-
-    * :math:`k=2`: :math:`x` = Distance between A->B
-    * :math:`k=3`: :math:`x` = Distance from A->B->C->A.
-
-    The inverse square and smooth cutoff function weightings use a cutoff
-    parameter **r_cut**, which is a radial distance after which the rest of
-    the atoms will be ignored. For both, :math:`x` means the distance between
-    A->B. For the smooth cutoff function, additional weighting key **sharpness**
-    can be added, which changes the value of :math:`y`. If not, it defaults to `2`.
-
-    In the grid setup *min* is the minimum value of the axis, *max* is the
-    maximum value of the axis, *sigma* is the standard deviation of the
-    gaussian broadening and *n* is the number of points sampled on the
-    grid.
-
-    This implementation does not support the use of a non-identity correlation
-    matrix.
+    some form of normalization. This implementation does not support the use of
+    a non-identity correlation matrix.
     """
-
     def __init__(
         self,
         geometry=None,
@@ -99,13 +57,56 @@ class MBTR(Descriptor):
 
                 "geometry": {"function": "atomic_number"}
 
+                The following geometry functions are available:
+
+                * "atomic_number": The atomic number.
+                * "distance": Pairwise distance in angstroms.
+                * "inverse_distance": Pairwise inverse distance in 1/angstrom.
+                * "angle": Angle in degrees.
+                * "cosine": Cosine of the angle.
+
             grid (dict): Setup the discretization grid. For example::
 
                 "grid": {"min": 0.1, "max": 2, "sigma": 0.1, "n": 50}
 
-            weighting (dict): Setup the weighting function. For example::
+                In the grid setup *min* is the minimum value of the axis, *max*
+                is the maximum value of the axis, *sigma* is the standard
+                deviation of the gaussian broadening and *n* is the number of
+                points sampled on the grid.
+
+            weighting (dict): Setup the weighting function and its parameters.
+                For example::
 
                 "weighting" : {"function": "exp", "r_cut": 10, "threshold": 1e-3}
+
+                The following weighting functions are available:
+
+                * "unity": No weighting.
+                * "exp": Weighting of the form :math:`e^{-sx}`
+                * "inverse_square": Weighting of the form :math:`1/(x^2)`
+                * "smooth_cutoff": Weighting of the form :math:`f_{ij}f_{ik}`,
+                    where :math:`f = 1+y(x/r_{cut})^{y+1}-(y+1)(x/r_{cut})^{y}`
+
+                The meaning of :math:`x` changes for different terms as follows:
+
+                * For :math:`k=2`: :math:`x` = Distance between A->B
+                * For :math:`k=3`: :math:`x` = Distance from A->B->C->A.
+
+                The exponential weighting is motivated by the exponential decay
+                of screened Coulombic interactions in solids. In the exponential
+                weighting the parameters **threshold** determines the value of
+                the weighting function after which the rest of the terms will be
+                ignored. Either the parameter **scale** or **r_cut** can be used
+                to determine the parameter :math:`s`: **scale** directly
+                corresponds to this value whereas **r_cut** can be used to
+                indirectly determine it through :math:`s=-\log()`:.
+
+                The inverse square and smooth cutoff function weightings use a
+                cutoff parameter **r_cut**, which is a radial distance after
+                which the rest of the atoms will be ignored. For the smooth
+                cutoff function, additional weighting key **sharpness** can be
+                added, which changes the value of :math:`y`. If a value for it
+                is not provided, it defaults to `2`.
 
             normalize_gaussians (bool): Determines whether the gaussians are
                 normalized to an area of 1. Defaults to True. If False, the
