@@ -22,7 +22,19 @@ limitations under the License.
 
 using namespace std;
 
-void DescriptorGlobal::create(py::array_t<double> out, System system)
+void DescriptorGlobal::create(py::array_t<double> out, 
+    py::array_t<double> positions,
+    py::array_t<int> atomic_numbers,
+    py::array_t<double> cell,
+    py::array_t<bool> pbc,
+    bool extra
+) {
+    auto pbc_u = pbc.unchecked<1>();
+    System system = System(positions, atomic_numbers, cell, pbc, extra);
+    this->create(out, system);
+}
+
+void DescriptorGlobal::create(py::array_t<double> out, System &system)
 {
     // Extend system if periodicity is requested and cutoff is not set to
     // infinity (a special value reserved for finite systems).

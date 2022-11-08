@@ -27,7 +27,7 @@ CoulombMatrix::CoulombMatrix(
     double sigma,
     int seed
 )
-    : DescriptorGlobal(false)
+    : DescriptorGlobal(false, "", 0)
     , n_atoms_max(n_atoms_max)
     , permutation(permutation)
     , sigma(sigma)

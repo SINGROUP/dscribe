@@ -35,7 +35,7 @@ PYBIND11_MODULE(ext, m) {
     // CoulombMatrix
     py::class_<CoulombMatrix>(m, "CoulombMatrix")
         .def(py::init<unsigned int, string, double, int>())
-        .def("create", overload_cast_<py::array_t<double>, System>()(&DescriptorGlobal::create))
+        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>,  py::array_t<bool>, bool>()(&DescriptorGlobal::create))
         .def("derivatives_numerical", &CoulombMatrix::derivatives_numerical)
         .def(py::pickle(
             [](const CoulombMatrix &p) {
@@ -108,7 +108,7 @@ PYBIND11_MODULE(ext, m) {
     // MBTR
     py::class_<MBTR>(m, "MBTR")
         .def(py::init<py::dict, py::dict, py::dict, bool, string, py::array_t<int>, bool>())
-        .def("create", overload_cast_<py::array_t<double>, System>()(&DescriptorGlobal::create))
+        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<bool>, bool>()(&DescriptorGlobal::create))
         .def("get_number_of_features", &MBTR::get_number_of_features)
         .def("get_location", overload_cast_<int>()(&MBTR::get_location))
         .def("get_location", overload_cast_<int, int>()(&MBTR::get_location))

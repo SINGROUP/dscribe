@@ -28,8 +28,10 @@ CellList::CellList(py::array_t<double> positions, double cutoff)
     , cutoff(cutoff)
     , cutoff_squared(cutoff*cutoff)
 {
+    // Don't calculate distances if cutoff is zero
+    if (cutoff == 0) {
     // For "infinite" cutoff we simply initialize a pairwise distance matrix.
-    if (cutoff == numeric_limits<double>::infinity()) {
+    } else if (cutoff == numeric_limits<double>::infinity()) {
         this->init_distances();
     // For finite cutoff we initialize a cell list.
     } else {

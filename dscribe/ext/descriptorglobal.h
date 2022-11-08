@@ -36,16 +36,32 @@ class DescriptorGlobal : public Descriptor {
 
     public:
         /**
-        * Calculates the feature vector for a periodic system with no
-        * precalculated cell list.
+        * This overloaded version is used for transferring the data from python
+        * to C++.
         *
         * @param out Numpy output array for the descriptor.
         * @param positions Atomic positions as [n_atoms, 3] numpy array.
         * @param atomic_numbers Atomic numbers as [n_atoms] numpy array.
         * @param cell Simulation cell as [3, 3] numpy array.
         * @param pbc Simulation cell periodicity as [3] numpy array.
+        * @param extra Whether to calculate and track extra information about the system.
         */
-        void create(py::array_t<double> out, System system); 
+        void create(py::array_t<double> out, 
+            py::array_t<double> positions,
+            py::array_t<int> atomic_numbers,
+            py::array_t<double> cell,
+            py::array_t<bool> pbc,
+            bool extra
+        );
+
+        /**
+        * Calculates the feature vector for a periodic system with no
+        * precalculated cell list.
+        *
+        * @param out Numpy output array for the descriptor.
+        * @param system The system.
+        */
+        void create(py::array_t<double> out, System &system); 
 
         /**
         * Calculates the feature vector for a finite system with a

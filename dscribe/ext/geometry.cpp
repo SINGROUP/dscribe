@@ -38,13 +38,16 @@ System::System(
     py::array_t<double> positions,
     py::array_t<int> atomic_numbers,
     py::array_t<double> cell,
-    py::array_t<bool> pbc
+    py::array_t<bool> pbc,
+    bool extra
 )
     : positions(positions)
     , atomic_numbers(atomic_numbers)
     , cell(cell)
     , pbc(pbc)
 {
+    if (!extra) { return; }
+
     // Create the default set of interactive atoms, which encompasses the whole
     // system
     unordered_set<int> interactive_atoms = unordered_set<int>();

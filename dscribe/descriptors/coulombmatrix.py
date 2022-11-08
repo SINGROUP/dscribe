@@ -133,13 +133,14 @@ class CoulombMatrix(DescriptorMatrix):
         out_des = np.zeros((self.get_number_of_features()), dtype=np.float64)
 
         # Calculate with C++ extension
-        system_cpp = dscribe.ext.System(
+        self.wrapper.create(
+            out_des,
             system.get_positions(),
             system.get_atomic_numbers(),
             system.get_cell(),
             system.get_pbc(),
+            False
         )
-        self.wrapper.create(out_des, system_cpp)
 
         # If a sparse matrix is requested, convert to sparse.COO
         if self._sparse:
