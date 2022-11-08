@@ -20,14 +20,13 @@ import sparse
 from ase import Atoms
 import ase.data
 
-from dscribe.core import System
-from dscribe.descriptors import Descriptor
+from dscribe.descriptors.descriptorglobal import DescriptorGlobal
 import dscribe.utils.geometry
 from dscribe.utils.species import get_atomic_numbers
 import dscribe.ext
 
 
-class MBTR(Descriptor):
+class MBTR(DescriptorGlobal):
     """Implementation of the Many-body tensor representation.
 
     You can use this descriptor for finite and periodic systems. When dealing
@@ -346,3 +345,13 @@ class MBTR(Descriptor):
             end = loc[1]
 
         return slice(start, end)
+
+    def get_derivatives_method(self, method):
+        methods = {"numerical", "auto"}
+        if method not in methods:
+            raise ValueError(
+                "Invalid method specified. Please choose from: {}".format(methods)
+            )
+        if method == "auto":
+            method = "numerical"
+        return method

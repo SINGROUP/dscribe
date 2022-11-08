@@ -1,11 +1,14 @@
-import time
 import itertools
 import math
 import copy
+
 import pytest
 import numpy as np
-from numpy.random import RandomState
-from scipy.signal import find_peaks_cwt, find_peaks
+from scipy.signal import find_peaks
+from ase import Atoms, geometry
+from ase.build import molecule, bulk
+from dscribe.descriptors import MBTR
+
 from conftest import (
     assert_basis,
     assert_no_system_modification,
@@ -16,11 +19,6 @@ from conftest import (
     assert_systems,
     water,
 )
-from ase import Atoms, geometry
-from ase.build import molecule, bulk
-from dscribe.descriptors import MBTR
-import dscribe.ext
-
 
 # =============================================================================
 # Utilities
@@ -127,8 +125,8 @@ def test_symmetries():
     assert_symmetries(mbtr(), True, True, True)
 
 
-# def test_derivatives():
-#     assert_derivatives(mbtr(), 'numerical')
+def test_derivatives():
+    assert_derivatives(mbtr(), 'numerical')
 
 
 # =============================================================================

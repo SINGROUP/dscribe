@@ -26,7 +26,7 @@ import ase.data
 
 import sparse as sp
 
-from dscribe.descriptors import Descriptor
+from dscribe.descriptors.descriptor import Descriptor
 from dscribe.core import System
 from dscribe.utils.dimensionality import is1d
 import dscribe.ext

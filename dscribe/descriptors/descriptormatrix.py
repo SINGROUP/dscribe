@@ -15,16 +15,13 @@ limitations under the License.
 """
 import numpy as np
 from numpy.random import RandomState
-
 import sparse
 
-from dscribe.descriptors import Descriptor
-from abc import abstractmethod
+from dscribe.descriptors.descriptorglobal import DescriptorGlobal
 
 
-class MatrixDescriptor(Descriptor):
-    """A common base class for two-body matrix-like descriptors."""
-
+class DescriptorMatrix(DescriptorGlobal):
+    """A common base class for two-body matrix-like global descriptors."""
     def __init__(
         self,
         n_atoms_max,

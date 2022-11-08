@@ -16,20 +16,15 @@ limitations under the License.
 from abc import ABC, abstractmethod
 
 import numpy as np
-
 import sparse as sp
-
-from ase import Atoms
-from dscribe.core.system import System
-from dscribe.utils.species import get_atomic_numbers
-
 import joblib
 from joblib import Parallel, delayed
+
+from dscribe.utils.species import get_atomic_numbers
 
 
 class Descriptor(ABC):
     """An abstract base class for all descriptors."""
-
     def __init__(self, periodic, flatten, sparse, dtype="float64"):
         """
         Args:
@@ -64,6 +59,19 @@ class Descriptor(ABC):
 
         Returns:
             int: Number of features for this descriptor.
+        """
+
+    def get_derivatives_method(self, method):
+        """Returns the final method to use for calculating the derivatives
+
+        Args:
+            method (str): The requested method.
+
+        Returns:
+            int: Number of features for this descriptor.
+
+        Raises:
+            ValueError if no method can be found
         """
 
     @property
@@ -579,3 +587,4 @@ class Descriptor(ABC):
             return (derivatives, descriptors)
 
         return derivatives
+

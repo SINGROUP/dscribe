@@ -14,6 +14,7 @@ from conftest import (
     assert_symmetries,
     assert_derivatives,
     big_system,
+    water,
 )
 from dscribe.descriptors import CoulombMatrix
 
@@ -191,14 +192,15 @@ def test_number_of_features(permutation, n_features):
         ("sorted_l2"),
     ],
 )
-def test_features(permutation, H2O):
+def test_features(permutation):
+    system = water()
     n_atoms_max = 5
     desc = CoulombMatrix(
         n_atoms_max=n_atoms_max, permutation=permutation, flatten=False
     )
     n_features = desc.get_number_of_features()
-    cm = desc.create(H2O)
-    cm_assumed = cm_python(H2O, n_atoms_max, permutation, False)
+    cm = desc.create(system)
+    cm_assumed = cm_python(system, n_atoms_max, permutation, False)
     assert np.allclose(cm, cm_assumed)
 
 
@@ -213,36 +215,36 @@ def test_periodicity(bulk_system):
     assert cm[0, 1] == assumed
 
 
-@pytest.mark.parametrize(
-    "permutation",
-    [
-        "none",
-        "eigenspectrum",
-        "sorted_l2",
-        "random",
-    ],
-)
-def test_performance(permutation):
-    """Tests that the C++ code performs better than the numpy version."""
-    n_iter = 10
-    system = big_system()
-    times = []
-    start = time
-    n_atoms_max = len(system)
-    descriptor = coulomb_matrix(permutation=permutation)([system])
+# @pytest.mark.parametrize(
+#     "permutation",
+#     [
+#         "none",
+#         "eigenspectrum",
+#         "sorted_l2",
+#         "random",
+#     ],
+# )
+# def test_performance(permutation):
+#     """Tests that the C++ code performs better than the numpy version."""
+#     n_iter = 10
+#     system = big_system()
+#     times = []
+#     start = time
+#     n_atoms_max = len(system)
+#     descriptor = coulomb_matrix(permutation=permutation)([system])
 
-    # Measure C++ time
-    start = time.time()
-    for i in range(n_iter):
-        descriptor.create(system)
-    end = time.time()
-    elapsed_cpp = end - start
+#     # Measure C++ time
+#     start = time.time()
+#     for i in range(n_iter):
+#         descriptor.create(system)
+#     end = time.time()
+#     elapsed_cpp = end - start
 
-    # Measure Python time
-    start = time.time()
-    for i in range(n_iter):
-        cm_python(system, n_atoms_max, permutation, True)
-    end = time.time()
-    elapsed_python = end - start
+#     # Measure Python time
+#     start = time.time()
+#     for i in range(n_iter):
+#         cm_python(system, n_atoms_max, permutation, True)
+#     end = time.time()
+#     elapsed_python = end - start
 
-    assert elapsed_python > elapsed_cpp
+#     assert elapsed_python > elapsed_cpp
