@@ -84,20 +84,37 @@
 <blockquote>
 <div><ul class="simple">
 <li><dl class="simple">
-<dt>1.2.2:</dt><dd><ul>
+<dt>1.2.3:</dt><dd><ul>
 <li><dl class="simple">
-<dt>New features:</dt><dd><ul>
-<li><p>Changed the default naming of some descriptor input parameters. E.g.
-radial cutoffs are now always called <code class="code docutils literal notranslate"><span class="pre">r_cut</span></code> in all descriptors.
-The old names can still be used but the new ones are preferred.</p></li>
+<dt>Added:</dt><dd><ul>
+<li><p>Analytical derivatives for MBTR, thanks to <a class="reference external" href="https://github.com/jarnlaak">jarnlaak</a>.
+Note that not all normalization options and geometry functions are
+supported.</p></li>
+<li><p><a class="reference internal" href="tutorials/visualization/coloring_by_environment.html"><span class="doc">Tutorial</span></a> on
+how to create visualizations by employing a mapping from descriptor
+feature space into colors.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>Fixes:</dt><dd><ul>
-<li><p>Fixed an issue with Coulomb matrix ordering using <code class="code docutils literal notranslate"><span class="pre">sorted_l2</span></code>
+<dt>1.2.2:</dt><dd><ul>
+<li><dl class="simple">
+<dt>Fixed:</dt><dd><ul>
+<li><p>An issue with Coulomb matrix ordering using <code class="code docutils literal notranslate"><span class="pre">sorted_l2</span></code>
 that was introduced in version 1.2.0. See issue <a class="reference external" href="https://github.com/SINGROUP/dscribe/issues/89">#89</a>.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Deprecated:</dt><dd><ul>
+<li><p>The <code class="code docutils literal notranslate"><span class="pre">rcut</span></code>, <code class="code docutils literal notranslate"><span class="pre">nmax</span></code>, and <code class="code docutils literal notranslate"><span class="pre">lmax</span></code> options for <code class="code docutils literal notranslate"><span class="pre">SOAP</span></code>, use <code class="code docutils literal notranslate"><span class="pre">r_cut</span></code>, <code class="code docutils literal notranslate"><span class="pre">n_max</span></code> and <code class="code docutils literal notranslate"><span class="pre">l_max</span></code> instead.</p></li>
+<li><p>The <code class="code docutils literal notranslate"><span class="pre">rcut</span></code> and <code class="code docutils literal notranslate"><span class="pre">gcut</span></code> options for <code class="code docutils literal notranslate"><span class="pre">EwaldSumMatrix</span></code>, use <code class="code docutils literal notranslate"><span class="pre">r_cut</span></code> and <code class="code docutils literal notranslate"><span class="pre">g_max</span></code> instead.</p></li>
 </ul>
 </dd>
 </dl>
@@ -109,10 +126,10 @@ that was introduced in version 1.2.0. See issue <a class="reference external" hr
 <li><dl class="simple">
 <dt>1.2.0:</dt><dd><ul>
 <li><dl class="simple">
-<dt>New features:</dt><dd><ul>
-<li><p>Added the <a class="reference internal" href="tutorials/descriptors/valleoganov.html"><span class="doc">Valle-Oganov descriptor</span></a></p></li>
-<li><p>Added numerical derivatives for the Coulomb matrix</p></li>
-<li><p>Added a tensorflow implementation of <a class="reference internal" href="tutorials/machine_learning/forces_and_energies.html"><span class="doc">the force-field training
+<dt>Added:</dt><dd><ul>
+<li><p><a class="reference internal" href="tutorials/descriptors/valleoganov.html"><span class="doc">Valle-Oganov descriptor</span></a></p></li>
+<li><p>Numerical derivatives for the Coulomb matrix</p></li>
+<li><p>Tensorflow implementation of <a class="reference internal" href="tutorials/machine_learning/forces_and_energies.html"><span class="doc">the force-field training
 tutorial</span></a>, courtesy
 of <a class="reference external" href="https://github.com/xScoschx">xScoschx</a></p></li>
 </ul>
@@ -120,8 +137,8 @@ of <a class="reference external" href="https://github.com/xScoschx">xScoschx</a>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>Fixes:</dt><dd><ul>
-<li><p>Fixed a memory leak with the SOAP descriptor. See issue <a class="reference external" href="https://github.com/SINGROUP/dscribe/issues/69">#69</a>.</p></li>
+<dt>Fixed:</dt><dd><ul>
+<li><p>Memory leak with the SOAP descriptor. See issue <a class="reference external" href="https://github.com/SINGROUP/dscribe/issues/69">#69</a>.</p></li>
 <li><p>Increased the numerical precision used for ACSF. See issue <a class="reference external" href="https://github.com/SINGROUP/dscribe/issues/70">#70</a>.</p></li>
 </ul>
 </dd>
@@ -134,11 +151,11 @@ of <a class="reference external" href="https://github.com/xScoschx">xScoschx</a>
 <li><dl class="simple">
 <dt>1.1.0:</dt><dd><ul>
 <li><dl class="simple">
-<dt>New features:</dt><dd><ul>
-<li><p>Added support for lmax &lt;= 20 for the SOAP GTO basis.</p></li>
-<li><p>Added support for weighting the gaussians contributing to the atomic
+<dt>Added:</dt><dd><ul>
+<li><p>Support for lmax &lt;= 20 for the SOAP GTO basis.</p></li>
+<li><p>Support for weighting the gaussians contributing to the atomic
 density. For more details see <a class="reference internal" href="tutorials/descriptors/soap.html"><span class="doc">the updated SOAP tutorial</span></a> (and issues <a class="reference external" href="https://github.com/SINGROUP/dscribe/issues/20">#20</a>, <a class="reference external" href="https://github.com/SINGROUP/dscribe/issues/58">#58</a>).</p></li>
-<li><p>Added <code class="code docutils literal notranslate"><span class="pre">attach</span></code>-argument for the <code class="code docutils literal notranslate"><span class="pre">derivatives</span></code>-function (see issue <a class="reference external" href="https://github.com/SINGROUP/dscribe/issues/63">#63</a>).</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">attach</span></code>-argument for the <code class="code docutils literal notranslate"><span class="pre">derivatives</span></code>-function (see issue <a class="reference external" href="https://github.com/SINGROUP/dscribe/issues/63">#63</a>).</p></li>
 </ul>
 </dd>
 </dl>
@@ -150,8 +167,8 @@ density. For more details see <a class="reference internal" href="tutorials/desc
 <li><dl class="simple">
 <dt>1.0.0:</dt><dd><ul>
 <li><dl class="simple">
-<dt>New features:</dt><dd><ul>
-<li><p>Added possibility to calculate the derivatives of the SOAP descriptor
+<dt>Added:</dt><dd><ul>
+<li><p>Possibility to calculate the derivatives of the SOAP descriptor
 with respect to atom positions. For now, only non-periodic structures
 are supported. Supports numerical derivatives for any SOAP
 configuration, and analytical derivatives when using the GTO radial
@@ -161,7 +178,7 @@ basis.</p></li>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>Breaking changes:</dt><dd><ul>
+<dt>Changed:</dt><dd><ul>
 <li><p>The <code class="code docutils literal notranslate"><span class="pre">periodic</span></code> attribute now instructs the code to take into account
 the periodicity of the system as defined by the <code class="code docutils literal notranslate"><span class="pre">pbc</span></code>-attribute
 the <code class="code docutils literal notranslate"><span class="pre">ase.Atoms</span></code>. So in addition to setting
@@ -190,22 +207,22 @@ otherwise the output becomes a list of four-dimensional arrays.</p></li>
 <li><dl class="simple">
 <dt>0.4.0:</dt><dd><ul>
 <li><dl class="simple">
-<dt>Fixes:</dt><dd><ul>
-<li><p>Fixed an issue with the layout of the SOAP descriptor. The output
+<dt>Added:</dt><dd><ul>
+<li><p>Support for different averaging modes in SOAP. See issue <a class="reference external" href="https://github.com/SINGROUP/dscribe/issues/44">#44</a>.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Fixed:</dt><dd><ul>
+<li><p>An issue with the layout of the SOAP descriptor. The output
 size was incorrectly missing elements. See issue <a class="reference external" href="https://github.com/SINGROUP/dscribe/issues/48">#48</a>.</p></li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>New features:</dt><dd><ul>
-<li><p>Added support for different averaging modes in SOAP. See issue <a class="reference external" href="https://github.com/SINGROUP/dscribe/issues/44">#44</a>.</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>Other:</dt><dd><ul>
+<dt>Changed:</dt><dd><ul>
 <li><p>Migrated completely from Cython to pybind11.</p></li>
 </ul>
 </dd>
@@ -218,8 +235,8 @@ size was incorrectly missing elements. See issue <a class="reference external" h
 <li><dl class="simple">
 <dt>0.3.5:</dt><dd><ul>
 <li><dl class="simple">
-<dt>New features:</dt><dd><ul>
-<li><p>Added support for Python 3.8. See issue <a class="reference external" href="https://github.com/SINGROUP/dscribe/issues/40">#40</a>.</p></li>
+<dt>Added:</dt><dd><ul>
+<li><p>Support for Python 3.8. See issue <a class="reference external" href="https://github.com/SINGROUP/dscribe/issues/40">#40</a>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -231,7 +248,7 @@ size was incorrectly missing elements. See issue <a class="reference external" h
 <li><dl class="simple">
 <dt>0.3.2:</dt><dd><ul>
 <li><dl class="simple">
-<dt>Improvements:</dt><dd><ul>
+<dt>Changed:</dt><dd><ul>
 <li><p>Improved performance for SOAP in combination with very large systems. See issue <a class="reference external" href="https://github.com/SINGROUP/dscribe/issues/31">#31</a>.</p></li>
 </ul>
 </dd>
@@ -244,8 +261,8 @@ size was incorrectly missing elements. See issue <a class="reference external" h
 <li><dl class="simple">
 <dt>0.2.8:</dt><dd><ul>
 <li><dl class="simple">
-<dt>Other:</dt><dd><ul>
-<li><p>Removed support for Python 2.</p></li>
+<dt>Removed:</dt><dd><ul>
+<li><p>Support for Python 2.</p></li>
 </ul>
 </dd>
 </dl>
