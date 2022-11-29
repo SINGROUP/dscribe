@@ -20,6 +20,7 @@ from dscribe.utils.dimensionality import is1d
 
 class DescriptorGlobal(Descriptor):
     """An abstract base class for all global descriptors."""
+
     def derivatives(
         self,
         system,
