@@ -165,7 +165,7 @@ def test_symmetries(permutation_option, translation, rotation, permutation):
     ],
 )
 def test_derivatives(permutation, method):
-    assert_derivatives(coulomb_matrix(permutation=permutation), method)
+    assert_derivatives(coulomb_matrix(permutation=permutation), method, False)
 
 
 # =============================================================================

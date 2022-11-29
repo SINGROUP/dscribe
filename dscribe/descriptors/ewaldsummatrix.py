@@ -21,12 +21,11 @@ from ase import Atoms
 
 from scipy.special import erfc
 
-from dscribe.core import System
-from dscribe.descriptors.matrixdescriptor import MatrixDescriptor
+from dscribe.descriptors.descriptormatrix import DescriptorMatrix
 from dscribe.core.lattice import Lattice
 
 
-class EwaldSumMatrix(MatrixDescriptor):
+class EwaldSumMatrix(DescriptorMatrix):
     """
     Calculates an Ewald sum matrix for the a given system.
 

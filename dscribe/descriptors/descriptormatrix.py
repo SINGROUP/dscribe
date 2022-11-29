@@ -18,11 +18,10 @@ from numpy.random import RandomState
 
 import sparse
 
-from dscribe.descriptors import Descriptor
-from abc import abstractmethod
+from dscribe.descriptors.descriptorglobal import DescriptorGlobal
 
 
-class MatrixDescriptor(Descriptor):
+class DescriptorMatrix(DescriptorGlobal):
     """A common base class for two-body matrix-like descriptors."""
 
     def __init__(
@@ -168,8 +167,10 @@ class MatrixDescriptor(Descriptor):
         Returns:
             np.ndarray: A list of eigenvalues sorted by absolute value.
         """
-        # Calculate eigenvalues
+        # Calculate eigenvalues. Due to numerical instability there maybe very
+        # small imaginary parts that are ignored.
         eigenvalues, _ = np.linalg.eig(matrix)
+        eigenvalues = eigenvalues.real
 
         # Remove sign
         abs_values = np.absolute(eigenvalues)

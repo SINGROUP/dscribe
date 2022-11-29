@@ -66,6 +66,18 @@ class Descriptor(ABC):
             int: Number of features for this descriptor.
         """
 
+    def get_derivatives_method(self, method):
+        """Used to determine the final method for calculating the derivatives.
+        """
+        methods = {"numerical", "auto"}
+        if method not in methods:
+            raise ValueError(
+                "Invalid method specified. Please choose from: {}".format(methods)
+            )
+        if method == "auto":
+            method = "numerical"
+        return method
+
     @property
     def sparse(self):
         return self._sparse

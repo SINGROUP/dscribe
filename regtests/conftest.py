@@ -150,16 +150,21 @@ def assert_symmetry_permutation(descriptor_func):
     assert is_perm_sym
 
 
-def assert_derivatives(descriptor_func, method):
-    assert_derivatives_include(descriptor_func, method)
-    assert_derivatives_exclude(descriptor_func, method)
+def assert_derivatives(descriptor_func, method, pbc):
+    assert_derivatives_include(descriptor_func, method, pbc)
+    assert_derivatives_exclude(descriptor_func, method, pbc)
     if method == "numerical":
-        assert_derivatives_numerical(descriptor_func)
+        assert_derivatives_numerical(descriptor_func, pbc)
 
 
-def assert_derivatives_include(descriptor_func, method):
+def assert_derivatives_include(descriptor_func, method, pbc):
     H2O = molecule("H2O")
     CO2 = molecule("CO2")
+    H2O.set_pbc(pbc)
+    CO2.set_pbc(pbc)
+    if (pbc):
+        H2O.set_cell([5, 5, 5])
+        CO2.set_cell([5, 5, 5])
     descriptor = descriptor_func([H2O, CO2])
 
     # Invalid include options
@@ -189,9 +194,14 @@ def assert_derivatives_include(descriptor_func, method):
     assert np.array_equal(D1[1, 0, :], D2[1, 1, :])
 
 
-def assert_derivatives_exclude(descriptor_func, method):
+def assert_derivatives_exclude(descriptor_func, method, pbc):
     H2O = molecule("H2O")
     CO2 = molecule("CO2")
+    H2O.set_pbc(pbc)
+    CO2.set_pbc(pbc)
+    if (pbc):
+        H2O.set_cell([5, 5, 5])
+        CO2.set_cell([5, 5, 5])
     descriptor = descriptor_func([H2O, CO2])
 
     # Invalid exclude options
@@ -213,11 +223,12 @@ def assert_derivatives_exclude(descriptor_func, method):
     assert np.array_equal(D1[:, 1, :], D2[:, 2, :])
 
 
-def assert_derivatives_numerical(descriptor_func):
+def assert_derivatives_numerical(descriptor_func, pbc):
     """Test numerical values against a naive python implementation."""
     # Elaborate test system with multiple species, non-cubic cell, and close-by
     # atoms.
     system = big_system()
+    system.set_pbc(pbc)
     h = 0.0001
     n_atoms = len(system)
     n_comp = 3

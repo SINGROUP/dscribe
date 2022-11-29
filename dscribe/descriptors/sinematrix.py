@@ -18,10 +18,10 @@ import numpy as np
 from ase import Atoms
 
 from dscribe.core import System
-from dscribe.descriptors.matrixdescriptor import MatrixDescriptor
+from dscribe.descriptors.descriptormatrix import DescriptorMatrix
 
 
-class SineMatrix(MatrixDescriptor):
+class SineMatrix(DescriptorMatrix):
     """Calculates the zero padded Sine matrix for different systems.
 
     The Sine matrix is defined as:
