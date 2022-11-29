@@ -13,24 +13,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-import math
 import unittest
-import itertools
-from pprint import pprint as pp
-import numpy as np
 
-import sparse as sp
-import scipy
-import scipy.sparse
-from scipy.integrate import tplquad
-from scipy.linalg import sqrtm
+import numpy as np
+from ase import Atoms
+from ase.build import molecule
 
 from dscribe.descriptors import SOAP
 
-from ase import Atoms
-from ase.build import molecule
-from ase.visualize import view
-from ase.build import bulk
 
 H2 = Atoms(
     cell=[[15.0, 0.0, 0.0], [0.0, 15.0, 0.0], [0.0, 0.0, 15.0]],

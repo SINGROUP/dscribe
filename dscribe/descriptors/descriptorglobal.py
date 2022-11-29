@@ -20,7 +20,6 @@ from dscribe.utils.dimensionality import is1d
 
 class DescriptorGlobal(Descriptor):
     """An abstract base class for all global descriptors."""
-
     def derivatives(
         self,
         system,
@@ -195,7 +194,7 @@ class DescriptorGlobal(Descriptor):
 
         if method == "numerical":
             self.derivatives_numerical(d, c, system, indices, return_descriptor)
-        if method == "analytical":
+        elif method == "analytical":
             self.derivatives_analytical(d, c, system, indices, return_descriptor)
 
         # Convert to the final output precision.

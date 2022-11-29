@@ -377,21 +377,6 @@ class SOAP(DescriptorLocal):
         else:
             return None
 
-    def init_descriptor_array(self, n_centers, n_features):
-        """Return a zero-initialized numpy array for the descriptor."""
-        if self.average == "inner" or self.average == "outer":
-            c = np.zeros((1, n_features), dtype=np.float64)
-        else:
-            c = np.zeros((n_centers, n_features), dtype=np.float64)
-        return c
-
-    def init_derivatives_array(self, n_centers, n_indices, n_features):
-        """Return a zero-initialized numpy array for the derivatives."""
-        if self.average == "inner" or self.average == "outer":
-            return np.zeros((1, n_indices, 3, n_features), dtype=np.float64)
-        else:
-            return np.zeros((n_centers, n_indices, 3, n_features), dtype=np.float64)
-
     def init_internal_dev_array(self, n_centers, n_atoms, n_types, n, l_max):
         d = np.zeros(
             (n_atoms, n_centers, n_types, n, (l_max + 1) * (l_max + 1)),
@@ -522,8 +507,7 @@ class SOAP(DescriptorLocal):
         n_centers = centers.shape[0]
         pos = system.get_positions()
         Z = system.get_atomic_numbers()
-        n_features = self.get_number_of_features()
-        soap_mat = self.init_descriptor_array(n_centers, n_features)
+        soap_mat = self.init_descriptor_array(n_centers)
 
         # Determine the function to call based on rbf
         if self._rbf == "gto":

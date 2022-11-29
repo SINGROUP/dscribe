@@ -20,6 +20,9 @@ from dscribe.utils.dimensionality import is1d
 
 class DescriptorLocal(Descriptor):
     """An abstract base class for all local descriptors."""
+    def __init__(self, periodic, flatten, sparse, dtype="float64", average="off"):
+        super().__init__(periodic=periodic, flatten=flatten, sparse=sparse, dtype=dtype)
+        self.average = average
 
     def derivatives(
         self,
@@ -206,6 +209,23 @@ class DescriptorLocal(Descriptor):
 
         return output
 
+    def init_descriptor_array(self, n_centers):
+        """Return a zero-initialized numpy array for the descriptor."""
+        n_features = self.get_number_of_features()
+        if self.average != "off":
+            c = np.zeros((1, n_features), dtype=np.float64)
+        else:
+            c = np.zeros((n_centers, n_features), dtype=np.float64)
+        return c
+
+    def init_derivatives_array(self, n_centers, n_indices):
+        """Return a zero-initialized numpy array for the derivatives."""
+        n_features = self.get_number_of_features()
+        if self.average != "off":
+            return np.zeros((1, n_indices, 3, n_features), dtype=np.float64)
+        else:
+            return np.zeros((n_centers, n_indices, 3, n_features), dtype=np.float64)
+
     def derivatives_single(
         self,
         system,
@@ -255,17 +275,17 @@ class DescriptorLocal(Descriptor):
         # Initialize numpy arrays for storing the descriptor and derivatives.
         n_features = self.get_number_of_features()
         if return_descriptor:
-            c = self.init_descriptor_array(n_centers, n_features)
+            c = self.init_descriptor_array(n_centers)
         else:
             c = np.empty(0)
-        d = self.init_derivatives_array(n_centers, n_indices, n_features)
+        d = self.init_derivatives_array(n_centers, n_indices)
 
         # Calculate numerically with extension
         if method == "numerical":
             self.derivatives_numerical(
                 d, c, system, positions, indices, attach, return_descriptor
             )
-        if method == "analytical":
+        elif method == "analytical":
             self.derivatives_analytical(
                 d, c, system, positions, indices, attach, return_descriptor
             )
