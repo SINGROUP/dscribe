@@ -16,21 +16,16 @@ limitations under the License.
 import sys
 
 import numpy as np
-
 import sparse
 from scipy.sparse import coo_matrix
-
-from dscribe.descriptors.descriptor import Descriptor
-from dscribe.core import System
-
 from ase import Atoms
 
+from dscribe.descriptors.descriptorlocal import DescriptorLocal
 from dscribe.ext import ACSFWrapper
-
 import dscribe.utils.geometry
 
 
-class ACSF(Descriptor):
+class ACSF(DescriptorLocal):
     """Implementation of Atom-Centered Symmetry Functions.
 
     Notice that the species of the central atom is not encoded in the output,
@@ -53,6 +48,7 @@ class ACSF(Descriptor):
         species=None,
         periodic=False,
         sparse=False,
+        dtype="float64",
     ):
         """
         Args:
@@ -80,7 +76,7 @@ class ACSF(Descriptor):
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
         """
-        super().__init__(periodic=periodic, flatten=True, sparse=sparse)
+        super().__init__(periodic=periodic, flatten=True, sparse=sparse, dtype=dtype)
 
         self.acsf_wrapper = ACSFWrapper()
 

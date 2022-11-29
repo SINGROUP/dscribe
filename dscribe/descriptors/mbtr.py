@@ -23,12 +23,12 @@ from ase import Atoms
 import ase.data
 
 from dscribe.core import System
-from dscribe.descriptors import Descriptor
+from dscribe.descriptors.descriptorglobal import DescriptorGlobal
 from dscribe.ext import MBTRWrapper
 import dscribe.utils.geometry
 
 
-class MBTR(Descriptor):
+class MBTR(DescriptorGlobal):
     """Implementation of the Many-body tensor representation up to :math:`k=3`.
 
     You can choose which terms to include by providing a dictionary in the
@@ -126,6 +126,7 @@ class MBTR(Descriptor):
         species=None,
         periodic=False,
         sparse=False,
+        dtype="float64",
     ):
         """
         Args:
@@ -188,6 +189,10 @@ class MBTR(Descriptor):
                 pbc-parameter in the constructor of ase.Atoms).
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
+            dtype (str): The data type of the output. Valid options are:
+
+                    * ``"float32"``: Single precision floating point numbers.
+                    * ``"float64"``: Double precision floating point numbers.
         """
         if sparse and not flatten:
             raise ValueError(
@@ -195,7 +200,7 @@ class MBTR(Descriptor):
                 "you want a non-flattened output, please specify sparse=False "
                 "in the MBTR constructor."
             )
-        super().__init__(periodic=periodic, flatten=flatten, sparse=sparse)
+        super().__init__(periodic=periodic, flatten=flatten, sparse=sparse, dtype=dtype)
         self.system = None
         self.k1 = k1
         self.k2 = k2

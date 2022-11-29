@@ -13,7 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from dscribe.descriptors.descriptor import Descriptor
 from dscribe.descriptors.acsf import ACSF
 from dscribe.descriptors.mbtr import MBTR
 from dscribe.descriptors.valleoganov import ValleOganov
@@ -21,5 +20,4 @@ from dscribe.descriptors.lmbtr import LMBTR
 from dscribe.descriptors.ewaldsummatrix import EwaldSumMatrix
 from dscribe.descriptors.coulombmatrix import CoulombMatrix
 from dscribe.descriptors.sinematrix import SineMatrix
-from dscribe.descriptors.descriptormatrix import DescriptorMatrix
 from dscribe.descriptors.soap import SOAP

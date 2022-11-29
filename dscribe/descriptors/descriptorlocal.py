@@ -18,23 +18,34 @@ from dscribe.descriptors.descriptor import Descriptor
 from dscribe.utils.dimensionality import is1d
 
 
-class DescriptorGlobal(Descriptor):
-    """An abstract base class for all global descriptors."""
+class DescriptorLocal(Descriptor):
+    """An abstract base class for all local descriptors."""
+
     def derivatives(
         self,
         system,
+        positions=None,
         include=None,
         exclude=None,
         method="auto",
         return_descriptor=True,
+        attach=False,
         n_jobs=1,
         only_physical_cores=False,
         verbose=False,
     ):
-        """Return the descriptor derivatives for the given system(s).
+        """Return the descriptor derivatives for the given systems and given positions.
+
         Args:
             system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or
                 many atomic structures.
+            positions (list): Positions where to calculate the descriptor. Can be
+                provided as cartesian positions or atomic indices. Also see the
+                "attach"-argument that controls the interperation of locations
+                given as atomic indices. If no positions are defined, the
+                descriptor output will be created for all atoms in the system.
+                When calculating descriptor for multiple systems, provide the
+                positions as a list for each system.
             include (list): Indices of atoms to compute the derivatives on.
                 When calculating descriptor for multiple systems, provide
                 either a one-dimensional list that if applied to all systems or
@@ -45,9 +56,16 @@ class DescriptorGlobal(Descriptor):
                 either a one-dimensional list that if applied to all systems or
                 a two-dimensional list of indices. Cannot be provided together
                 with 'include'.
-            method (str): The method for calculating the derivatives. Supports
-                'numerical' and 'auto'. Defaults to using 'auto' which corresponds
-                to the the most efficient available method.
+            method (str): The method for calculating the derivatives. Provide
+                either 'numerical', 'analytical' or 'auto'. If using 'auto',
+                the most efficient available method is automatically chosen.
+            attach (bool): Controls the behaviour of positions defined as
+                atomic indices. If True, the positions tied to an atomic index will
+                move together with the atoms with respect to which the derivatives
+                are calculated against. If False, positions defined as atomic
+                indices will be converted into cartesian locations that are
+                completely independent of the atom location during derivative
+                calculation.
             return_descriptor (bool): Whether to also calculate the descriptor
                 in the same function call. Notice that it typically is faster
                 to calculate both in one go.
@@ -63,27 +81,45 @@ class DescriptorGlobal(Descriptor):
                 are counted.  If set to True, only physical CPUs are counted.
             verbose(bool): Controls whether to print the progress of each job
                 into to the console.
+
         Returns:
             If return_descriptor is True, returns a tuple, where the first item
             is the derivative array and the second is the descriptor array.
             Otherwise only returns the derivatives array. The derivatives array
-            is a either a 3D or 4D array, depending on whether you have
+            is a either a 4D or 5D array, depending on whether you have
             provided a single or multiple systems. If the output shape for each
             system is the same, a single monolithic numpy array is returned.
-            For variable sized output (e.g. differently sized systems,different
-            number of included atoms), a regular python list is returned. The
-            dimensions are: [(n_systems,) n_atoms, 3, n_features]. The first
+            For variable sized output (e.g. differently sized systems,
+            different number of centers or different number of included atoms),
+            a regular python list is returned. The dimensions are:
+            [(n_systems,) n_positions, n_atoms, 3, n_features]. The first
             dimension goes over the different systems in case multiple were
-            given. The second dimension goes over the included atoms. The order
-            is same as the order of atoms in the given system. The third
-            dimension goes over the cartesian components, x, y and z. The
-            fourth dimension goes over the features in the default order.
+            given. The second dimension goes over the descriptor centers in
+            the same order as they were given in the argument. The third
+            dimension goes over the included atoms. The order is same as the
+            order of atoms in the given system. The fourth dimension goes over
+            the cartesian components, x, y and z. The fifth dimension goes over
+            the features in the default order.
         """
-        method = self.get_derivatives_method(method)
+        method = self.get_derivatives_method(method, attach)
+
+        # If single system given, skip the parallelization
+        if isinstance(system, Atoms):
+            n_atoms = len(system)
+            indices = self._get_indices(n_atoms, include, exclude)
+            return self.derivatives_single(
+                system,
+                positions,
+                indices,
+                method=method,
+                attach=attach,
+                return_descriptor=return_descriptor,
+            )
 
         # Check input validity
-        system = [system] if isinstance(system, Atoms) else system
         n_samples = len(system)
+        if positions is None:
+            positions = [None] * n_samples
         if include is None:
             include = [None] * n_samples
         elif is1d(include, np.integer):
@@ -92,6 +128,12 @@ class DescriptorGlobal(Descriptor):
             exclude = [None] * n_samples
         elif is1d(exclude, np.integer):
             exclude = [exclude] * n_samples
+        n_pos = len(positions)
+        if n_pos != n_samples:
+            raise ValueError(
+                "The given number of positions does not match the given "
+                "number of systems."
+            )
         n_inc = len(include)
         if n_inc != n_samples:
             raise ValueError(
@@ -115,18 +157,27 @@ class DescriptorGlobal(Descriptor):
         inp = list(
             zip(
                 system,
+                positions,
                 indices,
                 [method] * n_samples,
+                [attach] * n_samples,
                 [return_descriptor] * n_samples,
             )
         )
 
-        # Determine a fixed output size if possible
+        # For the descriptor, the output size for each job depends on the exact arguments.
+        # Here we precalculate the size for each job to preallocate memory and
+        # make the process faster.
         n_features = self.get_number_of_features()
 
         def get_shapes(job):
-            n_indices = len(job[1])
-            return (n_indices, 3, n_features), (n_features,)
+            centers = job[1]
+            if centers is None:
+                n_positions = len(job[0])
+            else:
+                n_positions = 1 if self.average != "off" else len(centers)
+            n_indices = len(job[2])
+            return (n_positions, n_indices, 3, n_features), (n_positions, n_features)
 
         derivatives_shape, descriptor_shape = get_shapes(inp[0])
 
@@ -158,17 +209,31 @@ class DescriptorGlobal(Descriptor):
     def derivatives_single(
         self,
         system,
+        positions,
         indices,
         method="numerical",
+        attach=False,
         return_descriptor=True,
     ):
         """Return the derivatives for the given system.
         Args:
             system (:class:`ase.Atoms`): Atomic structure.
+            positions (list): Positions where to calculate SOAP. Can be
+                provided as cartesian positions or atomic indices. If no
+                positions are defined, the SOAP output will be created for all
+                atoms in the system. When calculating SOAP for multiple
+                systems, provide the positions as a list for each system.
             indices (list): Indices of atoms for which the derivatives will be
                 computed for.
             method (str): The method for calculating the derivatives. Supports
                 'numerical'.
+            attach (bool): Controls the behaviour of positions defined as
+                atomic indices. If True, the positions tied to an atomic index will
+                move together with the atoms with respect to which the derivatives
+                are calculated against. If False, positions defined as atomic
+                indices will be converted into cartesian locations that are
+                completely independent of the atom location during derivative
+                calculation.
             return_descriptor (bool): Whether to also calculate the descriptor
                 in the same function call. This is true by default as it
                 typically is faster to calculate both in one go.
@@ -176,26 +241,30 @@ class DescriptorGlobal(Descriptor):
             If return_descriptor is True, returns a tuple, where the first item
             is the derivative array and the second is the descriptor array.
             Otherwise only returns the derivatives array. The derivatives array
-            is a 3D numpy array. The dimensions are: [n_atoms, 3, n_features].
-            The first dimension goes over the included atoms. The order is same
-            as the order of atoms in the given system. The second dimension
-            goes over the cartesian components, x, y and z. The last dimension
-            goes over the features in the default order.
+            is a 4D numpy array. The dimensions are: [n_positions, n_atoms, 3,
+            n_features]. The first dimension goes over the SOAP centers in the
+            same order as they were given in the argument. The second dimension
+            goes over the included atoms. The order is same as the order of
+            atoms in the given system. The third dimension goes over the
+            cartesian components, x, y and z. The last dimension goes over the
+            features in the default order.
         """
         n_indices = len(indices)
+        n_centers = len(system) if positions is None else len(positions)
 
         # Initialize numpy arrays for storing the descriptor and derivatives.
         n_features = self.get_number_of_features()
         if return_descriptor:
-            c = np.zeros(n_features, dtype=np.float64)
+            c = self.init_descriptor_array(n_centers, n_features)
         else:
             c = np.empty(0)
-        d = np.zeros((n_indices, 3, n_features), dtype=np.float64)
+        d = self.init_derivatives_array(n_centers, n_indices, n_features)
 
+        # Calculate numerically with extension
         if method == "numerical":
-            self.derivatives_numerical(d, c, system, indices, return_descriptor)
+            self.derivatives_numerical(d, c, system, positions, indices, attach, return_descriptor)
         if method == "analytical":
-            self.derivatives_analytical(d, c, system, indices, return_descriptor)
+            self.derivatives_analytical(d, c, system, positions, indices, attach, return_descriptor)
 
         # Convert to the final output precision.
         if self.dtype == "float32":
@@ -217,7 +286,9 @@ class DescriptorGlobal(Descriptor):
         d,
         c,
         system,
+        positions,
         indices,
+        attach=False,
         return_descriptor=True,
     ):
         """Return the numerical derivatives for the given system. This is the
@@ -228,8 +299,20 @@ class DescriptorGlobal(Descriptor):
             d (np.array): The derivatives array.
             c (np.array): The descriptor array.
             system (:class:`ase.Atoms`): Atomic structure.
+            positions (list): Positions where to calculate SOAP. Can be
+                provided as cartesian positions or atomic indices. If no
+                positions are defined, the SOAP output will be created for all
+                atoms in the system. When calculating SOAP for multiple
+                systems, provide the positions as a list for each system.
             indices (list): Indices of atoms for which the derivatives will be
                 computed for.
+            attach (bool): Controls the behaviour of positions defined as
+                atomic indices. If True, the positions tied to an atomic index will
+                move together with the atoms with respect to which the derivatives
+                are calculated against. If False, positions defined as atomic
+                indices will be converted into cartesian locations that are
+                completely independent of the atom location during derivative
+                calculation.
             return_descriptor (bool): Whether to also calculate the descriptor
                 in the same function call. This is true by default as it
                 typically is faster to calculate both in one go.
@@ -252,7 +335,7 @@ class DescriptorGlobal(Descriptor):
                     i_pos = system_disturbed.get_positions()
                     i_pos[i_atom, i_comp] += h * deltas[i_stencil]
                     system_disturbed.set_positions(i_pos)
-                    d1 = self.create_single(system_disturbed)
+                    d1 = self.create_single(system_disturbed, positions)
                     derivatives_python[i_atom, i_comp, :] += coeffs[i_stencil] * d1 / h
 
         i = 0
@@ -261,4 +344,4 @@ class DescriptorGlobal(Descriptor):
             i += 1
         
         if return_descriptor:
-            np.copyto(c, self.create_single(system))
+            np.copyto(c, self.create_single(system, positions))

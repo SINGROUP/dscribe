@@ -99,8 +99,6 @@ class SoapDerivativeTests(unittest.TestCase):
         )
         with self.assertRaises(ValueError):
             soap.derivatives(H2, positions=positions, method="analytical")
-        with self.assertRaises(ValueError):
-            soap.derivatives(H2, positions=positions, method="numerical")
 
     def test_return_descriptor(self):
         soap = SOAP(

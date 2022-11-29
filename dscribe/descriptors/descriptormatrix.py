@@ -32,6 +32,7 @@ class DescriptorMatrix(DescriptorGlobal):
         seed=None,
         flatten=True,
         sparse=False,
+        dtype="float64",
     ):
         """
         Args:
@@ -61,7 +62,7 @@ class DescriptorMatrix(DescriptorGlobal):
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
         """
-        super().__init__(periodic=False, flatten=flatten, sparse=sparse)
+        super().__init__(periodic=False, flatten=flatten, sparse=sparse, dtype=dtype)
 
         # Check parameter validity
         if n_atoms_max <= 0:
