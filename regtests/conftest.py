@@ -162,7 +162,7 @@ def assert_derivatives_include(descriptor_func, method, pbc):
     CO2 = molecule("CO2")
     H2O.set_pbc(pbc)
     CO2.set_pbc(pbc)
-    if (pbc):
+    if pbc:
         H2O.set_cell([5, 5, 5])
         CO2.set_cell([5, 5, 5])
     descriptor = descriptor_func([H2O, CO2])
@@ -199,7 +199,7 @@ def assert_derivatives_exclude(descriptor_func, method, pbc):
     CO2 = molecule("CO2")
     H2O.set_pbc(pbc)
     CO2.set_pbc(pbc)
-    if (pbc):
+    if pbc:
         H2O.set_cell([5, 5, 5])
         CO2.set_cell([5, 5, 5])
     descriptor = descriptor_func([H2O, CO2])

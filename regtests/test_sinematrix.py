@@ -101,6 +101,7 @@ def test_symmetries(permutation_option, translation, rotation, permutation):
         sine_matrix(permutation=permutation_option), translation, rotation, permutation
     )
 
+
 @pytest.mark.parametrize(
     "permutation, method",
     [
@@ -111,6 +112,7 @@ def test_symmetries(permutation_option, translation, rotation, permutation):
 )
 def test_derivatives(permutation, method):
     assert_derivatives(sine_matrix(permutation=permutation), method, True)
+
 
 # =============================================================================
 # Tests that are specific to this descriptor.

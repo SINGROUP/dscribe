@@ -67,8 +67,7 @@ class Descriptor(ABC):
         """
 
     def get_derivatives_method(self, method):
-        """Used to determine the final method for calculating the derivatives.
-        """
+        """Used to determine the final method for calculating the derivatives."""
         methods = {"numerical", "auto"}
         if method not in methods:
             raise ValueError(

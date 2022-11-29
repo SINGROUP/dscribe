@@ -518,9 +518,7 @@ class SOAP(DescriptorLocal):
             get_number_of_features()-function.
         """
         cutoff_padding = self.get_cutoff_padding()
-        centers, _ = self.prepare_centers(
-            system, cutoff_padding, positions
-        )
+        centers, _ = self.prepare_centers(system, cutoff_padding, positions)
         n_centers = centers.shape[0]
         pos = system.get_positions()
         Z = system.get_atomic_numbers()
@@ -606,8 +604,7 @@ class SOAP(DescriptorLocal):
         return soap_mat
 
     def get_derivatives_method(self, method, attach):
-        """Used to determine the final method for calculating the derivatives.
-        """
+        """Used to determine the final method for calculating the derivatives."""
         methods = {"numerical", "analytical", "auto"}
         if method not in methods:
             raise ValueError(
@@ -634,7 +631,12 @@ class SOAP(DescriptorLocal):
 
         # Determine the appropriate method if not given explicitly.
         if method == "auto":
-            if self._rbf == "polynomial" or self.average != "off" or attach or self.periodic:
+            if (
+                self._rbf == "polynomial"
+                or self.average != "off"
+                or attach
+                or self.periodic
+            ):
                 method = "numerical"
             else:
                 method = "analytical"
@@ -777,9 +779,7 @@ class SOAP(DescriptorLocal):
         cell = ase.geometry.cell.complete_cell(system.get_cell())
         pbc = np.asarray(system.get_pbc(), dtype=bool)
         cutoff_padding = self.get_cutoff_padding()
-        centers, _ = self.prepare_centers(
-            system, cutoff_padding, positions
-        )
+        centers, _ = self.prepare_centers(system, cutoff_padding, positions)
         sorted_species = self._atomic_numbers
         n_species = len(sorted_species)
         n_centers = centers.shape[0]

@@ -114,6 +114,7 @@ def test_symmetries(permutation_option, translation, rotation, permutation):
         permutation,
     )
 
+
 @pytest.mark.parametrize(
     "permutation, method",
     [

@@ -20,6 +20,7 @@ from dscribe.utils.dimensionality import is1d
 
 class DescriptorGlobal(Descriptor):
     """An abstract base class for all global descriptors."""
+
     def derivatives(
         self,
         system,
@@ -259,6 +260,6 @@ class DescriptorGlobal(Descriptor):
         for index in indices:
             d[i, :] = derivatives_python[index, :, :]
             i += 1
-        
+
         if return_descriptor:
             np.copyto(c, self.create_single(system))

@@ -262,9 +262,13 @@ class DescriptorLocal(Descriptor):
 
         # Calculate numerically with extension
         if method == "numerical":
-            self.derivatives_numerical(d, c, system, positions, indices, attach, return_descriptor)
+            self.derivatives_numerical(
+                d, c, system, positions, indices, attach, return_descriptor
+            )
         if method == "analytical":
-            self.derivatives_analytical(d, c, system, positions, indices, attach, return_descriptor)
+            self.derivatives_analytical(
+                d, c, system, positions, indices, attach, return_descriptor
+            )
 
         # Convert to the final output precision.
         if self.dtype == "float32":
@@ -342,6 +346,6 @@ class DescriptorLocal(Descriptor):
         for index in indices:
             d[i, :] = derivatives_python[index, :, :]
             i += 1
-        
+
         if return_descriptor:
             np.copyto(c, self.create_single(system, positions))
