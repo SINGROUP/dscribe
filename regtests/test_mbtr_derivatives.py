@@ -52,7 +52,7 @@ def mbtr(**kwargs):
                 "grid": {"min": 0, "max": 9, "sigma": 0.1, "n": 100},
             },
             "k2": k2_dict("inverse_distance", "exp"),
-            "k3": k3_dict("exp")
+            "k3": k3_dict("exp"),
         }
         final_kwargs.update(kwargs)
 
