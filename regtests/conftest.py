@@ -5,8 +5,7 @@ import pytest
 import scipy
 from ase import Atoms
 from ase.build import molecule, bulk
-from ase.visualize import view
-from dscribe.descriptors import CoulombMatrix, SineMatrix, EwaldSumMatrix
+from dscribe.descriptors.descriptorlocal import DescriptorLocal
 
 """
 Contains a set of shared test functions.
@@ -268,12 +267,12 @@ def assert_sparse(descriptor_func):
     system = water()
 
     # Dense
-    desc = descriptor_func(flatten=True, sparse=False)([system])
+    desc = descriptor_func(sparse=False)([system])
     features = desc.create(system)
     assert type(features) == np.ndarray
 
     # Sparse
-    desc = descriptor_func(flatten=True, sparse=True)([system])
+    desc = descriptor_func(sparse=True)([system])
     features = desc.create(system)
     assert type(features) == sparse.COO
 
@@ -281,18 +280,30 @@ def assert_sparse(descriptor_func):
 def assert_parallellization(descriptor_func, n_jobs, flatten, sparse):
     """Tests creating output parallelly."""
     samples = [bulk("NaCl", "rocksalt", a=5.64), bulk("Fe", "bcc", a=3.8)]
-    desc = descriptor_func(flatten=flatten, sparse=sparse)(samples)
-    n_features = desc.get_number_of_features()
+    kwargs = {"sparse": sparse}
+    if flatten is not None:
+        kwargs["flatten"] = flatten
+    desc = descriptor_func(**kwargs)(samples)
 
     output = desc.create(system=samples, n_jobs=n_jobs)
+
     a = desc.create(samples[0])
     b = desc.create(samples[1])
-    if sparse:
-        output = output.todense()
-        a = a.todense()
-        b = b.todense()
-    assumed = np.array([a, b])
-    assert np.allclose(output, assumed)
+
+    # The output may be a list or an array.
+    if isinstance(output, list):
+        for i, j in zip(output, [a, b]):
+            if sparse:
+                i = i.todense()
+                j = j.todense()
+            assert np.allclose(i, j)
+    else:
+        if sparse:
+            a = a.todense()
+            b = b.todense()
+            output = output.todense()
+        assumed = np.array([a, b])
+        assert np.allclose(output, assumed)
 
 
 def assert_no_system_modification(descriptor_func):
@@ -307,7 +318,6 @@ def assert_no_system_modification(descriptor_func):
         atomic_numbers = np.array(system.get_atomic_numbers())
         symbols = np.array(system.get_chemical_symbols())
         descriptor = descriptor_func()([system])
-        features = descriptor.create(system)
         assert np.array_equal(cell, system.get_cell())
         assert np.array_equal(pos, system.get_positions())
         assert np.array_equal(pbc, system.get_pbc())
@@ -317,6 +327,45 @@ def assert_no_system_modification(descriptor_func):
     # Try separately for periodic and non-periodic systems
     check_modifications(bulk("Cu", "fcc", a=3.6))
     check_modifications(water())
+
+
+def assert_basis(descriptor_func):
+    """Tests that the output vectors behave correctly as a basis."""
+    sys1 = Atoms(symbols=["H"], positions=[[0, 0, 0]], cell=[2, 2, 2], pbc=True)
+    sys2 = Atoms(symbols=["O"], positions=[[0, 0, 0]], cell=[2, 2, 2], pbc=True)
+    sys3 = sys2 * [2, 2, 2]
+
+    desc = descriptor_func([sys1, sys2, sys3])
+
+    # Create vectors for each system
+    vec1 = desc.create(sys1)
+    vec2 = desc.create(sys2)
+    vec3 = desc.create(sys3)
+
+    # Average the result for local descriptors
+    if isinstance(desc, DescriptorLocal):
+        vec1 = np.mean(vec1, 0)
+        vec2 = np.mean(vec2, 0)
+        vec3 = np.mean(vec3, 0)
+
+    # Create normalized vectors
+    vec1 /= np.linalg.norm(vec1)
+    vec2 /= np.linalg.norm(vec2)
+    vec3 /= np.linalg.norm(vec3)
+
+    # import matplotlib.pyplot as mpl
+    # mpl.plot(vec2)
+    # mpl.plot(vec3)
+    # mpl.show()
+
+    # The dot-product should be zero when there are no overlapping elements
+    dot = np.dot(vec1, vec2)
+    assert dot == 0
+
+    # After normalization, the dot-product should be roughly one for a primitive
+    # cell and a supercell
+    dot = np.dot(vec2, vec3)
+    assert abs(dot - 1) < 1e-3
 
 
 def assert_matrix_descriptor_exceptions(descriptor_func):

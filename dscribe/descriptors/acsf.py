@@ -16,7 +16,7 @@ limitations under the License.
 import sys
 
 import numpy as np
-import sparse
+import sparse as sp
 from scipy.sparse import coo_matrix
 from ase import Atoms
 
@@ -40,7 +40,7 @@ class ACSF(DescriptorLocal):
 
     def __init__(
         self,
-        rcut,
+        r_cut,
         g2_params=None,
         g3_params=None,
         g4_params=None,
@@ -52,7 +52,7 @@ class ACSF(DescriptorLocal):
     ):
         """
         Args:
-            rcut (float): The smooth cutoff value in angstroms. This cutoff
+            r_cut (float): The smooth cutoff value in angstroms. This cutoff
                 value is used throughout the calculations for all symmetry
                 functions.
             g2_params (n*2 np.ndarray): A list of pairs of :math:`\eta` and
@@ -86,7 +86,7 @@ class ACSF(DescriptorLocal):
         self.g3_params = g3_params
         self.g4_params = g4_params
         self.g5_params = g5_params
-        self.rcut = rcut
+        self.r_cut = r_cut
 
     def create(
         self, system, positions=None, n_jobs=1, only_physical_cores=False, verbose=False
@@ -189,6 +189,9 @@ class ACSF(DescriptorLocal):
             positions and the second dimension is determined by the
             get_number_of_features()-function.
         """
+        # Check if there are types that have not been declared
+        self.check_atomic_numbers(system.get_atomic_numbers())
+
         # Create C-compatible list of atomic indices for which the ACSF is
         # calculated
         calculate_all = False
@@ -205,7 +208,7 @@ class ACSF(DescriptorLocal):
             n_atoms = len(system)
             all_pos = system.get_positions()
             dmat = dscribe.utils.geometry.get_adjacency_matrix(
-                self.rcut, all_pos, all_pos
+                self.r_cut, all_pos, all_pos
             )
         # Otherwise the amount of pairwise distances that are calculated is
         # kept at minimum. Only distances for the given indices (and possibly
@@ -216,7 +219,7 @@ class ACSF(DescriptorLocal):
             # the system.
             if self.periodic:
                 system = dscribe.utils.geometry.get_extended_system(
-                    system, self.rcut, return_cell_indices=False
+                    system, self.r_cut, return_cell_indices=False
                 )
 
             # First calculate distances from specified centers to all other
@@ -225,7 +228,7 @@ class ACSF(DescriptorLocal):
             all_pos = system.get_positions()
             central_pos = all_pos[indices]
             dmat_primary = dscribe.utils.geometry.get_adjacency_matrix(
-                self.rcut, central_pos, all_pos
+                self.r_cut, central_pos, all_pos
             )
 
             # Create symmetric full matrix
@@ -243,7 +246,7 @@ class ACSF(DescriptorLocal):
                 neighbour_indices = np.unique(col)
                 neigh_pos = all_pos[neighbour_indices]
                 dmat_secondary = dscribe.utils.geometry.get_adjacency_matrix(
-                    self.rcut, neigh_pos, neigh_pos
+                    self.r_cut, neigh_pos, neigh_pos
                 )
                 col = [
                     neighbour_indices[x] for x in dmat_secondary.col
@@ -271,15 +274,16 @@ class ACSF(DescriptorLocal):
                 neighbours,
                 indices,
             ),
-            dtype=np.float32,
+            dtype=np.float64,
         )
 
-        # Check if there are types that have not been declared
-        self.check_atomic_numbers(system.get_atomic_numbers())
+        # Convert to the final output precision.
+        if self.dtype != "float64":
+            output = output.astype(self.dtype)
 
-        # Return sparse matrix if requested
+        # Make into a sparse array if requested
         if self._sparse:
-            output = sparse.COO.from_numpy(output)
+            output = sp.COO.from_numpy(output)
 
         return output
 
@@ -314,11 +318,11 @@ class ACSF(DescriptorLocal):
         self.acsf_wrapper.atomic_numbers = self._atomic_numbers.tolist()
 
     @property
-    def rcut(self):
+    def r_cut(self):
         return self.acsf_wrapper.rcut
 
-    @rcut.setter
-    def rcut(self, value):
+    @r_cut.setter
+    def r_cut(self, value):
         """Used to check the validity of given radial cutoff.
 
         Args:
@@ -344,7 +348,7 @@ class ACSF(DescriptorLocal):
             value = np.array([])
         else:
             # Check dimensions
-            value = np.array(value, dtype=np.float)
+            value = np.array(value, dtype=np.float64)
             if value.ndim != 2:
                 raise ValueError(
                     "g2_params should be a matrix with two columns (eta, Rs)."
@@ -377,7 +381,7 @@ class ACSF(DescriptorLocal):
             value = np.array([])
         else:
             # Check dimensions
-            value = np.array(value, dtype=np.float)
+            value = np.array(value, dtype=np.float64)
             if value.ndim != 1:
                 raise ValueError("g3_params should be a vector.")
 
@@ -400,7 +404,7 @@ class ACSF(DescriptorLocal):
             value = np.array([])
         else:
             # Check dimensions
-            value = np.array(value, dtype=np.float)
+            value = np.array(value, dtype=np.float64)
             if value.ndim != 2:
                 raise ValueError(
                     "g4_params should be a matrix with three columns (eta, zeta, lambda)."
@@ -433,7 +437,7 @@ class ACSF(DescriptorLocal):
             value = np.array([])
         else:
             # Check dimensions
-            value = np.array(value, dtype=np.float)
+            value = np.array(value, dtype=np.float64)
             if value.ndim != 2:
                 raise ValueError(
                     "g5_params should be a matrix with three columns (eta, zeta, lambda)."

@@ -15,13 +15,11 @@ limitations under the License.
 """
 import math
 import unittest
-import itertools
 
 import numpy as np
 
 import sparse
 
-import scipy
 from scipy.integrate import tplquad
 from scipy.linalg import sqrtm
 

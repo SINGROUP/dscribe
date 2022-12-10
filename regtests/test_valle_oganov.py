@@ -1,10 +1,9 @@
-import time
 import pytest
 import numpy as np
-from numpy.random import RandomState
 from conftest import (
     assert_no_system_modification,
     assert_sparse,
+    assert_basis,
     assert_parallellization,
     assert_symmetries,
     water,
@@ -65,6 +64,10 @@ def test_sparse():
 def test_symmetries():
     """Tests the symmetries of the descriptor."""
     assert_symmetries(valle_oganov())
+
+
+# def test_basis():
+#     assert_basis(valle_oganov())
 
 
 # =============================================================================

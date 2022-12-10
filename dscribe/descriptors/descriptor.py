@@ -19,8 +19,6 @@ import numpy as np
 
 import sparse as sp
 
-from ase import Atoms
-from dscribe.core.system import System
 from dscribe.utils.species import get_atomic_numbers
 
 import joblib

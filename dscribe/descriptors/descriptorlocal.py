@@ -25,6 +25,17 @@ class DescriptorLocal(Descriptor):
         super().__init__(periodic=periodic, flatten=flatten, sparse=sparse, dtype=dtype)
         self.average = average
 
+    def get_derivatives_method(self, method, attach):
+        """Used to determine the final method for calculating the derivatives."""
+        methods = {"numerical", "auto"}
+        if method not in methods:
+            raise ValueError(
+                "Invalid method specified. Please choose from: {}".format(methods)
+            )
+        if method == "auto":
+            method = "numerical"
+        return method
+
     def derivatives(
         self,
         system,
