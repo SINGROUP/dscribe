@@ -1152,20 +1152,17 @@ class MBTR(Descriptor):
             If return_descriptor is True, returns a tuple, where the first item
             is the derivative array and the second is the descriptor array.
             Otherwise only returns the derivatives array. The derivatives array
-            is a either a 4D or 5D array, depending on whether you have
+            is a either a 3D or 4D array, depending on whether you have
             provided a single or multiple systems. If the output shape for each
             system is the same, a single monolithic numpy array is returned.
-            For variable sized output (e.g. differently sized systems,
-            different number of centers or different number of included atoms),
-            a regular python list is returned. The dimensions are:
-            [(n_systems,) n_positions, n_atoms, 3, n_features]. The first
+            For variable sized output (e.g. differently sized systems,different
+            number of included atoms), a regular python list is returned. The
+            dimensions are: [(n_systems,) n_atoms, 3, n_features]. The first
             dimension goes over the different systems in case multiple were
-            given. The second dimension goes over the descriptor centers in
-            the same order as they were given in the argument. The third
-            dimension goes over the included atoms. The order is same as the
-            order of atoms in the given system. The fourth dimension goes over
-            the cartesian components, x, y and z. The fifth dimension goes over
-            the features in the default order.
+            given. The second dimension goes over the included atoms. The order
+            is same as the order of atoms in the given system. The third
+            dimension goes over the cartesian components, x, y and z. The
+            fourth dimension goes over the features in the default order.
         """
         # Validate/determine the appropriate calculation method.
         methods = {"analytical", "auto"}
