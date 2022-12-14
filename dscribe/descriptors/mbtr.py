@@ -1173,6 +1173,33 @@ class MBTR(Descriptor):
         if method == "auto":
             method = "analytical"
 
+        # Check that the derivative calculations are supported for the used
+        # MBTR parameters
+        supported_normalization = ["none", "n_atoms"]
+        if self.normalization not in supported_normalization:
+            raise ValueError(
+                "Derivatives not implemented for normalization option '{}'. Please choose from: {}".format(
+                    self.normalization, supported_normalization
+                )
+            )
+
+        if self.flatten == False:
+            raise ValueError("Derivatives not implemented for flatten=False.")
+
+        # Derivatives are not currently implemented for all k3 options
+        if self.k3 is not None:
+            if self.k3.get("weighting") is not None:
+                if self.k3["weighting"]["function"] == "smooth_cutoff":
+                    raise ValueError(
+                        "Derivatives not implemented for k3 weighting function 'smooth_cutoff'."
+                    )
+
+            # "angle" function is not differentiable
+            if self.k3["geometry"]["function"] == "angle":
+                raise ValueError(
+                    "Derivatives not implemented for k3 geometry function 'angle'."
+                )
+
         # Check input validity
         system = [system] if isinstance(system, Atoms) else system
         n_samples = len(system)
@@ -1278,19 +1305,6 @@ class MBTR(Descriptor):
             second dimension goes over the cartesian components, x, y and z.
             The last dimension goes over the features in the default order.
         """
-
-        # Check that the derivative calculations are supported for the used
-        # MBTR parameters
-        supported_normalization = ["none", "n_atoms"]
-        if self.normalization not in supported_normalization:
-            raise ValueError(
-                "Derivatives not implemented for normalization option '{}'. Please choose from: {}".format(
-                    self.normalization, supported_normalization
-                )
-            )
-
-        if self.flatten == False:
-            raise ValueError("Derivatives not implemented for flatten=False.")
 
         # Ensuring variables are re-initialized when a new system is introduced
         self.system = system
@@ -1483,30 +1497,11 @@ class MBTR(Descriptor):
                 elif scale is None and r_cut is not None:
                     scale = -0.5 * math.log(threshold) / r_cut
                 parameters = {b"scale": scale, b"threshold": threshold}
-            if weighting_function == "smooth_cutoff":
-                try:
-                    sharpness = weighting["sharpness"]
-                except Exception:
-                    sharpness = 2
-                r_cut = weighting["r_cut"]
-                parameters = {b"sharpness": sharpness, b"cutoff": r_cut}
-
-                # Derivatives not implemented
-                raise ValueError(
-                    "Derivatives not implemented for k3 weighting function 'smooth_cutoff'."
-                )
-
         else:
             weighting_function = "unity"
 
         # Determine the geometry function
         geom_func_name = self.k3["geometry"]["function"]
-
-        # "angle" function is not differentiable
-        if geom_func_name == "angle":
-            raise ValueError(
-                "Derivatives not implemented for k3 geometry function 'angle'."
-            )
 
         # If needed, create the extended system
         if self.periodic:
