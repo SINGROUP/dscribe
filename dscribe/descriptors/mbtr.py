@@ -585,7 +585,7 @@ class MBTR(Descriptor):
         if self.k1 is not None:
             mbtr["k1"] = self._get_k1(system)
         if self.k2 is not None:
-            mbtr["k2"] = self._get_k2(system)
+            mbtr["k2"], _ = self._get_k2(system, True, False)
         if self.k3 is not None:
             mbtr["k3"] = self._get_k3(system)
 
@@ -614,13 +614,13 @@ class MBTR(Descriptor):
         if self.flatten:
             keys = sorted(mbtr.keys())
             if len(keys) > 1:
-                mbtr = sparse.concatenate([mbtr[key] for key in keys], axis=0)
+                mbtr = np.concatenate([mbtr[key] for key in keys], axis=0)
             else:
                 mbtr = mbtr[keys[0]]
 
-            # Make into a dense array if requested
-            if not self.sparse:
-                mbtr = mbtr.todense()
+            # Make into a sparse array if requested
+            if self.sparse:
+                mbtr = sparse.COO.from_numpy(mbtr)
 
         return mbtr
 
@@ -802,10 +802,9 @@ class MBTR(Descriptor):
 
         k1_map = self._make_new_k1map(k1_map)
 
-        # Depending on flattening, use either a sparse matrix or a dense one.
         n_elem = self.n_elements
         if self.flatten:
-            k1 = sparse.DOK((n_elem * n), dtype=np.float32)
+            k1 = np.zeros((n_elem * n), dtype=np.float32)
         else:
             k1 = np.zeros((n_elem, n), dtype=np.float32)
 
@@ -823,12 +822,10 @@ class MBTR(Descriptor):
                 k1[start:end] = gaussian_sum
             else:
                 k1[i, :] = gaussian_sum
-        if self.flatten:
-            k1 = k1.to_coo()
 
         return k1
 
-    def _get_k2(self, system):
+    def _get_k2(self, system, return_descriptor, return_derivatives):
         """Calculates the second order terms where the scalar mapping is the
         inverse distance between atoms.
 
@@ -894,9 +891,28 @@ class MBTR(Descriptor):
         else:
             dmat_dense = ext_system.get_distance_matrix()
             adj_list = np.tile(np.arange(n_atoms), (n_atoms, 1))
-
-        k2_map = cmbtr.get_k2(
+        
+        n_elem = self.n_elements
+        n_features = int((n_elem * (n_elem + 1) / 2) * n)
+        
+        if return_descriptor:
+            k2 = np.zeros((n_features), dtype=np.float32)
+        else:
+            k2 = np.zeros((0), dtype=np.float32)
+        
+        if return_derivatives:
+            k2_d = np.zeros((self._interaction_limit, 3, n_features), dtype=np.float32)
+        else:
+            k2_d = np.zeros((0,0,0), dtype=np.float32)
+        
+        # Generate derivatives for k=2 term
+        cmbtr.get_k2(
+            k2,
+            k2_d,
+            return_descriptor,
+            return_derivatives,
             ext_system.get_atomic_numbers(),
+            ext_system.get_positions(),
             dmat_dense,
             adj_list,
             geom_func_name.encode(),
@@ -908,61 +924,48 @@ class MBTR(Descriptor):
             n,
         )
 
-        k2_map = self._make_new_kmap(k2_map)
+        # Denormalize if requested
+        if not self.normalize_gaussians:
+            max_val = 1 / (sigma * math.sqrt(2 * math.pi))
+            k2 /= max_val
+            k2_d /= max_val
 
-        # Depending of flattening, use either a sparse matrix or a dense one.
-        n_elem = self.n_elements
-        if self.flatten:
-            k2 = sparse.DOK((int(n_elem * (n_elem + 1) / 2 * n)), dtype=np.float32)
-        else:
-            k2 = np.zeros((self.n_elements, self.n_elements, n), dtype=np.float32)
-
-        for key, gaussian_sum in k2_map.items():
-            i = key[0]
-            j = key[1]
-
-            # This is the index of the spectrum. It is given by enumerating the
-            # elements of an upper triangular matrix from left to right and top
-            # to bottom.
-            m = int(j + i * n_elem - i * (i + 1) / 2)
-
-            # Denormalize if requested
-            if not self.normalize_gaussians:
-                max_val = 1 / (sigma * math.sqrt(2 * math.pi))
-                gaussian_sum /= max_val
-
-            if self.flatten:
-                start = m * n
-                end = (m + 1) * n
-                k2[start:end] = gaussian_sum
-            else:
-                k2[i, j, :] = gaussian_sum
-
-            # Valle-Oganov normalization is calculated separately for each pair
-            if self.normalization == "valle_oganov":
-                S = self.system
-                n_elements = len(self.species)
-                V = S.cell.volume
-                imap = self.index_to_atomic_number
-                # Calculate the amount of each element for N_A*N_B term
-                counts = {}
-                for index, number in imap.items():
-                    counts[index] = list(S.get_atomic_numbers()).count(number)
-                y = gaussian_sum
-                if i == j:
-                    count_product = 0.5 * counts[i] * counts[j]
-                else:
-                    count_product = counts[i] * counts[j]
-                y_normed = (y * V) / (count_product * 4 * np.pi)
-                if self.flatten:
+        # Valle-Oganov normalization is calculated separately for each pair
+        if self.normalization == "valle_oganov":
+            for i, i_elem in enumerate(self.species):
+                for j, j_elem in enumerate(self.species):
+                    if j < i: continue
+                    S = self.system
+                    n_elements = len(self.species)
+                    V = S.cell.volume
+                    imap = self.index_to_atomic_number
+                    # Calculate the amount of each element for N_A*N_B term
+                    counts = {}
+                    for index, number in imap.items():
+                        counts[index] = list(S.get_atomic_numbers()).count(number)
+                    if i == j:
+                        count_product = 0.5 * counts[i] * counts[j]
+                    else:
+                        count_product = counts[i] * counts[j]
+                    m = int(j + i * n_elem - i * (i + 1) / 2)
+                    start = m * n
+                    end = (m + 1) * n
+                    y_normed = (k2[start:end] * V) / (count_product * 4 * np.pi)
                     k2[start:end] = y_normed
-                else:
-                    k2[i, j, :] = y_normed
 
-        if self.flatten:
-            k2 = k2.to_coo()
-
-        return k2
+        # If non-flattened descriptor is requested, reshape the output
+        if not self.flatten:
+            k2_nonflat = np.zeros((self.n_elements, self.n_elements, n), dtype=np.float32)
+            for i, i_elem in enumerate(self.species):
+                for j, j_elem in enumerate(self.species):
+                    if j<i: continue
+                    m = int(j + i * n_elem - i * (i + 1) / 2)
+                    start = m * n
+                    end = (m + 1) * n
+                    k2_nonflat[i,j] = k2[start:end]
+            k2 = k2_nonflat
+        
+        return (k2, k2_d)
 
     def _get_k3(self, system):
         """Calculates the third order terms.
@@ -1054,9 +1057,7 @@ class MBTR(Descriptor):
         # Depending of flattening, use either a sparse matrix or a dense one.
         n_elem = self.n_elements
         if self.flatten:
-            k3 = sparse.DOK(
-                (int(n_elem * n_elem * (n_elem + 1) / 2 * n)), dtype=np.float32
-            )
+            k3 = np.zeros((int(n_elem * n_elem * (n_elem + 1) / 2 * n)), dtype=np.float32)
         else:
             k3 = np.zeros((n_elem, n_elem, n_elem, n), dtype=np.float32)
 
@@ -1100,9 +1101,6 @@ class MBTR(Descriptor):
                     k3[start:end] = y_normed
                 else:
                     k3[i, j, k, :] = y_normed
-
-        if self.flatten:
-            k3 = k3.to_coo()
 
         return k3
 
@@ -1321,7 +1319,7 @@ class MBTR(Descriptor):
             mbtr["k1"] = k1
             mbtr_d["k1"] = k1_d
         if self.k2 is not None:
-            k2, k2_d = self._get_k2_derivatives(system)
+            k2, k2_d = self._get_k2(system, return_descriptor, True)
             mbtr["k2"] = k2
             mbtr_d["k2"] = k2_d
         if self.k3 is not None:
@@ -1375,100 +1373,7 @@ class MBTR(Descriptor):
         k1_d = np.zeros((self._interaction_limit, 3, len(k1)))
         return (k1, k1_d)
 
-    # Like _get_k2() but also calculates the derivatives with regard to all
-    # atoms in the system.
-    def _get_k2_derivatives(self, system):
 
-        grid = self.k2["grid"]
-        start = grid["min"]
-        stop = grid["max"]
-        n = grid["n"]
-        sigma = grid["sigma"]
-
-        # Determine the weighting function and possible radial cutoff
-        r_cut = None
-        weighting = self.k2.get("weighting")
-        parameters = {}
-        if weighting is not None:
-            weighting_function = weighting["function"]
-            if weighting_function == "exp":
-                threshold = weighting["threshold"]
-                r_cut = weighting.get("r_cut")
-                scale = weighting.get("scale")
-                if scale is not None and r_cut is None:
-                    r_cut = -math.log(threshold) / scale
-                elif scale is None and r_cut is not None:
-                    scale = -math.log(threshold) / r_cut
-                parameters = {b"scale": scale, b"threshold": threshold}
-            elif weighting_function == "inverse_square":
-                r_cut = weighting["r_cut"]
-        else:
-            weighting_function = "unity"
-
-        # Determine the geometry function
-        geom_func_name = self.k2["geometry"]["function"]
-
-        # If needed, create the extended system
-        if self.periodic:
-            centers = system.get_positions()
-            ext_system, cell_indices = dscribe.utils.geometry.get_extended_system(
-                system, r_cut, centers, return_cell_indices=True
-            )
-            ext_system = System.from_atoms(ext_system)
-        else:
-            ext_system = System.from_atoms(system)
-            cell_indices = np.zeros((len(system), 3), dtype=int)
-
-        cmbtr = MBTRWrapper(
-            self.atomic_number_to_index, self._interaction_limit, cell_indices
-        )
-
-        # If radial cutoff is finite, use it to calculate the sparse
-        # distance matrix to reduce computational complexity from O(n^2) to
-        # O(n log(n))
-        n_atoms = len(ext_system)
-        if r_cut is not None:
-            dmat = ext_system.get_distance_matrix_within_radius(r_cut)
-            adj_list = dscribe.utils.geometry.get_adjacency_list(dmat)
-            dmat_dense = np.full(
-                (n_atoms, n_atoms), sys.float_info.max
-            )  # The non-neighbor values are treated as "infinitely far".
-            dmat_dense[dmat.row, dmat.col] = dmat.data
-        # If no weighting is used, the full distance matrix is calculated
-        else:
-            dmat_dense = ext_system.get_distance_matrix()
-            adj_list = np.tile(np.arange(n_atoms), (n_atoms, 1))
-
-        n_elem = self.n_elements
-        n_features = int((n_elem * (n_elem + 1) / 2) * n)
-
-        k2 = np.zeros((n_features), dtype=np.float32)
-        k2_d = np.zeros((self._interaction_limit, 3, n_features), dtype=np.float32)
-
-        # Generate derivatives for k=2 term
-        cmbtr.get_k2_derivatives(
-            k2_d,
-            k2,
-            ext_system.get_atomic_numbers(),
-            ext_system.get_positions(),
-            dmat_dense,
-            adj_list,
-            geom_func_name.encode(),
-            weighting_function.encode(),
-            parameters,
-            start,
-            stop,
-            sigma,
-            n,
-        )
-
-        # Denormalize if requested
-        if not self.normalize_gaussians:
-            max_val = 1 / (sigma * math.sqrt(2 * math.pi))
-            k2 /= max_val
-            k2_d /= max_val
-
-        return (k2, k2_d)
 
     # Like _get_k3() but also calculates the derivatives with regard to all
     # atoms in the system.

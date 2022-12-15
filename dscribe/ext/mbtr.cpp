@@ -59,107 +59,6 @@ map<string, vector<float>> MBTR::getK1(const vector<int> &Z, const string &geomF
     return k1Map;
 }
 
-map<string, vector<float>> MBTR::getK2(const vector<int> &Z, const vector<vector<float>> &distances, const vector<vector<int>> &neighbours, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n)
-{
-    // Initialize some variables outside the loop
-    map<string, vector<float> > k2Map;
-    int nAtoms = Z.size();
-    float dx = (max-min)/(n-1);
-    float sigmasqrt2 = sigma*sqrt(2.0);
-    float start = min-dx/2;
-
-    // We have to loop over all atoms in the system
-    for (int i=0; i < nAtoms; ++i) {
-
-        // For each atom we loop only over the neighbours
-        const vector<int> &i_neighbours = neighbours[i];
-        for (const int &j : i_neighbours) {
-            if (j > i) {
-
-                // Only consider pairs that have one atom in the original
-                // cell
-                if (i < this->interactionLimit || j < this->interactionLimit) {
-
-                    // Calculate geometry value
-                    float geom;
-                    if (geomFunc == "inverse_distance") {
-                        geom = k2GeomInverseDistance(i, j, distances);
-                    } else if (geomFunc == "distance") {
-                        geom = k2GeomDistance(i, j, distances);
-                    } else {
-                        throw invalid_argument("Invalid geometry function.");
-                    }
-
-                    // Calculate weight value
-                    float weight;
-                    if (weightFunc == "exp") {
-                        float scale = parameters.at("scale");
-                        float threshold = parameters.at("threshold");
-                        weight = k2WeightExponential(i, j, distances, scale);
-                        if (weight < threshold) {
-                            continue;
-                        }
-                    } else if (weightFunc == "unity") {
-                        weight = k2WeightUnity(i, j, distances);
-                    } else if (weightFunc == "inverse_square") {
-                        weight = k2WeightSquare(i, j, distances);
-                    } else {
-                        throw invalid_argument("Invalid weighting function.");
-                    }
-
-                    // Find position in output
-                    // When the pair of atoms are in different copies of the cell, the
-                    // weight is halved. This is done in order to avoid double counting
-                    // the same distance in the opposite direction. This correction
-                    // makes periodic cells with different translations equal and also
-                    // supercells equal to the primitive cell within a constant that is
-                    // given by the number of repetitions of the primitive cell in the
-                    // supercell.
-                    vector<int> i_copy = this->cellIndices[i];
-                    vector<int> j_copy = this->cellIndices[j];
-                    if (i_copy != j_copy) {
-                        weight /= 2;
-                    }
-
-                    // Calculate gaussian
-                    vector<float> gauss = gaussian(geom, weight, start, dx, sigmasqrt2, n);
-
-                    // Get the index of the present elements in the final vector
-                    int i_elem = Z[i];
-                    int j_elem = Z[j];
-                    int i_index = this->atomicNumberToIndexMap.at(i_elem);
-                    int j_index = this->atomicNumberToIndexMap.at(j_elem);
-
-                    // Save information in the part where j_index >= i_index
-                    if (j_index < i_index) {
-                        int temp = j_index;
-                        j_index = i_index;
-                        i_index = temp;
-                    }
-
-                    // Form the key as string to enable passing it through cython
-                    stringstream ss;
-                    ss << i_index;
-                    ss << ",";
-                    ss << j_index;
-                    string stringKey = ss.str();
-
-                    // Sum gaussian into output
-                    auto it = k2Map.find(stringKey);
-                    if ( it == k2Map.end() ) {
-                        k2Map[stringKey] = gauss;
-                    } else {
-                        vector<float> &old = it->second;
-                        transform(old.begin(), old.end(), gauss.begin(), old.begin(), plus<float>());
-                    }
-                }
-            }
-        }
-    }
-
-    return k2Map;
-}
-
 map<string, vector<float> > MBTR::getK3(const vector<int> &Z, const vector<vector<float> > &distances, const vector<vector<int> > &neighbours, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n)
 {
     map<string, vector<float> > k3Map;
@@ -674,7 +573,7 @@ vector<map<string, vector<float>>> MBTR::getK3Local(const vector<int> &indices, 
     return k3Maps;
 }
 
-void MBTR::getK2Derivatives(py::array_t<float> &derivatives, py::array_t<float> &descriptor, const vector<int> &Z, const vector<vector<float>> &positions, const vector<vector<float>> &distances, const vector<vector<int>> &neighbours, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n)
+void MBTR::getK2(py::array_t<float> &descriptor, py::array_t<float> &derivatives, bool return_descriptor, bool return_derivatives, const vector<int> &Z, const vector<vector<float>> &positions, const vector<vector<float>> &distances, const vector<vector<int>> &neighbours, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n)
 {
     // Create mutable and unchecked versions
     auto descriptor_mu = descriptor.mutable_unchecked<1>();
@@ -710,7 +609,7 @@ void MBTR::getK2Derivatives(py::array_t<float> &derivatives, py::array_t<float> 
                     vector<float> geom_d(3);
                     if (geomFunc == "inverse_distance") {
                         geom = k2GeomInverseDistance(i, j, distances);
-                        //geom = 1/dist;
+                       //geom = 1/dist;
                         for (int dim=0; dim<3; ++dim){
                             geom_d[dim] = -dist_vec[dim]/pow(dist,3.0);
                         }
@@ -767,9 +666,6 @@ void MBTR::getK2Derivatives(py::array_t<float> &derivatives, py::array_t<float> 
                     // Calculate gaussian
                     vector<float> gauss = gaussian(geom, weight, start, dx, sigmasqrt2, n);
 
-                    // Calculate x*gaussian distribution.
-                    vector<float> xgauss = xgaussian(geom, weight, start, dx, sigma, n);
-
                     // Get the index of the present elements in the final vector
                     int i_elem = Z[i];
                     int j_elem = Z[j];
@@ -787,28 +683,35 @@ void MBTR::getK2Derivatives(py::array_t<float> &derivatives, py::array_t<float> 
                     // elements of an upper triangular matrix from left to right and top
                     // to bottom.
                     int m = int(j_index + i_index*nElem - i_index*(i_index + 1)/2);
-                    int start = m * n;
+                    int begin = m * n;
                     int end = (m + 1) * n;
 
-                    for(int index=0; index<n; ++index){
-                        descriptor_mu[start+index] += gauss[index];
-                    }
-                    
-                    // Add derivative contribution to derivatives that it affects.
-                    // Derivatives are antisymmetric.
-                    for(int dim=0; dim<3; ++dim){
+                    if(return_descriptor){
                         for(int index=0; index<n; ++index){
-                            float gauss_d = geom_d[dim]*(xgauss[index] - gauss[index]*geom)*pow(sigma,-2.0)
-                                            + weight_d[dim]*gauss[index];
-                            // Counteracting the weight halving
-                            gauss_d *= derivative_correction;
-                            if(i < this->interactionLimit){
-                                derivatives_mu(i, dim, start+index) += gauss_d;
-                            }
-                            if(j < this->interactionLimit){
-                                derivatives_mu(j, dim, start+index) -= gauss_d;
-                            }
-                        }                        
+                            descriptor_mu[begin+index] += gauss[index];
+                        }
+                    }
+
+                    if(return_derivatives){
+                        // Calculate x*gaussian distribution.
+                        vector<float> xgauss = xgaussian(geom, weight, start, dx, sigma, n);
+                        
+                        // Add derivative contribution to derivatives that it affects.
+                        // Derivatives are antisymmetric.
+                        for(int dim=0; dim<3; ++dim){
+                            for(int index=0; index<n; ++index){
+                                float gauss_d = geom_d[dim]*(xgauss[index] - gauss[index]*geom)*pow(sigma,-2.0)
+                                                + weight_d[dim]*gauss[index];
+                                // Counteracting the weight halving
+                                gauss_d *= derivative_correction;
+                                if(i < this->interactionLimit){
+                                    derivatives_mu(i, dim, begin+index) += gauss_d;
+                                }
+                                if(j < this->interactionLimit){
+                                    derivatives_mu(j, dim, begin+index) -= gauss_d;
+                                }
+                            }                        
+                        }
                     }
                 }
             }
