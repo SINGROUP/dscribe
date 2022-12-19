@@ -583,7 +583,7 @@ class MBTR(Descriptor):
 
         mbtr = {}
         if self.k1 is not None:
-            mbtr["k1"] = self._get_k1(system)
+            mbtr["k1"], _ = self._get_k1(system, True, False)
         if self.k2 is not None:
             mbtr["k2"], _ = self._get_k2(system, True, False)
         if self.k3 is not None:
@@ -767,7 +767,7 @@ class MBTR(Descriptor):
 
         return new_kx_map
 
-    def _get_k1(self, system):
+    def _get_k1(self, system, return_descriptor, return_derivatives):
         """Calculates the second order terms where the scalar mapping is the
         inverse distance between atoms.
 
@@ -780,50 +780,50 @@ class MBTR(Descriptor):
         n = grid["n"]
         sigma = grid["sigma"]
 
-        # Determine the geometry function
-        geom_func_name = self.k1["geometry"]["function"]
-
-        cmbtr = MBTRWrapper(
-            self.atomic_number_to_index,
-            self._interaction_limit,
-            np.zeros((len(system), 3), dtype=int),
-        )
-
-        k1_map = cmbtr.get_k1(
-            system.get_atomic_numbers(),
-            geom_func_name.encode(),
-            b"unity",
-            {},
-            start,
-            stop,
-            sigma,
-            n,
-        )
-
-        k1_map = self._make_new_k1map(k1_map)
-
         n_elem = self.n_elements
-        if self.flatten:
-            k1 = np.zeros((n_elem * n), dtype=np.float32)
+        n_features = n_elem * n
+
+        if return_descriptor:
+            # Determine the geometry function
+            geom_func_name = self.k1["geometry"]["function"]
+
+            cmbtr = MBTRWrapper(
+                self.atomic_number_to_index,
+                self._interaction_limit,
+                np.zeros((len(system), 3), dtype=int),
+            )
+            
+            k1 = np.zeros((n_features), dtype=np.float32)
+            cmbtr.get_k1(
+                k1,
+                system.get_atomic_numbers(),
+                geom_func_name.encode(),
+                b"unity",
+                {},
+                start,
+                stop,
+                sigma,
+                n,
+            )
         else:
-            k1 = np.zeros((n_elem, n), dtype=np.float32)
+            k1 = np.zeros((0), dtype=np.float32)
+        
+        if return_derivatives:
+            k1_d = np.zeros((self._interaction_limit, 3, n_features), dtype=np.float32)
+        else:
+            k1_d = np.zeros((0,0,0), dtype=np.float32)
 
-        for key, gaussian_sum in k1_map.items():
-            i = key[0]
+        # Denormalize if requested
+        if not self.normalize_gaussians:
+            max_val = 1 / (sigma * math.sqrt(2 * math.pi))
+            k1 /= max_val
+            k1_d /= max_val
 
-            # Denormalize if requested
-            if not self.normalize_gaussians:
-                max_val = 1 / (sigma * math.sqrt(2 * math.pi))
-                gaussian_sum /= max_val
+        # If non-flattened descriptor is requested, reshape the output
+        if return_descriptor and not self.flatten:
+            k1 = k1.reshape((n_elem,n))
 
-            if self.flatten:
-                start = i * n
-                end = (i + 1) * n
-                k1[start:end] = gaussian_sum
-            else:
-                k1[i, :] = gaussian_sum
-
-        return k1
+        return (k1, k1_d)
 
     def _get_k2(self, system, return_descriptor, return_derivatives):
         """Calculates the second order terms where the scalar mapping is the
@@ -954,7 +954,7 @@ class MBTR(Descriptor):
                     k2[start:end] = y_normed
 
         # If non-flattened descriptor is requested, reshape the output
-        if not self.flatten:
+        if return_descriptor and not self.flatten:
             k2_nonflat = np.zeros((self.n_elements, self.n_elements, n), dtype=np.float32)
             for i, i_elem in enumerate(self.species):
                 for j, j_elem in enumerate(self.species):
@@ -1102,7 +1102,7 @@ class MBTR(Descriptor):
                         k3[start:end] = y_normed
         
         # If non-flattened descriptor is requested, reshape the output
-        if not self.flatten:
+        if return_descriptor and not self.flatten:
             k3_nonflat = np.zeros((self.n_elements, self.n_elements, self.n_elements, n), dtype=np.float32)
             for i, i_elem in enumerate(self.species):
                 for j, j_elem in enumerate(self.species):
@@ -1284,9 +1284,6 @@ class MBTR(Descriptor):
 
         return output
 
-    # Modeled after create_single() function but uses _get_k1_derivatives(),
-    # _get_k2_derivatives(), and _get_k3_derivatives() functions instead of
-    # _get_k1(), _get_k2(), and _get_k3() to also calculate the derivatives.
     def derivatives_single(
         self,
         system,
@@ -1327,7 +1324,7 @@ class MBTR(Descriptor):
         mbtr = {}
         mbtr_d = {}
         if self.k1 is not None:
-            k1, k1_d = self._get_k1_derivatives(system)
+            k1, k1_d = self._get_k1(system, return_descriptor, True)
             mbtr["k1"] = k1
             mbtr_d["k1"] = k1_d
         if self.k2 is not None:
@@ -1375,12 +1372,3 @@ class MBTR(Descriptor):
         if return_descriptor:
             return (mbtr_d, mbtr)
         return mbtr_d
-
-    # Like _get_k1() but also calculates the derivatives with regard to all
-    # atoms in the system.
-    def _get_k1_derivatives(self, system):
-        k1 = self._get_k1(system)
-        if self.flatten:
-            k1 = k1.todense()
-        k1_d = np.zeros((self._interaction_limit, 3, len(k1)))
-        return (k1, k1_d)

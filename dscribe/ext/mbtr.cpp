@@ -1,6 +1,7 @@
 #include "mbtr.h"
 using namespace std;
 
+
 MBTR::MBTR(map<int,int> atomicNumberToIndexMap, int interactionLimit, vector<vector<int>> cellIndices)
     : atomicNumberToIndexMap(atomicNumberToIndexMap)
     , interactionLimit(interactionLimit)
@@ -8,9 +9,10 @@ MBTR::MBTR(map<int,int> atomicNumberToIndexMap, int interactionLimit, vector<vec
 {
 }
 
-map<string, vector<float>> MBTR::getK1(const vector<int> &Z, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n)
+void MBTR::getK1(py::array_t<float> &descriptor, const vector<int> &Z, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n)
 {
-    map<string, vector<float>> k1Map;
+    // Create mutable and unchecked version
+    auto descriptor_mu = descriptor.mutable_unchecked<1>();
     int nAtoms = Z.size();
     float dx = (max-min)/(n-1);
     float sigmasqrt2 = sigma*sqrt(2.0);
@@ -42,21 +44,14 @@ map<string, vector<float>> MBTR::getK1(const vector<int> &Z, const string &geomF
             // Get the index of the present elements in the final vector
             int i_elem = Z[i];
             int i_index = this->atomicNumberToIndexMap.at(i_elem);
+            int begin = i_index * n;
+            int end = (i_index + 1) * n;
 
-            // Form the key as string to enable passing it through cython
-            string stringKey = to_string(i_index);
-
-            // Sum gaussian into output
-            auto it = k1Map.find(stringKey);
-            if ( it == k1Map.end() ) {
-                k1Map[stringKey] = gauss;
-            } else {
-                vector<float> &old = it->second;
-                transform(old.begin(), old.end(), gauss.begin(), old.begin(), plus<float>());
+            for(int index=0; index<n; ++index){
+                descriptor_mu[begin+index] += gauss[index];
             }
         }
     }
-    return k1Map;
 }
 
 inline vector<float> MBTR::gaussian(float center, float weight, float start, float dx, float sigmasqrt2, int n) {
