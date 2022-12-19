@@ -587,7 +587,7 @@ class MBTR(Descriptor):
         if self.k2 is not None:
             mbtr["k2"], _ = self._get_k2(system, True, False)
         if self.k3 is not None:
-            mbtr["k3"] = self._get_k3(system)
+            mbtr["k3"], _ = self._get_k3(system, True, False)
 
         # Handle normalization
         if self.normalization == "l2_each":
@@ -967,7 +967,7 @@ class MBTR(Descriptor):
         
         return (k2, k2_d)
 
-    def _get_k3(self, system):
+    def _get_k3(self, system, return_descriptor, return_derivatives):
         """Calculates the third order terms.
 
         Returns:
@@ -1024,9 +1024,6 @@ class MBTR(Descriptor):
             self.atomic_number_to_index, self._interaction_limit, cell_indices
         )
 
-        # If radial cutoff is finite, use it to calculate the sparse
-        # distance matrix to reduce computational complexity from O(n^2) to
-        # O(n log(n))
         n_atoms = len(ext_system)
         if r_cut is not None:
             dmat = ext_system.get_distance_matrix_within_radius(r_cut)
@@ -1040,8 +1037,27 @@ class MBTR(Descriptor):
             dmat_dense = ext_system.get_distance_matrix()
             adj_list = np.tile(np.arange(n_atoms), (n_atoms, 1))
 
-        k3_map = cmbtr.get_k3(
+        n_elem = self.n_elements
+        n_features = int((n_elem * n_elem * (n_elem + 1) / 2) * n)
+
+        if return_descriptor:
+            k3 = np.zeros((n_features), dtype=np.float32)
+        else:
+            k3 = np.zeros((0), dtype=np.float32)
+
+        if return_derivatives:
+            k3_d = np.zeros((self._interaction_limit, 3, n_features), dtype=np.float32)
+        else:
+            k3_d= np.zeros((0,0,0), dtype=np.float32)
+
+        # Compute the k=3 term and its derivative
+        cmbtr.get_k3(
+            k3,
+            k3_d,
+            return_descriptor,
+            return_derivatives,
             ext_system.get_atomic_numbers(),
+            ext_system.get_positions(),
             dmat_dense,
             adj_list,
             geom_func_name.encode(),
@@ -1053,56 +1069,52 @@ class MBTR(Descriptor):
             n,
         )
 
-        k3_map = self._make_new_kmap(k3_map)
-        # Depending of flattening, use either a sparse matrix or a dense one.
-        n_elem = self.n_elements
-        if self.flatten:
-            k3 = np.zeros((int(n_elem * n_elem * (n_elem + 1) / 2 * n)), dtype=np.float32)
-        else:
-            k3 = np.zeros((n_elem, n_elem, n_elem, n), dtype=np.float32)
+        # Denormalize if requested
+        if not self.normalize_gaussians:
+            max_val = 1 / (sigma * math.sqrt(2 * math.pi))
+            k3 /= max_val
+            k3_d /= max_val
 
-        for key, gaussian_sum in k3_map.items():
-            i = key[0]
-            j = key[1]
-            k = key[2]
+        # Valle-Oganov normalization is calculated separately for each triplet
+        if self.normalization == "valle_oganov":
+            for i, i_elem in enumerate(self.species):
+                for j, j_elem in enumerate(self.species):
+                    for k, k_elem in enumerate(self.species):
+                        if k < i: continue
+                        S = self.system
+                        n_elements = len(self.species)
+                        V = S.cell.volume
+                        imap = self.index_to_atomic_number
+                        # Calculate the amount of each element for N_A*N_B*N_C term
+                        counts = {}
+                        for index, number in imap.items():
+                            counts[index] = list(S.get_atomic_numbers()).count(number)
+                        
+                        # This is the index of the spectrum. It is given by enumerating the
+                        # elements of a three-dimensional array where for valid elements
+                        # k>=i. The enumeration begins from [0, 0, 0], and ends at [n_elem,
+                        # n_elem, n_elem], looping the elements in the order j, i, k.
+                        m = int(j * n_elem * (n_elem + 1) / 2 + k + i * n_elem - i * (i + 1) / 2)
+                        start = m * n
+                        end = (m + 1) * n
+                        count_product = counts[i] * counts[j] * counts[k]
+                        y_normed = (k3[start:end] * V) / count_product
+                        k3[start:end] = y_normed
+        
+        # If non-flattened descriptor is requested, reshape the output
+        if not self.flatten:
+            k3_nonflat = np.zeros((self.n_elements, self.n_elements, self.n_elements, n), dtype=np.float32)
+            for i, i_elem in enumerate(self.species):
+                for j, j_elem in enumerate(self.species):
+                    for k, k_elem in enumerate(self.species):
+                        if k < i: continue
+                        m = int(j * n_elem * (n_elem + 1) / 2 + k + i * n_elem - i * (i + 1) / 2)
+                        start = m * n
+                        end = (m + 1) * n
+                        k3_nonflat[i,j,k] = k3[start:end]
+            k3 = k3_nonflat
 
-            # This is the index of the spectrum. It is given by enumerating the
-            # elements of a three-dimensional array where for valid elements
-            # k>=i. The enumeration begins from [0, 0, 0], and ends at [n_elem,
-            # n_elem, n_elem], looping the elements in the order j, i, k.
-            m = int(j * n_elem * (n_elem + 1) / 2 + k + i * n_elem - i * (i + 1) / 2)
-
-            # Denormalize if requested
-            if not self.normalize_gaussians:
-                max_val = 1 / (sigma * math.sqrt(2 * math.pi))
-                gaussian_sum /= max_val
-
-            if self.flatten:
-                start = m * n
-                end = (m + 1) * n
-                k3[start:end] = gaussian_sum
-            else:
-                k3[i, j, k, :] = gaussian_sum
-
-            # Valle-Oganov normalization is calculated separately for each triplet
-            if self.normalization == "valle_oganov":
-                S = self.system
-                n_elements = len(self.species)
-                V = S.cell.volume
-                imap = self.index_to_atomic_number
-                # Calculate the amount of each element for N_A*N_B*N_C term
-                counts = {}
-                for index, number in imap.items():
-                    counts[index] = list(S.get_atomic_numbers()).count(number)
-                y = gaussian_sum
-                count_product = counts[i] * counts[j] * counts[k]
-                y_normed = (y * V) / count_product
-                if self.flatten:
-                    k3[start:end] = y_normed
-                else:
-                    k3[i, j, k, :] = y_normed
-
-        return k3
+        return (k3, k3_d)
 
     def derivatives(
         self,
@@ -1323,7 +1335,7 @@ class MBTR(Descriptor):
             mbtr["k2"] = k2
             mbtr_d["k2"] = k2_d
         if self.k3 is not None:
-            k3, k3_d = self._get_k3_derivatives(system)
+            k3, k3_d = self._get_k3(system, return_descriptor, True)
             mbtr["k3"] = k3
             mbtr_d["k3"] = k3_d
 
@@ -1372,97 +1384,3 @@ class MBTR(Descriptor):
             k1 = k1.todense()
         k1_d = np.zeros((self._interaction_limit, 3, len(k1)))
         return (k1, k1_d)
-
-
-
-    # Like _get_k3() but also calculates the derivatives with regard to all
-    # atoms in the system.
-    def _get_k3_derivatives(self, system):
-
-        grid = self.k3["grid"]
-        start = grid["min"]
-        stop = grid["max"]
-        n = grid["n"]
-        sigma = grid["sigma"]
-
-        # Determine the weighting function and possible radial cutoff
-        r_cut = None
-        weighting = self.k3.get("weighting")
-        parameters = {}
-        if weighting is not None:
-            weighting_function = weighting["function"]
-            if weighting_function == "exp":
-                threshold = weighting["threshold"]
-                r_cut = weighting.get("r_cut")
-                scale = weighting.get("scale")
-                # If we want to limit the triplets to a distance r_cut, we need
-                # to allow x=2*r_cut in the case of k=3.
-                if scale is not None and r_cut is None:
-                    r_cut = -0.5 * math.log(threshold) / scale
-                elif scale is None and r_cut is not None:
-                    scale = -0.5 * math.log(threshold) / r_cut
-                parameters = {b"scale": scale, b"threshold": threshold}
-        else:
-            weighting_function = "unity"
-
-        # Determine the geometry function
-        geom_func_name = self.k3["geometry"]["function"]
-
-        # If needed, create the extended system
-        if self.periodic:
-            centers = system.get_positions()
-            ext_system, cell_indices = dscribe.utils.geometry.get_extended_system(
-                system, r_cut, centers, return_cell_indices=True
-            )
-            ext_system = System.from_atoms(ext_system)
-        else:
-            ext_system = System.from_atoms(system)
-            cell_indices = np.zeros((len(system), 3), dtype=int)
-
-        cmbtr = MBTRWrapper(
-            self.atomic_number_to_index, self._interaction_limit, cell_indices
-        )
-
-        n_atoms = len(ext_system)
-        if r_cut is not None:
-            dmat = ext_system.get_distance_matrix_within_radius(r_cut)
-            adj_list = dscribe.utils.geometry.get_adjacency_list(dmat)
-            dmat_dense = np.full(
-                (n_atoms, n_atoms), sys.float_info.max
-            )  # The non-neighbor values are treated as "infinitely far".
-            dmat_dense[dmat.col, dmat.row] = dmat.data
-        # If no weighting is used, the full distance matrix is calculated
-        else:
-            dmat_dense = ext_system.get_distance_matrix()
-            adj_list = np.tile(np.arange(n_atoms), (n_atoms, 1))
-
-        n_elem = self.n_elements
-        n_features = int((n_elem * n_elem * (n_elem + 1) / 2) * n)
-
-        k3 = np.zeros((n_features), dtype=np.float32)
-        k3_d = np.zeros((self._interaction_limit, 3, n_features), dtype=np.float32)
-
-        # Compute the k=3 term and its derivative
-        cmbtr.get_k3_derivatives(
-            k3_d,
-            k3,
-            ext_system.get_atomic_numbers(),
-            ext_system.get_positions(),
-            dmat_dense,
-            adj_list,
-            geom_func_name.encode(),
-            weighting_function.encode(),
-            parameters,
-            start,
-            stop,
-            sigma,
-            n,
-        )
-
-        # Denormalize if requested
-        if not self.normalize_gaussians:
-            max_val = 1 / (sigma * math.sqrt(2 * math.pi))
-            k3 /= max_val
-            k3_d /= max_val
-
-        return (k3, k3_d)
