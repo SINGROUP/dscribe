@@ -1,9 +1,6 @@
 import pytest
 import numpy as np
-from conftest import (
-    water,
-    assert_derivatives,
-)
+from conftest import water, assert_derivatives, assert_derivatives_numerical
 from dscribe.descriptors import MBTR
 
 
@@ -14,10 +11,10 @@ def k2_dict(geometry_function, weighting_function):
         d["grid"] = {"min": 0, "max": 1.0, "sigma": 0.02, "n": 100}
     else:
         d["geometry"] = {"function": "distance"}
-        d["grid"] = {"min": 0, "max": 10.0, "sigma": 0.2, "n": 100}
+        d["grid"] = {"min": 0, "max": 10.0, "sigma": 0.5, "n": 100}
 
     if weighting_function == "exp":
-        d["weighting"] = {"function": "exp", "r_cut": 10.0, "threshold": 1e-3}
+        d["weighting"] = {"function": "exp", "r_cut": 9.0, "threshold": 1e-3}
 
     return d
 
@@ -65,7 +62,7 @@ def assert_derivatives_analytical(descriptor_func):
     """Test analytical values against a numerical python implementation."""
     system = water()
     system.pbc = [True, True, True]
-    h = 0.0001
+    h = 1e-5
     n_atoms = len(system)
     n_comp = 3
     descriptor = descriptor_func([system])
@@ -91,11 +88,8 @@ def assert_derivatives_analytical(descriptor_func):
     # Compare descriptor values
     assert np.allclose(d0, d_cpp, atol=1e-6)
 
-    # Compare derivative values. The check is not very strict because there
-    # is no guarantee that the numerical derivatives are accurate
-    max_error = np.max(np.abs(derivatives_python - derivatives_analytical))
-    max_value = np.max(np.abs(derivatives_python))
-    assert max_error / max_value < 1e-2
+    # Compare derivative values
+    assert np.allclose(derivatives_python, derivatives_analytical, rtol=1e-5, atol=1e-5)
 
 
 @pytest.mark.parametrize(
