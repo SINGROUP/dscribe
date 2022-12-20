@@ -127,6 +127,7 @@ class MBTR(Descriptor):
         species=None,
         periodic=False,
         sparse=False,
+        dtype="float64",
     ):
         """
         Args:
@@ -189,6 +190,10 @@ class MBTR(Descriptor):
                 pbc-parameter in the constructor of ase.Atoms).
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
+            dtype (str): The data type of the output. Valid options are:
+
+                    * ``"float32"``: Single precision floating point numbers.
+                    * ``"float64"``: Double precision floating point numbers.
         """
         if sparse and not flatten:
             raise ValueError(
@@ -196,7 +201,14 @@ class MBTR(Descriptor):
                 "you want a non-flattened output, please specify sparse=False "
                 "in the MBTR constructor."
             )
-        super().__init__(periodic=periodic, flatten=flatten, sparse=sparse)
+        
+        supported_dtype = set(("float32", "float64"))
+        if dtype not in supported_dtype:
+            raise ValueError(
+                "Invalid output data type '{}' given. Please use "
+                "one of the following: {}".format(dtype, supported_dtype)
+            )
+        super().__init__(periodic=periodic, flatten=flatten, sparse=sparse, dtype=dtype)
         self.system = None
         self.k1 = k1
         self.k2 = k2
@@ -827,6 +839,11 @@ class MBTR(Descriptor):
         # Reshape the output if non-flattened descriptor is requested
         if return_descriptor and not self.flatten:
             k1 = k1.reshape((n_elem,n))
+        
+        # Convert to the final output precision.
+        if self.dtype == "float32":
+            k1 = k1.astype(self.dtype)
+            k1_d = k1_d.astype(self.dtype)
 
         return (k1, k1_d)
 
@@ -979,6 +996,11 @@ class MBTR(Descriptor):
                     end = (m + 1) * n
                     k2_nonflat[i,j] = k2[start:end]
             k2 = k2_nonflat
+        
+        # Convert to the final output precision.
+        if self.dtype == "float32":
+            k2 = k2.astype(self.dtype)
+            k2_d = k2_d.astype(self.dtype)
         
         return (k2, k2_d)
 
@@ -1135,6 +1157,11 @@ class MBTR(Descriptor):
                         end = (m + 1) * n
                         k3_nonflat[i,j,k] = k3[start:end]
             k3 = k3_nonflat
+        
+        # Convert to the final output precision.
+        if self.dtype == "float32":
+            k3 = k3.astype(self.dtype)
+            k3_d = k3_d.astype(self.dtype)
 
         return (k3, k3_d)
 
