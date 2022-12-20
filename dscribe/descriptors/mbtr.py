@@ -753,7 +753,7 @@ class MBTR(Descriptor):
 
         for key, value in kx_map.items():
             new_key = tuple([int(key)])
-            new_kx_map[new_key] = np.array(value, dtype=np.float32)
+            new_kx_map[new_key] = np.array(value, dtype=np.float64)
 
         return new_kx_map
 
@@ -763,7 +763,7 @@ class MBTR(Descriptor):
 
         for key, value in kx_map.items():
             new_key = tuple(int(x) for x in key.split(","))
-            new_kx_map[new_key] = np.array(value, dtype=np.float32)
+            new_kx_map[new_key] = np.array(value, dtype=np.float64)
 
         return new_kx_map
 
@@ -798,7 +798,7 @@ class MBTR(Descriptor):
                 np.zeros((len(system), 3), dtype=int),
             )
             
-            k1 = np.zeros((n_features), dtype=np.float32)
+            k1 = np.zeros((n_features), dtype=np.float64)
             cmbtr.get_k1(
                 k1,
                 system.get_atomic_numbers(),
@@ -811,12 +811,12 @@ class MBTR(Descriptor):
                 n,
             )
         else:
-            k1 = np.zeros((0), dtype=np.float32)
+            k1 = np.zeros((0), dtype=np.float64)
         
         if return_derivatives:
-            k1_d = np.zeros((self._interaction_limit, 3, n_features), dtype=np.float32)
+            k1_d = np.zeros((self._interaction_limit, 3, n_features), dtype=np.float64)
         else:
-            k1_d = np.zeros((0,0,0), dtype=np.float32)
+            k1_d = np.zeros((0,0,0), dtype=np.float64)
 
         # Denormalize if requested
         if not self.normalize_gaussians:
@@ -906,14 +906,14 @@ class MBTR(Descriptor):
         n_features = int((n_elem * (n_elem + 1) / 2) * n)
         
         if return_descriptor:
-            k2 = np.zeros((n_features), dtype=np.float32)
+            k2 = np.zeros((n_features), dtype=np.float64)
         else:
-            k2 = np.zeros((0), dtype=np.float32)
+            k2 = np.zeros((0), dtype=np.float64)
         
         if return_derivatives:
-            k2_d = np.zeros((self._interaction_limit, 3, n_features), dtype=np.float32)
+            k2_d = np.zeros((self._interaction_limit, 3, n_features), dtype=np.float64)
         else:
-            k2_d = np.zeros((0,0,0), dtype=np.float32)
+            k2_d = np.zeros((0,0,0), dtype=np.float64)
         
         # Generate derivatives for k=2 term
         cmbtr.get_k2(
@@ -970,7 +970,7 @@ class MBTR(Descriptor):
 
         # Reshape the output if non-flattened descriptor is requested
         if return_descriptor and not self.flatten:
-            k2_nonflat = np.zeros((n_elem, n_elem, n), dtype=np.float32)
+            k2_nonflat = np.zeros((n_elem, n_elem, n), dtype=np.float64)
             for i in range(n_elem):
                 for j in range(n_elem):
                     if j<i: continue
@@ -1062,14 +1062,14 @@ class MBTR(Descriptor):
         n_features = int((n_elem * n_elem * (n_elem + 1) / 2) * n)
 
         if return_descriptor:
-            k3 = np.zeros((n_features), dtype=np.float32)
+            k3 = np.zeros((n_features), dtype=np.float64)
         else:
-            k3 = np.zeros((0), dtype=np.float32)
+            k3 = np.zeros((0), dtype=np.float64)
 
         if return_derivatives:
-            k3_d = np.zeros((self._interaction_limit, 3, n_features), dtype=np.float32)
+            k3_d = np.zeros((self._interaction_limit, 3, n_features), dtype=np.float64)
         else:
-            k3_d= np.zeros((0,0,0), dtype=np.float32)
+            k3_d= np.zeros((0,0,0), dtype=np.float64)
 
         # Compute the k=3 term and its derivative
         cmbtr.get_k3(
@@ -1125,7 +1125,7 @@ class MBTR(Descriptor):
         
         # If non-flattened descriptor is requested, reshape the output
         if return_descriptor and not self.flatten:
-            k3_nonflat = np.zeros((n_elem, n_elem, n_elem, n), dtype=np.float32)
+            k3_nonflat = np.zeros((n_elem, n_elem, n_elem, n), dtype=np.float64)
             for i in range(n_elem):
                 for j in range(n_elem):
                     for k in range(n_elem):

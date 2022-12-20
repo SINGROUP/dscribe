@@ -9,15 +9,15 @@ MBTR::MBTR(map<int,int> atomicNumberToIndexMap, int interactionLimit, vector<vec
 {
 }
 
-void MBTR::getK1(py::array_t<float> &descriptor, const vector<int> &Z, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n)
+void MBTR::getK1(py::array_t<double> &descriptor, const vector<int> &Z, const string &geomFunc, const string &weightFunc, const map<string, double> &parameters, double min, double max, double sigma, int n)
 {
     // Create mutable and unchecked version
     auto descriptor_mu = descriptor.mutable_unchecked<1>();
 
     int nAtoms = Z.size();
-    float dx = (max-min)/(n-1);
-    float sigmasqrt2 = sigma*sqrt(2.0);
-    float start = min-dx/2;
+    double dx = (max-min)/(n-1);
+    double sigmasqrt2 = sigma*sqrt(2.0);
+    double start = min-dx/2;
 
     for (int i = 0; i < nAtoms; ++i) {
         // Only consider atoms within the original cell
@@ -26,7 +26,7 @@ void MBTR::getK1(py::array_t<float> &descriptor, const vector<int> &Z, const str
         }
 
         // Calculate geometry value
-        float geom;
+        double geom;
         if (geomFunc == "atomic_number") {
             geom = k1GeomAtomicNumber(i, Z);
         } else {
@@ -34,7 +34,7 @@ void MBTR::getK1(py::array_t<float> &descriptor, const vector<int> &Z, const str
         }
 
         // Calculate weight value
-        float weight;
+        double weight;
         if (weightFunc == "unity") {
             weight = k1WeightUnity(i);
         } else {
@@ -42,7 +42,7 @@ void MBTR::getK1(py::array_t<float> &descriptor, const vector<int> &Z, const str
         }
 
         // Calculate gaussian
-        vector<float> gauss = gaussian(geom, weight, start, dx, sigmasqrt2, n);
+        vector<double> gauss = gaussian(geom, weight, start, dx, sigmasqrt2, n);
 
         // Get the index of the present elements in the final vector
         int i_elem = Z[i];
@@ -56,7 +56,7 @@ void MBTR::getK1(py::array_t<float> &descriptor, const vector<int> &Z, const str
     }
 }
 
-void MBTR::getK2(py::array_t<float> &descriptor, py::array_t<float> &derivatives, bool return_descriptor, bool return_derivatives, const vector<int> &Z, const vector<vector<float>> &positions, const vector<vector<float>> &distances, const vector<vector<int>> &neighbours, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n)
+void MBTR::getK2(py::array_t<double> &descriptor, py::array_t<double> &derivatives, bool return_descriptor, bool return_derivatives, const vector<int> &Z, const vector<vector<double>> &positions, const vector<vector<double>> &distances, const vector<vector<int>> &neighbours, const string &geomFunc, const string &weightFunc, const map<string, double> &parameters, double min, double max, double sigma, int n)
 {
     // Create mutable and unchecked versions
     auto descriptor_mu = descriptor.mutable_unchecked<1>();
@@ -65,9 +65,9 @@ void MBTR::getK2(py::array_t<float> &descriptor, py::array_t<float> &derivatives
     // Initialize some variables outside the loop
     int nAtoms = Z.size();
     int nElem = this->atomicNumberToIndexMap.size();
-    float dx = (max-min)/(n-1);
-    float sigmasqrt2 = sigma*sqrt(2.0);
-    float start = min-dx/2;
+    double dx = (max-min)/(n-1);
+    double sigmasqrt2 = sigma*sqrt(2.0);
+    double start = min-dx/2;
 
     // We have to loop over all atoms in the system
     for (int i = 0; i < nAtoms; ++i) {
@@ -85,15 +85,15 @@ void MBTR::getK2(py::array_t<float> &descriptor, py::array_t<float> &derivatives
             }
                 
             // Distance vector between atom pair (i,j) and its length
-            vector<float> dist_vec{ positions[i][0] - positions[j][0],
+            vector<double> dist_vec{ positions[i][0] - positions[j][0],
                                     positions[i][1] - positions[j][1],
                                     positions[i][2] - positions[j][2]};
-            //float dist = sqrt(inner_product(dist_vec.begin(), dist_vec.end(), dist_vec.begin(), 0.0));
-            float dist = distances[i][j];
+            //double dist = sqrt(inner_product(dist_vec.begin(), dist_vec.end(), dist_vec.begin(), 0.0));
+            double dist = distances[i][j];
 
             // Calculate geometry value
-            float geom;
-            vector<float> geom_d(3);
+            double geom;
+            vector<double> geom_d(3);
             if (geomFunc == "inverse_distance") {
                 geom = k2GeomInverseDistance(i, j, distances);
                //geom = 1/dist;
@@ -113,11 +113,11 @@ void MBTR::getK2(py::array_t<float> &descriptor, py::array_t<float> &derivatives
             }
 
             // Calculate weight value
-            float weight;
-            vector<float> weight_d(3, 0.0); // Weight derivatives divided by weight!
+            double weight;
+            vector<double> weight_d(3, 0.0); // Weight derivatives divided by weight!
             if (weightFunc == "exp") {
-                float scale = parameters.at("scale");
-                float threshold = parameters.at("threshold");
+                double scale = parameters.at("scale");
+                double threshold = parameters.at("threshold");
                 weight = k2WeightExponential(i, j, distances, scale);
                 if (weight < threshold) {
                     continue;
@@ -157,7 +157,7 @@ void MBTR::getK2(py::array_t<float> &descriptor, py::array_t<float> &derivatives
             }
 
             // Calculate gaussian
-            vector<float> gauss = gaussian(geom, weight, start, dx, sigmasqrt2, n);
+            vector<double> gauss = gaussian(geom, weight, start, dx, sigmasqrt2, n);
 
             // Get the index of the present elements in the final vector
             int i_elem = Z[i];
@@ -187,13 +187,13 @@ void MBTR::getK2(py::array_t<float> &descriptor, py::array_t<float> &derivatives
 
             if (return_derivatives) {
                 // Calculate x*gaussian distribution.
-                vector<float> xgauss = xgaussian(geom, weight, start, dx, sigma, n);
+                vector<double> xgauss = xgaussian(geom, weight, start, dx, sigma, n);
                 
                 // Add derivative contribution to derivatives that it affects.
                 // Derivatives are antisymmetric.
                 for (int dim = 0; dim < 3; ++dim) {
                     for (int index = 0; index < n; ++index) {
-                        float gauss_d = geom_d[dim]*(xgauss[index] - gauss[index]*geom)*pow(sigma,-2.0)
+                        double gauss_d = geom_d[dim]*(xgauss[index] - gauss[index]*geom)*pow(sigma,-2.0)
                                         + weight_d[dim]*gauss[index];
                         // Counteracting the weight halving
                         gauss_d *= derivative_correction;
@@ -210,7 +210,7 @@ void MBTR::getK2(py::array_t<float> &descriptor, py::array_t<float> &derivatives
     }
 }
 
-void MBTR::getK3(py::array_t<float> &descriptor, py::array_t<float> &derivatives, bool return_descriptor, bool return_derivatives, const vector<int> &Z, const vector<vector<float>> &positions, const vector<vector<float>> &distances, const vector<vector<int>> &neighbours, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n)
+void MBTR::getK3(py::array_t<double> &descriptor, py::array_t<double> &derivatives, bool return_descriptor, bool return_derivatives, const vector<int> &Z, const vector<vector<double>> &positions, const vector<vector<double>> &distances, const vector<vector<int>> &neighbours, const string &geomFunc, const string &weightFunc, const map<string, double> &parameters, double min, double max, double sigma, int n)
 {
     // Create mutable and unchecked versions
     auto descriptor_mu = descriptor.mutable_unchecked<1>();
@@ -218,9 +218,9 @@ void MBTR::getK3(py::array_t<float> &descriptor, py::array_t<float> &derivatives
 
     int nAtoms = Z.size();
     int nElem = this->atomicNumberToIndexMap.size();
-    float dx = (max-min)/(n-1);
-    float sigmasqrt2 = sigma*sqrt(2.0);
-    float start = min-dx/2;
+    double dx = (max-min)/(n-1);
+    double sigmasqrt2 = sigma*sqrt(2.0);
+    double start = min-dx/2;
 
     for (int i = 0; i < nAtoms; ++i) {
 
@@ -248,43 +248,43 @@ void MBTR::getK3(py::array_t<float> &descriptor, py::array_t<float> &derivatives
                 }
 
                 // Find distance vectors
-                vector<float> r_ji{ positions[j][0] - positions[i][0],
+                vector<double> r_ji{ positions[j][0] - positions[i][0],
                                     positions[j][1] - positions[i][1],
                                     positions[j][2] - positions[i][2]};
-                vector<float> r_ik{ positions[i][0] - positions[k][0],
+                vector<double> r_ik{ positions[i][0] - positions[k][0],
                                     positions[i][1] - positions[k][1],
                                     positions[i][2] - positions[k][2]};
-                vector<float> r_jk{ positions[j][0] - positions[k][0],
+                vector<double> r_jk{ positions[j][0] - positions[k][0],
                                     positions[j][1] - positions[k][1],
                                     positions[j][2] - positions[k][2]};
                 
                 // Distances
-                float d_ji = distances[j][i];
-                float d_ik = distances[i][k];
-                float d_jk = distances[j][k];
+                double d_ji = distances[j][i];
+                double d_ik = distances[i][k];
+                double d_jk = distances[j][k];
                 
                 // Calculate geometry value and its derivatives.
                 // "angle" is not supported because it is not differentiable.
-                float geom;
-                vector<vector<float>> geom_d(3);
+                double geom;
+                vector<vector<double>> geom_d(3);
                 if (geomFunc == "cosine") {
                     // geom = k3GeomCosine(i, j, k, distances);
                     
-                    float num = d_ji*d_ji + d_jk*d_jk - d_ik*d_ik;  // Numerator
-                    float den = d_jk*d_ji;                          // Denumerator
+                    double num = d_ji*d_ji + d_jk*d_jk - d_ik*d_ik;  // Numerator
+                    double den = d_jk*d_ji;                          // Denumerator
                     
-                    float cosine = 0.5*num/den;
-                    geom = std::max(-1.0f, std::min(cosine, 1.0f));
+                    double cosine = 0.5*num/den;
+                    geom = std::max(-1.0, std::min(cosine, 1.0));
                     
                     if (return_derivatives) {
                         for (int dim = 0; dim < 3; ++dim) {
-                            float num_d_i = 2.0*(-r_ji[dim] - r_ik[dim]);
-                            float num_d_j = 2.0*( r_ji[dim] + r_jk[dim]);
-                            float num_d_k = 2.0*(-r_jk[dim] + r_ik[dim]);
+                            double num_d_i = 2.0*(-r_ji[dim] - r_ik[dim]);
+                            double num_d_j = 2.0*( r_ji[dim] + r_jk[dim]);
+                            double num_d_k = 2.0*(-r_jk[dim] + r_ik[dim]);
 
-                            float den_d_i = -d_jk/d_ji*r_ji[dim];
-                            float den_d_j =  d_ji/d_jk*r_jk[dim] + d_jk/d_ji*r_ji[dim];
-                            float den_d_k = -d_ji/d_jk*r_jk[dim];
+                            double den_d_i = -d_jk/d_ji*r_ji[dim];
+                            double den_d_j =  d_ji/d_jk*r_jk[dim] + d_jk/d_ji*r_ji[dim];
+                            double den_d_k = -d_ji/d_jk*r_jk[dim];
                             
                             geom_d[0].push_back(0.5*(num_d_i*den - num*den_d_i)/(den*den));
                             geom_d[1].push_back(0.5*(num_d_j*den - num*den_d_j)/(den*den));
@@ -301,11 +301,11 @@ void MBTR::getK3(py::array_t<float> &descriptor, py::array_t<float> &derivatives
                 }
 
                 // Calculate weight value and its derivatives.
-                float weight;
-                vector<vector<float>> weight_d(3); // Weight derivatives divided by weight!
+                double weight;
+                vector<vector<double>> weight_d(3); // Weight derivatives divided by weight!
                 if (weightFunc == "exp") {
-                    float scale = parameters.at("scale");
-                    float threshold = parameters.at("threshold");
+                    double scale = parameters.at("scale");
+                    double threshold = parameters.at("threshold");
                     weight = k3WeightExponential(i, j, k, distances, scale);
                     if (weight < threshold) {
                         continue;
@@ -320,13 +320,13 @@ void MBTR::getK3(py::array_t<float> &descriptor, py::array_t<float> &derivatives
                 } else if (weightFunc == "unity") {
                     weight = k3WeightUnity(i, j, k, distances);
                     if (return_derivatives) {
-                        weight_d[0] = vector<float>(3,0.0);
-                        weight_d[1] = vector<float>(3,0.0);
-                        weight_d[2] = vector<float>(3,0.0);
+                        weight_d[0] = vector<double>(3,0.0);
+                        weight_d[1] = vector<double>(3,0.0);
+                        weight_d[2] = vector<double>(3,0.0);
                     }
                 } else if (weightFunc == "smooth_cutoff") {
-                    float sharpness = parameters.at("sharpness");
-                    float cutoff = parameters.at("cutoff");
+                    double sharpness = parameters.at("sharpness");
+                    double cutoff = parameters.at("cutoff");
                     weight = k3WeightSmooth(i, j, k, distances, sharpness, cutoff);
                     if (return_derivatives) {
                         throw invalid_argument("Derivatives not implemented for weighting function 'smooth_cutoff'.");
@@ -359,7 +359,7 @@ void MBTR::getK3(py::array_t<float> &descriptor, py::array_t<float> &derivatives
                 }
 
                 // Calculate gaussian
-                vector<float> gauss = gaussian(geom, weight, start, dx, sigmasqrt2, n);
+                vector<double> gauss = gaussian(geom, weight, start, dx, sigmasqrt2, n);
 
                 // Get the index of the present elements in the final vector
                 int i_elem = Z[i];
@@ -392,7 +392,7 @@ void MBTR::getK3(py::array_t<float> &descriptor, py::array_t<float> &derivatives
 
                 if (return_derivatives) {
                     // Calculate x*gaussian distribution.
-                    vector<float> xgauss = xgaussian(geom, weight, start, dx, sigma, n);
+                    vector<double> xgauss = xgaussian(geom, weight, start, dx, sigma, n);
                     
                     vector<int> atom_indices{i, j, k};
                     for (int a = 0; a < 3; ++a) {
@@ -400,7 +400,7 @@ void MBTR::getK3(py::array_t<float> &descriptor, py::array_t<float> &derivatives
                         if (atom >= this->interactionLimit) continue;
                         for (int dim = 0; dim < 3; ++dim) {
                             for (int index = 0; index < n; ++index) {
-                                float gauss_d = geom_d[a][dim]*(xgauss[index] - gauss[index]*geom)*pow(sigma,-2.0)
+                                double gauss_d = geom_d[a][dim]*(xgauss[index] - gauss[index]*geom)*pow(sigma,-2.0)
                                                 + weight_d[a][dim]*gauss[index];
                                 // Counteracting the weight halving
                                 gauss_d *= derivative_correction;
@@ -414,12 +414,12 @@ void MBTR::getK3(py::array_t<float> &descriptor, py::array_t<float> &derivatives
     }
 }
 
-inline vector<float> MBTR::gaussian(float center, float weight, float start, float dx, float sigmasqrt2, int n) {
+inline vector<double> MBTR::gaussian(double center, double weight, double start, double dx, double sigmasqrt2, int n) {
 
     // We first calculate the cumulative distibution function for a normal
     // distribution.
-    vector<float> cdf(n+1);
-    float x = start;
+    vector<double> cdf(n+1);
+    double x = start;
     for (auto &it : cdf) {
         it = weight*1.0/2.0*(1.0 + erf((x-center)/sigmasqrt2));
         x += dx;
@@ -428,7 +428,7 @@ inline vector<float> MBTR::gaussian(float center, float weight, float start, flo
     // The normal distribution is calculated as a derivative of the cumulative
     // distribution, as with coarse discretization this methods preserves the
     // norm better.
-    vector<float> pdf(n);
+    vector<double> pdf(n);
     int i = 0;
     for (auto &it : pdf) {
         it = (cdf[i+1]-cdf[i])/dx;
@@ -438,19 +438,19 @@ inline vector<float> MBTR::gaussian(float center, float weight, float start, flo
     return pdf;
 }
 
-inline vector<float> MBTR::xgaussian(float center, float weight, float start, float dx, float sigma, int n) {
+inline vector<double> MBTR::xgaussian(double center, double weight, double start, double dx, double sigma, int n) {
 
-    float sigmasqrt2 = sigma*sqrt(2.0);
-    float c1 = center*weight*1.0/2.0;
-    float c2 = weight*sigma/sqrt(2.0*PI);
-    float c3 = 2.0*sigma*sigma;
+    double sigmasqrt2 = sigma*sqrt(2.0);
+    double c1 = center*weight*1.0/2.0;
+    double c2 = weight*sigma/sqrt(2.0*PI);
+    double c3 = 2.0*sigma*sigma;
     
     // We first calculate the cumulative distibution function for
     // x*gaussian distribution
     // The first term is almost identical cdf of gaussian distribution,
     // and calculating the two together would be faster.
-    vector<float> cdf(n+1);
-    float x = start;
+    vector<double> cdf(n+1);
+    double x = start;
     for (auto &it : cdf) {
         it = c1*(1.0 + erf((x-center)/sigmasqrt2)) - c2*(exp(-pow((x-center),2.0)/c3) - 1.0);
         x += dx;
@@ -459,7 +459,7 @@ inline vector<float> MBTR::xgaussian(float center, float weight, float start, fl
     // The normal distribution is calculated as a derivative of the cumulative
     // distribution, as with coarse discretization this methods preserves the
     // norm better.
-    vector<float> pdf(n);
+    vector<double> pdf(n);
     int i = 0;
     for (auto &it : pdf) {
         it = (cdf[i+1]-cdf[i])/dx;
@@ -469,114 +469,114 @@ inline vector<float> MBTR::xgaussian(float center, float weight, float start, fl
     return pdf;
 }
 
-inline float MBTR::k1GeomAtomicNumber(const int &i, const vector<int> &Z)
+inline double MBTR::k1GeomAtomicNumber(const int &i, const vector<int> &Z)
 {
     int atomicNumber = Z[i];
     return atomicNumber;
 }
 
-inline float MBTR::k1WeightUnity(const int &i)
+inline double MBTR::k1WeightUnity(const int &i)
 {
     return 1;
 }
 
-inline float MBTR::k2GeomInverseDistance(const int &i, const int &j, const vector<vector<float> > &distances)
+inline double MBTR::k2GeomInverseDistance(const int &i, const int &j, const vector<vector<double> > &distances)
 {
-    float dist = k2GeomDistance(i, j, distances);
-    float invDist = 1/dist;
+    double dist = k2GeomDistance(i, j, distances);
+    double invDist = 1/dist;
     return invDist;
 }
 
-inline float MBTR::k2GeomDistance(const int &i, const int &j, const vector<vector<float> > &distances)
+inline double MBTR::k2GeomDistance(const int &i, const int &j, const vector<vector<double> > &distances)
 {
-    float dist = distances[i][j];
+    double dist = distances[i][j];
     return dist;
 }
 
-inline float MBTR::k2WeightUnity(const int &i, const int &j, const vector<vector<float> > &distances)
+inline double MBTR::k2WeightUnity(const int &i, const int &j, const vector<vector<double> > &distances)
 {
     return 1;
 }
 
-inline float MBTR::k2WeightExponential(const int &i, const int &j, const vector<vector<float> > &distances, float scale)
+inline double MBTR::k2WeightExponential(const int &i, const int &j, const vector<vector<double> > &distances, double scale)
 {
-    float dist = distances[i][j];
-    float expValue = exp(-scale*dist);
+    double dist = distances[i][j];
+    double expValue = exp(-scale*dist);
     return expValue;
 }
 
-inline float MBTR::k2WeightSquare(const int &i, const int &j, const vector<vector<float> > &distances)
+inline double MBTR::k2WeightSquare(const int &i, const int &j, const vector<vector<double> > &distances)
 {
-    float dist = distances[i][j];
-    float value = 1/(dist*dist);
+    double dist = distances[i][j];
+    double value = 1/(dist*dist);
     return value;
 }
 
-inline float MBTR::k3GeomCosine(const int &i, const int &j, const int &k, const vector<vector<float> > &distances)
+inline double MBTR::k3GeomCosine(const int &i, const int &j, const int &k, const vector<vector<double> > &distances)
 {
-    float r_ji = distances[j][i];
-    float r_ik = distances[i][k];
-    float r_jk = distances[j][k];
-    float r_ji_square = r_ji*r_ji;
-    float r_ik_square = r_ik*r_ik;
-    float r_jk_square = r_jk*r_jk;
-    float cosine = 0.5/(r_jk*r_ji) * (r_ji_square+r_jk_square-r_ik_square);
+    double r_ji = distances[j][i];
+    double r_ik = distances[i][k];
+    double r_jk = distances[j][k];
+    double r_ji_square = r_ji*r_ji;
+    double r_ik_square = r_ik*r_ik;
+    double r_jk_square = r_jk*r_jk;
+    double cosine = 0.5/(r_jk*r_ji) * (r_ji_square+r_jk_square-r_ik_square);
 
     // Due to numerical reasons the cosine might be slightly under -1 or
     // above 1 degrees. E.g. acos is not defined then so we clip the values
     // to prevent NaN:s
-    cosine = max(-1.0f, min(cosine, 1.0f));
+    cosine = max(-1.0, min(cosine, 1.0));
 
     return cosine;
 }
 
-inline float MBTR::k3GeomAngle(const int &i, const int &j, const int &k, const vector<vector<float> > &distances)
+inline double MBTR::k3GeomAngle(const int &i, const int &j, const int &k, const vector<vector<double> > &distances)
 {
-    float cosine = this->k3GeomCosine(i, j, k, distances);
-    float angle = acos(cosine)*180.0/PI;
+    double cosine = this->k3GeomCosine(i, j, k, distances);
+    double angle = acos(cosine)*180.0/PI;
 
     return angle;
 }
 
-inline float MBTR::k3WeightExponential(const int &i, const int &j, const int &k, const vector<vector<float> > &distances, float scale)
+inline double MBTR::k3WeightExponential(const int &i, const int &j, const int &k, const vector<vector<double> > &distances, double scale)
 {
-    float dist1 = distances[i][j];
-    float dist2 = distances[j][k];
-    float dist3 = distances[k][i];
-    float distTotal = dist1 + dist2 + dist3;
-    float expValue = exp(-scale*distTotal);
+    double dist1 = distances[i][j];
+    double dist2 = distances[j][k];
+    double dist3 = distances[k][i];
+    double distTotal = dist1 + dist2 + dist3;
+    double expValue = exp(-scale*distTotal);
 
     return expValue;
 }
 
-inline float MBTR::k3WeightSmooth(const int &i, const int &j, const int &k, const vector<vector<float> > &distances, float sharpness, float cutoff)
+inline double MBTR::k3WeightSmooth(const int &i, const int &j, const int &k, const vector<vector<double> > &distances, double sharpness, double cutoff)
 {
-    float dist1 = distances[i][j];
-    float dist2 = distances[j][k];
-    float f_ij = 1 + sharpness* pow((dist1/cutoff), (sharpness+1)) - (sharpness+1)* pow((dist1/cutoff), sharpness);
-    float f_jk = 1 + sharpness* pow((dist2/cutoff), (sharpness+1)) - (sharpness+1)* pow((dist2/cutoff), sharpness);
+    double dist1 = distances[i][j];
+    double dist2 = distances[j][k];
+    double f_ij = 1 + sharpness* pow((dist1/cutoff), (sharpness+1)) - (sharpness+1)* pow((dist1/cutoff), sharpness);
+    double f_jk = 1 + sharpness* pow((dist2/cutoff), (sharpness+1)) - (sharpness+1)* pow((dist2/cutoff), sharpness);
 
     return f_ij*f_jk;
 }
 
-inline float MBTR::k3WeightUnity(const int &i, const int &j, const int &k, const vector<vector<float> > &distances)
+inline double MBTR::k3WeightUnity(const int &i, const int &j, const int &k, const vector<vector<double> > &distances)
 {
     return 1;
 }
 
-vector<map<string, vector<float>>> MBTR::getK2Local(const vector<int> &indices, const vector<int> &Z, const vector<vector<float> > &distances, const vector<vector<int> > &neighbours, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n)
+vector<map<string, vector<double>>> MBTR::getK2Local(const vector<int> &indices, const vector<int> &Z, const vector<vector<double> > &distances, const vector<vector<int> > &neighbours, const string &geomFunc, const string &weightFunc, const map<string, double> &parameters, double min, double max, double sigma, int n)
 {
     // Initialize some variables outside the loop
     int nPos = indices.size();
-    vector<map<string, vector<float> > > k2Maps(nPos);
-    float dx = (max-min)/(n-1);
-    float sigmasqrt2 = sigma*sqrt(2.0);
-    float start = min-dx/2;
+    vector<map<string, vector<double> > > k2Maps(nPos);
+    double dx = (max-min)/(n-1);
+    double sigmasqrt2 = sigma*sqrt(2.0);
+    double start = min-dx/2;
 
     // We loop over the specified indices
     for (int i = 0; i < nPos; ++i) {
         int iTrue = indices[i];
-        map<string, vector<float> > k2Map;
+        map<string, vector<double> > k2Map;
 
         // For each atom we loop only over the neighbours
         const vector<int> &i_neighbours = neighbours[i];
@@ -588,7 +588,7 @@ vector<map<string, vector<float>>> MBTR::getK2Local(const vector<int> &indices, 
             }
 
             // Calculate geometry value
-            float geom;
+            double geom;
             if (geomFunc == "inverse_distance") {
                 geom = k2GeomInverseDistance(i, j, distances);
             } else if (geomFunc == "distance") {
@@ -598,10 +598,10 @@ vector<map<string, vector<float>>> MBTR::getK2Local(const vector<int> &indices, 
             }
 
             // Calculate weight value
-            float weight;
+            double weight;
             if (weightFunc == "exp") {
-                float scale = parameters.at("scale");
-                float threshold = parameters.at("threshold");
+                double scale = parameters.at("scale");
+                double threshold = parameters.at("threshold");
                 weight = k2WeightExponential(i, j, distances, scale);
                 if (weight < threshold) {
                     continue;
@@ -613,7 +613,7 @@ vector<map<string, vector<float>>> MBTR::getK2Local(const vector<int> &indices, 
             }
 
             // Calculate gaussian
-            vector<float> gauss = gaussian(geom, weight, start, dx, sigmasqrt2, n);
+            vector<double> gauss = gaussian(geom, weight, start, dx, sigmasqrt2, n);
 
             // Get the index of the present elements in the final vector
             int i_elem = 0;
@@ -640,8 +640,8 @@ vector<map<string, vector<float>>> MBTR::getK2Local(const vector<int> &indices, 
             if ( it == k2Map.end() ) {
                 k2Map[stringKey] = gauss;
             } else {
-                vector<float> &old = it->second;
-                transform(old.begin(), old.end(), gauss.begin(), old.begin(), plus<float>());
+                vector<double> &old = it->second;
+                transform(old.begin(), old.end(), gauss.begin(), old.begin(), plus<double>());
             }
         }
         k2Maps[i] = k2Map;
@@ -650,18 +650,18 @@ vector<map<string, vector<float>>> MBTR::getK2Local(const vector<int> &indices, 
     return k2Maps;
 }
 
-vector<map<string, vector<float>>> MBTR::getK3Local(const vector<int> &indices, const vector<int> &Z, const vector<vector<float>> &distances, const vector<vector<int>> &neighbours, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n)
+vector<map<string, vector<double>>> MBTR::getK3Local(const vector<int> &indices, const vector<int> &Z, const vector<vector<double>> &distances, const vector<vector<int>> &neighbours, const string &geomFunc, const string &weightFunc, const map<string, double> &parameters, double min, double max, double sigma, int n)
 {
     // Initialize some variables outside the loop
-    vector<map<string, vector<float>>> k3Maps(indices.size());
-    float dx = (max-min)/(n-1);
-    float sigmasqrt2 = sigma*sqrt(2.0);
-    float start = min-dx/2;
+    vector<map<string, vector<double>>> k3Maps(indices.size());
+    double dx = (max-min)/(n-1);
+    double sigmasqrt2 = sigma*sqrt(2.0);
+    double start = min-dx/2;
     int iLoc = 0;
 
     // We loop over the specified indices
     for (const int &i : indices) {
-        map<string, vector<float> > k3Map;
+        map<string, vector<double> > k3Map;
 
         // For each atom we loop only over the atoms triplets that are
         // within the neighbourhood
@@ -674,7 +674,7 @@ vector<map<string, vector<float>>> MBTR::getK3Local(const vector<int> &indices, 
                 if (j != i && k != j && k != i) {
 
                     // Calculate geometry value
-                    float geom;
+                    double geom;
                     if (geomFunc == "cosine") {
                         geom = k3GeomCosine(i, j, k, distances);
                     } else if (geomFunc == "angle") {
@@ -684,10 +684,10 @@ vector<map<string, vector<float>>> MBTR::getK3Local(const vector<int> &indices, 
                     }
 
                     // Calculate weight value
-                    float weight;
+                    double weight;
                     if (weightFunc == "exp") {
-                        float scale = parameters.at("scale");
-                        float threshold = parameters.at("threshold");
+                        double scale = parameters.at("scale");
+                        double threshold = parameters.at("threshold");
                         weight = k3WeightExponential(i, j, k, distances, scale);
                         if (weight < threshold) {
                             continue;
@@ -699,7 +699,7 @@ vector<map<string, vector<float>>> MBTR::getK3Local(const vector<int> &indices, 
                     }
 
                     // Calculate gaussian
-                    vector<float> gauss = gaussian(geom, weight, start, dx, sigmasqrt2, n);
+                    vector<double> gauss = gaussian(geom, weight, start, dx, sigmasqrt2, n);
 
                     // Get the index of the present elements in the final vector
                     int i_elem = 0;
@@ -730,15 +730,15 @@ vector<map<string, vector<float>>> MBTR::getK3Local(const vector<int> &indices, 
                     if ( it == k3Map.end() ) {
                         k3Map[stringKey] = gauss;
                     } else {
-                        vector<float> &old = it->second;
-                        transform(old.begin(), old.end(), gauss.begin(), old.begin(), plus<float>());
+                        vector<double> &old = it->second;
+                        transform(old.begin(), old.end(), gauss.begin(), old.begin(), plus<double>());
                     }
 
                     // Also include the angle where the local center is in
                     // the middle. Include it only once.
                     if (k > j) {
                         // Calculate geometry value
-                        float geom;
+                        double geom;
                         if (geomFunc == "cosine") {
                             geom = k3GeomCosine(j, i, k, distances);
                         } else if (geomFunc == "angle") {
@@ -748,10 +748,10 @@ vector<map<string, vector<float>>> MBTR::getK3Local(const vector<int> &indices, 
                         }
 
                         // Calculate weight value
-                        float weight;
+                        double weight;
                         if (weightFunc == "exp") {
-                            float scale = parameters.at("scale");
-                            float threshold = parameters.at("threshold");
+                            double scale = parameters.at("scale");
+                            double threshold = parameters.at("threshold");
                             weight = k3WeightExponential(j, i, k, distances, scale);
                             if (weight < threshold) {
                                 continue;
@@ -763,7 +763,7 @@ vector<map<string, vector<float>>> MBTR::getK3Local(const vector<int> &indices, 
                         }
 
                         // Calculate gaussian
-                        vector<float> gauss = gaussian(geom, weight, start, dx, sigmasqrt2, n);
+                        vector<double> gauss = gaussian(geom, weight, start, dx, sigmasqrt2, n);
 
                         // Get the index of the present elements in the final vector
                         int i_elem = 0;
@@ -794,8 +794,8 @@ vector<map<string, vector<float>>> MBTR::getK3Local(const vector<int> &indices, 
                         if ( it == k3Map.end() ) {
                             k3Map[stringKey] = gauss;
                         } else {
-                            vector<float> &old = it->second;
-                            transform(old.begin(), old.end(), gauss.begin(), old.begin(), plus<float>());
+                            vector<double> &old = it->second;
+                            transform(old.begin(), old.end(), gauss.begin(), old.begin(), plus<double>());
                         }
                     }
                 }
