@@ -201,7 +201,7 @@ class MBTR(Descriptor):
                 "you want a non-flattened output, please specify sparse=False "
                 "in the MBTR constructor."
             )
-        
+
         supported_dtype = set(("float32", "float64"))
         if dtype not in supported_dtype:
             raise ValueError(
@@ -809,7 +809,7 @@ class MBTR(Descriptor):
                 self._interaction_limit,
                 np.zeros((len(system), 3), dtype=int),
             )
-            
+
             k1 = np.zeros((n_features), dtype=np.float64)
             cmbtr.get_k1(
                 k1,
@@ -824,11 +824,11 @@ class MBTR(Descriptor):
             )
         else:
             k1 = np.zeros((0), dtype=np.float64)
-        
+
         if return_derivatives:
             k1_d = np.zeros((self._interaction_limit, 3, n_features), dtype=np.float64)
         else:
-            k1_d = np.zeros((0,0,0), dtype=np.float64)
+            k1_d = np.zeros((0, 0, 0), dtype=np.float64)
 
         # Denormalize if requested
         if not self.normalize_gaussians:
@@ -838,8 +838,8 @@ class MBTR(Descriptor):
 
         # Reshape the output if non-flattened descriptor is requested
         if return_descriptor and not self.flatten:
-            k1 = k1.reshape((n_elem,n))
-        
+            k1 = k1.reshape((n_elem, n))
+
         # Convert to the final output precision.
         if self.dtype == "float32":
             k1 = k1.astype(self.dtype)
@@ -918,20 +918,20 @@ class MBTR(Descriptor):
         else:
             dmat_dense = ext_system.get_distance_matrix()
             adj_list = np.tile(np.arange(n_atoms), (n_atoms, 1))
-        
+
         n_elem = self.n_elements
         n_features = int((n_elem * (n_elem + 1) / 2) * n)
-        
+
         if return_descriptor:
             k2 = np.zeros((n_features), dtype=np.float64)
         else:
             k2 = np.zeros((0), dtype=np.float64)
-        
+
         if return_derivatives:
             k2_d = np.zeros((self._interaction_limit, 3, n_features), dtype=np.float64)
         else:
-            k2_d = np.zeros((0,0,0), dtype=np.float64)
-        
+            k2_d = np.zeros((0, 0, 0), dtype=np.float64)
+
         # Generate derivatives for k=2 term
         cmbtr.get_k2(
             k2,
@@ -962,7 +962,8 @@ class MBTR(Descriptor):
         if self.normalization == "valle_oganov":
             for i in range(n_elem):
                 for j in range(n_elem):
-                    if j < i: continue
+                    if j < i:
+                        continue
                     S = self.system
                     n_elements = len(self.species)
                     V = S.cell.volume
@@ -975,7 +976,7 @@ class MBTR(Descriptor):
                         count_product = 0.5 * counts[i] * counts[j]
                     else:
                         count_product = counts[i] * counts[j]
-                    
+
                     # This is the index of the spectrum. It is given by enumerating the
                     # elements of an upper triangular matrix from left to right and top
                     # to bottom.
@@ -990,18 +991,19 @@ class MBTR(Descriptor):
             k2_nonflat = np.zeros((n_elem, n_elem, n), dtype=np.float64)
             for i in range(n_elem):
                 for j in range(n_elem):
-                    if j<i: continue
+                    if j < i:
+                        continue
                     m = int(j + i * n_elem - i * (i + 1) / 2)
                     start = m * n
                     end = (m + 1) * n
-                    k2_nonflat[i,j] = k2[start:end]
+                    k2_nonflat[i, j] = k2[start:end]
             k2 = k2_nonflat
-        
+
         # Convert to the final output precision.
         if self.dtype == "float32":
             k2 = k2.astype(self.dtype)
             k2_d = k2_d.astype(self.dtype)
-        
+
         return (k2, k2_d)
 
     def _get_k3(self, system, return_descriptor, return_derivatives):
@@ -1091,7 +1093,7 @@ class MBTR(Descriptor):
         if return_derivatives:
             k3_d = np.zeros((self._interaction_limit, 3, n_features), dtype=np.float64)
         else:
-            k3_d= np.zeros((0,0,0), dtype=np.float64)
+            k3_d = np.zeros((0, 0, 0), dtype=np.float64)
 
         # Compute the k=3 term and its derivative
         cmbtr.get_k3(
@@ -1124,7 +1126,8 @@ class MBTR(Descriptor):
             for i in range(n_elem):
                 for j in range(n_elem):
                     for k in range(n_elem):
-                        if k < i: continue
+                        if k < i:
+                            continue
                         S = self.system
                         n_elements = len(self.species)
                         V = S.cell.volume
@@ -1133,31 +1136,42 @@ class MBTR(Descriptor):
                         counts = {}
                         for index, number in imap.items():
                             counts[index] = list(S.get_atomic_numbers()).count(number)
-                        
+
                         # This is the index of the spectrum. It is given by enumerating the
                         # elements of a three-dimensional array where for valid elements
                         # k>=i. The enumeration begins from [0, 0, 0], and ends at [n_elem,
                         # n_elem, n_elem], looping the elements in the order j, i, k.
-                        m = int(j * n_elem * (n_elem + 1) / 2 + k + i * n_elem - i * (i + 1) / 2)
+                        m = int(
+                            j * n_elem * (n_elem + 1) / 2
+                            + k
+                            + i * n_elem
+                            - i * (i + 1) / 2
+                        )
                         start = m * n
                         end = (m + 1) * n
                         count_product = counts[i] * counts[j] * counts[k]
                         y_normed = (k3[start:end] * V) / count_product
                         k3[start:end] = y_normed
-        
+
         # If non-flattened descriptor is requested, reshape the output
         if return_descriptor and not self.flatten:
             k3_nonflat = np.zeros((n_elem, n_elem, n_elem, n), dtype=np.float64)
             for i in range(n_elem):
                 for j in range(n_elem):
                     for k in range(n_elem):
-                        if k < i: continue
-                        m = int(j * n_elem * (n_elem + 1) / 2 + k + i * n_elem - i * (i + 1) / 2)
+                        if k < i:
+                            continue
+                        m = int(
+                            j * n_elem * (n_elem + 1) / 2
+                            + k
+                            + i * n_elem
+                            - i * (i + 1) / 2
+                        )
                         start = m * n
                         end = (m + 1) * n
-                        k3_nonflat[i,j,k] = k3[start:end]
+                        k3_nonflat[i, j, k] = k3[start:end]
             k3 = k3_nonflat
-        
+
         # Convert to the final output precision.
         if self.dtype == "float32":
             k3 = k3.astype(self.dtype)
