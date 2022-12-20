@@ -768,11 +768,16 @@ class MBTR(Descriptor):
         return new_kx_map
 
     def _get_k1(self, system, return_descriptor, return_derivatives):
-        """Calculates the second order terms where the scalar mapping is the
-        inverse distance between atoms.
+        """Calculates the first order term and/or its derivatives with
+        regard to atomic positions.
 
         Returns:
-            1D ndarray: flattened K2 values.
+            1D or 3D ndarray:   K1 values. If flatten=True, returns a 1D array
+                                and if flatten=False returns a 2D array.
+                                If return_descriptor=False, returns an array of
+                                shape (0).
+            3D ndarray:         K1 derivatives. If return_derivatives=False,
+                                returns an array of shape (0,0,0).
         """
         grid = self.k1["grid"]
         start = grid["min"]
@@ -819,18 +824,23 @@ class MBTR(Descriptor):
             k1 /= max_val
             k1_d /= max_val
 
-        # If non-flattened descriptor is requested, reshape the output
+        # Reshape the output if non-flattened descriptor is requested
         if return_descriptor and not self.flatten:
             k1 = k1.reshape((n_elem,n))
 
         return (k1, k1_d)
 
     def _get_k2(self, system, return_descriptor, return_derivatives):
-        """Calculates the second order terms where the scalar mapping is the
-        inverse distance between atoms.
+        """Calculates the second order term and/or its derivatives with
+        regard to atomic positions.
 
         Returns:
-            1D ndarray: flattened K2 values.
+            1D or 3D ndarray:   K2 values. If flatten=True, returns a 1D array
+                                and if flatten=False returns a 3D array.
+                                If return_descriptor=False, returns an array of
+                                shape (0).
+            3D ndarray:         K2 derivatives. If return_derivatives=False,
+                                returns an array of shape (0,0,0).
         """
         grid = self.k2["grid"]
         start = grid["min"]
@@ -930,10 +940,11 @@ class MBTR(Descriptor):
             k2 /= max_val
             k2_d /= max_val
 
-        # Valle-Oganov normalization is calculated separately for each pair
+        # Valle-Oganov normalization is calculated separately for each pair.
+        # Not implemented for derivatives.
         if self.normalization == "valle_oganov":
-            for i, i_elem in enumerate(self.species):
-                for j, j_elem in enumerate(self.species):
+            for i in range(n_elem):
+                for j in range(n_elem):
                     if j < i: continue
                     S = self.system
                     n_elements = len(self.species)
@@ -947,17 +958,21 @@ class MBTR(Descriptor):
                         count_product = 0.5 * counts[i] * counts[j]
                     else:
                         count_product = counts[i] * counts[j]
+                    
+                    # This is the index of the spectrum. It is given by enumerating the
+                    # elements of an upper triangular matrix from left to right and top
+                    # to bottom.
                     m = int(j + i * n_elem - i * (i + 1) / 2)
                     start = m * n
                     end = (m + 1) * n
                     y_normed = (k2[start:end] * V) / (count_product * 4 * np.pi)
                     k2[start:end] = y_normed
 
-        # If non-flattened descriptor is requested, reshape the output
+        # Reshape the output if non-flattened descriptor is requested
         if return_descriptor and not self.flatten:
-            k2_nonflat = np.zeros((self.n_elements, self.n_elements, n), dtype=np.float32)
-            for i, i_elem in enumerate(self.species):
-                for j, j_elem in enumerate(self.species):
+            k2_nonflat = np.zeros((n_elem, n_elem, n), dtype=np.float32)
+            for i in range(n_elem):
+                for j in range(n_elem):
                     if j<i: continue
                     m = int(j + i * n_elem - i * (i + 1) / 2)
                     start = m * n
@@ -968,10 +983,16 @@ class MBTR(Descriptor):
         return (k2, k2_d)
 
     def _get_k3(self, system, return_descriptor, return_derivatives):
-        """Calculates the third order terms.
+        """Calculates the third order term and/or its derivatives with
+        regard to atomic positions.
 
         Returns:
-            1D ndarray: flattened K3 values.
+            1D or 4D ndarray:   K2 values. If flatten=True, returns a 1D array
+                                and if flatten=False returns a 4D array.
+                                If return_descriptor=False, returns an array of
+                                shape (0).
+            3D ndarray:         K2 derivatives. If return_derivatives=False,
+                                returns an array of shape (0,0,0).
         """
         grid = self.k3["grid"]
         start = grid["min"]
@@ -1076,10 +1097,11 @@ class MBTR(Descriptor):
             k3_d /= max_val
 
         # Valle-Oganov normalization is calculated separately for each triplet
+        # Not implemented for derivatives.
         if self.normalization == "valle_oganov":
-            for i, i_elem in enumerate(self.species):
-                for j, j_elem in enumerate(self.species):
-                    for k, k_elem in enumerate(self.species):
+            for i in range(n_elem):
+                for j in range(n_elem):
+                    for k in range(n_elem):
                         if k < i: continue
                         S = self.system
                         n_elements = len(self.species)
@@ -1103,10 +1125,10 @@ class MBTR(Descriptor):
         
         # If non-flattened descriptor is requested, reshape the output
         if return_descriptor and not self.flatten:
-            k3_nonflat = np.zeros((self.n_elements, self.n_elements, self.n_elements, n), dtype=np.float32)
-            for i, i_elem in enumerate(self.species):
-                for j, j_elem in enumerate(self.species):
-                    for k, k_elem in enumerate(self.species):
+            k3_nonflat = np.zeros((n_elem, n_elem, n_elem, n), dtype=np.float32)
+            for i in range(n_elem):
+                for j in range(n_elem):
+                    for k in range(n_elem):
                         if k < i: continue
                         m = int(j * n_elem * (n_elem + 1) / 2 + k + i * n_elem - i * (i + 1) / 2)
                         start = m * n
@@ -1298,7 +1320,7 @@ class MBTR(Descriptor):
             indices (list): Indices of atoms for which the derivatives will be
                 computed for.
             method (str): The method for calculating the derivatives. Supports
-                'numerical'.
+                'analytical'.
             return_descriptor (bool): Whether to also calculate the descriptor
                 in the same function call. This is true by default as it
                 typically is faster to calculate both in one go.
