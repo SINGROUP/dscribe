@@ -13,43 +13,45 @@ void MBTR::getK1(py::array_t<float> &descriptor, const vector<int> &Z, const str
 {
     // Create mutable and unchecked version
     auto descriptor_mu = descriptor.mutable_unchecked<1>();
+
     int nAtoms = Z.size();
     float dx = (max-min)/(n-1);
     float sigmasqrt2 = sigma*sqrt(2.0);
     float start = min-dx/2;
 
-    for (int i=0; i < nAtoms; ++i) {
+    for (int i = 0; i < nAtoms; ++i) {
         // Only consider atoms within the original cell
-        if (i < this->interactionLimit) {
+        if (i >= this->interactionLimit) {
+            continue;
+        }
 
-            // Calculate geometry value
-            float geom;
-            if (geomFunc == "atomic_number") {
-                geom = k1GeomAtomicNumber(i, Z);
-            } else {
-                throw invalid_argument("Invalid geometry function.");
-            }
+        // Calculate geometry value
+        float geom;
+        if (geomFunc == "atomic_number") {
+            geom = k1GeomAtomicNumber(i, Z);
+        } else {
+            throw invalid_argument("Invalid geometry function.");
+        }
 
-            // Calculate weight value
-            float weight;
-            if (weightFunc == "unity") {
-                weight = k1WeightUnity(i);
-            } else {
-                throw invalid_argument("Invalid weighting function.");
-            }
+        // Calculate weight value
+        float weight;
+        if (weightFunc == "unity") {
+            weight = k1WeightUnity(i);
+        } else {
+            throw invalid_argument("Invalid weighting function.");
+        }
 
-            // Calculate gaussian
-            vector<float> gauss = gaussian(geom, weight, start, dx, sigmasqrt2, n);
+        // Calculate gaussian
+        vector<float> gauss = gaussian(geom, weight, start, dx, sigmasqrt2, n);
 
-            // Get the index of the present elements in the final vector
-            int i_elem = Z[i];
-            int i_index = this->atomicNumberToIndexMap.at(i_elem);
-            int begin = i_index * n;
-            int end = (i_index + 1) * n;
+        // Get the index of the present elements in the final vector
+        int i_elem = Z[i];
+        int i_index = this->atomicNumberToIndexMap.at(i_elem);
+        int begin = i_index * n;
+        int end = (i_index + 1) * n;
 
-            for(int index=0; index<n; ++index){
-                descriptor_mu[begin+index] += gauss[index];
-            }
+        for (int index = 0; index < n; ++index) {
+            descriptor_mu[begin+index] += gauss[index];
         }
     }
 }
@@ -68,138 +70,140 @@ void MBTR::getK2(py::array_t<float> &descriptor, py::array_t<float> &derivatives
     float start = min-dx/2;
 
     // We have to loop over all atoms in the system
-    for (int i=0; i < nAtoms; ++i) {
+    for (int i = 0; i < nAtoms; ++i) {
 
         // For each atom we loop only over the neighbours
         const vector<int> &i_neighbours = neighbours[i];
         for (const int &j : i_neighbours) {
-            if (j > i) {
+            if (j <= i) {
+                continue;
+            }
 
-                // Only consider pairs that have one atom in the original
-                // cell
-                if (i < this->interactionLimit || j < this->interactionLimit) {
-                    // Distance vector between atom pair (i,j) and its length
-                    vector<float> dist_vec{ positions[i][0] - positions[j][0],
-                                            positions[i][1] - positions[j][1],
-                                            positions[i][2] - positions[j][2]};
-                    //float dist = sqrt(inner_product(dist_vec.begin(), dist_vec.end(), dist_vec.begin(), 0.0));
-                    float dist = distances[i][j];
+            // Only consider pairs that have one atom in the original cell
+            if (i >= this->interactionLimit && j >= this->interactionLimit) {
+                continue;
+            }
+                
+            // Distance vector between atom pair (i,j) and its length
+            vector<float> dist_vec{ positions[i][0] - positions[j][0],
+                                    positions[i][1] - positions[j][1],
+                                    positions[i][2] - positions[j][2]};
+            //float dist = sqrt(inner_product(dist_vec.begin(), dist_vec.end(), dist_vec.begin(), 0.0));
+            float dist = distances[i][j];
 
-                    // Calculate geometry value
-                    float geom;
-                    vector<float> geom_d(3);
-                    if (geomFunc == "inverse_distance") {
-                        geom = k2GeomInverseDistance(i, j, distances);
-                       //geom = 1/dist;
-                        if(return_derivatives){
-                            for (int dim=0; dim<3; ++dim){
-                                geom_d[dim] = -dist_vec[dim]/pow(dist,3.0);
-                            }
-                        }
-                    } else if (geomFunc == "distance") {
-                        geom = k2GeomDistance(i, j, distances);
-                        //geom = dist;
-                        for (int dim=0; dim<3; ++dim){
-                            geom_d[dim] = dist_vec[dim]/dist;
-                        }
-                    } else {
-                        throw invalid_argument("Invalid geometry function.");
+            // Calculate geometry value
+            float geom;
+            vector<float> geom_d(3);
+            if (geomFunc == "inverse_distance") {
+                geom = k2GeomInverseDistance(i, j, distances);
+               //geom = 1/dist;
+                if (return_derivatives) {
+                    for (int dim = 0; dim < 3; ++dim) {
+                        geom_d[dim] = -dist_vec[dim]/pow(dist,3.0);
                     }
+                }
+            } else if (geomFunc == "distance") {
+                geom = k2GeomDistance(i, j, distances);
+                //geom = dist;
+                for (int dim = 0; dim<3; ++dim) {
+                    geom_d[dim] = dist_vec[dim]/dist;
+                }
+            } else {
+                throw invalid_argument("Invalid geometry function.");
+            }
 
-                    // Calculate weight value
-                    float weight;
-                    vector<float> weight_d(3, 0.0); // Weight derivatives divided by weight!
-                    if (weightFunc == "exp") {
-                        float scale = parameters.at("scale");
-                        float threshold = parameters.at("threshold");
-                        weight = k2WeightExponential(i, j, distances, scale);
-                        if (weight < threshold) {
-                            continue;
-                        }
-                        if(return_derivatives){
-                            for (int dim=0; dim<3; ++dim){
-                                weight_d[dim] = -scale/dist*dist_vec[dim];
-                            }
-                        }
-                    } else if (weightFunc == "unity") {
-                        weight = k2WeightUnity(i, j, distances);
-                        // weight_d = [0,0,0]
-                    } else if (weightFunc == "inverse_square") {
-                        weight = k2WeightSquare(i, j, distances);
-                        if(return_derivatives){
-                            for (int dim=0; dim<3; ++dim){
-                                weight_d[dim] = -2.0/(dist*dist)*dist_vec[dim];
-                            }
-                        }
-                    } else {
-                        throw invalid_argument("Invalid weighting function.");
+            // Calculate weight value
+            float weight;
+            vector<float> weight_d(3, 0.0); // Weight derivatives divided by weight!
+            if (weightFunc == "exp") {
+                float scale = parameters.at("scale");
+                float threshold = parameters.at("threshold");
+                weight = k2WeightExponential(i, j, distances, scale);
+                if (weight < threshold) {
+                    continue;
+                }
+                if (return_derivatives) {
+                    for (int dim = 0; dim < 3; ++dim) {
+                        weight_d[dim] = -scale/dist*dist_vec[dim];
                     }
-
-                    // When the pair of atoms are in different copies of the cell, the
-                    // weight is halved. This is done in order to avoid double counting
-                    // the same distance in the opposite direction. This correction
-                    // makes periodic cells with different translations equal and also
-                    // supercells equal to the primitive cell within a constant that is
-                    // given by the number of repetitions of the primitive cell in the
-                    // supercell.
-                    vector<int> i_copy = this->cellIndices[i];
-                    vector<int> j_copy = this->cellIndices[j];
-                    int derivative_correction = 1;
-                    if (i_copy != j_copy) {
-                        weight /= 2;
-                        derivative_correction = 2;
+                }
+            } else if (weightFunc == "unity") {
+                weight = k2WeightUnity(i, j, distances);
+                // weight_d = [0,0,0]
+            } else if (weightFunc == "inverse_square") {
+                weight = k2WeightSquare(i, j, distances);
+                if (return_derivatives) {
+                    for (int dim = 0; dim < 3; ++dim) {
+                        weight_d[dim] = -2.0/(dist*dist)*dist_vec[dim];
                     }
+                }
+            } else {
+                throw invalid_argument("Invalid weighting function.");
+            }
 
-                    // Calculate gaussian
-                    vector<float> gauss = gaussian(geom, weight, start, dx, sigmasqrt2, n);
+            // When the pair of atoms are in different copies of the cell, the
+            // weight is halved. This is done in order to avoid double counting
+            // the same distance in the opposite direction. This correction
+            // makes periodic cells with different translations equal and also
+            // supercells equal to the primitive cell within a constant that is
+            // given by the number of repetitions of the primitive cell in the
+            // supercell.
+            vector<int> i_copy = this->cellIndices[i];
+            vector<int> j_copy = this->cellIndices[j];
+            int derivative_correction = 1;
+            if (i_copy != j_copy) {
+                weight /= 2;
+                derivative_correction = 2;
+            }
 
-                    // Get the index of the present elements in the final vector
-                    int i_elem = Z[i];
-                    int j_elem = Z[j];
-                    int i_index = this->atomicNumberToIndexMap.at(i_elem);
-                    int j_index = this->atomicNumberToIndexMap.at(j_elem);
+            // Calculate gaussian
+            vector<float> gauss = gaussian(geom, weight, start, dx, sigmasqrt2, n);
 
-                    // Save information in the part where j_index >= i_index
-                    if (j_index < i_index) {
-                        int temp = j_index;
-                        j_index = i_index;
-                        i_index = temp;
-                    }
+            // Get the index of the present elements in the final vector
+            int i_elem = Z[i];
+            int j_elem = Z[j];
+            int i_index = this->atomicNumberToIndexMap.at(i_elem);
+            int j_index = this->atomicNumberToIndexMap.at(j_elem);
 
-                    // This is the index of the spectrum. It is given by enumerating the
-                    // elements of an upper triangular matrix from left to right and top
-                    // to bottom.
-                    int m = int(j_index + i_index*nElem - i_index*(i_index + 1)/2);
-                    int begin = m * n;
-                    int end = (m + 1) * n;
+            // Save information in the part where j_index >= i_index
+            if (j_index < i_index) {
+                int temp = j_index;
+                j_index = i_index;
+                i_index = temp;
+            }
 
-                    if(return_descriptor){
-                        for(int index=0; index<n; ++index){
-                            descriptor_mu[begin+index] += gauss[index];
+            // This is the index of the spectrum. It is given by enumerating the
+            // elements of an upper triangular matrix from left to right and top
+            // to bottom.
+            int m = int(j_index + i_index*nElem - i_index*(i_index + 1)/2);
+            int begin = m * n;
+            int end = (m + 1) * n;
+
+            if (return_descriptor) {
+                for (int index = 0; index < n; ++index) {
+                    descriptor_mu[begin+index] += gauss[index];
+                }
+            }
+
+            if (return_derivatives) {
+                // Calculate x*gaussian distribution.
+                vector<float> xgauss = xgaussian(geom, weight, start, dx, sigma, n);
+                
+                // Add derivative contribution to derivatives that it affects.
+                // Derivatives are antisymmetric.
+                for (int dim = 0; dim < 3; ++dim) {
+                    for (int index = 0; index < n; ++index) {
+                        float gauss_d = geom_d[dim]*(xgauss[index] - gauss[index]*geom)*pow(sigma,-2.0)
+                                        + weight_d[dim]*gauss[index];
+                        // Counteracting the weight halving
+                        gauss_d *= derivative_correction;
+                        if (i < this->interactionLimit) {
+                            derivatives_mu(i, dim, begin+index) += gauss_d;
                         }
-                    }
-
-                    if(return_derivatives){
-                        // Calculate x*gaussian distribution.
-                        vector<float> xgauss = xgaussian(geom, weight, start, dx, sigma, n);
-                        
-                        // Add derivative contribution to derivatives that it affects.
-                        // Derivatives are antisymmetric.
-                        for(int dim=0; dim<3; ++dim){
-                            for(int index=0; index<n; ++index){
-                                float gauss_d = geom_d[dim]*(xgauss[index] - gauss[index]*geom)*pow(sigma,-2.0)
-                                                + weight_d[dim]*gauss[index];
-                                // Counteracting the weight halving
-                                gauss_d *= derivative_correction;
-                                if(i < this->interactionLimit){
-                                    derivatives_mu(i, dim, begin+index) += gauss_d;
-                                }
-                                if(j < this->interactionLimit){
-                                    derivatives_mu(j, dim, begin+index) -= gauss_d;
-                                }
-                            }                        
+                        if (j < this->interactionLimit) {
+                            derivatives_mu(j, dim, begin+index) -= gauss_d;
                         }
-                    }
+                    }                        
                 }
             }
         }
@@ -218,7 +222,7 @@ void MBTR::getK3(py::array_t<float> &descriptor, py::array_t<float> &derivatives
     float sigmasqrt2 = sigma*sqrt(2.0);
     float start = min-dx/2;
 
-    for (int i=0; i < nAtoms; ++i) {
+    for (int i = 0; i < nAtoms; ++i) {
 
         // For each atom we loop only over the atoms triplets that are
         // within the neighbourhood
@@ -228,175 +232,179 @@ void MBTR::getK3(py::array_t<float> &descriptor, py::array_t<float> &derivatives
             for (const int &k : j_neighbours) {
                 // Only consider triplets that have one atom in the original
                 // cell
-                if (i < this->interactionLimit || j < this->interactionLimit || k < this->interactionLimit) {
-                    // Calculate angle for all index permutations from choosing
-                    // three out of nAtoms. The same atom cannot be present twice
-                    // in the permutation.
-                    if (j != i && k != j && k != i) {
-                        // The angles are symmetric: ijk = kji. The value is
-                        // calculated only for the triplet where k > i.
-                        if (k > i) {
-                            // Find distance vectors
-                            vector<float> r_ji{ positions[j][0] - positions[i][0],
-                                                positions[j][1] - positions[i][1],
-                                                positions[j][2] - positions[i][2]};
-                            vector<float> r_ik{ positions[i][0] - positions[k][0],
-                                                positions[i][1] - positions[k][1],
-                                                positions[i][2] - positions[k][2]};
-                            vector<float> r_jk{ positions[j][0] - positions[k][0],
-                                                positions[j][1] - positions[k][1],
-                                                positions[j][2] - positions[k][2]};
+                if (i >= this->interactionLimit && j >= this->interactionLimit && k >= this->interactionLimit)  {
+                    continue;
+                }
+                // Calculate angle for all index permutations from choosing
+                // three out of nAtoms. The same atom cannot be present twice
+                // in the permutation.
+                if (j == i || k == j || k == i) {
+                    continue;
+                }
+                // The angles are symmetric: ijk = kji. The value is
+                // calculated only for the triplet where k > i.
+                if (k <= i){
+                    continue;
+                }
+
+                // Find distance vectors
+                vector<float> r_ji{ positions[j][0] - positions[i][0],
+                                    positions[j][1] - positions[i][1],
+                                    positions[j][2] - positions[i][2]};
+                vector<float> r_ik{ positions[i][0] - positions[k][0],
+                                    positions[i][1] - positions[k][1],
+                                    positions[i][2] - positions[k][2]};
+                vector<float> r_jk{ positions[j][0] - positions[k][0],
+                                    positions[j][1] - positions[k][1],
+                                    positions[j][2] - positions[k][2]};
+                
+                // Distances
+                float d_ji = distances[j][i];
+                float d_ik = distances[i][k];
+                float d_jk = distances[j][k];
+                
+                // Calculate geometry value and its derivatives.
+                // "angle" is not supported because it is not differentiable.
+                float geom;
+                vector<vector<float>> geom_d(3);
+                if (geomFunc == "cosine") {
+                    // geom = k3GeomCosine(i, j, k, distances);
+                    
+                    float num = d_ji*d_ji + d_jk*d_jk - d_ik*d_ik;  // Numerator
+                    float den = d_jk*d_ji;                          // Denumerator
+                    
+                    float cosine = 0.5*num/den;
+                    geom = std::max(-1.0f, std::min(cosine, 1.0f));
+                    
+                    if (return_derivatives) {
+                        for (int dim = 0; dim < 3; ++dim) {
+                            float num_d_i = 2.0*(-r_ji[dim] - r_ik[dim]);
+                            float num_d_j = 2.0*( r_ji[dim] + r_jk[dim]);
+                            float num_d_k = 2.0*(-r_jk[dim] + r_ik[dim]);
+
+                            float den_d_i = -d_jk/d_ji*r_ji[dim];
+                            float den_d_j =  d_ji/d_jk*r_jk[dim] + d_jk/d_ji*r_ji[dim];
+                            float den_d_k = -d_ji/d_jk*r_jk[dim];
                             
-                            // Distances
-                            float d_ji = distances[j][i];
-                            float d_ik = distances[i][k];
-                            float d_jk = distances[j][k];
-                            
-                            // Calculate geometry value and its derivatives.
-                            // "angle" is not supported because it is not differentiable.
-                            float geom;
-                            vector<vector<float>> geom_d(3);
-                            if (geomFunc == "cosine") {
-                                // geom = k3GeomCosine(i, j, k, distances);
-                                
-                                float num = d_ji*d_ji + d_jk*d_jk - d_ik*d_ik;  // Numerator
-                                float den = d_jk*d_ji;                          // Denumerator
-                                
-                                float cosine = 0.5*num/den;
-                                geom = std::max(-1.0f, std::min(cosine, 1.0f));
-                                
-                                if(return_derivatives){
-                                    for(int dim=0; dim<3; ++dim){
-                                        float num_d_i = 2.0*(-r_ji[dim] - r_ik[dim]);
-                                        float num_d_j = 2.0*( r_ji[dim] + r_jk[dim]);
-                                        float num_d_k = 2.0*(-r_jk[dim] + r_ik[dim]);
+                            geom_d[0].push_back(0.5*(num_d_i*den - num*den_d_i)/(den*den));
+                            geom_d[1].push_back(0.5*(num_d_j*den - num*den_d_j)/(den*den));
+                            geom_d[2].push_back(0.5*(num_d_k*den - num*den_d_k)/(den*den));
+                        }
+                    }
+                } else if (geomFunc == "angle") {
+                    geom = k3GeomAngle(i, j, k, distances);
+                    if (return_derivatives) {
+                        throw invalid_argument("Derivatives not implemented for geometry function 'angle'.");
+                    }
+                } else {
+                    throw invalid_argument("Invalid geometry function.");
+                }
 
-                                        float den_d_i = -d_jk/d_ji*r_ji[dim];
-                                        float den_d_j =  d_ji/d_jk*r_jk[dim] + d_jk/d_ji*r_ji[dim];
-                                        float den_d_k = -d_ji/d_jk*r_jk[dim];
-                                        
-                                        geom_d[0].push_back(0.5*(num_d_i*den - num*den_d_i)/(den*den));
-                                        geom_d[1].push_back(0.5*(num_d_j*den - num*den_d_j)/(den*den));
-                                        geom_d[2].push_back(0.5*(num_d_k*den - num*den_d_k)/(den*den));
-                                    }
-                                }
-                            } else if (geomFunc == "angle") {
-                                geom = k3GeomAngle(i, j, k, distances);
-                                if(return_derivatives){
-                                    throw invalid_argument("Derivatives not implemented for geometry function 'angle'.");
-                                }
-                            } else {
-                                throw invalid_argument("Invalid geometry function.");
-                            }
+                // Calculate weight value and its derivatives.
+                float weight;
+                vector<vector<float>> weight_d(3); // Weight derivatives divided by weight!
+                if (weightFunc == "exp") {
+                    float scale = parameters.at("scale");
+                    float threshold = parameters.at("threshold");
+                    weight = k3WeightExponential(i, j, k, distances, scale);
+                    if (weight < threshold) {
+                        continue;
+                    }
+                    if (return_derivatives) {
+                        for (int dim = 0; dim < 3; ++dim) {
+                            weight_d[0].push_back(scale*( r_ji[dim]/d_ji - r_ik[dim]/d_ik));
+                            weight_d[1].push_back(scale*(-r_ji[dim]/d_ji - r_jk[dim]/d_jk));
+                            weight_d[2].push_back(scale*( r_jk[dim]/d_jk + r_ik[dim]/d_ik));
+                        }
+                    }
+                } else if (weightFunc == "unity") {
+                    weight = k3WeightUnity(i, j, k, distances);
+                    if (return_derivatives) {
+                        weight_d[0] = vector<float>(3,0.0);
+                        weight_d[1] = vector<float>(3,0.0);
+                        weight_d[2] = vector<float>(3,0.0);
+                    }
+                } else if (weightFunc == "smooth_cutoff") {
+                    float sharpness = parameters.at("sharpness");
+                    float cutoff = parameters.at("cutoff");
+                    weight = k3WeightSmooth(i, j, k, distances, sharpness, cutoff);
+                    if (return_derivatives) {
+                        throw invalid_argument("Derivatives not implemented for weighting function 'smooth_cutoff'.");
+                    }
+                } else {
+                    throw invalid_argument("Invalid weighting function.");
+                }
 
-                            // Calculate weight value and its derivatives.
-                            float weight;
-                            vector<vector<float>> weight_d(3); // Weight derivatives divided by weight!
-                            if (weightFunc == "exp") {
-                                float scale = parameters.at("scale");
-                                float threshold = parameters.at("threshold");
-                                weight = k3WeightExponential(i, j, k, distances, scale);
-                                if (weight < threshold) {
-                                    continue;
-                                }
-                                if(return_derivatives){
-                                    for(int dim=0; dim<3; ++dim){
-                                        weight_d[0].push_back(scale*( r_ji[dim]/d_ji - r_ik[dim]/d_ik));
-                                        weight_d[1].push_back(scale*(-r_ji[dim]/d_ji - r_jk[dim]/d_jk));
-                                        weight_d[2].push_back(scale*( r_jk[dim]/d_jk + r_ik[dim]/d_ik));
-                                    }
-                                }
-                            } else if (weightFunc == "unity") {
-                                weight = k3WeightUnity(i, j, k, distances);
-                                if(return_derivatives){
-                                    weight_d[0] = vector<float>(3,0.0);
-                                    weight_d[1] = vector<float>(3,0.0);
-                                    weight_d[2] = vector<float>(3,0.0);
-                                }
-                            } else if (weightFunc == "smooth_cutoff") {
-                                float sharpness = parameters.at("sharpness");
-                                float cutoff = parameters.at("cutoff");
-                                weight = k3WeightSmooth(i, j, k, distances, sharpness, cutoff);
-                                if(return_derivatives){
-                                    throw invalid_argument("Derivatives not implemented for weighting function 'smooth_cutoff'.");
-                                }
-                            } else {
-                                throw invalid_argument("Invalid weighting function.");
-                            }
+                // The contributions are weighted by their multiplicity arising from
+                // the translational symmetry. Each triple of atoms is repeated N
+                // times in the extended system through translational symmetry. The
+                // weight for the angles is thus divided by N so that the
+                // multiplication from symmetry is countered. This makes the final
+                // spectrum invariant to the selected supercell size and shape
+                // after normalization. The number of repetitions N is given by how
+                // many unique cell indices (the index of the repeated cell with
+                // respect to the original cell at index [0, 0, 0]) are present for
+                // the atoms in the triple.
+                vector<int> i_copy = this->cellIndices[i];
+                vector<int> j_copy = this->cellIndices[j];
+                vector<int> k_copy = this->cellIndices[k];
+                bool ij_diff = i_copy != j_copy;
+                bool ik_diff = i_copy != k_copy;
+                bool jk_diff = j_copy != k_copy;
+                int diff_sum = (int)ij_diff + (int)ik_diff + (int)jk_diff;
+                int derivative_correction = 1;
+                if (diff_sum > 1) {
+                    weight /= diff_sum;
+                    derivative_correction = diff_sum;
+                }
 
-                            // The contributions are weighted by their multiplicity arising from
-                            // the translational symmetry. Each triple of atoms is repeated N
-                            // times in the extended system through translational symmetry. The
-                            // weight for the angles is thus divided by N so that the
-                            // multiplication from symmetry is countered. This makes the final
-                            // spectrum invariant to the selected supercell size and shape
-                            // after normalization. The number of repetitions N is given by how
-                            // many unique cell indices (the index of the repeated cell with
-                            // respect to the original cell at index [0, 0, 0]) are present for
-                            // the atoms in the triple.
-                            vector<int> i_copy = this->cellIndices[i];
-                            vector<int> j_copy = this->cellIndices[j];
-                            vector<int> k_copy = this->cellIndices[k];
-                            bool ij_diff = i_copy != j_copy;
-                            bool ik_diff = i_copy != k_copy;
-                            bool jk_diff = j_copy != k_copy;
-                            int diff_sum = (int)ij_diff + (int)ik_diff + (int)jk_diff;
-                            int derivative_correction = 1;
-                            if (diff_sum > 1) {
-                                weight /= diff_sum;
-                                derivative_correction = diff_sum;
-                            }
+                // Calculate gaussian
+                vector<float> gauss = gaussian(geom, weight, start, dx, sigmasqrt2, n);
 
-                            // Calculate gaussian
-                            vector<float> gauss = gaussian(geom, weight, start, dx, sigmasqrt2, n);
+                // Get the index of the present elements in the final vector
+                int i_elem = Z[i];
+                int j_elem = Z[j];
+                int k_elem = Z[k];
+                int i_index = this->atomicNumberToIndexMap.at(i_elem);
+                int j_index = this->atomicNumberToIndexMap.at(j_elem);
+                int k_index = this->atomicNumberToIndexMap.at(k_elem);
 
-                            // Get the index of the present elements in the final vector
-                            int i_elem = Z[i];
-                            int j_elem = Z[j];
-                            int k_elem = Z[k];
-                            int i_index = this->atomicNumberToIndexMap.at(i_elem);
-                            int j_index = this->atomicNumberToIndexMap.at(j_elem);
-                            int k_index = this->atomicNumberToIndexMap.at(k_elem);
+                // Save information in the part where k_index >= i_index
+                if (k_index < i_index) {
+                    int temp = k_index;
+                    k_index = i_index;
+                    i_index = temp;
+                }
 
-                            // Save information in the part where k_index >= i_index
-                            if (k_index < i_index) {
-                                int temp = k_index;
-                                k_index = i_index;
-                                i_index = temp;
-                            }
+                // This is the index of the spectrum. It is given by enumerating the
+                // elements of a three-dimensional array where for valid elements
+                // k>=i. The enumeration begins from [0, 0, 0], and ends at [n_elem,
+                // n_elem, n_elem], looping the elements in the order j, i, k.
+                int m = int(j_index * nElem * (nElem + 1) / 2 + k_index + i_index * nElem - i_index * (i_index + 1) / 2);
+                int begin = m * n;
+                int end = (m + 1) * n;
 
-                            // This is the index of the spectrum. It is given by enumerating the
-                            // elements of a three-dimensional array where for valid elements
-                            // k>=i. The enumeration begins from [0, 0, 0], and ends at [n_elem,
-                            // n_elem, n_elem], looping the elements in the order j, i, k.
-                            int m = int(j_index * nElem * (nElem + 1) / 2 + k_index + i_index * nElem - i_index * (i_index + 1) / 2);
-                            int begin = m * n;
-                            int end = (m + 1) * n;
+                if (return_descriptor) {
+                    for (int index = 0; index < n; ++index) {
+                        descriptor_mu[begin+index] += gauss[index];
+                    }
+                }
 
-                            if(return_descriptor){
-                                for(int index=0; index<n; ++index){
-                                    descriptor_mu[begin+index] += gauss[index];
-                                }
-                            }
-
-                            if(return_derivatives){
-                                // Calculate x*gaussian distribution.
-                                vector<float> xgauss = xgaussian(geom, weight, start, dx, sigma, n);
-                                
-                                vector<int> atom_indices{i, j, k};
-                                for(int a=0; a<3; ++a){
-                                    int atom = atom_indices[a];
-                                    if(atom >= this->interactionLimit) continue;
-                                    for(int dim=0; dim<3; ++dim){
-                                        for(int index=0; index<n; ++index){
-                                            float gauss_d = geom_d[a][dim]*(xgauss[index] - gauss[index]*geom)*pow(sigma,-2.0)
-                                                            + weight_d[a][dim]*gauss[index];
-                                            // Counteracting the weight halving
-                                            gauss_d *= derivative_correction;
-                                            derivatives_mu(atom, dim, begin+index) += gauss_d;
-                                        }
-                                    }
-                                }
+                if (return_derivatives) {
+                    // Calculate x*gaussian distribution.
+                    vector<float> xgauss = xgaussian(geom, weight, start, dx, sigma, n);
+                    
+                    vector<int> atom_indices{i, j, k};
+                    for (int a = 0; a < 3; ++a) {
+                        int atom = atom_indices[a];
+                        if (atom >= this->interactionLimit) continue;
+                        for (int dim = 0; dim < 3; ++dim) {
+                            for (int index = 0; index < n; ++index) {
+                                float gauss_d = geom_d[a][dim]*(xgauss[index] - gauss[index]*geom)*pow(sigma,-2.0)
+                                                + weight_d[a][dim]*gauss[index];
+                                // Counteracting the weight halving
+                                gauss_d *= derivative_correction;
+                                derivatives_mu(atom, dim, begin+index) += gauss_d;
                             }
                         }
                     }
@@ -566,7 +574,7 @@ vector<map<string, vector<float>>> MBTR::getK2Local(const vector<int> &indices, 
     float start = min-dx/2;
 
     // We loop over the specified indices
-    for (int i=0; i < nPos; ++i) {
+    for (int i = 0; i < nPos; ++i) {
         int iTrue = indices[i];
         map<string, vector<float> > k2Map;
 
