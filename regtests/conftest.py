@@ -262,6 +262,44 @@ def assert_derivatives_numerical(descriptor_func, pbc):
     assert np.allclose(derivatives_python, derivatives_cpp, atol=2e-5)
 
 
+def assert_cell(descriptor_func, cell):
+    """Test that different types of cells are handled correctly."""
+    system = water()
+    # Error is raised if there is no cell when periodicity=True
+    if cell == "collapsed_periodic":
+        system.set_pbc(True)
+        system.set_cell([[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]])
+        desc = descriptor_func(periodic=True)([system])
+        with pytest.raises(ValueError):
+            desc.create(system)
+    # No error is raised if there is no cell when periodicity=False
+    elif cell == "collapsed_finite":
+        system.set_cell([[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]])
+        desc = descriptor_func(periodic=False)([system])
+        desc.create(system)
+    else:
+        raise ValueError("Unknown cell option")
+
+
+def assert_systems(descriptor_func, pbc, cell):
+    """Tests that the descriptor can correctly handle differently described
+    systems
+    """
+    system = water()
+    system.set_pbc(pbc)
+    system.set_cell(cell)
+    descriptor = descriptor_func([system])
+    descriptor.create(system)
+
+
+def assert_dtype(descriptor_func, dtype, sparse):
+    """Test that the requested data type is respected"""
+    system = water()
+    desc = descriptor_func(dtype=dtype, sparse=sparse)([system])
+    features = desc.create(water())
+    assert features.dtype == dtype
+
+
 def assert_sparse(descriptor_func):
     """Test that sparse output is created upon request in the correct format."""
     system = water()
@@ -277,18 +315,44 @@ def assert_sparse(descriptor_func):
     assert type(features) == sparse.COO
 
 
-def assert_parallellization(descriptor_func, n_jobs, flatten, sparse):
+def assert_parallellization(descriptor_func, n_jobs, flatten, sparse, positions=None):
     """Tests creating output parallelly."""
-    samples = [bulk("NaCl", "rocksalt", a=5.64), bulk("Fe", "bcc", a=3.8)]
+    # samples = [bulk("NaCl", "rocksalt", a=5.64), bulk("Fe", "bcc", a=3.8)]
+    samples = [molecule("CO"), molecule("NO")]
     kwargs = {"sparse": sparse}
     if flatten is not None:
         kwargs["flatten"] = flatten
     desc = descriptor_func(**kwargs)(samples)
 
-    output = desc.create(system=samples, n_jobs=n_jobs)
+    all_kwargs = {}
+    a_kwargs = {}
+    b_kwargs = {}
+    if positions == "all":
+        all_kwargs["positions"] = None
+        a_kwargs["positions"] = None
+        b_kwargs["positions"] = None
+    elif positions == "indices_fixed":
+        all_kwargs["positions"] = [[0, 1], [0, 1]]
+        a_kwargs["positions"] = [0, 1]
+        b_kwargs["positions"] = [0, 1]
+    elif positions == "indices_variable":
+        all_kwargs["positions"] = [[0], [0, 1]]
+        a_kwargs["positions"] = [0]
+        b_kwargs["positions"] = [0, 1]
+    elif positions == "cartesian_fixed":
+        all_kwargs["positions"] = [[[0, 0, 0], [1, 2, 0]], [[0, 0, 0], [1, 2, 0]]]
+        a_kwargs["positions"] = [[0, 0, 0], [1, 2, 0]]
+        b_kwargs["positions"] = [[0, 0, 0], [1, 2, 0]]
+    elif positions == "cartesian_variable":
+        all_kwargs["positions"] = [[[1, 2, 0]], [[0, 0, 0], [1, 2, 0]]]
+        a_kwargs["positions"] = [[1, 2, 0]]
+        b_kwargs["positions"] = [[0, 0, 0], [1, 2, 0]]
+    elif positions is not None:
+        raise ValueError("Unknown positions option")
+    output = desc.create(samples, n_jobs=n_jobs, **all_kwargs)
 
-    a = desc.create(samples[0])
-    b = desc.create(samples[1])
+    a = desc.create(samples[0], **a_kwargs)
+    b = desc.create(samples[1], **b_kwargs)
 
     # The output may be a list or an array.
     if isinstance(output, list):
@@ -331,27 +395,31 @@ def assert_no_system_modification(descriptor_func):
 
 def assert_basis(descriptor_func):
     """Tests that the output vectors behave correctly as a basis."""
-    sys1 = Atoms(symbols=["H"], positions=[[0, 0, 0]], cell=[2, 2, 2], pbc=True)
-    sys2 = Atoms(symbols=["O"], positions=[[0, 0, 0]], cell=[2, 2, 2], pbc=True)
-    sys3 = sys2 * [2, 2, 2]
+    sys1 = Atoms(symbols=["H", "O"], positions=[[0, 0, 0], [1 ,1, 1]], cell=[2, 2, 2], pbc=True)
+    sys2 = Atoms(symbols=["O", "C"], positions=[[0, 0, 0], [1 ,1, 1]], cell=[2, 2, 2], pbc=True)
+    sys3 = Atoms(symbols=["C", "N"], positions=[[0, 0, 0], [1 ,1, 1]], cell=[2, 2, 2], pbc=True)
+    sys4 = sys3 * [2, 2, 2]
 
-    desc = descriptor_func([sys1, sys2, sys3])
+    desc = descriptor_func([sys1, sys2, sys3, sys4])
 
     # Create vectors for each system
     vec1 = desc.create(sys1)
     vec2 = desc.create(sys2)
     vec3 = desc.create(sys3)
+    vec4 = desc.create(sys4)
 
     # Average the result for local descriptors
     if isinstance(desc, DescriptorLocal):
         vec1 = np.mean(vec1, 0)
         vec2 = np.mean(vec2, 0)
         vec3 = np.mean(vec3, 0)
+        vec4 = np.mean(vec4, 0)
 
     # Create normalized vectors
     vec1 /= np.linalg.norm(vec1)
     vec2 /= np.linalg.norm(vec2)
     vec3 /= np.linalg.norm(vec3)
+    vec4 /= np.linalg.norm(vec4)
 
     # import matplotlib.pyplot as mpl
     # mpl.plot(vec2)
@@ -359,12 +427,16 @@ def assert_basis(descriptor_func):
     # mpl.show()
 
     # The dot-product should be zero when there are no overlapping elements
-    dot = np.dot(vec1, vec2)
+    dot = np.dot(vec1, vec3)
     assert dot == 0
+
+    # The dot-product should be non-zero when there are overlapping elements
+    dot = np.dot(vec1, vec2)
+    assert dot > 0 and dot < 1
 
     # After normalization, the dot-product should be roughly one for a primitive
     # cell and a supercell
-    dot = np.dot(vec2, vec3)
+    dot = np.dot(vec3, vec4)
     assert abs(dot - 1) < 1e-3
 
 

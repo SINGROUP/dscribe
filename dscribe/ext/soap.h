@@ -103,7 +103,7 @@ class SOAPGTO: public Descriptor {
         const double eta;
         const py::dict weighting;
         const bool crossover;
-        const float cutoff_padding;
+        const double cutoff_padding;
         const py::array_t<double> alphas;
         const py::array_t<double> betas;
         const py::array_t<int> species;
@@ -170,7 +170,7 @@ class SOAPPolynomial: public Descriptor {
         const double eta;
         const py::dict weighting;
         const bool crossover;
-        const float cutoff_padding;
+        const double cutoff_padding;
         const py::array_t<double> rx;
         const py::array_t<double> gss;
         const py::array_t<int> species;

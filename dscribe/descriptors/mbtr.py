@@ -293,7 +293,7 @@ class MBTR(DescriptorGlobal):
                 if geom_func not in valid_geom_func:
                     raise ValueError(
                         "Unknown geometry function specified for k=1. Please use one of"
-                        " the following: {}".format(valid_geom_func)
+                        " the following: {}".format(sorted(list(valid_geom_func)))
                     )
 
             # Check the weighting function
@@ -304,7 +304,7 @@ class MBTR(DescriptorGlobal):
                 if weight_func not in valid_weight_func:
                     raise ValueError(
                         "Unknown weighting function specified for k=1. Please use one of"
-                        " the following: {}".format(valid_weight_func)
+                        " the following: {}".format(sorted(list(valid_weight_func)))
                     )
 
             # Check grid
@@ -336,7 +336,7 @@ class MBTR(DescriptorGlobal):
                 if geom_func not in valid_geom_func:
                     raise ValueError(
                         "Unknown geometry function specified for k=2. Please use one of"
-                        " the following: {}".format(valid_geom_func)
+                        " the following: {}".format(sorted(list(valid_geom_func)))
                     )
 
             # Check the weighting function
@@ -347,7 +347,7 @@ class MBTR(DescriptorGlobal):
                 if weight_func not in valid_weight_func:
                     raise ValueError(
                         "Unknown weighting function specified for k=2. Please use one of"
-                        " the following: {}".format(valid_weight_func)
+                        " the following: {}".format(sorted(list(valid_weight_func)))
                     )
                 else:
                     if weight_func == "exp":
@@ -356,8 +356,13 @@ class MBTR(DescriptorGlobal):
                             raise ValueError(
                                 "Missing value for 'threshold' in the k=2 weighting."
                             )
-                        param = weighting.get("scale", weighting.get("r_cut"))
-                        if param is None:
+                        scale = weighting.get("scale")
+                        r_cut = weighting.get("r_cut")
+                        if scale is not None and r_cut is not None:
+                            raise ValueError(
+                                "Provide either 'scale' or 'r_cut', not both in the k=2 weighting."
+                            )
+                        if scale is None and r_cut is None:
                             raise ValueError(
                                 "Provide either 'scale' or 'r_cut' in the k=2 weighting."
                             )
@@ -396,7 +401,7 @@ class MBTR(DescriptorGlobal):
                 if geom_func not in valid_geom_func:
                     raise ValueError(
                         "Unknown geometry function specified for k=2. Please use one of"
-                        " the following: {}".format(valid_geom_func)
+                        " the following: {}".format(sorted(list(valid_geom_func)))
                     )
 
             # Check the weighting function
@@ -406,8 +411,8 @@ class MBTR(DescriptorGlobal):
                 weight_func = weighting.get("function")
                 if weight_func not in valid_weight_func:
                     raise ValueError(
-                        "Unknown weighting function specified for k=2. Please use one of"
-                        " the following: {}".format(valid_weight_func)
+                        "Unknown weighting function specified for k=3. Please use one of"
+                        " the following: {}".format(sorted(list(valid_weight_func)))
                     )
                 else:
                     if weight_func == "exp":
@@ -416,8 +421,13 @@ class MBTR(DescriptorGlobal):
                             raise ValueError(
                                 "Missing value for 'threshold' in the k=3 weighting."
                             )
-                        param = weighting.get("scale", weighting.get("r_cut"))
-                        if param is None:
+                        scale = weighting.get("scale")
+                        r_cut = weighting.get("r_cut")
+                        if scale is not None and r_cut is not None:
+                            raise ValueError(
+                                "Provide either 'scale' or 'r_cut', not both in the k=3 weighting."
+                            )
+                        if scale is None and r_cut is None:
                             raise ValueError(
                                 "Provide either 'scale' or 'r_cut' in the k=3 weighting."
                             )
@@ -472,7 +482,7 @@ class MBTR(DescriptorGlobal):
         if value not in norm_options:
             raise ValueError(
                 "Unknown normalization option given. Please use one of the "
-                "following: {}.".format(", ".join([str(x) for x in norm_options]))
+                "following: {}.".format(", ".join(sorted(list(norm_options))))
             )
         self._normalization = value
 
@@ -677,7 +687,7 @@ class MBTR(DescriptorGlobal):
         if term is None:
             raise ValueError(
                 "Cannot retrieve the location for {}, as the term k{} has not "
-                "been specied.".format(species, k)
+                "been specified.".format(species, k)
             )
 
         # Change chemical elements into atomic numbers

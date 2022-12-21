@@ -42,12 +42,12 @@ class MBTR {
          * @param local Whether a local or a global MBTR is calculated.
          */
         MBTR(map<int,int> atomicNumberToIndexMap, int interactionLimit,  vector<vector<int>> cellIndices);
-        map<string, vector<float>> getK1(const vector<int> &Z, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n);
-        map<string, vector<float>> getK2(const vector<int> &Z, const vector<vector<float>> &distances, const vector<vector<int>> &neighbours, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n);
-        map<string, vector<float>> getK3(const vector<int> &Z, const vector<vector<float>> &distances, const vector<vector<int>> &neighbours, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n);
-        vector<map<string, vector<float>>> getK2Local(const vector<int> &indices, const vector<int> &Z, const vector<vector<float>> &distances, const vector<vector<int>> &neighbours, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n);
-        vector<map<string, vector<float>>> getK3Local(const vector<int> &indices, const vector<int> &Z, const vector<vector<float>> &distances, const vector<vector<int>> &neighbours, const string &geomFunc, const string &weightFunc, const map<string, float> &parameters, float min, float max, float sigma, int n);
-        vector<float> gaussian(float center, float weight, float start, float dx, float sigmasqrt2, int n);
+        map<string, vector<double>> getK1(const vector<int> &Z, const string &geomFunc, const string &weightFunc, const map<string, double> &parameters, double min, double max, double sigma, int n);
+        map<string, vector<double>> getK2(const vector<int> &Z, const vector<vector<double>> &distances, const vector<vector<int>> &neighbours, const string &geomFunc, const string &weightFunc, const map<string, double> &parameters, double min, double max, double sigma, int n);
+        map<string, vector<double>> getK3(const vector<int> &Z, const vector<vector<double>> &distances, const vector<vector<int>> &neighbours, const string &geomFunc, const string &weightFunc, const map<string, double> &parameters, double min, double max, double sigma, int n);
+        vector<map<string, vector<double>>> getK2Local(const vector<int> &indices, const vector<int> &Z, const vector<vector<double>> &distances, const vector<vector<int>> &neighbours, const string &geomFunc, const string &weightFunc, const map<string, double> &parameters, double min, double max, double sigma, int n);
+        vector<map<string, vector<double>>> getK3Local(const vector<int> &indices, const vector<int> &Z, const vector<vector<double>> &distances, const vector<vector<int>> &neighbours, const string &geomFunc, const string &weightFunc, const map<string, double> &parameters, double min, double max, double sigma, int n);
+        vector<double> gaussian(double center, double weight, double start, double dx, double sigmasqrt2, int n);
 
 
     private:
@@ -63,7 +63,7 @@ class MBTR {
          *
          * @return Atomic number for the given index.
          */
-        float k1GeomAtomicNumber(const int &i, const vector<int> &Z);
+        double k1GeomAtomicNumber(const int &i, const vector<int> &Z);
 
         /**
          * Weighting of 1. Usually used for finite small
@@ -73,7 +73,7 @@ class MBTR {
          *
          * @return Weight of 1.
          */
-        float k1WeightUnity(const int &i);
+        double k1WeightUnity(const int &i);
         /**
          * Calculates the inverse distance geometry function defined for k=2.
          *
@@ -88,7 +88,7 @@ class MBTR {
          *
          * @return Inverse distance between atoms.
          */
-        float k2GeomInverseDistance(const int &i, const int &j, const vector<vector<float> > &distances);
+        double k2GeomInverseDistance(const int &i, const int &j, const vector<vector<double> > &distances);
         /**
          * Weighting of 1 for all indices. Usually used for finite small
          * systems.
@@ -99,7 +99,7 @@ class MBTR {
          *
          * @return Distance between atoms.
          */
-        float k2GeomDistance(const int &i, const int &j, const vector<vector<float> > &distances);
+        double k2GeomDistance(const int &i, const int &j, const vector<vector<double> > &distances);
         /**
          * Weighting of 1. Usually used for finite small
          * systems.
@@ -110,7 +110,7 @@ class MBTR {
          *
          * @return Weight of 1.
          */
-        float k2WeightUnity(const int &i, const int &j, const vector<vector<float> > &distances);
+        double k2WeightUnity(const int &i, const int &j, const vector<vector<double> > &distances);
         /**
          * Weighting defined as e^(-sx), where x is the distance from
          * A->B and s is the scaling factor.
@@ -122,7 +122,7 @@ class MBTR {
          *
          * @return The exponential weight.
          */
-        float k2WeightExponential(const int &i, const int &j, const vector<vector<float> > &distances, float scale);
+        double k2WeightExponential(const int &i, const int &j, const vector<vector<double> > &distances, double scale);
         /**
          * Weighting defined as 1/(x^2), where x is the distance from
          * A->B.
@@ -133,7 +133,7 @@ class MBTR {
          *
          * @return The inverse of distance squared as weight.
          */
-        float k2WeightSquare(const int &i, const int &j, const vector<vector<float> > &distances);
+        double k2WeightSquare(const int &i, const int &j, const vector<vector<double> > &distances);
         /**
          * Calculates the cosine geometry function defined for k3.
          *
@@ -145,7 +145,7 @@ class MBTR {
          * @return The cosine value for the angle defined between the given
          * three atomic indices.
          */
-        float k3GeomCosine(const int &i, const int &j, const int &k, const vector<vector<float>> &distances);
+        double k3GeomCosine(const int &i, const int &j, const int &k, const vector<vector<double>> &distances);
         /**
          * Calculates the angle (degrees) geometry function defined for k3.
          *
@@ -157,7 +157,7 @@ class MBTR {
          * @return The angle defined between the given three atomic indices.
          * Between 0 and 180 degrees.
          */
-        float k3GeomAngle(const int &i, const int &j, const int &k, const vector<vector<float>> &distances);
+        double k3GeomAngle(const int &i, const int &j, const int &k, const vector<vector<double>> &distances);
         /**
          * Weighting of 1. Usually used for finite small
          * systems.
@@ -169,7 +169,7 @@ class MBTR {
          *
          * @return Weight of 1.
          */
-        float k3WeightUnity(const int &i, const int &j, const int &k, const vector<vector<float>> &distances);
+        double k3WeightUnity(const int &i, const int &j, const int &k, const vector<vector<double>> &distances);
         /**
          * Weighting defined as e^(-sx), where x is the distance from
          * A->B->C->A and s is the scaling factor.
@@ -182,7 +182,7 @@ class MBTR {
          *
          * @return Exponential weight.
          */
-        float k3WeightExponential(const int &i, const int &j, const int &k, const vector<vector<float>> &distances, float scale);
+        double k3WeightExponential(const int &i, const int &j, const int &k, const vector<vector<double>> &distances, double scale);
         /**
          * Weighting defined by smooth cutoff function f(r) = 1 + y * (r/R)^(y+1)
          * - (y+1) * (r/R)^y, where r is the distance between atoms, y is
@@ -197,7 +197,7 @@ class MBTR {
          *
          * @return Weight defined by smooth cutoff function.
          */
-        float k3WeightSmooth(const int &i, const int &j, const int &k, const vector<vector<float> > &distances, float sharpness, float cutoff);
+        double k3WeightSmooth(const int &i, const int &j, const int &k, const vector<vector<double> > &distances, double sharpness, double cutoff);
 };
 
 #endif

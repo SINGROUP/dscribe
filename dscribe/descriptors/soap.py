@@ -329,7 +329,7 @@ class SOAP(DescriptorLocal):
             ):
                 raise error
             list_positions = []
-            indices = np.full(len(positions), -1, dtype=np.int)
+            indices = np.full(len(positions), -1, dtype=np.int64)
             for idx, i in enumerate(positions):
                 if np.issubdtype(type(i), np.integer):
                     list_positions.append(system.get_positions()[i])

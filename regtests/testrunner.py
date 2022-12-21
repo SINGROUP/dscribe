@@ -3,8 +3,6 @@ import sys
 
 # Import the test modules
 import generaltests
-import acsf
-import mbtr
 import lmbtr
 import soap
 import kernels
@@ -17,10 +15,7 @@ suite = unittest.TestSuite()
 
 # Add tests to the test suite
 suite.addTests(loader.loadTestsFromModule(generaltests))
-suite.addTests(loader.loadTestsFromModule(acsf))
-suite.addTests(loader.loadTestsFromModule(mbtr))
 suite.addTests(loader.loadTestsFromModule(lmbtr))
-suite.addTests(loader.loadTestsFromModule(soap))
 suite.addTests(loader.loadTestsFromModule(kernels))
 suite.addTests(loader.loadTestsFromModule(derivatives))
 suite.addTests(loader.loadTestsFromModule(runexamples))

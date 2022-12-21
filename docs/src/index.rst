@@ -33,10 +33,10 @@ DScribe currently includes the following descriptors:
      - ✓
    * - :doc:`Sine matrix <tutorials/descriptors/sine_matrix>`
      - ✓
-     - 
+     - ✓
    * - :doc:`Ewald sum matrix <tutorials/descriptors/ewald_sum_matrix>`
      - ✓
-     - 
+     - ✓
    * - :doc:`Atom-centered Symmetry Functions (ACSF) <tutorials/descriptors/acsf>`
      - ✓
      - 
@@ -45,7 +45,7 @@ DScribe currently includes the following descriptors:
      - ✓
    * - :doc:`Many-body Tensor Representation (MBTR) <tutorials/descriptors/mbtr>`
      - ✓
-     - 
+     - ✓
    * - :doc:`Local Many-body Tensor Representation (LMBTR) <tutorials/descriptors/lmbtr>`
      - ✓
      - 

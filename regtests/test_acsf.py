@@ -4,6 +4,8 @@ import numpy as np
 from ase import Atoms
 from ase.build import bulk
 from conftest import (
+    assert_dtype,
+    assert_cell,
     assert_no_system_modification,
     assert_sparse,
     assert_basis,
@@ -51,17 +53,24 @@ def acsf(**kwargs):
 
 # =============================================================================
 # Common tests with parametrizations that may be specific to this descriptor
-@pytest.mark.parametrize(
-    "n_jobs, sparse",
-    [
-        (1, False),  # Serial job, dense
-        (2, False),  # Parallel job, dense
-        (1, True),  # Serial job, sparse
-        (2, True),  # Parallel job, sparse
-    ],
-)
-def test_parallellization(n_jobs, sparse):
-    assert_parallellization(acsf, n_jobs, None, sparse)
+@pytest.mark.parametrize("dtype", ["float32", "float64"])
+@pytest.mark.parametrize("sparse", [True, False])
+def test_dtype(dtype, sparse):
+    assert_dtype(acsf, dtype, sparse)
+
+
+@pytest.mark.parametrize("n_jobs", [1, 2])
+@pytest.mark.parametrize("sparse", [True, False])
+@pytest.mark.parametrize("positions", [
+    "all", 'indices_fixed', 'indices_variable'
+])
+def test_parallellization(n_jobs, sparse, positions):
+    assert_parallellization(acsf, n_jobs, None, sparse, positions)
+
+
+@pytest.mark.parametrize("cell", ["collapsed_periodic", "collapsed_finite"])
+def test_cell(cell):
+    assert_cell(acsf, cell)
 
 
 def test_no_system_modification():
