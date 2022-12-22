@@ -466,6 +466,61 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         desc.sparse = True
         vec = desc.create(H2O)
         self.assertTrue(type(vec) == sparse.COO)
+    
+    def test_dtype(self):
+        """Tests that the the specified data type is respected."""
+        
+        # Dense, flatten, float32
+        desc = copy.deepcopy(default_desc_k1)
+        desc.sparse = False
+        desc.flatten = True
+        desc.dtype = "float32"
+        vec = desc.create(H2O)
+        self.assertTrue(vec.dtype == np.float32)
+
+        # Sparse, flatten, float32
+        desc = copy.deepcopy(default_desc_k1)
+        desc.sparse = True
+        desc.flatten = True
+        desc.dtype = "float32"
+        vec = desc.create(H2O)
+        self.assertTrue(vec.dtype == np.float32)
+
+        # Non-flattened, float32
+        desc = copy.deepcopy(default_desc_k1_k2_k3)
+        desc.sparse = False
+        desc.flatten = False
+        desc.dtype = "float32"
+        vec = desc.create(H2O)
+        self.assertTrue(vec["k1"].dtype == np.float32)
+        self.assertTrue(vec["k2"].dtype == np.float32)
+        self.assertTrue(vec["k3"].dtype == np.float32)
+
+        # Dense, flatten, float64
+        desc = copy.deepcopy(default_desc_k1)
+        desc.sparse = False
+        desc.flatten = True
+        desc.dtype = "float64"
+        vec = desc.create(H2O)
+        self.assertTrue(vec.dtype == np.float64)
+
+        # Dense, flatten, float64
+        desc = copy.deepcopy(default_desc_k1)
+        desc.sparse = True
+        desc.flatten = True
+        desc.dtype = "float64"
+        vec = desc.create(H2O)
+        self.assertTrue(vec.dtype == np.float64)
+        
+        # Non-flattened, float32
+        desc = copy.deepcopy(default_desc_k1_k2_k3)
+        desc.sparse = False
+        desc.flatten = False
+        desc.dtype = "float64"
+        vec = desc.create(H2O)
+        self.assertTrue(vec["k1"].dtype == np.float64)
+        self.assertTrue(vec["k2"].dtype == np.float64)
+        self.assertTrue(vec["k3"].dtype == np.float64)
 
     def test_properties(self):
         """Used to test that changing the setup through properties works as
