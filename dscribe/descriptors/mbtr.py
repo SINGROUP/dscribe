@@ -759,26 +759,6 @@ class MBTR(Descriptor):
 
         return slice(start, end)
 
-    def _make_new_k1map(self, kx_map):
-        kx_map = dict(kx_map)
-        new_kx_map = {}
-
-        for key, value in kx_map.items():
-            new_key = tuple([int(key)])
-            new_kx_map[new_key] = np.array(value, dtype=np.float64)
-
-        return new_kx_map
-
-    def _make_new_kmap(self, kx_map):
-        kx_map = dict(kx_map)
-        new_kx_map = {}
-
-        for key, value in kx_map.items():
-            new_key = tuple(int(x) for x in key.split(","))
-            new_kx_map[new_key] = np.array(value, dtype=np.float64)
-
-        return new_kx_map
-
     def _get_k1(self, system, return_descriptor, return_derivatives):
         """Calculates the first order term and/or its derivatives with
         regard to atomic positions.
