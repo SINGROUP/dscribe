@@ -1,0 +1,43 @@
+\title{\LaTeXe{} Physics Exercises}
+\author{
+        Eiaki Morooka (Aki) \\
+                Department of IT Engineering\\
+        Metropolia University of Applied Sciences\\
+        Karaportti 2, 02610 Espoo, \underline{Finland}
+}
+\date{\today}
+
+\documentclass[10pt]{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+%\usepackage{a4wide}
+\usepackage[top=30pt,bottom=40pt,left=40pt,right=40pt]{geometry}
+
+\begin{document}
+\maketitle
+
+\section*{SOAP Spectrum}
+
+\begin{align}
+c^i_{nlm} &= \int dV g_{nl} (r_i) \rho(\vec{r}_i) Y_{lm}(\theta, \phi) \\
+          &= \int dV \sum_k \beta_{nk} r^l e^{-\alpha_{kl} r_i^2}  e^{(\vec{r} - \vec{r_i})^2} Y_{lm}(\theta, \phi) \\
+          &= \int dV \sum_k \beta_{nk} e^{-\alpha_{kl} r_i^2}  e^{(\vec{r} - \vec{r_i})^2} \Phi_{lm}(r, \theta, \phi) \\
+          &= \int dV \sum_k \beta_{nk} e^{- (1+\alpha_{kl})(\vec{r} - \frac{\vec{r_i}}{1+\alpha_{kl}})^2} e^{-\frac{\alpha_{kl}}{1+\alpha_{kl}}} \Phi_{lm}(x, y, z) \\
+          &=  \sum_k \beta_{nk} e^{-\frac{\alpha_{kl}}{1+\alpha_{kl}}} \int dV  e^{- (1+\alpha_{kl})(\vec{r} - \frac{\vec{r_i}}{1+\alpha_{kl}})^2}  \Phi_{lm}(x, y, z) \\
+          &=  \sum_k \beta_{nk} e^{-\frac{\alpha_{kl}}{1+\alpha_{kl}}} \int dV  e^{- (1+\alpha_{kl})\vec{r} ^2}  \Phi_{lm}(x+\frac{x_i}{1+\alpha_{kl}}, y +\frac{y_i}{1+\alpha_{kl}}, z+\frac{z_i}{1+\alpha_{kl}}) \label{infinity} \\
+          &=  \sum_k \beta_{nk} e^{-\frac{\alpha_{kl}}{1+\alpha_{kl}}} \Phi_{lm}(\frac{x_i}{1+\alpha_{kl}}, \frac{y_i}{1+\alpha_{kl}}, \frac{z_i}{1+\alpha_{kl}}) \int dV  e^{- (1+\alpha_{kl})\vec{r} ^2}   \\
+          &=  \frac{\pi^{3/2}}{(1+\alpha_{lm})^{3/2}}\sum_k \beta_{nk} e^{-\frac{\alpha_{kl}}{1+\alpha_{kl}}} \Phi_{lm}(\frac{x_i}{1+\alpha_{kl}}, \frac{y_i}{1+\alpha_{kl}}, \frac{z_i}{1+\alpha_{kl}}) \\
+          &=  \frac{\xi_l\pi^{3/2}}{(1+\alpha_{lm})^{3/2 + l}}\sum_k \beta_{nk} e^{-\frac{\alpha_{kl}}{1+\alpha_{kl}}} P_{lm}(x_i, y_i, z_i)  \label{harpoly}
+\end{align}
+
+eq.\ref{infinity} is possible because x,y and z go to plus and minus infinity, and because it is in the form of a polynomial. And eq.\ref{harpoly} comes from the characteristics of the spherical harmonics,
+\begin{align}
+\Phi_{lm}(\frac{x}{a},\frac{y}{a},\frac{z}{a}) = r^l Y_{lm}(\frac{x}{a},\frac{y}{a},\frac{z}{a})  = \frac{\xi_l}{a^l} P_{lm}(x,y,z)
+\end{align}
+where $\xi_l$ is a constant and $P_{lm}$ takes a polynomial form.
+
+
+
+
+
+\end{document}
