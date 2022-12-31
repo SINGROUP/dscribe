@@ -28,14 +28,14 @@ c^i_{nlm} &= \int dV g_{nl} (r_i) \rho(\vec{r}_i) Y_{lm}(\theta, \phi) \\
           &=  \sum_k \beta_{nk} e^{-\frac{\alpha_{kl}}{1+\alpha_{kl}} r^2_i} \int dV  e^{- (1+\alpha_{kl})\vec{r} ^2}  \Phi_{lm}(x+\frac{x_i}{1+\alpha_{kl}}, y +\frac{y_i}{1+\alpha_{kl}}, z+\frac{z_i}{1+\alpha_{kl}}) \label{infinity} \\
           &=  \sum_k \beta_{nk} e^{-\frac{\alpha_{kl}}{1+\alpha_{kl}} r^2_i} \Phi_{lm}(\frac{x_i}{1+\alpha_{kl}}, \frac{y_i}{1+\alpha_{kl}}, \frac{z_i}{1+\alpha_{kl}}) \int dV  e^{- (1+\alpha_{kl})\vec{r} ^2}   \\
           &=  \frac{\pi^{3/2}}{(1+\alpha_{lm})^{3/2}}\sum_k \beta_{nk} e^{-\frac{\alpha_{kl}}{1+\alpha_{kl}} r^2_i} \Phi_{lm}(\frac{x_i}{1+\alpha_{kl}}, \frac{y_i}{1+\alpha_{kl}}, \frac{z_i}{1+\alpha_{kl}}) \\
-          &=  \frac{\xi_l\pi^{3/2}}{(1+\alpha_{lm})^{3/2 + l}}\sum_k \beta_{nk} e^{-\frac{\alpha_{kl}}{1+\alpha_{kl}} r^2_i} P_{lm}(x_i, y_i, z_i)  \label{harpoly}
+          &=  \frac{\pi^{3/2}}{(1+\alpha_{lm})^{3/2 + l}}\sum_k \beta_{nk} e^{-\frac{\alpha_{kl}}{1+\alpha_{kl}} r^2_i} P_{lm}(x_i, y_i, z_i)  \label{harpoly}
 \end{align}
 
 eq.\ref{infinity} is possible because x,y and z go to plus and minus infinity, and because it is in the form of a polynomial. And eq.\ref{harpoly} comes from the characteristics of the spherical harmonics,
 \begin{align}
-\Phi_{lm}(\frac{x}{a},\frac{y}{a},\frac{z}{a}) = r^l Y_{lm}(\frac{x}{a},\frac{y}{a},\frac{z}{a})  = \frac{\xi_l}{a^l} P_{lm}(x,y,z)
+\Phi_{lm}(\frac{x}{a},\frac{y}{a},\frac{z}{a}) = r^l Y_{lm}(\frac{x}{a},\frac{y}{a},\frac{z}{a})  = \frac{1}{a^l} P_{lm}(x,y,z)
 \end{align}
-where $\xi_l$ is a constant and $P_{lm}$ takes a polynomial form. Hence the derivatives are
+where $\a^l$ is a constant and $P_{lm}$ takes a polynomial form. Hence the derivatives are
 \begin{align}
          \frac{\partial c^i_{nlm}}{ \partial x_i} &=  \frac{\xi_l\pi^{3/2}}{(1+\alpha_{lm})^{3/2 + l}}\sum_k \beta_{nk} \left( \frac{\partial P_{lm}(x_i, y_i, z_i)}{\partial x_i} e^{-\frac{\alpha_{kl}}{1+\alpha_{kl}} r^2_i} - \frac{2\alpha_{kl}x_i}{1+\alpha_{kl} }e^{-\frac{\alpha_{kl}}{1+\alpha_{kl}} r^2_i} P_{lm}(x_i, y_i, z_i)  \right) \\
          \frac{\partial c^i_{nlm}}{ \partial y_i} &=  \frac{\xi_l\pi^{3/2}}{(1+\alpha_{lm})^{3/2 + l}}\sum_k \beta_{nk} \left( \frac{\partial P_{lm}(x_i, y_i, z_i)}{\partial y_i} e^{-\frac{\alpha_{kl}}{1+\alpha_{kl}} r^2_i} - \frac{2\alpha_{kl}y_i}{1+\alpha_{kl} }e^{-\frac{\alpha_{kl}}{1+\alpha_{kl}} r^2_i} P_{lm}(x_i, y_i, z_i)  \right) \\
