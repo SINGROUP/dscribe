@@ -31,7 +31,6 @@ local longText = longText:gsub("{x}", "x")
 local longText = longText:gsub("{y}", "y")
 local longText = longText:gsub("{z}", "z")
 local longText = longText:gsub("%s%=%s", "%=")
-print(longText)
 
 local t = {}
 local j = 0
