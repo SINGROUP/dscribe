@@ -25,8 +25,8 @@ file:seek("set",0)
 -- clearning unnessesary string
 local longText = file:read("*a")
 local longText = longText:gsub("&", "\n")
-local longText = longText:gsub("^.begin.pmatrix.", "")
-local longText = longText:gsub("^.end.pmatrix.", "")
+local longText = longText:gsub("...begin.pmatrix.", "")
+local longText = longText:gsub(".end.pmatrix..", "")
 local longText = longText:gsub("{x}", "x")
 local longText = longText:gsub("{y}", "y")
 local longText = longText:gsub("{z}", "z")
@@ -45,9 +45,21 @@ local tfunc = {}
 local l = 0
 local m = 0
 local reset = 0
+local phi = "\\Phi"
+local phi = "\\frac{\\partial Phi}{\\partial x}"
+local phi = "\\frac{\\partial Phi}{\\partial y}"
+local phi = "\\frac{\\partial Phi}{\\partial z}"
 for i, v in ipairs(t) do
     if m <= l then
-	    table.insert(tfunc, "\\Phi_{" .. l .. " , " .. m .. "} =" .. v)
+	    if string.find(string.lower(arg[1]),"dx")  then
+		    table.insert(tfunc, "\\frac{ \\partial \\Phi_{" .. l .. " , " .. m .. "}}{\\partial x} =" .. v)
+	    elseif string.find(string.lower(arg[1]),"dy")  then
+		    table.insert(tfunc, "\\frac{ \\partial \\Phi_{" .. l .. " , " .. m .. "}}{\\partial y} =" .. v)
+	    elseif string.find(string.lower(arg[1]),"dz")  then
+		    table.insert(tfunc, "\\frac{ \\partial \\Phi_{" .. l .. " , " .. m .. "}}{\\partial z} =" .. v)
+	    else
+		    table.insert(tfunc, "\\Phi" .. "_{" .. l .. " , " .. m .. "} =" .. v)
+    end
     end
     m = m + 1
     reset = reset + 1
