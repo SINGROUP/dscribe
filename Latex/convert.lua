@@ -19,17 +19,19 @@
 -- print(file:read("*a"))
 -- file:close()
 --
-local file = io.open("test.tex", "r")
+local file = io.open(arg[1], "r")
 -- local file = io.open("phi_raw.tex", "r")
 file:seek("set",0)
 -- clearning unnessesary string
 local longText = file:read("*a")
 local longText = longText:gsub("&", "\n")
-local longText = longText:gsub("^.*pmatrix.", "")
+local longText = longText:gsub("^.begin.pmatrix.", "")
+local longText = longText:gsub("^.end.pmatrix.", "")
 local longText = longText:gsub("{x}", "x")
 local longText = longText:gsub("{y}", "y")
 local longText = longText:gsub("{z}", "z")
 local longText = longText:gsub("%s%=%s", "%=")
+print(longText)
 
 local t = {}
 local j = 0
