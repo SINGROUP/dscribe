@@ -44,20 +44,20 @@ local tfunc = {}
 local l = 0
 local m = 0
 local reset = 0
-local phi = "\\Phi"
-local phi = "\\frac{\\partial Phi}{\\partial x}"
-local phi = "\\frac{\\partial Phi}{\\partial y}"
-local phi = "\\frac{\\partial Phi}{\\partial z}"
+local P = "P"
+local P = "\\frac{\\partial P}{\\partial x}"
+local P = "\\frac{\\partial P}{\\partial y}"
+local P = "\\frac{\\partial P}{\\partial z}"
 for i, v in ipairs(t) do
     if m <= l then
 	    if string.find(string.lower(arg[1]),"dx")  then
-		    table.insert(tfunc, "\\frac{ \\partial \\Phi_{" .. l .. " , " .. m .. "}}{\\partial x} =" .. v)
+		    table.insert(tfunc, "\\frac{ \\partial P_{" .. l .. " , " .. m .. "}}{\\partial x} =" .. v)
 	    elseif string.find(string.lower(arg[1]),"dy")  then
-		    table.insert(tfunc, "\\frac{ \\partial \\Phi_{" .. l .. " , " .. m .. "}}{\\partial y} =" .. v)
+		    table.insert(tfunc, "\\frac{ \\partial P_{" .. l .. " , " .. m .. "}}{\\partial y} =" .. v)
 	    elseif string.find(string.lower(arg[1]),"dz")  then
-		    table.insert(tfunc, "\\frac{ \\partial \\Phi_{" .. l .. " , " .. m .. "}}{\\partial z} =" .. v)
+		    table.insert(tfunc, "\\frac{ \\partial P_{" .. l .. " , " .. m .. "}}{\\partial z} =" .. v)
 	    else
-		    table.insert(tfunc, "\\Phi" .. "_{" .. l .. " , " .. m .. "} =" .. v)
+		    table.insert(tfunc, "P_{" .. l .. " , " .. m .. "} =" .. v)
     end
     end
     m = m + 1
