@@ -111,7 +111,7 @@ def test_symmetries(permutation_option, translation, rotation, permutation):
     ],
 )
 def test_derivatives(permutation, method):
-    assert_derivatives(sine_matrix(permutation=permutation), method, True)
+    assert_derivatives(sine_matrix(permutation=permutation), method=method, True)
 
 
 # =============================================================================

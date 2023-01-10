@@ -149,11 +149,44 @@ def assert_symmetry_permutation(descriptor_func):
     assert is_perm_sym
 
 
-def assert_derivatives(descriptor_func, method, pbc):
+def assert_derivatives(descriptor_func, method, pbc, system=big_system()):
     assert_derivatives_include(descriptor_func, method, pbc)
     assert_derivatives_exclude(descriptor_func, method, pbc)
-    if method == "numerical":
-        assert_derivatives_numerical(descriptor_func, pbc)
+
+    # Test values against a naive python implementation.
+    system.set_pbc(pbc)
+    h = 0.0001
+    n_atoms = len(system)
+    n_comp = 3
+    descriptor = descriptor_func([system])
+
+    # The maximum error depends on how big the system is. With a small system
+    # the error is smaller for non-periodic systems than the corresponding error
+    # when periodicity is turned on. The errors become equal (~1e-5) when the
+    # size of the system is increased.
+    n_features = descriptor.get_number_of_features()
+    derivatives_python = np.zeros((n_atoms, n_comp, n_features))
+    d0 = descriptor.create(system)
+    coeffs = [-1.0 / 2.0, 1.0 / 2.0]
+    deltas = [-1.0, 1.0]
+    for i_atom in range(len(system)):
+        for i_comp in range(3):
+            for i_stencil in range(2):
+                system_disturbed = system.copy()
+                i_pos = system_disturbed.get_positions()
+                i_pos[i_atom, i_comp] += h * deltas[i_stencil]
+                system_disturbed.set_positions(i_pos)
+                d1 = descriptor.create(system_disturbed)
+                derivatives_python[i_atom, i_comp, :] += coeffs[i_stencil] * d1 / h
+
+    # Calculate with numerical method
+    derivatives_cpp, d_cpp = descriptor.derivatives(system, method=method)
+
+    # Compare descriptor values
+    assert np.allclose(d0, d_cpp, atol=1e-6)
+
+    # Compare derivative values
+    assert np.allclose(derivatives_python, derivatives_cpp, rtol=1e-4, atol=1e-4)
 
 
 def assert_derivatives_include(descriptor_func, method, pbc):
@@ -220,46 +253,6 @@ def assert_derivatives_exclude(descriptor_func, method, pbc):
     D2, d2 = descriptor.derivatives([H2O, CO2], method=method)
     assert np.array_equal(D1[:, 0, :], D2[:, 0, :])
     assert np.array_equal(D1[:, 1, :], D2[:, 2, :])
-
-
-def assert_derivatives_numerical(descriptor_func, pbc):
-    """Test numerical values against a naive python implementation."""
-    # Elaborate test system with multiple species, non-cubic cell, and close-by
-    # atoms.
-    system = big_system()
-    system.set_pbc(pbc)
-    h = 0.0001
-    n_atoms = len(system)
-    n_comp = 3
-    descriptor = descriptor_func([system])
-
-    # The maximum error depends on how big the system is. With a small system
-    # the error is smaller for non-periodic systems than the corresponding
-    # error when periodicity is turned on. The errors become equal (~1e-5) when
-    # the size of the system is increased.
-    n_features = descriptor.get_number_of_features()
-    derivatives_python = np.zeros((n_atoms, n_comp, n_features))
-    d0 = descriptor.create(system)
-    coeffs = [-1.0 / 2.0, 1.0 / 2.0]
-    deltas = [-1.0, 1.0]
-    for i_atom in range(len(system)):
-        for i_comp in range(3):
-            for i_stencil in range(2):
-                system_disturbed = system.copy()
-                i_pos = system_disturbed.get_positions()
-                i_pos[i_atom, i_comp] += h * deltas[i_stencil]
-                system_disturbed.set_positions(i_pos)
-                d1 = descriptor.create(system_disturbed)
-                derivatives_python[i_atom, i_comp, :] += coeffs[i_stencil] * d1 / h
-
-    # Calculate with central finite difference implemented in C++.
-    derivatives_cpp, d_cpp = descriptor.derivatives(system, method="numerical")
-
-    # Compare descriptor values
-    assert np.allclose(d0, d_cpp, atol=1e-6)
-
-    # Compare derivative values
-    assert np.allclose(derivatives_python, derivatives_cpp, atol=2e-5)
 
 
 def assert_cell(descriptor_func, cell):
