@@ -1,6 +1,7 @@
 import pytest
 import numpy as np
 from conftest import (
+    assert_n_features,
     assert_no_system_modification,
     assert_sparse,
     assert_basis,
@@ -40,6 +41,18 @@ def valle_oganov(**kwargs):
 
 # =============================================================================
 # Common tests with parametrizations that may be specific to this descriptor
+@pytest.mark.parametrize(
+    "k2, k3, n_features",
+    [
+        (default_k2, None, 1 / 2 * 2 * (2 + 1) * 100),  # K2
+        (None, default_k3, 1 / 2 * 2 * 2 * (2 + 1) * 100),  # K3
+        (default_k2, default_k3, 1 / 2 * 2 * (2 + 1) * 100 * (1 + 2)),  # K2 + K3
+    ],
+)
+def test_number_of_features(k2, k3, n_features):
+    assert_n_features(valle_oganov(k2=k2, k3=k3, flatten=True), n_features)
+
+
 @pytest.mark.parametrize(
     "n_jobs, flatten, sparse",
     [
@@ -126,33 +139,6 @@ def test_exceptions():
             species=[1],
             k3={"n": 100, "r_cut": 10},
         )
-
-
-@pytest.mark.parametrize(
-    "k2, k3",
-    [
-        (True, False),  # K2
-        (False, True),  # K3
-        (True, True),  # K2 + K3
-    ],
-)
-def test_number_of_features(k2, k3):
-    n = 100
-    atomic_numbers = [1, 8]
-    n_elem = len(atomic_numbers)
-
-    vo = ValleOganov(
-        species=atomic_numbers,
-        k2=default_k2 if k2 else None,
-        k3=default_k3 if k3 else None,
-        flatten=True,
-    )
-    n_features = vo.get_number_of_features()
-
-    expected_k2 = 1 / 2 * n_elem * (n_elem + 1) * n
-    expected_k3 = 1 / 2 * n_elem * n_elem * (n_elem + 1) * n
-
-    assert n_features == ((expected_k2 if k2 else 0) + (expected_k3 if k3 else 0))
 
 
 def test_flatten():

@@ -10,6 +10,7 @@ from ase.build import molecule, bulk
 from dscribe.descriptors import MBTR
 
 from conftest import (
+    assert_n_features,
     assert_dtype,
     assert_basis,
     assert_no_system_modification,
@@ -93,6 +94,24 @@ def k3_dict(weighting_function):
 
 # =============================================================================
 # Common tests with parametrizations that may be specific to this descriptor
+@pytest.mark.parametrize(
+    "setup, n_features",
+    [
+        pytest.param({"k1": default_k1, "k2": None, "k2": None}, 2 * default_k1["grid"]["n"], id="K1"),
+        pytest.param(
+            {"k1": None, "k2": default_k2, "k3": None}, 2 * default_k2["grid"]["n"] * 1 / 2 * (2 + 1), id="K2"
+        ),
+        pytest.param(
+            {"k1": None, "k2": None, "k3": default_k3},
+            2 * default_k3["grid"]["n"] * 1 / 2 * (2 + 1) * 2,
+            id="K3",
+        ),
+    ],
+)
+def test_number_of_features(setup, n_features):
+    assert_n_features(mbtr(**setup), n_features)
+
+
 @pytest.mark.parametrize("dtype", ["float32", "float64"])
 @pytest.mark.parametrize("sparse", [True, False])
 def test_dtype(dtype, sparse):
@@ -380,27 +399,6 @@ def test_exceptions():
         )
     msg = "Unknown normalization option given. Please use one of the following: l2_each, n_atoms, none, valle_oganov."
     assert msg == str(excinfo.value)
-
-
-@pytest.mark.parametrize(
-    "setup, n_features",
-    [
-        pytest.param({"k1": default_k1}, 2 * default_k1["grid"]["n"], id="K1"),
-        pytest.param(
-            {"k2": default_k2}, 2 * default_k2["grid"]["n"] * 1 / 2 * (2 + 1), id="K2"
-        ),
-        pytest.param(
-            {"k3": default_k3},
-            2 * default_k3["grid"]["n"] * 1 / 2 * (2 + 1) * 2,
-            id="K3",
-        ),
-    ],
-)
-def test_number_of_features(setup, n_features):
-    atomic_numbers = [1, 8]
-    desc = MBTR(species=atomic_numbers, **setup)
-    n_features = desc.get_number_of_features()
-    assert n_features == n_features
 
 
 @pytest.mark.parametrize(

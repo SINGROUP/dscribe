@@ -4,6 +4,7 @@ import numpy as np
 from ase import Atoms
 from ase.build import bulk
 from conftest import (
+    assert_n_features,
     assert_dtype,
     assert_cell,
     assert_no_system_modification,
@@ -53,6 +54,25 @@ def acsf(**kwargs):
 
 # =============================================================================
 # Common tests with parametrizations that may be specific to this descriptor
+@pytest.mark.parametrize(
+    "g2, g3, g4, n_features",
+    [
+        (None, None, None, 2),
+        ([[1, 2], [4, 5]], None, None, 2 * (2 + 1)),
+        (None, [1, 2, 3, 4], None, 2 * (4 + 1)),
+        (None, None, [[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]], 2 + 4 * 3),
+        (
+            [[1, 2], [4, 5]],
+            [1, 2, 3, 4],
+            [[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]],
+            2 * (1 + 2 + 4) + 4 * 3,
+        ),
+    ],
+)
+def test_number_of_features(g2, g3, g4, n_features):
+    assert_n_features(acsf(g2_params=g2, g3_params=g3, g4_params=g4), n_features)
+
+
 @pytest.mark.parametrize("dtype", ["float32", "float64"])
 @pytest.mark.parametrize("sparse", [True, False])
 def test_dtype(dtype, sparse):
@@ -128,28 +148,6 @@ def test_exceptions():
     # Invalid ang5_params
     with pytest.raises(ValueError):
         ACSF(r_cut=6.0, species=[1, 6, 8], g5_params=[[1, 2], [3, 1]])
-
-
-@pytest.mark.parametrize(
-    "g2, g3, g4, n_features_expected",
-    [
-        (None, None, None, 2),
-        ([[1, 2], [4, 5]], None, None, 2 * (2 + 1)),
-        (None, [1, 2, 3, 4], None, 2 * (4 + 1)),
-        (None, None, [[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]], 2 + 4 * 3),
-        (
-            [[1, 2], [4, 5]],
-            [1, 2, 3, 4],
-            [[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]],
-            2 * (1 + 2 + 4) + 4 * 3,
-        ),
-    ],
-)
-def test_number_of_features(g2, g3, g4, n_features_expected):
-    species = [1, 8]
-    desc = ACSF(r_cut=6.0, species=species, g2_params=g2, g3_params=g3, g4_params=g4)
-    n_features = desc.get_number_of_features()
-    assert n_features == n_features_expected
 
 
 def test_features():

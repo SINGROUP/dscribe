@@ -3,6 +3,7 @@ import numpy as np
 from numpy.random import RandomState
 from ase import Atoms
 from conftest import (
+    assert_n_features,
     assert_matrix_descriptor_exceptions,
     assert_matrix_descriptor_flatten,
     assert_matrix_descriptor_sorted,
@@ -42,6 +43,17 @@ def sine_matrix(**kwargs):
 
 # =============================================================================
 # Common tests with parametrizations that may be specific to this descriptor
+@pytest.mark.parametrize(
+    "permutation, n_features",
+    [
+        ("none", 9),
+        ("eigenspectrum", 3),
+        ("sorted_l2", 9),
+    ],
+)
+def test_number_of_features(permutation, n_features):
+    assert_n_features(sine_matrix(permutation=permutation, flatten=True), n_features)
+
 def test_matrix_descriptor_exceptions():
     assert_matrix_descriptor_exceptions(sine_matrix)
 
@@ -116,21 +128,6 @@ def test_derivatives(permutation, method):
 
 # =============================================================================
 # Tests that are specific to this descriptor.
-@pytest.mark.parametrize(
-    "permutation, n_features",
-    [
-        ("none", 25),
-        ("eigenspectrum", 5),
-        ("sorted_l2", 25),
-    ],
-)
-def test_number_of_features(permutation, n_features):
-    """Tests that the reported number of features is correct."""
-    desc = SineMatrix(n_atoms_max=5, permutation="none", flatten=False)
-    n_features = desc.get_number_of_features()
-    assert n_features == 25
-
-
 @pytest.mark.parametrize(
     "permutation",
     [

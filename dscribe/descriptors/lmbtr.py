@@ -15,25 +15,21 @@ limitations under the License.
 """
 import sys
 import math
+
 import numpy as np
-
-from sklearn.preprocessing import normalize
-
-from scipy.sparse import lil_matrix
-import sparse
-
 import scipy.spatial.distance
-
+import sparse
 from ase import Atoms
 import ase.data
 
 from dscribe.core import System
 from dscribe.descriptors import MBTR
+from dscribe.descriptors.descriptorlocal import DescriptorLocal
 from dscribe.ext import MBTRWrapper
 import dscribe.utils.geometry
 
 
-class LMBTR(MBTR):
+class LMBTR(MBTR, DescriptorLocal):
     """Implementation of local -- per chosen atom -- kind of the Many-body
     tensor representation up to k=3.
 
@@ -206,7 +202,7 @@ class LMBTR(MBTR):
         if value not in norm_options:
             raise ValueError(
                 "Unknown normalization option given. Please use one of the "
-                "following: {}.".format(", ".join([str(x) for x in norm_options]))
+                "following: {}.".format(", ".join(sorted(list(norm_options))))
             )
         self._normalization = value
 

@@ -10,6 +10,7 @@ from testutils import (
     load_ewald,
 )
 from conftest import (
+    assert_n_features,
     assert_matrix_descriptor_exceptions,
     assert_matrix_descriptor_flatten,
     assert_matrix_descriptor_sorted,
@@ -52,6 +53,18 @@ def ewald_sum_matrix(**kwargs):
 
 # =============================================================================
 # Common tests with parametrizations that may be specific to this descriptor
+@pytest.mark.parametrize(
+    "permutation, n_features",
+    [
+        ("none", 9),
+        ("eigenspectrum", 3),
+        ("sorted_l2", 9),
+    ],
+)
+def test_number_of_features(permutation, n_features):
+    assert_n_features(ewald_sum_matrix(permutation=permutation, flatten=True), n_features)
+
+
 def test_matrix_descriptor_exceptions():
     assert_matrix_descriptor_exceptions(ewald_sum_matrix)
 
@@ -129,21 +142,6 @@ def test_derivatives(permutation, method):
 
 # =============================================================================
 # Tests that are specific to this descriptor.
-@pytest.mark.parametrize(
-    "permutation, n_features",
-    [
-        ("none", 25),
-        ("eigenspectrum", 5),
-        ("sorted_l2", 25),
-    ],
-)
-def test_number_of_features(permutation, n_features):
-    """Tests that the reported number of features is correct."""
-    desc = EwaldSumMatrix(n_atoms_max=5, permutation="none", flatten=False)
-    n_features = desc.get_number_of_features()
-    assert n_features == 25
-
-
 def test_create():
     """Tests different valid and invalid create values."""
     system = water()

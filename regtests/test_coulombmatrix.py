@@ -3,6 +3,7 @@ import pytest
 import numpy as np
 from numpy.random import RandomState
 from conftest import (
+    assert_n_features,
     assert_matrix_descriptor_exceptions,
     assert_matrix_descriptor_flatten,
     assert_matrix_descriptor_sorted,
@@ -93,6 +94,18 @@ def coulomb_matrix(**kwargs):
 
 # =============================================================================
 # Common tests with parametrizations that may be specific to this descriptor
+@pytest.mark.parametrize(
+    "permutation, n_features",
+    [
+        ("none", 9),
+        ("eigenspectrum", 3),
+        ("sorted_l2", 9),
+    ],
+)
+def test_number_of_features(permutation, n_features):
+    assert_n_features(coulomb_matrix(permutation=permutation, flatten=True), n_features)
+
+
 def test_matrix_descriptor_exceptions():
     assert_matrix_descriptor_exceptions(coulomb_matrix)
 
@@ -170,19 +183,6 @@ def test_derivatives(permutation, method):
 
 # =============================================================================
 # Tests that are specific to this descriptor.
-@pytest.mark.parametrize(
-    "permutation, n_features",
-    [
-        ("none", 25),
-        ("eigenspectrum", 5),
-        ("sorted_l2", 25),
-    ],
-)
-def test_number_of_features(permutation, n_features):
-    desc = CoulombMatrix(n_atoms_max=5, permutation=permutation, flatten=False)
-    assert n_features == desc.get_number_of_features()
-
-
 @pytest.mark.parametrize(
     "permutation",
     [

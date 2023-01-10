@@ -2,6 +2,7 @@ import pytest
 import numpy as np
 from ase import Atoms
 from conftest import (
+    assert_n_features,
     assert_dtype,
     assert_cell,
     assert_no_system_modification,
@@ -214,6 +215,25 @@ def load_polynomial_coefficients(args):
 
 # =============================================================================
 # Common tests with parametrizations that may be specific to this descriptor
+@pytest.mark.parametrize(
+    "species, n_max, l_max, crossover, n_features",
+    [
+        (["H", "O"], 5, 5, True, int((5 + 1) * (5 * 2) * (5 * 2 + 1) / 2)),
+        (["H", "O"], 5, 5, False, int(5 * 2 * (5 + 1) / 2 * (5 + 1))),
+    ],
+)
+def test_number_of_features(species, n_max, l_max, crossover, n_features):
+    desc = soap(
+        species=species,
+        r_cut=3,
+        n_max=n_max,
+        l_max=l_max,
+        crossover=crossover,
+        periodic=True,
+    )
+    assert_n_features(desc, n_features)
+
+
 @pytest.mark.parametrize("dtype", ["float32", "float64"])
 @pytest.mark.parametrize("sparse", [True, False])
 def test_dtype(dtype, sparse):
@@ -370,28 +390,6 @@ def test_exceptions():
     with pytest.raises(ValueError):
         args["weighting"] = {"function": "invalid", "c": 1, "d": 1, "r0": 1}
         SOAP(**args)
-
-
-@pytest.mark.parametrize(
-    "species, n_max, l_max, crossover, n_features_expected",
-    [
-        (["H", "O"], 5, 5, True, int((5 + 1) * (5 * 2) * (5 * 2 + 1) / 2)),
-        (["H", "O"], 5, 5, False, int(5 * 2 * (5 + 1) / 2 * (5 + 1))),
-    ],
-)
-def test_number_of_features(species, n_max, l_max, crossover, n_features_expected):
-    desc = SOAP(
-        species=species,
-        r_cut=3,
-        n_max=n_max,
-        l_max=l_max,
-        crossover=crossover,
-        periodic=True,
-    )
-    n_features = desc.get_number_of_features()
-    assert n_features == n_features_expected
-    feat = desc.create(water())
-    assert n_features == feat.shape[1]
 
 
 w_poly = {"function": "poly", "c": 2, "m": 3, "r0": 4}

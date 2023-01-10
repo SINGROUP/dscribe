@@ -3,6 +3,7 @@ import numpy as np
 import sparse
 import pytest
 import scipy
+import scipy.stats
 from ase import Atoms
 from ase.build import molecule, bulk
 from dscribe.descriptors.descriptorlocal import DescriptorLocal
@@ -306,6 +307,17 @@ def assert_sparse(descriptor_func):
     desc = descriptor_func(sparse=True)([system])
     features = desc.create(system)
     assert type(features) == sparse.COO
+
+
+def assert_n_features(descriptor_func, n_features):
+    """Test that the reported number of features matches the actual number of
+    features and the expected value.
+    """
+    system = water()
+    desc = descriptor_func([system])
+    n_features_reported = desc.get_number_of_features()
+    n_features_actual = desc.create(system).shape[-1]
+    assert n_features_reported == n_features_actual == n_features
 
 
 def assert_parallellization(descriptor_func, n_jobs, flatten, sparse, positions=None):
