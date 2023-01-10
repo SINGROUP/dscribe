@@ -10,6 +10,7 @@ from ase.build import molecule, bulk
 from dscribe.descriptors import MBTR
 
 from conftest import (
+    assert_dtype,
     assert_basis,
     assert_no_system_modification,
     assert_sparse,
@@ -66,6 +67,11 @@ def mbtr(**kwargs):
 
 # =============================================================================
 # Common tests with parametrizations that may be specific to this descriptor
+@pytest.mark.parametrize("dtype", ["float32", "float64"])
+@pytest.mark.parametrize("sparse", [True, False])
+def test_dtype(dtype, sparse):
+    assert_dtype(mbtr, dtype, sparse)
+
 @pytest.mark.parametrize(
     "n_jobs, flatten, sparse",
     [
