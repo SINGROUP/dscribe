@@ -310,8 +310,14 @@ def assert_sparse(descriptor_func):
 
 def assert_parallellization(descriptor_func, n_jobs, flatten, sparse, positions=None):
     """Tests creating output parallelly."""
-    # samples = [bulk("NaCl", "rocksalt", a=5.64), bulk("Fe", "bcc", a=3.8)]
-    samples = [molecule("CO"), molecule("NO")]
+    # Periodic systems are used since all descriptors support them.
+    CO = molecule("CO")
+    CO.set_cell([5, 5, 5])
+    CO.set_pbc(True)
+    NO = molecule("NO")
+    NO.set_cell([5, 5, 5])
+    NO.set_pbc(True)
+    samples = [CO, NO]
     kwargs = {"sparse": sparse}
     if flatten is not None:
         kwargs["flatten"] = flatten
