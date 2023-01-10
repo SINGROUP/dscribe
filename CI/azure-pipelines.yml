@@ -1,7 +1,6 @@
 # Defines when the pipeline is triggered
 trigger:
 - master
-- mbtr-derivatives
 - v1.2.3
 
 # Jobs
@@ -13,8 +12,6 @@ jobs:
     vmImage: 'ubuntu-latest'
   strategy:
     matrix:
-      python36:
-        python.version: '3.6'
       python37:
         python.version: '3.7'
       python38:

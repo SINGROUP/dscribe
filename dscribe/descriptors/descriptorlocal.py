@@ -25,7 +25,7 @@ class DescriptorLocal(Descriptor):
         super().__init__(periodic=periodic, flatten=flatten, sparse=sparse, dtype=dtype)
         self.average = average
 
-    def validate_derivatives_method(self, method):
+    def validate_derivatives_method(self, method, attach):
         """Used to validate and determine the final method for calculating the
         derivatives.
         """

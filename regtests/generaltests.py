@@ -468,7 +468,7 @@ class SpeciesTests(unittest.TestCase):
     def test_species(self):
         """Tests that the species are correctly determined."""
         # As atomic number in contructor
-        d = ACSF(rcut=6.0, species=[5, 1])
+        d = ACSF(r_cut=6.0, species=[5, 1])
         self.assertEqual(d.species, [5, 1])  # Saves the original variable
         self.assertTrue(np.array_equal(d._atomic_numbers, [1, 5]))  # Ordered here
 
@@ -478,17 +478,17 @@ class SpeciesTests(unittest.TestCase):
         self.assertTrue(np.array_equal(d._atomic_numbers, [2, 10]))  # Ordered here
 
         # As chemical symbol in the contructor
-        d = ACSF(rcut=6.0, species=["O", "H"])
+        d = ACSF(r_cut=6.0, species=["O", "H"])
         self.assertEqual(d.species, ["O", "H"])  # Saves the original variable
         self.assertTrue(np.array_equal(d._atomic_numbers, [1, 8]))  # Ordered here
 
         # As set of chemical symbols in the contructor
-        d = ACSF(rcut=6.0, species={"O", "H"})
+        d = ACSF(r_cut=6.0, species={"O", "H"})
         self.assertEqual(d.species, {"O", "H"})  # Saves the original variable
         self.assertTrue(np.array_equal(d._atomic_numbers, [1, 8]))  # Ordered here
 
         # As set of atomic numbers in the contructor
-        d = ACSF(rcut=6.0, species={8, 1})
+        d = ACSF(r_cut=6.0, species={8, 1})
         self.assertEqual(d.species, {8, 1})  # Saves the original variable
         self.assertTrue(np.array_equal(d._atomic_numbers, [1, 8]))  # Ordered here
 
@@ -510,30 +510,30 @@ class SpeciesTests(unittest.TestCase):
         """Tests that invalid species throw an appropriate error."""
         # As chemical symbol in the contructor
         with self.assertRaises(ValueError):
-            d = ACSF(rcut=6.0, species=["Foo", "X"])
+            d = ACSF(r_cut=6.0, species=["Foo", "X"])
 
         # Set through property
-        d = ACSF(rcut=6.0, species=["O", "H"])
+        d = ACSF(r_cut=6.0, species=["O", "H"])
         with self.assertRaises(ValueError):
             d.species = ["Foo", "X"]
 
         # Set through property
-        d = ACSF(rcut=6.0, species=[5, 2])
+        d = ACSF(r_cut=6.0, species=[5, 2])
         with self.assertRaises(ValueError):
             d.species = [0, -1]
 
         # As atomic number in contructor
         with self.assertRaises(ValueError):
-            d = ACSF(rcut=6.0, species=[0, -1])
+            d = ACSF(r_cut=6.0, species=[0, -1])
 
     def test_mixed_number_species(self):
         """Tests that a mix of integers and strings throws an appropriate error."""
         # As chemical symbol in the contructor
         with self.assertRaises(ValueError):
-            d = ACSF(rcut=6.0, species=["O", 4])
+            d = ACSF(r_cut=6.0, species=["O", 4])
 
         # Set through property
-        d = ACSF(rcut=6.0, species=["O", "H"])
+        d = ACSF(r_cut=6.0, species=["O", "H"])
         with self.assertRaises(ValueError):
             d.species = [4, "O"]
 
@@ -544,7 +544,7 @@ class DescriptorTests(unittest.TestCase):
         lmax = 5
         nmax = 5
         n_elems = 2
-        desc = SOAP(species=[1, 8], rcut=3, nmax=nmax, lmax=lmax, periodic=True)
+        desc = SOAP(species=[1, 8], r_cut=3, n_max=nmax, l_max=lmax, periodic=True)
 
         vec = desc.create([H2O, H2O], verbose=True)
 

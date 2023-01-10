@@ -587,7 +587,7 @@ class SOAP(DescriptorLocal):
 
         return soap_mat
 
-    def validate_derivatives_method(self, method):
+    def validate_derivatives_method(self, method, attach):
         """Used to validate and determine the final method for calculating the
         derivatives.
         """
@@ -596,7 +596,11 @@ class SOAP(DescriptorLocal):
             raise ValueError(
                 "Invalid method specified. Please choose from: {}".format(methods)
             )
-        if method == "analytical":
+        if method == "numerical":
+            return method
+
+        # Check if analytical derivatives can be used
+        try:
             if self._rbf == "polynomial":
                 raise ValueError(
                     "Analytical derivatives not currently available for polynomial "
@@ -614,20 +618,15 @@ class SOAP(DescriptorLocal):
                 raise ValueError(
                     "Analytical derivatives are currently not available for periodic systems."
                 )
-
-        # Determine the appropriate method if not given explicitly.
-        if method == "auto":
-            if (
-                self._rbf == "polynomial"
-                or self.average != "off"
-                or attach
-                or self.periodic
-            ):
+        except Exception as e:
+            if method == "analytical":
+                raise e
+            elif method == "auto":
                 method = "numerical"
-            else:
+        else:
+            if method == "auto":
                 method = "analytical"
-        if method == "auto":
-            method = "numerical"
+
         return method
 
     def derivatives_numerical(
