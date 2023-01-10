@@ -1,6 +1,7 @@
 # Defines when the pipeline is triggered
 trigger:
 - master
+- mbtr-derivatives
 - v1.2.3
 
 # Jobs

@@ -121,6 +121,7 @@ class LMBTR(MBTR):
         species=None,
         periodic=False,
         sparse=False,
+        dtype="float64",
     ):
         """
         Args:
@@ -170,6 +171,10 @@ class LMBTR(MBTR):
                 "k3":
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
+            dtype (str): The data type of the output. Valid options are:
+
+                    * ``"float32"``: Single precision floating point numbers.
+                    * ``"float64"``: Double precision floating point numbers.
         """
         super().__init__(
             k1=None,
@@ -181,6 +186,7 @@ class LMBTR(MBTR):
             normalize_gaussians=normalize_gaussians,
             flatten=flatten,
             sparse=sparse,
+            dtype=dtype,
         )
 
     @property
@@ -493,7 +499,7 @@ class LMBTR(MBTR):
             item = dict(item)
             for key, value in item.items():
                 new_key = tuple(int(x) for x in key.split(","))
-                new_kx_map[new_key] = np.array(value, dtype=np.float32)
+                new_kx_map[new_key] = np.array(value, dtype=self.dtype)
             new_kx_list.append(new_kx_map)
 
         return new_kx_list
@@ -598,7 +604,7 @@ class LMBTR(MBTR):
         n_elem = self.n_elements
         n_loc = len(indices)
         if self.flatten:
-            k2 = sparse.DOK((n_loc, n_elem * n), dtype=np.float32)
+            k2 = sparse.DOK((n_loc, n_elem * n), dtype=self.dtype)
 
             for i_loc, k2_map in enumerate(k2_list):
                 for key, gaussian_sum in k2_map.items():
@@ -615,7 +621,7 @@ class LMBTR(MBTR):
                     k2[i_loc, start:end] = gaussian_sum
             k2 = k2.to_coo()
         else:
-            k2 = np.zeros((n_loc, n_elem, n), dtype=np.float32)
+            k2 = np.zeros((n_loc, n_elem, n), dtype=self.dtype)
             for i_loc, k2_map in enumerate(k2_list):
                 for key, gaussian_sum in k2_map.items():
                     i = key[1]
@@ -777,7 +783,7 @@ class LMBTR(MBTR):
         n_loc = len(indices)
         if self.flatten:
             k3 = sparse.DOK(
-                (n_loc, int((n_elem * (3 * n_elem - 1) * n / 2))), dtype=np.float32
+                (n_loc, int((n_elem * (3 * n_elem - 1) * n / 2))), dtype=self.dtype
             )
 
             for i_loc, k3_map in enumerate(k3_list):
@@ -806,7 +812,7 @@ class LMBTR(MBTR):
                     k3[i_loc, start:end] = gaussian_sum
             k3 = k3.to_coo()
         else:
-            k3 = np.zeros((n_loc, n_elem, n_elem, n_elem, n), dtype=np.float32)
+            k3 = np.zeros((n_loc, n_elem, n_elem, n_elem, n), dtype=self.dtype)
             for i_loc, k3_map in enumerate(k3_list):
                 for key, gaussian_sum in k3_map.items():
                     i = key[0]

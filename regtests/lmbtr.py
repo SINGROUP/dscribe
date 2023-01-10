@@ -384,6 +384,59 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         vec = desc.create(H2O, positions=[0])
         self.assertTrue(type(vec) == sparse.COO)
 
+    def test_dtype(self):
+        """Tests that the the specified data type is respected."""
+
+        # Dense, flatten, float32
+        desc = copy.deepcopy(default_desc_k2)
+        desc.sparse = False
+        desc.flatten = True
+        desc.dtype = "float32"
+        vec = desc.create(H2O)
+        self.assertTrue(vec.dtype == np.float32)
+
+        # Sparse, flatten, float32
+        desc = copy.deepcopy(default_desc_k2)
+        desc.sparse = True
+        desc.flatten = True
+        desc.dtype = "float32"
+        vec = desc.create(H2O)
+        self.assertTrue(vec.dtype == np.float32)
+
+        # Non-flattened, float32
+        desc = copy.deepcopy(default_desc_k2_k3)
+        desc.sparse = False
+        desc.flatten = False
+        desc.dtype = "float32"
+        vec = desc.create(H2O)
+        self.assertTrue(vec[0]["k2"].dtype == np.float32)
+        self.assertTrue(vec[0]["k3"].dtype == np.float32)
+
+        # Dense, flatten, float64
+        desc = copy.deepcopy(default_desc_k2)
+        desc.sparse = False
+        desc.flatten = True
+        desc.dtype = "float64"
+        vec = desc.create(H2O)
+        self.assertTrue(vec.dtype == np.float64)
+
+        # Dense, flatten, float64
+        desc = copy.deepcopy(default_desc_k2)
+        desc.sparse = True
+        desc.flatten = True
+        desc.dtype = "float64"
+        vec = desc.create(H2O)
+        self.assertTrue(vec.dtype == np.float64)
+
+        # Non-flattened, float32
+        desc = copy.deepcopy(default_desc_k2_k3)
+        desc.sparse = False
+        desc.flatten = False
+        desc.dtype = "float64"
+        vec = desc.create(H2O)
+        self.assertTrue(vec[0]["k2"].dtype == np.float64)
+        self.assertTrue(vec[0]["k3"].dtype == np.float64)
+
     def test_parallel_dense(self):
         """Tests creating dense output parallelly."""
         samples = [molecule("CO"), molecule("N2O")]

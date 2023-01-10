@@ -25,6 +25,7 @@ import ase.data
 from dscribe.core import System
 from dscribe.descriptors.descriptorglobal import DescriptorGlobal
 from dscribe.ext import MBTRWrapper
+from dscribe.utils.dimensionality import is1d
 import dscribe.utils.geometry
 
 
@@ -200,6 +201,16 @@ class MBTR(DescriptorGlobal):
                 "you want a non-flattened output, please specify sparse=False "
                 "in the MBTR constructor."
             )
+<<<<<<< HEAD
+=======
+
+        supported_dtype = set(("float32", "float64"))
+        if dtype not in supported_dtype:
+            raise ValueError(
+                "Invalid output data type '{}' given. Please use "
+                "one of the following: {}".format(dtype, supported_dtype)
+            )
+>>>>>>> mbtr-derivatives
         super().__init__(periodic=periodic, flatten=flatten, sparse=sparse, dtype=dtype)
         self.system = None
         self.k1 = k1
@@ -761,29 +772,10 @@ class MBTR(DescriptorGlobal):
 
         return slice(start, end)
 
-    def _make_new_k1map(self, kx_map):
-        kx_map = dict(kx_map)
-        new_kx_map = {}
-
-        for key, value in kx_map.items():
-            new_key = tuple([int(key)])
-            new_kx_map[new_key] = np.array(value, dtype=np.float32)
-
-        return new_kx_map
-
-    def _make_new_kmap(self, kx_map):
-        kx_map = dict(kx_map)
-        new_kx_map = {}
-
-        for key, value in kx_map.items():
-            new_key = tuple(int(x) for x in key.split(","))
-            new_kx_map[new_key] = np.array(value, dtype=np.float32)
-
-        return new_kx_map
-
     def _get_k1(self, system, return_descriptor, return_derivatives):
         """Calculates the first order term and/or its derivatives with
         regard to atomic positions.
+
         Returns:
             1D or 3D ndarray:   K1 values. If flatten=True, returns a 1D array
                                 and if flatten=False returns a 2D array.
@@ -847,6 +839,10 @@ class MBTR(DescriptorGlobal):
             k1_d = k1_d.astype(self.dtype)
 
         return (k1, k1_d)
+
+    def _get_k2(self, system, return_descriptor, return_derivatives):
+        """Calculates the second order term and/or its derivatives with
+        regard to atomic positions.
 
     def _get_k2(self, system, return_descriptor, return_derivatives):
         """Calculates the second order term and/or its derivatives with
@@ -985,6 +981,30 @@ class MBTR(DescriptorGlobal):
                     end = (m + 1) * n
                     y_normed = (k2[start:end] * V) / (count_product * 4 * np.pi)
                     k2[start:end] = y_normed
+
+        # Reshape the output if non-flattened descriptor is requested
+        if return_descriptor and not self.flatten:
+            k2_nonflat = np.zeros((n_elem, n_elem, n), dtype=np.float64)
+            for i in range(n_elem):
+                for j in range(n_elem):
+                    if j < i:
+                        continue
+                    m = int(j + i * n_elem - i * (i + 1) / 2)
+                    start = m * n
+                    end = (m + 1) * n
+                    k2_nonflat[i, j] = k2[start:end]
+            k2 = k2_nonflat
+
+        # Convert to the final output precision.
+        if self.dtype == "float32":
+            k2 = k2.astype(self.dtype)
+            k2_d = k2_d.astype(self.dtype)
+
+        return (k2, k2_d)
+
+    def _get_k3(self, system, return_descriptor, return_derivatives):
+        """Calculates the third order term and/or its derivatives with
+        regard to atomic positions.
 
         # Reshape the output if non-flattened descriptor is requested
         if return_descriptor and not self.flatten:
@@ -1177,3 +1197,260 @@ class MBTR(DescriptorGlobal):
             k3_d = k3_d.astype(self.dtype)
 
         return (k3, k3_d)
+
+    def derivatives(
+        self,
+        system,
+        include=None,
+        exclude=None,
+        method="auto",
+        return_descriptor=True,
+        n_jobs=1,
+        only_physical_cores=False,
+        verbose=False,
+    ):
+        """Return the descriptor derivatives for the given system.
+
+        Args:
+            system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or
+                many atomic structures.
+            include (list): Indices of atoms to compute the derivatives on.
+                When calculating descriptor for multiple systems, provide
+                either a one-dimensional list that if applied to all systems or
+                a two-dimensional list of indices. Cannot be provided together
+                with 'exclude'.
+            exclude (list): Indices of atoms not to compute the derivatives on.
+                When calculating descriptor for multiple systems, provide
+                either a one-dimensional list that if applied to all systems or
+                a two-dimensional list of indices. Cannot be provided together
+                with 'include'.
+            return_descriptor (bool): Whether to also calculate the descriptor
+                in the same function call. Notice that it typically is faster
+                to calculate both in one go.
+            n_jobs (int): Number of parallel jobs to instantiate. Parallellizes
+                the calculation across samples. Defaults to serial calculation
+                with n_jobs=1. If a negative number is given, the number of jobs
+                will be calculated with, n_cpus + n_jobs, where n_cpus is the
+                amount of CPUs as reported by the OS. With only_physical_cores
+                you can control which types of CPUs are counted in n_cpus.
+            only_physical_cores (bool): If a negative n_jobs is given,
+                determines which types of CPUs are used in calculating the
+                number of jobs. If set to False (default), also virtual CPUs
+                are counted.  If set to True, only physical CPUs are counted.
+            verbose(bool): Controls whether to print the progress of each job
+                into to the console.
+
+        Returns:
+            If return_descriptor is True, returns a tuple, where the first item
+            is the derivative array and the second is the descriptor array.
+            Otherwise only returns the derivatives array. The derivatives array
+            is a either a 3D or 4D array, depending on whether you have
+            provided a single or multiple systems. If the output shape for each
+            system is the same, a single monolithic numpy array is returned.
+            For variable sized output (e.g. differently sized systems,different
+            number of included atoms), a regular python list is returned. The
+            dimensions are: [(n_systems,) n_atoms, 3, n_features]. The first
+            dimension goes over the different systems in case multiple were
+            given. The second dimension goes over the included atoms. The order
+            is same as the order of atoms in the given system. The third
+            dimension goes over the cartesian components, x, y and z. The
+            fourth dimension goes over the features in the default order.
+        """
+        # Validate/determine the appropriate calculation method.
+        methods = {"analytical", "auto"}
+        if method not in methods:
+            raise ValueError(
+                "Invalid method specified. Please choose from: {}".format(methods)
+            )
+        if method == "auto":
+            method = "analytical"
+
+        # Check that the derivative calculations are supported for the used
+        # MBTR parameters
+        supported_normalization = ["none", "n_atoms"]
+        if self.normalization not in supported_normalization:
+            raise ValueError(
+                "Derivatives not implemented for normalization option '{}'. Please choose from: {}".format(
+                    self.normalization, supported_normalization
+                )
+            )
+
+        if self.flatten == False:
+            raise ValueError("Derivatives not implemented for flatten=False.")
+
+        # Derivatives are not currently implemented for all k3 options
+        if self.k3 is not None:
+            if self.k3.get("weighting") is not None:
+                if self.k3["weighting"]["function"] == "smooth_cutoff":
+                    raise ValueError(
+                        "Derivatives not implemented for k3 weighting function 'smooth_cutoff'."
+                    )
+
+            # "angle" function is not differentiable
+            if self.k3["geometry"]["function"] == "angle":
+                raise ValueError(
+                    "Derivatives not implemented for k3 geometry function 'angle'."
+                )
+
+        # Check input validity
+        system = [system] if isinstance(system, Atoms) else system
+        n_samples = len(system)
+        if include is None:
+            include = [None] * n_samples
+        elif is1d(include, np.integer):
+            include = [include] * n_samples
+        if exclude is None:
+            exclude = [None] * n_samples
+        elif is1d(exclude, np.integer):
+            exclude = [exclude] * n_samples
+        n_inc = len(include)
+        if n_inc != n_samples:
+            raise ValueError(
+                "The given number of includes does not match the given "
+                "number of systems."
+            )
+        n_exc = len(exclude)
+        if n_exc != n_samples:
+            raise ValueError(
+                "The given number of excludes does not match the given "
+                "number of systems."
+            )
+
+        # Determine the atom indices that are displaced
+        indices = []
+        for sys, inc, exc in zip(system, include, exclude):
+            n_atoms = len(sys)
+            indices.append(self._get_indices(n_atoms, inc, exc))
+
+        # Combine input arguments
+        inp = list(
+            zip(
+                system,
+                indices,
+                [method] * n_samples,
+                [return_descriptor] * n_samples,
+            )
+        )
+
+        # Determine a fixed output size if possible
+        n_features = self.get_number_of_features()
+
+        def get_shapes(job):
+            n_indices = len(job[1])
+            return (n_indices, 3, n_features), (n_features,)
+
+        derivatives_shape, descriptor_shape = get_shapes(inp[0])
+
+        def is_variable(inp):
+            for job in inp[1:]:
+                i_der_shape, i_desc_shape = get_shapes(job)
+                if i_der_shape != derivatives_shape or i_desc_shape != descriptor_shape:
+                    return True
+            return False
+
+        if is_variable(inp):
+            derivatives_shape = None
+            descriptor_shape = None
+
+        # Create in parallel
+        output = self.derivatives_parallel(
+            inp,
+            self.derivatives_single,
+            n_jobs,
+            derivatives_shape,
+            descriptor_shape,
+            return_descriptor,
+            only_physical_cores,
+            verbose=verbose,
+        )
+
+        return output
+
+    def derivatives_single(
+        self,
+        system,
+        indices,
+        method="analytical",
+        return_descriptor=True,
+    ):
+        """Return the derivatives for the given system.
+
+        Args:
+            system (:class:`ase.Atoms`): Atomic structure.
+            indices (list): Indices of atoms for which the derivatives will be
+                computed for.
+            method (str): The method for calculating the derivatives. Supports
+                'analytical'.
+            return_descriptor (bool): Whether to also calculate the descriptor
+                in the same function call. This is true by default as it
+                typically is faster to calculate both in one go.
+
+        Returns:
+            If return_descriptor is True, returns a tuple, where the first item
+            is the derivative array and the second is the descriptor array.
+            Otherwise only returns the derivatives array. The derivatives array
+            is a 3D numpy array. The dimensions are: [n_atoms, 3, n_features].
+            The first dimension goes over all the atoms in the system. The
+            second dimension goes over the cartesian components, x, y and z.
+            The last dimension goes over the features in the default order.
+        """
+
+        # Ensuring variables are re-initialized when a new system is introduced
+        self.system = system
+        self._interaction_limit = len(system)
+
+        # Check that the system does not have elements that are not in the list
+        # of atomic numbers
+        self.check_atomic_numbers(system.get_atomic_numbers())
+
+        mbtr = {}
+        mbtr_d = {}
+        if self.k1 is not None:
+            k1, k1_d = self._get_k1(system, return_descriptor, True)
+            mbtr["k1"] = k1
+            mbtr_d["k1"] = k1_d
+        if self.k2 is not None:
+            k2, k2_d = self._get_k2(system, return_descriptor, True)
+            mbtr["k2"] = k2
+            mbtr_d["k2"] = k2_d
+        if self.k3 is not None:
+            k3, k3_d = self._get_k3(system, return_descriptor, True)
+            mbtr["k3"] = k3
+            mbtr_d["k3"] = k3_d
+
+        # Handle normalization
+        if self.normalization == "l2_each":
+            # Normalization factor is a function of atomic positions.
+            # Not implemented
+            pass
+        elif self.normalization == "n_atoms":
+            n_atoms = len(self.system)
+            if self.flatten is True:
+                for key, value in mbtr.items():
+                    mbtr[key] = value / n_atoms
+                    mbtr_d[key] /= n_atoms
+            else:
+                for key, value in mbtr.items():
+                    mbtr[key] = value / n_atoms
+                    mbtr_d[key] /= n_atoms
+
+        keys = sorted(mbtr.keys())
+        if len(keys) > 1:
+            mbtr = np.concatenate([mbtr[key] for key in keys], axis=0)
+            mbtr_d = np.concatenate([mbtr_d[key] for key in keys], axis=2)
+        else:
+            mbtr = mbtr[keys[0]]
+            mbtr_d = mbtr_d[keys[0]]
+
+        # For now, the derivatives are calculated with regard to all atomic
+        # positions. The desired indices are extracted here at the end.
+        if len(indices) < len(self.system):
+            mbtr_d = mbtr_d[indices]
+
+        if self.sparse:
+            mbtr = sparse.COO.from_numpy(mbtr)
+            mbtr_d = sparse.COO.from_numpy(mbtr_d)
+
+        if return_descriptor:
+            return (mbtr_d, mbtr)
+        return mbtr_d
