@@ -597,11 +597,11 @@ class MBTR(DescriptorGlobal):
 
         mbtr = {}
         if self.k1 is not None:
-            mbtr["k1"] = self._get_k1(system)
+            mbtr["k1"], _ = self._get_k1(system, True, False)
         if self.k2 is not None:
-            mbtr["k2"] = self._get_k2(system)
+            mbtr["k2"], _ = self._get_k2(system, True, False)
         if self.k3 is not None:
-            mbtr["k3"] = self._get_k3(system)
+            mbtr["k3"], _ = self._get_k3(system, True, False)
 
         # Handle normalization
         if self.normalization == "l2_each":
@@ -628,13 +628,13 @@ class MBTR(DescriptorGlobal):
         if self.flatten:
             keys = sorted(mbtr.keys())
             if len(keys) > 1:
-                mbtr = sparse.concatenate([mbtr[key] for key in keys], axis=0)
+                mbtr = np.concatenate([mbtr[key] for key in keys], axis=0)
             else:
                 mbtr = mbtr[keys[0]]
 
-            # Make into a dense array if requested
-            if not self.sparse:
-                mbtr = mbtr.todense()
+            # Make into a sparse array if requested
+            if self.sparse:
+                mbtr = sparse.COO.from_numpy(mbtr)
 
         return mbtr
 
@@ -781,12 +781,16 @@ class MBTR(DescriptorGlobal):
 
         return new_kx_map
 
-    def _get_k1(self, system):
-        """Calculates the second order terms where the scalar mapping is the
-        inverse distance between atoms.
-
+    def _get_k1(self, system, return_descriptor, return_derivatives):
+        """Calculates the first order term and/or its derivatives with
+        regard to atomic positions.
         Returns:
-            1D ndarray: flattened K2 values.
+            1D or 3D ndarray:   K1 values. If flatten=True, returns a 1D array
+                                and if flatten=False returns a 2D array.
+                                If return_descriptor=False, returns an array of
+                                shape (0).
+            3D ndarray:         K1 derivatives. If return_derivatives=False,
+                                returns an array of shape (0,0,0).
         """
         grid = self.k1["grid"]
         start = grid["min"]
@@ -794,60 +798,66 @@ class MBTR(DescriptorGlobal):
         n = grid["n"]
         sigma = grid["sigma"]
 
-        # Determine the geometry function
-        geom_func_name = self.k1["geometry"]["function"]
-
-        cmbtr = MBTRWrapper(
-            self.atomic_number_to_index,
-            self._interaction_limit,
-            np.zeros((len(system), 3), dtype=int),
-        )
-
-        k1_map = cmbtr.get_k1(
-            system.get_atomic_numbers(),
-            geom_func_name.encode(),
-            b"unity",
-            {},
-            start,
-            stop,
-            sigma,
-            n,
-        )
-
-        k1_map = self._make_new_k1map(k1_map)
-
-        # Depending on flattening, use either a sparse matrix or a dense one.
         n_elem = self.n_elements
-        if self.flatten:
-            k1 = sparse.DOK((n_elem * n), dtype=np.float32)
+        n_features = n_elem * n
+
+        if return_descriptor:
+            # Determine the geometry function
+            geom_func_name = self.k1["geometry"]["function"]
+
+            cmbtr = MBTRWrapper(
+                self.atomic_number_to_index,
+                self._interaction_limit,
+                np.zeros((len(system), 3), dtype=int),
+            )
+
+            k1 = np.zeros((n_features), dtype=np.float64)
+            cmbtr.get_k1(
+                k1,
+                system.get_atomic_numbers(),
+                geom_func_name.encode(),
+                b"unity",
+                {},
+                start,
+                stop,
+                sigma,
+                n,
+            )
         else:
-            k1 = np.zeros((n_elem, n), dtype=np.float32)
+            k1 = np.zeros((0), dtype=np.float64)
 
-        for key, gaussian_sum in k1_map.items():
-            i = key[0]
+        if return_derivatives:
+            k1_d = np.zeros((self._interaction_limit, 3, n_features), dtype=np.float64)
+        else:
+            k1_d = np.zeros((0, 0, 0), dtype=np.float64)
 
-            # Denormalize if requested
-            if not self.normalize_gaussians:
-                max_val = 1 / (sigma * math.sqrt(2 * math.pi))
-                gaussian_sum /= max_val
+        # Denormalize if requested
+        if not self.normalize_gaussians:
+            max_val = 1 / (sigma * math.sqrt(2 * math.pi))
+            k1 /= max_val
+            k1_d /= max_val
 
-            if self.flatten:
-                start = i * n
-                end = (i + 1) * n
-                k1[start:end] = gaussian_sum
-            else:
-                k1[i, :] = gaussian_sum
-        if self.flatten:
-            k1 = k1.to_coo()
+        # Reshape the output if non-flattened descriptor is requested
+        if return_descriptor and not self.flatten:
+            k1 = k1.reshape((n_elem, n))
 
-        return k1
+        # Convert to the final output precision.
+        if self.dtype == "float32":
+            k1 = k1.astype(self.dtype)
+            k1_d = k1_d.astype(self.dtype)
 
-    def _get_k2(self, system):
-        """Calculates the second order terms where the scalar mapping is the
-        inverse distance between atoms.
+        return (k1, k1_d)
 
+    def _get_k2(self, system, return_descriptor, return_derivatives):
+        """Calculates the second order term and/or its derivatives with
+        regard to atomic positions.
         Returns:
-            1D ndarray: flattened K2 values.
+            1D or 3D ndarray:   K2 values. If flatten=True, returns a 1D array
+                                and if flatten=False returns a 3D array.
+                                If return_descriptor=False, returns an array of
+                                shape (0).
+            3D ndarray:         K2 derivatives. If return_derivatives=False,
+                                returns an array of shape (0,0,0).
         """
         grid = self.k2["grid"]
         start = grid["min"]
@@ -909,8 +919,27 @@ class MBTR(DescriptorGlobal):
             dmat_dense = ext_system.get_distance_matrix()
             adj_list = np.tile(np.arange(n_atoms), (n_atoms, 1))
 
-        k2_map = cmbtr.get_k2(
+        n_elem = self.n_elements
+        n_features = int((n_elem * (n_elem + 1) / 2) * n)
+
+        if return_descriptor:
+            k2 = np.zeros((n_features), dtype=np.float64)
+        else:
+            k2 = np.zeros((0), dtype=np.float64)
+
+        if return_derivatives:
+            k2_d = np.zeros((self._interaction_limit, 3, n_features), dtype=np.float64)
+        else:
+            k2_d = np.zeros((0, 0, 0), dtype=np.float64)
+
+        # Generate derivatives for k=2 term
+        cmbtr.get_k2(
+            k2,
+            k2_d,
+            return_descriptor,
+            return_derivatives,
             ext_system.get_atomic_numbers(),
+            ext_system.get_positions(),
             dmat_dense,
             adj_list,
             geom_func_name.encode(),
@@ -922,67 +951,71 @@ class MBTR(DescriptorGlobal):
             n,
         )
 
-        k2_map = self._make_new_kmap(k2_map)
+        # Denormalize if requested
+        if not self.normalize_gaussians:
+            max_val = 1 / (sigma * math.sqrt(2 * math.pi))
+            k2 /= max_val
+            k2_d /= max_val
 
-        # Depending of flattening, use either a sparse matrix or a dense one.
-        n_elem = self.n_elements
-        if self.flatten:
-            k2 = sparse.DOK((int(n_elem * (n_elem + 1) / 2 * n)), dtype=np.float32)
-        else:
-            k2 = np.zeros((self.n_elements, self.n_elements, n), dtype=np.float32)
+        # Valle-Oganov normalization is calculated separately for each pair.
+        # Not implemented for derivatives.
+        if self.normalization == "valle_oganov":
+            for i in range(n_elem):
+                for j in range(n_elem):
+                    if j < i:
+                        continue
+                    S = self.system
+                    n_elements = len(self.species)
+                    V = S.cell.volume
+                    imap = self.index_to_atomic_number
+                    # Calculate the amount of each element for N_A*N_B term
+                    counts = {}
+                    for index, number in imap.items():
+                        counts[index] = list(S.get_atomic_numbers()).count(number)
+                    if i == j:
+                        count_product = 0.5 * counts[i] * counts[j]
+                    else:
+                        count_product = counts[i] * counts[j]
 
-        for key, gaussian_sum in k2_map.items():
-            i = key[0]
-            j = key[1]
-
-            # This is the index of the spectrum. It is given by enumerating the
-            # elements of an upper triangular matrix from left to right and top
-            # to bottom.
-            m = int(j + i * n_elem - i * (i + 1) / 2)
-
-            # Denormalize if requested
-            if not self.normalize_gaussians:
-                max_val = 1 / (sigma * math.sqrt(2 * math.pi))
-                gaussian_sum /= max_val
-
-            if self.flatten:
-                start = m * n
-                end = (m + 1) * n
-                k2[start:end] = gaussian_sum
-            else:
-                k2[i, j, :] = gaussian_sum
-
-            # Valle-Oganov normalization is calculated separately for each pair
-            if self.normalization == "valle_oganov":
-                S = self.system
-                n_elements = len(self.species)
-                V = S.cell.volume
-                imap = self.index_to_atomic_number
-                # Calculate the amount of each element for N_A*N_B term
-                counts = {}
-                for index, number in imap.items():
-                    counts[index] = list(S.get_atomic_numbers()).count(number)
-                y = gaussian_sum
-                if i == j:
-                    count_product = 0.5 * counts[i] * counts[j]
-                else:
-                    count_product = counts[i] * counts[j]
-                y_normed = (y * V) / (count_product * 4 * np.pi)
-                if self.flatten:
+                    # This is the index of the spectrum. It is given by enumerating the
+                    # elements of an upper triangular matrix from left to right and top
+                    # to bottom.
+                    m = int(j + i * n_elem - i * (i + 1) / 2)
+                    start = m * n
+                    end = (m + 1) * n
+                    y_normed = (k2[start:end] * V) / (count_product * 4 * np.pi)
                     k2[start:end] = y_normed
-                else:
-                    k2[i, j, :] = y_normed
 
-        if self.flatten:
-            k2 = k2.to_coo()
+        # Reshape the output if non-flattened descriptor is requested
+        if return_descriptor and not self.flatten:
+            k2_nonflat = np.zeros((n_elem, n_elem, n), dtype=np.float64)
+            for i in range(n_elem):
+                for j in range(n_elem):
+                    if j < i:
+                        continue
+                    m = int(j + i * n_elem - i * (i + 1) / 2)
+                    start = m * n
+                    end = (m + 1) * n
+                    k2_nonflat[i, j] = k2[start:end]
+            k2 = k2_nonflat
 
-        return k2
+        # Convert to the final output precision.
+        if self.dtype == "float32":
+            k2 = k2.astype(self.dtype)
+            k2_d = k2_d.astype(self.dtype)
 
-    def _get_k3(self, system):
-        """Calculates the third order terms.
+        return (k2, k2_d)
 
+    def _get_k3(self, system, return_descriptor, return_derivatives):
+        """Calculates the third order term and/or its derivatives with
+        regard to atomic positions.
         Returns:
-            1D ndarray: flattened K3 values.
+            1D or 4D ndarray:   K2 values. If flatten=True, returns a 1D array
+                                and if flatten=False returns a 4D array.
+                                If return_descriptor=False, returns an array of
+                                shape (0).
+            3D ndarray:         K2 derivatives. If return_derivatives=False,
+                                returns an array of shape (0,0,0).
         """
         grid = self.k3["grid"]
         start = grid["min"]
@@ -1035,9 +1068,6 @@ class MBTR(DescriptorGlobal):
             self.atomic_number_to_index, self._interaction_limit, cell_indices
         )
 
-        # If radial cutoff is finite, use it to calculate the sparse
-        # distance matrix to reduce computational complexity from O(n^2) to
-        # O(n log(n))
         n_atoms = len(ext_system)
         if r_cut is not None:
             dmat = ext_system.get_distance_matrix_within_radius(r_cut)
@@ -1051,8 +1081,27 @@ class MBTR(DescriptorGlobal):
             dmat_dense = ext_system.get_distance_matrix()
             adj_list = np.tile(np.arange(n_atoms), (n_atoms, 1))
 
-        k3_map = cmbtr.get_k3(
+        n_elem = self.n_elements
+        n_features = int((n_elem * n_elem * (n_elem + 1) / 2) * n)
+
+        if return_descriptor:
+            k3 = np.zeros((n_features), dtype=np.float64)
+        else:
+            k3 = np.zeros((0), dtype=np.float64)
+
+        if return_derivatives:
+            k3_d = np.zeros((self._interaction_limit, 3, n_features), dtype=np.float64)
+        else:
+            k3_d = np.zeros((0, 0, 0), dtype=np.float64)
+
+        # Compute the k=3 term and its derivative
+        cmbtr.get_k3(
+            k3,
+            k3_d,
+            return_descriptor,
+            return_derivatives,
             ext_system.get_atomic_numbers(),
+            ext_system.get_positions(),
             dmat_dense,
             adj_list,
             geom_func_name.encode(),
@@ -1064,58 +1113,67 @@ class MBTR(DescriptorGlobal):
             n,
         )
 
-        k3_map = self._make_new_kmap(k3_map)
-        # Depending of flattening, use either a sparse matrix or a dense one.
-        n_elem = self.n_elements
-        if self.flatten:
-            k3 = sparse.DOK(
-                (int(n_elem * n_elem * (n_elem + 1) / 2 * n)), dtype=np.float32
-            )
-        else:
-            k3 = np.zeros((n_elem, n_elem, n_elem, n), dtype=np.float32)
+        # Denormalize if requested
+        if not self.normalize_gaussians:
+            max_val = 1 / (sigma * math.sqrt(2 * math.pi))
+            k3 /= max_val
+            k3_d /= max_val
 
-        for key, gaussian_sum in k3_map.items():
-            i = key[0]
-            j = key[1]
-            k = key[2]
+        # Valle-Oganov normalization is calculated separately for each triplet
+        # Not implemented for derivatives.
+        if self.normalization == "valle_oganov":
+            for i in range(n_elem):
+                for j in range(n_elem):
+                    for k in range(n_elem):
+                        if k < i:
+                            continue
+                        S = self.system
+                        n_elements = len(self.species)
+                        V = S.cell.volume
+                        imap = self.index_to_atomic_number
+                        # Calculate the amount of each element for N_A*N_B*N_C term
+                        counts = {}
+                        for index, number in imap.items():
+                            counts[index] = list(S.get_atomic_numbers()).count(number)
 
-            # This is the index of the spectrum. It is given by enumerating the
-            # elements of a three-dimensional array where for valid elements
-            # k>=i. The enumeration begins from [0, 0, 0], and ends at [n_elem,
-            # n_elem, n_elem], looping the elements in the order j, i, k.
-            m = int(j * n_elem * (n_elem + 1) / 2 + k + i * n_elem - i * (i + 1) / 2)
+                        # This is the index of the spectrum. It is given by enumerating the
+                        # elements of a three-dimensional array where for valid elements
+                        # k>=i. The enumeration begins from [0, 0, 0], and ends at [n_elem,
+                        # n_elem, n_elem], looping the elements in the order j, i, k.
+                        m = int(
+                            j * n_elem * (n_elem + 1) / 2
+                            + k
+                            + i * n_elem
+                            - i * (i + 1) / 2
+                        )
+                        start = m * n
+                        end = (m + 1) * n
+                        count_product = counts[i] * counts[j] * counts[k]
+                        y_normed = (k3[start:end] * V) / count_product
+                        k3[start:end] = y_normed
 
-            # Denormalize if requested
-            if not self.normalize_gaussians:
-                max_val = 1 / (sigma * math.sqrt(2 * math.pi))
-                gaussian_sum /= max_val
+        # If non-flattened descriptor is requested, reshape the output
+        if return_descriptor and not self.flatten:
+            k3_nonflat = np.zeros((n_elem, n_elem, n_elem, n), dtype=np.float64)
+            for i in range(n_elem):
+                for j in range(n_elem):
+                    for k in range(n_elem):
+                        if k < i:
+                            continue
+                        m = int(
+                            j * n_elem * (n_elem + 1) / 2
+                            + k
+                            + i * n_elem
+                            - i * (i + 1) / 2
+                        )
+                        start = m * n
+                        end = (m + 1) * n
+                        k3_nonflat[i, j, k] = k3[start:end]
+            k3 = k3_nonflat
 
-            if self.flatten:
-                start = m * n
-                end = (m + 1) * n
-                k3[start:end] = gaussian_sum
-            else:
-                k3[i, j, k, :] = gaussian_sum
+        # Convert to the final output precision.
+        if self.dtype == "float32":
+            k3 = k3.astype(self.dtype)
+            k3_d = k3_d.astype(self.dtype)
 
-            # Valle-Oganov normalization is calculated separately for each triplet
-            if self.normalization == "valle_oganov":
-                S = self.system
-                n_elements = len(self.species)
-                V = S.cell.volume
-                imap = self.index_to_atomic_number
-                # Calculate the amount of each element for N_A*N_B*N_C term
-                counts = {}
-                for index, number in imap.items():
-                    counts[index] = list(S.get_atomic_numbers()).count(number)
-                y = gaussian_sum
-                count_product = counts[i] * counts[j] * counts[k]
-                y_normed = (y * V) / count_product
-                if self.flatten:
-                    k3[start:end] = y_normed
-                else:
-                    k3[i, j, k, :] = y_normed
-
-        if self.flatten:
-            k3 = k3.to_coo()
-
-        return k3
+        return (k3, k3_d)

@@ -34,6 +34,12 @@ class Descriptor(ABC):
             flatten (bool): Whether the output of create() should be flattened
                 to a 1D array.
         """
+        supported_dtype = set(("float32", "float64"))
+        if dtype not in supported_dtype:
+            raise ValueError(
+                "Invalid output data type '{}' given. Please use "
+                "one of the following: {}".format(dtype, supported_dtype)
+            )
         self.sparse = sparse
         self.flatten = flatten
         self.periodic = periodic

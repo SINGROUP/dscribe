@@ -13,7 +13,10 @@
 #include <algorithm>
 #include <sstream>
 #include <stdexcept>
+#include <numeric>
+#include <pybind11/numpy.h>
 
+namespace py = pybind11;
 using namespace std;
 #define PI 3.1415926535897932384626433832795028841971693993751058209749445923078164062
 
@@ -42,14 +45,14 @@ class MBTR {
          * @param local Whether a local or a global MBTR is calculated.
          */
         MBTR(map<int,int> atomicNumberToIndexMap, int interactionLimit,  vector<vector<int>> cellIndices);
-        map<string, vector<double>> getK1(const vector<int> &Z, const string &geomFunc, const string &weightFunc, const map<string, double> &parameters, double min, double max, double sigma, int n);
-        map<string, vector<double>> getK2(const vector<int> &Z, const vector<vector<double>> &distances, const vector<vector<int>> &neighbours, const string &geomFunc, const string &weightFunc, const map<string, double> &parameters, double min, double max, double sigma, int n);
-        map<string, vector<double>> getK3(const vector<int> &Z, const vector<vector<double>> &distances, const vector<vector<int>> &neighbours, const string &geomFunc, const string &weightFunc, const map<string, double> &parameters, double min, double max, double sigma, int n);
+        void getK1(py::array_t<double> &descriptor, const vector<int> &Z, const string &geomFunc, const string &weightFunc, const map<string, double> &parameters, double min, double max, double sigma, int n);
+        void getK2(py::array_t<double> &descriptor, py::array_t<double> &derivatives, bool return_descriptor, bool return_derivatives, const vector<int> &Z, const vector<vector<double>> &positions, const vector<vector<double>> &distances, const vector<vector<int>> &neighbours, const string &geomFunc, const string &weightFunc, const map<string, double> &parameters, double min, double max, double sigma, int n);
+        void getK3(py::array_t<double> &descriptor, py::array_t<double> &derivatives, bool return_descriptor, bool return_derivatives, const vector<int> &Z, const vector<vector<double>> &positions, const vector<vector<double>> &distances, const vector<vector<int>> &neighbours, const string &geomFunc, const string &weightFunc, const map<string, double> &parameters, double min, double max, double sigma, int n);
         vector<map<string, vector<double>>> getK2Local(const vector<int> &indices, const vector<int> &Z, const vector<vector<double>> &distances, const vector<vector<int>> &neighbours, const string &geomFunc, const string &weightFunc, const map<string, double> &parameters, double min, double max, double sigma, int n);
         vector<map<string, vector<double>>> getK3Local(const vector<int> &indices, const vector<int> &Z, const vector<vector<double>> &distances, const vector<vector<int>> &neighbours, const string &geomFunc, const string &weightFunc, const map<string, double> &parameters, double min, double max, double sigma, int n);
         vector<double> gaussian(double center, double weight, double start, double dx, double sigmasqrt2, int n);
-
-
+        vector<double> xgaussian(double center, double weight, double start, double dx, double sigma, int n);
+        
     private:
         const map<int,int> atomicNumberToIndexMap;
         const int interactionLimit;
