@@ -587,8 +587,10 @@ class SOAP(DescriptorLocal):
 
         return soap_mat
 
-    def get_derivatives_method(self, method, attach):
-        """Used to determine the final method for calculating the derivatives."""
+    def validate_derivatives_method(self, method):
+        """Used to validate and determine the final method for calculating the
+        derivatives.
+        """
         methods = {"numerical", "analytical", "auto"}
         if method not in methods:
             raise ValueError(

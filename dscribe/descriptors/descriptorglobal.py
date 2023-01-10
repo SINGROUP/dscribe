@@ -80,7 +80,7 @@ class DescriptorGlobal(Descriptor):
             dimension goes over the cartesian components, x, y and z. The
             fourth dimension goes over the features in the default order.
         """
-        method = self.get_derivatives_method(method)
+        method = self.validate_derivatives_method(method)
 
         # Check input validity
         system = [system] if isinstance(system, Atoms) else system

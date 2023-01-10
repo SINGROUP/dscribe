@@ -25,8 +25,10 @@ class DescriptorLocal(Descriptor):
         super().__init__(periodic=periodic, flatten=flatten, sparse=sparse, dtype=dtype)
         self.average = average
 
-    def get_derivatives_method(self, method, attach):
-        """Used to determine the final method for calculating the derivatives."""
+    def validate_derivatives_method(self, method):
+        """Used to validate and determine the final method for calculating the
+        derivatives.
+        """
         methods = {"numerical", "auto"}
         if method not in methods:
             raise ValueError(
@@ -116,7 +118,7 @@ class DescriptorLocal(Descriptor):
             the cartesian components, x, y and z. The fifth dimension goes over
             the features in the default order.
         """
-        method = self.get_derivatives_method(method, attach)
+        method = self.validate_derivatives_method(method, attach)
 
         # If single system given, skip the parallelization
         if isinstance(system, Atoms):
