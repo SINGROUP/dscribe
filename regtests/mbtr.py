@@ -466,10 +466,10 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         desc.sparse = True
         vec = desc.create(H2O)
         self.assertTrue(type(vec) == sparse.COO)
-    
+
     def test_dtype(self):
         """Tests that the the specified data type is respected."""
-        
+
         # Dense, flatten, float32
         desc = copy.deepcopy(default_desc_k1)
         desc.sparse = False
@@ -511,7 +511,7 @@ class MBTRTests(TestBaseClass, unittest.TestCase):
         desc.dtype = "float64"
         vec = desc.create(H2O)
         self.assertTrue(vec.dtype == np.float64)
-        
+
         # Non-flattened, float32
         desc = copy.deepcopy(default_desc_k1_k2_k3)
         desc.sparse = False

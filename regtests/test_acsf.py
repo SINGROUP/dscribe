@@ -13,7 +13,7 @@ from conftest import (
     assert_symmetries,
     assert_derivatives,
     big_system,
-    water
+    water,
 )
 from dscribe.descriptors import ACSF
 
@@ -61,9 +61,7 @@ def test_dtype(dtype, sparse):
 
 @pytest.mark.parametrize("n_jobs", [1, 2])
 @pytest.mark.parametrize("sparse", [True, False])
-@pytest.mark.parametrize("positions", [
-    "all", 'indices_fixed', 'indices_variable'
-])
+@pytest.mark.parametrize("positions", ["all", "indices_fixed", "indices_variable"])
 def test_parallellization(n_jobs, sparse, positions):
     assert_parallellization(acsf, n_jobs, None, sparse, positions)
 
@@ -131,6 +129,7 @@ def test_exceptions():
     with pytest.raises(ValueError):
         ACSF(r_cut=6.0, species=[1, 6, 8], g5_params=[[1, 2], [3, 1]])
 
+
 @pytest.mark.parametrize(
     "g2, g3, g4, n_features_expected",
     [
@@ -138,7 +137,12 @@ def test_exceptions():
         ([[1, 2], [4, 5]], None, None, 2 * (2 + 1)),
         (None, [1, 2, 3, 4], None, 2 * (4 + 1)),
         (None, None, [[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]], 2 + 4 * 3),
-        ([[1, 2], [4, 5]], [1, 2, 3, 4], [[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]], 2 * (1 + 2 + 4) + 4 * 3)
+        (
+            [[1, 2], [4, 5]],
+            [1, 2, 3, 4],
+            [[1, 2, 3], [3, 1, 4], [4, 5, 6], [7, 8, 9]],
+            2 * (1 + 2 + 4) + 4 * 3,
+        ),
     ],
 )
 def test_number_of_features(g2, g3, g4, n_features_expected):
@@ -146,6 +150,7 @@ def test_number_of_features(g2, g3, g4, n_features_expected):
     desc = ACSF(r_cut=6.0, species=species, g2_params=g2, g3_params=g3, g4_params=g4)
     n_features = desc.get_number_of_features()
     assert n_features == n_features_expected
+
 
 def test_features():
     """Tests that the correct features are present in the descriptor."""
@@ -312,4 +317,6 @@ def test_periodicity():
     desc = ACSF(r_cut=r_cut, species=[1], periodic=True)
     feat = desc.create(system_fcc)
     assert feat.sum() != 0
-    assert feat[0, 0] == pytest.approx(12 * 0.5 * (np.cos(np.pi * np.sqrt(2) / 2 * 5 / r_cut) + 1))
+    assert feat[0, 0] == pytest.approx(
+        12 * 0.5 * (np.cos(np.pi * np.sqrt(2) / 2 * 5 / r_cut) + 1)
+    )

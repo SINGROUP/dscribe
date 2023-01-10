@@ -57,7 +57,7 @@ def mbtr(**kwargs):
                 "geometry": default_k2["geometry"],
                 "grid": default_k2["grid"],
                 "weighting": default_k2["weighting"],
-            }
+            },
         }
         final_kwargs.update(kwargs)
         return MBTR(**final_kwargs)
@@ -71,6 +71,7 @@ def mbtr(**kwargs):
 @pytest.mark.parametrize("sparse", [True, False])
 def test_dtype(dtype, sparse):
     assert_dtype(mbtr, dtype, sparse)
+
 
 @pytest.mark.parametrize(
     "n_jobs, flatten, sparse",
@@ -135,7 +136,7 @@ def test_symmetries():
 
 @pytest.mark.parametrize("periodic", [False, True])
 def test_derivatives(periodic):
-    assert_derivatives(mbtr(), 'numerical', periodic)
+    assert_derivatives(mbtr(), "numerical", periodic)
 
 
 # =============================================================================
@@ -316,7 +317,9 @@ def test_exceptions():
             {"k2": default_k2}, 2 * default_k2["grid"]["n"] * 1 / 2 * (2 + 1), id="K2"
         ),
         pytest.param(
-            {"k3": default_k3}, 2 * default_k3["grid"]["n"] * 1 / 2 * (2 + 1) * 2, id="K3"
+            {"k3": default_k3},
+            2 * default_k3["grid"]["n"] * 1 / 2 * (2 + 1) * 2,
+            id="K3",
         ),
     ],
 )
@@ -607,11 +610,13 @@ def test_peaks(system, k, geometry, grid, weighting, periodic, peaks, prominence
         peaks: List of assumed peak locations and intensities
         prominence: How prominent peaks should be considered
     """
-    setup = {f"k{k}": {
-        "grid": grid,
-        "geometry": geometry,
-        "weighting": weighting,
-    }}
+    setup = {
+        f"k{k}": {
+            "grid": grid,
+            "geometry": geometry,
+            "weighting": weighting,
+        }
+    }
     desc = MBTR(
         species=system.get_atomic_numbers(),
         **setup,

@@ -11,7 +11,7 @@ from conftest import (
     assert_symmetries,
     assert_derivatives,
     big_system,
-    water
+    water,
 )
 from dscribe.descriptors import SOAP
 
@@ -222,9 +222,16 @@ def test_dtype(dtype, sparse):
 
 @pytest.mark.parametrize("n_jobs", [1, 2])
 @pytest.mark.parametrize("sparse", [True, False])
-@pytest.mark.parametrize("positions", [
-    "all", 'indices_fixed', 'indices_variable', 'cartesian_fixed', 'cartesian_variable'
-])
+@pytest.mark.parametrize(
+    "positions",
+    [
+        "all",
+        "indices_fixed",
+        "indices_variable",
+        "cartesian_fixed",
+        "cartesian_variable",
+    ],
+)
 def test_parallellization(n_jobs, sparse, positions):
     assert_parallellization(soap, n_jobs, None, sparse, positions)
 
@@ -242,13 +249,13 @@ def test_sparse():
     assert_sparse(soap)
 
 
-@pytest.mark.parametrize("rbf", ['gto', 'polynomial'])
+@pytest.mark.parametrize("rbf", ["gto", "polynomial"])
 def test_symmetries(rbf):
     # Local descriptors are not permutation symmetric.
     assert_symmetries(soap(rbf=rbf), True, True, False)
 
 
-@pytest.mark.parametrize("rbf", ['gto', 'polynomial'])
+@pytest.mark.parametrize("rbf", ["gto", "polynomial"])
 def test_basis(rbf):
     assert_basis(soap(rbf=rbf, periodic=True))
 
@@ -262,7 +269,6 @@ def test_basis(rbf):
 # )
 # def test_derivatives(method, pbc):
 #     assert_derivatives(acsf(), method, pbc)
-
 
 
 # =============================================================================
@@ -365,15 +371,23 @@ def test_exceptions():
         args["weighting"] = {"function": "invalid", "c": 1, "d": 1, "r0": 1}
         SOAP(**args)
 
+
 @pytest.mark.parametrize(
     "species, n_max, l_max, crossover, n_features_expected",
     [
         (["H", "O"], 5, 5, True, int((5 + 1) * (5 * 2) * (5 * 2 + 1) / 2)),
-        (["H", "O"], 5, 5, False, int(5 * 2 * (5 + 1) / 2 * (5 + 1)))
+        (["H", "O"], 5, 5, False, int(5 * 2 * (5 + 1) / 2 * (5 + 1))),
     ],
 )
 def test_number_of_features(species, n_max, l_max, crossover, n_features_expected):
-    desc = SOAP(species=species, r_cut=3, n_max=n_max, l_max=l_max, crossover=crossover, periodic=True)
+    desc = SOAP(
+        species=species,
+        r_cut=3,
+        n_max=n_max,
+        l_max=l_max,
+        crossover=crossover,
+        periodic=True,
+    )
     n_features = desc.get_number_of_features()
     assert n_features == n_features_expected
     feat = desc.create(water())
@@ -383,13 +397,21 @@ def test_number_of_features(species, n_max, l_max, crossover, n_features_expecte
 w_poly = {"function": "poly", "c": 2, "m": 3, "r0": 4}
 w_pow = {"function": "pow", "threshold": 1e-3, "c": 1, "d": 1, "m": 1, "r0": 1}
 w_exp = {"function": "exp", "c": 2, "d": 1, "r0": 2, "threshold": 1e-3}
+
+
 @pytest.mark.parametrize(
     "weighting, expected_r_cut",
     [
-        pytest.param({"function": "poly", "c": 2, "m": 3, "r0": 4}, w_poly["r0"], id="poly"),
+        pytest.param(
+            {"function": "poly", "c": 2, "m": 3, "r0": 4}, w_poly["r0"], id="poly"
+        ),
         pytest.param(w_pow, w_pow["c"] * (1 / w_pow["threshold"] - 1), id="pow"),
-        pytest.param(w_exp, w_exp["r0"] * np.log(w_exp["c"] / w_exp["threshold"] - w_exp["d"]), id="exp")
-    ]
+        pytest.param(
+            w_exp,
+            w_exp["r0"] * np.log(w_exp["c"] / w_exp["threshold"] - w_exp["d"]),
+            id="exp",
+        ),
+    ],
 )
 def test_infer_r_cut(weighting, expected_r_cut):
     """Tests that the r_cut is correctly inferred from the weighting
@@ -399,7 +421,7 @@ def test_infer_r_cut(weighting, expected_r_cut):
     assert soap._r_cut == pytest.approx(expected_r_cut, rel=1e-8, abs=0)
 
 
-@pytest.mark.parametrize("rbf", ['gto', 'polynomial'])
+@pytest.mark.parametrize("rbf", ["gto", "polynomial"])
 def test_average_outer(rbf):
     """Tests the outer averaging (averaging done after calculating power
     spectrum).
@@ -420,7 +442,7 @@ def test_average_outer(rbf):
     assert np.allclose(average, assumed_average)
 
 
-@pytest.mark.parametrize("rbf", ['gto', 'polynomial'])
+@pytest.mark.parametrize("rbf", ["gto", "polynomial"])
 def test_average_inner(rbf):
     """Tests the inner averaging (averaging done before calculating power
     spectrum).
@@ -441,7 +463,7 @@ def test_average_inner(rbf):
     assert np.allclose(numerical_inner, analytical_inner, atol=1e-15, rtol=0.01)
 
 
-@pytest.mark.parametrize("rbf", ['gto', 'polynomial'])
+@pytest.mark.parametrize("rbf", ["gto", "polynomial"])
 def test_integration(rbf):
     """Tests that the completely analytical partial power spectrum with the
     given basis corresponds to the easier-to-code but less performant numerical
@@ -454,9 +476,7 @@ def test_integration(rbf):
 
     # Fetch the precalculated numerical power spectrum
     coeffs = globals()[f"load_{rbf}_coefficients"](args)
-    numerical_power_spectrum = get_power_spectrum(
-        coeffs, crossover=args["crossover"]
-    )
+    numerical_power_spectrum = get_power_spectrum(coeffs, crossover=args["crossover"])
     assert np.allclose(
         numerical_power_spectrum,
         analytical_power_spectrum,
@@ -465,12 +485,15 @@ def test_integration(rbf):
     )
 
 
-@pytest.mark.parametrize("rbf", ['gto', 'polynomial'])
-@pytest.mark.parametrize("weighting", [
-    {"function": "poly", "r0": 2, "c": 3, "m": 4},
-    {"function": "pow", "r0": 2, "c": 3, "d": 4, "m": 5},
-    {"function": "exp", "r0": 2, "c": 3, "d": 4},
-])
+@pytest.mark.parametrize("rbf", ["gto", "polynomial"])
+@pytest.mark.parametrize(
+    "weighting",
+    [
+        {"function": "poly", "r0": 2, "c": 3, "m": 4},
+        {"function": "pow", "r0": 2, "c": 3, "d": 4, "m": 5},
+        {"function": "exp", "r0": 2, "c": 3, "d": 4},
+    ],
+)
 def test_weighting(rbf, weighting):
     """Tests that the weighting done with C corresponds to the
     easier-to-code but less performant python version.
@@ -498,9 +521,7 @@ def test_weighting(rbf, weighting):
 
     # Load coefficients from disk
     coeffs = np.load(filename)
-    numerical_power_spectrum = get_power_spectrum(
-        coeffs, crossover=args["crossover"]
-    )
+    numerical_power_spectrum = get_power_spectrum(coeffs, crossover=args["crossover"])
 
     # print(f"Numerical: {numerical_power_spectrum}")
     # print(f"Analytical: {analytical_power_spectrum}")
@@ -604,9 +625,7 @@ def test_rbf_orthonormality():
             rspace = np.linspace(0, r_cut + 5, nr)
             for k in range(n_max):
                 gto += (
-                    betas[l, n, k]
-                    * rspace**l
-                    * np.exp(-alphas[l, k] * rspace**2)
+                    betas[l, n, k] * rspace**l * np.exp(-alphas[l, k] * rspace**2)
                 )
             n_basis += 1
             functions[n, l, :] = gto

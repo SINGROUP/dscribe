@@ -395,9 +395,15 @@ def assert_no_system_modification(descriptor_func):
 
 def assert_basis(descriptor_func):
     """Tests that the output vectors behave correctly as a basis."""
-    sys1 = Atoms(symbols=["H", "O"], positions=[[0, 0, 0], [1 ,1, 1]], cell=[2, 2, 2], pbc=True)
-    sys2 = Atoms(symbols=["O", "C"], positions=[[0, 0, 0], [1 ,1, 1]], cell=[2, 2, 2], pbc=True)
-    sys3 = Atoms(symbols=["C", "N"], positions=[[0, 0, 0], [1 ,1, 1]], cell=[2, 2, 2], pbc=True)
+    sys1 = Atoms(
+        symbols=["H", "O"], positions=[[0, 0, 0], [1, 1, 1]], cell=[2, 2, 2], pbc=True
+    )
+    sys2 = Atoms(
+        symbols=["O", "C"], positions=[[0, 0, 0], [1, 1, 1]], cell=[2, 2, 2], pbc=True
+    )
+    sys3 = Atoms(
+        symbols=["C", "N"], positions=[[0, 0, 0], [1, 1, 1]], cell=[2, 2, 2], pbc=True
+    )
     sys4 = sys3 * [2, 2, 2]
 
     desc = descriptor_func([sys1, sys2, sys3, sys4])
