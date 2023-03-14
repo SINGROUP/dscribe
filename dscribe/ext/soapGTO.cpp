@@ -91,15 +91,15 @@ void getAlphaBetaD(double* aOa, double* bOa, double* alphas, double* betas, int 
   double oneO1alphaSqrt;
   double oneO1alphaSqrtX;
 
-  for(int myL = 0; myL < lMax + 1 ;myL++){
-    for(int k = 0; k < Ns; k++){
+  for (int myL = 0; myL < lMax + 1 ;myL++) {
+    for (int k = 0; k < Ns; k++) {
       oneO1alpha = 1.0/(1.0 + oOeta*alphas[myL*Ns + k]);
       oneO1alphaSqrt = sqrt(oneO1alpha);
       aOa[myL*Ns + k] = -alphas[myL*Ns + k]*oneO1alpha; 
       oneO1alpha2 = pow(oneO1alpha, myL+1);
       oneO1alphaSqrtX = oneO1alphaSqrt*oneO1alpha2;
-      for(int n = 0; n < Ns; n++){
-            bOa[myL*NsNs + n*Ns + k] = oOeta3O2*betas[myL*NsNs + n*Ns + k]*oneO1alphaSqrtX;
+      for (int n = 0; n < Ns; n++) {
+        bOa[myL*NsNs + n*Ns + k] = oOeta3O2*betas[myL*NsNs + n*Ns + k]*oneO1alphaSqrtX;
       } 
     }
   }
@@ -2005,8 +2005,10 @@ void getCD(
     int posI,
     int typeJ,
     const vector<int> &indices,
-    bool return_derivatives){
-  if(Asize == 0){return;}
+    bool return_derivatives) {
+  if (Asize == 0) {
+    return;
+  }
   double sumMe = 0; int NsNs = Ns*Ns; int LNsNs;
   int LNs;
   double preExp;
@@ -2015,60 +2017,62 @@ void getCD(
   double preValY;
   double preValZ;
 
-        double  preVal1;
-        double  preVal2;
-        double  preVal3;
-         
-        double  preValX1;
-        double  preValY1;
-        double  preValZ1;
+  double  preVal1;
+  double  preVal2;
+  double  preVal3;
+    
+  double  preValX1;
+  double  preValY1;
+  double  preValZ1;
 
-        double  preValX2;
-        double  preValY2;
-        double  preValZ2;
+  double  preValX2;
+  double  preValY2;
+  double  preValZ2;
 
-        double  preValX3;
-        double  preValY3;
-        double  preValZ3;
-        double* preExponentArrya = (double*) malloc(Ns*Asize*sizeof(double));
+  double  preValX3;
+  double  preValY3;
+  double  preValZ3;
+  double* preExponentArrya = (double*) malloc(Ns*Asize*sizeof(double));
 // l=0-------------------------------------------------------------------------------------------------
- int shift = 0;
-    for(int k = 0; k < Ns; k++){
-      for(int i = 0; i < Asize; i++){
-        preExponentArrya[shift] = weights[i]*1.5707963267948966*exp(aOa[k]*r2[i]);
-        shift++;
-      }}
-
-    shift = 0;
-    for(int k = 0; k < Ns; k++){
-      sumMe = 0;
-      for(int i = 0; i < Asize; i++){
-        preExp = preExponentArrya[shift];
-        sumMe +=  preExp;
-        shift++;
-       }
-      for(int n = 0; n < Ns; n++){
-        C_mu(posI, typeJ, n, 0) += bOa[n*Ns + k]*sumMe;
-       } 
+  int shift = 0;
+  for (int k = 0; k < Ns; k++) {
+    for (int i = 0; i < Asize; i++) {
+      preExponentArrya[shift] = weights[i]*1.5707963267948966*exp(aOa[k]*r2[i]);
+      shift++;
     }
-shift = 0;
-           if(return_derivatives){
-    for(int k = 0; k < Ns; k++){
-      for(int i = 0; i < Asize; i++){
+  }
+
+  shift = 0;
+  for (int k = 0; k < Ns; k++) {
+    sumMe = 0;
+    for (int i = 0; i < Asize; i++) {
+      preExp = preExponentArrya[shift];
+      sumMe += preExp;
+      shift++;
+    }
+    for (int n = 0; n < Ns; n++) {
+      C_mu(posI, typeJ, n, 0) += bOa[n*Ns + k]*sumMe;
+    } 
+  }
+
+  shift = 0;
+  if (return_derivatives) {
+    for (int k = 0; k < Ns; k++) {
+      for (int i = 0; i < Asize; i++) {
         preExp = preExponentArrya[shift];
         shift++;
         preVal = 2.0*aOa[k]*preExp;
         preValX = preVal*x[i];
         preValY = preVal*y[i];
         preValZ = preVal*z[i];
-          for(int n = 0; n < Ns; n++){
-            CDevX_mu(indices[i], posI, typeJ, n, 0) += bOa[n*Ns + k]*preValX;
-            CDevY_mu(indices[i], posI, typeJ, n, 0) += bOa[n*Ns + k]*preValY;
-            CDevZ_mu(indices[i], posI, typeJ, n, 0) += bOa[n*Ns + k]*preValZ;
-            }
-          } 
-      }
+        for(int n = 0; n < Ns; n++){
+          CDevX_mu(indices[i], posI, typeJ, n, 0) += bOa[n*Ns + k]*preValX;
+          CDevY_mu(indices[i], posI, typeJ, n, 0) += bOa[n*Ns + k]*preValY;
+          CDevZ_mu(indices[i], posI, typeJ, n, 0) += bOa[n*Ns + k]*preValZ;
+        }
+      } 
     }
+  }
 // l=1-------------------------------------------------------------------------------------------------
   if(lMax > 0) { LNsNs=NsNs; LNs=Ns;
     shift = 0 ;
@@ -2486,7 +2490,7 @@ void soapGTO(
   free(exes); free(preCoef); free(bOa); free(aOa); free(cnnd_raw); free(weights);
 
   if (return_derivatives) {
-  free(prCofDX); free(prCofDY); free(prCofDZ);
+    free(prCofDX); free(prCofDY); free(prCofDZ);
   }
 
   // Calculate the descriptor value if requested

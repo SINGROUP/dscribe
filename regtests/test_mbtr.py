@@ -19,27 +19,35 @@ from conftest import (
     assert_symmetries,
     assert_derivatives,
     assert_systems,
+    assert_mbtr_location,
+    assert_mbtr_location_exception,
     water,
 )
 
 # =============================================================================
 # Utilities
 default_k1 = {
-    "geometry": {"function": "atomic_number"},
-    "grid": {"min": 1, "max": 8, "sigma": 0.1, "n": 50},
-    "weighting": {"function": "unity"},
+    "k1": {
+        "geometry": {"function": "atomic_number"},
+        "grid": {"min": 1, "max": 8, "sigma": 0.1, "n": 50},
+        "weighting": {"function": "unity"},
+    }
 }
 
 default_k2 = {
-    "geometry": {"function": "inverse_distance"},
-    "grid": {"min": 0, "max": 1 / 0.7, "sigma": 0.1, "n": 50},
-    "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-2},
+    "k2": {
+        "geometry": {"function": "inverse_distance"},
+        "grid": {"min": 0, "max": 1 / 0.7, "sigma": 0.1, "n": 50},
+        "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-2},
+    }
 }
 
 default_k3 = {
-    "geometry": {"function": "angle"},
-    "grid": {"min": 0, "max": 180, "sigma": 2, "n": 50},
-    "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-2},
+    "k3": {
+        "geometry": {"function": "angle"},
+        "grid": {"min": 0, "max": 180, "sigma": 2, "n": 50},
+        "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-2},
+    }
 }
 
 
@@ -52,18 +60,15 @@ def mbtr(**kwargs):
         species = set()
         for system in systems or []:
             species.update(system.get_atomic_numbers())
-        final_kwargs = {
-            "species": species,
-            "k2": {
-                "geometry": default_k2["geometry"],
-                "grid": default_k2["grid"],
-                "weighting": default_k2["weighting"],
-            },
-        }
+        final_kwargs = {"species": species}
         final_kwargs.update(kwargs)
         return MBTR(**final_kwargs)
 
     return func
+
+
+def mbtr_default_k2(**kwargs):
+    return mbtr(**default_k2, **kwargs)
 
 
 def k2_dict(geometry_function, weighting_function):
@@ -97,15 +102,9 @@ def k3_dict(weighting_function):
 @pytest.mark.parametrize(
     "setup, n_features",
     [
-        pytest.param({"k1": default_k1, "k2": None, "k2": None}, 2 * default_k1["grid"]["n"], id="K1"),
-        pytest.param(
-            {"k1": None, "k2": default_k2, "k3": None}, 2 * default_k2["grid"]["n"] * 1 / 2 * (2 + 1), id="K2"
-        ),
-        pytest.param(
-            {"k1": None, "k2": None, "k3": default_k3},
-            2 * default_k3["grid"]["n"] * 1 / 2 * (2 + 1) * 2,
-            id="K3",
-        ),
+        pytest.param(default_k1, 2 * default_k1["k1"]["grid"]["n"], id="K1"),
+        pytest.param(default_k2, 2 * default_k2["k2"]["grid"]["n"] * 1 / 2 * (2 + 1), id="K2"),
+        pytest.param(default_k3, 2 * default_k3["k3"]["grid"]["n"] * 1 / 2 * (2 + 1) * 2, id="K3",),
     ],
 )
 def test_number_of_features(setup, n_features):
@@ -115,7 +114,7 @@ def test_number_of_features(setup, n_features):
 @pytest.mark.parametrize("dtype", ["float32", "float64"])
 @pytest.mark.parametrize("sparse", [True, False])
 def test_dtype(dtype, sparse):
-    assert_dtype(mbtr, dtype, sparse)
+    assert_dtype(mbtr_default_k2, dtype, sparse)
 
 
 @pytest.mark.parametrize(
@@ -128,11 +127,11 @@ def test_dtype(dtype, sparse):
     ],
 )
 def test_parallellization(n_jobs, flatten, sparse):
-    assert_parallellization(mbtr, n_jobs, flatten, sparse)
+    assert_parallellization(mbtr_default_k2, n_jobs, flatten, sparse)
 
 
 def test_no_system_modification():
-    assert_no_system_modification(mbtr)
+    assert_no_system_modification(mbtr_default_k2)
 
 
 @pytest.mark.parametrize(
@@ -156,15 +155,15 @@ def test_no_system_modification():
     ],
 )
 def test_systems(pbc, cell):
-    assert_systems(mbtr(periodic=True), pbc, cell)
+    assert_systems(mbtr_default_k2(periodic=True), pbc, cell)
 
 
 @pytest.mark.parametrize(
     "setup",
     [
-        pytest.param({"k1": default_k1}, id="K1"),
-        pytest.param({"k2": default_k2}, id="K2"),
-        pytest.param({"k3": default_k3}, id="K3"),
+        pytest.param(default_k1, id="K1"),
+        pytest.param(default_k2, id="K2"),
+        pytest.param(default_k3, id="K3"),
     ],
 )
 def test_basis(setup):
@@ -172,11 +171,11 @@ def test_basis(setup):
 
 
 def test_sparse():
-    assert_sparse(mbtr)
+    assert_sparse(mbtr_default_k2)
 
 
 def test_symmetries():
-    assert_symmetries(mbtr(), True, True, True)
+    assert_symmetries(mbtr_default_k2(), True, True, True)
 
 
 @pytest.mark.parametrize(
@@ -242,8 +241,7 @@ def test_exceptions():
         MBTR(
             species=["H"],
             k2={
-                "geometry": default_k2["geometry"],
-                "grid": default_k2["grid"],
+                **default_k2["k2"],
                 "weighting": None,
             },
             periodic=True,
@@ -255,8 +253,7 @@ def test_exceptions():
         MBTR(
             species=["H"],
             k2={
-                "geometry": default_k2["geometry"],
-                "grid": default_k2["grid"],
+                **default_k2["k2"],
                 "weighting": {"function": "unity"},
             },
             periodic=True,
@@ -268,8 +265,7 @@ def test_exceptions():
         MBTR(
             species=[1],
             k1={
-                "geometry": default_k1["geometry"],
-                "grid": default_k1["grid"],
+                **default_k1["k1"],
                 "weighting": {"function": "exp", "threshold": 1, "scale": 1},
             },
             periodic=True,
@@ -281,8 +277,7 @@ def test_exceptions():
         MBTR(
             species=[1],
             k2={
-                "geometry": default_k2["geometry"],
-                "grid": default_k2["grid"],
+                **default_k2["k2"],
                 "weighting": {"function": "none"},
             },
             periodic=True,
@@ -294,8 +289,7 @@ def test_exceptions():
         MBTR(
             species=[1],
             k3={
-                "geometry": default_k3["geometry"],
-                "grid": default_k3["grid"],
+                **default_k3["k3"],
                 "weighting": {"function": "none"},
             },
             periodic=True,
@@ -320,83 +314,31 @@ def test_exceptions():
     # Missing threshold
     with pytest.raises(ValueError) as excinfo:
         setup = copy.deepcopy(default_k2)
-        del setup["weighting"]["threshold"]
-        MBTR(
-            species=[1],
-            k2={
-                "geometry": setup["geometry"],
-                "grid": setup["grid"],
-                "weighting": setup["weighting"],
-            },
-            periodic=True,
-        )
+        del setup["k2"]["weighting"]["threshold"]
+        MBTR(**setup, species=[1], periodic=True)
     msg = "Missing value for 'threshold' in the k=2 weighting."
     assert msg == str(excinfo.value)
 
     # Missing scale or r_cut
     with pytest.raises(ValueError) as excinfo:
         setup = copy.deepcopy(default_k2)
-        del setup["weighting"]["scale"]
-        MBTR(
-            species=[1],
-            k2={
-                "geometry": setup["geometry"],
-                "grid": setup["grid"],
-                "weighting": setup["weighting"],
-            },
-            periodic=True,
-        )
+        del setup["k2"]["weighting"]["scale"]
+        MBTR(**setup, species=[1], periodic=True)
     msg = "Provide either 'scale' or 'r_cut' in the k=2 weighting."
     assert msg == str(excinfo.value)
 
     # Both scale and r_cut provided
     with pytest.raises(ValueError) as excinfo:
         setup = copy.deepcopy(default_k2)
-        setup["weighting"]["scale"] = 1
-        setup["weighting"]["r_cut"] = 1
-        MBTR(
-            species=[1],
-            k2={
-                "geometry": setup["geometry"],
-                "grid": setup["grid"],
-                "weighting": setup["weighting"],
-            },
-            periodic=True,
-        )
+        setup["k2"]["weighting"]["scale"] = 1
+        setup["k2"]["weighting"]["r_cut"] = 1
+        MBTR(**setup, species=[1], periodic=True)
     msg = "Provide either 'scale' or 'r_cut', not both in the k=2 weighting."
-    assert msg == str(excinfo.value)
-
-    # Term location not available
-    desc = MBTR(
-        species=[1],
-        k2={
-            "geometry": default_k2["geometry"],
-            "grid": default_k2["grid"],
-            "weighting": default_k2["weighting"],
-        },
-        periodic=True,
-    )
-    with pytest.raises(ValueError) as excinfo:
-        desc.get_location(("H"))
-    msg = "Cannot retrieve the location for H, as the term k1 has not been specified."
-    assert msg == str(excinfo.value)
-    with pytest.raises(ValueError) as excinfo:
-        desc.get_location(("H", "H", "H"))
-    msg = "Cannot retrieve the location for ('H', 'H', 'H'), as the term k3 has not been specified."
     assert msg == str(excinfo.value)
 
     # Unknown normalization
     with pytest.raises(ValueError) as excinfo:
-        MBTR(
-            species=[1],
-            k2={
-                "geometry": default_k2["geometry"],
-                "grid": default_k2["grid"],
-                "weighting": default_k2["weighting"],
-            },
-            normalization="l2_test",
-            periodic=True,
-        )
+        MBTR(**default_k2, species=[1], normalization="l2_test", periodic=True)
     msg = "Unknown normalization option given. Please use one of the following: l2_each, n_atoms, none, valle_oganov."
     assert msg == str(excinfo.value)
 
@@ -456,33 +398,18 @@ def test_gaussian_distribution(normalize_gaussians):
     assert np.allclose(sum_cum, 2 * exp, rtol=0, atol=0.001)
 
 
-@pytest.mark.parametrize(
-    "system",
-    [
-        pytest.param(molecule("CO2"), id="CO2"),
-        pytest.param(molecule("H2O"), id="H2O"),
-    ],
-)
-def test_locations(system):
-    """Tests that the function used to query combination locations in the output
-    works.
-    """
-    species = ["H", "O", "C"]
-    system_species = system.get_chemical_symbols()
+@pytest.mark.parametrize("k", [1, 2, 3])
+def test_location(k):
+    assert_mbtr_location(mbtr, k)
 
-    for k in range(1, 4):
-        setup = {f"k{k}": globals()[f"default_k{k}"]}
-        desc = mbtr(**setup, periodic=False, species=species)([])
-        feat = desc.create(system)
-        combinations = itertools.combinations_with_replacement(species, k)
-        for combination in combinations:
-            loc = desc.get_location(combination)
-            atom_combinations = itertools.permutations(system_species, k)
-            exists = combination in atom_combinations
-            if exists:
-                assert feat[loc].sum() != 0
-            else:
-                assert feat[loc].sum() == 0
+
+@pytest.mark.parametrize("location", [
+    pytest.param(['G'], id="invalid species"),
+    pytest.param(['O'], id="species not specified"),
+    pytest.param(['H', 'H'], id="invalid k"),
+])
+def test_location_exceptions(location):
+    assert_mbtr_location_exception(mbtr(**default_k3, species=["H"])(), location)
 
 
 water_periodic = water()
@@ -727,8 +654,8 @@ def test_peaks(system, k, geometry, grid, weighting, periodic, peaks, prominence
 @pytest.mark.parametrize(
     "setup",
     [
-        pytest.param({"k2": default_k2}, id="K2"),
-        pytest.param({"k3": default_k3}, id="K3"),
+        pytest.param(default_k2, id="K2"),
+        pytest.param(default_k3, id="K3"),
     ],
 )
 def test_periodic_translation(setup):
@@ -771,9 +698,9 @@ def test_periodic_translation(setup):
 @pytest.mark.parametrize(
     "setup, normalization, norm",
     [
-        pytest.param({"k1": default_k1}, "l2_each", 1, id="K1"),
-        pytest.param({"k2": default_k2}, "l2_each", 1, id="K2"),
-        pytest.param({"k3": default_k3}, "l2_each", 1, id="K3"),
+        pytest.param(default_k1, "l2_each", 1, id="K1"),
+        pytest.param(default_k2, "l2_each", 1, id="K2"),
+        pytest.param(default_k3, "l2_each", 1, id="K3"),
     ],
 )
 def test_normalization(setup, normalization, norm):

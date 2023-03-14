@@ -457,7 +457,7 @@ class LMBTR(MBTR, DescriptorLocal):
         the central atom (in periodic systems the central atom may connect to
         itself) are considered. This means that there are only as many
         combinations as there are different elements to pair the central atom
-        with (n_elem). This nmber of combinations is the multiplied by the
+        with (n_elem). This number of combinations is the multiplied by the
         discretization of the k=2 grid.
 
         For the three-body term (k=3), only triplets where at least one of the
@@ -860,6 +860,11 @@ class LMBTR(MBTR, DescriptorLocal):
                 except KeyError:
                     raise ValueError("Invalid chemical species")
             numbers.append(specie)
+
+        # Check that species exists and that X is included
+        self.check_atomic_numbers(numbers)
+        if 0 not in numbers:
+            raise ValueError("The central species X (atomic number 0) has to be one of the elements.")
 
         # Change into internal indexing
         numbers = [self.atomic_number_to_index[x] for x in numbers]

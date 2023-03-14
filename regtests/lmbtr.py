@@ -108,18 +108,18 @@ default_desc_k2_k3 = LMBTR(
 
 
 class LMBTRTests(TestBaseClass, unittest.TestCase):
-    def test_exceptions(self):
-        """Tests different invalid parameters that should raise an
-        exception.
-        """
-        # Cannot use n_atoms normalization
-        with self.assertRaises(ValueError):
-            LMBTR(
-                species=[1],
-                k2=default_k2,
-                periodic=False,
-                normalization="n_atoms",
-            )
+    # def test_exceptions(self):
+    #     """Tests different invalid parameters that should raise an
+    #     exception.
+    #     """
+    #     # Cannot use n_atoms normalization
+    #     with self.assertRaises(ValueError):
+    #         LMBTR(
+    #             species=[1],
+    #             k2=default_k2,
+    #             periodic=False,
+    #             normalization="n_atoms",
+    #         )
 
     def test_positions(self):
         """Tests that the position argument is handled correctly. The position
@@ -190,373 +190,373 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         self.assertTrue(np.allclose(k2 / k2_norm, k2_each, rtol=0, atol=1e-10))
         self.assertTrue(np.allclose(k3 / k3_norm, k3_each, rtol=0, atol=1e-10))
 
-    def test_number_of_features(self):
-        """LMBTR: Tests that the reported number of features is correct."""
-        # k=2
-        n = 50
-        species = [1, 8]
-        n_elem = len(species) + 1  # Including ghost atom
-        lmbtr = copy.deepcopy(default_desc_k2)
-        n_features = lmbtr.get_number_of_features()
-        expected = n_elem * n
-        real = lmbtr.create(H2O, positions=[0]).shape[1]
-        self.assertEqual(n_features, expected)
-        self.assertEqual(n_features, real)
+    # def test_number_of_features(self):
+    #     """LMBTR: Tests that the reported number of features is correct."""
+    #     # k=2
+    #     n = 50
+    #     species = [1, 8]
+    #     n_elem = len(species) + 1  # Including ghost atom
+    #     lmbtr = copy.deepcopy(default_desc_k2)
+    #     n_features = lmbtr.get_number_of_features()
+    #     expected = n_elem * n
+    #     real = lmbtr.create(H2O, positions=[0]).shape[1]
+    #     self.assertEqual(n_features, expected)
+    #     self.assertEqual(n_features, real)
 
-        # k=3
-        lmbtr = copy.deepcopy(default_desc_k3)
-        n_features = lmbtr.get_number_of_features()
-        expected = (n_elem * n_elem + (n_elem - 1) * (n_elem) / 2) * n
-        real = lmbtr.create(H2O, positions=[0]).shape[1]
-        self.assertEqual(n_features, expected)
-        self.assertEqual(n_features, real)
+    #     # k=3
+    #     lmbtr = copy.deepcopy(default_desc_k3)
+    #     n_features = lmbtr.get_number_of_features()
+    #     expected = (n_elem * n_elem + (n_elem - 1) * (n_elem) / 2) * n
+    #     real = lmbtr.create(H2O, positions=[0]).shape[1]
+    #     self.assertEqual(n_features, expected)
+    #     self.assertEqual(n_features, real)
 
-    def test_locations_k2(self):
-        """Tests that the function used to query combination locations for k=2
-        in the output works.
-        """
+    # def test_locations_k2(self):
+    #     """Tests that the function used to query combination locations for k=2
+    #     in the output works.
+    #     """
 
-        CO2 = molecule("CO2")
-        H2O = molecule("H2O")
-        descriptors = [
-            copy.deepcopy(default_desc_k2),
-            copy.deepcopy(default_desc_k2_k3),
-        ]
+    #     CO2 = molecule("CO2")
+    #     H2O = molecule("H2O")
+    #     descriptors = [
+    #         copy.deepcopy(default_desc_k2),
+    #         copy.deepcopy(default_desc_k2_k3),
+    #     ]
 
-        for desc in descriptors:
-            desc.periodic = False
-            desc.species = ["H", "O", "C"]
+    #     for desc in descriptors:
+    #         desc.periodic = False
+    #         desc.species = ["H", "O", "C"]
 
-            CO2 = molecule("CO2")
-            H2O = molecule("H2O")
+    #         CO2 = molecule("CO2")
+    #         H2O = molecule("H2O")
 
-            co2_out = desc.create(CO2, positions=[1])[0, :]
-            h2o_out = desc.create(H2O, positions=[1])[0, :]
+    #         co2_out = desc.create(CO2, positions=[1])[0, :]
+    #         h2o_out = desc.create(H2O, positions=[1])[0, :]
 
-            loc_xh = desc.get_location(("X", "H"))
-            loc_xc = desc.get_location(("X", "C"))
-            loc_xo = desc.get_location(("X", "O"))
+    #         loc_xh = desc.get_location(("X", "H"))
+    #         loc_xc = desc.get_location(("X", "C"))
+    #         loc_xo = desc.get_location(("X", "O"))
 
-            # X-H
-            self.assertTrue(co2_out[loc_xh].sum() == 0)
-            self.assertTrue(h2o_out[loc_xh].sum() != 0)
+    #         # X-H
+    #         self.assertTrue(co2_out[loc_xh].sum() == 0)
+    #         self.assertTrue(h2o_out[loc_xh].sum() != 0)
 
-            # X-C
-            self.assertTrue(co2_out[loc_xc].sum() != 0)
-            self.assertTrue(h2o_out[loc_xc].sum() == 0)
+    #         # X-C
+    #         self.assertTrue(co2_out[loc_xc].sum() != 0)
+    #         self.assertTrue(h2o_out[loc_xc].sum() == 0)
 
-            # X-O
-            self.assertTrue(co2_out[loc_xo].sum() != 0)
-            self.assertTrue(h2o_out[loc_xo].sum() != 0)
+    #         # X-O
+    #         self.assertTrue(co2_out[loc_xo].sum() != 0)
+    #         self.assertTrue(h2o_out[loc_xo].sum() != 0)
 
-    def test_locations_k3(self):
-        """Tests that the function used to query combination locations for k=2
-        in the output works.
-        """
+    # def test_locations_k3(self):
+    #     """Tests that the function used to query combination locations for k=2
+    #     in the output works.
+    #     """
 
-        CO2 = molecule("CO2")
-        H2O = molecule("H2O")
-        descriptors = [
-            copy.deepcopy(default_desc_k3),
-            copy.deepcopy(default_desc_k2_k3),
-        ]
+    #     CO2 = molecule("CO2")
+    #     H2O = molecule("H2O")
+    #     descriptors = [
+    #         copy.deepcopy(default_desc_k3),
+    #         copy.deepcopy(default_desc_k2_k3),
+    #     ]
 
-        for desc in descriptors:
-            desc.periodic = False
-            desc.species = ["H", "O", "C"]
-            co2_out = desc.create(CO2, positions=[1])[0, :]
-            h2o_out = desc.create(H2O, positions=[1])[0, :]
+    #     for desc in descriptors:
+    #         desc.periodic = False
+    #         desc.species = ["H", "O", "C"]
+    #         co2_out = desc.create(CO2, positions=[1])[0, :]
+    #         h2o_out = desc.create(H2O, positions=[1])[0, :]
 
-            loc_xhh = desc.get_location(("X", "H", "H"))
-            loc_xho = desc.get_location(("X", "H", "O"))
-            loc_xhc = desc.get_location(("X", "H", "C"))
-            loc_xoh = desc.get_location(("X", "O", "H"))
-            loc_xoo = desc.get_location(("X", "O", "O"))
-            loc_xoc = desc.get_location(("X", "O", "C"))
-            loc_xch = desc.get_location(("X", "C", "H"))
-            loc_xco = desc.get_location(("X", "C", "O"))
-            loc_xcc = desc.get_location(("X", "C", "C"))
-            loc_hxh = desc.get_location(("H", "X", "H"))
-            loc_hxo = desc.get_location(("H", "X", "O"))
-            loc_hxc = desc.get_location(("H", "X", "C"))
-            loc_cxo = desc.get_location(("C", "X", "O"))
-            loc_oxo = desc.get_location(("O", "X", "O"))
-            loc_cxc = desc.get_location(("C", "X", "C"))
+    #         loc_xhh = desc.get_location(("X", "H", "H"))
+    #         loc_xho = desc.get_location(("X", "H", "O"))
+    #         loc_xhc = desc.get_location(("X", "H", "C"))
+    #         loc_xoh = desc.get_location(("X", "O", "H"))
+    #         loc_xoo = desc.get_location(("X", "O", "O"))
+    #         loc_xoc = desc.get_location(("X", "O", "C"))
+    #         loc_xch = desc.get_location(("X", "C", "H"))
+    #         loc_xco = desc.get_location(("X", "C", "O"))
+    #         loc_xcc = desc.get_location(("X", "C", "C"))
+    #         loc_hxh = desc.get_location(("H", "X", "H"))
+    #         loc_hxo = desc.get_location(("H", "X", "O"))
+    #         loc_hxc = desc.get_location(("H", "X", "C"))
+    #         loc_cxo = desc.get_location(("C", "X", "O"))
+    #         loc_oxo = desc.get_location(("O", "X", "O"))
+    #         loc_cxc = desc.get_location(("C", "X", "C"))
 
-            # X-H-H
-            self.assertTrue(co2_out[loc_xhh].sum() == 0)
-            self.assertTrue(h2o_out[loc_xhh].sum() == 0)
+    #         # X-H-H
+    #         self.assertTrue(co2_out[loc_xhh].sum() == 0)
+    #         self.assertTrue(h2o_out[loc_xhh].sum() == 0)
 
-            # X-H-O
-            self.assertTrue(co2_out[loc_xho].sum() == 0)
-            self.assertTrue(h2o_out[loc_xho].sum() != 0)
+    #         # X-H-O
+    #         self.assertTrue(co2_out[loc_xho].sum() == 0)
+    #         self.assertTrue(h2o_out[loc_xho].sum() != 0)
 
-            # X-H-C
-            self.assertTrue(co2_out[loc_xhc].sum() == 0)
-            self.assertTrue(h2o_out[loc_xhc].sum() == 0)
+    #         # X-H-C
+    #         self.assertTrue(co2_out[loc_xhc].sum() == 0)
+    #         self.assertTrue(h2o_out[loc_xhc].sum() == 0)
 
-            # X-O-H
-            self.assertTrue(co2_out[loc_xoh].sum() == 0)
-            self.assertTrue(h2o_out[loc_xoh].sum() != 0)
+    #         # X-O-H
+    #         self.assertTrue(co2_out[loc_xoh].sum() == 0)
+    #         self.assertTrue(h2o_out[loc_xoh].sum() != 0)
 
-            # X-O-O
-            self.assertTrue(co2_out[loc_xoo].sum() == 0)
-            self.assertTrue(h2o_out[loc_xoo].sum() == 0)
+    #         # X-O-O
+    #         self.assertTrue(co2_out[loc_xoo].sum() == 0)
+    #         self.assertTrue(h2o_out[loc_xoo].sum() == 0)
 
-            # X-O-C
-            self.assertTrue(co2_out[loc_xoc].sum() != 0)
-            self.assertTrue(h2o_out[loc_xoc].sum() == 0)
+    #         # X-O-C
+    #         self.assertTrue(co2_out[loc_xoc].sum() != 0)
+    #         self.assertTrue(h2o_out[loc_xoc].sum() == 0)
 
-            # X-C-H
-            self.assertTrue(co2_out[loc_xch].sum() == 0)
-            self.assertTrue(h2o_out[loc_xch].sum() == 0)
+    #         # X-C-H
+    #         self.assertTrue(co2_out[loc_xch].sum() == 0)
+    #         self.assertTrue(h2o_out[loc_xch].sum() == 0)
 
-            # X-C-O
-            self.assertTrue(co2_out[loc_xco].sum() != 0)
-            self.assertTrue(h2o_out[loc_xco].sum() == 0)
+    #         # X-C-O
+    #         self.assertTrue(co2_out[loc_xco].sum() != 0)
+    #         self.assertTrue(h2o_out[loc_xco].sum() == 0)
 
-            # X-C-C
-            self.assertTrue(co2_out[loc_xcc].sum() == 0)
-            self.assertTrue(h2o_out[loc_xcc].sum() == 0)
+    #         # X-C-C
+    #         self.assertTrue(co2_out[loc_xcc].sum() == 0)
+    #         self.assertTrue(h2o_out[loc_xcc].sum() == 0)
 
-            # H-X-H
-            self.assertTrue(co2_out[loc_hxh].sum() == 0)
-            self.assertTrue(h2o_out[loc_hxh].sum() == 0)
+    #         # H-X-H
+    #         self.assertTrue(co2_out[loc_hxh].sum() == 0)
+    #         self.assertTrue(h2o_out[loc_hxh].sum() == 0)
 
-            # H-X-O
-            self.assertTrue(co2_out[loc_hxo].sum() == 0)
-            self.assertTrue(h2o_out[loc_hxo].sum() != 0)
+    #         # H-X-O
+    #         self.assertTrue(co2_out[loc_hxo].sum() == 0)
+    #         self.assertTrue(h2o_out[loc_hxo].sum() != 0)
 
-            # H-X-C
-            self.assertTrue(co2_out[loc_hxc].sum() == 0)
-            self.assertTrue(h2o_out[loc_hxc].sum() == 0)
+    #         # H-X-C
+    #         self.assertTrue(co2_out[loc_hxc].sum() == 0)
+    #         self.assertTrue(h2o_out[loc_hxc].sum() == 0)
 
-            # C-X-O
-            self.assertTrue(co2_out[loc_cxo].sum() != 0)
-            self.assertTrue(h2o_out[loc_cxo].sum() == 0)
+    #         # C-X-O
+    #         self.assertTrue(co2_out[loc_cxo].sum() != 0)
+    #         self.assertTrue(h2o_out[loc_cxo].sum() == 0)
 
-            # O-X-O
-            self.assertTrue(co2_out[loc_oxo].sum() == 0)
-            self.assertTrue(h2o_out[loc_oxo].sum() == 0)
+    #         # O-X-O
+    #         self.assertTrue(co2_out[loc_oxo].sum() == 0)
+    #         self.assertTrue(h2o_out[loc_oxo].sum() == 0)
 
-            # C-X-C
-            self.assertTrue(co2_out[loc_cxc].sum() == 0)
-            self.assertTrue(h2o_out[loc_cxc].sum() == 0)
+    #         # C-X-C
+    #         self.assertTrue(co2_out[loc_cxc].sum() == 0)
+    #         self.assertTrue(h2o_out[loc_cxc].sum() == 0)
 
-    def test_flatten(self):
-        system = H2O
-        n_elem = len(set(system.get_atomic_numbers())) + 1
+    # def test_flatten(self):
+    #     system = H2O
+    #     n_elem = len(set(system.get_atomic_numbers())) + 1
 
-        # K2 unflattened
-        desc = copy.deepcopy(default_desc_k2)
-        desc.flatten = False
-        feat = desc.create(system)
-        self.assertEqual(feat[0]["k2"].shape, (n_elem, nk2))
+    #     # K2 unflattened
+    #     desc = copy.deepcopy(default_desc_k2)
+    #     desc.flatten = False
+    #     feat = desc.create(system)
+    #     self.assertEqual(feat[0]["k2"].shape, (n_elem, nk2))
 
-        # K2 flattened. The sparse matrix only supports 2D matrices, so the first
-        # dimension is always present, even if it is of length 1.
-        desc = copy.deepcopy(default_desc_k2)
-        desc.flatten = True
-        feat_flat = desc.create(system)
-        self.assertEqual(feat_flat.shape, (3, n_elem * nk2))
+    #     # K2 flattened. The sparse matrix only supports 2D matrices, so the first
+    #     # dimension is always present, even if it is of length 1.
+    #     desc = copy.deepcopy(default_desc_k2)
+    #     desc.flatten = True
+    #     feat_flat = desc.create(system)
+    #     self.assertEqual(feat_flat.shape, (3, n_elem * nk2))
 
-        # Check that the elements in flattened and unflattened match
-        sorted_species = sorted(desc._atomic_numbers + [0])
-        for i_pos in range(len(system)):
-            for i_species in range(len(sorted_species)):
-                i_z = sorted_species[i_species]
-                slc = desc.get_location((0, i_z))
-                i_flat = feat_flat[i_pos, slc]
-                i_unflat = feat[i_pos]["k2"][i_species]
-                self.assertTrue(np.array_equal(i_flat, i_unflat))
+    #     # Check that the elements in flattened and unflattened match
+    #     sorted_species = sorted(desc._atomic_numbers + [0])
+    #     for i_pos in range(len(system)):
+    #         for i_species in range(len(sorted_species)):
+    #             i_z = sorted_species[i_species]
+    #             slc = desc.get_location((0, i_z))
+    #             i_flat = feat_flat[i_pos, slc]
+    #             i_unflat = feat[i_pos]["k2"][i_species]
+    #             self.assertTrue(np.array_equal(i_flat, i_unflat))
 
-    def test_sparse(self):
-        """Tests the sparse matrix creation."""
-        # Dense
-        desc = copy.deepcopy(default_desc_k2_k3)
-        desc.sparse = False
-        vec = desc.create(H2O, positions=[0])
-        self.assertTrue(type(vec) == np.ndarray)
+    # def test_sparse(self):
+    #     """Tests the sparse matrix creation."""
+    #     # Dense
+    #     desc = copy.deepcopy(default_desc_k2_k3)
+    #     desc.sparse = False
+    #     vec = desc.create(H2O, positions=[0])
+    #     self.assertTrue(type(vec) == np.ndarray)
 
-        # Sparse
-        desc = copy.deepcopy(default_desc_k2_k3)
-        desc.sparse = True
-        vec = desc.create(H2O, positions=[0])
-        self.assertTrue(type(vec) == sparse.COO)
+    #     # Sparse
+    #     desc = copy.deepcopy(default_desc_k2_k3)
+    #     desc.sparse = True
+    #     vec = desc.create(H2O, positions=[0])
+    #     self.assertTrue(type(vec) == sparse.COO)
 
-    def test_dtype(self):
-        """Tests that the the specified data type is respected."""
+    # def test_dtype(self):
+    #     """Tests that the the specified data type is respected."""
 
-        # Dense, flatten, float32
-        desc = copy.deepcopy(default_desc_k2)
-        desc.sparse = False
-        desc.flatten = True
-        desc.dtype = "float32"
-        vec = desc.create(H2O)
-        self.assertTrue(vec.dtype == np.float32)
+    #     # Dense, flatten, float32
+    #     desc = copy.deepcopy(default_desc_k2)
+    #     desc.sparse = False
+    #     desc.flatten = True
+    #     desc.dtype = "float32"
+    #     vec = desc.create(H2O)
+    #     self.assertTrue(vec.dtype == np.float32)
 
-        # Sparse, flatten, float32
-        desc = copy.deepcopy(default_desc_k2)
-        desc.sparse = True
-        desc.flatten = True
-        desc.dtype = "float32"
-        vec = desc.create(H2O)
-        self.assertTrue(vec.dtype == np.float32)
+    #     # Sparse, flatten, float32
+    #     desc = copy.deepcopy(default_desc_k2)
+    #     desc.sparse = True
+    #     desc.flatten = True
+    #     desc.dtype = "float32"
+    #     vec = desc.create(H2O)
+    #     self.assertTrue(vec.dtype == np.float32)
 
-        # Non-flattened, float32
-        desc = copy.deepcopy(default_desc_k2_k3)
-        desc.sparse = False
-        desc.flatten = False
-        desc.dtype = "float32"
-        vec = desc.create(H2O)
-        self.assertTrue(vec[0]["k2"].dtype == np.float32)
-        self.assertTrue(vec[0]["k3"].dtype == np.float32)
+    #     # Non-flattened, float32
+    #     desc = copy.deepcopy(default_desc_k2_k3)
+    #     desc.sparse = False
+    #     desc.flatten = False
+    #     desc.dtype = "float32"
+    #     vec = desc.create(H2O)
+    #     self.assertTrue(vec[0]["k2"].dtype == np.float32)
+    #     self.assertTrue(vec[0]["k3"].dtype == np.float32)
 
-        # Dense, flatten, float64
-        desc = copy.deepcopy(default_desc_k2)
-        desc.sparse = False
-        desc.flatten = True
-        desc.dtype = "float64"
-        vec = desc.create(H2O)
-        self.assertTrue(vec.dtype == np.float64)
+    #     # Dense, flatten, float64
+    #     desc = copy.deepcopy(default_desc_k2)
+    #     desc.sparse = False
+    #     desc.flatten = True
+    #     desc.dtype = "float64"
+    #     vec = desc.create(H2O)
+    #     self.assertTrue(vec.dtype == np.float64)
 
-        # Dense, flatten, float64
-        desc = copy.deepcopy(default_desc_k2)
-        desc.sparse = True
-        desc.flatten = True
-        desc.dtype = "float64"
-        vec = desc.create(H2O)
-        self.assertTrue(vec.dtype == np.float64)
+    #     # Dense, flatten, float64
+    #     desc = copy.deepcopy(default_desc_k2)
+    #     desc.sparse = True
+    #     desc.flatten = True
+    #     desc.dtype = "float64"
+    #     vec = desc.create(H2O)
+    #     self.assertTrue(vec.dtype == np.float64)
 
-        # Non-flattened, float32
-        desc = copy.deepcopy(default_desc_k2_k3)
-        desc.sparse = False
-        desc.flatten = False
-        desc.dtype = "float64"
-        vec = desc.create(H2O)
-        self.assertTrue(vec[0]["k2"].dtype == np.float64)
-        self.assertTrue(vec[0]["k3"].dtype == np.float64)
+    #     # Non-flattened, float32
+    #     desc = copy.deepcopy(default_desc_k2_k3)
+    #     desc.sparse = False
+    #     desc.flatten = False
+    #     desc.dtype = "float64"
+    #     vec = desc.create(H2O)
+    #     self.assertTrue(vec[0]["k2"].dtype == np.float64)
+    #     self.assertTrue(vec[0]["k3"].dtype == np.float64)
 
-    def test_parallel_dense(self):
-        """Tests creating dense output parallelly."""
-        samples = [molecule("CO"), molecule("N2O")]
-        desc = copy.deepcopy(default_desc_k2)
-        desc.species = ["C", "O", "N"]
-        n_features = desc.get_number_of_features()
+    # def test_parallel_dense(self):
+    #     """Tests creating dense output parallelly."""
+    #     samples = [molecule("CO"), molecule("N2O")]
+    #     desc = copy.deepcopy(default_desc_k2)
+    #     desc.species = ["C", "O", "N"]
+    #     n_features = desc.get_number_of_features()
 
-        # Determining number of jobs based on the amount of CPUs
-        desc.create(system=samples, n_jobs=-1, only_physical_cores=False)
-        desc.create(system=samples, n_jobs=-1, only_physical_cores=True)
+    #     # Determining number of jobs based on the amount of CPUs
+    #     desc.create(system=samples, n_jobs=-1, only_physical_cores=False)
+    #     desc.create(system=samples, n_jobs=-1, only_physical_cores=True)
 
-        # Multiple systems, serial job, fixed size
-        output = desc.create(
-            system=samples,
-            positions=[[0, 1], [0, 1]],
-            n_jobs=1,
-        )
-        assumed = np.empty((2, 2, n_features))
-        assumed[0, 0] = desc.create(samples[0], [0])
-        assumed[0, 1] = desc.create(samples[0], [1])
-        assumed[1, 0] = desc.create(samples[1], [0])
-        assumed[1, 1] = desc.create(samples[1], [1])
-        self.assertTrue(np.allclose(output, assumed))
+    #     # Multiple systems, serial job, fixed size
+    #     output = desc.create(
+    #         system=samples,
+    #         positions=[[0, 1], [0, 1]],
+    #         n_jobs=1,
+    #     )
+    #     assumed = np.empty((2, 2, n_features))
+    #     assumed[0, 0] = desc.create(samples[0], [0])
+    #     assumed[0, 1] = desc.create(samples[0], [1])
+    #     assumed[1, 0] = desc.create(samples[1], [0])
+    #     assumed[1, 1] = desc.create(samples[1], [1])
+    #     self.assertTrue(np.allclose(output, assumed))
 
-        # Multiple systems, parallel job, fixed size
-        output = desc.create(
-            system=samples,
-            positions=[[0, 1], [0, 1]],
-            n_jobs=2,
-        )
-        assumed = np.empty((2, 2, n_features))
-        assumed[0, 0] = desc.create(samples[0], [0])
-        assumed[0, 1] = desc.create(samples[0], [1])
-        assumed[1, 0] = desc.create(samples[1], [0])
-        assumed[1, 1] = desc.create(samples[1], [1])
-        self.assertTrue(np.allclose(output, assumed))
+    #     # Multiple systems, parallel job, fixed size
+    #     output = desc.create(
+    #         system=samples,
+    #         positions=[[0, 1], [0, 1]],
+    #         n_jobs=2,
+    #     )
+    #     assumed = np.empty((2, 2, n_features))
+    #     assumed[0, 0] = desc.create(samples[0], [0])
+    #     assumed[0, 1] = desc.create(samples[0], [1])
+    #     assumed[1, 0] = desc.create(samples[1], [0])
+    #     assumed[1, 1] = desc.create(samples[1], [1])
+    #     self.assertTrue(np.allclose(output, assumed))
 
-        # Test with cartesian positions.
-        output = desc.create(
-            system=samples,
-            positions=[[[0, 0, 0]], [[1, 2, 0]]],
-            n_jobs=2,
-        )
-        assumed = np.empty((2, 1, n_features))
-        assumed[0, 0] = desc.create(samples[0], [[0, 0, 0]])
-        assumed[1, 0] = desc.create(samples[1], [[1, 2, 0]])
-        self.assertTrue(np.allclose(output, assumed))
+    #     # Test with cartesian positions.
+    #     output = desc.create(
+    #         system=samples,
+    #         positions=[[[0, 0, 0]], [[1, 2, 0]]],
+    #         n_jobs=2,
+    #     )
+    #     assumed = np.empty((2, 1, n_features))
+    #     assumed[0, 0] = desc.create(samples[0], [[0, 0, 0]])
+    #     assumed[1, 0] = desc.create(samples[1], [[1, 2, 0]])
+    #     self.assertTrue(np.allclose(output, assumed))
 
-        # Multiple systems, parallel job, indices, variable size
-        output = desc.create(
-            system=samples,
-            positions=[[0], [0, 1]],
-            n_jobs=2,
-        )
-        self.assertTrue(np.allclose(output[0][0], desc.create(samples[0], [0])))
-        self.assertTrue(np.allclose(output[1][0], desc.create(samples[1], [0])))
-        self.assertTrue(np.allclose(output[1][1], desc.create(samples[1], [1])))
+    #     # Multiple systems, parallel job, indices, variable size
+    #     output = desc.create(
+    #         system=samples,
+    #         positions=[[0], [0, 1]],
+    #         n_jobs=2,
+    #     )
+    #     self.assertTrue(np.allclose(output[0][0], desc.create(samples[0], [0])))
+    #     self.assertTrue(np.allclose(output[1][0], desc.create(samples[1], [0])))
+    #     self.assertTrue(np.allclose(output[1][1], desc.create(samples[1], [1])))
 
-    def test_parallel_sparse(self):
-        """Tests creating sparse output parallelly."""
-        # Test indices
-        samples = [molecule("CO"), molecule("N2O")]
-        desc = copy.deepcopy(default_desc_k2)
-        desc.species = ["C", "O", "N"]
-        desc.sparse = True
-        n_features = desc.get_number_of_features()
+    # def test_parallel_sparse(self):
+    #     """Tests creating sparse output parallelly."""
+    #     # Test indices
+    #     samples = [molecule("CO"), molecule("N2O")]
+    #     desc = copy.deepcopy(default_desc_k2)
+    #     desc.species = ["C", "O", "N"]
+    #     desc.sparse = True
+    #     n_features = desc.get_number_of_features()
 
-        # Multiple systems, serial job, fixed size
-        output = desc.create(
-            system=samples,
-            positions=[[0, 1], [0, 1]],
-            n_jobs=1,
-        ).todense()
-        assumed = np.empty((2, 2, n_features))
-        assumed[0, 0] = desc.create(samples[0], [0]).todense()
-        assumed[0, 1] = desc.create(samples[0], [1]).todense()
-        assumed[1, 0] = desc.create(samples[1], [0]).todense()
-        assumed[1, 1] = desc.create(samples[1], [1]).todense()
-        self.assertTrue(np.allclose(output, assumed))
+    #     # Multiple systems, serial job, fixed size
+    #     output = desc.create(
+    #         system=samples,
+    #         positions=[[0, 1], [0, 1]],
+    #         n_jobs=1,
+    #     ).todense()
+    #     assumed = np.empty((2, 2, n_features))
+    #     assumed[0, 0] = desc.create(samples[0], [0]).todense()
+    #     assumed[0, 1] = desc.create(samples[0], [1]).todense()
+    #     assumed[1, 0] = desc.create(samples[1], [0]).todense()
+    #     assumed[1, 1] = desc.create(samples[1], [1]).todense()
+    #     self.assertTrue(np.allclose(output, assumed))
 
-        # Multiple systems, parallel job, fixed size
-        output = desc.create(
-            system=samples,
-            positions=[[0, 1], [0, 1]],
-            n_jobs=2,
-        ).todense()
-        assumed = np.empty((2, 2, n_features))
-        assumed[0, 0] = desc.create(samples[0], [0]).todense()
-        assumed[0, 1] = desc.create(samples[0], [1]).todense()
-        assumed[1, 0] = desc.create(samples[1], [0]).todense()
-        assumed[1, 1] = desc.create(samples[1], [1]).todense()
-        self.assertTrue(np.allclose(output, assumed))
+    #     # Multiple systems, parallel job, fixed size
+    #     output = desc.create(
+    #         system=samples,
+    #         positions=[[0, 1], [0, 1]],
+    #         n_jobs=2,
+    #     ).todense()
+    #     assumed = np.empty((2, 2, n_features))
+    #     assumed[0, 0] = desc.create(samples[0], [0]).todense()
+    #     assumed[0, 1] = desc.create(samples[0], [1]).todense()
+    #     assumed[1, 0] = desc.create(samples[1], [0]).todense()
+    #     assumed[1, 1] = desc.create(samples[1], [1]).todense()
+    #     self.assertTrue(np.allclose(output, assumed))
 
-        # Test with cartesian positions. In this case virtual positions have to
-        # be enabled.
-        output = desc.create(
-            system=samples,
-            positions=[[[0, 0, 0]], [[1, 2, 0]]],
-            n_jobs=2,
-        ).todense()
-        assumed = np.empty((2, 1, n_features))
-        assumed[0, 0] = desc.create(samples[0], [[0, 0, 0]]).todense()
-        assumed[1, 0] = desc.create(samples[1], [[1, 2, 0]]).todense()
-        self.assertTrue(np.allclose(output, assumed))
+    #     # Test with cartesian positions. In this case virtual positions have to
+    #     # be enabled.
+    #     output = desc.create(
+    #         system=samples,
+    #         positions=[[[0, 0, 0]], [[1, 2, 0]]],
+    #         n_jobs=2,
+    #     ).todense()
+    #     assumed = np.empty((2, 1, n_features))
+    #     assumed[0, 0] = desc.create(samples[0], [[0, 0, 0]]).todense()
+    #     assumed[1, 0] = desc.create(samples[1], [[1, 2, 0]]).todense()
+    #     self.assertTrue(np.allclose(output, assumed))
 
-        # Multiple systems, parallel job, indices, variable size
-        output = desc.create(
-            system=samples,
-            positions=[[0], [0, 1]],
-            n_jobs=2,
-        )
-        self.assertTrue(
-            np.allclose(output[0][0].todense(), desc.create(samples[0], [0]).todense())
-        )
-        self.assertTrue(
-            np.allclose(output[1][0].todense(), desc.create(samples[1], [0]).todense())
-        )
-        self.assertTrue(
-            np.allclose(output[1][1].todense(), desc.create(samples[1], [1]).todense())
-        )
+    #     # Multiple systems, parallel job, indices, variable size
+    #     output = desc.create(
+    #         system=samples,
+    #         positions=[[0], [0, 1]],
+    #         n_jobs=2,
+    #     )
+    #     self.assertTrue(
+    #         np.allclose(output[0][0].todense(), desc.create(samples[0], [0]).todense())
+    #     )
+    #     self.assertTrue(
+    #         np.allclose(output[1][0].todense(), desc.create(samples[1], [0]).todense())
+    #     )
+    #     self.assertTrue(
+    #         np.allclose(output[1][1].todense(), desc.create(samples[1], [1]).todense())
+    #     )
 
     def test_k2_peaks_finite(self):
         """Tests the correct peak locations and intensities are found for the
@@ -779,21 +779,21 @@ class LMBTRTests(TestBaseClass, unittest.TestCase):
         features[desc.get_location(("H", "X", "H"))] = 0
         self.assertEqual(features.sum(), 0)
 
-    def test_symmetries(self):
-        """Tests translational and rotational symmetries for a finite system."""
-        desc = copy.deepcopy(default_desc_k2_k3)
+    # def test_symmetries(self):
+    #     """Tests translational and rotational symmetries for a finite system."""
+    #     desc = copy.deepcopy(default_desc_k2_k3)
 
-        def create_1(system):
-            """This function uses atom indices so rotation and translation
-            should not affect it.
-            """
-            return desc.create(system, positions=[0])
+    #     def create_1(system):
+    #         """This function uses atom indices so rotation and translation
+    #         should not affect it.
+    #         """
+    #         return desc.create(system, positions=[0])
 
-        # Rotational check
-        self.assertTrue(self.is_rotationally_symmetric(create_1))
+    #     # Rotational check
+    #     self.assertTrue(self.is_rotationally_symmetric(create_1))
 
-        # Translational
-        self.assertTrue(self.is_translationally_symmetric(create_1))
+    #     # Translational
+    #     self.assertTrue(self.is_translationally_symmetric(create_1))
 
 
 if __name__ == "__main__":

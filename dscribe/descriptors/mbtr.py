@@ -700,6 +700,9 @@ class MBTR(DescriptorGlobal):
                     raise ValueError("Invalid chemical species: {}".format(specie))
             numbers.append(specie)
 
+        # Check that species exists
+        self.check_atomic_numbers(numbers)
+
         # Change into internal indexing
         numbers = [self.atomic_number_to_index[x] for x in numbers]
         n_elem = self.n_elements

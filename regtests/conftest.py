@@ -1,4 +1,5 @@
 import math
+import itertools
 import numpy as np
 import sparse
 import pytest
@@ -11,6 +12,29 @@ from dscribe.descriptors.descriptorlocal import DescriptorLocal
 """
 Contains a set of shared test functions.
 """
+setup_k1 = {
+    "k1": {
+        "geometry": {"function": "atomic_number"},
+        "grid": {"min": 1, "max": 8, "sigma": 0.1, "n": 50},
+        "weighting": {"function": "unity"},
+    },
+}
+
+setup_k2 = {
+    "k2": {
+        "geometry": {"function": "inverse_distance"},
+        "grid": {"min": 0, "max": 1 / 0.7, "sigma": 0.1, "n": 50},
+        "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-2},
+    },
+}
+
+setup_k3 = {
+    "k3": {
+        "geometry": {"function": "angle"},
+        "grid": {"min": 0, "max": 180, "sigma": 2, "n": 50},
+        "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-2},
+    }
+}
 
 
 def big_system():
@@ -580,3 +604,49 @@ def assert_matrix_descriptor_random(descriptor_func):
     observed = count / rand_instances
 
     assert abs(expected - observed) <= 1e-2
+
+
+def assert_mbtr_location(descriptor_func, k):
+    """Tests that the function used to query combination locations in the MBTR
+    output works.
+    """
+    species = ["H", "O", "C"]
+    systems = [molecule("CO2"), molecule("H2O")]
+
+    setup = globals()[f"setup_k{k}"]
+    desc = descriptor_func(**setup, periodic=False, species=species)([])
+    is_local = isinstance(desc, DescriptorLocal)
+
+    # The central atom species X is added for local MBTR flavors.
+    if is_local:
+        combinations = itertools.product(species + ["X"], repeat=k)
+        combinations = list(filter(lambda x: "X" in x, combinations))
+    else:
+        combinations = list(itertools.product(species, repeat=k))
+
+
+    for system in systems:
+        feat = desc.create(system)
+        symbols = system.get_chemical_symbols()
+        if is_local:
+            feat = feat.mean(axis=0)
+            system_combinations = itertools.permutations(symbols + ["X"], k)
+            system_combinations = list(filter(lambda x: "X" in x, system_combinations))
+        else:
+            system_combinations = list(itertools.permutations(symbols, k))
+
+        for combination in combinations:
+            loc = desc.get_location(combination)
+            exists = combination in system_combinations
+            combination_feats = feat[loc].sum()
+            if exists:
+                assert combination_feats != 0
+            else:
+                assert combination_feats == 0
+
+
+def assert_mbtr_location_exception(desc, location):
+    """Test that an exception is raise when invalid location is requested.
+    """
+    with pytest.raises(ValueError):
+        desc.get_location(location)
