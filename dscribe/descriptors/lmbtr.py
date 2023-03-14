@@ -692,7 +692,6 @@ class LMBTR(MBTR, DescriptorLocal):
         ext_pos = ext_system.get_positions()
         new_pos = new_system.get_positions()
         if radial_cutoff is not None:
-
             # Calculate distance within the extended system
             dmat_ext_to_ext = ext_system.get_distance_matrix_within_radius(
                 radial_cutoff, pos=ext_pos

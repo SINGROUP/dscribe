@@ -318,7 +318,6 @@ class EwaldSumMatrix(DescriptorMatrix):
         # infinite system within the real space cutoff and calculate the real
         # space portion of the Ewald sum.
         for i in range(n_atoms):
-
             # Get points that are within the real space cutoff
             nfcoords, rij, js = lattice.get_points_in_sphere(
                 fcoords, coords[i], self.r_cut, zip_results=False
@@ -386,7 +385,6 @@ class EwaldSumMatrix(DescriptorMatrix):
         qiqj = charges[None, :] * charges[:, None]
 
         for gr, factor in zip(grs, factors):
-
             # Uses the identity sin(x)+cos(x) = 2**0.5 sin(x + pi/4)
             m = (gr[None, :] + math.pi / 4) - gr[:, None]
             np.sin(m, m)

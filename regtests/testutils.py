@@ -322,7 +322,6 @@ def integral(args, n, l, m, elem_pos, rbf_function):
     p2 = 2 * np.pi
 
     def soap_coeff(phi, theta, r):
-
         # Regular spherical harmonic, notice the abs(m)
         # needed for constructing the real form
         ylm_comp = scipy.special.sph_harm(

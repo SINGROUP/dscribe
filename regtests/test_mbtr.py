@@ -640,7 +640,7 @@ def test_peaks(system, k, geometry, grid, weighting, periodic, peaks, prominence
     x = np.linspace(start, stop, n)
 
     # Check that the correct peaks can be found
-    for (location, peak_x, peak_y) in peaks:
+    for location, peak_x, peak_y in peaks:
         feat = features[desc.get_location(location)]
 
         # import matplotlib.pyplot as mpl

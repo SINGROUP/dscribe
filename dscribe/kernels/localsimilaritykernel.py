@@ -95,7 +95,6 @@ class LocalSimilarityKernel(ABC):
         C_ij_dict = {}
         for i in range(n_x):
             for j in range(n_y):
-
                 # Skip lower triangular part for symmetric matrices
                 if symmetric and j < i:
                     continue
@@ -122,7 +121,6 @@ class LocalSimilarityKernel(ABC):
         K_ij = np.zeros((n_x, n_y))
         for i in range(n_x):
             for j in range(n_y):
-
                 # Skip lower triangular part for symmetric matrices
                 if symmetric and j < i:
                     continue

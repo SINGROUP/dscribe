@@ -544,10 +544,8 @@ def test_padding():
 
         # Loop over different radial cutoffs
         for r_cut in np.linspace(2, 10, 11):
-
             # Loop over different sigmas
             for sigma in np.linspace(0.5, 2, 4):
-
                 # Create descriptor generators
                 soap_generator = SOAP(
                     r_cut=r_cut,

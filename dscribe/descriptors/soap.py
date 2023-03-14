@@ -511,7 +511,6 @@ class SOAP(DescriptorLocal):
 
         # Determine the function to call based on rbf
         if self._rbf == "gto":
-
             # Orthonormalized RBF coefficients
             alphas = self._alphas.flatten()
             betas = self._betas.flatten()

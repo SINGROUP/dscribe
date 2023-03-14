@@ -374,7 +374,6 @@ class GaussianTests(unittest.TestCase):
 
         # Calculate errors for dfferent number of points
         for n_points in range(2, 10):
-
             axis = np.linspace(start, stop, n_points)
 
             # Calculate with cumulative function (cdf)
@@ -550,7 +549,6 @@ class DescriptorTests(unittest.TestCase):
 
 
 if __name__ == "__main__":
-
     suites = []
     suites.append(unittest.TestLoader().loadTestsFromTestCase(ASETests))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(DistanceTests))
