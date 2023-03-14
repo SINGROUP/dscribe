@@ -1227,10 +1227,8 @@ class SoapTests(TestBaseClass, unittest.TestCase):
 
             # Loop over different radial cutoffs
             for r_cut in np.linspace(2, 10, 11):
-
                 # Loop over different sigmas
                 for sigma in np.linspace(0.5, 2, 4):
-
                     # Create descriptor generators
                     soap_generator = SOAP(
                         r_cut=r_cut,
@@ -1291,7 +1289,6 @@ class SoapTests(TestBaseClass, unittest.TestCase):
                 {"function": "pow", "r0": 2, "c": 3, "d": 4, "m": 5},
                 {"function": "exp", "r0": 2, "c": 3, "d": 4},
             ]:
-
                 # Calculate the analytical power spectrum
                 soap = SOAP(**args, rbf=rbf, weighting=weighting)
                 analytical_power_spectrum = soap.create(system, positions=centers)

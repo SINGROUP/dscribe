@@ -270,7 +270,6 @@ class MBTR(Descriptor):
     @k1.setter
     def k1(self, value):
         if value is not None:
-
             # Check that only valid keys are used in the setups
             for key in value.keys():
                 valid_keys = set(("geometry", "grid", "weighting"))
@@ -313,7 +312,6 @@ class MBTR(Descriptor):
     @k2.setter
     def k2(self, value):
         if value is not None:
-
             # Check that only valid keys are used in the setups
             for key in value.keys():
                 valid_keys = set(("geometry", "grid", "weighting"))
@@ -373,7 +371,6 @@ class MBTR(Descriptor):
     @k3.setter
     def k3(self, value):
         if value is not None:
-
             # Check that only valid keys are used in the setups
             for key in value.keys():
                 valid_keys = set(("geometry", "grid", "weighting"))

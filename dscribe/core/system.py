@@ -46,7 +46,6 @@ class System(Atoms):
         wyckoff_positions=None,
         equivalent_atoms=None,
     ):
-
         super().__init__(
             symbols,
             positions,
@@ -157,7 +156,6 @@ class System(Atoms):
             np.array: 3D matrix containing the pairwise distance vectors.
         """
         if self._displacement_tensor is None:
-
             D, D_len = ase.geometry.geometry.get_distances(
                 self.get_positions(), cell=self.get_cell(), pbc=self.get_pbc()
             )
