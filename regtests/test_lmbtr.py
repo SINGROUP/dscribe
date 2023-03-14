@@ -17,7 +17,7 @@ from conftest import (
 # =============================================================================
 # Utilities
 default_k2 = {
-    'k2': {
+    "k2": {
         "geometry": {"function": "inverse_distance"},
         "grid": {"min": 0, "max": 1 / 0.7, "sigma": 0.1, "n": 50},
         "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-2},
@@ -25,7 +25,7 @@ default_k2 = {
 }
 
 default_k3 = {
-    'k3': {
+    "k3": {
         "geometry": {"function": "angle"},
         "grid": {"min": 0, "max": 180, "sigma": 2, "n": 50},
         "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-2},
@@ -60,9 +60,7 @@ def lmbtr_default_k2(**kwargs):
 @pytest.mark.parametrize(
     "setup, n_features",
     [
-        pytest.param(
-            default_k2, 3 * default_k2["k2"]["grid"]["n"], id="K2"
-        ),
+        pytest.param(default_k2, 3 * default_k2["k2"]["grid"]["n"], id="K2"),
         pytest.param(
             default_k3,
             3 * (3 * 3 - 1) * default_k3["k3"]["grid"]["n"] / 2,
@@ -146,13 +144,16 @@ def test_location(k):
     assert_mbtr_location(lmbtr, k)
 
 
-@pytest.mark.parametrize("location", [
-    pytest.param(["X", "G"], id="invalid species"),
-    pytest.param(["X", "O"], id="species not specified"),
-    pytest.param(["X", "H", "H"], id="invalid k"),
-])
+@pytest.mark.parametrize(
+    "location",
+    [
+        pytest.param(["X", "G"], id="invalid species"),
+        pytest.param(["X", "O"], id="species not specified"),
+        pytest.param(["X", "H", "H"], id="invalid k"),
+    ],
+)
 def test_location_exceptions(location):
-    assert_mbtr_location_exception(lmbtr(**default_k2, species=['H'])(), location)
+    assert_mbtr_location_exception(lmbtr(**default_k2, species=["H"])(), location)
 
 
 # =============================================================================

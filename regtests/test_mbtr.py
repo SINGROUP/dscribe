@@ -103,8 +103,14 @@ def k3_dict(weighting_function):
     "setup, n_features",
     [
         pytest.param(default_k1, 2 * default_k1["k1"]["grid"]["n"], id="K1"),
-        pytest.param(default_k2, 2 * default_k2["k2"]["grid"]["n"] * 1 / 2 * (2 + 1), id="K2"),
-        pytest.param(default_k3, 2 * default_k3["k3"]["grid"]["n"] * 1 / 2 * (2 + 1) * 2, id="K3",),
+        pytest.param(
+            default_k2, 2 * default_k2["k2"]["grid"]["n"] * 1 / 2 * (2 + 1), id="K2"
+        ),
+        pytest.param(
+            default_k3,
+            2 * default_k3["k3"]["grid"]["n"] * 1 / 2 * (2 + 1) * 2,
+            id="K3",
+        ),
     ],
 )
 def test_number_of_features(setup, n_features):
@@ -403,11 +409,14 @@ def test_location(k):
     assert_mbtr_location(mbtr, k)
 
 
-@pytest.mark.parametrize("location", [
-    pytest.param(['G'], id="invalid species"),
-    pytest.param(['O'], id="species not specified"),
-    pytest.param(['H', 'H'], id="invalid k"),
-])
+@pytest.mark.parametrize(
+    "location",
+    [
+        pytest.param(["G"], id="invalid species"),
+        pytest.param(["O"], id="species not specified"),
+        pytest.param(["H", "H"], id="invalid k"),
+    ],
+)
 def test_location_exceptions(location):
     assert_mbtr_location_exception(mbtr(**default_k3, species=["H"])(), location)
 

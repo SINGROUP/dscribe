@@ -624,7 +624,6 @@ def assert_mbtr_location(descriptor_func, k):
     else:
         combinations = list(itertools.product(species, repeat=k))
 
-
     for system in systems:
         feat = desc.create(system)
         symbols = system.get_chemical_symbols()
@@ -646,7 +645,6 @@ def assert_mbtr_location(descriptor_func, k):
 
 
 def assert_mbtr_location_exception(desc, location):
-    """Test that an exception is raise when invalid location is requested.
-    """
+    """Test that an exception is raise when invalid location is requested."""
     with pytest.raises(ValueError):
         desc.get_location(location)

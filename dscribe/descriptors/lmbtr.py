@@ -864,7 +864,9 @@ class LMBTR(MBTR, DescriptorLocal):
         # Check that species exists and that X is included
         self.check_atomic_numbers(numbers)
         if 0 not in numbers:
-            raise ValueError("The central species X (atomic number 0) has to be one of the elements.")
+            raise ValueError(
+                "The central species X (atomic number 0) has to be one of the elements."
+            )
 
         # Change into internal indexing
         numbers = [self.atomic_number_to_index[x] for x in numbers]
